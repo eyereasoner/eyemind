@@ -1,56 +1,56 @@
 [
   {
-    "file": "03-terms.txt",
+    "file": "03-terms.js",
     "spec": "3",
     "topic": "Unification, the occurs check, integers and floats, lists, the standard order"
   },
   {
-    "file": "04-programs.txt",
+    "file": "04-programs.js",
     "spec": "4",
     "topic": "Statements, clause numbering, names a program leaves undefined, rejected clauses, stratification"
   },
   {
-    "file": "05-controls-and-primitives.txt",
+    "file": "05-controls-and-primitives.js",
     "spec": "5",
     "topic": "Every control and primitive, and the errors of their flow patterns"
   },
   {
-    "file": "06-arithmetic.txt",
+    "file": "06-arithmetic.js",
     "spec": "6",
     "topic": "the meaning of every arithmetic term and function, exact integers, and each error"
   },
   {
-    "file": "07-reasoning.txt",
+    "file": "07-reasoning.js",
     "spec": "7",
     "topic": "Search order, forward rounds, Skolem names, conclusions, halting, bounds"
   },
   {
-    "file": "08-canonical-text.txt",
+    "file": "08-canonical-text.js",
     "spec": "8",
     "topic": "The one spelling of atoms, numbers, variables, lists, compounds and operators"
   },
   {
-    "file": "09-reading.txt",
+    "file": "09-reading.js",
     "spec": "9",
     "topic": "What a document reader accepts, and what it must reject without running anything"
   },
   {
-    "file": "10-proofs.txt",
+    "file": "10-proofs.js",
     "spec": "10",
     "topic": "Proof documents for every kind of justification, step order and sharing"
   },
   {
-    "file": "11-checking.txt",
+    "file": "11-checking.js",
     "spec": "11, 12",
     "topic": "Valid proofs and proofs tampered with to break each of C1-C7, with their exact reports"
   },
   {
-    "file": "13-unused.txt",
+    "file": "13-unused.js",
     "spec": "13",
     "topic": "Unused clauses, including those a negation or collection consults"
   },
   {
-    "file": "14-command-line.txt",
+    "file": "14-command-line.js",
     "spec": "14",
     "topic": "Options, their combinations, standard input, errors and exit codes"
   }

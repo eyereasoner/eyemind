@@ -3,7 +3,7 @@
 //
 //     node conformance/run.js                          every case, in this process
 //     node conformance/run.js --command "my-eyelit"    against another implementation
-//     node conformance/run.js -k skolem 07-reasoning.txt
+//     node conformance/run.js -k skolem 07-reasoning.js
 //
 // The case format is described in conformance/README.md.
 import { spawnSync } from 'node:child_process';
@@ -12,6 +12,8 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, isAbsolute, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { main as cliMain } from '../src/cli.js';
+import { readTerms } from '../src/reader.js';
+import { EMPTY, Struct } from '../src/terms.js';
 import { nodeIO } from '../src/node.js';
 
 export const HERE = dirname(fileURLToPath(import.meta.url));
@@ -30,7 +32,6 @@ class Case {
     this.files = {};
     this.stdin = null;
     this.stdout = null;
-    this.stdoutLiteral = false;
   }
 
   get where() {
@@ -38,66 +39,57 @@ class Case {
   }
 }
 
-// The cases of one file: '=== name' starts a case, 'key: value' lines set its
-// options, and '--- block' starts a block that runs to the next marker.
+// The cases of one file, an eyelit document: one
+// conformance(Name, [Setting, ...]) term per case, each block an array of
+// its lines (see README.md). The document is read, never run.
 export function parse(path) {
-  const cases = [];
-  let current = null;
-  let block = null;
-  let lines = [];
-  const closeBlock = () => {
-    if (current === null || block === null) return;
-    const text = lines.length ? `${lines.join('\n')}\n` : '';
-    if (block === 'stdin') {
-      current.stdin = text;
-    } else if (block === 'stdout' || block === 'stdout json') {
-      current.stdout = text;
-      if (block === 'stdout json') current.stdoutMode = 'json';
-    } else {
-      current.files[block] = text;
+  return readTerms(readFileSync(path, 'utf8')).map(([term, line]) => {
+    const where = `${basename(path)}:${line}`;
+    if (!(term instanceof Struct) || term.name !== 'conformance' || term.args.length !== 2 || typeof term.args[0] !== 'string') {
+      throw new Error(`${where}: expected conformance(Name, [Setting, ...])`);
     }
-  };
-  const source = readFileSync(path, 'utf8').split('\n');
-  if (source.length && source[source.length - 1] === '') source.pop();
-  source.forEach((line, index) => {
-    const number = index + 1;
-    if (line.startsWith('=== ')) {
-      closeBlock();
-      block = null;
-      lines = [];
-      current = new Case(line.slice(4).trim(), path, number);
-      cases.push(current);
-    } else if (line.startsWith('--- ')) {
-      closeBlock();
-      block = line.slice(4).trim();
-      lines = [];
-    } else if (block !== null) {
-      lines.push(line);
-    } else if (current !== null && line.trim() && !line.startsWith('#')) {
-      const colon = line.indexOf(':');
-      const key = line.slice(0, colon).trim();
-      const value = line.slice(colon + 1).trim();
-      if (key === 'spec') current.spec = value;
-      else if (key === 'args') current.args = value;
-      else if (key === 'exit') current.exit = Number(value);
-      else if (key === 'stderr') current.stderr = value;
-      else if (key === 'stdout' && value === 'nonempty') current.stdoutMode = 'nonempty';
-      else if (key === 'stdout-literal') {
-        // Exact output that a block cannot show, such as empty lines.
-        current.stdout = JSON.parse(value);
-        current.stdoutLiteral = true;
-      } else throw new Error(`${path}:${number}: unknown key ${key}`);
+    const item = new Case(term.args[0], path, line);
+    for (const setting of items(term.args[1], where)) {
+      const [first, second] = setting instanceof Struct ? setting.args : [];
+      const key = setting instanceof Struct ? `${setting.name}/${setting.args.length}` : String(setting);
+      if (key === 'spec/1') item.spec = text(first, where);
+      else if (key === 'args/1') item.args = text(first, where);
+      else if (key === 'exit/1' && typeof first === 'bigint') item.exit = Number(first);
+      else if (key === 'stderr/1' && first instanceof Struct && first.name === 'prefix') item.stderr = `prefix ${text(first.args[0], where)}`;
+      else if (key === 'stderr/1') item.stderr = text(first, where);
+      else if (key === 'file/2') item.files[text(first, where)] = block(second, where);
+      else if (key === 'stdin/1') item.stdin = block(first, where);
+      else if (key === 'stdout/1' && first === 'nonempty') item.stdoutMode = 'nonempty';
+      else if (key === 'stdout/1') item.stdout = block(first, where);
+      else if (key === 'stdout_json/1') {
+        item.stdout = block(first, where);
+        item.stdoutMode = 'json';
+      } else if (key === 'stdout_text/1') item.stdout = text(first, where);
+      else throw new Error(`${where}: unknown setting ${key}`);
     }
+    return item;
   });
-  closeBlock();
-  // Trailing empty lines separate cases in the file; they are not content.
-  const trim = (text) => (text.trim() ? `${text.replace(/\n+$/, '')}\n` : '');
-  for (const item of cases) {
-    for (const name of Object.keys(item.files)) item.files[name] = trim(item.files[name]);
-    if (item.stdin !== null) item.stdin = trim(item.stdin);
-    if (item.stdout !== null && !item.stdoutLiteral) item.stdout = trim(item.stdout);
+}
+
+function text(term, where) {
+  if (typeof term !== 'string') throw new Error(`${where}: expected a string`);
+  return term;
+}
+
+function items(list, where) {
+  const result = [];
+  let term = list;
+  while (term instanceof Struct && term.name === '.' && term.args.length === 2) {
+    result.push(term.args[0]);
+    term = term.args[1];
   }
-  return cases;
+  if (term !== EMPTY) throw new Error(`${where}: expected an array`);
+  return result;
+}
+
+// A block's text: its lines, each ending with a line break.
+function block(list, where) {
+  return items(list, where).map((line) => `${text(line, where)}\n`).join('');
 }
 
 function escapeRegExp(text) {
@@ -299,4 +291,4 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   process.exitCode = mainCommand(process.argv.slice(2));
 }
 
-export const CASE_FILES = () => readdirSync(HERE).filter((name) => name.endsWith('.txt')).sort();
+export const CASE_FILES = () => readdirSync(HERE).filter((name) => /^\d.*\.js$/.test(name)).sort();
