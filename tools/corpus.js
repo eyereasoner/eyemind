@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkReport, loadSources, run } from '../src/index.js';
-import { nodeIO } from '../src/cli.js';
+import { nodeIO } from '../src/node.js';
 
 export const ROOT = join(dirname(dirname(fileURLToPath(import.meta.url))), 'examples');
 export const KINDS = ['output', 'proof', 'check'];

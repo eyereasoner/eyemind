@@ -97,13 +97,13 @@ needs no consent does **not** stand in for the patient's consent to research.
 ## What the proposal changes
 
 ```js
-changed(session('ex:r1'), struct('from', await_device_consent('ex:research')), to(permit('ex:research')))
-changed(session('ex:r7'), struct('from', await_device_consent('ex:research')), to(deny_device('refused_by_signal')))
-changed(session('ex:r8'), struct('from', await_device_consent('ex:research')), to(deny_device('do_not_ask_again')))
+changed(session('ex:r1'), from(await_device_consent('ex:research')), to(permit('ex:research')))
+changed(session('ex:r7'), from(await_device_consent('ex:research')), to(deny_device('refused_by_signal')))
+changed(session('ex:r8'), from(await_device_consent('ex:research')), to(deny_device('do_not_ask_again')))
 ```
 
-(`from` is a reserved word in Python, so the "from" part is written
-`struct('from', ...)`.)
+(The program spells the "from" part `struct('from', Old)`; it is the same
+term, and eyelit writes it back as `from(...)`.)
 
 - **r1** may now go ahead: the portal's own statistics need no consent.
 - **r7** is blocked: the browser's "no" now has to be respected.

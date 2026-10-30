@@ -12,19 +12,19 @@ Mapmakers like neighbouring countries to have different colours. A famous
 result, the *four colour theorem*, says four colours are always enough for
 any flat map.
 
-**Can peye colour the 27 countries of the European Union with red, green,
+**Can eyelit colour the 27 countries of the European Union with red, green,
 blue and yellow, so that no two neighbours share a colour?**
 
 ---
 
-## What we tell peye
+## What we tell eyelit
 
 The map, as a list of neighbours for each country:
 
 ```js
 fact(neighbours('Belgium', ['France', 'Netherlands', 'Luxemburg', 'Germany']))
 fact(neighbours('Netherlands', ['Belgium', 'Germany']))
-# … 24 more countries
+// … 24 more countries
 fact(neighbours('Croatia', ['Slovenia', 'Hungary']))
 
 query(colors('mapEU', _))
@@ -38,29 +38,31 @@ Islands such as Ireland, Cyprus and Malta have an empty list `[]`.
 
 ```js
 implied_by(
-    places([[Place, Color], *Tail]),
-    places(Tail)
-    & neighbours(Place, Neighbours)
-    & member(Color, ['red', 'green', 'blue', 'yellow'])
-    & ~conflict(Color, Tail, Neighbours),
+  places([[Place, Color], ...Tail]),
+  [
+    places(Tail),
+    neighbours(Place, Neighbours),
+    member(Color, ['red', 'green', 'blue', 'yellow']),
+    not(conflict(Color, Tail, Neighbours)),
+  ],
 )
 ```
 
 Countries are coloured one at a time, starting from the end of the list.
 Each takes the first colour from red, green, blue, yellow that *no*
-already-coloured neighbour has. `~` means "it is not the case that": here,
+already-coloured neighbour has. `not(...)` means "it is not the case that": here,
 there is no conflict.
 
 ---
 
-## What peye concludes
+## What eyelit concludes
 
 One colouring of all 27 countries (excerpt):
 
 ```js
 colors('mapEU', [['Belgium', 'yellow'], ['Netherlands', 'green'],
   ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'],
-  ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'],  # …
+  ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'],  // …
   ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']])
 ```
 
@@ -90,7 +92,7 @@ trust and listed as **obligations**:
 - **1 collected**: the list of countries gathered with `findall` ("find
   all") is assumed to be the complete map;
 - **27 absent**: one per country, "this colour clashes with no coloured
-  neighbour". peye searched and found no clash; the checker records that
+  neighbour". eyelit searched and found no clash; the checker records that
   rather than proving a negative.
 
 The checker did look for evidence against all 28 and found none.
@@ -116,5 +118,5 @@ and Ireland turns green.
 ## Takeaway
 
 A search that says "no clash here" is making a claim about what is *not*
-there. peye finds the colouring, shows each choice, and lists exactly which
+there. eyelit finds the colouring, shows each choice, and lists exactly which
 of those "nothing found" claims you are trusting.

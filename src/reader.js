@@ -231,7 +231,9 @@ export class Reader {
             values.push(EMPTY);
             state = 'after';
           } else if (tokens.at('...')) {
-            throw tokens.error('a list needs an item before ...', token.line);
+            // [...T] is T itself.
+            tokens.next();
+            frames[frames.length - 1].tail = values.length;
           }
         } else if (token.kind === 'punct' && token.text === '{') {
           frames.push({ kind: 'object', line: token.line, start: values.length });

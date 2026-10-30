@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Program, checkProof, loadText, run } from '../src/index.js';
 import { Solver } from '../src/engine.js';
-import { nodeIO } from '../src/cli.js';
+import { nodeIO } from '../src/node.js';
 import { ROOT, assert, program, proven, throwsMatching } from './helpers.js';
 
 function example(name) {
@@ -213,13 +213,13 @@ implies(t(X, 'seed', 'true'), t(X, 'blocked', 'true'))
   },
 
   'unsupported constructs and resource exhaustion fail explicitly'() {
-    throwsMatching(() => run(program('implied_by(p, p)'), { goal: 'p', maxDepth: 10 }), /max_depth/);
+    throwsMatching(() => run(program('implied_by(p, p)'), { goal: 'p()', maxDepth: 10 }), /max_depth/);
     throwsMatching(() => run(program('fact(p(0))\nimplies([p(M), is(N, add(M, 1))], p(N))'), { maxIterations: 3 }),
       /max_iterations/);
     throwsMatching(() => run(program("fact(p('a'))\nimplies([p(X), p(X)], q(X))"), { maxInferences: 1 }), /max_inferences/);
     throwsMatching(() => run(program(''), { goal: 'not(p(X))' }), /negation requires a goal whose variables are bound/);
     throwsMatching(() => program("fact(struct('step', 1, 2, 3, 4))"), /reserved/);
-    throwsMatching(() => program("implied_by(p, [['a']])"), /a list is not a goal/);
+    throwsMatching(() => program('implied_by(p, [])'), /an empty array is not a goal/);
   },
 
   'pure term and text operations'() {
@@ -243,7 +243,7 @@ implied_by(codes(C), atom_codes('\\u{1F600}a', C))
 
   'finite tree unification and nested identity'() {
     assert.deepEqual(run(program(''), { goal: 'unify(X, f(X))' }).answers, []);
-    proven(program("implied_by(p, [unify(X, 'a'), identical(struct('f', X), struct('f', 'a'))])"), { goal: 'p' });
+    proven(program("implied_by(p, [unify(X, 'a'), identical(struct('f', X), struct('f', 'a'))])"), { goal: 'p()' });
     proven(program("implied_by(p(T), [unify(X, 'pair'), univ(T, [X, 'a', 'b'])])"), { goal: 'p(T)' });
     proven(program("implied_by(p(C), [unify(C, 'a'), atom_chars(A, [C]), unify(A, 'a')])"), { goal: 'p(C)' });
   },

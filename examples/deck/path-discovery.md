@@ -25,10 +25,10 @@ The file holds 7,698 airports and 37,505 one-way connections:
 ```js
 fact(airport('AIRPORT_1', 'Goroka Airport'))
 fact(airport('AIRPORT_10', 'Thule Air Base'))
-# … 7,696 more airports …
+// … 7,696 more airports …
 fact(flight('AIRPORT_1', 'AIRPORT_2'))
 fact(flight('AIRPORT_1', 'AIRPORT_3'))
-# … 37,503 more connections …
+// … 37,503 more connections …
 ```
 
 `flight(A, B)` means there is a connection from A to B. That is about
@@ -39,15 +39,20 @@ fact(flight('AIRPORT_1', 'AIRPORT_3'))
 ## What we tell eyelit: the rules
 
 ```js
-implied_by(route_airports(From, To, _, Visited, [From, To]), flight(From, To) & unvisited(To, Visited))
 implied_by(
-    route_airports(From, To, Remaining, Visited, [From, *Rest]),
-    (Remaining > 0)
-    & flight(From, Via)
-    & not_unify(Via, To)
-    & unvisited(Via, Visited)
-    & is_(Next, Remaining - 1)
-    & route_airports(Via, To, Next, [Via, *Visited], Rest),
+  route_airports(From, To, _, Visited, [From, To]),
+  [flight(From, To), unvisited(To, Visited)],
+)
+implied_by(
+  route_airports(From, To, Remaining, Visited, [From, ...Rest]),
+  [
+    gt(Remaining, 0),
+    flight(From, Via),
+    not_unify(Via, To),
+    unvisited(Via, Visited),
+    is(Next, sub(Remaining, 1)),
+    route_airports(Via, To, Next, [Via, ...Visited], Rest),
+  ],
 )
 ```
 

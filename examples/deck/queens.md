@@ -25,23 +25,27 @@ automatically. Only the **diagonals** still need checking.
 
 ---
 
-## What we tell peye
+## What we tell eyelit
 
 ```js
 fact(place([], _, []))
 implied_by(
-    place(Available, Placed, [Column, *Rest]),
-    select(Column, Available, Remaining)
-    & safe(Column, Placed, 1)
-    & place(Remaining, [Column, *Placed], Rest),
+  place(Available, Placed, [Column, ...Rest]),
+  [
+    select(Column, Available, Remaining),
+    safe(Column, Placed, 1),
+    place(Remaining, [Column, ...Placed], Rest),
+  ],
 )
 fact(safe(_, [], _))
 implied_by(
-    safe(Column, [Other, *Rest], Distance),
-    ne(Column, Other + Distance)
-    & ne(Column, Other - Distance)
-    & is_(Next, Distance + 1)
-    & safe(Column, Rest, Next),
+  safe(Column, [Other, ...Rest], Distance),
+  [
+    ne(Column, add(Other, Distance)),
+    ne(Column, sub(Other, Distance)),
+    is(Next, add(Distance, 1)),
+    safe(Column, Rest, Next),
+  ],
 )
 query(once(queens(8, Columns)))
 ```
@@ -52,7 +56,7 @@ and try another. `once` asks for the first solution only.
 
 ---
 
-## What peye concludes
+## What eyelit concludes
 
 ```js
 once(queens(8, [1, 5, 8, 6, 3, 7, 2, 4]))
@@ -116,6 +120,6 @@ Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#
 
 ## Takeaway
 
-Search can be long and messy, but its result need not be. peye hands back
+Search can be long and messy, but its result need not be. eyelit hands back
 one clean certificate for the answer it found, and anyone can check it
 without searching again.

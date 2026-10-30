@@ -13,37 +13,41 @@ imaginary part, written here as `complex(3, 4)` for 3 + 4i. The special
 number i has the property that i × i = −1. Engineers use these for waves,
 circuits and rotations.
 
-peye has no complex numbers built in. **Can we define them with a few
+eyelit has no complex numbers built in. **Can we define them with a few
 rules, and get answers that are both right and explained?**
 
 ---
 
-## What we tell peye
+## What we tell eyelit
 
 How to add and multiply pairs, as ordinary rules:
 
 ```js
-implied_by(complex_add(complex(A, B), complex(C, D), complex(R, I)), is_(R, A + C) & is_(I, B + D))
 implied_by(
-    complex_mul(complex(A, B), complex(C, D), complex(R, I)),
-    is_(R, A * C - B * D)
-    & is_(I, A * D + B * C),
+  complex_add(complex(A, B), complex(C, D), complex(R, I)),
+  [is(R, add(A, C)), is(I, add(B, D))],
+)
+implied_by(
+  complex_mul(complex(A, B), complex(C, D), complex(R, I)),
+  [is(R, sub(mul(A, C), mul(B, D))), is(I, add(mul(A, D), mul(B, C)))],
 )
 
 fact(point('z', complex(3, 4)))
 fact(point('w', complex(1, 2)))
 
-implies(point('z', Z) & point('w', W) & complex_add(Z, W, Sum), sum(Sum))
-implies(point('z', Z) & point('w', W) & complex_mul(Z, W, Product), product(Product))
+implies([point('z', Z), point('w', W), complex_add(Z, W, Sum)], sum(Sum))
+implies([point('z', Z), point('w', W), complex_mul(Z, W, Product)], product(Product))
 implies(complex_mul(complex(0, 1), complex(0, 1), Square), unit_square(Square))
-# …
+// …
 ```
 
+Arithmetic is written as terms: `add`, `sub` and `mul` build the expression,
+and `is` evaluates it.
 Division, powers, polar form, logarithms, sine and cosine follow the same way.
 
 ---
 
-## What peye concludes
+## What eyelit concludes
 
 A few of its 23 answers:
 
@@ -66,7 +70,7 @@ sine(complex(1.9999999999999998, 1.0605752387249067e-16))
 
 - **i × i = −1** (`unit_square`) is *derived* from the multiplication rule,
   not assumed.
-- Dividing the product by w gives back z: 3 + 4i, exactly. Division `/`
+- Dividing the product by w gives back z: 3 + 4i, exactly. Division `div`
   always gives decimals, so it reads `complex(3.0, 4.0)`; dividing z by w
   does not divide evenly, so it becomes 2.2 and −0.4.
 - Multiplying by 1 + i eight times lands on 16, back on the real line.

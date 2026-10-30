@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkProof, loadText, run } from '../src/index.js';
-import { nodeIO } from '../src/cli.js';
+import { nodeIO } from '../src/node.js';
 
 export const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 export { assert };

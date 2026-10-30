@@ -17,35 +17,39 @@ A consent written in one record must not count for another.
 
 ---
 
-## What we tell peye
+## What we tell eyelit
 
 Each record is a *graph*: a bundle of simple statements (triples, written
 `triple(Subject, Property, Value)`), kept as one piece of data.
 
 ```js
 fact(
-    context('approved', graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])),
+  context(
+    'approved',
+    graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]),
+  ),
 )
 fact(context('incomplete', graph([triple('bob', 'role', 'editor')])))
 
 implies(
-    context(Context, Graph)
-    & includes(Graph, triple(Person, 'consent', 'yes')),
-    consented(Context, Person),
+  [context(Context, Graph), includes(Graph, triple(Person, 'consent', 'yes'))],
+  consented(Context, Person),
 )
 implies(
-    context(Context, Graph)
-    & includes(Graph, triple(Person, 'role', 'editor'))
-    & ~includes(Graph, triple(Person, 'consent', 'yes')),
-    needs_review(Context, Person),
+  [
+    context(Context, Graph),
+    includes(Graph, triple(Person, 'role', 'editor')),
+    not(includes(Graph, triple(Person, 'consent', 'yes'))),
+  ],
+  needs_review(Context, Person),
 )
 ```
 
-Both rules look *inside one graph*. `~` means "it is not the case that".
+Both rules look *inside one graph*. `not(...)` means "it is not the case that".
 
 ---
 
-## What peye concludes
+## What eyelit concludes
 
 ```js
 consented('approved', 'alice')
@@ -74,7 +78,7 @@ For Bob:
 
 - **9** steps are confirmed against the program lines they cite.
 - **1** step is taken on trust, as an *absent* obligation: that Bob's record
-  does not include a consent. peye searched that graph and found none;
+  does not include a consent. eyelit searched that graph and found none;
   the checker records the claim rather than proving a negative.
 - The checker looked for evidence against it and found none.
 

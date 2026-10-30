@@ -20,7 +20,7 @@ and conclude two facts about it at once?**
 
 ---
 
-## What we tell peye
+## What we tell eyelit
 
 Two people, and one rule with two conclusions:
 
@@ -28,20 +28,23 @@ Two people, and one rule with two conclusions:
 fact(person('alice'))
 fact(person('bob'))
 implies(
-    person(Name),
-    has_record(Name, record('person_rule', Name)) & record_owner(record('person_rule', Name), Name),
+  person(Name),
+  [
+    has_record(Name, record('person_rule', Name)),
+    record_owner(record('person_rule', Name), Name),
+  ],
 )
 ```
 
 The witness is the term `record('person_rule', Name)`: a record labelled
 with the rule's name and the person it was made for.
 
-The head holds *two* conclusions joined with `&`. Both share that same
+The head holds *two* conclusions in an array. Both share that same
 witness, so they always talk about the same record.
 
 ---
 
-## What peye concludes
+## What eyelit concludes
 
 ```js
 has_record('alice', record('person_rule', 'alice'))
@@ -55,9 +58,9 @@ readable, stable from run to run, and impossible to mix up with Bob's.
 
 ---
 
-## Why not let peye invent names?
+## Why not let eyelit invent names?
 
-peye can invent placeholder names for things a rule leaves unnamed. But an
+eyelit can invent placeholder names for things a rule leaves unnamed. But an
 explicit witness is better when you want one per rule and per binding:
 
 - it says *which* rule made it and *for whom*;
@@ -110,5 +113,5 @@ witness `record('person_rule', 'carol')`.
 ## Takeaway
 
 A good name carries its own history. By building the witness from the rule
-and the binding, every new thing peye concludes can be traced to where it
+and the binding, every new thing eyelit concludes can be traced to where it
 came from — even before you look at the proof.

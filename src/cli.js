@@ -1,6 +1,4 @@
 // The eyelit command line.
-import { readFileSync } from 'node:fs';
-import vm from 'node:vm';
 import { run, unusedClauses } from './engine.js';
 import { loadSources } from './lang.js';
 import { checkProof, checkReport, publicReport } from './proof.js';
@@ -30,29 +28,12 @@ const LIMITS = { '--max-depth': 'maxDepth', '--max-iterations': 'maxIterations',
 
 class UsageError extends Error {}
 
-// What the program loader needs from Node: files, and syntax errors with
-// their line.
-export const nodeIO = {
-  readFile: (path) => readFileSync(path, 'utf8'),
-  checkSyntax(source, filename) {
-    try {
-      // Parsed only, never run: a script with the program's source.
-      new vm.Script(source, { filename }); // eslint-disable-line no-new
-    } catch (error) {
-      if (!(error instanceof SyntaxError)) throw error;
-      const match = String(error.stack).match(/:(\d+)\n/);
-      const where = match ? `line ${match[1]}: ` : '';
-      throw new EyelitError(`${where}${error.message}`);
-    }
-  },
-};
-
-function readSource(path, stdin) {
-  return path === '-' ? stdin() : readFileSync(path, 'utf8');
+function readSource(path, io) {
+  return path === '-' ? io.stdin() : io.readFile(path);
 }
 
 // Run the command line; returns the exit code. io writes and reads: stdout,
-// stderr and stdin.
+// stderr, stdin and readFile, and may check syntax (see node.js).
 export function main(argv, io) {
   const stdout = (text) => io.stdout(text);
   const stderr = (text) => io.stderr(text);
@@ -115,9 +96,9 @@ export function main(argv, io) {
     }
     if (!files.length) files.push('-');
     if (files.filter((file) => file === '-').length > 1) throw new UsageError('stdin can only be read once');
-    const program = loadSources(files.map((file) => [readSource(file, io.stdin), file === '-' ? '<stdin>' : file]), nodeIO);
+    const program = loadSources(files.map((file) => [readSource(file, io), file === '-' ? '<stdin>' : file]), io);
     if (proofFile !== null) {
-      const document = readSource(proofFile, io.stdin);
+      const document = readSource(proofFile, io);
       const report = checkProof(program, document, { goals, allowTrusted: !strictProof });
       stdout(asJson ? `${JSON.stringify(publicReport(report), null, 2)}\n` : checkReport(report));
       // An invalid proof is a result, not an error: it has its own exit code.

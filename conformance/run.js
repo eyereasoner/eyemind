@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, isAbsolute, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { main as cliMain } from '../src/cli.js';
+import { nodeIO } from '../src/node.js';
 
 export const HERE = dirname(fileURLToPath(import.meta.url));
 const WILDCARD = '…';
@@ -211,6 +212,7 @@ function runInProcess(item, directory) {
   let code;
   try {
     code = cliMain(shellSplit(item.args), {
+      ...nodeIO,
       stdout: (text) => out.push(text),
       stderr: (text) => err.push(text),
       stdin: () => item.stdin ?? '',
