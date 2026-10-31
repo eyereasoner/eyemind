@@ -2,7 +2,7 @@
 
 *Einstein's riddle: fifteen clues, five houses, one answer you can check.*
 
-[zebra.js](https://github.com/eyereasoner/eyecode/blob/main/examples/zebra.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/zebra.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/zebra.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/zebra.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=zebra)
+[zebra.js](https://github.com/eyereasoner/eyecode/blob/main/examples/zebra.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/zebra.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/zebra.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/zebra.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=zebra)
 
 ---
 
@@ -124,7 +124,7 @@ eyecode examples/zebra.js            # the answer
 eyecode --proof examples/zebra.js    # with the finished street
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=zebra).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=zebra).
 Delete the line for clue 15 ("The Norwegian is next to blue") and run again:
 the answer is no longer pinned down, and eyecode prints 15 different
 `zebra(...)` answers.

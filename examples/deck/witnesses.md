@@ -2,7 +2,7 @@
 
 *When a rule creates something new, give it a name that says where it came from.*
 
-[witnesses.js](https://github.com/eyereasoner/eyecode/blob/main/examples/witnesses.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/witnesses.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/witnesses.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/witnesses.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=witnesses)
+[witnesses.js](https://github.com/eyereasoner/eyecode/blob/main/examples/witnesses.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/witnesses.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/witnesses.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/witnesses.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=witnesses)
 
 ---
 
@@ -103,7 +103,7 @@ eyecode examples/witnesses.js            # the four facts
 eyecode --proof examples/witnesses.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=witnesses).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=witnesses).
 
 Add `fact(person('carol'))` and run again: two more facts appear, with the
 witness `record('person_rule', 'carol')`.

@@ -2,7 +2,7 @@
 
 *Plan a trip from Gent to Oostende that stays within your time, budget and comfort limits.*
 
-[gps.js](https://github.com/eyereasoner/eyecode/blob/main/examples/gps.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/gps.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/gps.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/gps.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=gps)
+[gps.js](https://github.com/eyereasoner/eyecode/blob/main/examples/gps.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/gps.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/gps.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/gps.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=gps)
 
 ---
 
@@ -141,7 +141,7 @@ eyecode examples/gps.js
 eyecode --proof examples/gps.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=gps).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=gps).
 Lower the duration limit from `float(5000)` to `float(3000)`: the Kortrijk detour
 (4100) no longer fits, and only the Brugge route remains.
 

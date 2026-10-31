@@ -2,7 +2,7 @@
 
 *Thirteen ways two time slots can relate, worked out for a whole schedule.*
 
-[interval-relations.js](https://github.com/eyereasoner/eyecode/blob/main/examples/interval-relations.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/interval-relations.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/interval-relations.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/interval-relations.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=interval-relations)
+[interval-relations.js](https://github.com/eyereasoner/eyecode/blob/main/examples/interval-relations.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/interval-relations.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/interval-relations.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/interval-relations.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=interval-relations)
 
 ---
 
@@ -119,7 +119,7 @@ eyecode examples/interval-relations.js            # all 100 relations
 eyecode --proof examples/interval-relations.js    # with their proofs
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=interval-relations).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=interval-relations).
 Add `fact(start_duration('k', 600, 60))` (10:00 for one hour) and run again: k gets
 its own relations, among them `relation('k', 'equals', 'f')`,
 `relation('k', 'starts', 'a')` and `relation('k', 'meets', 'g')`.

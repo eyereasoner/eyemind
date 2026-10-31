@@ -2,7 +2,7 @@
 
 *The river crossing puzzle, with the shortest answer shown to be shortest.*
 
-[wolf-goat-cabbage.js](https://github.com/eyereasoner/eyecode/blob/main/examples/wolf-goat-cabbage.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/wolf-goat-cabbage.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/wolf-goat-cabbage.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/wolf-goat-cabbage.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=wolf-goat-cabbage)
+[wolf-goat-cabbage.js](https://github.com/eyereasoner/eyecode/blob/main/examples/wolf-goat-cabbage.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/wolf-goat-cabbage.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/wolf-goat-cabbage.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/wolf-goat-cabbage.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=wolf-goat-cabbage)
 
 ---
 

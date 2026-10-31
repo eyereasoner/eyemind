@@ -2,7 +2,7 @@
 
 *Two ways of reasoning in one tiny program: pushing facts forward, and asking questions backward.*
 
-[backward.js](https://github.com/eyereasoner/eyecode/blob/main/examples/backward.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/backward.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/backward.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/backward.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=backward)
+[backward.js](https://github.com/eyereasoner/eyecode/blob/main/examples/backward.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/backward.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/backward.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/backward.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=backward)
 
 ---
 
@@ -90,7 +90,7 @@ eyecode examples/backward.js
 eyecode --proof examples/backward.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=backward).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=backward).
 In the last line, change both `(5, 3)` to `(3, 5)`: since 3 > 5 is false,
 eyecode concludes nothing and prints nothing.
 

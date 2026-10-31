@@ -2,7 +2,7 @@
 
 *A hundred thousand steps of reasoning, every one written down and checked.*
 
-[deep-taxonomy-100000.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-100000.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/deep-taxonomy-100000.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/deep-taxonomy-100000.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/deep-taxonomy-100000.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=deep-taxonomy-100000)
+[deep-taxonomy-100000.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-100000.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/deep-taxonomy-100000.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/deep-taxonomy-100000.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/deep-taxonomy-100000.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=deep-taxonomy-100000)
 
 ---
 
@@ -110,7 +110,7 @@ eyecode --stats examples/deep-taxonomy-100000.js    # and its cost
 ```
 
 `--stats` reports `"inferences":100001` — one step per level, plus the fact.
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=deep-taxonomy-100000).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=deep-taxonomy-100000).
 
 Change the last line to `query(type(X, 'j50000'))` and run with `--stats`
 again: the answer is `type('ind', 'j50000')`, a side branch halfway down,

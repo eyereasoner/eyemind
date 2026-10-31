@@ -2,7 +2,7 @@
 
 *A classic puzzle solved by thinking smaller — with every move accounted for.*
 
-[hanoi.js](https://github.com/eyereasoner/eyecode/blob/main/examples/hanoi.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/hanoi.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/hanoi.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/hanoi.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=hanoi)
+[hanoi.js](https://github.com/eyereasoner/eyecode/blob/main/examples/hanoi.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/hanoi.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/hanoi.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/hanoi.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=hanoi)
 
 ---
 
@@ -108,7 +108,7 @@ eyecode --goal "moves(2, 'left', 'right', 'center', Moves)" examples/hanoi.js
 ```
 
 The last asks for two disks: three moves, left → center, left → right,
-center → right. Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=hanoi).
+center → right. Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=hanoi).
 
 Change the `3` in the last line to `4`: the answer grows to 15 moves.
 

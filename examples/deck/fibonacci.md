@@ -2,7 +2,7 @@
 
 *Exact Fibonacci numbers — one of them 2090 digits long — with every calculation on the record.*
 
-[fibonacci.js](https://github.com/eyereasoner/eyecode/blob/main/examples/fibonacci.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/fibonacci.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/fibonacci.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/fibonacci.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=fibonacci)
+[fibonacci.js](https://github.com/eyereasoner/eyecode/blob/main/examples/fibonacci.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/fibonacci.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/fibonacci.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/fibonacci.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=fibonacci)
 
 ---
 
@@ -120,7 +120,7 @@ eyecode examples/fibonacci.js            # the answers
 eyecode --proof examples/fibonacci.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=fibonacci).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=fibonacci).
 Add the line `query(fib(20, F))` and run again: the answers end with
 `fib(20, 6765)`.
 

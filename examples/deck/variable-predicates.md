@@ -2,7 +2,7 @@
 
 *One rule that renames many fields at once, driven by a small mapping table.*
 
-[variable-predicates.js](https://github.com/eyereasoner/eyecode/blob/main/examples/variable-predicates.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/variable-predicates.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/variable-predicates.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/variable-predicates.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=variable-predicates)
+[variable-predicates.js](https://github.com/eyereasoner/eyecode/blob/main/examples/variable-predicates.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/variable-predicates.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/variable-predicates.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/variable-predicates.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=variable-predicates)
 
 ---
 
@@ -95,7 +95,7 @@ eyecode examples/variable-predicates.js            # the answers
 eyecode --proof examples/variable-predicates.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=variable-predicates).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=variable-predicates).
 Add a new field and a mapping row — `fact(t('alice', 'source_city', 'Gent'))`
 and `fact(maps('source_city', 'city'))` — plus the question
 `query(t('alice', 'city', _))`. The same rule answers

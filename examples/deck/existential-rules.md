@@ -2,7 +2,7 @@
 
 *Saying that something exists, without knowing what it is, and without mixing it up with anything else.*
 
-[existential-rules.js](https://github.com/eyereasoner/eyecode/blob/main/examples/existential-rules.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/existential-rules.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/existential-rules.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/existential-rules.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=existential-rules)
+[existential-rules.js](https://github.com/eyereasoner/eyecode/blob/main/examples/existential-rules.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/existential-rules.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/existential-rules.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/existential-rules.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=existential-rules)
 
 ---
 
@@ -121,7 +121,7 @@ eyecode examples/existential-rules.js            # the conclusions
 eyecode --proof examples/existential-rules.js    # with the proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=existential-rules).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=existential-rules).
 Add `fact(person('dan'))` and run again: Dan gets a parent witness of his own
 as well, beside Eve, because the rule says only that some parent exists.
 

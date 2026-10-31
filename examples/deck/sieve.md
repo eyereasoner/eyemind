@@ -2,7 +2,7 @@
 
 *A 2,200-year-old recipe for prime numbers, with every crossed-out number on record.*
 
-[sieve.js](https://github.com/eyereasoner/eyecode/blob/main/examples/sieve.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/sieve.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/sieve.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/sieve.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=sieve)
+[sieve.js](https://github.com/eyereasoner/eyecode/blob/main/examples/sieve.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/sieve.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/sieve.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/sieve.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=sieve)
 
 ---
 
@@ -90,7 +90,7 @@ eyecode examples/sieve.js
 eyecode --proof examples/sieve.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=sieve).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=sieve).
 Change `primes(100, _)` to `primes(50, _)` and run again: you get the 15
 primes up to 47.
 

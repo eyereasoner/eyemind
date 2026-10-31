@@ -2,7 +2,7 @@
 
 *Two machine settings computed from sensor readings, with every sum shown.*
 
-[control-system.js](https://github.com/eyereasoner/eyecode/blob/main/examples/control-system.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/control-system.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/control-system.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/control-system.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=control-system)
+[control-system.js](https://github.com/eyereasoner/eyecode/blob/main/examples/control-system.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/control-system.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/control-system.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/control-system.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=control-system)
 
 ---
 
@@ -133,7 +133,7 @@ eyecode examples/control-system.js            # the commands
 eyecode --proof examples/control-system.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=control-system).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=control-system).
 Raise the target to `fact(target2('output2', 34))` and run again: the error becomes
 10, and actuator 2's command becomes `56.54` instead of `26.08`. Actuator 1 is
 unchanged.

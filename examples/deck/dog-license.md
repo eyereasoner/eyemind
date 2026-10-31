@@ -2,7 +2,7 @@
 
 *A rule that depends on counting, and an honest note about the count.*
 
-[dog-license.js](https://github.com/eyereasoner/eyecode/blob/main/examples/dog-license.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/dog-license.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/dog-license.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/dog-license.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=dog-license)
+[dog-license.js](https://github.com/eyereasoner/eyecode/blob/main/examples/dog-license.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/dog-license.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/dog-license.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/dog-license.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=dog-license)
 
 ---
 

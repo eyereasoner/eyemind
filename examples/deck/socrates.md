@@ -2,7 +2,7 @@
 
 *The oldest example in logic, with the reasoning written down.*
 
-[socrates.js](https://github.com/eyereasoner/eyecode/blob/main/examples/socrates.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/socrates.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/socrates.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/socrates.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=socrates)
+[socrates.js](https://github.com/eyereasoner/eyecode/blob/main/examples/socrates.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/socrates.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/socrates.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/socrates.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=socrates)
 
 ---
 
@@ -81,7 +81,7 @@ eyecode examples/socrates.js            # the answers
 eyecode --proof examples/socrates.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=socrates).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=socrates).
 Add `fact(type('plato', 'human'))` and run again: Plato becomes mortal too, with his
 own proof.
 

@@ -2,7 +2,7 @@
 
 *Where can you get to from here — even when the roads go in circles?*
 
-[reachability.js](https://github.com/eyereasoner/eyecode/blob/main/examples/reachability.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/reachability.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/reachability.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/reachability.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=reachability)
+[reachability.js](https://github.com/eyereasoner/eyecode/blob/main/examples/reachability.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/reachability.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/reachability.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/reachability.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=reachability)
 
 ---
 
@@ -96,7 +96,7 @@ eyecode examples/reachability.js            # the answers
 eyecode --proof examples/reachability.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=reachability).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=reachability).
 Add a road `fact(edge('d', 'e'))` and run again: there are now 16 conclusions,
 because a, b, c and d can all reach e.
 

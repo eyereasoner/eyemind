@@ -2,7 +2,7 @@
 
 *A number trick that always lands on 6174 — checked for every case, with one honest caveat.*
 
-[kaprekar.js](https://github.com/eyereasoner/eyecode/blob/main/examples/kaprekar.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/kaprekar.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/kaprekar.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/kaprekar.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=kaprekar)
+[kaprekar.js](https://github.com/eyereasoner/eyecode/blob/main/examples/kaprekar.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/kaprekar.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/kaprekar.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/kaprekar.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=kaprekar)
 
 ---
 
@@ -136,7 +136,7 @@ eyecode --proof examples/kaprekar.js    # answers with their proof
 eyecode --goal "kaprekar_step(3524, B)" examples/kaprekar.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=kaprekar).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=kaprekar).
 Change `lt(Steps, 7)` to `lt(Steps, 6)`: the conclusion disappears, because some
 numbers really do need all seven steps.
 

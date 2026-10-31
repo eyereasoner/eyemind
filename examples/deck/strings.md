@@ -2,7 +2,7 @@
 
 *Building and taking apart text — accents and emoji included.*
 
-[strings.js](https://github.com/eyereasoner/eyecode/blob/main/examples/strings.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/strings.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/strings.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/strings.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=strings)
+[strings.js](https://github.com/eyereasoner/eyecode/blob/main/examples/strings.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/strings.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/strings.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/strings.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=strings)
 
 ---
 
@@ -98,7 +98,7 @@ eyecode examples/strings.js            # the answers
 eyecode --proof examples/strings.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=strings).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=strings).
 Add `query(characters('Zoë', Chars, Length))` and run again: you get
 `characters('Zoë', ['Z', 'o', 'ë'], 3)`.
 

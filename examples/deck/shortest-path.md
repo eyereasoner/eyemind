@@ -2,7 +2,7 @@
 
 *The cheapest way from A to D, and the honest fine print behind "cheapest".*
 
-[shortest-path.js](https://github.com/eyereasoner/eyecode/blob/main/examples/shortest-path.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/shortest-path.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/shortest-path.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/shortest-path.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=shortest-path)
+[shortest-path.js](https://github.com/eyereasoner/eyecode/blob/main/examples/shortest-path.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/shortest-path.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/shortest-path.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/shortest-path.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=shortest-path)
 
 ---
 
@@ -122,7 +122,7 @@ eyecode examples/shortest-path.js            # the answer
 eyecode --proof examples/shortest-path.js    # with its proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=shortest-path).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=shortest-path).
 Add a direct road `fact(edge('a', 'd', 5))` and run again: the answer becomes
 `shortest('a', 'd', 5)`.
 

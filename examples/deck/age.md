@@ -2,7 +2,7 @@
 
 *Is someone over 80? A calendar question, answered with every day counted.*
 
-[age.js](https://github.com/eyereasoner/eyecode/blob/main/examples/age.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/age.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/age.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/age.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=age)
+[age.js](https://github.com/eyereasoner/eyecode/blob/main/examples/age.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/age.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/age.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/age.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=age)
 
 ---
 

@@ -2,7 +2,7 @@
 
 *A program that reasons about its own reasoning, because there is only one language to speak.*
 
-[audited-grants.js](https://github.com/eyereasoner/eyecode/blob/main/examples/audited-grants.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/audited-grants.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/audited-grants.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/audited-grants.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=audited-grants)
+[audited-grants.js](https://github.com/eyereasoner/eyecode/blob/main/examples/audited-grants.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/audited-grants.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/audited-grants.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/audited-grants.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=audited-grants)
 
 ---
 
@@ -147,7 +147,7 @@ eyecode examples/audited-grants.js            # the audit
 eyecode --proof examples/audited-grants.js    # the audit, with its own proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=audited-grants).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=audited-grants).
 Change Cara's evidence to `'payslip'` and run again: her grant is no longer
 at risk. Lower the threshold in the grant rule to `lt(I, 2000)` and watch the
 explanations, and the risks, change with it.

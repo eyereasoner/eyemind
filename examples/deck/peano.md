@@ -2,7 +2,7 @@
 
 *Counting with nothing but zero and "one more" — and getting 5! = 120 out of it.*
 
-[peano.js](https://github.com/eyereasoner/eyecode/blob/main/examples/peano.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/peano.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/peano.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/peano.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=peano)
+[peano.js](https://github.com/eyereasoner/eyecode/blob/main/examples/peano.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/peano.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/peano.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/peano.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=peano)
 
 ---
 
@@ -111,7 +111,7 @@ eyecode --goal "add(A, B, s(s(s('zero'))))" examples/peano.js
 `--goal` asks your own question instead of the program's. Try
 `--goal "multiply(s(s('zero')), s(s(s('zero'))), P)"`: 2 × 3 comes back as
 `s(s(s(s(s(s('zero'))))))`, which is 6.
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=peano).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=peano).
 
 ---
 

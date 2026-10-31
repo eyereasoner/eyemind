@@ -2,7 +2,7 @@
 
 *Adding up a shopping bill, and being honest about what "all the lines" means.*
 
-[inventory.js](https://github.com/eyereasoner/eyecode/blob/main/examples/inventory.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/inventory.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/inventory.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/inventory.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=inventory)
+[inventory.js](https://github.com/eyereasoner/eyecode/blob/main/examples/inventory.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/inventory.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/inventory.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/inventory.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=inventory)
 
 ---
 
@@ -81,7 +81,7 @@ eyecode examples/inventory.js            # the answers
 eyecode --proof examples/inventory.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=inventory).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=inventory).
 Add `fact(item('fig', 5, 1))` and run again: the invoice becomes `invoice(33)`.
 
 ---

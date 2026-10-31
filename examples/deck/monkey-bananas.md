@@ -2,7 +2,7 @@
 
 *A classic planning puzzle: how does the monkey reach the bananas?*
 
-[monkey-bananas.js](https://github.com/eyereasoner/eyecode/blob/main/examples/monkey-bananas.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/monkey-bananas.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/monkey-bananas.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/monkey-bananas.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=monkey-bananas)
+[monkey-bananas.js](https://github.com/eyereasoner/eyecode/blob/main/examples/monkey-bananas.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/monkey-bananas.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/monkey-bananas.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/monkey-bananas.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=monkey-bananas)
 
 ---
 

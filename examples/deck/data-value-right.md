@@ -2,7 +2,7 @@
 
 *How such a right fits existing EU law, and how it could become a right of its own.*
 
-[data-value-right.js](https://github.com/eyereasoner/eyecode/blob/main/examples/data-value-right.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/data-value-right.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/data-value-right.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/data-value-right.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=data-value-right)
+[data-value-right.js](https://github.com/eyereasoner/eyecode/blob/main/examples/data-value-right.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/data-value-right.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/data-value-right.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/data-value-right.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=data-value-right)
 
 ---
 
@@ -159,7 +159,7 @@ eyecode --proof examples/data-value-right.js    # with the proof
 eyecode --unused examples/data-value-right.js   # nothing is decoration
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=data-value-right).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=data-value-right).
 Add a provision that anchors `value_share`, even only in part, and run
 again: the gap closes, and interpreting existing law is recommended next to
 an autonomous right. Change `data_ownership`'s framing from `'property'` to

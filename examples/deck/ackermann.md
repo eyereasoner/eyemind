@@ -2,7 +2,7 @@
 
 *A function that grows faster than you can imagine, computed exactly and checked step by step.*
 
-[ackermann.js](https://github.com/eyereasoner/eyecode/blob/main/examples/ackermann.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/ackermann.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/ackermann.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/ackermann.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=ackermann)
+[ackermann.js](https://github.com/eyereasoner/eyecode/blob/main/examples/ackermann.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/ackermann.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/ackermann.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/ackermann.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=ackermann)
 
 ---
 
@@ -113,7 +113,7 @@ eyecode examples/ackermann.js            # the answers
 eyecode --proof examples/ackermann.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=ackermann).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=ackermann).
 
 Add `query(ackermann([3, 5], _))` at the end and run again: a new answer
 appears, `ackermann([3, 5], 253)`.

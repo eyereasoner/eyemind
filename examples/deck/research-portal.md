@@ -2,7 +2,7 @@
 
 *One hospital, one research policy, two sets of device rules: which research sessions may go ahead, and what would change?*
 
-[research-portal.js](https://github.com/eyereasoner/eyecode/blob/main/examples/research-portal.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/research-portal.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/research-portal.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/research-portal.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=research-portal)
+[research-portal.js](https://github.com/eyereasoner/eyecode/blob/main/examples/research-portal.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/research-portal.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/research-portal.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/research-portal.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=research-portal)
 
 ---
 
@@ -171,7 +171,7 @@ eyecode examples/research-portal.js
 eyecode --goal "policy_result('ex:r4', Result)" examples/research-portal.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=research-portal).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=research-portal).
 Two experiments, one at each gate:
 
 - give r4 consent again (`'dpv:ConsentWithdrawn'` → `'dpv:ConsentGiven'`):
