@@ -85,7 +85,7 @@ eyecode examples/rdf12-trig-graph-join.js > out.js && eyecode-to-rdf out.js -o o
 ```
 
 `eyecode-to-rdf` and `rdf-to-eyecode` come with
-[rdf-prolog-interchange](https://github.com/eyereasoner/rdf-prolog-interchange);
+[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyecode's quads into RDF and RDF into quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-trig-graph-join).
 Add a reading for a second sensor in the sensor graph, and station 7 reports it too.

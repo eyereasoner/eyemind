@@ -79,7 +79,7 @@ eyecode examples/rdf12-triple-term.js > out.js && eyecode-to-rdf out.js -o out.t
 ```
 
 `eyecode-to-rdf` and `rdf-to-eyecode` come with
-[rdf-prolog-interchange](https://github.com/eyereasoner/rdf-prolog-interchange);
+[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyecode's quads into RDF and RDF into quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-triple-term).
 Add a second claim about who knows whom and run again: the rule asserts it too.

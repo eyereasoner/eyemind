@@ -95,7 +95,7 @@ eyecode examples/rdf12-annotated-claims.js > out.js && eyecode-to-rdf out.js -o 
 ```
 
 `eyecode-to-rdf` and `rdf-to-eyecode` come with
-[rdf-prolog-interchange](https://github.com/eyereasoner/rdf-prolog-interchange);
+[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyecode's quads into RDF and RDF into quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-annotated-claims).
 Lower the authority's confidence to 80 and run again: 7600 is below the threshold, and the decision becomes `verify_manually`.

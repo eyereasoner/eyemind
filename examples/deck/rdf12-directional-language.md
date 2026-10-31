@@ -77,7 +77,7 @@ eyecode examples/rdf12-directional-language.js > out.js && eyecode-to-rdf out.js
 ```
 
 `eyecode-to-rdf` and `rdf-to-eyecode` come with
-[rdf-prolog-interchange](https://github.com/eyereasoner/rdf-prolog-interchange);
+[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyecode's quads into RDF and RDF into quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-directional-language).
 Add a Hebrew label, `literal('ברוכים הבאים', lang('he', 'rtl'))`, and run again.

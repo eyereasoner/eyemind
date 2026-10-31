@@ -77,7 +77,7 @@ eyecode examples/rdf12-trig-triple-term.js > out.js && eyecode-to-rdf out.js -o 
 ```
 
 `eyecode-to-rdf` and `rdf-to-eyecode` come with
-[rdf-prolog-interchange](https://github.com/eyereasoner/rdf-prolog-interchange);
+[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyecode's quads into RDF and RDF into quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-trig-triple-term).
 Move the claim to the default graph and run again: the conclusion moves with it.

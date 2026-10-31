@@ -80,7 +80,7 @@ eyecode examples/rdf12-nested-triple-term.js > out.js && eyecode-to-rdf out.js -
 ```
 
 `eyecode-to-rdf` and `rdf-to-eyecode` come with
-[rdf-prolog-interchange](https://github.com/eyereasoner/rdf-prolog-interchange);
+[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyecode's quads into RDF and RDF into quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-nested-triple-term).
 Change the inner triple to say that Bob knows Dave, and the conclusion follows the change.

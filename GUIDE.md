@@ -124,7 +124,7 @@ facts_from({ text: eyecode.checkReport(result.proofReport) })  // or text, such 
 
 ### RDF 1.2
 
-RDF reaches eyecode as data, through [rdf-prolog-interchange](https://github.com/eyereasoner/rdf-prolog-interchange): `rdf-to-eyecode` turns Turtle, TriG, N-Triples or N-Quads into an eyecode document of `rdf(Subject, Predicate, Object, Graph)` terms for `facts_from`, and `eyecode-to-rdf` turns the `rdf` or `result_rdf` conclusions of a run back into N-Quads, Turtle or TriG. The terms are the ones eyepl and EyeProlog use:
+RDF reaches eyecode as data, through [rdf-interchange](https://github.com/eyereasoner/rdf-interchange): `rdf-to-eyecode` turns Turtle, TriG, N-Triples or N-Quads into an eyecode document of `rdf(Subject, Predicate, Object, Graph)` terms for `facts_from`, and `eyecode-to-rdf` turns the `rdf` or `result_rdf` conclusions of a run back into N-Quads, Turtle or TriG. The terms are the ones eyepl and EyeProlog use:
 
 | RDF 1.2 | eyecode term |
 | --- | --- |

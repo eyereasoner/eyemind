@@ -88,7 +88,7 @@ eyecode examples/rdf12-annotation.js > out.js && eyecode-to-rdf out.js -o out.tt
 ```
 
 `eyecode-to-rdf` and `rdf-to-eyecode` come with
-[rdf-prolog-interchange](https://github.com/eyereasoner/rdf-prolog-interchange);
+[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyecode's quads into RDF and RDF into quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-annotation).
 Remove the asserted name triple and run again: the reifier alone is not enough, and nothing follows.
