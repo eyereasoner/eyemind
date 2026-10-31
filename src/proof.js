@@ -128,7 +128,7 @@ export function renderProof(program, claims, roots, checkable = false) {
   const lines = claims.map((claim) => spellings.lettered(claim, lettering));
   lines.push('');
   for (const clauseId of [...cited].sort((a, b) => a - b)) {
-    lines.push(text(new Struct('clause', [BigInt(clauseId), clauseDisplay(program.clauses[clauseId - 1])])));
+    lines.push(text(new Struct('clause', [BigInt(clauseId), clauseDisplay(program.byId.get(clauseId))])));
   }
   lines.push('');
   for (const node of steps.values()) {
@@ -284,8 +284,8 @@ function readDocument(program, document, fail, spellings) {
 }
 
 function clauseNamed(program, id) {
-  if (typeof id !== 'bigint' || id < 1n || id > BigInt(program.clauses.length)) return null;
-  return program.clauses[Number(id) - 1];
+  if (typeof id !== 'bigint' || id < 1n || id > BigInt(program.sources.length)) return null;
+  return program.byId.get(Number(id)) ?? null;
 }
 
 const BUILTIN_BY = 'builtin';

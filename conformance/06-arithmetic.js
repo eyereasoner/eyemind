@@ -298,3 +298,121 @@ conformance('in a program, arithmetic on numbers alone is computed by JavaScript
     'and(unify(7, 7), is(14, mul(7, 2)))',
   ]),
 ])
+
+conformance('round rounds half to even, also below zero', [
+  spec('6'),
+  args("--goal 'is(A, round(-2.5))' --goal 'is(B, round(0.5))' --goal 'is(C, round(-0.5))' --goal 'is(D, round(1.5))'"),
+  stdin([]),
+  stdout([
+    "is(-2, round(-2.5))",
+    "is(0, round(0.5))",
+    "is(0, round(-0.5))",
+    "is(2, round(1.5))",
+  ]),
+])
+
+conformance('floor division and modulo of floats', [
+  spec('6'),
+  args("--goal 'is(A, floordiv(-7.5, 2))' --goal 'is(B, mod(-7.5, 2))' --goal 'is(C, mod(7.5, -2))'"),
+  stdin([]),
+  stdout([
+    "is(-4.0, floordiv(-7.5, 2))",
+    "is(0.5, mod(-7.5, 2))",
+    "is(-0.5, mod(7.5, -2))",
+  ]),
+])
+
+conformance('int, floor and ceil give exact integers', [
+  spec('6'),
+  args("--goal 'is(A, int(1e20))' --goal 'is(B, floor(1e20))' --goal 'is(C, ceil(-0.5))'"),
+  stdin([]),
+  stdout([
+    "is(100000000000000000000, int(1e+20))",
+    "is(100000000000000000000, floor(1e+20))",
+    "is(0, ceil(-0.5))",
+  ]),
+])
+
+conformance('powers of negative bases, of zero, and to a float', [
+  spec('6'),
+  args("--goal 'is(A, pow(-2, 3))' --goal 'is(B, pow(0, 0))' --goal 'is(C, pow(-1, 101))' --goal 'is(D, pow(4, 0.5))'"),
+  stdin([]),
+  stdout([
+    "is(-8, pow(-2, 3))",
+    "is(1, pow(0, 0))",
+    "is(-1, pow(-1, 101))",
+    "is(2.0, pow(4, 0.5))",
+  ]),
+])
+
+conformance('div of integers is the nearest float', [
+  spec('6'),
+  args("--goal 'is(A, div(1, 3))' --goal 'is(B, div(2, 3))' --goal 'is(C, div(6, 3))'"),
+  stdin([]),
+  stdout([
+    "is(0.3333333333333333, div(1, 3))",
+    "is(0.6666666666666666, div(2, 3))",
+    "is(2.0, div(6, 3))",
+  ]),
+])
+
+conformance('a float operand gives a float, integers an integer', [
+  spec('6'),
+  args("--goal 'is(A, add(1, 2.0))' --goal 'is(B, mul(2, 3))' --goal 'is(C, sub(5.5, 0.5))' --goal 'is(D, abs(-2.0))'"),
+  stdin([]),
+  stdout([
+    "is(3.0, add(1, 2.0))",
+    "is(6, mul(2, 3))",
+    "is(5.0, sub(5.5, 0.5))",
+    "is(2.0, abs(-2.0))",
+  ]),
+])
+
+conformance('floor, ceil and trunc of integers, and exact roots', [
+  spec('6'),
+  args("--goal 'is(A, floor(3))' --goal 'is(B, ceil(-3))' --goal 'is(C, trunc(7))' --goal 'is(D, sqrt(2.25))' --goal 'is(E, isqrt(100000000000000000000))'"),
+  stdin([]),
+  stdout([
+    "is(3, floor(3))",
+    "is(-3, ceil(-3))",
+    "is(7, trunc(7))",
+    "is(1.5, sqrt(2.25))",
+    "is(10000000000, isqrt(100000000000000000000))",
+  ]),
+])
+
+conformance('error: a comparison in an expression', [
+  spec('6'),
+  args("--goal 'is(X, lt(1, 2))'"),
+  exit(1),
+  stderr('nonempty'),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('error: gcd of a float', [
+  spec('6'),
+  args("--goal 'is(X, gcd(4.0, 2))'"),
+  exit(1),
+  stderr('nonempty'),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('error: a shift of a float', [
+  spec('6'),
+  args("--goal 'is(X, shl(1.0, 2))'"),
+  exit(1),
+  stderr('nonempty'),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('error: the integer square root of a negative number', [
+  spec('6'),
+  args("--goal 'is(X, isqrt(-1))'"),
+  exit(1),
+  stderr('nonempty'),
+  stdin([]),
+  stdout([]),
+])

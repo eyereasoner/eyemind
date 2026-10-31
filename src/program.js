@@ -46,10 +46,13 @@ function pushGoals(goal, out) {
 }
 
 // options: without leaves out the clause with that number, counting from 1.
+// The other clauses keep their numbers, and so the Skolem terms their rules
+// make, so leaving a clause out changes nothing else.
 export class Program {
   constructor(sources, without = null) {
     this.sources = [...sources];
     this.clauses = [];
+    this.byId = new Map();
     this.groups = new Map();
     this.forward = [];
     let stratifying = false;
@@ -81,8 +84,9 @@ export class Program {
           throw new EyecodeError(`line ${source.line}: unsupported or reserved head ${itemKey}`);
         }
       }
-      const clause = new Clause(this.clauses.length + 1, source.head, forward ? heads : null, body, forward, source.line);
+      const clause = new Clause(ordinal, source.head, forward ? heads : null, body, forward, source.line);
       this.clauses.push(clause);
+      this.byId.set(ordinal, clause);
       if (forward) {
         this.forward.push(clause);
       } else {

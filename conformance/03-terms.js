@@ -214,3 +214,32 @@ conformance('NaN is not a term', [
   ]),
   stdout([]),
 ])
+
+conformance('zero and negative zero are equal floats', [
+  spec('3'),
+  args("--goal 'unify(-0.0, 0.0)' --goal 'compare(O, -0.0, 0.0)'"),
+  stdin([]),
+  stdout([
+    "unify(-0.0, 0.0)",
+    "compare('=', -0.0, 0.0)",
+  ]),
+])
+
+conformance('standard order: a list is a compound of arity 2 named by a dot', [
+  spec('3'),
+  args("--goal \"compare(O, f('x', 'y'), [1])\""),
+  stdin([]),
+  stdout([
+    "compare('>', f('x', 'y'), [1])",
+  ]),
+])
+
+conformance('standard order: the empty list is an atom', [
+  spec('3'),
+  args("--goal \"compare(O, [], 'a')\" --goal \"compare(O, [], f(1))\""),
+  stdin([]),
+  stdout([
+    "compare('<', [], 'a')",
+    "compare('<', [], f(1))",
+  ]),
+])

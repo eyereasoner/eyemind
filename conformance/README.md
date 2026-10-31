@@ -20,16 +20,16 @@ the case files in order, with the SPEC sections and the topic of each.
 
 | File | SPEC | Cases | What it tests |
 | --- | --- | --- | --- |
-| [03-terms.js](03-terms.js) | 3 | 22 | Unification, the occurs check, integers and finite floats, lists, the standard order |
+| [03-terms.js](03-terms.js) | 3 | 25 | Unification, the occurs check, integers and finite floats, lists, the standard order |
 | [04-programs.js](04-programs.js) | 4 | 42 | Statements, clause numbering, names a program leaves undefined, rejected clauses, stratification |
-| [05-controls-and-primitives.js](05-controls-and-primitives.js) | 5 | 49 | Every control and primitive, and the errors of their flow patterns |
-| [06-arithmetic.js](06-arithmetic.js) | 6 | 28 | The meaning of every arithmetic term and function, exact integers, and each error |
+| [05-controls-and-primitives.js](05-controls-and-primitives.js) | 5 | 52 | Every control and primitive, and the errors of their flow patterns |
+| [06-arithmetic.js](06-arithmetic.js) | 6 | 39 | The meaning of every arithmetic term and function, exact integers, and each error |
 | [07-reasoning.js](07-reasoning.js) | 7 | 29 | Search order, forward rounds, Skolem terms, conclusions, halting, bounds |
-| [08-canonical-text.js](08-canonical-text.js) | 8 | 18 | The one spelling of atoms, numbers, variables, lists and compounds |
+| [08-canonical-text.js](08-canonical-text.js) | 8 | 19 | The one spelling of atoms, numbers, variables, lists and compounds |
 | [09-reading.js](09-reading.js) | 9 | 41 | What a document reader accepts, and what it must reject without running anything |
 | [10-proofs.js](10-proofs.js) | 10 | 16 | Proof documents for every kind of justification, step order and sharing |
 | [11-checking.js](11-checking.js) | 11, 12 | 49 | Valid proofs and proofs tampered with to break each of C1-C8, with their exact reports |
-| [13-unused.js](13-unused.js) | 13 | 9 | Unused clauses, including those a negation or collection consults |
+| [13-unused.js](13-unused.js) | 13 | 10 | Unused clauses, including those a negation or collection consults |
 | [14-command-line.js](14-command-line.js) | 14 | 23 | Options, their combinations, standard input, errors and exit codes |
 
 ## Case format

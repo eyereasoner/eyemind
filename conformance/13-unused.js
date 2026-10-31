@@ -55,6 +55,20 @@ conformance('a clause a negation consults is unused when leaving it out changes 
   ]),
 ])
 
+conformance('leaving a clause out keeps the numbers of the others and their Skolem terms', [
+  spec('13'),
+  args('--unused program.js'),
+  file('program.js', [
+    "fact(p('a'))",
+    "fact(blocked('b'))",
+    'implies([p(X), not(blocked(X))], ok(X))',
+    'implies(p(X), has(X, Y))',
+  ]),
+  stdout([
+    "unused(line(2), fact(blocked('b')))",
+  ]),
+])
+
 conformance('a clause a collection consults is used when leaving it out changes the conclusions', [
   spec('13'),
   args('--unused program.js'),

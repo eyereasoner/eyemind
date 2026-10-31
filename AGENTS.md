@@ -59,6 +59,7 @@ node bin/eyecode.js --unused examples/graphs.js
 npm test                          # unit, examples, conformance, command line
 npm test -- unit conformance      # only these sections
 npm test -- -k skolem             # only tests whose line contains "skolem"
+EYECODE_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node conformance/run.js 11-checking.js -v
 node tools/update-examples.js [NAME ...]
 git diff --check
@@ -110,7 +111,10 @@ Primitives are re-decided (C5); absences and collections are obligations that
 evidence may refute (C6); a variable only a rule's conclusion mentions must be
 the Skolem term of that firing, recomputed from its uses (C8). Every proof the engine generates is checked before
 it is returned. For every new check, add a forged proof the checker rejects,
-and confirm that all saved example proofs still check.
+and confirm that all saved example proofs still check. `test/properties.test.js`
+forges proofs at random and catches a checker with C1, C2, C4, C5 or C8
+switched off; after changing the checker, run it with a larger
+`EYECODE_PROPERTY_SCALE`.
 
 eyecode is the JavaScript sibling of peye (Python); eyeron, eyeling and eyepl
 belong to the same family. A behavior fixed in one usually belongs in the

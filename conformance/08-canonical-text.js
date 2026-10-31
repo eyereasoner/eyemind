@@ -293,3 +293,15 @@ conformance("an open list's tail may be any term", [
     'd([1, 2, 3])',
   ]),
 ])
+
+conformance('floats take the exponent form from 1e16, and below 1e-4', [
+  spec('8.1'),
+  args("--goal 'is(A, float(10000000000000000))' --goal 'is(B, float(1000000000000000))' --goal 'is(C, div(1, 10000))' --goal 'is(D, div(1, 100000))'"),
+  stdin([]),
+  stdout([
+    "is(1e+16, float(10000000000000000))",
+    "is(1000000000000000.0, float(1000000000000000))",
+    "is(0.0001, div(1, 10000))",
+    "is(1e-05, div(1, 100000))",
+  ]),
+])

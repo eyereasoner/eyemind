@@ -776,7 +776,9 @@ A clause is **unused** when no conclusion's recorded derivation cites it,
 unless a negation or collection in the proof could consult it and running the
 program without it changes the conclusions or the halt code, or fails. The clauses a
 negation or collection could consult are those whose heads have the name and
-arity of a goal it reaches through the program's bodies.
+arity of a goal it reaches through the program's bodies. Running the program
+without a clause leaves every other clause its number (Section 4.2), so the
+Skolem terms of the other rules (Section 7.2) do not change.
 
 Unused clauses are reported one per line, in clause order, as
 `unused(line(L), Display)`, where `L` is the clause's line (Section 4.2) and

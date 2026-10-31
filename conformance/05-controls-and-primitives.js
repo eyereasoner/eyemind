@@ -516,3 +516,31 @@ conformance('atom_concat needs the result or both operands', [
   stdin([]),
   stdout([]),
 ])
+
+conformance('arg sees a list as its head and tail', [
+  spec('5.2'),
+  args("--goal \"arg(1, ['a', 'b'], X)\" --goal \"arg(2, ['a', 'b'], X)\""),
+  stdin([]),
+  stdout([
+    "arg(1, ['a', 'b'], 'a')",
+    "arg(2, ['a', 'b'], ['b'])",
+  ]),
+])
+
+conformance('functor of a list', [
+  spec('5.2'),
+  args("--goal 'functor([1], N, A)'"),
+  stdin([]),
+  stdout([
+    "functor([1], '.', 2)",
+  ]),
+])
+
+conformance('univ of a list', [
+  spec('5.2'),
+  args("--goal 'univ([1, 2], L)'"),
+  stdin([]),
+  stdout([
+    "univ([1, 2], ['.', 1, [2]])",
+  ]),
+])

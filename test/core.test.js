@@ -262,6 +262,15 @@ implied_by(num(N, M), [atom_chars('0042', C), number_chars(N, C), number_chars(M
     assert.deepEqual(run(source).answers, ["q('a')"]);
   },
 
+  'leaving a clause out keeps the numbers and skolem terms of the others'() {
+    const source = program("fact(p('a'))\nfact(blocked('b'))\nimplies([p(X), not(blocked(X))], ok(X))\nimplies(p(X), has(X, Y))");
+    const without = new Program(source.sources, 2);
+    assert.deepEqual(without.clauses.map((clause) => clause.id), [1, 3, 4]);
+    assert.deepEqual(run(without).answers.sort(), run(source).answers.sort());
+    assert.ok(run(without).answers.includes("has('a', skolem(4, 'Y', ['a']))"));
+    proven(without);
+  },
+
   'clause indexing preserves source order and generic clauses'() {
     const source = program(`
 fact(p('a', 'first'), p(X, 'generic_before'), p('b', 'other'))
