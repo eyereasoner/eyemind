@@ -16,7 +16,7 @@ eyecode --check-proof examples/proof/socrates.js examples/socrates.js
 ```
 
 Each program has a matching conclusion file in `output/`, a certificate in
-`proof/`, and a C1-C7 verification report in `check/`, each written as JavaScript
+`proof/`, and a C1-C8 verification report in `check/`, each written as JavaScript
 expressions, one per line. The names match the source: `lists.js` has
 `output/lists.js`, `proof/lists.js` and `check/lists.js`.
 
@@ -99,7 +99,7 @@ second tool, and its own conclusions come with a checked proof too.
 Its proof-check report is valid: the certificate explains why the constraint was
 violated. Negation and collection examples list their `absent` and `collected`
 obligations in the check report; `--strict-proof` rejects those obligations.
-Every check file includes `condition(...)` facts for C1-C7, verification counts and
+Every check file includes `condition(...)` facts for C1-C8, verification counts and
 a `verdict(...)` fact. Reports with failures include `failure(...)`; reports with
 trusted boundaries include `obligation(...)`. Add `--json` to the check command
 for JSON output instead.

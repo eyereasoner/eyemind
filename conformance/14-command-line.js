@@ -69,6 +69,7 @@ conformance('an invalid proof exits with 2 and prints its report', [
     "condition('C5', 're_decision', 'ok', 0)",
     "condition('C6', 'boundary_consistency', 'ok', 0)",
     "condition('C7', 'relevance', failed(1), 1)",
+    "condition('C8', 'witness_integrity', 'ok', 0)",
     "failure('C4', p(2), …)",
     "failure('C7', p(2), …)",
     'steps(0)',

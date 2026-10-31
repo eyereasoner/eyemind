@@ -8,7 +8,7 @@ import { VERSION } from './version.js';
 export const HELP = `Usage: eyecode [OPTION ...] [FILE ...]
 Programs are JavaScript; forward rules run to a fixpoint.
   --proof             Print the claims with clause(...) and step(...) records
-  --check-proof FILE  Print a C1-C7 check report of a proof (- for stdin)
+  --check-proof FILE  Print a C1-C8 check report of a proof (- for stdin)
   --json              Print the check report as JSON instead
   --goal GOAL         Ask a backward goal after forward reasoning; with
                       --check-proof, the goal the proof answers

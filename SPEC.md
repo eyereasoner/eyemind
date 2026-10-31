@@ -15,8 +15,8 @@ reasoning, and a proof format whose documents a separate checker verifies
 against the program that produced them. This document specifies the terms
 the language reasons over, how a program is stated in JavaScript, what a
 program concludes, the canonical text in which terms, conclusions, proofs and
-check reports are written and read back, the proof document, the seven
-conditions (C1-C7) a proof checker establishes, the check report, and the
+check reports are written and read back, the proof document, the eight
+conditions (C1-C8) a proof checker establishes, the check report, and the
 command line.
 
 ## Status of This Memo
@@ -393,7 +393,8 @@ concluded:
   shared. A variable that a value of the solution brought in, rather than a
   head variable, is named after its own variable, followed by `1`, `2`, ...
   when that name is taken. A rule that keeps meeting new activations does
-  not terminate (Section 7.3). Derived facts are therefore ground;
+  not terminate (Section 7.3). Derived facts are therefore ground. A
+  checker verifies the Skolem terms of a proof (C8, Section 11.9);
 - a head `'true'` reports the instance of the rule's body, as a conjunction,
   once per distinct instance (by identity of canonical text);
 - a head `'false'` records the conclusion `'false'` and stops all reasoning
@@ -593,7 +594,7 @@ empty bindings.
 A checker is given a program, a proof document and, when the proof answers
 goals asked from outside the program, those goals. It MUST NOT call a
 reasoner to supply a missing step; it MAY recompute primitives. It
-establishes seven conditions and records each failure with its condition, a
+establishes eight conditions and records each failure with its condition, a
 detail and, where there is one, the term concerned.
 
 ### 11.1 Reading the document
@@ -669,7 +670,28 @@ Otherwise the questions are, for each forward rule, each head other than
 question. Each step MUST be reachable from a conjunct of a claim through the
 conjuncts of uses.
 
-### 11.9 Counts and validity
+### 11.9 C8 Witness integrity
+
+A forward rule's head MAY contain variables its body does not contain; each
+says that something exists, and a reasoner concludes it with a Skolem term
+(Section 7.2). C1 alone would accept any value for such a variable, since any
+value gives an instance of the rule, so for a `clause(N)` step citing a
+forward rule, under the substitution of C1, each such variable `V` MUST be
+bound to `skolem(N, Name, Args)`, where:
+
+- `Name` is the name of `V` as the program writes it, or that name followed
+  by digits (Section 7.2);
+- `Args` is the same for every such variable of the step, and is the list of
+  the values of the heads' variables, in order of their first occurrence in
+  the heads, that are ground and contain no Skolem term `skolem(N, _, Args)`:
+  the values that do contain one hold a witness of this firing.
+
+A variable of the head that also occurs in the body is not checked by C8,
+even when the body leaves it unbound; its value comes from the uses, which
+other conditions check. A step citing a rule without such variables is not
+covered by C8.
+
+### 11.10 Counts and validity
 
 | Condition | Covered |
 | --- | --- |
@@ -680,6 +702,7 @@ conjuncts of uses.
 | C5 re_decision | `'builtin'` and `'control'` steps that passed C5 |
 | C6 boundary_consistency | boundaries decided |
 | C7 relevance | claims plus steps |
+| C8 witness_integrity | `clause` steps of forward rules with witnesses that passed C8 |
 
 A check also counts the **steps** it read, the **claims**, the `clause` steps
 **verified** by C1, the `'builtin'` steps **recomputed** by C5, the
@@ -689,7 +712,7 @@ steps **trusted**.
 A proof is **valid** when no condition failed. A valid proof with trusted
 boundaries is valid *conditional on* them.
 
-### 11.10 What a valid proof establishes
+### 11.11 What a valid proof establishes
 
 A valid proof establishes that each of its claims follows from the program
 by the recorded steps, given its trusted boundaries. It does not establish
@@ -702,23 +725,23 @@ leave conclusions out, and a run's own proof holds exactly its conclusions.
 A check report is a document (Section 9) holding, in this order, one fact per
 line:
 
-1. `condition(Id, Name, Outcome, Covered)` for C1 to C7, where `Outcome` is
+1. `condition(Id, Name, Outcome, Covered)` for C1 to C8, where `Outcome` is
    `'ok'` or `failed(N)`, `N` the number of that condition's failures;
 2. `failure(Condition, Subject, Detail)` per failure, where `Subject` is the
    term concerned or `'proof_document'`, and `Detail` an atom;
 3. `obligation(Kind, 'theory_scoped', Goal)` per trusted boundary, in step
    order, where `Kind` is `'absent'` or `'collected'`;
 4. `steps(N)`, `verified(N)`, `recomputed(N)`, `composed(N)`, `trusted(N)`,
-   `claims(N)`, the counts of Section 11.9;
+   `claims(N)`, the counts of Section 11.10;
 5. `verdict(V)`, where `V` is `failed(N)` when `N` failures were recorded,
    otherwise `'checked_with_obligations'` when there are obligations,
    otherwise `'checked'`.
 
 Failures are listed in the order they are found: those of reading the
 document (Section 11.1), in document order; C4 for each claim, in claim
-order; then for each step, in document order, C4 for its uses and the C1, C3
-or C5 failure of its justification; C6 for each boundary, in step order; C7
-for each claim, then for each step; and C2.
+order; then for each step, in document order, C4 for its uses and the C1, C3,
+C5 or C8 failure of its justification; C6 for each boundary, in step order;
+C7 for each claim, then for each step; and C2.
 
 `Detail` is a short human-readable text that names what failed, often with
 the canonical text of a term; it is informative, and implementations MAY word
@@ -733,6 +756,7 @@ it differently. eyecode's details are, by condition:
 | C5 | `primitive disagrees: ...`, `control step does not follow from its uses: ...`, `trusted boundary forbidden: absent` or `collected` |
 | C6 | `absence contradicted by evidence: ...`, `collected result is not a proper list: ...`, `collection misses ...: ...` |
 | C7 | `claim answers no goal: ...`, `step serves no claim: ...` |
+| C8 | `not the witness of this firing of clause N: ...` |
 
 The variables of each fact are renamed `A`, `B`, ..., `Z`, `A1`, ... in order
 of first occurrence. A report is ordinary data: `facts_from` (Section 4.2)
@@ -816,7 +840,7 @@ proofs SHOULD additionally bound document size, nesting depth and running
 time.
 
 A valid proof establishes that its claims follow from the program supplied
-to the checker (Section 11.10). It does not establish that the program is
+to the checker (Section 11.11). It does not establish that the program is
 correct or that the claims are all its conclusions, and a proof with
 obligations holds only conditional on them.
 
@@ -911,6 +935,7 @@ condition('C4', 'coverage', 'ok', 4)
 condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 5)
+condition('C8', 'witness_integrity', 'ok', 0)
 steps(3)
 verified(3)
 recomputed(0)

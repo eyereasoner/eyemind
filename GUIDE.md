@@ -124,7 +124,7 @@ facts_from({ text: eyecode.checkReport(result.proofReport) })   // or text, such
 
 ## Proofs, and what checking one means
 
-A proof holds the claims, the source clauses it cites, and one `step(...)` record per inference. The checker establishes seven conditions:
+A proof holds the claims, the source clauses it cites, and one `step(...)` record per inference. The checker establishes eight conditions:
 
 | | Condition | What it establishes |
 | --- | --- | --- |
@@ -135,6 +135,7 @@ A proof holds the claims, the source clauses it cites, and one `step(...)` recor
 | **C5** | re-decision | Built-in calculations are recomputed rather than trusted |
 | **C6** | boundary consistency | No trusted absence or collection is contradicted by the evidence at hand |
 | **C7** | relevance | Every claim answers the question asked, and every step serves a claim |
+| **C8** | witness integrity | Every "something exists" conclusion uses the Skolem term of its own rule firing, not a value of the prover's choosing |
 
 Two properties make this worth more than a log. **The checker follows the certificate:** it never calls the reasoner to fill a gap, so a missing step fails the check rather than being quietly re-derived. **The source is the authority:** the clauses a proof displays cannot override the program, so you cannot smuggle a rule into a proof, nor pad it with steps no claim needs. Every proof eyecode generates is checked before it is returned.
 
@@ -148,6 +149,7 @@ condition('C4', 'coverage', 'ok', 4)
 condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 5)
+condition('C8', 'witness_integrity', 'ok', 0)
 steps(3)
 verified(3)
 recomputed(0)
@@ -201,7 +203,7 @@ A clause is listed when no conclusion's proof uses it. A negation or collection 
 
 ## Explore the examples
 
-The [example collection](examples/) is 63 complete programs, each with its conclusions, proof and C1–C7 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a [card deck](https://eyereasoner.github.io/eyecode/examples/deck/) that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to policy reasoning (research-portal, package-holiday) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
+The [example collection](examples/) is 63 complete programs, each with its conclusions, proof and C1–C8 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a [card deck](https://eyereasoner.github.io/eyecode/examples/deck/) that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to policy reasoning (research-portal, package-holiday) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
 
 ## Browser
 

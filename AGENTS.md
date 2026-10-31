@@ -20,7 +20,7 @@ goals, and keep error messages specific and user-facing text direct.
     `builtins.js`, `arith.js`: primitives and arithmetic.
   - `engine.js`: backward search as an explicit machine, semi-naive forward
     rounds, Skolem terms, proof recording, unused clauses.
-  - `proof.js`: proof rendering and the C1–C7 checker, which never calls
+  - `proof.js`: proof rendering and the C1–C8 checker, which never calls
     the engine.
   - `cli.js`: the command line, with no Node imports so the playground's
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
@@ -45,7 +45,7 @@ goals, and keep error messages specific and user-facing text direct.
 - `README.md` (short entry point), `GUIDE.md` (CLI, language, proofs,
   playground, library, development), `SPEC.md` (RFC-style specification:
   terms, programs, arithmetic, reasoning, canonical text, proof documents and
-  the C1–C7 checks).
+  the C1–C8 checks).
 - `release`, `.github/workflows/`, `.zenodo.json`: releases, CI, Pages,
   GitHub releases, npm publishing and Zenodo archiving.
 
@@ -107,7 +107,8 @@ Proof checking must stay sound: a forged proof must never report `checked`.
 The checker follows the certificate and never calls the engine to fill a gap;
 the source program, not a proof's clause displays, is the authority.
 Primitives are re-decided (C5); absences and collections are obligations that
-evidence may refute (C6). Every proof the engine generates is checked before
+evidence may refute (C6); a variable only a rule's conclusion mentions must be
+the Skolem term of that firing, recomputed from its uses (C8). Every proof the engine generates is checked before
 it is returned. For every new check, add a forged proof the checker rejects,
 and confirm that all saved example proofs still check.
 

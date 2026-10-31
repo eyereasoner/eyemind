@@ -134,6 +134,49 @@ export const tests = {
     assert.deepEqual(orphan.failures.map((failure) => failure.condition), ['C7']);
   },
 
+  'a witness must be the skolem term of its own firing'() {
+    const source = program("fact(person('ann'), person('bob'))\nimplies(person(X), [has_parent(X, P), parent_known(P)])");
+    const document = run(source, { proof: true }).proof;
+    const report = checkProof(source, document);
+    assert.ok(report.valid);
+    assert.deepEqual(report.conditions[7], { id: 'C8', name: 'witness_integrity', covered: 4, failed: 0 });
+    const ann = "skolem(3, 'P', ['ann'])";
+    const bob = "skolem(3, 'P', ['bob'])";
+    assert.ok(document.includes(ann) && document.includes(bob));
+    // A value the program never concluded, another firing's witness, another
+    // clause's, another variable's, and one conclusion of a firing out of step
+    // with the other: each passes C1 as an instance of the rule, not C8.
+    const knownAnn = `step(parent_known(${ann}), clause(3), {X: 'ann', P: ${ann}}, [person('ann')])`;
+    assert.ok(document.includes(knownAnn));
+    for (const forged of [
+      document.replaceAll(ann, "'carol'"),
+      document.replaceAll(bob, ann),
+      document.replaceAll(ann, "skolem(2, 'P', ['ann'])"),
+      document.replaceAll(ann, "skolem(3, 'Q', ['ann'])"),
+      document.replace(`parent_known(${ann})\n`, `parent_known(${bob})\n`)
+        .replace(knownAnn, `step(parent_known(${bob}), clause(3), {X: 'ann', P: ${bob}}, [person('ann')])`),
+    ]) {
+      const forgedReport = checkProof(source, forged);
+      assert.ok(!forgedReport.valid, forged);
+      assert.ok(forgedReport.failures.some((failure) => failure.condition === 'C8'), JSON.stringify(forgedReport.failures));
+      assert.ok(!forgedReport.failures.some((failure) => failure.condition === 'C1'), JSON.stringify(forgedReport.failures));
+    }
+  },
+
+  'witnesses agree with the reasoner wherever they come from'() {
+    for (const text of [
+      "fact(p('a'))\nimplies(p(X), [q(X, W), r(W)])",
+      'fact(p(f(Z)))\nimplies(p(X), q(X, W))',
+      "fact(p('a'))\nimplies(p(X), q(X, _, _))",
+      "fact(p('a'))\nimplies([p(X), unify(Y, Y)], q(X, Y))",
+      'fact(n(1))\nimplies(n(X), m(X, P))\nimplies(m(X, P), [o(P, Q), o2(Q)])',
+    ]) {
+      const source = program(text);
+      const result = run(source, { proof: true });
+      assert.ok(checkProof(source, result.proof).valid, text);
+    }
+  },
+
   'reports expose coverage and source and primitive counts'() {
     const source = program("fact(p('a'))\nimplied_by(q(X), [p(X), unify(X, 'a')])");
     const report = checkProof(source, run(source, { goal: 'q(X)', proof: true }).proof, { goals: ['q(X)'] });
@@ -145,10 +188,11 @@ export const tests = {
       { id: 'C5', name: 're_decision', covered: 1, failed: 0 },
       { id: 'C6', name: 'boundary_consistency', covered: 0, failed: 0 },
       { id: 'C7', name: 'relevance', covered: 4, failed: 0 },
+      { id: 'C8', name: 'witness_integrity', covered: 0, failed: 0 },
     ]);
     assert.equal(report.uses, 2);
     assert.equal(verdictText(report), "verdict('checked')\n");
-    assert.equal(named(facts(report), 'condition').length, 7);
+    assert.equal(named(facts(report), 'condition').length, 8);
     assert.ok(checkReport(report).includes('recomputed(1)\n'));
   },
 
@@ -214,7 +258,7 @@ export const tests = {
   'malformed document diagnostics stay readable data'() {
     const report = checkProof(program(''), "p('unterminated");
     const records = facts(report);
-    assert.equal(named(records, 'condition').length, 7);
+    assert.equal(named(records, 'condition').length, 8);
     const [failure] = named(records, 'failure');
     assert.equal(failure.args[1], 'proof_document');
     assert.equal(failure.args[2], report.failures[0].detail);

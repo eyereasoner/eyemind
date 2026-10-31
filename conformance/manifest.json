@@ -42,7 +42,7 @@
   {
     "file": "11-checking.js",
     "spec": "11, 12",
-    "topic": "Valid proofs and proofs tampered with to break each of C1-C7, with their exact reports"
+    "topic": "Valid proofs and proofs tampered with to break each of C1-C8, with their exact reports"
   },
   {
     "file": "13-unused.js",

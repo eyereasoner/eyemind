@@ -1,4 +1,4 @@
-// Proof documents: rendering, and checking C1-C7 against the source program.
+// Proof documents: rendering, and checking C1-C8 against the source program.
 //
 // A proof document is JavaScript source, one expression per line: first the
 // claims, then clause(N, Display) for every source clause the proof cites,
@@ -15,7 +15,7 @@ import { CONTROL_KEYS, Program } from './program.js';
 import { readTerms } from './reader.js';
 import {
   Env, EyecodeError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
-  isCallable, isGround, isTerm, key, listFromItems, properListItems, unify,
+  isCallable, isGround, isTerm, key, listFromItems, properListItems, unify, variables,
 } from './terms.js';
 import { Lettering, letterName, quote, write, writeNotingVariables } from './writer.js';
 
@@ -209,6 +209,7 @@ function check(program, claims, steps, goals, allowTrusted, fail, spellings, nam
     { id: 'C5', name: 're_decision', covered: tally.redecided + tally.composed, failed: failed('C5') },
     { id: 'C6', name: 'boundary_consistency', covered: confronted, failed: failed('C6') },
     { id: 'C7', name: 'relevance', covered: claims.length + steps.size, failed: failed('C7') },
+    { id: 'C8', name: 'witness_integrity', covered: tally.witnessed, failed: failed('C8') },
   ];
   return {
     valid: !fail.items.length,
@@ -294,7 +295,7 @@ const CONTROL_BY = 'control';
 // instance of the clause it cites, a recomputed primitive, a control composed
 // of its uses, or a trusted boundary the later checks confront.
 function checkSteps(program, steps, allowTrusted, fail, spellings, name) {
-  const tally = { verified: 0, redecided: 0, composed: 0, boundaries: [], trusted: [] };
+  const tally = { verified: 0, redecided: 0, composed: 0, witnessed: 0, boundaries: [], trusted: [] };
 
   function covered(goal) {
     if (isTerm(goal, 'and', 2)) return flattenConjunction(goal).every(covered);
@@ -316,7 +317,7 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name) {
       if (!covered(use)) fail.add('C4', `unjustified use ${text(use)}`, goal);
     }
     if (isTerm(by, 'clause', 1)) {
-      if (checkResolution(program, step, fail)) tally.verified++;
+      if (checkResolution(program, step, fail, tally)) tally.verified++;
     } else if (by === BUILTIN_BY) {
       if (bindings.length || uses.length || !isCallable(goal) || !PRIMITIVE_KEYS.has(key(goal))) {
         fail.add('C3', 'invalid builtin justification', goal);
@@ -415,8 +416,9 @@ function flatResolution(clause, goal, bindings, uses) {
 
 // C1: a clause step names a source clause, its bindings name distinct
 // variables of that clause, and under them one of the clause's heads is the
-// step's goal and its body is exactly the step's uses.
-function checkResolution(program, step, fail) {
+// step's goal and its body is exactly the step's uses. C8 is checked under
+// the same substitution.
+function checkResolution(program, step, fail, tally) {
   const { goal, by, bindings, uses } = step;
   const clauseId = by.args[0];
   const clause = clauseNamed(program, clauseId);
@@ -444,6 +446,7 @@ function checkResolution(program, step, fail) {
   }
   const heads = clause.forward ? flattenConjunction(head) : [head];
   let resolution = false;
+  let witnesses = null;
   for (const candidate of heads) {
     const mark = env.mark();
     let matches = unify(candidate, goal, env) && body.length === uses.length;
@@ -452,6 +455,9 @@ function checkResolution(program, step, fail) {
     }
     if (matches && resolvesTo(candidate, env, goal) && body.every((item, i) => resolvesTo(item, env, uses[i]))) {
       resolution = true;
+      // Any head the step can be an instance of decides; a verified witness wins.
+      const found = clause.forward ? checkWitnesses(clause, head, names, env) : null;
+      if (found !== null && witnesses !== true) witnesses = found;
     }
     env.undo(mark);
   }
@@ -459,7 +465,63 @@ function checkResolution(program, step, fail) {
     fail.add('C1', `not an instance of source clause ${clauseId}: ${text(goal)}`, goal);
     return false;
   }
+  if (witnesses === false) fail.add('C8', `not the witness of this firing of clause ${clauseId}: ${text(goal)}`, goal);
+  else if (witnesses === true) tally.witnessed++;
   return true;
+}
+
+// The variables of a forward rule's conclusions that its premise does not
+// mention: each stands for something that exists, its witness.
+function witnessNames(clause) {
+  if (clause.witnessNames === undefined) {
+    const inBody = new Set();
+    for (const goal of clause.body) for (const name of variables(goal).keys()) inBody.add(name);
+    clause.witnessNames = [...variables(clause.head).keys()].filter((name) => !inBody.has(name));
+  }
+  return clause.witnessNames;
+}
+
+// C8: under a step's substitution, each witness of a forward rule is the
+// Skolem term of this firing, skolem(Rule, Variable, Arguments), where
+// Arguments are the ground values of the conclusions' other variables, in
+// order of first occurrence, leaving out those that hold a witness of this
+// firing: the term the reasoner makes (Section 7.2). Returns null when the
+// rule has no witnesses, else whether they all hold; head is the rule's
+// renamed conclusions and names maps its variables to their renamed ones.
+function checkWitnesses(clause, head, names, env) {
+  const witnessed = witnessNames(clause);
+  if (!witnessed.length) return null;
+  let firing = null;
+  for (const name of witnessed) {
+    const value = copyResolved(names.get(name), env);
+    if (!isTerm(value, 'skolem', 3) || value.args[0] !== BigInt(clause.id) || !witnessName(value.args[1], name)) return false;
+    if (firing === null) firing = value.args[2];
+    else if (text(value.args[2]) !== text(firing)) return false;
+  }
+  const ofThisFiring = (term) => {
+    const pending = [term];
+    while (pending.length) {
+      const item = pending.pop();
+      if (!(item instanceof Struct)) continue;
+      if (item.name === 'skolem' && item.args.length === 3 && item.args[0] === BigInt(clause.id) &&
+          text(item.args[2]) === text(firing)) return true;
+      pending.push(...item.args);
+    }
+    return false;
+  };
+  const expected = [];
+  for (const variable of variables(head).values()) {
+    const value = copyResolved(variable, env);
+    if (isGround(value) && !ofThisFiring(value)) expected.push(value);
+  }
+  return text(listFromItems(expected)) === text(firing);
+}
+
+// The name a witness of variable name carries: the name itself, or with a
+// number when a value of the firing brought in a variable of the same name.
+function witnessName(written, name) {
+  if (typeof written !== 'string' || !written.startsWith(name)) return false;
+  return written === name || /^[0-9]+$/.test(written.slice(name.length));
 }
 
 // C6: a trusted boundary cannot be proved, but evidence at hand can refute
