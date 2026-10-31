@@ -43,7 +43,7 @@ jobs:
         run: |
           node -e '
             const { name, version } = require("./package.json");
-            if (name !== "eyecode" || process.env.RELEASE_TAG !== `v${version}`) {
+            if (name !== "@josd/eyecode" || process.env.RELEASE_TAG !== `v${version}`) {
               console.error(`Publish requires the eyecode release tag v${version}.`);
               process.exit(1);
             }

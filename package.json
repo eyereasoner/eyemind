@@ -1,5 +1,5 @@
 {
-  "name": "eyecode",
+  "name": "@josd/eyecode",
   "version": "0.1.3",
   "description": "A dependency-free JavaScript rule language with forward and backward reasoning and checkable proofs.",
   "type": "module",
@@ -38,5 +38,8 @@
     "type": "git",
     "url": "git+https://github.com/eyereasoner/eyecode.git"
   },
-  "homepage": "https://eyereasoner.github.io/eyecode/"
+  "homepage": "https://eyereasoner.github.io/eyecode/",
+  "publishConfig": {
+    "access": "public"
+  }
 }

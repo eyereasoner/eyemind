@@ -45,7 +45,7 @@ node bin/eyecode.js --check-proof /tmp/socrates-proof.js examples/socrates.js
 
 The report ends with `verdict('checked')`. You have run a program and checked a proof of its conclusions.
 
-To have an `eyecode` command, run `npm install --global .` in the checkout. The commands below use `eyecode`; substitute `node bin/eyecode.js` if you did not install it.
+To have an `eyecode` command, run `npm install --global @josd/eyecode`, or `npm install --global .` in the checkout. The commands below use `eyecode`; substitute `node bin/eyecode.js` if you did not install it.
 
 ## Your first program
 
@@ -246,7 +246,7 @@ Exit codes: 0 success, 1 error, 2 a proof that is not valid, 65 a contradiction.
 ## JavaScript library
 
 ```js
-import { checkProof, loadText, run } from 'eyecode';
+import { checkProof, loadText, run } from '@josd/eyecode';
 
 const socrates = loadText(`
 fact(human('socrates'))
@@ -258,7 +258,7 @@ console.log(result.bindings);                         // [ { X: "'socrates'" } ]
 console.log(checkProof(socrates, result.proof).valid); // true
 ```
 
-`loadText(source, filename, io)` loads program text and `loadSources([[text, filename], ...], io)` several sources as one program; pass `nodeIO` from `eyecode/node` as `io` to let `facts_from(path)` read files. `run()` returns a `Result` with `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`; its options are `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`, and exceeding a bound throws an `EyecodeError` rather than return a partial result. `checkProof(program, document, { goals, allowTrusted })` checks a proof, `checkReport(report)` formats a report, and `readTerm`, `readTerms` and `write` read and write the canonical text. A program reaches the same functions as `eyecode.run`, `eyecode.build` and so on.
+`loadText(source, filename, io)` loads program text and `loadSources([[text, filename], ...], io)` several sources as one program; pass `nodeIO` from `@josd/eyecode/node` as `io` to let `facts_from(path)` read files. `run()` returns a `Result` with `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`; its options are `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`, and exceeding a bound throws an `EyecodeError` rather than return a partial result. `checkProof(program, document, { goals, allowTrusted })` checks a proof, `checkReport(report)` formats a report, and `readTerm`, `readTerms` and `write` read and write the canonical text. A program reaches the same functions as `eyecode.run`, `eyecode.build` and so on.
 
 ## What is deliberately absent
 
@@ -285,7 +285,7 @@ For maintainers, `./release` (a patch release) or `./release minor "Release mess
 
 The tag starts two workflows. `.github/workflows/release.yml` creates the GitHub release, which Zenodo archives through its GitHub integration, described by `.zenodo.json`. `.github/workflows/publish-npm.yml` checks that the tag matches `package.json`, runs the tests, and publishes the package to npm. An existing release can be published again through **Actions → Publish to npm → Run workflow**, given its tag; the dry-run input verifies the package without uploading it.
 
-npm publishing uses trusted publishing: the workflow exchanges its GitHub Actions identity for a short-lived token and attaches provenance, so no npm token is stored. The package's trusted publisher on npmjs.com is owner `eyereasoner`, repository `eyecode`, and workflow `publish-npm.yml`; renaming the repository or the workflow file requires updating that entry first.
+npm publishing uses trusted publishing: the workflow exchanges its GitHub Actions identity for a short-lived token and attaches provenance, so no npm token is stored. The package, `@josd/eyecode`, has its trusted publisher on npmjs.com set to owner `eyereasoner`, repository `eyecode`, and workflow `publish-npm.yml`; renaming the repository or the workflow file requires updating that entry first.
 
 ## The name
 

@@ -145,5 +145,6 @@ The script requires a clean working tree, switches to `main`, pulls with
 `node tools/version.js`, commits, creates an annotated `v*` tag, and pushes
 the branch and tag atomically. A push to `main` runs CI and deploys GitHub
 Pages; a `v*` tag creates the GitHub release (which Zenodo archives) and
-publishes the package through `.github/workflows/publish-npm.yml`, only
-through npm trusted publishing. See the guide for existing-tag dispatch.
+publishes the npm package `@josd/eyecode` through
+`.github/workflows/publish-npm.yml`, only through npm trusted publishing. See
+the guide for existing-tag dispatch.

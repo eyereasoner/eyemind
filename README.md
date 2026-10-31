@@ -1,7 +1,7 @@
 # <img src="assets/eye.png" alt="" width="48" height="48" align="absmiddle"> eyecode
 
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23824021-blue.svg)](https://doi.org/10.5281/zenodo.23824021)
-[![npm](https://img.shields.io/npm/v/eyecode.svg)](https://www.npmjs.com/package/eyecode)
+[![npm](https://img.shields.io/npm/v/@josd/eyecode.svg)](https://www.npmjs.com/package/@josd/eyecode)
 
 eyecode is a **JavaScript rule language** with forward and backward reasoning
 and checkable proofs. You write facts and rules in plain JavaScript; eyecode
