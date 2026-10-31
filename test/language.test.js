@@ -60,6 +60,30 @@ query(path(0, W))
     assert.equal(clauses[2001].line, 2007);
   },
 
+  'statement lines survive strings, comments, templates and regular expressions'() {
+    const source = [
+      "fact(p('fact(1)'), p(\"implies(\"))",                      // 1
+      '// fact(p(2))',                                             // 2
+      '/* query(p(3)) */ fact(p(`fact(${1 + 2})`))',                // 3
+      'const pattern = /fact\\(/',                                 // 4
+      "fact(p(pattern.test('fact(') ? 'yes' : 'no'))",               // 5
+      'const helper = { fact: (n) => n }',                         // 6
+      'fact(p(helper.fact(7)))',                                    // 7
+      'function state(n) { fact(q(n)) }',                           // 8
+      'state(9)',                                                   // 9
+    ].join('\n');
+    const program = loadText(source);
+    assert.deepEqual(program.clauses.map((clause) => clause.line), [1, 1, 3, 5, 7, 8]);
+    assert.deepEqual(run(program, { goal: 'p(X)' }).answers,
+      ["p('fact(1)')", "p('implies(')", "p('fact(3)')", "p('yes')", 'p(7)']);
+  },
+
+  'a method named like a statement still runs, with its lines'() {
+    const program = loadText("const helper = { fact(n) { return n } }\nfact(p(helper.fact(2)))");
+    assert.deepEqual(program.clauses.map((clause) => clause.line), [2]);
+    assert.deepEqual(run(program, { goal: 'p(X)' }).answers, ['p(2)']);
+  },
+
   'a misspelled statement is an error'() {
     throwsMatching(() => program('fact(p(1))\nfcat(p(2))'), /line 2: fcat\(\.\.\.\) on its own states nothing/);
   },

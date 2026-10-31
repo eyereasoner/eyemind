@@ -22,77 +22,85 @@ function variableName(text, line) {
 
 // Numbers and names of any length, matched where the scan stands.
 const NUMBER = /(?:([0-9]+)n|((?:[0-9]+\.[0-9]*|\.[0-9]+)(?:[eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+)|([0-9]+))/y;
-const NAME = /[A-Za-z0-9_$]+/y;
 
 const SIMPLE_ESCAPES = { n: '\n', r: '\r', t: '\t', b: '\b', f: '\f', v: '\v', 0: '\0', "'": "'", '"': '"', '\\': '\\' };
 
+const isDigit = (code) => code >= 48 && code <= 57;
+const isNameStart = (code) => (code >= 65 && code <= 90) || (code >= 97 && code <= 122) || code === 95 || code === 36;
+const isNamePart = (code) => isNameStart(code) || isDigit(code);
+
+// The tokens of a text, read one ahead of the parser as it asks for them, so
+// a large document is never held as tokens all at once.
 class Tokens {
   constructor(text) {
     this.text = text;
     this.pos = 0;
     this.line = 1;
-    this.list = [];
-    this.scan();
-    this.index = 0;
+    this.current = this.read();
   }
 
   error(message, line = this.line) {
     return new EyecodeError(`line ${line}: ${message}`);
   }
 
-  scan() {
+  // The token at this.pos, moving past it.
+  read() {
     const { text } = this;
     const n = text.length;
-    let pos = 0;
-    let line = 1;
-    while (pos < n) {
-      const ch = text[pos];
-      if (ch === '\n') {
-        this.list.push({ kind: 'newline', text: '\n', line });
-        line++;
-        pos++;
-      } else if (ch === ' ' || ch === '\t' || ch === '\r' || ch === '﻿') {
-        pos++;
-      } else if (ch === '/' && text[pos + 1] === '/') {
-        while (pos < n && text[pos] !== '\n') pos++;
-      } else if (ch === '/' && text[pos + 1] === '*') {
-        const end = text.indexOf('*/', pos + 2);
-        if (end < 0) throw this.error('unterminated comment', line);
-        for (let i = pos; i < end; i++) if (text[i] === '\n') line++;
-        pos = end + 2;
-      } else if (ch === "'" || ch === '"') {
-        const [value, next] = this.string(pos, line);
-        this.list.push({ kind: 'string', text: value, line });
-        pos = next;
-      } else if (/[0-9.]/.test(ch) && (ch !== '.' || /[0-9]/.test(text[pos + 1] || ''))) {
-        NUMBER.lastIndex = pos;
-        const match = NUMBER.exec(text);
-        const after = text[pos + match[0].length] || '';
-        if (/[A-Za-z0-9_$.]/.test(after)) throw this.error(`malformed number ${text.slice(pos, pos + match[0].length + 1)}`, line);
-        if (match[1] !== undefined || match[3] !== undefined) {
-          const digits = match[1] !== undefined ? match[1] : match[3];
-          if (digits.length > 1 && digits[0] === '0') throw this.error(`an integer has no leading zero: ${digits}`, line);
-          this.list.push({ kind: 'int', text: digits, line });
+    let { pos, line } = this;
+    try {
+      while (pos < n) {
+        const ch = text[pos];
+        const code = ch.charCodeAt(0);
+        if (ch === '\n') {
+          pos++;
+          line++;
+          return { kind: 'newline', text: '\n', line: line - 1 };
+        } else if (ch === ' ' || ch === '\t' || ch === '\r' || ch === '\ufeff') {
+          pos++;
+        } else if (ch === '/' && text[pos + 1] === '/') {
+          while (pos < n && text[pos] !== '\n') pos++;
+        } else if (ch === '/' && text[pos + 1] === '*') {
+          const end = text.indexOf('*/', pos + 2);
+          if (end < 0) throw this.error('unterminated comment', line);
+          for (let i = pos; i < end; i++) if (text[i] === '\n') line++;
+          pos = end + 2;
+        } else if (ch === "'" || ch === '"') {
+          const [value, next] = this.string(pos, line);
+          pos = next;
+          return { kind: 'string', text: value, line };
+        } else if (isDigit(code) || (ch === '.' && isDigit(text.charCodeAt(pos + 1)))) {
+          NUMBER.lastIndex = pos;
+          const match = NUMBER.exec(text);
+          const after = text.charCodeAt(pos + match[0].length);
+          if (isNamePart(after) || after === 46) throw this.error(`malformed number ${text.slice(pos, pos + match[0].length + 1)}`, line);
+          pos += match[0].length;
+          if (match[1] !== undefined || match[3] !== undefined) {
+            const digits = match[1] !== undefined ? match[1] : match[3];
+            if (digits.length > 1 && digits[0] === '0') throw this.error(`an integer has no leading zero: ${digits}`, line);
+            return { kind: 'int', text: digits, line };
+          }
+          return { kind: 'float', text: match[2], line };
+        } else if (isNameStart(code)) {
+          const start = pos;
+          pos++;
+          while (pos < n && isNamePart(text.charCodeAt(pos))) pos++;
+          return { kind: 'name', text: text.slice(start, pos), line };
+        } else if (ch === '.' && text[pos + 1] === '.' && text[pos + 2] === '.') {
+          pos += 3;
+          return { kind: 'punct', text: '...', line };
+        } else if ('()[]{},:;-'.includes(ch)) {
+          pos++;
+          return { kind: 'punct', text: ch, line };
         } else {
-          this.list.push({ kind: 'float', text: match[2], line });
+          throw this.error(`unexpected character ${JSON.stringify(ch)}`, line);
         }
-        pos += match[0].length;
-      } else if (/[A-Za-z_$]/.test(ch)) {
-        NAME.lastIndex = pos;
-        const match = NAME.exec(text);
-        this.list.push({ kind: 'name', text: match[0], line });
-        pos += match[0].length;
-      } else if (text.startsWith('...', pos)) {
-        this.list.push({ kind: 'punct', text: '...', line });
-        pos += 3;
-      } else if ('()[]{},:;-'.includes(ch)) {
-        this.list.push({ kind: 'punct', text: ch, line });
-        pos++;
-      } else {
-        throw this.error(`unexpected character ${JSON.stringify(ch)}`, line);
       }
+      return { kind: 'end', text: '', line };
+    } finally {
+      this.pos = pos;
+      this.line = line;
     }
-    this.list.push({ kind: 'end', text: '', line });
   }
 
   string(start, line) {
@@ -109,8 +117,15 @@ class Tokens {
       // A document spells control characters as escapes, as the writer does.
       if (ch < ' ' && ch !== '\t') throw this.error('a control character in a string must be escaped', line);
       if (ch !== '\\') {
-        out += ch;
-        pos++;
+        // A run of plain characters at once.
+        let end = pos + 1;
+        while (end < text.length) {
+          const code = text.charCodeAt(end);
+          if (code < 32 || code === 92 || text[end] === quote) break;
+          end++;
+        }
+        out += text.slice(pos, end);
+        pos = end;
         continue;
       }
       const next = text[pos + 1];
@@ -140,20 +155,22 @@ class Tokens {
   }
 
   peek() {
-    return this.list[this.index];
+    return this.current;
   }
 
   next() {
-    return this.list[this.index++];
+    const token = this.current;
+    if (token.kind !== 'end') this.current = this.read();
+    return token;
   }
 
   // Newlines inside brackets are layout.
   skipNewlines() {
-    while (this.list[this.index].kind === 'newline') this.index++;
+    while (this.current.kind === 'newline') this.current = this.read();
   }
 
   at(text) {
-    const token = this.list[this.index];
+    const token = this.current;
     return token.kind === 'punct' && token.text === text;
   }
 

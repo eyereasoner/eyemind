@@ -137,6 +137,10 @@ function renameAnonymous(term, counter) {
 }
 
 // Collects the clauses a program states, in order.
+// The line of the statement call being run, when the call names it (see
+// markStatements); otherwise statements find it on the stack.
+let statedLine = null;
+
 class Builder {
   constructor(locate) {
     this.sources = [];
@@ -144,7 +148,7 @@ class Builder {
   }
 
   add(kind, head, body, line = null) {
-    if (line === null) line = this.locate();
+    if (line === null) line = statedLine !== null ? statedLine : this.locate();
     const counter = new Anonymous([head, ...body]);
     // In the order the statement writes them: a forward rule, implies(),
     // writes its premise first.
@@ -239,7 +243,10 @@ const LIBRARY = Object.freeze({
 // The names a program is given: the statements and the terms it builds goals
 // with. The statements report to the innermost program being built.
 function exportsFor(io) {
-  const builder = { add: (...args) => active().add(...args), locate: () => active().locate() };
+  const builder = {
+    add: (...args) => active().add(...args),
+    locate: () => (statedLine !== null ? statedLine : active().locate()),
+  };
   const statements = {
     fact: (...terms) => {
       for (const term of terms) builder.add('fact', toTerm(term), []);
@@ -308,6 +315,23 @@ function exportsFor(io) {
     fail: 'fail',
     eyecode: LIBRARY,
   };
+  const named = new Set(STATEMENT_NAMES.map((name) => statements[name]));
+  // A statement call rewritten by markStatements: the statement, run with its
+  // line known.
+  Object.defineProperty(statements, AT, {
+    value: (statement, line) => {
+      if (!named.has(statement)) return statement;
+      return (...args) => {
+        const outer = statedLine;
+        statedLine = line;
+        try {
+          return statement(...args);
+        } finally {
+          statedLine = outer;
+        }
+      };
+    },
+  });
   for (const primitiveKey of PRIMITIVE_KEYS) {
     const name = keyName(primitiveKey);
     const arity = Number(primitiveKey.slice(name.length + 1));
@@ -329,6 +353,9 @@ const KEPT = new Set([
 function programScope(exported) {
   const locals = new Map();
   const predicates = new Map();
+  // Variables are matched by name and each _ is renamed where it occurs, so
+  // one Var per name serves every use.
+  const variables = new Map();
   return new Proxy(Object.create(null), {
     has(target, name) {
       return typeof name === 'string' && !KEPT.has(name);
@@ -337,7 +364,15 @@ function programScope(exported) {
       if (typeof name !== 'string') return undefined;
       if (locals.has(name)) return locals.get(name);
       if (Object.hasOwn(exported, name)) return exported[name];
-      if (/^[A-Z_]/.test(name)) return new Var(name);
+      const first = name.charCodeAt(0);
+      if ((first >= 65 && first <= 90) || first === 95) {
+        let variable = variables.get(name);
+        if (variable === undefined) {
+          variable = new Var(name);
+          variables.set(name, variable);
+        }
+        return variable;
+      }
       let made = predicates.get(name);
       if (made === undefined) {
         made = predicate(name);
@@ -377,6 +412,146 @@ function lineOffset() {
     firstLine = lines.length ? lines[0] : 3;
   }
   return firstLine;
+}
+
+const AT = '__eyecode_at__';
+const STATEMENT_NAMES = ['fact', 'implies', 'implied_by', 'query', 'contradiction', 'facts_from'];
+const STATEMENT_SET = new Set(STATEMENT_NAMES);
+const IDENTIFIER = /[A-Za-z0-9_$]/;
+// Words after which a slash starts a regular expression rather than a division.
+const BEFORE_EXPRESSION = new Set(['return', 'typeof', 'case', 'in', 'of', 'new', 'delete', 'void', 'throw', 'else', 'do',
+  'instanceof', 'yield', 'await']);
+
+// The program with each call of a statement, such as fact(...), rewritten to
+// name its own line: __eyecode_at__(fact, 12)(...). Finding the line of a call
+// on the stack costs microseconds, which adds up over a program that states a
+// hundred thousand clauses. The rewriting adds no line breaks, skips strings,
+// comments, template text and regular expressions, and leaves property calls
+// and declarations alone; a call it misses still finds its line on the stack.
+function markStatements(source) {
+  const out = [];
+  const templates = []; // for each open brace: true when it closes a template's ${
+  let from = 0;
+  let line = 1;
+  let i = 0;
+  let previous = ''; // the previous token: an identifier, or one punctuation character
+  const n = source.length;
+  const skipTo = (end) => {
+    for (; i < end; i++) if (source[i] === '\n') line++;
+  };
+  const template = () => {
+    // From inside a template's text to its end, or to a ${ that opens code.
+    while (i < n) {
+      const ch = source[i];
+      if (ch === '\\') skipTo(i + 2);
+      else if (ch === '`') {
+        i++;
+        previous = ')';
+        return;
+      } else if (ch === '$' && source[i + 1] === '{') {
+        i += 2;
+        templates.push(true);
+        previous = '{';
+        return;
+      } else skipTo(i + 1);
+    }
+  };
+  while (i < n) {
+    const ch = source[i];
+    if (ch === '\n') {
+      line++;
+      i++;
+    } else if (ch === ' ' || ch === '\t' || ch === '\r') {
+      i++;
+    } else if (ch === '/' && source[i + 1] === '/') {
+      while (i < n && source[i] !== '\n') i++;
+    } else if (ch === '/' && source[i + 1] === '*') {
+      const end = source.indexOf('*/', i + 2);
+      skipTo(end < 0 ? n : end + 2);
+    } else if (ch === "'" || ch === '"') {
+      i++;
+      while (i < n && source[i] !== ch && source[i] !== '\n') skipTo(source[i] === '\\' ? i + 2 : i + 1);
+      i++;
+      previous = ')';
+    } else if (ch === '`') {
+      i++;
+      template();
+    } else if (ch === '/' && (previous === '' || BEFORE_EXPRESSION.has(previous) || '(,=:[!&|?{};+-*%<>~^'.includes(previous))) {
+      // A regular expression literal.
+      i++;
+      let inClass = false;
+      while (i < n && source[i] !== '\n' && (inClass || source[i] !== '/')) {
+        if (source[i] === '\\') i++;
+        else if (source[i] === '[') inClass = true;
+        else if (source[i] === ']') inClass = false;
+        i++;
+      }
+      i++;
+      while (i < n && IDENTIFIER.test(source[i])) i++;
+      previous = ')';
+    } else if (IDENTIFIER.test(ch)) {
+      const start = i;
+      while (i < n && IDENTIFIER.test(source[i])) i++;
+      const word = source.slice(start, i);
+      if (STATEMENT_SET.has(word) && previous !== '.' && previous !== 'function') {
+        let next = i;
+        while (source[next] === ' ' || source[next] === '\t') next++;
+        if (source[next] === '(') {
+          out.push(source.slice(from, start), `${AT}(${word}, ${line})`);
+          from = i;
+        }
+      }
+      previous = /^[0-9]/.test(word) ? ')' : word;
+    } else if (ch === '{') {
+      templates.push(false);
+      previous = '{';
+      i++;
+    } else if (ch === '}') {
+      i++;
+      if (templates.pop()) template();
+      else previous = '}';
+    } else {
+      previous = ch === ')' || ch === ']' ? ')' : ch;
+      i++;
+    }
+  }
+  out.push(source.slice(from));
+  return out.join('');
+}
+
+// The line of the innermost frame of the script at url, or null when none is
+// on the stack. Where the host gives stack frames as objects (V8), they are
+// read directly, which is many times faster than formatting the stack as
+// text for every statement; elsewhere this returns undefined and the text is
+// searched.
+function innermostLine(url) {
+  if (typeof Error.captureStackTrace !== 'function') return undefined;
+  // A statement is usually called from the program itself, a few frames up,
+  // so a short stack is captured first and the whole one only when needed.
+  for (const limit of [10, Infinity]) {
+    const frames = callSites(limit);
+    if (!Array.isArray(frames)) return undefined;
+    for (const frame of frames) {
+      if (frame.getScriptNameOrSourceURL() === url) return frame.getLineNumber();
+    }
+    if (frames.length < limit) break;
+  }
+  return null;
+}
+
+function callSites(limit) {
+  const prepare = Error.prepareStackTrace;
+  const stackLimit = Error.stackTraceLimit;
+  const holder = {};
+  try {
+    Error.prepareStackTrace = (_, sites) => sites;
+    Error.stackTraceLimit = limit;
+    Error.captureStackTrace(holder, innermostLine);
+    return holder.stack;
+  } finally {
+    Error.prepareStackTrace = prepare;
+    Error.stackTraceLimit = stackLimit;
+  }
 }
 
 function compile(source, url) {
@@ -429,11 +604,18 @@ function execute(source, filename, builder, io) {
   const url = `eyecode-program-${id}.js`;
   let fn;
   try {
-    fn = compile(source, url);
-  } catch (error) {
-    throw new EyecodeError(`${filename}: ${error.name}: ${error.message}`);
+    fn = compile(markStatements(source), url);
+  } catch {
+    // Should the rewriting ever break the program, it runs as written.
+    try {
+      fn = compile(source, url);
+    } catch (error) {
+      throw new EyecodeError(`${filename}: ${error.name}: ${error.message}`);
+    }
   }
   builder.locate = () => {
+    const line = innermostLine(url);
+    if (line !== undefined) return line === null ? null : line - lineOffset() + 1;
     const lines = frameLines(new Error().stack, id);
     return lines.length ? lines[0] - lineOffset() + 1 : null;
   };
