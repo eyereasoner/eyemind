@@ -2,7 +2,7 @@
 
 *Colouring the map of the European Union so that no neighbours match.*
 
-[four-color.js](https://github.com/eyereasoner/eyelit/blob/main/examples/four-color.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/four-color.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/four-color.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/four-color.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=four-color)
+[four-color.js](https://github.com/eyereasoner/eyecode/blob/main/examples/four-color.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/four-color.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/four-color.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/four-color.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=four-color)
 
 ---
 
@@ -12,12 +12,12 @@ Mapmakers like neighbouring countries to have different colours. A famous
 result, the *four colour theorem*, says four colours are always enough for
 any flat map.
 
-**Can eyelit colour the 27 countries of the European Union with red, green,
+**Can eyecode colour the 27 countries of the European Union with red, green,
 blue and yellow, so that no two neighbours share a colour?**
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 The map, as a list of neighbours for each country:
 
@@ -55,7 +55,7 @@ there is no conflict.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 One colouring of all 27 countries (excerpt):
 
@@ -92,7 +92,7 @@ trust and listed as **obligations**:
 - **1 collected**: the list of countries gathered with `findall` ("find
   all") is assumed to be the complete map;
 - **27 absent**: one per country, "this colour clashes with no coloured
-  neighbour". eyelit searched and found no clash; the checker records that
+  neighbour". eyecode searched and found no clash; the checker records that
   rather than proving a negative.
 
 The checker did look for evidence against all 28 and found none.
@@ -104,7 +104,7 @@ Verdict: **checked_with_obligations**. 95 steps, 28 on trust.
 ## Try it
 
 ```sh
-eyelit examples/four-color.js
+eyecode examples/four-color.js
 ```
 
 Swap the colour order to `['yellow', 'blue', 'green', 'red']`: you get a
@@ -118,5 +118,5 @@ and Ireland turns green.
 ## Takeaway
 
 A search that says "no clash here" is making a claim about what is *not*
-there. eyelit finds the colouring, shows each choice, and lists exactly which
+there. eyecode finds the colouring, shows each choice, and lists exactly which
 of those "nothing found" claims you are trusting.

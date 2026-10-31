@@ -2,7 +2,7 @@
 
 *Where can you get to from here — even when the roads go in circles?*
 
-[reachability.js](https://github.com/eyereasoner/eyelit/blob/main/examples/reachability.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/reachability.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/reachability.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/reachability.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=reachability)
+[reachability.js](https://github.com/eyereasoner/eyecode/blob/main/examples/reachability.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/reachability.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/reachability.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/reachability.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=reachability)
 
 ---
 
@@ -24,7 +24,7 @@ means a careless search could go round forever.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 ```js
 fact(edge('a', 'b'))
@@ -46,7 +46,7 @@ written as an array, `[A, B]`, holds when A and B both hold.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 reachable('a', 'b')   reachable('b', 'c')   reachable('c', 'a')
@@ -58,7 +58,7 @@ reachable('a', 'd')   reachable('b', 'b')   reachable('c', 'c')
 12 conclusions (shown three per line). From a, b or c you can reach all
 four places — including the place you started, by going round the loop.
 From d you reach nothing. And the run stops: once no new pair appears,
-eyelit is done.
+eyecode is done.
 
 ---
 
@@ -92,11 +92,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/reachability.js            # the answers
-eyelit --proof examples/reachability.js    # with their proof
+eyecode examples/reachability.js            # the answers
+eyecode --proof examples/reachability.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=reachability).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=reachability).
 Add a road `fact(edge('d', 'e'))` and run again: there are now 16 conclusions,
 because a, b, c and d can all reach e.
 
@@ -104,6 +104,6 @@ because a, b, c and d can all reach e.
 
 ## Takeaway
 
-A loop in the data does not have to mean a loop in the reasoning. eyelit
+A loop in the data does not have to mean a loop in the reasoning. eyecode
 collects every reachable pair, stops when nothing is new, and backs each
 pair with a chain that leads straight back to the roads.

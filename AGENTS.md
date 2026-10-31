@@ -1,6 +1,6 @@
-# Working on eyelit
+# Working on eyecode
 
-eyelit is a dependency-free JavaScript rule language with forward and
+eyecode is a dependency-free JavaScript rule language with forward and
 backward reasoning and checkable proofs. Programs are JavaScript scripts;
 conclusions, proofs and check reports are JavaScript expressions that a
 reader turns back into terms without running them. It runs as a command-line
@@ -25,7 +25,7 @@ goals, and keep error messages specific and user-facing text direct.
   - `cli.js`: the command line, with no Node imports so the playground's
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
     library API. `version.js`: the version, synced from `package.json`.
-- `bin/eyelit.js`: the `eyelit` command.
+- `bin/eyecode.js`: the `eyecode` command.
 - `playground.html`: hand-written browser playground; it runs `src/` in a
   module worker, with no build step.
 - `_config.yml`, `_layouts/default.html`, `assets/docs.css`: GitHub Pages
@@ -36,7 +36,7 @@ goals, and keep error messages specific and user-facing text direct.
   `examples/proof/` and `examples/check/` hold each one's saved conclusions,
   proof and check report; `examples/deck/` a card deck per example.
 - `conformance/`: the black-box suite of SPEC.md. Each case file is an
-  eyelit document of `conformance(Name, [Setting, ...])` terms, read by
+  eyecode document of `conformance(Name, [Setting, ...])` terms, read by
   `conformance/run.js`; `conformance/README.md` describes the format.
 - `test/`: `run.js` runs every `*.test.js` module and the conformance suite;
   `browser.mjs` checks the playground in a real Chrome.
@@ -52,10 +52,10 @@ goals, and keep error messages specific and user-facing text direct.
 ## Commands
 
 ```sh
-node bin/eyelit.js examples/socrates.js
-node bin/eyelit.js --proof examples/socrates.js > /tmp/proof.js
-node bin/eyelit.js --check-proof /tmp/proof.js examples/socrates.js
-node bin/eyelit.js --unused examples/graphs.js
+node bin/eyecode.js examples/socrates.js
+node bin/eyecode.js --proof examples/socrates.js > /tmp/proof.js
+node bin/eyecode.js --check-proof /tmp/proof.js examples/socrates.js
+node bin/eyecode.js --unused examples/graphs.js
 npm test                          # unit, examples, conformance, command line
 npm test -- unit conformance      # only these sections
 npm test -- -k skolem             # only tests whose line contains "skolem"
@@ -94,7 +94,7 @@ very large proofs; redirect them to a file and inspect focused parts.
   change, run `node tools/update-examples.js` and review the diff: no
   artifact should change unless intended.
 - Expected conformance outputs come from the specification, not from running
-  eyelit. When a case and eyelit disagree, SPEC.md decides which is wrong.
+  eyecode. When a case and eyecode disagree, SPEC.md decides which is wrong.
 
 ## Implementation and verification
 
@@ -111,7 +111,7 @@ evidence may refute (C6). Every proof the engine generates is checked before
 it is returned. For every new check, add a forged proof the checker rejects,
 and confirm that all saved example proofs still check.
 
-eyelit is the JavaScript sibling of peye (Python); eyeron, eyeling and eyepl
+eyecode is the JavaScript sibling of peye (Python); eyeron, eyeling and eyepl
 belong to the same family. A behavior fixed in one usually belongs in the
 others. Floats from the host's math library (`exp`, `log`, trigonometry) may
 differ from peye's in the last digit, as SPEC Section 16 allows.

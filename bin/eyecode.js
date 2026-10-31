@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The eyelit command: reason over JavaScript rule programs.
+// The eyecode command: reason over JavaScript rule programs.
 import { readFileSync, writeSync } from 'node:fs';
 import { main } from '../src/cli.js';
 import { nodeIO } from '../src/node.js';

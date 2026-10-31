@@ -11,10 +11,10 @@
 
 export const EMPTY = '[]';
 
-export class EyelitError extends Error {
+export class EyecodeError extends Error {
   constructor(message) {
     super(message);
-    this.name = 'EyelitError';
+    this.name = 'EyecodeError';
   }
 }
 
@@ -65,7 +65,7 @@ function kindRank(term) {
 }
 
 export function nonfinite(value, where = '') {
-  return new EyelitError(`${where}a float term must be finite, not ${value}`);
+  return new EyecodeError(`${where}a float term must be finite, not ${value}`);
 }
 
 export function cons(head, tail) {

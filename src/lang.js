@@ -23,10 +23,10 @@ import { normalizeGoal } from './goals.js';
 import { CONTROL_KEYS, Program, RESERVED_KEYS, Source } from './program.js';
 import { checkProof, checkReport, verdictText } from './proof.js';
 import { readTerm, readTerms } from './reader.js';
-import { EMPTY, EyelitError, Struct, Tail, Var, conjunction, keyName } from './terms.js';
+import { EMPTY, EyecodeError, Struct, Tail, Var, conjunction, keyName } from './terms.js';
 import { RESERVED_CALLS, RESERVED_WORDS, write } from './writer.js';
 
-const PREDICATE = Symbol('eyelit.predicate');
+const PREDICATE = Symbol('eyecode.predicate');
 
 // A float written float(N) in a program, kept apart from the integer N.
 class FloatLiteral {
@@ -36,7 +36,7 @@ class FloatLiteral {
 }
 
 function refuseOperators() {
-  throw new EyelitError('operators do not apply to terms: write add(X, 1) rather than X + 1, gt(X, 1) ' +
+  throw new EyecodeError('operators do not apply to terms: write add(X, 1) rather than X + 1, gt(X, 1) ' +
                         'rather than X > 1, and an array [g1, g2] rather than g1 && g2');
 }
 
@@ -51,7 +51,7 @@ export function toTerm(value) {
   const type = typeof value;
   if (type === 'string' || type === 'bigint' || value instanceof Var || value instanceof Struct) return value;
   if (type === 'number') {
-    if (!Number.isFinite(value)) throw new EyelitError(`a float term must be finite, not ${value}`);
+    if (!Number.isFinite(value)) throw new EyecodeError(`a float term must be finite, not ${value}`);
     return Number.isInteger(value) ? BigInt(value) : value;
   }
   if (value instanceof FloatLiteral) return value.value;
@@ -59,14 +59,14 @@ export function toTerm(value) {
   if (type === 'function' && value[PREDICATE] !== undefined) return value[PREDICATE];
   if (type === 'boolean') {
     // A comparison of two plain values, such as 1 < 2 or N > 1, is decided by
-    // JavaScript before eyelit sees it.
-    throw new EyelitError(`${value} is not a term: a comparison of plain JavaScript values is decided by ` +
-                          `JavaScript before eyelit sees it; write gt(X, Y) and the like, or an atom such as 'true'`);
+    // JavaScript before eyecode sees it.
+    throw new EyecodeError(`${value} is not a term: a comparison of plain JavaScript values is decided by ` +
+                          `JavaScript before eyecode sees it; write gt(X, Y) and the like, or an atom such as 'true'`);
   }
   if (value === null || value === undefined) {
-    throw new EyelitError(`${value} is not a term; write an atom such as 'true' instead`);
+    throw new EyecodeError(`${value} is not a term; write an atom such as 'true' instead`);
   }
-  throw new EyelitError(`a value of type ${value?.constructor?.name ?? type} is not a term`);
+  throw new EyecodeError(`a value of type ${value?.constructor?.name ?? type} is not a term`);
 }
 
 function fromArray(items) {
@@ -78,7 +78,7 @@ function fromArray(items) {
   }
   let result = tail;
   for (let i = count - 1; i >= 0; i--) {
-    if (items[i] instanceof Tail) throw new EyelitError('a spread tail can only end a list');
+    if (items[i] instanceof Tail) throw new EyecodeError('a spread tail can only end a list');
     result = new Struct('.', [toTerm(items[i]), result]);
   }
   return result;
@@ -157,12 +157,12 @@ class Builder {
     }
     for (const goal of body) {
       if (!(goal instanceof Var) && typeof goal !== 'string' && !(goal instanceof Struct)) {
-        throw new EyelitError('a goal must be an atom, a compound term or a variable, not a number');
+        throw new EyecodeError('a goal must be an atom, a compound term or a variable, not a number');
       }
       if (goal instanceof Struct && goal.name === '.' && goal.args.length === 2) {
-        throw new EyelitError('an open list is not a goal');
+        throw new EyecodeError('an open list is not a goal');
       }
-      if (goal === EMPTY) throw new EyelitError('an empty array is not a goal');
+      if (goal === EMPTY) throw new EyecodeError('an empty array is not a goal');
     }
     this.sources.push(new Source(kind, head, body, line));
   }
@@ -195,7 +195,7 @@ function predicate(name) {
 
 function control(name, arity) {
   return (...args) => {
-    if (args.length !== arity) throw new EyelitError(`${name} takes ${arity} arguments, got ${args.length}`);
+    if (args.length !== arity) throw new EyecodeError(`${name} takes ${arity} arguments, got ${args.length}`);
     return new Struct(name, args.map(toTerm));
   };
 }
@@ -203,11 +203,11 @@ function control(name, arity) {
 const TRUE_ATOM = 'true';
 
 // The programs being built, innermost last: a statement states its clause
-// into the innermost, so a program can build another with eyelit.build().
+// into the innermost, so a program can build another with eyecode.build().
 const builders = [];
 
 function active() {
-  if (!builders.length) throw new EyelitError('a statement states a clause only while a program is built');
+  if (!builders.length) throw new EyecodeError('a statement states a clause only while a program is built');
   return builders[builders.length - 1];
 }
 
@@ -222,7 +222,7 @@ function within(builder, statements) {
   return builder;
 }
 
-// The library, as a program reaches it: eyelit.run(eyelit.build(rules)), and
+// The library, as a program reaches it: eyecode.run(eyecode.build(rules)), and
 // the readers and writers of documents, so a program can reason over the
 // proofs and reports of another in the same language.
 const LIBRARY = Object.freeze({
@@ -256,18 +256,18 @@ function exportsFor(io) {
         documentText = source.text;
         label = 'the text';
       } else if (typeof source === 'string') {
-        if (!io || !io.readFile) throw new EyelitError('facts_from(path) needs a file system; pass {text: ...} instead');
+        if (!io || !io.readFile) throw new EyecodeError('facts_from(path) needs a file system; pass {text: ...} instead');
         documentText = io.readFile(source);
         label = source;
       } else {
-        throw new EyelitError('facts_from needs a path or {text: ...}');
+        throw new EyecodeError('facts_from needs a path or {text: ...}');
       }
       let terms;
       try {
         terms = readTerms(documentText);
       } catch (error) {
         // The document's own line, named so it is not taken for the program's.
-        if (error instanceof EyelitError) throw new EyelitError(`${label}: ${error.message}`);
+        if (error instanceof EyecodeError) throw new EyecodeError(`${label}: ${error.message}`);
         throw error;
       }
       // Each fact is stated by this call, so it records the call's line, as
@@ -275,20 +275,20 @@ function exportsFor(io) {
       for (const [term] of terms) builder.add('fact', term, [], line);
     },
     struct: (name, ...args) => {
-      if (typeof name !== 'string') throw new EyelitError('struct() needs a name string first');
+      if (typeof name !== 'string') throw new EyecodeError('struct() needs a name string first');
       return args.length ? new Struct(name, args.map(toTerm)) : name;
     },
     preds: (spec) => {
       const made = names(spec).map((name) => {
-        if (!PLAIN.test(name) || RESERVED_WORDS.has(name)) throw new EyelitError(`'${name}' is not a valid predicate name`);
-        if (RESERVED_NAMES.has(name)) throw new EyelitError(`'${name}' is a reserved name`);
+        if (!PLAIN.test(name) || RESERVED_WORDS.has(name)) throw new EyecodeError(`'${name}' is not a valid predicate name`);
+        if (RESERVED_NAMES.has(name)) throw new EyecodeError(`'${name}' is a reserved name`);
         return predicate(name);
       });
       return made.length === 1 ? made[0] : made;
     },
     vars: (spec) => {
       const made = names(spec).map((name) => {
-        if (!PLAIN.test(name) || RESERVED_WORDS.has(name)) throw new EyelitError(`'${name}' is not a valid variable name`);
+        if (!PLAIN.test(name) || RESERVED_WORDS.has(name)) throw new EyecodeError(`'${name}' is not a valid variable name`);
         return new Var(name);
       });
       return made.length === 1 ? made[0] : made;
@@ -306,7 +306,7 @@ function exportsFor(io) {
     once: (...goals) => new Struct('once', [joined(goals)]),
     findall: (template, goal, result) => new Struct('findall', [toTerm(template), goalOf(goal), toTerm(result)]),
     fail: 'fail',
-    eyelit: LIBRARY,
+    eyecode: LIBRARY,
   };
   for (const primitiveKey of PRIMITIVE_KEYS) {
     const name = keyName(primitiveKey);
@@ -356,7 +356,7 @@ function programScope(exported) {
 // Where the statement being run is: the line of the innermost program frame
 // on the stack.
 let serial = 0;
-const FRAME = /eyelit-program-(\d+)\.js:(\d+):\d+/;
+const FRAME = /eyecode-program-(\d+)\.js:(\d+):\d+/;
 
 function frameLines(stack, id) {
   const lines = [];
@@ -372,7 +372,7 @@ function frameLines(stack, id) {
 let firstLine = null;
 function lineOffset() {
   if (firstLine === null) {
-    const probe = compile('return new Error().stack', 'eyelit-program-0.js');
+    const probe = compile('return new Error().stack', 'eyecode-program-0.js');
     const lines = frameLines(probe({}), 0);
     firstLine = lines.length ? lines[0] : 3;
   }
@@ -381,7 +381,7 @@ function lineOffset() {
 
 function compile(source, url) {
   // eslint-disable-next-line no-new-func
-  return new Function('__eyelit_scope__', `with (__eyelit_scope__) {\n${source}\n}\n//# sourceURL=${url}`);
+  return new Function('__eyecode_scope__', `with (__eyecode_scope__) {\n${source}\n}\n//# sourceURL=${url}`);
 }
 
 const PROOF_LINE = /^step\(/m;
@@ -399,8 +399,8 @@ function checkStatements(source, exported) {
     if (Object.hasOwn(exported, name) || KEPT.has(name) || declared.has(name) || /^[A-Z_]/.test(name)) continue;
     if (RESERVED_WORDS.has(name)) continue;
     const line = source.slice(0, match.index).split('\n').length;
-    if (Object.hasOwn(RENAMED, name)) throw new EyelitError(`line ${line}: ${name}(...) is now ${RENAMED[name]}`);
-    throw new EyelitError(`line ${line}: ${name}(...) on its own states nothing; ` +
+    if (Object.hasOwn(RENAMED, name)) throw new EyecodeError(`line ${line}: ${name}(...) is now ${RENAMED[name]}`);
+    throw new EyecodeError(`line ${line}: ${name}(...) on its own states nothing; ` +
                           `write fact(${name}(...)) to state it, or check the spelling`);
   }
 }
@@ -409,29 +409,29 @@ function checkStatements(source, exported) {
 function withLine(error, stack, id) {
   const lines = frameLines(stack, id).map((line) => line - lineOffset() + 1);
   const where = lines.length ? `line ${lines[0]}: ` : '';
-  if (error instanceof EyelitError) {
+  if (error instanceof EyecodeError) {
     if (error.message.startsWith('line ') || !where) return error;
-    return new EyelitError(`${where}${error.message}`);
+    return new EyecodeError(`${where}${error.message}`);
   }
-  return new EyelitError(`${where}${error.name || 'Error'}: ${error.message}`);
+  return new EyecodeError(`${where}${error.name || 'Error'}: ${error.message}`);
 }
 
 // Run one program's source, stating its clauses into builder.
 function execute(source, filename, builder, io) {
   if (PROOF_LINE.test(source)) {
-    throw new EyelitError('this is a proof document, not a program: check it with --check-proof PROOF PROGRAM');
+    throw new EyecodeError('this is a proof document, not a program: check it with --check-proof PROOF PROGRAM');
   }
   if (io && io.checkSyntax) io.checkSyntax(source, filename);
   const exported = exportsFor(io);
   checkStatements(source, exported);
   serial++;
   const id = serial;
-  const url = `eyelit-program-${id}.js`;
+  const url = `eyecode-program-${id}.js`;
   let fn;
   try {
     fn = compile(source, url);
   } catch (error) {
-    throw new EyelitError(`${filename}: ${error.name}: ${error.message}`);
+    throw new EyecodeError(`${filename}: ${error.name}: ${error.message}`);
   }
   builder.locate = () => {
     const lines = frameLines(new Error().stack, id);

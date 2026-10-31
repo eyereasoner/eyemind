@@ -1,5 +1,5 @@
 // Complex numbers as ordinary terms: complex(Real, Imaginary).
-// eyelit has no complex primitives, so the whole domain is defined by clauses.
+// eyecode has no complex primitives, so the whole domain is defined by clauses.
 // Gaussian integer components stay exact, and the two places that leave the
 // integers - an inexact quotient and a modulus - are visible in the output.
 

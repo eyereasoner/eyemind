@@ -1,4 +1,4 @@
-import { EyelitError, Struct, Var, readTerm, run, write } from '../src/index.js';
+import { EyecodeError, Struct, Var, readTerm, run, write } from '../src/index.js';
 import { Env, compareTerms, copyResolved, unify } from '../src/terms.js';
 import { assert, program, throwsMatching } from './helpers.js';
 
@@ -16,7 +16,7 @@ export const tests = {
     for (const name of ['X#12', 'VAR_X', '_', 'a b', 'é#3', 'x__y', '_0#1', '']) {
       assert.equal(readTerm(write(new Var(name))).name, name);
     }
-    assert.throws(() => readTerm('VAR_a_b'), EyelitError);
+    assert.throws(() => readTerm('VAR_a_b'), EyecodeError);
   },
 
   'distinct variables are ordered by name in every comparison'() {

@@ -12,7 +12,7 @@ const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const { version } = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
 const PLACES = [
   ['src/version.js', /export const VERSION = '[^']*';/g, `export const VERSION = '${version}';`],
-  ['SPEC.md', /eyelit \d+\.\d+\.\d+/g, `eyelit ${version}`],
+  ['SPEC.md', /eyecode \d+\.\d+\.\d+/g, `eyecode ${version}`],
 ];
 
 const stale = [];

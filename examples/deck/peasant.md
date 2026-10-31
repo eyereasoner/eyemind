@@ -2,7 +2,7 @@
 
 *Multiplying huge numbers with nothing but halving, doubling and adding — the way ancient scribes did.*
 
-[peasant.js](https://github.com/eyereasoner/eyelit/blob/main/examples/peasant.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/peasant.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/peasant.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/peasant.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=peasant)
+[peasant.js](https://github.com/eyereasoner/eyecode/blob/main/examples/peasant.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/peasant.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/peasant.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/peasant.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=peasant)
 
 ---
 
@@ -38,7 +38,7 @@ the computer show each row?**
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 ```js
 fact(prod([0, _], 0))
@@ -88,7 +88,7 @@ BigInt literals with an `n` suffix.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 prod([5, 6], 30)
@@ -100,7 +100,7 @@ pow([238, 13], 7861409907565911395902147452928)
 ```
 
 6 of the 10 answers. The largest, `pow([8367238, 2713], …)`, is a number
-with 18,781 digits — computed exactly, since eyelit's integers have no
+with 18,781 digits — computed exactly, since eyecode's integers have no
 size limit.
 
 ---
@@ -136,11 +136,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/peasant.js            # the answers
-eyelit --proof examples/peasant.js    # every row of every table
+eyecode examples/peasant.js            # the answers
+eyecode --proof examples/peasant.js    # every row of every table
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=peasant).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=peasant).
 
 Add `query(pow([2, 100], _))` at the end and run again: a new line
 appears, `pow([2, 100], 1267650600228229401496703205376)`.
@@ -150,5 +150,5 @@ appears, `pow([2, 100], 1267650600228229401496703205376)`.
 ## Takeaway
 
 An old method is still a good method when each step is simple enough to
-check. eyelit keeps every row, and an independent checker redoes every sum —
+check. eyecode keeps every row, and an independent checker redoes every sum —
 whether the numbers have three digits or eighteen thousand.

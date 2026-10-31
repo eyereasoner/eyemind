@@ -2,7 +2,7 @@
 
 *Reviewing a contract's clauses: what is risky, how risky, and what to fix.*
 
-[policy-risk.js](https://github.com/eyereasoner/eyelit/blob/main/examples/policy-risk.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/policy-risk.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/policy-risk.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/policy-risk.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=policy-risk)
+[policy-risk.js](https://github.com/eyereasoner/eyecode/blob/main/examples/policy-risk.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/policy-risk.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/policy-risk.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/policy-risk.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=policy-risk)
 
 ---
 
@@ -20,7 +20,7 @@ legal advice.
 
 ---
 
-## What we tell eyelit: the clauses
+## What we tell eyecode: the clauses
 
 ```js
 fact(permission('c1', 'remove_account'))
@@ -41,7 +41,7 @@ c3 and c5 both allow sharing data, but only c5 asks for consent.
 
 ---
 
-## What we tell eyelit: one finding rule
+## What we tell eyecode: one finding rule
 
 Each kind of risk has a rule. This one flags sharing without consent:
 
@@ -66,7 +66,7 @@ score higher.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 report(1, 'c1', 100, 'high', 'no_removal_safeguards', 'add_notice_and_inform')
@@ -75,7 +75,7 @@ report(3, 'c2', 85, 'high', short_notice(3, 14), increase_notice(14))
 report(4, 'c4', 70, 'moderate', 'export_prohibited', 'permit_export')
 ```
 
-(Sorted by rank here; eyelit prints them in the order it found them.)
+(Sorted by rank here; eyecode prints them in the order it found them.)
 
 Each line: rank, clause, score, severity, the reason, and a suggested fix.
 c5 and c6 do not appear: c5 has consent, and c6 gives the full 14 days'
@@ -104,7 +104,7 @@ Steps 2 and 5 rely on "nothing more to find", which the next card is about.
   cite, and 18 calculations and comparisons recomputed.
 - **7 steps are taken on trust**:
   - 3 **`absent`** obligations — "c1 has no notice", "c1 has no inform
-    safeguard", "c3 has no consent safeguard". eyelit searched and found
+    safeguard", "c3 has no consent safeguard". eyecode searched and found
     nothing; the checker records this rather than proving it.
   - 4 **`collected`** obligations — the lists of higher scores used for each
     rank, e.g. for 85 the list `[100, 97]`. That each list is complete is
@@ -119,11 +119,11 @@ Verdict: **checked_with_obligations**.
 ## Try it
 
 ```sh
-eyelit examples/policy-risk.js                                              # the report
-eyelit --check-proof examples/proof/policy-risk.js examples/policy-risk.js   # the check
+eyecode examples/policy-risk.js                                              # the report
+eyecode --check-proof examples/proof/policy-risk.js examples/policy-risk.js   # the check
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=policy-risk).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=policy-risk).
 Add `fact(safeguard('c3', 'consent'))` and run again: the c3 finding disappears, and
 c2 and c4 move up to ranks 2 and 3.
 

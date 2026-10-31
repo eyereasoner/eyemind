@@ -25,7 +25,7 @@ export function proven(source, options = {}) {
 }
 
 export function cli(args, stdin = '') {
-  const result = spawnSync(process.execPath, [join(ROOT, 'bin', 'eyelit.js'), ...args], {
+  const result = spawnSync(process.execPath, [join(ROOT, 'bin', 'eyecode.js'), ...args], {
     cwd: ROOT, input: stdin, encoding: 'utf8',
   });
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };

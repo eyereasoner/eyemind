@@ -2,7 +2,7 @@
 
 *Saying that something exists, without knowing what it is, and without mixing it up with anything else.*
 
-[existential-rules.js](https://github.com/eyereasoner/eyelit/blob/main/examples/existential-rules.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/existential-rules.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/existential-rules.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/existential-rules.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=existential-rules)
+[existential-rules.js](https://github.com/eyereasoner/eyecode/blob/main/examples/existential-rules.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/existential-rules.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/existential-rules.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/existential-rules.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=existential-rules)
 
 ---
 
@@ -19,7 +19,7 @@ with another, or with anything it already knows?
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 A variable that appears in a rule's conclusion but not in its body is such an
 unknown, an *existential*:
@@ -36,7 +36,7 @@ are colleagues.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 has_parent('ann', skolem(3, 'P', ['ann']))
@@ -99,7 +99,7 @@ For Bob's parent:
 
 For Carl's invoice: Carl ordered a lamp (*clause 7*), so he has the invoice
 `skolem(10, 'I', ['carl'])` (*clause 10*). The desk is not needed: it would only give the same
-conclusion again, and `eyelit --unused` says so.
+conclusion again, and `eyecode --unused` says so.
 
 ---
 
@@ -117,11 +117,11 @@ values that the rule's variables were bound to.
 ## Try it
 
 ```sh
-eyelit examples/existential-rules.js            # the conclusions
-eyelit --proof examples/existential-rules.js    # with the proof
+eyecode examples/existential-rules.js            # the conclusions
+eyecode --proof examples/existential-rules.js    # with the proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=existential-rules).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=existential-rules).
 Add `fact(person('dan'))` and run again: Dan gets a parent witness of his own
 as well, beside Eve, because the rule says only that some parent exists.
 
@@ -129,7 +129,7 @@ as well, beside Eve, because the rule says only that some parent exists.
 
 ## Takeaway
 
-An existential rule says that something exists. eyelit names each such
+An existential rule says that something exists. eyecode names each such
 something by a Skolem function of what the rule knew: the same activation
 always gives the same name, and the name can never be mistaken for anything
 else.

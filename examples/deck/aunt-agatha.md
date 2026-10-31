@@ -2,7 +2,7 @@
 
 *A murder mystery where the answer has to hold no matter how the gaps are filled.*
 
-[aunt-agatha.js](https://github.com/eyereasoner/eyelit/blob/main/examples/aunt-agatha.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/aunt-agatha.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/aunt-agatha.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/aunt-agatha.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=aunt-agatha)
+[aunt-agatha.js](https://github.com/eyereasoner/eyecode/blob/main/examples/aunt-agatha.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/aunt-agatha.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/aunt-agatha.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/aunt-agatha.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=aunt-agatha)
 
 ---
 
@@ -35,7 +35,7 @@ who the killer is in each one.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 Each clue becomes one goal in the array that defines a model:
 
@@ -89,7 +89,7 @@ model (`gt(N, 0)`) and the others are killers in none.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 models('agatha', 4)
@@ -106,7 +106,7 @@ the clues can be true.
 
 ## Why: one situation, in full
 
-eyelit also prints one model as a **witness**, an example you can inspect:
+eyecode also prints one model as a **witness**, an example you can inspect:
 
 ```js
 witness('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')))
@@ -129,7 +129,7 @@ itself. Verdict: **checked_with_obligations**.
 There are 3 obligations, all of the kind called `collected`. They are the
 three "all models" lists: four models for Agatha, none for the butler, none
 for Charles. That each list is *complete* is the heart of the argument, and
-it comes from eyelit's exhaustive search; the checker records it as an
+it comes from eyecode's exhaustive search; the checker records it as an
 obligation rather than proving it. It did confirm that nothing in the proof
 contradicts those lists, and that no step relies on circular reasoning.
 
@@ -138,11 +138,11 @@ contradicts those lists, and that no step relies on circular reasoning.
 ## Try it
 
 ```sh
-eyelit examples/aunt-agatha.js
-eyelit --proof examples/aunt-agatha.js
+eyecode examples/aunt-agatha.js
+eyecode --proof examples/aunt-agatha.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=aunt-agatha).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=aunt-agatha).
 Delete clue 4 (the three `if_then_not` lines) and run again: now there are 14
 models with Agatha as killer and 6 with Charles, so `entailed(...)`
 disappears. Without that clue, the mystery has no single answer.

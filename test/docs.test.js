@@ -1,4 +1,4 @@
-// Runnable documentation stays tied to what eyelit does.
+// Runnable documentation stays tied to what eyecode does.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { checkReport, loadText, run } from '../src/index.js';
@@ -44,7 +44,7 @@ export const tests = {
     const saved = console.log;
     console.log = (value) => logged.push(value);
     try {
-      const module = `data:text/javascript,${encodeURIComponent(source.replace("from 'eyelit'", `from ${JSON.stringify(new URL('../src/index.js', import.meta.url).href)}`))}`;
+      const module = `data:text/javascript,${encodeURIComponent(source.replace("from 'eyecode'", `from ${JSON.stringify(new URL('../src/index.js', import.meta.url).href)}`))}`;
       await import(module);
     } finally {
       console.log = saved;

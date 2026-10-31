@@ -2,7 +2,7 @@
 
 *Two ways out of Paris, and three ways of asking about them.*
 
-[alternatives.js](https://github.com/eyereasoner/eyelit/blob/main/examples/alternatives.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/alternatives.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/alternatives.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/alternatives.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=alternatives)
+[alternatives.js](https://github.com/eyereasoner/eyecode/blob/main/examples/alternatives.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/alternatives.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/alternatives.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/alternatives.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=alternatives)
 
 ---
 
@@ -20,7 +20,7 @@ This example asks all three, and shows the reasoning behind each answer.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 Two facts, and two rules that both define a `route`:
 
@@ -50,11 +50,11 @@ query(once(route('paris', To)))
 - Line 3 wraps the question in `once`: find the *first* route and commit to
   it, without looking for more.
 
-A line of the form `query(Question)` tells eyelit to answer that question.
+A line of the form `query(Question)` tells eyecode to answer that question.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 route('paris', 'brussels')
@@ -98,11 +98,11 @@ Verdict: **checked**.
 ## Try it
 
 ```sh
-eyelit examples/alternatives.js            # the answers
-eyelit --proof examples/alternatives.js    # answers with their proof
+eyecode examples/alternatives.js            # the answers
+eyecode --proof examples/alternatives.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=alternatives).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=alternatives).
 
 Add `fact(train('paris', 'amsterdam'))` after the bus line and run again: a third
 route, `route('paris', 'amsterdam')`, appears, but `once` still answers Brussels,
@@ -113,5 +113,5 @@ because that train fact still comes first.
 ## Takeaway
 
 "All of them", "at least one" and "just the first" are different questions.
-eyelit lets you say which one you mean, and its proof shows exactly which
+eyecode lets you say which one you mean, and its proof shows exactly which
 option answered.

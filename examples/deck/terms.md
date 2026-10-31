@@ -2,7 +2,7 @@
 
 *Web data, quoted statements and placeholder names, without any new syntax.*
 
-[terms.js](https://github.com/eyereasoner/eyelit/blob/main/examples/terms.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/terms.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/terms.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/terms.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=terms)
+[terms.js](https://github.com/eyereasoner/eyecode/blob/main/examples/terms.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/terms.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/terms.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/terms.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=terms)
 
 ---
 
@@ -20,7 +20,7 @@ claiming they are true — a **quoted graph**, like quoting someone's words.
 
 ---
 
-## What we tell eyelit: the data
+## What we tell eyecode: the data
 
 Everything is written as ordinary nested terms:
 
@@ -49,7 +49,7 @@ Read from the inside out:
 
 ---
 
-## What we tell eyelit: the rules
+## What we tell eyecode: the rules
 
 ```js
 fact(member_of(X, [X, ..._]))
@@ -65,7 +65,7 @@ implies(quoted(X), witness(X, W))
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))
@@ -75,7 +75,7 @@ witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p')
 - The one triple inside the quotation has been found.
 - In the `witness`, the unknown `W` became a **Skolem term**,
   `skolem(6, 'W', [the graph])`: a name meaning "the `W` that rule 6 says
-  exists for this graph". eyelit invents such names when a conclusion mentions
+  exists for this graph". eyecode invents such names when a conclusion mentions
   something the rule never pinned down; the same graph always gives the same
   name, and nothing else can.
 
@@ -113,11 +113,11 @@ A quoted graph is just data: its triple is *found*, not *asserted* as true.
 ## Try it
 
 ```sh
-eyelit examples/terms.js            # the answers
-eyelit --proof examples/terms.js    # answers with their proof
+eyecode examples/terms.js            # the answers
+eyecode --proof examples/terms.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=terms).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=terms).
 Add a second triple to the list, for example
 `triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hallo', lang('nl')))`,
 and run again: two `found` lines appear, one for "hello" in English and one

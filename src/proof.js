@@ -14,7 +14,7 @@ import { readGoal } from './goals.js';
 import { CONTROL_KEYS, Program } from './program.js';
 import { readTerms } from './reader.js';
 import {
-  Env, EyelitError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
+  Env, EyecodeError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
   isCallable, isGround, isTerm, key, listFromItems, properListItems, unify,
 } from './terms.js';
 import { Lettering, letterName, quote, write, writeNotingVariables } from './writer.js';
@@ -172,7 +172,7 @@ class Failures {
 // the goals the proof answers when they were asked from outside the program.
 // allowTrusted false rejects any trusted boundary.
 export function checkProof(program, document, { goals = null, allowTrusted = true } = {}) {
-  if (!(program instanceof Program)) throw new EyelitError('checkProof() needs a Program; load one first');
+  if (!(program instanceof Program)) throw new EyecodeError('checkProof() needs a Program; load one first');
   const fail = new Failures();
   const spellings = new Spellings();
   const [claims, steps] = readDocument(program, document, fail, spellings);
@@ -276,7 +276,7 @@ function readDocument(program, document, fail, spellings) {
       steps.set(goalId, { goal, by, bindings, uses });
     }
   } catch (error) {
-    if (!(error instanceof EyelitError)) throw error;
+    if (!(error instanceof EyecodeError)) throw error;
     fail.add('C3', error.message);
   }
   return [claims, steps];
@@ -332,7 +332,7 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name) {
         }
       } catch (error) {
         // A primitive that cannot be recomputed does not pass C5.
-        if (!(error instanceof EyelitError)) throw error;
+        if (!(error instanceof EyecodeError)) throw error;
       }
       if (!agrees) fail.add('C5', `primitive disagrees: ${text(goal)}`, goal);
       else tally.redecided++;
@@ -490,7 +490,7 @@ function checkBoundaries(program, steps, boundaries, fail) {
       try {
         for (const _ of primitive(goal, new Env())) return [goal]; // eslint-disable-line no-unused-vars
       } catch (error) {
-        if (!(error instanceof EyelitError)) throw error;
+        if (!(error instanceof EyecodeError)) throw error;
         return null;
       }
       return [];

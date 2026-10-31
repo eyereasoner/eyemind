@@ -205,7 +205,7 @@ conformance('other JavaScript globals are predicates and variables', [
 conformance("an error in a program's own JavaScript code is reported at its line", [
   spec('4.1, 14'),
   exit(1),
-  stderr(prefix('eyelit: line 2:')),
+  stderr(prefix('eyecode: line 2:')),
   file('program.js', [
     'fact(p(1))',
     "JSON.parse('{')",
@@ -398,7 +398,7 @@ conformance('true and false are not the conclusion of a backward rule', [
 conformance('implies cannot conclude true or false: query and contradiction do', [
   spec('4.2'),
   exit(1),
-  stderr(prefix("eyelit: line 2: implies() cannot conclude 'true' or 'false'")),
+  stderr(prefix("eyecode: line 2: implies() cannot conclude 'true' or 'false'")),
   file('program.js', [
     'fact(p(1))',
     "implies(p(X), [q(X), 'false'])",
@@ -409,7 +409,7 @@ conformance('implies cannot conclude true or false: query and contradiction do',
 conformance('query and contradiction need a goal', [
   spec('4.2'),
   exit(1),
-  stderr(prefix('eyelit: line 1: query() needs at least one goal')),
+  stderr(prefix('eyecode: line 1: query() needs at least one goal')),
   file('program.js', [
     'query()',
   ]),

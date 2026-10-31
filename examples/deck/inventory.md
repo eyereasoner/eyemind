@@ -2,7 +2,7 @@
 
 *Adding up a shopping bill, and being honest about what "all the lines" means.*
 
-[inventory.js](https://github.com/eyereasoner/eyelit/blob/main/examples/inventory.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/inventory.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/inventory.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/inventory.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=inventory)
+[inventory.js](https://github.com/eyereasoner/eyecode/blob/main/examples/inventory.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/inventory.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/inventory.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/inventory.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=inventory)
 
 ---
 
@@ -20,7 +20,7 @@ part is how a computer can show its work, including the step "I added up
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 ```js
 fact(item('apple', 3, 2))
@@ -38,7 +38,7 @@ implies([findall(Amount, line_total(_, Amount), Amounts), sum(Amounts, Total)], 
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 invoice(28)
@@ -68,7 +68,7 @@ additions itself. Verdict: **checked_with_obligations**.
 
 The one obligation is of the kind called `collected`: the claim that
 `[6, 12, 10]` is the *complete* list of line totals. A proof can show that
-each number is a line total, but "there are no others" comes from eyelit
+each number is a line total, but "there are no others" comes from eyecode
 having searched everything it knows. The checker records that as an
 obligation, and confirmed that nothing in the proof contradicts it.
 
@@ -77,16 +77,16 @@ obligation, and confirmed that nothing in the proof contradicts it.
 ## Try it
 
 ```sh
-eyelit examples/inventory.js            # the answers
-eyelit --proof examples/inventory.js    # answers with their proof
+eyecode examples/inventory.js            # the answers
+eyecode --proof examples/inventory.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=inventory).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=inventory).
 Add `fact(item('fig', 5, 1))` and run again: the invoice becomes `invoice(33)`.
 
 ---
 
 ## Takeaway
 
-A total is only right if no line was left out. eyelit does not hide that
+A total is only right if no line was left out. eyecode does not hide that
 assumption: the report names it, so you know exactly what you are trusting.

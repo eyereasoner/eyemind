@@ -2,7 +2,7 @@
 
 *A classic planning puzzle: how does the monkey reach the bananas?*
 
-[monkey-bananas.js](https://github.com/eyereasoner/eyelit/blob/main/examples/monkey-bananas.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/monkey-bananas.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/monkey-bananas.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/monkey-bananas.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=monkey-bananas)
+[monkey-bananas.js](https://github.com/eyereasoner/eyecode/blob/main/examples/monkey-bananas.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/monkey-bananas.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/monkey-bananas.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/monkey-bananas.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=monkey-bananas)
 
 ---
 
@@ -17,7 +17,7 @@ bananas?** This kind of question is called *planning*.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 A situation is a list: `[Bananas, Monkey, Box, OnBox, HasBananas]`, where
 `'y'`/`'n'` mean yes/no.
@@ -57,7 +57,7 @@ first.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 plan([go('loc3'), push('loc1'), 'climb_on', 'grab'])
@@ -100,8 +100,8 @@ Verdict: **checked**. All 86 steps verified, nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/monkey-bananas.js            # the answers
-eyelit --proof examples/monkey-bananas.js    # answers with their proof
+eyecode examples/monkey-bananas.js            # the answers
+eyecode --proof examples/monkey-bananas.js    # answers with their proof
 ```
 
 Change `in_range(1, 5, N)` to `in_range(1, 4, N)` to allow at most four
@@ -111,5 +111,5 @@ moves: only the shortest plan remains.
 
 ## Takeaway
 
-A plan is a chain of small, checkable moves. eyelit finds the plans and
+A plan is a chain of small, checkable moves. eyecode finds the plans and
 records why each move was allowed, so you can follow the monkey step by step.

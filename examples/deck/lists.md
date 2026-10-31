@@ -2,7 +2,7 @@
 
 *Joining, squaring and adding up lists — one small step at a time.*
 
-[lists.js](https://github.com/eyereasoner/eyelit/blob/main/examples/lists.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/lists.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/lists.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/lists.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=lists)
+[lists.js](https://github.com/eyereasoner/eyecode/blob/main/examples/lists.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/lists.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/lists.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/lists.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=lists)
 
 ---
 
@@ -15,7 +15,7 @@ Three everyday jobs:
 - **Square** every number in `[1, 2, 3, 4]`.
 - **Add up** `[1, 2, 3, 4]`.
 
-eyelit has no special list commands for these. Can we define them from
+eyecode has no special list commands for these. Can we define them from
 scratch — and see each step?
 
 ---
@@ -34,7 +34,7 @@ A rule that uses itself on a smaller piece is called *recursive*.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 ```js
 fact(append([], Ys, Ys))
@@ -55,7 +55,7 @@ questions.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 append(['a', 'b'], ['c', 'd'], ['a', 'b', 'c', 'd'])
@@ -97,11 +97,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/lists.js            # the answers
-eyelit --proof examples/lists.js    # answers with their proof
+eyecode examples/lists.js            # the answers
+eyecode --proof examples/lists.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=lists).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=lists).
 Add `query(append(X, Y, ['a', 'b']))` — asking the question *backward* — and
 `append` lists every way to split `['a', 'b']`: `[]` and `['a', 'b']`, `['a']` and
 `['b']`, `['a', 'b']` and `[]`.

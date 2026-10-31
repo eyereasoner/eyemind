@@ -2,7 +2,7 @@
 
 *A program that reasons about its own reasoning, because there is only one language to speak.*
 
-[audited-grants.js](https://github.com/eyereasoner/eyelit/blob/main/examples/audited-grants.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/audited-grants.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/audited-grants.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/audited-grants.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=audited-grants)
+[audited-grants.js](https://github.com/eyereasoner/eyecode/blob/main/examples/audited-grants.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/audited-grants.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/audited-grants.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/audited-grants.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=audited-grants)
 
 ---
 
@@ -23,11 +23,11 @@ and hoping both agree with what the decision engine actually did.
 
 ## One language, all the way down
 
-In eyelit the rules, the data, the conclusions, the proof and the check report
+In eyecode the rules, the data, the conclusions, the proof and the check report
 are all written the same way: as JavaScript terms. So one program can:
 
 1. state the grant policy,
-2. have eyelit decide and **prove** every decision,
+2. have eyecode decide and **prove** every decision,
 3. read that proof and its check report back **as facts**,
 4. and answer the auditor with ordinary rules over them.
 
@@ -69,10 +69,10 @@ household of three or more (`ge`) gets a top-up.
 ## Reading the proof back
 
 ```js
-const decided = eyelit.run(eyelit.build(policy), { proof: true })
+const decided = eyecode.run(eyecode.build(policy), { proof: true })
 
-facts_from({ text: eyelit.checkReport(decided.proofReport) })
-for (const [term] of eyelit.readTerms(decided.proof)) {
+facts_from({ text: eyecode.checkReport(decided.proofReport) })
+for (const [term] of eyecode.readTerms(decided.proof)) {
   if (term.name === 'step') {
     const [goal, by, , uses] = term.args
     fact(step_of(goal, by, uses))
@@ -105,7 +105,7 @@ it rests on are the policy's facts in that support; its assumptions are the
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 verdict('checked_with_obligations')
@@ -130,7 +130,7 @@ he had no earlier grant.
 
 ## Checked, not just claimed
 
-The audit is an eyelit program too, so its own conclusions come with a proof.
+The audit is an eyecode program too, so its own conclusions come with a proof.
 The checker verified 35 of its 47 steps against the program; the other 12
 are the lists `findall` collected, listed as obligations. Verdict:
 **checked with obligations**.
@@ -143,11 +143,11 @@ and checked.
 ## Try it
 
 ```sh
-eyelit examples/audited-grants.js            # the audit
-eyelit --proof examples/audited-grants.js    # the audit, with its own proof
+eyecode examples/audited-grants.js            # the audit
+eyecode --proof examples/audited-grants.js    # the audit, with its own proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=audited-grants).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=audited-grants).
 Change Cara's evidence to `'payslip'` and run again: her grant is no longer
 at risk. Lower the threshold in the grant rule to `lt(I, 2000)` and watch the
 explanations, and the risks, change with it.

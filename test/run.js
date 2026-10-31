@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Every test of eyelit in one run, one numbered line per test: npm test
+// Every test of eyecode in one run, one numbered line per test: npm test
 //
 //     npm test                       unit tests, examples, conformance in process
 //                                    and through the command line
@@ -153,13 +153,13 @@ async function runThroughCommandLine(reporter) {
   const outcomes = new Array(cases.length);
   let next = 0;
   const one = (item) => new Promise((resolve) => {
-    const directory = mkdtempSync(join(tmpdir(), 'eyelit-cli-'));
+    const directory = mkdtempSync(join(tmpdir(), 'eyecode-cli-'));
     for (const [name, text] of Object.entries(item.files)) {
       mkdirSync(dirname(join(directory, name)), { recursive: true });
       writeFileSync(join(directory, name), text);
     }
     const started = performance.now();
-    const child = spawn(process.execPath, [join(ROOT, 'bin', 'eyelit.js'), ...shellSplit(item.args)], { cwd: directory });
+    const child = spawn(process.execPath, [join(ROOT, 'bin', 'eyecode.js'), ...shellSplit(item.args)], { cwd: directory });
     const out = [];
     const err = [];
     child.stdout.on('data', (chunk) => out.push(chunk));
@@ -194,7 +194,7 @@ async function main(argv) {
     }
   }
   const reporter = new Reporter(pattern);
-  console.log(paint('2', `eyelit ${VERSION} on Node.js ${process.versions.node}`));
+  console.log(paint('2', `eyecode ${VERSION} on Node.js ${process.versions.node}`));
   const tests = await moduleTests();
   for (const section of SECTIONS) {
     if (sections.length && !sections.includes(section)) continue;

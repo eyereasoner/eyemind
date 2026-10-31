@@ -2,7 +2,7 @@
 
 *Checking each record on its own, so one file cannot fill gaps in another.*
 
-[scoped-audit.js](https://github.com/eyereasoner/eyelit/blob/main/examples/scoped-audit.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/scoped-audit.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/scoped-audit.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/scoped-audit.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=scoped-audit)
+[scoped-audit.js](https://github.com/eyereasoner/eyecode/blob/main/examples/scoped-audit.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/scoped-audit.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/scoped-audit.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/scoped-audit.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=scoped-audit)
 
 ---
 
@@ -17,7 +17,7 @@ A consent written in one record must not count for another.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 Each record is a *graph*: a bundle of simple statements (triples, written
 `triple(Subject, Property, Value)`), kept as one piece of data.
@@ -49,7 +49,7 @@ Both rules look *inside one graph*. `not(...)` means "it is not the case that".
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 consented('approved', 'alice')
@@ -78,7 +78,7 @@ For Bob:
 
 - **9** steps are confirmed against the program lines they cite.
 - **1** step is taken on trust, as an *absent* obligation: that Bob's record
-  does not include a consent. eyelit searched that graph and found none;
+  does not include a consent. eyecode searched that graph and found none;
   the checker records the claim rather than proving a negative.
 - The checker looked for evidence against it and found none.
 
@@ -92,8 +92,8 @@ anywhere".
 ## Try it
 
 ```sh
-eyelit examples/scoped-audit.js
-eyelit --proof examples/scoped-audit.js
+eyecode examples/scoped-audit.js
+eyecode --proof examples/scoped-audit.js
 ```
 
 Add `triple('bob', 'consent', 'yes')` to Bob's graph, so it reads

@@ -2,7 +2,7 @@
 
 *Sending a quantum state with two ordinary bits, checked for every case.*
 
-[teleportation.js](https://github.com/eyereasoner/eyelit/blob/main/examples/teleportation.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/teleportation.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/teleportation.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/teleportation.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=teleportation)
+[teleportation.js](https://github.com/eyereasoner/eyecode/blob/main/examples/teleportation.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/teleportation.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/teleportation.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/teleportation.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=teleportation)
 
 ---
 
@@ -31,7 +31,7 @@ and `plus` (both at once).
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 ```js
 // … the shared pair, Alice's measurement and Bob's fixes
@@ -51,7 +51,7 @@ code 65.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 teleported('zero', 0, ['false'])
@@ -95,18 +95,18 @@ the counting of paths sits inside those 12 obligations.
 ## Try it
 
 ```sh
-eyelit examples/teleportation.js            # the answers
-eyelit --proof examples/teleportation.js    # answers with their proof
+eyecode examples/teleportation.js            # the answers
+eyecode --proof examples/teleportation.js    # answers with their proof
 ```
 
 Break Bob's fix for outcome 0: in `implied_by(bob(0, Y, Z), kg(Y, Z))` replace
-`kg(Y, Z)` with `id(Y, Z)`. Now Bob sometimes gets the wrong state, eyelit
+`kg(Y, Z)` with `id(Y, Z)`. Now Bob sometimes gets the wrong state, eyecode
 prints `'false'` and exits with code 65.
 
 ---
 
 ## Takeaway
 
-Even a quantum protocol can be checked case by case with a few rules. eyelit
+Even a quantum protocol can be checked case by case with a few rules. eyecode
 covers all 12 cases, and is upfront that the "all answers" lists are the
 part you are trusting.

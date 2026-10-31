@@ -18,7 +18,7 @@ export const tests = {
   'output written by main goes through the io it is given'() {
     const out = [];
     assert.equal(main(['--help'], { stdout: (text) => out.push(text), stderr: () => {}, stdin: () => '', readFile: () => '' }), 0);
-    assert.match(out.join(''), /^Usage: eyelit/);
+    assert.match(out.join(''), /^Usage: eyecode/);
   },
 
   'proof generation pipes into proof checking'() {
@@ -46,7 +46,7 @@ export const tests = {
     for (const flag of ['-v', '--version']) {
       const result = cli([flag, 'examples/socrates.js']);
       assert.equal(result.code, 0);
-      assert.equal(result.stdout, `eyelit v${VERSION}\n`);
+      assert.equal(result.stdout, `eyecode v${VERSION}\n`);
     }
   },
 
@@ -67,7 +67,7 @@ export const tests = {
   },
 
   'help errors stats and fuse exit codes'() {
-    assert.ok(cli(['--help']).stdout.includes('Usage: eyelit'));
+    assert.ok(cli(['--help']).stdout.includes('Usage: eyecode'));
     assert.equal(cli(['--unknown']).code, 1);
     assert.equal(cli(['--max-depth', '0']).code, 1);
     assert.equal(cli(['--check-proof', '-']).code, 1);

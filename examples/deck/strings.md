@@ -2,7 +2,7 @@
 
 *Building and taking apart text — accents and emoji included.*
 
-[strings.js](https://github.com/eyereasoner/eyelit/blob/main/examples/strings.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/strings.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/strings.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/strings.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=strings)
+[strings.js](https://github.com/eyereasoner/eyecode/blob/main/examples/strings.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/strings.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/strings.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/strings.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=strings)
 
 ---
 
@@ -31,7 +31,7 @@ sometimes count `café` as 5 letters instead of 4.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 ```js
 implied_by(label(Name, Label), atom_concat('hello_', Name, Label))
@@ -51,7 +51,7 @@ measure them (`atom_length`) and give their code points (`atom_codes`).
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 label('alice', 'hello_alice')
@@ -94,11 +94,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/strings.js            # the answers
-eyelit --proof examples/strings.js    # answers with their proof
+eyecode examples/strings.js            # the answers
+eyecode --proof examples/strings.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=strings).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=strings).
 Add `query(characters('Zoë', Chars, Length))` and run again: you get
 `characters('Zoë', ['Z', 'o', 'ë'], 3)`.
 

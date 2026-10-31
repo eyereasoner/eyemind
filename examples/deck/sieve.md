@@ -2,7 +2,7 @@
 
 *A 2,200-year-old recipe for prime numbers, with every crossed-out number on record.*
 
-[sieve.js](https://github.com/eyereasoner/eyelit/blob/main/examples/sieve.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/sieve.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/sieve.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/sieve.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=sieve)
+[sieve.js](https://github.com/eyereasoner/eyecode/blob/main/examples/sieve.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/sieve.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/sieve.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/sieve.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=sieve)
 
 ---
 
@@ -19,7 +19,7 @@ next number still standing, cross out its multiples. Repeat.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 ```js
 implied_by(primes(Limit, Primes), [integers(2, Limit, Integers), sift(Integers, Primes)])
@@ -45,7 +45,7 @@ query(primes(100, _))
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 primes(100, [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97])
@@ -86,11 +86,11 @@ limit of 1000.
 ## Try it
 
 ```sh
-eyelit examples/sieve.js
-eyelit --proof examples/sieve.js
+eyecode examples/sieve.js
+eyecode --proof examples/sieve.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=sieve).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=sieve).
 Change `primes(100, _)` to `primes(50, _)` and run again: you get the 15
 primes up to 47.
 

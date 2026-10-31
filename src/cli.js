@@ -1,11 +1,11 @@
-// The eyelit command line.
+// The eyecode command line.
 import { run, unusedClauses } from './engine.js';
 import { loadSources } from './lang.js';
 import { checkProof, checkReport, publicReport } from './proof.js';
-import { EyelitError } from './terms.js';
+import { EyecodeError } from './terms.js';
 import { VERSION } from './version.js';
 
-export const HELP = `Usage: eyelit [OPTION ...] [FILE ...]
+export const HELP = `Usage: eyecode [OPTION ...] [FILE ...]
 Programs are JavaScript; forward rules run to a fixpoint.
   --proof             Print the claims with clause(...) and step(...) records
   --check-proof FILE  Print a C1-C7 check report of a proof (- for stdin)
@@ -53,7 +53,7 @@ export function main(argv, io) {
         return 0;
       }
       if (arg === '--version' || arg === '-v') {
-        stdout(`eyelit v${VERSION}\n`);
+        stdout(`eyecode v${VERSION}\n`);
         return 0;
       }
       if (arg === '--proof' || arg === '-p') {
@@ -113,12 +113,12 @@ export function main(argv, io) {
     if (stats) stderr(`${JSON.stringify(result.stats)}\n`);
     return result.haltCode || 0;
   } catch (error) {
-    if (error instanceof UsageError || error instanceof EyelitError) {
-      stderr(`eyelit: ${error.message}\n`);
+    if (error instanceof UsageError || error instanceof EyecodeError) {
+      stderr(`eyecode: ${error.message}\n`);
       return 1;
     }
     if (error && (error.code === 'ENOENT' || error.code === 'EISDIR' || error.code === 'EACCES')) {
-      stderr(`eyelit: ${error.message}\n`);
+      stderr(`eyecode: ${error.message}\n`);
       return 1;
     }
     throw error;

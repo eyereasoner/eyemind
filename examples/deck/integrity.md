@@ -2,7 +2,7 @@
 
 *A rule that should never fire, and a clear alarm when it does.*
 
-[integrity.js](https://github.com/eyereasoner/eyelit/blob/main/examples/integrity.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/integrity.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/integrity.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/integrity.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=integrity)
+[integrity.js](https://github.com/eyereasoner/eyecode/blob/main/examples/integrity.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/integrity.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/integrity.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/integrity.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=integrity)
 
 ---
 
@@ -16,7 +16,7 @@ to know at once, and know *which* record broke it.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 Two accounts and the constraint:
 
@@ -31,7 +31,7 @@ The last line reads: *if some Owner has a Balance below 0 (`lt` means
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 'false'
@@ -40,7 +40,7 @@ The last line reads: *if some Owner has a Balance below 0 (`lt` means
 And the program stops with **exit code 65**.
 
 An exit code is the number a program hands back to whatever started it;
-0 means "all fine". eyelit uses 65 to say "a `false` was derived: the data
+0 means "all fine". eyecode uses 65 to say "a `false` was derived: the data
 breaks a constraint". A script or pipeline can notice that and stop.
 
 ---
@@ -73,8 +73,8 @@ is valid; it is the *data* that is wrong.
 ## Try it
 
 ```sh
-eyelit examples/integrity.js; echo "exit code: $?"
-eyelit --proof examples/integrity.js
+eyecode examples/integrity.js; echo "exit code: $?"
+eyecode --proof examples/integrity.js
 ```
 
 Change Bob's balance to `fact(account('bob', 5))` and run again: nothing is

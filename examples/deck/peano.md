@@ -2,7 +2,7 @@
 
 *Counting with nothing but zero and "one more" — and getting 5! = 120 out of it.*
 
-[peano.js](https://github.com/eyereasoner/eyelit/blob/main/examples/peano.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/peano.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/peano.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/peano.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=peano)
+[peano.js](https://github.com/eyereasoner/eyecode/blob/main/examples/peano.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/peano.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/peano.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/peano.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=peano)
 
 ---
 
@@ -34,7 +34,7 @@ arithmetic is used anywhere in this example.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 ```js
 fact(add(A, 'zero', A))
@@ -56,7 +56,7 @@ adding; factorial is repeated multiplying.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 The first question runs addition *backward* — the sum is known, the parts
 are not — and finds every split of 3:
@@ -103,15 +103,15 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/peano.js            # the answers
-eyelit --proof examples/peano.js    # answers with their proof
-eyelit --goal "add(A, B, s(s(s('zero'))))" examples/peano.js
+eyecode examples/peano.js            # the answers
+eyecode --proof examples/peano.js    # answers with their proof
+eyecode --goal "add(A, B, s(s(s('zero'))))" examples/peano.js
 ```
 
 `--goal` asks your own question instead of the program's. Try
 `--goal "multiply(s(s('zero')), s(s(s('zero'))), P)"`: 2 × 3 comes back as
 `s(s(s(s(s(s('zero'))))))`, which is 6.
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=peano).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=peano).
 
 ---
 

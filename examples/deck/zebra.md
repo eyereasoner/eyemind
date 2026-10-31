@@ -2,7 +2,7 @@
 
 *Einstein's riddle: fifteen clues, five houses, one answer you can check.*
 
-[zebra.js](https://github.com/eyereasoner/eyelit/blob/main/examples/zebra.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/zebra.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/zebra.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/zebra.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=zebra)
+[zebra.js](https://github.com/eyereasoner/eyecode/blob/main/examples/zebra.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/zebra.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/zebra.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/zebra.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=zebra)
 
 ---
 
@@ -23,7 +23,7 @@ International* on 17 December 1962.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 The program starts with five houses about which nothing is known, and each
 clue fills in a little more:
@@ -54,7 +54,7 @@ Each house is
 
 ## How the search works
 
-eyelit tries to fit each clue into the houses, one at a time. When a clue
+eyecode tries to fit each clue into the houses, one at a time. When a clue
 doesn't fit the choices made so far, it backs up and tries another place.
 
 This filling-in of blanks by matching patterns is called **unification**:
@@ -66,7 +66,7 @@ No arithmetic, no special puzzle solver — just matching.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 zebra('norwegian', 'japanese')
@@ -120,19 +120,19 @@ that no *other* street would — that was never claimed.
 ## Try it
 
 ```sh
-eyelit examples/zebra.js            # the answer
-eyelit --proof examples/zebra.js    # with the finished street
+eyecode examples/zebra.js            # the answer
+eyecode --proof examples/zebra.js    # with the finished street
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=zebra).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=zebra).
 Delete the line for clue 15 ("The Norwegian is next to blue") and run again:
-the answer is no longer pinned down, and eyelit prints 15 different
+the answer is no longer pinned down, and eyecode prints 15 different
 `zebra(...)` answers.
 
 ---
 
 ## Takeaway
 
-A puzzle can be hard to solve and easy to check. eyelit does the hard part,
+A puzzle can be hard to solve and easy to check. eyecode does the hard part,
 then hands you the easy part: a filled-in street and a clue-by-clue proof
 that it fits.

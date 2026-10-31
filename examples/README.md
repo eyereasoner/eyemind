@@ -2,17 +2,17 @@
 
 <img src="https://josd.github.io/images/eye.png" alt="EYE" width="100">
 
-*eyelit — reasoning you can see.*
+*eyecode — reasoning you can see.*
 
-Every example also has a [card deck](https://eyereasoner.github.io/eyelit/examples/deck/) that explains it for a
+Every example also has a [card deck](https://eyereasoner.github.io/eyecode/examples/deck/) that explains it for a
 wide audience.
 
 Run a source, generate its proof, or check its saved proof:
 
 ```sh
-eyelit examples/socrates.js
-eyelit --proof examples/socrates.js
-eyelit --check-proof examples/proof/socrates.js examples/socrates.js
+eyecode examples/socrates.js
+eyecode --proof examples/socrates.js
+eyecode --check-proof examples/proof/socrates.js examples/socrates.js
 ```
 
 Each program has a matching conclusion file in `output/`, a certificate in
@@ -22,74 +22,74 @@ expressions, one per line. The names match the source: `lists.js` has
 
 | Program | Demonstrates |
 | --- | --- |
-| [ackermann.js](https://github.com/eyereasoner/eyelit/blob/main/examples/ackermann.js) | The Ackermann function through the hyperoperation sequence, exactly |
-| [age.js](https://github.com/eyereasoner/eyelit/blob/main/examples/age.js) | Calendar-year and elapsed-day age checks at an explicit reference date |
-| [alternatives.js](https://github.com/eyereasoner/eyelit/blob/main/examples/alternatives.js) | Alternative routes, disjunction and once |
-| [audited-grants.js](https://github.com/eyereasoner/eyelit/blob/main/examples/audited-grants.js) | A grant policy whose own proof and check report are read back as facts and audited, in the same language |
-| [aunt-agatha.js](https://github.com/eyereasoner/eyelit/blob/main/examples/aunt-agatha.js) | Who killed Aunt Agatha? A conclusion entailed by holding in every model of the premises |
-| [backward.js](https://github.com/eyereasoner/eyelit/blob/main/examples/backward.js) | Backward definitions inside forward bodies |
-| [bayes-diagnosis.js](https://github.com/eyereasoner/eyelit/blob/main/examples/bayes-diagnosis.js) | Normalized probabilities for illustrative printer faults |
-| [collatz.js](https://github.com/eyereasoner/eyelit/blob/main/examples/collatz.js) | Parity-based recursive trajectories over a range of starts |
-| [complex.js](https://github.com/eyereasoner/eyelit/blob/main/examples/complex.js) | Complex arithmetic, exact over Gaussian integers and polar beyond them |
-| [control-system.js](https://github.com/eyereasoner/eyelit/blob/main/examples/control-system.js) | Feedforward and nonlinear feedback commands for two actuators |
-| [data-value-right.js](https://github.com/eyereasoner/eyelit/blob/main/examples/data-value-right.js) | A right to the value of personal data in the age of AI: how it fits existing EU law, and how it could become an autonomous right |
-| [deep-taxonomy-10.js](https://github.com/eyereasoner/eyelit/blob/main/examples/deep-taxonomy-10.js) | A ten-level subclass chain with branches that lead nowhere |
-| [deep-taxonomy-100.js](https://github.com/eyereasoner/eyelit/blob/main/examples/deep-taxonomy-100.js) | The same taxonomy benchmark at a hundred levels |
-| [deep-taxonomy-1000.js](https://github.com/eyereasoner/eyelit/blob/main/examples/deep-taxonomy-1000.js) | The same taxonomy benchmark at a thousand levels |
-| [deep-taxonomy-10000.js](https://github.com/eyereasoner/eyelit/blob/main/examples/deep-taxonomy-10000.js) | The same taxonomy benchmark at ten thousand levels |
-| [deep-taxonomy-100000.js](https://github.com/eyereasoner/eyelit/blob/main/examples/deep-taxonomy-100000.js) | The same taxonomy benchmark at a hundred thousand levels |
-| [dog-license.js](https://github.com/eyereasoner/eyelit/blob/main/examples/dog-license.js) | A licensing threshold based on collected dog counts |
-| [easter.js](https://github.com/eyereasoner/eyelit/blob/main/examples/easter.js) | Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050 |
-| [existential-rules.js](https://github.com/eyereasoner/eyelit/blob/main/examples/existential-rules.js) | Existential rules: a fresh witness per activation, never a clash |
-| [expression-eval.js](https://github.com/eyereasoner/eyelit/blob/main/examples/expression-eval.js) | Recursive expression graphs used in forward inference |
-| [family-cousins.js](https://github.com/eyereasoner/eyelit/blob/main/examples/family-cousins.js) | Generations, family branches and cousin relationships |
-| [fibonacci.js](https://github.com/eyereasoner/eyelit/blob/main/examples/fibonacci.js) | Fast doubling for exact Fibonacci numbers, and the golden ratio |
-| [flat-map.js](https://github.com/eyereasoner/eyelit/blob/main/examples/flat-map.js) | Predicate-based mapping with multiple or missing values |
-| [four-color.js](https://github.com/eyereasoner/eyelit/blob/main/examples/four-color.js) | Four-colouring the map of the European Union |
-| [goldbach.js](https://github.com/eyereasoner/eyelit/blob/main/examples/goldbach.js) | Goldbach splits of every power of two up to 2^25 |
-| [good-cobbler.js](https://github.com/eyereasoner/eyelit/blob/main/examples/good-cobbler.js) | Trade-specific classification from structured descriptions |
-| [gps.js](https://github.com/eyereasoner/eyelit/blob/main/examples/gps.js) | Goal-driven parallel sequences: routes to a goal state within duration, cost, belief and comfort limits |
-| [graphs.js](https://github.com/eyereasoner/eyelit/blob/main/examples/graphs.js) | Base data, negation and collection |
-| [hanoi.js](https://github.com/eyereasoner/eyelit/blob/main/examples/hanoi.js) | Recursive construction of a disk-move sequence |
-| [integrity.js](https://github.com/eyereasoner/eyelit/blob/main/examples/integrity.js) | A provable integrity violation |
-| [interval-relations.js](https://github.com/eyereasoner/eyelit/blob/main/examples/interval-relations.js) | All thirteen interval relations and endpoint completion |
-| [inventory.js](https://github.com/eyereasoner/eyelit/blob/main/examples/inventory.js) | An invoice from collected line totals |
-| [kaprekar.js](https://github.com/eyereasoner/eyelit/blob/main/examples/kaprekar.js) | Every four-digit Kaprekar routine reaches 6174 within seven steps |
-| [lists.js](https://github.com/eyereasoner/eyelit/blob/main/examples/lists.js) | Concatenation, mapping and summation |
-| [lldm.js](https://github.com/eyereasoner/eyelit/blob/main/examples/lldm.js) | Leg length discrepancy measured from radiograph landmarks, with an alarm and its reason |
-| [monkey-bananas.js](https://github.com/eyereasoner/eyelit/blob/main/examples/monkey-bananas.js) | Every plan of up to five moves that gets the monkey the bananas |
-| [package-holiday.js](https://github.com/eyereasoner/eyelit/blob/main/examples/package-holiday.js) | Package holiday cancellations under the tour operator's ODRL terms and the 2015 and revised EU Package Travel Directive |
-| [paraconsistent-animals.js](https://github.com/eyereasoner/eyelit/blob/main/examples/paraconsistent-animals.js) | Local summaries of conflicting observations |
-| [path-discovery.js](https://github.com/eyereasoner/eyelit/blob/main/examples/path-discovery.js) | Full airport network with configurable endpoints and maximum stopovers |
-| [peano.js](https://github.com/eyereasoner/eyelit/blob/main/examples/peano.js) | Symbolic arithmetic, relational addition and a chained derivation |
-| [peasant.js](https://github.com/eyereasoner/eyelit/blob/main/examples/peasant.js) | Peasant multiplication and exponentiation by halving and doubling |
-| [permissions.js](https://github.com/eyereasoner/eyelit/blob/main/examples/permissions.js) | Role permissions with exclusions |
-| [policy-risk.js](https://github.com/eyereasoner/eyelit/blob/main/examples/policy-risk.js) | Ranked findings with explanations and suggested mitigations |
-| [polynomial.js](https://github.com/eyereasoner/eyelit/blob/main/examples/polynomial.js) | Complex roots of polynomials up to degree 4 by Cardan and Lagrange |
-| [queens.js](https://github.com/eyereasoner/eyelit/blob/main/examples/queens.js) | Configurable N-queens search with diagonal constraints |
-| [reachability.js](https://github.com/eyereasoner/eyelit/blob/main/examples/reachability.js) | Finite closure in a graph containing a cycle |
-| [research-portal.js](https://github.com/eyereasoner/eyelit/blob/main/examples/research-portal.js) | A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans |
-| [schema-inference.js](https://github.com/eyereasoner/eyelit/blob/main/examples/schema-inference.js) | Subclasses, subproperties, domains and ranges |
-| [scoped-audit.js](https://github.com/eyereasoner/eyelit/blob/main/examples/scoped-audit.js) | Presence and absence within separate quoted graphs |
-| [shortest-path.js](https://github.com/eyereasoner/eyelit/blob/main/examples/shortest-path.js) | Weighted paths and stratified minimum selection |
-| [sieve.js](https://github.com/eyereasoner/eyelit/blob/main/examples/sieve.js) | The sieve of Eratosthenes over an explicit list of integers |
-| [socrates.js](https://github.com/eyereasoner/eyelit/blob/main/examples/socrates.js) | Class membership derived through a subclass rule |
-| [state-transitions.js](https://github.com/eyereasoner/eyelit/blob/main/examples/state-transitions.js) | Account balances from an ordered event log |
-| [strings.js](https://github.com/eyereasoner/eyelit/blob/main/examples/strings.js) | Text construction and Unicode inspection |
-| [superdense-coding.js](https://github.com/eyereasoner/eyelit/blob/main/examples/superdense-coding.js) | Superdense coding in discrete quantum theory, with interference as odd path counts |
-| [teleportation.js](https://github.com/eyereasoner/eyelit/blob/main/examples/teleportation.js) | Quantum teleportation in discrete quantum theory, checked for every state and outcome |
-| [terms.js](https://github.com/eyereasoner/eyelit/blob/main/examples/terms.js) | Quoted graphs, triple terms and residual witnesses |
-| [turing.js](https://github.com/eyereasoner/eyelit/blob/main/examples/turing.js) | A Turing machine interpreter running a binary incrementer |
-| [unification.js](https://github.com/eyereasoner/eyelit/blob/main/examples/unification.js) | Open lists and repeated-variable constraints |
-| [variable-predicates.js](https://github.com/eyereasoner/eyelit/blob/main/examples/variable-predicates.js) | Relations selected and renamed through data bindings |
-| [witnesses.js](https://github.com/eyereasoner/eyelit/blob/main/examples/witnesses.js) | Structured witnesses and shared multi-head conclusions |
-| [wolf-goat-cabbage.js](https://github.com/eyereasoner/eyelit/blob/main/examples/wolf-goat-cabbage.js) | The river crossing, with seven crossings shown to be minimal |
-| [zebra.js](https://github.com/eyereasoner/eyelit/blob/main/examples/zebra.js) | The zebra puzzle solved by narrowing five partially known houses |
+| [ackermann.js](https://github.com/eyereasoner/eyecode/blob/main/examples/ackermann.js) | The Ackermann function through the hyperoperation sequence, exactly |
+| [age.js](https://github.com/eyereasoner/eyecode/blob/main/examples/age.js) | Calendar-year and elapsed-day age checks at an explicit reference date |
+| [alternatives.js](https://github.com/eyereasoner/eyecode/blob/main/examples/alternatives.js) | Alternative routes, disjunction and once |
+| [audited-grants.js](https://github.com/eyereasoner/eyecode/blob/main/examples/audited-grants.js) | A grant policy whose own proof and check report are read back as facts and audited, in the same language |
+| [aunt-agatha.js](https://github.com/eyereasoner/eyecode/blob/main/examples/aunt-agatha.js) | Who killed Aunt Agatha? A conclusion entailed by holding in every model of the premises |
+| [backward.js](https://github.com/eyereasoner/eyecode/blob/main/examples/backward.js) | Backward definitions inside forward bodies |
+| [bayes-diagnosis.js](https://github.com/eyereasoner/eyecode/blob/main/examples/bayes-diagnosis.js) | Normalized probabilities for illustrative printer faults |
+| [collatz.js](https://github.com/eyereasoner/eyecode/blob/main/examples/collatz.js) | Parity-based recursive trajectories over a range of starts |
+| [complex.js](https://github.com/eyereasoner/eyecode/blob/main/examples/complex.js) | Complex arithmetic, exact over Gaussian integers and polar beyond them |
+| [control-system.js](https://github.com/eyereasoner/eyecode/blob/main/examples/control-system.js) | Feedforward and nonlinear feedback commands for two actuators |
+| [data-value-right.js](https://github.com/eyereasoner/eyecode/blob/main/examples/data-value-right.js) | A right to the value of personal data in the age of AI: how it fits existing EU law, and how it could become an autonomous right |
+| [deep-taxonomy-10.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-10.js) | A ten-level subclass chain with branches that lead nowhere |
+| [deep-taxonomy-100.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-100.js) | The same taxonomy benchmark at a hundred levels |
+| [deep-taxonomy-1000.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-1000.js) | The same taxonomy benchmark at a thousand levels |
+| [deep-taxonomy-10000.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-10000.js) | The same taxonomy benchmark at ten thousand levels |
+| [deep-taxonomy-100000.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-100000.js) | The same taxonomy benchmark at a hundred thousand levels |
+| [dog-license.js](https://github.com/eyereasoner/eyecode/blob/main/examples/dog-license.js) | A licensing threshold based on collected dog counts |
+| [easter.js](https://github.com/eyereasoner/eyecode/blob/main/examples/easter.js) | Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050 |
+| [existential-rules.js](https://github.com/eyereasoner/eyecode/blob/main/examples/existential-rules.js) | Existential rules: a fresh witness per activation, never a clash |
+| [expression-eval.js](https://github.com/eyereasoner/eyecode/blob/main/examples/expression-eval.js) | Recursive expression graphs used in forward inference |
+| [family-cousins.js](https://github.com/eyereasoner/eyecode/blob/main/examples/family-cousins.js) | Generations, family branches and cousin relationships |
+| [fibonacci.js](https://github.com/eyereasoner/eyecode/blob/main/examples/fibonacci.js) | Fast doubling for exact Fibonacci numbers, and the golden ratio |
+| [flat-map.js](https://github.com/eyereasoner/eyecode/blob/main/examples/flat-map.js) | Predicate-based mapping with multiple or missing values |
+| [four-color.js](https://github.com/eyereasoner/eyecode/blob/main/examples/four-color.js) | Four-colouring the map of the European Union |
+| [goldbach.js](https://github.com/eyereasoner/eyecode/blob/main/examples/goldbach.js) | Goldbach splits of every power of two up to 2^25 |
+| [good-cobbler.js](https://github.com/eyereasoner/eyecode/blob/main/examples/good-cobbler.js) | Trade-specific classification from structured descriptions |
+| [gps.js](https://github.com/eyereasoner/eyecode/blob/main/examples/gps.js) | Goal-driven parallel sequences: routes to a goal state within duration, cost, belief and comfort limits |
+| [graphs.js](https://github.com/eyereasoner/eyecode/blob/main/examples/graphs.js) | Base data, negation and collection |
+| [hanoi.js](https://github.com/eyereasoner/eyecode/blob/main/examples/hanoi.js) | Recursive construction of a disk-move sequence |
+| [integrity.js](https://github.com/eyereasoner/eyecode/blob/main/examples/integrity.js) | A provable integrity violation |
+| [interval-relations.js](https://github.com/eyereasoner/eyecode/blob/main/examples/interval-relations.js) | All thirteen interval relations and endpoint completion |
+| [inventory.js](https://github.com/eyereasoner/eyecode/blob/main/examples/inventory.js) | An invoice from collected line totals |
+| [kaprekar.js](https://github.com/eyereasoner/eyecode/blob/main/examples/kaprekar.js) | Every four-digit Kaprekar routine reaches 6174 within seven steps |
+| [lists.js](https://github.com/eyereasoner/eyecode/blob/main/examples/lists.js) | Concatenation, mapping and summation |
+| [lldm.js](https://github.com/eyereasoner/eyecode/blob/main/examples/lldm.js) | Leg length discrepancy measured from radiograph landmarks, with an alarm and its reason |
+| [monkey-bananas.js](https://github.com/eyereasoner/eyecode/blob/main/examples/monkey-bananas.js) | Every plan of up to five moves that gets the monkey the bananas |
+| [package-holiday.js](https://github.com/eyereasoner/eyecode/blob/main/examples/package-holiday.js) | Package holiday cancellations under the tour operator's ODRL terms and the 2015 and revised EU Package Travel Directive |
+| [paraconsistent-animals.js](https://github.com/eyereasoner/eyecode/blob/main/examples/paraconsistent-animals.js) | Local summaries of conflicting observations |
+| [path-discovery.js](https://github.com/eyereasoner/eyecode/blob/main/examples/path-discovery.js) | Full airport network with configurable endpoints and maximum stopovers |
+| [peano.js](https://github.com/eyereasoner/eyecode/blob/main/examples/peano.js) | Symbolic arithmetic, relational addition and a chained derivation |
+| [peasant.js](https://github.com/eyereasoner/eyecode/blob/main/examples/peasant.js) | Peasant multiplication and exponentiation by halving and doubling |
+| [permissions.js](https://github.com/eyereasoner/eyecode/blob/main/examples/permissions.js) | Role permissions with exclusions |
+| [policy-risk.js](https://github.com/eyereasoner/eyecode/blob/main/examples/policy-risk.js) | Ranked findings with explanations and suggested mitigations |
+| [polynomial.js](https://github.com/eyereasoner/eyecode/blob/main/examples/polynomial.js) | Complex roots of polynomials up to degree 4 by Cardan and Lagrange |
+| [queens.js](https://github.com/eyereasoner/eyecode/blob/main/examples/queens.js) | Configurable N-queens search with diagonal constraints |
+| [reachability.js](https://github.com/eyereasoner/eyecode/blob/main/examples/reachability.js) | Finite closure in a graph containing a cycle |
+| [research-portal.js](https://github.com/eyereasoner/eyecode/blob/main/examples/research-portal.js) | A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans |
+| [schema-inference.js](https://github.com/eyereasoner/eyecode/blob/main/examples/schema-inference.js) | Subclasses, subproperties, domains and ranges |
+| [scoped-audit.js](https://github.com/eyereasoner/eyecode/blob/main/examples/scoped-audit.js) | Presence and absence within separate quoted graphs |
+| [shortest-path.js](https://github.com/eyereasoner/eyecode/blob/main/examples/shortest-path.js) | Weighted paths and stratified minimum selection |
+| [sieve.js](https://github.com/eyereasoner/eyecode/blob/main/examples/sieve.js) | The sieve of Eratosthenes over an explicit list of integers |
+| [socrates.js](https://github.com/eyereasoner/eyecode/blob/main/examples/socrates.js) | Class membership derived through a subclass rule |
+| [state-transitions.js](https://github.com/eyereasoner/eyecode/blob/main/examples/state-transitions.js) | Account balances from an ordered event log |
+| [strings.js](https://github.com/eyereasoner/eyecode/blob/main/examples/strings.js) | Text construction and Unicode inspection |
+| [superdense-coding.js](https://github.com/eyereasoner/eyecode/blob/main/examples/superdense-coding.js) | Superdense coding in discrete quantum theory, with interference as odd path counts |
+| [teleportation.js](https://github.com/eyereasoner/eyecode/blob/main/examples/teleportation.js) | Quantum teleportation in discrete quantum theory, checked for every state and outcome |
+| [terms.js](https://github.com/eyereasoner/eyecode/blob/main/examples/terms.js) | Quoted graphs, triple terms and residual witnesses |
+| [turing.js](https://github.com/eyereasoner/eyecode/blob/main/examples/turing.js) | A Turing machine interpreter running a binary incrementer |
+| [unification.js](https://github.com/eyereasoner/eyecode/blob/main/examples/unification.js) | Open lists and repeated-variable constraints |
+| [variable-predicates.js](https://github.com/eyereasoner/eyecode/blob/main/examples/variable-predicates.js) | Relations selected and renamed through data bindings |
+| [witnesses.js](https://github.com/eyereasoner/eyecode/blob/main/examples/witnesses.js) | Structured witnesses and shared multi-head conclusions |
+| [wolf-goat-cabbage.js](https://github.com/eyereasoner/eyecode/blob/main/examples/wolf-goat-cabbage.js) | The river crossing, with seven crossings shown to be minimal |
+| [zebra.js](https://github.com/eyereasoner/eyecode/blob/main/examples/zebra.js) | The zebra puzzle solved by narrowing five partially known houses |
 
 `audited-grants.js` shows what one language makes possible. It states an
-energy grant policy as a program of its own, has eyelit prove the decisions,
+energy grant policy as a program of its own, has eyecode prove the decisions,
 and then reads that proof and its check report back as ordinary facts, with
-`eyelit.readTerms` and `facts_from`, to audit the reasoning: the data each decision
+`eyecode.readTerms` and `facts_from`, to audit the reasoning: the data each decision
 rests on, the assumptions it took on trust, and the decisions at risk because
 they rest on self-declared income. Rules, data, conclusions, proof and report
 are all the same terms, so the audit needs no export format, no parser and no
@@ -123,7 +123,7 @@ largest a few lines long instead of 14 MB. Backward search is an explicit
 machine, so the depth costs heap rather than host stack.
 
 ```sh
-eyelit --stats examples/deep-taxonomy-10000.js
+eyecode --stats examples/deep-taxonomy-10000.js
 ```
 
 Time, proof size and checking all grow linearly with the depth, so a longer
@@ -136,10 +136,10 @@ at most two stopovers. Use any airport-name atoms and a nonnegative integer
 limit with `path_discovery(From, To, MaxStopovers, Path)`:
 
 ```sh
-eyelit --goal "path_discovery('Liège Airport', 'Václav Havel Airport Prague', 1, Path)" examples/path-discovery.js
+eyecode --goal "path_discovery('Liège Airport', 'Václav Havel Airport Prague', 1, Path)" examples/path-discovery.js
 goal="path_discovery('Ostend-Bruges International Airport', 'Liège Airport', 0, Path)"
-eyelit --proof --goal "$goal" examples/path-discovery.js > /tmp/route-proof.js
-eyelit --strict-proof --check-proof /tmp/route-proof.js --goal "$goal" examples/path-discovery.js
+eyecode --proof --goal "$goal" examples/path-discovery.js > /tmp/route-proof.js
+eyecode --strict-proof --check-proof /tmp/route-proof.js --goal "$goal" examples/path-discovery.js
 ```
 
 `--goal` replaces the default goal, so checking that proof names the same goal. Zero stopovers allows only direct flights;
@@ -180,8 +180,8 @@ passes strict proof checking, so every component of every conclusion is
 recomputed by the checker:
 
 ```sh
-eyelit --goal "complex_power(complex(1, 1), 16, Result)" examples/complex.js
-eyelit --goal "complex_div(complex(1, 0), complex(0, 1), Inverse)" examples/complex.js
+eyecode --goal "complex_power(complex(1, 1), 16, Result)" examples/complex.js
+eyecode --goal "complex_div(complex(1, 0), complex(0, 1), Inverse)" examples/complex.js
 ```
 
 `polynomial.js` is Alain Colmerauer's solver for polynomial equations up to
@@ -200,15 +200,15 @@ for one root at a time and every arithmetic step is in the certificate
 instead. For a cubic it passes strict checking:
 
 ```sh
-eyelit --proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" examples/polynomial.js
+eyecode --proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" examples/polynomial.js
 ```
 
 `queens.js` returns the first solution for an 8x8 board by default; another
 goal enumerates other board sizes:
 
 ```sh
-eyelit --goal "queens(4, Columns)" examples/queens.js
-eyelit --goal "add(A, B, s(s(s('zero'))))" examples/peano.js
+eyecode --goal "queens(4, Columns)" examples/queens.js
+eyecode --goal "add(A, B, s(s(s('zero'))))" examples/peano.js
 ```
 
 `interval-relations.js` uses half-open intervals with integer-minute endpoints.
@@ -266,9 +266,9 @@ It uses `as_of(date(2026, 10, 1))` for reproducible output and proofs. Edit that
 fact to change the default date, or pass a reference date directly:
 
 ```sh
-eyelit examples/age.js
-eyelit --goal "age_above('pat_h', years(80), date(2024, 8, 22))" examples/age.js
-eyelit --goal "age_days('pat_h', date(2026, 10, 1), Days)" examples/age.js
+eyecode examples/age.js
+eyecode --goal "age_above('pat_h', years(80), date(2024, 8, 22))" examples/age.js
+eyecode --goal "age_days('pat_h', date(2026, 10, 1), Days)" examples/age.js
 ```
 
 Exactly on the threshold anniversary, `age_above` fails; it succeeds on the
@@ -359,4 +359,4 @@ results with saved artifacts and do not overwrite them.
 After an intentional behavior change, run `node tools/update-examples.js` and review
 the source and artifact changes together. When adding an example, register its
 name, description, expected halt code (if any) and proof obligations in
-[manifest.json](https://github.com/eyereasoner/eyelit/blob/main/examples/manifest.json), then generate its artifacts.
+[manifest.json](https://github.com/eyereasoner/eyecode/blob/main/examples/manifest.json), then generate its artifacts.

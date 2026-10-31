@@ -2,7 +2,7 @@
 
 *Working out (2 × 3) + (10 − 4), and showing every intermediate result.*
 
-[expression-eval.js](https://github.com/eyereasoner/eyelit/blob/main/examples/expression-eval.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/expression-eval.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/expression-eval.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/expression-eval.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=expression-eval)
+[expression-eval.js](https://github.com/eyereasoner/eyecode/blob/main/examples/expression-eval.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/expression-eval.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/expression-eval.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/expression-eval.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=expression-eval)
 
 ---
 
@@ -17,7 +17,7 @@ computed?
 
 ---
 
-## What we tell eyelit: the formula
+## What we tell eyecode: the formula
 
 Every part of the formula gets a name, called a **node**:
 
@@ -37,7 +37,7 @@ fact(root('example', 'total'))
 
 ---
 
-## What we tell eyelit: how to evaluate
+## What we tell eyecode: how to evaluate
 
 ```js
 implied_by(value(Node, Value), literal(Node, Value))
@@ -63,7 +63,7 @@ plain numbers.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 result('example', 12)
@@ -102,11 +102,11 @@ Verdict: **checked**. All 22 steps verified, nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/expression-eval.js
-eyelit --proof examples/expression-eval.js
+eyecode examples/expression-eval.js
+eyecode --proof examples/expression-eval.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=expression-eval).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=expression-eval).
 Change `fact(literal('n4', 4))` to `fact(literal('n4', 1))` and run again: the
 difference becomes 9 and the answer `result('example', 15)`.
 

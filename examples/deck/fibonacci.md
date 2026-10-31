@@ -2,7 +2,7 @@
 
 *Exact Fibonacci numbers — one of them 2090 digits long — with every calculation on the record.*
 
-[fibonacci.js](https://github.com/eyereasoner/eyelit/blob/main/examples/fibonacci.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/fibonacci.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/fibonacci.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/fibonacci.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=fibonacci)
+[fibonacci.js](https://github.com/eyereasoner/eyecode/blob/main/examples/fibonacci.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/fibonacci.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/fibonacci.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/fibonacci.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=fibonacci)
 
 ---
 
@@ -32,7 +32,7 @@ needs only about 14 halvings.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 ```js
 implied_by(fib(N, F), [ge(N, 0), fib_pair(N, F, _)])
@@ -64,7 +64,7 @@ odd N.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 fib(0, 0)
@@ -78,7 +78,7 @@ golden_ratio(1000, 1.618033988749895)
 ```
 
 Plus two giants: F(1000) has 209 digits (434665576869…228875) and F(10000)
-has 2090 (336447648764…366875). Integers in eyelit have no size limit, so
+has 2090 (336447648764…366875). Integers in eyecode have no size limit, so
 these are exact. The ratio `div(B, A)` is ordinary division, so it gives a
 float even when it comes out whole: `1.0`.
 
@@ -116,11 +116,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/fibonacci.js            # the answers
-eyelit --proof examples/fibonacci.js    # with their proof
+eyecode examples/fibonacci.js            # the answers
+eyecode --proof examples/fibonacci.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=fibonacci).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=fibonacci).
 Add the line `query(fib(20, F))` and run again: the answers end with
 `fib(20, 6765)`.
 

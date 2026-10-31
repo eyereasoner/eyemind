@@ -2,7 +2,7 @@
 
 *Plan a trip from Gent to Oostende that stays within your time, budget and comfort limits.*
 
-[gps.js](https://github.com/eyereasoner/eyelit/blob/main/examples/gps.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/gps.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/gps.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/gps.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=gps)
+[gps.js](https://github.com/eyereasoner/eyecode/blob/main/examples/gps.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/gps.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/gps.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/gps.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=gps)
 
 ---
 
@@ -19,7 +19,7 @@ Jos De Roo, not satellite navigation.
 
 ---
 
-## What we tell eyelit: the map
+## What we tell eyecode: the map
 
 Four possible drives on a partial map of Belgium, each written like this:
 
@@ -43,12 +43,12 @@ fact(
 
 From Gent to Brugge by the action `'drive_gent_brugge'`, with duration
 1500.0, cost 0.006, belief 0.96 and comfort 0.99. A whole number like 1500 is
-an exact integer in eyelit; `float(1500)` makes it the decimal 1500.0.
+an exact integer in eyecode; `float(1500)` makes it the decimal 1500.0.
 The other drives are Gent–Kortrijk, Kortrijk–Brugge and Brugge–Oostende.
 
 ---
 
-## What we tell eyelit: the limits
+## What we tell eyecode: the limits
 
 The question names the goal and five limits:
 
@@ -88,7 +88,7 @@ A route that breaks a limit is dropped right there.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 Two routes qualify (lines wrapped to fit):
 
@@ -137,11 +137,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/gps.js
-eyelit --proof examples/gps.js
+eyecode examples/gps.js
+eyecode --proof examples/gps.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=gps).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=gps).
 Lower the duration limit from `float(5000)` to `float(3000)`: the Kortrijk detour
 (4100) no longer fits, and only the Brugge route remains.
 

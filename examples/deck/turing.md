@@ -2,7 +2,7 @@
 
 *The simplest model of a computer, adding one to a binary number, step by step.*
 
-[turing.js](https://github.com/eyereasoner/eyelit/blob/main/examples/turing.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/turing.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/turing.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/turing.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=turing)
+[turing.js](https://github.com/eyereasoner/eyecode/blob/main/examples/turing.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/turing.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/turing.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/turing.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=turing)
 
 ---
 
@@ -19,7 +19,7 @@ Here the machine adds one to a **binary** number (written with only 0 and 1).
 
 ---
 
-## What we tell eyelit: the machine
+## What we tell eyecode: the machine
 
 ```js
 fact(start('add1', 0))
@@ -39,7 +39,7 @@ State 0 runs right to the end of the number. State 1 walks back, turning
 
 ---
 
-## What we tell eyelit: the interpreter
+## What we tell eyecode: the interpreter
 
 ```js
 implied_by(
@@ -69,7 +69,7 @@ first element is `Cell`, followed by the elements of `Right`.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 compute([1, 0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])
@@ -115,11 +115,11 @@ Verdict: **checked**. All 144 steps verified, nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/turing.js            # the answers
-eyelit --proof examples/turing.js    # answers with their proof
+eyecode examples/turing.js            # the answers
+eyecode --proof examples/turing.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=turing).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=turing).
 Add `query(compute([1, 0, 1, 1], _))` and run again: you get
 `compute([1, 0, 1, 1], [1, 1, 0, 0, '#'])`, that is 11 + 1 = 12.
 

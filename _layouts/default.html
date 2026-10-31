@@ -16,7 +16,7 @@
         <a href="{{ '/GUIDE' | relative_url }}"{% if page.path == 'GUIDE.md' %} aria-current="page"{% endif %}>Guide</a>
         <a href="{{ '/playground' | relative_url }}">Playground</a>
         <a href="{{ '/SPEC' | relative_url }}"{% if page.path == 'SPEC.md' %} aria-current="page"{% endif %}>Specification</a>
-        <a href="https://github.com/eyereasoner/eyelit">Repository ↗</a>
+        <a href="https://github.com/eyereasoner/eyecode">Repository ↗</a>
       </nav>
     </header>
     {% comment %}
@@ -39,14 +39,14 @@
         {%- assign folder = path | split: '/' | first | append: '/' -%}
         {%- assign suffix = path | split: '#' | first | slice: -5, 5 -%}
         {%- if folders contains folder and suffix != '.html' -%}
-          href="https://github.com/eyereasoner/eyelit/blob/main/{{ path }}{{ part | remove_first: url }}
+          href="https://github.com/eyereasoner/eyecode/blob/main/{{ path }}{{ part | remove_first: url }}
         {%- else -%}
           href="{{ part }}
         {%- endif -%}
       {%- endfor -%}
     {%- endcapture %}
     <article>{{ body }}</article>
-    <footer><span>eyelit · JavaScript rules with checked proofs</span><span>MIT licensed</span></footer>
+    <footer><span>eyecode · JavaScript rules with checked proofs</span><span>MIT licensed</span></footer>
   </main>
 </body>
 </html>

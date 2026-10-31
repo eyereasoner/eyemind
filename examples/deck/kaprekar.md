@@ -2,7 +2,7 @@
 
 *A number trick that always lands on 6174 — checked for every case, with one honest caveat.*
 
-[kaprekar.js](https://github.com/eyereasoner/eyelit/blob/main/examples/kaprekar.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/kaprekar.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/kaprekar.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/kaprekar.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=kaprekar)
+[kaprekar.js](https://github.com/eyereasoner/eyecode/blob/main/examples/kaprekar.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/kaprekar.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/kaprekar.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/kaprekar.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=kaprekar)
 
 ---
 
@@ -33,7 +33,7 @@ are 705 of them.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 One step of the routine, written as a backward definition:
 
@@ -75,13 +75,13 @@ implied_by(kaprekar_verified(6174, 7), not('counterexample'))
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 kaprekar_verified(6174, 7)
 ```
 
-eyelit searched all 705 multisets and found no counterexample, so the claim
+eyecode searched all 705 multisets and found no counterexample, so the claim
 holds. `--stats` reports 152,940 inferences for that search.
 
 ---
@@ -91,7 +91,7 @@ holds. `--stats` reports 152,940 inferences for that search.
 The saved proof is tiny — two steps:
 
 1. Kaprekar is verified — *rule 19*, because there is no counterexample.
-2. There is no counterexample — *absent*: eyelit looked everywhere it could
+2. There is no counterexample — *absent*: eyecode looked everywhere it could
    and found none.
 
 The whole exhaustive search sits inside that second step. A proof can show
@@ -112,7 +112,7 @@ verdict('checked_with_obligations')
 ```
 
 An **obligation** is a step taken on trust and listed openly. Here it says:
-"there is no counterexample" rests on eyelit's completed search, not on a
+"there is no counterexample" rests on eyecode's completed search, not on a
 step-by-step proof. 2 steps: 1 verified, 1 trusted.
 
 ---
@@ -122,7 +122,7 @@ step-by-step proof. 2 steps: 1 verified, 1 trusted.
 The claim *is* a claim about absence: no number fails. Any checker would have
 to either redo the whole search or take it on trust.
 
-eyelit chooses to say so in writing. If you need a proof with no trusted
+eyecode chooses to say so in writing. If you need a proof with no trusted
 steps, `--strict-proof` rejects this one; for most uses, knowing exactly
 where the trust sits is what matters.
 
@@ -131,12 +131,12 @@ where the trust sits is what matters.
 ## Try it
 
 ```sh
-eyelit examples/kaprekar.js            # the answers
-eyelit --proof examples/kaprekar.js    # answers with their proof
-eyelit --goal "kaprekar_step(3524, B)" examples/kaprekar.js
+eyecode examples/kaprekar.js            # the answers
+eyecode --proof examples/kaprekar.js    # answers with their proof
+eyecode --goal "kaprekar_step(3524, B)" examples/kaprekar.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=kaprekar).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=kaprekar).
 Change `lt(Steps, 7)` to `lt(Steps, 6)`: the conclusion disappears, because some
 numbers really do need all seven steps.
 
@@ -144,6 +144,6 @@ numbers really do need all seven steps.
 
 ## Takeaway
 
-eyelit checked a famous number fact case by case, and its certificate says
+eyecode checked a famous number fact case by case, and its certificate says
 plainly which part rests on "we searched and found nothing" — so you know
 exactly what you are trusting.

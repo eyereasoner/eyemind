@@ -2,7 +2,7 @@
 
 *The cheapest way from A to D, and the honest fine print behind "cheapest".*
 
-[shortest-path.js](https://github.com/eyereasoner/eyelit/blob/main/examples/shortest-path.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/shortest-path.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/shortest-path.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/shortest-path.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=shortest-path)
+[shortest-path.js](https://github.com/eyereasoner/eyecode/blob/main/examples/shortest-path.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/shortest-path.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/shortest-path.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/shortest-path.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=shortest-path)
 
 ---
 
@@ -24,7 +24,7 @@ Finding *a* route is easy. Saying a route is the *cheapest* means saying that
 
 ---
 
-## What we tell eyelit: the map and the routes
+## What we tell eyecode: the map and the routes
 
 ```js
 fact(edge('a', 'b', 4))
@@ -44,7 +44,7 @@ costs add up. `implies` means "keep applying this until nothing new follows".
 
 ---
 
-## What we tell eyelit: "cheapest"
+## What we tell eyecode: "cheapest"
 
 ```js
 implied_by(cheaper(X, Y, Cost), [path(X, Y, Other), lt(Other, Cost)])
@@ -55,12 +55,12 @@ query(shortest('a', 'd', Cost))
 `not(...)` means **"not"**: it succeeds when its goal cannot be proved. A path is the shortest if there is **no** cheaper path
 between the same two places. The last line asks the question.
 
-eyelit first finishes listing all paths, and only then looks for "no cheaper
+eyecode first finishes listing all paths, and only then looks for "no cheaper
 one", so the search for something cheaper is over a complete list.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 shortest('a', 'd', 6)
@@ -91,7 +91,7 @@ something does *not* exist.
 - **1 step is taken on trust**: an **`absent`** obligation,
   `not(cheaper('a', 'd', 6))`.
 
-An absence means eyelit looked through everything it knows and found no
+An absence means eyecode looked through everything it knows and found no
 cheaper path. A proof can show a path exists; it cannot show one doesn't. So
 the checker records this as an obligation, and checks that nothing in the
 proof contradicts it — no cheaper path appears there.
@@ -105,8 +105,8 @@ Verdict: **checked_with_obligations**.
 If you need a proof with nothing taken on trust, ask for it:
 
 ```sh
-eyelit --proof examples/shortest-path.js > /tmp/sp-proof.js
-eyelit --strict-proof --check-proof /tmp/sp-proof.js examples/shortest-path.js
+eyecode --proof examples/shortest-path.js > /tmp/sp-proof.js
+eyecode --strict-proof --check-proof /tmp/sp-proof.js examples/shortest-path.js
 ```
 
 The strict check refuses this proof — verdict `failed(1)` — because it leans
@@ -118,11 +118,11 @@ does not accept "searched and found nothing" as evidence.
 ## Try it
 
 ```sh
-eyelit examples/shortest-path.js            # the answer
-eyelit --proof examples/shortest-path.js    # with its proof
+eyecode examples/shortest-path.js            # the answer
+eyecode --proof examples/shortest-path.js    # with its proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=shortest-path).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=shortest-path).
 Add a direct road `fact(edge('a', 'd', 5))` and run again: the answer becomes
 `shortest('a', 'd', 5)`.
 
@@ -130,6 +130,6 @@ Add a direct road `fact(edge('a', 'd', 5))` and run again: the answer becomes
 
 ## Takeaway
 
-"Best" always hides a "nothing better exists". eyelit shows the route it
+"Best" always hides a "nothing better exists". eyecode shows the route it
 found, and tells you plainly which part of the answer is a search that came
 up empty.

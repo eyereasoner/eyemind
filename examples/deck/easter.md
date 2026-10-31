@@ -2,7 +2,7 @@
 
 *Thirty years of Easter Sundays, worked out by pure arithmetic.*
 
-[easter.js](https://github.com/eyereasoner/eyelit/blob/main/examples/easter.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/easter.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/easter.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/easter.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=easter)
+[easter.js](https://github.com/eyereasoner/eyecode/blob/main/examples/easter.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/easter.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/easter.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/easter.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=easter)
 
 ---
 
@@ -19,7 +19,7 @@ Gregorian algorithm** (also known as Meeus/Jones/Butcher).
 
 ---
 
-## What we tell eyelit: the recipe
+## What we tell eyecode: the recipe
 
 ```js
 implied_by(
@@ -59,7 +59,7 @@ for computing the date of Easter.
 
 ---
 
-## What we tell eyelit: which years
+## What we tell eyecode: which years
 
 ```js
 implied_by(in_range(Low, High, Low), le(Low, High))
@@ -76,7 +76,7 @@ says: for every year in that range, the Easter date is what the recipe gives.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 easter(2021, [4, 4])
@@ -126,11 +126,11 @@ Verdict: **checked**.
 ## Try it
 
 ```sh
-eyelit examples/easter.js            # the 30 dates
-eyelit --proof examples/easter.js    # with every calculation
+eyecode examples/easter.js            # the 30 dates
+eyecode --proof examples/easter.js    # with every calculation
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=easter).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=easter).
 Change the range in the last line to `in_range(2000, 2000, Year)` and run
 again: you get `easter(2000, [4, 23])`, April 23.
 

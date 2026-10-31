@@ -2,7 +2,7 @@
 
 *When a rule creates something new, give it a name that says where it came from.*
 
-[witnesses.js](https://github.com/eyereasoner/eyelit/blob/main/examples/witnesses.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/witnesses.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/witnesses.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/witnesses.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=witnesses)
+[witnesses.js](https://github.com/eyereasoner/eyecode/blob/main/examples/witnesses.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/witnesses.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/witnesses.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/witnesses.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=witnesses)
 
 ---
 
@@ -20,7 +20,7 @@ and conclude two facts about it at once?**
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 Two people, and one rule with two conclusions:
 
@@ -44,7 +44,7 @@ witness, so they always talk about the same record.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 has_record('alice', record('person_rule', 'alice'))
@@ -58,9 +58,9 @@ readable, stable from run to run, and impossible to mix up with Bob's.
 
 ---
 
-## Why not let eyelit invent names?
+## Why not let eyecode invent names?
 
-eyelit can invent placeholder names for things a rule leaves unnamed. But an
+eyecode can invent placeholder names for things a rule leaves unnamed. But an
 explicit witness is better when you want one per rule and per binding:
 
 - it says *which* rule made it and *for whom*;
@@ -99,11 +99,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/witnesses.js            # the four facts
-eyelit --proof examples/witnesses.js    # with their proof
+eyecode examples/witnesses.js            # the four facts
+eyecode --proof examples/witnesses.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=witnesses).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=witnesses).
 
 Add `fact(person('carol'))` and run again: two more facts appear, with the
 witness `record('person_rule', 'carol')`.
@@ -113,5 +113,5 @@ witness `record('person_rule', 'carol')`.
 ## Takeaway
 
 A good name carries its own history. By building the witness from the rule
-and the binding, every new thing eyelit concludes can be traced to where it
+and the binding, every new thing eyecode concludes can be traced to where it
 came from — even before you look at the proof.

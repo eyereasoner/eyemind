@@ -2,7 +2,7 @@
 
 *From four dots on an X-ray to an alarm — with the reason it fired, and every calculation rechecked.*
 
-[lldm.js](https://github.com/eyereasoner/eyelit/blob/main/examples/lldm.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/lldm.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/lldm.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/lldm.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=lldm)
+[lldm.js](https://github.com/eyereasoner/eyecode/blob/main/examples/lldm.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/lldm.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/lldm.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/lldm.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=lldm)
 
 ---
 
@@ -33,7 +33,7 @@ This example takes one measurement, `meas47`, with four landmarks, and asks:
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 The measured coordinates, in centimetres, and the threshold:
 
@@ -82,7 +82,7 @@ gave the same reason for both.)
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 type('meas47', 'lld_alarm')
@@ -130,11 +130,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/lldm.js            # the alarm and its reason
-eyelit --proof examples/lldm.js    # with every calculation
+eyecode examples/lldm.js            # the alarm and its reason
+eyecode --proof examples/lldm.js    # with every calculation
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=lldm).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=lldm).
 
 Change the threshold from `1.25` to `2.0` and run again: the output is
 empty. A 1.91 cm difference is within that limit, so no alarm — and nothing

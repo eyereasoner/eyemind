@@ -2,7 +2,7 @@
 // syntax errors with their line.
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { EyelitError } from './terms.js';
+import { EyecodeError } from './terms.js';
 
 export const nodeIO = {
   readFile: (path) => readFileSync(path, 'utf8'),
@@ -14,7 +14,7 @@ export const nodeIO = {
       if (!(error instanceof SyntaxError)) throw error;
       const match = String(error.stack).match(/:(\d+)\n/);
       const where = match ? `line ${match[1]}: ` : '';
-      throw new EyelitError(`${where}${error.message}`);
+      throw new EyecodeError(`${where}${error.message}`);
     }
   },
 };

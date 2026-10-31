@@ -1,5 +1,5 @@
 {
-  "name": "eyelit",
+  "name": "eyecode",
   "version": "0.1.3",
   "description": "A dependency-free JavaScript rule language with forward and backward reasoning and checkable proofs.",
   "type": "module",
@@ -10,7 +10,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "eyelit": "bin/eyelit.js"
+    "eyecode": "bin/eyecode.js"
   },
   "files": [
     "bin/",
@@ -36,7 +36,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eyereasoner/eyelit.git"
+    "url": "git+https://github.com/eyereasoner/eyecode.git"
   },
-  "homepage": "https://eyereasoner.github.io/eyelit/"
+  "homepage": "https://eyereasoner.github.io/eyecode/"
 }

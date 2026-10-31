@@ -12,7 +12,7 @@
 // solution before asking for the next.
 import * as arith from './arith.js';
 import {
-  EyelitError, Struct, Var, codePoints, compareTerms, copyResolved, deref, isGround, key,
+  EyecodeError, Struct, Var, codePoints, compareTerms, copyResolved, deref, isGround, key,
   listFromItems, properListItems, unify,
 } from './terms.js';
 
@@ -32,8 +32,8 @@ function notUnify(args, resolved, env) {
 }
 
 function boundedInteger(term, low, high) {
-  if (typeof term !== 'bigint' || term < 0n) throw new EyelitError('expected a nonnegative integer');
-  if (term < BigInt(low) || term > BigInt(high)) throw new EyelitError(`integer outside ${low}..${high}`);
+  if (typeof term !== 'bigint' || term < 0n) throw new EyecodeError('expected a nonnegative integer');
+  if (term < BigInt(low) || term > BigInt(high)) throw new EyecodeError(`integer outside ${low}..${high}`);
   return Number(term);
 }
 
@@ -46,8 +46,8 @@ function functor(args, resolved, env, bind) {
     return bind(args[1], term) && bind(args[2], 0n);
   }
   const count = boundedInteger(arity, 0, 1024);
-  if (name instanceof Var) throw new EyelitError('functor/3 needs a bound name');
-  if (count > 0 && typeof name !== 'string') throw new EyelitError('functor/3 needs an atom name');
+  if (name instanceof Var) throw new EyecodeError('functor/3 needs a bound name');
+  if (count > 0 && typeof name !== 'string') throw new EyecodeError('functor/3 needs an atom name');
   // Unique names across primitive invocations preserve variable isolation.
   functorSerial++;
   if (count === 0) return bind(args[0], name);
@@ -71,7 +71,7 @@ function univ(args, resolved, env, bind) {
   let items = properListItems(args[1], env);
   items = items === null ? null : items.map((item) => deref(item, env));
   if (!items || !items.length || items[0] instanceof Var || (items.length > 1 && typeof items[0] !== 'string')) {
-    throw new EyelitError('univ/2 needs a nonempty bound term list');
+    throw new EyecodeError('univ/2 needs a nonempty bound term list');
   }
   return bind(args[0], items.length === 1 ? items[0] : new Struct(items[0], items.slice(1)));
 }
@@ -84,7 +84,7 @@ function atomText(name, codes) {
       return bind(args[1], listFromItems(items));
     }
     const items = properListItems(args[1], env);
-    if (items === null) throw new EyelitError(`${name} needs a proper list`);
+    if (items === null) throw new EyecodeError(`${name} needs a proper list`);
     const chars = [];
     for (let item of items) {
       item = deref(item, env);
@@ -92,7 +92,7 @@ function atomText(name, codes) {
         chars.push(String.fromCodePoint(boundedInteger(item, 0, 0x10ffff)));
       } else {
         if (typeof item !== 'string' || Array.from(item).length !== 1) {
-          throw new EyelitError('atom_chars/2 needs characters');
+          throw new EyecodeError('atom_chars/2 needs characters');
         }
         chars.push(item);
       }
@@ -102,7 +102,7 @@ function atomText(name, codes) {
 }
 
 function atomLength(args, resolved, env, bind) {
-  if (typeof resolved[0] !== 'string') throw new EyelitError('atom_length/2 needs a bound atom');
+  if (typeof resolved[0] !== 'string') throw new EyecodeError('atom_length/2 needs a bound atom');
   return bind(args[1], BigInt(Array.from(resolved[0]).length));
 }
 
@@ -156,7 +156,7 @@ function* atomConcat(args, resolved, env, mark) {
     else env.undo(mark);
     return;
   }
-  if (typeof whole !== 'string') throw new EyelitError('atom_concat/3 needs the result or both operands bound');
+  if (typeof whole !== 'string') throw new EyecodeError('atom_concat/3 needs the result or both operands bound');
   const chars = Array.from(whole);
   for (let i = 0; i <= chars.length; i++) {
     if (unify(args[0], chars.slice(0, i).join(''), env) && unify(args[1], chars.slice(i).join(''), env)) yield env;
@@ -176,7 +176,7 @@ export function* primitive(goal, env) {
   const test = TESTS.get(goalKey);
   if (test === undefined) {
     const relation = RELATIONS.get(goalKey);
-    if (relation === undefined) throw new EyelitError(`unsupported primitive ${goalKey}`);
+    if (relation === undefined) throw new EyecodeError(`unsupported primitive ${goalKey}`);
     yield* relation(args, resolved, env, mark);
     return;
   }

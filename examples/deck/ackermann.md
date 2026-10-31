@@ -2,7 +2,7 @@
 
 *A function that grows faster than you can imagine, computed exactly and checked step by step.*
 
-[ackermann.js](https://github.com/eyereasoner/eyelit/blob/main/examples/ackermann.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/ackermann.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/ackermann.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/ackermann.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=ackermann)
+[ackermann.js](https://github.com/eyereasoner/eyecode/blob/main/examples/ackermann.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/ackermann.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/ackermann.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/ackermann.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=ackermann)
 
 ---
 
@@ -34,7 +34,7 @@ Each level above 3 is the level below, repeated.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 ```js
 implied_by(ackermann([X, Y], A), [is(B, add(Y, 3)), hyper(X, B, 2, C), is(A, sub(C, 3))])
@@ -60,7 +60,7 @@ level X, Y−1 times.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 ackermann([0, 6], 7)
@@ -73,7 +73,7 @@ ackermann([5, 0], 65533)
 ```
 
 7 of the 11 answers. The `[4, 2]` line goes on for 19,729 digits, ending
-in `…5587895905719156733`. eyelit's integers have no size limit, so nothing
+in `…5587895905719156733`. eyecode's integers have no size limit, so nothing
 is rounded.
 
 ---
@@ -109,11 +109,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/ackermann.js            # the answers
-eyelit --proof examples/ackermann.js    # answers with their proof
+eyecode examples/ackermann.js            # the answers
+eyecode --proof examples/ackermann.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=ackermann).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=ackermann).
 
 Add `query(ackermann([3, 5], _))` at the end and run again: a new answer
 appears, `ackermann([3, 5], 253)`.

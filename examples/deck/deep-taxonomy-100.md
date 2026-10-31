@@ -2,7 +2,7 @@
 
 *A hundred-step chain of "every A is a B", with dead ends at every turn.*
 
-[deep-taxonomy-100.js](https://github.com/eyereasoner/eyelit/blob/main/examples/deep-taxonomy-100.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/deep-taxonomy-100.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/deep-taxonomy-100.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/deep-taxonomy-100.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=deep-taxonomy-100)
+[deep-taxonomy-100.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-100.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/deep-taxonomy-100.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/deep-taxonomy-100.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/deep-taxonomy-100.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=deep-taxonomy-100)
 
 ---
 
@@ -19,7 +19,7 @@ leads further.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 One fact and 300 rules, three per level, which a loop states:
 
@@ -38,7 +38,7 @@ Anything of type `n0` is also `n1`, `i1` and `j1`. But only `n1` leads on;
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 type('ind', 'n100')
@@ -99,11 +99,11 @@ one step. `--stats` reports 101 inferences for this one.
 ## Try it
 
 ```sh
-eyelit examples/deep-taxonomy-100.js
-eyelit --stats examples/deep-taxonomy-100.js
+eyecode examples/deep-taxonomy-100.js
+eyecode --stats examples/deep-taxonomy-100.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=deep-taxonomy-100).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=deep-taxonomy-100).
 Change the last line to `query(type(X, 'n50'))`: the answer becomes
 `type('ind', 'n50')`, and `--stats` drops to 51 inferences.
 

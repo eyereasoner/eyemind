@@ -2,7 +2,7 @@
 
 *Thirteen ways two time slots can relate, worked out for a whole schedule.*
 
-[interval-relations.js](https://github.com/eyereasoner/eyelit/blob/main/examples/interval-relations.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/interval-relations.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/interval-relations.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/interval-relations.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=interval-relations)
+[interval-relations.js](https://github.com/eyereasoner/eyecode/blob/main/examples/interval-relations.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/interval-relations.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/interval-relations.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/interval-relations.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=interval-relations)
 
 ---
 
@@ -20,7 +20,7 @@ basis of a lot of scheduling and planning software.
 
 ---
 
-## What we tell eyelit: the time slots
+## What we tell eyecode: the time slots
 
 Times are in minutes after midnight: 600 is 10:00, 720 is 12:00.
 
@@ -41,7 +41,7 @@ a slot ending at 12:00 and one starting at 12:00 touch without overlapping.
 
 ---
 
-## What we tell eyelit: the rules
+## What we tell eyecode: the rules
 
 Missing endpoints are filled in, then each relation gets a rule:
 
@@ -65,7 +65,7 @@ slots are left out.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 relation('a', 'before', 'b')
@@ -115,11 +115,11 @@ Verdict: **checked**.
 ## Try it
 
 ```sh
-eyelit examples/interval-relations.js            # all 100 relations
-eyelit --proof examples/interval-relations.js    # with their proofs
+eyecode examples/interval-relations.js            # all 100 relations
+eyecode --proof examples/interval-relations.js    # with their proofs
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=interval-relations).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=interval-relations).
 Add `fact(start_duration('k', 600, 60))` (10:00 for one hour) and run again: k gets
 its own relations, among them `relation('k', 'equals', 'f')`,
 `relation('k', 'starts', 'a')` and `relation('k', 'meets', 'g')`.

@@ -82,7 +82,7 @@ await select('mode', '--check-proof');
 await evaluate(`(() => { const el = document.getElementById('proof-input'); el.value = ${JSON.stringify('')} + ${JSON.stringify(proof)}; el.dispatchEvent(new Event('input')); })()`);
 await runAndWait();
 assert.match(await outputText(), /verdict\('checked'\)/);
-assert.match(await evaluate("document.getElementById('command').textContent"), /^eyelit --check-proof proof\.js examples\/socrates\.js$/);
+assert.match(await evaluate("document.getElementById('command').textContent"), /^eyecode --check-proof proof\.js examples\/socrates\.js$/);
 
 await select('mode', '');
 await select('goal', "type(X, 'mortal')");

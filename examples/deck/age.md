@@ -2,7 +2,7 @@
 
 *Is someone over 80? A calendar question, answered with every day counted.*
 
-[age.js](https://github.com/eyereasoner/eyelit/blob/main/examples/age.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/age.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/age.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/age.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=age)
+[age.js](https://github.com/eyereasoner/eyecode/blob/main/examples/age.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/age.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/age.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/age.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=age)
 
 ---
 
@@ -17,7 +17,7 @@ We want an answer that shows its arithmetic.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 Two facts: a birth date, and the date we ask about. Writing the date down
 (instead of reading the computer's clock) means the answer is the same
@@ -63,7 +63,7 @@ calendar), find the 80th birthday, and check that today is strictly later
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 age_above('pat_h', years(80))
@@ -104,9 +104,9 @@ Verdict: **checked**. All 54 steps verified, nothing taken on trust.
 ## Try it
 
 ```sh
-eyelit examples/age.js
-eyelit --goal "age_above('pat_h', years(80), date(2024, 8, 22))" examples/age.js
-eyelit --goal "age_days('pat_h', date(2026, 10, 1), Days)" examples/age.js
+eyecode examples/age.js
+eyecode --goal "age_above('pat_h', years(80), date(2024, 8, 22))" examples/age.js
+eyecode --goal "age_days('pat_h', date(2026, 10, 1), Days)" examples/age.js
 ```
 
 The last one answers `age_days('pat_h', date(2026, 10, 1), 29991)`. Change `as_of` to `date(2024, 8, 21)`,

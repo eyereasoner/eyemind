@@ -2,7 +2,7 @@
 
 *Two ways of reasoning in one tiny program: pushing facts forward, and asking questions backward.*
 
-[backward.js](https://github.com/eyereasoner/eyelit/blob/main/examples/backward.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/backward.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/backward.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/backward.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=backward)
+[backward.js](https://github.com/eyereasoner/eyecode/blob/main/examples/backward.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/backward.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/backward.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/backward.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=backward)
 
 ---
 
@@ -10,7 +10,7 @@
 
 Is 5 more interesting than 3? Here "more interesting" just means "bigger".
 
-The real point is *how* eyelit gets there. It can reason in two directions:
+The real point is *how* eyecode gets there. It can reason in two directions:
 
 - **forward**: start from what is known and keep adding conclusions;
 - **backward**: start from a question and work back to what would answer it.
@@ -19,7 +19,7 @@ This example uses both, one inside the other.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 One definition and one rule:
 
@@ -29,7 +29,7 @@ implies(more_interesting(5, 3), indeed_more_interesting(5, 3))
 ```
 
 - `implied_by` is a **backward definition**: X is more interesting
-  than Y *if* X > Y, written `gt(X, Y)` ("greater than"). eyelit only uses it when some question needs it.
+  than Y *if* X > Y, written `gt(X, Y)` ("greater than"). eyecode only uses it when some question needs it.
 - `implies` is a **forward rule**: if 5 is more interesting than 3, then
   record that it is *indeed* more interesting.
 
@@ -37,7 +37,7 @@ implies(more_interesting(5, 3), indeed_more_interesting(5, 3))
 
 ## How the two directions meet
 
-To fire the forward rule, eyelit needs to know whether
+To fire the forward rule, eyecode needs to know whether
 `more_interesting(5, 3)` holds. It does not look that up in a table; it
 *asks*, using the backward definition.
 
@@ -46,7 +46,7 @@ is a calculation the language does itself, such as comparing numbers.
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 indeed_more_interesting(5, 3)
@@ -86,18 +86,18 @@ on trust.
 ## Try it
 
 ```sh
-eyelit examples/backward.js
-eyelit --proof examples/backward.js
+eyecode examples/backward.js
+eyecode --proof examples/backward.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=backward).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=backward).
 In the last line, change both `(5, 3)` to `(3, 5)`: since 3 > 5 is false,
-eyelit concludes nothing and prints nothing.
+eyecode concludes nothing and prints nothing.
 
 ---
 
 ## Takeaway
 
 Forward rules build up what is known; backward definitions answer questions
-on demand. eyelit lets you mix them freely, and the proof stitches both into
+on demand. eyecode lets you mix them freely, and the proof stitches both into
 one readable chain of reasons.

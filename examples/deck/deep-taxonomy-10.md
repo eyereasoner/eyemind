@@ -2,7 +2,7 @@
 
 *Ten levels down a family tree of categories, ignoring every dead end on the way.*
 
-[deep-taxonomy-10.js](https://github.com/eyereasoner/eyelit/blob/main/examples/deep-taxonomy-10.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/deep-taxonomy-10.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/deep-taxonomy-10.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/deep-taxonomy-10.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=deep-taxonomy-10)
+[deep-taxonomy-10.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-10.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/deep-taxonomy-10.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/deep-taxonomy-10.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/deep-taxonomy-10.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=deep-taxonomy-10)
 
 ---
 
@@ -20,7 +20,7 @@ categories that lead nowhere.
 
 ---
 
-## What we tell eyelit
+## What we tell eyecode
 
 One fact, and three rules per level, which a loop states — the program is
 JavaScript, so it can compute its own rules:
@@ -40,7 +40,7 @@ line is the question: "which X are of type `n10`?"
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 ```js
 type('ind', 'n10')
@@ -80,7 +80,7 @@ Verdict: **checked**. All 11 steps verified, nothing taken on trust.
 ## One of five sizes
 
 This is the smallest of a well-known benchmark, the deep taxonomy, that
-eyelit ships at five sizes:
+eyecode ships at five sizes:
 
 - `deep-taxonomy-10` (this one), `-100`, `-1000`, `-10000` and `-100000` levels.
 
@@ -94,12 +94,12 @@ more, but never disproportionately more.
 ## Try it
 
 ```sh
-eyelit examples/deep-taxonomy-10.js
-eyelit --stats examples/deep-taxonomy-10.js
+eyecode examples/deep-taxonomy-10.js
+eyecode --stats examples/deep-taxonomy-10.js
 ```
 
 `--stats` reports 11 inferences, one per step of the ladder.
-In the [playground](https://eyereasoner.github.io/eyelit/playground/#example=deep-taxonomy-10),
+In the [playground](https://eyereasoner.github.io/eyecode/playground/#example=deep-taxonomy-10),
 change the last line to `query(type(X, 'j7'))` and the answer becomes
 `type('ind', 'j7')`: a side branch, reached by climbing six levels first.
 

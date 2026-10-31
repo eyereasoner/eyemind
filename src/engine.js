@@ -5,7 +5,7 @@ import { readGoal } from './goals.js';
 import { checkRendered, clauseDisplay, renderProof } from './proof.js';
 import { CONTROL_KEYS, Program } from './program.js';
 import {
-  Env, EyelitError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
+  Env, EyecodeError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
   identity, isCallable, isGround, isGroundButAnonymous, isTerm, key, keyArity, listFromItems, unify,
   variables,
 } from './terms.js';
@@ -312,11 +312,11 @@ export class Solver {
           frame = this.closeFrame(frame);
           continue;
         }
-        if (frame.depth > this.maxDepth) throw new EyelitError('backward reasoning exceeded max_depth');
+        if (frame.depth > this.maxDepth) throw new EyecodeError('backward reasoning exceeded max_depth');
         stats.inferences++;
-        if (stats.inferences > this.maxInferences) throw new EyelitError('reasoning exceeded max_inferences');
+        if (stats.inferences > this.maxInferences) throw new EyecodeError('reasoning exceeded max_inferences');
         const goal = deref(frame.goals[frame.index], env);
-        if (!isCallable(goal)) throw new EyelitError(`expected a callable goal, got ${text(goal)}`);
+        if (!isCallable(goal)) throw new EyecodeError(`expected a callable goal, got ${text(goal)}`);
         const next = this.step(goal, frame, env, choices);
         if (next === null) {
           failed = true;
@@ -340,7 +340,7 @@ export class Solver {
       // Negation is a test, not a way to bind its variables; its anonymous
       // variables stand for any value.
       if (!isGroundButAnonymous(goal.args[0], env)) {
-        throw new EyelitError('negation requires a goal whose variables are bound, ' +
+        throw new EyecodeError('negation requires a goal whose variables are bound, ' +
                               `except for anonymous ones: ${text(goal, env)}`);
       }
       const mark = env.mark();
@@ -657,7 +657,7 @@ export class Solver {
       let rounds = 0;
       while (changed) {
         rounds++;
-        if (rounds > maxIterations) throw new EyelitError('forward reasoning exceeded max_iterations');
+        if (rounds > maxIterations) throw new EyecodeError('forward reasoning exceeded max_iterations');
         this.stats.rounds++;
         changed = false;
         for (const clause of rules) {
@@ -742,7 +742,7 @@ export class Result {
 // derived fact is a conclusion.
 export function run(program, { goal = null, goals = null, proof = false, maxDepth = null,
   maxIterations = null, maxInferences = null } = {}) {
-  if (!(program instanceof Program)) throw new EyelitError('run() needs a Program; load one first');
+  if (!(program instanceof Program)) throw new EyecodeError('run() needs a Program; load one first');
   const options = { proof, maxDepth, maxIterations, maxInferences };
   if (goals === null) goals = goal === null ? [] : [goal];
   try {
@@ -751,7 +751,7 @@ export function run(program, { goal = null, goals = null, proof = false, maxDept
     if (error instanceof RangeError) {
       // Search itself is iterative, but a few term walks are recursive, so a
       // term nested deeply enough can exhaust the host stack.
-      throw new EyelitError('reasoning exhausted the host stack on a deeply nested term');
+      throw new EyecodeError('reasoning exhausted the host stack on a deeply nested term');
     }
     throw error;
   }
@@ -818,7 +818,7 @@ function reason(program, goalInputs, options) {
   if (document !== null) {
     // The generated proof is checked before it is returned.
     report = checkRendered(program, rendered[1], goals);
-    if (!report.valid) throw new EyelitError(`cannot certify this result: ${report.failures[0].detail}`);
+    if (!report.valid) throw new EyecodeError(`cannot certify this result: ${report.failures[0].detail}`);
   }
   let behind = null;
   if (used !== null) {
@@ -853,7 +853,7 @@ export function unusedClauses(program, options = {}) {
     try {
       return conclusions(run(new Program(program.sources, clause.id), settings)) !== baseline;
     } catch (error) {
-      if (error instanceof EyelitError) return true;
+      if (error instanceof EyecodeError) return true;
       throw error;
     }
   }

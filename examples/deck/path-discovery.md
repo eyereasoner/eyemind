@@ -2,7 +2,7 @@
 
 *Find flight routes from Ostend to Prague in a network of 7,698 airports.*
 
-[path-discovery.js](https://github.com/eyereasoner/eyelit/blob/main/examples/path-discovery.js) · [output](https://github.com/eyereasoner/eyelit/blob/main/examples/output/path-discovery.js) · [proof](https://github.com/eyereasoner/eyelit/blob/main/examples/proof/path-discovery.js) · [check](https://github.com/eyereasoner/eyelit/blob/main/examples/check/path-discovery.js) · [try it in the playground](https://eyereasoner.github.io/eyelit/playground/#example=path-discovery)
+[path-discovery.js](https://github.com/eyereasoner/eyecode/blob/main/examples/path-discovery.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/path-discovery.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/path-discovery.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/path-discovery.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground/#example=path-discovery)
 
 ---
 
@@ -18,7 +18,7 @@ timetable.
 
 ---
 
-## What we tell eyelit: the data
+## What we tell eyecode: the data
 
 The file holds 7,698 airports and 37,505 one-way connections:
 
@@ -36,7 +36,7 @@ fact(flight('AIRPORT_1', 'AIRPORT_3'))
 
 ---
 
-## What we tell eyelit: the rules
+## What we tell eyecode: the rules
 
 ```js
 implied_by(
@@ -64,7 +64,7 @@ implied_by(
 
 ---
 
-## What eyelit concludes
+## What eyecode concludes
 
 Three routes, all through Liège:
 
@@ -112,12 +112,12 @@ leaves no obligations.
 ## Try it
 
 ```sh
-eyelit examples/path-discovery.js            # the answers
-eyelit --proof examples/path-discovery.js    # answers with their proof
-eyelit --goal "path_discovery('Liège Airport', 'Václav Havel Airport Prague', 1, Path)" examples/path-discovery.js
+eyecode examples/path-discovery.js            # the answers
+eyecode --proof examples/path-discovery.js    # answers with their proof
+eyecode --goal "path_discovery('Liège Airport', 'Václav Havel Airport Prague', 1, Path)" examples/path-discovery.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyelit/playground/#example=path-discovery).
+Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground/#example=path-discovery).
 With 0 stopovers only direct flights count:
 `--goal "path_discovery('Ostend-Bruges International Airport', 'Liège Airport', 0, Path)"`
 gives the single route Ostend-Bruges → Liège.
