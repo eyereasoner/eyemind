@@ -465,6 +465,29 @@ conformance('atom_length needs a bound atom', [
   stdout([]),
 ])
 
+conformance('number_chars reads and spells numbers', [
+  spec('5.2'),
+  args("--goal \"number_chars(N, ['0', '0', '7'])\" --goal \"number_chars(N, ['-', '2', '1', '.', '5'])\" --goal \"number_chars(N, ['+', '1', 'E', '3'])\" --goal \"number_chars(7, ['0', '7'])\" --goal 'number_chars(42, L)' --goal 'number_chars(0.5, L)' --goal \"number_chars(N, ['4', 'a'])\""),
+  stdin([]),
+  stdout([
+    "number_chars(7, ['0', '0', '7'])",
+    "number_chars(-21.5, ['-', '2', '1', '.', '5'])",
+    "number_chars(1000.0, ['+', '1', 'E', '3'])",
+    "number_chars(7, ['0', '7'])",
+    "number_chars(42, ['4', '2'])",
+    "number_chars(0.5, ['0', '.', '5'])",
+  ]),
+])
+
+conformance('number_chars needs a number or a bound list', [
+  spec('5.2'),
+  args("--goal \"number_chars(N, ['4', X])\""),
+  exit(1),
+  stderr('nonempty'),
+  stdin([]),
+  stdout([]),
+])
+
 conformance('atom_concat joins two atoms', [
   spec('5.2'),
   args('--goal \'atom_concat(\'"\'"\'ab\'"\'"\', \'"\'"\'cd\'"\'"\', X)\' --goal \'atom_concat(\'"\'"\'ab\'"\'"\', \'"\'"\'cd\'"\'"\', \'"\'"\'abc\'"\'"\')\''),

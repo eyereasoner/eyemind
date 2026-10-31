@@ -360,5 +360,47 @@
       "absent",
       "collected"
     ]
+  },
+  {
+    "name": "rdf12-triple-term",
+    "description": "An RDF 1.2 triple term: a claim names a triple without asserting it, and accepting the claim asserts it",
+    "trusted": []
+  },
+  {
+    "name": "rdf12-nested-triple-term",
+    "description": "Nested RDF 1.2 triple terms: one pattern reaches the triple inside a claim inside a review",
+    "trusted": []
+  },
+  {
+    "name": "rdf12-annotation",
+    "description": "An RDF 1.2 annotation: an asserted triple recovered with the reifier that records who stated it and when",
+    "trusted": []
+  },
+  {
+    "name": "rdf12-annotated-claims",
+    "description": "Conflicting RDF 1.2 annotated claims ranked by confidence and trust, with typed literals read as numbers",
+    "trusted": [
+      "collected"
+    ]
+  },
+  {
+    "name": "rdf12-directional-language",
+    "description": "RDF 1.2 directional language strings keep their base direction through a display rule",
+    "trusted": []
+  },
+  {
+    "name": "rdf12-trig-named-graph",
+    "description": "Ancestors derived within a TriG named graph, each conclusion kept in its graph",
+    "trusted": []
+  },
+  {
+    "name": "rdf12-trig-triple-term",
+    "description": "A triple term inside a named graph, asserted in the graph that holds the claim",
+    "trusted": []
+  },
+  {
+    "name": "rdf12-trig-graph-join",
+    "description": "Data about a named graph in the default graph joined with data inside that graph",
+    "trusted": []
   }
 ]

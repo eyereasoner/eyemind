@@ -67,6 +67,14 @@ expressions, one per line. The names match the source: `lists.js` has
 | [policy-risk.js](https://github.com/eyereasoner/eyecode/blob/main/examples/policy-risk.js) | Ranked findings with explanations and suggested mitigations |
 | [polynomial.js](https://github.com/eyereasoner/eyecode/blob/main/examples/polynomial.js) | Complex roots of polynomials up to degree 4 by Cardan and Lagrange |
 | [queens.js](https://github.com/eyereasoner/eyecode/blob/main/examples/queens.js) | Configurable N-queens search with diagonal constraints |
+| [rdf12-annotated-claims.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-annotated-claims.js) | Conflicting RDF 1.2 annotated claims ranked by confidence and trust, with typed literals read as numbers |
+| [rdf12-annotation.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-annotation.js) | An RDF 1.2 annotation: an asserted triple recovered with the reifier that records who stated it and when |
+| [rdf12-directional-language.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-directional-language.js) | RDF 1.2 directional language strings keep their base direction through a display rule |
+| [rdf12-nested-triple-term.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-nested-triple-term.js) | Nested RDF 1.2 triple terms: one pattern reaches the triple inside a claim inside a review |
+| [rdf12-trig-graph-join.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-trig-graph-join.js) | Data about a named graph in the default graph joined with data inside that graph |
+| [rdf12-trig-named-graph.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-trig-named-graph.js) | Ancestors derived within a TriG named graph, each conclusion kept in its graph |
+| [rdf12-trig-triple-term.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-trig-triple-term.js) | A triple term inside a named graph, asserted in the graph that holds the claim |
+| [rdf12-triple-term.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-triple-term.js) | An RDF 1.2 triple term: a claim names a triple without asserting it, and accepting the claim asserts it |
 | [reachability.js](https://github.com/eyereasoner/eyecode/blob/main/examples/reachability.js) | Finite closure in a graph containing a cycle |
 | [research-portal.js](https://github.com/eyereasoner/eyecode/blob/main/examples/research-portal.js) | A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans |
 | [schema-inference.js](https://github.com/eyereasoner/eyecode/blob/main/examples/schema-inference.js) | Subclasses, subproperties, domains and ranges |

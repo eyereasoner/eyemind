@@ -13,8 +13,9 @@
 import * as arith from './arith.js';
 import {
   EyecodeError, Struct, Var, codePoints, compareTerms, copyResolved, deref, isGround, key,
-  listFromItems, properListItems, unify,
+  listFromItems, nonfinite, properListItems, unify,
 } from './terms.js';
+import { floatText } from './writer.js';
 
 function comparison(holds) {
   return (args, resolved, env) => holds(arith.compare(args[0], args[1], env));
@@ -101,6 +102,36 @@ function atomText(name, codes) {
   };
 }
 
+// A number's text: an optional sign, digits, and a fraction or an exponent for
+// a float. Leading zeros are allowed, as in RDF's lexical forms.
+const NUMBER_TEXT = /^[+-]?(?:([0-9]+)|(?:[0-9]+\.[0-9]*|\.[0-9]+)(?:[eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+)$/;
+
+// number_chars(?N, +L) reads the characters as an integer or a float, and
+// fails on other text; number_chars(+N, -L) spells N in its canonical text. A
+// bound list is read even when N is bound, so '007' gives 7 either way.
+function numberChars(args, resolved, env, bind) {
+  const number = resolved[0];
+  if (!(number instanceof Var) && typeof number !== 'bigint' && typeof number !== 'number') {
+    throw new EyecodeError('number_chars/2 needs a number or an unbound first argument');
+  }
+  const items = properListItems(args[1], env)?.map((item) => deref(item, env));
+  if (!items || items.some((item) => item instanceof Var)) {
+    if (number instanceof Var) throw new EyecodeError('number_chars/2 needs a number or a proper list of characters');
+    const text = typeof number === 'bigint' ? number.toString() : floatText(number);
+    return bind(args[1], listFromItems(Array.from(text)));
+  }
+  if (items.some((item) => typeof item !== 'string' || Array.from(item).length !== 1)) {
+    throw new EyecodeError('number_chars/2 needs characters');
+  }
+  const text = items.join('');
+  const match = NUMBER_TEXT.exec(text);
+  if (!match) return false;
+  if (match[1] !== undefined) return bind(args[0], BigInt(text));
+  const value = Number(text);
+  if (!Number.isFinite(value)) throw nonfinite(value, 'number_chars/2: ');
+  return bind(args[0], value);
+}
+
 function atomLength(args, resolved, env, bind) {
   if (typeof resolved[0] !== 'string') throw new EyecodeError('atom_length/2 needs a bound atom');
   return bind(args[1], BigInt(Array.from(resolved[0]).length));
@@ -146,6 +177,7 @@ export const TESTS = new Map([
   ['atom_chars/2', atomText('atom_chars/2', false)],
   ['atom_codes/2', atomText('atom_codes/2', true)],
   ['atom_length/2', atomLength],
+  ['number_chars/2', numberChars],
   ['compare/3', compare],
 ]);
 

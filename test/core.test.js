@@ -228,11 +228,13 @@ implied_by(out(C, N), [atom_concat('ab', 'cd', C), atom_length(C, N)])
 implied_by(term(T), [univ(T, ['pair', 'a', 'b']), functor(T, 'pair', 2), arg(2, T, 'b')])
 implied_by(chars(C), atom_chars('\\u{1F600}a', C))
 implied_by(codes(C), atom_codes('\\u{1F600}a', C))
+implied_by(num(N, M), [atom_chars('0042', C), number_chars(N, C), number_chars(M, ['4', '2', '.', '0'])])
 `);
     assert.deepEqual(proven(source, { goal: 'out(C, N)' }).answers, ["out('abcd', 4)"]);
     assert.deepEqual(proven(source, { goal: 'term(T)' }).answers, ["term(pair('a', 'b'))"]);
     assert.deepEqual(proven(source, { goal: 'chars(C)' }).answers, ["chars(['\u{1F600}', 'a'])"]);
     assert.deepEqual(proven(source, { goal: 'codes(C)' }).answers, ['codes([128512, 97])']);
+    assert.deepEqual(proven(source, { goal: 'num(N, M)' }).answers, ['num(42, 42.0)']);
   },
 
   'arithmetic preserves unbounded integers and numeric types'() {

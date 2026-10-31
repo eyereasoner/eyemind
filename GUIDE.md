@@ -113,7 +113,7 @@ Once stated, a clause is a term, and reasoning over it calls no code of yours.
 
 **Arithmetic is a term, not an operator.** `is(Y, add(X, 1))` binds `Y` to `X + 1`, and `gt(X, 1)` compares. Operators do not apply to terms: `X + 1` or `X > 1` in a program stops it with a message that says what to write instead. Operators on plain numbers are JavaScript's own, so `query(unify(Y, 3 + 4))` binds `Y` to 7. `div` is true division, `floordiv` and `mod` floor toward negative infinity, and `round` rounds half to even. The primitives (`unify`, `is`, `eq`, `lt` and the other comparisons, type tests, `functor`, `univ`, `atom_concat` and the rest) are listed in [SPEC §5](SPEC.md#5-goals-controls-and-primitives), and the arithmetic functions in [SPEC §6](SPEC.md#6-arithmetic). Everything else, such as membership, mapping or graph traversal, is written as ordinary clauses.
 
-**Domains get representations, not syntax.** eyecode has no built-in notion of RDF or of anything else: IRIs, typed literals, triples and quoted graphs are just terms, such as `literal(V, lang(L))` or `triple(S, P, O)`. A forward conclusion may contain variables its premise never binds, and then says that something exists. Each such unknown becomes a Skolem function of the activation: `implies(person(X), has_parent(X, P))` concludes `has_parent('ann', skolem(2, 'P', ['ann']))`, the `P` of rule 2 for Ann.
+**Domains get representations, not syntax.** eyecode has no built-in notion of RDF or of anything else: IRIs, typed literals, triples and quoted graphs are just terms, such as `literal(V, lang(L))` or `triple(S, P, O)` (see [RDF 1.2](#rdf-12) below). A forward conclusion may contain variables its premise never binds, and then says that something exists. Each such unknown becomes a Skolem function of the activation: `implies(person(X), has_parent(X, P))` concludes `has_parent('ann', skolem(2, 'P', ['ann']))`, the `P` of rule 2 for Ann.
 
 **Data that is not a program.** Everything eyecode writes, conclusions, proofs and check reports, is a *document*: plain expressions, one per line. `facts_from` reads such a document as data and states each expression as a fact. It never executes the text, so it is also the safe way to take in data you do not trust; a data file written as a program would run as JavaScript. It is what lets one run reason over another, as [audited-grants](examples/audited-grants.js) reasons over its own proof and check report:
 
@@ -121,6 +121,22 @@ Once stated, a clause is a term, and reasoning over it calls no code of yours.
 facts_from('data.js')                                          // a file of expressions such as score('ann', 3)
 facts_from({ text: eyecode.checkReport(result.proofReport) })  // or text, such as another run's report
 ```
+
+### RDF 1.2
+
+RDF reaches eyecode as data, through [rdf-prolog-interchange](https://github.com/eyereasoner/rdf-prolog-interchange): `rdf-to-eyecode` turns Turtle, TriG, N-Triples or N-Quads into an eyecode document of `rdf(Subject, Predicate, Object, Graph)` terms for `facts_from`, and `eyecode-to-rdf` turns the `rdf` or `result_rdf` conclusions of a run back into N-Quads, Turtle or TriG. The terms are the ones eyepl and EyeProlog use:
+
+| RDF 1.2 | eyecode term |
+| --- | --- |
+| IRI | `iri('https://example.org/bob')` |
+| Blank node | `bnode(Scope, Label)` |
+| Typed literal | `literal('42', datatype('http://www.w3.org/2001/XMLSchema#integer'))` |
+| Language string | `literal('chat', lang('fr'))` |
+| Directional language string | `literal('مرحبا', lang('ar', 'rtl'))` |
+| Triple term | `triple(S, P, O)`, which may nest |
+| Default graph, named graph | `'default_graph'`, `iri(Name)` |
+
+A rule matches inside a triple term by unification, and a statement about a triple is an ordinary quad: a reifier linked to a `triple(S, P, O)` by `rdf:reifies`. A literal's value is text, so `[atom_chars(Text, Chars), number_chars(N, Chars)]` reads `'98'` as the integer 98, and the same two primitives in the other order write a computed number back as text. Something a rule says exists, a Skolem term, becomes a blank node labelled by that term, the same node for the same rule firing. The `rdf12-*` examples show triple terms, nesting, annotations, directional strings, typed numbers and named graphs, and each one's conclusions convert back to RDF.
 
 ## Proofs, and what checking one means
 
@@ -203,7 +219,7 @@ A clause is listed when no conclusion's proof uses it. A negation or collection 
 
 ## Explore the examples
 
-The [example collection](examples/) is 63 complete programs, each with its conclusions, proof and C1–C8 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a [card deck](https://eyereasoner.github.io/eyecode/examples/deck/) that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to policy reasoning (research-portal, package-holiday) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
+The [example collection](examples/) is 71 complete programs, each with its conclusions, proof and C1–C8 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a [card deck](https://eyereasoner.github.io/eyecode/examples/deck/) that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to policy reasoning (research-portal, package-holiday), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
 
 ## Browser
 

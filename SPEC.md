@@ -303,6 +303,7 @@ primitive called outside its patterns raises an error.
 | `atom_chars` | `atom_chars(+A, ?L)`, `atom_chars(-A, +L)` | `L` is the list of `A`'s characters as atoms. |
 | `atom_codes` | `atom_codes(+A, ?L)`, `atom_codes(-A, +L)` | `L` is the list of `A`'s character code points. |
 | `atom_length` | `atom_length(+A, ?N)` | `N` is the number of characters of `A`. |
+| `number_chars` | `number_chars(?N, +L)`, `number_chars(+N, -L)` | A bound `L` is read as a number: an optional sign and decimal digits give an integer, and with a fraction or an exponent a float, as in `'007'`, `'-21.5'`, `'.5'` and `'1E3'`; other text fails. Otherwise `L` spells `N` in its canonical text (Section 8.1). |
 | `atom_concat` | `atom_concat(+A, +B, ?AB)`, `atom_concat(?A, ?B, +AB)` | `AB` is `A` followed by `B`; with `AB` given, every split, shortest `A` first. |
 
 A character is a Unicode code point. Every primitive except `atom_concat` has

@@ -53,6 +53,14 @@ Each example comes with a short card deck that explains it for a wide audience: 
 | [policy-risk](https://eyereasoner.github.io/eyecode/examples/deck/policy-risk) | Ranked findings with explanations and suggested mitigations |
 | [polynomial](https://eyereasoner.github.io/eyecode/examples/deck/polynomial) | Complex roots of polynomials up to degree 4 by Cardan and Lagrange |
 | [queens](https://eyereasoner.github.io/eyecode/examples/deck/queens) | Configurable N-queens search with diagonal constraints |
+| [rdf12-annotated-claims](https://eyereasoner.github.io/eyecode/examples/deck/rdf12-annotated-claims) | Conflicting RDF 1.2 annotated claims ranked by confidence and trust, with typed literals read as numbers |
+| [rdf12-annotation](https://eyereasoner.github.io/eyecode/examples/deck/rdf12-annotation) | An RDF 1.2 annotation: an asserted triple recovered with the reifier that records who stated it and when |
+| [rdf12-directional-language](https://eyereasoner.github.io/eyecode/examples/deck/rdf12-directional-language) | RDF 1.2 directional language strings keep their base direction through a display rule |
+| [rdf12-nested-triple-term](https://eyereasoner.github.io/eyecode/examples/deck/rdf12-nested-triple-term) | Nested RDF 1.2 triple terms: one pattern reaches the triple inside a claim inside a review |
+| [rdf12-trig-graph-join](https://eyereasoner.github.io/eyecode/examples/deck/rdf12-trig-graph-join) | Data about a named graph in the default graph joined with data inside that graph |
+| [rdf12-trig-named-graph](https://eyereasoner.github.io/eyecode/examples/deck/rdf12-trig-named-graph) | Ancestors derived within a TriG named graph, each conclusion kept in its graph |
+| [rdf12-trig-triple-term](https://eyereasoner.github.io/eyecode/examples/deck/rdf12-trig-triple-term) | A triple term inside a named graph, asserted in the graph that holds the claim |
+| [rdf12-triple-term](https://eyereasoner.github.io/eyecode/examples/deck/rdf12-triple-term) | An RDF 1.2 triple term: a claim names a triple without asserting it, and accepting the claim asserts it |
 | [reachability](https://eyereasoner.github.io/eyecode/examples/deck/reachability) | Finite closure in a graph containing a cycle |
 | [research-portal](https://eyereasoner.github.io/eyecode/examples/deck/research-portal) | A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans |
 | [schema-inference](https://eyereasoner.github.io/eyecode/examples/deck/schema-inference) | Subclasses, subproperties, domains and ranges |
