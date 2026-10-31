@@ -120,8 +120,8 @@ obligation.
 ## Try it
 
 ```sh
-eyecode examples/goldbach.js                                          # the splits
-eyecode --check-proof examples/proof/goldbach.js examples/goldbach.js   # the report
+eyecode examples/goldbach.js                                           # the splits
+eyecode --check-proof examples/proof/goldbach.js examples/goldbach.js  # the report
 ```
 
 Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=goldbach).

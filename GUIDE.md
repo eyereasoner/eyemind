@@ -119,7 +119,7 @@ Once stated, a clause is a term, and reasoning over it calls no code of yours.
 
 ```js
 facts_from('data.js')                                          // a file of expressions such as score('ann', 3)
-facts_from({ text: eyecode.checkReport(result.proofReport) })   // or text, such as another run's report
+facts_from({ text: eyecode.checkReport(result.proofReport) })  // or text, such as another run's report
 ```
 
 ## Proofs, and what checking one means
@@ -269,12 +269,12 @@ Cut, conditional commitment, mutable databases, attributed variables, constraint
 ## Development and testing
 
 ```sh
-npm test                                   # every test, one numbered line each
-npm test -- unit examples                  # only these sections
-npm test -- -k skolem                      # only tests whose line contains "skolem"
-node tools/update-examples.js              # regenerate example artifacts after an intended change
-node conformance/run.js                    # the conformance suite of SPEC.md
-node conformance/run.js --command "my-eyecode"   # against another implementation
+npm test                                        # every test, one numbered line each
+npm test -- unit examples                       # only these sections
+npm test -- -k skolem                           # only tests whose line contains "skolem"
+node tools/update-examples.js                   # regenerate example artifacts after an intended change
+node conformance/run.js                         # the conformance suite of SPEC.md
+node conformance/run.js --command "my-eyecode"  # against another implementation
 ```
 
 The test sections are unit tests, the example corpus (each program must reproduce its saved output, proof and check report, and its saved proof must check from disk), and the conformance suite, run both in process and through the command line. [conformance/README.md](conformance/README.md) describes the case format. `test/browser.mjs` checks the playground in a real Chrome; its header says how to start it.

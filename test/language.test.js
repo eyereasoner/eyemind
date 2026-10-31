@@ -62,15 +62,15 @@ query(path(0, W))
 
   'statement lines survive strings, comments, templates and regular expressions'() {
     const source = [
-      "fact(p('fact(1)'), p(\"implies(\"))",                      // 1
-      '// fact(p(2))',                                             // 2
-      '/* query(p(3)) */ fact(p(`fact(${1 + 2})`))',                // 3
-      'const pattern = /fact\\(/',                                 // 4
-      "fact(p(pattern.test('fact(') ? 'yes' : 'no'))",               // 5
-      'const helper = { fact: (n) => n }',                         // 6
-      'fact(p(helper.fact(7)))',                                    // 7
-      'function state(n) { fact(q(n)) }',                           // 8
-      'state(9)',                                                   // 9
+      "fact(p('fact(1)'), p(\"implies(\"))",            // 1
+      '// fact(p(2))',                                  // 2
+      '/* query(p(3)) */ fact(p(`fact(${1 + 2})`))',    // 3
+      'const pattern = /fact\\(/',                      // 4
+      "fact(p(pattern.test('fact(') ? 'yes' : 'no'))",  // 5
+      'const helper = { fact: (n) => n }',              // 6
+      'fact(p(helper.fact(7)))',                        // 7
+      'function state(n) { fact(q(n)) }',               // 8
+      'state(9)',                                       // 9
     ].join('\n');
     const program = loadText(source);
     assert.deepEqual(program.clauses.map((clause) => clause.line), [1, 1, 3, 5, 7, 8]);

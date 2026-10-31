@@ -7,10 +7,10 @@ the specification requires. Any implementation with that command line can be
 tested, not only eyecode.
 
 ```sh
-node conformance/run.js                                # eyecode from this checkout, in this process
+node conformance/run.js                                 # eyecode from this checkout, in this process
 node conformance/run.js --command "path/to/my-eyecode"  # against another implementation
-node conformance/run.js -k skolem                      # cases whose name contains "skolem"
-node conformance/run.js 11-checking.js -v             # one file, listing every case
+node conformance/run.js -k skolem                       # cases whose name contains "skolem"
+node conformance/run.js 11-checking.js -v               # one file, listing every case
 ```
 
 The suite also runs with eyecode's own tests (`npm test`). `manifest.json` lists

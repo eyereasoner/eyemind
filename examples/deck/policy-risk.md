@@ -120,7 +120,7 @@ Verdict: **checked_with_obligations**.
 
 ```sh
 eyecode examples/policy-risk.js                                              # the report
-eyecode --check-proof examples/proof/policy-risk.js examples/policy-risk.js   # the check
+eyecode --check-proof examples/proof/policy-risk.js examples/policy-risk.js  # the check
 ```
 
 Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=policy-risk).
