@@ -247,6 +247,13 @@
     "trusted": []
   },
   {
+    "name": "delfour",
+    "description": "A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes",
+    "trusted": [
+      "absent"
+    ]
+  },
+  {
     "name": "queens",
     "description": "Configurable N-queens search with diagonal constraints",
     "trusted": []

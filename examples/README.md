@@ -38,6 +38,7 @@ expressions, one per line. The names match the source: `lists.js` has
 | [deep-taxonomy-1000.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-1000.js) | The same taxonomy benchmark at a thousand levels |
 | [deep-taxonomy-10000.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-10000.js) | The same taxonomy benchmark at ten thousand levels |
 | [deep-taxonomy-100000.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-100000.js) | The same taxonomy benchmark at a hundred thousand levels |
+| [delfour.js](https://github.com/eyereasoner/eyecode/blob/main/examples/delfour.js) | A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes |
 | [dog-license.js](https://github.com/eyereasoner/eyecode/blob/main/examples/dog-license.js) | A licensing threshold based on collected dog counts |
 | [easter.js](https://github.com/eyereasoner/eyecode/blob/main/examples/easter.js) | Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050 |
 | [existential-rules.js](https://github.com/eyereasoner/eyecode/blob/main/examples/existential-rules.js) | Existential rules: a fresh witness per activation, never a clash |
@@ -268,6 +269,18 @@ makes a cancellation free when floods close the departure airport, gives
 accepted vouchers statutory guarantees, and sets complaint deadlines. Every
 condition of the terms is checked one by one, so the proof passes
 `--strict-proof` with no trusted steps.
+
+`delfour.js` shares a conclusion instead of the data behind it. A shopper's
+phone turns a household's diabetes into a neutral low-sugar insight, scoped to
+one scanner and event, expiring in two hours, wrapped with an ODRL policy and
+signed. The store's scanner reasons only from that insight: it may use it for
+shopping assistance, flags the 12 g biscuits against the 10 g threshold, and
+suggests the 3 g biscuits from the same shelf. Ten checks pass, among them
+that the shared text names no condition, found by searching it with
+`atom_concat`. That no other biscuit has less sugar and that the text holds
+neither "diabetes" nor "medical" are absences, listed as obligations. The
+signature is accepted because the input says it was verified upstream; the
+rules do not recompute the HMAC.
 
 `age.js` checks whether a person's age strictly exceeds `years(N)` or `days(N)`.
 It uses `as_of(date(2026, 10, 1))` for reproducible output and proofs. Edit that
