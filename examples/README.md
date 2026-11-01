@@ -39,6 +39,8 @@ expressions, one per line. The names match the source: `lists.js` has
 | [deep-taxonomy-10000.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-10000.js) | The same taxonomy benchmark at ten thousand levels |
 | [deep-taxonomy-100000.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-100000.js) | The same taxonomy benchmark at a hundred thousand levels |
 | [delfour.js](https://github.com/eyereasoner/eyecode/blob/main/examples/delfour.js) | A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes |
+| [deontic-logic.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deontic-logic.js) | Obligations, prohibitions and compensation that does not erase a violation |
+| [dijkstra.js](https://github.com/eyereasoner/eyecode/blob/main/examples/dijkstra.js) | Dijkstra's shortest route over a cost-ordered queue, with every step checked |
 | [dog-license.js](https://github.com/eyereasoner/eyecode/blob/main/examples/dog-license.js) | A licensing threshold based on collected dog counts |
 | [easter.js](https://github.com/eyereasoner/eyecode/blob/main/examples/easter.js) | Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050 |
 | [existential-rules.js](https://github.com/eyereasoner/eyecode/blob/main/examples/existential-rules.js) | Existential rules: a fresh witness per activation, never a clash |
@@ -51,14 +53,18 @@ expressions, one per line. The names match the source: `lists.js` has
 | [good-cobbler.js](https://github.com/eyereasoner/eyecode/blob/main/examples/good-cobbler.js) | Trade-specific classification from structured descriptions |
 | [gps.js](https://github.com/eyereasoner/eyecode/blob/main/examples/gps.js) | Goal-driven parallel sequences: routes to a goal state within duration, cost, belief and comfort limits |
 | [graphs.js](https://github.com/eyereasoner/eyecode/blob/main/examples/graphs.js) | Base data, negation and collection |
+| [group-inverse-uniqueness.js](https://github.com/eyereasoner/eyecode/blob/main/examples/group-inverse-uniqueness.js) | Uniqueness of group inverses derived from the associativity, identity and inverse laws |
 | [hanoi.js](https://github.com/eyereasoner/eyecode/blob/main/examples/hanoi.js) | Recursive construction of a disk-move sequence |
 | [integrity.js](https://github.com/eyereasoner/eyecode/blob/main/examples/integrity.js) | A provable integrity violation |
 | [interval-relations.js](https://github.com/eyereasoner/eyecode/blob/main/examples/interval-relations.js) | All thirteen interval relations and endpoint completion |
 | [inventory.js](https://github.com/eyereasoner/eyecode/blob/main/examples/inventory.js) | An invoice from collected line totals |
 | [kaprekar.js](https://github.com/eyereasoner/eyecode/blob/main/examples/kaprekar.js) | Every four-digit Kaprekar routine reaches 6174 within seven steps |
+| [knapsack-optimization.js](https://github.com/eyereasoner/eyecode/blob/main/examples/knapsack-optimization.js) | The 0/1 knapsack problem: the most valuable pack within a weight limit |
 | [lists.js](https://github.com/eyereasoner/eyecode/blob/main/examples/lists.js) | Concatenation, mapping and summation |
 | [lldm.js](https://github.com/eyereasoner/eyecode/blob/main/examples/lldm.js) | Leg length discrepancy measured from radiograph landmarks, with an alarm and its reason |
 | [monkey-bananas.js](https://github.com/eyereasoner/eyecode/blob/main/examples/monkey-bananas.js) | Every plan of up to five moves that gets the monkey the bananas |
+| [nixon-diamond.js](https://github.com/eyereasoner/eyecode/blob/main/examples/nixon-diamond.js) | A default guarded by negation, so a contrary rule takes priority |
+| [owl-property-chain.js](https://github.com/eyereasoner/eyecode/blob/main/examples/owl-property-chain.js) | A property chain declared as data, followed by one general rule |
 | [package-holiday.js](https://github.com/eyereasoner/eyecode/blob/main/examples/package-holiday.js) | Package holiday cancellations under the tour operator's ODRL terms and the 2015 and revised EU Package Travel Directive |
 | [paraconsistent-animals.js](https://github.com/eyereasoner/eyecode/blob/main/examples/paraconsistent-animals.js) | Local summaries of conflicting observations |
 | [path-discovery.js](https://github.com/eyereasoner/eyecode/blob/main/examples/path-discovery.js) | Full airport network with configurable endpoints and maximum stopovers |
@@ -86,9 +92,11 @@ expressions, one per line. The names match the source: `lists.js` has
 | [state-transitions.js](https://github.com/eyereasoner/eyecode/blob/main/examples/state-transitions.js) | Account balances from an ordered event log |
 | [strings.js](https://github.com/eyereasoner/eyecode/blob/main/examples/strings.js) | Text construction and Unicode inspection |
 | [superdense-coding.js](https://github.com/eyereasoner/eyecode/blob/main/examples/superdense-coding.js) | Superdense coding in discrete quantum theory, with interference as odd path counts |
+| [symbolic-derivative.js](https://github.com/eyereasoner/eyecode/blob/main/examples/symbolic-derivative.js) | Symbolic differentiation of structured formulas by the sum, product, quotient, power and chain rules |
 | [teleportation.js](https://github.com/eyereasoner/eyecode/blob/main/examples/teleportation.js) | Quantum teleportation in discrete quantum theory, checked for every state and outcome |
 | [terms.js](https://github.com/eyereasoner/eyecode/blob/main/examples/terms.js) | Quoted graphs, triple terms and residual witnesses |
 | [turing.js](https://github.com/eyereasoner/eyecode/blob/main/examples/turing.js) | A Turing machine interpreter running a binary incrementer |
+| [type-inference.js](https://github.com/eyereasoner/eyecode/blob/main/examples/type-inference.js) | Typing rules for a small expression language, run as a checker |
 | [unification.js](https://github.com/eyereasoner/eyecode/blob/main/examples/unification.js) | Open lists and repeated-variable constraints |
 | [variable-predicates.js](https://github.com/eyereasoner/eyecode/blob/main/examples/variable-predicates.js) | Relations selected and renamed through data bindings |
 | [witnesses.js](https://github.com/eyereasoner/eyecode/blob/main/examples/witnesses.js) | Structured witnesses and shared multi-head conclusions |
@@ -288,6 +296,30 @@ neither "diabetes" nor "medical" are absences, listed as obligations. The
 signature is accepted because the input says it was verified upstream; the
 rules do not recompute the HMAC.
 
+`deontic-logic.js` states duties as plain relations: alice was obliged to
+obtain consent and prohibited from sharing a record. Observations say what she
+did and, explicitly, what she did not do; a missed obligation is read only
+from an explicit `not_performed` fact, never from a missing observation.
+Notifying the data protection officer compensates the sharing, but the
+violation stays on record. Nothing compensates the missed consent, so alice's
+status is `requires_review`, and the proof needs no trusted obligations.
+
+`nixon-diamond.js` sets two defaults against each other: Quakers are pacifists
+and Republicans are nonpacifists, and nixon is both. The pacifist default is
+guarded by `not(nonpacifist(Person))`, so the Republican rule takes priority,
+and stratification runs the default only after the nonpacifist rule has
+finished. nixon is classified as a nonpacifist and not as a pacifist, while
+ada, only a Quaker, gets the default. The proof rests on one `absent`
+obligation: that nothing concludes ada is a nonpacifist.
+
+`owl-property-chain.js` defines grandparent as a chain of two parent links,
+stored as a plain list of property names next to the triples. One forward rule
+takes a chain's first property and hands the rest of the list to a backward
+rule, `follow_chain`, which takes one link per property; the list gets shorter
+at each step, so the walk always ends. The program concludes that Alice is
+Carol's grandparent and Bob is Dave's. Declaring a longer chain needs no new
+rule.
+
 `age.js` checks whether a person's age strictly exceeds `years(N)` or `days(N)`.
 It uses `as_of(date(2026, 10, 1))` for reproducible output and proofs. Edit that
 fact to change the default date, or pass a reference date directly:
@@ -382,6 +414,47 @@ Run `npm test` for the full suite, or `npm test -- examples` for this corpus;
 `npm test -- -k socrates` limits it to the tests that mention socrates. Every example
 runs through the API, and a few through all three CLI modes. Tests compare
 results with saved artifacts and do not overwrite them.
+
+`dijkstra.js` finds a shortest route with Dijkstra's algorithm on six places
+joined by nine two-way roads. It keeps a queue of partial routes sorted by
+cost, always extends the cheapest one, and settles each place the first time
+it leaves the queue. The route from a to f is a, c, b, d, e, f with length 13,
+the way back is the same route reversed, and a to a costs 0; a road list with
+a negative length is rejected. The cases of the search exclude each other
+through `not_unify` and a list walk instead of `not(...)`, so the proof takes
+nothing on trust.
+
+`knapsack-optimization.js` chooses an expedition pack worth the most within a
+weight limit of 15 from eight items, each taken once or left out. A backward
+rule lists all 256 subsets and a forward rule keeps the 113 that fit;
+`findall` gathers their values into one list, whose length is the number of
+packs that fit and whose maximum, 40, is the best value. The only pack worth
+40 takes the atlas, battery, camera, medkit and sensor, weighing exactly 15.
+The proof recomputes every sum and comparison and trusts one thing: that the
+collected list of values is complete.
+
+`type-inference.js` works out the types of six small programs written as
+syntax trees: functions with typed parameters, calls, integer addition,
+conditionals and pairs. Each kind of expression has one backward typing rule,
+and an environment of `[Name, Type]` pairs, innermost first, handles parameter
+lookup and shadowing. A call is well typed when a shared variable makes the
+function's parameter type and the argument's type agree. Compose gets the type
+`fun(fun(t1, t2), fun(fun(t0, t1), fun(t0, t2)))`, and the proof records every
+lookup and rule application.
+
+`symbolic-derivative.js` differentiates formulas held as terms, such as
+`mul(sym('x'), sym('x'))`, with one backward rule per form: sum, difference,
+product, quotient, power and logarithm. Results stay unsimplified, so `x*x`
+gives `1*x + x*1` and `log(log(x))` gives `(1/x)/log(x)`; a product of three
+factors shows the whole product-rule expansion, and a last goal differentiates
+`y/(x-1)`, treating `y` as a constant.
+
+`group-inverse-uniqueness.js` proves that an element of a group has only one
+inverse. It assumes x has two inverses, i and j, and states the identity,
+inverse and associativity laws as forward rules over a product relation
+`product(A, B, AB)`; associativity alone concludes `equal(Left, Right)`. The
+program derives `same_inverse('x', 'i', 'j')` and its mirror, and the checked
+proof is the textbook chain i = (j·x)·i = j·(x·i) = j·e = j.
 
 After an intentional behavior change, run `node tools/update-examples.js` and review
 the source and artifact changes together. When adding an example, register its

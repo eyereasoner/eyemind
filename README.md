@@ -15,7 +15,7 @@ JavaScript library, and a browser application, with no dependencies.
   write rules, check proofs, use the library, and develop eyecode.
 - **[Specification](https://eyereasoner.github.io/eyecode/SPEC)**: the
   language, its canonical text, the proof format, and the C1–C8 checks.
-- **[Examples](examples/)**: 72 runnable programs, with their conclusions,
+- **[Examples](examples/)**: 80 runnable programs, with their conclusions,
   proofs and check reports, and a
   [card deck](https://eyereasoner.github.io/eyecode/examples/deck/) for each.
 - **[Conformance suite](conformance/)**: 321 cases that test any

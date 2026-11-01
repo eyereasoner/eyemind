@@ -409,5 +409,49 @@
     "name": "rdf12-trig-graph-join",
     "description": "Data about a named graph in the default graph joined with data inside that graph",
     "trusted": []
+  },
+  {
+    "name": "dijkstra",
+    "description": "Dijkstra's shortest route over a cost-ordered queue, with every step checked",
+    "trusted": []
+  },
+  {
+    "name": "knapsack-optimization",
+    "description": "The 0/1 knapsack problem: the most valuable pack within a weight limit",
+    "trusted": [
+      "collected"
+    ]
+  },
+  {
+    "name": "owl-property-chain",
+    "description": "A property chain declared as data, followed by one general rule",
+    "trusted": []
+  },
+  {
+    "name": "type-inference",
+    "description": "Typing rules for a small expression language, run as a checker",
+    "trusted": []
+  },
+  {
+    "name": "deontic-logic",
+    "description": "Obligations, prohibitions and compensation that does not erase a violation",
+    "trusted": []
+  },
+  {
+    "name": "nixon-diamond",
+    "description": "A default guarded by negation, so a contrary rule takes priority",
+    "trusted": [
+      "absent"
+    ]
+  },
+  {
+    "name": "symbolic-derivative",
+    "description": "Symbolic differentiation of structured formulas by the sum, product, quotient, power and chain rules",
+    "trusted": []
+  },
+  {
+    "name": "group-inverse-uniqueness",
+    "description": "Uniqueness of group inverses derived from the associativity, identity and inverse laws",
+    "trusted": []
   }
 ]

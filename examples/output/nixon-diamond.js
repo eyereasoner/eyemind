@@ -1,0 +1,5 @@
+classification('nixon', 'quaker')
+classification('ada', 'quaker')
+classification('nixon', 'republican')
+classification('nixon', 'nonpacifist')
+classification('ada', 'pacifist')

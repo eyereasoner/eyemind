@@ -25,6 +25,8 @@ Each example comes with a short card deck that explains it for a wide audience: 
 | [deep-taxonomy-10000](https://eyereasoner.github.io/eyecode/examples/deck/deep-taxonomy-10000) | The same taxonomy benchmark at ten thousand levels |
 | [deep-taxonomy-100000](https://eyereasoner.github.io/eyecode/examples/deck/deep-taxonomy-100000) | The same taxonomy benchmark at a hundred thousand levels |
 | [delfour](https://eyereasoner.github.io/eyecode/examples/deck/delfour) | A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes |
+| [deontic-logic](https://eyereasoner.github.io/eyecode/examples/deck/deontic-logic) | Obligations, prohibitions and compensation that does not erase a violation |
+| [dijkstra](https://eyereasoner.github.io/eyecode/examples/deck/dijkstra) | Dijkstra's shortest route over a cost-ordered queue, with every step checked |
 | [dog-license](https://eyereasoner.github.io/eyecode/examples/deck/dog-license) | A licensing threshold based on collected dog counts |
 | [easter](https://eyereasoner.github.io/eyecode/examples/deck/easter) | Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050 |
 | [existential-rules](https://eyereasoner.github.io/eyecode/examples/deck/existential-rules) | Existential rules: a fresh witness per activation, never a clash |
@@ -37,14 +39,18 @@ Each example comes with a short card deck that explains it for a wide audience: 
 | [good-cobbler](https://eyereasoner.github.io/eyecode/examples/deck/good-cobbler) | Trade-specific classification from structured descriptions |
 | [gps](https://eyereasoner.github.io/eyecode/examples/deck/gps) | Goal-driven parallel sequences: routes to a goal state within duration, cost, belief and comfort limits |
 | [graphs](https://eyereasoner.github.io/eyecode/examples/deck/graphs) | Base data, negation and collection |
+| [group-inverse-uniqueness](https://eyereasoner.github.io/eyecode/examples/deck/group-inverse-uniqueness) | Uniqueness of group inverses derived from the associativity, identity and inverse laws |
 | [hanoi](https://eyereasoner.github.io/eyecode/examples/deck/hanoi) | Recursive construction of a disk-move sequence |
 | [integrity](https://eyereasoner.github.io/eyecode/examples/deck/integrity) | A provable integrity violation |
 | [interval-relations](https://eyereasoner.github.io/eyecode/examples/deck/interval-relations) | All thirteen interval relations and endpoint completion |
 | [inventory](https://eyereasoner.github.io/eyecode/examples/deck/inventory) | An invoice from collected line totals |
 | [kaprekar](https://eyereasoner.github.io/eyecode/examples/deck/kaprekar) | Every four-digit Kaprekar routine reaches 6174 within seven steps |
+| [knapsack-optimization](https://eyereasoner.github.io/eyecode/examples/deck/knapsack-optimization) | The 0/1 knapsack problem: the most valuable pack within a weight limit |
 | [lists](https://eyereasoner.github.io/eyecode/examples/deck/lists) | Concatenation, mapping and summation |
 | [lldm](https://eyereasoner.github.io/eyecode/examples/deck/lldm) | Leg length discrepancy measured from radiograph landmarks, with an alarm and its reason |
 | [monkey-bananas](https://eyereasoner.github.io/eyecode/examples/deck/monkey-bananas) | Every plan of up to five moves that gets the monkey the bananas |
+| [nixon-diamond](https://eyereasoner.github.io/eyecode/examples/deck/nixon-diamond) | A default guarded by negation, so a contrary rule takes priority |
+| [owl-property-chain](https://eyereasoner.github.io/eyecode/examples/deck/owl-property-chain) | A property chain declared as data, followed by one general rule |
 | [package-holiday](https://eyereasoner.github.io/eyecode/examples/deck/package-holiday) | Package holiday cancellations under the tour operator's ODRL terms and the 2015 and revised EU Package Travel Directive |
 | [paraconsistent-animals](https://eyereasoner.github.io/eyecode/examples/deck/paraconsistent-animals) | Local summaries of conflicting observations |
 | [path-discovery](https://eyereasoner.github.io/eyecode/examples/deck/path-discovery) | Full airport network with configurable endpoints and maximum stopovers |
@@ -72,9 +78,11 @@ Each example comes with a short card deck that explains it for a wide audience: 
 | [state-transitions](https://eyereasoner.github.io/eyecode/examples/deck/state-transitions) | Account balances from an ordered event log |
 | [strings](https://eyereasoner.github.io/eyecode/examples/deck/strings) | Text construction and Unicode inspection |
 | [superdense-coding](https://eyereasoner.github.io/eyecode/examples/deck/superdense-coding) | Superdense coding in discrete quantum theory, with interference as odd path counts |
+| [symbolic-derivative](https://eyereasoner.github.io/eyecode/examples/deck/symbolic-derivative) | Symbolic differentiation of structured formulas by the sum, product, quotient, power and chain rules |
 | [teleportation](https://eyereasoner.github.io/eyecode/examples/deck/teleportation) | Quantum teleportation in discrete quantum theory, checked for every state and outcome |
 | [terms](https://eyereasoner.github.io/eyecode/examples/deck/terms) | Quoted graphs, triple terms and residual witnesses |
 | [turing](https://eyereasoner.github.io/eyecode/examples/deck/turing) | A Turing machine interpreter running a binary incrementer |
+| [type-inference](https://eyereasoner.github.io/eyecode/examples/deck/type-inference) | Typing rules for a small expression language, run as a checker |
 | [unification](https://eyereasoner.github.io/eyecode/examples/deck/unification) | Open lists and repeated-variable constraints |
 | [variable-predicates](https://eyereasoner.github.io/eyecode/examples/deck/variable-predicates) | Relations selected and renamed through data bindings |
 | [witnesses](https://eyereasoner.github.io/eyecode/examples/deck/witnesses) | Structured witnesses and shared multi-head conclusions |
