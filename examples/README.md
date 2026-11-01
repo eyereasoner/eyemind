@@ -270,12 +270,16 @@ accepted vouchers statutory guarantees, and sets complaint deadlines. Every
 condition of the terms is checked one by one, so the proof passes
 `--strict-proof` with no trusted steps.
 
-`delfour.js` shares a conclusion instead of the data behind it. A shopper's
-phone turns a household's diabetes into a neutral low-sugar insight, scoped to
-one scanner and event, expiring in two hours, wrapped with an ODRL policy and
-signed. The store's scanner reasons only from that insight: it may use it for
-shopping assistance, flags the 12 g biscuits against the 10 g threshold, and
-suggests the 3 g biscuits from the same shelf. Ten checks pass, among them
+`delfour.js` shares a conclusion instead of the data behind it, in the
+scenario of Ruben Verborgh's
+[*Inside the insight economy*](https://ruben.verborgh.org/blog/2025/08/12/inside-the-insight-economy/).
+A shopper's phone turns a household's diabetes into a neutral low-sugar
+insight, restricted to the Delfour supermarket and its self-scanner, expiring
+in two hours, wrapped with an ODRL policy and signed; the post leaves those
+details open, and the example fills them in. The scanner reasons only from
+that insight: it shows the sugar per serving of each product scanned, flags
+the 12 g biscuits against the 10 g threshold, and suggests the 3 g biscuits
+in aisle 7. Ten checks pass, among them
 that the shared text names no condition, found by searching it with
 `atom_concat`. That no other biscuit has less sugar and that the text holds
 neither "diabetes" nor "medical" are absences, listed as obligations. The

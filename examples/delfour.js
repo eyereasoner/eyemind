@@ -1,19 +1,25 @@
 // A shopper's phone knows that someone in the household has diabetes. The
-// store's self-scanner should flag high-sugar products and suggest a
-// lower-sugar one, without ever learning the medical fact. The phone shares a
-// neutral insight instead: a low-sugar need with a threshold, scoped to one
-// device and event, expiring in two hours, wrapped with a usage policy and
-// signed. The scanner reasons only from that insight.
+// Delfour supermarket's self-scanner should show the sugar per serving of
+// every product scanned, and for a high-sugar one suggest where to pick up a
+// lower-sugar alternative, without ever learning the medical fact. The phone
+// shares a neutral insight instead: a low-sugar need, restricted to Delfour
+// and to the self-scanner picked up at the entrance, expiring the same
+// evening. The scanner reasons only from that insight. This is the scenario
+// of "Inside the insight economy" by Ruben Verborgh:
+// https://ruben.verborgh.org/blog/2025/08/12/inside-the-insight-economy/
+// The post leaves the details open; the 10 g threshold, the two-hour expiry,
+// the ODRL policy, the signed envelope and the audit are this example's own.
 //
 // The program concludes that the scanner may use the insight for shopping
-// assistance, flags the scanned Classic Tea Biscuits (12 g of sugar per
-// serving against a 10 g threshold), suggests the Low-Sugar Tea Biscuits from
-// the same shelf, and confirms ten checks: the payload hash, the signature,
-// that the shared text names no condition, the scope, the authorization, the
-// banner, the alternative, the deletion duty, the marketing prohibition and
-// the audit's file count. It shows policy reasoning with permissions,
-// prohibitions and duties, a search for words in text with atom_concat,
-// timestamps compared as text, and a best choice found through negation.
+// assistance, shows 12.0 g of sugar per serving for the scanned Classic Tea
+// Biscuits, flags them against the 10 g threshold, suggests the Low-Sugar Tea
+// Biscuits in aisle 7, and confirms ten checks: the payload hash, the
+// signature, that the shared text names no condition, the scope, the
+// authorization, the high-sugar flag, the alternative, the deletion duty, the
+// marketing prohibition and the audit's file count. It shows policy reasoning
+// with permissions, prohibitions and duties, a search for words in text with
+// atom_concat, timestamps compared as text, and a best choice found through
+// negation.
 //
 // The signature is accepted because the input says it was verified
 // upstream; the rules do not recompute the HMAC. Sugar is counted in tenths
@@ -32,6 +38,8 @@ fact(authorization_time('delfour', '2025-10-05T20:35:48.907163+00:00'))
 fact(duty_time('delfour', '2025-10-05T20:37:48.907163+00:00'))
 fact(files_written('delfour', 6))
 fact(audit_entries('delfour', 1))
+fact(store('delfour', 'Delfour'))
+fact(scanning_device('delfour', 'self-scanner'))
 fact(scanned_product('delfour', 'prod_BIS_001'))
 fact(envelope('delfour', 'shopping_envelope'))
 fact(signature('delfour', 'scanner_signature'))
@@ -46,6 +54,7 @@ const PRODUCTS = [
 for (const [id, label, tenths, shelf] of PRODUCTS) {
   fact(product_name(id, label), sugar(id, tenths), category(id, shelf))
 }
+fact(aisle('biscuits', 'aisle 7'), aisle('chocolate', 'aisle 9'))
 
 // The insight the phone shares: no condition, only a need and its scope.
 fact(metric('sugar_insight', 'sugar_g_per_serving'))
@@ -83,7 +92,6 @@ implied_by(case_insight(Case, Insight), [envelope(Case, Envelope), insight(Envel
 implied_by(case_policy(Case, Policy), [envelope(Case, Envelope), policy(Envelope, Policy)])
 implied_by(scanned_sugar(Case, Sugar), [scanned_product(Case, Product), sugar(Product, Sugar)])
 implied_by(scope(Insight, [Device, Event]), [device(Insight, Device), scope_event(Insight, Event)])
-implied_by(scanned_name(Case, Label), [scanned_product(Case, Product), product_name(Product, Label)])
 
 // The phone's side: a diabetes condition becomes a neutral low-sugar need.
 implies([household(Case, Household), condition(Household, 'Diabetes')], low_sugar_case(Case))
@@ -115,6 +123,10 @@ implies(
   [
     case_insight(Case, Insight),
     case_policy(Case, Policy),
+    store(Case, Store),
+    retailer(Insight, Store),
+    scanning_device(Case, Device),
+    device(Insight, Device),
     request_action(Case, Action),
     request_purpose(Case, Purpose),
     permission(Policy, Action, Insight, Purpose),
@@ -135,10 +147,20 @@ implies(
   ],
   passed(Case, 'high_sugar'),
 )
+
+// The banner: the sugar per serving of every product scanned, and for a
+// high-sugar one a note and where to find the alternative.
 implies(
-  [passed(Case, 'high_sugar')],
-  [headline(Case, 'Track sugar per serving while you scan'), note(Case, 'High sugar')],
+  [
+    passed(Case, 'authorization'),
+    scanned_product(Case, Product),
+    product_name(Product, Label),
+    sugar(Product, Tenths),
+    is(Grams, div(Tenths, 10)),
+  ],
+  [headline(Case, 'Track sugar per serving while you scan'), banner(Case, Label, Grams)],
 )
+implies([passed(Case, 'high_sugar')], note(Case, 'High sugar'))
 
 // The alternative: a product on the same shelf with less sugar, and none
 // on that shelf with less still.
@@ -155,7 +177,10 @@ implied_by(
 )
 implied_by(beaten(Case, Product), [considers(Case, Other), sugar(Other, Less), sugar(Product, Sugar), lt(Less, Sugar)])
 implies([considers(Case, Product), not(beaten(Case, Product))], alternative(Case, Product))
-implies([passed(Case, 'high_sugar'), alternative(Case, Product), product_name(Product, Label)], banner_alternative(Case, Label))
+implies(
+  [passed(Case, 'high_sugar'), alternative(Case, Product), product_name(Product, Label), category(Product, Shelf), aisle(Shelf, Aisle)],
+  banner_alternative(Case, Label, Aisle),
+)
 implies(
   [scanned_sugar(Case, Most), alternative(Case, Product), sugar(Product, Sugar), lt(Sugar, Most)],
   passed(Case, 'lower_sugar'),
@@ -179,10 +204,10 @@ implies(CHECKS.map((check) => passed(Case, check)), all_checks_pass(Case))
 query(case_name('delfour', Name))
 query(derived_need(Insight, Need))
 query(decision('delfour', Outcome, Target))
-query(scanned_name('delfour', Label))
 query(headline('delfour', Headline))
+query(banner('delfour', Label, Grams))
 query(note('delfour', Note))
-query(banner_alternative('delfour', Label))
+query(banner_alternative('delfour', Label, Aisle))
 query(metric('sugar_insight', Metric))
 query(threshold_display('sugar_insight', Grams))
 query(scope('sugar_insight', Scope))
