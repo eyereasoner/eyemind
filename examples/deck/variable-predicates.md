@@ -34,6 +34,7 @@ use a variable there and treat the relation name like any other value.
 ## What we tell eyecode
 
 ```js
+// t(Subject, Property, Value) statements, and the source-to-target mapping.
 fact(t('alice', 'source_name', 'Alice'))
 fact(t('alice', 'source_age', 30))
 fact(maps('source_name', 'name'))

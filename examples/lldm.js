@@ -1,4 +1,4 @@
-// Leg Length Discrepancy Measurement, adapted from Eyeling lldm.n3.
+// Leg Length Discrepancy Measurement.
 //
 // Four landmarks are measured on a radiograph. Landmarks 1 and 2 fix a
 // reference line; each leg's length is the distance from landmark 3 or 4 to
@@ -6,6 +6,13 @@
 // left and right lengths differ by more than a threshold. The measurement and
 // intermediate geometry are kept in helper predicates, and the goals at the end
 // print the alarm with the small set of relations explaining why it fired.
+//
+// For measurement meas47 the left leg (landmarks 3 to 5) is about 21.55 cm
+// and the right leg (4 to 6) about 23.46 cm. Their difference, left minus
+// right, is about -1.91 cm, beyond the 1.25 cm threshold, so the program
+// concludes an lld_alarm with the reason 'discrepancy below negative
+// threshold'. All values are floats; each geometric step is one backward rule
+// computed on demand.
 
 // val/3 stores raw landmark coordinates, derived deltas, line coefficients,
 // projected landmarks, lengths, and alarm values in one measurement namespace.
@@ -25,8 +32,9 @@ fact(val('meas47', 'p4yCm', 28.5))
 fact(threshold('meas47', 'lld_alarm_threshold_cm', 1.25))
 
 // geometric intermediate values
-// The geometry rules build from coordinate differences to projected knee points,
-// then compute left/right leg lengths and compare the discrepancy with a threshold.
+// The geometry rules build from coordinate differences to the projected points
+// 5 and 6, then compute left/right leg lengths and compare the discrepancy with
+// a threshold.
 implied_by(
   val(M, 'dx12Cm', Z),
   [measurement(M), val(M, 'p1xCm', X), val(M, 'p2xCm', Y), is(Z, sub(X, Y))],
@@ -67,11 +75,13 @@ implied_by(
   val(M, 'dy64Cm', Z),
   [measurement(M), val(M, 'p6yCm', X), val(M, 'p4yCm', Y), is(Z, sub(X, Y))],
 )
+// slope of the reference line through landmarks 1 and 2
 implied_by(
   val(M, 'cL1', Z),
   [measurement(M), val(M, 'dy12Cm', Y), val(M, 'dx12Cm', X), is(Z, div(Y, X))],
 )
 implied_by(val(M, 'dL3m', Z), [measurement(M), val(M, 'cL1', X), is(Z, div(1, X))])
+// slope of the perpendicular lines through landmarks 3 and 4: -1 / cL1
 implied_by(val(M, 'cL3', Z), [measurement(M), val(M, 'dL3m', X), is(Z, sub(0, X))])
 implied_by(
   val(M, 'pL1x1Cm', Z),
@@ -117,6 +127,7 @@ implied_by(
   val(M, 'pL1dx62Cm', Z),
   [measurement(M), val(M, 'cL1', X), val(M, 'dx62Cm', Y), is(Z, mul(X, Y))],
 )
+// Projections 5 and 6: where each perpendicular crosses the reference line.
 implied_by(
   val(M, 'p5xCm', Z),
   [measurement(M), val(M, 'ddy13Cm', X), val(M, 'ddL13', Y), is(Z, div(X, Y))],
@@ -133,6 +144,7 @@ implied_by(
   val(M, 'p6yCm', Z),
   [measurement(M), val(M, 'pL1dx62Cm', X), val(M, 'p2yCm', Y), is(Z, add(X, Y))],
 )
+// leg lengths by Pythagoras, pow(X, 0.5) being the square root
 implied_by(val(M, 'sdx53Cm2', Z), [measurement(M), val(M, 'dx53Cm', X), is(Z, pow(X, 2))])
 implied_by(val(M, 'sdx64Cm2', Z), [measurement(M), val(M, 'dx64Cm', X), is(Z, pow(X, 2))])
 implied_by(val(M, 'sdy53Cm2', Z), [measurement(M), val(M, 'dy53Cm', X), is(Z, pow(X, 2))])
@@ -147,6 +159,7 @@ implied_by(
 )
 implied_by(val(M, 'd53Cm', Z), [measurement(M), val(M, 'ssd53Cm2', X), is(Z, pow(X, 0.5))])
 implied_by(val(M, 'd64Cm', Z), [measurement(M), val(M, 'ssd64Cm2', X), is(Z, pow(X, 0.5))])
+// discrepancy: left length minus right length
 implied_by(
   val(M, 'dCm', Z),
   [measurement(M), val(M, 'd53Cm', X), val(M, 'd64Cm', Y), is(Z, sub(X, Y))],

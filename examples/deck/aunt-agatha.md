@@ -65,6 +65,10 @@ The twelve open questions (`AA` = "does Agatha hate Agatha?", and so on) are
 each tried as `'yes'` and as `'no'`; `label` makes sure every model is found
 exactly once.
 
+Wealth only matters compared with Agatha, since no clue compares anyone
+else, so `RA`, `RB` and `RC` say who is richer than her. Clue 9, "Agatha is
+not the butler", needs no line: different names never match.
+
 ---
 
 ## Counting the cases

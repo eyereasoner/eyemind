@@ -45,7 +45,8 @@ query(head_tail(['a', 'b', 'c'], Head, Tail))
 
 Capitalised names are blanks (**variables**).
 In the first question, both the front and the back are unknown; only the
-whole list is given.
+whole list is given. `append` usually joins two lists; here it runs
+backwards and takes one apart.
 
 ---
 

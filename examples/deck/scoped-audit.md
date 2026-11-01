@@ -30,11 +30,13 @@ fact(
   ),
 )
 fact(context('incomplete', graph([triple('bob', 'role', 'editor')])))
-
+// List membership, and a triple's membership of a graph.
+// … (three short clauses defining member and includes)
 implies(
   [context(Context, Graph), includes(Graph, triple(Person, 'consent', 'yes'))],
   consented(Context, Person),
 )
+// An editor whose own graph records no consent needs review.
 implies(
   [
     context(Context, Graph),
@@ -45,7 +47,11 @@ implies(
 )
 ```
 
-Both rules look *inside one graph*. `not(...)` means "it is not the case that".
+The triples in a graph are quoted, held as data rather than asserted as
+facts, so nothing in one graph leaks into the program at large. Both rules
+look *inside one graph*. `not(...)` means "it is not the case that", and here
+it asks only whether *this* graph lacks a consent triple, not whether a
+consent is known anywhere.
 
 ---
 

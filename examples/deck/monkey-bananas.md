@@ -19,13 +19,18 @@ bananas?** This kind of question is called *planning*.
 
 ## What we tell eyecode
 
-A situation is a list: `[Bananas, Monkey, Box, OnBox, HasBananas]`, where
-`'y'`/`'n'` mean yes/no.
+A situation is a list, `[Bananas, Monkey, Box, OnBox, HasBananas]`: where
+the bananas, the monkey and the box are, then `'y'`/`'n'` (yes/no) for
+whether the monkey is on the box and whether it holds the bananas.
 
 ```js
 fact(initial_state(['loc1', 'loc2', 'loc3', 'n', 'n']))
+// Any state in which the monkey holds the bananas is a goal.
 fact(goal_state([_, _, _, _, 'y']))
 
+// Climbing needs the monkey and box at the same place, and grabbing needs
+// all three there with the monkey on the box. Pushing moves monkey and box
+// together; walking (go) moves only the monkey. Both need it on the ground.
 fact(legal_move([B, M, M, 'n', H], 'climb_on', [B, M, M, 'y', H]))
 fact(legal_move([B, B, B, 'y', 'n'], 'grab', [B, B, B, 'y', 'y']))
 implied_by(
@@ -53,7 +58,8 @@ implies([in_range(1, 5, N), moves(N, Moves), reaches_goal(Moves)], plan(Moves))
 
 For each length N from 1 to 5, make a list of N moves still to be chosen,
 and keep it if it leads from the start to the goal. Shorter plans are tried
-first.
+first. The length bound keeps the search finite even though the monkey could
+walk back and forth forever.
 
 ---
 

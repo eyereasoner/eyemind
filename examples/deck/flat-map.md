@@ -22,14 +22,17 @@ property nobody uses?
 
 ## What we tell eyecode
 
-Four facts, and a rule that walks the list:
+Four facts, stored as triples `t(Subject, Predicate, Object)` (`s3` has two
+values), and a rule that walks the list:
 
 ```js
 fact(t('s1', 'p1', 'o1'))
 fact(t('s2', 'p1', 'o2'))
 fact(t('s3', 'p1', 'o3'))
 fact(t('s3', 'p1', 'o4'))
+// append(Xs, Ys, Zs): Zs is Xs followed by Ys.
 // … two lines defining append
+// flat_map(Subjects, Predicate, Objects)
 fact(flat_map([], _, []))
 implied_by(
   flat_map([S, ...Subjects], P, Objects),

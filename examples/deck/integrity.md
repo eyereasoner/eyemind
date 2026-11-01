@@ -28,6 +28,8 @@ contradiction(account(Owner, Balance), lt(Balance, 0))
 
 The last line reads: *if some Owner has a Balance below 0 (`lt` means
 "less than"), then `false`* — that is, the data contradicts itself.
+A `contradiction(...)` statement is a rule whose conclusion is `false`; when
+its body holds, it stops the run, like a fuse.
 
 ---
 

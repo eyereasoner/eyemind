@@ -28,6 +28,8 @@ automatically. Only the **diagonals** still need checking.
 ## What we tell eyecode
 
 ```js
+// Each row takes a column not used yet, so columns never repeat; safe checks
+// the diagonals against the queens placed so far, nearest row first.
 fact(place([], _, []))
 implied_by(
   place(Available, Placed, [Column, ...Rest]),
@@ -37,6 +39,8 @@ implied_by(
     place(Remaining, [Column, ...Placed], Rest),
   ],
 )
+// A queen Distance rows away attacks along a diagonal when the columns
+// differ by exactly Distance.
 fact(safe(_, [], _))
 implied_by(
   safe(Column, [Other, ...Rest], Distance),

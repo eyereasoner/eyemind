@@ -1,5 +1,14 @@
-// Airport network snapshot: 7698 airports and 37505 directed connections.
-// Names are historical dataset labels; flight/2 records connectivity.
+// Finding routes through an airport network: a snapshot of 7698 airports and
+// 37505 directed connections between them. airport(Id, Name) names each
+// airport, with names as historical dataset labels, and flight(From, To)
+// records that a connection exists; there are no schedules or availability.
+//
+// The query asks for every route from Ostend-Bruges to Prague with at most
+// two intermediate stops and finds three, each through Liège and then one of
+// Heraklion, Rhodes (Diagoras) or Palma de Mallorca. It shows bounded
+// backward search over a large fact base: a stop limit and a visited list keep
+// every route finite and free of repeated airports.
+//
 // Query path_discovery(From, To, MaxStopovers, Path) with airport-name atoms.
 
 fact(airport('AIRPORT_1', 'Goroka Airport'))
@@ -45230,6 +45239,10 @@ implied_by(
   ],
 )
 
+// route_airports(From, To, Remaining, Visited, Airports): Airports is a route
+// from From to To with at most Remaining further stops, avoiding the airports
+// in Visited. Either a direct flight, or a flight to a new airport Via and a
+// route from there with one stop fewer.
 implied_by(
   route_airports(From, To, _, Visited, [From, To]),
   [flight(From, To), unvisited(To, Visited)],
@@ -45252,6 +45265,7 @@ implied_by(
   unvisited(Airport, [Other, ...Rest]),
   [not_unify(Airport, Other), unvisited(Airport, Rest)],
 )
+// Translate the route's airport ids into airport names.
 fact(airport_names([], []))
 implied_by(
   airport_names([Id, ...Ids], [Name, ...Names]),

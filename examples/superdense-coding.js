@@ -4,7 +4,7 @@
 //
 // Discrete quantum theory is obtained by instantiating the mathematical framework
 // of Hilbert spaces with a finite field instead of the field of complex numbers.
-// This instantiation collapses much the structure of actual quantum mechanics but
+// This instantiation collapses much of the structure of actual quantum mechanics but
 // retains several of its distinguishing characteristics including the notions of
 // superposition, interference, and entanglement. Furthermore, discrete quantum
 // theory excludes local hidden variable models, has a no-cloning theorem, and can
@@ -23,6 +23,12 @@
 // collected, and the pair survives when the number of ways is odd. The parity
 // depends on all the ways, so the certificate names each collection as an
 // obligation.
+//
+// Alice and Bob share the entangled pair |R). Alice encodes a message from 0
+// to 3 by applying one of four operations to her half and sends Bob that one
+// qubit; Bob measures both halves. The program concludes sdcoding(N, N) for
+// each message N and no other pair: two classical bits arrive intact while
+// only one qubit is sent.
 
 // |R) = |0, 0) + |1, 1)
 fact(r('false', 'false'))

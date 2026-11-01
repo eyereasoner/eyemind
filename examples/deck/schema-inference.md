@@ -27,8 +27,8 @@ back to the statements it came from?
   implies `related_to`.
 - **Domain** — whoever is *on the left* of a relation is of some kind:
   whoever is a `parent_of` is a person.
-- **Range** — whoever is *on the right* is of some kind: whoever has a
-  parent is a person.
+- **Range** (here called `codomain`) — whoever is *on the right* is of
+  some kind: whoever has a parent is a person.
 
 These are the core ideas of the web's RDF Schema, written here as ordinary
 rules.
@@ -38,20 +38,28 @@ rules.
 ## What we tell eyecode
 
 ```js
+// The schema: class and property hierarchies, and the class of the subject
+// (domain) and of the object (codomain) of parent_of.
 fact(subclass('cat', 'mammal'))
 fact(subclass('mammal', 'animal'))
 fact(subproperty('parent_of', 'related_to'))
 fact(domain('parent_of', 'person'))
 fact(codomain('parent_of', 'person'))
+// The data: a typed individual and one relationship, written as a triple.
 fact(type('koko', 'cat'))
 fact(triple('alice', 'parent_of', 'bob'))
-
+// Subclass is transitive, and a member of a class is a member of its superclasses.
 implies([subclass(A, B), subclass(B, C)], subclass(A, C))
 implies([type(X, A), subclass(A, B)], type(X, B))
+// A relationship also holds under every broader property.
 implies([triple(S, P, O), subproperty(P, Q)], triple(S, Q, O))
+// Using a property classifies its subject and its object.
 implies([triple(S, P, _), domain(P, Class)], type(S, Class))
 implies([triple(_, P, O), codomain(P, Class)], type(O, Class))
 ```
+
+A relationship is written as a triple: subject, property, object, so
+`triple('alice', 'parent_of', 'bob')` reads "Alice is a parent of Bob".
 
 `implies` means "keep applying this until nothing new follows"; its premise
 is an array of goals that must all hold. No question is asked, so eyecode

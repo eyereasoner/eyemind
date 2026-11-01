@@ -1,5 +1,13 @@
-// A trajectory ends at 1; parity chooses the next recursive step.
+// The Collatz sequence: halve an even number, replace an odd number by three
+// times it plus one, and stop at 1. The program lists the whole sequence for
+// every starting value from 1 to 20; 18 and 19 take the longest, 21 values
+// each. That each of them reaches 1 is shown only for these starting values,
+// not for every positive integer.
+//
+// It shows recursive backward rules that build a list, with the parity test
+// choosing which rule applies, and a query that is a conjunction of two goals.
 
+// trajectory(N, Values): the sequence from N down to 1, both included.
 fact(trajectory(1, [1]))
 implied_by(
   trajectory(N, [N, ...Rest]),

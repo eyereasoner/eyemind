@@ -27,6 +27,7 @@ Finding *a* route is easy. Saying a route is the *cheapest* means saying that
 ## What we tell eyecode: the map and the routes
 
 ```js
+// edge(From, To, Cost)
 fact(edge('a', 'b', 4))
 fact(edge('a', 'c', 2))
 fact(edge('c', 'b', 1))
@@ -41,12 +42,15 @@ implies(
 
 A road is a path; a path followed by one more road is a longer path, and the
 costs add up. `implies` means "keep applying this until nothing new follows".
+The map has no loops, so this ends with every route and its total cost. Listing
+all routes before choosing suits a small map; it is not Dijkstra's algorithm.
 
 ---
 
 ## What we tell eyecode: "cheapest"
 
 ```js
+// cheaper(X, Y, Cost): some route from X to Y costs less than Cost.
 implied_by(cheaper(X, Y, Cost), [path(X, Y, Other), lt(Other, Cost)])
 implies([path(X, Y, Cost), not(cheaper(X, Y, Cost))], shortest(X, Y, Cost))
 query(shortest('a', 'd', Cost))

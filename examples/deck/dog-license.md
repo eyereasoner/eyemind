@@ -9,7 +9,8 @@
 ## The question
 
 Imagine a town rule: **anyone who owns more than four dogs needs a dog
-license.**
+license.** The threshold is made up for this example, not taken from any
+real town's rules.
 
 Alice owns five dogs, Bob owns two. Who needs a license? To answer, we must
 *count*, and counting means being sure we saw every dog.
@@ -36,7 +37,7 @@ implies([dog_count(Owner, N), gt(N, 4)], requires(Owner, 'dog_license'))
 ```
 
 `findall` means "gather *all* the dogs this owner has into a list".
-`length` (defined in the same file) counts the list, and `gt(N, 4)` means
+`length` (defined in the same file) counts the list, one element at a time, and `gt(N, 4)` means
 N is greater than 4.
 
 ---

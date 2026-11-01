@@ -1,7 +1,15 @@
 // Complex numbers as ordinary terms: complex(Real, Imaginary).
 // eyecode has no complex primitives, so the whole domain is defined by clauses.
 // Gaussian integer components stay exact, and the two places that leave the
-// integers - an inexact quotient and a modulus - are visible in the output.
+// integers - a quotient and a modulus - are visible in the output.
+//
+// With z = 3+4i and w = 1+2i, the program concludes for example that
+// z + w = 4+6i, z * w = -5+10i, z / w = 2.2-0.4i, i * i = -1 and
+// (1+i)^8 = 16. It then leaves the Gaussian integers for floats: the square
+// root of -1 is i, e^(i*pi) is -1, i^i is about 0.2079, the arcsine of 2 is
+// about 1.5708+1.3170i, and applying sine, cosine and tangent to the inverse
+// results gives back the inputs. These float results match the exact values
+// only up to rounding, so tiny terms such as 1.2e-16 remain.
 
 implied_by(
   complex_add(complex(A, B), complex(C, D), complex(R, I)),
@@ -16,8 +24,8 @@ implied_by(
   [is(R, sub(mul(A, C), mul(B, D))), is(I, add(mul(A, D), mul(B, C)))],
 )
 implied_by(complex_conjugate(complex(A, B), complex(A, N)), is(N, neg(B)))
-// Dividing by a nonzero divisor scales by its norm, so an exactly divisible
-// quotient stays a Gaussian integer and any other one becomes a float pair.
+// Dividing by a nonzero divisor scales by its norm. div always gives a float,
+// so every quotient is a float pair, even one that divides exactly.
 implied_by(
   complex_div(complex(A, B), complex(C, D), complex(R, I)),
   [
@@ -115,6 +123,7 @@ implied_by(
   quadrant_angle(X, Y, Reference, Angle),
   [ge(X, 0), lt(Y, 0), pi_value(Pi), is(Angle, sub(mul(2, Pi), Reference))],
 )
+// For w = c+di and z with modulus |z| and angle t:
 // z^w = |z|^c * e^(-d*t) * (cos(d*ln|z| + c*t) + i*sin(d*ln|z| + c*t)).
 implied_by(
   complex_exponentiation(Z, complex(C, D), complex(E, F)),
@@ -199,6 +208,7 @@ implied_by(
 fact(exponent_case('root', complex(-1, 0), complex(0.5, 0)))
 fact(exponent_case('euler', complex(2.718281828459045, 0), complex(0, 3.141592653589793)))
 fact(exponent_case('self_power', complex(0, 1), complex(0, 1)))
+// e to the power -pi/2, rounded, should come close to i^i above.
 fact(exponent_case('real_power', complex(2.718281828459045, 0), complex(-1.57079632679, 0)))
 fact(inverse_case(complex(2, 0)))
 

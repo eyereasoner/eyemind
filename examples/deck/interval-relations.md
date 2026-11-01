@@ -25,12 +25,14 @@ basis of a lot of scheduling and planning software.
 Times are in minutes after midnight: 600 is 10:00, 720 is 12:00.
 
 ```js
+// interval(Name, Start, End)
 fact(interval('a', 600, 720))
 fact(interval('b', 780, 900))
 // … five more like these
 fact(interval('h', 540, 960))
 fact(start_duration('i', 960, 120))
 fact(end_duration('j', 960, 60))
+// start_duration(Name, Start, Duration) and end_duration(Name, End, Duration)
 ```
 
 So a runs 10:00–12:00 and h 09:00–16:00. Slot i starts at 16:00 and lasts
@@ -48,11 +50,15 @@ Missing endpoints are filled in, then each relation gets a rule:
 ```js
 implies([start_duration(I, S, D), gt(D, 0), is(E, add(S, D))], interval(I, S, E))
 implies([end_duration(I, E, D), gt(D, 0), is(S, sub(E, D))], interval(I, S, E))
+// Only nonempty intervals take part, and every ordered pair of them is compared.
 implied_by(valid_interval(I, S, E), [interval(I, S, E), lt(S, E)])
+implied_by(pair(I, J, SI, EI, SJ, EJ), [valid_interval(I, SI, EI), valid_interval(J, SJ, EJ)])
+// the seven basic relations of I to J
 implies([pair(I, J, SI, EI, SJ, EJ), lt(EI, SJ)], relation(I, 'before', J))
 implies([pair(I, J, SI, EI, SJ, EJ), eq(EI, SJ)], relation(I, 'meets', J))
 implies([pair(I, J, SI, EI, SJ, EJ), lt(SJ, SI), lt(EI, EJ)], relation(I, 'during', J))
 // … overlaps, starts, finishes, equals
+// and their converses
 implies(relation(I, 'before', J), relation(J, 'after', I))
 // … and the other five reverse relations
 ```
@@ -61,7 +67,8 @@ Comparisons are written `lt`, `gt` and `eq` (less than, greater than, equal),
 and `is(E, add(S, D))` computes E = S + D.
 
 Only *valid* slots (start before end) are compared, so empty or backwards
-slots are left out.
+slots are left out. Every ordered pair of valid slots is compared, a slot with
+itself included.
 
 ---
 

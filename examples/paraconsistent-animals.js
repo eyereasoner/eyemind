@@ -1,6 +1,16 @@
-// Conflicting observations are kept as data rather than repaired. Each property
-// is summarized locally as true only, false only or both, and only an
-// unconflicted summary is allowed to drive a decision.
+// Reasoning about animals whose facts conflict: tweety is both a bird and a
+// penguin, batsy is a mammal and a bat, and mythic is a bird observed not to
+// fly. Conflicting conclusions are kept as data rather than repaired. Each
+// property is summarized per animal as true only, false only or both, and
+// only an unconflicted summary is allowed to drive a decision.
+//
+// The result: tweety's and mythic's flight and batsy's wings are flagged as
+// inconsistent and need review, and the decisions for them are 'undecided';
+// falco and batsy move by flying, opus walks. Nothing is concluded about
+// properties with no evidence, such as whether nemo flies.
+//
+// It shows stratified negation: the summaries use not(...) over conclusions of
+// earlier rules, so eyecode derives them only after those rules are complete.
 
 fact(bird('tweety'))
 fact(penguin('tweety'))

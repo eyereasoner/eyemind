@@ -6,11 +6,26 @@
 // directly, degree 3 by Cardan's formula and degree 4 by Lagrange's method,
 // which reduces it to a cubic. The roots are floating-point approximations.
 // Colmerauer's comments are kept in their original French.
+//
+// Two quartics are solved. x^4 - 10x^3 + 35x^2 - 50x + 24 has the roots 4, 3,
+// 2 and 1, found up to about 1e-8. The second, with complex coefficients, has
+// the roots 3+2i, 5+i, i and 1+i, found up to about 1e-14. The program shows
+// floating-point arithmetic and findall collecting every root of an equation.
+//
+// The French names: est(Z, Expr) evaluates a complex expression Expr into Z,
+// where moins is minus or negation, fois times, floordiv complex division,
+// carre, cube and pquatre the second, third and fourth powers, racine(N, X)
+// an N-th root, and racarreeun and racubiqueun the square and cube roots of
+// one. racine gives a single principal root; the other roots come from
+// multiplying it by each root of unity, and for degree 4 from dans, which
+// picks each of four candidates in turn.
 
 // Liste des racines dun polynome
 implied_by(roots(P, L), findall(Z, racine(P, Z), L))
 
 // Racine dun polynome
+// Degree 1: Z = -B/A. Degree 2: with P = B/2A and Q = C/A,
+// Z = -P +- sqrt(P^2 - Q).
 implied_by(racine([A, B], Z), est(Z, moins(floordiv(B, A))))
 implied_by(
   racine([A, B, C], Z),
@@ -21,6 +36,8 @@ implied_by(
   ],
 )
 implied_by(racine([A, B, C, D], Z), racine_cubique([A, B, C, D], Z))
+// Degree 4: substituting x = z + T with T = -B/4A removes the cubic term and
+// leaves z^4 + P z^2 + Q z + R = 0, solved by Lagrange's method.
 implied_by(
   racine([A, B, C, D, E], Zp),
   [
@@ -54,6 +71,7 @@ implied_by(
 // Racine dun polynome du troisieme degre. Lagrange's method collects these
 // roots, so they get a predicate of their own: the collection then depends only
 // on lower degrees, never on itself.
+// With T = -B/3A, the substitution x = z + T leaves z^3 + P z + Q = 0.
 implied_by(
   racine_cubique([A, B, C, D], Zp),
   [
@@ -103,6 +121,10 @@ implied_by(
 )
 
 // Solutions de lequation du quatrieme degre selon Lagrange
+// The resolvent cubic y^3 + 2P y^2 + (P^2 - 4R) y - Q^2 has roots Y1, Y2, Y3;
+// the roots of the quartic are sums of their square roots with signs, halved.
+// epsilon is -(V1 + V2 + V3 + V4) / Q, or 1 when Q is zero: a sign that makes
+// the roots solve this quartic rather than the one with -Q in its place.
 implied_by(
   solutionLagrange(P, Q, R, Z),
   [
@@ -191,6 +213,8 @@ implied_by(
   [nonnul(X), polaire(X, [R, T]), root(N, R, Rp), is(Tp, div(T, N)), cartesien([Rp, Tp], Y)],
 )
 
+// The real N-th root of a positive real, and the polar form [R, T] of a
+// complex number, with cadran putting the angle T in the right quadrant.
 implied_by(root(N, X, Y), is(Y, exp(div(log(X), N))))
 
 implied_by(
@@ -214,5 +238,7 @@ implied_by(nonnul([X, _]), ne(X, 0))
 implied_by(nonnul([X, Y]), [eq(X, 0), ne(Y, 0)])
 
 // query
+// x^4 - 10x^3 + 35x^2 - 50x + 24, and
+// x^4 + (-9-5i)x^3 + (14+33i)x^2 + (24-44i)x - 26.
 query(roots([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], _))
 query(roots([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], _))

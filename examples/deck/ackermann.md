@@ -25,24 +25,29 @@ Mathematicians call the rungs *hyperoperations*. With base 2:
 
 | Level | Operation | Example |
 | --- | --- | --- |
+| 0 | successor (add one) | 7 + 1 |
 | 1 | addition | 7 + 2 |
 | 2 | multiplication | 7 × 2 |
 | 3 | exponentiation (power) | 2⁷ = 128 |
 | 4 | tetration (tower of powers) | 2^2^2^2 = 65,536 |
 
-Each level above 3 is the level below, repeated.
+Each level above 3 is the level below, repeated. A(X, Y) shifts Y up by 3,
+applies level X with base 2, and subtracts 3 again.
 
 ---
 
 ## What we tell eyecode
 
 ```js
+// A(X, Y): shift Y by 3, apply level X with base 2, and subtract 3 again.
 implied_by(ackermann([X, Y], A), [is(B, add(Y, 3)), hyper(X, B, 2, C), is(A, sub(C, 3))])
 
+// hyper(Level, Count, Base, Result)
 implied_by(hyper(0, Y, _, A), is(A, add(Y, 1)))
 implied_by(hyper(1, Y, Z, A), is(A, add(Y, Z)))
 implied_by(hyper(2, Y, Z, A), is(A, mul(Y, Z)))
 implied_by(hyper(3, Y, Z, A), is(A, pow(Z, Y)))
+// Applied zero times, every level above 3 gives 1.
 implied_by(hyper(X, 0, _, 1), gt(X, 3))
 implied_by(
   hyper(X, Y, Z, A),
@@ -56,7 +61,8 @@ query(ackermann([3, 4], _))
 The first four levels are plain arithmetic (`is` means "compute"; `add`,
 `mul` and `pow` are addition, multiplication and power, and `gt` is
 "greater than"). The last rule says: level X, Y times, is level X−1 applied to
-level X, Y−1 times.
+level X, Y−1 times. Everything is a backward rule, worked out only when a
+question asks for it.
 
 ---
 
@@ -87,9 +93,10 @@ For A(3, 4) the proof says:
 3. 128 − 3 = 125 — *a built-in calculation*.
 4. So A(3, 4) = 125 — *rule 1, with X = 3, Y = 4*.
 
-A(4, 1) needs the repeating rule: the tower 2^2^2 is 16, and 2¹⁶ is 65,536
-— *rule 7*, twice over. Steps already proved for one answer are reused by
-the next.
+A(4, 1) needs the repeating rule, *rule 7*: level 4 applied zero times is 1
+(*rule 6*), then each application raises 2 to the previous result: 2, 4, 16,
+and finally 2¹⁶ = 65,536. The tower up to 16 was already proved for
+A(4, 0) = 13 and is reused: steps proved for one answer serve the next.
 
 ---
 

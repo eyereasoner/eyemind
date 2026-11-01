@@ -28,6 +28,8 @@ ordinary part plus a multiple of *i*, the square root of −1. It is written
 `[Real, Imaginary]`; for ordinary numbers the second part is 0.
 
 ```js
+// x^4 - 10x^3 + 35x^2 - 50x + 24, and
+// x^4 + (-9-5i)x^3 + (14+33i)x^2 + (24-44i)x - 26.
 query(roots([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], _))
 query(roots([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], _))
 ```
@@ -43,6 +45,8 @@ i and 1+i.
 implied_by(roots(P, L), findall(Z, racine(P, Z), L))
 // …
 implied_by(racine([A, B, C, D], Z), racine_cubique([A, B, C, D], Z))
+// Degree 4: substituting x = z + T with T = -B/4A removes the cubic term and
+// leaves z^4 + P z^2 + Q z + R = 0, solved by Lagrange's method.
 implied_by(
   racine([A, B, C, D, E], Zp),
   [
@@ -57,7 +61,10 @@ implied_by(
 `racine` ("root") finds one root at a time, with one clause per degree.
 `findall` gathers *all* of them into a list. `est`, `fois`, `add` and
 `floordiv` (here: complex division) are complex arithmetic written out as
-ordinary rules.
+ordinary rules. A few more French names: `moins` is minus, `carre`, `cube`
+and `pquatre` are the second, third and fourth powers, and `racine(N, X)`
+inside `est` is an N-th root. That root is a single one; the others come from
+multiplying it by each root of one (`racarreeun`, `racubiqueun`).
 
 ---
 
@@ -70,6 +77,7 @@ roots([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], [[3.000000000000004, 2.
 
 The roots 4, 3, 2, 1 and 3+2i, 5+i, i, 1+i, each **up to rounding**: the
 formulas use square and cube roots, which a computer can only approximate.
+The first set is off by about 10⁻⁸, the second by about 10⁻¹⁴.
 
 ---
 
@@ -104,11 +112,12 @@ every calculation in it, and no obligations at all.
 
 ```sh
 eyecode examples/polynomial.js
-eyecode --proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" examples/polynomial.js
+eyecode --proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" examples/polynomial.js > /tmp/cubic.js
+eyecode --strict-proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" --check-proof /tmp/cubic.js examples/polynomial.js
 ```
 
 The second command solves the cubic x³ − 6x² + 11x − 6 one root at a time:
-about 1, 2 and 3. Its proof has 263 steps, and the checker recomputes 124
+about 1, 2 and 3. The third checks that proof against the same goal. Its proof has 263 steps, and the checker recomputes 124
 calculations itself. Verdict: **checked**, with nothing taken on trust, even
 under `--strict-proof`, which rejects any obligation.
 

@@ -31,7 +31,8 @@ fact(flight('AIRPORT_1', 'AIRPORT_3'))
 // … 37,503 more connections …
 ```
 
-`flight(A, B)` means there is a connection from A to B. That is about
+`flight(A, B)` means there is a connection from A to B: no schedules, no
+seats, just that the connection exists. That is about
 2.1 MB of facts, followed by a few rules.
 
 ---
@@ -39,6 +40,10 @@ fact(flight('AIRPORT_1', 'AIRPORT_3'))
 ## What we tell eyecode: the rules
 
 ```js
+// route_airports(From, To, Remaining, Visited, Airports): Airports is a route
+// from From to To with at most Remaining further stops, avoiding the airports
+// in Visited. Either a direct flight, or a flight to a new airport Via and a
+// route from there with one stop fewer.
 implied_by(
   route_airports(From, To, _, Visited, [From, To]),
   [flight(From, To), unvisited(To, Visited)],
@@ -60,7 +65,9 @@ implied_by(
 - or, if stopovers remain, fly to a new airport `Via` and continue from
   there with one stopover fewer.
 
-`path_discovery` wraps this, turning names into ids and back.
+`path_discovery` wraps this, turning names into ids and back. The stop limit
+and the visited list together keep every route finite: the search can never
+go round in circles.
 
 ---
 
@@ -70,7 +77,7 @@ Three routes, all through Liège:
 
 ```text
 Ostend-Bruges → Liège → Heraklion International Nikos Kazantzakis → Prague
-Ostend-Bruges → Liège → Diagoras Airport → Prague
+Ostend-Bruges → Liège → Diagoras Airport (Rhodes) → Prague
 Ostend-Bruges → Liège → Palma De Mallorca → Prague
 ```
 

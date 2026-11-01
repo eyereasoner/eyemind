@@ -230,7 +230,9 @@ proportional part on a conditioned measurement minus a feedforward
 compensation, the base-10 logarithm of a measured disturbance. The second is
 a proportional, nonlinear differential feedback controller on the error
 between a target and an output. The results are ordinary floats, and the proof
-recomputes every arithmetic step.
+recomputes every arithmetic step. Guards keep every input from stopping the
+run: the logarithm is taken only of a positive disturbance, and the nonlinear
+factor, which divides by the error, is left out when the output is on target.
 
 `lldm.js` measures a leg length discrepancy from four landmarks on a
 radiograph. Two landmarks fix a reference line, and each leg runs from one of

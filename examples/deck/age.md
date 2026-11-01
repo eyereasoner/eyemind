@@ -31,7 +31,8 @@ query(age_above(Person, years(80)))
 ```
 
 The last line is the question: *find every Person whose age is above 80
-years.* `query` means "work this out and report what follows".
+years.* `query` means "work this out and report what follows". With no date
+in the question, the `as_of` date is used.
 
 ---
 
@@ -56,10 +57,16 @@ implied_by(
 )
 ```
 
-In words: turn each date into a *day number* (days since the start of the
-calendar), find the 80th birthday, and check that today is strictly later
-(`gt` is "greater than", `ge` "greater than or equal").
-`date_day` is defined in the same file, leap-year rules included.
+In words: turn each date into a *day number*, find the 80th birthday, and
+check that today is strictly later (`gt` is "greater than", `ge` "greater
+than or equal"). Strictly: on the 80th birthday itself Pat is exactly 80, not
+above it.
+
+`date_day` is defined in the same file, leap-year rules included. Day 1 is
+1 January of year 1 in the Gregorian calendar; a date's number adds the days
+of all earlier years, of earlier months this year (one more after February
+in a leap year), and the day of the month. Someone born on 29 February has
+their anniversary on 28 February in a common year.
 
 ---
 
@@ -97,7 +104,7 @@ A separate checker reads the proof against the program:
   recomputed by the checker and agrees;
 - nothing depends on itself in a circle, and every step serves the answer.
 
-Verdict: **checked**. All 54 steps verified, nothing taken on trust.
+Verdict: **checked**. All 54 steps accounted for, nothing taken on trust.
 
 ---
 

@@ -17,8 +17,7 @@ This example takes one measurement, `meas47`, with four landmarks, and asks:
 **How long is each leg, how big is the difference, and is it over the
 1.25 cm threshold?** If an alarm goes off, it should say *why*.
 
-*(An illustration of reasoning, adapted from the Eyeling example
-`lldm.n3` — not a clinical tool.)*
+*(An illustration of reasoning, not a clinical tool.)*
 
 ---
 
@@ -28,6 +27,8 @@ This example takes one measurement, `meas47`, with four landmarks, and asks:
 - From landmark 3 (left) and 4 (right), drop a perpendicular onto that line.
   Where it lands are two new points, 5 and 6.
 - Each leg's length is the distance from 3 to 5, and from 4 to 6.
+- Each length comes from Pythagoras: the square root (`pow(X, 0.5)`) of the
+  sum of the squared differences in x and y.
 - The *discrepancy* is left minus right. An alarm fires if it is beyond
   the threshold on either side.
 
@@ -44,11 +45,16 @@ fact(val('meas47', 'p1yCm', 7.8))
 fact(threshold('meas47', 'lld_alarm_threshold_cm', 1.25))
 ```
 
-Then one rule per intermediate value — 37 in all — such as the final leg
-length and the difference:
+All values are floats. Then one backward rule per intermediate value — 37 in
+all, each computed only when asked for — such as the final leg length and
+the difference:
 
 ```js
+// leg lengths by Pythagoras, pow(X, 0.5) being the square root
+// …
 implied_by(val(M, 'd53Cm', Z), [measurement(M), val(M, 'ssd53Cm2', X), is(Z, pow(X, 0.5))])
+// …
+// discrepancy: left length minus right length
 implied_by(
   val(M, 'dCm', Z),
   [measurement(M), val(M, 'd53Cm', X), val(M, 'd64Cm', Y), is(Z, sub(X, Y))],
@@ -77,8 +83,7 @@ implied_by(
 ```
 
 Two rules, one per side. Each carries its own reason, so the output says
-which side of the threshold was crossed. (The version this was adapted from
-gave the same reason for both.)
+which side of the threshold was crossed.
 
 ---
 

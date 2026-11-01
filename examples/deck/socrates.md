@@ -23,6 +23,8 @@ fact(type('socrates', 'human'))        // Socrates is a human
 fact(subclass_of('human', 'mortal'))   // every human is a mortal
 
 implies([type(S, A), subclass_of(A, B)], type(S, B))
+// The query reports every class membership, asserted as well as derived.
+query(type(X, Y))
 ```
 
 The rule reads: *if S is an A, and every A is a B, then S is a B.*
@@ -31,7 +33,8 @@ conclude the conclusion, and keep applying it until nothing new follows.
 The premise is an array: every goal in it must hold.
 Names in quotes, like `'socrates'`, are plain values; capitalized names like
 `S`, `A` and `B` are variables, and `type` and `subclass_of` are the
-predicates. None of them has to be declared.
+predicates. None of them has to be declared. The last line asks the
+question: every `type` that holds.
 
 ---
 

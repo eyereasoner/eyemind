@@ -37,10 +37,13 @@ arithmetic is used anywhere in this example.
 ## What we tell eyecode
 
 ```js
+// add(A, B, C) means A + B = C: A + 0 = A, and A + (B + 1) = (A + B) + 1.
 fact(add(A, 'zero', A))
 implied_by(add(A, s(B), s(C)), add(A, B, C))
+// multiply(A, B, C) means A * B = C: A * 0 = 0, and A * (B + 1) = A * B + A.
 fact(multiply(_, 'zero', 'zero'))
 implied_by(multiply(A, s(B), C), [multiply(A, B, D), add(A, D, C)])
+// 0! = 1, and (N + 1)! = (N + 1) * N!.
 fact(factorial('zero', s('zero')))
 implied_by(factorial(s(N), F), [factorial(N, Before), multiply(s(N), Before, F)])
 query(add(A, B, s(s(s('zero')))))
@@ -52,7 +55,8 @@ query(
 ```
 
 Adding is "A + 0 = A, and A + (B+1) = (A+B)+1". Multiplying is repeated
-adding; factorial is repeated multiplying.
+adding; factorial is repeated multiplying. The second query asks three
+things at once, and each result feeds the next.
 
 ---
 
@@ -68,9 +72,10 @@ add(s('zero'), s(s('zero')), s(s(s('zero'))))
 add('zero', s(s(s('zero'))), s(s(s('zero'))))
 ```
 
-That is 3+0, 2+1, 1+2 and 0+3. The second answer says 1 × 2 = 2,
-2 + 3 = 5, and 5! is `s(s(s(…('zero')…)))` with **120** `s` wrappers — a
-single line of 513 characters.
+That is 3+0, 2+1, 1+2 and 0+3. The second query has three goals, so its
+answer comes back as one `and(…)` of all three: 1 × 2 = 2, 2 + 3 = 5, and
+5! is `s(s(s(…('zero')…)))` with **120** `s` wrappers — a single line of
+513 characters.
 
 ---
 

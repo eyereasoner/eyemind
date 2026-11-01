@@ -38,6 +38,7 @@ are 705 of them.
 One step of the routine, written as a backward definition:
 
 ```js
+// One step: the largest number the digits make minus the smallest.
 implied_by(
   kaprekar_step(A, B),
   [
@@ -54,6 +55,8 @@ implied_by(
 And the claim to test:
 
 ```js
+// reaches_6174(A, Steps): starting from A after Steps steps, 6174 comes
+// within seven steps in all.
 fact(reaches_6174(6174, _))
 implied_by(
   reaches_6174(A, Steps),
@@ -66,12 +69,17 @@ implied_by(
   ],
 )
 
+// The claim holds when no multiset is a counterexample; not(...) checks
+// every one.
 implied_by('counterexample', [digit_multiset(A), not(reaches_6174(A, 0))])
 implied_by(kaprekar_verified(6174, 7), not('counterexample'))
 ```
 
 `not(...)` means "cannot be shown". A **counterexample** is a multiset that does
-*not* reach 6174 within seven steps.
+*not* reach 6174 within seven steps. The search is finite, so `not(...)` can
+run it to the end. Other backward rules, not shown, split a number into its
+four digits (leading zeros included), sort them, and list one representative
+per multiset.
 
 ---
 

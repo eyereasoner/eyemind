@@ -21,6 +21,7 @@ changed it?
 An **event log** is a numbered list of what happened:
 
 ```js
+// event(Number, Kind, Amount), numbered consecutively from 1.
 fact(opening_balance(100))
 fact(event(1, 'deposit', 25))
 fact(event(2, 'withdraw', 40))
@@ -28,7 +29,8 @@ fact(event(3, 'withdraw', 20))
 ```
 
 Each balance is a **state**, and each event is a **transition**: a step from
-one state to the next.
+one state to the next. The events must be numbered 1, 2, 3, … with no gaps,
+because each balance is found from the one numbered just before it.
 
 ---
 
@@ -65,6 +67,10 @@ query(balance(3, Amount))
 
 `is(Before, sub(N, 1))` computes a value: `Before` becomes N − 1. `add` and
 `sub` are addition and subtraction, and `gt(N, 0)` means N > 0.
+
+These are backward rules (`implied_by`): a balance is worked out only when
+the query asks for it. Nothing is stored and overwritten; each state is just
+a value of `balance(N, Amount)`, with balance 0 the opening balance.
 
 ---
 

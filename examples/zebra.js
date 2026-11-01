@@ -2,8 +2,13 @@
 // 17 December 1962. Five houses in a row, each with one colour, nationality,
 // pet, drink and brand of cigarette. Who drinks water, and who owns the zebra?
 // Each constraint narrows a list of five partially known houses; unification
-// does the rest.
+// does the rest. The answer: the Norwegian drinks water and the Japanese owns
+// the zebra.
+// No search strategy is programmed: the clues are a conjunction in one
+// backward rule, and backtracking tries the ways each clue can fit.
 
+// house(Colour, Nationality, Pet, Drink, Cigarettes); Houses lists them from
+// left to right.
 implied_by(
   zebra(WaterDrinker, ZebraOwner),
   [
@@ -12,9 +17,11 @@ implied_by(
     member(house(_, 'spanish', 'dog', _, _), Houses),
     member(house('green', _, _, 'coffee', _), Houses),
     member(house(_, 'ukrainian', _, 'tea', _), Houses),
+    // The green house is immediately right of the ivory house.
     next_to(house('ivory', _, _, _, _), house('green', _, _, _, _), Houses),
     member(house(_, _, 'snail', _, 'old_gold'), Houses),
     member(house('yellow', _, _, _, 'kools'), Houses),
+    // Milk is drunk in the middle house; the Norwegian lives in the first.
     unify(Houses, [_, _, house(_, _, _, 'milk', _), _, _]),
     unify(Houses, [house(_, 'norwegian', _, _, _), ..._]),
     adjacent(house(_, _, _, _, 'chesterfields'), house(_, _, 'fox', _, _), Houses),
@@ -29,6 +36,7 @@ implied_by(
 
 fact(member(X, [X, ..._]))
 implied_by(member(X, [_, ...Rest]), member(X, Rest))
+// next_to(X, Y, Houses): X is immediately left of Y; adjacent: either way round.
 fact(next_to(X, Y, [X, Y, ..._]))
 implied_by(next_to(X, Y, [_, ...Rest]), next_to(X, Y, Rest))
 implied_by(adjacent(A, B, Houses), or(next_to(A, B, Houses), next_to(B, A, Houses)))

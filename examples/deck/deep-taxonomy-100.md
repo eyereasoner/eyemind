@@ -48,7 +48,9 @@ Yes: `ind` is of type `n100`.
 
 This is a well-known **benchmark** (a standard test of speed), from the
 WellnessRules work cited in the file. It checks that a reasoner can follow a
-long chain without getting lost in the side branches.
+long chain without getting lost in the side branches. eyecode works backward
+from the question, one step per level, so the test is how deep goal-directed
+search, and its proof, can go.
 
 ---
 

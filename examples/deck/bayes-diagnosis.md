@@ -29,13 +29,15 @@ This is *Bayes' rule*, a standard way to update beliefs with evidence:
 - Divide each result by the sum of all of them, so the chances add up to 1.
 
 The example is *naive* Bayes: it treats the two symptoms as independent
-clues, so their chances can simply be multiplied.
+clues, so their chances can simply be multiplied. Dividing by the sum also
+assumes these three faults are the only possible causes.
 
 ---
 
 ## What we tell eyecode
 
 ```js
+// fault(Name, Prior, P(jam | fault), P(offline | fault)), all in percent.
 fact(fault('paper_jam', 20, 90, 10))
 fact(fault('network_loss', 30, 5, 95))
 fact(fault('power_loss', 50, 1, 99))
@@ -44,6 +46,7 @@ implies(
   weight(Fault, Weight),
 )
 // … sum_weights adds up a list, in two lines
+// The total weight of all faults normalizes the posteriors.
 implies([findall(W, weight(Fault, W), Weights), sum_weights(Weights, Total)], total(Total))
 implies(
   [

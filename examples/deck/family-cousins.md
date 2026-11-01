@@ -22,10 +22,12 @@ Who is whose parent, where generation 0 starts, and which branch four of
 the grandchildren belong to:
 
 ```js
+// parent(Parent, Child)
 fact(parent('adam', 'bob'))
 fact(parent('adam', 'carol'))
 fact(parent('bob', 'dave'))
 // … 6 more parent facts …
+// Adam is generation 0; the branch labels start with the grandchildren.
 fact(generation('adam', 0))
 fact(branch('dave', 'b'))
 fact(branch('frank', 'c'))
@@ -39,6 +41,7 @@ Branch `'b'` is Bob's side of the family; branch `'c'` is Carol's.
 ## The three rules
 
 ```js
+// A child is one generation below its parent and inherits its branch.
 implies(
   [parent(Parent, Child), generation(Parent, N), is(Next, add(N, 1))],
   generation(Child, Next),
@@ -55,6 +58,9 @@ implies(
 - A child belongs to its parent's branch.
 - X and Y are cousins if they share a generation but their branches differ
   (`not_unify` means "is not the same as").
+
+This classifies people in this one labelled tree; it is not a general
+calculation of how closely two people are related.
 
 ---
 

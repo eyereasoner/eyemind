@@ -20,15 +20,18 @@ plan is one thing; showing no shorter plan exists is another.
 ## What we tell eyecode
 
 A situation lists which bank, west (`'w'`) or east (`'e'`), the farmer,
-wolf, goat and cabbage are on. Everyone starts west.
+wolf, goat and cabbage are on, in that order. Everyone starts west.
 
 ```js
+// A plan from a state is a safe move followed by a plan from the next state;
+// everyone on the east bank needs no more moves.
 fact(solution(['e', 'e', 'e', 'e'], []))
 implied_by(
   solution(State, [Move, ...Rest]),
   [move(State, Move, Next), safe(Next), solution(Next, Rest)],
 )
 
+// The farmer crosses alone or with one passenger that is on his bank.
 implied_by(move([X, X, Goat, Cabbage], 'wolf', [Y, Y, Goat, Cabbage]), change(X, Y))
 implied_by(move([X, Wolf, Goat, Cabbage], 'nothing', [Y, Wolf, Goat, Cabbage]), change(X, Y))
 // … same for goat and cabbage
@@ -45,11 +48,13 @@ implied_by(
 ## Asking for the shortest plan
 
 ```js
+// Some plan of 0 to 6 crossings works.
 implied_by(
   'shorter_solution',
   [in_range(0, 6, N), moves(N, Plan), solution(['w', 'w', 'w', 'w'], Plan)],
 )
 
+// once(...) stops at the first seven-crossing plan; shortest_crossing lists all.
 implied_by(
   wolf_goat_cabbage_verified(7),
   [not('shorter_solution'), moves(7, Plan), once(solution(['w', 'w', 'w', 'w'], Plan))],
@@ -62,6 +67,10 @@ implied_by(
 
 In words: *there is no safe plan with 0 to 6 crossings* (`not` means "it
 is not the case that"), *and there is one with 7*.
+
+`moves(N, Plan)` makes a plan of exactly N moves still to be chosen. Fixing
+the length keeps the search finite, even though a plan may visit the same
+situation twice.
 
 ---
 
@@ -96,8 +105,9 @@ The proof checks that every in-between situation is safe.
 
 ## Checked, not just claimed
 
-- **56** steps are confirmed against the program lines they cite, and 15
-  calculations and choices are rechecked.
+- **56** steps are confirmed against the program lines they cite, 14
+  calculations are recomputed, and the `once(...)` choice is rechecked from
+  its parts.
 - **1** step is taken on trust, as an *absent* obligation: "there is no
   shorter solution". eyecode searched every plan of 0 to 6 crossings and
   found none; the checker records that rather than proving a negative.

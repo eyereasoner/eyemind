@@ -50,8 +50,9 @@ implied_by(
     measurement10('input1', M1),
     measurement2('input2', 'true'),
     measurement3('disturbance1', D1),
+    gt(D1, 0),                          // the logarithm needs a positive disturbance
     is(C1, mul(M1, 19.6)),              // proportional part
-    is(C2, div(log(D1), log(10))),      // compensation part
+    is(C2, div(log(D1), log(10))),      // compensation part: log10 of the disturbance
     is(C, sub(C1, C2)),                 // simple feedforward control
   ],
 )
@@ -59,7 +60,9 @@ implied_by(
 
 `is` means "calculate": it binds its first argument to the value of the
 arithmetic term (`mul`, `div`, `sub`, `log`) in its second. The compensation
-is the base-10 logarithm of the disturbance.
+is the base-10 logarithm of the disturbance, so the rule first checks with
+`gt` that the disturbance is positive: a logarithm of zero or less would stop
+the run with an error.
 
 ---
 
@@ -72,15 +75,35 @@ implied_by(
     observation3('state3', P3),
     measurement4('output2', M4),
     target2('output2', T2),
-    is(E, sub(T2, M4)),                 // error
-    is(D, sub(P3, M4)),                 // differential error
+    is(E, sub(T2, M4)),                 // error: target minus output
+    is(D, sub(P3, M4)),                 // differential error: observed state minus output
     is(C1, mul(5.8, E)),                // proportional part
-    is(N, div(7.3, E)),                 // nonlinear factor
-    is(C2, mul(N, D)),                  // nonlinear differential part
+    nonlinear_part(E, D, C2),           // nonlinear differential part
     is(C, add(C1, C2)),                 // PND feedback control
   ],
 )
 ```
+
+---
+
+## Guarding a division
+
+```js
+implied_by(
+  nonlinear_part(E, D, C2),
+  [
+    ne(E, 0),
+    is(N, div(7.3, E)),                 // nonlinear factor
+    is(C2, mul(N, D)),
+  ],
+)
+implied_by(nonlinear_part(E, _, 0), eq(E, 0))
+```
+
+The nonlinear factor divides by the error. On target the error is zero, and
+the division would stop the run, so two exclusive clauses split the cases:
+with an error, the factor is computed; without one, the nonlinear part is
+left out.
 
 ---
 
@@ -117,8 +140,8 @@ Every one of these values is written into the proof.
 The checker does not take the arithmetic on faith: it **recomputes** each
 calculation itself and compares.
 
-- **21 steps**: 9 verified against the program lines they cite, and
-  **12 calculations recomputed** and found to agree.
+- **24 steps**: 10 verified against the program lines they cite, and
+  **14 calculations and comparisons recomputed** and found to agree.
 - No circular reasoning, every claim justified, nothing extra.
 - **0** steps taken on trust.
 
@@ -136,7 +159,10 @@ eyecode --proof examples/control-system.js    # answers with their proof
 Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=control-system).
 Raise the target to `fact(target2('output2', 34))` and run again: the error becomes
 10, and actuator 2's command becomes `56.54` instead of `26.08`. Actuator 1 is
-unchanged.
+unchanged. Set the target to `24`, the current output: the error is zero, the
+nonlinear part is left out, and the command is `0.0`. Set the disturbance to
+`0`: actuator 1 gets no command, since its compensation is undefined, and
+actuator 2 is unaffected.
 
 ---
 

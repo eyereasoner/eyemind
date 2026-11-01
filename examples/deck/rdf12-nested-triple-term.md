@@ -10,7 +10,8 @@
 
 An auditor reviews Alice's claim that Bob knows Carol. That is a triple term
 inside a triple term: the review is about the claim, and the claim is about
-the relationship.
+the relationship. None of it is asserted: the data only says that the auditor
+reviews something.
 
 **Can one rule reach the relationship two levels down?**
 

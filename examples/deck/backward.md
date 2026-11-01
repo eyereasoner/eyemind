@@ -78,7 +78,7 @@ A separate checker reads the proof against the program:
 - the 1 built-in step, `gt(5, 3)`, is recomputed and agrees;
 - there is no circular reasoning, and nothing in the proof is extra.
 
-Verdict: **checked**. All 3 steps verified, 1 claim answered, nothing taken
+Verdict: **checked**. All 3 steps accounted for, 1 claim answered, nothing taken
 on trust.
 
 ---

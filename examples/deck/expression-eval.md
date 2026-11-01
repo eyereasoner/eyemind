@@ -22,10 +22,12 @@ computed?
 Every part of the formula gets a name, called a **node**:
 
 ```js
+// the leaves: literal(Node, Number)
 fact(literal('n2', 2))
 fact(literal('n3', 3))
 fact(literal('n10', 10))
 fact(literal('n4', 4))
+// the inner nodes: expression(Node, Operation, Left, Right)
 fact(expression('product', 'mul', 'n2', 'n3'))
 fact(expression('difference', 'sub', 'n10', 'n4'))
 fact(expression('total', 'add', 'product', 'difference'))
@@ -40,6 +42,7 @@ fact(root('example', 'total'))
 ## What we tell eyecode: how to evaluate
 
 ```js
+// A node's value is its literal, or its operation applied to its children's values.
 implied_by(value(Node, Value), literal(Node, Value))
 implied_by(
   value(Node, Value),
@@ -50,6 +53,7 @@ implied_by(
     calculate(Operation, L, R, Value),
   ],
 )
+// One clause per operation name.
 implied_by(calculate('add', L, R, Value), is(Value, add(L, R)))
 implied_by(calculate('sub', L, R, Value), is(Value, sub(L, R)))
 implied_by(calculate('mul', L, R, Value), is(Value, mul(L, R)))

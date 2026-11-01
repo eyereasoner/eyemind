@@ -60,7 +60,8 @@ readable, stable from run to run, and impossible to mix up with Bob's.
 
 ## Why not let eyecode invent names?
 
-eyecode can invent placeholder names for things a rule leaves unnamed. But an
+eyecode can invent placeholder names, *Skolem terms*, when a rule's
+conclusion has a variable its premise never fills in. But an
 explicit witness is better when you want one per rule and per binding:
 
 - it says *which* rule made it and *for whom*;

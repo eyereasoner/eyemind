@@ -22,6 +22,9 @@ Here the machine adds one to a **binary** number (written with only 0 and 1).
 ## What we tell eyecode: the machine
 
 ```js
+// t([State, Read, Write, Move], NextState). State 0 scans right over the
+// digits; state 1 adds one: a 1 becomes 0 and the carry moves left, a 0 or a
+// blank becomes 1 and the machine halts.
 fact(start('add1', 0))
 fact(t([0, 0, 0, 'r'], 0))
 fact(t([0, 1, 1, 'r'], 0))
@@ -42,6 +45,7 @@ State 0 runs right to the end of the number. State 1 walks back, turning
 ## What we tell eyecode: the interpreter
 
 ```js
+// One step: look up the transition, write and move, then continue.
 implied_by(
   find(State, Left, Cell, Right, OutTape),
   [
@@ -51,6 +55,8 @@ implied_by(
   ],
 )
 
+// In state halt, put the tape back together; in any other state, take
+// another step.
 implied_by(
   struct('continue', 'halt', Left, Cell, Right, OutTape),
   [reverse(Left, R), append(R, [Cell, ...Right], OutTape)],
@@ -67,6 +73,11 @@ up the instruction, moves the head, and repeats until the state is
 written as `struct('continue', ...)`.) `[Cell, ...Right]` is the list whose
 first element is `Cell`, followed by the elements of `Right`.
 
+The tape is held in three parts: the cells to the left of the head (in
+reverse order, nearest first), the cell under the head, and the cells to the
+right. Moving off either end of the tape reaches a fresh blank cell. These
+interpreter rules work for any instruction table, not just this one.
+
 ---
 
 ## What eyecode concludes
@@ -80,7 +91,7 @@ compute([], [1, '#'])
 
 In everyday numbers: 41 + 1 = 42, 47 + 1 = 48, 63 + 1 = 64 (the number
 grows a digit), and an empty tape becomes 1. The trailing `'#'` is the blank
-cell the head stopped next to.
+cell just past the last digit, which the machine visited; it is not a digit.
 
 ---
 

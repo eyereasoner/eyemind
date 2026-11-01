@@ -15,8 +15,8 @@ change these terms", "we may share your data". Some come with safeguards
 **Which clauses are risky, in what order should we look at them, and what
 would fix each one?**
 
-This is a small illustrative model: the scores are made-up parameters, not
-legal advice.
+This is a small illustrative model: the base scores, weights and thresholds
+are chosen for the example, not a legal assessment.
 
 ---
 
@@ -32,12 +32,15 @@ fact(permission('c5', 'share_data'))
 fact(safeguard('c5', 'consent'))
 fact(permission('c6', 'change_terms'))
 fact(notice_days('c6', 14))
+// Weights added to the base score of each kind of finding.
 fact(importance('consent', 12))
 // … and three more importance weights
+// Days of notice required before the terms change.
 fact(required_notice(14))
 ```
 
-c3 and c5 both allow sharing data, but only c5 asks for consent.
+c3 and c5 both allow sharing data, but only c5 asks for consent. c2 and c6
+both let the provider change the terms, but c2 gives only 3 days' notice.
 
 ---
 
@@ -57,12 +60,15 @@ implies(
 )
 ```
 
-`not(...)` means **"not"**: the rule fires only if no consent safeguard is known.
-`is(Raw, add(85, Weight))` computes the raw score.
+`not(...)` means **"not found"**: the rule fires only if no consent safeguard
+is known. `is(Raw, add(85, Weight))` computes the raw score: a base score for
+this kind of risk plus the weight of the concern. The four kinds of risk
+have base scores 90 (account removal), 70 (short notice), 85 (sharing
+without consent) and 60 (export prohibited).
 
 Further rules cap scores at 100, label them high (80+), moderate (50–79) or
 low, and give each finding a **rank**: 1 plus the number of findings that
-score higher.
+score higher, which `findall` collects into a list.
 
 ---
 

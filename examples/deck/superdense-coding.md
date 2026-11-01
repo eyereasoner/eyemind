@@ -39,6 +39,8 @@ The shared pair, Alice's four operations and Bob's four readings are
 small tables of facts (omitted here). Then:
 
 ```js
+// One way for Alice's message N to arrive as Bob's M: the shared pair |R), her
+// operation on her half, and his measurement of both halves.
 implied_by(path(N, M, [X, Y, B]), [r(X, Y), alice(N, [X, B]), bob([B, Y], M)])
 
 implies(
@@ -48,7 +50,9 @@ implies(
 ```
 
 A `path` is one way for Alice's message N to reach Bob as reading M:
-through the shared pair `r`, her operation, and his measurement.
+through the shared pair `r`, her operation on her half, which she then sends
+him, and his measurement of both halves. `'false'` and `'true'` stand for
+the qubit values 0 and 1.
 `findall` collects *all* such ways; `odd` keeps the pair if their number
 is odd.
 

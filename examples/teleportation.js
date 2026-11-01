@@ -14,6 +14,11 @@
 // coding, and sends him the outcome: two classical bits. Bob applies the
 // inverse of that basis relation to his half of the pair and holds Alice's
 // state, though neither of them ever learned it.
+//
+// The program concludes this for each of the three states and each of the
+// four outcomes: twelve teleported facts, each giving Bob exactly the state
+// Alice sent. A contradiction rule halts the run if any outcome left Bob
+// holding something else.
 
 // The three nonzero one-qubit states: |0), |1) and |0) + |1)
 fact(state('zero', 'false'))

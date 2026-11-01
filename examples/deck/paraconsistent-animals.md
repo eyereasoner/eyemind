@@ -30,6 +30,7 @@ fact(mammal('batsy'))
 fact(bat('batsy'))
 fact(fish('nemo'))
 fact(bird('mythic'))
+// An explicit observation that contradicts the rule for birds.
 fact(observed('mythic', 'flies', 'false'))
 implies(bird(X), flies(X, 'true'))
 implies(bird(X), wings(X, 'true'))
@@ -49,6 +50,8 @@ can be recorded side by side without the program falling over.
 Each property gets a local summary: *true only*, *false only*, or *both*.
 
 ```js
+// Local summaries. These inspect the rule conclusions, so they run only after
+// the stratum above has reached its fixpoint.
 implies([flies(X, 'true'), flies(X, 'false')], flight_status(X, 'both'))
 implies([flies(X, 'true'), not(flies(X, 'false'))], flight_status(X, 'true_only'))
 // …
@@ -56,7 +59,10 @@ implies(flight_status(X, 'true_only'), flies_safely(X, 'true'))
 implies(flight_status(X, 'both'), flies_safely(X, 'undecided'))
 ```
 
-`not(...)` means "not found": nothing eyecode knows says otherwise. Decisions read
+`not(...)` means "not found": nothing eyecode knows says otherwise. Because
+the summaries look at what the animal rules concluded, eyecode runs them only
+after those rules have finished (this is called *stratified negation*), so a
+"not found" is never premature. Decisions read
 only the summary, so a conflict leads to *undecided*, never to both answers.
 
 ---
@@ -78,7 +84,9 @@ moves_by('opus', 'walking')
 
 Tweety (bird and penguin) and Mythic (a bird seen not flying) are flagged
 for review. Batsy the bat has wings by one rule and none by the mammal rule.
-Falco, Opus and Nemo are clear-cut.
+Falco and Batsy move by flying, Opus walks, and Nemo has no wings. Nothing
+is concluded about properties with no evidence: no rule says whether Nemo
+flies, so Nemo gets no flight decision at all.
 
 ---
 
@@ -100,7 +108,8 @@ For Falco:
 
 ## Checked, not just claimed
 
-59 steps were verified against the program. Verdict:
+The proof has 66 steps: 59 were verified against the program, and the
+other 7 are the "not found" steps described below. Verdict:
 **checked_with_obligations**.
 
 The 7 obligations are all of the kind called `absent`, one for each "not

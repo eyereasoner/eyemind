@@ -1,5 +1,14 @@
-// Collection runs after line totals have been materialized.
+// Calculating an invoice from three items. Each item has a quantity and a unit
+// price, all prices in the same unspecified currency unit. A forward rule
+// multiplies quantity by price for each line (6, 12 and 10), and a second
+// forward rule collects the line totals with findall and adds them up: the
+// invoice totals 28.
+//
+// The collection must see every line total, so eyecode runs it only after
+// the line totals have all been derived: the findall rule sits in a later
+// stratum than the rule that makes line totals.
 
+// item(Name, Quantity, UnitPrice)
 fact(item('apple', 3, 2))
 fact(item('pear', 4, 3))
 fact(item('plum', 2, 5))

@@ -51,7 +51,12 @@ implied_by(
 Countries are coloured one at a time, starting from the end of the list.
 Each takes the first colour from red, green, blue, yellow that *no*
 already-coloured neighbour has. `not(...)` means "it is not the case that": here,
-there is no conflict.
+there is no conflict. If a country is left without a colour, eyecode
+backtracks and revisits earlier choices.
+
+The query starts from a list of `[Country, Colour]` pairs that `findall`
+builds with the colours still unknown, and `once` keeps the first complete
+colouring.
 
 ---
 
@@ -86,8 +91,9 @@ Each "no conflict" is a step in the proof.
 
 ## Checked, not just claimed
 
-The checker verifies 66 steps against the program. 28 steps are taken on
-trust and listed as **obligations**:
+The checker verifies 66 steps against the program, and confirms the one
+`once` step from the colouring beneath it. 28 steps are taken on trust and
+listed as **obligations**:
 
 - **1 collected**: the list of countries gathered with `findall` ("find
   all") is assumed to be the complete map;

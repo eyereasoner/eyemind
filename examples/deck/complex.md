@@ -37,6 +37,7 @@ fact(point('w', complex(1, 2)))
 
 implies([point('z', Z), point('w', W), complex_add(Z, W, Sum)], sum(Sum))
 implies([point('z', Z), point('w', W), complex_mul(Z, W, Product)], product(Product))
+// i*i = -1 follows from the multiplication clause rather than being assumed.
 implies(complex_mul(complex(0, 1), complex(0, 1), Square), unit_square(Square))
 // …
 ```
@@ -76,7 +77,9 @@ sine(complex(1.9999999999999998, 1.0605752387249067e-16))
 - Multiplying by 1 + i eight times lands on 16, back on the real line.
 - i to the power i is the ordinary number 0.2078…
 - The sine of the arcsine of 2 comes back as 1.9999999999999998: decimal
-  arithmetic on a computer is very close, but not perfectly exact.
+  arithmetic on a computer is very close, but not perfectly exact. For the
+  same reason the square root of −1 and e^(iπ) carry tiny leftover parts such
+  as 1.2e-16 where the exact answer has 0.
 
 ---
 
@@ -102,7 +105,7 @@ The checker reads the proof against the program:
   number, and agree;
 - no circular reasoning, nothing extra, every answer accounted for.
 
-Verdict: **checked**. All 215 steps verified, nothing taken on trust.
+Verdict: **checked**. All 215 steps accounted for, nothing taken on trust.
 
 ---
 

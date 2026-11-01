@@ -1,8 +1,14 @@
 // Colour the map of the European Union with four colours so that no two
 // neighbouring countries share one. Each country is coloured after the ones
 // listed below it, choosing the first colour none of its already-coloured
-// neighbours uses. The four colour theorem says this always succeeds.
+// neighbours uses, and backtracking revisits earlier choices if a country is
+// left without one. The four colour theorem says a colouring always exists.
 // See https://en.wikipedia.org/wiki/Four_color_theorem
+//
+// The query answers with one colouring of the 27 member states, as a list of
+// [Country, Colour] pairs. findall builds that list with the colours still
+// unknown, once keeps the first complete colouring, and not(conflict(...))
+// rejects a colour an already-coloured neighbour has.
 
 implied_by(
   colors(_Map, Places),
@@ -26,6 +32,7 @@ implied_by(
   [member([Neighbour, Color], Coloured), member(Neighbour, Neighbours)],
 )
 
+// member(X, List): X is an element of List.
 fact(member(X, [X, ..._]))
 implied_by(member(X, [_, ...Rest]), member(X, Rest))
 

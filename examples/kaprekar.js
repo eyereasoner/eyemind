@@ -3,7 +3,13 @@
 // and repeat. Every such number reaches 6174 within seven steps. The first step
 // depends only on which digits occur, so it is enough to check each of the 705
 // nontrivial multisets of four digits once rather than all 10,000 numbers.
+//
+// The program concludes kaprekar_verified(6174, 7). It does so by negation:
+// the claim holds when no counterexample can be found, and not(...) runs that
+// finite search to the end. Backward rules do the digit arithmetic, a small
+// insertion sort, and the bounded walk to 6174.
 
+// One step: the largest number the digits make minus the smallest.
 implied_by(
   kaprekar_step(A, B),
   [
@@ -16,6 +22,7 @@ implied_by(
   ],
 )
 
+// The four decimal digits of A, leading zeros included, and back.
 implied_by(
   digits(A, [B, C, D, E]),
   [
@@ -62,6 +69,8 @@ implied_by(
   ],
 )
 
+// reaches_6174(A, Steps): starting from A after Steps steps, 6174 comes
+// within seven steps in all.
 fact(reaches_6174(6174, _))
 implied_by(
   reaches_6174(A, Steps),
@@ -74,6 +83,8 @@ implied_by(
   ],
 )
 
+// The claim holds when no multiset is a counterexample; not(...) checks
+// every one.
 implied_by('counterexample', [digit_multiset(A), not(reaches_6174(A, 0))])
 implied_by(kaprekar_verified(6174, 7), not('counterexample'))
 

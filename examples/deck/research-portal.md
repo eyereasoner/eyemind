@@ -56,7 +56,7 @@ research, so the purpose fits.
 
 The policy is data the program reads, not a comment: it governs r1 because
 it is an ODRL agreement assigned by r1's data controller. Delete any one of
-its 26 triples and the outcome changes; `eyecode --unused` checks exactly that.
+its 24 triples and the outcome changes; `eyecode --unused` checks exactly that.
 
 ---
 
@@ -153,10 +153,12 @@ A separate checker read all **273 steps**: 225 were matched to a program
 line, and 15 calculations were redone and agreed. Verdict:
 **checked_with_obligations**.
 
-The **33 obligations** are statements of the form "there is no prohibition
-for this session" or "no condition failed". eyecode found these by searching
-everything it knows; the checker records them rather than proving them, and
-found nothing in the proof that contradicts them.
+The **33 obligations** are complete lists: "these are all the conditions
+this session fails", "this is the policy's only conflict strategy", and most
+often "there is no prohibition for this session" or "no condition failed".
+eyecode found these by searching everything it knows; the checker records
+them rather than proving them, and found nothing in the proof that
+contradicts them.
 
 What the certificate does **not** show: that the rules are legally correct,
 that consent was really given, or that the data was really deleted. It shows

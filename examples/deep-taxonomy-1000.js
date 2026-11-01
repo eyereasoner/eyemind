@@ -1,7 +1,10 @@
-// Deep taxonomy: one individual, and a chain of 1000 levels in which every level
-// also branches into two siblings that lead nowhere. Reaching n1000 means
-// following the single productive branch the whole way down. A loop states
-// the three rules of every level.
+// Deep taxonomy: a classification 1000 levels deep. One individual, ind, is
+// of class n0, and at every level K a member of class n(K-1) is also a member
+// of three classes: nK, which continues the chain, and iK and jK, two siblings
+// that lead nowhere. The program concludes type('ind', 'n1000'): reaching n1000
+// means following the single productive branch the whole way down, one
+// backward step per level, so it tests how deep goal-directed search and its
+// proof can go. A JavaScript loop states the three rules of every level.
 // See https://web.archive.org/web/20101025233525/http://www.ruleml.org/WellnessRules/files/WellnessRulesN3-2009-11-10.pdf
 
 fact(type('ind', 'n0'))

@@ -27,6 +27,7 @@ means a careless search could go round forever.
 ## What we tell eyecode
 
 ```js
+// One-way edges; c -> a closes the cycle a -> b -> c -> a.
 fact(edge('a', 'b'))
 fact(edge('b', 'c'))
 fact(edge('c', 'a'))
@@ -55,7 +56,8 @@ reachable('b', 'd')   reachable('c', 'b')   reachable('a', 'a')
 reachable('a', 'd')   reachable('b', 'b')   reachable('c', 'c')
 ```
 
-12 conclusions (shown three per line). From a, b or c you can reach all
+12 conclusions (shown three per line). With no query, eyecode lists every
+fact it derived. From a, b or c you can reach all
 four places — including the place you started, by going round the loop.
 From d you reach nothing. And the run stops: once no new pair appears,
 eyecode is done.

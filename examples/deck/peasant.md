@@ -41,6 +41,8 @@ the computer show each row?**
 ## What we tell eyecode
 
 ```js
+// prod([X, Y], Z) means X * Y = Z. Halve X and double Y; when X is odd, the
+// row's Y is added to the product of the halved row.
 fact(prod([0, _], 0))
 implied_by(
   prod([X, Y], Z),
@@ -58,6 +60,8 @@ implied_by(
   ],
 )
 
+// pow([X, Y], Z) means X^Y = Z. Square X and halve Y; when Y is odd, the
+// result of the halved row is multiplied by X once more.
 fact(pow([_, 0], 1))
 implied_by(
   pow([X, Y], Z),
@@ -83,8 +87,9 @@ Read the first `implied_by` line as: *if X is even, halve X, double Y, and carry
 on*. The next one is the odd row: the same, then add Y. `mod(X, 2)` is the
 remainder after dividing by 2, `floordiv(X, 2)` is whole-number halving, and
 `is(S, ...)` sets S to the value of a calculation. Numbers too large for an
-ordinary JavaScript number, such as `62713345408367238n`, are written as
-BigInt literals with an `n` suffix.
+ordinary JavaScript number (beyond 2^53), such as `62713345408367238n`, are
+written as BigInt literals with an `n` suffix, so that JavaScript does not
+round them before eyecode sees them.
 
 ---
 

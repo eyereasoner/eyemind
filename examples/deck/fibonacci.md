@@ -36,6 +36,7 @@ needs only about 14 halvings.
 
 ```js
 implied_by(fib(N, F), [ge(N, 0), fib_pair(N, F, _)])
+// fib_pair(N, F(N), F(N+1))
 fact(fib_pair(0, 0, 1))
 implied_by(
   fib_pair(N, A, B),
@@ -43,11 +44,13 @@ implied_by(
     gt(N, 0),
     is(Half, floordiv(N, 2)),
     fib_pair(Half, X, Y),
-    is(C, mul(X, sub(mul(2, Y), X))),
-    is(D, add(mul(X, X), mul(Y, Y))),
+    is(C, mul(X, sub(mul(2, Y), X))), // F(2K)
+    is(D, add(mul(X, X), mul(Y, Y))), // F(2K+1)
     parity_pair(N, C, D, A, B),
   ],
 )
+// For even N the pair is (F(2K), F(2K+1)); for odd N it moves one step on,
+// to (F(2K+1), F(2K) + F(2K+1)).
 implied_by(parity_pair(N, C, D, A, B), [eq(0, mod(N, 2)), unify(A, C), unify(B, D)])
 implied_by(parity_pair(N, C, D, A, B), [eq(1, mod(N, 2)), unify(A, D), is(B, add(C, D))])
 implied_by(
@@ -58,9 +61,10 @@ query(fib(10, F))
 // … and the other questions
 ```
 
-`fib_pair` computes two neighbours, F(N) and F(N+1), together. `floordiv(N, 2)` is
-"N divided by 2, rounded down"; `parity_pair` picks the formula for even or
-odd N.
+`fib_pair` computes two neighbours, F(N) and F(N+1), together, from the
+pair for K = N // 2. `floordiv(N, 2)` is "N divided by 2, rounded down";
+`parity_pair` picks the formula for even or odd N. So the recursion is only
+about log2(N) calls deep.
 
 ---
 

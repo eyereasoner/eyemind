@@ -27,6 +27,7 @@ The data is written as *triples*: subject, relation, object.
 fact(base('alice', 'parent_of', 'bob'))
 fact(base('alice', 'parent_of', 'carol'))
 fact(base('bob', 'blocked', 'true'))
+// Every base triple is also a t triple.
 implied_by(t(S, P, O), base(S, P, O))
 implies(t(P, 'parent_of', C), t(C, 'child_of', P))
 implies([t(C, 'child_of', 'alice'), not(t(C, 'blocked', 'true'))], allowed(C))
@@ -36,7 +37,7 @@ implies(
 )
 ```
 
-`base` is the original data, left untouched; `t` is a combined view of the
+`base` is the original data, external and left untouched; `t` is a combined view of the
 data plus what follows from it. `not(...)` means *not*. `findall` gathers *all*
 answers into a list.
 

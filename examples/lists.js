@@ -1,4 +1,7 @@
-// Define list operations with ordinary recursive clauses.
+// Building and processing lists: join two lists, square each number in a
+// list, and add up a list's numbers. Each operation has a clause for the
+// empty list and a recursive clause for the first item and the rest, written
+// [X, ...Xs]. The queries give ['a', 'b', 'c', 'd'], [1, 4, 9, 16] and 10.
 
 fact(append([], Ys, Ys))
 implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs))

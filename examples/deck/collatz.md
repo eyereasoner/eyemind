@@ -24,6 +24,7 @@ every move?**
 ## What we tell eyecode
 
 ```js
+// trajectory(N, Values): the sequence from N down to 1, both included.
 fact(trajectory(1, [1]))
 implied_by(
   trajectory(N, [N, ...Rest]),
@@ -34,6 +35,7 @@ implied_by(
   [gt(N, 1), eq(1, mod(N, 2)), is(Next, add(mul(3, N), 1)), trajectory(Next, Rest)],
 )
 
+// A range of starting values, enumerated by ordinary clauses.
 implied_by(in_range(Low, High, Low), le(Low, High))
 implied_by(
   in_range(Low, High, N),
@@ -47,7 +49,8 @@ A *trajectory* is the list of numbers visited. At 1 it is just `[1]`.
 Otherwise: if N leaves remainder 0 when divided by 2 (`mod`), halve it
 (`floordiv`, whole-number division); if remainder 1, take 3N+1. `[N, ...Rest]`
 is a list starting with N, followed by the list `Rest`. `in_range` counts
-from 1 to 20.
+from 1 to 20, and the question asks for both goals at once: a start in the
+range, and its trajectory.
 
 ---
 

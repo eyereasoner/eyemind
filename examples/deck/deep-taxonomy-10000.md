@@ -109,7 +109,7 @@ eyecode examples/deep-taxonomy-10000.js            # the answer
 eyecode --stats examples/deep-taxonomy-10000.js    # and its cost
 ```
 
-`--stats` reports `"inferences": 10001` — one step per level, plus the fact.
+`--stats` reports `"inferences":10001` — one step per level, plus the fact.
 Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=deep-taxonomy-10000).
 
 Change the last line to `query(type(X, 'j5000'))` and run with `--stats`

@@ -109,8 +109,10 @@ The checker confirms every step against the program: 18 steps are instances
 of the clauses they cite, and the two `not_identical` tests are recomputed.
 Nothing is taken on trust. Verdict: **checked**.
 
-The witnesses need no special treatment in the proof: they are ordinary
-values that the rule's variables were bound to.
+In the proof the witnesses are ordinary values that the rule's variables were
+bound to. The checker does not take them on trust either: for each of the 7
+steps that invent one, it recomputes the Skolem term from the rule and the
+values it depends on, and confirms that the step uses exactly that term.
 
 ---
 

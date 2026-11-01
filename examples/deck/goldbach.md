@@ -26,6 +26,7 @@ and for each one finds the split whose smaller prime is as small as possible.
 fact(split(4, [2, 2]))
 implied_by(split(N, Pair), [eq(0, mod(N, 2)), gt(N, 4), once(split_from(N, Pair, 3))])
 
+// Try P = 3, 5, 7, 11, ... in turn, each the next prime, until N - P is prime.
 implied_by(split_from(N, [P, Q], P), [is(Q, sub(N, P)), is_prime(Q)])
 implied_by(
   split_from(N, Pair, P),
@@ -35,7 +36,8 @@ implied_by(
 
 In words: start with the prime P = 3. If N − P is prime, that is the split.
 If not, move on to the next prime and try again. `once` means: take the
-first split found and stop.
+first split found and stop; the next prime after P is found the same way,
+by stepping 2 at a time until `is_prime` holds.
 
 ---
 
@@ -46,6 +48,8 @@ fact(is_prime(2))
 fact(is_prime(3))
 implied_by(is_prime(P), [gt(P, 3), eq(1, mod(P, 2)), not(has_factor(P, 3))])
 
+// has_factor(N, L): N is divisible by L or by a later odd number, trying
+// divisors only until their square reaches N.
 implied_by(has_factor(N, L), eq(0, mod(N, L)))
 implied_by(has_factor(N, L), [lt(mul(L, L), N), is(M, add(L, 2)), has_factor(N, M)])
 ```

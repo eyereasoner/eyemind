@@ -37,6 +37,7 @@ the easy case: just move it.
 
 ```js
 // … two lines defining append
+// moves(N, From, To, Spare, Moves): one disk moves directly.
 fact(moves(1, From, To, _, [move(From, To)]))
 implied_by(
   moves(N, From, To, Spare, Moves),
@@ -64,7 +65,7 @@ together.
 moves(3, 'left', 'right', 'center', [move('left', 'right'), move('left', 'center'), move('right', 'center'), move('left', 'right'), move('center', 'left'), move('center', 'right'), move('left', 'right')])
 ```
 
-Seven moves, in three groups:
+Seven moves, the shortest solution, in three groups:
 
 - left → right, left → center, right → center — *the top two disks step aside*
 - **left → right** — *the big disk*

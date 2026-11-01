@@ -84,7 +84,9 @@ eyecode ships at five sizes:
 
 - `deep-taxonomy-10` (this one), `-100`, `-1000`, `-10000` and `-100000` levels.
 
-Each costs exactly one step per level, plus one for the fact. The
+eyecode answers by working backward from the question, one step per level,
+so the benchmark tests how deep goal-directed search, and its proof, can go.
+Each size costs exactly one step per level, plus one for the fact. The
 hundred-thousand-level version verifies 100001 steps. Time, proof size and
 checking all grow in proportion to the depth, so a longer chain costs
 more, but never disproportionately more.

@@ -27,7 +27,9 @@ list that gives each character — Latin, Greek, Chinese, emoji — its own
 number, called a *code point*.
 
 Some characters take several bytes to store, which is why naive programs
-sometimes count `café` as 5 letters instead of 4.
+sometimes count `café` as 5 letters instead of 4. eyecode counts code
+points: `é` is one character, and 😀 is one code, not the two 16-bit units
+JavaScript itself stores it as.
 
 ---
 
@@ -48,6 +50,7 @@ query(unicode_codes('😀', Codes))
 A piece of text like `'alice'` is called an *atom*. The built-in tools
 join atoms (`atom_concat`), split them into characters (`atom_chars`),
 measure them (`atom_length`) and give their code points (`atom_codes`).
+They are used in ordinary rules; there is no special syntax for text.
 
 ---
 

@@ -52,16 +52,22 @@ Read from the inside out:
 ## What we tell eyecode: the rules
 
 ```js
+// List membership, and a triple's membership of a graph.
 fact(member_of(X, [X, ..._]))
 implied_by(member_of(X, [_, ...Xs]), member_of(X, Xs))
 implied_by(includes(graph(Triples), Triple), member_of(Triple, Triples))
 implies([quoted(G), includes(G, T)], found(T))
+// W occurs only in the head: one fresh Skolem term per quoted graph.
 implies(quoted(X), witness(X, W))
 ```
 
 - `member_of` finds an item in a list; `includes` looks inside a graph.
 - `found` lists every triple inside the quoted graph.
-- `witness` has a `W` that the rule never fills in. More on that below.
+- `witness` has a `W` that the rule never fills in: it states that
+  something exists. More on that below.
+
+Rules match these terms by unification, like any other data; eyecode has no
+special support for them.
 
 ---
 
@@ -74,7 +80,8 @@ witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p')
 
 - The one triple inside the quotation has been found.
 - In the `witness`, the unknown `W` became a **Skolem term**,
-  `skolem(6, 'W', [the graph])`: a name meaning "the `W` that rule 6 says
+  `skolem(6, 'W', [the graph])`, built from the rule's number (6), the
+  variable's name and the graph it was made for: a name meaning "the `W` that rule 6 says
   exists for this graph". eyecode invents such names when a conclusion mentions
   something the rule never pinned down; the same graph always gives the same
   name, and nothing else can.
@@ -101,6 +108,8 @@ with X the graph and W the Skolem term `skolem(6, 'W', [X])`.
 
 - **5 steps** for 2 answers, all **5 verified** as exact instances of the
   program lines they cite.
+- The Skolem term in the `witness` is rebuilt by the checker from rule 6
+  and the graph, and matches.
 - No calculations to recompute, no circular reasoning, nothing extra.
 - **0** steps taken on trust.
 

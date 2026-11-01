@@ -7,10 +7,18 @@
 // from a state fluent to a new one, with the action that makes it and what that
 // action costs; belief and comfort multiply along a path, duration and cost add.
 //
-// The original keeps the current state in the database: it reads transitions
-// with clause/2, proves their preconditions as goals, and asserts and retracts
-// fluents as it moves. Here the state is a list of fluents passed along the
-// search, and a transition replaces its From fluent by its To fluent.
+// The test data is a partial map of Belgium with one-way drives between Gent,
+// Kortrijk, Brugge and Oostende; durations are in seconds, and cost, belief
+// and comfort are illustrative scores. Starting in Gent with the goal of
+// being in Oostende, the program finds two routes within the limits: Gent -
+// Brugge - Oostende (2400 s, cost 0.01, belief 0.9408, comfort 0.99) and
+// Gent - Kortrijk - Brugge - Oostende (4100 s, belief 0.903168, comfort
+// 0.9801). It reports both; it does not weigh the criteria against each other.
+//
+// The state is a list of fluents passed along a backward search, and a
+// transition replaces its From fluent by its To fluent. Each step checks the
+// running totals against the limits, so a path is cut off as soon as it
+// exceeds one.
 
 // find paths in the state space from the current state to a goal state within limits
 implied_by(
@@ -97,7 +105,7 @@ fact(
     _Limits,
   ),
 )
-    // Like the original, each step commits to the first way of finishing from it.
+// Each step commits, with once, to the first way of finishing from it.
 implied_by(
   struct(
     'continue',
@@ -119,6 +127,7 @@ implied_by(
   ),
   [
     unify(Limits, [MaxDuration, MaxCost, MinBelief, MinComfort, MaxStagecount]),
+    // a transition whose From fluent is in the state
     description(Map, [From, _Transition, To, Action, Duration_n, Cost_n, Belief_n, Comfort_n]),
     becomes(From, To, State, State_t),
     append(Maps_s, [Map], Maps_t),
@@ -184,6 +193,8 @@ fact(append([], L, L))
 implied_by(append([X, ...Xs], L, [X, ...Ys]), append(Xs, L, Ys))
 
 // test data: partial map of Belgium
+// description(Map, [From, Transition, To, Action, Duration, Cost, Belief, Comfort]);
+// the search does not use the Transition field
 fact(
   description(
     'map_be',
@@ -248,7 +259,8 @@ fact(
 // current state
 fact(current_state([location('i1', 'gent')]))
 
-// query
+// query: be in Oostende, within 5000 s, cost 5, belief at least 0.2,
+// comfort at least 0.4, and one stage
 query(
   findpath(
     'map_be',

@@ -25,9 +25,13 @@ Gregorian algorithm** (also known as Meeus/Jones/Butcher).
 implied_by(
   computus(Year, [Month, Day]),
   [
+    // the year's place in the 19-year cycle of moon phases
     is(A, mod(Year, 19)),
+    // century and year within the century
     is(B, floordiv(Year, 100)),
     is(C, mod(Year, 100)),
+    // roughly the days from 21 March to the paschal full moon, with the
+    // Gregorian century corrections
     is(
       D,
       mod(
@@ -41,10 +45,13 @@ implied_by(
         30,
       ),
     ),
+    // the weekday correction that moves the date on to a Sunday
     is(
       E,
       mod(sub(sub(add(add(32, mul(2, mod(B, 4))), mul(2, floordiv(C, 4))), D), mod(C, 4)), 7),
     ),
+    // the date as Month * 31 + (Day - 1); the 451 term moves the few dates
+    // that would come out too late back one week
     is(F, add(sub(add(D, E), mul(7, floordiv(add(add(A, mul(11, D)), mul(22, E)), 451))), 114)),
     is(Month, floordiv(F, 31)),
     is(Day, add(mod(F, 31), 1)),
@@ -54,14 +61,17 @@ implied_by(
 
 The premise is an array of steps that must all hold. Arithmetic is written
 as terms: `add`, `sub` and `mul` are +, − and ×, `floordiv` is whole-number
-division and `mod` is the remainder. **Computus** is the traditional name
-for computing the date of Easter.
+division and `mod` is the remainder, so every step is exact. F packs the
+month and day into one number, Month × 31 + (Day − 1), which the last two
+lines unpack. **Computus** is the traditional name for computing the date of
+Easter.
 
 ---
 
 ## What we tell eyecode: which years
 
 ```js
+// in_range(Low, High, N) gives each integer N from Low through High.
 implied_by(in_range(Low, High, Low), le(Low, High))
 implied_by(
   in_range(Low, High, N),
@@ -71,8 +81,10 @@ implied_by(
 implies([in_range(2021, 2050, Year), computus(Year, Date)], easter(Year, Date))
 ```
 
-`in_range` counts from 2021 up to 2050, one year at a time. The last line
-says: for every year in that range, the Easter date is what the recipe gives.
+`in_range(Low, High, N)` gives each year N from Low through High, one at a
+time; both it and `computus` are backward rules, worked out on demand. The
+last line, a forward rule, says: for every year in that range, the Easter
+date is what the recipe gives.
 
 ---
 

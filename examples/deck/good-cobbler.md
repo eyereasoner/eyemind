@@ -26,13 +26,16 @@ Each person comes with a description, kept as a short list of words:
 fact(description('joe', ['good', 'cobbler']))
 fact(description('jane', ['good', 'carpenter']))
 fact(description('sam', ['novice', 'cobbler']))
+// Any quality: a novice cobbler is still a cobbler.
+implies(description(Person, [_, Trade]), classified_as(Person, Trade))
+// Only 'good', and only for the trade it describes.
 implies(description(Person, ['good', Trade]), good_at(Person, Trade))
-implies(description(Person, ['good', Trade]), classified_as(Person, Trade))
 ```
 
-The rules only fire on the pattern `['good', Trade]`, and they tie "good" to
-that trade. There is deliberately no rule that says someone is simply
-`'good'`.
+The trade classifies anyone, whatever the quality: `_` matches any word.
+Only the pattern `['good', Trade]` makes someone good at something, and it
+ties "good" to that trade. There is deliberately no rule that says someone is
+simply `'good'`.
 
 ---
 
@@ -43,10 +46,11 @@ good_at('joe', 'cobbler')
 good_at('jane', 'carpenter')
 classified_as('joe', 'cobbler')
 classified_as('jane', 'carpenter')
+classified_as('sam', 'cobbler')
 ```
 
 - Joe is good at cobbling; Jane is good at carpentry.
-- Sam is described as a *novice* cobbler, so nothing is concluded about him.
+- Sam is a *novice* cobbler: still a cobbler, but not good at it.
 - And nowhere does it say anyone is "good" on its own.
 
 ---
@@ -61,8 +65,10 @@ Each conclusion traces back to one description:
 2. Joe is classified as a cobbler — *the `classified_as` rule*, from the
    same fact.
 3. The same two steps for Jane, from her own description.
+4. Sam is classified as a cobbler, from his description; no step makes him
+   good at it.
 
-Six steps in all: four conclusions and the two facts they rest on.
+Eight steps in all: five conclusions and the three facts they rest on.
 
 ---
 
@@ -74,7 +80,7 @@ A separate checker read the proof against the program and confirmed that:
 - every conclusion rests on a description we actually gave;
 - the proof answers the questions asked and contains nothing extra.
 
-Verdict: **checked**. All 6 steps verified, nothing taken on trust.
+Verdict: **checked**. All 8 steps verified, nothing taken on trust.
 
 ---
 

@@ -33,7 +33,8 @@ query(allowed(User, Action))
 ```
 
 First work out what each role *would* allow, then remove anyone suspended.
-`not(...)` means "it is not the case that".
+`not(...)` means "nothing in the program says so": a user counts as not
+suspended when there is no `suspended` fact for them.
 
 ---
 

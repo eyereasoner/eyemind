@@ -3,16 +3,23 @@
 // A(X, Y) = hyper(X, Y+3, 2) - 3, and every level above exponentiation is the
 // previous level iterated. Integers are exact, so A(4, 2) - a number with 19,729
 // digits - is computed in full rather than approximated.
+//
+// The queries ask for eleven values, from A(0, 6) = 7 through A(3, 14) = 131069
+// and A(4, 1) = A(5, 0) = 65533 up to A(4, 2). Everything is defined by
+// backward rules, with recursion on the level and on the count.
 
+// A(X, Y): shift Y by 3, apply level X with base 2, and subtract 3 again.
 implied_by(ackermann([X, Y], A), [is(B, add(Y, 3)), hyper(X, B, 2, C), is(A, sub(C, 3))])
 
-// The first four levels have closed forms in ordinary arithmetic.
+// The first four levels have closed forms in ordinary arithmetic:
+// hyper(Level, Count, Base, Result) for successor, addition, multiplication
+// and exponentiation.
 implied_by(hyper(0, Y, _, A), is(A, add(Y, 1)))
 implied_by(hyper(1, Y, Z, A), is(A, add(Y, Z)))
 implied_by(hyper(2, Y, Z, A), is(A, mul(Y, Z)))
 implied_by(hyper(3, Y, Z, A), is(A, pow(Z, Y)))
 // Above them, level X applied Y times is level X-1 applied to the result of
-// level X applied Y-1 times.
+// level X applied Y-1 times. Applied zero times, every such level gives 1.
 implied_by(hyper(X, 0, _, 1), gt(X, 3))
 implied_by(
   hyper(X, Y, Z, A),

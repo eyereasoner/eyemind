@@ -48,7 +48,10 @@ implied_by(
 The clues form one array: all of them must hold. `_` means "not known
 yet", and `[house(...), ..._]` is a list whose first item is that house.
 Each house is
-`house(Colour, Nationality, Pet, Drink, Cigarettes)`.
+`house(Colour, Nationality, Pet, Drink, Cigarettes)`, and `Houses` lists
+them from left to right. Three short helpers finish the program: `member`
+finds a house in the list, `next_to(X, Y, Houses)` says X is immediately
+left of Y, and `adjacent` allows either way round.
 
 ---
 

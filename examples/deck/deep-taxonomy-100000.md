@@ -82,8 +82,8 @@ The proof is a chain of 100,001 steps:
 4. … one step per level …
 5. So `'ind'` is in `'n100000'` — *rule 299999*.
 
-Each step names the exact rule it used. Every rule the loop states records
-the line of the loop, so the proof can still say where each rule came from.
+Each step names the exact rule it used, by number. Rules are numbered in the
+order the loop states them, so rule 299999 is the `n` rule of the last level.
 The 200,000 side-branch rules never appear: they do not help answer the
 question.
 

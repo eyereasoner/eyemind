@@ -35,16 +35,21 @@ and `plus` (both at once).
 
 ```js
 // … the shared pair, Alice's measurement and Bob's fixes
+// Bob's qubit has amplitude 1 on Z when an odd number of ways lead there.
 implied_by(received(S, M, Z), [qubit(Z), findall(Path, path(S, M, Z, Path), Paths), odd(Paths)])
-// …
+// What Bob holds after each outcome, for each state Alice could send.
 implies(
   [name(S), outcome(M), findall(Z, received(S, M, Z), Received)],
   teleported(S, M, Received),
 )
+// Bob must hold exactly the state Alice sent, whatever the outcome.
 // …
 contradiction(teleported(S, _, Received), sent(S, Sent), not_identical(Received, Sent))
 ```
 
+A state is written as the list of basis values it contains, so `plus` is
+`['false', 'true']`. A `path` is one way for Alice's state to end up as one
+of Bob's values; Bob's fix for outcome M undoes the basis Alice measured in.
 `findall` gathers *all* answers. The `contradiction` rule is a safety
 alarm: if Bob's state ever differs from Alice's, the run stops with exit
 code 65.
@@ -100,8 +105,9 @@ eyecode --proof examples/teleportation.js    # answers with their proof
 ```
 
 Break Bob's fix for outcome 0: in `implied_by(bob(0, Y, Z), kg(Y, Z))` replace
-`kg(Y, Z)` with `id(Y, Z)`. Now Bob sometimes gets the wrong state, eyecode
-prints `'false'` and exits with code 65.
+`kg(Y, Z)` with `id(Y, Z)`. Now outcome 0 leaves Bob with the wrong state
+(`zero` arrives as `['true']`), so after the answers eyecode prints `'false'`
+for the contradiction and exits with code 65.
 
 ---
 

@@ -23,6 +23,7 @@ part is how a computer can show its work, including the step "I added up
 ## What we tell eyecode
 
 ```js
+// item(Name, Quantity, UnitPrice)
 fact(item('apple', 3, 2))
 fact(item('pear', 4, 3))
 fact(item('plum', 2, 5))
@@ -32,9 +33,13 @@ implied_by(sum([X, ...Xs], Total), [sum(Xs, Rest), is(Total, add(X, Rest))])
 implies([findall(Amount, line_total(_, Amount), Amounts), sum(Amounts, Total)], invoice(Total))
 ```
 
-- Each item has a name, a quantity and a price.
+- Each item has a name, a quantity and a unit price, all in the same
+  (unnamed) currency.
 - A line total is quantity × price.
 - `findall` gathers *every* line total into a list; `sum` adds the list up.
+- To see every line total, the `findall` rule runs only after all line
+  totals have been derived: eyecode puts it in a later *stratum* (layer) than
+  the line-total rule.
 
 ---
 
