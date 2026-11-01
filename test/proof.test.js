@@ -47,6 +47,14 @@ export const tests = {
     invalid(document.replace('step(p(0.0)', 'step(p(-0.0)'), 'C1', source);
   },
 
+  'primitive re-decision rejects signed zero identity and underflow forgeries'() {
+    invalid("identical(0.0, -0.0)\nstep(identical(0.0, -0.0), 'builtin', {}, [])", 'C5',
+      program('query(identical(float(0), float(-0)))'));
+    const expression = 'div(1, shl(1, 1074))';
+    invalid(`is(0.0, ${expression})\nstep(is(0.0, ${expression}), 'builtin', {}, [])`, 'C5',
+      program(`query(is(X, ${expression}))`));
+  },
+
   'proofs are checked against source rather than display records'() {
     invalid(proof().replace("clause(1, fact(p('a')))", "clause(1, fact(p('b')))"), 'C1');
     invalid(proof(), 'C1', program("fact(p('b'))\nimplies(p(X), q(X))\nimplies(q(X), r(X))"));

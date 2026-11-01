@@ -1,5 +1,27 @@
 // SPEC 3: terms, unification and the standard order.
 
+conformance('standard order compares supplementary characters after BMP characters', [
+  spec('3'),
+  file('program.js', [
+    "query(compare(O, '\uffff', '\u{10000}'))",
+  ]),
+  stdout([
+    "compare('<', '￿', '𐀀')",
+  ]),
+])
+
+conformance('standard order treats lone surrogates as their own code points', [
+  spec('3'),
+  file('program.js', [
+    "query(compare(O, '\\ud800', '\\ue000'))",
+    "query(compare(O, '\\ud800', '\\ud800\\udc00'))",
+  ]),
+  stdout([
+    "compare('<', '\\ud800', '')",
+    "compare('<', '\\ud800', '𐀀')",
+  ]),
+])
+
 conformance('integers and floats do not unify', [
   spec('3'),
   args("program.js --goal 'p(1.0)'"),

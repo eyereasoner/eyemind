@@ -75,6 +75,17 @@ export const tests = {
     assert.equal(JSON.parse(cli(['--stats', 'examples/socrates.js']).stderr).derived, 1);
   },
 
+  'command line reasoning bounds reject overflow and unsafe integers'() {
+    for (const option of ['--max-depth', '--max-iterations', '--max-inferences']) {
+      for (const value of ['0', '-1', '1.5', 'Infinity', '9007199254740992', '9'.repeat(400)]) {
+        const result = cli([option, value], '');
+        assert.equal(result.code, 1);
+        assert.equal(result.stdout, '');
+        assert.equal(result.stderr, `eyecode: ${option} needs a positive safe integer\n`);
+      }
+    }
+  },
+
   'failed and strict checks print verdicts and exit unsuccessfully'() {
     const failed = cli(['--check-proof', '-', '--goal', 'is(7, add(2, 3))', 'examples/socrates.js'],
       "is(7, add(2, 3))\nstep(is(7, add(2, 3)), 'builtin', {}, [])\n");

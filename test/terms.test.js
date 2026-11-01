@@ -1,6 +1,6 @@
 import { EyecodeError, Struct, Var, readTerm, run, write } from '../src/index.js';
-import { Env, compareTerms, copyResolved, unify } from '../src/terms.js';
-import { assert, program, throwsMatching } from './helpers.js';
+import { Env, compareTerms, copyResolved, identity, unify } from '../src/terms.js';
+import { assert, program, proven, throwsMatching } from './helpers.js';
 
 const order = (left, right) => run(program(''), { goal: `compare(O, ${left}, ${right})` }).bindings[0].O;
 
@@ -43,6 +43,42 @@ export const tests = {
     assert.ok(!unify(1.0, 1n, new Env()));
     assert.ok(unify(1n, 1n, new Env()));
     assert.equal(compareTerms(9007199254740993n, 9007199254740992n), 1);
+  },
+
+  'term identity cannot confuse separators in names and atoms'() {
+    const separator = '\u0001\u0000a\u0001';
+    const left = new Struct('p', [`a${separator}b`, 'c']);
+    const right = new Struct('p', ['a', `b${separator}c`]);
+    assert.notEqual(identity(left), identity(right));
+    for (const term of [left, right, new Var(separator), new Struct(separator, [separator])]) {
+      assert.equal(identity(term), identity(readTerm(write(term))));
+    }
+    const source = program(`fact(seed)\nimplies(seed, [${write(left)}, ${write(right)}])`);
+    assert.deepEqual(proven(source).answers, [write(left), write(right)]);
+    const withFact = program(`fact(seed, ${write(left)})\nimplies(seed, ${write(right)})`);
+    assert.deepEqual(proven(withFact).answers, [write(right)]);
+  },
+
+  'identity distinguishes signed zero while unification and order equate it'() {
+    const source = program('');
+    for (const [left, right] of [['0.0', '-0.0'], ['f(0.0)', 'f(-0.0)'], ['[0.0]', '[-0.0]']]) {
+      assert.deepEqual(run(source, { goal: `identical(${left}, ${right})` }).answers, []);
+      assert.equal(proven(source, { goal: `not_identical(${left}, ${right})` }).answers.length, 1);
+      assert.equal(run(source, { goal: `unify(${left}, ${right})` }).answers.length, 1);
+      assert.equal(order(left, right), "'='");
+      assert.equal(proven(source, { goal: `identical(${left}, ${left})` }).answers.length, 1);
+    }
+  },
+
+  'standard order compares Unicode code points including lone surrogates'() {
+    const strings = ['a', '\ud7ff', '\ud800', '\ud800a', '\udbff', '\udc00', '\udfff', '\ue000',
+      '\uffff', '\ud800\udc00', '😀', '\udbff\udfff'];
+    for (const left of strings) for (const right of strings) {
+      const expected = Math.sign(strings.indexOf(left) - strings.indexOf(right));
+      assert.equal(compareTerms(left, right), expected, `${write(left)} vs ${write(right)}`);
+      assert.equal(compareTerms(new Var(left), new Var(right)), expected);
+      assert.equal(compareTerms(new Struct(left, [1n]), new Struct(right, [1n])), expected);
+    }
   },
 
   'standard order compares numbers by value before type'() {

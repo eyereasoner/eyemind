@@ -25,6 +25,8 @@
 import { readFileSync } from 'node:fs';
 import { EyecodeError, Program, Struct, Var, checkProof, publicReport, readTerm, readTerms, run, write } from '../src/index.js';
 import { shortcuts } from '../src/proof.js';
+import { apply } from '../src/arith.js';
+import { compareText, identity } from '../src/terms.js';
 import { artifactPath, loadExample, readManifest } from '../tools/corpus.js';
 import { assert, program } from './helpers.js';
 
@@ -59,7 +61,8 @@ function forSeeds(count, fn) {
 // --- Terms --------------------------------------------------------------
 
 const ATOMS = ['a', '', 'a b', "it's", 'say "hi"', 'back\\slash', 'line\nbreak', 'tab\there', '\u0000', '\u2028',
-  '\ud800', 'é', '😀', '[]', 'and', 'or', 'struct', 'class', 'VAR_X', '_', 'X', '-1', '1.0', 'true', 'null'];
+  '\ud800', '\udc00', '\ue000', '\uffff', 'é', '😀', '\u0001\u0000a\u0001',
+  '[]', 'and', 'or', 'struct', 'class', 'VAR_X', '_', 'X', '-1', '1.0', 'true', 'null'];
 const NAMES = ['f', 'g', 'and', 'or', 'struct', 'class', 'a b', 'x$', '', 'é', '[]', '.', 'step', 'VAR_f'];
 const VARIABLES = ['X', 'Y', '_0', 'X#1', 'VAR_X', 'é', 'a b', 'class', '_', 'X_1'];
 const NUMBERS = [0n, 1n, -1n, 9007199254740993n, -(10n ** 40n), 0.5, -0.0, 0.0, 1e22, 1e-5, 5e-324, -1.75, 2.0];
@@ -583,12 +586,57 @@ export const tests = {
   },
 
   'every term reads back from its canonical text as itself'() {
+    const keys = new Map();
     forSeeds(1500, (r) => {
       const term = randomTerm(r);
       const text = write(term);
       const back = readTerm(text);
       assert.ok(same(back, term), `${text} read back as ${write(back)}`);
       assert.equal(write(back), text);
+      const key = identity(term);
+      assert.equal(identity(back), key);
+      if (keys.has(key)) assert.equal(keys.get(key), text, 'distinct terms share an identity key');
+      keys.set(key, text);
+    });
+  },
+
+  'text order agrees with a code point array comparison'() {
+    forSeeds(1500, (r) => {
+      const left = Array.from({ length: r.below(5) }, () => r.pick(ATOMS)).join('');
+      const right = Array.from({ length: r.below(5) }, () => r.pick(ATOMS)).join('');
+      const a = Array.from(left, (ch) => ch.codePointAt(0));
+      const b = Array.from(right, (ch) => ch.codePointAt(0));
+      let expected = Math.sign(a.length - b.length);
+      for (let i = 0; i < Math.min(a.length, b.length); i++) {
+        if (a[i] !== b[i]) {
+          expected = Math.sign(a[i] - b[i]);
+          break;
+        }
+      }
+      assert.equal(compareText(left, right), expected, `${write(left)} vs ${write(right)}`);
+    });
+  },
+
+  'integer division recovers floats from their exact rational values'() {
+    forSeeds(1500, (r) => {
+      const biased = r.below(2047);
+      const high = (r.below(2) << 31) | (biased << 20) | r.below(1 << 20);
+      const low = r.below(2 ** 32);
+      const bits = new DataView(new ArrayBuffer(8));
+      bits.setUint32(0, high);
+      bits.setUint32(4, low);
+      const expected = bits.getFloat64(0);
+      let numerator = (BigInt(high & 0xfffff) << 32n) | BigInt(low);
+      if (biased !== 0) numerator += 1n << 52n;
+      if (numerator === 0n) return;
+      if (high < 0) numerator = -numerator;
+      const exponent = biased === 0 ? -1074 : biased - 1075;
+      let denominator = 1n;
+      if (exponent < 0) denominator <<= BigInt(-exponent);
+      else numerator <<= BigInt(exponent);
+      const factor = BigInt(1 + r.below(1000));
+      const actual = apply('div', [numerator * factor, denominator * factor]);
+      assert.ok(Object.is(actual, expected), `${numerator}/${denominator}: ${actual} vs ${expected}`);
     });
   },
 

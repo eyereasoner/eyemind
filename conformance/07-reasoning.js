@@ -1,5 +1,17 @@
 // SPEC 7: search order, forward reasoning, bounds, halting and conclusions.
 
+conformance('embedded control characters do not merge distinct derived facts', [
+  spec('7.2, 8.1'),
+  file('program.js', [
+    'fact(seed)',
+    "implies(seed, [p('a\\u0001\\u0000a\\u0001b', 'c'), p('a', 'b\\u0001\\u0000a\\u0001c')])",
+  ]),
+  stdout([
+    "p('a\\u0001\\u0000a\\u0001b', 'c')",
+    "p('a', 'b\\u0001\\u0000a\\u0001c')",
+  ]),
+])
+
 conformance('derived facts are tried before program clauses', [
   spec('7.1'),
   args("program.js --goal 'p(X)'"),

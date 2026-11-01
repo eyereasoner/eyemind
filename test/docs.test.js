@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { checkReport, loadText, run } from '../src/index.js';
+import { loadCases } from '../conformance/run.js';
 import { ROOT, assert, cli } from './helpers.js';
 
 const document = (path) => readFileSync(join(ROOT, path), 'utf8');
@@ -52,9 +53,10 @@ export const tests = {
     assert.deepEqual(logged, [["mortal('socrates')"], [{ X: "'socrates'" }], true]);
   },
 
-  'documented example counts match the manifest'() {
+  'documented example and conformance counts match the manifests'() {
     const count = JSON.parse(document('examples/manifest.json')).length;
     assert.match(document('README.md'), new RegExp(`\\b${count} runnable programs`));
     assert.match(document('GUIDE.md'), new RegExp(`is ${count} complete programs`));
+    assert.match(document('README.md'), new RegExp(`\\b${loadCases().length} cases that test`));
   },
 };

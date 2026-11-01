@@ -10,6 +10,7 @@ export const RESERVED_KEYS = new Set(['step/4', 'clause/2']);
 
 // The statements that state a forward rule, and how an error names them.
 const FORWARD_KINDS = { forward: 'a forward rule', query: 'query()', contradiction: 'contradiction()' };
+const isIndexable = (value) => typeof value === 'string' || typeof value === 'bigint' || typeof value === 'number';
 
 export class Clause {
   constructor(id, head, heads, body, forward, line) {
@@ -121,7 +122,7 @@ export class Program {
       if (index === null) return;
       let argument = args[position];
       if (argument instanceof Var) argument = deref(argument, env);
-      if (typeof argument !== 'string') return;
+      if (!isIndexable(argument)) return;
       const bucket = index[0].get(argument) || [];
       const size = bucket.length + index[1].length;
       if (size < count) {
@@ -132,22 +133,32 @@ export class Program {
     });
     if (chosen === null) return clauses;
     if (!chosen[1].length) return matches;
-    // Retain source order, including clauses with variable or structured heads.
-    return [...matches, ...chosen[1]].sort((a, b) => a.id - b.id);
+    // Both buckets retain source order. Merge them without sorting on every
+    // call, including clauses with variable or structured heads.
+    const other = chosen[1];
+    const merged = [];
+    let i = 0;
+    let j = 0;
+    while (i < matches.length && j < other.length) {
+      merged.push(matches[i].id < other[j].id ? matches[i++] : other[j++]);
+    }
+    while (i < matches.length) merged.push(matches[i++]);
+    while (j < other.length) merged.push(other[j++]);
+    return merged;
   }
 }
 
-// An index per argument position where enough entries carry an atom. Each
-// index is [atoms, other]: a map from atom to entries, and the entries with
-// anything else there. Indexing a position where nearly every head has a
-// variable rules out nothing, so such a position gets null.
+// An index per argument position where enough entries carry an atom or
+// number. Each index is [constants, other]: a map from value to entries, and
+// the entries with anything else there. Map keys keep integers and floats
+// distinct while equating signed zeros, just as unification does.
 export function positionIndexes(entries, headOf, arity) {
   const counts = new Array(arity).fill(0);
   for (const entry of entries) {
     const head = headOf(entry);
     if (arity) {
       head.args.forEach((arg, position) => {
-        if (typeof arg === 'string') counts[position]++;
+        if (isIndexable(arg)) counts[position]++;
       });
     }
   }
@@ -158,7 +169,7 @@ export function positionIndexes(entries, headOf, arity) {
       const index = positions[position];
       if (index === null) continue;
       const argument = head.args[position];
-      if (typeof argument !== 'string') {
+      if (!isIndexable(argument)) {
         index[1].push(entry);
       } else {
         if (!index[0].has(argument)) index[0].set(argument, []);
@@ -221,7 +232,7 @@ function headCandidates(entry, goal) {
   if (entry === undefined) return [];
   let chosen = entry.pairs;
   entry.positions.forEach((bucket, position) => {
-    if (bucket === null || !(goal instanceof Struct) || typeof goal.args[position] !== 'string') return;
+    if (bucket === null || !(goal instanceof Struct) || !isIndexable(goal.args[position])) return;
     const matched = bucket[0].get(goal.args[position]) || [];
     if (matched.length + bucket[1].length < chosen.length) chosen = [...matched, ...bucket[1]];
   });

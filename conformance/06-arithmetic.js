@@ -416,3 +416,23 @@ conformance('error: the integer square root of a negative number', [
   stdin([]),
   stdout([]),
 ])
+
+conformance('integer division preserves the smallest positive float', [
+  spec('6'),
+  args("--goal 'is(X, div(1, shl(1, 1074)))'"),
+  stdin([]),
+  stdout([
+    'is(5e-324, div(1, shl(1, 1074)))',
+  ]),
+])
+
+conformance('integer division rounds subnormal halfway cases to even', [
+  spec('6'),
+  args("--goal 'is(X, div(1, shl(1, 1075)))' --goal 'is(X, div(3, shl(1, 1075)))' --goal 'is(X, div(-5, shl(1, 1075)))'"),
+  stdin([]),
+  stdout([
+    'is(0.0, div(1, shl(1, 1075)))',
+    'is(1e-323, div(3, shl(1, 1075)))',
+    'is(-1e-323, div(-5, shl(1, 1075)))',
+  ]),
+])

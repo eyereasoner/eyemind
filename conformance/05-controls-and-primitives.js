@@ -544,3 +544,14 @@ conformance('univ of a list', [
     "univ([1, 2], ['.', 1, [2]])",
   ]),
 ])
+
+conformance('canonical identity distinguishes signed zero inside terms', [
+  spec('2, 5.2, 8.1'),
+  file('program.js', [
+    "query(identical(float(0), float(-0)))",
+    "query(not_identical(f(float(0)), f(float(-0))))",
+  ]),
+  stdout([
+    'not_identical(f(0.0), f(-0.0))',
+  ]),
+])

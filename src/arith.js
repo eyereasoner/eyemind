@@ -46,31 +46,18 @@ function intTrueDivide(a, b) {
     const result = Number(a) / Number(b);
     return negative ? -result : result;
   }
-  // Scale so the quotient has 55 to 56 significant bits, then round half to
-  // even on the exact remainder.
-  const shift = bitLength(b) - bitLength(a) + 55;
-  const numerator = shift > 0 ? a << BigInt(shift) : a;
-  const denominator = shift < 0 ? b << BigInt(-shift) : b;
-  let quotient = numerator / denominator;
-  const remainder = numerator % denominator;
-  let exponent = -shift;
-  // Keep 53 bits plus round and sticky information.
-  const extra = bitLength(quotient) - 53;
-  let sticky = remainder !== 0n;
-  if (extra > 0) {
-    const dropped = quotient & ((1n << BigInt(extra)) - 1n);
-    const half = 1n << BigInt(extra - 1);
-    quotient >>= BigInt(extra);
-    exponent += extra;
-    if (dropped > half || (dropped === half && (sticky || (quotient & 1n) === 1n))) quotient += 1n;
-    sticky = false;
-  }
-  if (exponent > 1023 + 64) throw new Problem('integer division result too large for a float');
-  let result = Number(quotient) * 2 ** exponent;
-  if (!Number.isFinite(result)) {
-    // Split the scaling so an exponent below the float range rounds once.
-    result = Number(quotient) * 2 ** Math.floor(exponent / 2) * 2 ** Math.ceil(exponent / 2);
-  }
+  // Find floor(log2(a / b)), then round the significand once at the actual
+  // float spacing. Subnormals have a fixed spacing of 2**-1074; scaling by
+  // anything smaller would underflow before the significand is applied.
+  let exponent = bitLength(a) - bitLength(b);
+  if (exponent >= 0 ? a < (b << BigInt(exponent)) : (a << BigInt(-exponent)) < b) exponent--;
+  if (exponent > 1023) throw new Problem('integer division result too large for a float');
+  if (exponent < -1075) return negative ? -0 : 0;
+  const spacing = Math.max(exponent - 52, -1074);
+  const numerator = spacing < 0 ? a << BigInt(-spacing) : a;
+  const denominator = spacing > 0 ? b << BigInt(spacing) : b;
+  const significand = roundHalfEven(numerator, denominator);
+  const result = Number(significand) * 2 ** spacing;
   if (!Number.isFinite(result)) throw new Problem('integer division result too large for a float');
   return negative ? -result : result;
 }

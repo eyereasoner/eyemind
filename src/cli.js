@@ -76,7 +76,7 @@ export function main(argv, io) {
           goals.push(value);
         } else {
           const number = /^[0-9]+$/.test(value.trim()) ? Number(value.trim()) : 0;
-          if (number < 1) throw new UsageError(`${arg} needs a positive integer`);
+          if (!Number.isSafeInteger(number) || number < 1) throw new UsageError(`${arg} needs a positive safe integer`);
           options[LIMITS[arg]] = number;
         }
       } else if (arg.startsWith('-') && arg !== '-') {

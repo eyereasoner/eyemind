@@ -132,8 +132,11 @@ export function resolveNode(node, env) {
 // The source clauses a set of proof nodes rests on.
 export function clausesUsed(nodes, used = new Set()) {
   const pending = [...nodes];
+  const seen = new Set();
   while (pending.length) {
     const node = pending.pop();
+    if (seen.has(node)) continue;
+    seen.add(node);
     if (node.by instanceof Struct) used.add(Number(node.by.args[0]));
     if (node.collectedUses) for (const id of node.collectedUses) used.add(id);
     for (const child of node.children) pending.push(child);
@@ -171,8 +174,11 @@ export function clausesBehindBoundaries(program, roots) {
     }
   }
   const nodes = [...roots];
+  const visited = new Set();
   while (nodes.length) {
     const node = nodes.pop();
+    if (visited.has(node)) continue;
+    visited.add(node);
     if (node.by === ABSENT || node.by === COLLECTED) visit(node.goal);
     for (const child of node.children) nodes.push(child);
   }
@@ -744,6 +750,12 @@ export function run(program, { goal = null, goals = null, proof = false, maxDept
   maxIterations = null, maxInferences = null } = {}) {
   if (!(program instanceof Program)) throw new EyecodeError('run() needs a Program; load one first');
   const options = { proof, maxDepth, maxIterations, maxInferences };
+  for (const name of ['maxDepth', 'maxIterations', 'maxInferences']) {
+    const value = options[name];
+    if (value !== null && (!Number.isSafeInteger(value) || value < 1)) {
+      throw new EyecodeError(`${name} needs a positive safe integer`);
+    }
+  }
   if (goals === null) goals = goal === null ? [] : [goal];
   try {
     return reason(program, [...goals], options);

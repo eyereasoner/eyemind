@@ -251,3 +251,21 @@ conformance('--version prints the version', [
   args('--version'),
   stdout('nonempty'),
 ])
+
+conformance('a bound must be exactly representable as a safe integer', [
+  spec('7.3, 14'),
+  args('program.js --max-inferences 9007199254740992'),
+  exit(1),
+  stderr(prefix('eyecode:')),
+  file('program.js', []),
+  stdout([]),
+])
+
+conformance('an overflowing bound is rejected instead of disabling the limit', [
+  spec('7.3, 14'),
+  args('program.js --max-depth 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999'),
+  exit(1),
+  stderr(prefix('eyecode:')),
+  file('program.js', []),
+  stdout([]),
+])

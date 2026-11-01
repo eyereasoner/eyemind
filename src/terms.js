@@ -393,24 +393,24 @@ export function isGround(term, env = null) {
 
 // A key that two terms share exactly when their canonical texts are equal,
 // cheaper to make than the text: the term's nodes in prefix order, each with
-// a tag. Floats are keyed by their spelling, which keeps 0.0 and -0.0 apart
-// as their texts do.
+// a tag. Names and atoms carry their lengths so embedded separators cannot
+// collide. Floats keep 0.0 and -0.0 apart as their texts do.
 export function identity(term) {
   const out = [];
   const pending = [term];
   while (pending.length) {
     const item = pending.pop();
     if (item instanceof Struct) {
-      out.push('\u0000c', item.name, String(item.args.length));
+      out.push('\u0000c', String(item.name.length), item.name, String(item.args.length));
       for (let i = item.args.length - 1; i >= 0; i--) pending.push(item.args[i]);
     } else if (typeof item === 'string') {
-      out.push('\u0000a', item);
+      out.push('\u0000a', String(item.length), item);
     } else if (typeof item === 'bigint') {
       out.push('\u0000i', String(item));
     } else if (typeof item === 'number') {
       out.push('\u0000f', Object.is(item, -0) ? '-0' : String(item));
     } else {
-      out.push('\u0000v', item.name);
+      out.push('\u0000v', String(item.name.length), item.name);
     }
   }
   return out.join('\u0001');
@@ -439,18 +439,16 @@ export function codePoints(text) {
 // order requires; JavaScript's < compares UTF-16 code units instead.
 export function compareText(a, b) {
   if (a === b) return 0;
-  const length = Math.min(a.length, b.length);
-  for (let i = 0; i < length; i++) {
-    const x = a.charCodeAt(i);
-    const y = b.charCodeAt(i);
-    if (x === y) continue;
-    // Only surrogates order differently by code unit than by code point.
-    const xs = x >= 0xd800 && x <= 0xdfff;
-    const ys = y >= 0xd800 && y <= 0xdfff;
-    if (xs !== ys) return xs ? 1 : -1;
-    return x < y ? -1 : 1;
+  let i = 0;
+  let j = 0;
+  while (i < a.length && j < b.length) {
+    const x = a.codePointAt(i);
+    const y = b.codePointAt(j);
+    if (x !== y) return x < y ? -1 : 1;
+    i += x > 0xffff ? 2 : 1;
+    j += y > 0xffff ? 2 : 1;
   }
-  return a.length < b.length ? -1 : a.length > b.length ? 1 : 0;
+  return i < a.length ? 1 : j < b.length ? -1 : 0;
 }
 
 // -1, 0 or 1: integers and floats compared exactly by value.

@@ -111,6 +111,8 @@ Once stated, a clause is a term, and reasoning over it calls no code of yours.
 
 **Numbers are exact.** Integers have no size limit, so the Fibonacci example computes F(10000), a 2,090-digit integer, exactly. In a program an integral number is an integer, `2` and `2.0` alike, and `float(2)` is the float 2.0; an integer beyond 2^53 is written as a `BigInt`, `9007199254740993n`. `1` and `float(1)` do not unify, yet compare exactly. Infinity and NaN are rejected, and a result that is not a finite real number stops the run rather than becoming a value.
 
+`unify`, `identical` and `compare` answer different questions. The floats `0.0` and `-0.0` unify and compare equal, but `identical` distinguishes their canonical texts, including inside lists and compounds. In a program, write them as `float(0)` and `float(-0)`.
+
 **Arithmetic is a term, not an operator.** `is(Y, add(X, 1))` binds `Y` to `X + 1`, and `gt(X, 1)` compares. Operators do not apply to terms: `X + 1` or `X > 1` in a program stops it with a message that says what to write instead. Operators on plain numbers are JavaScript's own, so `query(unify(Y, 3 + 4))` binds `Y` to 7. `div` is true division, `floordiv` and `mod` floor toward negative infinity, and `round` rounds half to even. The primitives (`unify`, `is`, `eq`, `lt` and the other comparisons, type tests, `functor`, `univ`, `atom_concat` and the rest) are listed in [SPEC §5](SPEC.md#5-goals-controls-and-primitives), and the arithmetic functions in [SPEC §6](SPEC.md#6-arithmetic). Everything else, such as membership, mapping or graph traversal, is written as ordinary clauses.
 
 **Domains get representations, not syntax.** eyecode has no built-in notion of RDF or of anything else: IRIs, typed literals, triples and quoted graphs are just terms, such as `literal(V, lang(L))` or `triple(S, P, O)` (see [RDF 1.2](#rdf-12) below). A forward conclusion may contain variables its premise never binds, and then says that something exists. Each such unknown becomes a Skolem function of the activation: `implies(person(X), has_parent(X, P))` concludes `has_parent('ann', skolem(2, 'P', ['ann']))`, the `P` of rule 2 for Ann.
@@ -243,7 +245,7 @@ eyecode [OPTION ...] [FILE ...]
 | `--strict-proof` | With `--check-proof`, reject proofs that rely on absence or collection. |
 | `--unused` | List the clauses that make no difference to the conclusions. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
-| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000). |
+| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000). Each bound must be a positive safe integer, at most 9007199254740991. |
 | `--version`, `--help` | Print the version, or the usage. |
 
 Exit codes: 0 success, 1 error, 2 a proof that is not valid, 65 a contradiction.
@@ -270,13 +272,16 @@ const socrates = loadText(`
 fact(human('socrates'))
 implies(human(X), mortal(X))
 `);
-const result = run(socrates, { goal: 'mortal(X)', proof: true });
+const goals = ['mortal(X)'];
+const result = run(socrates, { goals, proof: true });
 console.log(result.answers);                          // [ "mortal('socrates')" ]
 console.log(result.bindings);                         // [ { X: "'socrates'" } ]
-console.log(checkProof(socrates, result.proof).valid); // true
+console.log(checkProof(socrates, result.proof, { goals }).valid); // true
 ```
 
 `loadText(source, filename, io)` loads program text and `loadSources([[text, filename], ...], io)` several sources as one program; pass `nodeIO` from `@josd/eyecode/node` as `io` to let `facts_from(path)` read files. `run()` returns a `Result` with `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`; its options are `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`, and exceeding a bound throws an `EyecodeError` rather than return a partial result. `checkProof(program, document, { goals, allowTrusted })` checks a proof, `checkReport(report)` formats a report, and `readTerm`, `readTerms` and `write` read and write the canonical text. A program reaches the same functions as `eyecode.run`, `eyecode.build` and so on.
+
+Omit a reasoning bound or pass `null` to use its default. A supplied `maxDepth`, `maxIterations` or `maxInferences` must be a positive safe integer; zero, fractions, strings and infinite values raise an `EyecodeError`.
 
 ## What is deliberately absent
 
@@ -285,7 +290,7 @@ Cut, conditional commitment, mutable databases, attributed variables, constraint
 ## Development and testing
 
 ```sh
-npm test                                        # every test, one numbered line each
+systemd-run --user --scope -q -p MemoryMax=3G -p MemorySwapMax=0 -- npm test  # full suite, memory capped
 npm test -- unit examples                       # only these sections
 npm test -- -k skolem                           # only tests whose line contains "skolem"
 EYECODE_PROPERTY_SCALE=20 npm test -- -k properties  # a deeper search by the generated tests
@@ -293,6 +298,8 @@ node tools/update-examples.js                   # regenerate example artifacts a
 node conformance/run.js                         # the conformance suite of SPEC.md
 node conformance/run.js --command "my-eyecode"  # against another implementation
 ```
+
+The full suite and large examples need substantial memory. On this development machine, use the memory cap above with swap disabled and run one heavy job at a time. Focused tests can use `npm test -- unit -k NAME`.
 
 The unit tests include generated ones, which check properties on inputs a seeded generator makes. For each example, its saved proof is forged at random, consistently or not and often at a computed value or a witness, and the checker must accept no forgery that claims what the program does not entail (a proof checked with obligations may do so only through an obligation it changed or added, which a strict check rejects), with and without its fast path for flat clauses giving the same report; and leaving out any clause no derivation cites must not change what the example concludes. Circular proofs of atoms that only a cycle of rule instances supports must fail C2. Random stratified programs, forward and backward, must answer as a naive fixpoint does, with proofs that check, and must conclude the same with their statements in any order or without a clause no derivation cites. Random terms must read back from their canonical text as themselves, and mutated and hostile documents must give terms or an error without the reader running any of it. A failure names the seed that reproduces it, and `EYECODE_PROPERTY_SCALE` multiplies the number of cases. The test sections are unit tests, the example corpus (each program must reproduce its saved output, proof and check report, and its saved proof must check from disk), and the conformance suite, run both in process and through the command line. [conformance/README.md](conformance/README.md) describes the case format. `test/browser.mjs` checks the playground in a real Chrome; its header says how to start it.
 

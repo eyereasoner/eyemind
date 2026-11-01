@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { Program, checkProof, loadText, run } from '../src/index.js';
-import { Solver } from '../src/engine.js';
+import { Program, Struct, checkProof, loadText, readTerm, run } from '../src/index.js';
+import { Node, Solver, clausesBehindBoundaries, clausesUsed } from '../src/engine.js';
+import { Env } from '../src/terms.js';
 import { nodeIO } from '../src/node.js';
 import { ROOT, assert, program, proven, throwsMatching } from './helpers.js';
 
@@ -20,6 +21,28 @@ function random(seed) {
 }
 
 export const tests = {
+  'proof bookkeeping visits shared derivations once'() {
+    const source = program('fact(base)\nimplied_by(hidden, base)');
+    let node = new Node(readTerm('not(hidden())'), 'absent');
+    let reads = 0;
+    const roots = [node];
+    for (let i = 1; i <= 256; i++) {
+      const children = [node, node];
+      node = new Node(`p${i}`, new Struct('clause', [BigInt(i)]));
+      Object.defineProperty(node, 'children', { get() {
+        assert.ok(++reads <= 512, 'shared proof was expanded repeatedly');
+        return children;
+      } });
+      roots.push(node);
+    }
+    assert.equal(clausesUsed(roots).size, 256);
+    assert.deepEqual([...clausesBehindBoundaries(source, roots)].sort(), [1, 2]);
+    assert.equal(reads, 512);
+    const chain = program('fact(p0)\n' + Array.from({ length: 64 }, (_, i) =>
+      `implies([p${i}, p${i}], p${i + 1})`).join('\n'));
+    assert.equal(proven(chain).proofReport.steps, 65);
+  },
+
   'deep branching taxonomy answers proves and checks'() {
     const source = program(`
 fact(type('a', 'n0'), type('b', 'n0'))
@@ -222,6 +245,16 @@ implies(t(X, 'seed', 'true'), t(X, 'blocked', 'true'))
     throwsMatching(() => program('implied_by(p, [])'), /an empty array is not a goal/);
   },
 
+  'library reasoning bounds reject values that cannot bound work reliably'() {
+    const source = program('fact(p)');
+    for (const name of ['maxDepth', 'maxIterations', 'maxInferences']) {
+      for (const value of [0, -1, 0.5, NaN, Infinity, -Infinity, '10', 1n, Number.MAX_SAFE_INTEGER + 1]) {
+        throwsMatching(() => run(source, { [name]: value }), new RegExp(`${name} needs a positive safe integer`));
+      }
+      assert.deepEqual(run(source, { goal: 'p()', [name]: 1 }).answers, ["'p'"]);
+    }
+  },
+
   'pure term and text operations'() {
     const source = program(`
 implied_by(out(C, N), [atom_concat('ab', 'cd', C), atom_length(C, N)])
@@ -285,6 +318,39 @@ fact(p('a', 'second'), p(X, 'generic_after'), p(f('a'), 'structured'), p(1, 'num
     assert.equal(proven(source, { goal: 'p(1, Y)' }).answers.length, 3);
     assert.deepEqual(proven(source, { goal: "p(X, 'structured')" }).answers, ["p(f('a'), 'structured')"]);
     assert.equal(proven(source, { goal: "[unify(X, 'a'), p(X, Y)]" }).answers.length, 4);
+  },
+
+  'numeric clause indexes preserve types zeros generic clauses and source order'() {
+    const source = program(`
+fact(p(1, 'integer'), p(X, 'generic_before'), p(float(1), 'float'), p(float(-0), 'negative_zero'))
+fact(p(float(0), 'positive_zero'), p(9007199254740993n, 'large'), p(f(1), 'structured'), p(X, 'generic_after'))
+`);
+    for (const [number, labels] of [
+      ['1', ['integer', 'generic_before', 'generic_after']],
+      ['1.0', ['generic_before', 'float', 'generic_after']],
+      ['0.0', ['generic_before', 'negative_zero', 'positive_zero', 'generic_after']],
+      ['-0.0', ['generic_before', 'negative_zero', 'positive_zero', 'generic_after']],
+      ['9007199254740993', ['generic_before', 'large', 'generic_after']],
+      ['2', ['generic_before', 'generic_after']],
+    ]) {
+      const goal = readTerm(`p(${number}, Y)`);
+      assert.ok(source.candidates(goal, new Env(), 'p/2').length < source.clauses.length);
+      const indexed = run(source, { goal });
+      assert.deepEqual(indexed.bindings.map((binding) => binding.Y), labels.map((label) => `'${label}'`));
+      const indexes = source.indexes;
+      source.indexes = new Map();
+      try {
+        assert.deepEqual(run(source, { goal }).answers, indexed.answers);
+      } finally {
+        source.indexes = indexes;
+      }
+    }
+    proven(source, { goal: 'p(1, Y)' });
+    proven(source, { goal: 'p(1.0, Y)' });
+    proven(source, { goal: 'p(9007199254740993, Y)' });
+    assert.deepEqual(run(source, { goal: 'p(X, Y)' }).answers.length, 8);
+    throwsMatching(() => program('implies(not(p(1)), p(float(1)))\nimplies(p(float(1)), p(1))'), /unstratified/);
+    assert.deepEqual(proven('implies(not(p(1)), p(float(1)))').answers, ['p(1.0)']);
   },
 
   'proofs fail explicitly when mode tests lose their state'() {

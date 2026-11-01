@@ -1,6 +1,6 @@
 import { EyecodeError, run } from '../src/index.js';
 import { toTerm } from '../src/lang.js';
-import { assert, program, throwsMatching } from './helpers.js';
+import { assert, program, proven, throwsMatching } from './helpers.js';
 
 const EMPTY = program('');
 const value = (expression) => run(EMPTY, { goal: `is(X, ${expression})` }).bindings[0].X;
@@ -72,5 +72,24 @@ export const tests = {
       ['gt(9007199254740993, 9007199254740992.0)']);
     assert.deepEqual(run(program('query(eq(1, float(1)))')).answers, ['eq(1, 1.0)']);
     assert.deepEqual(run(program('query(ne(1, float(1)))')).answers, []);
+  },
+
+  'integer division rounds once at the subnormal boundary'() {
+    const tiny = 1n << 1074n;
+    const half = tiny << 1n;
+    for (const [a, b, expected] of [
+      [1n, tiny, Number.MIN_VALUE], [1n, half, 0], [3n, half, 2 * Number.MIN_VALUE],
+      [5n, half, 2 * Number.MIN_VALUE], [7n, half, 4 * Number.MIN_VALUE],
+      [1n, half - 1n, Number.MIN_VALUE], [1n, half + 1n, 0],
+      [(1n << 53n) - 1n, half, 2 ** -1022],
+      [(1n << 53n) - 3n, half, 2 ** -1022 - 2 * Number.MIN_VALUE],
+      [1n << 1023n, 1n, 2 ** 1023],
+    ]) {
+      for (const sign of [1n, -1n]) {
+        const expression = `div(${sign * a}, ${b})`;
+        const result = proven(EMPTY, { goal: `is(X, ${expression})` });
+        assert.ok(Object.is(Number(result.bindings[0].X), Number(sign) * expected), expression);
+      }
+    }
   },
 };

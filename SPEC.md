@@ -127,6 +127,12 @@ same in every comparison. The names of renamed-apart variables (Section 7.1)
 are implementation-specific, so a program SHOULD NOT depend on the relative
 order of two distinct unbound variables.
 
+The floats `0.0` and `-0.0` unify and compare equal, but are not identical:
+their canonical texts differ (Sections 2 and 8.1). This distinction also
+applies when they occur inside compounds or lists. A lone UTF-16 surrogate
+in a JavaScript string is ordered by its own code point; a valid surrogate
+pair denotes one supplementary code point.
+
 ## 4. Programs
 
 ### 4.1 Program scripts
@@ -343,6 +349,10 @@ their exact quotient. `round` rounds half to even, to an integer with one
 argument and to the given number of decimals with two; `int`, `floor`, `ceil`
 and `trunc` give integers. A float is written as Section 8.1 says.
 
+Integer true division rounds once, including in the subnormal range: the
+nearest float to `div(1, shl(1, 1074))` is `5e-324`. Halfway cases round to
+even; a result that underflows to zero keeps its sign.
+
 An evaluation MUST raise an error, rather than produce a value, on a division
 or modulo by zero, a domain error (such as `sqrt(-1)` or `log(0)`), a bitwise
 operation or `gcd` on a float, when the result is not a finite real number,
@@ -413,6 +423,9 @@ A run is bounded by `max_depth`, the depth of nested rule bodies (default
 1000000), and by `max_iterations`, the rounds per stratum (default 1000).
 Exceeding a bound MUST raise an error; a partial result MUST NOT be returned
 as complete.
+
+Each supplied bound MUST be a positive safe integer, at most
+9007199254740991, so a work counter can represent it exactly.
 
 ### 7.4 Goals
 
@@ -808,7 +821,7 @@ eyecode [OPTION ...] [FILE ...]
 | `--strict-proof` | With `--check-proof`, forbid trusted boundaries. |
 | `--unused` | Print the unused clauses (Section 13). |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
-| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | The bounds of Section 7.3; `N` MUST be a positive integer. |
+| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | The bounds of Section 7.3; `N` MUST be a positive safe integer, at most 9007199254740991. |
 | `--version`, `--help` | Print the version, or the usage. |
 
 `--check-proof` MUST NOT be combined with `--proof`, nor `--unused` with
