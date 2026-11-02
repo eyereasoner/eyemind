@@ -87,18 +87,47 @@ export async function launch(executable) {
     });
   }).catch((error) => {
     if (child.exitCode === null) child.kill();
-    rmSync(profile, { recursive: true, force: true, maxRetries: 3 });
+    removeProfile(profile);
     throw error;
   });
+  const debugUrl = `http://${address.host}`;
   return {
-    debugUrl: `http://${address.host}`,
+    debugUrl,
+    // Chrome is asked to close, so its helper processes stop writing to the
+    // profile before it is removed; it is killed if it does not.
     async close() {
-      const exited = new Promise((resolve) => child.once('exit', resolve));
-      if (child.exitCode === null) child.kill();
-      await Promise.race([exited, new Promise((resolve) => setTimeout(resolve, 5000))]);
-      rmSync(profile, { recursive: true, force: true, maxRetries: 3 });
+      if (child.exitCode === null) {
+        const exited = new Promise((resolve) => child.once('exit', resolve));
+        const wait = (ms) => Promise.race([exited.then(() => true), new Promise((resolve) => setTimeout(() => resolve(false), ms))]);
+        try {
+          const { webSocketDebuggerUrl } = await (await fetch(`${debugUrl}/json/version`)).json();
+          const socket = new WebSocket(webSocketDebuggerUrl);
+          await new Promise((resolve, reject) => {
+            socket.onopen = resolve;
+            socket.onerror = reject;
+          });
+          socket.send(JSON.stringify({ id: 1, method: 'Browser.close' }));
+        } catch {
+          // Then it is killed below.
+        }
+        if (!(await wait(5000))) {
+          child.kill();
+          await wait(5000);
+        }
+      }
+      removeProfile(profile);
     },
   };
+}
+
+// A profile left behind is only a folder in the temporary directory, never
+// a reason for the tests to fail.
+function removeProfile(profile) {
+  try {
+    rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+  } catch {
+    // Left for the system to clear.
+  }
 }
 
 // A connection to Chrome's open page: DevTools commands, expressions
