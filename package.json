@@ -1,6 +1,6 @@
 {
   "name": "@josd/eyecode",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "description": "A dependency-free JavaScript rule language with forward and backward reasoning and checkable proofs.",
   "type": "module",
   "main": "./src/index.js",

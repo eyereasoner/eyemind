@@ -2,7 +2,7 @@
 
 ```text
 Title:      The eyecode Rule Language and Proof Format
-Version:    eyecode 0.1.21
+Version:    eyecode 0.1.22
 Status:     Informational
 Author:     Jos De Roo, KNoWS office of IDLab, Ghent University - imec
 Repository: https://github.com/eyereasoner/eyecode
@@ -22,7 +22,7 @@ command line.
 ## Status of This Memo
 
 This document is not an Internet Standards Track specification. It describes
-the language and formats as implemented by eyecode 0.1.21, for readers who want
+the language and formats as implemented by eyecode 0.1.22, for readers who want
 to write programs, produce or consume proofs and reports, or implement a
 compatible reasoner or checker. Where this document and the implementation
 disagree, that is a defect in one of them.
@@ -867,7 +867,7 @@ conclusions and proof documents in the canonical text, and checks every proof
 it produces as Section 11 describes. A conforming **checker** implements
 Sections 9, 11 and 12 and does not depend on a reasoner. For the same
 program, a conforming reasoner and checker MUST produce the same
-conclusions, proof documents and reports as eyecode 0.1.21, byte for byte,
+conclusions, proof documents and reports as eyecode 0.1.22, byte for byte,
 except for the `Detail` texts of failures (Section 12), the internal names of
 variables where Section 3 says so, and where the host's floating-point
 library functions (`exp`, `log`, the trigonometric and hyperbolic functions,
