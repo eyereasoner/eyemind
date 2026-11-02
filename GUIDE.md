@@ -6,6 +6,28 @@ eyecode is a **rule language written in JavaScript**. A program is a plain JavaS
 
 **Start now:** [Try Socrates in the playground](https://eyereasoner.github.io/eyecode/playground#example=socrates) · [Run locally](#install-and-run) · [Check a proof](#proofs-and-what-checking-one-means)
 
+## Contents
+
+- [Choose your starting point](#choose-your-starting-point)
+- [Install and run](#install-and-run)
+- [Your first program](#your-first-program)
+  - [Try a small change](#try-a-small-change)
+- [Writing programs](#writing-programs)
+  - [RDF 1.2](#rdf-12)
+- [Reasoning strategy](#reasoning-strategy)
+- [Proofs, and what checking one means](#proofs-and-what-checking-one-means)
+  - [Why negation and collection are safe](#why-negation-and-collection-are-safe)
+- [Checking the translation](#checking-the-translation)
+- [Explore the examples](#explore-the-examples)
+- [Browser](#browser)
+- [CLI options](#cli-options)
+- [Troubleshooting](#troubleshooting)
+- [JavaScript library](#javascript-library)
+- [What is deliberately absent](#what-is-deliberately-absent)
+- [Development and testing](#development-and-testing)
+  - [Releases](#releases)
+- [The name](#the-name)
+
 ## Choose your starting point
 
 | You want to… | Start here |

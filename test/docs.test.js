@@ -13,6 +13,9 @@ function blocks(path, heading, language = 'js') {
   return [...section.matchAll(new RegExp(`^\`\`\`${language}\\n([\\s\\S]*?)^\`\`\``, 'gm'))].map((match) => match[1]);
 }
 
+// The anchor GitHub and the site's kramdown give a heading.
+const slug = (title) => title.trim().toLowerCase().replace(/[^\p{L}\p{N}_\- ]/gu, '').replace(/ /g, '-');
+
 export const tests = {
   'the spec appendix output proof and report match the program'() {
     const [source, output, proof, report] = blocks('SPEC.md', '## Appendix B. Example');
@@ -21,6 +24,19 @@ export const tests = {
     const result = run(program, { proof: true });
     assert.equal(result.proof, proof);
     assert.equal(checkReport(result.proofReport), report);
+  },
+
+  'the guide contents list every section, and every link within the guide has a heading'() {
+    const guide = document('GUIDE.md');
+    const headings = [...guide.matchAll(/^(#{2,3}) (.+)$/gm)].filter((match) => match[2] !== 'Contents');
+    const contents = guide.split('## Contents\n')[1].split(/\n## /)[0];
+    const listed = [...contents.matchAll(/^( *)- \[(.+)\]\(#([^)]+)\)$/gm)];
+    assert.deepEqual(
+      listed.map(([, indent, title, anchor]) => [indent.length / 2 + 2, title, anchor]),
+      headings.map(([, hashes, title]) => [hashes.length, title, slug(title)]),
+    );
+    const anchors = new Set([...guide.matchAll(/^#{1,6} (.+)$/gm)].map((match) => slug(match[1])));
+    for (const [, anchor] of guide.matchAll(/\]\(#([^)]+)\)/g)) assert.ok(anchors.has(anchor), `#${anchor} names no heading`);
   },
 
   'the guide report is the socrates report'() {
