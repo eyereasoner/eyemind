@@ -496,11 +496,11 @@ export class Solver {
       const renamed = clause.renaming || renaming(clause);
       if (renamed === null) {
         const names = new Map();
-        if (!unify(point.goal, freshTerm(clause.head, this.serial, names), env)) {
+        if (!unify(point.goal, freshTerm(clause.head, this.serial, names, true), env)) {
           env.undo(point.mark);
           continue;
         }
-        const body = clause.body.map((goal) => freshTerm(goal, this.serial, names));
+        const body = clause.body.map((goal) => freshTerm(goal, this.serial, names, true));
         const pending = recording
           ? new Pending(point.goal, new Struct('clause', [BigInt(clause.id)]), [...names], null)
           : QUIET;
@@ -509,12 +509,12 @@ export class Solver {
       const suffix = String(this.serial);
       const prefixes = renamed.prefixes;
       const values = [];
-      for (let i = 0; i < renamed.headCount; i++) values.push(new Var(prefixes[i] + suffix));
+      for (let i = 0; i < renamed.headCount; i++) values.push(new Var(prefixes[i] + suffix, true));
       if (!unify(point.goal, renamed.head(values), env)) {
         env.undo(point.mark);
         continue;
       }
-      for (let i = renamed.headCount; i < prefixes.length; i++) values.push(new Var(prefixes[i] + suffix));
+      for (let i = renamed.headCount; i < prefixes.length; i++) values.push(new Var(prefixes[i] + suffix, true));
       const body = renamed.body(values);
       const pending = recording
         ? new Pending(point.goal, new Struct('clause', [BigInt(clause.id)]),
@@ -580,7 +580,7 @@ export class Solver {
       }
     }
     this.serial++;
-    const [head, body, names] = freshClause(clause, this.serial);
+    const [head, body, names] = freshClause(clause, this.serial, true);
     if (previous === null) return this.scan(clause, head, body, names).map(([found]) => found);
     const found = [];
     for (const delta of positions) {

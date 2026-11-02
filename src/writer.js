@@ -174,7 +174,7 @@ export function writeNotingVariables(term) {
 // The canonical spelling of a term. names maps variable names to the names
 // to write, as a Lettering does.
 export function write(term, env = null, names = NO_NAMES) {
-  if (env !== null && !env.bindings.size) env = null;
+  if (env !== null && env.isEmpty()) env = null;
   return format(term, env, names);
 }
 

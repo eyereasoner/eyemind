@@ -1,5 +1,5 @@
 import { EyecodeError, Struct, Var, readTerm, run, write } from '../src/index.js';
-import { Env, compareTerms, copyResolved, identity, unify } from '../src/terms.js';
+import { Env, compareTerms, copyResolved, deref, identity, unify } from '../src/terms.js';
 import { assert, program, proven, throwsMatching } from './helpers.js';
 
 const order = (left, right) => run(program(''), { goal: `compare(O, ${left}, ${right})` }).bindings[0].O;
@@ -78,6 +78,69 @@ export const tests = {
       assert.equal(compareTerms(left, right), expected, `${write(left)} vs ${write(right)}`);
       assert.equal(compareTerms(new Var(left), new Var(right)), expected);
       assert.equal(compareTerms(new Struct(left, [1n]), new Struct(right, [1n])), expected);
+    }
+  },
+
+  'a fresh variable keeps its binding apart in every Env'() {
+    const fresh = new Var('X#1', true);
+    const first = new Env();
+    const second = new Env();
+    // The first Env to bind it keeps the binding on the variable; another
+    // Env binds the same variable by name, and neither sees the other's.
+    assert.ok(unify(fresh, 'a', first));
+    assert.equal(deref(fresh, first), 'a');
+    assert.equal(deref(fresh, second), fresh);
+    assert.ok(unify(fresh, 'b', second));
+    assert.equal(deref(fresh, first), 'a');
+    assert.equal(deref(fresh, second), 'b');
+    // Undoing restores each Env on its own.
+    first.undo(0);
+    assert.equal(deref(fresh, first), fresh);
+    assert.equal(deref(fresh, second), 'b');
+    second.undo(0);
+    assert.equal(deref(fresh, second), fresh);
+    // An Env given up without undoing leaves no binding for another one.
+    const abandoned = new Env();
+    const later = new Var('Y#2', true);
+    assert.ok(unify(later, 'gone', abandoned));
+    const next = new Env();
+    assert.equal(deref(later, next), later);
+    assert.ok(unify(later, 'kept', next));
+    assert.equal(deref(later, next), 'kept');
+  },
+
+  'chains through fresh and named variables resolve and undo'() {
+    const env = new Env();
+    const named = new Var('A');
+    const sameName = new Var('A');
+    const fresh = new Var('B#3', true);
+    const other = new Var('C#4', true);
+    assert.ok(unify(fresh, named, env));
+    assert.ok(unify(other, fresh, env));
+    const mark = env.mark();
+    assert.ok(unify(sameName, new Struct('f', [1n]), env));
+    // Two objects with one name are one variable; the chain ends at f(1).
+    assert.equal(write(copyResolved(other, env)), 'f(1)');
+    assert.equal(write(copyResolved(named, env)), 'f(1)');
+    env.undo(mark);
+    assert.ok(deref(other, env) instanceof Var);
+    assert.equal(deref(named, env), named);
+  },
+
+  'standard order compares code points where texts differ after a shared prefix'() {
+    // Texts that agree up to a surrogate and differ in or after it: the
+    // order must be that of their code points, not of their code units.
+    const parts = ['a', '', '\ud800', '\udc00', '😀', '😁', '􏿿'];
+    const strings = [];
+    for (const first of parts) for (const second of ['', ...parts]) strings.push(`x${first}${second}`);
+    const points = (text) => [...text].map((char) => char.codePointAt(0));
+    const reference = (left, right) => {
+      const [x, y] = [points(left), points(right)];
+      for (let i = 0; i < Math.min(x.length, y.length); i++) if (x[i] !== y[i]) return x[i] < y[i] ? -1 : 1;
+      return Math.sign(x.length - y.length);
+    };
+    for (const left of strings) for (const right of strings) {
+      assert.equal(compareTerms(left, right), reference(left, right), `${write(left)} vs ${write(right)}`);
     }
   },
 

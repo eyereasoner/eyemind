@@ -12,7 +12,7 @@
 // solution before asking for the next.
 import * as arith from './arith.js';
 import {
-  EyecodeError, Struct, Var, codePoints, compareTerms, copyResolved, deref, identity, isGround, key,
+  EyecodeError, Struct, Var, codePoints, compareTerms, copyResolved, deref, identical, isGround, key,
   listFromItems, nonfinite, properListItems, unify,
 } from './terms.js';
 import { floatText } from './writer.js';
@@ -22,7 +22,7 @@ function comparison(holds) {
 }
 
 function same(args, env) {
-  return identity(copyResolved(args[0], env)) === identity(copyResolved(args[1], env));
+  return identical(args[0], args[1], env);
 }
 
 function notUnify(args, resolved, env) {

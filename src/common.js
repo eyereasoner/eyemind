@@ -9,23 +9,25 @@ export function text(term, env = null) {
 
 // Rename a clause apart: head and body share one set of fresh variables,
 // listed in the order the clause is written (a forward rule's body first).
-export function freshClause(clause, suffix) {
+// unique says no other variable of the run will get this suffix, so the
+// variables may keep their bindings on themselves (see Var).
+export function freshClause(clause, suffix, unique = false) {
   const renamed = renaming(clause);
   if (renamed === null) {
     const names = new Map();
     let head;
     let body;
     if (clause.forward) {
-      body = clause.body.map((goal) => freshTerm(goal, suffix, names));
-      head = freshTerm(clause.head, suffix, names);
+      body = clause.body.map((goal) => freshTerm(goal, suffix, names, unique));
+      head = freshTerm(clause.head, suffix, names, unique);
     } else {
-      head = freshTerm(clause.head, suffix, names);
-      body = clause.body.map((goal) => freshTerm(goal, suffix, names));
+      head = freshTerm(clause.head, suffix, names, unique);
+      body = clause.body.map((goal) => freshTerm(goal, suffix, names, unique));
     }
     return [head, body, names];
   }
   const tag = String(suffix);
-  const values = renamed.prefixes.map((prefix) => new Var(prefix + tag));
+  const values = renamed.prefixes.map((prefix) => new Var(prefix + tag, unique));
   let names = new Map(renamed.names.map((name, i) => [name, values[i]]));
   if (renamed.written !== null) names = new Map(renamed.written.map((name) => [name, names.get(name)]));
   return [renamed.head(values), renamed.body(values), names];
