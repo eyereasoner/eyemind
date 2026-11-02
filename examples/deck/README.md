@@ -1,9 +1,5 @@
 # Example decks
 
-<img src="https://josd.github.io/images/eye.png" alt="EYE" width="100">
-
-*eyecode — reasoning you can see.*
-
 Each example comes with a short card deck that explains it for a wide audience: the question it asks, what the program says, what eyecode concludes, why, and what the proof checker confirms. Cards are separated by `---`, so a deck reads as plain Markdown here and works as slides in Markdown slide tools such as Marp.
 
 | Deck | What it is about |

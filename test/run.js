@@ -2,11 +2,14 @@
 // Every test of eyecode in one run, one numbered line per test: npm test
 //
 //     npm test                       unit tests, examples, conformance in process,
-//                                    and its command-line cases through the command
+//                                    its command-line cases through the command,
+//                                    and the playground in a headless Chrome
 //     npm test -- unit examples      only these sections
 //     npm test -- -k skolem          only tests whose line contains "skolem"
 //
-// Sections: unit, examples, conformance, cli. Each test prints OK or FAIL, its
+// Sections: unit, examples, conformance, cli, playground. The playground
+// section needs Chrome (CHROME names it when it is not on the PATH); without
+// one it says so and runs nothing. Each test prints OK or FAIL, its
 // number, what it tests and how long it took; each section and the whole run
 // end with a total. The exit code is 1 when a test failed.
 import { spawn } from 'node:child_process';
@@ -19,13 +22,14 @@ import { check, execute, loadCases, shellSplit } from '../conformance/run.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = dirname(HERE);
-const SECTIONS = ['unit', 'examples', 'conformance', 'cli'];
+const SECTIONS = ['unit', 'examples', 'conformance', 'cli', 'playground'];
 const TITLES = {
   unit: 'Unit tests', examples: 'Examples', conformance: 'Conformance', cli: 'Command-line cases through the eyecode command',
+  playground: 'Playground in a headless Chrome',
 };
 const COUNTED = {
   unit: 'unit tests', examples: 'example tests', conformance: 'conformance cases',
-  cli: 'command-line cases through the eyecode command',
+  cli: 'command-line cases through the eyecode command', playground: 'playground tests',
 };
 const COLOR = process.env.NO_COLOR === undefined && (process.stdout.isTTY || (process.env.FORCE_COLOR ?? '0') !== '0');
 const paint = (code, text) => (COLOR ? `\x1b[${code}m${text}\x1b[0m` : text);
@@ -63,11 +67,22 @@ class Reporter {
     console.log(`${word} ${passed}/${total} ${what} ${outcome} ${paint('2', `(${(ms / 1000).toFixed(1)} s)`)}`);
   }
 
-  result(label, ms, problem = null) {
+  // The section's heading, once, before its first line.
+  head() {
     if (this.heading !== null) {
       console.log(`\n${paint('33', `== ${TITLES[this.heading]}`)}`);
       this.heading = null;
     }
+  }
+
+  // A line that is not a test, such as why a section ran nothing.
+  note(text) {
+    this.head();
+    console.log(paint('2', text));
+  }
+
+  result(label, ms, problem = null) {
+    this.head();
     this.total++;
     const number = String(this.total).padStart(3, '0');
     const timing = paint('2', `(${Math.round(ms)} ms)`);
@@ -186,6 +201,56 @@ async function runThroughCommandLine(reporter) {
   cases.forEach((item, i) => reporter.result(`${item.where} ${item.name}`, ...outcomes[i]));
 }
 
+// The playground's tests, in order, on one page of a headless Chrome that
+// loads playground.html from a server of the repository started here.
+async function runPlayground(reporter) {
+  const { tests, prepare } = await import('./playground.js');
+  const wanted = tests.filter(([name]) => reporter.wanted(`playground: ${name}`));
+  if (!wanted.length) return;
+  if (typeof WebSocket === 'undefined') {
+    reporter.note('This Node.js has no WebSocket, which talking to Chrome needs, so the playground tests did not run.');
+    return;
+  }
+  const { connect, findChrome, launch, serve } = await import('./chrome.js');
+  const executable = findChrome();
+  if (executable === null) {
+    reporter.note('No Chrome found, so the playground tests did not run; CHROME names the Chrome to use.');
+    return;
+  }
+  const started = performance.now();
+  let server = null;
+  let chrome = null;
+  let page = null;
+  try {
+    server = await serve(ROOT);
+    chrome = await launch(executable);
+    page = await connect(chrome.debugUrl);
+    await prepare(page);
+  } catch (error) {
+    reporter.result('playground: Chrome starts and opens the playground', performance.now() - started, problemOf(error));
+    if (chrome) await chrome.close();
+    if (server) await server.close();
+    return;
+  }
+  try {
+    const base = `${server.url}playground.html`;
+    for (const [name, test] of wanted) {
+      const begun = performance.now();
+      let problem = null;
+      try {
+        await test(page, base);
+      } catch (error) {
+        problem = problemOf(error);
+      }
+      reporter.result(`playground: ${name}`, performance.now() - begun, problem);
+    }
+  } finally {
+    page.close();
+    await chrome.close();
+    await server.close();
+  }
+}
+
 async function main(argv) {
   let pattern = null;
   const sections = [];
@@ -205,6 +270,7 @@ async function main(argv) {
     reporter.section(section);
     if (section === 'conformance') runInProcess(reporter);
     else if (section === 'cli') await runThroughCommandLine(reporter);
+    else if (section === 'playground') await runPlayground(reporter);
     else await runTests(reporter, tests.filter(([name]) => name === section));
     reporter.endSection(section);
   }

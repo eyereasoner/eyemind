@@ -38,8 +38,9 @@ goals, and keep error messages specific and user-facing text direct.
 - `conformance/`: the black-box suite of SPEC.md. Each case file is an
   eyecode document of `conformance(Name, [Setting, ...])` terms, read by
   `conformance/run.js`; `conformance/README.md` describes the format.
-- `test/`: `run.js` runs every `*.test.js` module and the conformance suite;
-  `browser.mjs` checks the playground in a real Chrome.
+- `test/`: `run.js` runs every `*.test.js` module, the conformance suite and
+  the playground tests of `playground.js` in a headless Chrome that
+  `chrome.js` starts; `browser.mjs` runs those alone and can take screenshots.
 - `tools/`: `update-examples.js` regenerates the example artifacts,
   `corpus.js` evaluates the corpus, `version.js` syncs the version.
 - `README.md` (short entry point), `GUIDE.md` (CLI, language, proofs,
@@ -56,9 +57,10 @@ node bin/eyecode.js examples/socrates.js
 node bin/eyecode.js --proof examples/socrates.js > /tmp/proof.js
 node bin/eyecode.js --check-proof /tmp/proof.js examples/socrates.js
 node bin/eyecode.js --unused examples/graphs.js
-npm test                          # unit, examples, conformance, command line
+npm test                          # unit, examples, conformance, command line, playground
 npm test -- unit conformance      # only these sections
 npm test -- -k skolem             # only tests whose line contains "skolem"
+npm test -- playground            # the playground in a headless Chrome
 EYECODE_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node conformance/run.js 11-checking.js -v
 node tools/update-examples.js [NAME ...]
@@ -123,8 +125,9 @@ differ from peye's in the last digit, as SPEC Section 16 allows.
 
 Run focused tests while working, then the full suite before finishing code
 changes. Add a regression test for each behavior change, in the style of the
-file it joins. Browser changes need `test/browser.mjs` at desktop and phone
-widths (its header says how to start it). Documentation describes the
+file it joins. Browser changes need a test in `test/playground.js`, which npm
+test runs in Chrome at desktop and phone widths; `node test/browser.mjs DIR`
+also saves screenshots of both. Documentation describes the
 current behavior, not how it came to be; documentation-only edits need a
 review and `git diff --check`.
 

@@ -1,9 +1,5 @@
 # Examples
 
-<img src="https://josd.github.io/images/eye.png" alt="EYE" width="100">
-
-*eyecode — reasoning you can see.*
-
 Every example also has a [card deck](https://eyereasoner.github.io/eyecode/examples/deck/) that explains it for a
 wide audience.
 

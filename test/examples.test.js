@@ -12,22 +12,58 @@ const MANIFEST = readManifest();
 const CHANGED = (kind) => `${kind} changed; review it, then run node tools/update-examples.js`;
 const read = (path) => readFileSync(path, 'utf8');
 
-function checkExample(entry) {
-  const program = loadExample(entry);
-  const output = run(program);
-  const proved = certify(entry, program, output);
-  const saved = Object.fromEntries(KINDS.map((kind) => [kind, read(artifactPath(kind, entry))]));
-  assert.equal(output.stdout, saved.output, CHANGED('output'));
-  assert.equal(proved.proof, saved.proof, CHANGED('proof'));
-  assert.equal(checkReport(proved.proofReport), saved.check, CHANGED('check'));
-  // The saved certificate, checked from scratch and strictly. A strict check
-  // of a valid proof differs from the normal one only by a C5 failure for
-  // each trusted boundary, which strict() derives from the normal report.
-  const strictly = checkProof(program, saved.proof, { allowTrusted: false });
-  const derived = strict(proved.proofReport);
-  assert.deepEqual(publicReport(strictly), publicReport(derived));
-  assert.equal(checkReport(strictly), checkReport(derived));
-  assert.ok(!checkProof(program, `${saved.proof}\nunjustified_example_claim()\n`).valid);
+// Each example is three tests, so their times show where it spends them: its
+// output (loading and a plain run), its proof (a certified run, whose proof
+// the engine checks before returning it) and its check report (the saved
+// proof checked from disk, strictly and tampered with). They share what an
+// earlier one worked out, and work it out themselves when run alone.
+const states = new Map();
+
+function stateOf(entry) {
+  let state = states.get(entry.name);
+  if (state === undefined) states.set(entry.name, state = {});
+  state.program ??= loadExample(entry);
+  return state;
+}
+
+function outputOf(entry) {
+  const state = stateOf(entry);
+  state.output ??= run(state.program);
+  return state.output;
+}
+
+function provedOf(entry) {
+  const state = stateOf(entry);
+  state.proved ??= certify(entry, state.program, outputOf(entry));
+  return state.proved;
+}
+
+function checkOutput(entry) {
+  assert.equal(outputOf(entry).stdout, read(artifactPath('output', entry)), CHANGED('output'));
+}
+
+function checkProofOf(entry) {
+  assert.equal(provedOf(entry).proof, read(artifactPath('proof', entry)), CHANGED('proof'));
+}
+
+function checkCheck(entry) {
+  try {
+    const { program } = stateOf(entry);
+    const proved = provedOf(entry);
+    const saved = read(artifactPath('proof', entry));
+    assert.equal(checkReport(proved.proofReport), read(artifactPath('check', entry)), CHANGED('check'));
+    // The saved certificate, checked from scratch and strictly. A strict check
+    // of a valid proof differs from the normal one only by a C5 failure for
+    // each trusted boundary, which strict() derives from the normal report.
+    const strictly = checkProof(program, saved, { allowTrusted: false });
+    const derived = strict(proved.proofReport);
+    assert.deepEqual(publicReport(strictly), publicReport(derived));
+    assert.equal(checkReport(strictly), checkReport(derived));
+    assert.ok(!checkProof(program, `${saved}\nunjustified_example_claim()\n`).valid);
+  } finally {
+    // The last of the three: what they shared, a large proof among it, goes.
+    states.delete(entry.name);
+  }
 }
 
 export const tests = {
@@ -55,8 +91,10 @@ export const tests = {
   },
 };
 
-// One test per example, so a run shows each as it goes and a failure names
-// the example.
+// Three tests per example, so a run shows each as it goes and a failure names
+// the example and what of it changed.
 for (const entry of MANIFEST) {
-  tests[`examples/${entry.name}.js: ${entry.description}`] = () => checkExample(entry);
+  tests[`examples/${entry.name}.js output: ${entry.description}`] = () => checkOutput(entry);
+  tests[`examples/${entry.name}.js proof`] = () => checkProofOf(entry);
+  tests[`examples/${entry.name}.js check`] = () => checkCheck(entry);
 }

@@ -68,13 +68,18 @@
          Both share one grid cell, font, and wrapping, so the caret and the
          colors stay aligned; the layer changes colors only, never weight or
          slant, which would move the text under the caret. */
-      .editor { display: grid; min-height: 32rem; border: 1px solid var(--border); border-radius: 0.5rem; background: var(--panel); }
+      .editor { position: relative; display: grid; min-height: 32rem; border: 1px solid var(--border); border-radius: 0.5rem; background: var(--panel); }
       .editor > textarea, .editor > .highlight { grid-area: 1 / 1; min-height: 100%; margin: 0; padding: 0.5rem 0.65rem; border: 0; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.87rem; line-height: 1.45; tab-size: 4; white-space: pre-wrap; overflow-wrap: anywhere; }
       .editor > textarea { overflow: hidden; resize: none; background: transparent; color: transparent; caret-color: var(--text); }
       .editor > textarea::selection { color: transparent; background: #22bde747; }
       .editor > textarea:focus-visible { outline: none; }
       .editor:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
       .editor > .highlight { pointer-events: none; color: var(--text); }
+      /* The line an error names: a red bar behind it, the full width of the
+         editor and as tall as the line wraps, placed from the marked text. */
+      .editor > textarea, .editor > .highlight { position: relative; z-index: 1; }
+      .editor > .error-bar { position: absolute; left: 0; right: 0; z-index: 0; background: #fee2e2; box-shadow: inset 3px 0 0 #dc2626; pointer-events: none; }
+      .editor > .highlight mark.error-line { background: transparent; color: inherit; }
       #proof-panel .editor { min-height: 15rem; }
       .additional-input .editor { min-height: 18rem; }
       .output-card .editor { min-height: 24rem; }
@@ -231,17 +236,45 @@
         return text.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
       }
 
-      /** Programs, proofs and reports share one lexical coloring. */
-      function highlight(text) {
+      /** Programs, proofs and reports share one lexical coloring. The text
+          from marked[0] to marked[1], the line an error names, is wrapped in
+          marks, piece by piece, so a token that runs past the line stays
+          whole. */
+      function highlight(text, marked = null, colored = true) {
         let html = '';
         let at = 0;
-        for (const match of text.matchAll(jsTokens)) {
-          const [kind] = Object.entries(match.groups).find(([, value]) => value !== undefined);
-          html += escapeHtml(text.slice(at, match.index));
-          html += `<span class="${tokenClasses[kind]}">${escapeHtml(match[0])}</span>`;
-          at = match.index + match[0].length;
+        const wrap = (piece, kind) => (!piece ? '' : kind ? `<span class="${kind}">${escapeHtml(piece)}</span>` : escapeHtml(piece));
+        const emit = (piece, kind, offset) => {
+          if (marked === null || offset >= marked[1] || offset + piece.length <= marked[0]) {
+            html += wrap(piece, kind);
+            return;
+          }
+          const from = Math.max(marked[0] - offset, 0);
+          const to = Math.min(marked[1] - offset, piece.length);
+          html += wrap(piece.slice(0, from), kind) + `<mark class="error-line">${wrap(piece.slice(from, to), kind)}</mark>` + wrap(piece.slice(to), kind);
+        };
+        if (colored) {
+          for (const match of text.matchAll(jsTokens)) {
+            const [kind] = Object.entries(match.groups).find(([, value]) => value !== undefined);
+            emit(text.slice(at, match.index), null, at);
+            emit(match[0], tokenClasses[kind], match.index);
+            at = match.index + match[0].length;
+          }
         }
-        return html + escapeHtml(text.slice(at));
+        emit(text.slice(at), null, at);
+        return html;
+      }
+
+      // Where line n (from 1) of text starts and ends, or null.
+      function lineRange(text, n) {
+        let start = 0;
+        for (let line = 1; line < n; line++) {
+          const end = text.indexOf('\n', start);
+          if (end < 0) return null;
+          start = end + 1;
+        }
+        const end = text.indexOf('\n', start);
+        return [start, end < 0 ? text.length : end];
       }
 
       // The subset of an editor the page uses: value, change events, a
@@ -252,8 +285,11 @@
         const layer = document.createElement('pre');
         layer.className = 'highlight';
         layer.setAttribute('aria-hidden', 'true');
+        const bar = document.createElement('div');
+        bar.className = 'error-bar';
+        bar.hidden = true;
         textarea.replaceWith(frame);
-        frame.append(layer, textarea);
+        frame.append(bar, layer, textarea);
         textarea.spellcheck = false;
         textarea.readOnly = readOnly;
         if (label) textarea.setAttribute('aria-label', label);
@@ -261,15 +297,35 @@
         let colored = true;
         let pending = [];
         let frameRequested = false;
+        let markedLine = null;
         function paint() {
           frameRequested = false;
           if (pending.length) { textarea.value += pending.join(''); pending = []; }
           const text = textarea.value;
+          const marked = markedLine === null ? null : lineRange(text, markedLine);
           // A trailing space keeps a final empty line as tall as the textarea's.
-          if (colored && text.length <= maxHighlighted) layer.innerHTML = highlight(text) + ' ';
-          else layer.textContent = text + ' ';
+          if (marked !== null || (colored && text.length <= maxHighlighted)) {
+            layer.innerHTML = highlight(text, marked, colored && text.length <= maxHighlighted) + ' ';
+          } else layer.textContent = text + ' ';
+          placeBar();
         }
-        textarea.addEventListener('input', () => { paint(); for (const listener of listeners) listener(); });
+        // The bar spans the rectangles of the marked text, so it follows the
+        // line however it wraps.
+        function placeBar() {
+          const marks = markedLine === null ? [] : layer.querySelectorAll('mark.error-line');
+          let top = Infinity;
+          let bottom = -Infinity;
+          for (const mark of marks) {
+            for (const rect of mark.getClientRects()) { top = Math.min(top, rect.top); bottom = Math.max(bottom, rect.bottom); }
+          }
+          if (top === Infinity) { bar.hidden = true; return; }
+          const origin = frame.getBoundingClientRect().top + frame.clientTop;
+          bar.style.top = `${top - origin}px`;
+          bar.style.height = `${bottom - top}px`;
+          bar.hidden = false;
+        }
+        new ResizeObserver(() => { if (markedLine !== null) placeBar(); }).observe(frame);
+        textarea.addEventListener('input', () => { markedLine = null; paint(); for (const listener of listeners) listener(); });
         paint();
         return {
           getValue: () => { if (pending.length) paint(); return textarea.value; },
@@ -284,6 +340,8 @@
             if (!frameRequested) { frameRequested = true; requestAnimationFrame(paint); }
           },
           on(event, listener) { if (event === 'change') listeners.push(listener); },
+          // Mark line n (from 1) as the one an error names, or no line.
+          markLine(n) { markedLine = n; paint(); },
           setOption(name, value) {
             if (name === 'readOnly') textarea.readOnly = value;
             if (name === 'colored') { colored = value; paint(); }
@@ -578,7 +636,21 @@
         const code = `
           import { main } from ${JSON.stringify(moduleUrl('./src/cli.js'))};
           import { VERSION } from ${JSON.stringify(moduleUrl('./src/version.js'))};
-          self.onmessage = (event) => {
+          // The line of a syntax error in a program, which a browser gives only
+          // for a script it loads: the program, wrapped in a function that is
+          // never called, as a worker of its own. null when none is found.
+          function syntaxLine(text) {
+            if (typeof Worker === 'undefined') return Promise.resolve(null);
+            return new Promise((resolve) => {
+              const url = URL.createObjectURL(new Blob(['(function () {\\n' + text + '\\n});\\npostMessage(0);'], { type: 'text/javascript' }));
+              const checker = new Worker(url);
+              const done = (line) => { clearTimeout(timer); checker.terminate(); URL.revokeObjectURL(url); resolve(line); };
+              const timer = setTimeout(() => done(null), 3000);
+              checker.onerror = (event) => { event.preventDefault(); done(event.lineno > 1 ? event.lineno - 1 : null); };
+              checker.onmessage = () => done(null);
+            });
+          }
+          self.onmessage = async (event) => {
             const files = new Map(event.data.files);
             let stderr = '';
             try {
@@ -593,6 +665,12 @@
                   throw error;
                 },
               });
+              // A syntax error is reported with its line, as the command does.
+              const syntax = stderr.match(/^eyecode: (?!line \\d+:)[^\\n]*?SyntaxError: ([^\\n]*)$/m);
+              if (syntax && event.data.files.length) {
+                const line = await syntaxLine(event.data.files[0][1]);
+                if (line !== null) stderr = stderr.replace(syntax[0], 'eyecode: line ' + line + ': ' + syntax[1]);
+              }
               self.postMessage({ type: 'done', report: { exitCode, stderr } });
             } catch (error) { self.postMessage({ type: 'error', message: String(error.message || error) }); }
           };
@@ -646,6 +724,7 @@
         }
         setBusy(true);
         output.setValue('');
+        input.markLine(null);
         output.setOption('colored', !byId('json').checked || byId('mode').value !== '--check-proof');
         byId('messages').hidden = true;
         byId('messages').textContent = '';
@@ -658,6 +737,9 @@
           const report = await new Promise((resolve, reject) => { finishRun = resolve; failRun = reject; worker.postMessage({ args, files }); });
           byId('messages').textContent = report.stderr;
           byId('messages').hidden = !report.stderr;
+          // An error in the program names its line: mark it in the input.
+          const failedLine = report.stderr.match(/^eyecode: line (\d+):/m);
+          if (failedLine && report.exitCode !== 0) input.markLine(Number(failedLine[1]));
           const verdict = report.exitCode === 0 ? 'Done' : report.exitCode === 65 ? 'Contradiction' :
             report.exitCode === 2 ? 'Proof not valid' : 'Failed';
           setStatus(`${verdict} · exit ${report.exitCode} · ${((performance.now() - started) / 1000).toFixed(2)} s`, report.exitCode === 0 ? 'ok' : 'error');

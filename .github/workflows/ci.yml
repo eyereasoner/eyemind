@@ -25,6 +25,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
-      # Unit tests, the example corpus, and the conformance suite in process
-      # and through the command line.
+      # Unit tests, the example corpus, the conformance suite in process and
+      # its command-line cases through the command, and the playground in the
+      # runner's Chrome (skipped on a Node.js without WebSocket).
       - run: npm test
