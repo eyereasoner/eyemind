@@ -820,7 +820,7 @@ eyecode [OPTION ...] [FILE ...]
 | `--goal GOAL` | Ask `GOAL`, read as in Section 9, where an array is a conjunction; MAY be repeated. With `--check-proof`, the goals the proof answers. |
 | `--strict-proof` | With `--check-proof`, forbid trusted boundaries. |
 | `--unused` | Print the unused clauses (Section 13). |
-| `--stats` | Print reasoning statistics as JSON to standard error. |
+| `--stats` | Print reasoning statistics as JSON to standard error: `inferences`, the goals started, which `--max-inferences` bounds; `rounds`, the forward rounds run over all strata; and `derived`, the facts forward rules added, not counting a conclusion the program states as a fact, a query's answers or `'false'`. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | The bounds of Section 7.3; `N` MUST be a positive safe integer, at most 9007199254740991. |
 | `--version`, `--help` | Print the version, or the usage. |
 

@@ -297,7 +297,7 @@ eyecode [OPTION ...] [FILE ...]
 | `--goal GOAL` | Ask `GOAL` after forward reasoning; may be repeated. With `--check-proof`, the goals the proof answers. |
 | `--strict-proof` | With `--check-proof`, reject proofs that rely on absence or collection. |
 | `--unused` | List the clauses that make no difference to the conclusions. |
-| `--stats` | Print reasoning statistics as JSON to standard error. |
+| `--stats` | Print reasoning statistics as JSON to standard error: `inferences`, the goals started, which `--max-inferences` bounds; `rounds`, the forward rounds run over all strata; and `derived`, the facts forward rules added, not counting a conclusion the program states as a fact, a query's answers or `'false'`. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000). Each bound must be a positive safe integer, at most 9007199254740991. |
 | `--version`, `--help` | Print the version, or the usage. |
 
