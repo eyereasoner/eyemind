@@ -1,6 +1,6 @@
 // Backward resolution, forward fixpoints and proof recording.
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
-import { freshClause, renaming, text, variant } from './common.js';
+import { freshClause, matchHead, renaming, text, variant } from './common.js';
 import { readGoal } from './goals.js';
 import { checkRendered, clauseDisplay, renderProof } from './proof.js';
 import { CONTROL_KEYS, Program } from './program.js';
@@ -506,15 +506,18 @@ export class Solver {
           : QUIET;
         return this.childFrame(point.frame, body, pending, point.frame.depth + 1);
       }
+      // The head is matched as a pattern, so its variables become the goal's
+      // subterms instead of fresh variables bound to them; only a variable
+      // with no value from the head gets a fresh one.
       const suffix = String(this.serial);
       const prefixes = renamed.prefixes;
-      const values = [];
-      for (let i = 0; i < renamed.headCount; i++) values.push(new Var(prefixes[i] + suffix, true));
-      if (!unify(point.goal, renamed.head(values), env)) {
+      const values = new Array(prefixes.length);
+      const fresh = (i) => new Var(prefixes[i] + suffix, true);
+      if (!matchHead(renamed, point.goal, values, fresh, env)) {
         env.undo(point.mark);
         continue;
       }
-      for (let i = renamed.headCount; i < prefixes.length; i++) values.push(new Var(prefixes[i] + suffix, true));
+      for (let i = 0; i < values.length; i++) if (values[i] === undefined) values[i] = fresh(i);
       const body = renamed.body(values);
       const pending = recording
         ? new Pending(point.goal, new Struct('clause', [BigInt(clause.id)]),

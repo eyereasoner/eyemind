@@ -304,6 +304,39 @@ implied_by(num(N, M), [atom_chars('0042', C), number_chars(N, C), number_chars(M
     proven(without);
   },
 
+  'matching a head as a pattern answers as renaming and unifying it does'() {
+    // A clause is matched as a pattern once it has been used a few times, so
+    // each goal is asked several times and every answer must stay the same.
+    const source = program(`
+implied_by(same(X, X), 'true')
+implied_by(wrap(X, f(X, g(Y)), Y), 'true')
+implied_by(pair(f(X), f(X)), 'true')
+implied_by(loop(X, f(X)), 'true')
+implied_by(swap(p(A, B), p(B, A)), 'true')
+`);
+    const cases = [
+      ['same(A, B)', ['same(A, A)']],
+      ['same(1, B)', ['same(1, 1)']],
+      ['same(f(A), f(1))', ['same(f(1), f(1))']],
+      ['same(1, 2)', []],
+      ['same(1, float(1))', []],
+      ["wrap('a', Z, 'b')", ["wrap('a', f('a', g('b')), 'b')"]],
+      ["wrap('a', f('a', W), V)", ["wrap('a', f('a', g(A)), A)"]],
+      ["wrap('a', f('b', W), V)", []],
+      ['pair(A, B)', ['pair(f(A), f(A))']],
+      ['pair(f(1), B)', ['pair(f(1), f(1))']],
+      ['pair(f(1), f(2))', []],
+      // The occurs check: X would have to contain itself.
+      ['loop(Y, Y)', []],
+      ['swap(p(1, B), Q)', ['swap(p(1, A), p(A, 1))']],
+    ];
+    for (let round = 0; round < 4; round++) {
+      for (const [goal, expected] of cases) {
+        assert.deepEqual(proven(source, { goal }).answers, expected, `${goal}, round ${round}`);
+      }
+    }
+  },
+
   'clause indexing preserves source order and generic clauses'() {
     const source = program(`
 fact(p('a', 'first'), p(X, 'generic_before'), p('b', 'other'))

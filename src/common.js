@@ -1,5 +1,5 @@
 // Helpers shared by the engine and the proof checker.
-import { Struct, Var, freshTerm } from './terms.js';
+import { Struct, Var, deref, freshTerm, unify } from './terms.js';
 import { write } from './writer.js';
 
 // The canonical spelling of a term, which also serves as its identity.
@@ -65,13 +65,17 @@ function collectNames(terms, index) {
 // The clause's variables are numbered in order of first occurrence, head
 // first; head(values) and body(values) build the renamed head and body from
 // fresh variables in that order, the first headCount of them sufficing for
-// the head. Subterms without variables are shared.
+// the head. Subterms without variables are shared. pattern and patterns are
+// the head and body with each variable replaced by its number, for matchHead
+// and instantiate.
 function workOut(clause) {
   const index = new Map();
   collectNames([clause.head], index);
   const headCount = index.size;
   collectNames(clause.body, index);
   const names = [...index.keys()];
+  const pattern = compile(clause.head, index);
+  const patterns = clause.body.map((goal) => compile(goal, index));
   let written = null;
   if (clause.forward) {
     // A forward rule is written premise first, implies(Body, Head), and its
@@ -85,26 +89,96 @@ function workOut(clause) {
     prefixes: names.map((name) => `${name}#`),
     headCount,
     written,
-    head: (values) => substitute(clause.head, index, values),
-    body: (values) => clause.body.map((goal) => substitute(goal, index, values)),
+    pattern,
+    patterns,
+    head: (values) => instantiate(pattern, values),
+    body: (values) => patterns.map((goal) => instantiate(goal, values)),
   };
 }
 
-function substitute(term, index, values) {
-  if (term instanceof Var) return values[index.get(term.name)];
-  if (!(term instanceof Struct)) return term;
-  const args = term.args;
-  let copied = null;
-  for (let position = 0; position < args.length; position++) {
-    const arg = args[position];
-    const copy = arg instanceof Var || arg instanceof Struct ? substitute(arg, index, values) : arg;
-    if (copied === null) {
-      if (copy === arg) continue;
-      copied = args.slice(0, position);
-    }
-    copied.push(copy);
+// A variable of a compiled clause, by its number, and a compound with one
+// somewhere inside it. A subterm without variables stays as it is, and
+// instantiate shares it. Neither ever leaves this module's functions.
+class Slot {
+  constructor(index) {
+    this.index = index;
   }
-  return copied === null ? term : new Struct(term.name, copied);
+}
+
+class Pattern {
+  constructor(name, args) {
+    this.name = name;
+    this.args = args;
+  }
+}
+
+function compile(term, index) {
+  if (term instanceof Var) return new Slot(index.get(term.name));
+  if (!(term instanceof Struct)) return term;
+  const args = term.args.map((arg) => compile(arg, index));
+  return args.some((arg, i) => arg !== term.args[i]) ? new Pattern(term.name, args) : term;
+}
+
+function instantiate(term, values) {
+  if (term instanceof Slot) return values[term.index];
+  if (!(term instanceof Pattern)) return term;
+  const args = term.args;
+  const copied = new Array(args.length);
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    copied[i] = arg instanceof Slot ? values[arg.index] : arg instanceof Pattern ? instantiate(arg, values) : arg;
+  }
+  return new Struct(term.name, copied);
+}
+
+// Match a goal against a renamed clause's head without building the head:
+// the first occurrence of a variable takes the goal's subterm there as its
+// value, binding nothing; a later one unifies with that value; a compound
+// meeting an unbound goal variable is built and bound. fresh(i) makes the
+// fresh variable i when a compound has to be built before i has a value.
+// values, as filled, give the same answers as renaming the head and unifying
+// it would: each variable's value is what its fresh variable would have been
+// bound to.
+export function matchHead(renamed, goal, values, fresh, env) {
+  const pending = [renamed.pattern, goal];
+  while (pending.length) {
+    let given = pending.pop();
+    const wanted = pending.pop();
+    if (wanted instanceof Slot) {
+      const value = values[wanted.index];
+      if (value === undefined) values[wanted.index] = given;
+      else if (!unify(value, given, env)) return false;
+      continue;
+    }
+    if (given instanceof Var) given = deref(given, env);
+    if (wanted instanceof Pattern) {
+      if (given instanceof Var) {
+        if (!unify(given, build(wanted, values, fresh), env)) return false;
+        continue;
+      }
+      if (!(given instanceof Struct) || given.name !== wanted.name || given.args.length !== wanted.args.length) {
+        return false;
+      }
+      for (let i = wanted.args.length - 1; i >= 0; i--) pending.push(wanted.args[i], given.args[i]);
+      continue;
+    }
+    // wanted is a constant or a compound without variables.
+    if (given === wanted) continue;
+    if (!unify(wanted, given, env)) return false;
+  }
+  return true;
+}
+
+// A compiled term built from values, giving a fresh variable to each
+// variable that has no value yet.
+function build(term, values, fresh) {
+  if (term instanceof Slot) {
+    let value = values[term.index];
+    if (value === undefined) value = values[term.index] = fresh(term.index);
+    return value;
+  }
+  if (!(term instanceof Pattern)) return term;
+  return new Struct(term.name, term.args.map((arg) => build(arg, values, fresh)));
 }
 
 // A key that preserves sharing while forgetting variable names.
