@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { VERSION } from '../src/index.js';
 import { main } from '../src/cli.js';
-import { ROOT, assert, cli } from './helpers.js';
+import { ROOT, assert, cli, command } from './helpers.js';
 
 const SOCRATES = "type('socrates', 'mortal')\ntype('socrates', 'human')\n";
 
@@ -22,9 +22,11 @@ export const tests = {
   },
 
   'proof generation pipes into proof checking'() {
-    const generated = cli(['--proof', 'examples/socrates.js']);
+    // Two processes of the command, the proof the first writes read by the
+    // second from its standard input.
+    const generated = command(['--proof', 'examples/socrates.js']);
     assert.equal(generated.code, 0, generated.stderr);
-    const checked = cli(['--check-proof', '-', 'examples/socrates.js'], generated.stdout);
+    const checked = command(['--check-proof', '-', 'examples/socrates.js'], generated.stdout);
     assert.equal(checked.code, 0, checked.stderr);
     assert.ok(checked.stdout.includes("condition('C1', 'resolution', 'ok', 3)\n"));
     assert.ok(checked.stdout.includes("verdict('checked')\n"));
@@ -43,8 +45,8 @@ export const tests = {
   },
 
   'prints the version'() {
-    for (const flag of ['-v', '--version']) {
-      const result = cli([flag, 'examples/socrates.js']);
+    for (const [flag, ran] of [['-v', command], ['--version', cli]]) {
+      const result = ran([flag, 'examples/socrates.js']);
       assert.equal(result.code, 0);
       assert.equal(result.stdout, `eyecode v${VERSION}\n`);
     }

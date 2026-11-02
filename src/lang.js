@@ -94,8 +94,9 @@ function joined(values) {
 // Names for the _ of one clause: _0, _1, ..., skipping names the clause
 // already uses, which are looked up only once a _ is met.
 class Anonymous {
-  constructor(terms) {
-    this.terms = terms;
+  constructor(head, body) {
+    this.head = head;
+    this.body = body;
     this.used = null;
     this.count = 0;
   }
@@ -103,7 +104,7 @@ class Anonymous {
   next() {
     if (this.used === null) {
       this.used = new Set();
-      const pending = [...this.terms];
+      const pending = [this.head, ...this.body];
       while (pending.length) {
         const term = pending.pop();
         if (term instanceof Var) this.used.add(term.name);
@@ -124,15 +125,17 @@ function renameAnonymous(term, counter) {
   if (term instanceof Var) return term.name === '_' ? new Var(counter.next()) : term;
   if (!(term instanceof Struct)) return term;
   let args = null;
-  term.args.forEach((arg, index) => {
+  const given = term.args;
+  for (let index = 0; index < given.length; index++) {
+    const arg = given[index];
     if (arg instanceof Struct || (arg instanceof Var && arg.name === '_')) {
       const renamed = renameAnonymous(arg, counter);
       if (renamed !== arg) {
-        if (args === null) args = [...term.args];
+        if (args === null) args = [...given];
         args[index] = renamed;
       }
     }
-  });
+  }
   return args === null ? term : new Struct(term.name, args);
 }
 
@@ -149,7 +152,7 @@ class Builder {
 
   add(kind, head, body, line = null) {
     if (line === null) line = statedLine !== null ? statedLine : this.locate();
-    const counter = new Anonymous([head, ...body]);
+    const counter = new Anonymous(head, body);
     // In the order the statement writes them: a forward rule, implies(),
     // writes its premise first.
     if (kind !== 'backward') {
@@ -358,7 +361,8 @@ function programScope(exported) {
   const variables = new Map();
   return new Proxy(Object.create(null), {
     has(target, name) {
-      return typeof name === 'string' && !KEPT.has(name);
+      // The scope parameter itself is not a name of the program's.
+      return typeof name === 'string' && !KEPT.has(name) && name !== SCOPE;
     },
     get(target, name) {
       if (typeof name !== 'string') return undefined;
@@ -415,6 +419,7 @@ function lineOffset() {
 }
 
 const AT = '__eyecode_at__';
+const SCOPE = '__eyecode_scope__';
 const STATEMENT_NAMES = ['fact', 'implies', 'implied_by', 'query', 'contradiction', 'facts_from'];
 const STATEMENT_SET = new Set(STATEMENT_NAMES);
 const IDENTIFIER = /[A-Za-z0-9_$]/;
@@ -428,7 +433,12 @@ const BEFORE_EXPRESSION = new Set(['return', 'typeof', 'case', 'in', 'of', 'new'
 // hundred thousand clauses. The rewriting adds no line breaks, skips strings,
 // comments, template text and regular expressions, and leaves property calls
 // and declarations alone; a call it misses still finds its line on the stack.
-function markStatements(source) {
+// It also lists, in names, every name the program could look up in its
+// scope, and clears plain when the program has code it cannot see through:
+// a name with a character outside ASCII or an escape, or eval, Function or
+// with, which could reach a name it does not list.
+function markStatements(source, names = new Set()) {
+  let plain = true;
   const out = [];
   const templates = []; // for each open brace: true when it closes a template's ${
   let from = 0;
@@ -493,11 +503,16 @@ function markStatements(source) {
       const start = i;
       while (i < n && IDENTIFIER.test(source[i])) i++;
       const word = source.slice(start, i);
+      if (previous !== '.' && !/^[0-9]/.test(word)) {
+        if (UNSEEN.has(word)) plain = false;
+        names.add(word);
+      }
       if (STATEMENT_SET.has(word) && previous !== '.' && previous !== 'function') {
         let next = i;
         while (source[next] === ' ' || source[next] === '\t') next++;
         if (source[next] === '(') {
           out.push(source.slice(from, start), `${AT}(${word}, ${line})`);
+          names.add(AT);
           from = i;
         }
       }
@@ -510,14 +525,24 @@ function markStatements(source) {
       i++;
       if (templates.pop()) template();
       else previous = '}';
+    } else if (ch === '.' && source[i + 1] === '.' && source[i + 2] === '.') {
+      // A spread, [H, ...T]: the name after it is looked up, not a property.
+      previous = ',';
+      i += 3;
     } else {
+      if (ch === '\\' || ch.charCodeAt(0) > 127) plain = false;
       previous = ch === ')' || ch === ']' ? ')' : ch;
       i++;
     }
   }
   out.push(source.slice(from));
-  return out.join('');
+  return { code: out.join(''), names, plain };
 }
+
+// Names that let a program reach a name without writing it.
+const UNSEEN = new Set(['eval', 'Function', 'with']);
+// Names a program cannot declare, or that keep their global meaning.
+const NOT_LOOKED_UP = new Set([...RESERVED_WORDS, 'arguments', 'eval', 'of', 'get', 'set', 'async']);
 
 // The line of the innermost frame of the script at url, or null when none is
 // on the stack. Where the host gives stack frames as objects (V8), they are
@@ -554,7 +579,23 @@ function callSites(limit) {
   }
 }
 
-function compile(source, url) {
+// The function that runs a program's source in its scope. Given the names
+// the program looks up, each is looked up once, before the program runs, and
+// the program runs as a function of its own inside them: code directly
+// inside with is never optimized, and a loop stating a hundred thousand
+// clauses would otherwise look every name up through the scope on every
+// pass. A name the list misses still reaches the scope, only more slowly.
+// The program's own declarations shadow these names, as they shadow the
+// scope. Either way the source starts on the function's second line, so line
+// numbers agree.
+function compile(source, url, names = null) {
+  if (names !== null) {
+    const looked = [...names].filter((name) => !NOT_LOOKED_UP.has(name) && !KEPT.has(name));
+    const declared = looked.map((name) => `${name} = __eyecode_scope__.${name}`).join(', ');
+    // eslint-disable-next-line no-new-func
+    return new Function('__eyecode_scope__',
+      `with (__eyecode_scope__) { ${declared ? `let ${declared}; ` : ''}return (function () {\n${source}\n})(); }\n//# sourceURL=${url}`);
+  }
   // eslint-disable-next-line no-new-func
   return new Function('__eyecode_scope__', `with (__eyecode_scope__) {\n${source}\n}\n//# sourceURL=${url}`);
 }
@@ -604,7 +645,12 @@ function execute(source, filename, builder, io) {
   const url = `eyecode-program-${id}.js`;
   let fn;
   try {
-    fn = compile(markStatements(source), url);
+    const marked = markStatements(source);
+    try {
+      fn = compile(marked.code, url, marked.plain ? marked.names : null);
+    } catch {
+      fn = compile(marked.code, url);
+    }
   } catch {
     // Should the rewriting ever break the program, it runs as written.
     try {

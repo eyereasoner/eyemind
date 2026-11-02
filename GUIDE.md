@@ -140,6 +140,59 @@ RDF reaches eyecode as data, through [rdf-interchange](https://github.com/eyerea
 
 A rule matches inside a triple term by unification, and a statement about a triple is an ordinary quad: a reifier linked to a `triple(S, P, O)` by `rdf:reifies`. A literal's value is text, so `[atom_chars(Text, Chars), number_chars(N, Chars)]` reads `'98'` as the integer 98, and the same two primitives in the other order write a computed number back as text. Something a rule says exists, a Skolem term, becomes a blank node labelled by that term, the same node for the same rule firing. The `rdf12-*` examples show triple terms, nesting, annotations, directional strings, typed numbers and named graphs, and each one's conclusions convert back to RDF.
 
+## Reasoning strategy
+
+eyecode reasons in **both directions within one run**, and the statement
+chooses the direction:
+
+| Strategy | Stated with | How it works |
+| --- | --- | --- |
+| **Forward chaining** (bottom-up) | `implies`, `query`, `contradiction` | Starting from the facts, each rule's premise is solved against what holds so far and its conclusions are added, round after round, until a round adds nothing new. |
+| **Backward chaining** (goal-driven) | `implied_by`, `fact` | A goal is solved when something asks for it: depth-first, left to right, trying the program's facts and backward rules in the order they are written, each renamed apart and unified with the goal. |
+
+The same knowledge can be stated either way. `implies(human(X), mortal(X))`
+derives `mortal('socrates')` as soon as `human('socrates')` holds;
+`implied_by(mortal(X), human(X))` decides it only when a goal asks
+`mortal(Who)`. Forward rules suit closures and classifications, where every
+consequence is wanted: `implies([path(X, Y), edge(Y, Z)], path(X, Z))`
+terminates on a cyclic graph because a fact already derived is not derived
+again. Backward rules suit computations driven by their inputs, such as
+arithmetic recursion or list processing, which forward chaining could not
+start without them. Backward chaining keeps no table of answers, so a
+backward rule that calls itself with the same goal recurses until a bound
+stops the run; such recursion belongs in a forward rule.
+
+The two strategies work together. A goal is solved by a primitive or control
+when it is one, otherwise against the facts forward rules have derived, in
+the order derived, and then against the program's facts and backward rules.
+So a forward rule's premise can call a backward definition, such as
+`gt(Score, 80)` or a recursive `count`, and a backward rule can use facts
+forward rules derived. Goals given with `--goal`, or by a library call, are
+solved after forward reasoning has finished.
+
+Forward rules run **stratum by stratum**. A negation or a `findall` is used
+only after every rule that could still produce what it inspects has reached
+its fixpoint (see [Why negation and collection are safe](#why-negation-and-collection-are-safe)).
+Within a stratum, rounds are evaluated semi-naively: a rule is searched again
+only for activations that use a fact derived since its last search, which
+concludes exactly what searching everything again would. A variable that
+appears only in a forward rule's conclusion becomes a Skolem term of the
+activation, so a rule that says "something exists" names the same something
+however often it fires. `max_depth`, `max_inferences` and `max_iterations`
+bound a run, and exceeding one is an error, never a partial answer.
+
+Two details make this fast without changing any result. Clauses are indexed
+on arguments that are atoms or numbers, so a goal such as `type(X, 'n99999')`
+goes straight to the clauses that can match. A clause used repeatedly is
+matched against a goal as a compiled pattern: its variables take the goal's
+values directly, instead of being renamed and then unified.
+
+When a proof is asked for, the first derivation of each conclusion is
+recorded, and the checker verifies that record against the program without
+calling the reasoner. [SPEC §7](SPEC.md#7-reasoning) defines the search, the
+rounds, the Skolem terms and the bounds, and [SPEC §4.5](SPEC.md#45-stratification)
+the strata.
+
 ## Proofs, and what checking one means
 
 A proof holds the claims, the source clauses it cites, and one `step(...)` record per inference. The checker establishes eight conditions:
@@ -301,7 +354,7 @@ node conformance/run.js --command "my-eyecode"  # against another implementation
 
 The full suite and large examples need substantial memory. On this development machine, use the memory cap above with swap disabled and run one heavy job at a time. Focused tests can use `npm test -- unit -k NAME`.
 
-The unit tests include generated ones, which check properties on inputs a seeded generator makes. For each example, its saved proof is forged at random, consistently or not and often at a computed value or a witness, and the checker must accept no forgery that claims what the program does not entail (a proof checked with obligations may do so only through an obligation it changed or added, which a strict check rejects), with and without its fast path for flat clauses giving the same report; and leaving out any clause no derivation cites must not change what the example concludes. Circular proofs of atoms that only a cycle of rule instances supports must fail C2. Random stratified programs, forward and backward, must answer as a naive fixpoint does, with proofs that check, and must conclude the same with their statements in any order or without a clause no derivation cites. Random terms must read back from their canonical text as themselves, and mutated and hostile documents must give terms or an error without the reader running any of it. A failure names the seed that reproduces it, and `EYECODE_PROPERTY_SCALE` multiplies the number of cases. The test sections are unit tests, the example corpus (each program must reproduce its saved output, proof and check report, and its saved proof must check from disk), and the conformance suite, run both in process and through the command line. [conformance/README.md](conformance/README.md) describes the case format. `test/browser.mjs` checks the playground in a real Chrome; its header says how to start it.
+The unit tests include generated ones, which check properties on inputs a seeded generator makes. For each example, its saved proof is forged at random, consistently or not and often at a computed value or a witness, and the checker must accept no forgery that claims what the program does not entail (a proof checked with obligations may do so only through an obligation it changed or added, which a strict check rejects), with and without its fast path for flat clauses giving the same report; and leaving out any clause no derivation cites must not change what the example concludes. Circular proofs of atoms that only a cycle of rule instances supports must fail C2. Random stratified programs, forward and backward, must answer as a naive fixpoint does, with proofs that check, and must conclude the same with their statements in any order or without a clause no derivation cites. Random terms must read back from their canonical text as themselves, and mutated and hostile documents must give terms or an error without the reader running any of it. A failure names the seed that reproduces it, and `EYECODE_PROPERTY_SCALE` multiplies the number of cases. The test sections are unit tests, the example corpus (each program must reproduce its saved output, proof and check report, and its saved proof must check from disk), and the conformance suite, run in process, with its command-line cases (`14-command-line.js`) also run through the `eyecode` command as processes of their own. Starting Node costs more than most cases take, so the other cases run through the same `main` in process; `node conformance/run.js --command "node bin/eyecode.js"` runs every case through the command. [conformance/README.md](conformance/README.md) describes the case format. `test/browser.mjs` checks the playground in a real Chrome; its header says how to start it.
 
 Review artifact changes together with the source change that caused them. When adding an example, register its name, description, expected halt code (if any) and proof obligations in [examples/manifest.json](examples/manifest.json), write its deck in `examples/deck/`, then generate its artifacts.
 

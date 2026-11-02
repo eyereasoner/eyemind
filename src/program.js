@@ -38,6 +38,22 @@ export class Source {
   }
 }
 
+// The keys of the names and arities met so far, so that heads sharing a
+// name and arity share one key string instead of each making its own.
+class KeyCache {
+  constructor() {
+    this.byName = new Map();
+  }
+
+  of(item) {
+    if (typeof item === 'string') return key(item);
+    let byArity = this.byName.get(item.name);
+    if (byArity === undefined) this.byName.set(item.name, byArity = []);
+    const arity = item.args.length;
+    return byArity[arity] ?? (byArity[arity] = key(item));
+  }
+}
+
 function pushGoals(goal, out) {
   if (goal instanceof Struct && goal.name === 'and' && goal.args.length === 2) {
     out.push(...flattenConjunction(goal));
@@ -57,9 +73,15 @@ export class Program {
     this.groups = new Map();
     this.forward = [];
     let stratifying = false;
-    this.sources.forEach((source, index) => {
+    // Most heads of a program share a few names and arities: their keys are
+    // made once, and a key once allowed as a head is not checked again.
+    const keys = new KeyCache();
+    const allowed = new Set();
+    const count = this.sources.length;
+    for (let index = 0; index < count; index++) {
+      const source = this.sources[index];
       const ordinal = index + 1;
-      if (ordinal === without) return;
+      if (ordinal === without) continue;
       const forward = Object.hasOwn(FORWARD_KINDS, source.kind);
       const body = [];
       for (const goal of source.body) pushGoals(goal, body);
@@ -76,14 +98,18 @@ export class Program {
       for (const goal of body) {
         if (!stratifying && mayNeedStratifying(goal)) stratifying = true;
       }
+      let headKey = null;
       for (const item of heads) {
         if (!isCallable(item)) throw new EyecodeError(`line ${source.line}: a head must be an atom or a compound term`);
-        const itemKey = key(item);
+        const itemKey = keys.of(item);
+        headKey = itemKey;
+        if (allowed.has(itemKey)) continue;
         if (RESERVED_KEYS.has(itemKey) ||
             ((PRIMITIVE_KEYS.has(itemKey) || CONTROL_KEYS.has(itemKey)) &&
              !(forward && (item === 'true' || item === 'false')))) {
           throw new EyecodeError(`line ${source.line}: unsupported or reserved head ${itemKey}`);
         }
+        allowed.add(itemKey);
       }
       const clause = new Clause(ordinal, source.head, forward ? heads : null, body, forward, source.line);
       this.clauses.push(clause);
@@ -91,15 +117,16 @@ export class Program {
       if (forward) {
         this.forward.push(clause);
       } else {
-        const headKey = key(source.head);
-        if (!this.groups.has(headKey)) this.groups.set(headKey, []);
-        this.groups.get(headKey).push(clause);
+        // A backward clause or fact has the one head whose key was just made.
+        const group = this.groups.get(headKey);
+        if (group === undefined) this.groups.set(headKey, [clause]);
+        else group.push(clause);
       }
-    });
-    this.indexes = new Map();
-    for (const [groupKey, clauses] of this.groups) {
-      this.indexes.set(groupKey, positionIndexes(clauses, (clause) => clause.head, keyArity(groupKey)));
     }
+    // A group's argument index is made the first time a goal asks for its
+    // clauses: many groups of a large program are never asked for, and a
+    // program made to leave one clause out is often run only briefly.
+    this.indexes = new Map();
     // Ground source facts are compared against forward conclusions by
     // identity, so work those out once here.
     this.groundFactKeys = new Set();
@@ -112,25 +139,30 @@ export class Program {
   candidates(goal, env, goalKey) {
     const clauses = this.groups.get(goalKey);
     if (clauses === undefined) return [];
-    const positions = this.indexes.get(goalKey);
-    if (!positions || !positions.length) return clauses;
+    let positions = this.indexes.get(goalKey);
+    if (positions === undefined) {
+      positions = positionIndexes(clauses, (clause) => clause.head, keyArity(goalKey));
+      this.indexes.set(goalKey, positions);
+    }
+    if (!positions.length) return clauses;
     let chosen = null;
     let matches = null;
     let count = clauses.length;
     const args = goal.args;
-    positions.forEach((index, position) => {
-      if (index === null) return;
+    for (let position = 0; position < positions.length; position++) {
+      const index = positions[position];
+      if (index === null) continue;
       let argument = args[position];
       if (argument instanceof Var) argument = deref(argument, env);
-      if (!isIndexable(argument)) return;
-      const bucket = index[0].get(argument) || [];
+      if (!isIndexable(argument)) continue;
+      const bucket = bucketEntries(index[0].get(argument));
       const size = bucket.length + index[1].length;
       if (size < count) {
         chosen = index;
         matches = bucket;
         count = size;
       }
-    });
+    }
     if (chosen === null) return clauses;
     if (!chosen[1].length) return matches;
     // Both buckets retain source order. Merge them without sorting on every
@@ -149,35 +181,53 @@ export class Program {
 }
 
 // An index per argument position where enough entries carry an atom or
-// number. Each index is [constants, other]: a map from value to entries, and
-// the entries with anything else there. Map keys keep integers and floats
-// distinct while equating signed zeros, just as unification does.
+// number. Each index is [constants, other]: a map from value to the entries
+// with that value there, and the entries with anything else there. Map keys
+// keep integers and floats distinct while equating signed zeros, just as
+// unification does. A value with one entry maps to the entry itself, and one
+// with more to a Bucket of them: most values of a large program head a single
+// clause, and an array for each would only be more for memory to keep.
 export function positionIndexes(entries, headOf, arity) {
   const counts = new Array(arity).fill(0);
-  for (const entry of entries) {
-    const head = headOf(entry);
-    if (arity) {
-      head.args.forEach((arg, position) => {
-        if (isIndexable(arg)) counts[position]++;
-      });
+  if (arity) {
+    for (let i = 0; i < entries.length; i++) {
+      const args = headOf(entries[i]).args;
+      for (let position = 0; position < arity; position++) if (isIndexable(args[position])) counts[position]++;
     }
   }
   const positions = counts.map((count) => (count * 2 < entries.length ? null : [new Map(), []]));
-  for (const entry of entries) {
-    const head = headOf(entry);
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    const args = headOf(entry).args;
     for (let position = 0; position < arity; position++) {
       const index = positions[position];
       if (index === null) continue;
-      const argument = head.args[position];
+      const argument = args[position];
       if (!isIndexable(argument)) {
         index[1].push(entry);
-      } else {
-        if (!index[0].has(argument)) index[0].set(argument, []);
-        index[0].get(argument).push(entry);
+        continue;
       }
+      const found = index[0].get(argument);
+      if (found === undefined) index[0].set(argument, entry);
+      else if (found instanceof Bucket) found.entries.push(entry);
+      else index[0].set(argument, new Bucket([found, entry]));
     }
   }
   return positions;
+}
+
+class Bucket {
+  constructor(entries) {
+    this.entries = entries;
+  }
+}
+
+const NO_ENTRIES = Object.freeze([]);
+
+// The entries a positionIndexes map gives for a value, as a list.
+function bucketEntries(found) {
+  if (found === undefined) return NO_ENTRIES;
+  return found instanceof Bucket ? found.entries : [found];
 }
 
 const CONTROL_NAMES = new Set(['and', 'or', 'not', 'call', 'once', 'findall']);
@@ -233,7 +283,7 @@ function headCandidates(entry, goal) {
   let chosen = entry.pairs;
   entry.positions.forEach((bucket, position) => {
     if (bucket === null || !(goal instanceof Struct) || !isIndexable(goal.args[position])) return;
-    const matched = bucket[0].get(goal.args[position]) || [];
+    const matched = bucketEntries(bucket[0].get(goal.args[position]));
     if (matched.length + bucket[1].length < chosen.length) chosen = [...matched, ...bucket[1]];
   });
   return chosen;

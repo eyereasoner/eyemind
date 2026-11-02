@@ -40,6 +40,29 @@ query(path(0, W))
     assert.deepEqual(run(program('fact(answer(42))\nquery(answer(Date))')).answers, ['answer(42)']);
   },
 
+  'names are found wherever a program looks them up'() {
+    // A name after a spread, a name assigned without a declaration and read
+    // back, a function the program declares after using it, and a name only
+    // the scope can supply (one outside ASCII) all mean what they always did.
+    const source = program(`
+fact(list([1, ...tail(2)]), list([0, ...Rest]))
+total = 2
+total = add(total, 1)
+var size = 4
+fact(sized(total, size), made(helper()))
+function helper() { return made_by(helper_name) }
+const café = 'x'
+fact(named(café))
+query(list(L))
+query(sized(T, S))
+query(made(M))
+query(named(N))
+`);
+    assert.deepEqual(run(source).answers, [
+      'list([1, ...tail(2)])', 'list([0, ...A])', 'sized(add(2, 1), 4)', "made(made_by('helper_name'))", "named('x')",
+    ]);
+  },
+
   'explicit declarations still work'() {
     const source = program("const range = preds('range')\nconst [N, M] = vars('N M')\nfact(range(1, 3))\nquery(range(1, N))");
     assert.deepEqual(run(source).answers, ['range(1, 3)']);

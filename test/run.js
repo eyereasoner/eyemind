@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Every test of eyecode in one run, one numbered line per test: npm test
 //
-//     npm test                       unit tests, examples, conformance in process
-//                                    and through the command line
+//     npm test                       unit tests, examples, conformance in process,
+//                                    and its command-line cases through the command
 //     npm test -- unit examples      only these sections
 //     npm test -- -k skolem          only tests whose line contains "skolem"
 //
@@ -21,11 +21,11 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = dirname(HERE);
 const SECTIONS = ['unit', 'examples', 'conformance', 'cli'];
 const TITLES = {
-  unit: 'Unit tests', examples: 'Examples', conformance: 'Conformance', cli: 'Conformance through the command line',
+  unit: 'Unit tests', examples: 'Examples', conformance: 'Conformance', cli: 'Command-line cases through the eyecode command',
 };
 const COUNTED = {
   unit: 'unit tests', examples: 'example tests', conformance: 'conformance cases',
-  cli: 'conformance cases through the command line',
+  cli: 'command-line cases through the eyecode command',
 };
 const COLOR = process.env.NO_COLOR === undefined && (process.stdout.isTTY || (process.env.FORCE_COLOR ?? '0') !== '0');
 const paint = (code, text) => (COLOR ? `\x1b[${code}m${text}\x1b[0m` : text);
@@ -144,12 +144,16 @@ function runInProcess(reporter) {
   }
 }
 
-// Each case is a process of its own, so they run side by side; results are
-// reported in case order.
+// The cases of 14-command-line.js, about options, standard input, errors and
+// exit codes, each through the eyecode command as a process of its own, so
+// they run side by side; results are reported in case order. Every case also
+// runs in process, through the same main, and starting Node for each costs
+// more than most cases take: node conformance/run.js --command "node
+// bin/eyecode.js" runs them all through the command.
 async function runThroughCommandLine(reporter) {
   const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
-  const cases = casesFor(reporter);
+  const cases = casesFor(reporter).filter((item) => item.where.startsWith('14-command-line.js:'));
   const outcomes = new Array(cases.length);
   let next = 0;
   const one = (item) => new Promise((resolve) => {
