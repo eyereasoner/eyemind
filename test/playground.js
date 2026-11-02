@@ -118,14 +118,18 @@ export const tests = [
 
   ['a run that would not end can be stopped', async (page) => {
     const p = driver(page);
+    // Bounds high enough that no machine reaches them before Stop is pressed.
     await p.type('input', 'implied_by(p(X), p(s(X)))\nquery(p(z))\n');
     await p.select('max-depth', '100000000');
+    await p.select('max-inferences', '1000000000000');
     await page.evaluate("document.getElementById('run').click()");
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await p.until("document.getElementById('status').textContent === 'Running…'", 'the run to start');
+    await new Promise((resolve) => setTimeout(resolve, 200));
     await page.evaluate("document.getElementById('stop').click()");
     await p.until("!document.getElementById('run').disabled", 'stopping');
     assert.equal(await p.status(), 'Stopped.');
     await p.select('max-depth', '');
+    await p.select('max-inferences', '');
   }],
 
   ['the page fits desktop and phone widths', async (page, base) => {
