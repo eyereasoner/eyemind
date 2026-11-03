@@ -2,7 +2,7 @@
 
 *Who may read and write, and why a suspended editor may not.*
 
-[permissions.js](https://github.com/eyereasoner/eyecode/blob/main/examples/permissions.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/permissions.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/permissions.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/permissions.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=permissions)
+[permissions.js](https://github.com/eyereasoner/eyemind/blob/main/examples/permissions.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/permissions.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/permissions.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/permissions.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=permissions)
 
 ---
 
@@ -17,7 +17,7 @@ Alice and Carol are editors, Bob is a viewer, and Carol is suspended.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 fact(role('alice', 'editor'))
@@ -38,7 +38,7 @@ suspended when there is no `suspended` fact for them.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 allowed('alice', 'read')
@@ -68,7 +68,7 @@ of one.
 
 ## "Not suspended": a claim about absence
 
-eyecode works under a *closed world*: if the program does not say Alice is
+eyemind works under a *closed world*: if the program does not say Alice is
 suspended, it takes her to be not suspended. That is what we want here — but
 it is a claim about what is *missing* from the data, and a proof cannot point
 at something missing.
@@ -82,7 +82,7 @@ So the checker does not pretend to prove it. It records it as an
 
 - **11** steps are confirmed as instances of the program lines they cite.
 - **2** steps are taken on trust as *absent* obligations: "Alice is not
-  suspended" and "Bob is not suspended". eyecode searched everything it knows
+  suspended" and "Bob is not suspended". eyemind searched everything it knows
   and found nothing.
 - The checker looked for evidence against both (a `suspended('alice')` fact,
   say) and found none.
@@ -94,8 +94,8 @@ Verdict: **checked_with_obligations**. 13 steps, 2 on trust.
 ## Try it
 
 ```sh
-eyecode examples/permissions.js
-eyecode --check-proof examples/proof/permissions.js examples/permissions.js
+eyemind examples/permissions.js
+eyemind --check-proof examples/proof/permissions.js examples/permissions.js
 ```
 
 Delete the line `fact(suspended('carol'))` and run again: Carol is now allowed to
@@ -106,5 +106,5 @@ read and write, like Alice.
 ## Takeaway
 
 "Allowed unless excluded" decisions rest on what is *not* in the data.
-eyecode makes those absences visible, so you know exactly what you are
+eyemind makes those absences visible, so you know exactly what you are
 trusting when you grant access.

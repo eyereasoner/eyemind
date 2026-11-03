@@ -2,7 +2,7 @@
 
 *Multiplying huge numbers with nothing but halving, doubling and adding — the way ancient scribes did.*
 
-[peasant.js](https://github.com/eyereasoner/eyecode/blob/main/examples/peasant.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/peasant.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/peasant.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/peasant.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=peasant)
+[peasant.js](https://github.com/eyereasoner/eyemind/blob/main/examples/peasant.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/peasant.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/peasant.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/peasant.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=peasant)
 
 ---
 
@@ -38,7 +38,7 @@ the computer show each row?**
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 // prod([X, Y], Z) means X * Y = Z. Halve X and double Y; when X is odd, the
@@ -89,11 +89,11 @@ remainder after dividing by 2, `floordiv(X, 2)` is whole-number halving, and
 `is(S, ...)` sets S to the value of a calculation. Numbers too large for an
 ordinary JavaScript number (beyond 2^53), such as `62713345408367238n`, are
 written as BigInt literals with an `n` suffix, so that JavaScript does not
-round them before eyecode sees them.
+round them before eyemind sees them.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 prod([5, 6], 30)
@@ -105,7 +105,7 @@ pow([238, 13], 7861409907565911395902147452928)
 ```
 
 6 of the 10 answers. The largest, `pow([8367238, 2713], …)`, is a number
-with 18,781 digits — computed exactly, since eyecode's integers have no
+with 18,781 digits — computed exactly, since eyemind's integers have no
 size limit.
 
 ---
@@ -141,11 +141,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/peasant.js            # the answers
-eyecode --proof examples/peasant.js    # every row of every table
+eyemind examples/peasant.js            # the answers
+eyemind --proof examples/peasant.js    # every row of every table
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=peasant).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=peasant).
 
 Add `query(pow([2, 100], _))` at the end and run again: a new line
 appears, `pow([2, 100], 1267650600228229401496703205376)`.
@@ -155,5 +155,5 @@ appears, `pow([2, 100], 1267650600228229401496703205376)`.
 ## Takeaway
 
 An old method is still a good method when each step is simple enough to
-check. eyecode keeps every row, and an independent checker redoes every sum —
+check. eyemind keeps every row, and an independent checker redoes every sum —
 whether the numbers have three digits or eighteen thousand.

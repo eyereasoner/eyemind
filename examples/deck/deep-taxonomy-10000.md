@@ -2,7 +2,7 @@
 
 *Ten thousand steps of reasoning, every one written down and checked.*
 
-[deep-taxonomy-10000.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deep-taxonomy-10000.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/deep-taxonomy-10000.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/deep-taxonomy-10000.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/deep-taxonomy-10000.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=deep-taxonomy-10000)
+[deep-taxonomy-10000.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-10000.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deep-taxonomy-10000.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-10000.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deep-taxonomy-10000.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=deep-taxonomy-10000)
 
 ---
 
@@ -36,7 +36,7 @@ Same shape each time; only the length of the chain changes.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 One fact, then three rules per level — 30,000 rules in all, stated by a loop:
 
@@ -56,7 +56,7 @@ the question.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 type('ind', 'n10000')
@@ -64,10 +64,10 @@ type('ind', 'n10000')
 
 One answer: yes.
 
-eyecode works backward from the question (`implied_by` rules are explored only
+eyemind works backward from the question (`implied_by` rules are explored only
 when a question needs them): to be in `n10000`, be in `n9999`; to be in
 `n9999`, be in `n9998`; … all the way up to the fact we gave. The search is an
-explicit machine inside eyecode, so ten thousand levels deep is no problem.
+explicit machine inside eyemind, so ten thousand levels deep is no problem.
 
 ---
 
@@ -105,12 +105,12 @@ step it claims.
 ## Try it
 
 ```sh
-eyecode examples/deep-taxonomy-10000.js            # the answer
-eyecode --stats examples/deep-taxonomy-10000.js    # and its cost
+eyemind examples/deep-taxonomy-10000.js            # the answer
+eyemind --stats examples/deep-taxonomy-10000.js    # and its cost
 ```
 
 `--stats` reports `"inferences":10001` — one step per level, plus the fact.
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=deep-taxonomy-10000).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=deep-taxonomy-10000).
 
 Change the last line to `query(type(X, 'j5000'))` and run with `--stats`
 again: the answer is `type('ind', 'j5000')`, a side branch halfway down,

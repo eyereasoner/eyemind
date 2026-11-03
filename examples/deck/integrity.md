@@ -2,7 +2,7 @@
 
 *A rule that should never fire, and a clear alarm when it does.*
 
-[integrity.js](https://github.com/eyereasoner/eyecode/blob/main/examples/integrity.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/integrity.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/integrity.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/integrity.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=integrity)
+[integrity.js](https://github.com/eyereasoner/eyemind/blob/main/examples/integrity.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/integrity.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/integrity.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/integrity.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=integrity)
 
 ---
 
@@ -16,7 +16,7 @@ to know at once, and know *which* record broke it.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 Two accounts and the constraint:
 
@@ -33,7 +33,7 @@ its body holds, it stops the run, like a fuse.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 'false'
@@ -42,7 +42,7 @@ its body holds, it stops the run, like a fuse.
 And the program stops with **exit code 65**.
 
 An exit code is the number a program hands back to whatever started it;
-0 means "all fine". eyecode uses 65 to say "a `false` was derived: the data
+0 means "all fine". eyemind uses 65 to say "a `false` was derived: the data
 breaks a constraint". A script or pipeline can notice that and stop.
 
 ---
@@ -75,8 +75,8 @@ is valid; it is the *data* that is wrong.
 ## Try it
 
 ```sh
-eyecode examples/integrity.js; echo "exit code: $?"
-eyecode --proof examples/integrity.js
+eyemind examples/integrity.js; echo "exit code: $?"
+eyemind --proof examples/integrity.js
 ```
 
 Change Bob's balance to `fact(account('bob', 5))` and run again: nothing is

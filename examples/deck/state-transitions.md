@@ -2,7 +2,7 @@
 
 *Replay a bank account's history, one event at a time, to get today's balance.*
 
-[state-transitions.js](https://github.com/eyereasoner/eyecode/blob/main/examples/state-transitions.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/state-transitions.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/state-transitions.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/state-transitions.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=state-transitions)
+[state-transitions.js](https://github.com/eyereasoner/eyemind/blob/main/examples/state-transitions.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/state-transitions.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/state-transitions.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/state-transitions.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=state-transitions)
 
 ---
 
@@ -16,7 +16,7 @@ changed it?
 
 ---
 
-## What we tell eyecode: the history
+## What we tell eyemind: the history
 
 An **event log** is a numbered list of what happened:
 
@@ -34,7 +34,7 @@ because each balance is found from the one numbered just before it.
 
 ---
 
-## What we tell eyecode: the rules
+## What we tell eyemind: the rules
 
 ```js
 implied_by(balance(0, Amount), opening_balance(Amount))
@@ -74,7 +74,7 @@ a value of `balance(N, Amount)`, with balance 0 the opening balance.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 balance(3, 65)
@@ -114,11 +114,11 @@ Verdict: **checked**. All 17 steps verified, nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/state-transitions.js            # the answers
-eyecode --proof examples/state-transitions.js    # answers with their proof
+eyemind examples/state-transitions.js            # the answers
+eyemind --proof examples/state-transitions.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=state-transitions).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=state-transitions).
 Add `fact(event(4, 'deposit', 10))` and change the last line to
 `query(balance(4, Amount))`: the answer becomes `balance(4, 75)`.
 

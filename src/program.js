@@ -1,7 +1,7 @@
 // A program: its clauses, validated, indexed and stratified.
 import { PRIMITIVE_KEYS } from './builtins.js';
 import {
-  Env, EyecodeError, Struct, Var, deref, flattenConjunction, freshTerm, identity, isCallable,
+  Env, EyemindError, Struct, Var, deref, flattenConjunction, freshTerm, identity, isCallable,
   isGround, isTerm, key, keyArity, unify,
 } from './terms.js';
 
@@ -86,13 +86,13 @@ export class Program {
       const body = [];
       for (const goal of source.body) pushGoals(goal, body);
       if (forward && !body.length) {
-        throw new EyecodeError(`line ${source.line}: ${FORWARD_KINDS[source.kind]} needs at least one goal`);
+        throw new EyemindError(`line ${source.line}: ${FORWARD_KINDS[source.kind]} needs at least one goal`);
       }
-      if (source.kind === 'fact' && body.length) throw new EyecodeError(`line ${source.line}: a fact has no body`);
+      if (source.kind === 'fact' && body.length) throw new EyemindError(`line ${source.line}: a fact has no body`);
       const heads = forward ? flattenConjunction(source.head) : [source.head];
       if (source.kind === 'forward' && heads.some((item) => item === 'true' || item === 'false')) {
         // query() and contradiction() state these, and say so.
-        throw new EyecodeError(`line ${source.line}: implies() cannot conclude 'true' or 'false'; ` +
+        throw new EyemindError(`line ${source.line}: implies() cannot conclude 'true' or 'false'; ` +
                               'write query(Premise) or contradiction(Premise)');
       }
       for (const goal of body) {
@@ -100,14 +100,14 @@ export class Program {
       }
       let headKey = null;
       for (const item of heads) {
-        if (!isCallable(item)) throw new EyecodeError(`line ${source.line}: a head must be an atom or a compound term`);
+        if (!isCallable(item)) throw new EyemindError(`line ${source.line}: a head must be an atom or a compound term`);
         const itemKey = keys.of(item);
         headKey = itemKey;
         if (allowed.has(itemKey)) continue;
         if (RESERVED_KEYS.has(itemKey) ||
             ((PRIMITIVE_KEYS.has(itemKey) || CONTROL_KEYS.has(itemKey)) &&
              !(forward && (item === 'true' || item === 'false')))) {
-          throw new EyecodeError(`line ${source.line}: unsupported or reserved head ${itemKey}`);
+          throw new EyemindError(`line ${source.line}: unsupported or reserved head ${itemKey}`);
         }
         allowed.add(itemKey);
       }
@@ -325,7 +325,7 @@ function stratify(clauses, stratifying) {
     const clauseId = pending.pop();
     if (reachable.has(clauseId)) continue;
     reachable.add(clauseId);
-    if (dynamic.has(clauseId)) throw new EyecodeError('forward dependencies require statically named calls');
+    if (dynamic.has(clauseId)) throw new EyemindError('forward dependencies require statically named calls');
     for (const edge of outgoing.get(clauseId) || []) pending.push(edge[1]);
   }
   for (let round = 0; round <= ranks.size; round++) {
@@ -339,5 +339,5 @@ function stratify(clauses, stratifying) {
     }
     if (!changed) return ranks;
   }
-  throw new EyecodeError('unstratified negation or collection dependency');
+  throw new EyemindError('unstratified negation or collection dependency');
 }

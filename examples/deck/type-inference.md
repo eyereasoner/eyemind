@@ -2,7 +2,7 @@
 
 *Working out the type of each small program, from the types of its parts.*
 
-[type-inference.js](https://github.com/eyereasoner/eyecode/blob/main/examples/type-inference.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/type-inference.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/type-inference.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/type-inference.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=type-inference)
+[type-inference.js](https://github.com/eyereasoner/eyemind/blob/main/examples/type-inference.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/type-inference.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/type-inference.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/type-inference.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=type-inference)
 
 ---
 
@@ -19,7 +19,7 @@ Given six small programs, **what is the type of each?** And why?
 
 ---
 
-## What we tell eyecode: the programs
+## What we tell eyemind: the programs
 
 ```js
 fact(program('id', lam('x', 't0', ref('x'))))
@@ -36,7 +36,7 @@ if-then-else. `t0`, `t1`, `t2` are just names for placeholder types.
 
 ---
 
-## What we tell eyecode: the typing rules
+## What we tell eyemind: the typing rules
 
 ```js
 fact(lookup(Name, [[Name, Type], ..._], Type))
@@ -61,7 +61,7 @@ shared variable `ArgType` makes them agree.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 type_answer('id', fun('t0', 't0'))
@@ -110,11 +110,11 @@ A separate checker read all 53 proof steps against the program:
 ## Try it
 
 ```sh
-eyecode examples/type-inference.js            # the types
-eyecode --proof examples/type-inference.js    # with their proof
+eyemind examples/type-inference.js            # the types
+eyemind --proof examples/type-inference.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=type-inference).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=type-inference).
 
 Add these programs and run again:
 
@@ -133,6 +133,6 @@ of different types, do not fit. `second_of_pair` is `'int'`, and `shadow` is
 
 ## Takeaway
 
-Typing rules are usually written as logic on paper. Written as eyecode
+Typing rules are usually written as logic on paper. Written as eyemind
 rules, they run as a type checker — and every type it reports comes with a
 checked derivation, the same kind a textbook would draw by hand.

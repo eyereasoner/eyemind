@@ -2,7 +2,7 @@
 
 *Solving equations up to x⁴ with formulas from the 1500s and 1700s.*
 
-[polynomial.js](https://github.com/eyereasoner/eyecode/blob/main/examples/polynomial.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/polynomial.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/polynomial.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/polynomial.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=polynomial)
+[polynomial.js](https://github.com/eyereasoner/eyemind/blob/main/examples/polynomial.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/polynomial.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/polynomial.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/polynomial.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=polynomial)
 
 ---
 
@@ -16,11 +16,11 @@ quartic one by reducing it to a cubic.
 called the **roots** of the polynomial. Here they are 1, 2, 3 and 4.
 
 The program is the solver of Alain Colmerauer, one of the creators of
-Prolog, adapted for eyecode. His comments are kept in French.
+Prolog, adapted for eyemind. His comments are kept in French.
 
 ---
 
-## What we tell eyecode: the numbers
+## What we tell eyemind: the numbers
 
 A polynomial is the list of its **coefficients**, the numbers in front of
 each power of x, highest power first. Each number is a **complex number**: an
@@ -39,7 +39,7 @@ i and 1+i.
 
 ---
 
-## What we tell eyecode: the method
+## What we tell eyemind: the method
 
 ```js
 implied_by(roots(P, L), findall(Z, racine(P, Z), L))
@@ -68,7 +68,7 @@ multiplying it by each root of one (`racarreeun`, `racubiqueun`).
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 roots([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]])
@@ -99,7 +99,7 @@ out here. To see it, ask for one root at a time (see "Try it").
 Verdict: **checked_with_obligations**. 2 steps verified, and 2 obligations.
 
 Both obligations are of the kind called `collected`: the claim that each
-list contains *all* the roots `racine` can find. That comes from eyecode's
+list contains *all* the roots `racine` can find. That comes from eyemind's
 complete search, and the checker records it rather than proving it; it
 confirmed that nothing in the proof contradicts either list.
 
@@ -111,9 +111,9 @@ every calculation in it, and no obligations at all.
 ## Try it
 
 ```sh
-eyecode examples/polynomial.js
-eyecode --proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" examples/polynomial.js > /tmp/cubic.js
-eyecode --strict-proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" --check-proof /tmp/cubic.js examples/polynomial.js
+eyemind examples/polynomial.js
+eyemind --proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" examples/polynomial.js > /tmp/cubic.js
+eyemind --strict-proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" --check-proof /tmp/cubic.js examples/polynomial.js
 ```
 
 The second command solves the cubic x³ − 6x² + 11x − 6 one root at a time:

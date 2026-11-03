@@ -2,7 +2,7 @@
 
 *Counting with nothing but zero and "one more" — and getting 5! = 120 out of it.*
 
-[peano.js](https://github.com/eyereasoner/eyecode/blob/main/examples/peano.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/peano.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/peano.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/peano.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=peano)
+[peano.js](https://github.com/eyereasoner/eyemind/blob/main/examples/peano.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/peano.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/peano.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/peano.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=peano)
 
 ---
 
@@ -34,7 +34,7 @@ arithmetic is used anywhere in this example.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 // add(A, B, C) means A + B = C: A + 0 = A, and A + (B + 1) = (A + B) + 1.
@@ -60,7 +60,7 @@ things at once, and each result feeds the next.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 The first question runs addition *backward* — the sum is known, the parts
 are not — and finds every split of 3:
@@ -108,15 +108,15 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/peano.js            # the answers
-eyecode --proof examples/peano.js    # answers with their proof
-eyecode --goal "add(A, B, s(s(s('zero'))))" examples/peano.js
+eyemind examples/peano.js            # the answers
+eyemind --proof examples/peano.js    # answers with their proof
+eyemind --goal "add(A, B, s(s(s('zero'))))" examples/peano.js
 ```
 
 `--goal` asks your own question instead of the program's. Try
 `--goal "multiply(s(s('zero')), s(s(s('zero'))), P)"`: 2 × 3 comes back as
 `s(s(s(s(s(s('zero'))))))`, which is 6.
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=peano).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=peano).
 
 ---
 

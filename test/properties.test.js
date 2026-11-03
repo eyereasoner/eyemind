@@ -16,21 +16,21 @@
 //   a clause no derivation cites, or stating the clauses in another order,
 //   does not change the fixpoint.
 // - Every term reads back from its canonical text as itself.
-// - The document reader returns terms or raises an EyecodeError on any text,
+// - The document reader returns terms or raises an EyemindError on any text,
 //   and never runs any of it.
 //
 // Each property runs a fixed number of seeded cases, so a run is repeatable
-// and a failure names the seed that reproduces it. EYECODE_PROPERTY_SCALE
+// and a failure names the seed that reproduces it. EYEMIND_PROPERTY_SCALE
 // multiplies the number of cases for a deeper search.
 import { readFileSync } from 'node:fs';
-import { EyecodeError, Program, Struct, Var, checkProof, publicReport, readTerm, readTerms, run, write } from '../src/index.js';
+import { EyemindError, Program, Struct, Var, checkProof, publicReport, readTerm, readTerms, run, write } from '../src/index.js';
 import { shortcuts } from '../src/proof.js';
 import { apply } from '../src/arith.js';
 import { compareText, identity } from '../src/terms.js';
 import { artifactPath, loadExample, readManifest } from '../tools/corpus.js';
 import { assert, program } from './helpers.js';
 
-const SCALE = Math.max(1, Number(process.env.EYECODE_PROPERTY_SCALE) || 1);
+const SCALE = Math.max(1, Number(process.env.EYEMIND_PROPERTY_SCALE) || 1);
 
 // A small, fast, seeded generator (mulberry32).
 function random(seed) {
@@ -271,9 +271,9 @@ function forgeExample(entry, text, count) {
     try {
       report = checkBothWays(example.program, document);
     } catch (error) {
-      // A checker error is a rejection too, but it must be one of eyecode's.
+      // A checker error is a rejection too, but it must be one of eyemind's.
       if (error instanceof assert.AssertionError) throw error;
-      assert.ok(error instanceof EyecodeError, `${error.stack}\n${document}`);
+      assert.ok(error instanceof EyemindError, `${error.stack}\n${document}`);
       rejected++;
       return;
     }
@@ -494,8 +494,8 @@ function circularProof({ facts, rules }, model) {
 
 // --- Documents -----------------------------------------------------------
 
-const HOSTILE = ['globalThis.__eyecodeRan = 1', 'process.exit(3)', '(() => { globalThis.__eyecodeRan = 1 })()',
-  '`${globalThis.__eyecodeRan = 1}`', 'f(globalThis.__eyecodeRan = 1)', 'new Function("globalThis.__eyecodeRan = 1")()',
+const HOSTILE = ['globalThis.__eyemindRan = 1', 'process.exit(3)', '(() => { globalThis.__eyemindRan = 1 })()',
+  '`${globalThis.__eyemindRan = 1}`', 'f(globalThis.__eyemindRan = 1)', 'new Function("globalThis.__eyemindRan = 1")()',
   'f(a)(b)', 'import("node:fs")', 'f(...g)', '/x/.exec("x")', 'f(0x10)', 'f(1_000)', 'f(NaN)', 'f(this)'];
 
 function mutateText(r, text) {
@@ -640,24 +640,24 @@ export const tests = {
     });
   },
 
-  'the reader gives terms or an EyecodeError and never runs the text'() {
-    delete globalThis.__eyecodeRan;
+  'the reader gives terms or an EyemindError and never runs the text'() {
+    delete globalThis.__eyemindRan;
     const seeds = [...HOSTILE, ...Array.from({ length: 40 }, (_, i) => write(randomTerm(random(10000 + i))))];
     forSeeds(2000, (r) => {
       const text = mutateText(r, r.chance(0.3) ? r.pick(HOSTILE) : r.pick(seeds));
       try {
         readTerms(text);
       } catch (error) {
-        assert.ok(error instanceof EyecodeError, `${JSON.stringify(text)}: ${error.stack}`);
+        assert.ok(error instanceof EyemindError, `${JSON.stringify(text)}: ${error.stack}`);
       }
-      assert.equal(globalThis.__eyecodeRan, undefined, `${JSON.stringify(text)} ran`);
+      assert.equal(globalThis.__eyemindRan, undefined, `${JSON.stringify(text)} ran`);
     });
     for (const text of HOSTILE) {
-      assert.throws(() => readTerms(text), EyecodeError, text);
+      assert.throws(() => readTerms(text), EyemindError, text);
     }
     // A call of a plain name is data, whatever the name means in JavaScript.
-    assert.equal(write(readTerm('eval("globalThis.__eyecodeRan = 1")')), "eval('globalThis.__eyecodeRan = 1')");
-    assert.equal(globalThis.__eyecodeRan, undefined);
+    assert.equal(write(readTerm('eval("globalThis.__eyemindRan = 1")')), "eval('globalThis.__eyemindRan = 1')");
+    assert.equal(globalThis.__eyemindRan, undefined);
   },
 };
 

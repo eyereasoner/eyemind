@@ -6,7 +6,7 @@
 // The queries multiply and raise to powers numbers from 0 up to 34 digits;
 // for instance 238 * 13 = 3094 and 238^13 = 7861409907565911395902147452928,
 // and 8367238^2713 comes out with every one of its digits. This shows
-// eyecode's exact integer arithmetic, used through is(...) in backward rules.
+// eyemind's exact integer arithmetic, used through is(...) in backward rules.
 
 // prod([X, Y], Z) means X * Y = Z. Halve X and double Y; when X is odd, the
 // row's Y is added to the product of the halved row.
@@ -52,7 +52,7 @@ query(prod([5, 6], _))
 query(prod([238, 13], _))
 query(prod([8367238, 27133], _))
 // Integers beyond 2^53 are written as BigInt literals (with an n) so that
-// JavaScript does not round them before eyecode sees them.
+// JavaScript does not round them before eyemind sees them.
 query(prod([62713345408367238n, 40836723862713345n], _))
 query(prod([4083672386271334562713345408367238n, 4083672386271334562713345408367238n], _))
 query(pow([3, 0], _))

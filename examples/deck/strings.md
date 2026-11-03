@@ -2,7 +2,7 @@
 
 *Building and taking apart text — accents and emoji included.*
 
-[strings.js](https://github.com/eyereasoner/eyecode/blob/main/examples/strings.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/strings.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/strings.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/strings.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=strings)
+[strings.js](https://github.com/eyereasoner/eyemind/blob/main/examples/strings.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/strings.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/strings.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/strings.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=strings)
 
 ---
 
@@ -27,13 +27,13 @@ list that gives each character — Latin, Greek, Chinese, emoji — its own
 number, called a *code point*.
 
 Some characters take several bytes to store, which is why naive programs
-sometimes count `café` as 5 letters instead of 4. eyecode counts code
+sometimes count `café` as 5 letters instead of 4. eyemind counts code
 points: `é` is one character, and 😀 is one code, not the two 16-bit units
 JavaScript itself stores it as.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 implied_by(label(Name, Label), atom_concat('hello_', Name, Label))
@@ -54,7 +54,7 @@ They are used in ordinary rules; there is no special syntax for text.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 label('alice', 'hello_alice')
@@ -97,11 +97,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/strings.js            # the answers
-eyecode --proof examples/strings.js    # answers with their proof
+eyemind examples/strings.js            # the answers
+eyemind --proof examples/strings.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=strings).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=strings).
 Add `query(characters('Zoë', Chars, Length))` and run again: you get
 `characters('Zoë', ['Z', 'o', 'ë'], 3)`.
 

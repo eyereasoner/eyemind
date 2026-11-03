@@ -2,7 +2,7 @@
 
 *Talking about a statement without making it.*
 
-[rdf12-triple-term.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-triple-term.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/rdf12-triple-term.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/rdf12-triple-term.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/rdf12-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-triple-term)
+[rdf12-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-triple-term)
 
 ---
 
@@ -16,7 +16,7 @@ sentence is, but not asserted.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 const ex = 'https://example.org/'
@@ -38,7 +38,7 @@ syntax, just unification.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 Bob knows Carol, now as a statement of its own:
 
@@ -73,15 +73,15 @@ Verdict: **checked**. All 2 steps verified, and nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/rdf12-triple-term.js                       # the results as quads
-eyecode --proof examples/rdf12-triple-term.js               # with their proof
-eyecode examples/rdf12-triple-term.js > out.js && eyecode-to-rdf out.js -o out.ttl
+eyemind examples/rdf12-triple-term.js                       # the results as quads
+eyemind --proof examples/rdf12-triple-term.js               # with their proof
+eyemind examples/rdf12-triple-term.js > out.js && eyemind-to-rdf out.js -o out.ttl
 ```
 
-`eyecode-to-rdf` and `rdf-to-eyecode` come with
+`eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
-they turn eyecode's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-triple-term).
+they turn eyemind's quads into RDF and RDF into quads.
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-triple-term).
 Add a second claim about who knows whom and run again: the rule asserts it too.
 
 ---

@@ -2,7 +2,7 @@
 
 *Web data, quoted statements and placeholder names, without any new syntax.*
 
-[terms.js](https://github.com/eyereasoner/eyecode/blob/main/examples/terms.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/terms.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/terms.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/terms.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=terms)
+[terms.js](https://github.com/eyereasoner/eyemind/blob/main/examples/terms.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/terms.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/terms.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/terms.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=terms)
 
 ---
 
@@ -20,7 +20,7 @@ claiming they are true — a **quoted graph**, like quoting someone's words.
 
 ---
 
-## What we tell eyecode: the data
+## What we tell eyemind: the data
 
 Everything is written as ordinary nested terms:
 
@@ -49,7 +49,7 @@ Read from the inside out:
 
 ---
 
-## What we tell eyecode: the rules
+## What we tell eyemind: the rules
 
 ```js
 // List membership, and a triple's membership of a graph.
@@ -66,12 +66,12 @@ implies(quoted(X), witness(X, W))
 - `witness` has a `W` that the rule never fills in: it states that
   something exists. More on that below.
 
-Rules match these terms by unification, like any other data; eyecode has no
+Rules match these terms by unification, like any other data; eyemind has no
 special support for them.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))
@@ -82,7 +82,7 @@ witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p')
 - In the `witness`, the unknown `W` became a **Skolem term**,
   `skolem(6, 'W', [the graph])`, built from the rule's number (6), the
   variable's name and the graph it was made for: a name meaning "the `W` that rule 6 says
-  exists for this graph". eyecode invents such names when a conclusion mentions
+  exists for this graph". eyemind invents such names when a conclusion mentions
   something the rule never pinned down; the same graph always gives the same
   name, and nothing else can.
 
@@ -122,11 +122,11 @@ A quoted graph is just data: its triple is *found*, not *asserted* as true.
 ## Try it
 
 ```sh
-eyecode examples/terms.js            # the answers
-eyecode --proof examples/terms.js    # answers with their proof
+eyemind examples/terms.js            # the answers
+eyemind --proof examples/terms.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=terms).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=terms).
 Add a second triple to the list, for example
 `triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hallo', lang('nl')))`,
 and run again: two `found` lines appear, one for "hello" in English and one

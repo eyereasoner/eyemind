@@ -57,6 +57,9 @@ export const tests = [
   ['the socrates example loads and runs', async (page, base) => {
     const p = driver(page);
     await p.open(`${base}#example=socrates`);
+    assert.equal(await page.evaluate('document.title'), 'The eyemind Playground');
+    assert.equal(await page.evaluate("document.querySelector('h1').textContent"), 'The eyemind Playground');
+    assert.equal(await page.evaluate("document.querySelector('a[href=\"https://github.com/eyereasoner/eyemind\"]').textContent"), 'Repository ↗');
     assert.equal(await page.evaluate("document.getElementById('version').textContent"), expected);
     assert.equal(await page.evaluate("document.getElementById('examples').value"), 'socrates');
     await p.run();
@@ -75,7 +78,7 @@ export const tests = [
     await p.type('proof-input', proof);
     await p.run();
     assert.match(await p.output(), /verdict\('checked'\)/);
-    assert.match(await page.evaluate("document.getElementById('command').textContent"), /^eyecode --check-proof proof\.js examples\/socrates\.js$/);
+    assert.match(await page.evaluate("document.getElementById('command').textContent"), /^eyemind --check-proof proof\.js examples\/socrates\.js$/);
     await p.select('mode', '');
   }],
 
@@ -93,7 +96,7 @@ export const tests = [
     await p.type('input', "fact(p(1))\nfact(q(2)\nquery(p(X))\n");
     await p.run();
     assert.match(await p.status(), /^Failed · exit 1/);
-    assert.match(await p.messages(), /^eyecode: line 2: missing \) after argument list/);
+    assert.match(await p.messages(), /^eyemind: line 2: missing \) after argument list/);
     assert.equal(await p.marked(), 'fact(q(2)');
     // Editing the input clears the mark.
     await p.type('input', "fact(p(1))\nfact(q(2))\nquery(p(X))\n");
@@ -107,12 +110,12 @@ export const tests = [
     const p = driver(page);
     await p.type('input', "fact(p(1))\n\nfcat(q(2))\n");
     await p.run();
-    assert.match(await p.messages(), /^eyecode: line 3: fcat\(\.\.\.\) on its own states nothing/);
+    assert.match(await p.messages(), /^eyemind: line 3: fcat\(\.\.\.\) on its own states nothing/);
     assert.equal(await p.marked(), 'fcat(q(2))');
     // A line holding nothing but the stray token is marked as well.
     await p.type('input', "fact(p(1))\n\n)\n");
     await p.run();
-    assert.match(await p.messages(), /^eyecode: line 3: /);
+    assert.match(await p.messages(), /^eyemind: line 3: /);
     assert.equal(await p.marked(), ')');
   }],
 

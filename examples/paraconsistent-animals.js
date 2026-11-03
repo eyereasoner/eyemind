@@ -10,7 +10,7 @@
 // properties with no evidence, such as whether nemo flies.
 //
 // It shows stratified negation: the summaries use not(...) over conclusions of
-// earlier rules, so eyecode derives them only after those rules are complete.
+// earlier rules, so eyemind derives them only after those rules are complete.
 
 fact(bird('tweety'))
 fact(penguin('tweety'))

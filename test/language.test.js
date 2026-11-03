@@ -3,6 +3,20 @@ import { loadText, run } from '../src/index.js';
 import { assert, program, throwsMatching } from './helpers.js';
 
 export const tests = {
+  'programs reach the library as eyemind'() {
+    const source = program(`
+const inner = eyemind.build(() => {
+  fact(p(1))
+  query(p(X))
+})
+const result = eyemind.run(inner, { proof: true })
+fact(eyemind.readTerm(result.answers[0]))
+facts_from({ text: eyemind.checkReport(eyemind.checkProof(inner, result.proof)) })
+query(p(X), verdict(V))
+`);
+    assert.deepEqual(run(source).answers, ["and(p(1), verdict('checked'))"]);
+  },
+
   'socrates without declarations'() {
     const source = program(`
 fact(type('socrates', 'human'))

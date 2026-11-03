@@ -25,7 +25,7 @@ export function proven(source, options = {}) {
   return result;
 }
 
-// The command line, run in this process: what the eyecode command does with
+// The command line, run in this process: what the eyemind command does with
 // these arguments and standard input, from the repository, with Node's file
 // access. Starting Node for each call would cost far more than most calls
 // take. An error main does not report itself ends the command with code 1.
@@ -49,10 +49,10 @@ export function cli(args, stdin = '') {
   }
 }
 
-// The eyecode command as a process of its own, for what only a process
+// The eyemind command as a process of its own, for what only a process
 // shows: its standard streams, a pipe between two runs, and its exit code.
 export function command(args, stdin = '') {
-  const result = spawnSync(process.execPath, [join(ROOT, 'bin', 'eyecode.js'), ...args], {
+  const result = spawnSync(process.execPath, [join(ROOT, 'bin', 'eyemind.js'), ...args], {
     cwd: ROOT, input: stdin, encoding: 'utf8',
   });
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };

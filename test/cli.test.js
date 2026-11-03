@@ -1,13 +1,22 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { VERSION } from '../src/index.js';
+import { EyemindError, VERSION, readTerm } from '../src/index.js';
 import { main } from '../src/cli.js';
 import { ROOT, assert, cli, command } from './helpers.js';
 
 const SOCRATES = "type('socrates', 'mortal')\ntype('socrates', 'human')\n";
 
 export const tests = {
+  'the package exposes the eyemind command and error'() {
+    const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
+    assert.equal(pkg.name, 'eyemind');
+    assert.deepEqual(pkg.bin, { eyemind: 'bin/eyemind.js' });
+    assert.equal(command(['--help']).code, 0);
+    assert.match(command(['--help']).stdout, /^Usage: eyemind /);
+    assert.throws(() => readTerm('('), (error) => error instanceof EyemindError && error.name === 'EyemindError');
+  },
+
   'runs files stdin multiple sources and goals'() {
     assert.equal(cli(['examples/socrates.js']).stdout, SOCRATES);
     assert.equal(cli([], "fact(p('a'))\nimplies(p(X), q(X))\n").stdout, "q('a')\n");
@@ -18,7 +27,7 @@ export const tests = {
   'output written by main goes through the io it is given'() {
     const out = [];
     assert.equal(main(['--help'], { stdout: (text) => out.push(text), stderr: () => {}, stdin: () => '', readFile: () => '' }), 0);
-    assert.match(out.join(''), /^Usage: eyecode/);
+    assert.match(out.join(''), /^Usage: eyemind/);
   },
 
   'proof generation pipes into proof checking'() {
@@ -48,7 +57,7 @@ export const tests = {
     for (const [flag, ran] of [['-v', command], ['--version', cli]]) {
       const result = ran([flag, 'examples/socrates.js']);
       assert.equal(result.code, 0);
-      assert.equal(result.stdout, `eyecode v${VERSION}\n`);
+      assert.equal(result.stdout, `eyemind v${VERSION}\n`);
     }
   },
 
@@ -69,7 +78,7 @@ export const tests = {
   },
 
   'help errors stats and fuse exit codes'() {
-    assert.ok(cli(['--help']).stdout.includes('Usage: eyecode'));
+    assert.ok(cli(['--help']).stdout.includes('Usage: eyemind'));
     assert.equal(cli(['--unknown']).code, 1);
     assert.equal(cli(['--max-depth', '0']).code, 1);
     assert.equal(cli(['--check-proof', '-']).code, 1);
@@ -83,7 +92,7 @@ export const tests = {
         const result = cli([option, value], '');
         assert.equal(result.code, 1);
         assert.equal(result.stdout, '');
-        assert.equal(result.stderr, `eyecode: ${option} needs a positive safe integer\n`);
+        assert.equal(result.stderr, `eyemind: ${option} needs a positive safe integer\n`);
       }
     }
   },

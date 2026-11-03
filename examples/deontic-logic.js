@@ -13,7 +13,7 @@
 // The rulebook is illustrative and says nothing about legal compliance. It
 // shows deontic notions as plain relations, and stratified negation: a
 // violation counts as uncompensated when no compensation was concluded for
-// it, which eyecode decides only after the compensation rule has finished.
+// it, which eyemind decides only after the compensation rule has finished.
 
 // The norms.
 fact(obliged('alice', 'obtain_consent'))

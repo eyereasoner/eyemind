@@ -2,7 +2,7 @@
 
 *Who said it, and when.*
 
-[rdf12-annotation.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-annotation.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/rdf12-annotation.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/rdf12-annotation.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/rdf12-annotation.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-annotation)
+[rdf12-annotation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-annotation.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-annotation.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-annotation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-annotation.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-annotation)
 
 ---
 
@@ -16,7 +16,7 @@ stated it on 15 January 2025. That is how RDF 1.2 annotates a triple.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 implies(
@@ -42,7 +42,7 @@ its datatype travel together, so it returns to RDF unchanged.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 The triple with its reifier and both annotations:
 
@@ -82,15 +82,15 @@ Verdict: **checked**. All 9 steps verified, and nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/rdf12-annotation.js                        # the results as quads
-eyecode --proof examples/rdf12-annotation.js                # with their proof
-eyecode examples/rdf12-annotation.js > out.js && eyecode-to-rdf out.js -o out.ttl
+eyemind examples/rdf12-annotation.js                        # the results as quads
+eyemind --proof examples/rdf12-annotation.js                # with their proof
+eyemind examples/rdf12-annotation.js > out.js && eyemind-to-rdf out.js -o out.ttl
 ```
 
-`eyecode-to-rdf` and `rdf-to-eyecode` come with
+`eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
-they turn eyecode's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-annotation).
+they turn eyemind's quads into RDF and RDF into quads.
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-annotation).
 Remove the asserted name triple and run again: the reifier alone is not enough, and nothing follows.
 
 ---

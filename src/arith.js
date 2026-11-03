@@ -1,12 +1,12 @@
 // Arithmetic evaluation with exact integers and IEEE-754 floats.
 //
 // An expression term has the meaning the same operation has in Python, the
-// reference for eyecode's arithmetic: integers are unbounded and exact, floats
+// reference for eyemind's arithmetic: integers are unbounded and exact, floats
 // are doubles, div is true division, floordiv and mod are floor division and
 // modulo, pow is exact on integers with a nonnegative exponent, and and, or,
 // xor, not, shl and shr are bitwise on integers. A result that is not a finite
 // real number is an error, never a value.
-import { EyecodeError, Var, compareNumbers, deref } from './terms.js';
+import { EyemindError, Var, compareNumbers, deref } from './terms.js';
 
 // A power or shift whose result would need more bits than this is refused
 // rather than allowed to exhaust memory.
@@ -376,10 +376,10 @@ export function evaluate(term, env) {
   term = deref(term, env);
   const type = typeof term;
   if (type === 'bigint' || type === 'number') return term;
-  if (term instanceof Var) throw new EyecodeError('arithmetic needs a bound expression, found an unbound variable');
+  if (term instanceof Var) throw new EyemindError('arithmetic needs a bound expression, found an unbound variable');
   if (type === 'string') {
     if (Object.hasOwn(CONSTANTS, term)) return CONSTANTS[term];
-    throw new EyecodeError(`'${term}' is not an arithmetic value`);
+    throw new EyemindError(`'${term}' is not an arithmetic value`);
   }
   const values = term.args.map((arg) => evaluate(arg, env));
   return apply(term.name, values);
@@ -391,20 +391,20 @@ export function apply(name, values) {
   if (arity === 2 && Object.hasOwn(BINARY, name)) fn = BINARY[name];
   else if (arity === 1 && Object.hasOwn(UNARY, name)) fn = UNARY[name];
   else if (Object.hasOwn(FUNCTIONS, name) && accepts(name, arity)) fn = FUNCTIONS[name];
-  else throw new EyecodeError(`${name}/${arity} is not an arithmetic function`);
+  else throw new EyemindError(`${name}/${arity} is not an arithmetic function`);
   let result;
   try {
     result = fn(...values);
   } catch (error) {
     if (!(error instanceof Problem)) throw error;
     const reason = error.message;
-    if (reason.startsWith('resource: ')) throw new EyecodeError(`arithmetic ${reason}`);
-    if (reason === 'division by zero') throw new EyecodeError(`arithmetic: division by zero in ${name}`);
-    if (reason === 'overflow') throw new EyecodeError(`arithmetic: overflow in ${name}`);
-    throw new EyecodeError(`arithmetic: ${name} ${reason}`);
+    if (reason.startsWith('resource: ')) throw new EyemindError(`arithmetic ${reason}`);
+    if (reason === 'division by zero') throw new EyemindError(`arithmetic: division by zero in ${name}`);
+    if (reason === 'overflow') throw new EyemindError(`arithmetic: overflow in ${name}`);
+    throw new EyemindError(`arithmetic: ${name} ${reason}`);
   }
   if (typeof result === 'number' && !Number.isFinite(result)) {
-    throw new EyecodeError(`arithmetic: ${name} has no finite result`);
+    throw new EyemindError(`arithmetic: ${name} has no finite result`);
   }
   return result;
 }

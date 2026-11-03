@@ -2,7 +2,7 @@
 
 *Working out (2 × 3) + (10 − 4), and showing every intermediate result.*
 
-[expression-eval.js](https://github.com/eyereasoner/eyecode/blob/main/examples/expression-eval.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/expression-eval.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/expression-eval.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/expression-eval.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=expression-eval)
+[expression-eval.js](https://github.com/eyereasoner/eyemind/blob/main/examples/expression-eval.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/expression-eval.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/expression-eval.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/expression-eval.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=expression-eval)
 
 ---
 
@@ -17,7 +17,7 @@ computed?
 
 ---
 
-## What we tell eyecode: the formula
+## What we tell eyemind: the formula
 
 Every part of the formula gets a name, called a **node**:
 
@@ -39,7 +39,7 @@ fact(root('example', 'total'))
 
 ---
 
-## What we tell eyecode: how to evaluate
+## What we tell eyemind: how to evaluate
 
 ```js
 // A node's value is its literal, or its operation applied to its children's values.
@@ -67,7 +67,7 @@ plain numbers.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 result('example', 12)
@@ -106,11 +106,11 @@ Verdict: **checked**. All 22 steps verified, nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/expression-eval.js
-eyecode --proof examples/expression-eval.js
+eyemind examples/expression-eval.js
+eyemind --proof examples/expression-eval.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=expression-eval).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=expression-eval).
 Change `fact(literal('n4', 4))` to `fact(literal('n4', 1))` and run again: the
 difference becomes 9 and the answer `result('example', 15)`.
 

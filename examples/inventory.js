@@ -4,7 +4,7 @@
 // forward rule collects the line totals with findall and adds them up: the
 // invoice totals 28.
 //
-// The collection must see every line total, so eyecode runs it only after
+// The collection must see every line total, so eyemind runs it only after
 // the line totals have all been derived: the findall rule sits in a later
 // stratum than the rule that makes line totals.
 

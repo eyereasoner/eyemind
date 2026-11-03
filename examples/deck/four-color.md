@@ -2,7 +2,7 @@
 
 *Colouring the map of the European Union so that no neighbours match.*
 
-[four-color.js](https://github.com/eyereasoner/eyecode/blob/main/examples/four-color.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/four-color.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/four-color.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/four-color.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=four-color)
+[four-color.js](https://github.com/eyereasoner/eyemind/blob/main/examples/four-color.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/four-color.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/four-color.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/four-color.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=four-color)
 
 ---
 
@@ -12,12 +12,12 @@ Mapmakers like neighbouring countries to have different colours. A famous
 result, the *four colour theorem*, says four colours are always enough for
 any flat map.
 
-**Can eyecode colour the 27 countries of the European Union with red, green,
+**Can eyemind colour the 27 countries of the European Union with red, green,
 blue and yellow, so that no two neighbours share a colour?**
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 The map, as a list of neighbours for each country:
 
@@ -51,7 +51,7 @@ implied_by(
 Countries are coloured one at a time, starting from the end of the list.
 Each takes the first colour from red, green, blue, yellow that *no*
 already-coloured neighbour has. `not(...)` means "it is not the case that": here,
-there is no conflict. If a country is left without a colour, eyecode
+there is no conflict. If a country is left without a colour, eyemind
 backtracks and revisits earlier choices.
 
 The query starts from a list of `[Country, Colour]` pairs that `findall`
@@ -60,7 +60,7 @@ colouring.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 One colouring of all 27 countries (excerpt):
 
@@ -98,7 +98,7 @@ listed as **obligations**:
 - **1 collected**: the list of countries gathered with `findall` ("find
   all") is assumed to be the complete map;
 - **27 absent**: one per country, "this colour clashes with no coloured
-  neighbour". eyecode searched and found no clash; the checker records that
+  neighbour". eyemind searched and found no clash; the checker records that
   rather than proving a negative.
 
 The checker did look for evidence against all 28 and found none.
@@ -110,7 +110,7 @@ Verdict: **checked_with_obligations**. 95 steps, 28 on trust.
 ## Try it
 
 ```sh
-eyecode examples/four-color.js
+eyemind examples/four-color.js
 ```
 
 Swap the colour order to `['yellow', 'blue', 'green', 'red']`: you get a
@@ -124,5 +124,5 @@ and Ireland turns green.
 ## Takeaway
 
 A search that says "no clash here" is making a claim about what is *not*
-there. eyecode finds the colouring, shows each choice, and lists exactly which
+there. eyemind finds the colouring, shows each choice, and lists exactly which
 of those "nothing found" claims you are trusting.

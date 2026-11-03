@@ -2,7 +2,7 @@
 
 *The river crossing puzzle, with the shortest answer shown to be shortest.*
 
-[wolf-goat-cabbage.js](https://github.com/eyereasoner/eyecode/blob/main/examples/wolf-goat-cabbage.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/wolf-goat-cabbage.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/wolf-goat-cabbage.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/wolf-goat-cabbage.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=wolf-goat-cabbage)
+[wolf-goat-cabbage.js](https://github.com/eyereasoner/eyemind/blob/main/examples/wolf-goat-cabbage.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/wolf-goat-cabbage.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/wolf-goat-cabbage.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/wolf-goat-cabbage.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=wolf-goat-cabbage)
 
 ---
 
@@ -17,7 +17,7 @@ plan is one thing; showing no shorter plan exists is another.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 A situation lists which bank, west (`'w'`) or east (`'e'`), the farmer,
 wolf, goat and cabbage are on, in that order. Everyone starts west.
@@ -74,7 +74,7 @@ situation twice.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 wolf_goat_cabbage_verified(7)
@@ -109,7 +109,7 @@ The proof checks that every in-between situation is safe.
   calculations are recomputed, and the `once(...)` choice is rechecked from
   its parts.
 - **1** step is taken on trust, as an *absent* obligation: "there is no
-  shorter solution". eyecode searched every plan of 0 to 6 crossings and
+  shorter solution". eyemind searched every plan of 0 to 6 crossings and
   found none; the checker records that rather than proving a negative.
 
 Verdict: **checked_with_obligations**. 72 steps, 1 on trust. So the plans
@@ -120,12 +120,12 @@ are fully checked; the claim *"7 is the minimum"* is the obligation.
 ## Try it
 
 ```sh
-eyecode examples/wolf-goat-cabbage.js            # the answers
-eyecode --proof examples/wolf-goat-cabbage.js    # answers with their proof
+eyemind examples/wolf-goat-cabbage.js            # the answers
+eyemind --proof examples/wolf-goat-cabbage.js    # answers with their proof
 ```
 
 Change `in_range(0, 6, N)` to `in_range(0, 7, N)`. Now "a shorter solution"
-includes 7-crossing plans, which exist, so the claim fails and eyecode prints
+includes 7-crossing plans, which exist, so the claim fails and eyemind prints
 nothing at all.
 
 ---
@@ -133,5 +133,5 @@ nothing at all.
 ## Takeaway
 
 "Here is a plan" and "no better plan exists" are different kinds of claim.
-eyecode proves the first step by step, and labels the second clearly as the
+eyemind proves the first step by step, and labels the second clearly as the
 part that rests on an exhaustive search.

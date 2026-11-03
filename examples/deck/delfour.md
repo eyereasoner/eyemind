@@ -2,7 +2,7 @@
 
 *A store scanner that gives diabetes-aware advice without ever learning about the diabetes.*
 
-[delfour.js](https://github.com/eyereasoner/eyecode/blob/main/examples/delfour.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/delfour.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/delfour.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/delfour.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=delfour)
+[delfour.js](https://github.com/eyereasoner/eyemind/blob/main/examples/delfour.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/delfour.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/delfour.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/delfour.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=delfour)
 
 The scenario is the one Ruben Verborgh describes in [*Inside the insight economy*](https://ruben.verborgh.org/blog/2025/08/12/inside-the-insight-economy/).
 
@@ -139,7 +139,7 @@ banner says which aisle it is in.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 decision('delfour', 'Allowed', 'sugar_insight')
@@ -193,9 +193,9 @@ the HMAC, so the check vouches for that statement, not for the bytes.
 ## Try it
 
 ```sh
-eyecode examples/delfour.js
-eyecode --proof examples/delfour.js > delfour.proof.js
-eyecode --check-proof delfour.proof.js examples/delfour.js
+eyemind examples/delfour.js
+eyemind --proof examples/delfour.js > delfour.proof.js
+eyemind --check-proof delfour.proof.js examples/delfour.js
 ```
 
 - Scan `'prod_CHOC_050'`, the 15 g Milk Chocolate Bar. It is flagged, and the

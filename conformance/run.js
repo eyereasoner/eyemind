@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// Run the eyecode conformance suite against an implementation.
+// Run the eyemind conformance suite against an implementation.
 //
 //     node conformance/run.js                          every case, in this process
-//     node conformance/run.js --command "my-eyecode"    against another implementation
+//     node conformance/run.js --command "my-eyemind"    against another implementation
 //     node conformance/run.js -k skolem 07-reasoning.js
 //
 // The case format is described in conformance/README.md.
@@ -39,7 +39,7 @@ class Case {
   }
 }
 
-// The cases of one file, an eyecode document: one
+// The cases of one file, an eyemind document: one
 // conformance(Name, [Setting, ...]) term per case, each block an array of
 // its lines (see README.md). The document is read, never run.
 export function parse(path) {
@@ -224,9 +224,9 @@ function runSubprocess(item, command, directory) {
 }
 
 // Run a case in a directory of its own: its exit code, stdout and stderr.
-// Without a command, eyecode runs in this process.
+// Without a command, eyemind runs in this process.
 export function execute(item, command = null) {
-  const directory = mkdtempSync(join(tmpdir(), 'eyecode-conformance-'));
+  const directory = mkdtempSync(join(tmpdir(), 'eyemind-conformance-'));
   try {
     for (const [name, text] of Object.entries(item.files)) {
       const path = join(directory, name);

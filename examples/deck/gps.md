@@ -2,7 +2,7 @@
 
 *Plan a trip from Gent to Oostende that stays within your time, budget and comfort limits.*
 
-[gps.js](https://github.com/eyereasoner/eyecode/blob/main/examples/gps.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/gps.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/gps.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/gps.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=gps)
+[gps.js](https://github.com/eyereasoner/eyemind/blob/main/examples/gps.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/gps.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/gps.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/gps.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=gps)
 
 ---
 
@@ -19,7 +19,7 @@ Jos De Roo, not satellite navigation.
 
 ---
 
-## What we tell eyecode: the map
+## What we tell eyemind: the map
 
 Four possible drives on a partial map of Belgium, each written like this:
 
@@ -46,12 +46,12 @@ fact(
 From Gent to Brugge by the action `'drive_gent_brugge'`, with duration
 1500.0 seconds, cost 0.006, belief 0.96 and comfort 0.99. The drives are one
 way, and cost, belief and comfort are illustrative scores. A whole number like 1500 is
-an exact integer in eyecode; `float(1500)` makes it the decimal 1500.0.
+an exact integer in eyemind; `float(1500)` makes it the decimal 1500.0.
 The other drives are Gent–Kortrijk, Kortrijk–Brugge and Brugge–Oostende.
 
 ---
 
-## What we tell eyecode: the limits
+## What we tell eyemind: the limits
 
 The question names the goal and five limits:
 
@@ -91,7 +91,7 @@ A route that breaks a limit is dropped right there.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 Two routes qualify (lines wrapped to fit):
 
@@ -105,7 +105,7 @@ findpath('map_be', [location('i1', 'oostende'),
 ```
 
 The direct route via Brugge takes 2400; the detour via Kortrijk takes 4100.
-(The long cost figure is how computers store 0.018 in binary.) eyecode
+(The long cost figure is how computers store 0.018 in binary.) eyemind
 reports both routes; it does not weigh the faster one against the other's
 criteria to pick a winner.
 
@@ -142,11 +142,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/gps.js
-eyecode --proof examples/gps.js
+eyemind examples/gps.js
+eyemind --proof examples/gps.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=gps).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=gps).
 Lower the duration limit from `float(5000)` to `float(3000)`: the Kortrijk detour
 (4100) no longer fits, and only the Brugge route remains.
 

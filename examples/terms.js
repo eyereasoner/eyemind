@@ -6,7 +6,7 @@
 // One quoted graph holding one triple is stored as data, not asserted. The
 // program concludes found(...) for the triple inside it, and witness(...)
 // for the graph. The witness rule's head has a variable W that its body
-// never mentions, which states that something exists; eyecode names that
+// never mentions, which states that something exists; eyemind names that
 // something with a Skolem term, skolem(6, 'W', [...]), built from the rule's
 // clause number (6), the variable's name and the graph it was made for.
 

@@ -2,7 +2,7 @@
 
 *Two rules of thumb disagree about one person: which one wins, and why.*
 
-[nixon-diamond.js](https://github.com/eyereasoner/eyecode/blob/main/examples/nixon-diamond.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/nixon-diamond.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/nixon-diamond.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/nixon-diamond.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=nixon-diamond)
+[nixon-diamond.js](https://github.com/eyereasoner/eyemind/blob/main/examples/nixon-diamond.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/nixon-diamond.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/nixon-diamond.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/nixon-diamond.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=nixon-diamond)
 
 ---
 
@@ -20,7 +20,7 @@ to *pacifist* and one to *nonpacifist*: hence the name.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 fact(quaker('nixon'))
@@ -46,13 +46,13 @@ priority.
 
 ## The default waits its turn
 
-Because the default looks at what the nonpacifist rule concludes, eyecode
+Because the default looks at what the nonpacifist rule concludes, eyemind
 runs it only after that rule has finished. This is *stratified negation*:
 the "not found" is never asked before all the contrary evidence is in.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 classification('nixon', 'quaker')
@@ -92,7 +92,7 @@ For Nixon:
 obligation('absent', 'theory_scoped', not(nonpacifist('ada')))
 ```
 
-eyecode searched everything it knows and found no reason to call Ada a
+eyemind searched everything it knows and found no reason to call Ada a
 nonpacifist. The checker records that absence rather than proving it, and
 confirmed that no step in the proof contradicts it.
 
@@ -103,8 +103,8 @@ Verdict: **checked_with_obligations**.
 ## Try it
 
 ```sh
-eyecode examples/nixon-diamond.js
-eyecode --check-proof examples/proof/nixon-diamond.js examples/nixon-diamond.js
+eyemind examples/nixon-diamond.js
+eyemind --check-proof examples/proof/nixon-diamond.js examples/nixon-diamond.js
 ```
 
 Delete the line `fact(republican('nixon'))` and run again: nothing blocks the

@@ -2,7 +2,7 @@
 
 *Packing for an expedition: the most value that fits in 15, and how sure we are.*
 
-[knapsack-optimization.js](https://github.com/eyereasoner/eyecode/blob/main/examples/knapsack-optimization.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/knapsack-optimization.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/knapsack-optimization.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/knapsack-optimization.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=knapsack-optimization)
+[knapsack-optimization.js](https://github.com/eyereasoner/eyemind/blob/main/examples/knapsack-optimization.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/knapsack-optimization.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/knapsack-optimization.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/knapsack-optimization.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=knapsack-optimization)
 
 ---
 
@@ -29,7 +29,7 @@ The weights and values are illustrative scores, not real measurements.
 
 ---
 
-## What we tell eyecode: every possible pack
+## What we tell eyemind: every possible pack
 
 ```js
 fact(subset([], []))
@@ -43,7 +43,7 @@ up a pack's weight and value with `is(..., add(...))`.
 
 ---
 
-## What we tell eyecode: what fits, and what is best
+## What we tell eyemind: what fits, and what is best
 
 ```js
 implies(
@@ -62,11 +62,11 @@ than or equal"). `findall` ("find all") gathers the value of every feasible
 pack into one list; its length is how many packs fit, and its maximum the
 best value. The best pack is a feasible pack with that value.
 
-eyecode collects the list only after every feasible pack is known.
+eyemind collects the list only after every feasible pack is known.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 knapsack_answer('best_pack', ['atlas', 'battery', 'camera', 'medkit', 'sensor'])
@@ -113,11 +113,11 @@ Verdict: **checked_with_obligations**.
 ## Try it
 
 ```sh
-eyecode examples/knapsack-optimization.js            # the answers
-eyecode --proof examples/knapsack-optimization.js    # with their proof
+eyemind examples/knapsack-optimization.js            # the answers
+eyemind --proof examples/knapsack-optimization.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=knapsack-optimization).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=knapsack-optimization).
 Raise the limit to `fact(capacity(20))` and run again: 187 packs fit, and
 the best adds the emergency radio, weighing 20 and worth 51.
 
@@ -125,6 +125,6 @@ the best adds the emergency radio, weighing 20 and worth 51.
 
 ## Takeaway
 
-"The best pack" rests on "and these are all the packs". eyecode checks
+"The best pack" rests on "and these are all the packs". eyemind checks
 every sum behind the answer, and names the one place it relies on a
 complete list.

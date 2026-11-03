@@ -7,7 +7,7 @@
 // This enumerates all routes before choosing, which suits a small graph; it
 // is not Dijkstra's algorithm. It shows arithmetic with is(...) and negation
 // as failure: not(cheaper(...)) runs only after every path is known, because
-// eyecode stratifies the program so a negation waits for what it denies.
+// eyemind stratifies the program so a negation waits for what it denies.
 
 // edge(From, To, Cost)
 fact(edge('a', 'b', 4))

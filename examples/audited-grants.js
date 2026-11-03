@@ -1,5 +1,5 @@
 // One language for everything. This program states an energy grant policy,
-// has eyecode prove the policy's decisions, and then reads that proof and its
+// has eyemind prove the policy's decisions, and then reads that proof and its
 // check report back as ordinary facts, in the same language, to answer audit
 // questions about the reasoning itself: which data each decision rests on,
 // which assumptions it takes on trust, and which decisions are at risk if
@@ -28,15 +28,15 @@ function policy() {
   implies([applicant(P), income(P, I), ge(I, 2500)], refused(P, 'income above 2500'))
 }
 
-// Prove the policy's decisions; eyecode.run() checks the proof before
+// Prove the policy's decisions; eyemind.run() checks the proof before
 // returning it.
-const decided = eyecode.run(eyecode.build(policy), { proof: true })
+const decided = eyemind.run(eyemind.build(policy), { proof: true })
 
 // The check report and the proof are documents in the language of this very
 // program, so they become facts here without any translation: the report as
 // it is, and each step of the proof as step_of(Goal, Justification, Uses).
-facts_from({ text: eyecode.checkReport(decided.proofReport) })
-for (const [term] of eyecode.readTerms(decided.proof)) {
+facts_from({ text: eyemind.checkReport(decided.proofReport) })
+for (const [term] of eyemind.readTerms(decided.proof)) {
   if (term.name === 'step') {
     const [goal, by, , uses] = term.args
     fact(step_of(goal, by, uses))

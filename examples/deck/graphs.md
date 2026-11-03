@@ -2,7 +2,7 @@
 
 *Who is a child of whom, who is allowed, and how a "no" is handled honestly.*
 
-[graphs.js](https://github.com/eyereasoner/eyecode/blob/main/examples/graphs.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/graphs.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/graphs.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/graphs.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=graphs)
+[graphs.js](https://github.com/eyereasoner/eyemind/blob/main/examples/graphs.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/graphs.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/graphs.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/graphs.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=graphs)
 
 ---
 
@@ -19,7 +19,7 @@ The last two need something new: saying "not" and saying "all".
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 The data is written as *triples*: subject, relation, object.
 
@@ -43,7 +43,7 @@ answers into a list.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 t('bob', 'child_of', 'alice')
@@ -73,13 +73,13 @@ blocked. And the list of Alice's children is `['bob', 'carol']`.
 
 Steps 3 and 5 are different from the others:
 
-- **"Carol is not blocked"** is concluded because eyecode searched
+- **"Carol is not blocked"** is concluded because eyemind searched
   everything it knows and found nothing. That is an *absence*, and a proof
   cannot point at an absence the way it points at a fact.
 - **"The children are exactly Bob and Carol"** says the list is
   *complete*. Each name can be proven; that no one is missing cannot.
 
-eyecode does not hide this. Each one is recorded as an **obligation**: a
+eyemind does not hide this. Each one is recorded as an **obligation**: a
 step taken on trust, named in the report.
 
 ---
@@ -102,11 +102,11 @@ Verdict: **checked_with_obligations**.
 ## Try it
 
 ```sh
-eyecode examples/graphs.js            # the answers
-eyecode --proof examples/graphs.js    # with their proof
+eyemind examples/graphs.js            # the answers
+eyemind --proof examples/graphs.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=graphs).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=graphs).
 Change `fact(base('bob', 'blocked', 'true'))` to
 `fact(base('carol', 'blocked', 'true'))` and run again: now `allowed('bob')`
 appears instead of `allowed('carol')`.
@@ -116,5 +116,5 @@ appears instead of `allowed('carol')`.
 ## Takeaway
 
 "Not" and "all" are claims about what is *missing*, and a proof cannot
-display a missing thing. eyecode still uses them — and tells you exactly
+display a missing thing. eyemind still uses them — and tells you exactly
 which conclusions rest on them, so you know what you are trusting.

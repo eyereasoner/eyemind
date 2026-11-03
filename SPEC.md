@@ -1,16 +1,16 @@
-# <img src="assets/eye.png" alt="" width="48" height="48" align="absmiddle"> eyecode specification
+# <img src="assets/eye.png" alt="" width="48" height="48" align="absmiddle"> eyemind specification
 
 ```text
-Title:      The eyecode Rule Language and Proof Format
-Version:    eyecode 0.1.22
+Title:      The eyemind Rule Language and Proof Format
+Version:    eyemind 0.1.22
 Status:     Informational
 Author:     Jos De Roo, KNoWS office of IDLab, Ghent University - imec
-Repository: https://github.com/eyereasoner/eyecode
+Repository: https://github.com/eyereasoner/eyemind
 ```
 
 ## Abstract
 
-eyecode is a rule language written in JavaScript, with forward and backward
+eyemind is a rule language written in JavaScript, with forward and backward
 reasoning, and a proof format whose documents a separate checker verifies
 against the program that produced them. This document specifies the terms
 the language reasons over, how a program is stated in JavaScript, what a
@@ -22,7 +22,7 @@ command line.
 ## Status of This Memo
 
 This document is not an Internet Standards Track specification. It describes
-the language and formats as implemented by eyecode 0.1.22, for readers who want
+the language and formats as implemented by eyemind 0.1.22, for readers who want
 to write programs, produce or consume proofs and reports, or implement a
 compatible reasoner or checker. Where this document and the implementation
 disagree, that is a defect in one of them.
@@ -52,7 +52,7 @@ disagree, that is a defect in one of them.
 
 ## 1. Introduction
 
-An eyecode program states facts and rules. Forward rules are applied until no
+An eyemind program states facts and rules. Forward rules are applied until no
 new conclusion follows; backward rules are applied when a goal asks for them.
 Every conclusion can be accompanied by a proof: a document that names, for
 each step, the program clause or primitive that justifies it. A checker that
@@ -146,10 +146,10 @@ scripts are run.
 
 A program is given exactly the names needed to state it: the statements of
 Section 4.2, `preds`, `vars`, `struct`, the controls and primitives of
-Section 5, the atom `fail`, and `eyecode`, the library, with which a program
+Section 5, the atom `fail`, and `eyemind`, the library, with which a program
 can build and run another program and read and write documents
-(`eyecode.build`, `eyecode.run`, `eyecode.checkProof`, `eyecode.checkReport`,
-`eyecode.verdictText`, `eyecode.readTerm`, `eyecode.readTerms`, `eyecode.write`).
+(`eyemind.build`, `eyemind.run`, `eyemind.checkProof`, `eyemind.checkReport`,
+`eyemind.verdictText`, `eyemind.readTerm`, `eyemind.readTerms`, `eyemind.write`).
 
 ### 4.2 Statements
 
@@ -520,7 +520,7 @@ A document is UTF-8 text holding a sequence of JavaScript expression
 statements. A statement ends at the end of its line, unless a bracket is
 still open, or at a `;`; comments (`// ...` and `/* ... */`), blank lines and
 indentation are ignored; each term records the line on which its statement
-begins. The documents eyecode writes hold one statement per line. A reader
+begins. The documents eyemind writes hold one statement per line. A reader
 MUST NOT execute the text. It accepts exactly:
 
 - a string literal between single or double quotes, with JavaScript's
@@ -759,7 +759,7 @@ C7 for each claim, then for each step; and C2.
 
 `Detail` is a short human-readable text that names what failed, often with
 the canonical text of a term; it is informative, and implementations MAY word
-it differently. eyecode's details are, by condition:
+it differently. eyemind's details are, by condition:
 
 | Condition | Details |
 | --- | --- |
@@ -808,7 +808,7 @@ though it guards the program against data that would make it fire.
 ## 14. Command Line
 
 ```text
-eyecode [OPTION ...] [FILE ...]
+eyemind [OPTION ...] [FILE ...]
 ```
 
 | Option | Meaning |
@@ -832,7 +832,7 @@ a program, the command line MUST say how to check it instead.
 | Exit code | Meaning |
 | --- | --- |
 | 0 | Success, including a check that found the proof valid. |
-| 1 | An error, printed to standard error as `eyecode: message`. |
+| 1 | An error, printed to standard error as `eyemind: message`. |
 | 2 | A check that found the proof not valid; the report is printed as usual. |
 | 65 | The run halted (Section 7.5). |
 
@@ -867,7 +867,7 @@ conclusions and proof documents in the canonical text, and checks every proof
 it produces as Section 11 describes. A conforming **checker** implements
 Sections 9, 11 and 12 and does not depend on a reasoner. For the same
 program, a conforming reasoner and checker MUST produce the same
-conclusions, proof documents and reports as eyecode 0.1.22, byte for byte,
+conclusions, proof documents and reports as eyemind 0.1.22, byte for byte,
 except for the `Detail` texts of failures (Section 12), the internal names of
 variables where Section 3 says so, and where the host's floating-point
 library functions (`exp`, `log`, the trigonometric and hyperbolic functions,

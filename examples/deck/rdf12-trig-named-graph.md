@@ -2,7 +2,7 @@
 
 *Keeping conclusions where they belong.*
 
-[rdf12-trig-named-graph.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-trig-named-graph.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/rdf12-trig-named-graph.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/rdf12-trig-named-graph.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/rdf12-trig-named-graph.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-trig-named-graph)
+[rdf12-trig-named-graph.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-named-graph.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-named-graph.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-named-graph.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-named-graph.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-trig-named-graph)
 
 ---
 
@@ -15,7 +15,7 @@ parent and Bob is Carol's.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 fact(
@@ -38,7 +38,7 @@ conclusions stay in the family graph.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 Three ancestor links, all in the family graph:
 
@@ -75,15 +75,15 @@ Verdict: **checked**. All 5 steps verified, and nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/rdf12-trig-named-graph.js                  # the results as quads
-eyecode --proof examples/rdf12-trig-named-graph.js          # with their proof
-eyecode examples/rdf12-trig-named-graph.js > out.js && eyecode-to-rdf out.js -o out.trig
+eyemind examples/rdf12-trig-named-graph.js                  # the results as quads
+eyemind --proof examples/rdf12-trig-named-graph.js          # with their proof
+eyemind examples/rdf12-trig-named-graph.js > out.js && eyemind-to-rdf out.js -o out.trig
 ```
 
-`eyecode-to-rdf` and `rdf-to-eyecode` come with
+`eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
-they turn eyecode's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-trig-named-graph).
+they turn eyemind's quads into RDF and RDF into quads.
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-trig-named-graph).
 Put Bob's parent link in another graph and run again: Alice is no longer Carol's ancestor, because the rule joins within one graph.
 
 ---

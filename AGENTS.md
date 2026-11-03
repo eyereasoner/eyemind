@@ -1,6 +1,6 @@
-# Working on eyecode
+# Working on eyemind
 
-eyecode is a dependency-free JavaScript rule language with forward and
+eyemind is a dependency-free JavaScript rule language with forward and
 backward reasoning and checkable proofs. Programs are JavaScript scripts;
 conclusions, proofs and check reports are JavaScript expressions that a
 reader turns back into terms without running them. It runs as a command-line
@@ -25,7 +25,7 @@ goals, and keep error messages specific and user-facing text direct.
   - `cli.js`: the command line, with no Node imports so the playground's
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
     library API. `version.js`: the version, synced from `package.json`.
-- `bin/eyecode.js`: the `eyecode` command.
+- `bin/eyemind.js`: the `eyemind` command.
 - `playground.html`: hand-written browser playground; it runs `src/` in a
   module worker, with no build step.
 - `_config.yml`, `_layouts/default.html`, `assets/docs.css`: GitHub Pages
@@ -36,7 +36,7 @@ goals, and keep error messages specific and user-facing text direct.
   `examples/proof/` and `examples/check/` hold each one's saved conclusions,
   proof and check report; `examples/deck/` a card deck per example.
 - `conformance/`: the black-box suite of SPEC.md. Each case file is an
-  eyecode document of `conformance(Name, [Setting, ...])` terms, read by
+  eyemind document of `conformance(Name, [Setting, ...])` terms, read by
   `conformance/run.js`; `conformance/README.md` describes the format.
 - `test/`: `run.js` runs every `*.test.js` module, the conformance suite and
   the playground tests of `playground.js` in a headless Chrome that
@@ -53,15 +53,15 @@ goals, and keep error messages specific and user-facing text direct.
 ## Commands
 
 ```sh
-node bin/eyecode.js examples/socrates.js
-node bin/eyecode.js --proof examples/socrates.js > /tmp/proof.js
-node bin/eyecode.js --check-proof /tmp/proof.js examples/socrates.js
-node bin/eyecode.js --unused examples/graphs.js
+node bin/eyemind.js examples/socrates.js
+node bin/eyemind.js --proof examples/socrates.js > /tmp/proof.js
+node bin/eyemind.js --check-proof /tmp/proof.js examples/socrates.js
+node bin/eyemind.js --unused examples/graphs.js
 npm test                          # unit, examples, conformance, command line, playground
 npm test -- unit conformance      # only these sections
 npm test -- -k skolem             # only tests whose line contains "skolem"
 npm test -- playground            # the playground in a headless Chrome
-EYECODE_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
+EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node conformance/run.js 11-checking.js -v
 node tools/update-examples.js [NAME ...]
 git diff --check
@@ -97,7 +97,7 @@ very large proofs; redirect them to a file and inspect focused parts.
   change, run `node tools/update-examples.js` and review the diff: no
   artifact should change unless intended.
 - Expected conformance outputs come from the specification, not from running
-  eyecode. When a case and eyecode disagree, SPEC.md decides which is wrong.
+  eyemind. When a case and eyemind disagree, SPEC.md decides which is wrong.
 
 ## Implementation and verification
 
@@ -116,9 +116,9 @@ it is returned. For every new check, add a forged proof the checker rejects,
 and confirm that all saved example proofs still check. `test/properties.test.js`
 forges proofs at random and catches a checker with C1, C2, C4, C5 or C8
 switched off; after changing the checker, run it with a larger
-`EYECODE_PROPERTY_SCALE`.
+`EYEMIND_PROPERTY_SCALE`.
 
-eyecode is the JavaScript sibling of peye (Python); eyeron, eyeling and eyepl
+eyemind is the JavaScript sibling of peye (Python); eyeron, eyeling and eyepl
 belong to the same family. A behavior fixed in one usually belongs in the
 others. Floats from the host's math library (`exp`, `log`, trigonometry) may
 differ from peye's in the last digit, as SPEC Section 16 allows.
@@ -153,6 +153,6 @@ The script requires a clean working tree, switches to `main`, pulls with
 `node tools/version.js`, commits, creates an annotated `v*` tag, and pushes
 the branch and tag atomically. A push to `main` runs CI and deploys GitHub
 Pages; a `v*` tag creates the GitHub release (which Zenodo archives) and
-publishes the npm package `@josd/eyecode` through
+publishes the npm package `eyemind` through
 `.github/workflows/publish-npm.yml`, only through npm trusted publishing. See
 the guide for existing-tag dispatch.

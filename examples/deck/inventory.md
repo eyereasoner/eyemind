@@ -2,7 +2,7 @@
 
 *Adding up a shopping bill, and being honest about what "all the lines" means.*
 
-[inventory.js](https://github.com/eyereasoner/eyecode/blob/main/examples/inventory.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/inventory.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/inventory.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/inventory.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=inventory)
+[inventory.js](https://github.com/eyereasoner/eyemind/blob/main/examples/inventory.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/inventory.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/inventory.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/inventory.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=inventory)
 
 ---
 
@@ -20,7 +20,7 @@ part is how a computer can show its work, including the step "I added up
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 // item(Name, Quantity, UnitPrice)
@@ -38,12 +38,12 @@ implies([findall(Amount, line_total(_, Amount), Amounts), sum(Amounts, Total)], 
 - A line total is quantity × price.
 - `findall` gathers *every* line total into a list; `sum` adds the list up.
 - To see every line total, the `findall` rule runs only after all line
-  totals have been derived: eyecode puts it in a later *stratum* (layer) than
+  totals have been derived: eyemind puts it in a later *stratum* (layer) than
   the line-total rule.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 invoice(28)
@@ -73,7 +73,7 @@ additions itself. Verdict: **checked_with_obligations**.
 
 The one obligation is of the kind called `collected`: the claim that
 `[6, 12, 10]` is the *complete* list of line totals. A proof can show that
-each number is a line total, but "there are no others" comes from eyecode
+each number is a line total, but "there are no others" comes from eyemind
 having searched everything it knows. The checker records that as an
 obligation, and confirmed that nothing in the proof contradicts it.
 
@@ -82,16 +82,16 @@ obligation, and confirmed that nothing in the proof contradicts it.
 ## Try it
 
 ```sh
-eyecode examples/inventory.js            # the answers
-eyecode --proof examples/inventory.js    # answers with their proof
+eyemind examples/inventory.js            # the answers
+eyemind --proof examples/inventory.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=inventory).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=inventory).
 Add `fact(item('fig', 5, 1))` and run again: the invoice becomes `invoice(33)`.
 
 ---
 
 ## Takeaway
 
-A total is only right if no line was left out. eyecode does not hide that
+A total is only right if no line was left out. eyemind does not hide that
 assumption: the report names it, so you know exactly what you are trusting.

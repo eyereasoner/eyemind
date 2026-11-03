@@ -2,7 +2,7 @@
 
 *The oldest example in logic, with the reasoning written down.*
 
-[socrates.js](https://github.com/eyereasoner/eyecode/blob/main/examples/socrates.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/socrates.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/socrates.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/socrates.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=socrates)
+[socrates.js](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/socrates.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/socrates.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/socrates.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=socrates)
 
 ---
 
@@ -14,7 +14,7 @@ Socrates is human. Every human is mortal.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 Two facts and one rule, written in JavaScript:
 
@@ -38,7 +38,7 @@ question: every `type` that holds.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 type('socrates', 'mortal')
@@ -52,7 +52,7 @@ reported back because the program asks for every `type` it knows.
 
 ## Why: the proof in plain words
 
-eyecode does not just print the answer; it records how it got there:
+eyemind does not just print the answer; it records how it got there:
 
 1. Socrates is human — *a fact we gave (fact 1)*.
 2. Every human is mortal — *a fact we gave (fact 2)*.
@@ -80,11 +80,11 @@ Verdict: **checked**. All 3 steps verified, and nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/socrates.js            # the answers
-eyecode --proof examples/socrates.js    # answers with their proof
+eyemind examples/socrates.js            # the answers
+eyemind --proof examples/socrates.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=socrates).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=socrates).
 Add `fact(type('plato', 'human'))` and run again: Plato becomes mortal too, with his
 own proof.
 

@@ -2,7 +2,7 @@
 
 *Calculus rules applied to formulas, not numbers, with every rule shown.*
 
-[symbolic-derivative.js](https://github.com/eyereasoner/eyecode/blob/main/examples/symbolic-derivative.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/symbolic-derivative.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/symbolic-derivative.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/symbolic-derivative.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=symbolic-derivative)
+[symbolic-derivative.js](https://github.com/eyereasoner/eyemind/blob/main/examples/symbolic-derivative.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/symbolic-derivative.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/symbolic-derivative.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/symbolic-derivative.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=symbolic-derivative)
 
 ---
 
@@ -19,7 +19,7 @@ numbers. **What are the derivatives of x × x, x + 3, log(log(x)) and
 
 ---
 
-## What we tell eyecode: the formulas
+## What we tell eyemind: the formulas
 
 A formula is a structured term, not text to be parsed:
 
@@ -41,7 +41,7 @@ formula: nothing is calculated.
 
 ---
 
-## What we tell eyecode: the rules of calculus
+## What we tell eyemind: the rules of calculus
 
 ```js
 // A number has derivative 0; X itself 1; any other variable 0.
@@ -66,7 +66,7 @@ The only real calculation is the exponent n − 1, done by `is`.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1))))
@@ -117,14 +117,14 @@ Verdict: **checked**. All 29 steps verified, nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/symbolic-derivative.js
-eyecode --proof examples/symbolic-derivative.js
-eyecode --goal "d(mul(num(5), sym('x')), 'x', D)" examples/symbolic-derivative.js
+eyemind examples/symbolic-derivative.js
+eyemind --proof examples/symbolic-derivative.js
+eyemind --goal "d(mul(num(5), sym('x')), 'x', D)" examples/symbolic-derivative.js
 ```
 
 The `--goal` line asks for the derivative of 5x and gets
 `add(mul(num(0), sym('x')), mul(num(5), num(1)))`, that is 0·x + 5·1.
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=symbolic-derivative).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=symbolic-derivative).
 Change the `square` formula to `pow(sym('x'), 2)` and run again: the power
 rule answers `mul(mul(num(2), pow(sym('x'), 1)), num(1))`, that is 2·x¹·1.
 

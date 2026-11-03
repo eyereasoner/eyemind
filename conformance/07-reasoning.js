@@ -120,7 +120,7 @@ conformance('a rule that keeps meeting new activations exceeds the bound', [
   spec('7.2, 7.3'),
   args('--max-iterations 10 program.js'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', [
     "fact(person('ann'))",
     'implies(person(X), [has_parent(X, P), person(P)])',

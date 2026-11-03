@@ -2,7 +2,7 @@
 
 *One rule that renames many fields at once, driven by a small mapping table.*
 
-[variable-predicates.js](https://github.com/eyereasoner/eyecode/blob/main/examples/variable-predicates.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/variable-predicates.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/variable-predicates.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/variable-predicates.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=variable-predicates)
+[variable-predicates.js](https://github.com/eyereasoner/eyemind/blob/main/examples/variable-predicates.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/variable-predicates.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/variable-predicates.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/variable-predicates.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=variable-predicates)
 
 ---
 
@@ -31,7 +31,7 @@ use a variable there and treat the relation name like any other value.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 // t(Subject, Property, Value) statements, and the source-to-target mapping.
@@ -50,7 +50,7 @@ row of the mapping table.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 t('alice', 'name', 'Alice')
@@ -92,11 +92,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/variable-predicates.js            # the answers
-eyecode --proof examples/variable-predicates.js    # answers with their proof
+eyemind examples/variable-predicates.js            # the answers
+eyemind --proof examples/variable-predicates.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=variable-predicates).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=variable-predicates).
 Add a new field and a mapping row — `fact(t('alice', 'source_city', 'Gent'))`
 and `fact(maps('source_city', 'city'))` — plus the question
 `query(t('alice', 'city', _))`. The same rule answers

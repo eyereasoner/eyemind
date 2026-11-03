@@ -1,7 +1,7 @@
 // An integrity constraint on account balances: no balance may be negative.
 // Alice has 30 and Bob has -5. A contradiction(...) statement is a rule that
 // concludes 'false' when its body holds and so stops the run, like a fuse.
-// Bob's balance violates it, so the output is 'false' and the eyecode command
+// Bob's balance violates it, so the output is 'false' and the eyemind command
 // exits with code 65.
 
 fact(account('alice', 30))

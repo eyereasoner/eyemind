@@ -2,7 +2,7 @@
 
 *A function that grows faster than you can imagine, computed exactly and checked step by step.*
 
-[ackermann.js](https://github.com/eyereasoner/eyecode/blob/main/examples/ackermann.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/ackermann.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/ackermann.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/ackermann.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=ackermann)
+[ackermann.js](https://github.com/eyereasoner/eyemind/blob/main/examples/ackermann.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/ackermann.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/ackermann.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/ackermann.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=ackermann)
 
 ---
 
@@ -36,7 +36,7 @@ applies level X with base 2, and subtracts 3 again.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 // A(X, Y): shift Y by 3, apply level X with base 2, and subtract 3 again.
@@ -66,7 +66,7 @@ question asks for it.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 ackermann([0, 6], 7)
@@ -79,7 +79,7 @@ ackermann([5, 0], 65533)
 ```
 
 7 of the 11 answers. The `[4, 2]` line goes on for 19,729 digits, ending
-in `…5587895905719156733`. eyecode's integers have no size limit, so nothing
+in `…5587895905719156733`. eyemind's integers have no size limit, so nothing
 is rounded.
 
 ---
@@ -116,11 +116,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/ackermann.js            # the answers
-eyecode --proof examples/ackermann.js    # answers with their proof
+eyemind examples/ackermann.js            # the answers
+eyemind --proof examples/ackermann.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=ackermann).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=ackermann).
 
 Add `query(ackermann([3, 5], _))` at the end and run again: a new answer
 appears, `ackermann([3, 5], 253)`.

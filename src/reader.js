@@ -5,7 +5,7 @@
 // its own small grammar and builds terms, so a document is data and never code
 // that runs: only string and number literals, names, calls of a plain name,
 // arrays, objects of bindings and a minus sign on a number are accepted.
-import { EMPTY, EyecodeError, Struct, Var, nonfinite } from './terms.js';
+import { EMPTY, EyemindError, Struct, Var, nonfinite } from './terms.js';
 import { CHAINED, RESERVED_WORDS, decodeName } from './writer.js';
 
 // Names that a program reads as JavaScript values, so a document may not use them.
@@ -16,7 +16,7 @@ const JS_VALUES = new Set(['undefined', 'NaN', 'Infinity']);
 function variableName(text, line) {
   if (!text.startsWith('VAR_')) return text;
   const name = decodeName(text);
-  if (name === null) throw new EyecodeError(`line ${line}: ${text} is not the encoding of a variable name`);
+  if (name === null) throw new EyemindError(`line ${line}: ${text} is not the encoding of a variable name`);
   return name;
 }
 
@@ -40,7 +40,7 @@ class Tokens {
   }
 
   error(message, line = this.line) {
-    return new EyecodeError(`line ${line}: ${message}`);
+    return new EyemindError(`line ${line}: ${message}`);
   }
 
   // The token at this.pos, moving past it.
@@ -359,7 +359,7 @@ export class Reader {
   call(name, args, line) {
     if (name === 'struct') {
       if (!args.length || typeof args[0] !== 'string') {
-        throw new EyecodeError(`line ${line}: struct() needs a name string first`);
+        throw new EyemindError(`line ${line}: struct() needs a name string first`);
       }
       return args.length > 1 ? new Struct(args[0], args.slice(1)) : args[0];
     }
@@ -379,7 +379,7 @@ export function readTerm(text) {
   const tokens = new Tokens(text);
   const reader = new Reader();
   tokens.skipNewlines();
-  if (tokens.peek().kind === 'end') throw new EyecodeError('line 1: expected a term, found the end of the text');
+  if (tokens.peek().kind === 'end') throw new EyemindError('line 1: expected a term, found the end of the text');
   const term = reader.expression(tokens);
   tokens.skipNewlines();
   if (tokens.at(';')) {

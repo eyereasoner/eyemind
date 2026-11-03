@@ -1,4 +1,4 @@
-import { EyecodeError, run } from '../src/index.js';
+import { EyemindError, run } from '../src/index.js';
 import { toTerm } from '../src/lang.js';
 import { assert, program, proven, throwsMatching } from './helpers.js';
 
@@ -9,7 +9,7 @@ function fails(expression) {
   try {
     run(EMPTY, { goal: `is(X, ${expression})` });
   } catch (error) {
-    if (error instanceof EyecodeError) return error.message;
+    if (error instanceof EyemindError) return error.message;
     throw error;
   }
   return null;

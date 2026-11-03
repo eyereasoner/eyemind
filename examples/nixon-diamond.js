@@ -10,7 +10,7 @@
 // claims about anyone's actual beliefs.
 //
 // It shows a default guarded by stratified negation: the pacifist rule reads
-// not(nonpacifist(Person)), so eyecode runs it only after the nonpacifist
+// not(nonpacifist(Person)), so eyemind runs it only after the nonpacifist
 // rule has finished, and a default never fires before the contrary evidence
 // is in.
 

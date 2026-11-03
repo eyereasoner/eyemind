@@ -1,7 +1,7 @@
 // Every term has one JavaScript spelling, and reading it back gives the term.
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { EyecodeError, Struct, Var, readTerm, readTerms, write } from '../src/index.js';
+import { EyemindError, Struct, Var, readTerm, readTerms, write } from '../src/index.js';
 import { listFromItems } from '../src/terms.js';
 import { ROOT, assert, throwsMatching } from './helpers.js';
 
@@ -68,7 +68,7 @@ export const tests = {
 
   'document reader rejects invalid source characters'() {
     for (const text of ["'a\x00b'", "'a\rb'", 'p(1) ', '\v', ' ']) {
-      assert.throws(() => readTerms(text), EyecodeError, JSON.stringify(text));
+      assert.throws(() => readTerms(text), EyemindError, JSON.stringify(text));
     }
     assert.deepEqual(readTerms('p(1)\r\np(2)\r\n').map(([term, line]) => [write(term), line]), [['p(1)', 1], ['p(2)', 2]]);
   },
@@ -89,10 +89,10 @@ export const tests = {
     for (const text of ["os.system('x')", 'f(X = 1)', 'f(...X)', '(1, 2)', '{...X}', '() => 1', 'X === Y',
       '1 < 2', '[...X, 1]', 'null', 'true', 'undefined', 'NaN', 'f()()', 'X + Y', '!X', '`x`', '/x/', '0x10',
       '1_000', 'new f()', 'x[0]', 'X ? Y : Z', 'struct()', 'struct(1, 2)', '$x']) {
-      assert.throws(() => readTerm(text), EyecodeError, text);
+      assert.throws(() => readTerm(text), EyemindError, text);
     }
-    assert.throws(() => readTerms('x = 1\n'), EyecodeError);
-    assert.throws(() => readTerms('const x = 1\n'), EyecodeError);
+    assert.throws(() => readTerms('x = 1\n'), EyemindError);
+    assert.throws(() => readTerms('const x = 1\n'), EyemindError);
   },
 
   'large documents keep line numbers and anonymous names'() {

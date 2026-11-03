@@ -124,7 +124,7 @@ conformance('an identifier starting with VAR_ that encodes no name is rejected',
   spec('8.1, 9'),
   args("--goal 'unify(VAR_a_b, 1)'"),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   stdin([]),
   stdout([]),
 ])

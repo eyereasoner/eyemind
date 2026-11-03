@@ -2,7 +2,7 @@
 
 *A classic puzzle solved by thinking smaller — with every move accounted for.*
 
-[hanoi.js](https://github.com/eyereasoner/eyecode/blob/main/examples/hanoi.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/hanoi.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/hanoi.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/hanoi.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=hanoi)
+[hanoi.js](https://github.com/eyereasoner/eyemind/blob/main/examples/hanoi.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/hanoi.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/hanoi.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/hanoi.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=hanoi)
 
 ---
 
@@ -33,7 +33,7 @@ the easy case: just move it.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 // … two lines defining append
@@ -59,7 +59,7 @@ together.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 moves(3, 'left', 'right', 'center', [move('left', 'right'), move('left', 'center'), move('right', 'center'), move('left', 'right'), move('center', 'left'), move('center', 'right'), move('left', 'right')])
@@ -103,13 +103,13 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/hanoi.js            # the answers
-eyecode --proof examples/hanoi.js    # answers with their proof
-eyecode --goal "moves(2, 'left', 'right', 'center', Moves)" examples/hanoi.js
+eyemind examples/hanoi.js            # the answers
+eyemind --proof examples/hanoi.js    # answers with their proof
+eyemind --goal "moves(2, 'left', 'right', 'center', Moves)" examples/hanoi.js
 ```
 
 The last asks for two disks: three moves, left → center, left → right,
-center → right. Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=hanoi).
+center → right. Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=hanoi).
 
 Change the `3` in the last line to `4`: the answer grows to 15 moves.
 

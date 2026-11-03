@@ -2,7 +2,7 @@
 
 *"Good at what?" A small lesson in not over-generalising.*
 
-[good-cobbler.js](https://github.com/eyereasoner/eyecode/blob/main/examples/good-cobbler.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/good-cobbler.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/good-cobbler.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/good-cobbler.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=good-cobbler)
+[good-cobbler.js](https://github.com/eyereasoner/eyemind/blob/main/examples/good-cobbler.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/good-cobbler.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/good-cobbler.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/good-cobbler.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=good-cobbler)
 
 ---
 
@@ -18,7 +18,7 @@ together with the word they describe.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 Each person comes with a description, kept as a short list of words:
 
@@ -39,7 +39,7 @@ simply `'good'`.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 good_at('joe', 'cobbler')
@@ -87,11 +87,11 @@ Verdict: **checked**. All 8 steps verified, nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/good-cobbler.js
-eyecode --proof examples/good-cobbler.js
+eyemind examples/good-cobbler.js
+eyemind --proof examples/good-cobbler.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=good-cobbler).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=good-cobbler).
 Add `fact(description('ann', ['good', 'baker']))` and run again: Ann is now
 good at baking and classified as a baker, with her own proof.
 

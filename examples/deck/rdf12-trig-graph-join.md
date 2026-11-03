@@ -2,7 +2,7 @@
 
 *Data about a graph meets data in the graph.*
 
-[rdf12-trig-graph-join.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-trig-graph-join.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/rdf12-trig-graph-join.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/rdf12-trig-graph-join.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/rdf12-trig-graph-join.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-trig-graph-join)
+[rdf12-trig-graph-join.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-graph-join.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-graph-join.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-graph-join.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-graph-join.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-trig-graph-join)
 
 ---
 
@@ -15,7 +15,7 @@ graph itself holds a temperature reading for sensor 1.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 fact(
@@ -43,7 +43,7 @@ statement in one graph and the graph of a statement in another.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 Station 7 reported sensor 1:
 
@@ -79,15 +79,15 @@ Verdict: **checked**. All 3 steps verified, and nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/rdf12-trig-graph-join.js                   # the results as quads
-eyecode --proof examples/rdf12-trig-graph-join.js           # with their proof
-eyecode examples/rdf12-trig-graph-join.js > out.js && eyecode-to-rdf out.js -o out.trig
+eyemind examples/rdf12-trig-graph-join.js                   # the results as quads
+eyemind --proof examples/rdf12-trig-graph-join.js           # with their proof
+eyemind examples/rdf12-trig-graph-join.js > out.js && eyemind-to-rdf out.js -o out.trig
 ```
 
-`eyecode-to-rdf` and `rdf-to-eyecode` come with
+`eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
-they turn eyecode's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-trig-graph-join).
+they turn eyemind's quads into RDF and RDF into quads.
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-trig-graph-join).
 Add a reading for a second sensor in the sensor graph, and station 7 reports it too.
 
 ---

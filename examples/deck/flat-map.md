@@ -2,7 +2,7 @@
 
 *Gather every matching value from a list of things — and be honest about what "every" means.*
 
-[flat-map.js](https://github.com/eyereasoner/eyecode/blob/main/examples/flat-map.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/flat-map.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/flat-map.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/flat-map.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=flat-map)
+[flat-map.js](https://github.com/eyereasoner/eyemind/blob/main/examples/flat-map.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/flat-map.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/flat-map.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/flat-map.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=flat-map)
 
 ---
 
@@ -20,7 +20,7 @@ property nobody uses?
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 Four facts, stored as triples `t(Subject, Predicate, Object)` (`s3` has two
 values), and a rule that walks the list:
@@ -49,7 +49,7 @@ query(flat_map(['s1'], 'p2', Objects))
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4'])
@@ -84,7 +84,7 @@ The checker matched **14** steps to their program lines. Verdict:
 The 5 obligations are all of the kind called `collected`: each claims a
 list is the *complete* set of answers — for example, that `s3` has exactly
 `['o3', 'o4']` and `missing` has nothing at all. A proof can show each value
-is there; "and there are no others" comes from eyecode having searched
+is there; "and there are no others" comes from eyemind having searched
 everything it knows. The checker records that as an obligation instead of
 pretending to prove it.
 
@@ -108,12 +108,12 @@ on exactly these 5 lists.
 ## Try it
 
 ```sh
-eyecode examples/flat-map.js
-eyecode --goal "flat_map(['s3', 's1'], 'p1', Objects)" examples/flat-map.js
+eyemind examples/flat-map.js
+eyemind --goal "flat_map(['s3', 's1'], 'p1', Objects)" examples/flat-map.js
 ```
 
 The second gives `['o3', 'o4', 'o1']`: the order follows the subject list.
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=flat-map).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=flat-map).
 
 Add the fact `fact(t('s2', 'p1', 'o5'))` and run again: the first answer
 becomes `['o1', 'o2', 'o5', 'o3', 'o4']`.
@@ -123,5 +123,5 @@ becomes `['o1', 'o2', 'o5', 'o3', 'o4']`.
 ## Takeaway
 
 "Here are all the matches" is a stronger statement than "here are some
-matches". eyecode gives you the answer and marks precisely where it relied on
+matches". eyemind gives you the answer and marks precisely where it relied on
 having seen everything — so you know what to recheck when the data grows.

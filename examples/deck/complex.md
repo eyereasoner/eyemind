@@ -2,7 +2,7 @@
 
 *Teaching a reasoner a kind of number it has never heard of.*
 
-[complex.js](https://github.com/eyereasoner/eyecode/blob/main/examples/complex.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/complex.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/complex.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/complex.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=complex)
+[complex.js](https://github.com/eyereasoner/eyemind/blob/main/examples/complex.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/complex.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/complex.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/complex.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=complex)
 
 ---
 
@@ -13,12 +13,12 @@ imaginary part, written here as `complex(3, 4)` for 3 + 4i. The special
 number i has the property that i × i = −1. Engineers use these for waves,
 circuits and rotations.
 
-eyecode has no complex numbers built in. **Can we define them with a few
+eyemind has no complex numbers built in. **Can we define them with a few
 rules, and get answers that are both right and explained?**
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 How to add and multiply pairs, as ordinary rules:
 
@@ -48,7 +48,7 @@ Division, powers, polar form, logarithms, sine and cosine follow the same way.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 A few of its 23 answers:
 
@@ -112,9 +112,9 @@ Verdict: **checked**. All 215 steps accounted for, nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/complex.js
-eyecode --goal "complex_power(complex(1, 1), 16, Result)" examples/complex.js
-eyecode --goal "complex_div(complex(1, 0), complex(0, 1), Inverse)" examples/complex.js
+eyemind examples/complex.js
+eyemind --goal "complex_power(complex(1, 1), 16, Result)" examples/complex.js
+eyemind --goal "complex_div(complex(1, 0), complex(0, 1), Inverse)" examples/complex.js
 ```
 
 These give `complex(256, 0)` and `complex(0.0, -1.0)` (so 1 / i = −i).

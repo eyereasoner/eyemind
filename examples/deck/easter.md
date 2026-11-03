@@ -2,7 +2,7 @@
 
 *Thirty years of Easter Sundays, worked out by pure arithmetic.*
 
-[easter.js](https://github.com/eyereasoner/eyecode/blob/main/examples/easter.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/easter.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/easter.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/easter.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=easter)
+[easter.js](https://github.com/eyereasoner/eyemind/blob/main/examples/easter.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/easter.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/easter.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/easter.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=easter)
 
 ---
 
@@ -19,7 +19,7 @@ Gregorian algorithm** (also known as Meeus/Jones/Butcher).
 
 ---
 
-## What we tell eyecode: the recipe
+## What we tell eyemind: the recipe
 
 ```js
 implied_by(
@@ -68,7 +68,7 @@ Easter.
 
 ---
 
-## What we tell eyecode: which years
+## What we tell eyemind: which years
 
 ```js
 // in_range(Low, High, N) gives each integer N from Low through High.
@@ -88,7 +88,7 @@ date is what the recipe gives.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 easter(2021, [4, 4])
@@ -138,11 +138,11 @@ Verdict: **checked**.
 ## Try it
 
 ```sh
-eyecode examples/easter.js            # the 30 dates
-eyecode --proof examples/easter.js    # with every calculation
+eyemind examples/easter.js            # the 30 dates
+eyemind --proof examples/easter.js    # with every calculation
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=easter).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=easter).
 Change the range in the last line to `in_range(2000, 2000, Year)` and run
 again: you get `easter(2000, [4, 23])`, April 23.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Every test of eyecode in one run, one numbered line per test: npm test
+// Every test of eyemind in one run, one numbered line per test: npm test
 //
 //     npm test                       unit tests, examples, conformance in process,
 //                                    its command-line cases through the command,
@@ -24,12 +24,12 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = dirname(HERE);
 const SECTIONS = ['unit', 'examples', 'conformance', 'cli', 'playground'];
 const TITLES = {
-  unit: 'Unit tests', examples: 'Examples', conformance: 'Conformance', cli: 'Command-line cases through the eyecode command',
+  unit: 'Unit tests', examples: 'Examples', conformance: 'Conformance', cli: 'Command-line cases through the eyemind command',
   playground: 'Playground in a headless Chrome',
 };
 const COUNTED = {
   unit: 'unit tests', examples: 'example tests', conformance: 'conformance cases',
-  cli: 'command-line cases through the eyecode command', playground: 'playground tests',
+  cli: 'command-line cases through the eyemind command', playground: 'playground tests',
 };
 const COLOR = process.env.NO_COLOR === undefined && (process.stdout.isTTY || (process.env.FORCE_COLOR ?? '0') !== '0');
 const paint = (code, text) => (COLOR ? `\x1b[${code}m${text}\x1b[0m` : text);
@@ -160,11 +160,11 @@ function runInProcess(reporter) {
 }
 
 // The cases of 14-command-line.js, about options, standard input, errors and
-// exit codes, each through the eyecode command as a process of its own, so
+// exit codes, each through the eyemind command as a process of its own, so
 // they run side by side; results are reported in case order. Every case also
 // runs in process, through the same main, and starting Node for each costs
 // more than most cases take: node conformance/run.js --command "node
-// bin/eyecode.js" runs them all through the command.
+// bin/eyemind.js" runs them all through the command.
 async function runThroughCommandLine(reporter) {
   const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
@@ -172,13 +172,13 @@ async function runThroughCommandLine(reporter) {
   const outcomes = new Array(cases.length);
   let next = 0;
   const one = (item) => new Promise((resolve) => {
-    const directory = mkdtempSync(join(tmpdir(), 'eyecode-cli-'));
+    const directory = mkdtempSync(join(tmpdir(), 'eyemind-cli-'));
     for (const [name, text] of Object.entries(item.files)) {
       mkdirSync(dirname(join(directory, name)), { recursive: true });
       writeFileSync(join(directory, name), text);
     }
     const started = performance.now();
-    const child = spawn(process.execPath, [join(ROOT, 'bin', 'eyecode.js'), ...shellSplit(item.args)], { cwd: directory });
+    const child = spawn(process.execPath, [join(ROOT, 'bin', 'eyemind.js'), ...shellSplit(item.args)], { cwd: directory });
     const out = [];
     const err = [];
     child.stdout.on('data', (chunk) => out.push(chunk));
@@ -263,7 +263,7 @@ async function main(argv) {
     }
   }
   const reporter = new Reporter(pattern);
-  console.log(paint('2', `eyecode ${VERSION} on Node.js ${process.versions.node}`));
+  console.log(paint('2', `eyemind ${VERSION} on Node.js ${process.versions.node}`));
   const tests = await moduleTests();
   for (const section of SECTIONS) {
     if (sections.length && !sections.includes(section)) continue;

@@ -43,11 +43,11 @@ jobs:
         run: |
           node -e '
             const { name, version } = require("./package.json");
-            if (name !== "@josd/eyecode" || process.env.RELEASE_TAG !== `v${version}`) {
-              console.error(`Publish requires the eyecode release tag v${version}.`);
+            if (name !== "eyemind" || process.env.RELEASE_TAG !== `v${version}`) {
+              console.error(`Publish requires the eyemind release tag v${version}.`);
               process.exit(1);
             }
-            console.log(`Publishing candidate: eyecode ${version}`);
+            console.log(`Publishing candidate: eyemind ${version}`);
           '
           node tools/version.js --check
 
@@ -57,7 +57,7 @@ jobs:
       - name: Verify packaged files
         run: npm publish --dry-run
 
-      # npm accepts eyecode versions only through this workflow's trusted
+      # npm accepts eyemind versions only through this workflow's trusted
       # publisher, which exchanges the Actions identity for a short-lived
       # token and attaches provenance; no npm token is stored.
       - name: Publish to npm

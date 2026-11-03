@@ -2,7 +2,7 @@
 
 *When the facts disagree, say so, instead of pretending they don't.*
 
-[paraconsistent-animals.js](https://github.com/eyereasoner/eyecode/blob/main/examples/paraconsistent-animals.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/paraconsistent-animals.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/paraconsistent-animals.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/paraconsistent-animals.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=paraconsistent-animals)
+[paraconsistent-animals.js](https://github.com/eyereasoner/eyemind/blob/main/examples/paraconsistent-animals.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/paraconsistent-animals.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/paraconsistent-animals.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/paraconsistent-animals.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=paraconsistent-animals)
 
 ---
 
@@ -19,7 +19,7 @@ contains contradictions. It keeps the conflict contained and visible.
 
 ---
 
-## What we tell eyecode: animals and rules
+## What we tell eyemind: animals and rules
 
 ```js
 fact(bird('tweety'))
@@ -45,7 +45,7 @@ can be recorded side by side without the program falling over.
 
 ---
 
-## What we tell eyecode: summaries
+## What we tell eyemind: summaries
 
 Each property gets a local summary: *true only*, *false only*, or *both*.
 
@@ -59,15 +59,15 @@ implies(flight_status(X, 'true_only'), flies_safely(X, 'true'))
 implies(flight_status(X, 'both'), flies_safely(X, 'undecided'))
 ```
 
-`not(...)` means "not found": nothing eyecode knows says otherwise. Because
-the summaries look at what the animal rules concluded, eyecode runs them only
+`not(...)` means "not found": nothing eyemind knows says otherwise. Because
+the summaries look at what the animal rules concluded, eyemind runs them only
 after those rules have finished (this is called *stratified negation*), so a
 "not found" is never premature. Decisions read
 only the summary, so a conflict leads to *undecided*, never to both answers.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 50 conclusions in all. The interesting ones:
 
@@ -119,7 +119,7 @@ found" the decisions rely on, such as:
 obligation('absent', 'theory_scoped', not(flies('falco', 'false')))
 ```
 
-eyecode concluded that nothing says Falco cannot fly because it searched
+eyemind concluded that nothing says Falco cannot fly because it searched
 everything it knows and found nothing. The checker records each such
 absence rather than proving it, and confirmed that no step in the proof
 contradicts any of them.
@@ -129,11 +129,11 @@ contradicts any of them.
 ## Try it
 
 ```sh
-eyecode examples/paraconsistent-animals.js            # the answers
-eyecode --proof examples/paraconsistent-animals.js    # answers with their proof
+eyemind examples/paraconsistent-animals.js            # the answers
+eyemind --proof examples/paraconsistent-animals.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=paraconsistent-animals).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=paraconsistent-animals).
 Delete the line `fact(observed('mythic', 'flies', 'false'))` and run again: the
 conflict disappears, and you get `flies_safely('mythic', 'true')` and
 `moves_by('mythic', 'flying')`.

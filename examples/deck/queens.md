@@ -2,7 +2,7 @@
 
 *Place eight queens on a chessboard so that none can attack another.*
 
-[queens.js](https://github.com/eyereasoner/eyecode/blob/main/examples/queens.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/queens.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/queens.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/queens.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=queens)
+[queens.js](https://github.com/eyereasoner/eyemind/blob/main/examples/queens.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/queens.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/queens.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/queens.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=queens)
 
 ---
 
@@ -25,7 +25,7 @@ automatically. Only the **diagonals** still need checking.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 // Each row takes a column not used yet, so columns never repeat; safe checks
@@ -60,7 +60,7 @@ and try another. `once` asks for the first solution only.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 once(queens(8, [1, 5, 8, 6, 3, 7, 2, 4]))
@@ -110,20 +110,20 @@ searching; checking it is simple.
 ## Try it
 
 ```sh
-eyecode examples/queens.js
-eyecode --goal "queens(4, Columns)" examples/queens.js
+eyemind examples/queens.js
+eyemind --goal "queens(4, Columns)" examples/queens.js
 ```
 
 The 4×4 board has two solutions, `[2, 4, 1, 3]` and `[3, 1, 4, 2]`. Without
 `once`, `--goal "queens(8, C)"` lists all 92 solutions for the 8×8 board,
 and `queens(6, C)` finds 4.
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=queens).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=queens).
 
 ---
 
 ## Takeaway
 
-Search can be long and messy, but its result need not be. eyecode hands back
+Search can be long and messy, but its result need not be. eyemind hands back
 one clean certificate for the answer it found, and anyone can check it
 without searching again.

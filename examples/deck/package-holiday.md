@@ -2,7 +2,7 @@
 
 *One tour operator, eight cancellations, and EU holiday rules about to change: who pays, who gets their money back, and what would change?*
 
-[package-holiday.js](https://github.com/eyereasoner/eyecode/blob/main/examples/package-holiday.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/package-holiday.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/package-holiday.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/package-holiday.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=package-holiday)
+[package-holiday.js](https://github.com/eyereasoner/eyemind/blob/main/examples/package-holiday.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/package-holiday.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/package-holiday.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/package-holiday.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=package-holiday)
 
 ---
 
@@ -55,7 +55,7 @@ fact(t('ex:beforeDeparture', 'odrl:rightOperand', 0))
 
 The program reads these triples to decide: the policy is data, not a
 comment. Delete any one of its 15 triples and the outcome changes;
-`eyecode --unused` checks exactly that.
+`eyemind --unused` checks exactly that.
 
 ---
 
@@ -147,13 +147,13 @@ shows that the outcomes follow from these rules and these facts.
 ## Try it
 
 ```sh
-eyecode examples/package-holiday.js            # the answers
-eyecode --proof examples/package-holiday.js    # answers with their proof
-eyecode --proof examples/package-holiday.js > /tmp/holiday-proof.js
-eyecode --strict-proof --check-proof /tmp/holiday-proof.js examples/package-holiday.js
+eyemind examples/package-holiday.js            # the answers
+eyemind --proof examples/package-holiday.js    # answers with their proof
+eyemind --proof examples/package-holiday.js > /tmp/holiday-proof.js
+eyemind --strict-proof --check-proof /tmp/holiday-proof.js examples/package-holiday.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=package-holiday).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=package-holiday).
 Two experiments, one at each gate:
 
 - let Ivy ask instead of Hugo (`by('hugo')` → `by('ivy')` in r8): the terms
@@ -166,7 +166,7 @@ Two experiments, one at each gate:
 ## Takeaway
 
 Holiday rules decide real money: here, whether David loses €2,100. When the
-rules change, eyecode shows what changes, for whom and why, and a machine
+rules change, eyemind shows what changes, for whom and why, and a machine
 checks every step, without taking anything on trust.
 
 ---

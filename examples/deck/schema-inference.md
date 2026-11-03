@@ -2,7 +2,7 @@
 
 *A few general statements about categories and relations, and the facts that follow from them.*
 
-[schema-inference.js](https://github.com/eyereasoner/eyecode/blob/main/examples/schema-inference.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/schema-inference.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/schema-inference.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/schema-inference.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=schema-inference)
+[schema-inference.js](https://github.com/eyereasoner/eyemind/blob/main/examples/schema-inference.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/schema-inference.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/schema-inference.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/schema-inference.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=schema-inference)
 
 ---
 
@@ -35,7 +35,7 @@ rules.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 // The schema: class and property hierarchies, and the class of the subject
@@ -62,12 +62,12 @@ A relationship is written as a triple: subject, property, object, so
 `triple('alice', 'parent_of', 'bob')` reads "Alice is a parent of Bob".
 
 `implies` means "keep applying this until nothing new follows"; its premise
-is an array of goals that must all hold. No question is asked, so eyecode
+is an array of goals that must all hold. No question is asked, so eyemind
 reports everything new.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 subclass('cat', 'animal')
@@ -117,11 +117,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/schema-inference.js            # the new facts
-eyecode --proof examples/schema-inference.js    # with their proof
+eyemind examples/schema-inference.js            # the new facts
+eyemind --proof examples/schema-inference.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=schema-inference).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=schema-inference).
 
 Add `fact(triple('bob', 'parent_of', 'carol'))` and run again: Bob becomes related to
 Carol, and Carol is concluded to be a person.
@@ -130,6 +130,6 @@ Carol, and Carol is concluded to be a person.
 
 ## Takeaway
 
-A schema says a lot in a few lines. eyecode spells out what it implies, and
+A schema says a lot in a few lines. eyemind spells out what it implies, and
 every implied fact comes with the exact statements that support it — so a
 surprising conclusion can be traced to the schema line that caused it.

@@ -1,5 +1,5 @@
 {
-  "name": "@josd/eyecode",
+  "name": "eyemind",
   "version": "0.1.22",
   "description": "A dependency-free JavaScript rule language with forward and backward reasoning and checkable proofs.",
   "type": "module",
@@ -10,7 +10,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "eyecode": "bin/eyecode.js"
+    "eyemind": "bin/eyemind.js"
   },
   "files": [
     "bin/",
@@ -36,9 +36,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eyereasoner/eyecode.git"
+    "url": "git+https://github.com/eyereasoner/eyemind.git"
   },
-  "homepage": "https://eyereasoner.github.io/eyecode/",
+  "homepage": "https://eyereasoner.github.io/eyemind/",
   "publishConfig": {
     "access": "public"
   }

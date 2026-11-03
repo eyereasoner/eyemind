@@ -2,7 +2,7 @@
 
 *A rule that depends on counting, and an honest note about the count.*
 
-[dog-license.js](https://github.com/eyereasoner/eyecode/blob/main/examples/dog-license.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/dog-license.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/dog-license.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/dog-license.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=dog-license)
+[dog-license.js](https://github.com/eyereasoner/eyemind/blob/main/examples/dog-license.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/dog-license.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/dog-license.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/dog-license.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=dog-license)
 
 ---
 
@@ -17,7 +17,7 @@ Alice owns five dogs, Bob owns two. Who needs a license? To answer, we must
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 Who owns which dog, and the rule:
 
@@ -42,7 +42,7 @@ N is greater than 4.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 dog_count('alice', 5)
@@ -86,8 +86,8 @@ Verdict: **checked_with_obligations**. 21 steps, 2 taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/dog-license.js
-eyecode --strict-proof --check-proof examples/proof/dog-license.js examples/dog-license.js
+eyemind examples/dog-license.js
+eyemind --strict-proof --check-proof examples/proof/dog-license.js examples/dog-license.js
 ```
 
 The second command refuses any proof that leans on trust, so here it reports
@@ -100,5 +100,5 @@ needs a license too.
 
 ## Takeaway
 
-Counting is a claim about *everything* you know. eyecode does the count, shows
+Counting is a claim about *everything* you know. eyemind does the count, shows
 it, and tells you plainly which part rests on "that was the full list".

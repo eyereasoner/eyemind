@@ -1,5 +1,5 @@
 // Building and taking apart text. Atoms, written as quoted strings, are the
-// text values of eyecode, and built-in predicates handle them in ordinary
+// text values of eyemind, and built-in predicates handle them in ordinary
 // rules, with no special syntax for text: atom_concat joins 'hello_' and
 // 'alice' into 'hello_alice'; atom_chars and atom_length split 'café' into
 // its 4 characters; atom_codes gives the Unicode code point of an emoji,

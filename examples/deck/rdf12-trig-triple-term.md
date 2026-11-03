@@ -2,7 +2,7 @@
 
 *A claim, kept in the graph that holds it.*
 
-[rdf12-trig-triple-term.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-trig-triple-term.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/rdf12-trig-triple-term.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/rdf12-trig-triple-term.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/rdf12-trig-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-trig-triple-term)
+[rdf12-trig-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-trig-triple-term)
 
 ---
 
@@ -15,7 +15,7 @@ triple term.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 fact(rdf(iri(ex + 'alice'), iri(ex + 'claims'),
@@ -36,7 +36,7 @@ serves every graph.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 Bob knows Carol, in the claims graph:
 
@@ -71,15 +71,15 @@ Verdict: **checked**. All 2 steps verified, and nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/rdf12-trig-triple-term.js                  # the results as quads
-eyecode --proof examples/rdf12-trig-triple-term.js          # with their proof
-eyecode examples/rdf12-trig-triple-term.js > out.js && eyecode-to-rdf out.js -o out.trig
+eyemind examples/rdf12-trig-triple-term.js                  # the results as quads
+eyemind --proof examples/rdf12-trig-triple-term.js          # with their proof
+eyemind examples/rdf12-trig-triple-term.js > out.js && eyemind-to-rdf out.js -o out.trig
 ```
 
-`eyecode-to-rdf` and `rdf-to-eyecode` come with
+`eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
-they turn eyecode's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-trig-triple-term).
+they turn eyemind's quads into RDF and RDF into quads.
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-trig-triple-term).
 Move the claim to the default graph and run again: the conclusion moves with it.
 
 ---

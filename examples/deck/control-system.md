@@ -2,7 +2,7 @@
 
 *Two machine settings computed from sensor readings, with every sum shown.*
 
-[control-system.js](https://github.com/eyereasoner/eyecode/blob/main/examples/control-system.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/control-system.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/control-system.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/control-system.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=control-system)
+[control-system.js](https://github.com/eyereasoner/eyemind/blob/main/examples/control-system.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/control-system.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/control-system.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/control-system.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=control-system)
 
 ---
 
@@ -23,7 +23,7 @@ This example computes commands for two actuators:
 
 ---
 
-## What we tell eyecode: the readings
+## What we tell eyemind: the readings
 
 ```js
 fact(measurement1('input1', [6, 11]))
@@ -41,7 +41,7 @@ use the first value.
 
 ---
 
-## What we tell eyecode: actuator 1
+## What we tell eyemind: actuator 1
 
 ```js
 implied_by(
@@ -66,7 +66,7 @@ the run with an error.
 
 ---
 
-## What we tell eyecode: actuator 2
+## What we tell eyemind: actuator 2
 
 ```js
 implied_by(
@@ -107,7 +107,7 @@ left out.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 control1('actuator1', 39.27346198678276)
@@ -152,11 +152,11 @@ Verdict: **checked**.
 ## Try it
 
 ```sh
-eyecode examples/control-system.js            # the commands
-eyecode --proof examples/control-system.js    # answers with their proof
+eyemind examples/control-system.js            # the commands
+eyemind --proof examples/control-system.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=control-system).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=control-system).
 Raise the target to `fact(target2('output2', 34))` and run again: the error becomes
 10, and actuator 2's command becomes `56.54` instead of `26.08`. Actuator 1 is
 unchanged. Set the target to `24`, the current output: the error is zero, the

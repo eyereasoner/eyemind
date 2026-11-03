@@ -2,7 +2,7 @@
 
 *What was owed, what was forbidden, and why making amends is not the same as being in the clear.*
 
-[deontic-logic.js](https://github.com/eyereasoner/eyecode/blob/main/examples/deontic-logic.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/deontic-logic.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/deontic-logic.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/deontic-logic.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=deontic-logic)
+[deontic-logic.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deontic-logic.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deontic-logic.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deontic-logic.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deontic-logic.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=deontic-logic)
 
 ---
 
@@ -20,7 +20,7 @@ obtained consent.
 
 ---
 
-## What we tell eyecode: norms and observations
+## What we tell eyemind: norms and observations
 
 ```js
 // The norms.
@@ -42,7 +42,7 @@ rule, because nothing obliged it.
 
 ---
 
-## What we tell eyecode: the rulebook
+## What we tell eyemind: the rulebook
 
 ```js
 implies(
@@ -68,13 +68,13 @@ implies(
 implies(uncompensated_violation(Actor, _), status(Actor, 'requires_review'))
 ```
 
-`not(...)` means "no compensation was concluded". eyecode runs that rule only
+`not(...)` means "no compensation was concluded". eyemind runs that rule only
 after the compensation rule has finished (*stratified negation*), so the
 answer is never premature. The rulebook is illustrative, not legal advice.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 violation('alice', missed_obligation('obtain_consent'))
@@ -123,8 +123,8 @@ Verdict: **checked**.
 ## Try it
 
 ```sh
-eyecode examples/deontic-logic.js
-eyecode --check-proof examples/proof/deontic-logic.js examples/deontic-logic.js
+eyemind examples/deontic-logic.js
+eyemind --check-proof examples/proof/deontic-logic.js examples/deontic-logic.js
 ```
 
 Delete the line `fact(not_performed('alice', 'obtain_consent'))` and run

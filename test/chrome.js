@@ -60,7 +60,7 @@ export async function serve(root) {
 // CI machine, which often cannot give Chrome the user namespaces its sandbox
 // needs, Chrome runs without the sandbox; it only ever loads this repository.
 export async function launch(executable) {
-  const profile = mkdtempSync(join(tmpdir(), 'eyecode-chrome-'));
+  const profile = mkdtempSync(join(tmpdir(), 'eyemind-chrome-'));
   const child = spawn(executable, [
     '--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check', '--disable-extensions',
     '--disable-background-networking', '--disable-component-update', '--remote-debugging-port=0',

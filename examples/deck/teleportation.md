@@ -2,7 +2,7 @@
 
 *Sending a quantum state with two ordinary bits, checked for every case.*
 
-[teleportation.js](https://github.com/eyereasoner/eyecode/blob/main/examples/teleportation.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/teleportation.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/teleportation.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/teleportation.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=teleportation)
+[teleportation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/teleportation.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/teleportation.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/teleportation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/teleportation.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=teleportation)
 
 ---
 
@@ -31,7 +31,7 @@ and `plus` (both at once).
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 // … the shared pair, Alice's measurement and Bob's fixes
@@ -56,7 +56,7 @@ code 65.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 teleported('zero', 0, ['false'])
@@ -100,19 +100,19 @@ the counting of paths sits inside those 12 obligations.
 ## Try it
 
 ```sh
-eyecode examples/teleportation.js            # the answers
-eyecode --proof examples/teleportation.js    # answers with their proof
+eyemind examples/teleportation.js            # the answers
+eyemind --proof examples/teleportation.js    # answers with their proof
 ```
 
 Break Bob's fix for outcome 0: in `implied_by(bob(0, Y, Z), kg(Y, Z))` replace
 `kg(Y, Z)` with `id(Y, Z)`. Now outcome 0 leaves Bob with the wrong state
-(`zero` arrives as `['true']`), so after the answers eyecode prints `'false'`
+(`zero` arrives as `['true']`), so after the answers eyemind prints `'false'`
 for the contradiction and exits with code 65.
 
 ---
 
 ## Takeaway
 
-Even a quantum protocol can be checked case by case with a few rules. eyecode
+Even a quantum protocol can be checked case by case with a few rules. eyemind
 covers all 12 cases, and is upfront that the "all answers" lists are the
 part you are trusting.

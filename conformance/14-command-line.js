@@ -92,10 +92,10 @@ conformance('a run without conclusions has an empty proof that checks', [
   stdout_text('\n\n'),
 ])
 
-conformance('errors are printed as eyecode: message and exit with 1', [
+conformance('errors are printed as eyemind: message and exit with 1', [
   spec('14'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', [
     'implies(not(q), p)',
     'implies(p, q)',
@@ -107,7 +107,7 @@ conformance('a missing program file is an error', [
   spec('14'),
   args('missing.js'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   stdout([]),
 ])
 
@@ -115,7 +115,7 @@ conformance('a proof document given as a program says how to check it', [
   spec('14'),
   args('proof.js'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('proof.js', [
     'p(1)',
     '',
@@ -130,7 +130,7 @@ conformance('--check-proof cannot be combined with --proof', [
   spec('14'),
   args('--proof --check-proof proof.js program.js'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', []),
   file('proof.js', []),
   stdout([]),
@@ -140,7 +140,7 @@ conformance('--unused cannot be combined with --proof', [
   spec('14'),
   args('--unused --proof program.js'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', []),
   stdout([]),
 ])
@@ -149,7 +149,7 @@ conformance('--unused cannot be combined with --check-proof', [
   spec('14'),
   args('--unused --check-proof proof.js program.js'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', []),
   file('proof.js', []),
   stdout([]),
@@ -159,7 +159,7 @@ conformance('--json requires --check-proof', [
   spec('14'),
   args('--json program.js'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', []),
   stdout([]),
 ])
@@ -168,7 +168,7 @@ conformance('--strict-proof requires --check-proof', [
   spec('14'),
   args('--strict-proof program.js'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', []),
   stdout([]),
 ])
@@ -177,7 +177,7 @@ conformance('an unknown option is an error', [
   spec('14'),
   args('--frobnicate program.js'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', []),
   stdout([]),
 ])
@@ -186,7 +186,7 @@ conformance('an option missing its value is an error', [
   spec('14'),
   args('program.js --goal'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', []),
   stdout([]),
 ])
@@ -195,7 +195,7 @@ conformance('a bound must be a positive integer', [
   spec('7.3, 14'),
   args('program.js --max-depth 0'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', []),
   stdout([]),
 ])
@@ -204,7 +204,7 @@ conformance('a bound must be an integer', [
   spec('7.3, 14'),
   args('program.js --max-inferences many'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', []),
   stdout([]),
 ])
@@ -213,7 +213,7 @@ conformance('standard input can be read only once', [
   spec('14'),
   args('- -'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   stdin([]),
   stdout([]),
 ])
@@ -222,7 +222,7 @@ conformance('a proof from standard input needs the program in files', [
   spec('14'),
   args('--check-proof -'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   stdin([]),
   stdout([]),
 ])
@@ -256,7 +256,7 @@ conformance('a bound must be exactly representable as a safe integer', [
   spec('7.3, 14'),
   args('program.js --max-inferences 9007199254740992'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', []),
   stdout([]),
 ])
@@ -265,7 +265,7 @@ conformance('an overflowing bound is rejected instead of disabling the limit', [
   spec('7.3, 14'),
   args('program.js --max-depth 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999'),
   exit(1),
-  stderr(prefix('eyecode:')),
+  stderr(prefix('eyemind:')),
   file('program.js', []),
   stdout([]),
 ])

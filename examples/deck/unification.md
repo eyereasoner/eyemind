@@ -1,8 +1,8 @@
 # Unification
 
-*Matching shapes: how eyecode fills in the blanks by fitting patterns together.*
+*Matching shapes: how eyemind fills in the blanks by fitting patterns together.*
 
-[unification.js](https://github.com/eyereasoner/eyecode/blob/main/examples/unification.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/unification.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/unification.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/unification.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=unification)
+[unification.js](https://github.com/eyereasoner/eyemind/blob/main/examples/unification.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/unification.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/unification.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/unification.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=unification)
 
 ---
 
@@ -20,7 +20,7 @@ Three small puzzles:
 
 ---
 
-## What we tell eyecode: the patterns
+## What we tell eyemind: the patterns
 
 ```js
 fact(append([], Ys, Ys))
@@ -35,7 +35,7 @@ fact(head_tail([Head, ...Tail], Head, Tail))
 
 ---
 
-## What we tell eyecode: the questions
+## What we tell eyemind: the questions
 
 ```js
 query(append(Prefix, Suffix, ['a', 'b']))
@@ -50,7 +50,7 @@ backwards and takes one apart.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 append([], ['a', 'b'], ['a', 'b'])
@@ -97,12 +97,12 @@ Verdict: **checked**. All 8 steps verified, nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/unification.js            # the answers
-eyecode --proof examples/unification.js    # answers with their proof
+eyemind examples/unification.js            # the answers
+eyemind --proof examples/unification.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=unification).
-Add `query(append(X, ['c'], ['a', 'b', 'c']))` and run again: eyecode works
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=unification).
+Add `query(append(X, ['c'], ['a', 'b', 'c']))` and run again: eyemind works
 out what comes before `['c']`, and adds
 `append(['a', 'b'], ['c'], ['a', 'b', 'c'])`.
 

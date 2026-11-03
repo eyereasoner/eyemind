@@ -2,7 +2,7 @@
 
 *Work out who belongs to which generation, and who counts as a cousin.*
 
-[family-cousins.js](https://github.com/eyereasoner/eyecode/blob/main/examples/family-cousins.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/family-cousins.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/family-cousins.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/family-cousins.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=family-cousins)
+[family-cousins.js](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-cousins.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-cousins.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-cousins.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=family-cousins)
 
 ---
 
@@ -16,7 +16,7 @@ in the *same generation* but a *different branch* of the family.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 Who is whose parent, where generation 0 starts, and which branch four of
 the grandchildren belong to:
@@ -64,7 +64,7 @@ calculation of how closely two people are related.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 24 new facts. An excerpt:
 
@@ -125,11 +125,11 @@ Verdict: **checked**. All 43 steps verified, nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/family-cousins.js
-eyecode --proof examples/family-cousins.js
+eyemind examples/family-cousins.js
+eyemind --proof examples/family-cousins.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=family-cousins).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=family-cousins).
 Add `fact(parent('grace', 'kim'))` and run again: Kim joins generation 3 and
 branch `'c'`, and becomes a cousin of Heidi and Ivan.
 

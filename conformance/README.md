@@ -1,19 +1,19 @@
-# eyecode conformance suite
+# eyemind conformance suite
 
 These cases test an implementation against [SPEC.md](../SPEC.md). They are
 black-box: each case creates some files, runs the implementation's command
 line (SPEC Section 14) and compares what it prints and its exit code with what
 the specification requires. Any implementation with that command line can be
-tested, not only eyecode.
+tested, not only eyemind.
 
 ```sh
-node conformance/run.js                                 # eyecode from this checkout, in this process
-node conformance/run.js --command "path/to/my-eyecode"  # against another implementation
+node conformance/run.js                                 # eyemind from this checkout, in this process
+node conformance/run.js --command "path/to/my-eyemind"  # against another implementation
 node conformance/run.js -k skolem                       # cases whose name contains "skolem"
 node conformance/run.js 11-checking.js -v               # one file, listing every case
 ```
 
-The suite also runs with eyecode's own tests (`npm test`). `manifest.json` lists
+The suite also runs with eyemind's own tests (`npm test`). `manifest.json` lists
 the case files in order, with the SPEC sections and the topic of each.
 
 ## Coverage
@@ -34,8 +34,8 @@ the case files in order, with the SPEC sections and the topic of each.
 
 ## Case format
 
-A case file is an eyecode document (SPEC Section 9), like the conclusions,
-proofs and reports eyecode writes: it is read, never run. Each case is one
+A case file is an eyemind document (SPEC Section 9), like the conclusions,
+proofs and reports eyemind writes: it is read, never run. Each case is one
 term, `conformance(Name, [Setting, ...])`, and each block of text in it, such
 as a file or the expected output, is an array of its lines:
 
@@ -77,5 +77,5 @@ detail.
 ## Writing cases
 
 Expected outputs come from the specification, not from running an
-implementation. When a case and eyecode disagree, the specification decides
+implementation. When a case and eyemind disagree, the specification decides
 which one is wrong.

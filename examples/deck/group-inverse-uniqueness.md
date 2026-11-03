@@ -2,7 +2,7 @@
 
 *A first theorem of algebra, proved from the axioms and checked step by step.*
 
-[group-inverse-uniqueness.js](https://github.com/eyereasoner/eyecode/blob/main/examples/group-inverse-uniqueness.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/group-inverse-uniqueness.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/group-inverse-uniqueness.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/group-inverse-uniqueness.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=group-inverse-uniqueness)
+[group-inverse-uniqueness.js](https://github.com/eyereasoner/eyemind/blob/main/examples/group-inverse-uniqueness.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/group-inverse-uniqueness.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/group-inverse-uniqueness.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/group-inverse-uniqueness.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=group-inverse-uniqueness)
 
 ---
 
@@ -21,7 +21,7 @@ inverses?** Suppose x has inverses i and j. Must i and j be the same?
 
 ---
 
-## What we tell eyecode: the hypothesis
+## What we tell eyemind: the hypothesis
 
 ```js
 fact(element('e'), element('x'), element('i'), element('j'))
@@ -34,7 +34,7 @@ says that i and j are equal.
 
 ---
 
-## What we tell eyecode: the group laws
+## What we tell eyemind: the group laws
 
 ```js
 // identity: e · a = a and a · e = a
@@ -56,7 +56,7 @@ of inverses of the same element that turn out equal.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 same_inverse('x', 'i', 'j')
@@ -101,19 +101,19 @@ Verdict: **checked**. All 18 steps verified, nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/group-inverse-uniqueness.js
-eyecode --proof examples/group-inverse-uniqueness.js
+eyemind examples/group-inverse-uniqueness.js
+eyemind --proof examples/group-inverse-uniqueness.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=group-inverse-uniqueness).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=group-inverse-uniqueness).
 Give x a third inverse: add `element('k')` to the first fact and
-`inverse_of('k', 'x')` to the second. eyecode then concludes six
+`inverse_of('k', 'x')` to the second. eyemind then concludes six
 `same_inverse` facts: i, j and k are all the same element.
 
 ---
 
 ## Takeaway
 
-A theorem is a conclusion forced by the axioms. Here eyecode derives that an
+A theorem is a conclusion forced by the axioms. Here eyemind derives that an
 inverse is unique from the three group laws alone, and its checked proof is
 the familiar five-line argument, each line tied to the law it uses.

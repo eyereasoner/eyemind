@@ -2,7 +2,7 @@
 
 *Arabic runs right to left. The data should say so.*
 
-[rdf12-directional-language.js](https://github.com/eyereasoner/eyecode/blob/main/examples/rdf12-directional-language.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/rdf12-directional-language.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/rdf12-directional-language.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/rdf12-directional-language.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-directional-language)
+[rdf12-directional-language.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-directional-language.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-directional-language.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-directional-language.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-directional-language.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-directional-language)
 
 ---
 
@@ -16,7 +16,7 @@ string carry that **base direction**: `"مرحبا"@ar--rtl`.
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 ```js
 fact(
@@ -34,7 +34,7 @@ in a graph, `'default_graph'` or `iri(Name)`. A directional string is `literal(T
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 Two display labels, each with its language and direction:
 
@@ -71,15 +71,15 @@ Verdict: **checked**. All 4 steps verified, and nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/rdf12-directional-language.js              # the results as quads
-eyecode --proof examples/rdf12-directional-language.js      # with their proof
-eyecode examples/rdf12-directional-language.js > out.js && eyecode-to-rdf out.js -o out.ttl
+eyemind examples/rdf12-directional-language.js              # the results as quads
+eyemind --proof examples/rdf12-directional-language.js      # with their proof
+eyemind examples/rdf12-directional-language.js > out.js && eyemind-to-rdf out.js -o out.ttl
 ```
 
-`eyecode-to-rdf` and `rdf-to-eyecode` come with
+`eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
-they turn eyecode's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=rdf12-directional-language).
+they turn eyemind's quads into RDF and RDF into quads.
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-directional-language).
 Add a Hebrew label, `literal('ברוכים הבאים', lang('he', 'rtl'))`, and run again.
 
 ---

@@ -2,7 +2,7 @@
 
 *A relationship defined as a chain of others, and the links that follow from it.*
 
-[owl-property-chain.js](https://github.com/eyereasoner/eyecode/blob/main/examples/owl-property-chain.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/owl-property-chain.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/owl-property-chain.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/owl-property-chain.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=owl-property-chain)
+[owl-property-chain.js](https://github.com/eyereasoner/eyemind/blob/main/examples/owl-property-chain.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/owl-property-chain.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/owl-property-chain.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/owl-property-chain.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=owl-property-chain)
 
 ---
 
@@ -20,7 +20,7 @@ links it walked?
 
 ---
 
-## What we tell eyecode: the data
+## What we tell eyemind: the data
 
 ```js
 // grandparent is the chain parent, parent.
@@ -35,7 +35,7 @@ is a plain list of property names, so it is data, just like the triples.
 
 ---
 
-## What we tell eyecode: following a chain
+## What we tell eyemind: following a chain
 
 ```js
 implies(
@@ -60,7 +60,7 @@ declared chain, of any length.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 triple('alice', 'grandparent', 'carol')
@@ -103,11 +103,11 @@ Verdict: **checked**. Nothing taken on trust.
 ## Try it
 
 ```sh
-eyecode examples/owl-property-chain.js            # the grandparents
-eyecode --proof examples/owl-property-chain.js    # with their proof
+eyemind examples/owl-property-chain.js            # the grandparents
+eyemind --proof examples/owl-property-chain.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=owl-property-chain).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=owl-property-chain).
 
 Declare a longer chain and ask for it:
 

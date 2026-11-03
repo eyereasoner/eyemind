@@ -2,7 +2,7 @@
 
 *Two bits through one qubit — a quantum protocol, reasoned out by counting paths.*
 
-[superdense-coding.js](https://github.com/eyereasoner/eyecode/blob/main/examples/superdense-coding.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/superdense-coding.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/superdense-coding.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/superdense-coding.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=superdense-coding)
+[superdense-coding.js](https://github.com/eyereasoner/eyemind/blob/main/examples/superdense-coding.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/superdense-coding.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/superdense-coding.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/superdense-coding.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=superdense-coding)
 
 ---
 
@@ -33,7 +33,7 @@ same result can cancel out. Here that becomes a simple rule:
 
 ---
 
-## What we tell eyecode
+## What we tell eyemind
 
 The shared pair, Alice's four operations and Bob's four readings are
 small tables of facts (omitted here). Then:
@@ -58,7 +58,7 @@ is odd.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 sdcoding(0, 0)
@@ -96,7 +96,7 @@ Verdict: **checked_with_obligations**.
 The 4 obligations are all `collected`: each says a list holds *all* the
 ways from one message to its reading — for 0 to 0, that
 `['true', 'true', 'true']` is the only way. A proof can show that a way
-exists; "and there are no others" comes from eyecode having searched
+exists; "and there are no others" comes from eyemind having searched
 everything it knows. The checker records that as an obligation, and
 confirmed that nothing in the program or the proof contradicts any of the
 4 lists.
@@ -108,16 +108,16 @@ This matters here: an odd count could turn even if a way were missing.
 ## Try it
 
 ```sh
-eyecode examples/superdense-coding.js                          # the answers
-eyecode --proof examples/superdense-coding.js                  # answers with their proof
-eyecode --goal "path(0, M, P)" examples/superdense-coding.js   # every way for message 0
+eyemind examples/superdense-coding.js                          # the answers
+eyemind --proof examples/superdense-coding.js                  # answers with their proof
+eyemind --goal "path(0, M, P)" examples/superdense-coding.js   # every way for message 0
 ```
 
 The last lists every way message 0 can travel: one to reading 0, two to
 reading 1, two to reading 3. Or open it in the
-[playground](https://eyereasoner.github.io/eyecode/playground#example=superdense-coding).
+[playground](https://eyereasoner.github.io/eyemind/playground#example=superdense-coding).
 
-Its sibling, [teleportation.js](https://github.com/eyereasoner/eyecode/blob/main/examples/teleportation.js), runs the companion
+Its sibling, [teleportation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/teleportation.js), runs the companion
 protocol, quantum teleportation, in the same theory with the same relations.
 
 ---
@@ -125,5 +125,5 @@ protocol, quantum teleportation, in the same theory with the same relations.
 ## Takeaway
 
 Quantum interference can be expressed as ordinary rules plus one twist:
-count the ways, keep the odd ones. eyecode shows each answer's ways, and is
+count the ways, keep the odd ones. eyemind shows each answer's ways, and is
 upfront that "these are all the ways" is the one thing taken on trust.

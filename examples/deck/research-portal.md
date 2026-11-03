@@ -2,7 +2,7 @@
 
 *One hospital, one research policy, two sets of device rules: which research sessions may go ahead, and what would change?*
 
-[research-portal.js](https://github.com/eyereasoner/eyecode/blob/main/examples/research-portal.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/research-portal.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/research-portal.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/research-portal.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=research-portal)
+[research-portal.js](https://github.com/eyereasoner/eyemind/blob/main/examples/research-portal.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/research-portal.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/research-portal.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/research-portal.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=research-portal)
 
 ---
 
@@ -56,7 +56,7 @@ research, so the purpose fits.
 
 The policy is data the program reads, not a comment: it governs r1 because
 it is an ODRL agreement assigned by r1's data controller. Delete any one of
-its 24 triples and the outcome changes; `eyecode --unused` checks exactly that.
+its 24 triples and the outcome changes; `eyemind --unused` checks exactly that.
 
 ---
 
@@ -103,7 +103,7 @@ changed(session('ex:r8'), from(await_device_consent('ex:research')), to(deny_dev
 ```
 
 (The program spells the "from" part `struct('from', Old)`; it is the same
-term, and eyecode writes it back as `from(...)`.)
+term, and eyemind writes it back as `from(...)`.)
 
 - **r1** may now go ahead: the portal's own statistics need no consent.
 - **r7** is blocked: the browser's "no" now has to be respected.
@@ -156,7 +156,7 @@ line, and 15 calculations were redone and agreed. Verdict:
 The **33 obligations** are complete lists: "these are all the conditions
 this session fails", "this is the policy's only conflict strategy", and most
 often "there is no prohibition for this session" or "no condition failed".
-eyecode found these by searching everything it knows; the checker records
+eyemind found these by searching everything it knows; the checker records
 them rather than proving them, and found nothing in the proof that
 contradicts them.
 
@@ -169,11 +169,11 @@ that the conclusions follow from these rules and these facts.
 ## Try it
 
 ```sh
-eyecode examples/research-portal.js
-eyecode --goal "policy_result('ex:r4', Result)" examples/research-portal.js
+eyemind examples/research-portal.js
+eyemind --goal "policy_result('ex:r4', Result)" examples/research-portal.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=research-portal).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=research-portal).
 Two experiments, one at each gate:
 
 - give r4 consent again (`'dpv:ConsentWithdrawn'` → `'dpv:ConsentGiven'`):

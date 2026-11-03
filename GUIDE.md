@@ -1,10 +1,10 @@
-# <img src="assets/eye.png" alt="" width="48" height="48" align="absmiddle"> eyecode guide
+# <img src="assets/eye.png" alt="" width="48" height="48" align="absmiddle"> eyemind guide
 
-Give eyecode a few facts and rules, ask a question, and follow the answer back to its evidence. This guide takes you from a first conclusion to checked proofs, browser experiments, and your own JavaScript application.
+Give eyemind a few facts and rules, ask a question, and follow the answer back to its evidence. This guide takes you from a first conclusion to checked proofs, browser experiments, and your own JavaScript application.
 
-eyecode is a **rule language written in JavaScript**. A program is a plain JavaScript script, its conclusions, proofs and check reports are JavaScript expressions, and the reasoner itself is a few thousand lines of dependency-free JavaScript. One language states the rules, computes with them, and holds every result. The [specification](SPEC.md) defines the language, what a run concludes, the proof format, and what proof checking establishes.
+eyemind is a **rule language written in JavaScript**. A program is a plain JavaScript script, its conclusions, proofs and check reports are JavaScript expressions, and the reasoner itself is a few thousand lines of dependency-free JavaScript. One language states the rules, computes with them, and holds every result. The [specification](SPEC.md) defines the language, what a run concludes, the proof format, and what proof checking establishes.
 
-**Start now:** [Try Socrates in the playground](https://eyereasoner.github.io/eyecode/playground#example=socrates) · [Run locally](#install-and-run) · [Check a proof](#proofs-and-what-checking-one-means)
+**Start now:** [Try Socrates in the playground](https://eyereasoner.github.io/eyemind/playground#example=socrates) · [Run locally](#install-and-run) · [Check a proof](#proofs-and-what-checking-one-means)
 
 ## Contents
 
@@ -43,10 +43,10 @@ eyecode is a **rule language written in JavaScript**. A program is a plain JavaS
 
 ## Install and run
 
-eyecode needs Node.js 18 or later and nothing else. From a checkout of the repository:
+eyemind needs Node.js 18 or later and nothing else. From a checkout of the repository:
 
 ```sh
-node bin/eyecode.js examples/socrates.js
+node bin/eyemind.js examples/socrates.js
 ```
 
 Your first conclusions are:
@@ -61,13 +61,13 @@ Open [socrates.js](examples/socrates.js) beside its [saved output](examples/outp
 Now ask for the explanation, and check it:
 
 ```sh
-node bin/eyecode.js --proof examples/socrates.js > /tmp/socrates-proof.js
-node bin/eyecode.js --check-proof /tmp/socrates-proof.js examples/socrates.js
+node bin/eyemind.js --proof examples/socrates.js > /tmp/socrates-proof.js
+node bin/eyemind.js --check-proof /tmp/socrates-proof.js examples/socrates.js
 ```
 
 The report ends with `verdict('checked')`. You have run a program and checked a proof of its conclusions.
 
-To have an `eyecode` command, run `npm install --global @josd/eyecode`, or `npm install --global .` in the checkout. The commands below use `eyecode`; substitute `node bin/eyecode.js` if you did not install it.
+To have an `eyemind` command, run `npm install --global eyemind`, or `npm install --global .` in the checkout. The commands below use `eyemind`; substitute `node bin/eyemind.js` if you did not install it.
 
 ## Your first program
 
@@ -87,7 +87,7 @@ query(related('alice', 'carol'))
 ```
 
 ```sh
-eyecode /tmp/family.js
+eyemind /tmp/family.js
 ```
 
 prints `related('alice', 'carol')`. The two `implies` rules run forward: whenever their premise holds, they conclude their conclusion, until nothing new follows. The `implied_by` rules run backward, only when a goal asks for them. The two kinds compose: a forward rule may call backward definitions, and a backward goal may use the facts forward reasoning established, so you let knowledge accumulate and then ask a focused question.
@@ -95,7 +95,7 @@ prints `related('alice', 'carol')`. The two `implies` rules run forward: wheneve
 With nothing asked, a run prints the facts it derived; `query(...)` asks the program's own questions, and `--goal` asks from outside instead:
 
 ```sh
-eyecode --goal "ancestor('alice', Who)" /tmp/family.js
+eyemind --goal "ancestor('alice', Who)" /tmp/family.js
 ```
 
 ### Try a small change
@@ -117,7 +117,7 @@ A program states clauses with these calls:
 
 **An array is a conjunction.** A premise is a goal or an array of goals that must all hold, and a forward rule's conclusion may be an array of several conclusions: `implies([p(X), q(X)], [r(X), s(X)])`. Disjunction is `or(A, B)`, negation `not(G)`, alongside `call`, `once` and `findall`.
 
-**Nothing to declare.** A name the program uses without declaring it is a variable when it starts with a capital or an underscore, like `X` or `_Rest`, and a predicate otherwise, like `parent`. The JavaScript globals `Math`, `JSON`, `BigInt`, `console`, `parseInt`, `parseFloat`, `isNaN`, `isFinite`, `Infinity`, `NaN`, `undefined` and `globalThis` keep their meaning, so a program can compute with them; other capitalized globals such as `Date` or `Map` are variables, as logic programs name them. A program that wants a predicate named like one of those says so: `const range = preds('range')`. A call of an undeclared predicate on its own, such as a misspelled `fcat(p(1))`, states nothing, so eyecode stops with an error instead of ignoring it.
+**Nothing to declare.** A name the program uses without declaring it is a variable when it starts with a capital or an underscore, like `X` or `_Rest`, and a predicate otherwise, like `parent`. The JavaScript globals `Math`, `JSON`, `BigInt`, `console`, `parseInt`, `parseFloat`, `isNaN`, `isFinite`, `Infinity`, `NaN`, `undefined` and `globalThis` keep their meaning, so a program can compute with them; other capitalized globals such as `Date` or `Map` are variables, as logic programs name them. A program that wants a predicate named like one of those says so: `const range = preds('range')`. A call of an undeclared predicate on its own, such as a misspelled `fcat(p(1))`, states nothing, so eyemind stops with an error instead of ignoring it.
 
 **JavaScript computes the clauses.** A program is a script, so loops, functions and constants work as usual; the deep taxonomy examples state a hundred thousand rules with a `for` loop:
 
@@ -137,20 +137,20 @@ Once stated, a clause is a term, and reasoning over it calls no code of yours.
 
 **Arithmetic is a term, not an operator.** `is(Y, add(X, 1))` binds `Y` to `X + 1`, and `gt(X, 1)` compares. Operators do not apply to terms: `X + 1` or `X > 1` in a program stops it with a message that says what to write instead. Operators on plain numbers are JavaScript's own, so `query(unify(Y, 3 + 4))` binds `Y` to 7. `div` is true division, `floordiv` and `mod` floor toward negative infinity, and `round` rounds half to even. The primitives (`unify`, `is`, `eq`, `lt` and the other comparisons, type tests, `functor`, `univ`, `atom_concat` and the rest) are listed in [SPEC §5](SPEC.md#5-goals-controls-and-primitives), and the arithmetic functions in [SPEC §6](SPEC.md#6-arithmetic). Everything else, such as membership, mapping or graph traversal, is written as ordinary clauses.
 
-**Domains get representations, not syntax.** eyecode has no built-in notion of RDF or of anything else: IRIs, typed literals, triples and quoted graphs are just terms, such as `literal(V, lang(L))` or `triple(S, P, O)` (see [RDF 1.2](#rdf-12) below). A forward conclusion may contain variables its premise never binds, and then says that something exists. Each such unknown becomes a Skolem function of the activation: `implies(person(X), has_parent(X, P))` concludes `has_parent('ann', skolem(2, 'P', ['ann']))`, the `P` of rule 2 for Ann.
+**Domains get representations, not syntax.** eyemind has no built-in notion of RDF or of anything else: IRIs, typed literals, triples and quoted graphs are just terms, such as `literal(V, lang(L))` or `triple(S, P, O)` (see [RDF 1.2](#rdf-12) below). A forward conclusion may contain variables its premise never binds, and then says that something exists. Each such unknown becomes a Skolem function of the activation: `implies(person(X), has_parent(X, P))` concludes `has_parent('ann', skolem(2, 'P', ['ann']))`, the `P` of rule 2 for Ann.
 
-**Data that is not a program.** Everything eyecode writes, conclusions, proofs and check reports, is a *document*: plain expressions, one per line. `facts_from` reads such a document as data and states each expression as a fact. It never executes the text, so it is also the safe way to take in data you do not trust; a data file written as a program would run as JavaScript. It is what lets one run reason over another, as [audited-grants](examples/audited-grants.js) reasons over its own proof and check report:
+**Data that is not a program.** Everything eyemind writes, conclusions, proofs and check reports, is a *document*: plain expressions, one per line. `facts_from` reads such a document as data and states each expression as a fact. It never executes the text, so it is also the safe way to take in data you do not trust; a data file written as a program would run as JavaScript. It is what lets one run reason over another, as [audited-grants](examples/audited-grants.js) reasons over its own proof and check report:
 
 ```js
 facts_from('data.js')                                          // a file of expressions such as score('ann', 3)
-facts_from({ text: eyecode.checkReport(result.proofReport) })  // or text, such as another run's report
+facts_from({ text: eyemind.checkReport(result.proofReport) })  // or text, such as another run's report
 ```
 
 ### RDF 1.2
 
-RDF reaches eyecode as data, through [rdf-interchange](https://github.com/eyereasoner/rdf-interchange): `rdf-to-eyecode` turns Turtle, TriG, N-Triples or N-Quads into an eyecode document of `rdf(Subject, Predicate, Object, Graph)` terms for `facts_from`, and `eyecode-to-rdf` turns the `rdf` or `result_rdf` conclusions of a run back into N-Quads, Turtle or TriG. The terms are the ones eyepl and EyeProlog use:
+RDF reaches eyemind as data, through [rdf-interchange](https://github.com/eyereasoner/rdf-interchange): `rdf-to-eyemind` turns Turtle, TriG, N-Triples or N-Quads into an eyemind document of `rdf(Subject, Predicate, Object, Graph)` terms for `facts_from`, and `eyemind-to-rdf` turns the `rdf` or `result_rdf` conclusions of a run back into N-Quads, Turtle or TriG. The terms are the ones eyepl and EyeProlog use:
 
-| RDF 1.2 | eyecode term |
+| RDF 1.2 | eyemind term |
 | --- | --- |
 | IRI | `iri('https://example.org/bob')` |
 | Blank node | `bnode(Scope, Label)` |
@@ -164,7 +164,7 @@ A rule matches inside a triple term by unification, and a statement about a trip
 
 ## Reasoning strategy
 
-eyecode reasons in **both directions within one run**, and the statement
+eyemind reasons in **both directions within one run**, and the statement
 chooses the direction:
 
 | Strategy | Stated with | How it works |
@@ -230,7 +230,7 @@ A proof holds the claims, the source clauses it cites, and one `step(...)` recor
 | **C7** | relevance | Every claim answers the question asked, and every step serves a claim |
 | **C8** | witness integrity | Every "something exists" conclusion uses the Skolem term of its own rule firing, not a value of the prover's choosing |
 
-Two properties make this worth more than a log. **The checker follows the certificate:** it never calls the reasoner to fill a gap, so a missing step fails the check rather than being quietly re-derived. **The source is the authority:** the clauses a proof displays cannot override the program, so you cannot smuggle a rule into a proof, nor pad it with steps no claim needs. Every proof eyecode generates is checked before it is returned.
+Two properties make this worth more than a log. **The checker follows the certificate:** it never calls the reasoner to fill a gap, so a missing step fails the check rather than being quietly re-derived. **The source is the authority:** the clauses a proof displays cannot override the program, so you cannot smuggle a rule into a proof, nor pad it with steps no claim needs. Every proof eyemind generates is checked before it is returned.
 
 The report is a document too, so one program's evidence is material another program can reason over:
 
@@ -256,9 +256,9 @@ Failures appear as `failed(N)` outcomes with `failure(Condition, Conclusion, Det
 
 ### Why negation and collection are safe
 
-A negation, `not(G)`, concludes something from what is *not* there, and a collection, `findall(T, G, L)`, from *everything* that is there. Both are only right once nothing more can be derived. eyecode guards them in four ways.
+A negation, `not(G)`, concludes something from what is *not* there, and a collection, `findall(T, G, L)`, from *everything* that is there. Both are only right once nothing more can be derived. eyemind guards them in four ways.
 
-**Ask only once the answer is final.** eyecode works out which clauses each body goal depends on, ranks the rules so that every rule that could still produce a fact a negation or collection inspects runs to its fixpoint first, and rejects a program with no such ranking:
+**Ask only once the answer is final.** eyemind works out which clauses each body goal depends on, ranks the rules so that every rule that could still produce a fact a negation or collection inspects runs to its fixpoint first, and rejects a program with no such ranking:
 
 ```js
 implies(not(q), p)
@@ -267,7 +267,7 @@ implies(p, q)     // p needs q to be absent, yet p yields q: rejected
 
 Positive cycles, such as transitive closure, are fine. Ranks compare whole terms rather than predicate names, so `t(X, 'type', Y)` and `t(X, 'status', Y)` can sit at different ranks, which matters when everything is a triple.
 
-**Negate only what is bound.** The variables of `not(G)` must be bound when it is solved; otherwise eyecode stops with an error. When "no value at all" is what you mean, say so with `_`: `not(q(X, _))` holds when `q(X, Y)` has no solution for any `Y`.
+**Negate only what is bound.** The variables of `not(G)` must be bound when it is solved; otherwise eyemind stops with an error. When "no value at all" is what you mean, say so with `_`: `not(q(X, _))` holds when `q(X, Y)` has no solution for any `Y`.
 
 **Say what was taken on trust.** A proof records each negation as an `'absent'` step and each collection as a `'collected'` step, the report lists them as `obligation('absent', 'theory_scoped', Goal)`, and the verdict is `checked_with_obligations`. `--strict-proof` rejects any proof that leans on one.
 
@@ -275,7 +275,7 @@ Positive cycles, such as transitive closure, are fine. Ranks compare whole terms
 
 ## Checking the translation
 
-A checked proof shows that the conclusions follow from the program. It cannot show that the program says what the law, the policy or the textbook says. What eyecode can do is point at the parts of a program that make no difference to its conclusions, because those are where a translation is most likely to be decorative, incomplete or untested:
+A checked proof shows that the conclusions follow from the program. It cannot show that the program says what the law, the policy or the textbook says. What eyemind can do is point at the parts of a program that make no difference to its conclusions, because those are where a translation is most likely to be decorative, incomplete or untested:
 
 ```js
 fact(p('a'))
@@ -286,28 +286,28 @@ implies([p('a'), not(s('a'))], ok)
 ```
 
 ```text
-$ eyecode --unused program.js
+$ eyemind --unused program.js
 unused(line(2), fact(q('b')))
 unused(line(3), implied_by(s(X), q(X)))
 unused(line(4), fact(z('c')))
 ```
 
-A clause is listed when no conclusion's proof uses it. A negation or collection may consult a clause without its proof recording that search, as `not(s('a'))` consults `q('b')`; for each such clause eyecode leaves it out, runs the program again, and lists it only when the conclusions stay the same.
+A clause is listed when no conclusion's proof uses it. A negation or collection may consult a clause without its proof recording that search, as `not(s('a'))` consults `q('b')`; for each such clause eyemind leaves it out, runs the program again, and lists it only when the conclusions stay the same.
 
 ## Explore the examples
 
-The [example collection](examples/) is 80 complete programs, each with its conclusions, proof and C1–C8 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a [card deck](https://eyereasoner.github.io/eyecode/examples/deck/) that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to policy reasoning (research-portal, package-holiday), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
+The [example collection](examples/) is 80 complete programs, each with its conclusions, proof and C1–C8 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a [card deck](https://eyereasoner.github.io/eyemind/examples/deck/) that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to policy reasoning (research-portal, package-holiday), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
 
 ## Browser
 
-The [playground](https://eyereasoner.github.io/eyecode/playground) runs eyecode's own modules in your browser, in a worker, so a long run never freezes the page and **Stop** ends it. Choose an example, edit the program, pick an output (conclusions, proof, check of a saved proof, or unused clauses), and press **Run** or Ctrl+Enter. The options panel shows the equivalent command line. When an error names a line of the program, a syntax error included, that line is marked red in the input until you edit it. Inputs and options are saved in your browser.
+The [playground](https://eyereasoner.github.io/eyemind/playground) runs eyemind's own modules in your browser, in a worker, so a long run never freezes the page and **Stop** ends it. Choose an example, edit the program, pick an output (conclusions, proof, check of a saved proof, or unused clauses), and press **Run** or Ctrl+Enter. The options panel shows the equivalent command line. When an error names a line of the program, a syntax error included, that line is marked red in the input until you edit it. Inputs and options are saved in your browser.
 
 **Share link** copies a link holding the program, proof and options; an unchanged bundled example gets a short `#example=name` link. **Create Gist share** uploads the state to an unlisted GitHub Gist with a token you supply, for a shorter link.
 
 ## CLI options
 
 ```text
-eyecode [OPTION ...] [FILE ...]
+eyemind [OPTION ...] [FILE ...]
 ```
 
 | Option | Meaning |
@@ -341,7 +341,7 @@ Exit codes: 0 success, 1 error, 2 a proof that is not valid, 65 a contradiction.
 ## JavaScript library
 
 ```js
-import { checkProof, loadText, run } from '@josd/eyecode';
+import { checkProof, loadText, run } from 'eyemind';
 
 const socrates = loadText(`
 fact(human('socrates'))
@@ -354,9 +354,9 @@ console.log(result.bindings);                         // [ { X: "'socrates'" } ]
 console.log(checkProof(socrates, result.proof, { goals }).valid); // true
 ```
 
-`loadText(source, filename, io)` loads program text and `loadSources([[text, filename], ...], io)` several sources as one program; pass `nodeIO` from `@josd/eyecode/node` as `io` to let `facts_from(path)` read files. `run()` returns a `Result` with `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`; its options are `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`, and exceeding a bound throws an `EyecodeError` rather than return a partial result. `checkProof(program, document, { goals, allowTrusted })` checks a proof, `checkReport(report)` formats a report, and `readTerm`, `readTerms` and `write` read and write the canonical text. A program reaches the same functions as `eyecode.run`, `eyecode.build` and so on.
+`loadText(source, filename, io)` loads program text and `loadSources([[text, filename], ...], io)` several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `run()` returns a `Result` with `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`; its options are `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`, and exceeding a bound throws an `EyemindError` rather than return a partial result. `checkProof(program, document, { goals, allowTrusted })` checks a proof, `checkReport(report)` formats a report, and `readTerm`, `readTerms` and `write` read and write the canonical text. A program reaches the same functions as `eyemind.run`, `eyemind.build` and so on.
 
-Omit a reasoning bound or pass `null` to use its default. A supplied `maxDepth`, `maxIterations` or `maxInferences` must be a positive safe integer; zero, fractions, strings and infinite values raise an `EyecodeError`.
+Omit a reasoning bound or pass `null` to use its default. A supplied `maxDepth`, `maxIterations` or `maxInferences` must be a positive safe integer; zero, fractions, strings and infinite values raise an `EyemindError`.
 
 ## What is deliberately absent
 
@@ -368,15 +368,15 @@ Cut, conditional commitment, mutable databases, attributed variables, constraint
 systemd-run --user --scope -q -p MemoryMax=3G -p MemorySwapMax=0 -- npm test  # full suite, memory capped
 npm test -- unit examples                       # only these sections
 npm test -- -k skolem                           # only tests whose line contains "skolem"
-EYECODE_PROPERTY_SCALE=20 npm test -- -k properties  # a deeper search by the generated tests
+EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties  # a deeper search by the generated tests
 node tools/update-examples.js                   # regenerate example artifacts after an intended change
 node conformance/run.js                         # the conformance suite of SPEC.md
-node conformance/run.js --command "my-eyecode"  # against another implementation
+node conformance/run.js --command "my-eyemind"  # against another implementation
 ```
 
 The full suite and large examples need substantial memory. On this development machine, use the memory cap above with swap disabled and run one heavy job at a time. Focused tests can use `npm test -- unit -k NAME`.
 
-The unit tests include generated ones, which check properties on inputs a seeded generator makes. For each example, its saved proof is forged at random, consistently or not and often at a computed value or a witness, and the checker must accept no forgery that claims what the program does not entail (a proof checked with obligations may do so only through an obligation it changed or added, which a strict check rejects), with and without its fast path for flat clauses giving the same report; and leaving out any clause no derivation cites must not change what the example concludes. Circular proofs of atoms that only a cycle of rule instances supports must fail C2. Random stratified programs, forward and backward, must answer as a naive fixpoint does, with proofs that check, and must conclude the same with their statements in any order or without a clause no derivation cites. Random terms must read back from their canonical text as themselves, and mutated and hostile documents must give terms or an error without the reader running any of it. A failure names the seed that reproduces it, and `EYECODE_PROPERTY_SCALE` multiplies the number of cases. The test sections are unit tests, the example corpus (each program must reproduce its saved output, proof and check report, as three tests whose times show where it spends them, and its saved proof must check from disk), the conformance suite, run in process, with its command-line cases (`14-command-line.js`) also run through the `eyecode` command as processes of their own. Starting Node costs more than most cases take, so the other cases run through the same `main` in process; `node conformance/run.js --command "node bin/eyecode.js"` runs every case through the command; and the playground, run in a headless Chrome at desktop and phone widths, which marks the line an error names. The playground section needs Chrome (`CHROME` names it when it is not on the PATH) and a Node.js with `WebSocket`, and says so when either is missing. [conformance/README.md](conformance/README.md) describes the case format, and `node test/browser.mjs DIR` runs the playground tests alone and saves screenshots.
+The unit tests include generated ones, which check properties on inputs a seeded generator makes. For each example, its saved proof is forged at random, consistently or not and often at a computed value or a witness, and the checker must accept no forgery that claims what the program does not entail (a proof checked with obligations may do so only through an obligation it changed or added, which a strict check rejects), with and without its fast path for flat clauses giving the same report; and leaving out any clause no derivation cites must not change what the example concludes. Circular proofs of atoms that only a cycle of rule instances supports must fail C2. Random stratified programs, forward and backward, must answer as a naive fixpoint does, with proofs that check, and must conclude the same with their statements in any order or without a clause no derivation cites. Random terms must read back from their canonical text as themselves, and mutated and hostile documents must give terms or an error without the reader running any of it. A failure names the seed that reproduces it, and `EYEMIND_PROPERTY_SCALE` multiplies the number of cases. The test sections are unit tests, the example corpus (each program must reproduce its saved output, proof and check report, as three tests whose times show where it spends them, and its saved proof must check from disk), the conformance suite, run in process, with its command-line cases (`14-command-line.js`) also run through the `eyemind` command as processes of their own. Starting Node costs more than most cases take, so the other cases run through the same `main` in process; `node conformance/run.js --command "node bin/eyemind.js"` runs every case through the command; and the playground, run in a headless Chrome at desktop and phone widths, which marks the line an error names. The playground section needs Chrome (`CHROME` names it when it is not on the PATH) and a Node.js with `WebSocket`, and says so when either is missing. [conformance/README.md](conformance/README.md) describes the case format, and `node test/browser.mjs DIR` runs the playground tests alone and saves screenshots.
 
 Review artifact changes together with the source change that caused them. When adding an example, register its name, description, expected halt code (if any) and proof obligations in [examples/manifest.json](examples/manifest.json), write its deck in `examples/deck/`, then generate its artifacts.
 
@@ -386,8 +386,8 @@ For maintainers, `./release` (a patch release) or `./release minor "Release mess
 
 The tag starts two workflows. `.github/workflows/release.yml` creates the GitHub release, which Zenodo archives through its GitHub integration, described by `.zenodo.json`. `.github/workflows/publish-npm.yml` checks that the tag matches `package.json`, runs the tests, and publishes the package to npm. An existing release can be published again through **Actions → Publish to npm → Run workflow**, given its tag; the dry-run input verifies the package without uploading it.
 
-npm publishing uses trusted publishing: the workflow exchanges its GitHub Actions identity for a short-lived token and attaches provenance, so no npm token is stored. The package, `@josd/eyecode`, has its trusted publisher on npmjs.com set to owner `eyereasoner`, repository `eyecode`, and workflow `publish-npm.yml`; renaming the repository or the workflow file requires updating that entry first.
+npm publishing uses trusted publishing: the workflow exchanges its GitHub Actions identity for a short-lived token and attaches provenance, so no npm token is stored. The package, `eyemind`, has its trusted publisher on npmjs.com set to owner `eyereasoner`, repository `eyemind`, and workflow `publish-npm.yml`; renaming the repository or the workflow file requires updating that entry first.
 
 ## The name
 
-**eyecode** joins *eye*, after the [EYE](https://github.com/eyereasoner/eye) family of reasoners it belongs to, to *code*: everything, from the rules and the data to the proofs and the check reports, is written as code in one language, JavaScript.
+**eyemind** joins *eye*, after the [EYE](https://github.com/eyereasoner/eye) family of reasoners it belongs to, to *mind*: facts and rules lead to conclusions whose reasoning can be inspected and checked.

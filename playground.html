@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>The eyecode Playground</title>
+    <title>The eyemind Playground</title>
     <link rel="icon" href="assets/eye.png" type="image/png" />
     <style>
       * { box-sizing: border-box; }
@@ -140,13 +140,13 @@
         <a href="GUIDE">Guide</a>
         <a href="playground" aria-current="page">Playground</a>
         <a href="SPEC">Specification</a>
-        <a href="https://github.com/eyereasoner/eyecode">Repository ↗</a>
+        <a href="https://github.com/eyereasoner/eyemind">Repository ↗</a>
       </nav>
       <header>
         <img class="logo" src="assets/eye.png" alt="" width="64" height="64">
         <div class="header-copy">
-          <h1>The eyecode Playground</h1>
-          <p>Write rules in JavaScript or try an example with eyecode.</p>
+          <h1>The eyemind Playground</h1>
+          <p>Write rules in JavaScript or try an example with eyemind.</p>
           <p class="hint">Version <strong id="version">…</strong></p>
         </div>
       </header>
@@ -158,7 +158,7 @@
           <button id="share-link" type="button" title="Copy a link containing the current inputs, proof, and options.">Share link</button>
           <button id="create-gist-share" type="button" title="Upload the current inputs, proof, and options to an unlisted GitHub Gist and copy a short link.">Create Gist share</button>
         </div>
-        <p id="status" class="status" role="status">Loading eyecode…</p>
+        <p id="status" class="status" role="status">Loading eyemind…</p>
         <p id="share-status" class="status" role="status" hidden></p>
         <label id="share-result" class="field share-result" hidden><span>Share link</span><input id="share-url" type="text" readonly spellcheck="false" /></label>
       </section>
@@ -203,7 +203,7 @@
             <label class="toggle" title="With --check-proof, print the report as JSON"><input id="json" type="checkbox" /><span><code>--json</code></span></label>
             <label class="toggle" title="Print reasoning statistics"><input id="stats" type="checkbox" /><span><code>--stats</code></span></label>
           </div>
-          <pre class="command" aria-label="Equivalent command"><code id="command">eyecode -</code></pre>
+          <pre class="command" aria-label="Equivalent command"><code id="command">eyemind -</code></pre>
         </section>
         <div class="card output-card">
           <div class="panel-heading"><h2>Output</h2><button id="save-output" class="secondary" type="button" disabled>Save output</button></div>
@@ -353,8 +353,8 @@
       const proof = createEditor(byId('proof-input'), { label: 'Saved proof' });
       const output = createEditor(byId('output'), { label: 'Command output', readOnly: true });
       const defaultProgram = "// Socrates is human, and every human is mortal.\nfact(type('socrates', 'human'))\nfact(subclass_of('human', 'mortal'))\n\nimplies([type(S, A), subclass_of(A, B)], type(S, B))\n\nquery(type(X, Y))\n";
-      const stateKey = 'eyecode.playground.cli.v1';
-      const gistTokenKey = 'eyecode.playground.github.gistToken.v1';
+      const stateKey = 'eyemind.playground.cli.v1';
+      const gistTokenKey = 'eyemind.playground.github.gistToken.v1';
       const modes = ['', '--proof', '--check-proof', '--unused'];
       let examples = [];
       let source = { name: '-', text: defaultProgram };
@@ -428,7 +428,7 @@
         const checking = byId('mode').value === '--check-proof';
         byId('proof-panel').hidden = !checking;
         byId('strict-proof').disabled = byId('json').disabled = busy || !checking;
-        byId('command').textContent = 'eyecode ' + argumentsForRun().map(quoteArgument).join(' ');
+        byId('command').textContent = 'eyemind ' + argumentsForRun().map(quoteArgument).join(' ');
         scheduleSave();
       }
 
@@ -572,15 +572,15 @@
           const response = await fetch('https://api.github.com/gists', {
             method: 'POST', credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer', signal: controller.signal,
             headers: { Accept: 'application/vnd.github+json', 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-            body: JSON.stringify({ description: 'eyecode playground shared state', public: false,
-              files: { 'eyecode-playground-state.json': { content: JSON.stringify(snapshot, null, 2) + '\n' } } }),
+            body: JSON.stringify({ description: 'eyemind playground shared state', public: false,
+              files: { 'eyemind-playground-state.json': { content: JSON.stringify(snapshot, null, 2) + '\n' } } }),
           });
           const payload = await response.json().catch(() => null);
           if (!response.ok) {
             if (response.status === 401 || response.status === 403) { try { sessionStorage.removeItem(gistTokenKey); } catch {} }
             throw new Error(`GitHub Gist HTTP ${response.status}: ${payload?.message || 'Could not create the Gist.'}`);
           }
-          const raw = payload?.files?.['eyecode-playground-state.json']?.raw_url;
+          const raw = payload?.files?.['eyemind-playground-state.json']?.raw_url;
           if (typeof raw !== 'string' || !raw.startsWith('https://gist.githubusercontent.com/')) throw new Error('GitHub did not return the Gist state URL.');
           const url = shareBaseUrl();
           url.searchParams.set('stateurl', raw);
@@ -626,8 +626,8 @@
         finally { sharing = false; updateShareButtons(); }
       }
 
-      // eyecode runs in a worker, so a long run never freezes the page and Stop
-      // can end it. The worker runs the same command line as the eyecode command,
+      // eyemind runs in a worker, so a long run never freezes the page and Stop
+      // can end it. The worker runs the same command line as the eyemind command,
       // with the inputs as its files.
       function ensureWorker() {
         if (worker) return workerReady;
@@ -666,10 +666,10 @@
                 },
               });
               // A syntax error is reported with its line, as the command does.
-              const syntax = stderr.match(/^eyecode: (?!line \\d+:)[^\\n]*?SyntaxError: ([^\\n]*)$/m);
+              const syntax = stderr.match(/^eyemind: (?!line \\d+:)[^\\n]*?SyntaxError: ([^\\n]*)$/m);
               if (syntax && event.data.files.length) {
                 const line = await syntaxLine(event.data.files[0][1]);
-                if (line !== null) stderr = stderr.replace(syntax[0], 'eyecode: line ' + line + ': ' + syntax[1]);
+                if (line !== null) stderr = stderr.replace(syntax[0], 'eyemind: line ' + line + ': ' + syntax[1]);
               }
               self.postMessage({ type: 'done', report: { exitCode, stderr } });
             } catch (error) { self.postMessage({ type: 'error', message: String(error.message || error) }); }
@@ -700,7 +700,7 @@
             }
           };
           worker.onerror = (event) => {
-            const error = new Error(event.message || 'Could not start eyecode.');
+            const error = new Error(event.message || 'Could not start eyemind.');
             if (failRun) failRun(error);
             reject(error);
             terminateWorker();
@@ -738,7 +738,7 @@
           byId('messages').textContent = report.stderr;
           byId('messages').hidden = !report.stderr;
           // An error in the program names its line: mark it in the input.
-          const failedLine = report.stderr.match(/^eyecode: line (\d+):/m);
+          const failedLine = report.stderr.match(/^eyemind: line (\d+):/m);
           if (failedLine && report.exitCode !== 0) input.markLine(Number(failedLine[1]));
           const verdict = report.exitCode === 0 ? 'Done' : report.exitCode === 65 ? 'Contradiction' :
             report.exitCode === 2 ? 'Proof not valid' : 'Failed';

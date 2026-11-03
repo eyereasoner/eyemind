@@ -2,7 +2,7 @@
 
 *The shortest road from a to f, found the way a route planner finds it.*
 
-[dijkstra.js](https://github.com/eyereasoner/eyecode/blob/main/examples/dijkstra.js) · [output](https://github.com/eyereasoner/eyecode/blob/main/examples/output/dijkstra.js) · [proof](https://github.com/eyereasoner/eyecode/blob/main/examples/proof/dijkstra.js) · [check](https://github.com/eyereasoner/eyecode/blob/main/examples/check/dijkstra.js) · [try it in the playground](https://eyereasoner.github.io/eyecode/playground#example=dijkstra)
+[dijkstra.js](https://github.com/eyereasoner/eyemind/blob/main/examples/dijkstra.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/dijkstra.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/dijkstra.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/dijkstra.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=dijkstra)
 
 ---
 
@@ -26,7 +26,7 @@ with no negative lengths, going further can only cost more.
 
 ---
 
-## What we tell eyecode: the map
+## What we tell eyemind: the map
 
 ```js
 fact(
@@ -49,7 +49,7 @@ turns each road into two one-way arcs, since the roads are two-way.
 
 ---
 
-## What we tell eyecode: the search
+## What we tell eyemind: the search
 
 ```js
 implied_by(search([entry(Cost, Goal, Path), ..._], Goal, Settled, _, Path, Cost), unseen(Goal, Settled))
@@ -79,7 +79,7 @@ the proof, as the checked card shows.
 
 ---
 
-## What eyecode concludes
+## What eyemind concludes
 
 ```js
 route('a', 'f', ['a', 'c', 'b', 'd', 'e', 'f'], 13)
@@ -128,11 +128,11 @@ Verdict: **checked**.
 ## Try it
 
 ```sh
-eyecode examples/dijkstra.js            # the routes
-eyecode --proof examples/dijkstra.js    # with their proof
+eyemind examples/dijkstra.js            # the routes
+eyemind --proof examples/dijkstra.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyecode/playground#example=dijkstra).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=dijkstra).
 Add a road `edge('c', 'f', 9)` to the list and run again: the shortest
 route becomes `['a', 'c', 'f']` with length 11, both ways. Ask
 `query(route('a', 'z', P, C))` for a place not on the map: there is no
