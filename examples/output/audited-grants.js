@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 verdict('checked_with_obligations')
 at_risk(grant('cara'), income('cara', 1800))
 at_risk(grant('dan'), income('dan', 2400))

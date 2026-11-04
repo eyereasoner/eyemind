@@ -114,6 +114,11 @@ export class Program {
                               'write query(Premise) or contradiction(Premise)');
       }
       for (const goal of body) {
+        // A statement checks this as it runs; a program built from its
+        // clauses directly is checked here, so no search meets a number.
+        if (!isCallable(goal) && !(goal instanceof Var)) {
+          throw new EyemindError(`line ${source.line}: a goal must be an atom, a compound term or a variable, not a number`);
+        }
         if (!stratifying && mayNeedStratifying(goal)) stratifying = true;
       }
       let headKey = null;

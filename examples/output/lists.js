@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 append(['a', 'b'], ['c', 'd'], ['a', 'b', 'c', 'd'])
 squares([1, 2, 3, 4], [1, 4, 9, 16])
 sum([1, 2, 3, 4], 10)

@@ -50,6 +50,7 @@ implied_by(reverse(Xs, Ys), reverse(Xs, [], Ys))
 fact(reverse([], Ys, Ys))
 implied_by(reverse([X, ...Xs], Acc, Ys), reverse(Xs, [X, ...Acc], Ys))
 
+// in_range(Low, High, N): N is an integer from Low up to High.
 implied_by(in_range(Low, High, Low), le(Low, High))
 implied_by(
   in_range(Low, High, N),
@@ -69,8 +70,8 @@ implied_by(
   ],
 )
 
-// reaches_6174(A, Steps): starting from A after Steps steps, 6174 comes
-// within seven steps in all.
+// reaches_6174(A, Steps): A was reached after Steps steps, and 6174 follows
+// before the total number of steps exceeds seven.
 fact(reaches_6174(6174, _))
 implied_by(
   reaches_6174(A, Steps),

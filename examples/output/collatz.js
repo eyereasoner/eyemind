@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 and(in_range(1, 20, 1), trajectory(1, [1]))
 and(in_range(1, 20, 2), trajectory(2, [2, 1]))
 and(in_range(1, 20, 3), trajectory(3, [3, 10, 5, 16, 8, 4, 2, 1]))

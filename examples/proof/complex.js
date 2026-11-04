@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 sum(complex(4, 6))
 product(complex(-5, 10))
 quotient(complex(3.0, 4.0))
@@ -22,6 +23,7 @@ cosine(complex(1.9999999999999998, 0.0))
 arctangent(complex(1.3389725222944935, 0.402359478108525))
 tangent(complex(1.0, 1.9999999999999996))
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, implied_by(complex_add(complex(A, B), complex(C, D), complex(R, I)), [is(R, add(A, C)), is(I, add(B, D))]))
 clause(2, implied_by(complex_sub(complex(A, B), complex(C, D), complex(R, I)), [is(R, sub(A, C)), is(I, sub(B, D))]))
 clause(3, implied_by(complex_mul(complex(A, B), complex(C, D), complex(R, I)), [is(R, sub(mul(A, C), mul(B, D))), is(I, add(mul(A, D), mul(B, C)))]))
@@ -74,6 +76,8 @@ clause(51, implies([arccosine(_0, Angle), complex_cos(Angle, Value)], cosine(Val
 clause(52, implies(complex_atan(complex(1, 2), Value), arctangent(Value)))
 clause(53, implies([arctangent(Angle), complex_tan(Angle, Value)], tangent(Value)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(sum(complex(4, 6)), clause(16), {Z: complex(3, 4), W: complex(1, 2), Sum: complex(4, 6)}, [point('z', complex(3, 4)), point('w', complex(1, 2)), complex_add(complex(3, 4), complex(1, 2), complex(4, 6))])
 step(point('z', complex(3, 4)), clause(12), {}, [])
 step(point('w', complex(1, 2)), clause(13), {}, [])

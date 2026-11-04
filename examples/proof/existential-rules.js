@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 has_parent('ann', skolem(3, 'P', ['ann']))
 has_parent('bob', skolem(3, 'P', ['bob']))
 sibling('dan', 'fay')
@@ -10,6 +11,7 @@ meeting(skolem(13, 'M', ['ann', 'dora']))
 attends(skolem(13, 'M', ['ann', 'dora']), 'ann')
 attends(skolem(13, 'M', ['ann', 'dora']), 'dora')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(person('ann')))
 clause(2, fact(person('bob')))
 clause(3, implies(person(X), has_parent(X, P)))
@@ -23,6 +25,8 @@ clause(11, implies(invoice_for(C, I), sent(I)))
 clause(12, fact(colleagues('ann', 'dora')))
 clause(13, implies(colleagues(X, Y), [meeting(M), attends(M, X), attends(M, Y)]))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(has_parent('ann', skolem(3, 'P', ['ann'])), clause(3), {X: 'ann', P: skolem(3, 'P', ['ann'])}, [person('ann')])
 step(person('ann'), clause(1), {}, [])
 step(has_parent('bob', skolem(3, 'P', ['bob'])), clause(3), {X: 'bob', P: skolem(3, 'P', ['bob'])}, [person('bob')])

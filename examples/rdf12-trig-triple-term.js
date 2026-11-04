@@ -1,6 +1,10 @@
-// A triple term inside a named graph: the claims graph records that Alice
-// claims Bob knows Carol. Accepting the claim asserts that Bob knows Carol, in
-// the same claims graph, so the result stays apart from the default graph.
+// A statement about a statement, in RDF 1.2. (RDF is a standard data model
+// that describes things with subject-predicate-object statements, called
+// triples; a named graph is a named collection of them.) A triple term is a
+// triple used as a value, which mentions it without asserting it: the claims
+// graph records that Alice claims Bob knows Carol, without saying that he does.
+// Accepting the claim, the program concludes that Bob knows Carol, in the
+// same claims graph, so the result stays apart from the default graph.
 //
 // The graph is a variable of the rule like the subject and object, so one
 // rule serves every graph.

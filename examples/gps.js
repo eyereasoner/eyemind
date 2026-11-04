@@ -1,26 +1,27 @@
-// Goal driven Parallel Sequences -- Jos De Roo
-// See background paper https://www.sciencedirect.com/science/article/pii/S1532046421000794
-//
-// Find sequences of actions that lead from the current state to a goal state
-// within limits on duration, cost, belief, comfort and the number of stages (a
-// stage is a run of steps in the same map). Each description is a transition
-// from a state fluent to a new one, with the action that makes it and what that
-// action costs; belief and comfort multiply along a path, duration and cost add.
+// Goal-driven planning: find sequences of actions that lead from the current
+// state to a goal state within limits on duration, cost, belief (how likely the
+// plan is to work), comfort and the number of stages (a stage is a run of steps
+// in the same map). The state is a list of fluents, facts that actions can
+// change, such as where someone is. Each description is a transition from one
+// fluent to a new one, with the action that makes it and what that action
+// costs; belief and comfort multiply along a path, duration and cost add.
 //
 // The test data is a partial map of Belgium with one-way drives between Gent,
 // Kortrijk, Brugge and Oostende; durations are in seconds, and cost, belief
 // and comfort are illustrative scores. Starting in Gent with the goal of
 // being in Oostende, the program finds two routes within the limits: Gent -
 // Brugge - Oostende (2400 s, cost 0.01, belief 0.9408, comfort 0.99) and
-// Gent - Kortrijk - Brugge - Oostende (4100 s, belief 0.903168, comfort
-// 0.9801). It reports both; it does not weigh the criteria against each other.
+// Gent - Kortrijk - Brugge - Oostende (4100 s, cost about 0.018, belief
+// 0.903168, comfort 0.9801). It reports both; it does not weigh the criteria
+// against each other.
 //
-// The state is a list of fluents passed along a backward search, and a
-// transition replaces its From fluent by its To fluent. Each step checks the
-// running totals against the limits, so a path is cut off as soon as it
-// exceeds one.
+// The example shows a search written as backward rules with float arithmetic.
+// The state is passed along the search, and a transition replaces its From
+// fluent by its To fluent. Each step checks the running totals against the
+// limits, so a path is cut off as soon as it exceeds one.
 
-// find paths in the state space from the current state to a goal state within limits
+// Find paths from the current state to a goal state within the limits,
+// starting with no steps, zero duration and cost, and belief and comfort 1.
 implied_by(
   findpath(_Scope, [Goal, Path, Duration, Cost, Belief, Comfort, Limits]),
   [
@@ -105,7 +106,9 @@ fact(
     _Limits,
   ),
 )
-// Each step commits, with once, to the first way of finishing from it.
+// struct('continue', Holds, ...) decides by whether the goal holds: 'yes'
+// ends the path (the fact above), 'no' takes one more step (this rule). Each
+// step commits, with once, to the first way of finishing from it.
 implied_by(
   struct(
     'continue',
@@ -178,7 +181,7 @@ implied_by(
   becomes(From, To, Fluents, Rest),
 )
 
-// counting the number of stages (a stage is a sequence of steps in the same map)
+// Count the stages: a new stage starts whenever the map changes.
 fact(stagecount([_], 1))
 implied_by(
   stagecount([Map, Next, ...Maps], Count),

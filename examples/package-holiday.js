@@ -1,11 +1,15 @@
 // Package holidays under two rulebooks. A tour operator's cancellation terms,
-// written as an ODRL offer, meet the EU Package Travel Directive in two
+// written as an ODRL offer (Open Digital Rights Language, a standard
+// vocabulary for permissions, duties and their conditions), meet the EU
+// Package Travel Directive (PTD) in two
 // versions: Directive (EU) 2015/2302 as in force, and its revision, approved
 // by the European Parliament on 12 March 2026 and then adopted by the Council.
 // The revision applies after transposition: Member States have 28 months to
 // transpose it and 6 more months to apply it. Each planned cancellation is
 // decided under both versions, every outcome cites its basis, and the
-// program lists what the revision would change.
+// program lists what the revision would change: request r4, cancelled
+// because floods closed the departure airport, becomes free; the voucher of
+// r6 gets fixed terms; and both complaints get deadlines.
 //
 // In force: a traveller may cancel before departure, paying the organiser's
 // termination fee (Art. 12(1)); without a fee when unavoidable and
@@ -17,9 +21,9 @@
 // most 12 months, and refunded when unused; complaints are acknowledged within
 // 7 days and answered with reasons within 60 days.
 //
-// Sources: https://eur-lex.europa.eu/eli/dir/2015/2302/oj/eng
-// https://www.europarl.europa.eu/news/en/press-room/20260306IPR37536/package-travel-parliament-greenlights-new-rules-to-protect-holidaymakers
-// https://www.w3.org/TR/odrl-model/
+// The example shows a policy evaluated from triples, with every unmet
+// condition reported; comparisons decided both ways, so no step rests on
+// negation; and the same requests run through two rulebooks side by side.
 //
 // Scope: whether circumstances are unavoidable and extraordinary and
 // significantly affect the package is assessed in advance and given as input.
@@ -165,7 +169,7 @@ fact(
   ),
 )
 
-// What a left operand is for a request.
+// What a left operand, the quantity a condition tests, is for a request.
 implied_by(
   value(C, 'ex:requesterRole', 'ex:leadTraveller'),
   [request(C, B, by(X), _, _, _, _), booking(B, _, lead(X), _)],
@@ -244,6 +248,7 @@ implied_by(band(D, [band(Min, Max, Pct), ..._], Pct), [le(Min, D), le(D, Max)])
 implied_by(band(D, [band(Min, _, _), ...Bands], Pct), [lt(D, Min), band(D, Bands, Pct)])
 
 // Gate 2: whether the circumstances make the cancellation free of charge.
+// PTD is the Package Travel Directive; each row names its provision.
 fact(free_cancellation('directive_2015', 'none', 'no', 'PTD Art. 12(1)'))
 fact(free_cancellation('directive_2015', at('destination', _), 'yes', 'PTD Art. 12(2)'))
 fact(free_cancellation('directive_2015', at('departure', _), 'no', 'PTD Art. 12(1)'))

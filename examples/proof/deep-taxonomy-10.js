@@ -1,5 +1,7 @@
+// Answers: each instance of a query() that holds.
 type('ind', 'n10')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(type('ind', 'n0')))
 clause(2, implied_by(type(X, 'n1'), type(X, 'n0')))
 clause(5, implied_by(type(X, 'n2'), type(X, 'n1')))
@@ -12,6 +14,8 @@ clause(23, implied_by(type(X, 'n8'), type(X, 'n7')))
 clause(26, implied_by(type(X, 'n9'), type(X, 'n8')))
 clause(29, implied_by(type(X, 'n10'), type(X, 'n9')))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(type('ind', 'n10'), clause(29), {X: 'ind'}, [type('ind', 'n9')])
 step(type('ind', 'n9'), clause(26), {X: 'ind'}, [type('ind', 'n8')])
 step(type('ind', 'n8'), clause(23), {X: 'ind'}, [type('ind', 'n7')])

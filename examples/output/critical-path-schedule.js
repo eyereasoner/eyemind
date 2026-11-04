@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 schedule('requirements', 0, 2)
 schedule('architecture', 2, 5)
 schedule('api_design', 2, 4)

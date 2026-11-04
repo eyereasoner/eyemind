@@ -1,7 +1,9 @@
-// Complex numbers as ordinary terms: complex(Real, Imaginary).
-// eyemind has no complex primitives, so the whole domain is defined by clauses.
-// Gaussian integer components stay exact, and the two places that leave the
-// integers - a quotient and a modulus - are visible in the output.
+// Complex numbers as ordinary terms: complex(Real, Imaginary) is the number
+// Real + Imaginary*i, where i*i = -1. eyemind has no complex-number
+// primitives, so backward rules define every operation from integer and float
+// arithmetic. Complex numbers whose two parts are integers (Gaussian integers)
+// stay exact; the two places that leave the integers, division and the
+// modulus (a square root), show up as floats in the output.
 //
 // With z = 3+4i and w = 1+2i, the program concludes for example that
 // z + w = 4+6i, z * w = -5+10i, z / w = 2.2-0.4i, i * i = -1 and
@@ -38,7 +40,8 @@ implied_by(
 // The norm of a Gaussian integer is an exact integer; the modulus is its root.
 implied_by(complex_norm(complex(A, B), Norm), is(Norm, add(mul(A, A), mul(B, B))))
 implied_by(complex_modulus(Z, Modulus), [complex_norm(Z, Norm), is(Modulus, sqrt(Norm))])
-// Integer powers by repeated squaring, with logarithmic depth, as in modular exponentiation.
+// Integer powers by repeated squaring: square the base and halve the exponent,
+// so the recursion is only about log2(Exponent) calls deep.
 fact(complex_power(_, 0, complex(1, 0)))
 implied_by(
   complex_power(Base, Exponent, Result),
@@ -64,7 +67,8 @@ fact(turns(8))
 
 implies([point('z', Z), point('w', W), complex_add(Z, W, Sum)], sum(Sum))
 implies([point('z', Z), point('w', W), complex_mul(Z, W, Product)], product(Product))
-// Dividing the product by w recovers z exactly: the norm divides both parts.
+// Dividing the product by w recovers z, as the float pair 3.0+4.0i: the norm
+// divides both parts exactly.
 implies(
   [product(Product), point('w', W), complex_div(Product, W, Quotient)],
   quotient(Quotient),

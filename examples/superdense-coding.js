@@ -1,35 +1,25 @@
-// Superdense coding using discrete quantum computing
+// Superdense coding: sending two classical bits by transmitting a single
+// quantum bit (qubit). Alice and Bob share an entangled pair of qubits, |R).
+// Alice encodes a message from 0 to 3 by applying one of four operations to
+// her half and sends Bob that one qubit; Bob measures both halves. The
+// program concludes sdcoding(N, N) for each message N and no other pair:
+// every message arrives intact although only one qubit is sent.
 //
-// See https://arxiv.org/pdf/1101.3764.pdf and https://arxiv.org/pdf/1010.2929.pdf
+// The model is discrete quantum computing, a simplified quantum theory in
+// which the weights of a superposition are bits (0 or 1, added modulo 2)
+// instead of complex numbers. It keeps superposition, interference and
+// entanglement, and computing in it is ordinary logic programming with one
+// twist: alternative ways of reaching the same answer cancel in pairs, so an
+// answer survives only when it is reached in an odd number of ways.
 //
-// Discrete quantum theory is obtained by instantiating the mathematical framework
-// of Hilbert spaces with a finite field instead of the field of complex numbers.
-// This instantiation collapses much of the structure of actual quantum mechanics but
-// retains several of its distinguishing characteristics including the notions of
-// superposition, interference, and entanglement. Furthermore, discrete quantum
-// theory excludes local hidden variable models, has a no-cloning theorem, and can
-// express natural counterparts of quantum information protocols such as superdense
-// coding and teleportation.
-//
-// Surprisingly discrete quantum computing is identical to conventional logic
-// programming except for a small twist that is responsible for all the
-// "quantum-ness". The twist occurs when merging sets of answers computed by
-// several alternatives: the answers are combined using an exclusive version of
-// logical disjunction. In other words, the two branches of a choice junction
-// exhibit an interference effect: an answer is produced from the junction if it
-// occurs in one or the other branch but not both.
-//
-// Here that merge is a count: every way Alice's message N can reach Bob as M is
-// collected, and the pair survives when the number of ways is odd. The parity
-// depends on all the ways, so the certificate names each collection as an
-// obligation.
-//
-// Alice and Bob share the entangled pair |R). Alice encodes a message from 0
-// to 3 by applying one of four operations to her half and sends Bob that one
-// qubit; Bob measures both halves. The program concludes sdcoding(N, N) for
-// each message N and no other pair: two classical bits arrive intact while
-// only one qubit is sent.
+// Here every way Alice's message N can reach Bob as M is collected with
+// findall, and the pair is kept when the number of ways is odd. The count
+// depends on all the ways, so the proof records each collection as an
+// obligation for the checker to confirm.
 
+// A two-qubit state |a, b) is written as the set of its terms, one fact per
+// term, with false for 0 and true for 1; a state with several terms is a
+// superposition.
 // |R) = |0, 0) + |1, 1)
 fact(r('false', 'false'))
 fact(r('true', 'true'))
@@ -48,6 +38,8 @@ fact(v('false', 'false'))
 fact(v('false', 'true'))
 fact(v('true', 'false'))
 
+// One-qubit operations, as relations from input to output: ID leaves a
+// qubit as it is, G flips it, and K maps |1) to the superposition |0) + |1).
 // ID |0) = |0)
 fact(id('false', 'false'))
 // ID |1) = |1)
@@ -64,19 +56,20 @@ fact(k('false', 'false'))
 fact(k('true', 'false'))
 fact(k('true', 'true'))
 
-// KG
+// KG: first G, then K
 implied_by(kg(X, Y), [g(X, Z), k(Z, Y)])
 
-// GK
+// GK: first K, then G
 implied_by(gk(X, Y), [k(X, Z), g(Z, Y)])
 
-// alice
+// Alice's encoding: message 0, 1, 2 or 3 applies ID, G, K or KG to her qubit.
 implied_by(alice(0, [X, Y]), id(X, Y))
 implied_by(alice(1, [X, Y]), g(X, Y))
 implied_by(alice(2, [X, Y]), k(X, Y))
 implied_by(alice(3, [X, Y]), kg(X, Y))
 
-// bob
+// Bob's decoding: the qubit pair [X, Y] reads as message M when the
+// operation for M (GK, K, G or ID) takes X to Y.
 implied_by(bob([X, Y], 0), gk(X, Y))
 implied_by(bob([X, Y], 1), k(X, Y))
 implied_by(bob([X, Y], 2), g(X, Y))
@@ -91,14 +84,15 @@ fact(message(1))
 fact(message(2))
 fact(message(3))
 
+// odd(List): the list has an odd number of elements.
 fact(odd([_]))
 implied_by(odd([_, _, ...T]), odd(T))
 
-// superdense coding: the pairs reached an odd number of times
+// superdense coding: the pairs (N, M) reached an odd number of ways
 implies(
   [message(N), message(M), findall(Path, path(N, M, Path), Paths), odd(Paths)],
   sdcoding(N, M),
 )
 
-// query
+// which messages arrive as which
 query(sdcoding(_, _))

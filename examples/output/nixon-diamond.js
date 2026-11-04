@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 classification('nixon', 'quaker')
 classification('ada', 'quaker')
 classification('nixon', 'republican')

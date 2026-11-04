@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 analysis('value_transparency', 'knowing that and how one\'s data creates value, including in AI training', 'by interpretation', ['GDPR art. 13-15', 'AI Act art. 53(1)(d)'])
 analysis('use_control', 'deciding on the uses through which one\'s data creates value', 'by interpretation', ['GDPR art. 7(3)', 'GDPR art. 21'])
 analysis('value_mobility', 'taking one\'s data elsewhere, to have value created there', 'by interpretation', ['GDPR art. 20', 'DMA art. 6(9)'])

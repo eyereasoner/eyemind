@@ -1,35 +1,52 @@
-// Research portal: an ODRL/DPV policy meets two digital rulebooks.
-// A hospital evaluates each planned research session under the general EU
-// baseline and the original Commission Digital Omnibus proposal, COM(2025)
-// 837 final (19 November 2025), after the modelled provisions apply.
-// Research permission and device consent are independent gates: exempt
-// audience measurement never supplies consent to process health records.
-// One fixed ODRL/DPV research policy is evaluated alongside each rulebook.
+// A hospital lets partners in a research consortium use patients' lab
+// results through a web portal. Each planned research session must pass two
+// separate gates. Gate 1: the hospital's research policy must permit this use
+// of the data. Gate 2: the portal page places a tracker on the visitor's
+// device, and the device rules decide whether that is allowed and whether the
+// visitor's consent is needed. Gate 2 is judged twice: under the EU rules in
+// force (the ePrivacy Directive and the GDPR, the General Data Protection
+// Regulation) and under the European Commission's Digital Omnibus proposal of
+// 19 November 2025, as if its provisions applied. A tracker that needs no
+// consent never stands in for the patient's consent to research.
 //
-// Sources: https://www.w3.org/TR/odrl-model/
-// https://www.w3.org/TR/odrl-vocab/
-// https://w3id.org/dpv/2.3/dpv/
-// https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52025PC0837
-// https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng
-// https://eur-lex.europa.eu/eli/dir/2002/58/2009-12-19
+// Of eleven sessions, the policy refuses six under both rulebooks, each with
+// its reasons. Under the rules in force, r10 is permitted and r1, r7, r8 and
+// r9 must wait for device consent; under the proposal, r1 and r10 are
+// permitted, r9 waits, and r7 and r8 are refused at the device gate. The
+// program also plans a deletion duty for each permitted session, plans the
+// notifications for three data breaches, and lists what the proposal would
+// change: three sessions and two breach plans.
 //
-// Local profile: each process/10 states its data controller and legal basis;
-// operands have at most one value, valid YYYYMMDD dates and an acyclic purpose
-// taxonomy. Only odrl:prohibit is supported. Device accesses involve personal
-// data on a natural person's device; necessity and measurement aggregation/
-// own use are assessed inputs. National exceptions and transition dates are
-// outside this model. The portal is not a media service provider. Refusals
-// concern the same device purpose, with completed calendar months as input.
-// Baseline ask_for_consent is a next-step label, never permission to disregard
-// a refusal. A deny_device result blocks this planned session with its stated
-// tracker; it does not require denying research if that tracker can be removed.
-// Deletion is a planned obligation within 90 days of research use; duty
-// fulfilment, actual consent collection and legal compliance are not proved.
-// Breach risk is supplied, deadlines run from awareness without undue delay
-// and where feasible; no Art. 34(3) exception applies to the high-risk case.
-// Every breach must be documented, even when notification is not required.
+// The policy uses ODRL, a standard vocabulary for usage policies
+// (permissions, prohibitions and duties), with terms from DPV, the Data
+// Privacy Vocabulary. The example shows policy data read by rules, a refusal
+// that lists every unmet condition, absence checked with findall(..., []),
+// and two rulebooks compared side by side.
 //
-// Reading guide. The program runs top to bottom as one decision process:
+// Assumptions of the model. Each process states its data controller (the
+// organisation responsible for the data) and its legal basis; each condition
+// has at most one value, dates are YYYYMMDD integers, and the purpose
+// hierarchy has no cycles. When a permission and a prohibition both apply,
+// the prohibition wins (odrl:prohibit, the only conflict rule supported).
+// Device access touches personal data on a person's device; whether it is
+// strictly necessary, and whether audience measurement is aggregated and for
+// the portal's own use, are given as inputs. National exceptions and
+// transition dates are left out, and the portal is not a media service
+// provider. An earlier refusal concerns the same device purpose and is
+// counted in completed calendar months. Under the rules in force,
+// ask_for_consent is a next step, never permission to ignore a refusal. A
+// deny_device result blocks this session with its tracker; the research
+// itself could go ahead if the tracker were removed. Deletion within 90 days
+// of research use is a planned duty: carrying it out, actually collecting
+// consent, and legal compliance are not proved. Each breach's risk level is
+// given as input, notification deadlines run from when the hospital becomes
+// aware of it, and for the high-risk breach no exception from telling the
+// affected people applies. Every breach is documented, even when no one
+// needs to be notified.
+//
+// Reading guide. A regime is one of the two rulebooks, and a name such as
+// policy_result/2 means policy_result with two arguments. The program runs
+// top to bottom as one decision process:
 //   1. the ODRL/DPV research policy, as triples t(Subject, Predicate, Object);
 //   2. the planned research uses, as DPV processes;
 //   3. gate 1, the policy: policy_result/2 permits a use or refuses it with
@@ -51,8 +68,10 @@ fact(t('ex:partnerUS', 'odrl:partOf', 'ex:consortium'))
 // The lab results are special-category personal data (dpv:SpecialCategoryPersonalData);
 // the policy's conditions, not a type triple, carry what that requires here.
 
-// The policy. The left operands ex:legalBasis, ex:consentStatus and
-// ex:technicalMeasure belong to a profile that reads them from the process.
+// The policy. Each constraint compares a property of the request (its left
+// operand) with a required value. The left operands ex:legalBasis,
+// ex:consentStatus and ex:technicalMeasure are not standard ODRL; this
+// example defines them and reads them from the process.
 fact(t('ex:policy', 'rdf:type', 'odrl:Agreement'))
 fact(t('ex:policy', 'odrl:assigner', 'ex:hospital'))
 fact(t('ex:policy', 'odrl:conflict', 'odrl:prohibit'))
@@ -239,6 +258,7 @@ fact(
     20261115,
   ),
 )
+// Each process fact reads as triples about the process.
 implied_by(t(P, 'rdf:type', 'dpv:Process'), process(P, _, _, _, _, _, _, _, _, _))
 implied_by(t(P, 'dpv:hasDataController', X), process(P, X, _, _, _, _, _, _, _, _))
 implied_by(t(P, 'ex:requestedBy', Who), process(P, _, Who, _, _, _, _, _, _, _))
@@ -261,6 +281,9 @@ implied_by(value(P, 'ex:consentStatus', V), t(P, 'dpv:hasConsentStatus', V))
 implied_by(value(P, 'ex:technicalMeasure', V), t(P, 'dpv:hasTechnicalMeasure', V))
 implied_by(value(P, 'odrl:dateTime', V), t(P, 'ex:requestDate', V))
 
+// When a value satisfies an operator: isA follows the purpose hierarchy, eq
+// needs the same value, lt compares integers. A party is itself or a group it
+// is part of.
 implied_by(holds('odrl:isA', V, Class), within(V, Class))
 fact(holds('odrl:eq', V, V))
 implied_by(holds('odrl:lt', V, Limit), [is_int(V), is_int(Limit), lt(V, Limit)])
@@ -298,6 +321,7 @@ implied_by(
     not(met(P, C)),
   ],
 )
+// A rule applies when it addresses the process and no constraint is unmet.
 implied_by(applies(P, Rule), [addresses(P, Rule), findall(Why, unmet(P, Rule, Why), [])])
 // A policy governs a process when it is an agreement assigned by the
 // process's data controller.
@@ -321,12 +345,16 @@ implied_by(
   candidate(P, Rule),
   [governs(Policy, P), t(Policy, 'odrl:permission', Rule), addresses(P, Rule)],
 )
+// The policy can be evaluated only when its conflict rule is exactly
+// odrl:prohibit, the one this example supports.
 implied_by(
   policy_ready(P),
   [governs(Policy, P), findall(S, t(Policy, 'odrl:conflict', S), ['odrl:prohibit'])],
 )
 
-// Policy outcomes are evaluated before considering the device step.
+// Gate 1. A permission with no applicable prohibition permits; an applicable
+// prohibition refuses; otherwise the refusal lists the unmet conditions, or
+// says that no permission addresses the request at all.
 implied_by(
   policy_result(P, permit(Rule)),
   [policy_ready(P), permitted(P, Rule), findall(R, prohibited(P, R), [])],

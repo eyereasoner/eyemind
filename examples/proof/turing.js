@@ -1,8 +1,10 @@
+// Answers: each instance of a query() that holds.
 compute([1, 0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])
 compute([1, 0, 1, 1, 1, 1], [1, 1, 0, 0, 0, 0, '#'])
 compute([1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 0, 0, '#'])
 compute([], [1, '#'])
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, implied_by(compute([], OutTape), [start(_0, I), find(I, [], '#', [], OutTape)]))
 clause(2, implied_by(compute([Head, ...Tail], OutTape), [start(_0, I), find(I, [], Head, Tail, OutTape)]))
 clause(3, implied_by(find(State, Left, Cell, Right, OutTape), [t([State, Cell, Write, Move], Next), move(Move, Left, Write, Right, A, B, C), struct('continue', Next, A, B, C, OutTape)]))
@@ -26,6 +28,8 @@ clause(20, fact(t([1, 0, 1, 's'], 'halt')))
 clause(21, fact(t([1, 1, 0, 'l'], 1)))
 clause(22, fact(t([1, '#', 1, 's'], 'halt')))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(compute([1, 0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#']), clause(2), {Head: 1, Tail: [0, 1, 0, 0, 1], OutTape: [1, 0, 1, 0, 1, 0, '#'], _0: 'add1', I: 0}, [start('add1', 0), find(0, [], 1, [0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])
 step(start('add1', 0), clause(16), {}, [])
 step(find(0, [], 1, [0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#']), clause(3), {State: 0, Left: [], Cell: 1, Right: [0, 1, 0, 0, 1], OutTape: [1, 0, 1, 0, 1, 0, '#'], Write: 1, Move: 'r', Next: 0, A: [1], B: 0, C: [1, 0, 0, 1]}, [t([0, 1, 1, 'r'], 0), move('r', [], 1, [0, 1, 0, 0, 1], [1], 0, [1, 0, 0, 1]), struct('continue', 0, [1], 0, [1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])

@@ -1,12 +1,16 @@
+// Answers: each instance of a query() that holds.
 flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4'])
 flat_map(['missing'], 'p1', [])
 flat_map(['s1'], 'p2', [])
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(5, fact(append([], Ys, Ys)))
 clause(6, implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs)))
 clause(7, fact(flat_map([], _0, [])))
 clause(8, implied_by(flat_map([S, ...Subjects], P, Objects), [findall(O, t(S, P, O), Here), flat_map(Subjects, P, Rest), append(Here, Rest, Objects)]))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4']), clause(8), {S: 's1', Subjects: ['s2', 's3'], P: 'p1', Objects: ['o1', 'o2', 'o3', 'o4'], O: A, Here: ['o1'], Rest: ['o2', 'o3', 'o4']}, [findall(A, t('s1', 'p1', A), ['o1']), flat_map(['s2', 's3'], 'p1', ['o2', 'o3', 'o4']), append(['o1'], ['o2', 'o3', 'o4'], ['o1', 'o2', 'o3', 'o4'])])
 step(findall(A, t('s1', 'p1', A), ['o1']), 'collected', {}, [])
 step(flat_map(['s2', 's3'], 'p1', ['o2', 'o3', 'o4']), clause(8), {S: 's2', Subjects: ['s3'], P: 'p1', Objects: ['o2', 'o3', 'o4'], O: B, Here: ['o2'], Rest: ['o3', 'o4']}, [findall(B, t('s2', 'p1', B), ['o2']), flat_map(['s3'], 'p1', ['o3', 'o4']), append(['o2'], ['o3', 'o4'], ['o2', 'o3', 'o4'])])

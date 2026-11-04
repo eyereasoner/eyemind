@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 type('meas47', 'lld_alarm')
 lld_left_length_cm('meas47', 21.548900464617255)
 lld_right_length_cm('meas47', 23.45713444515475)

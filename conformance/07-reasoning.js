@@ -7,6 +7,7 @@ conformance('embedded control characters do not merge distinct derived facts', [
     "implies(seed, [p('a\\u0001\\u0000a\\u0001b', 'c'), p('a', 'b\\u0001\\u0000a\\u0001c')])",
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "p('a\\u0001\\u0000a\\u0001b', 'c')",
     "p('a', 'b\\u0001\\u0000a\\u0001c')",
   ]),
@@ -21,6 +22,7 @@ conformance('derived facts are tried before program clauses', [
     "implies(q, p('derived'))",
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     "p('derived')",
     "p('source')",
   ]),
@@ -36,6 +38,7 @@ conformance('program clauses are tried in clause order', [
     'fact(q(2))',
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'p(1)',
     'p(2)',
     'p(3)',
@@ -50,6 +53,7 @@ conformance("a forward rule's conclusions feed rules in later rounds", [
     'implies(a(X), b(X))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     'b(1)',
     'c(1)',
   ]),
@@ -63,6 +67,7 @@ conformance('forward rules close over cycles', [
     'implies([path(X, Y), edge(Y, Z)], path(X, Z))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "path('a', 'b')",
     "path('b', 'a')",
     "path('a', 'a')",
@@ -76,7 +81,9 @@ conformance('a conclusion identical to a program fact is not derived again', [
     'fact(p(1))',
     'implies(p(X), p(X))',
   ]),
-  stdout([]),
+  stdout([
+    '// No conclusions: the program derives no facts.',
+  ]),
 ])
 
 conformance('an unbound head variable becomes a Skolem term of its own per activation', [
@@ -87,6 +94,7 @@ conformance('an unbound head variable becomes a Skolem term of its own per activ
     'implies([has_parent(X, P), has_parent(Y, P), not_identical(X, Y)], siblings(X, Y))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "has_parent('ann', skolem(3, 'Y', ['ann']))",
     "has_parent('bob', skolem(3, 'Y', ['bob']))",
   ]),
@@ -99,6 +107,7 @@ conformance('activations giving the same head instance share their Skolem terms'
     'implies(p(X, Y), q(X, B))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "q('a', skolem(3, 'B', ['a']))",
   ]),
 ])
@@ -111,19 +120,47 @@ conformance('each rule has Skolem terms of its own', [
     'implies(p(X, Y), q2(X, B))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "q('a', skolem(2, 'B', ['a']))",
     "q2('a', skolem(3, 'B', ['a']))",
   ]),
 ])
 
-conformance('a variable a solution brings in is numbered when its name is taken', [
+conformance('a Skolem term a head variable stands for is named after it in any order', [
   spec('7.2'),
   file('program.js', [
     'fact(p(Y))',
-    'implies(p(X), q(Y, X))',
+    'implies(p(X), q(X, Y))',
+    'implies(p(X), r(Y, X))',
   ]),
   stdout([
-    "q(skolem(2, 'Y', []), skolem(2, 'Y1', []))",
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "q(skolem(2, 'X', []), skolem(2, 'Y', []))",
+    "r(skolem(3, 'Y', []), skolem(3, 'X', []))",
+  ]),
+])
+
+conformance('head variables sharing a Skolem term are named by the first', [
+  spec('7.2'),
+  file('program.js', [
+    'fact(same(Z, Z))',
+    'implies(same(A, B), r(B, A, _))',
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "r(skolem(2, 'B', []), skolem(2, 'B', []), skolem(2, '_0', []))",
+  ]),
+])
+
+conformance('a brought-in variable keeps its name when free and is numbered otherwise', [
+  spec('7.2'),
+  file('program.js', [
+    'fact(p(f(Y, Y1)))',
+    'implies(p(X), q(X, Y))',
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "q(f(skolem(2, 'Y2', []), skolem(2, 'Y1', [])), skolem(2, 'Y', []))",
   ]),
 ])
 
@@ -147,6 +184,7 @@ conformance('the same activation in a later round gets the same Skolem terms', [
     'implies(has_parent(X, P), known(X))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "has_parent('ann', skolem(2, 'Y', ['ann']))",
     "known('ann')",
   ]),
@@ -159,6 +197,7 @@ conformance('Skolem terms are shared across the heads of one activation', [
     'implies(person(X), [r(X, Y, Z, Y), s(Z)])',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "r('ann', skolem(2, 'Y', ['ann']), skolem(2, 'Z', ['ann']), skolem(2, 'Y', ['ann']))",
     "s(skolem(2, 'Z', ['ann']))",
   ]),
@@ -171,6 +210,7 @@ conformance('query reports each instance once', [
     'query(p(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'p(1)',
     'p(2)',
   ]),
@@ -184,6 +224,7 @@ conformance('query reports in order of first report', [
     'query(p(Y))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'q(2)',
     'p(1)',
   ]),
@@ -196,7 +237,9 @@ conformance('a query without answers concludes nothing', [
     'implies(p(X), q(X))',
     'query(r(X))',
   ]),
-  stdout([]),
+  stdout([
+    '// No answers: no query() instance holds.',
+  ]),
 ])
 
 conformance("a Skolem term has the values of the head's other variables as arguments", [
@@ -206,6 +249,7 @@ conformance("a Skolem term has the values of the head's other variables as argum
     'implies(edge(X, Y, W), via(Y, _, X))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "via('b', skolem(2, '_0', ['b', 'a']), 'a')",
   ]),
 ])
@@ -218,6 +262,7 @@ conformance('query output replaces the derived facts', [
     'query(p(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'p(1)',
   ]),
 ])
@@ -231,6 +276,7 @@ conformance("goals replace the program's own queries", [
     'query(p(X))',
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'q(1)',
   ]),
 ])
@@ -242,6 +288,7 @@ conformance('several goals are answered in turn', [
     'fact(p(1), q(2))',
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'q(2)',
     'p(1)',
   ]),
@@ -253,7 +300,9 @@ conformance('a goal with no solution has no conclusion', [
   file('program.js', [
     'fact(p(1))',
   ]),
-  stdout([]),
+  stdout([
+    '// No answers: no instance of a goal holds.',
+  ]),
 ])
 
 conformance('a contradiction stops reasoning and prints what was derived', [
@@ -266,6 +315,7 @@ conformance('a contradiction stops reasoning and prints what was derived', [
     'query(p(X))',
   ]),
   stdout([
+    "// Halted: a contradiction() holds; the facts derived until then, ending with 'false'.",
     'q(1)',
     "'false'",
   ]),
@@ -281,6 +331,7 @@ conformance('a contradiction overrides goals', [
     'contradiction(q(X))',
   ]),
   stdout([
+    "// Halted: a contradiction() holds; the facts derived until then, ending with 'false'.",
     'q(1)',
     "'false'",
   ]),
@@ -295,6 +346,7 @@ conformance('a contradiction stops the rules after it', [
     'implies(p(X), q(X))',
   ]),
   stdout([
+    "// Halted: a contradiction() holds; the facts derived until then, ending with 'false'.",
     "'false'",
   ]),
 ])
@@ -307,6 +359,7 @@ conformance('a contradiction that never holds changes nothing', [
     'contradiction(q(2))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     'q(1)',
   ]),
 ])
@@ -354,6 +407,7 @@ conformance('bounds large enough change nothing', [
     'implies([n(N), lt(N, 3), is(M, add(N, 1))], n(M))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     'n(1)',
     'n(2)',
     'n(3)',
@@ -367,6 +421,7 @@ conformance('a run without a proof may use a mode test', [
     "implied_by(p(X), [is_var(X), unify(X, 'a')])",
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     "p('a')",
   ]),
 ])
@@ -389,6 +444,7 @@ conformance('generated witnesses distinguish captures omitted from the head', [
     'implies(p(X), implies(p(X), witness(Y)))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "witness(skolem(4, 'Y', [['a']]))",
     "witness(skolem(4, 'Y', [['b']]))",
   ]),
@@ -402,7 +458,10 @@ conformance('a derived inspection pattern can be instantiated independently twic
     'implies(test(a(X), c(X)), seen(X))',
     "query([seen('one'), seen('two')])",
   ]),
-  stdout(["and(seen('one'), seen('two'))"]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "and(seen('one'), seen('two'))",
+  ]),
 ])
 
 conformance('bound inspection values can supply an existential firing', [
@@ -411,7 +470,10 @@ conformance('bound inspection values can supply an existential firing', [
     'implies(a(X), c(X))',
     "implies(implies(a('b'), Y), found(Y, W))",
   ]),
-  stdout(["found(c('b'), skolem(2, 'W', [c('b')]))"]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "found(c('b'), skolem(2, 'W', [c('b')]))",
+  ]),
 ])
 
 conformance('open inspection variables cannot share an existential witness', [

@@ -236,7 +236,7 @@ query(r(X))`;
       rejected(source, document.replace('step(activated(4, []), clause(2), {},', 'step(activated(4, []), clause(1), {},'), 'C1');
       rejected(source, document.replace('activated(4, []), p(X)', 'activated(99, []), p(X)'), 'C1');
       rejected(source, document.replaceAll('activated(4, [])', 'activated(99, [])'), 'C1');
-      rejected(source, document.replace(/^q\('a'\)/, 'activated(4, [])'), 'C7');
+      rejected(source, document.replace(/^q\('a'\)$/m, 'activated(4, [])'), 'C7');
     }
   },
 

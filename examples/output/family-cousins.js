@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 generation('bob', 1)
 generation('carol', 1)
 branch('heidi', 'b')

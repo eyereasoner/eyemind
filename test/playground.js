@@ -118,7 +118,7 @@ export const tests = [
     const p = driver(page);
     await p.open(`${base}#example=rule-inspection`);
     await p.run();
-    assert.equal(await p.output(), 'test(a(A), c(A))\n');
+    assert.equal(await p.output(), '// Answers: each instance of a query() that holds.\ntest(a(A), c(A))\n');
     await p.select('mode', '--proof');
     await p.run();
     assert.match(await p.output(), /source\(2\)/);
@@ -137,7 +137,7 @@ implies(enabled('yes'), [implies(p(X), q(X)), implied_by(r(X), p(X))])
 query(or(q(X), r(X)))`);
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
-    assert.equal(await p.output(), '');
+    assert.equal(await p.output(), '// No answers: no query() instance holds.\n');
     await p.select('mode', '--prove-and-check');
     await p.run();
     assert.match(await p.output(), /^\/\/ No answers claimed;/);
@@ -170,7 +170,7 @@ query(or(q(X), r(X)))`);
     await p.open(`${base}#example=socrates`);
     await p.select('goal', "type(X, 'mortal')");
     await p.run();
-    assert.equal(await p.output(), "type('socrates', 'mortal')\n");
+    assert.equal(await p.output(), "// Answers: each instance of a goal that holds.\ntype('socrates', 'mortal')\n");
     await p.select('goal', '');
   }],
 
@@ -185,7 +185,7 @@ query(or(q(X), r(X)))`);
     await p.type('input', "fact(p(1))\nfact(q(2))\nquery(p(X))\n");
     assert.equal(await p.marked(), null);
     await p.run();
-    assert.equal(await p.output(), 'p(1)\n');
+    assert.equal(await p.output(), '// Answers: each instance of a query() that holds.\np(1)\n');
     assert.equal(await p.marked(), null);
   }],
 

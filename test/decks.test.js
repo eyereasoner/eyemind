@@ -378,7 +378,10 @@ for (const entry of MANIFEST) {
               const claims = terms(result.stdout);
               assert.ok(claims.length, 'documented goal has no answers');
               assert.ok(claims.every((claim) => goals.some((goal) => unify(readGoal(goal), claim, new Env()))));
-              if (PROSE_GOALS.has(name)) assert.equal(result.stdout, `${goalAnswer(name, readTerm(goals[0]), section(text, 'Try it'))}\n`);
+              if (PROSE_GOALS.has(name)) {
+                const answer = goalAnswer(name, readTerm(goals[0]), section(text, 'Try it'));
+                assert.equal(result.stdout, `// Answers: each instance of a goal that holds.\n${answer}\n`);
+              }
             }
           } else assert.equal(result.stdout, read(`${proof ? 'proof' : 'output'}/${name}.js`));
         }

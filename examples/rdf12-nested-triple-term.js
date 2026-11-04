@@ -1,9 +1,12 @@
-// Nested RDF 1.2 triple terms: an auditor reviews Alice's claim that Bob knows
-// Carol. The innermost triple sits two levels deep, inside the claim inside
-// the review, and none of it is asserted.
+// Statements about statements, nested: an auditor reviews Alice's claim that
+// Bob knows Carol. RDF, the web's standard data model, states facts as
+// subject-predicate-object triples; an RDF 1.2 triple term mentions a triple
+// without asserting it. Here "Bob knows Carol" sits two levels deep, inside
+// the claim inside the review, and none of it is asserted.
 //
-// One rule reaches through both levels with a single pattern and asserts the
-// innermost relationship: triple terms nest like any other terms.
+// One rule reaches through both levels with a single pattern and concludes
+// the innermost statement, that Bob knows Carol: triple terms nest like any
+// other terms, and unification matches them at any depth.
 
 const ex = 'https://example.org/'
 

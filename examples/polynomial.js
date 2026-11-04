@@ -1,11 +1,10 @@
-// Solving polynomial equations of degree 4
-// original code from http://alain.colmerauer.free.fr/alcol/ArchivesPublications/Equation4/Equation4.pdf
+// Solving polynomial equations up to degree 4.
 //
 // A polynomial is the list of its complex coefficients, highest degree first,
 // and a complex number is a pair [Re, Im]. Degrees 1 and 2 are solved
 // directly, degree 3 by Cardan's formula and degree 4 by Lagrange's method,
 // which reduces it to a cubic. The roots are floating-point approximations.
-// Colmerauer's comments are kept in their original French.
+// The section headings are in French, each followed by an English translation.
 //
 // Two quartics are solved. x^4 - 10x^3 + 35x^2 - 50x + 24 has the roots 4, 3,
 // 2 and 1, found up to about 1e-8. The second, with complex coefficients, has
@@ -20,10 +19,10 @@
 // multiplying it by each root of unity, and for degree 4 from dans, which
 // picks each of four candidates in turn.
 
-// Liste des racines dun polynome
+// Liste des racines dun polynome: the list of a polynomial's roots.
 implied_by(roots(P, L), findall(Z, racine(P, Z), L))
 
-// Racine dun polynome
+// Racine dun polynome: a root of a polynomial.
 // Degree 1: Z = -B/A. Degree 2: with P = B/2A and Q = C/A,
 // Z = -P +- sqrt(P^2 - Q).
 implied_by(racine([A, B], Z), est(Z, moins(floordiv(B, A))))
@@ -68,7 +67,7 @@ implied_by(
   ],
 )
 
-// Racine dun polynome du troisieme degre. Lagrange's method collects these
+// Racine dun polynome du troisieme degre: a root of a cubic. Lagrange's method collects these
 // roots, so they get a predicate of their own: the collection then depends only
 // on lower degrees, never on itself.
 // With T = -B/3A, the substitution x = z + T leaves z^3 + P z + Q = 0.
@@ -83,7 +82,7 @@ implied_by(
   ],
 )
 
-// Polynome a partir de ses racines
+// Polynome a partir de ses racines: the polynomial with given roots.
 implied_by(polynome(L, P), polynome(L, [[1, 0]], P))
 
 fact(polynome([], P0, P0))
@@ -107,7 +106,8 @@ implied_by(foisl(X, [Y, ...L], [Z, ...Lp]), [est(Z, fois(X, Y)), foisl(X, L, Lp)
 fact(addll([], [], []))
 implied_by(addll([X, ...L], [Y, ...Lp], [Z, ...Lpp]), [est(Z, add(X, Y)), addll(L, Lp, Lpp)])
 
-// Solution de lequation du troisieme degre selon Cardan
+// Solution de lequation du troisieme degre selon Cardan: the cubic, by
+// Cardan's formula.
 implied_by(solutionCardan(P, Q, Z), [nul(P), est(Z, fois('racubiqueun', racine(3, moins(Q))))])
 implied_by(
   solutionCardan(Pp, Qp, Z),
@@ -120,7 +120,8 @@ implied_by(
   ],
 )
 
-// Solutions de lequation du quatrieme degre selon Lagrange
+// Solutions de lequation du quatrieme degre selon Lagrange: the quartic, by
+// Lagrange's method.
 // The resolvent cubic y^3 + 2P y^2 + (P^2 - 4R) y - Q^2 has roots Y1, Y2, Y3;
 // the roots of the quartic are sums of their square roots with signs, halved.
 // epsilon is -(V1 + V2 + V3 + V4) / Q, or 1 when Q is zero: a sign that makes
@@ -156,9 +157,9 @@ implied_by(epsilon(E, S, Q), [nonnul(Q), est(E, floordiv(S, Q))])
 fact(dans(U, [U, ..._]))
 implied_by(dans(U, [_, ...L]), dans(U, L))
 
-// Valeurs de lenchainement des operations sur les complexes
-// The original builds each call with =.. and runs it; one clause per operation
-// says the same thing directly.
+// Valeurs de lenchainement des operations sur les complexes: the value of a
+// chain of complex operations. est has one clause per operation: it evaluates
+// the arguments, then applies the operation.
 implied_by(est(Z, Z), unify(Z, [_, _]))
 implied_by(est(Z, 'racarreeun'), racarreeun(Z))
 implied_by(est(Z, 'racubiqueun'), racubiqueun(Z))
@@ -172,7 +173,7 @@ implied_by(est(Z, fois(X, Y)), [est(Xp, X), est(Yp, Y), fois(Xp, Yp, Z)])
 implied_by(est(Z, floordiv(X, Y)), [est(Xp, X), est(Yp, Y), div(Xp, Yp, Z)])
 implied_by(est(Z, racine(N, X)), [est(Xp, X), racine(N, Xp, Z)])
 
-// Operations sur les complexes
+// Operations sur les complexes: operations on complex numbers.
 implied_by(moins([X1, X2], [Y1, Y2]), [is(Y1, neg(X1)), is(Y2, neg(X2))])
 
 implied_by(moins([X1, X2], [Y1, Y2], [Z1, Z2]), [is(Z1, sub(X1, Y1)), is(Z2, sub(X2, Y2))])
@@ -229,9 +230,9 @@ implied_by(cadran(X, Y, T, Tp), [ge(X, 0), lt(Y, 0), is(Tp, sub(mul(2, pi), T))]
 
 implied_by(cartesien([R, T], [X1, X2]), [is(X1, mul(R, cos(T))), is(X2, mul(R, sin(T)))])
 
-// Problemes de zero
+// Problemes de zero: zero tests.
 // A complex number is zero when both parts compare equal to 0, which covers 0,
-// 0.0 and -0.0; the two tests exclude each other without a cut.
+// 0.0 and -0.0; the two tests exclude each other, so exactly one applies.
 implied_by(nul([X, Y]), [eq(X, 0), eq(Y, 0)])
 
 implied_by(nonnul([X, _]), ne(X, 0))

@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 choose(24, 12, 2704156)
 choose(100, 50, 100891344545564193334812497256)
 vandermonde(12, 10, 8, 319770)

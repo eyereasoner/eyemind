@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 provisional('ada', 'centrum')
 provisional('bjorn', 'centrum')
 provisional('clara', 'haga')

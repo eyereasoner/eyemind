@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 reachable('a', 'b')
 reachable('b', 'c')
 reachable('c', 'a')
@@ -11,6 +12,7 @@ reachable('a', 'd')
 reachable('b', 'b')
 reachable('c', 'c')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(edge('a', 'b')))
 clause(2, fact(edge('b', 'c')))
 clause(3, fact(edge('c', 'a')))
@@ -18,6 +20,8 @@ clause(4, fact(edge('c', 'd')))
 clause(5, implies(edge(X, Y), reachable(X, Y)))
 clause(6, implies([reachable(X, Y), edge(Y, Z)], reachable(X, Z)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(reachable('a', 'b'), clause(5), {X: 'a', Y: 'b'}, [edge('a', 'b')])
 step(edge('a', 'b'), clause(1), {}, [])
 step(reachable('b', 'c'), clause(5), {X: 'b', Y: 'c'}, [edge('b', 'c')])

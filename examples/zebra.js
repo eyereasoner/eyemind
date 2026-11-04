@@ -1,6 +1,6 @@
-// The zebra puzzle (Einstein's riddle), as printed in Life International on
-// 17 December 1962. Five houses in a row, each with one colour, nationality,
-// pet, drink and brand of cigarette. Who drinks water, and who owns the zebra?
+// The zebra puzzle, also called Einstein's riddle. Five houses in a row, each
+// with one colour, nationality, pet, drink and brand of cigarette. Fourteen
+// clues relate them. Who drinks water, and who owns the zebra?
 // Each constraint narrows a list of five partially known houses; unification
 // does the rest. The answer: the Norwegian drinks water and the Japanese owns
 // the zebra.

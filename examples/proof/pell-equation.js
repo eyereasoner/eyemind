@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 solution(0, 1, 0)
 solution(1, 3, 2)
 solution(5, 3363, 2378)
@@ -9,6 +10,7 @@ equation_holds(5)
 equation_holds(8)
 equation_holds(50)
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(requested_step(0)))
 clause(2, fact(requested_step(1)))
 clause(3, fact(requested_step(5)))
@@ -19,6 +21,8 @@ clause(7, implied_by(pell(N, X, Y), [gt(N, 0), is(Before, sub(N, 1)), pell(Befor
 clause(8, implies([requested_step(N), pell(N, X, Y)], solution(N, X, Y)))
 clause(9, implies([solution(N, X, Y), is(1, sub(mul(X, X), mul(2, mul(Y, Y))))], equation_holds(N)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(solution(0, 1, 0), clause(8), {N: 0, X: 1, Y: 0}, [requested_step(0), pell(0, 1, 0)])
 step(requested_step(0), clause(1), {}, [])
 step(pell(0, 1, 0), clause(6), {}, [])

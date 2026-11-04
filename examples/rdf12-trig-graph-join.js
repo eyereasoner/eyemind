@@ -1,10 +1,14 @@
-// A join across graphs: the default graph says which station reported the
-// sensor graph, and the sensor graph holds a temperature reading. The rule
-// joins the two and concludes, in the default graph, that the sensor's reading
-// was reported by station 7.
+// Joining data across named graphs. RDF, the web's data format, states facts
+// as triples of subject, property and value, and can group them into named
+// graphs: collections of triples that have a name (an IRI, a web address) of
+// their own, next to one unnamed default graph. Each fact here is
+// rdf(Subject, Property, Value, Graph). The default graph says that station 7
+// reported the sensor graph, and the sensor graph holds sensor1's temperature
+// reading. One forward rule joins the two and concludes, in the default graph,
+// that sensor1 was reported by station 7.
 //
-// A graph's name is an IRI like any other, so data about a graph and data in
-// that graph meet in one rule.
+// It shows that a graph's name is an IRI like any other, so data about a
+// graph and data in that graph meet in one rule.
 
 const ex = 'https://example.org/'
 const xsd = 'http://www.w3.org/2001/XMLSchema#'

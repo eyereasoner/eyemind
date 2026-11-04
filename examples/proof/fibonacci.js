@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 fib(0, 0)
 fib(1, 1)
 fib(10, 55)
@@ -9,6 +10,7 @@ golden_ratio(10, 1.6181818181818182)
 golden_ratio(100, 1.618033988749895)
 golden_ratio(1000, 1.618033988749895)
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, implied_by(fib(N, F), [ge(N, 0), fib_pair(N, F, _0)]))
 clause(2, fact(fib_pair(0, 0, 1)))
 clause(3, implied_by(fib_pair(N, A, B), [gt(N, 0), is(Half, floordiv(N, 2)), fib_pair(Half, X, Y), is(C, mul(X, sub(mul(2, Y), X))), is(D, add(mul(X, X), mul(Y, Y))), parity_pair(N, C, D, A, B)]))
@@ -16,6 +18,8 @@ clause(4, implied_by(parity_pair(N, C, D, A, B), [eq(0, mod(N, 2)), unify(A, C),
 clause(5, implied_by(parity_pair(N, C, D, A, B), [eq(1, mod(N, 2)), unify(A, D), is(B, add(C, D))]))
 clause(6, implied_by(golden_ratio(N, Ratio), [fib(N, A), gt(A, 0), is(Next, add(N, 1)), fib(Next, B), is(Ratio, div(B, A))]))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(fib(0, 0), clause(1), {N: 0, F: 0, _0: 1}, [ge(0, 0), fib_pair(0, 0, 1)])
 step(ge(0, 0), 'builtin', {}, [])
 step(fib_pair(0, 0, 1), clause(2), {}, [])

@@ -9,6 +9,7 @@ conformance('atoms are written as single-quoted strings', [
     'query(d(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     "d('plain')",
     "d('it\\'s')",
     'd(\'say "hi"\')',
@@ -31,6 +32,7 @@ conformance('the empty list is written []', [
     'query(d(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'd([])',
   ]),
 ])
@@ -42,6 +44,7 @@ conformance('integers are written in decimal', [
     'query(d(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'd(0)',
     'd(-7)',
     'd(10000000000000000000000000000000000000000)',
@@ -65,6 +68,7 @@ conformance('floats are written in their shortest round-trip form', [
     'query(d(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'd(0.1)',
     'd(2.0)',
     'd(-0.5)',
@@ -86,10 +90,14 @@ conformance('a variable is written as its name', [
     'query(p(A, B, C))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'p(A, B, C)',
     '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
     'clause(1, fact(p(Some_Var1, lowercase, struct)))',
     '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
     'step(p(A, B, C), clause(1), {Some_Var1: A, lowercase: B, struct: C}, [])',
   ]),
 ])
@@ -103,10 +111,14 @@ conformance('a variable name starting with VAR_ is encoded', [
     'query(p(A))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'p(A)',
     '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
     'clause(1, fact(p(VAR_VAR__X)))',
     '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
     'step(p(A), clause(1), {VAR_X: A}, [])',
   ]),
 ])
@@ -116,6 +128,7 @@ conformance('an encoded variable name reads back as the variable it encodes', [
   args("--goal '[unify(X, 1), unify(X, Y)]'"),
   stdin([]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'and(unify(1, 1), unify(1, 1))',
   ]),
 ])
@@ -134,6 +147,7 @@ conformance('variables in conclusions are named A, B, ... in order of first occu
   args("--goal 'unify(f(Y, X, Y), Z)' --goal 'unify(g(P), Q)'"),
   stdin([]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'unify(f(A, B, A), f(A, B, A))',
     'unify(g(C), g(C))',
   ]),
@@ -147,11 +161,15 @@ conformance('each _ of a clause is a variable named _0, _1, ... skipping names t
     'implies([p(X), unify(_0, _)], q(X, _, [X, ..._]))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "q(1, skolem(2, '_2', [1]), [1, ...skolem(2, '_3', [1])])",
     '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
     'clause(1, fact(p(1)))',
     'clause(2, implies([p(X), unify(_0, _1)], q(X, _2, [X, ..._3])))',
     '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
     "step(q(1, skolem(2, '_2', [1]), [1, ...skolem(2, '_3', [1])]), clause(2), {X: 1, _0: A, _1: A, _2: skolem(2, '_2', [1]), _3: skolem(2, '_3', [1])}, [p(1), unify(A, A)])",
     'step(p(1), clause(1), {}, [])',
     "step(unify(A, A), 'builtin', {}, [])",
@@ -163,6 +181,7 @@ conformance('lists and open lists', [
   args('--goal \'unify(L, [1, [2, 3], []])\' --goal \'unify(M, [1, ...T])\' --goal \'unify(N, [1, ...\'"\'"\'b\'"\'"\'])\''),
   stdin([]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'unify([1, [2, 3], []], [1, [2, 3], []])',
     'unify([1, ...A], [1, ...A])',
     "unify([1, ...'b'], [1, ...'b'])",
@@ -176,6 +195,7 @@ conformance('a compound named by an identifier is written as a call', [
     'query(d(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'd(Upper(1))',
     "d(struct('café', 'x'))",
     'd(_hidden(2))',
@@ -195,6 +215,7 @@ conformance('any other compound is written with struct', [
     'query(d(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     "d(struct('hello world', 1))",
     'd(from(1))',
     "d(struct('struct', 1))",
@@ -214,6 +235,7 @@ conformance('arithmetic and comparison terms are written as the calls that build
     'query(d(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'd(add(1, 2))',
     'd(sub(sub(1, 2), 3))',
     'd(sub(1, sub(2, 3)))',
@@ -237,6 +259,7 @@ conformance('negation and the unary arithmetic terms are calls', [
     'query(d(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     "d(neg('x'))",
     'd(pos(1))',
     "d(not('g'))",
@@ -252,6 +275,7 @@ conformance('a minus sign on a number is a negative number, and neg a compound',
     'query(d(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'd(neg(1))',
     'd(-1)',
     'd(neg(-1))',
@@ -269,6 +293,7 @@ conformance('a chain of conjunctions or disjunctions is written as one call', [
     'query(d(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     "d(and('a', 'b', 'c'))",
     "d(and('a', and('b', 'c')))",
     "d(['a', 'b'])",
@@ -288,6 +313,7 @@ conformance("an open list's tail may be any term", [
     'query(d(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'd([1, ...lt(1, 2)])',
     "d([1, ...or('a', 'b')])",
     'd([1, 2, 3])',
@@ -299,6 +325,7 @@ conformance('floats take the exponent form from 1e16, and below 1e-4', [
   args("--goal 'is(A, float(10000000000000000))' --goal 'is(B, float(1000000000000000))' --goal 'is(C, div(1, 10000))' --goal 'is(D, div(1, 100000))'"),
   stdin([]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     "is(1e+16, float(10000000000000000))",
     "is(1000000000000000.0, float(1000000000000000))",
     "is(0.0001, div(1, 10000))",

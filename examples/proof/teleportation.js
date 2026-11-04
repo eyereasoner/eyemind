@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 teleported('zero', 0, ['false'])
 teleported('zero', 1, ['false'])
 teleported('zero', 2, ['false'])
@@ -11,6 +12,7 @@ teleported('plus', 1, ['false', 'true'])
 teleported('plus', 2, ['false', 'true'])
 teleported('plus', 3, ['false', 'true'])
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(5, fact(name('zero')))
 clause(6, fact(name('one')))
 clause(7, fact(name('plus')))
@@ -20,6 +22,8 @@ clause(31, fact(outcome(2)))
 clause(32, fact(outcome(3)))
 clause(37, implies([name(S), outcome(M), findall(Z, received(S, M, Z), Received)], teleported(S, M, Received)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(teleported('zero', 0, ['false']), clause(37), {S: 'zero', M: 0, Z: A, Received: ['false']}, [name('zero'), outcome(0), findall(A, received('zero', 0, A), ['false'])])
 step(name('zero'), clause(5), {}, [])
 step(outcome(0), clause(29), {}, [])

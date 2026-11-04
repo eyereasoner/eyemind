@@ -1,6 +1,11 @@
-// A named graph from TriG: the family graph says Alice is Bob's parent and Bob
-// is Carol's. The rules derive ancestors within that graph, one and two
-// generations up, and keep each conclusion in the graph it came from.
+// Keeping conclusions inside the collection of data they came from. In RDF,
+// the web's standard data model, data is a set of triples (subject,
+// predicate, object), and a named graph is a set of triples with a name of
+// its own, as written in the TriG file format. Here the family graph says
+// Alice is Bob's parent and Bob is Carol's. The rules derive ancestors within
+// that graph, one and two generations up, so the program concludes that Alice
+// is an ancestor of Bob and of Carol and Bob of Carol, each in the family
+// graph. It shows forward rules that carry a graph name through unchanged.
 //
 // The fourth argument of rdf(S, P, O, Graph) is the graph: iri(Name) for a
 // named graph, 'default_graph' for the default one.

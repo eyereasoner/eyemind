@@ -49,7 +49,8 @@ implied_by(
   [is(Year, add(Y, Years)), month_days(Year, M, Maximum), is(Day, min(D, Maximum))],
 )
 
-// Proleptic Gregorian calendar; dates have integer years >= 1.
+// The Gregorian calendar, extended back before its introduction (the
+// proleptic Gregorian calendar); dates have integer years from 1 on.
 // date_day numbers the days from 1 January of year 1, which is day 1: the days
 // of all earlier years (365 each, plus one per leap year), then the days of
 // earlier months this year, one more after February in a leap year, and D.

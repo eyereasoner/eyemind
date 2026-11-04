@@ -1,7 +1,12 @@
-// An RDF 1.2 annotation: the triple "Alice's name is Alice" is asserted, and a
-// reifier, claim1, stands for it through rdf:reifies and records who stated it
-// and when. The rules recover the asserted triple together with its
-// annotations, and only for a triple that is both asserted and reified.
+// Recording who said something and when. In RDF, the web's standard data
+// model, data is a set of triples (subject, predicate, object), with
+// names written as web addresses, iri(...). RDF 1.2 lets a statement be
+// annotated: here the triple "Alice's name is Alice" is asserted, and a
+// reifier, claim1, a name that stands for that triple through the predicate
+// rdf:reifies, records that Carol stated it on 2025-01-15. The program
+// concludes the asserted triple together with its reifier and both
+// annotations, and would do so only for a triple that is both asserted and
+// reified. It shows RDF data as plain terms and a forward rule that joins them.
 //
 // A typed literal is literal(Text, datatype(IRI)): the date keeps its text
 // and its datatype, so it goes back to RDF unchanged.

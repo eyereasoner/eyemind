@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 conflicting_sample('handover_a', 'batch_a')
 selected_reading('logger_a', 'batch_a', 94)
 selected_reading('logger_b', 'batch_b', 75)
@@ -6,6 +7,7 @@ notify('north_depot', 'batch_a')
 notify('station_shop', 'batch_a')
 inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a']))
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(checkpoint(42)))
 clause(2, fact(temperature_limit(80)))
 clause(6, fact(observation('handheld_a', 'handover_a', 'batch_a', 43, 'handheld', 72)))
@@ -20,6 +22,8 @@ clause(16, implies([selected_reading(Id, Batch, Temperature), temperature_limit(
 clause(17, implies([quarantine(Batch, _0), destination(Batch, Site)], notify(Site, Batch)))
 clause(18, implies(quarantine(Batch, Evidence), inspection_task(Batch, Evidence, Task)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(conflicting_sample('handover_a', 'batch_a'), clause(13), {_0: 'handheld_a', Sample: 'handover_a', Batch: 'batch_a', _1: 'handheld', Low: 72, _2: 'logger_a', _3: 'calibrated_logger', High: 94, Limit: 80}, [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), temperature_limit(80), le(72, 80), gt(94, 80)])
 step(current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), clause(12), {Id: 'handheld_a', Sample: 'handover_a', Batch: 'batch_a', Sequence: 43, Sensor: 'handheld', Temperature: 72, Committed: 42}, [observation('handheld_a', 'handover_a', 'batch_a', 43, 'handheld', 72), checkpoint(42), gt(43, 42)])
 step(observation('handheld_a', 'handover_a', 'batch_a', 43, 'handheld', 72), clause(6), {}, [])

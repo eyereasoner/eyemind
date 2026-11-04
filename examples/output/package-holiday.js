@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 assessment('directive_2015', 'r7', refused_by_terms([unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)]), basis(['ex:terms']))
 assessment('directive_2015', 'r8', refused_by_terms([unmet('ex:byLeadTraveller', 'ex:requesterRole', 'ex:otherPerson', 'odrl:eq', 'ex:leadTraveller')]), basis(['ex:terms']))
 assessment('revised_2026', 'r7', refused_by_terms([unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)]), basis(['ex:terms']))

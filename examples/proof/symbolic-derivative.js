@@ -1,9 +1,11 @@
+// Answers: each instance of a query() that holds.
 derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1))))
 derivative('linear_plus_const', add(num(1), num(0)))
 derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0)))))))
 derivative('nested_log', divide(divide(num(1), sym('x')), log(sym('x'))))
 d(divide(sym('y'), sub(sym('x'), num(1))), 'x', divide(sub(mul(num(0), sub(sym('x'), num(1))), mul(sym('y'), sub(num(1), num(0)))), pow(sub(sym('x'), num(1)), 2)))
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(expr('square', mul(sym('x'), sym('x')))))
 clause(2, fact(expr('linear_plus_const', add(sym('x'), num(3)))))
 clause(3, fact(expr('product', mul(add(sym('x'), num(1)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))))))
@@ -19,6 +21,8 @@ clause(12, implied_by(d(pow(U, N), X, mul(mul(num(N), pow(U, N1)), Du)), [is(N1,
 clause(13, implied_by(d(log(U), X, divide(Du, U)), d(U, X, Du)))
 clause(14, implies([expr(Name, Formula), d(Formula, 'x', Derivative)], derivative(Name, Derivative)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1)))), clause(14), {Name: 'square', Formula: mul(sym('x'), sym('x')), Derivative: add(mul(num(1), sym('x')), mul(sym('x'), num(1)))}, [expr('square', mul(sym('x'), sym('x'))), d(mul(sym('x'), sym('x')), 'x', add(mul(num(1), sym('x')), mul(sym('x'), num(1))))])
 step(expr('square', mul(sym('x'), sym('x'))), clause(1), {}, [])
 step(d(mul(sym('x'), sym('x')), 'x', add(mul(num(1), sym('x')), mul(sym('x'), num(1)))), clause(10), {U: sym('x'), V: sym('x'), X: 'x', Du: num(1), Dv: num(1)}, [d(sym('x'), 'x', num(1)), d(sym('x'), 'x', num(1))])

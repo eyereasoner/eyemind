@@ -1,7 +1,8 @@
 // Peasant multiplication and exponentiation, as in ancient Egyptian arithmetic:
 // halve one operand, double (or square) the other, and add (or multiply) in the
-// rows where the halved operand was odd. Only halving, doubling and addition
-// are needed, and the integers stay exact however large they grow.
+// rows where the halved operand was odd. Multiplication needs only halving,
+// doubling and addition, exponentiation only halving, squaring and
+// multiplication, and the integers stay exact however large they grow.
 //
 // The queries multiply and raise to powers numbers from 0 up to 34 digits;
 // for instance 238 * 13 = 3094 and 238^13 = 7861409907565911395902147452928,

@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 witness('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')))
 models('agatha', 4)
 models('butler', 0)

@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 case_name('delfour', 'delfour')
 derived_need('sugar_insight', 'low_sugar')
 decision('delfour', 'Allowed', 'sugar_insight')
@@ -25,6 +26,7 @@ passed('delfour', 'minimal_payload')
 passed('delfour', 'lower_sugar')
 all_checks_pass('delfour')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(case_name('delfour', 'delfour')))
 clause(2, fact(household('delfour', 'household_profile')))
 clause(3, fact(condition('household_profile', 'Diabetes')))
@@ -88,6 +90,8 @@ clause(76, implies([case_policy(Case, Policy), case_insight(Case, Insight), proh
 clause(77, implies(files_written(Case, 6), passed(Case, 'expected_file_count')))
 clause(78, implies([passed(Case, 'trusted_signature'), passed(Case, 'matching_hash'), passed(Case, 'minimal_payload'), passed(Case, 'complete_scope'), passed(Case, 'authorization'), passed(Case, 'high_sugar'), passed(Case, 'lower_sugar'), passed(Case, 'duty_timing'), passed(Case, 'marketing_prohibited'), passed(Case, 'expected_file_count')], all_checks_pass(Case)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(case_name('delfour', 'delfour'), clause(1), {}, [])
 step(derived_need('sugar_insight', 'low_sugar'), clause(60), {Case: 'delfour', Insight: 'sugar_insight'}, [low_sugar_case('delfour'), case_insight('delfour', 'sugar_insight')])
 step(low_sugar_case('delfour'), clause(59), {Case: 'delfour', Household: 'household_profile'}, [household('delfour', 'household_profile'), condition('household_profile', 'Diabetes')])

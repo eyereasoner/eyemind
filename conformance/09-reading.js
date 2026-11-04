@@ -25,6 +25,7 @@ conformance('canonical text reads back as the same term', [
     'd(-0.5)',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     "d('plain')",
     "d('it\\'s')",
     'd([1, [2, 3], ...A])',
@@ -68,6 +69,7 @@ conformance('other spellings read as the same terms', [
     "    d('indented')",
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     "d('double')",
     "d('tab\\there')",
     "d('AB😀')",
@@ -95,6 +97,7 @@ conformance('a dictionary display reads as a list of = pairs', [
     "d([struct('=', 'X', 1), struct('=', 'Y', f(2))])",
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     "d([struct('=', 'X', 1), struct('=', 'Y', f(2))])",
   ]),
 ])
@@ -110,6 +113,7 @@ conformance('a name reads as a variable, and each _ as a new one', [
     'any(VAR____23_0, VAR____23_1)',
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'same(1, 1)',
     'any(1, 2)',
   ]),

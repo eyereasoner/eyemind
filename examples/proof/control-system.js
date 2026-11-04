@@ -1,6 +1,8 @@
+// Answers: each instance of a query() that holds.
 control1('actuator1', 39.27346198678276)
 control1('actuator2', 26.08)
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(measurement1('input1', [6, 11])))
 clause(3, fact(measurement2('input2', 'true')))
 clause(5, fact(measurement3('disturbance1', 35766)))
@@ -12,6 +14,8 @@ clause(12, implied_by(control1('actuator2', C), [observation3('state3', P3), mea
 clause(13, implied_by(nonlinear_part(E, D, C2), [ne(E, 0), is(N, div(7.3, E)), is(C2, mul(N, D))]))
 clause(15, implied_by(measurement10(I, M), [measurement1(I, [M1, M2]), lt(M1, M2), is(M3, sub(M2, M1)), is(M, sqrt(M3))]))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(control1('actuator1', 39.27346198678276), clause(11), {C: 39.27346198678276, M1: 2.23606797749979, D1: 35766, C1: 43.82693235899588, C2: 4.553470372213121}, [measurement10('input1', 2.23606797749979), measurement2('input2', 'true'), measurement3('disturbance1', 35766), gt(35766, 0), is(43.82693235899588, mul(2.23606797749979, 19.6)), is(4.553470372213121, div(log(35766), log(10))), is(39.27346198678276, sub(43.82693235899588, 4.553470372213121))])
 step(measurement10('input1', 2.23606797749979), clause(15), {I: 'input1', M: 2.23606797749979, M1: 6, M2: 11, M3: 5}, [measurement1('input1', [6, 11]), lt(6, 11), is(5, sub(11, 6)), is(2.23606797749979, sqrt(5))])
 step(measurement1('input1', [6, 11]), clause(1), {}, [])

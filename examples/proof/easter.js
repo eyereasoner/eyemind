@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 easter(2021, [4, 4])
 easter(2022, [4, 17])
 easter(2023, [4, 9])
@@ -29,11 +30,14 @@ easter(2048, [4, 5])
 easter(2049, [4, 18])
 easter(2050, [4, 10])
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, implied_by(computus(Year, [Month, Day]), [is(A, mod(Year, 19)), is(B, floordiv(Year, 100)), is(C, mod(Year, 100)), is(D, mod(add(sub(sub(add(mul(19, A), B), floordiv(B, 4)), floordiv(add(sub(B, floordiv(add(B, 8), 25)), 1), 3)), 15), 30)), is(E, mod(sub(sub(add(add(32, mul(2, mod(B, 4))), mul(2, floordiv(C, 4))), D), mod(C, 4)), 7)), is(F, add(sub(add(D, E), mul(7, floordiv(add(add(A, mul(11, D)), mul(22, E)), 451))), 114)), is(Month, floordiv(F, 31)), is(Day, add(mod(F, 31), 1))]))
 clause(2, implied_by(in_range(Low, High, Low), le(Low, High)))
 clause(3, implied_by(in_range(Low, High, N), [lt(Low, High), is(Next, add(Low, 1)), in_range(Next, High, N)]))
 clause(4, implies([in_range(2021, 2050, Year), computus(Year, Date)], easter(Year, Date)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(easter(2021, [4, 4]), clause(4), {Year: 2021, Date: [4, 4]}, [in_range(2021, 2050, 2021), computus(2021, [4, 4])])
 step(in_range(2021, 2050, 2021), clause(2), {Low: 2021, High: 2050}, [le(2021, 2050)])
 step(le(2021, 2050), 'builtin', {}, [])

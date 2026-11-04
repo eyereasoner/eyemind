@@ -8,18 +8,19 @@
 
 ## The question
 
-Mapmakers like neighbouring countries to have different colours. A famous
-result, the *four colour theorem*, says four colours are always enough for
-any flat map.
+Mapmakers like neighbouring countries to have different colours, so that
+every border is easy to see. A famous mathematical result, the *four colour
+theorem*, says four colours are always enough for any flat map.
 
 **Can eyemind colour the 27 countries of the European Union with red, green,
 blue and yellow, so that no two neighbours share a colour?**
 
 ---
 
-## What we tell eyemind
+## What we tell eyemind: the map
 
-The map, as a list of neighbours for each country:
+The map is a list of neighbours for each country, one `fact` per country. A
+`fact` is something we simply state as true:
 
 ```js
 fact(neighbours('Belgium', ['France', 'Netherlands', 'Luxemburg', 'Germany']))
@@ -30,13 +31,22 @@ fact(neighbours('Croatia', ['Slovenia', 'Hungary']))
 query(colors('mapEU', _))
 ```
 
-Islands such as Ireland, Cyprus and Malta have an empty list `[]`.
+Square brackets hold a list. Islands such as Ireland, Cyprus and Malta have
+an empty list `[]`: no land neighbours in the Union. The last line is the
+question: find a colouring of the map. `_` means "some value, which we want
+to see".
 
 ---
 
-## How it colours
+## What we tell eyemind: how to colour
 
 ```js
+implied_by(
+  colors(_Map, Places),
+  [findall([Place, _], neighbours(Place, _), Places), once(places(Places))],
+)
+
+fact(places([]))
 implied_by(
   places([[Place, Color], ...Tail]),
   [
@@ -46,17 +56,44 @@ implied_by(
     not(conflict(Color, Tail, Neighbours)),
   ],
 )
+
+// A colour conflicts when an already-coloured neighbour has it.
+implied_by(
+  conflict(Color, Coloured, Neighbours),
+  [member([Neighbour, Color], Coloured), member(Neighbour, Neighbours)],
+)
+
+// member(X, List): X is an element of List.
+fact(member(X, [X, ..._]))
+implied_by(member(X, [_, ...Rest]), member(X, Rest))
 ```
 
-Countries are coloured one at a time, starting from the end of the list.
-Each takes the first colour from red, green, blue, yellow that *no*
-already-coloured neighbour has. `not(...)` means "it is not the case that": here,
-there is no conflict. If a country is left without a colour, eyemind
-backtracks and revisits earlier choices.
+`implied_by(conclusion, conditions)` is a **backward rule**: the conclusion
+holds when every condition in the list holds. Capitalized names are
+**variables**, placeholders for whatever values make the rule fit. In plain
+words:
 
-The query starts from a list of `[Country, Colour]` pairs that `findall`
-builds with the colours still unknown, and `once` keeps the first complete
-colouring.
+- **colors**: make a list of `[Country, Colour]` pairs, one per country on
+  the map, with the colours still blank, and then fill the colours in.
+  `findall` ("find all") builds that list from every `neighbours` fact.
+  `once` means "the first way that works is enough": we want one colouring,
+  not all of them.
+- **places**: an empty list is coloured. A list starting with one country is
+  coloured if the rest (`Tail`, written `...Tail`) is coloured first, and the
+  country gets one of the four colours that causes no **conflict**.
+- **conflict**: a colour conflicts if some already-coloured country has it
+  and that country is one of the neighbours.
+- **member**: something is an element of a list if it is the first element,
+  or an element of the rest.
+
+`not(...)` means "this cannot be shown": eyemind tries to find a conflict,
+and if there is none, the colour is accepted. Colours are tried in the order
+red, green, blue, yellow. If a country is ever left without a colour, eyemind
+**backtracks**: it goes back and tries the next colour for an earlier
+country.
+
+Because each country waits for the rest of the list, the colouring actually
+starts at the end of the list, with Croatia, and works back to Belgium.
 
 ---
 
@@ -65,45 +102,273 @@ colouring.
 One colouring of all 27 countries (excerpt):
 
 ```js
+// Answers: each instance of a query() that holds.
 colors('mapEU', [['Belgium', 'yellow'], ['Netherlands', 'green'],
   ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'],
   ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'],  // …
   ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']])
 ```
 
-Only red, green, blue and yellow are used; yellow is needed just twice,
-for Austria and Belgium.
+The comment line says what follows: the answers to the query. There is one,
+the full list of 27 pairs. Only red, green, blue and yellow are used; yellow
+is needed just twice, for Austria and Belgium. It was not needed more often,
+and no backtracking was needed either: at every country, one of the four
+colours was free.
 
 ---
 
-## Why: the proof in plain words
+## How eyemind records "taken on trust"
 
-1. Gather all countries on the map into a list (27 of them).
-2. Croatia goes first: red, since nothing is coloured yet.
-3. Romania: red is fine, Croatia is not its neighbour.
-4. Bulgaria: its neighbour Romania is red, so it takes green.
-5. …and so on until Belgium, whose neighbours already use red, green and
-   blue, so it gets yellow.
+Two kinds of step in this proof cannot be shown by pointing at a fact or a
+rule, because they are about what is *not* there:
 
-Each "no conflict" is a step in the proof.
+- **An absence** (`'absent'`): "there is no conflict". eyemind searched for a
+  clash and found none. A proof can point at what was found; it cannot point
+  at what was not found.
+- **A collection** (`'collected'`): the list `findall` gathered. The proof
+  can show the list, but not that it is *complete*: that no country was
+  missed.
+
+The checker accepts such steps **on trust** and lists each one openly as an
+**obligation**: something the reader takes on eyemind's word.
+
+A third kind, `'control'`, marks a step for `once`, `call`, "and" or "or":
+these only combine other goals, and the checker rebuilds them from their
+parts.
 
 ---
 
-## Checked, not just claimed
+## The proof, line by line
 
-The checker verifies 66 steps against the program, and confirms the one
-`once` step from the colouring beneath it. 28 steps are taken on trust and
-listed as **obligations**:
+The full proof is 134 lines and about 58 KB, because every step about the
+colouring repeats the whole list of countries. Below is its claim, all its
+clauses, the top of the chain of steps, and the complete steps for the first
+three countries coloured (Croatia, Romania and Bulgaria). `// …` lines mark
+what is left out. The [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/four-color.js)
+has 95 steps.
 
-- **1 collected**: the list of countries gathered with `findall` ("find
-  all") is assumed to be the complete map;
-- **27 absent**: one per country, "this colour clashes with no coloured
-  neighbour". eyemind searched and found no clash; the checker records that
-  rather than proving a negative.
+```js
+// Answers: each instance of a query() that holds.
+colors('mapEU', [['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']])
 
-The checker did look for evidence against all 28 and found none.
+// Clauses: the program clauses the steps cite, by clause number.
+clause(1, implied_by(colors(_Map, Places), [findall([Place, _0], neighbours(Place, _1), Places), once(places(Places))]))
+clause(2, fact(places([])))
+clause(3, implied_by(places([[Place, Color], ...Tail]), [places(Tail), neighbours(Place, Neighbours), member(Color, ['red', 'green', 'blue', 'yellow']), not(conflict(Color, Tail, Neighbours))]))
+clause(5, fact(member(X, [X, ..._0])))
+clause(6, implied_by(member(X, [_0, ...Rest]), member(X, Rest)))
+clause(7, fact(neighbours('Belgium', ['France', 'Netherlands', 'Luxemburg', 'Germany'])))
+clause(8, fact(neighbours('Netherlands', ['Belgium', 'Germany'])))
+clause(9, fact(neighbours('Luxemburg', ['Belgium', 'France', 'Germany'])))
+clause(10, fact(neighbours('France', ['Spain', 'Belgium', 'Luxemburg', 'Germany', 'Italy'])))
+clause(11, fact(neighbours('Germany', ['Netherlands', 'Belgium', 'Luxemburg', 'Denmark', 'France', 'Austria', 'Poland', 'Czech Republic'])))
+clause(12, fact(neighbours('Italy', ['France', 'Austria', 'Slovenia'])))
+clause(13, fact(neighbours('Denmark', ['Germany'])))
+clause(14, fact(neighbours('Ireland', [])))
+clause(15, fact(neighbours('Greece', ['Bulgaria'])))
+clause(16, fact(neighbours('Spain', ['France', 'Portugal'])))
+clause(17, fact(neighbours('Portugal', ['Spain'])))
+clause(18, fact(neighbours('Austria', ['Czech Republic', 'Germany', 'Hungary', 'Italy', 'Slovenia', 'Slovakia'])))
+clause(19, fact(neighbours('Sweden', ['Finland'])))
+clause(20, fact(neighbours('Finland', ['Sweden'])))
+clause(21, fact(neighbours('Cyprus', [])))
+clause(22, fact(neighbours('Malta', [])))
+clause(23, fact(neighbours('Poland', ['Germany', 'Czech Republic', 'Slovakia', 'Lithuania'])))
+clause(24, fact(neighbours('Hungary', ['Austria', 'Slovakia', 'Romania', 'Croatia', 'Slovenia'])))
+clause(25, fact(neighbours('Czech Republic', ['Germany', 'Poland', 'Slovakia', 'Austria'])))
+clause(26, fact(neighbours('Slovakia', ['Czech Republic', 'Poland', 'Hungary', 'Austria'])))
+clause(27, fact(neighbours('Slovenia', ['Austria', 'Italy', 'Hungary', 'Croatia'])))
+clause(28, fact(neighbours('Estonia', ['Latvia'])))
+clause(29, fact(neighbours('Latvia', ['Estonia', 'Lithuania'])))
+clause(30, fact(neighbours('Lithuania', ['Latvia', 'Poland'])))
+clause(31, fact(neighbours('Bulgaria', ['Romania', 'Greece'])))
+clause(32, fact(neighbours('Romania', ['Hungary', 'Bulgaria'])))
+clause(33, fact(neighbours('Croatia', ['Slovenia', 'Hungary'])))
 
-Verdict: **checked_with_obligations**. 95 steps, 28 on trust.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
+step(colors('mapEU', [['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']]), clause(1), {_Map: 'mapEU', Places: [['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], Place: A, _0: B, _1: C}, [findall([A, B], neighbours(A, C), [['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']]), once(places([['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']]))])
+step(findall([A, B], neighbours(A, C), [['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']]), 'collected', {}, [])
+step(once(places([['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']])), 'control', {}, [places([['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']])])
+// … 24 more places(...) steps, one per country from Belgium down to
+// Lithuania, each by clause(3) and each using the next shorter list
+step(places([['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']]), clause(3), {Place: 'Bulgaria', Color: 'green', Tail: [['Romania', 'red'], ['Croatia', 'red']], Neighbours: ['Romania', 'Greece']}, [places([['Romania', 'red'], ['Croatia', 'red']]), neighbours('Bulgaria', ['Romania', 'Greece']), member('green', ['red', 'green', 'blue', 'yellow']), not(conflict('green', [['Romania', 'red'], ['Croatia', 'red']], ['Romania', 'Greece']))])
+step(places([['Romania', 'red'], ['Croatia', 'red']]), clause(3), {Place: 'Romania', Color: 'red', Tail: [['Croatia', 'red']], Neighbours: ['Hungary', 'Bulgaria']}, [places([['Croatia', 'red']]), neighbours('Romania', ['Hungary', 'Bulgaria']), member('red', ['red', 'green', 'blue', 'yellow']), not(conflict('red', [['Croatia', 'red']], ['Hungary', 'Bulgaria']))])
+step(places([['Croatia', 'red']]), clause(3), {Place: 'Croatia', Color: 'red', Tail: [], Neighbours: ['Slovenia', 'Hungary']}, [places([]), neighbours('Croatia', ['Slovenia', 'Hungary']), member('red', ['red', 'green', 'blue', 'yellow']), not(conflict('red', [], ['Slovenia', 'Hungary']))])
+step(places([]), clause(2), {}, [])
+step(neighbours('Croatia', ['Slovenia', 'Hungary']), clause(33), {}, [])
+step(member('red', ['red', 'green', 'blue', 'yellow']), clause(5), {X: 'red', _0: ['green', 'blue', 'yellow']}, [])
+step(not(conflict('red', [], ['Slovenia', 'Hungary'])), 'absent', {}, [])
+step(neighbours('Romania', ['Hungary', 'Bulgaria']), clause(32), {}, [])
+step(not(conflict('red', [['Croatia', 'red']], ['Hungary', 'Bulgaria'])), 'absent', {}, [])
+step(neighbours('Bulgaria', ['Romania', 'Greece']), clause(31), {}, [])
+step(member('green', ['red', 'green', 'blue', 'yellow']), clause(6), {X: 'green', _0: 'red', Rest: ['green', 'blue', 'yellow']}, [member('green', ['green', 'blue', 'yellow'])])
+step(member('green', ['green', 'blue', 'yellow']), clause(5), {X: 'green', _0: ['blue', 'yellow']}, [])
+step(not(conflict('green', [['Romania', 'red'], ['Croatia', 'red']], ['Romania', 'Greece'])), 'absent', {}, [])
+// … 55 more steps: the neighbours fact, the colour choice and the
+// no-conflict absence for each of the other 24 countries
+```
+
+It has three parts:
+
+- **The claim**: the answer the proof is about, the full colouring.
+- **The clauses**: the program lines the steps cite, numbered in the order
+  they appear in the program. Clause 4, the `conflict` rule, is missing:
+  since no conflict was ever found, no step uses it.
+- **The steps**: one per thing established. A step reads
+  `step(what, by what, with which values, using what)`. The values say what
+  each variable of the cited rule stood for; "using what" lists the things
+  the step relies on, each with its own step.
+
+The justifications that occur are `clause(N)` (an instance of program line
+N), `'collected'`, `'control'` and `'absent'`, as explained above.
+
+Read the steps shown as sentences:
+
+1. *The map is coloured with this list* — by clause 1, because `findall`
+   gathered this list of 27 countries and the list can be coloured (`once`).
+   The values `A`, `B`, `C` are the blanks findall used.
+2. *The list of countries is complete* — `'collected'`: taken on trust.
+3. *The first colouring that works is this one* — `'control'`: it holds
+   because the full list can be coloured, which the next step shows.
+4. … 24 steps peel the list one country at a time, from Belgium down to
+   Lithuania, each by clause 3.
+5. *Bulgaria, Romania, Croatia are coloured green, red, red* — by clause 3
+   with Bulgaria green: the rest (Romania, Croatia) is coloured, Bulgaria's
+   neighbours are Romania and Greece, green is one of the four colours, and
+   green conflicts with no coloured neighbour.
+6. *Romania, Croatia are coloured red, red* — by clause 3 with Romania red:
+   Croatia is coloured, Romania's neighbours are Hungary and Bulgaria, and red
+   clashes with nobody: Croatia is red but is not Romania's neighbour.
+7. *Croatia is coloured red* — by clause 3: nothing else is coloured yet, so
+   red clashes with nothing.
+8. *The empty list is coloured* — fact 2.
+9. *Croatia's neighbours are Slovenia and Hungary* — fact 33.
+10. *Red is one of the four colours* — clause 5: it is the first element.
+11. *Red causes no conflict for Croatia* — `'absent'`.
+12. *Romania's neighbours are Hungary and Bulgaria* — fact 32.
+13. *Red causes no conflict for Romania* — `'absent'`. (Red being one of the
+    four colours was already shown in step 10, so it is not repeated.)
+14. *Bulgaria's neighbours are Romania and Greece* — fact 31.
+15. *Green is one of the four colours* — clause 6: it is in the rest of the
+    list after red,
+16. — because it is the first element of `['green', 'blue', 'yellow']`
+    (clause 5).
+17. *Green causes no conflict for Bulgaria* — `'absent'`. Red would have
+    clashed with Romania, which is why green was chosen.
+
+The remaining countries follow the same pattern, ending with Belgium: its
+neighbours France (blue), the Netherlands (green), Luxemburg (green) and
+Germany (red) leave only yellow.
+
+---
+
+## Checked: what the report says
+
+`eyemind -c` generates the proof and checks it against the program;
+`--check-proof` checks a saved proof. The checker never reasons by itself: it
+only confirms each step against the program. This is the complete report:
+
+```js
+// Answers checked subject to the obligations below.
+colors('mapEU', [['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']])
+
+// C1-C8: resolution, acyclicity, justification, coverage,
+// re-decision, boundary consistency, relevance and witness integrity.
+condition('C1', 'resolution', 'ok', 66)
+condition('C2', 'well_founded', 'ok', 95)
+condition('C3', 'justification', 'ok', 95)
+condition('C4', 'coverage', 'ok', 118)
+condition('C5', 're_decision', 'ok', 1)
+condition('C6', 'boundary_consistency', 'ok', 28)
+condition('C7', 'relevance', 'ok', 96)
+condition('C8', 'witness_integrity', 'ok', 0)
+
+// Obligations: absence and collection completeness are taken on trust.
+obligation('collected', 'theory_scoped', findall([A, B], neighbours(A, C), [['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']]))
+obligation('absent', 'theory_scoped', not(conflict('red', [], ['Slovenia', 'Hungary'])))
+obligation('absent', 'theory_scoped', not(conflict('red', [['Croatia', 'red']], ['Hungary', 'Bulgaria'])))
+obligation('absent', 'theory_scoped', not(conflict('green', [['Romania', 'red'], ['Croatia', 'red']], ['Romania', 'Greece'])))
+obligation('absent', 'theory_scoped', not(conflict('red', [['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Latvia', 'Poland'])))
+obligation('absent', 'theory_scoped', not(conflict('green', [['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Estonia', 'Lithuania'])))
+obligation('absent', 'theory_scoped', not(conflict('red', [['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Latvia'])))
+obligation('absent', 'theory_scoped', not(conflict('green', [['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Austria', 'Italy', 'Hungary', 'Croatia'])))
+obligation('absent', 'theory_scoped', not(conflict('red', [['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Czech Republic', 'Poland', 'Hungary', 'Austria'])))
+obligation('absent', 'theory_scoped', not(conflict('green', [['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Germany', 'Poland', 'Slovakia', 'Austria'])))
+obligation('absent', 'theory_scoped', not(conflict('blue', [['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Austria', 'Slovakia', 'Romania', 'Croatia', 'Slovenia'])))
+obligation('absent', 'theory_scoped', not(conflict('blue', [['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Germany', 'Czech Republic', 'Slovakia', 'Lithuania'])))
+obligation('absent', 'theory_scoped', not(conflict('red', [['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], [])))
+obligation('absent', 'theory_scoped', not(conflict('red', [['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], [])))
+obligation('absent', 'theory_scoped', not(conflict('red', [['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Sweden'])))
+obligation('absent', 'theory_scoped', not(conflict('green', [['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Finland'])))
+obligation('absent', 'theory_scoped', not(conflict('yellow', [['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Czech Republic', 'Germany', 'Hungary', 'Italy', 'Slovenia', 'Slovakia'])))
+obligation('absent', 'theory_scoped', not(conflict('red', [['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Spain'])))
+obligation('absent', 'theory_scoped', not(conflict('green', [['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['France', 'Portugal'])))
+obligation('absent', 'theory_scoped', not(conflict('red', [['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Bulgaria'])))
+obligation('absent', 'theory_scoped', not(conflict('red', [['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], [])))
+obligation('absent', 'theory_scoped', not(conflict('green', [['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Germany'])))
+obligation('absent', 'theory_scoped', not(conflict('red', [['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['France', 'Austria', 'Slovenia'])))
+obligation('absent', 'theory_scoped', not(conflict('red', [['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Netherlands', 'Belgium', 'Luxemburg', 'Denmark', 'France', 'Austria', 'Poland', 'Czech Republic'])))
+obligation('absent', 'theory_scoped', not(conflict('blue', [['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Spain', 'Belgium', 'Luxemburg', 'Germany', 'Italy'])))
+obligation('absent', 'theory_scoped', not(conflict('green', [['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Belgium', 'France', 'Germany'])))
+obligation('absent', 'theory_scoped', not(conflict('green', [['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['Belgium', 'Germany'])))
+obligation('absent', 'theory_scoped', not(conflict('yellow', [['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['France', 'Netherlands', 'Luxemburg', 'Germany'])))
+
+// Proof statistics: recorded steps and how they were checked.
+steps(95)
+verified(66)
+recomputed(0)
+composed(1)
+trusted(28)
+claims(1)
+
+// This verdict applies to the claims above; it does not establish completeness.
+verdict('checked_with_obligations')
+```
+
+Each `condition` line names a check, says `'ok'`, and counts what it looked
+at:
+
+- **C1 resolution (66)**: the 66 steps that cite a clause (the colouring
+  rule, 27 places steps plus the empty list, 27 neighbours facts, and 10
+  member steps for the colour choices) really are instances of those
+  clauses with the values shown.
+- **C2 well-founded (95)**: none of the 95 steps depends on itself, even
+  indirectly.
+- **C3 justification (95)**: every step says how it is justified, in a
+  well-formed way.
+- **C4 coverage (118)**: the 1 claim and the 117 things the steps use are
+  each backed by a step: nothing is taken for granted silently.
+- **C5 re-decision (1)**: the 1 `'control'` step, for `once`, was rebuilt
+  from the step beneath it and agrees. There is no arithmetic to recompute.
+- **C6 boundary consistency (28)**: the checker tried to refute each of the
+  28 trusted steps with the evidence in hand. For each "no conflict" it
+  looked among the program's facts and the proof's steps for a conflict
+  that would contradict it; for the collected list, it confirmed that every
+  country with a `neighbours` fact appears in the list. Nothing refuted any
+  of them.
+- **C7 relevance (96)**: the 1 claim answers the query, and all 95 steps
+  serve it.
+- **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
+
+The statistics: 95 steps, 66 verified against the program, 1 composed from
+its parts, 28 trusted, 1 claim.
+
+The 28 `obligation` lines, in plain words:
+
+- **1 collected**: *the list of countries `findall` gathered is the whole
+  map*. `'theory_scoped'` means "complete as far as this program is
+  concerned": the map is whatever the `neighbours` facts say.
+- **27 absent**: one per country, *"this colour clashes with no
+  already-coloured neighbour"*, from Croatia (red, nothing coloured yet) up
+  to Belgium (yellow, against France, the Netherlands, Luxemburg and
+  Germany).
+
+The verdict is **checked with obligations**: the colouring follows from the
+program, provided you accept the 28 listed obligations. You can check them by
+eye in the report, since each lists the colour, the countries coloured so far
+and the neighbours. The verdict does not establish completeness: it does not
+say this is the only colouring.
 
 ---
 
@@ -113,11 +378,18 @@ Verdict: **checked_with_obligations**. 95 steps, 28 on trust.
 eyemind examples/four-color.js
 ```
 
-Swap the colour order to `['yellow', 'blue', 'green', 'red']`: you get a
-different, equally valid map, starting with Belgium red. Or give Ireland a
-neighbour: change its line to `fact(neighbours('Ireland', ['United Kingdom']))`
-and add `fact(neighbours('United Kingdom', ['Ireland']))` — the UK becomes red
-and Ireland turns green.
+Things to try on a copy of the program:
+
+- Swap the colour order to `['yellow', 'blue', 'green', 'red']`: you get a
+  different, equally valid map, starting with Belgium red.
+- Give Ireland a neighbour: change its line to
+  `fact(neighbours('Ireland', ['United Kingdom']))` and add
+  `fact(neighbours('United Kingdom', ['Ireland']))`. The UK becomes red and
+  Ireland turns green.
+- Try only three colours, `['red', 'green', 'blue']`. Belgium, France,
+  Luxemburg and Germany all border each other, so three colours cannot work.
+  eyemind backtracks through so many combinations that it stops with
+  `reasoning exceeded max_inferences` instead of an answer.
 
 ---
 

@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 provisional('ada', 'centrum')
 provisional('bjorn', 'centrum')
 provisional('clara', 'haga')
@@ -17,6 +18,7 @@ audit_flag('ada', 'assignment_differs')
 audit_flag('bjorn', 'assignment_differs')
 audit_flag('davi', 'assignment_differs')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(max_walking_meters(2500)))
 clause(2, fact(preference_penalty_meters(600)))
 clause(3, fact(candidate('ada', 'centrum', 600, 3600, 2)))
@@ -33,6 +35,8 @@ clause(18, implies([provisional(Student, School), candidate(Student, School, _0,
 clause(19, implies([provisional(Student, School), recommended(Student, _0, _1), not(recommended(Student, School, _2))], audit_flag(Student, 'assignment_differs')))
 clause(20, implies([provisional(Student, School), candidate(Student, School, Straight, Walking, _0), is(Detour, sub(Walking, Straight))], hidden_detour(Student, Detour)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(provisional('ada', 'centrum'), clause(14), {Student: 'ada', School: 'centrum', _0: 600, _1: 3600, _2: 2}, [candidate('ada', 'centrum', 600, 3600, 2), not(better_map_option('ada', 'centrum'))])
 step(candidate('ada', 'centrum', 600, 3600, 2), clause(3), {}, [])
 step(not(better_map_option('ada', 'centrum')), 'absent', {}, [])

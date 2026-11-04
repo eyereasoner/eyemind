@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 verdict('checked_with_obligations')
 at_risk(grant('cara'), income('cara', 1800))
 at_risk(grant('dan'), income('dan', 2400))
@@ -9,6 +10,7 @@ explanation(grant('dan'), [applicant('dan'), income('dan', 2400)], [not(already_
 explanation(top_up('ann'), [household('ann', 4), applicant('ann'), income('ann', 2100)], [not(already_received('ann'))])
 explanation(top_up('dan'), [household('dan', 3), applicant('dan'), income('dan', 2400)], [not(already_received('dan'))])
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(24, fact(verdict('checked_with_obligations')))
 clause(25, fact(decision(refused('bob', 'income above 2500'))))
 clause(26, fact(decision(grant('ann'))))
@@ -31,6 +33,8 @@ clause(65, implies([decision(D), depends(D, F), step_of(F, clause(_0), [])], res
 clause(68, implies([rests_on(D, F), evidence_of(F, 'self_declared')], at_risk(D, F)))
 clause(70, implies([decision(D), findall(F, rests_on(D, F), Data), findall(A, assumes(D, A), Assumptions)], explanation(D, Data, Assumptions)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(verdict('checked_with_obligations'), clause(24), {}, [])
 step(at_risk(grant('cara'), income('cara', 1800)), clause(68), {D: grant('cara'), F: income('cara', 1800)}, [rests_on(grant('cara'), income('cara', 1800)), evidence_of(income('cara', 1800), 'self_declared')])
 step(rests_on(grant('cara'), income('cara', 1800)), clause(65), {D: grant('cara'), F: income('cara', 1800), _0: 8}, [decision(grant('cara')), depends(grant('cara'), income('cara', 1800)), step_of(income('cara', 1800), clause(8), [])])

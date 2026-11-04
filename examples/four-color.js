@@ -3,7 +3,6 @@
 // listed below it, choosing the first colour none of its already-coloured
 // neighbours uses, and backtracking revisits earlier choices if a country is
 // left without one. The four colour theorem says a colouring always exists.
-// See https://en.wikipedia.org/wiki/Four_color_theorem
 //
 // The query answers with one colouring of the 27 member states, as a list of
 // [Country, Colour] pairs. findall builds that list with the colours still

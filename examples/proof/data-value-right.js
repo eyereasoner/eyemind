@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 analysis('value_transparency', 'knowing that and how one\'s data creates value, including in AI training', 'by interpretation', ['GDPR art. 13-15', 'AI Act art. 53(1)(d)'])
 analysis('use_control', 'deciding on the uses through which one\'s data creates value', 'by interpretation', ['GDPR art. 7(3)', 'GDPR art. 21'])
 analysis('value_mobility', 'taking one\'s data elsewhere, to have value created there', 'by interpretation', ['GDPR art. 20', 'DMA art. 6(9)'])
@@ -12,6 +13,7 @@ evaluation('data_ownership', ['value_share', 'use_control', 'value_mobility', 'i
 evaluation('autonomous_right', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share'], [])
 recommended('autonomous_right')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(component('value_transparency', 'knowing that and how one\'s data creates value, including in AI training')))
 clause(2, fact(component('use_control', 'deciding on the uses through which one\'s data creates value')))
 clause(3, fact(component('value_mobility', 'taking one\'s data elsewhere, to have value created there')))
@@ -40,6 +42,8 @@ clause(47, implies([component(C, Meaning), fit(C, How), findall(P, anchor(P, C, 
 clause(55, implies([option(O, F), not(objectionable(O))], recommended(O)))
 clause(56, implies([option(O, F), findall(C, delivers(O, C), Delivered), findall(Why, objection(O, Why), Objections)], evaluation(O, Delivered, Objections)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(analysis('value_transparency', 'knowing that and how one\'s data creates value, including in AI training', 'by interpretation', ['GDPR art. 13-15', 'AI Act art. 53(1)(d)']), clause(47), {C: 'value_transparency', Meaning: 'knowing that and how one\'s data creates value, including in AI training', How: 'by interpretation', P: A, D: B, W: C, Provisions: ['GDPR art. 13-15', 'AI Act art. 53(1)(d)']}, [component('value_transparency', 'knowing that and how one\'s data creates value, including in AI training'), fit('value_transparency', 'by interpretation'), findall(A, anchor(A, 'value_transparency', B, C), ['GDPR art. 13-15', 'AI Act art. 53(1)(d)'])])
 step(component('value_transparency', 'knowing that and how one\'s data creates value, including in AI training'), clause(1), {}, [])
 step(fit('value_transparency', 'by interpretation'), clause(45), {C: 'value_transparency'}, [anchored('value_transparency'), not(fully_anchored('value_transparency'))])

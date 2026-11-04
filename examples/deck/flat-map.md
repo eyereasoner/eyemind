@@ -1,6 +1,6 @@
 # Flat Map
 
-*Gather every matching value from a list of things — and be honest about what "every" means.*
+*Gather every matching value from a list of things, and be honest about what "every" means.*
 
 [flat-map.js](https://github.com/eyereasoner/eyemind/blob/main/examples/flat-map.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/flat-map.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/flat-map.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/flat-map.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=flat-map)
 
@@ -8,22 +8,20 @@
 
 ## The question
 
-Imagine a small table of facts, each saying *subject — property — value*:
-a book has an author, a person has a phone number. Some subjects have one
-value, some have several, some have none.
+Imagine a small table of facts, each saying *subject, property, value*: a book
+has an author, a person has a phone number. Some subjects have one value for a
+property, some have several, some have none.
 
-Now: **for a list of subjects, collect all their values for one property
-into a single flat list.** Programmers call this a *flat map*.
-
-What happens with a subject that has two values? One that has none? A
+We want to take a list of subjects and collect all their values for one
+property into a single flat list, in order. Programmers call this a *flat
+map*. What happens with a subject that has two values? One that has none? A
 property nobody uses?
+
+**For a list of subjects, what are all their values for one property?**
 
 ---
 
 ## What we tell eyemind
-
-Four facts, stored as triples `t(Subject, Predicate, Object)` (`s3` has two
-values), and a rule that walks the list:
 
 ```js
 fact(t('s1', 'p1', 'o1'))
@@ -31,77 +29,216 @@ fact(t('s2', 'p1', 'o2'))
 fact(t('s3', 'p1', 'o3'))
 fact(t('s3', 'p1', 'o4'))
 // append(Xs, Ys, Zs): Zs is Xs followed by Ys.
-// … two lines defining append
+fact(append([], Ys, Ys))
+implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs))
 // flat_map(Subjects, Predicate, Objects)
 fact(flat_map([], _, []))
 implied_by(
   flat_map([S, ...Subjects], P, Objects),
   [findall(O, t(S, P, O), Here), flat_map(Subjects, P, Rest), append(Here, Rest, Objects)],
 )
-
 query(flat_map(['s1', 's2', 's3'], 'p1', Objects))
 query(flat_map(['missing'], 'p1', Objects))
 query(flat_map(['s1'], 'p2', Objects))
 ```
 
-`findall` gathers *all* values of one subject into a list, `Here`;
-`append` joins two lists end to end.
+- The four `t(Subject, Property, Value)` facts are the table; `s3` has two
+  values for `p1`. Capitalized names such as `S`, `P` and `Objects` are
+  variables, placeholders for any value; `_` means "anything, we don't care
+  what".
+- `append` joins two lists end to end. Joining the empty list `[]` to a list
+  gives that list. The `implied_by(conclusion, premise)` line is a backward
+  rule, used on demand: to put a list starting with `X` in front of `Ys`, keep
+  `X` first and join the rest. `[X, ...Xs]` means "a list whose first item is
+  `X` and whose remaining items are `Xs`".
+- `flat_map` walks the list of subjects. For no subjects the result is `[]`.
+  Otherwise, for the first subject `S`, `findall(O, t(S, P, O), Here)`
+  **collects** every value `O` it has for property `P` into a list `Here`
+  (possibly empty); the rest of the subjects give `Rest`; and `Here` followed
+  by `Rest` is the answer.
+- The three `query` lines ask the three questions.
 
 ---
 
 ## What eyemind concludes
 
 ```js
+// Answers: each instance of a query() that holds.
 flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4'])
 flat_map(['missing'], 'p1', [])
 flat_map(['s1'], 'p2', [])
 ```
 
 - `s3` contributes two values, `o3` and `o4`, in order.
-- A subject with no facts gives an empty list `[]`, not an error.
+- A subject with no facts gives an empty list `[]`, not a failure.
 - A property nobody uses gives `[]` too.
 
 ---
 
-## Why: the proof in plain words
+## The proof, line by line
 
-For the first answer, the proof records:
+`eyemind --proof` writes down how it reached each answer. This is the
+complete proof:
 
-1. All `p1` values of `s1`: `['o1']` — *collected by searching*.
-2. All `p1` values of `s2`: `['o2']` — *collected*.
-3. All `p1` values of `s3`: `['o3', 'o4']` — *collected*.
-4. An empty subject list gives `[]` — *fact 7*.
-5. Joining `['o3', 'o4']`, then `['o2']`, then `['o1']` in front — *rules 5 and 6*.
-6. So the flat map is `['o1', 'o2', 'o3', 'o4']` — *rule 8*.
+```js
+// Answers: each instance of a query() that holds.
+flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4'])
+flat_map(['missing'], 'p1', [])
+flat_map(['s1'], 'p2', [])
+
+// Clauses: the program clauses the steps cite, by clause number.
+clause(5, fact(append([], Ys, Ys)))
+clause(6, implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs)))
+clause(7, fact(flat_map([], _0, [])))
+clause(8, implied_by(flat_map([S, ...Subjects], P, Objects), [findall(O, t(S, P, O), Here), flat_map(Subjects, P, Rest), append(Here, Rest, Objects)]))
+
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
+step(flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4']), clause(8), {S: 's1', Subjects: ['s2', 's3'], P: 'p1', Objects: ['o1', 'o2', 'o3', 'o4'], O: A, Here: ['o1'], Rest: ['o2', 'o3', 'o4']}, [findall(A, t('s1', 'p1', A), ['o1']), flat_map(['s2', 's3'], 'p1', ['o2', 'o3', 'o4']), append(['o1'], ['o2', 'o3', 'o4'], ['o1', 'o2', 'o3', 'o4'])])
+step(findall(A, t('s1', 'p1', A), ['o1']), 'collected', {}, [])
+step(flat_map(['s2', 's3'], 'p1', ['o2', 'o3', 'o4']), clause(8), {S: 's2', Subjects: ['s3'], P: 'p1', Objects: ['o2', 'o3', 'o4'], O: B, Here: ['o2'], Rest: ['o3', 'o4']}, [findall(B, t('s2', 'p1', B), ['o2']), flat_map(['s3'], 'p1', ['o3', 'o4']), append(['o2'], ['o3', 'o4'], ['o2', 'o3', 'o4'])])
+step(findall(B, t('s2', 'p1', B), ['o2']), 'collected', {}, [])
+step(flat_map(['s3'], 'p1', ['o3', 'o4']), clause(8), {S: 's3', Subjects: [], P: 'p1', Objects: ['o3', 'o4'], O: C, Here: ['o3', 'o4'], Rest: []}, [findall(C, t('s3', 'p1', C), ['o3', 'o4']), flat_map([], 'p1', []), append(['o3', 'o4'], [], ['o3', 'o4'])])
+step(findall(C, t('s3', 'p1', C), ['o3', 'o4']), 'collected', {}, [])
+step(flat_map([], 'p1', []), clause(7), {_0: 'p1'}, [])
+step(append(['o3', 'o4'], [], ['o3', 'o4']), clause(6), {X: 'o3', Xs: ['o4'], Ys: [], Zs: ['o4']}, [append(['o4'], [], ['o4'])])
+step(append(['o4'], [], ['o4']), clause(6), {X: 'o4', Xs: [], Ys: [], Zs: []}, [append([], [], [])])
+step(append([], [], []), clause(5), {Ys: []}, [])
+step(append(['o2'], ['o3', 'o4'], ['o2', 'o3', 'o4']), clause(6), {X: 'o2', Xs: [], Ys: ['o3', 'o4'], Zs: ['o3', 'o4']}, [append([], ['o3', 'o4'], ['o3', 'o4'])])
+step(append([], ['o3', 'o4'], ['o3', 'o4']), clause(5), {Ys: ['o3', 'o4']}, [])
+step(append(['o1'], ['o2', 'o3', 'o4'], ['o1', 'o2', 'o3', 'o4']), clause(6), {X: 'o1', Xs: [], Ys: ['o2', 'o3', 'o4'], Zs: ['o2', 'o3', 'o4']}, [append([], ['o2', 'o3', 'o4'], ['o2', 'o3', 'o4'])])
+step(append([], ['o2', 'o3', 'o4'], ['o2', 'o3', 'o4']), clause(5), {Ys: ['o2', 'o3', 'o4']}, [])
+step(flat_map(['missing'], 'p1', []), clause(8), {S: 'missing', Subjects: [], P: 'p1', Objects: [], O: D, Here: [], Rest: []}, [findall(D, t('missing', 'p1', D), []), flat_map([], 'p1', []), append([], [], [])])
+step(findall(D, t('missing', 'p1', D), []), 'collected', {}, [])
+step(flat_map(['s1'], 'p2', []), clause(8), {S: 's1', Subjects: [], P: 'p2', Objects: [], O: E, Here: [], Rest: []}, [findall(E, t('s1', 'p2', E), []), flat_map([], 'p2', []), append([], [], [])])
+step(findall(E, t('s1', 'p2', E), []), 'collected', {}, [])
+step(flat_map([], 'p2', []), clause(7), {_0: 'p2'}, [])
+```
+
+It has three parts:
+
+- **The claims**: the three answers the proof is about.
+- **The clauses**: the program lines the steps cite, numbered by their place
+  in the program (the four `t` facts are lines 1 to 4; no step cites them,
+  see below). The `_` of the program is shown as `_0`, so that it can be
+  given a value like any other variable.
+- **The steps**: one per thing established. A step reads
+  `step(what, by what, with which values, using what)`. The values in curly
+  braces say what each variable of the cited line stood for. The capital
+  letters `A` to `E` in the collection steps are not values: each is the open
+  placeholder of one collection, "any value".
+
+Read the steps as sentences:
+
+1. *The flat map of `s1`, `s2`, `s3` is `['o1', 'o2', 'o3', 'o4']`* — by
+   rule 8: the values of `s1` are `['o1']`, the flat map of the rest is
+   `['o2', 'o3', 'o4']`, and joining them gives the answer.
+2. *All `p1` values of `s1` are `['o1']`* — **collected**: everything eyemind
+   found. Taken on trust as complete (see below).
+3. *The flat map of `s2`, `s3` is `['o2', 'o3', 'o4']`* — by rule 8, in the
+   same way.
+4. *All `p1` values of `s2` are `['o2']`* — collected.
+5. *The flat map of `s3` alone is `['o3', 'o4']`* — by rule 8, with nothing
+   left after `s3`.
+6. *All `p1` values of `s3` are `['o3', 'o4']`* — collected.
+7. *The flat map of no subjects is `[]`* — fact 7.
+8. *`['o3', 'o4']` followed by `[]` is `['o3', 'o4']`* — by rule 6, keeping
+   `o3` in front.
+9. *`['o4']` followed by `[]` is `['o4']`* — by rule 6.
+10. *`[]` followed by `[]` is `[]`* — fact 5.
+11. *`['o2']` followed by `['o3', 'o4']` is `['o2', 'o3', 'o4']`* — by rule 6.
+12. *`[]` followed by `['o3', 'o4']` is `['o3', 'o4']`* — fact 5.
+13. *`['o1']` followed by `['o2', 'o3', 'o4']` is the whole list* — by rule 6.
+14. *`[]` followed by `['o2', 'o3', 'o4']` is that list* — fact 5.
+15. *The flat map of `missing` is `[]`* — by rule 8: it has no values, nothing
+    follows it, and `[]` followed by `[]` is `[]` (steps 7 and 10, reused).
+16. *All `p1` values of `missing` are `[]`* — collected: none were found.
+17. *The flat map of `s1` for `p2` is `[]`* — by rule 8, the same way.
+18. *All `p2` values of `s1` are `[]`* — collected.
+19. *The flat map of no subjects for `p2` is `[]`* — fact 7.
+
+Why do no steps cite the `t` facts? A `'collected'` step stands for the whole
+search behind a `findall`. The part that matters, "there are no other
+values", can only come from having searched everything. A proof cannot point
+at a missing value, so this step is taken on trust rather than proved.
 
 ---
 
-## Checked, with obligations
+## Checked: what the report says
 
-The checker matched **14** steps to their program lines. Verdict:
-**checked_with_obligations**.
+A proof is only worth something if someone else can check it. `eyemind -c`
+generates the proof and checks it against the program; `--check-proof` checks
+a saved proof. The checker never reasons by itself: it only confirms each step
+against the program. This is the complete report:
 
-The 5 obligations are all of the kind called `collected`: each claims a
-list is the *complete* set of answers — for example, that `s3` has exactly
-`['o3', 'o4']` and `missing` has nothing at all. A proof can show each value
-is there; "and there are no others" comes from eyemind having searched
-everything it knows. The checker records that as an obligation instead of
-pretending to prove it.
+```js
+// Answers checked subject to the obligations below.
+flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4'])
+flat_map(['missing'], 'p1', [])
+flat_map(['s1'], 'p2', [])
 
-It did confirm that nothing in the program or the proof contradicts any of
-the 5 lists.
+// C1-C8: resolution, acyclicity, justification, coverage,
+// re-decision, boundary consistency, relevance and witness integrity.
+condition('C1', 'resolution', 'ok', 14)
+condition('C2', 'well_founded', 'ok', 19)
+condition('C3', 'justification', 'ok', 19)
+condition('C4', 'coverage', 'ok', 22)
+condition('C5', 're_decision', 'ok', 0)
+condition('C6', 'boundary_consistency', 'ok', 5)
+condition('C7', 'relevance', 'ok', 22)
+condition('C8', 'witness_integrity', 'ok', 0)
 
----
+// Obligations: absence and collection completeness are taken on trust.
+obligation('collected', 'theory_scoped', findall(A, t('s1', 'p1', A), ['o1']))
+obligation('collected', 'theory_scoped', findall(A, t('s2', 'p1', A), ['o2']))
+obligation('collected', 'theory_scoped', findall(A, t('s3', 'p1', A), ['o3', 'o4']))
+obligation('collected', 'theory_scoped', findall(A, t('missing', 'p1', A), []))
+obligation('collected', 'theory_scoped', findall(A, t('s1', 'p2', A), []))
 
-## When "all" is a promise
+// Proof statistics: recorded steps and how they were checked.
+steps(19)
+verified(14)
+recomputed(0)
+composed(0)
+trusted(5)
+claims(3)
 
-An obligation is not a flaw; it is a label on the one kind of claim that
-depends on *nothing else being known*. If someone later adds a fact, the
-lists could change — and the report tells you exactly which lists those are.
+// This verdict applies to the claims above; it does not establish completeness.
+verdict('checked_with_obligations')
+```
 
-If you need proof with no such promises, `--strict-proof` rejects any
-certificate that leans on one. This one would fail that stricter test,
-on exactly these 5 lists.
+Each `condition` line names a check, says `'ok'`, and counts what it looked
+at:
+
+- **C1 resolution (14)**: the 14 steps that cite a program line really are
+  instances of that line with the values shown.
+- **C2 well-founded (19)**: none of the 19 steps depends on itself, even
+  indirectly.
+- **C3 justification (19)**: every step says how it was justified, in a form
+  the checker understands.
+- **C4 coverage (22)**: the 3 claims and the 19 things the steps use are each
+  backed by a step.
+- **C5 re-decision (0)**: there was no calculation to redo.
+- **C6 boundary consistency (5)**: all 5 collected lists were confronted with
+  the evidence, and none is contradicted: no value in the program or the
+  proof is missing from its list.
+- **C7 relevance (22)**: the 3 claims answer the queries, and all 19 steps
+  serve them.
+- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
+  there is no invented name to verify.
+
+The statistics: 19 steps, 14 verified against the program, 5 trusted, 3
+claims.
+
+The five `obligation` lines are the five collections taken on trust: for
+example that `s3` has exactly `['o3', 'o4']` and that `missing` has nothing
+at all. `'theory_scoped'` means "complete with respect to this program": if
+someone adds a fact, these lists could change, and the report says exactly
+which ones. The verdict is **checked with obligations**: the three answers
+follow from the program, provided those lists are complete. The verdict does
+not say the program has no other conclusions. A stricter check,
+`--strict-proof`, rejects any proof that leans on such trust; this one would
+fail it on exactly these 5 lists.
 
 ---
 
@@ -117,11 +254,3 @@ Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#
 
 Add the fact `fact(t('s2', 'p1', 'o5'))` and run again: the first answer
 becomes `['o1', 'o2', 'o5', 'o3', 'o4']`.
-
----
-
-## Takeaway
-
-"Here are all the matches" is a stronger statement than "here are some
-matches". eyemind gives you the answer and marks precisely where it relied on
-having seen everything — so you know what to recheck when the data grows.

@@ -95,7 +95,7 @@ eyemind /tmp/family.js
 
 prints `related('alice', 'carol')`. The two `implies` rules run forward: whenever their premise holds, they conclude their conclusion, until nothing new follows. The `implied_by` rules run backward, only when a goal asks for them. The two kinds compose: a forward rule may call backward definitions, and a backward goal may use the facts forward reasoning established, so you let knowledge accumulate and then ask a focused question.
 
-With nothing asked, a run prints the facts it derived; `query(...)` asks the program's own questions, and `--goal` asks from outside instead:
+With nothing asked, a run prints the facts it derived; `query(...)` asks the program's own questions, and `--goal` asks from outside instead. The output opens with a comment saying which of these it holds, or that there is nothing to show, such as `// Answers: each instance of a goal that holds.`; reading the output back ignores comments:
 
 ```sh
 eyemind --goal "ancestor('alice', Who)" /tmp/family.js
@@ -300,7 +300,7 @@ the strata.
 
 ## Proofs, and what checking one means
 
-A proof holds the claims, the source clauses it cites, and one `step(...)` record per inference. The checker establishes eight conditions:
+A proof holds the claims, the source clauses it cites, and one `step(...)` record per inference, each part introduced by a comment that says what it holds. The checker establishes eight conditions:
 
 | | Condition | What it establishes |
 | --- | --- | --- |

@@ -1,7 +1,10 @@
-// RDF 1.2 directional language strings: a welcome label in Arabic, written
-// right to left, and in English, written left to right. A display rule turns
-// every label into a display label and keeps the base direction, so a screen
-// can lay out each text the right way.
+// Text with a language and a writing direction, as RDF 1.2 allows. (RDF is a
+// standard data model that describes things with subject-predicate-object
+// statements, here rdf(Subject, Predicate, Object, Graph).) A welcome label is
+// given in Arabic, written right to left, and in English, written left to
+// right. A display rule turns every label into a display label, so the program
+// concludes two display labels, each keeping its language and direction, and
+// a screen can lay out each text the right way.
 //
 // literal(Text, lang(Tag, Direction)) carries the direction 'ltr' or 'rtl';
 // a rule that passes the literal on whole cannot lose it.

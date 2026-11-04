@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 ackermann([0, 6], 7)
 ackermann([1, 2], 4)
 ackermann([1, 7], 9)

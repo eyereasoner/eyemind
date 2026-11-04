@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 compute([1, 0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])
 compute([1, 0, 1, 1, 1, 1], [1, 1, 0, 0, 0, 0, '#'])
 compute([1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 0, 0, '#'])

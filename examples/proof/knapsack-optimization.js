@@ -1,8 +1,10 @@
+// Answers: each instance of a query() that holds.
 knapsack_answer('best_pack', ['atlas', 'battery', 'camera', 'medkit', 'sensor'])
 knapsack_answer('total_weight', 15)
 knapsack_answer('total_value', 40)
 knapsack_answer('feasible_pack_count', 113)
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(capacity(15)))
 clause(2, fact(items(['atlas', 'battery', 'camera', 'drone', 'emergency_radio', 'field_laptop', 'medkit', 'sensor'])))
 clause(3, fact(item('atlas', 2, 6)))
@@ -27,6 +29,8 @@ clause(24, implied_by(knapsack_answer('total_weight', Weight), best_pack(_0, Wei
 clause(25, implied_by(knapsack_answer('total_value', Value), best_pack(_0, _1, Value)))
 clause(26, implied_by(knapsack_answer('feasible_pack_count', Count), summary(Count, _0)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(knapsack_answer('best_pack', ['atlas', 'battery', 'camera', 'medkit', 'sensor']), clause(23), {Pack: ['atlas', 'battery', 'camera', 'medkit', 'sensor'], _0: 15, _1: 40}, [best_pack(['atlas', 'battery', 'camera', 'medkit', 'sensor'], 15, 40)])
 step(best_pack(['atlas', 'battery', 'camera', 'medkit', 'sensor'], 15, 40), clause(22), {_0: 113, Best: 40, Pack: ['atlas', 'battery', 'camera', 'medkit', 'sensor'], Weight: 15}, [summary(113, 40), feasible_pack(['atlas', 'battery', 'camera', 'medkit', 'sensor'], 15, 40)])
 step(summary(113, 40), clause(21), {Value: A, _0: B, _1: C, Values: [37, 35, 40, 33, 31, 24, 36, 29, 36, 34, 27, 39, 32, 32, 25, 23, 16, 36, 34, 27, 34, 32, 25, 37, 30, 30, 23, 21, 14, 37, 30, 35, 35, 28, 26, 19, 33, 33, 26, 24, 17, 38, 31, 29, 22, 22, 15, 13, 6, 38, 31, 36, 29, 34, 34, 27, 25, 18, 34, 32, 30, 23, 37, 30, 28, 21, 35, 33, 26, 26, 19, 17, 10, 32, 37, 30, 28, 21, 35, 35, 28, 26, 19, 33, 31, 24, 24, 17, 15, 8, 33, 31, 24, 36, 29, 29, 22, 20, 13, 34, 27, 27, 20, 18, 11, 32, 25, 23, 16, 16, 9, 7, 0], Count: 113, Best: 40}, [findall(A, feasible_pack(B, C, A), [37, 35, 40, 33, 31, 24, 36, 29, 36, 34, 27, 39, 32, 32, 25, 23, 16, 36, 34, 27, 34, 32, 25, 37, 30, 30, 23, 21, 14, 37, 30, 35, 35, 28, 26, 19, 33, 33, 26, 24, 17, 38, 31, 29, 22, 22, 15, 13, 6, 38, 31, 36, 29, 34, 34, 27, 25, 18, 34, 32, 30, 23, 37, 30, 28, 21, 35, 33, 26, 26, 19, 17, 10, 32, 37, 30, 28, 21, 35, 35, 28, 26, 19, 33, 31, 24, 24, 17, 15, 8, 33, 31, 24, 36, 29, 29, 22, 20, 13, 34, 27, 27, 20, 18, 11, 32, 25, 23, 16, 16, 9, 7, 0]), count([37, 35, 40, 33, 31, 24, 36, 29, 36, 34, 27, 39, 32, 32, 25, 23, 16, 36, 34, 27, 34, 32, 25, 37, 30, 30, 23, 21, 14, 37, 30, 35, 35, 28, 26, 19, 33, 33, 26, 24, 17, 38, 31, 29, 22, 22, 15, 13, 6, 38, 31, 36, 29, 34, 34, 27, 25, 18, 34, 32, 30, 23, 37, 30, 28, 21, 35, 33, 26, 26, 19, 17, 10, 32, 37, 30, 28, 21, 35, 35, 28, 26, 19, 33, 31, 24, 24, 17, 15, 8, 33, 31, 24, 36, 29, 29, 22, 20, 13, 34, 27, 27, 20, 18, 11, 32, 25, 23, 16, 16, 9, 7, 0], 113), maximum([37, 35, 40, 33, 31, 24, 36, 29, 36, 34, 27, 39, 32, 32, 25, 23, 16, 36, 34, 27, 34, 32, 25, 37, 30, 30, 23, 21, 14, 37, 30, 35, 35, 28, 26, 19, 33, 33, 26, 24, 17, 38, 31, 29, 22, 22, 15, 13, 6, 38, 31, 36, 29, 34, 34, 27, 25, 18, 34, 32, 30, 23, 37, 30, 28, 21, 35, 33, 26, 26, 19, 17, 10, 32, 37, 30, 28, 21, 35, 35, 28, 26, 19, 33, 31, 24, 24, 17, 15, 8, 33, 31, 24, 36, 29, 29, 22, 20, 13, 34, 27, 27, 20, 18, 11, 32, 25, 23, 16, 16, 9, 7, 0], 40)])

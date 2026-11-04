@@ -1,6 +1,8 @@
+// Answers: each instance of a query() that holds.
 findpath('map_be', [location('i1', 'oostende'), ['drive_gent_brugge', 'drive_brugge_oostende'], 2400.0, 0.01, 0.9408, 0.99, [5000.0, 5.0, 0.2, 0.4, 1]])
 findpath('map_be', [location('i1', 'oostende'), ['drive_gent_kortrijk', 'drive_kortrijk_brugge', 'drive_brugge_oostende'], 4100.0, 0.018000000000000002, 0.903168, 0.9801, [5000.0, 5.0, 0.2, 0.4, 1]])
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, implied_by(findpath(_Scope, [Goal, Path, Duration, Cost, Belief, Comfort, Limits]), [current_state(State), findpaths(State, [], Goal, [], 0.0, 0.0, 1.0, 1.0, Path, Duration, Cost, Belief, Comfort, Limits)]))
 clause(2, implied_by(findpaths(State, Maps, Goal, Path_s, Duration_s, Cost_s, Belief_s, Comfort_s, Path, Duration, Cost, Belief, Comfort, Limits), [holds(Goal, State, Holds), struct('continue', Holds, State, Maps, Goal, Path_s, Duration_s, Cost_s, Belief_s, Comfort_s, Path, Duration, Cost, Belief, Comfort, Limits)]))
 clause(3, fact(struct('continue', 'yes', _State, _Maps, _Goal, Path, Duration, Cost, Belief, Comfort, Path, Duration, Cost, Belief, Comfort, _Limits)))
@@ -19,6 +21,8 @@ clause(17, fact(description('map_be', [location(S, 'kortrijk'), 'true', location
 clause(18, fact(description('map_be', [location(S, 'brugge'), 'true', location(S, 'oostende'), 'drive_brugge_oostende', 900.0, 0.004, 0.98, 1.0])))
 clause(19, fact(current_state([location('i1', 'gent')])))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(findpath('map_be', [location('i1', 'oostende'), ['drive_gent_brugge', 'drive_brugge_oostende'], 2400.0, 0.01, 0.9408, 0.99, [5000.0, 5.0, 0.2, 0.4, 1]]), clause(1), {_Scope: 'map_be', Goal: location('i1', 'oostende'), Path: ['drive_gent_brugge', 'drive_brugge_oostende'], Duration: 2400.0, Cost: 0.01, Belief: 0.9408, Comfort: 0.99, Limits: [5000.0, 5.0, 0.2, 0.4, 1], State: [location('i1', 'gent')]}, [current_state([location('i1', 'gent')]), findpaths([location('i1', 'gent')], [], location('i1', 'oostende'), [], 0.0, 0.0, 1.0, 1.0, ['drive_gent_brugge', 'drive_brugge_oostende'], 2400.0, 0.01, 0.9408, 0.99, [5000.0, 5.0, 0.2, 0.4, 1])])
 step(current_state([location('i1', 'gent')]), clause(19), {}, [])
 step(findpaths([location('i1', 'gent')], [], location('i1', 'oostende'), [], 0.0, 0.0, 1.0, 1.0, ['drive_gent_brugge', 'drive_brugge_oostende'], 2400.0, 0.01, 0.9408, 0.99, [5000.0, 5.0, 0.2, 0.4, 1]), clause(2), {State: [location('i1', 'gent')], Maps: [], Goal: location('i1', 'oostende'), Path_s: [], Duration_s: 0.0, Cost_s: 0.0, Belief_s: 1.0, Comfort_s: 1.0, Path: ['drive_gent_brugge', 'drive_brugge_oostende'], Duration: 2400.0, Cost: 0.01, Belief: 0.9408, Comfort: 0.99, Limits: [5000.0, 5.0, 0.2, 0.4, 1], Holds: 'no'}, [holds(location('i1', 'oostende'), [location('i1', 'gent')], 'no'), struct('continue', 'no', [location('i1', 'gent')], [], location('i1', 'oostende'), [], 0.0, 0.0, 1.0, 1.0, ['drive_gent_brugge', 'drive_brugge_oostende'], 2400.0, 0.01, 0.9408, 0.99, [5000.0, 5.0, 0.2, 0.4, 1])])

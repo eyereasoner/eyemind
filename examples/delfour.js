@@ -3,12 +3,9 @@
 // every product scanned, and for a high-sugar one suggest where to pick up a
 // lower-sugar alternative, without ever learning the medical fact. The phone
 // shares a neutral insight instead: a low-sugar need, restricted to Delfour
-// and to the self-scanner picked up at the entrance, expiring the same
-// evening. The scanner reasons only from that insight. This is the scenario
-// of "Inside the insight economy" by Ruben Verborgh:
-// https://ruben.verborgh.org/blog/2025/08/12/inside-the-insight-economy/
-// The post leaves the details open; the 10 g threshold, the two-hour expiry,
-// the ODRL policy, the signed envelope and the audit are this example's own.
+// and to the self-scanner picked up at the entrance, expiring two hours
+// later. The scanner reasons only from that insight, which travels in a
+// signed envelope together with a usage policy.
 //
 // The program concludes that the scanner may use the insight for shopping
 // assistance, shows 12.0 g of sugar per serving for the scanned Classic Tea
@@ -22,7 +19,8 @@
 // negation.
 //
 // The signature is accepted because the input says it was verified
-// upstream; the rules do not recompute the HMAC. Sugar is counted in tenths
+// upstream; the rules do not recompute the HMAC (the keyed hash that serves
+// as the signature). Sugar is counted in tenths
 // of a gram, so every comparison is exact. Timestamps share one UTC format,
 // so their text order is their time order.
 
@@ -68,7 +66,8 @@ fact(created('sugar_insight', '2025-10-05T20:33:48.907163+00:00'))
 fact(expires('sugar_insight', '2025-10-05T22:33:48.907185+00:00'))
 fact(payload_text('sugar_insight', 'createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner'))
 
-// The policy, in ODRL terms: a permission, a prohibition and a duty to delete.
+// The policy, in the terms of ODRL, a standard vocabulary for usage policies:
+// a permission, a prohibition and a duty to delete.
 fact(permission('shopping_policy', 'use', 'sugar_insight', 'shopping_assist'))
 fact(prohibition('shopping_policy', 'distribute', 'sugar_insight', 'marketing'))
 fact(deletion_deadline('shopping_policy', '2025-10-05T22:33:48.907185+00:00'))
@@ -84,7 +83,8 @@ fact(payload_hash('scanner_signature', '34ad35638dfd7c67d031eeca8abb235ec2428074
 fact(hmac('scanner_signature', 'b21d0072d90112a9f820aced0286889f4b6ef92b145e6fdef1011f3bfa4608c2'))
 fact(verification_mode('scanner_signature', 'trusted_precomputed_input'))
 
-// Text and time.
+// Text and time: contains finds Part anywhere in Text by splitting Text
+// twice; not_after compares two timestamps as text.
 implied_by(contains(Text, Part), [atom_concat(_, Rest, Text), atom_concat(Part, _, Rest)])
 implied_by(not_after(Time, Limit), [compare(Order, Time, Limit), not_identical(Order, '>')])
 

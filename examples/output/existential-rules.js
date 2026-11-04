@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 has_parent('ann', skolem(3, 'P', ['ann']))
 has_parent('bob', skolem(3, 'P', ['bob']))
 sibling('dan', 'fay')

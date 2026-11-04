@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 prod([3, 0], 0)
 prod([5, 6], 30)
 prod([238, 13], 3094)

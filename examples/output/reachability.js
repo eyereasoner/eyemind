@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 reachable('a', 'b')
 reachable('b', 'c')
 reachable('c', 'a')

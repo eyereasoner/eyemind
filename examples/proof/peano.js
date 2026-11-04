@@ -1,9 +1,11 @@
+// Answers: each instance of a query() that holds.
 add(s(s(s('zero'))), 'zero', s(s(s('zero'))))
 add(s(s('zero')), s('zero'), s(s(s('zero'))))
 add(s('zero'), s(s('zero')), s(s(s('zero'))))
 add('zero', s(s(s('zero'))), s(s(s('zero'))))
 and(multiply(s('zero'), s(s('zero')), s(s('zero'))), add(s(s('zero')), s(s(s('zero'))), s(s(s(s(s('zero')))))), factorial(s(s(s(s(s('zero'))))), s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s('zero'))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(add(A, 'zero', A)))
 clause(2, implied_by(add(A, s(B), s(C)), add(A, B, C)))
 clause(3, fact(multiply(_0, 'zero', 'zero')))
@@ -11,6 +13,8 @@ clause(4, implied_by(multiply(A, s(B), C), [multiply(A, B, D), add(A, D, C)]))
 clause(5, fact(factorial('zero', s('zero'))))
 clause(6, implied_by(factorial(s(N), F), [factorial(N, Before), multiply(s(N), Before, F)]))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(add(s(s(s('zero'))), 'zero', s(s(s('zero')))), clause(1), {A: s(s(s('zero')))}, [])
 step(add(s(s('zero')), s('zero'), s(s(s('zero')))), clause(2), {A: s(s('zero')), B: 'zero', C: s(s('zero'))}, [add(s(s('zero')), 'zero', s(s('zero')))])
 step(add(s(s('zero')), 'zero', s(s('zero'))), clause(1), {A: s(s('zero'))}, [])

@@ -7,8 +7,15 @@
 // then weighs ways of developing the right, from interpreting existing law to
 // an autonomous right of data subjects, against what the analysis found: does
 // an option close the gaps, does it treat personal data as a commodity, in
-// tension with data protection as a fundamental right (Charter art. 8), and
-// does the data subject get a claim of their own?
+// tension with data protection as a fundamental right (art. 8 of the EU
+// Charter of Fundamental Rights), and does the data subject, the person the
+// data is about, get a claim of their own?
+//
+// The program concludes how each component fits existing law (only the share
+// of value has no anchor at all), what objections each option meets, and
+// that only the autonomous right meets none and is recommended. It shows
+// facts generated from JavaScript tables by loops, not(...) to find what is
+// missing, and findall to collect provisions and objections into lists.
 //
 // The provisions are summarized for illustration, and the decomposition is
 // one working hypothesis among others: this models a research design, it is
@@ -25,7 +32,10 @@ const COMPONENTS = [
   ['value_share', 'receiving a share of the value one\'s data creates'],
 ]
 
-// Existing provisions, the component each anchors, how far, and why.
+// Existing provisions, the component each anchors, how far, and why. GDPR is
+// the General Data Protection Regulation, DMA the Digital Markets Act, DGA the
+// Data Governance Act, and Directive 2019/770 covers digital content supplied
+// to consumers.
 const ANCHORS = [
   ['GDPR art. 13-15', 'value_transparency', 'partial',
     'information on purposes and recipients, not on the value created'],

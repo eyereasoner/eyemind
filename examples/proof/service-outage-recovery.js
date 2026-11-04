@@ -1,9 +1,11 @@
+// Answers: each instance of a query() that holds.
 affected_function('place_order')
 affected_function('mobile_checkout')
 best_repair(['catalog_replica', 'bank_backup'], 3)
 restored_function('place_order')
 restored_function('mobile_checkout')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(2, fact(node('catalog_replica', 'down', [])))
 clause(4, fact(node('bank_backup', 'down', [])))
 clause(5, fact(node('risk_cache', 'up', [])))
@@ -44,6 +46,8 @@ clause(45, implies([feasible_repair(Plan, Cost), not(cheaper_repair(Cost))], bes
 clause(46, implies([business_function(Function, Node), not(operating([], Node))], affected_function(Function)))
 clause(47, implies([best_repair(Plan, _0), business_function(Function, Node), operating(Plan, Node)], restored_function(Function)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(affected_function('place_order'), clause(46), {Function: 'place_order', Node: 'web_store'}, [business_function('place_order', 'web_store'), not(operating([], 'web_store'))])
 step(business_function('place_order', 'web_store'), clause(26), {}, [])
 step(not(operating([], 'web_store')), 'absent', {}, [])

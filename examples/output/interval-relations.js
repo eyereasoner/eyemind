@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 relation('a', 'before', 'i')
 relation('a', 'before', 'j')
 relation('a', 'before', 'b')

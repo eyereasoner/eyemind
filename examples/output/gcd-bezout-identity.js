@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 certificate('common_factor', 6, -1, 3)
 certificate('coprime', 1, 215, -47)
 certificate('zero_left', 5, 0, 1)

@@ -9,13 +9,17 @@ conformance('an inline forward template has local universal variables and activa
     "implies(cat(X), implies(dog(Y), test('yes')))",
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "test('yes')",
     '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
     "clause(1, fact(cat('minka')))",
     "clause(2, fact(dog('charly')))",
     'clause(3, implies(cat(X), activated(4, [])))',
     "clause(4, implies([activated(4, []), dog(Y)], test('yes')))",
     '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
     "step(test('yes'), clause(4), {Y: 'charly'}, [activated(4, []), dog('charly')])",
     "step(activated(4, []), clause(3), {X: 'minka'}, [cat('minka')])",
     "step(cat('minka'), clause(1), {}, [])",
@@ -31,7 +35,10 @@ conformance('a backward template captures inverse names and keeps endpoints loca
     'implies(inverse(P, Q), implied_by(t(X, Q, Y), t(Y, P, X)))',
     "implies(t(X, 'child', Y), parent(X, Y))",
   ]),
-  stdout(["parent('bob', 'alice')"]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "parent('bob', 'alice')",
+  ]),
 ])
 
 conformance('template bodies heads and generators support conjunctions', [
@@ -41,7 +48,10 @@ conformance('template bodies heads and generators support conjunctions', [
     "implies('true', [ready('yes'), implies([p(X), q(X)], [r(X), s(X)]), implied_by([u(X), v(X)], [r(X), s(X)])])",
     'query([u(X), v(X)])',
   ]),
-  stdout(["and(u('a'), v('a'))"]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "and(u('a'), v('a'))",
+  ]),
 ])
 
 conformance('a variable shared only by sibling templates is local to each', [
@@ -51,7 +61,10 @@ conformance('a variable shared only by sibling templates is local to each', [
     "implies('true', [implies(p(X), r(X)), implied_by(s(X), q(X))])",
     'query([r(X), s(Y)])',
   ]),
-  stdout(["and(r('a'), s('b'))"]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "and(r('a'), s('b'))",
+  ]),
 ])
 
 conformance('an inactive generator supplies neither forward nor backward conclusions', [
@@ -61,7 +74,9 @@ conformance('an inactive generator supplies neither forward nor backward conclus
     "implies(enabled('yes'), [implies(p(X), q(X)), implied_by(r(X), p(X))])",
     'query(or(q(X), r(X)))',
   ]),
-  stdout([]),
+  stdout([
+    '// No answers: no query() instance holds.',
+  ]),
 ])
 
 conformance('negation and collection wait for an enabled template to finish', [
@@ -73,7 +88,12 @@ conformance('negation and collection wait for an enabled template to finish', [
     "implies(enabled('yes'), implies(seed(X), item(X)))",
     "implies('true', enabled('yes'))",
   ]),
-  stdout(["enabled('yes')", "item('a')", "items(['a'])"]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "enabled('yes')",
+    "item('a')",
+    "items(['a'])",
+  ]),
 ])
 
 conformance('a closed cycle through a forward template is rejected', [
@@ -131,6 +151,7 @@ conformance('a variable goal no forward rule reaches is allowed', [
     'implied_by(holds(G), [p(G), G])',
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     "holds(q('a'))",
   ]),
 ])
@@ -173,13 +194,17 @@ conformance('fact states one fact per argument, numbered in order', [
     'implies(p(X), q(X))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     'q(1)',
     'q(2)',
     '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
     'clause(1, fact(p(1)))',
     'clause(2, fact(p(2)))',
     'clause(3, implies(p(X), q(X)))',
     '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
     'step(q(1), clause(3), {X: 1}, [p(1)])',
     'step(p(1), clause(1), {}, [])',
     'step(q(2), clause(3), {X: 2}, [p(2)])',
@@ -195,12 +220,16 @@ conformance('a forward rule may conclude several heads joined with &', [
     'implies(p(X), [a(X), b(X)])',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     'a(1)',
     'b(1)',
     '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
     'clause(1, fact(p(1)))',
     'clause(2, implies(p(X), [a(X), b(X)]))',
     '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
     'step(a(1), clause(2), {X: 1}, [p(1)])',
     'step(p(1), clause(1), {}, [])',
     'step(b(1), clause(2), {X: 1}, [p(1)])',
@@ -214,10 +243,14 @@ conformance('a backward rule without a body is a fact', [
     'fact(p(1))',
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'p(1)',
     '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
     'clause(1, fact(p(1)))',
     '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
     'step(p(1), clause(1), {}, [])',
   ]),
 ])
@@ -230,12 +263,16 @@ conformance('a body conjunction is split into its goals', [
     'implied_by(r(X), [p(X), q(X)])',
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'r(1)',
     '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
     'clause(1, fact(p(1)))',
     'clause(2, fact(q(1)))',
     'clause(3, implied_by(r(X), [p(X), q(X)]))',
     '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
     'step(r(1), clause(3), {X: 1}, [p(1), q(1)])',
     'step(p(1), clause(1), {}, [])',
     'step(q(1), clause(2), {}, [])',
@@ -249,6 +286,7 @@ conformance('query publishes each instance of its body', [
     'query(p(X), q(X))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'and(p(2), q(2))',
   ]),
 ])
@@ -261,6 +299,7 @@ conformance('contradiction stops with exit code 65', [
     'contradiction(account(Owner, Balance), lt(Balance, 0))',
   ]),
   stdout([
+    "// Halted: a contradiction() holds; the facts derived until then, ending with 'false'.",
     "'false'",
   ]),
 ])
@@ -278,6 +317,7 @@ conformance('facts_from states every expression of a document as a fact', [
     "edge('a', [1, 2.5, -3])",
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     "edge('a', 'b')",
     "edge('a', [1, 2.5, -3])",
   ]),
@@ -290,6 +330,7 @@ conformance('facts_from reads text too', [
     'query(score(Who, S), gt(S, 4))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     "and(score('bob', 5), gt(5, 4))",
   ]),
 ])
@@ -304,11 +345,15 @@ conformance('several program files form one program, numbered in order', [
     'implies(p(X), q(X))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     'q(1)',
     '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
     'clause(1, fact(p(1)))',
     'clause(2, implies(p(X), q(X)))',
     '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
     'step(q(1), clause(2), {X: 1}, [p(1)])',
     'step(p(1), clause(1), {}, [])',
   ]),
@@ -322,6 +367,7 @@ conformance('undefined lowercase names are predicates', [
     'query(type(X, Y), sum(1, Z), id(I), max(M))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     "and(type('socrates', 'human'), sum(1, 2), id(7), max('x'))",
   ]),
 ])
@@ -333,6 +379,7 @@ conformance('undefined names starting with a capital or _ are variables', [
     'query(pair(First, _Second))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'pair(1, 2)',
   ]),
 ])
@@ -346,6 +393,7 @@ conformance('kept globals keep their JavaScript meaning', [
     'query(n(I, L))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'n(0, 1)',
     'n(1, 2)',
     'n(2, 2)',
@@ -361,6 +409,7 @@ conformance('other JavaScript globals are predicates and variables', [
     'query(born(Date))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'eval(1)',
     "name('x')",
     'born(1990)',
@@ -386,6 +435,7 @@ conformance('a program may name a kept global as a predicate', [
     'query(isFinite(P, C))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     "isFinite('parent_of', 'person')",
   ]),
 ])
@@ -399,6 +449,7 @@ conformance('preds and vars name predicates and variables explicitly', [
     'implies(p(A), q(A))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     'q(1)',
   ]),
 ])
@@ -416,6 +467,7 @@ conformance('helper functions see the names a program leaves undefined', [
     'query(path(0, W))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'path(0, 1)',
     'path(0, 2)',
     'path(0, 3)',
@@ -440,6 +492,7 @@ conformance('a predicate name used uncalled is its atom', [
     'query(ready, not(blocked))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     "and('ready', not('blocked'))",
   ]),
 ])
@@ -451,6 +504,7 @@ conformance('every _ in a clause is a variable of its own', [
     'fact(pair(_, _))',
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'pair(1, 2)',
   ]),
 ])
@@ -463,6 +517,7 @@ conformance('struct builds a compound with any name', [
     "fact(struct('from', 'here'))",
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     "struct('hello world', 1)",
     "from('here')",
   ]),
@@ -475,6 +530,7 @@ conformance('struct with only a name is the atom', [
     "fact(p(struct('lonely')))",
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     "p('lonely')",
   ]),
 ])
@@ -485,6 +541,7 @@ conformance('arithmetic terms are built by calls', [
     'query(unify(T, add(mul(X, 2), 1)), unify(X, 3))',
   ]),
   stdout([
+    '// Answers: each instance of a query() that holds.',
     'and(unify(add(mul(3, 2), 1), add(mul(3, 2), 1)), unify(3, 3))',
   ]),
 ])
@@ -496,6 +553,7 @@ conformance('[H, *T] is a list with head H and tail T', [
     'fact(split([H, ...T], H, T))',
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'split([1, 2, 3], 1, [2, 3])',
   ]),
 ])
@@ -662,6 +720,7 @@ conformance('a backward rule may call a variable goal when asked from outside', 
     'implied_by(apply(G), call(G))',
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     "apply(p('a'))",
   ]),
 ])
@@ -675,6 +734,7 @@ conformance('negation runs after the closure it inspects', [
     "fact(danger('b'))",
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "blocked('b')",
     "clear('a')",
   ]),
@@ -688,6 +748,7 @@ conformance('strata compare whole terms, not just names', [
     "implies(t(X, 'seed', 'true'), t(X, 'blocked', 'true'))",
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     "t('a', 'blocked', 'true')",
   ]),
 ])
@@ -702,7 +763,9 @@ conformance('a helper-returned rule value can be reused without a standalone rul
     'implies(tame(X), template)',
     'query(tagged(Y))',
   ]),
-  stdout([]),
+  stdout([
+    '// No answers: no query() instance holds.',
+  ]),
 ])
 
 conformance('an unembedded rule return value still states its clause', [
@@ -713,7 +776,10 @@ conformance('an unembedded rule return value still states its clause', [
     'const backward = implied_by(r(X), q(X))',
     'query(r(X))',
   ]),
-  stdout(["r('a')"]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "r('a')",
+  ]),
 ])
 
 conformance('anonymous variables of nested rules do not capture the generator', [
@@ -723,7 +789,10 @@ conformance('anonymous variables of nested rules do not capture the generator', 
     'implies(p(_), implied_by(r(_), q(_)))',
     "query(r('z'))",
   ]),
-  stdout(["r('z')"]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "r('z')",
+  ]),
 ])
 
 conformance('pure template constructors have the same guarded behavior', [
@@ -733,7 +802,10 @@ conformance('pure template constructors have the same guarded behavior', [
     "implies('true', [forward(p(X), q(X)), backward(r(X), q(X))])",
     'query(r(X))',
   ]),
-  stdout(["r('a')"]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "r('a')",
+  ]),
 ])
 
 conformance('source rule inspection excludes its own inspecting rule', [
@@ -744,7 +816,10 @@ conformance('source rule inspection excludes its own inspecting rule', [
     'implies(implies(X, Y), test(X, Y))',
     'query(test(X, Y))',
   ]),
-  stdout(['test(a(A), c(A))']),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'test(a(A), c(A))',
+  ]),
 ])
 
 conformance('backward rule inspection preserves a conjunction and shared variables', [
@@ -753,5 +828,8 @@ conformance('backward rule inspection preserves a conjunction and shared variabl
     'implied_by(c(X), [a(X), b(X)])',
     'implies(implied_by(H, B), inspected(H, B))',
   ]),
-  stdout(['inspected(c(A), and(a(A), b(A)))']),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'inspected(c(A), and(a(A), b(A)))',
+  ]),
 ])

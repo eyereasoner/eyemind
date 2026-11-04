@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 breach_plan('in_force', 'b1', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
 breach_plan('in_force', 'b2', notify(authority(within_hours(72)), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
 breach_plan('in_force', 'b3', notify(authority(within_hours(72)), people('without_undue_delay')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
@@ -36,6 +37,7 @@ changed(session('ex:r1'), from(await_device_consent('ex:research')), to(permit('
 changed(session('ex:r7'), from(await_device_consent('ex:research')), to(deny_device('refused_by_signal')))
 changed(session('ex:r8'), from(await_device_consent('ex:research')), to(deny_device('do_not_ask_again')))
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(4, fact(t('ex:partnerBE', 'odrl:partOf', 'ex:consortium')))
 clause(5, fact(t('ex:partnerUS', 'odrl:partOf', 'ex:consortium')))
 clause(6, fact(t('ex:policy', 'rdf:type', 'odrl:Agreement')))
@@ -134,6 +136,8 @@ clause(128, implies([regime(R), breach(B, _0, Risk), authority(R, Risk, When, P)
 clause(129, implies([assessment('in_force', P, Old, _0), assessment('omnibus_proposal', P, New, _1), not_identical(Old, New)], changed(session(P), from(Old), to(New))))
 clause(130, implies([breach_plan('in_force', B, Old, _0, _1), breach_plan('omnibus_proposal', B, New, _2, _3), not_identical(Old, New)], changed(breach(B), from(Old), to(New))))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(breach_plan('in_force', 'b1', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])), clause(128), {R: 'in_force', B: 'b1', _0: 'encrypted laptop lost, key safe', Risk: risk('unlikely'), When: 'none', P: 'GDPR Art. 33(1)', How: 'none', Q: 'GDPR Art. 34(1)'}, [regime('in_force'), breach('b1', 'encrypted laptop lost, key safe', risk('unlikely')), authority('in_force', risk('unlikely'), 'none', 'GDPR Art. 33(1)'), people('in_force', risk('unlikely'), 'none', 'GDPR Art. 34(1)')])
 step(regime('in_force'), clause(95), {}, [])
 step(breach('b1', 'encrypted laptop lost, key safe', risk('unlikely')), clause(125), {}, [])

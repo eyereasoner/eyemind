@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 add(s(s(s('zero'))), 'zero', s(s(s('zero'))))
 add(s(s('zero')), s('zero'), s(s(s('zero'))))
 add(s('zero'), s(s('zero')), s(s(s('zero'))))

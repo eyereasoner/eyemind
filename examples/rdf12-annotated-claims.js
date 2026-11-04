@@ -1,12 +1,19 @@
-// Conflicting RDF 1.2 annotated claims: the transport authority says the
+// Deciding between conflicting reports about a bridge, stated in RDF, the web's
+// data format: every fact is a triple of subject, property and value, named
+// by web addresses (IRIs) or given as text values (literals), here written
+// rdf(Subject, Property, Value, Graph). The transport authority says the
 // bridge is closed, with confidence 98, and an anonymous post says it is
-// open, with confidence 35. Each claim is a reifier of its status triple, and
-// each source has a trust score. The claims are ranked by confidence times
-// trust, and the top claim decides, but only when its score reaches 8000:
-// the authority's 9310 does, so the decision is to avoid the bridge.
+// open, with confidence 35. Each report is a reifier, a node that stands for
+// the status triple it is about and carries its source and confidence (a
+// feature of RDF 1.2), and each source has a trust score.
 //
-// Numbers in RDF are typed literals whose value is text; number_chars reads
-// '98' as the integer 98, and spells a computed score back as text.
+// The claims are ranked by confidence times trust, and the top claim decides,
+// but only when its score reaches 8000: the authority's 9310 does, against
+// the post's 700, so the decision, written back as RDF, is to avoid the
+// bridge. Numbers in RDF are typed literals whose value is text; number_chars
+// reads '98' as the integer 98, and spells a computed score back as text. It
+// shows forward rules over RDF data, ranking with findall, and conversion
+// between text and numbers.
 
 const ex = 'https://example.org/'
 const reifies = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'

@@ -5,6 +5,14 @@
 // which assumptions it takes on trust, and which decisions are at risk if
 // self-declared data is wrong. There is no export format, no schema and no
 // second tool: rules, data, conclusions, proofs and reports are all terms.
+//
+// ann, cara and dan get a grant, ann and dan also a top-up for a household of
+// three or more, bob is refused for his income, and eve gets nothing because
+// she already received a grant. The proof checks, with obligations: each grant
+// assumes the applicant received none before, an absence the proof can only
+// take on trust. The decisions for cara and dan are at risk, because their
+// incomes are self-declared. It shows the library API (eyemind.build, run and
+// readTerms) used inside a program, and proofs read back as ordinary data.
 
 // The applications, as JavaScript data: name, monthly income, household size
 // and the evidence for the income. JavaScript computes clauses from them;

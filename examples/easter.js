@@ -1,5 +1,5 @@
 // Finding Easter Sunday in the Gregorian calendar for every year from 2021
-// through 2050, by the anonymous Gregorian algorithm (Meeus/Jones/Butcher).
+// through 2050, by the anonymous Gregorian algorithm.
 // Each answer is a [Month, Day] pair: easter(2024, [3, 31]) says that Easter
 // 2024 fell on 31 March, and easter(2025, [4, 20]) on 20 April.
 //

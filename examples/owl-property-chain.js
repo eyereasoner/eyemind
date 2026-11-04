@@ -1,6 +1,7 @@
 // A relationship defined as a chain of others. Alice is Bob's parent, Bob is
 // Carol's parent, and Carol is Dave's parent. A declaration, in the style of
-// an OWL property chain, says that a grandparent link is a parent link
+// a property chain in OWL (the Web Ontology Language, a standard for
+// describing vocabularies), says that a grandparent link is a parent link
 // followed by another parent link. Following the declared chain, the program
 // concludes that Alice is Carol's grandparent and Bob is Dave's grandparent;
 // Alice and Dave, three links apart, are not linked.

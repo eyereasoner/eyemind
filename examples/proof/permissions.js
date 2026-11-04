@@ -1,7 +1,9 @@
+// Answers: each instance of a query() that holds.
 allowed('alice', 'read')
 allowed('alice', 'write')
 allowed('bob', 'read')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(role('alice', 'editor')))
 clause(2, fact(role('bob', 'viewer')))
 clause(4, fact(permits('editor', 'read')))
@@ -10,6 +12,8 @@ clause(6, fact(permits('viewer', 'read')))
 clause(8, implies([role(User, Role), permits(Role, Action)], candidate(User, Action)))
 clause(9, implies([candidate(User, Action), not(suspended(User))], allowed(User, Action)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(allowed('alice', 'read'), clause(9), {User: 'alice', Action: 'read'}, [candidate('alice', 'read'), not(suspended('alice'))])
 step(candidate('alice', 'read'), clause(8), {User: 'alice', Role: 'editor', Action: 'read'}, [role('alice', 'editor'), permits('editor', 'read')])
 step(role('alice', 'editor'), clause(1), {}, [])

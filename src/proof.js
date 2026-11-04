@@ -116,10 +116,11 @@ function bindingsText(bindings, lettering) {
   return `{${parts.join(', ')}}`;
 }
 
-// The proof document of a run's claims and their derivations. With
-// checkable, also what checkRendered() needs to check it without reading the
-// document back: the document and that, as a pair.
-export function renderProof(program, claims, roots, checkable = false) {
+// The proof document of a run's claims and their derivations, opened by
+// heading, the comment that says what the claims are. With checkable, also
+// what checkRendered() needs to check it without reading the document back:
+// the document and that, as a pair. Comments are ignored when it is read.
+export function renderProof(program, claims, roots, checkable = false, heading = null) {
   const spellings = new Spellings();
   const steps = new Map();
   const cited = new Set();
@@ -135,12 +136,18 @@ export function renderProof(program, claims, roots, checkable = false) {
   // Variables are named A, B, ... in the order the document first shows
   // them, the claims written first, as in the run's conclusions.
   const lettering = new Lettering();
-  const lines = claims.map((claim) => spellings.lettered(claim, lettering));
+  const lines = heading === null ? [] : [heading];
+  for (const claim of claims) lines.push(spellings.lettered(claim, lettering));
   lines.push('');
+  if (cited.size) lines.push('// Clauses: the program clauses the steps cite, by clause number.');
   for (const clauseId of [...cited].sort((a, b) => a - b)) {
     lines.push(text(new Struct('clause', [BigInt(clauseId), clauseDisplay(program.byId.get(clauseId))])));
   }
   lines.push('');
+  if (steps.size) {
+    lines.push('// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+      '// absence or collection taken on trust), the bindings and the goals it uses.');
+  }
   for (const node of steps.values()) {
     const uses = `[${node.children.map((child) => spellings.lettered(child.goal, lettering)).join(', ')}]`;
     lines.push(`step(${spellings.lettered(node.goal, lettering)}, ${text(node.by)}, ` +
@@ -499,7 +506,7 @@ function checkWitnesses(clause, head, names, env) {
   let firing = null;
   for (const name of witnessed) {
     const value = copyResolved(names.get(name), env);
-    if (!isTerm(value, 'skolem', 3) || value.args[0] !== BigInt(clause.id) || !witnessName(value.args[1], name)) return false;
+    if (!isTerm(value, 'skolem', 3) || value.args[0] !== BigInt(clause.id) || value.args[1] !== name) return false;
     if (firing === null) firing = value.args[2];
     else if (text(value.args[2]) !== text(firing)) return false;
   }
@@ -524,13 +531,6 @@ function checkWitnesses(clause, head, names, env) {
     if (isGround(value) && !ofThisFiring(value)) expected.push(value);
   }
   return text(listFromItems(expected)) === text(firing);
-}
-
-// The name a witness of variable name carries: the name itself, or with a
-// number when a value of the firing brought in a variable of the same name.
-function witnessName(written, name) {
-  if (typeof written !== 'string' || !written.startsWith(name)) return false;
-  return written === name || /^[0-9]+$/.test(written.slice(name.length));
 }
 
 // C6: a trusted boundary cannot be proved, but evidence at hand can refute

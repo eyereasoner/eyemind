@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 and(in_range(1, 20, 1), trajectory(1, [1]))
 and(in_range(1, 20, 2), trajectory(2, [2, 1]))
 and(in_range(1, 20, 3), trajectory(3, [3, 10, 5, 16, 8, 4, 2, 1]))
@@ -19,12 +20,15 @@ and(in_range(1, 20, 18), trajectory(18, [18, 9, 28, 14, 7, 22, 11, 34, 17, 52, 2
 and(in_range(1, 20, 19), trajectory(19, [19, 58, 29, 88, 44, 22, 11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1]))
 and(in_range(1, 20, 20), trajectory(20, [20, 10, 5, 16, 8, 4, 2, 1]))
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(trajectory(1, [1])))
 clause(2, implied_by(trajectory(N, [N, ...Rest]), [gt(N, 1), eq(0, mod(N, 2)), is(Next, floordiv(N, 2)), trajectory(Next, Rest)]))
 clause(3, implied_by(trajectory(N, [N, ...Rest]), [gt(N, 1), eq(1, mod(N, 2)), is(Next, add(mul(3, N), 1)), trajectory(Next, Rest)]))
 clause(4, implied_by(in_range(Low, High, Low), le(Low, High)))
 clause(5, implied_by(in_range(Low, High, N), [lt(Low, High), is(Next, add(Low, 1)), in_range(Next, High, N)]))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(in_range(1, 20, 1), clause(4), {Low: 1, High: 20}, [le(1, 20)])
 step(le(1, 20), 'builtin', {}, [])
 step(trajectory(1, [1]), clause(1), {}, [])

@@ -1,6 +1,10 @@
-// A cat's presence enables a rule about every dog.
-// Minka is a cat and Charly is a dog, so the enabled rule concludes a test fact.
-// The inline forward template has its own local variable Y.
+// A rule that creates another rule. Minka is a cat and Charly is a dog. The
+// outer rule says: once some cat is known, add a new rule that concludes the
+// test fact t('test', 'is', 'true') whenever some dog is known. Minka enables
+// that rule, Charly satisfies it, and the program concludes the test fact.
+// It shows a rule template: an implies(...) written as the conclusion of
+// another rule. Y appears only inside the template, so it is the new rule's
+// own variable and can match any dog.
 
 fact(type('Minka', 'Cat'))
 fact(type('Charly', 'Dog'))

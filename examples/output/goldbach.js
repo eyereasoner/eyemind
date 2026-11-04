@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 goldbach(4, [2, 2])
 goldbach(8, [3, 5])
 goldbach(16, [3, 13])

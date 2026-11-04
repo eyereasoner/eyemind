@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 solution(0, 1, 0)
 solution(1, 3, 2)
 solution(5, 3363, 2378)

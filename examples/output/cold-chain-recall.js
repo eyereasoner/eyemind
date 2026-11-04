@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 conflicting_sample('handover_a', 'batch_a')
 selected_reading('logger_a', 'batch_a', 94)
 selected_reading('logger_b', 'batch_b', 75)

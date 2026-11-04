@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 flies('tweety', 'true')
 flies('falco', 'true')
 flies('mythic', 'true')
@@ -49,6 +50,7 @@ migrates('batsy', 'true')
 moves_by('opus', 'walking')
 migrates('opus', 'false')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(bird('tweety')))
 clause(2, fact(penguin('tweety')))
 clause(3, fact(bird('falco')))
@@ -83,6 +85,8 @@ clause(31, implies(flight_status(X, 'true_only'), [moves_by(X, 'flying'), migrat
 clause(32, implies(flight_status(X, 'false_only'), [moves_by(X, 'walking'), migrates(X, 'false')]))
 clause(33, implies(flight_status(X, 'both'), [moves_by(X, 'unknown'), migrates(X, 'undecided')]))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(flies('tweety', 'true'), clause(10), {X: 'tweety'}, [bird('tweety')])
 step(bird('tweety'), clause(1), {}, [])
 step(flies('falco', 'true'), clause(10), {X: 'falco'}, [bird('falco')])

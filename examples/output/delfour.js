@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 case_name('delfour', 'delfour')
 derived_need('sugar_insight', 'low_sugar')
 decision('delfour', 'Allowed', 'sugar_insight')

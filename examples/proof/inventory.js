@@ -1,9 +1,13 @@
+// Answers: each instance of a query() that holds.
 invoice(28)
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(5, fact(sum([], 0)))
 clause(6, implied_by(sum([X, ...Xs], Total), [sum(Xs, Rest), is(Total, add(X, Rest))]))
 clause(7, implies([findall(Amount, line_total(_0, Amount), Amounts), sum(Amounts, Total)], invoice(Total)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(invoice(28), clause(7), {Amount: A, _0: B, Amounts: [6, 12, 10], Total: 28}, [findall(A, line_total(B, A), [6, 12, 10]), sum([6, 12, 10], 28)])
 step(findall(A, line_total(B, A), [6, 12, 10]), 'collected', {}, [])
 step(sum([6, 12, 10], 28), clause(6), {X: 6, Xs: [12, 10], Total: 28, Rest: 22}, [sum([12, 10], 22), is(28, add(6, 22))])

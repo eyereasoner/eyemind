@@ -1,8 +1,10 @@
+// Answers: each instance of a query() that holds.
 report(1, 'c1', 100, 'high', 'no_removal_safeguards', 'add_notice_and_inform')
 report(3, 'c2', 85, 'high', short_notice(3, 14), increase_notice(14))
 report(4, 'c4', 70, 'moderate', 'export_prohibited', 'permit_export')
 report(2, 'c3', 97, 'high', 'sharing_without_consent', 'require_consent')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(permission('c1', 'remove_account')))
 clause(2, fact(permission('c2', 'change_terms')))
 clause(3, fact(permission('c3', 'share_data')))
@@ -25,6 +27,8 @@ clause(26, fact(count([], 0)))
 clause(27, implied_by(count([_0, ...Rest], N), [count(Rest, Before), is(N, add(Before, 1))]))
 clause(28, implies([score(Clause, Score), finding(Clause, Raw, Why, Fix), severity(Score, Severity), findall(Other, higher(Score, Other), Higher), count(Higher, Count), is(Rank, add(Count, 1))], report(Rank, Clause, Score, Severity, Why, Fix)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(report(1, 'c1', 100, 'high', 'no_removal_safeguards', 'add_notice_and_inform'), clause(28), {Clause: 'c1', Score: 100, Raw: 110, Why: 'no_removal_safeguards', Fix: 'add_notice_and_inform', Severity: 'high', Other: A, Higher: [], Count: 0, Rank: 1}, [score('c1', 100), finding('c1', 110, 'no_removal_safeguards', 'add_notice_and_inform'), severity(100, 'high'), findall(A, higher(100, A), []), count([], 0), is(1, add(0, 1))])
 step(score('c1', 100), clause(20), {Clause: 'c1', Raw: 110, Why: 'no_removal_safeguards', Fix: 'add_notice_and_inform'}, [finding('c1', 110, 'no_removal_safeguards', 'add_notice_and_inform'), gt(110, 100)])
 step(finding('c1', 110, 'no_removal_safeguards', 'add_notice_and_inform'), clause(16), {Clause: 'c1', Weight: 20, Raw: 110}, [permission('c1', 'remove_account'), importance('retention', 20), not(has_notice('c1')), not(safeguard('c1', 'inform')), is(110, add(90, 20))])

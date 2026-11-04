@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 flies('tweety', 'true')
 flies('falco', 'true')
 flies('mythic', 'true')

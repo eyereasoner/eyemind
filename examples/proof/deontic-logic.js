@@ -1,8 +1,10 @@
+// Answers: each instance of a query() that holds.
 violation('alice', missed_obligation('obtain_consent'))
 violation('alice', prohibited_action('share_record'))
 compensation('alice', compensation('share_record', 'notify_dpo'))
 status('alice', 'requires_review')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(obliged('alice', 'obtain_consent')))
 clause(2, fact(prohibited('alice', 'share_record')))
 clause(3, fact(compensates('share_record', 'notify_dpo')))
@@ -15,6 +17,8 @@ clause(10, implies([violation(Actor, prohibited_action(Action)), compensates(Act
 clause(11, implies(violation(Actor, missed_obligation(Action)), uncompensated_violation(Actor, missed_obligation(Action))))
 clause(13, implies(uncompensated_violation(Actor, _0), status(Actor, 'requires_review')))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(violation('alice', missed_obligation('obtain_consent')), clause(8), {Actor: 'alice', Action: 'obtain_consent'}, [obliged('alice', 'obtain_consent'), not_performed('alice', 'obtain_consent')])
 step(obliged('alice', 'obtain_consent'), clause(1), {}, [])
 step(not_performed('alice', 'obtain_consent'), clause(6), {}, [])

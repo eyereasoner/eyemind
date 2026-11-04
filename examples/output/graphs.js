@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 t('bob', 'child_of', 'alice')
 t('carol', 'child_of', 'alice')
 allowed('carol')

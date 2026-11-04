@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 append([], ['a', 'b'], ['a', 'b'])
 append(['a'], ['b'], ['a', 'b'])
 append(['a', 'b'], [], ['a', 'b'])

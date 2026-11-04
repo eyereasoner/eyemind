@@ -244,6 +244,11 @@ implies(t(X, 'seed', 'true'), t(X, 'blocked', 'true'))
     throwsMatching(() => run(program(''), { goal: 'not(p(X))' }), /negation requires a goal whose variables are bound/);
     throwsMatching(() => program("fact(struct('step', 1, 2, 3, 4))"), /reserved/);
     throwsMatching(() => program('implied_by(p, [])'), /an empty array is not a goal/);
+    // A program built from clause records directly is checked as a statement is.
+    for (const goal of [5n, 1.5]) {
+      throwsMatching(() => new Program([{ kind: 'fact', head: 'p', body: [], line: 1 }, { kind: 'forward', head: 'r', body: [goal], line: 2 }]),
+        /^line 2: a goal must be an atom, a compound term or a variable, not a number$/);
+    }
   },
 
   'an unbound negation names its variables as the program wrote them'() {

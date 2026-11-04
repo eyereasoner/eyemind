@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 type_answer('id', fun('t0', 't0'))
 type_answer('const', fun('t0', fun('t1', 't0')))
 type_answer('apply_id', 'int')

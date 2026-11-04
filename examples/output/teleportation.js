@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 teleported('zero', 0, ['false'])
 teleported('zero', 1, ['false'])
 teleported('zero', 2, ['false'])

@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 affected_function('place_order')
 affected_function('mobile_checkout')
 best_repair(['catalog_replica', 'bank_backup'], 3)

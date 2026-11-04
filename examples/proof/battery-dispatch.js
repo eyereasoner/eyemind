@@ -1,5 +1,7 @@
+// Answers: each instance of a query() that holds.
 best_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28)
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(capacity_kwh(4)))
 clause(2, fact(reserve_kwh(1)))
 clause(3, fact(power_limit_kw(2)))
@@ -20,6 +22,8 @@ clause(17, implied_by(dispatch_from(Time, Charge, [dispatch(Time, Power, Grid, N
 clause(18, implies([initial_charge_kwh(Charge), dispatch_from(1, Charge, Plan, Cost)], feasible_dispatch(Plan, Cost)))
 clause(20, implies([feasible_dispatch(Plan, Cost), not(cheaper_dispatch(Cost))], best_dispatch(Plan, Cost)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(best_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28), clause(20), {Plan: [dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], Cost: 28}, [feasible_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28), not(cheaper_dispatch(28))])
 step(feasible_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28), clause(18), {Charge: 2, Plan: [dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], Cost: 28}, [initial_charge_kwh(2), dispatch_from(1, 2, [dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28)])
 step(initial_charge_kwh(2), clause(5), {}, [])

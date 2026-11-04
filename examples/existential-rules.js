@@ -1,7 +1,11 @@
 // Existential rules: a rule whose conclusion mentions something its body never
-// names says that such a thing exists. eyemind names each such unknown with a
-// Skolem term, a function of the rule's activation: the same term when the
-// same activation comes back, and never one that could stand for anything else.
+// names says that such a thing exists, without saying what it is. eyemind
+// names each such unknown with a Skolem term, a made-up name built from the
+// rule and the known values in its conclusion: the same name when those
+// values come back, and never one that could stand for anything else.
+// The program concludes that Ann and Bob each have an unnamed parent of their
+// own, that Dan and Fay are siblings, that Carl and Dora each have one sent
+// invoice, and that Ann and Dora attend one shared meeting.
 
 // Every person has a parent, even when nobody knows who. Ann and Bob each get
 // a parent of their own, so they do not become siblings by accident.

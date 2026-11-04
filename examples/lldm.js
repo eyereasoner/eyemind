@@ -1,21 +1,23 @@
-// Leg Length Discrepancy Measurement.
+// Leg length discrepancy measurement (LLD): do a patient's legs differ in
+// length by more than a threshold?
 //
-// Four landmarks are measured on a radiograph. Landmarks 1 and 2 fix a
-// reference line; each leg's length is the distance from landmark 3 or 4 to
-// its perpendicular projection, 5 or 6, on that line. An alarm fires when the
-// left and right lengths differ by more than a threshold. The measurement and
-// intermediate geometry are kept in helper predicates, and the goals at the end
-// print the alarm with the small set of relations explaining why it fired.
+// Four landmarks, points marked on an X-ray image, are measured. Landmarks 1
+// and 2 fix a reference line; each leg's length is the distance from landmark
+// 3 or 4 to its perpendicular projection, 5 or 6, on that line: the point on
+// the line straight across from it. An alarm fires when the left and right
+// lengths differ by more than the threshold. The queries at the end report the
+// alarm with the few values that explain why it fired.
 //
 // For measurement meas47 the left leg (landmarks 3 to 5) is about 21.55 cm
 // and the right leg (4 to 6) about 23.46 cm. Their difference, left minus
 // right, is about -1.91 cm, beyond the 1.25 cm threshold, so the program
-// concludes an lld_alarm with the reason 'discrepancy below negative
-// threshold'. All values are floats; each geometric step is one backward rule
-// computed on demand.
+// classifies meas47 as an lld_alarm with the reason 'discrepancy below
+// negative threshold'. The example shows float arithmetic in backward rules:
+// each geometric step is one rule, computed only when a later step needs it.
 
-// val/3 stores raw landmark coordinates, derived deltas, line coefficients,
-// projected landmarks, lengths, and alarm values in one measurement namespace.
+// val(Measurement, Name, Value) holds every number of a measurement under a
+// name: the landmark coordinates, the differences between them, the line
+// slopes, the projected points, the lengths and the discrepancy.
 fact(measurement('meas47'))
 
 // measured landmark coordinates, in centimetres
@@ -31,10 +33,10 @@ fact(val('meas47', 'p4yCm', 28.5))
 // threshold used by the alarm rule, in centimetres
 fact(threshold('meas47', 'lld_alarm_threshold_cm', 1.25))
 
-// geometric intermediate values
-// The geometry rules build from coordinate differences to the projected points
-// 5 and 6, then compute left/right leg lengths and compare the discrepancy with
-// a threshold.
+// Intermediate geometry. The rules build from coordinate differences to the
+// projected points 5 and 6, then compute the left and right leg lengths and
+// their discrepancy. Names say what they hold: dx12Cm is the x of landmark 1
+// minus the x of landmark 2, dy53Cm the y of 5 minus the y of 3, and so on.
 implied_by(
   val(M, 'dx12Cm', Z),
   [measurement(M), val(M, 'p1xCm', X), val(M, 'p2xCm', Y), is(Z, sub(X, Y))],
@@ -165,8 +167,8 @@ implied_by(
   [measurement(M), val(M, 'd53Cm', X), val(M, 'd64Cm', Y), is(Z, sub(X, Y))],
 )
 
-// concise output layer
-// The alarm fires on either side of the threshold, and the reason says which.
+// The report. The alarm fires on either side of the threshold, and the reason
+// says which; the lld_ relations give the values behind it.
 implied_by(
   alarm(M, 'discrepancy below negative threshold'),
   [

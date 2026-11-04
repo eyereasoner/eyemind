@@ -506,16 +506,20 @@ concluded:
 
 - a head variable the solution leaves unbound is bound to a **Skolem term**
   `skolem(Rule, Variable, Arguments)`: `Rule` is the clause number of the
-  rule, `Variable` the variable's name as the program writes it (an
-  anonymous one as `_0`, `_1`, ..., Section 4.4), and `Arguments` the list of
+  rule, `Variable` the name of the head variable the term stands for, as the
+  program writes it (an anonymous one as `_0`, `_1`, ..., Section 4.4), and
+  `Arguments` the list of
   the ground values the solution gives the heads' other variables, in order
   of their first occurrence in the heads. A Skolem term is thus a function of
   the activation: the rule and the instance of its heads. The same activation
   gives the same terms, in any round and in any run, and different
   activations give different terms; variables shared between heads stay
-  shared. A variable that a value of the solution brought in, rather than a
-  head variable, is named after its own variable, followed by `1`, `2`, ...
-  when that name is taken. A rule that keeps meeting new activations does
+  shared. When several head variables stand for one term, the first of them
+  in the heads names it, whichever way unification bound them. A variable
+  that a value of the solution brought in, which no head variable stands
+  for, keeps its own name when no other term of the activation has it; the
+  others take that name followed by the first of `1`, `2`, ... that is
+  free, in order of first occurrence in the heads. A rule that keeps meeting new activations does
   not terminate (Section 7.3). Derived facts other than scoped inspection
   patterns (Section 4.7) are therefore ground. A
   checker verifies the Skolem terms of a proof (C8, Section 11.9);
@@ -578,8 +582,12 @@ An explicit goal MAY ask for an activation. Activations remain available as
 premises and proof steps; the library's `inferred` list omits them. The
 `derived` statistic counts them as facts added during reasoning.
 
-The output of a run is the canonical text (Section 8) of each conclusion,
-one per line.
+The output of a run is a comment line saying which of these the conclusions
+are, followed by the canonical text (Section 8) of each conclusion, one per
+line. The comment MUST say when the run halted, when the conclusions answer
+goals, when they answer `query()` rules, or when they are derived facts, and
+MUST say so when there are none. Comments are informative and MAY be worded
+differently; they are ignored when the output is read (Section 9).
 
 ### 7.7 Proof recording
 
@@ -685,12 +693,18 @@ string. Reading the canonical text of a term MUST give the term back.
 
 A proof document is a document (Section 9) holding, in this order:
 
-1. the conclusions of the run (Section 7.6), one per line;
+1. the output of the run (Section 7.6): its comment line, then its
+   conclusions, one per line;
 2. an empty line;
-3. one `clause(N, Display)` per program clause the proof cites, by
+3. when the proof cites any clause, a comment line introducing the clauses,
+   then one `clause(N, Display)` per program clause the proof cites, by
    increasing `N`;
 4. an empty line;
-5. one `step(Goal, By, Bindings, Uses)` per justified goal.
+5. when there are steps, comment lines saying what a step records, then one
+   `step(Goal, By, Bindings, Uses)` per justified goal.
+
+Comments are informative and MAY be worded differently; they are ignored when
+the document is read.
 
 A checker MUST treat every statement that is neither `clause/2` nor `step/4`
 as a claim, whatever its position.
@@ -838,8 +852,7 @@ value gives an instance of the rule, so for a `clause(N)` step citing a
 forward rule, under the substitution of C1, each such variable `V` MUST be
 bound to `skolem(N, Name, Args)`, where:
 
-- `Name` is the name of `V` as the program writes it, or that name followed
-  by digits (Section 7.2);
+- `Name` is the name of `V` as the program writes it (Section 7.2);
 - `Args` is the same for every such variable of the step, and is the list of
   the values of the heads' variables, in order of their first occurrence in
   the heads, that are ground and contain no Skolem term `skolem(N, _, Args)`:
@@ -1094,6 +1107,7 @@ query(type(X, Y))
 Its conclusions:
 
 ```js
+// Answers: each instance of a query() that holds.
 type('socrates', 'mortal')
 type('socrates', 'human')
 ```
@@ -1101,13 +1115,17 @@ type('socrates', 'human')
 Its proof document (Section 10):
 
 ```js
+// Answers: each instance of a query() that holds.
 type('socrates', 'mortal')
 type('socrates', 'human')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(type('socrates', 'human')))
 clause(2, fact(subclass_of('human', 'mortal')))
 clause(3, implies([type(S, A), subclass_of(A, B)], type(S, B)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(type('socrates', 'mortal'), clause(3), {S: 'socrates', A: 'human', B: 'mortal'}, [type('socrates', 'human'), subclass_of('human', 'mortal')])
 step(type('socrates', 'human'), clause(1), {}, [])
 step(subclass_of('human', 'mortal'), clause(2), {}, [])

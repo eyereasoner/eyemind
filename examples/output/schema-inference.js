@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 subclass('cat', 'animal')
 type('koko', 'animal')
 type('koko', 'mammal')

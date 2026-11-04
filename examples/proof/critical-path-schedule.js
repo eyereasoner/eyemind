@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 schedule('requirements', 0, 2)
 schedule('architecture', 2, 5)
 schedule('api_design', 2, 4)
@@ -18,6 +19,7 @@ critical_task('database')
 critical_task('architecture')
 critical_task('requirements')
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(task('requirements', 2, [])))
 clause(2, fact(task('architecture', 3, ['requirements'])))
 clause(3, fact(task('api_design', 2, ['requirements'])))
@@ -40,6 +42,8 @@ clause(19, implies([project_end(Task), schedule(Task, _0, Finish)], project_fini
 clause(20, implies(project_end(Task), critical_task(Task)))
 clause(21, implies([critical_task(Task), critical_predecessor(Task, Parent)], critical_task(Parent)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(schedule('requirements', 0, 2), clause(17), {Task: 'requirements', Start: 0, Finish: 2, Duration: 2, Parents: []}, [task('requirements', 2, []), latest_finish([], 0), is(2, add(0, 2))])
 step(task('requirements', 2, []), clause(1), {}, [])
 step(latest_finish([], 0), clause(15), {}, [])

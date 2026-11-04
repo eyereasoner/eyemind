@@ -1,8 +1,10 @@
+// Answers: each instance of a query() that holds.
 choose(24, 12, 2704156)
 choose(100, 50, 100891344545564193334812497256)
 vandermonde(12, 10, 8, 319770)
 row_sum(12, 0, 4096)
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, implied_by(choose(N, K, C), [ge(N, 0), ge(K, 0), le(K, N), is(Steps, min(K, sub(N, K))), choose_step(N, Steps, 0, 1, C)]))
 clause(2, fact(choose_step(_0, K, K, Accumulator, Accumulator)))
 clause(3, implied_by(choose_step(N, K, I, Accumulator, C), [lt(I, K), is(Next, add(I, 1)), is(Numerator, mul(Accumulator, sub(N, I))), is(Updated, floordiv(Numerator, Next)), choose_step(N, K, Next, Updated, C)]))
@@ -12,6 +14,8 @@ clause(6, implied_by(vandermonde(N, M, R, Sum), [ge(N, 0), ge(M, 0), ge(R, 0), i
 clause(7, implied_by(row_sum(N, K, 0), gt(K, N)))
 clause(8, implied_by(row_sum(N, K, Sum), [le(K, N), choose(N, K, C), is(Next, add(K, 1)), row_sum(N, Next, Tail), is(Sum, add(C, Tail))]))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(choose(24, 12, 2704156), clause(1), {N: 24, K: 12, C: 2704156, Steps: 12}, [ge(24, 0), ge(12, 0), le(12, 24), is(12, min(12, sub(24, 12))), choose_step(24, 12, 0, 1, 2704156)])
 step(ge(24, 0), 'builtin', {}, [])
 step(ge(12, 0), 'builtin', {}, [])

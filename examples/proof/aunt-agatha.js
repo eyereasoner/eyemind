@@ -1,9 +1,11 @@
+// Conclusions: the facts the program derives, in the order derived.
 witness('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')))
 models('agatha', 4)
 models('butler', 0)
 models('charles', 0)
 entailed(killed('agatha', 'agatha'))
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, implied_by(model(Killer, world(Richer, Hates)), [unify(Richer, richer(RA, RB, RC)), unify(Hates, hates(AA, AB, AC, BA, BB, BC, CA, CB, CC)), resident(Killer), hates(Hates, Killer, 'agatha', 'yes'), richer(Richer, Killer, 'no'), if_then_not(AA, CA), if_then_not(AB, CB), if_then_not(AC, CC), unify(AA, 'yes'), unify(AC, 'yes'), unless(RA, BA), unless(RB, BB), unless(RC, BC), if_then(AA, BA), if_then(AB, BB), if_then(AC, BC), label([RA, RB, RC, AA, AB, AC, BA, BB, BC, CA, CB, CC]), some_no(AA, AB, AC), some_no(BA, BB, BC), some_no(CA, CB, CC)]))
 clause(2, fact(resident('agatha')))
 clause(3, fact(resident('butler')))
@@ -28,6 +30,8 @@ clause(32, implies([resident(Suspect), findall(W, model(Suspect, W), Ws), count(
 clause(33, implies([models('agatha', N), gt(N, 0), models('butler', 0), models('charles', 0)], entailed(killed('agatha', 'agatha'))))
 clause(34, implies(once(model(Killer, W)), witness(Killer, W)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(witness('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no'))), clause(34), {Killer: 'agatha', W: world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no'))}, [once(model('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no'))))])
 step(once(model('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')))), 'control', {}, [model('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')))])
 step(model('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no'))), clause(1), {Killer: 'agatha', Richer: richer('no', 'yes', 'yes'), Hates: hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no'), RA: 'no', RB: 'yes', RC: 'yes', AA: 'yes', AB: 'no', AC: 'yes', BA: 'yes', BB: 'no', BC: 'yes', CA: 'no', CB: 'yes', CC: 'no'}, [unify(richer('no', 'yes', 'yes'), richer('no', 'yes', 'yes')), unify(hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), resident('agatha'), hates(hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no'), 'agatha', 'agatha', 'yes'), richer(richer('no', 'yes', 'yes'), 'agatha', 'no'), if_then_not('yes', 'no'), if_then_not('no', 'yes'), if_then_not('yes', 'no'), unify('yes', 'yes'), unify('yes', 'yes'), unless('no', 'yes'), unless('yes', 'no'), unless('yes', 'yes'), if_then('yes', 'yes'), if_then('no', 'no'), if_then('yes', 'yes'), label(['no', 'yes', 'yes', 'yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no']), some_no('yes', 'no', 'yes'), some_no('yes', 'no', 'yes'), some_no('no', 'yes', 'no')])

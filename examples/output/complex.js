@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 sum(complex(4, 6))
 product(complex(-5, 10))
 quotient(complex(3.0, 4.0))

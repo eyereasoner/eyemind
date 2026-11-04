@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 easter(2021, [4, 4])
 easter(2022, [4, 17])
 easter(2023, [4, 9])

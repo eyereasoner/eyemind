@@ -1,7 +1,10 @@
-// Control systems: two actuator commands computed from measurements,
-// observations and a target. Actuator 1 combines a proportional part with a
-// feedforward compensation for a measured disturbance; actuator 2 is a
-// proportional, nonlinear differential (PND) feedback controller. A
+// A controller computes commands for two actuators (the parts that act on a
+// machine, such as a valve or a motor) from sensor measurements, observations
+// and a target value. Actuator 1 combines a proportional part with a
+// feedforward compensation, a correction made directly from a measured
+// disturbance before it affects the output; actuator 2 is a proportional,
+// nonlinear differential (PND) feedback controller, which reacts to the gap
+// between the target and the measured output. A
 // measurement pair whose first value is below the second contributes the
 // square root of their difference, otherwise its first value.
 //

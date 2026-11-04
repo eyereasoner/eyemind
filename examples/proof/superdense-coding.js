@@ -1,8 +1,10 @@
+// Answers: each instance of a query() that holds.
 sdcoding(0, 0)
 sdcoding(1, 1)
 sdcoding(2, 2)
 sdcoding(3, 3)
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(29, fact(message(0)))
 clause(30, fact(message(1)))
 clause(31, fact(message(2)))
@@ -10,6 +12,8 @@ clause(32, fact(message(3)))
 clause(33, fact(odd([_0])))
 clause(35, implies([message(N), message(M), findall(Path, path(N, M, Path), Paths), odd(Paths)], sdcoding(N, M)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(sdcoding(0, 0), clause(35), {N: 0, M: 0, Path: A, Paths: [['true', 'true', 'true']]}, [message(0), message(0), findall(A, path(0, 0, A), [['true', 'true', 'true']]), odd([['true', 'true', 'true']])])
 step(message(0), clause(29), {}, [])
 step(findall(A, path(0, 0, A), [['true', 'true', 'true']]), 'collected', {}, [])

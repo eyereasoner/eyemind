@@ -8,6 +8,7 @@ conformance('without files the program is read from standard input', [
     'implies(p(X), q(X))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     'q(1)',
   ]),
 ])
@@ -22,6 +23,7 @@ conformance('standard input can be one of several program files', [
     'implied_by(q(X), p(X))',
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'q(1)',
   ]),
 ])
@@ -33,6 +35,7 @@ conformance('goals may be repeated', [
     'fact(p(1), q(2))',
   ]),
   stdout([
+    '// Answers: each instance of a goal that holds.',
     'p(1)',
     'q(2)',
   ]),
@@ -46,6 +49,7 @@ conformance('the exit code is 65 when the run halted', [
     'contradiction(p)',
   ]),
   stdout([
+    "// Halted: a contradiction() holds; the facts derived until then, ending with 'false'.",
     "'false'",
   ]),
 ])
@@ -93,14 +97,18 @@ conformance('an invalid proof exits with 2 and prints its report', [
   ]),
 ])
 
-conformance('a run without conclusions has an empty proof that checks', [
-  spec('7.7, 10.1, 11.5, 14'),
+conformance('a run without conclusions has a proof without claims', [
+  spec('7.6, 7.7, 10.1, 11.5, 14'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1))',
     'query(q(X))',
   ]),
-  stdout_text('\n\n'),
+  stdout([
+    '// No answers: no query() instance holds.',
+    '',
+    '',
+  ]),
 ])
 
 conformance('errors are printed as eyemind: message and exit with 1', [
@@ -247,6 +255,7 @@ conformance('--stats prints statistics as JSON to standard error', [
     'implies(p(X), q(X))',
   ]),
   stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
     'q(1)',
   ]),
 ])

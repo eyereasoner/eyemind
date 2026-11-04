@@ -615,11 +615,9 @@ export class Solver {
   directKeys(clause) {
     if (this.direct.has(clause.id)) return this.direct.get(clause.id);
     let keys = [];
+    // A forward rule's body goals are all callable: Program rejects numbers,
+    // and stratification rejects variables a forward rule can reach.
     for (const goal of clause.body) {
-      if (!isCallable(goal)) {
-        keys = null;
-        break;
-      }
       const goalKey = key(goal);
       if (PRIMITIVE_KEYS.has(goalKey) || INSPECTION_KEYS.has(goalKey) || goalKey === 'not/1' || goalKey === 'findall/3') {
         keys.push(null);
@@ -808,22 +806,41 @@ export function skolemTerms(clause, head, unresolved, env, context = null) {
     if (isGround(value)) values.push(value);
   }
   const argumentsList = listFromItems(values);
-  const names = [];
-  for (const variable of unresolved.values()) {
-    // Each variable is named as the program names it; a variable that a value
-    // of the solution brought in may share a name, so it gets a number to
-    // keep the terms apart.
+  const sourceName = (variable) => {
     const hash = variable.name.indexOf('#');
-    const base = hash < 0 ? variable.name : variable.name.slice(0, hash);
-    let name = base;
-    let number = 1;
-    while (names.includes(name)) {
-      name = `${base}${number}`;
-      number++;
+    return hash < 0 ? variable.name : variable.name.slice(0, hash);
+  };
+  // A term a head variable stands for is named after that variable, the
+  // first in the heads when several share it, whichever way unification
+  // bound them. A variable a value of the solution brought in keeps its own
+  // name when that is free, and otherwise gets the first free numbered one.
+  const named = new Map();
+  for (const variable of variables(head).values()) {
+    const value = copyResolved(variable, env);
+    if (value instanceof Var && unresolved.has(value.name) && !named.has(value.name)) {
+      named.set(value.name, sourceName(variable));
     }
-    names.push(name);
   }
-  return names.map((name) => new Struct('skolem', [BigInt(clause.id), name, argumentsList]));
+  const taken = new Set(named.values());
+  const clashing = [];
+  for (const variable of unresolved.values()) {
+    if (named.has(variable.name)) continue;
+    const base = sourceName(variable);
+    if (taken.has(base)) {
+      clashing.push(variable);
+    } else {
+      taken.add(base);
+      named.set(variable.name, base);
+    }
+  }
+  for (const variable of clashing) {
+    const base = sourceName(variable);
+    let name = base;
+    for (let number = 1; taken.has(name); number++) name = `${base}${number}`;
+    taken.add(name);
+    named.set(variable.name, name);
+  }
+  return [...unresolved.keys()].map((name) => new Struct('skolem', [BigInt(clause.id), named.get(name), argumentsList]));
 }
 
 // What a run concluded. answers are the conclusions as printable text and
@@ -869,6 +886,20 @@ export function run(program, { goal = null, goals = null, proof = false, maxDept
   }
 }
 
+// The comment that opens a run's output and proof: what its conclusions are
+// (SPEC Section 7.6), and that there are none when there are none.
+function conclusionsHeading(kind, count) {
+  if (kind === 'halted') return "// Halted: a contradiction() holds; the facts derived until then, ending with 'false'.";
+  if (kind === 'goals') {
+    return count ? '// Answers: each instance of a goal that holds.' : '// No answers: no instance of a goal holds.';
+  }
+  if (kind === 'queries') {
+    return count ? '// Answers: each instance of a query() that holds.' : '// No answers: no query() instance holds.';
+  }
+  return count ? '// Conclusions: the facts the program derives, in the order derived.'
+    : '// No conclusions: the program derives no facts.';
+}
+
 function reason(program, goalInputs, options) {
   const solver = new Solver(program, options);
   const goals = goalInputs.map(goalTerm);
@@ -906,6 +937,9 @@ function reason(program, goalInputs, options) {
       claims.push(node.goal);
     }
   }
+  const heading = conclusionsHeading(solver.haltCode !== null ? 'halted'
+    : goals.length ? 'goals'
+      : program.forward.some((clause) => clause.heads.includes('true')) ? 'queries' : 'derived', claims.length);
   // Variables are named A, B, ... in the order the conclusions show them; the
   // bindings of each answer name them as its conclusion does.
   const lettering = new Lettering();
@@ -915,7 +949,7 @@ function reason(program, goalInputs, options) {
     for (const [name, value] of answer) out[name] = write(value, null, lettering);
     return out;
   });
-  const rendered = options.proof ? renderProof(program, claims, roots, true) : null;
+  const rendered = options.proof ? renderProof(program, claims, roots, true, heading) : null;
   const document = rendered !== null ? rendered[0] : null;
   // A rule that reports a claim is used by it, though a proof records only
   // the claim's support.
@@ -939,7 +973,7 @@ function reason(program, goalInputs, options) {
     derived: solver.derived,
     clausesUsed: used !== null ? [...used].sort((a, b) => a - b) : null,
     clausesBehindBoundaries: behind,
-    stdout: document !== null ? document : answers.map((answer) => `${answer}\n`).join(''),
+    stdout: document !== null ? document : [heading, ...answers].map((line) => `${line}\n`).join(''),
     proof: document,
     proofReport: report,
     stats: solver.stats,

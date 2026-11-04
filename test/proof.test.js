@@ -178,6 +178,8 @@ export const tests = {
       document.replaceAll(bob, ann),
       document.replaceAll(ann, "skolem(2, 'P', ['ann'])"),
       document.replaceAll(ann, "skolem(3, 'Q', ['ann'])"),
+      // A head variable's witness carries exactly that variable's name.
+      document.replaceAll(ann, "skolem(3, 'P1', ['ann'])"),
       document.replace(`parent_known(${ann})\n`, `parent_known(${bob})\n`)
         .replace(knownAnn, `step(parent_known(${bob}), clause(3), {X: 'ann', P: ${bob}}, [person('ann')])`),
     ]) {

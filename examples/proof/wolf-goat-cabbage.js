@@ -1,7 +1,9 @@
+// Answers: each instance of a query() that holds.
 wolf_goat_cabbage_verified(7)
 shortest_crossing(['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])
 shortest_crossing(['goat', 'nothing', 'cabbage', 'goat', 'wolf', 'nothing', 'goat'])
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(solution(['e', 'e', 'e', 'e'], [])))
 clause(2, implied_by(solution(State, [Move, ...Rest]), [move(State, Move, Next), safe(Next), solution(Next, Rest)]))
 clause(3, implied_by(move([X, X, Goat, Cabbage], 'wolf', [Y, Y, Goat, Cabbage]), change(X, Y)))
@@ -18,6 +20,8 @@ clause(13, implied_by(moves(N, [_0, ...Rest]), [gt(N, 0), is(M, sub(N, 1)), move
 clause(17, implied_by(wolf_goat_cabbage_verified(7), [not('shorter_solution'), moves(7, Plan), once(solution(['w', 'w', 'w', 'w'], Plan))]))
 clause(18, implied_by(shortest_crossing(Plan), [not('shorter_solution'), moves(7, Plan), solution(['w', 'w', 'w', 'w'], Plan)]))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(wolf_goat_cabbage_verified(7), clause(17), {Plan: ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']}, [not('shorter_solution'), moves(7, ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']), once(solution(['w', 'w', 'w', 'w'], ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']))])
 step(not('shorter_solution'), 'absent', {}, [])
 step(moves(7, ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']), clause(13), {N: 7, _0: 'goat', Rest: ['nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'], M: 6}, [gt(7, 0), is(6, sub(7, 1)), moves(6, ['nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])])

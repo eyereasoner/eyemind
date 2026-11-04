@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 knapsack_answer('best_pack', ['atlas', 'battery', 'camera', 'medkit', 'sensor'])
 knapsack_answer('total_weight', 15)
 knapsack_answer('total_value', 40)

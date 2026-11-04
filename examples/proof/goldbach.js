@@ -1,3 +1,4 @@
+// Conclusions: the facts the program derives, in the order derived.
 goldbach(4, [2, 2])
 goldbach(8, [3, 5])
 goldbach(16, [3, 13])
@@ -23,6 +24,7 @@ goldbach(8388608, [37, 8388571])
 goldbach(16777216, [3, 16777213])
 goldbach(33554432, [61, 33554371])
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(split(4, [2, 2])))
 clause(2, implied_by(split(N, Pair), [eq(0, mod(N, 2)), gt(N, 4), once(split_from(N, Pair, 3))]))
 clause(3, implied_by(split_from(N, [P, Q], P), [is(Q, sub(N, P)), is_prime(Q)]))
@@ -34,6 +36,8 @@ clause(12, implied_by(in_range(Low, High, Low), le(Low, High)))
 clause(13, implied_by(in_range(Low, High, N), [lt(Low, High), is(Next, add(Low, 1)), in_range(Next, High, N)]))
 clause(14, implies([in_range(2, 25, I), is(N, pow(2, I)), split(N, Pair)], goldbach(N, Pair)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(goldbach(4, [2, 2]), clause(14), {I: 2, N: 4, Pair: [2, 2]}, [in_range(2, 25, 2), is(4, pow(2, 2)), split(4, [2, 2])])
 step(in_range(2, 25, 2), clause(12), {Low: 2, High: 25}, [le(2, 25)])
 step(le(2, 25), 'builtin', {}, [])

@@ -1,7 +1,6 @@
 // Goldbach's conjecture: every even number greater than 2 is the sum of two
 // primes. For each power of two from 4 to 2^25, find the split whose smaller
 // prime is the least, testing primality by trial division.
-// See https://en.wikipedia.org/wiki/Goldbach%27s_conjecture
 //
 // The program concludes 24 goldbach(N, [P, Q]) facts, from goldbach(4, [2, 2])
 // to goldbach(33554432, [61, 33554371]). These finite results illustrate the

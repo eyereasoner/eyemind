@@ -1,8 +1,10 @@
+// Conclusions: the facts the program derives, in the order derived.
 t('bob', 'child_of', 'alice')
 t('carol', 'child_of', 'alice')
 allowed('carol')
 children('alice', ['bob', 'carol'])
 
+// Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(base('alice', 'parent_of', 'bob')))
 clause(2, fact(base('alice', 'parent_of', 'carol')))
 clause(4, implied_by(t(S, P, O), base(S, P, O)))
@@ -10,6 +12,8 @@ clause(5, implies(t(P, 'parent_of', C), t(C, 'child_of', P)))
 clause(6, implies([t(C, 'child_of', 'alice'), not(t(C, 'blocked', 'true'))], allowed(C)))
 clause(7, implies([base(P, 'parent_of', _0), findall(C, t(C, 'child_of', P), Children)], children(P, Children)))
 
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
 step(t('bob', 'child_of', 'alice'), clause(5), {P: 'alice', C: 'bob'}, [t('alice', 'parent_of', 'bob')])
 step(t('alice', 'parent_of', 'bob'), clause(4), {S: 'alice', P: 'parent_of', O: 'bob'}, [base('alice', 'parent_of', 'bob')])
 step(base('alice', 'parent_of', 'bob'), clause(1), {}, [])

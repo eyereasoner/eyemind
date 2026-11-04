@@ -1,3 +1,4 @@
+// Answers: each instance of a query() that holds.
 fib(0, 0)
 fib(1, 1)
 fib(10, 55)

@@ -5,7 +5,7 @@ import { EyemindError, VERSION, readTerm } from '../src/index.js';
 import { main } from '../src/cli.js';
 import { ROOT, assert, cli, command } from './helpers.js';
 
-const SOCRATES = "type('socrates', 'mortal')\ntype('socrates', 'human')\n";
+const SOCRATES = "// Answers: each instance of a query() that holds.\ntype('socrates', 'mortal')\ntype('socrates', 'human')\n";
 
 export const tests = {
   'the package exposes the eyemind command and error'() {
@@ -19,9 +19,11 @@ export const tests = {
 
   'runs files stdin multiple sources and goals'() {
     assert.equal(cli(['examples/socrates.js']).stdout, SOCRATES);
-    assert.equal(cli([], "fact(p('a'))\nimplies(p(X), q(X))\n").stdout, "q('a')\n");
+    assert.equal(cli([], "fact(p('a'))\nimplies(p(X), q(X))\n").stdout,
+      "// Conclusions: the facts the program derives, in the order derived.\nq('a')\n");
     const result = cli(['examples/socrates.js', '-', '--goal', "type(X, 'mortal')"], "fact(type('plato', 'human'))\n");
-    assert.equal(result.stdout, "type('socrates', 'mortal')\ntype('plato', 'mortal')\n", result.stderr);
+    assert.equal(result.stdout,
+      "// Answers: each instance of a goal that holds.\ntype('socrates', 'mortal')\ntype('plato', 'mortal')\n", result.stderr);
   },
 
   'output written by main goes through the io it is given'() {
@@ -58,7 +60,9 @@ export const tests = {
     assert.equal(command(['-c', 'examples/socrates.js']).code, 0);
     assert.equal(cli(['-c', 'examples/socrates.js']).stdout,
       cli(['--check-proof', '-', 'examples/socrates.js'], proof).stdout);
-    assert.equal(cli(['-c', 'examples/socrates.js']).stdout.split('\n').slice(1, 3).join('\n') + '\n', SOCRATES);
+    // The check report shows the same answers under its own heading.
+    assert.equal(cli(['-c', 'examples/socrates.js']).stdout.split('\n').slice(1, 3).join('\n') + '\n',
+      SOCRATES.slice(SOCRATES.indexOf('\n') + 1));
     assert.equal(cli(['-c'], "fact(p('a'))\nquery(p(X))").code, 0);
     assert.deepEqual(JSON.parse(cli(['-c', '--json', 'examples/socrates.js']).stdout).answers,
       ["type('socrates', 'mortal')", "type('socrates', 'human')"]);

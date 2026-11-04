@@ -1,6 +1,4 @@
-// Quantum teleportation using discrete quantum computing
-//
-// See https://arxiv.org/pdf/1101.3764.pdf and https://arxiv.org/pdf/1010.2929.pdf
+// Quantum teleportation, worked out in a simplified, discrete quantum theory.
 //
 // Discrete quantum theory replaces the complex numbers of quantum mechanics by
 // a finite field, here the field with two elements, and keeps superposition,
@@ -9,16 +7,18 @@
 // are path counts modulo 2: alternatives that reach the same answer an even
 // number of times cancel out.
 //
-// Alice holds a qubit in some state and one half of the entangled pair |R).
-// She measures her two qubits in the basis Bob decodes with in superdense
-// coding, and sends him the outcome: two classical bits. Bob applies the
-// inverse of that basis relation to his half of the pair and holds Alice's
-// state, though neither of them ever learned it.
+// Alice holds a qubit (a quantum bit) in some state, and one half of the
+// entangled pair |R): two qubits whose values are linked. She measures her two
+// qubits together and sends Bob the outcome, a number from 0 to 3, which takes
+// two ordinary bits. Bob applies the correction for that outcome to his half
+// of the pair and then holds Alice's state, though neither of them ever
+// learned it. The basis values |0) and |1) are written 'false' and 'true'.
 //
 // The program concludes this for each of the three states and each of the
 // four outcomes: twelve teleported facts, each giving Bob exactly the state
-// Alice sent. A contradiction rule halts the run if any outcome left Bob
-// holding something else.
+// Alice sent. It shows findall collecting every path, a parity test on the
+// list, and a contradiction rule as a built-in check: it halts the run if any
+// outcome left Bob holding something else.
 
 // The three nonzero one-qubit states: |0), |1) and |0) + |1)
 fact(state('zero', 'false'))
@@ -37,6 +37,8 @@ fact(qubit('true'))
 fact(r('false', 'false'))
 fact(r('true', 'true'))
 
+// The three operations: ID leaves a value as it is, G flips it, and K maps
+// |1) to both values.
 // ID |0) = |0)
 fact(id('false', 'false'))
 // ID |1) = |1)
@@ -53,10 +55,10 @@ fact(k('false', 'false'))
 fact(k('true', 'false'))
 fact(k('true', 'true'))
 
-// KG
+// KG: apply G, then K.
 implied_by(kg(X, Y), [g(X, Z), k(Z, Y)])
 
-// GK
+// GK: apply K, then G.
 implied_by(gk(X, Y), [k(X, Z), g(Z, Y)])
 
 // Alice's measurement: outcome M projects her qubit A and her half X of the
@@ -80,6 +82,7 @@ fact(outcome(3))
 // One way for Alice's state S to end as Bob's basis value Z after outcome M.
 implied_by(path(S, M, Z, [A, X, Y]), [state(S, A), r(X, Y), alice(M, [A, X]), bob(M, Y, Z)])
 
+// odd(List): List has an odd number of items.
 fact(odd([_]))
 implied_by(odd([_, _, ...T]), odd(T))
 
