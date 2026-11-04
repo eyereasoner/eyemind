@@ -150,6 +150,34 @@ export class Lettering {
   }
 }
 
+// Names for write() that spell variables as the program wrote them, for
+// messages about a running goal: the renamed-apart X#12 is X again and each
+// anonymous variable is _. Distinct variables that share a name are numbered,
+// so a message never shows two of them as one.
+export class SourceNaming {
+  constructor() {
+    this.names = new Map();
+    this.taken = new Set();
+  }
+
+  get(name) {
+    let shown = this.names.get(name);
+    if (shown === undefined) {
+      const hash = name.indexOf('#');
+      const base = hash < 0 ? name : name.slice(0, hash);
+      if (/^_[0-9]*$/.test(base)) {
+        shown = '_';
+      } else {
+        shown = variableText(base);
+        for (let n = 2; this.taken.has(shown); n++) shown = variableText(`${base}_${n}`);
+        this.taken.add(shown);
+      }
+      this.names.set(name, shown);
+    }
+    return shown;
+  }
+}
+
 // Names for write() that name nothing but notice a variable.
 class Spy {
   constructor() {

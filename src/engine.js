@@ -8,10 +8,10 @@ import { CONTROL_KEYS, Program } from './program.js';
 import { isActivation } from './templates.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
-  identity, isCallable, isGround, isGroundButAnonymous, isTerm, key, keyArity, listFromItems, unify,
-  variables,
+  identity, isAnonymous, isCallable, isGround, isGroundButAnonymous, isTerm, key, keyArity, listFromItems,
+  unify, variables,
 } from './terms.js';
-import { Lettering, write } from './writer.js';
+import { Lettering, SourceNaming, write } from './writer.js';
 
 export const BUILTIN = 'builtin';
 export const CONTROL = 'control';
@@ -151,6 +151,18 @@ function freshNode(node, suffix) {
     }
   }
   return root;
+}
+
+// The error for a negation whose goal still has a variable to bind, naming
+// the variables as the program wrote them rather than as renamed apart.
+function unboundNegation(goal, env) {
+  const naming = new SourceNaming();
+  const resolved = copyResolved(goal, env);
+  const shown = write(resolved, null, naming);
+  const unbound = [...new Set([...variables(resolved).values()]
+    .filter((variable) => !isAnonymous(variable)).map((variable) => naming.get(variable.name)))];
+  return new EyemindError('negation requires a goal whose variables are bound, except for anonymous ones: ' +
+    `${unbound.join(', ')} ${unbound.length === 1 ? 'is' : 'are'} unbound in ${shown}`);
 }
 
 // Resolve a proof forest with an explicit stack: a derivation chain is as deep
@@ -395,10 +407,7 @@ export class Solver {
     if (goalKey === 'not/1') {
       // Negation is a test, not a way to bind its variables; its anonymous
       // variables stand for any value.
-      if (!isGroundButAnonymous(goal.args[0], env)) {
-        throw new EyemindError('negation requires a goal whose variables are bound, ' +
-                              `except for anonymous ones: ${text(goal, env)}`);
-      }
+      if (!isGroundButAnonymous(goal.args[0], env)) throw unboundNegation(goal, env);
       const mark = env.mark();
       const iterator = this.solve([goal.args[0]], env, frame.depth + 1);
       let absent;
@@ -420,7 +429,7 @@ export class Solver {
         this.serial++;
         const names = new Map();
         items.push(freshTerm(copyResolved(goal.args[0], answerEnv), `collection${this.serial}`, names));
-        if (this.program.inspectionEnabled) {
+        if (this.program.inspectionEnabled && names.size) {
           for (const name of scopedVariables(nodes, answerEnv).keys()) {
             if (names.has(name)) scoped.push(names.get(name));
           }
@@ -700,10 +709,14 @@ export class Solver {
       // between the heads of one conclusion.
       const resolved = copyResolved(head, answerEnv);
       const unresolved = variables(resolved);
-      if (this.program.inspectionEnabled) {
+      const captured = clause.captures === null ? null : copyResolved(body[0].args[1], answerEnv);
+      const relevant = this.program.inspectionEnabled
+        ? [...unresolved.keys(), ...(captured === null ? [] : variables(captured).keys())]
+        : [];
+      // Walking the evidence is linear in its size, so do it only when the
+      // conclusion or captures still have variables an inspection could scope.
+      if (relevant.length) {
         const scoped = scopedVariables(nodes, answerEnv);
-        const captured = clause.captures === null ? null : copyResolved(body[0].args[1], answerEnv);
-        const relevant = [...unresolved.keys(), ...(captured === null ? [] : variables(captured).keys())];
         if (relevant.some((name) => scoped.has(name))) {
           const inBody = new Set();
           for (const goal of clause.body) for (const name of variables(goal).keys()) inBody.add(name);
@@ -716,8 +729,7 @@ export class Solver {
       if (unresolved.size) {
         // A generated rule also depends on its captures when its head omits
         // them; otherwise two enabled instances could share a witness.
-        const context = clause.captures === null ? null : copyResolved(body[0].args[1], answerEnv);
-        const witnesses = skolemTerms(clause, head, unresolved, answerEnv, context);
+        const witnesses = skolemTerms(clause, head, unresolved, answerEnv, captured);
         [...unresolved.values()].forEach((value, i) => unify(value, witnesses[i], answerEnv));
       }
       const conclusions = unresolved.size

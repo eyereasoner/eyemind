@@ -184,7 +184,10 @@ match conjunctions or instantiate a pattern, and works in goals passed with
 
 The catalogue contains ordinary source rules. It excludes facts, queries,
 constraints, template generators, generated clauses, and rules with inspection
-goals, so an inspecting rule does not report itself. Each match and each use
+goals, so an inspecting rule does not report itself. Write an inspection
+pattern in place: passing a stored rule value, as in
+`const r = implies(a(X), c(X))` and then `implies(r, seen('yes'))`, embeds it,
+so that rule is no longer stated and the inspection finds nothing. Each match and each use
 of a derived pattern receives fresh variables. Its proof includes a
 `source(N)` step; the checker verifies the pattern against that source rule.
 Negation and collection still report their obligations, with the catalogue

@@ -340,6 +340,9 @@ only original `implies` and `implied_by` clauses whose heads contain no rule
 templates and whose bodies contain no inspection goals, including inside
 controls. Facts, queries, contradictions, template generators and appended
 clauses are excluded. Inspecting rules therefore cannot inspect themselves.
+A rule value used as an inspection pattern is embedded in the inspecting
+statement (Section 4.6), so a stored rule value used as a pattern loses its
+standalone clause and is not in the catalogue.
 
 The catalogue keeps source order. A rule's body and forward head conjunctions
 are terms `and(...)`, as normalized goals are, and inspection arguments are

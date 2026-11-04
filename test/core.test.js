@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Program, Struct, checkProof, loadText, readTerm, run } from '../src/index.js';
 import { Node, Solver, clausesBehindBoundaries, clausesUsed } from '../src/engine.js';
-import { Env } from '../src/terms.js';
+import { Env, Var } from '../src/terms.js';
+import { SourceNaming, write } from '../src/writer.js';
 import { nodeIO } from '../src/node.js';
 import { ROOT, assert, program, proven, throwsMatching } from './helpers.js';
 
@@ -243,6 +244,24 @@ implies(t(X, 'seed', 'true'), t(X, 'blocked', 'true'))
     throwsMatching(() => run(program(''), { goal: 'not(p(X))' }), /negation requires a goal whose variables are bound/);
     throwsMatching(() => program("fact(struct('step', 1, 2, 3, 4))"), /reserved/);
     throwsMatching(() => program('implied_by(p, [])'), /an empty array is not a goal/);
+  },
+
+  'an unbound negation names its variables as the program wrote them'() {
+    const message = (source) => {
+      try {
+        run(program(source));
+      } catch (error) {
+        return error.message;
+      }
+      assert.fail('expected an error');
+    };
+    assert.match(message("fact(p('a'))\nquery(not(p(X)))"), /: X is unbound in not\(p\(X\)\)$/);
+    assert.match(message("fact(p('a'))\nimplies([p(X), not(r(X, Y, _))], q(X))"),
+      /: Y is unbound in not\(r\('a', Y, _\)\)$/);
+    assert.match(message("implied_by(u(Z), not(v(Z, X)))\nquery(u(X))"), /: Z, X are unbound in not\(v\(Z, X\)\)$/);
+    // Variables of different clauses that share a name stay distinct.
+    const term = new Struct('v', [new Var('X#1'), new Var('X#2'), new Var('X_2'), new Var('_0#1'), new Var('X#1')]);
+    assert.equal(write(term, null, new SourceNaming()), 'v(X, X_2, X_2_2, _, X)');
   },
 
   'library reasoning bounds reject values that cannot bound work reliably'() {
