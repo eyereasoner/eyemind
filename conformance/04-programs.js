@@ -100,6 +100,63 @@ conformance('a variable call in a generated backward body is rejected', [
   stderr(prefix('eyemind: line 1: generated rule bodies require statically named calls')),
 ])
 
+conformance('a forward rule with a variable body goal is rejected', [
+  spec('4.5'),
+  exit(1),
+  file('program.js', [
+    "fact(p(q('a')), q('a'))",
+    'implies([p(G), G], holds(G))',
+  ]),
+  stdout([]),
+  stderr(prefix('eyemind: forward dependencies require statically named calls')),
+])
+
+conformance('a forward rule reaching a variable goal through a backward rule is rejected', [
+  spec('4.5'),
+  exit(1),
+  file('program.js', [
+    "fact(p(q('a')), q('a'))",
+    'implied_by(holds(G), [p(G), G])',
+    'implies(holds(G), seen(G))',
+  ]),
+  stdout([]),
+  stderr(prefix('eyemind: forward dependencies require statically named calls')),
+])
+
+conformance('a variable goal no forward rule reaches is allowed', [
+  spec('4.5'),
+  args("--goal 'holds(G)' program.js"),
+  file('program.js', [
+    "fact(p(q('a')), p(r('b')), q('a'))",
+    'implied_by(holds(G), [p(G), G])',
+  ]),
+  stdout([
+    "holds(q('a'))",
+  ]),
+])
+
+conformance('a rule value inside an ordinary body goal is rejected', [
+  spec('4.6'),
+  exit(1),
+  file('program.js', [
+    "fact(p('a'))",
+    'query(p(box(implies(a(X), b(X)))))',
+  ]),
+  stdout([]),
+  stderr(prefix('eyemind: line 2: ')),
+])
+
+conformance('a rule value as the template of findall is rejected', [
+  spec('4.6'),
+  exit(1),
+  file('program.js', [
+    "fact(p('a'))",
+    'query(findall(implies(a(X), b(X)), p(Y), L))',
+  ]),
+  stdout([]),
+  stderr(prefix('eyemind: line 2: ')),
+])
+
 conformance('a source program cannot state its own activation fact', [
   spec('4.6'),
   exit(1),

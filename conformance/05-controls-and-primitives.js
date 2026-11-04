@@ -479,6 +479,33 @@ conformance('number_chars reads and spells numbers', [
   ]),
 ])
 
+conformance('error: atom_chars given an item that is not one character', [
+  spec('5.2'),
+  args("--goal \"atom_chars(A, ['a', 'bc'])\""),
+  exit(1),
+  stderr('nonempty'),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('error: number_chars given a first argument that is not a number', [
+  spec('5.2'),
+  args("--goal \"number_chars('x', L)\""),
+  exit(1),
+  stderr('nonempty'),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('error: number_chars given list items that are not characters', [
+  spec('5.2'),
+  args("--goal 'number_chars(N, [1, 2])'"),
+  exit(1),
+  stderr('nonempty'),
+  stdin([]),
+  stdout([]),
+])
+
 conformance('number_chars needs a number or a bound list', [
   spec('5.2'),
   args("--goal \"number_chars(N, ['4', X])\""),

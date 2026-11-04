@@ -436,3 +436,49 @@ conformance('integer division rounds subnormal halfway cases to even', [
     'is(-1e-323, div(-5, shl(1, 1075)))',
   ]),
 ])
+
+conformance('float floor division and modulo keep the sign of a zero result', [
+  spec('6'),
+  args("--goal 'is(A, mod(6.0, 3.0))' --goal 'is(B, mod(6.0, -3.0))' --goal 'is(C, floordiv(1.0, 3.0))' --goal 'is(D, floordiv(-1.0, 3.0))' --goal 'is(E, floordiv(0.0, -3.0))'"),
+  stdin([]),
+  stdout([
+    'is(0.0, mod(6.0, 3.0))',
+    'is(-0.0, mod(6.0, -3.0))',
+    'is(0.0, floordiv(1.0, 3.0))',
+    'is(-1.0, floordiv(-1.0, 3.0))',
+    'is(-0.0, floordiv(0.0, -3.0))',
+  ]),
+])
+
+conformance('round to a number of decimals rounds half to even and keeps integers exact', [
+  spec('6'),
+  args("--goal 'is(A, round(1250, -2))' --goal 'is(B, round(1350, -2))' --goal 'is(C, round(-1250, -2))' --goal 'is(D, round(7, 2))' --goal 'is(E, round(1250.0, -2))' --goal 'is(F, round(123456789012345678901, -10))'"),
+  stdin([]),
+  stdout([
+    'is(1200, round(1250, -2))',
+    'is(1400, round(1350, -2))',
+    'is(-1200, round(-1250, -2))',
+    'is(7, round(7, 2))',
+    'is(1200.0, round(1250.0, -2))',
+    'is(123456789010000000000, round(123456789012345678901, -10))',
+  ]),
+])
+
+conformance('round of a subnormal float is the integer zero', [
+  spec('6'),
+  args("--goal 'is(A, round(5e-324))' --goal 'is(B, round(-5e-324))'"),
+  stdin([]),
+  stdout([
+    'is(0, round(5e-324))',
+    'is(0, round(-5e-324))',
+  ]),
+])
+
+conformance('error: the logarithm of a negative integer beyond the float range', [
+  spec('6'),
+  args("--goal 'is(X, log(neg(pow(10, 400))))'"),
+  exit(1),
+  stderr('nonempty'),
+  stdin([]),
+  stdout([]),
+])

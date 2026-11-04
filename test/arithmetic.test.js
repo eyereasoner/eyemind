@@ -92,4 +92,24 @@ export const tests = {
       }
     }
   },
+
+  'logarithms of integers beyond the float range split off a power of two'() {
+    // Number(pow(10, 400)) is Infinity, so the integer is read as m * 2**e.
+    assert.equal(value('log10(pow(10, 400))'), '400.0');
+    assert.equal(value('log2(pow(2, 5000))'), '5000.0');
+    assert.ok(Math.abs(Number(value('log(pow(10, 400))')) - 400 * Math.LN10) < 1e-9);
+    assert.match(fails('log(neg(pow(10, 400)))'), /math domain error/);
+    assert.match(fails('log10(0)'), /math domain error/);
+  },
+
+  'rounding far past the digits of a double is exact and keeps the sign'() {
+    // A float has at most 1074 fractional binary digits, so more than 400
+    // decimals change nothing, and fewer than -400 leave only a signed zero.
+    assert.equal(value('round(5e-324, 400)'), '5e-324');
+    assert.equal(value('round(5e-324, 401)'), '5e-324');
+    assert.equal(value('round(1.5, -401)'), '0.0');
+    assert.equal(value('round(-1.5, -401)'), '-0.0');
+    assert.equal(value('round(1e308, -307)'), '1e+308');
+    assert.match(fails('round(1.5, 1.0)'), /integer number of digits/);
+  },
 };

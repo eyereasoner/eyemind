@@ -116,6 +116,17 @@ conformance('each rule has Skolem terms of its own', [
   ]),
 ])
 
+conformance('a variable a solution brings in is numbered when its name is taken', [
+  spec('7.2'),
+  file('program.js', [
+    'fact(p(Y))',
+    'implies(p(X), q(Y, X))',
+  ]),
+  stdout([
+    "q(skolem(2, 'Y', []), skolem(2, 'Y1', []))",
+  ]),
+])
+
 conformance('a rule that keeps meeting new activations exceeds the bound', [
   spec('7.2, 7.3'),
   args('--max-iterations 10 program.js'),

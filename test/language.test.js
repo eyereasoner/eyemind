@@ -129,4 +129,19 @@ query(named(N))
     throwsMatching(() => program('implies([q(X), X > 1], p(X))'), /gt\(X, 1\) rather than X > 1/);
     throwsMatching(() => program('implies(q(X), p(X + 1))'), /add\(X, 1\) rather than X \+ 1/);
   },
+
+  'facts_from says what it needs and where a document is wrong'() {
+    throwsMatching(() => program('facts_from(42)'), /facts_from needs a path or \{text: \.\.\.\}/);
+    throwsMatching(() => program("facts_from({ text: 'p(1)\\np(' })"), /^line 1: the text: line 2: /);
+    throwsMatching(() => loadText("facts_from('facts.js')"), /facts_from\(path\) needs a file system/);
+  },
+
+  'variable goals are rejected only where forward reasoning could reach them'() {
+    const backward = "fact(p(q('a')), p(r('b')), q('a'))\nimplied_by(holds(G), [p(G), G])";
+    assert.deepEqual(run(program(backward), { goal: 'holds(G)' }).answers, ["holds(q('a'))"]);
+    // Reached through a backward rule, or called explicitly with call/1.
+    for (const forward of ['implies(holds(G), seen(G))', 'implies([p(G), call(G)], seen(G))']) {
+      throwsMatching(() => program(`${backward}\n${forward}`), /forward dependencies require statically named calls/);
+    }
+  },
 };

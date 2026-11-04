@@ -272,7 +272,9 @@ name MAY have different ranks.
 Nested `implies(Body, Head)` and `implied_by(Head, Body)` calls construct rule
 templates. A rule value in a conclusion MUST occur as a top-level conjunct of
 an `implies` conclusion; in a body, `implies` and `implied_by` are inspection
-goals (Section 4.7). The
+goals (Section 4.7). A rule value anywhere else in a clause, such as an
+argument of an ordinary head or goal, or the template or result of `findall`,
+MUST be rejected. The
 conclusion MAY combine ordinary heads and several templates. Each template's
 body and head MAY themselves be conjunctions, written as arrays. A backward
 template with several heads defines one backward clause per head, sharing

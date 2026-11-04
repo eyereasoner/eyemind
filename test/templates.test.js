@@ -239,4 +239,15 @@ query(r(X))`;
       rejected(source, document.replace(/^q\('a'\)/, 'activated(4, [])'), 'C7');
     }
   },
+
+  'rule values elsewhere in a body are rejected with what to write instead'() {
+    throwsMatching(() => program("fact(p('a'))\nquery(p(box(implies(a(X), b(X)))))"),
+      /^line 2: rule templates must be top-level conjuncts of an implies\(\) conclusion or inspection goals$/);
+    throwsMatching(() => program("fact(p('a'))\nquery(findall(implies(a(X), b(X)), p(Y), L))"),
+      /^line 2: rule values in a body must be inspection goals$/);
+    throwsMatching(() => program("fact(p('a'))\nquery(findall(X, p(X), implied_by(a(X), b(X))))"),
+      /^line 2: rule values in a body must be inspection goals$/);
+    // Inside controls the same goal positions are checked.
+    throwsMatching(() => program("fact(p('a'))\nquery(not(p(box(forward(a(X), b(X))))))"), /top-level conjuncts/);
+  },
 };

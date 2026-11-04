@@ -132,3 +132,18 @@ conformance('facts stated by facts_from record the line of the call', [
     'unused(line(2), fact(q(2)))',
   ]),
 ])
+
+conformance('a generated rule that never fires is unused and keeps its generator line', [
+  spec('4.6, 13'),
+  args('--unused program.js'),
+  file('program.js', [
+    "fact(enabled('x'), p('a'))",
+    'implies(enabled(N), [',
+    '  implies(p(X), r(N, X)),',
+    '  implies(missing(X), s(X)),',
+    '])',
+  ]),
+  stdout([
+    'unused(line(2), implies([activated(5, []), missing(X)], s(X)))',
+  ]),
+])
