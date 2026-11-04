@@ -145,7 +145,7 @@ loaded as one program; their clauses are then numbered in the order the
 scripts are run.
 
 A program is given exactly the names needed to state it: the statements of
-Section 4.2, `preds`, `vars`, `struct`, the controls and primitives of
+Section 4.2, `forward`, `backward`, `preds`, `vars`, `struct`, the controls and primitives of
 Section 5, the atom `fail`, and `eyemind`, the library, with which a program
 can build and run another program and read and write documents
 (`eyemind.build`, `eyemind.run`, `eyemind.checkProof`, `eyemind.checkReport`,
@@ -180,7 +180,8 @@ statements) would run as JavaScript code.
 A clause MUST be rejected when:
 
 - a head is not an atom or a compound;
-- a head is `step/4` or `clause/2`, which are reserved for proof documents;
+- a head is `step/4` or `clause/2`, which are reserved for proof documents,
+  or explicitly states `activated/2`, reserved for template activations;
 - a head is a primitive (Section 5.2) or a control (Section 5.1), except the
   head `'true'` of a query and `'false'` of a contradiction; in particular a
   conclusion of `implies` is never `'true'` or `'false'`;
@@ -230,7 +231,8 @@ Section 5.1 treats as anonymous.
 
 In a goal position, an array is the conjunction of its items: a statement's
 goal, the argument of `and`, `or`, `not`, `call` and `once`, and the goal of
-`findall`. Anywhere else an array is a list.
+`findall`, and either part of a rule template (Section 4.6). Anywhere else an
+array is a list.
 
 Operators do not build terms. Variables, compounds and predicates have no
 JavaScript primitive value, so an operator applied to one, such as `X + 1` or
@@ -257,6 +259,55 @@ A program MUST be rejected when:
 
 Because dependencies compare whole terms, two relations sharing a predicate
 name MAY have different ranks.
+
+### 4.6 Inline rule templates
+
+`forward(Body, Head)` and `backward(Head, Body)` construct rule templates.
+They MUST occur as top-level conjuncts of an `implies` conclusion. The
+conclusion MAY combine ordinary heads and several templates. Each template's
+body and head MAY themselves be conjunctions, written as arrays. A backward
+template with several heads defines one backward clause per head, sharing
+the same activation and body. Empty and open lists are not goals or heads.
+
+A template variable is **captured** when it also occurs in the generating
+clause's body or in an ordinary sibling head. The other variables are local
+to that template: they are universally quantified within the generated rule,
+except for head-only variables of a forward template, which receive witnesses
+as Section 7.2 describes. Variables shared only between sibling templates are
+local to each. Every call in a template body, including calls inside controls,
+MUST be statically named; a variable in a term's argument is permitted, but a
+variable used as a goal is not. A forward template MAY conclude further inline
+templates. A backward template MUST NOT conclude templates.
+
+Templates are lowered before validation, indexing and stratification. Starting
+with all stated clauses, in clause order, replace each template conjunct,
+left to right, with `activated(N, Captures)`. `Captures` is a list of its
+captured variables in order of first occurrence in the template as written;
+`N` is the number of the first clause appended for it. Append a forward or
+backward clause as specified by the template, with the activation as its first
+body goal, followed by the template's body goals. A forward template keeps its
+head conjunction; a backward template appends one clause per head in order.
+Continue processing the appended clauses in order, lowering any nested
+templates the same way. Original clause numbers are kept; appended clauses
+are numbered consecutively after them and inherit the generator's source line.
+Capture metadata belongs to each appended clause, including one whose head
+is subsequently lowered again.
+
+For example, `implies(cat(X), forward(dog(Y), test('yes')))` as the only
+stated clause becomes these two clauses:
+
+```js
+implies(cat(X), activated(2, []))
+implies([activated(2, []), dog(Y)], test('yes'))
+```
+
+`Y` stays local to the second clause. Its activation is required even though
+the template does not capture `X`. A generator with several solutions but
+identical captures enables the same rule instance. No arbitrary rule term is
+installed during reasoning. All potential generated clauses and their
+activation dependencies participate in Section 4.5, including clauses whose
+generators never fire. A closed dependency cycle MUST therefore be rejected
+even if its template would remain inactive.
 
 ## 5. Goals, Controls and Primitives
 
@@ -416,6 +467,12 @@ concluded:
 When the run asks its own goals (Section 7.4), rules whose heads are all
 `'true'` are not run.
 
+For an appended forward clause of Section 4.6, prepend one element to
+`Arguments`: the grounded capture list of its activation. This distinguishes
+witnesses of different captured contexts even when a head does not mention
+those values. An empty capture list still contributes one element, `[]`.
+Original clauses, including generators, use the ordinary witness convention.
+
 ### 7.3 Bounds
 
 A run is bounded by `max_depth`, the depth of nested rule bodies (default
@@ -442,12 +499,16 @@ A run that concluded `'false'` has halt code 65; otherwise it has none.
 
 The conclusions of a run are, in order:
 
-1. when it halted: every derived fact, in the order derived, ending with
+1. when it halted: every derived fact except template activations, in the order derived, ending with
    `'false'`;
 2. otherwise, when it was given goals: the reported instances of its goals;
 3. otherwise, when the program has a forward rule with a head `'true'`: the
    reported instances, in order of first report, which MAY be none;
-4. otherwise: every derived fact, in the order derived.
+4. otherwise: every derived fact except template activations, in the order derived.
+
+An explicit goal MAY ask for an activation. Activations remain available as
+premises and proof steps; the library's `inferred` list omits them. The
+`derived` statistic counts them as facts added during reasoning.
 
 The output of a run is the canonical text (Section 8) of each conclusion,
 one per line.
@@ -575,6 +636,13 @@ array of its body goals when it has several, `Head` likewise the head or the
 array of heads, and `G1, ...` are the body goals themselves. Displays are not
 authority: a checker MUST compare each with the program it checks against.
 
+For a program with templates, displays show the deterministically lowered
+clauses of Section 4.6, including activation heads and premises. The program
+supplied to the checker MUST be lowered from the source as Section 4.6
+requires; displays cannot authorize extra generated rules. Each use of a
+generated clause requires its activation as the first use, with a justified
+step of its own. All existing checks apply.
+
 ### 10.3 Steps
 
 `Goal` is the justified goal as it stands once the whole solution is found:
@@ -679,7 +747,7 @@ A boundary that is not refuted remains an obligation (Section 12).
 
 When goals were given and no claim is `'false'`, the questions are the goals.
 Otherwise the questions are, for each forward rule, each head other than
-`'true'`, and the rule's body as a conjunction when one of its heads is
+`'true'` or a template activation, and the rule's body as a conjunction when one of its heads is
 `'true'` and no claim is `'false'`. Each claim MUST be an instance of a
 question. Each step MUST be reachable from a conjunct of a claim through the
 conjuncts of uses.
@@ -699,6 +767,11 @@ bound to `skolem(N, Name, Args)`, where:
   the values of the heads' variables, in order of their first occurrence in
   the heads, that are ground and contain no Skolem term `skolem(N, _, Args)`:
   the values that do contain one hold a witness of this firing.
+
+For an appended forward clause of Section 4.6, prepend the capture list,
+instantiated under the step's substitution, as one element of `Args`, as
+required by Section 7.2. The checker MUST compute this from the source
+template's capture metadata and the substitution, not from the witness term.
 
 A variable of the head that also occurs in the body is not checked by C8,
 even when the body leaves it unbound; its value comes from the uses, which
@@ -736,8 +809,9 @@ leave conclusions out, and a run's own proof holds exactly its conclusions.
 
 ## 12. Check Reports
 
-A check report is a document (Section 9) holding, in this order, one fact per
-line:
+A check report is a document (Section 9) beginning with the proof's claims,
+in proof order, in canonical text, one per line, followed by a blank line and
+the following report facts, one per line:
 
 1. `condition(Id, Name, Outcome, Covered)` for C1 to C8, where `Outcome` is
    `'ok'` or `failed(N)`, `N` the number of that condition's failures;
@@ -750,6 +824,15 @@ line:
 5. `verdict(V)`, where `V` is `failed(N)` when `N` failures were recorded,
    otherwise `'checked_with_obligations'` when there are obligations,
    otherwise `'checked'`.
+
+Comments MUST identify these initial terms as checked answers only when the
+report is valid with no obligations. A valid report with obligations MUST
+label them as conditional on those obligations. A failed report MUST label
+them as unverified claims; their inclusion does not validate them. A valid
+report with no claims MUST say it establishes no conclusions. Comments also
+explain the C1-C8 order, failures and obligations when present, the statistics,
+and that the verdict does not establish completeness. Comments are informative
+and MAY be worded differently. They are ignored when the document is read.
 
 Failures are listed in the order they are found: those of reading the
 document (Section 11.1), in document order; C4 for each claim, in claim
@@ -772,11 +855,13 @@ it differently. eyemind's details are, by condition:
 | C7 | `claim answers no goal: ...`, `step serves no claim: ...` |
 | C8 | `not the witness of this firing of clause N: ...` |
 
-The variables of each fact are renamed `A`, `B`, ..., `Z`, `A1`, ... in order
+The initial answers keep the variable names of the proof. The variables of
+each subsequent report fact are renamed `A`, `B`, ..., `Z`, `A1`, ... in order
 of first occurrence. A report is ordinary data: `facts_from` (Section 4.2)
 states it as facts.
 
-The JSON form of a report is an object with `valid` (boolean), `steps`,
+The JSON form includes `answers`, an array of the initial claims' canonical
+texts, including unverified claims when `valid` is false. It also has `valid` (boolean), `steps`,
 `claims`, `verified`, `redecided` (the count `recomputed`), `composed`,
 `uses` (the number of uses of all steps, integers), `trusted`
 (a list of `{kind, conclusion}`), `failures` (a list of
@@ -815,18 +900,22 @@ eyemind [OPTION ...] [FILE ...]
 | --- | --- |
 | (none) | Load the files, or standard input, as one program and print its conclusions. |
 | `-p`, `--proof` | Print the proof document instead. |
-| `-c FILE`, `--check-proof FILE` | Check the proof in `FILE` (`-` for standard input) against the program and print its report. |
-| `--json` | With `--check-proof`, print the report as JSON. |
+| `-c`, `--prove-and-check` | Generate a proof, check the rendered proof against the input program, and print its answers and check report. |
+| `--check-proof FILE` | Check the proof in `FILE` (`-` for standard input) against the program and print its answers and report. |
+| `--json` | With either checking mode, print the report, including `answers`, as JSON. |
 | `--goal GOAL` | Ask `GOAL`, read as in Section 9, where an array is a conjunction; MAY be repeated. With `--check-proof`, the goals the proof answers. |
-| `--strict-proof` | With `--check-proof`, forbid trusted boundaries. |
+| `--strict-proof` | With either checking mode, forbid trusted boundaries. |
 | `--unused` | Print the unused clauses (Section 13). |
 | `--stats` | Print reasoning statistics as JSON to standard error: `inferences`, the goals started, which `--max-inferences` bounds; `rounds`, the forward rounds run over all strata; and `derived`, the facts forward rules added, not counting a conclusion the program states as a fact, a query's answers or `'false'`. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | The bounds of Section 7.3; `N` MUST be a positive safe integer, at most 9007199254740991. |
 | `-v`, `--version` | Print the version. |
 | `-h`, `--help` | Print the usage, including every option and its short alias where one exists. |
 
-`--check-proof` MUST NOT be combined with `--proof`, nor `--unused` with
-either, and `--json` and `--strict-proof` need `--check-proof`. A program
+`--proof`, `--prove-and-check`, `--check-proof` and `--unused` are mutually
+exclusive. `--json` and `--strict-proof` need a checking mode. With
+`--prove-and-check`, reasoning bounds and `--stats` apply to proof generation;
+an invalid check returns 2, otherwise the run's halt code is retained
+(65 for a contradiction, 0 otherwise). A program
 text that has a line starting with `step(` is a proof document; given one as
 a program, the command line MUST say how to check it instead.
 
@@ -869,7 +958,7 @@ it produces as Section 11 describes. A conforming **checker** implements
 Sections 9, 11 and 12 and does not depend on a reasoner. For the same
 program, a conforming reasoner and checker MUST produce the same
 conclusions, proof documents and reports as eyemind 0.1.25, byte for byte,
-except for the `Detail` texts of failures (Section 12), the internal names of
+except for comments and the `Detail` texts of failures (Section 12), the internal names of
 variables where Section 3 says so, and where the host's floating-point
 library functions (`exp`, `log`, the trigonometric and hyperbolic functions,
 `pow` of floats) differ in the last digit.
@@ -945,6 +1034,12 @@ step(subclass_of('human', 'mortal'), clause(2), {}, [])
 Its check report (Section 12):
 
 ```js
+// Checked answers: these follow from the input program.
+type('socrates', 'mortal')
+type('socrates', 'human')
+
+// C1-C8: resolution, acyclicity, justification, coverage,
+// re-decision, boundary consistency, relevance and witness integrity.
 condition('C1', 'resolution', 'ok', 3)
 condition('C2', 'well_founded', 'ok', 3)
 condition('C3', 'justification', 'ok', 3)
@@ -953,11 +1048,15 @@ condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 5)
 condition('C8', 'witness_integrity', 'ok', 0)
+
+// Proof statistics: recorded steps and how they were checked.
 steps(3)
 verified(3)
 recomputed(0)
 composed(0)
 trusted(0)
 claims(2)
+
+// This verdict applies to the claims above; it does not establish completeness.
 verdict('checked')
 ```

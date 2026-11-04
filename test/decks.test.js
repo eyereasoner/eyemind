@@ -350,7 +350,8 @@ for (const entry of MANIFEST) {
         if (target) files.set(target, result.stdout);
         const goals = args.flatMap((arg, i) => arg === '--goal' ? [args[i + 1]] : []);
         const proof = args.includes('--proof') || args.includes('-p');
-        const check = args.includes('--check-proof') || args.includes('-c');
+        const proveAndCheck = args.includes('--prove-and-check') || args.includes('-c');
+        const check = args.includes('--check-proof') || proveAndCheck;
         if (args.includes('--stats')) {
           const stats = JSON.parse(result.stderr);
           for (const key of ['inferences', 'rounds', 'derived']) assert.ok(Number.isSafeInteger(stats[key]) && stats[key] >= 0);
@@ -359,7 +360,7 @@ for (const entry of MANIFEST) {
           const report = terms(result.stdout);
           const trusted = report.find((term) => term.name === 'trusted').args[0];
           const strict = args.includes('--strict-proof');
-          assert.equal(result.code, strict && trusted > 0n ? 2 : 0);
+          assert.equal(result.code, strict && trusted > 0n ? 2 : proveAndCheck ? entry.halt_code ?? 0 : 0);
           if (strict) {
             const failures = report.filter((term) => term.name === 'failure');
             assert.equal(BigInt(failures.length), trusted);

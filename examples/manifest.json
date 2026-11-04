@@ -511,5 +511,20 @@
     "name": "hamming-code",
     "description": "Parity syndromes and correction of a single flipped bit in Hamming(7,4)",
     "trusted": []
+  },
+  {
+    "name": "derived-rule",
+    "description": "An inline forward rule enabled by a cat and applied to a dog",
+    "trusted": []
+  },
+  {
+    "name": "derived-backward-rule",
+    "description": "A captured inverse pair enables a reusable backward rule",
+    "trusted": []
+  },
+  {
+    "name": "derived-backward-rule-2",
+    "description": "A conjunction of backward templates supplies premises for forward reasoning",
+    "trusted": []
   }
 ]

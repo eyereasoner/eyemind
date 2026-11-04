@@ -15,6 +15,23 @@ const facts = (report) => readTerms(checkReport(report)).map(([term]) => term);
 const named = (records, name) => records.filter((record) => record instanceof Struct && record.name === name);
 
 export const tests = {
+  'check reports put answers first and distinguish failed and conditional claims'() {
+    const source = program("fact(p('a'))\nimplies(p(X), q(X))");
+    const document = run(source, { proof: true }).proof;
+    const report = checkProof(source, document);
+    assert.deepEqual(report.answers, ["q('a')"]);
+    assert.match(checkReport(report), /^\/\/ Checked answers:[^\n]*\nq\('a'\)\n\n\/\/ C1-C8:/);
+    const failed = checkProof(source, document.replace("step(q('a')", "step(q('b')"));
+    assert.match(checkReport(failed), /^\/\/ Unverified claims:[^\n]*\nq\('a'\)/);
+    assert.deepEqual(failed.answers, ["q('a')"]);
+    const conditional = program("implies(not(p('a')), q('a'))");
+    const checked = run(conditional, { proof: true }).proofReport;
+    assert.match(checkReport(checked), /^\/\/ Answers checked subject to the obligations below\./);
+    assert.match(checkReport(checked), /\/\/ Obligations:/);
+    assert.match(checkReport(checkProof(program(''), '')), /^\/\/ No answers claimed;/);
+    assert.deepEqual(publicReport(report).answers, report.answers);
+  },
+
   'flat resolution agrees with the general checker'() {
     const source = program("fact(p('a', 1), p('b', float(1)))\nimplied_by(q(X, Y, X), p(X, Y))\nquery(q(X, Y, X))");
     const document = run(source, { proof: true }).proof;

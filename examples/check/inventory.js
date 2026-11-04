@@ -1,3 +1,8 @@
+// Answers checked subject to the obligations below.
+invoice(28)
+
+// C1-C8: resolution, acyclicity, justification, coverage,
+// re-decision, boundary consistency, relevance and witness integrity.
 condition('C1', 'resolution', 'ok', 5)
 condition('C2', 'well_founded', 'ok', 9)
 condition('C3', 'justification', 'ok', 9)
@@ -6,11 +11,17 @@ condition('C5', 're_decision', 'ok', 3)
 condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 10)
 condition('C8', 'witness_integrity', 'ok', 0)
+
+// Obligations: absence and collection completeness are taken on trust.
 obligation('collected', 'theory_scoped', findall(A, line_total(B, A), [6, 12, 10]))
+
+// Proof statistics: recorded steps and how they were checked.
 steps(9)
 verified(5)
 recomputed(3)
 composed(0)
 trusted(1)
 claims(1)
+
+// This verdict applies to the claims above; it does not establish completeness.
 verdict('checked_with_obligations')

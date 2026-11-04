@@ -62,6 +62,11 @@ conformance('an invalid proof exits with 2 and prints its report', [
     'p(2)',
   ]),
   stdout([
+    "// Unverified claims: proof checking failed.",
+    "p(2)",
+    "",
+    "// C1-C8: resolution, acyclicity, justification, coverage,",
+    "// re-decision, boundary consistency, relevance and witness integrity.",
     "condition('C1', 'resolution', 'ok', 0)",
     "condition('C2', 'well_founded', 'ok', 0)",
     "condition('C3', 'justification', 'ok', 0)",
@@ -70,15 +75,21 @@ conformance('an invalid proof exits with 2 and prints its report', [
     "condition('C6', 'boundary_consistency', 'ok', 0)",
     "condition('C7', 'relevance', failed(1), 1)",
     "condition('C8', 'witness_integrity', 'ok', 0)",
+    "",
+    "// Failures: the claims above have not passed every check.",
     "failure('C4', p(2), …)",
     "failure('C7', p(2), …)",
-    'steps(0)',
-    'verified(0)',
-    'recomputed(0)',
-    'composed(0)',
-    'trusted(0)',
-    'claims(1)',
-    'verdict(failed(2))',
+    "",
+    "// Proof statistics: recorded steps and how they were checked.",
+    "steps(0)",
+    "verified(0)",
+    "recomputed(0)",
+    "composed(0)",
+    "trusted(0)",
+    "claims(1)",
+    "",
+    "// This verdict applies to the claims above; it does not establish completeness.",
+    "verdict(failed(2))",
   ]),
 ])
 
@@ -155,7 +166,7 @@ conformance('--unused cannot be combined with --check-proof', [
   stdout([]),
 ])
 
-conformance('--json requires --check-proof', [
+conformance('--json requires a checking mode', [
   spec('14'),
   args('--json program.js'),
   exit(1),
@@ -164,7 +175,7 @@ conformance('--json requires --check-proof', [
   stdout([]),
 ])
 
-conformance('--strict-proof requires --check-proof', [
+conformance('--strict-proof requires a checking mode', [
   spec('14'),
   args('--strict-proof program.js'),
   exit(1),
@@ -252,20 +263,20 @@ conformance('-h prints the usage', [
   stdout('nonempty'),
 ])
 
-conformance('-c checks a proof against the program', [
+conformance('-c generates a proof and checks it against the program', [
   spec('14'),
-  args('-c proof.js program.js'),
+  args('-c program.js'),
   stderr('empty'),
   file('program.js', [
     'fact(p(1))',
     'query(p(X))',
   ]),
-  file('proof.js', [
-    'p(1)',
-    'clause(1, fact(p(1)))',
-    'step(p(1), clause(1), {}, [])',
-  ]),
   stdout([
+    "// Checked answers: these follow from the input program.",
+    "p(1)",
+    "",
+    "// C1-C8: resolution, acyclicity, justification, coverage,",
+    "// re-decision, boundary consistency, relevance and witness integrity.",
     "condition('C1', 'resolution', 'ok', 1)",
     "condition('C2', 'well_founded', 'ok', 1)",
     "condition('C3', 'justification', 'ok', 1)",
@@ -274,22 +285,51 @@ conformance('-c checks a proof against the program', [
     "condition('C6', 'boundary_consistency', 'ok', 0)",
     "condition('C7', 'relevance', 'ok', 2)",
     "condition('C8', 'witness_integrity', 'ok', 0)",
-    'steps(1)',
-    'verified(1)',
-    'recomputed(0)',
-    'composed(0)',
-    'trusted(0)',
-    'claims(1)',
+    "",
+    "// Proof statistics: recorded steps and how they were checked.",
+    "steps(1)",
+    "verified(1)",
+    "recomputed(0)",
+    "composed(0)",
+    "trusted(0)",
+    "claims(1)",
+    "",
+    "// This verdict applies to the claims above; it does not establish completeness.",
     "verdict('checked')",
   ]),
 ])
 
-conformance('-c requires a proof filename', [
+conformance('-c reads the input program from standard input', [
   spec('14'),
   args('-c'),
-  exit(1),
-  stderr(prefix('eyemind: -c needs a value')),
-  stdout([]),
+  stderr('empty'),
+  stdin(['fact(p(1))', 'query(p(X))']),
+  stdout([
+    "// Checked answers: these follow from the input program.",
+    "p(1)",
+    "",
+    "// C1-C8: resolution, acyclicity, justification, coverage,",
+    "// re-decision, boundary consistency, relevance and witness integrity.",
+    "condition('C1', 'resolution', 'ok', 1)",
+    "condition('C2', 'well_founded', 'ok', 1)",
+    "condition('C3', 'justification', 'ok', 1)",
+    "condition('C4', 'coverage', 'ok', 1)",
+    "condition('C5', 're_decision', 'ok', 0)",
+    "condition('C6', 'boundary_consistency', 'ok', 0)",
+    "condition('C7', 'relevance', 'ok', 2)",
+    "condition('C8', 'witness_integrity', 'ok', 0)",
+    "",
+    "// Proof statistics: recorded steps and how they were checked.",
+    "steps(1)",
+    "verified(1)",
+    "recomputed(0)",
+    "composed(0)",
+    "trusted(0)",
+    "claims(1)",
+    "",
+    "// This verdict applies to the claims above; it does not establish completeness.",
+    "verdict('checked')",
+  ]),
 ])
 
 conformance('--version prints the version', [
@@ -314,4 +354,57 @@ conformance('an overflowing bound is rejected instead of disabling the limit', [
   stderr(prefix('eyemind:')),
   file('program.js', []),
   stdout([]),
+])
+
+conformance('--prove-and-check generates answers for an external goal', [
+  spec('12, 14'),
+  args('--prove-and-check --goal "p(2)" program.js'),
+  file('program.js', ['fact(p(1), p(2))']),
+  stdout([
+    '// Checked answers: these follow from the input program.',
+    'p(2)',
+    '',
+    '// C1-C8: resolution, acyclicity, justification, coverage,',
+    '// re-decision, boundary consistency, relevance and witness integrity.',
+    "condition('C1', 'resolution', 'ok', 1)",
+    "condition('C2', 'well_founded', 'ok', 1)",
+    "condition('C3', 'justification', 'ok', 1)",
+    "condition('C4', 'coverage', 'ok', 1)",
+    "condition('C5', 're_decision', 'ok', 0)",
+    "condition('C6', 'boundary_consistency', 'ok', 0)",
+    "condition('C7', 'relevance', 'ok', 2)",
+    "condition('C8', 'witness_integrity', 'ok', 0)",
+    "",
+    '// Proof statistics: recorded steps and how they were checked.',
+    'steps(1)', 'verified(1)', 'recomputed(0)', 'composed(0)', 'trusted(0)', 'claims(1)',
+    "",
+    '// This verdict applies to the claims above; it does not establish completeness.',
+    "verdict('checked')",
+  ]),
+])
+
+conformance('--prove-and-check can reject its generated proof under strict checking', [
+  spec('11.6, 12, 14'),
+  args('--prove-and-check --strict-proof program.js'),
+  file('program.js', ["implies(not('q'), 'p')"]),
+  exit(2),
+  stdout('nonempty'),
+])
+
+conformance('--prove-and-check cannot be combined with --proof', [
+  spec('14'),
+  args('-c --proof'),
+  exit(1), stderr(prefix('eyemind:')), stdout([]),
+])
+
+conformance('--prove-and-check cannot be combined with --check-proof', [
+  spec('14'),
+  args('-c --check-proof proof.js'),
+  exit(1), stderr(prefix('eyemind:')), stdout([]),
+])
+
+conformance('--prove-and-check cannot be combined with --unused', [
+  spec('14'),
+  args('-c --unused'),
+  exit(1), stderr(prefix('eyemind:')), stdout([]),
 ])

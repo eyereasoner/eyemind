@@ -1,3 +1,31 @@
+// Answers checked subject to the obligations below.
+goldbach(4, [2, 2])
+goldbach(8, [3, 5])
+goldbach(16, [3, 13])
+goldbach(32, [3, 29])
+goldbach(64, [3, 61])
+goldbach(128, [19, 109])
+goldbach(256, [5, 251])
+goldbach(512, [3, 509])
+goldbach(1024, [3, 1021])
+goldbach(2048, [19, 2029])
+goldbach(4096, [3, 4093])
+goldbach(8192, [13, 8179])
+goldbach(16384, [3, 16381])
+goldbach(32768, [19, 32749])
+goldbach(65536, [17, 65519])
+goldbach(131072, [13, 131059])
+goldbach(262144, [5, 262139])
+goldbach(524288, [19, 524269])
+goldbach(1048576, [3, 1048573])
+goldbach(2097152, [19, 2097133])
+goldbach(4194304, [3, 4194301])
+goldbach(8388608, [37, 8388571])
+goldbach(16777216, [3, 16777213])
+goldbach(33554432, [61, 33554371])
+
+// C1-C8: resolution, acyclicity, justification, coverage,
+// re-decision, boundary consistency, relevance and witness integrity.
 condition('C1', 'resolution', 'ok', 506)
 condition('C2', 'well_founded', 'ok', 913)
 condition('C3', 'justification', 'ok', 913)
@@ -6,6 +34,8 @@ condition('C5', 're_decision', 'ok', 372)
 condition('C6', 'boundary_consistency', 'ok', 35)
 condition('C7', 'relevance', 'ok', 937)
 condition('C8', 'witness_integrity', 'ok', 0)
+
+// Obligations: absence and collection completeness are taken on trust.
 obligation('absent', 'theory_scoped', not(has_factor(5, 3)))
 obligation('absent', 'theory_scoped', not(has_factor(13, 3)))
 obligation('absent', 'theory_scoped', not(has_factor(29, 3)))
@@ -41,10 +71,14 @@ obligation('absent', 'theory_scoped', not(has_factor(47, 3)))
 obligation('absent', 'theory_scoped', not(has_factor(53, 3)))
 obligation('absent', 'theory_scoped', not(has_factor(59, 3)))
 obligation('absent', 'theory_scoped', not(has_factor(33554371, 3)))
+
+// Proof statistics: recorded steps and how they were checked.
 steps(913)
 verified(506)
 recomputed(333)
 composed(39)
 trusted(35)
 claims(24)
+
+// This verdict applies to the claims above; it does not establish completeness.
 verdict('checked_with_obligations')

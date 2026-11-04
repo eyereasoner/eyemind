@@ -81,6 +81,24 @@ export const tests = [
     }
   }],
 
+  ['derived rule examples run, prove and check in the playground', async (page, base) => {
+    const p = driver(page);
+    for (const name of ['derived-rule', 'derived-backward-rule', 'derived-backward-rule-2']) {
+      await p.open(`${base}#example=${name}`);
+      await p.run();
+      assert.equal(await p.output(), readFileSync(new URL(`../examples/output/${name}.js`, import.meta.url), 'utf8'));
+      await p.select('mode', '--proof');
+      await p.run();
+      const proof = await p.output();
+      assert.match(proof, /step\(activated\(/);
+      await p.select('mode', '--check-proof');
+      await p.type('proof-input', proof);
+      await p.run();
+      assert.match(await p.output(), /verdict\('checked'\)/);
+    }
+    await p.select('mode', '');
+  }],
+
   ['a proof made in the playground checks there', async (page, base) => {
     const p = driver(page);
     await p.open(`${base}#example=socrates`);
@@ -93,6 +111,26 @@ export const tests = [
     await p.run();
     assert.match(await p.output(), /verdict\('checked'\)/);
     assert.match(await page.evaluate("document.getElementById('command').textContent"), /^eyemind --check-proof proof\.js examples\/socrates\.js$/);
+    await p.select('mode', '');
+  }],
+
+  ['prove-and-check shows checked answers and supports strict and JSON output', async (page, base) => {
+    const p = driver(page);
+    await p.open(`${base}#example=socrates`);
+    await p.select('mode', '--prove-and-check');
+    assert.ok(await page.evaluate("document.getElementById('proof-panel').hidden"));
+    await p.run();
+    assert.equal(await p.output(), readFileSync(new URL('../examples/check/socrates.js', import.meta.url), 'utf8'));
+    assert.match(await page.evaluate("document.getElementById('command').textContent"), /^eyemind --prove-and-check examples\/socrates.js$/);
+    await page.evaluate("document.getElementById('json').click()");
+    await p.run();
+    assert.deepEqual(JSON.parse(await p.output()).answers, ["type('socrates', 'mortal')", "type('socrates', 'human')"]);
+    await p.open(`${base}#example=permissions`);
+    await p.select('mode', '--prove-and-check');
+    await page.evaluate("document.getElementById('strict-proof').click()");
+    await p.run();
+    assert.match(await p.status(), /^Proof not valid · exit 2/);
+    assert.match(await p.output(), /^\/\/ Unverified claims:/);
     await p.select('mode', '');
   }],
 

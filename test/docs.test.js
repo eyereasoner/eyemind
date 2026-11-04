@@ -55,6 +55,13 @@ export const tests = {
     assert.equal(cli(['--unused'], source).stdout, listing.split('\n').slice(1).join('\n'));
   },
 
+  'the guide derives conjunction templates with local variables'() {
+    const [source] = blocks('GUIDE.md', '### Deriving rules');
+    const result = run(loadText(source), { proof: true });
+    assert.deepEqual(result.answers, ["and(known('demo', 'a'), available('demo', 'a'))"]);
+    assert.ok(result.proofReport.valid);
+  },
+
   async 'the guide library example runs with the documented results'() {
     const [source] = blocks('GUIDE.md', '## JavaScript library');
     const logged = [];

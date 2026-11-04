@@ -190,6 +190,7 @@
               <select id="mode">
                 <option value="">Conclusions (default)</option>
                 <option value="--proof">--proof · Proof document</option>
+                <option value="--prove-and-check">--prove-and-check · Checked answers</option>
                 <option value="--check-proof">--check-proof FILE · Check a saved proof</option>
                 <option value="--unused">--unused · Clauses that make no difference</option>
               </select>
@@ -199,8 +200,8 @@
             <label class="field" for="max-inferences"><span>--max-inferences N</span><input id="max-inferences" type="number" min="1" step="1" placeholder="1000000 (default)" /></label>
           </div>
           <div class="row flags">
-            <label class="toggle" title="With --check-proof, reject proofs that rely on absence or collection"><input id="strict-proof" type="checkbox" /><span><code>--strict-proof</code></span></label>
-            <label class="toggle" title="With --check-proof, print the report as JSON"><input id="json" type="checkbox" /><span><code>--json</code></span></label>
+            <label class="toggle" title="With either checking mode, reject proofs that rely on absence or collection"><input id="strict-proof" type="checkbox" /><span><code>--strict-proof</code></span></label>
+            <label class="toggle" title="With either checking mode, print the report as JSON"><input id="json" type="checkbox" /><span><code>--json</code></span></label>
             <label class="toggle" title="Print reasoning statistics"><input id="stats" type="checkbox" /><span><code>--stats</code></span></label>
           </div>
           <pre class="command" aria-label="Equivalent command"><code id="command">eyemind -</code></pre>
@@ -355,7 +356,7 @@
       const defaultProgram = "// Socrates is human, and every human is mortal.\nfact(type('socrates', 'human'))\nfact(subclass_of('human', 'mortal'))\n\nimplies([type(S, A), subclass_of(A, B)], type(S, B))\n\nquery(type(X, Y))\n";
       const stateKey = 'eyemind.playground.cli.v1';
       const gistTokenKey = 'eyemind.playground.github.gistToken.v1';
-      const modes = ['', '--proof', '--check-proof', '--unused'];
+      const modes = ['', '--proof', '--prove-and-check', '--check-proof', '--unused'];
       let examples = [];
       let source = { name: '-', text: defaultProgram };
       let originalExample = null;
@@ -407,6 +408,8 @@
         if (mode) args.push(mode);
         if (mode === '--check-proof') {
           args.push(proofName);
+        }
+        if (mode === '--check-proof' || mode === '--prove-and-check') {
           if (byId('strict-proof').checked) args.push('--strict-proof');
           if (byId('json').checked) args.push('--json');
         }
@@ -425,8 +428,9 @@
       }
 
       function updateOptions() {
-        const checking = byId('mode').value === '--check-proof';
-        byId('proof-panel').hidden = !checking;
+        const mode = byId('mode').value;
+        const checking = mode === '--check-proof' || mode === '--prove-and-check';
+        byId('proof-panel').hidden = mode !== '--check-proof';
         byId('strict-proof').disabled = byId('json').disabled = busy || !checking;
         byId('command').textContent = 'eyemind ' + argumentsForRun().map(quoteArgument).join(' ');
         scheduleSave();
@@ -725,7 +729,7 @@
         setBusy(true);
         output.setValue('');
         input.markLine(null);
-        output.setOption('colored', !byId('json').checked || byId('mode').value !== '--check-proof');
+        output.setOption('colored', !byId('json').checked || !['--check-proof', '--prove-and-check'].includes(byId('mode').value));
         byId('messages').hidden = true;
         byId('messages').textContent = '';
         const started = performance.now();

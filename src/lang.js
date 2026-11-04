@@ -256,6 +256,14 @@ function exportsFor(io) {
     },
     implies: (premise, conclusion) => builder.add('forward', goalOf(conclusion), [goalOf(premise)]),
     implied_by: (conclusion, premise) => builder.add('backward', toTerm(conclusion), [goalOf(premise)]),
+    forward: (...args) => {
+      if (args.length !== 2) throw new EyemindError(`forward takes 2 arguments, got ${args.length}`);
+      return new Struct('forward', args.map(goalOf));
+    },
+    backward: (...args) => {
+      if (args.length !== 2) throw new EyemindError(`backward takes 2 arguments, got ${args.length}`);
+      return new Struct('backward', args.map(goalOf));
+    },
     query: (...body) => builder.add('query', TRUE_ATOM, body.map(goalOf)),
     contradiction: (...body) => builder.add('contradiction', 'false', body.map(goalOf)),
     facts_from: (source) => {

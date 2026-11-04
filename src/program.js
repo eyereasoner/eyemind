@@ -1,19 +1,20 @@
 // A program: its clauses, validated, indexed and stratified.
 import { PRIMITIVE_KEYS } from './builtins.js';
+import { ACTIVATION_KEY, expandTemplates } from './templates.js';
 import {
   Env, EyemindError, Struct, Var, deref, flattenConjunction, freshTerm, identity, isCallable,
   isGround, isTerm, key, keyArity, unify,
 } from './terms.js';
 
 export const CONTROL_KEYS = new Set(['and/2', 'or/2', 'not/1', 'call/1', 'once/1', 'findall/3']);
-export const RESERVED_KEYS = new Set(['step/4', 'clause/2']);
+export const RESERVED_KEYS = new Set(['step/4', 'clause/2', ACTIVATION_KEY, 'forward/2', 'backward/2']);
 
 // The statements that state a forward rule, and how an error names them.
 const FORWARD_KINDS = { forward: 'a forward rule', query: 'query()', contradiction: 'contradiction()' };
 const isIndexable = (value) => typeof value === 'string' || typeof value === 'bigint' || typeof value === 'number';
 
 export class Clause {
-  constructor(id, head, heads, body, forward, line) {
+  constructor(id, head, heads, body, forward, line, captures = null) {
     this.id = id;
     this.head = head;
     // Only a forward rule can have several heads, so only it stores them.
@@ -21,6 +22,7 @@ export class Clause {
     this.body = body;
     this.forward = forward;
     this.line = line;
+    this.captures = captures;
     this.renaming = null; // how to rename it apart, worked out once it is used often
     this.uses = 0;
   }
@@ -68,6 +70,8 @@ function pushGoals(goal, out) {
 export class Program {
   constructor(sources, without = null) {
     this.sources = [...sources];
+    const expanded = expandTemplates(this.sources);
+    this.maxClauseId = expanded.length;
     this.clauses = [];
     this.byId = new Map();
     this.groups = new Map();
@@ -77,9 +81,9 @@ export class Program {
     // made once, and a key once allowed as a head is not checked again.
     const keys = new KeyCache();
     const allowed = new Set();
-    const count = this.sources.length;
+    const count = expanded.length;
     for (let index = 0; index < count; index++) {
-      const source = this.sources[index];
+      const source = expanded[index];
       const ordinal = index + 1;
       if (ordinal === without) continue;
       const forward = Object.hasOwn(FORWARD_KINDS, source.kind);
@@ -104,14 +108,14 @@ export class Program {
         const itemKey = keys.of(item);
         headKey = itemKey;
         if (allowed.has(itemKey)) continue;
-        if (RESERVED_KEYS.has(itemKey) ||
+        if ((RESERVED_KEYS.has(itemKey) && itemKey !== ACTIVATION_KEY) ||
             ((PRIMITIVE_KEYS.has(itemKey) || CONTROL_KEYS.has(itemKey)) &&
              !(forward && (item === 'true' || item === 'false')))) {
           throw new EyemindError(`line ${source.line}: unsupported or reserved head ${itemKey}`);
         }
         allowed.add(itemKey);
       }
-      const clause = new Clause(ordinal, source.head, forward ? heads : null, body, forward, source.line);
+      const clause = new Clause(ordinal, source.head, forward ? heads : null, body, forward, source.line, source.captures ?? null);
       this.clauses.push(clause);
       this.byId.set(ordinal, clause);
       if (forward) {

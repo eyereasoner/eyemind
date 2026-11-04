@@ -13,6 +13,7 @@ Run a source, generate its proof, or check its saved proof:
 
 ```sh
 eyemind examples/socrates.js
+eyemind -c examples/socrates.js
 eyemind --proof examples/socrates.js
 eyemind --check-proof examples/proof/socrates.js examples/socrates.js
 ```
@@ -46,6 +47,9 @@ expressions, one per line. The names match the source: `lists.js` has
 | [deep-taxonomy-100000](https://eyereasoner.github.io/eyemind/examples/deck/deep-taxonomy-100000) | [deep-taxonomy-100000.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-100000.js) | The same taxonomy benchmark at a hundred thousand levels |
 | [delfour](https://eyereasoner.github.io/eyemind/examples/deck/delfour) | [delfour.js](https://github.com/eyereasoner/eyemind/blob/main/examples/delfour.js) | A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes |
 | [deontic-logic](https://eyereasoner.github.io/eyemind/examples/deck/deontic-logic) | [deontic-logic.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deontic-logic.js) | Obligations, prohibitions and compensation that does not erase a violation |
+| [derived-backward-rule](https://eyereasoner.github.io/eyemind/examples/deck/derived-backward-rule) | [derived-backward-rule.js](https://github.com/eyereasoner/eyemind/blob/main/examples/derived-backward-rule.js) | A captured inverse pair enables a reusable backward rule |
+| [derived-backward-rule-2](https://eyereasoner.github.io/eyemind/examples/deck/derived-backward-rule-2) | [derived-backward-rule-2.js](https://github.com/eyereasoner/eyemind/blob/main/examples/derived-backward-rule-2.js) | A conjunction of backward templates supplies premises for forward reasoning |
+| [derived-rule](https://eyereasoner.github.io/eyemind/examples/deck/derived-rule) | [derived-rule.js](https://github.com/eyereasoner/eyemind/blob/main/examples/derived-rule.js) | An inline forward rule enabled by a cat and applied to a dog |
 | [dijkstra](https://eyereasoner.github.io/eyemind/examples/deck/dijkstra) | [dijkstra.js](https://github.com/eyereasoner/eyemind/blob/main/examples/dijkstra.js) | Dijkstra's shortest route over a cost-ordered queue, with every step checked |
 | [dog-license](https://eyereasoner.github.io/eyemind/examples/deck/dog-license) | [dog-license.js](https://github.com/eyereasoner/eyemind/blob/main/examples/dog-license.js) | A licensing threshold based on collected dog counts |
 | [easter](https://eyereasoner.github.io/eyemind/examples/deck/easter) | [easter.js](https://github.com/eyereasoner/eyemind/blob/main/examples/easter.js) | Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050 |
@@ -114,6 +118,14 @@ expressions, one per line. The names match the source: `lists.js` has
 | [witnesses](https://eyereasoner.github.io/eyemind/examples/deck/witnesses) | [witnesses.js](https://github.com/eyereasoner/eyemind/blob/main/examples/witnesses.js) | Structured witnesses and shared multi-head conclusions |
 | [wolf-goat-cabbage](https://eyereasoner.github.io/eyemind/examples/deck/wolf-goat-cabbage) | [wolf-goat-cabbage.js](https://github.com/eyereasoner/eyemind/blob/main/examples/wolf-goat-cabbage.js) | The river crossing, with seven crossings shown to be minimal |
 | [zebra](https://eyereasoner.github.io/eyemind/examples/deck/zebra) | [zebra.js](https://github.com/eyereasoner/eyemind/blob/main/examples/zebra.js) | The zebra puzzle solved by narrowing five partially known houses |
+
+The [derived forward rule](deck/derived-rule), [derived backward rule](deck/derived-backward-rule),
+and [conjunction of backward templates](deck/derived-backward-rule-2) show
+rules enabled by other rules. Inline `forward(Body, Head)` and
+`backward(Head, Body)` templates capture their generating context and keep
+their other variables local. Arrays can join templates or the goals within
+one template. Each generated rule has a proved activation; its dependencies
+are visible to stratification before reasoning starts.
 
 `audited-grants.js` shows what one language makes possible. It states an
 energy grant policy as a program of its own, has eyemind prove the decisions,

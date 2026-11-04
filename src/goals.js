@@ -2,12 +2,12 @@
 //
 // An array in a goal position is the conjunction of its items: [p(X), q(X)]
 // is and(p(X), q(X)). A goal position is a statement's goal, an argument of
-// and, or, not, call or once, or the goal of findall. Anywhere else an array
-// is a list.
-import { EMPTY, Struct, conjunction, properListItems } from './terms.js';
+// and, or, not, call or once, either part of a rule template, or the goal of
+// findall. Anywhere else an array is a list.
+import { EMPTY, Env, Struct, conjunction, properListItems } from './terms.js';
 import { readTerm } from './reader.js';
 
-const EMPTY_ENV = { bindings: new Map() };
+const EMPTY_ENV = new Env();
 
 function isList(term) {
   return term === EMPTY || (term instanceof Struct && term.name === '.' && term.args.length === 2);
@@ -23,6 +23,9 @@ export function normalizeGoal(term) {
   if (!(term instanceof Struct)) return term;
   const { name, args } = term;
   if ((name === 'and' || name === 'or') && args.length === 2) {
+    return rebuild(term, args.map(normalizeGoal));
+  }
+  if ((name === 'forward' || name === 'backward') && args.length === 2) {
     return rebuild(term, args.map(normalizeGoal));
   }
   if ((name === 'not' || name === 'call' || name === 'once') && args.length === 1) {

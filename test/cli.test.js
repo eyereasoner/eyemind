@@ -46,19 +46,28 @@ export const tests = {
     assert.equal(cli(['--check-proof', '-', 'examples/socrates.js'], `${generated.stdout}bogus()\n`).code, 2);
   },
 
-  'short proof checking has the same reports validation and stdin behavior'() {
+  'prove-and-check generates checked answers from files stdin and goals'() {
     const proof = readFileSync(join(ROOT, 'examples/proof/socrates.js'), 'utf8');
     for (const [args, stdin] of [
-      [['examples/proof/socrates.js', 'examples/socrates.js'], ''],
-      [['-', 'examples/socrates.js'], proof],
-      [['-', 'examples/socrates.js', '--json'], proof],
-      [['-', 'examples/socrates.js'], `${proof}bogus()\n`],
-      [['examples/proof/permissions.js', 'examples/permissions.js', '--strict-proof'], ''],
-      [['examples/proof/socrates.js', 'examples/socrates.js', '-p'], ''],
-      [['-'], proof],
-    ]) assert.deepEqual(cli(['-c', ...args], stdin), cli(['--check-proof', ...args], stdin));
-    assert.equal(command(['-c', 'examples/proof/socrates.js', 'examples/socrates.js']).code, 0);
-    assert.deepEqual(cli(['-c']), { code: 1, stdout: '', stderr: 'eyemind: -c needs a value\n' });
+      [['examples/socrates.js'], ''],
+      [[], "fact(p('a'))\nquery(p(X))"],
+      [['examples/socrates.js', '--json'], ''],
+      [['examples/socrates.js', '--goal', "type(X, 'mortal')"], ''],
+      [['examples/permissions.js', '--strict-proof'], ''],
+    ]) assert.deepEqual(cli(['-c', ...args], stdin), cli(['--prove-and-check', ...args], stdin));
+    assert.equal(command(['-c', 'examples/socrates.js']).code, 0);
+    assert.equal(cli(['-c', 'examples/socrates.js']).stdout,
+      cli(['--check-proof', '-', 'examples/socrates.js'], proof).stdout);
+    assert.equal(cli(['-c', 'examples/socrates.js']).stdout.split('\n').slice(1, 3).join('\n') + '\n', SOCRATES);
+    assert.equal(cli(['-c'], "fact(p('a'))\nquery(p(X))").code, 0);
+    assert.deepEqual(JSON.parse(cli(['-c', '--json', 'examples/socrates.js']).stdout).answers,
+      ["type('socrates', 'mortal')", "type('socrates', 'human')"]);
+    assert.equal(cli(['-c', '--strict-proof', 'examples/permissions.js']).code, 2);
+    assert.equal(cli(['-c', 'examples/integrity.js']).code, 65);
+    assert.equal(JSON.parse(cli(['-c', '--stats', 'examples/socrates.js']).stderr).derived, 1);
+    for (const args of [['-p'], ['--check-proof', 'examples/proof/socrates.js'], ['--unused']]) {
+      assert.equal(cli(['-c', ...args, 'examples/socrates.js']).code, 1);
+    }
   },
 
   'both help flags list every long option and every short alias'() {
@@ -67,10 +76,10 @@ export const tests = {
     assert.equal(help.code, 0);
     assert.equal(help.stderr, '');
     assert.deepEqual([...help.stdout.matchAll(/^(?:  -[a-z], |      )(--[a-z-]+)/gm)].map((match) => match[1]), [
-      '--proof', '--check-proof', '--json', '--goal', '--strict-proof', '--unused', '--stats',
+      '--proof', '--prove-and-check', '--check-proof', '--json', '--goal', '--strict-proof', '--unused', '--stats',
       '--max-depth', '--max-iterations', '--max-inferences', '--version', '--help',
     ]);
-    for (const [short, long] of [['-p', '--proof'], ['-c', '--check-proof'], ['-v', '--version'], ['-h', '--help']]) {
+    for (const [short, long] of [['-p', '--proof'], ['-c', '--prove-and-check'], ['-v', '--version'], ['-h', '--help']]) {
       assert.ok(help.stdout.includes(`${short}, ${long}`));
     }
   },

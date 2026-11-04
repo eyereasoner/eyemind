@@ -13,6 +13,8 @@ eyemind is a **rule language written in JavaScript**. A program is a plain JavaS
 - [Your first program](#your-first-program)
   - [Try a small change](#try-a-small-change)
 - [Writing programs](#writing-programs)
+  - [Deriving rules](#deriving-rules)
+  - [Terms and names](#terms-and-names)
   - [RDF 1.2](#rdf-12)
 - [Reasoning strategy](#reasoning-strategy)
 - [Proofs, and what checking one means](#proofs-and-what-checking-one-means)
@@ -116,6 +118,46 @@ A program states clauses with these calls:
 | `facts_from(path)`, `facts_from({text})` | State every expression of a document as a fact, without running it. |
 
 **An array is a conjunction.** A premise is a goal or an array of goals that must all hold, and a forward rule's conclusion may be an array of several conclusions: `implies([p(X), q(X)], [r(X), s(X)])`. Disjunction is `or(A, B)`, negation `not(G)`, alongside `call`, `once` and `findall`.
+
+### Deriving rules
+
+An `implies` conclusion can contain inline templates: `forward(Body, Head)`
+and `backward(Head, Body)`. Arrays work in both parts, and a conclusion can
+combine several templates and ordinary facts:
+
+```js
+fact(enabled('demo'), p('a'), q('a'))
+implies(enabled(Name), [
+  forward([p(X), q(X)], [r(Name, X), s(Name, X)]),
+  backward([known(Name, X), available(Name, X)], r(Name, X)),
+])
+query([known('demo', X), available('demo', X)])
+```
+
+This reports `and(known('demo', 'a'), available('demo', 'a'))`. `Name` is
+captured from the generator. `X` appears only inside templates, so each
+template has its own local `X`, reused with fresh variables whenever its
+rule is applied. A variable shared with an ordinary sibling conclusion is
+also captured. A forward template's head-only variables receive Skolem
+witnesses, including its captured context in their arguments.
+
+Templates are compiled into guarded clauses before reasoning. A generator
+derives an activation; the generated rule requires that activation. Proofs
+show both clauses and the activation's evidence, and the independent checker
+verifies them against the compiled source program. Activations are omitted from
+ordinary conclusions. All potential generated rules participate in
+stratification, so `not` and `findall` wait for their dependencies to finish,
+and closed dependency cycles are rejected. Their proof obligations remain
+visible as usual. Template bodies require statically named calls; a goal
+such as `call(G)` with variable `G` is rejected. Forward templates can nest;
+backward templates conclude ordinary heads.
+
+See the decks for [derived forward rules](examples/deck/derived-rule),
+[derived backward rules](examples/deck/derived-backward-rule), and a
+[conjunction of backward templates](examples/deck/derived-backward-rule-2).
+[SPEC §4.6](SPEC.md#46-inline-rule-templates) defines the scope and lowering.
+
+### Terms and names
 
 **Nothing to declare.** A name the program uses without declaring it is a variable when it starts with a capital or an underscore, like `X` or `_Rest`, and a predicate otherwise, like `parent`. The JavaScript globals `Math`, `JSON`, `BigInt`, `console`, `parseInt`, `parseFloat`, `isNaN`, `isFinite`, `Infinity`, `NaN`, `undefined` and `globalThis` keep their meaning, so a program can compute with them; other capitalized globals such as `Date` or `Map` are variables, as logic programs name them. A program that wants a predicate named like one of those says so: `const range = preds('range')`. A call of an undeclared predicate on its own, such as a misspelled `fcat(p(1))`, states nothing, so eyemind stops with an error instead of ignoring it.
 
@@ -235,6 +277,12 @@ Two properties make this worth more than a log. **The checker follows the certif
 The report is a document too, so one program's evidence is material another program can reason over:
 
 ```js
+// Checked answers: these follow from the input program.
+type('socrates', 'mortal')
+type('socrates', 'human')
+
+// C1-C8: resolution, acyclicity, justification, coverage,
+// re-decision, boundary consistency, relevance and witness integrity.
 condition('C1', 'resolution', 'ok', 3)
 condition('C2', 'well_founded', 'ok', 3)
 condition('C3', 'justification', 'ok', 3)
@@ -243,14 +291,20 @@ condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 5)
 condition('C8', 'witness_integrity', 'ok', 0)
+
+// Proof statistics: recorded steps and how they were checked.
 steps(3)
 verified(3)
 recomputed(0)
 composed(0)
 trusted(0)
 claims(2)
+
+// This verdict applies to the claims above; it does not establish completeness.
 verdict('checked')
 ```
+
+Use `eyemind -c examples/socrates.js` (or `--prove-and-check`) to generate a proof and check it against the input program in one command. `--check-proof FILE` checks a saved proof. Both outputs put the answers first, with comments explaining the checks and their verdict. Failed checks label the displayed claims as unverified; checks with obligations label the answers as conditional. JSON output includes an `answers` array.
 
 Failures appear as `failed(N)` outcomes with `failure(Condition, Conclusion, Detail)` facts, an invalid proof gives `verdict(failed(N))` and exit code 2, and `--json` gives the same report as JSON. Proofs are read as data and never executed, so checking a proof from someone else runs none of their code.
 
@@ -296,7 +350,7 @@ A clause is listed when no conclusion's proof uses it. A negation or collection 
 
 ## Explore the examples
 
-The [example collection](https://eyereasoner.github.io/eyemind/examples/) is 90 complete programs, each with its conclusions, proof and C1–C8 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a card deck that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to practical planning (outage recovery, critical paths, battery dispatch), policy reasoning (research-portal, package-holiday), mathematical calculations (Bézout certificates, Pell equations, regression), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
+The [example collection](https://eyereasoner.github.io/eyemind/examples/) is 93 complete programs, each with its conclusions, proof and C1–C8 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a card deck that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to practical planning (outage recovery, critical paths, battery dispatch), policy reasoning (research-portal, package-holiday), mathematical calculations (Bézout certificates, Pell equations, regression), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
 
 ## Browser
 
@@ -314,10 +368,11 @@ eyemind [OPTION ...] [FILE ...]
 | --- | --- |
 | (none) | Load the files, or standard input, as one program and print its conclusions. |
 | `-p`, `--proof` | Print the proof document instead. |
-| `-c FILE`, `--check-proof FILE` | Check the proof in `FILE` (`-` for standard input) against the program and print its report. |
-| `--json` | With `--check-proof`, print the report as JSON. |
+| `-c`, `--prove-and-check` | Generate a proof, check it against the input program, and print checked answers with the report. |
+| `--check-proof FILE` | Check the saved proof in `FILE` (`-` for standard input) and print its answers with the report. |
+| `--json` | With either checking mode, print the report, including `answers`, as JSON. |
 | `--goal GOAL` | Ask `GOAL` after forward reasoning; may be repeated. With `--check-proof`, the goals the proof answers. |
-| `--strict-proof` | With `--check-proof`, reject proofs that rely on absence or collection. |
+| `--strict-proof` | With either checking mode, reject proofs that rely on absence or collection. |
 | `--unused` | List the clauses that make no difference to the conclusions. |
 | `--stats` | Print reasoning statistics as JSON to standard error: `inferences`, the goals started, which `--max-inferences` bounds; `rounds`, the forward rounds run over all strata; and `derived`, the facts forward rules added, not counting a conclusion the program states as a fact, a query's answers or `'false'`. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000). Each bound must be a positive safe integer, at most 9007199254740991. |
@@ -377,7 +432,7 @@ node conformance/run.js --command "my-eyemind"  # against another implementation
 
 The full suite and large examples need substantial memory. On this development machine, use the memory cap above with swap disabled and run one heavy job at a time. Focused tests can use `npm test -- unit -k NAME`.
 
-The unit tests include generated ones, which check properties on inputs a seeded generator makes. For each example, its saved proof is forged at random, consistently or not and often at a computed value or a witness, and the checker must accept no forgery that claims what the program does not entail (a proof checked with obligations may do so only through an obligation it changed or added, which a strict check rejects), with and without its fast path for flat clauses giving the same report; and leaving out any clause no derivation cites must not change what the example concludes. Circular proofs of atoms that only a cycle of rule instances supports must fail C2. Random stratified programs, forward and backward, must answer as a naive fixpoint does, with proofs that check, and must conclude the same with their statements in any order or without a clause no derivation cites. Random terms must read back from their canonical text as themselves, and mutated and hostile documents must give terms or an error without the reader running any of it. A failure names the seed that reproduces it, and `EYEMIND_PROPERTY_SCALE` multiplies the number of cases. The test sections are unit tests, the example corpus (each program must reproduce its saved output, proof and check report, as three tests whose times show where it spends them, and its saved proof must check from disk), the conformance suite, run in process, with its command-line cases (`14-command-line.js`) also run through the `eyemind` command as processes of their own. Starting Node costs more than most cases take, so the other cases run through the same `main` in process; `node conformance/run.js --command "node bin/eyemind.js"` runs every case through the command; and the playground, run in a headless Chrome at desktop and phone widths, which marks the line an error names. The playground section needs Chrome (`CHROME` names it when it is not on the PATH) and a Node.js with `WebSocket`, and says so when either is missing. [conformance/README.md](conformance/README.md) describes the case format, and `node test/browser.mjs DIR` runs the playground tests alone and saves screenshots.
+The unit tests include generated ones, which check properties on inputs a seeded generator makes. For each example, its saved proof is forged at random, consistently or not and often at a computed value or a witness, and the checker must accept no forgery that claims what the program does not entail (a proof checked with obligations may do so only through an obligation it changed or added, which a strict check rejects), with and without its fast path for flat clauses giving the same report; and leaving out any clause no derivation cites must not change what the example concludes. Circular proofs of atoms that only a cycle of rule instances supports must fail C2. Random stratified programs, forward and backward, must answer as a naive fixpoint does, with proofs that check, and must conclude the same with their statements in any order or without a clause no derivation cites. Random terms must read back from their canonical text as themselves, and mutated and hostile documents must give terms or an error without the reader running any of it. A failure names the seed that reproduces it, and `EYEMIND_PROPERTY_SCALE` multiplies the number of cases. The test sections are unit tests, the example corpus (each program must reproduce its saved output, proof and check report, with a separate named test for every check file that verifies its answers and one-command checking output; the artifact tests show where it spends time, and its saved proof must check from disk), the conformance suite, run in process, with its command-line cases (`14-command-line.js`) also run through the `eyemind` command as processes of their own. Starting Node costs more than most cases take, so the other cases run through the same `main` in process; `node conformance/run.js --command "node bin/eyemind.js"` runs every case through the command; and the playground, run in a headless Chrome at desktop and phone widths, which marks the line an error names. The playground section needs Chrome (`CHROME` names it when it is not on the PATH) and a Node.js with `WebSocket`, and says so when either is missing. [conformance/README.md](conformance/README.md) describes the case format, and `node test/browser.mjs DIR` runs the playground tests alone and saves screenshots.
 
 Review artifact changes together with the source change that caused them. When adding an example, register its name, description, expected halt code (if any) and proof obligations in [examples/manifest.json](examples/manifest.json), write its deck in `examples/deck/`, then generate its artifacts.
 

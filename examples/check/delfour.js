@@ -1,3 +1,33 @@
+// Answers checked subject to the obligations below.
+case_name('delfour', 'delfour')
+derived_need('sugar_insight', 'low_sugar')
+decision('delfour', 'Allowed', 'sugar_insight')
+headline('delfour', 'Track sugar per serving while you scan')
+banner('delfour', 'Classic Tea Biscuits', 12.0)
+note('delfour', 'High sugar')
+metric('sugar_insight', 'sugar_g_per_serving')
+threshold_display('sugar_insight', '10.0')
+scope('sugar_insight', ['self-scanner', 'pick_up_scanner'])
+retailer('sugar_insight', 'Delfour')
+expires('sugar_insight', '2025-10-05T22:33:48.907185+00:00')
+algorithm('scanner_signature', 'HMAC-SHA256')
+audit_entries('delfour', 1)
+files_written('delfour', 6)
+banner_alternative('delfour', 'Low-Sugar Tea Biscuits', 'aisle 7')
+passed('delfour', 'trusted_signature')
+passed('delfour', 'matching_hash')
+passed('delfour', 'complete_scope')
+passed('delfour', 'authorization')
+passed('delfour', 'high_sugar')
+passed('delfour', 'duty_timing')
+passed('delfour', 'marketing_prohibited')
+passed('delfour', 'expected_file_count')
+passed('delfour', 'minimal_payload')
+passed('delfour', 'lower_sugar')
+all_checks_pass('delfour')
+
+// C1-C8: resolution, acyclicity, justification, coverage,
+// re-decision, boundary consistency, relevance and witness integrity.
 condition('C1', 'resolution', 'ok', 64)
 condition('C2', 'well_founded', 'ok', 73)
 condition('C3', 'justification', 'ok', 73)
@@ -6,13 +36,19 @@ condition('C5', 're_decision', 'ok', 6)
 condition('C6', 'boundary_consistency', 'ok', 3)
 condition('C7', 'relevance', 'ok', 99)
 condition('C8', 'witness_integrity', 'ok', 0)
+
+// Obligations: absence and collection completeness are taken on trust.
 obligation('absent', 'theory_scoped', not(beaten('delfour', 'prod_BIS_101')))
 obligation('absent', 'theory_scoped', not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'diabetes')))
 obligation('absent', 'theory_scoped', not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical')))
+
+// Proof statistics: recorded steps and how they were checked.
 steps(73)
 verified(64)
 recomputed(6)
 composed(0)
 trusted(3)
 claims(26)
+
+// This verdict applies to the claims above; it does not establish completeness.
 verdict('checked_with_obligations')

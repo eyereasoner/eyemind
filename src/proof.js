@@ -13,6 +13,7 @@ import { freshClause, text } from './common.js';
 import { readGoal } from './goals.js';
 import { CONTROL_KEYS, Program } from './program.js';
 import { readTerms } from './reader.js';
+import { isActivation } from './templates.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
   isCallable, isGround, isTerm, key, listFromItems, properListItems, unify, variables,
@@ -215,6 +216,7 @@ function check(program, claims, steps, goals, allowTrusted, fail, spellings, nam
     valid: !fail.items.length,
     steps: steps.size,
     claims: claims.length,
+    answers: claims.map((claim) => name(claim)),
     verified: tally.verified,
     redecided: tally.redecided,
     composed: tally.composed,
@@ -284,7 +286,7 @@ function readDocument(program, document, fail, spellings) {
 }
 
 function clauseNamed(program, id) {
-  if (typeof id !== 'bigint' || id < 1n || id > BigInt(program.sources.length)) return null;
+  if (typeof id !== 'bigint' || id < 1n || id > BigInt(program.maxClauseId)) return null;
   return program.byId.get(Number(id)) ?? null;
 }
 
@@ -509,7 +511,11 @@ function checkWitnesses(clause, head, names, env) {
     }
     return false;
   };
-  const expected = [];
+  // Recover captures from the source clause and substitution, independently
+  // of the proposed witness, including captures the head does not mention.
+  const expected = clause.captures === null ? [] : [listFromItems(
+    clause.captures.map((name) => copyResolved(names.get(name), env)),
+  )];
   for (const variable of variables(head).values()) {
     const value = copyResolved(variable, env);
     if (isGround(value) && !ofThisFiring(value)) expected.push(value);
@@ -625,7 +631,7 @@ function checkRelevance(program, claims, steps, goals, fail, spellings) {
       if (heads.some((head) => head === 'true')) {
         if (!halted && clause.body.length) questions.push(conjunction(clause.body));
       }
-      for (const head of heads) if (head !== 'true') questions.push(head);
+      for (const head of heads) if (head !== 'true' && !isActivation(head)) questions.push(head);
     }
   }
   for (const claim of claims) {
@@ -727,7 +733,27 @@ export function checkReport(report) {
     facts.push(new Struct(name, [BigInt(count)]));
   }
   facts.push(new Struct('verdict', [verdict(report)]));
-  return facts.map((fact) => `${text(lettered(fact))}\n`).join('');
+  const heading = !report.valid ? '// Unverified claims: proof checking failed.'
+    : !report.answers.length ? '// No answers claimed; this check establishes no conclusions.'
+    : report.trusted.length ? '// Answers checked subject to the obligations below.'
+    : '// Checked answers: these follow from the input program.';
+  const lines = [heading, ...report.answers, '',
+    '// C1-C8: resolution, acyclicity, justification, coverage,',
+    '// re-decision, boundary consistency, relevance and witness integrity.'];
+  let previous = null;
+  for (const fact of facts) {
+    if (fact.name === 'failure' && previous !== 'failure') {
+      lines.push('', '// Failures: the claims above have not passed every check.');
+    }
+    if (fact.name === 'obligation' && previous !== 'obligation') {
+      lines.push('', '// Obligations: absence and collection completeness are taken on trust.');
+    }
+    if (fact.name === 'steps') lines.push('', '// Proof statistics: recorded steps and how they were checked.');
+    if (fact.name === 'verdict') lines.push('', '// This verdict applies to the claims above; it does not establish completeness.');
+    lines.push(text(lettered(fact)));
+    previous = fact.name;
+  }
+  return `${lines.join('\n')}\n`;
 }
 
 export function verdictText(report) {

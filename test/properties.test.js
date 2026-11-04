@@ -511,6 +511,34 @@ function mutateText(r, text) {
 }
 
 export const tests = {
+  'inline templates with captured contexts agree with a naive fixpoint'() {
+    forSeeds(100, (r) => {
+      const generated = randomProgram(r);
+      const lines = generated.facts.map((fact) => `fact(${atomText(fact)})`);
+      for (const { kind, head, body, negated } of generated.rules) {
+        const goals = [...body.map(atomText), ...negated.map((goal) => `not(${atomText(goal)})`)];
+        const template = kind === 'implies' ? `forward([${goals.join(', ')}], ${atomText(head)})`
+          : `backward(${atomText(head)}, [${goals.join(', ')}])`;
+        lines.push(`implies(e1(X), ${template})`);
+      }
+      const source = lines.join('\n');
+      const loaded = program(source);
+      // Independently interpret each generator as an extra premise of the
+      // original rule. The oracle knows nothing about compiled activations.
+      const model = naiveModel({ ...generated, rules: generated.rules.map((rule) => ({
+        ...rule, body: [['e1', ['X']], ...rule.body],
+      })) });
+      for (const [name, tuples] of model) {
+        const goal = `${name}(${Array.from({ length: generated.arity[name] }, (_, i) => `V${i}`).join(', ')})`;
+        const result = run(loaded, { goal, proof: true });
+        const expected = [...tuples].map((tuple) => write(new Struct(name, tuple.split(' ')))).sort();
+        assert.deepEqual([...new Set(result.answers)].sort(), expected, `${goal}\n${source}`);
+        const report = checkProof(loaded, result.proof, { goals: [readTerm(goal)] });
+        assert.ok(report.valid, `${goal}: ${JSON.stringify(report.failures)}\n${source}`);
+      }
+    });
+  },
+
   'reasoning agrees with a naive fixpoint and its proofs check'() {
     forSeeds(150, (r) => {
       const generated = randomProgram(r);

@@ -1,5 +1,113 @@
 // SPEC 4: programs, statements, names, rejected clauses and stratification.
 
+conformance('an inline forward template has local universal variables and activation evidence', [
+  spec('4.6, 10.2'),
+  args('--proof program.js'),
+  file('program.js', [
+    "fact(cat('minka'))",
+    "fact(dog('charly'))",
+    "implies(cat(X), forward(dog(Y), test('yes')))",
+  ]),
+  stdout([
+    "test('yes')",
+    '',
+    "clause(1, fact(cat('minka')))",
+    "clause(2, fact(dog('charly')))",
+    'clause(3, implies(cat(X), activated(4, [])))',
+    "clause(4, implies([activated(4, []), dog(Y)], test('yes')))",
+    '',
+    "step(test('yes'), clause(4), {Y: 'charly'}, [activated(4, []), dog('charly')])",
+    "step(activated(4, []), clause(3), {X: 'minka'}, [cat('minka')])",
+    "step(cat('minka'), clause(1), {}, [])",
+    "step(dog('charly'), clause(2), {}, [])",
+  ]),
+])
+
+conformance('a backward template captures inverse names and keeps endpoints local', [
+  spec('4.6'),
+  file('program.js', [
+    "fact(inverse('parent', 'child'))",
+    "fact(t('alice', 'parent', 'bob'))",
+    'implies(inverse(P, Q), backward(t(X, Q, Y), t(Y, P, X)))',
+    "implies(t(X, 'child', Y), parent(X, Y))",
+  ]),
+  stdout(["parent('bob', 'alice')"]),
+])
+
+conformance('template bodies heads and generators support conjunctions', [
+  spec('4.6'),
+  file('program.js', [
+    "fact(p('a'), p('b'), q('a'))",
+    "implies('true', [ready('yes'), forward([p(X), q(X)], [r(X), s(X)]), backward([u(X), v(X)], [r(X), s(X)])])",
+    'query([u(X), v(X)])',
+  ]),
+  stdout(["and(u('a'), v('a'))"]),
+])
+
+conformance('a variable shared only by sibling templates is local to each', [
+  spec('4.6'),
+  file('program.js', [
+    "fact(p('a'), q('b'))",
+    "implies('true', [forward(p(X), r(X)), backward(s(X), q(X))])",
+    'query([r(X), s(Y)])',
+  ]),
+  stdout(["and(r('a'), s('b'))"]),
+])
+
+conformance('an inactive generator supplies neither forward nor backward conclusions', [
+  spec('4.6'),
+  file('program.js', [
+    "fact(p('a'))",
+    "implies(enabled('yes'), [forward(p(X), q(X)), backward(r(X), p(X))])",
+    'query(or(q(X), r(X)))',
+  ]),
+  stdout([]),
+])
+
+conformance('negation and collection wait for an enabled template to finish', [
+  spec('4.5, 4.6, 7.2'),
+  file('program.js', [
+    "fact(seed('a'))",
+    'implies(findall(X, item(X), L), items(L))',
+    "implies(not(item('a')), missing('a'))",
+    "implies(enabled('yes'), forward(seed(X), item(X)))",
+    "implies('true', enabled('yes'))",
+  ]),
+  stdout(["enabled('yes')", "item('a')", "items(['a'])"]),
+])
+
+conformance('a closed cycle through a forward template is rejected', [
+  spec('4.5, 4.6'),
+  exit(1),
+  file('program.js', ["implies(not(p('a')), forward('true', p('a')))"]),
+  stdout([]),
+  stderr(prefix('eyemind: unstratified negation or collection dependency')),
+])
+
+conformance('a closed cycle through a backward template is rejected', [
+  spec('4.5, 4.6'),
+  exit(1),
+  file('program.js', ["implies(findall(X, p(X), L), backward(p('a'), 'true'))"]),
+  stdout([]),
+  stderr(prefix('eyemind: unstratified negation or collection dependency')),
+])
+
+conformance('a variable call in a generated backward body is rejected', [
+  spec('4.6'),
+  exit(1),
+  file('program.js', ["implies('true', backward(p(X), call(G)))"]),
+  stdout([]),
+  stderr(prefix('eyemind: line 1: generated rule bodies require statically named calls')),
+])
+
+conformance('a source program cannot state its own activation fact', [
+  spec('4.6'),
+  exit(1),
+  file('program.js', ['fact(activated(2, []))']),
+  stdout([]),
+  stderr(prefix('eyemind: line 1: activated/2 is reserved for generated rules')),
+])
+
 conformance('fact states one fact per argument, numbered in order', [
   spec('4.2'),
   args('--proof program.js'),

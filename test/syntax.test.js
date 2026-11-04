@@ -23,7 +23,7 @@ function savedLines() {
     const directory = join(ROOT, 'examples', kind);
     for (const file of readdirSync(directory).sort()) {
       for (const line of readFileSync(join(directory, file), 'utf8').split('\n')) {
-        if (!line) continue;
+        if (!line || line.startsWith('//')) continue;
         const shape = line.replace(/'[^'\\\n]*'/g, "'a'").replace(/\d+/g, (n) => '0'.repeat(Math.ceil(Math.log2(n.length + 1))));
         if (!lines.has(shape)) lines.set(shape, line);
       }

@@ -4,6 +4,7 @@ import { freshClause, matchHead, renaming, text, variant } from './common.js';
 import { readGoal } from './goals.js';
 import { checkRendered, clauseDisplay, renderProof } from './proof.js';
 import { CONTROL_KEYS, Program } from './program.js';
+import { isActivation } from './templates.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
   identity, isCallable, isGround, isGroundButAnonymous, isTerm, key, keyArity, listFromItems, unify,
@@ -630,7 +631,10 @@ export class Solver {
       const resolved = copyResolved(head, answerEnv);
       const unresolved = variables(resolved);
       if (unresolved.size) {
-        const witnesses = skolemTerms(clause, head, unresolved, answerEnv);
+        // A generated rule also depends on its captures when its head omits
+        // them; otherwise two enabled instances could share a witness.
+        const context = clause.captures === null ? null : copyResolved(body[0].args[1], answerEnv);
+        const witnesses = skolemTerms(clause, head, unresolved, answerEnv, context);
         [...unresolved.values()].forEach((value, i) => unify(value, witnesses[i], answerEnv));
       }
       const conclusions = unresolved.size
@@ -704,8 +708,8 @@ export class Solver {
 // variable and the values the solution gave the heads' other variables. The
 // same activation thus always gives the same terms, and a different one
 // different terms.
-export function skolemTerms(clause, head, unresolved, env) {
-  const values = [];
+export function skolemTerms(clause, head, unresolved, env, context = null) {
+  const values = context === null ? [] : [context];
   for (const variable of variables(head).values()) {
     const value = copyResolved(variable, env);
     if (isGround(value)) values.push(value);
@@ -741,7 +745,7 @@ export class Result {
 
   // The derived facts as text, written only when asked for.
   get inferred() {
-    return this.derived.map((node) => text(node.goal));
+    return this.derived.filter((node) => !isActivation(node.goal)).map((node) => text(node.goal));
   }
 }
 
@@ -808,6 +812,7 @@ function reason(program, goalInputs, options) {
     }
   } else {
     for (const node of solver.derived) {
+      if (isActivation(node.goal)) continue;
       roots.push(node);
       claims.push(node.goal);
     }

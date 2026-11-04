@@ -2,7 +2,7 @@
 // check report, its saved proof checks from disk, and a tampered one does not.
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { checkProof, checkReport, publicReport, run, strict } from '../src/index.js';
+import { checkProof, checkReport, publicReport, readTerms, run, strict, write } from '../src/index.js';
 import { KINDS, artifactPath, certify, loadExample, readManifest, sourcePath } from '../tools/corpus.js';
 import { ROOT, assert, cli } from './helpers.js';
 
@@ -97,4 +97,13 @@ for (const entry of MANIFEST) {
   tests[`examples/${entry.name}.js output: ${entry.description}`] = () => checkOutput(entry);
   tests[`examples/${entry.name}.js proof`] = () => checkProofOf(entry);
   tests[`examples/${entry.name}.js check`] = () => checkCheck(entry);
+  tests[`examples/check/${entry.name}.js checked answers and prove-and-check output`] = () => {
+    const saved = read(artifactPath('check', entry));
+    const answers = saved.split('\n// C1-C8:')[0];
+    assert.deepEqual(readTerms(answers).map(([term]) => write(term)),
+      readTerms(read(artifactPath('output', entry))).map(([term]) => write(term)));
+    const result = cli(['--prove-and-check', relative(ROOT, sourcePath(entry))]);
+    assert.equal(result.code, entry.halt_code ?? 0, result.stderr);
+    assert.equal(result.stdout, saved);
+  };
 }

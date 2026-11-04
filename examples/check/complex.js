@@ -1,3 +1,30 @@
+// Checked answers: these follow from the input program.
+sum(complex(4, 6))
+product(complex(-5, 10))
+quotient(complex(3.0, 4.0))
+ratio(complex(2.2, -0.4))
+unit_square(complex(-1, 0))
+conjugate_product('z', complex(25, 0))
+conjugate_product('w', complex(5, 0))
+norm_multiplicative(25, 5, 125)
+integer_power(8, complex(16, 0))
+modulus('z', 5.0)
+modulus('w', 2.23606797749979)
+power('root', complex(6.123233995736766e-17, 1.0))
+power('euler', complex(-1.0, 1.2246467991473532e-16))
+power('self_power', complex(0.20787957635076193, 0.0))
+power('real_power', complex(0.20787957635177984, 0.0))
+arcsine(complex(2, 0), complex(1.5707963267948966, 1.3169578969248166))
+arccosine(complex(2, 0), complex(0.0, -1.3169578969248166))
+logarithm('natural', complex(0.0, 3.141592653589793))
+logarithm('imaginary', complex(1.0, 0.0))
+sine(complex(1.9999999999999998, 1.0605752387249067e-16))
+cosine(complex(1.9999999999999998, 0.0))
+arctangent(complex(1.3389725222944935, 0.402359478108525))
+tangent(complex(1.0, 1.9999999999999996))
+
+// C1-C8: resolution, acyclicity, justification, coverage,
+// re-decision, boundary consistency, relevance and witness integrity.
 condition('C1', 'resolution', 'ok', 93)
 condition('C2', 'well_founded', 'ok', 215)
 condition('C3', 'justification', 'ok', 215)
@@ -6,10 +33,14 @@ condition('C5', 're_decision', 'ok', 122)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 238)
 condition('C8', 'witness_integrity', 'ok', 0)
+
+// Proof statistics: recorded steps and how they were checked.
 steps(215)
 verified(93)
 recomputed(122)
 composed(0)
 trusted(0)
 claims(23)
+
+// This verdict applies to the claims above; it does not establish completeness.
 verdict('checked')

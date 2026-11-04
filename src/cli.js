@@ -8,7 +8,8 @@ import { VERSION } from './version.js';
 export const HELP = `Usage: eyemind [OPTION ...] [FILE ...]
 Programs are JavaScript; forward rules run to a fixpoint.
   -p, --proof             Print the claims with clause(...) and step(...) records
-  -c, --check-proof FILE  Print a C1-C8 check report of a proof (- for stdin)
+  -c, --prove-and-check   Generate a proof and check it against the input program
+      --check-proof FILE  Print checked answers and a C1-C8 report (- for stdin)
       --json              Print the check report as JSON instead
       --goal GOAL         Ask a backward goal after forward reasoning; with
                           --check-proof, the goal the proof answers
@@ -46,6 +47,7 @@ export function main(argv, io) {
     let strictProof = false;
     let asJson = false;
     let unused = false;
+    let proveAndCheck = false;
     for (let i = 0; i < argv.length; i++) {
       const arg = argv[i];
       if (arg === '--help' || arg === '-h') {
@@ -58,6 +60,8 @@ export function main(argv, io) {
       }
       if (arg === '--proof' || arg === '-p') {
         options.proof = true;
+      } else if (arg === '--prove-and-check' || arg === '-c') {
+        proveAndCheck = true;
       } else if (arg === '--stats') {
         stats = true;
       } else if (arg === '--strict-proof') {
@@ -66,11 +70,11 @@ export function main(argv, io) {
         asJson = true;
       } else if (arg === '--unused') {
         unused = true;
-      } else if (arg === '--check-proof' || arg === '-c' || arg === '--goal' || Object.hasOwn(LIMITS, arg)) {
+      } else if (arg === '--check-proof' || arg === '--goal' || Object.hasOwn(LIMITS, arg)) {
         i++;
         if (i >= argv.length) throw new UsageError(`${arg} needs a value`);
         const value = argv[i];
-        if (arg === '--check-proof' || arg === '-c') {
+        if (arg === '--check-proof') {
           proofFile = value;
         } else if (arg === '--goal') {
           goals.push(value);
@@ -85,11 +89,14 @@ export function main(argv, io) {
         files.push(arg);
       }
     }
-    if (asJson && proofFile === null) throw new UsageError('--json requires --check-proof');
-    if (strictProof && proofFile === null) throw new UsageError('--strict-proof requires --check-proof');
+    if (asJson && proofFile === null && !proveAndCheck) throw new UsageError('--json requires --check-proof or --prove-and-check');
+    if (strictProof && proofFile === null && !proveAndCheck) throw new UsageError('--strict-proof requires --check-proof or --prove-and-check');
+    if (proveAndCheck && (proofFile !== null || options.proof)) {
+      throw new UsageError('--prove-and-check cannot be combined with --proof or --check-proof');
+    }
     if (proofFile !== null && options.proof) throw new UsageError('--check-proof cannot be combined with --proof');
-    if (unused && (proofFile !== null || options.proof)) {
-      throw new UsageError('--unused cannot be combined with --proof or --check-proof');
+    if (unused && (proofFile !== null || options.proof || proveAndCheck)) {
+      throw new UsageError('--unused cannot be combined with --proof, --check-proof or --prove-and-check');
     }
     if (proofFile === '-' && (!files.length || files.includes('-'))) {
       throw new UsageError('stdin holds the proof; name the program as files');
@@ -108,7 +115,15 @@ export function main(argv, io) {
       stdout(unusedClauses(program, { goals, ...options }));
       return 0;
     }
-    const result = run(program, { goals, ...options });
+    const result = run(program, { goals, ...options, proof: options.proof || proveAndCheck });
+    if (proveAndCheck) {
+      // Check the rendered certificate against the input, just as a saved
+      // proof is checked; no second reasoning run supplies missing evidence.
+      const report = checkProof(program, result.proof, { goals, allowTrusted: !strictProof });
+      stdout(asJson ? `${JSON.stringify(publicReport(report), null, 2)}\n` : checkReport(report));
+      if (stats) stderr(`${JSON.stringify(result.stats)}\n`);
+      return report.valid ? result.haltCode || 0 : 2;
+    }
     stdout(result.stdout);
     if (stats) stderr(`${JSON.stringify(result.stats)}\n`);
     return result.haltCode || 0;

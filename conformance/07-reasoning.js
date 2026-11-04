@@ -370,3 +370,15 @@ conformance('a proof that cannot be recorded faithfully is refused', [
   ]),
   stdout([]),
 ])
+
+conformance('generated witnesses distinguish captures omitted from the head', [
+  spec('4.6, 7.2'),
+  file('program.js', [
+    "fact(p('a'), p('b'))",
+    'implies(p(X), forward(p(X), witness(Y)))',
+  ]),
+  stdout([
+    "witness(skolem(4, 'Y', [['a']]))",
+    "witness(skolem(4, 'Y', [['b']]))",
+  ]),
+])
