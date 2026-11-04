@@ -2134,3 +2134,34 @@ conformance("C8: another firing's witness fails", [
     "verdict(failed(1))",
   ]),
 ])
+
+conformance('C1 rejects an inspection that separates a source rule variable', [
+  spec('4.7, 11.2'),
+  args('--check-proof proof.js program.js'),
+  file('program.js', [
+    'implies(a(X), c(X))',
+    'query(implies(X, Y))',
+  ]),
+  file('proof.js', [
+    'implies(a(A), c(B))',
+    'step(implies(a(A), c(B)), source(1), {}, [])',
+  ]),
+  exit(2),
+  stdout('nonempty'),
+])
+
+conformance('C8 rejects an open inspection pattern with one shared existential witness', [
+  spec('4.7, 11.9'),
+  args('--check-proof proof.js program.js'),
+  file('program.js', [
+    'implies(a(X), c(X))',
+    'implies(implies(X, Y), found(X, Y, W))',
+  ]),
+  file('proof.js', [
+    "found(a(A), c(A), skolem(2, 'W', []))",
+    "step(found(a(A), c(A), skolem(2, 'W', [])), clause(2), {X: a(A), Y: c(A), W: skolem(2, 'W', [])}, [implies(a(A), c(A))])",
+    'step(implies(a(A), c(A)), source(1), {}, [])',
+  ]),
+  exit(2),
+  stdout('nonempty'),
+])

@@ -6,4 +6,4 @@ fact(type('Minka', 'Cat'))
 fact(type('Charly', 'Dog'))
 
 implies(type(X, 'Cat'),
-  forward(type(Y, 'Dog'), t('test', 'is', 'true')))
+  implies(type(Y, 'Dog'), t('test', 'is', 'true')))

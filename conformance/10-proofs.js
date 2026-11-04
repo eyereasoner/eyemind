@@ -289,3 +289,23 @@ conformance('a run with no conclusions has a proof of two empty lines', [
   ]),
   stdout_text('\n\n'),
 ])
+
+conformance('inspection evidence cites the source rule without solving its premise', [
+  spec('4.7, 10.3, 11.2'),
+  args('--proof program.js'),
+  file('program.js', [
+    "fact(a('b'))",
+    'implies(a(X), c(X))',
+    'implies(implies(X, Y), test(X, Y))',
+    'query(test(X, Y))',
+  ]),
+  stdout([
+    'test(a(A), c(A))',
+    '',
+    'clause(2, implies(a(X), c(X)))',
+    'clause(3, implies(implies(X, Y), test(X, Y)))',
+    '',
+    'step(test(a(A), c(A)), clause(3), {X: a(A), Y: c(A)}, [implies(a(A), c(A))])',
+    'step(implies(a(A), c(A)), source(2), {}, [])',
+  ]),
+])

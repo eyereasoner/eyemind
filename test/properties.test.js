@@ -23,7 +23,7 @@
 // and a failure names the seed that reproduces it. EYEMIND_PROPERTY_SCALE
 // multiplies the number of cases for a deeper search.
 import { readFileSync } from 'node:fs';
-import { EyemindError, Program, Struct, Var, checkProof, publicReport, readTerm, readTerms, run, write } from '../src/index.js';
+import { EyemindError, Program, Struct, Var, checkProof, publicReport, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
 import { shortcuts } from '../src/proof.js';
 import { apply } from '../src/arith.js';
 import { compareText, identity } from '../src/terms.js';
@@ -511,14 +511,36 @@ function mutateText(r, text) {
 }
 
 export const tests = {
+  'inspection agrees with independently constructed source rule patterns'() {
+    forSeeds(100, (r) => {
+      const generated = randomProgram(r);
+      const source = program(programText(generated) + `
+implies(implies(B, H), forward_rule(B, H))
+implies(implied_by(H, B), backward_rule(H, B))`);
+      for (const [kind, predicate] of [['implies', 'forward_rule'], ['implied_by', 'backward_rule']]) {
+        const expected = generated.rules.filter((rule) => rule.kind === kind).map(({ head, body, negated }) => {
+          const goals = [...body.map(atomText), ...negated.map((goal) => `not(${atomText(goal)})`)];
+          const premise = readGoal(`[${goals.join(', ')}]`);
+          const conclusion = readTerm(atomText(head));
+          return variant(new Struct(predicate, kind === 'implies' ? [premise, conclusion] : [conclusion, premise]));
+        });
+        const goal = `${predicate}(X, Y)`;
+        const result = run(source, { goal, proof: true });
+        assert.deepEqual([...new Set(result.answers.map((answer) => variant(readTerm(answer))))].sort(),
+          [...new Set(expected)].sort(), programText(generated));
+        assert.ok(checkProof(source, result.proof, { goals: [goal] }).valid);
+      }
+    });
+  },
+
   'inline templates with captured contexts agree with a naive fixpoint'() {
     forSeeds(100, (r) => {
       const generated = randomProgram(r);
       const lines = generated.facts.map((fact) => `fact(${atomText(fact)})`);
       for (const { kind, head, body, negated } of generated.rules) {
         const goals = [...body.map(atomText), ...negated.map((goal) => `not(${atomText(goal)})`)];
-        const template = kind === 'implies' ? `forward([${goals.join(', ')}], ${atomText(head)})`
-          : `backward(${atomText(head)}, [${goals.join(', ')}])`;
+        const template = kind === 'implies' ? `implies([${goals.join(', ')}], ${atomText(head)})`
+          : `implied_by(${atomText(head)}, [${goals.join(', ')}])`;
         lines.push(`implies(e1(X), ${template})`);
       }
       const source = lines.join('\n');

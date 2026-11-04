@@ -2,6 +2,7 @@
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
 import { freshClause, matchHead, renaming, text, variant } from './common.js';
 import { readGoal } from './goals.js';
+import { INSPECTION_KEYS } from './inspection.js';
 import { checkRendered, clauseDisplay, renderProof } from './proof.js';
 import { CONTROL_KEYS, Program } from './program.js';
 import { isActivation } from './templates.js';
@@ -19,7 +20,7 @@ export const COLLECTED = 'collected';
 
 // One proof step: a goal, how it was justified, and the steps it used.
 export class Node {
-  constructor(goal, by, bindings = NO_NODES, children = NO_NODES, collectedUses = null, final = false) {
+  constructor(goal, by, bindings = NO_NODES, children = NO_NODES, collectedUses = null, final = false, scoped = NO_NODES) {
     this.goal = goal;
     // A derived fact's node is resolved once and for all when the fact is
     // derived, so whatever uses the fact shares the node, derivation and all.
@@ -30,6 +31,8 @@ export class Node {
     // A collection has no children in a proof, so its node keeps the clauses
     // its answers used.
     this.collectedUses = collectedUses;
+    this.scoped = scoped;
+    this.generic = false;
   }
 }
 
@@ -92,7 +95,7 @@ class Point {
   }
 
   count() {
-    if (this.kind === 'branch') return this.alternatives.length;
+    if (this.kind === 'branch' || this.kind === 'inspection') return this.alternatives.length;
     return this.stop - this.start + this.clauses.length;
   }
 }
@@ -104,7 +107,50 @@ const SPLICE = 'splice';
 function resolveOne(node, env) {
   return new Node(copyResolved(node.goal, env), node.by,
     node.bindings.map(([name, value]) => [name, copyResolved(value, env)]),
-    new Array(node.children.length).fill(null), node.collectedUses);
+    new Array(node.children.length).fill(null), node.collectedUses, false,
+    node.scoped.map((term) => copyResolved(term, env)));
+}
+
+// An inspected source rule supplies universal variables. Follow the recorded
+// evidence so ordinary fresh variables still receive existential witnesses.
+function scopedVariables(nodes, env) {
+  const found = new Map();
+  const seen = new Set();
+  const pending = [...nodes];
+  while (pending.length) {
+    const node = pending.pop();
+    if (seen.has(node)) continue;
+    seen.add(node);
+    if (isTerm(node.by, 'source', 1)) variables(copyResolved(node.goal, env), found);
+    for (const term of node.scoped) variables(copyResolved(term, env), found);
+    pending.push(...node.children);
+  }
+  return found;
+}
+
+// A universal derived pattern is renamed together with its evidence at each
+// use. Renaming just its head would disconnect the certificate's variables.
+function freshNode(node, suffix) {
+  const names = new Map();
+  const copies = new Map();
+  const make = (source) => new Node(freshTerm(source.goal, suffix, names, true), source.by,
+    source.bindings.map(([name, value]) => [name, freshTerm(value, suffix, names, true)]),
+    [], source.collectedUses, false, source.scoped.map((term) => freshTerm(term, suffix, names, true)));
+  const root = make(node);
+  copies.set(node, root);
+  const pending = [node];
+  while (pending.length) {
+    const source = pending.pop();
+    const target = copies.get(source);
+    for (const child of source.children) {
+      if (!copies.has(child)) {
+        copies.set(child, make(child));
+        pending.push(child);
+      }
+      target.children.push(copies.get(child));
+    }
+  }
+  return root;
 }
 
 // Resolve a proof forest with an explicit stack: a derivation chain is as deep
@@ -189,7 +235,8 @@ export function clausesBehindBoundaries(program, roots) {
     const goalKey = pending.pop();
     if (seen.has(goalKey)) continue;
     seen.add(goalKey);
-    for (const clause of byKey.get(goalKey) || []) {
+    const candidates = INSPECTION_KEYS.has(goalKey) ? program.inspections.get(goalKey) : byKey.get(goalKey) || [];
+    for (const clause of candidates) {
       reached.add(clause.id);
       for (const goal of clause.body) visit(goal);
     }
@@ -213,7 +260,7 @@ export class Solver {
   constructor(program, options) {
     this.program = program;
     this.options = options;
-    this.recording = Boolean(options.proof);
+    this.recording = Boolean(options.proof || program.inspectionEnabled);
     this.serial = 0;
     this.facts = new Map();
     // Derived facts indexed by argument: for each name and arity, one map
@@ -221,6 +268,8 @@ export class Solver {
     // of the facts with that value there.
     this.factIndex = new Map();
     this.factKeys = new Set(program.groundFactKeys);
+    this.genericKeys = new Set();
+    this.genericPredicates = new Set();
     this.derived = [];
     this.reported = new Map();
     this.stats = { inferences: 0, rounds: 0, derived: 0 };
@@ -364,11 +413,18 @@ export class Solver {
     }
     if (goalKey === 'findall/3') {
       const items = [];
+      const scoped = [];
       const uses = recording ? new Set() : null;
       const mark = env.mark();
       for (const [answerEnv, nodes] of this.solve([goal.args[1]], env, frame.depth + 1)) {
         this.serial++;
-        items.push(freshTerm(copyResolved(goal.args[0], answerEnv), `collection${this.serial}`));
+        const names = new Map();
+        items.push(freshTerm(copyResolved(goal.args[0], answerEnv), `collection${this.serial}`, names));
+        if (this.program.inspectionEnabled) {
+          for (const name of scopedVariables(nodes, answerEnv).keys()) {
+            if (names.has(name)) scoped.push(names.get(name));
+          }
+        }
         if (recording) clausesUsed(nodes, uses);
       }
       env.undo(mark);
@@ -377,10 +433,12 @@ export class Solver {
         return null;
       }
       if (!recording) return this.advance(frame, null);
-      return this.advance(frame, new Node(goal, COLLECTED, NO_NODES, NO_NODES, uses));
+      return this.advance(frame, new Node(goal, COLLECTED, NO_NODES, NO_NODES, uses, false, scoped));
     }
     let point;
-    if (goalKey === 'or/2') {
+    if (INSPECTION_KEYS.has(goalKey)) {
+      point = new Point('inspection', frame, env.mark(), goal, { alternatives: this.program.inspections.get(goalKey) });
+    } else if (goalKey === 'or/2') {
       point = new Point('branch', frame, env.mark(), goal, { alternatives: goal.args });
     } else if (goalKey === 'call/1' || goalKey === 'once/1') {
       const cut = goalKey === 'once/1' ? choices.length : null;
@@ -410,6 +468,7 @@ export class Solver {
   }
 
   addFact(goalKey, node) {
+    if (node.generic) this.genericPredicates.add(goalKey);
     let facts = this.facts.get(goalKey);
     if (facts === undefined) {
       facts = [];
@@ -437,6 +496,7 @@ export class Solver {
   // The indexes of the derived facts a goal could match, in order, when an
   // argument of the goal narrows them down; null to try them all.
   factOrder(goal, env, goalKey) {
+    if (this.genericPredicates.has(goalKey)) return null;
     const positions = this.factIndex.get(goalKey);
     if (positions === undefined) return null;
     let best = null;
@@ -477,11 +537,21 @@ export class Solver {
         return this.childFrame(point.frame, [point.alternatives[position]],
           this.controlPending(point.goal, null), point.frame.depth + 1);
       }
+      if (point.kind === 'inspection') {
+        const source = point.alternatives[position];
+        this.serial++;
+        if (unify(point.goal, freshTerm(source.term, this.serial, new Map(), true), env)) {
+          return this.advance(point.frame, recording ? new Node(point.goal, new Struct('source', [BigInt(source.id)])) : null);
+        }
+        env.undo(point.mark);
+        continue;
+      }
       const inWindow = point.stop - point.start;
       if (position < inWindow) {
         let index = point.start + position;
         if (point.order !== null) index = point.order[index];
-        const fact = point.facts[index];
+        let fact = point.facts[index];
+        if (fact.generic) fact = freshNode(fact, ++this.serial);
         if (unify(point.goal, fact.goal, env)) {
           if (windowed) this.chosen[point.frame.index] = [0, index];
           return this.advance(point.frame, fact);
@@ -542,7 +612,7 @@ export class Solver {
         break;
       }
       const goalKey = key(goal);
-      if (PRIMITIVE_KEYS.has(goalKey) || goalKey === 'not/1' || goalKey === 'findall/3') {
+      if (PRIMITIVE_KEYS.has(goalKey) || INSPECTION_KEYS.has(goalKey) || goalKey === 'not/1' || goalKey === 'findall/3') {
         keys.push(null);
       } else if (CONTROL_KEYS.has(goalKey) || (this.program.groups.get(goalKey) || []).some((item) => item.body.length)) {
         keys = null;
@@ -630,6 +700,19 @@ export class Solver {
       // between the heads of one conclusion.
       const resolved = copyResolved(head, answerEnv);
       const unresolved = variables(resolved);
+      if (this.program.inspectionEnabled) {
+        const scoped = scopedVariables(nodes, answerEnv);
+        const captured = clause.captures === null ? null : copyResolved(body[0].args[1], answerEnv);
+        const relevant = [...unresolved.keys(), ...(captured === null ? [] : variables(captured).keys())];
+        if (relevant.some((name) => scoped.has(name))) {
+          const inBody = new Set();
+          for (const goal of clause.body) for (const name of variables(goal).keys()) inBody.add(name);
+          if ([...variables(clause.head).keys()].some((name) => !inBody.has(name))) {
+            throw new EyemindError('bind inspected rule variables before deriving existential witnesses');
+          }
+        }
+        for (const name of scoped.keys()) unresolved.delete(name);
+      }
       if (unresolved.size) {
         // A generated rule also depends on its captures when its head omits
         // them; otherwise two enabled instances could share a witness.
@@ -678,7 +761,7 @@ export class Solver {
           for (const [conclusions, children, bindings, claim] of this.activations(clause)) {
             for (const conclusion of conclusions) {
               if (conclusion === 'true') {
-                const claimId = text(claim);
+                const claimId = this.program.inspectionEnabled ? variant(claim) : text(claim);
                 if (!this.reported.has(claimId)) this.reported.set(claimId, [claim, children, clause.id]);
                 continue;
               }
@@ -688,9 +771,11 @@ export class Solver {
                 this.haltCode = 65;
                 return;
               }
-              const conclusionId = identity(conclusion);
-              if (this.factKeys.has(conclusionId)) continue;
-              this.factKeys.add(conclusionId);
+              node.generic = this.program.inspectionEnabled && !isGround(conclusion);
+              const conclusionId = node.generic ? variant(conclusion) : identity(conclusion);
+              const factKeys = node.generic ? this.genericKeys : this.factKeys;
+              if (factKeys.has(conclusionId)) continue;
+              factKeys.add(conclusionId);
               this.addFact(key(conclusion), node);
               this.derived.push(node);
               this.stats.derived++;

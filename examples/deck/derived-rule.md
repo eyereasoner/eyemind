@@ -22,10 +22,10 @@ fact(type('Minka', 'Cat'))
 fact(type('Charly', 'Dog'))
 
 implies(type(X, 'Cat'),
-  forward(type(Y, 'Dog'), t('test', 'is', 'true')))
+  implies(type(Y, 'Dog'), t('test', 'is', 'true')))
 ```
 
-`forward(Body, Head)` is an inline rule template. `X` belongs to the
+The inner `implies(Body, Head)` is a rule template. `X` belongs to the
 generator; `Y`, which appears only inside the template, belongs to the
 generated rule. It can match any dog.
 

@@ -166,7 +166,14 @@ A premise is a goal or an array of goals, their conjunction (Section 5.1). A
 body goal that is a conjunction is split into its conjuncts; the clause body
 is the resulting sequence of goals.
 
-Clauses are numbered from 1 in the order they are stated. Each clause records
+`implies` and `implied_by` take exactly two arguments. Each call also returns
+a rule value; when that value is embedded in another statement of the same
+program build, the call contributes a template instead of a standalone clause
+(Section 4.6). An ignored or unembedded return value keeps its standalone
+clause.
+
+Clauses are numbered from 1 in the order they are stated, omitting embedded
+rule calls. Each clause records
 the line of the program on which the statement stating it begins; the facts
 of `facts_from` record the line of that call.
 
@@ -262,12 +269,28 @@ name MAY have different ranks.
 
 ### 4.6 Inline rule templates
 
-`forward(Body, Head)` and `backward(Head, Body)` construct rule templates.
-They MUST occur as top-level conjuncts of an `implies` conclusion. The
+Nested `implies(Body, Head)` and `implied_by(Head, Body)` calls construct rule
+templates. A rule value in a conclusion MUST occur as a top-level conjunct of
+an `implies` conclusion; in a body, `implies` and `implied_by` are inspection
+goals (Section 4.7). The
 conclusion MAY combine ordinary heads and several templates. Each template's
 body and head MAY themselves be conjunctions, written as arrays. A backward
 template with several heads defines one backward clause per head, sharing
 the same activation and body. Empty and open lists are not goals or heads.
+
+JavaScript evaluates inner calls first. When a statement embeds the rule
+value returned by an earlier call in the same program build, the earlier
+call's standalone registration MUST be removed before clause numbering and
+validation. This applies through arrays, helpers and stored values. A value
+MAY be reused in several generators; none of those uses restores its
+standalone registration. Separate program builds collect their registrations
+independently, even when a rule value is passed between them. Anonymous
+variables are named within each enclosing clause, so anonymous variables of
+the template cannot capture unrelated anonymous variables of the generator.
+
+The pure constructors `forward(Body, Head)` and `backward(Head, Body)` also
+construct templates with the same lowering and scope. They do not themselves
+register clauses.
 
 A template variable is **captured** when it also occurs in the generating
 clause's body or in an ordinary sibling head. The other variables are local
@@ -293,7 +316,7 @@ are numbered consecutively after them and inherit the generator's source line.
 Capture metadata belongs to each appended clause, including one whose head
 is subsequently lowered again.
 
-For example, `implies(cat(X), forward(dog(Y), test('yes')))` as the only
+For example, `implies(cat(X), implies(dog(Y), test('yes')))` as the only
 stated clause becomes these two clauses:
 
 ```js
@@ -309,7 +332,40 @@ activation dependencies participate in Section 4.5, including clauses whose
 generators never fire. A closed dependency cycle MUST therefore be rejected
 even if its template would remain inactive.
 
+### 4.7 Source rule inspection
+
+As goals, `implies(Body, Head)` and `implied_by(Head, Body)` match ordinary
+forward and backward source rules respectively. The fixed catalogue contains
+only original `implies` and `implied_by` clauses whose heads contain no rule
+templates and whose bodies contain no inspection goals, including inside
+controls. Facts, queries, contradictions, template generators and appended
+clauses are excluded. Inspecting rules therefore cannot inspect themselves.
+
+The catalogue keeps source order. A rule's body and forward head conjunctions
+are terms `and(...)`, as normalized goals are, and inspection arguments are
+goal positions. Each attempt freshens the whole rule with one variable map:
+shared variables stay shared, and different attempts are independent. Matching
+can instantiate these variables. Inspection reads the rule's structure; it
+does not solve its body or establish that its head holds.
+
+Free variables supplied by a successful inspection are scoped universal
+pattern variables. Forward conclusions preserve them, including through
+backward derivations and copied collection results. Derived patterns are
+identified up to variable renaming and freshened, together with their evidence,
+at every use. Unrelated unbound variables keep Section 7.2's witness behavior.
+When inspection variables remain free in a conclusion or its captured
+template context, that firing MUST NOT introduce head-only existential
+witnesses: it MUST fail with an error requiring the inspection variables to
+be bound first. Section 11.9 rejects certificates that bypass this boundary.
+
+Inspection uses a fixed source catalogue, so its own results do not depend on
+forward rounds. Other goals using derived patterns still participate in
+stratification. Negation and collection retain their explicit obligations.
+
 ## 5. Goals, Controls and Primitives
+
+The program-dependent source inspection goals `implies/2` and `implied_by/2`
+are defined in Section 4.7.
 
 ### 5.1 Controls
 
@@ -455,7 +511,8 @@ concluded:
   shared. A variable that a value of the solution brought in, rather than a
   head variable, is named after its own variable, followed by `1`, `2`, ...
   when that name is taken. A rule that keeps meeting new activations does
-  not terminate (Section 7.3). Derived facts are therefore ground. A
+  not terminate (Section 7.3). Derived facts other than scoped inspection
+  patterns (Section 4.7) are therefore ground. A
   checker verifies the Skolem terms of a proof (C8, Section 11.9);
 - a head `'true'` reports the instance of the rule's body, as a conjunction,
   once per distinct instance (by identity of canonical text);
@@ -472,6 +529,12 @@ For an appended forward clause of Section 4.6, prepend one element to
 witnesses of different captured contexts even when a head does not mention
 those values. An empty capture list still contributes one element, `[]`.
 Original clauses, including generators, use the ordinary witness convention.
+
+Scoped inspection variables of Section 4.7 are preserved instead of receiving
+witnesses; derived conclusions may therefore be universal patterns. Each use
+renames a pattern and its evidence apart. Such patterns are suppressed when
+an alpha-equivalent pattern was already derived. Other derived facts keep
+their ordinary ground identity convention.
 
 ### 7.3 Bounds
 
@@ -658,6 +721,7 @@ order. `By` is one of:
 | `By` | Meaning | `Bindings` | `Uses` |
 | --- | --- | --- | --- |
 | `clause(N)` | `Goal` is an instance of a head of clause `N`, a fact or a rule, whose body instance is `Uses`. | the clause's variables | the body instance, empty for a fact |
+| `source(N)` | `Goal` is an instance of the inspectable source rule `N` as `implies(Body, Head)` or `implied_by(Head, Body)`. | empty | empty |
 | `'builtin'` | `Goal` is a primitive that holds. | empty | empty |
 | `'control'` | `Goal` is `call`, `once` or a disjunction, solved by `Uses`. | empty | the solved goals |
 | `'absent'` | `Goal` is a negation taken on trust. | empty | empty |
@@ -699,6 +763,14 @@ the body, of the same length as `Uses`, unifies with `Uses` pairwise, such
 that afterwards the head is identical to `Goal` and each body goal to its
 use. A step's own terms MUST NOT need further instantiation to match: a
 source clause `same(X, X)` cannot justify `same('a', 'b')`.
+
+For a `source(N)` step, `N` MUST identify an eligible source rule of Section
+4.7. Bindings and uses MUST both be empty. The rule's inspection term,
+freshened with one variable map, MUST unify with `Goal` and resolve exactly
+to it without instantiating the step's own terms. This checks variable
+sharing as well as the rule's direction and structure. The source rule is
+read as data; its body is not derived by the checker. These steps count as
+verified C1 steps and cite the usual source clause display.
 
 ### 11.3 C2 Well-foundedness
 
@@ -768,6 +840,10 @@ bound to `skolem(N, Name, Args)`, where:
   the heads, that are ground and contain no Skolem term `skolem(N, _, Args)`:
   the values that do contain one hold a witness of this firing.
 
+When a forward clause has any such variables, its full head under the step's
+substitution MUST be ground. A generic inspection pattern cannot share one
+existential witness across all its instances (Section 4.7).
+
 For an appended forward clause of Section 4.6, prepend the capture list,
 instantiated under the step's substitution, as one element of `Args`, as
 required by Section 7.2. The checker MUST compute this from the source
@@ -782,7 +858,7 @@ covered by C8.
 
 | Condition | Covered |
 | --- | --- |
-| C1 resolution | `clause` steps that passed C1 |
+| C1 resolution | `clause` and `source` steps that passed C1 |
 | C2 well_founded | steps |
 | C3 justification | steps |
 | C4 coverage | claims plus uses |
@@ -792,7 +868,8 @@ covered by C8.
 | C8 witness_integrity | `clause` steps of forward rules with witnesses that passed C8 |
 
 A check also counts the **steps** it read, the **claims**, the `clause` steps
-**verified** by C1, the `'builtin'` steps **recomputed** by C5, the
+**verified** by C1, the `source` inspection steps also **verified** by C1,
+the `'builtin'` steps **recomputed** by C5, the
 `'control'` steps **composed** by C5, and the `'absent'` and `'collected'`
 steps **trusted**.
 
@@ -846,7 +923,7 @@ it differently. eyemind's details are, by condition:
 
 | Condition | Details |
 | --- | --- |
-| C1 | `clause display differs from source`, `unknown clause ...`, `not an instance of source clause N: ...` |
+| C1 | `clause display differs from source`, `unknown clause ...`, `not an instance of source clause N: ...`, `not an instance of inspectable source rule N: ...` |
 | C2 | `cyclic derivation at ...` |
 | C3 | the reader's error, `step bindings must be an object and uses an array`, `duplicate justification for ...`, `invalid builtin justification`, `trusted boundaries cannot have bindings or uses`, `unknown justification ...` |
 | C4 | `unjustified claim ...`, `unjustified use ...` |

@@ -98,6 +98,7 @@ expressions, one per line. The names match the source: `lists.js` has
 | [rdf12-triple-term](https://eyereasoner.github.io/eyemind/examples/deck/rdf12-triple-term) | [rdf12-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-triple-term.js) | An RDF 1.2 triple term: a claim names a triple without asserting it, and accepting the claim asserts it |
 | [reachability](https://eyereasoner.github.io/eyemind/examples/deck/reachability) | [reachability.js](https://github.com/eyereasoner/eyemind/blob/main/examples/reachability.js) | Finite closure in a graph containing a cycle |
 | [research-portal](https://eyereasoner.github.io/eyemind/examples/deck/research-portal) | [research-portal.js](https://github.com/eyereasoner/eyemind/blob/main/examples/research-portal.js) | A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans |
+| [rule-inspection](https://eyereasoner.github.io/eyemind/examples/deck/rule-inspection) | [rule-inspection.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rule-inspection.js) | Inspecting a source rule as data while preserving its shared variable |
 | [schema-inference](https://eyereasoner.github.io/eyemind/examples/deck/schema-inference) | [schema-inference.js](https://github.com/eyereasoner/eyemind/blob/main/examples/schema-inference.js) | Subclasses, subproperties, domains and ranges |
 | [school-placement-audit](https://eyereasoner.github.io/eyemind/examples/deck/school-placement-audit) | [school-placement-audit.js](https://github.com/eyereasoner/eyemind/blob/main/examples/school-placement-audit.js) | Walking-route and preference scores audit provisional school placements |
 | [scoped-audit](https://eyereasoner.github.io/eyemind/examples/deck/scoped-audit) | [scoped-audit.js](https://github.com/eyereasoner/eyemind/blob/main/examples/scoped-audit.js) | Presence and absence within separate quoted graphs |
@@ -121,8 +122,8 @@ expressions, one per line. The names match the source: `lists.js` has
 
 The [derived forward rule](deck/derived-rule), [derived backward rule](deck/derived-backward-rule),
 and [conjunction of backward templates](deck/derived-backward-rule-2) show
-rules enabled by other rules. Inline `forward(Body, Head)` and
-`backward(Head, Body)` templates capture their generating context and keep
+rules enabled by other rules. Inline `implies(Body, Head)` and
+`implied_by(Head, Body)` templates capture their generating context and keep
 their other variables local. Arrays can join templates or the goals within
 one template. Each generated rule has a proved activation; its dependencies
 are visible to stratification before reasoning starts.

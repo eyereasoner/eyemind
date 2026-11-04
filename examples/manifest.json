@@ -526,5 +526,10 @@
     "name": "derived-backward-rule-2",
     "description": "A conjunction of backward templates supplies premises for forward reasoning",
     "trusted": []
+  },
+  {
+    "name": "rule-inspection",
+    "description": "Inspecting a source rule as data while preserving its shared variable",
+    "trusted": []
   }
 ]

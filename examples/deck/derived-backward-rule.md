@@ -20,12 +20,12 @@ fact(inv_of('parentOf', 'childOf'))
 fact(t('alice', 'parentOf', 'bob'))
 
 implies(inv_of(P, Q),
-  backward(t(X, Q, Y), t(Y, P, X)))
+  implied_by(t(X, Q, Y), t(Y, P, X)))
 
 implies(t(X, 'childOf', Y), t(X, 'hasParent', Y))
 ```
 
-`backward(Head, Body)` captures `P` and `Q` from the inverse pair.
+The nested `implied_by(Head, Body)` captures `P` and `Q` from the inverse pair.
 `X` and `Y` are local variables: the enabled rule can answer questions about
 any pair of people. The relation name is an argument of `t`, so the possible
 call remains statically named `t/3`.

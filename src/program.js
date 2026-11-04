@@ -1,13 +1,14 @@
 // A program: its clauses, validated, indexed and stratified.
 import { PRIMITIVE_KEYS } from './builtins.js';
-import { ACTIVATION_KEY, expandTemplates } from './templates.js';
+import { ACTIVATION_KEY, containsTemplate, expandTemplates } from './templates.js';
+import { hasInspection, inspectionTerm } from './inspection.js';
 import {
   Env, EyemindError, Struct, Var, deref, flattenConjunction, freshTerm, identity, isCallable,
   isGround, isTerm, key, keyArity, unify,
 } from './terms.js';
 
 export const CONTROL_KEYS = new Set(['and/2', 'or/2', 'not/1', 'call/1', 'once/1', 'findall/3']);
-export const RESERVED_KEYS = new Set(['step/4', 'clause/2', ACTIVATION_KEY, 'forward/2', 'backward/2']);
+export const RESERVED_KEYS = new Set(['step/4', 'clause/2', ACTIVATION_KEY, 'implies/2', 'implied_by/2', 'forward/2', 'backward/2']);
 
 // The statements that state a forward rule, and how an error names them.
 const FORWARD_KINDS = { forward: 'a forward rule', query: 'query()', contradiction: 'contradiction()' };
@@ -131,6 +132,8 @@ export class Program {
     // clauses: many groups of a large program are never asked for, and a
     // program made to leave one clause out is often run only briefly.
     this.indexes = new Map();
+    this.inspectionEnabled = this.clauses.some((clause) => clause.body.some(hasInspection));
+    this.inspectionCatalogue = null;
     // Ground source facts are compared against forward conclusions by
     // identity, so work those out once here.
     this.groundFactKeys = new Set();
@@ -138,6 +141,31 @@ export class Program {
       if (!clause.forward && !clause.body.length && isGround(clause.head)) this.groundFactKeys.add(identity(clause.head));
     }
     this.strata = stratify(this.clauses, stratifying);
+  }
+
+  prepareInspections() {
+    if (this.inspectionCatalogue !== null) return;
+    this.inspectionCatalogue = new Map([['implies/2', []], ['implied_by/2', []]]);
+    this.inspectionSources = new Map();
+    for (const clause of this.clauses) {
+      const source = this.sources[clause.id - 1];
+      if (!source || !['forward', 'backward'].includes(source.kind) ||
+          containsTemplate(source.head) || source.body.some(hasInspection)) continue;
+      const term = inspectionTerm(clause);
+      const entry = { id: clause.id, term, body: [] };
+      this.inspectionCatalogue.get(key(term)).push(entry);
+      this.inspectionSources.set(clause.id, entry);
+    }
+  }
+
+  get inspections() {
+    this.prepareInspections();
+    return this.inspectionCatalogue;
+  }
+
+  get inspectedById() {
+    this.prepareInspections();
+    return this.inspectionSources;
   }
 
   candidates(goal, env, goalKey) {

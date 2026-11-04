@@ -375,10 +375,41 @@ conformance('generated witnesses distinguish captures omitted from the head', [
   spec('4.6, 7.2'),
   file('program.js', [
     "fact(p('a'), p('b'))",
-    'implies(p(X), forward(p(X), witness(Y)))',
+    'implies(p(X), implies(p(X), witness(Y)))',
   ]),
   stdout([
     "witness(skolem(4, 'Y', [['a']]))",
     "witness(skolem(4, 'Y', [['b']]))",
   ]),
+])
+
+conformance('a derived inspection pattern can be instantiated independently twice', [
+  spec('4.7, 7.2'),
+  file('program.js', [
+    'implies(a(X), c(X))',
+    'implies(implies(X, Y), test(X, Y))',
+    'implies(test(a(X), c(X)), seen(X))',
+    "query([seen('one'), seen('two')])",
+  ]),
+  stdout(["and(seen('one'), seen('two'))"]),
+])
+
+conformance('bound inspection values can supply an existential firing', [
+  spec('4.7, 7.2'),
+  file('program.js', [
+    'implies(a(X), c(X))',
+    "implies(implies(a('b'), Y), found(Y, W))",
+  ]),
+  stdout(["found(c('b'), skolem(2, 'W', [c('b')]))"]),
+])
+
+conformance('open inspection variables cannot share an existential witness', [
+  spec('4.7, 7.2'),
+  file('program.js', [
+    'implies(a(X), c(X))',
+    'implies(implies(X, Y), found(X, Y, W))',
+  ]),
+  exit(1),
+  stderr(prefix('eyemind: bind inspected rule variables before deriving existential witnesses')),
+  stdout([]),
 ])

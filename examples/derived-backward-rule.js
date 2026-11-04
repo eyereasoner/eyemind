@@ -6,6 +6,6 @@ fact(inv_of('parentOf', 'childOf'))
 fact(t('alice', 'parentOf', 'bob'))
 
 implies(inv_of(P, Q),
-  backward(t(X, Q, Y), t(Y, P, X)))
+  implied_by(t(X, Q, Y), t(Y, P, X)))
 
 implies(t(X, 'childOf', Y), t(X, 'hasParent', Y))

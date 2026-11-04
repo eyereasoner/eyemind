@@ -25,7 +25,7 @@ export function normalizeGoal(term) {
   if ((name === 'and' || name === 'or') && args.length === 2) {
     return rebuild(term, args.map(normalizeGoal));
   }
-  if ((name === 'forward' || name === 'backward') && args.length === 2) {
+  if (['implies', 'implied_by', 'forward', 'backward'].includes(name) && args.length === 2) {
     return rebuild(term, args.map(normalizeGoal));
   }
   if ((name === 'not' || name === 'call' || name === 'once') && args.length === 1) {

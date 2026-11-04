@@ -14,6 +14,7 @@ eyemind is a **rule language written in JavaScript**. A program is a plain JavaS
   - [Try a small change](#try-a-small-change)
 - [Writing programs](#writing-programs)
   - [Deriving rules](#deriving-rules)
+  - [Inspecting rules](#inspecting-rules)
   - [Terms and names](#terms-and-names)
   - [RDF 1.2](#rdf-12)
 - [Reasoning strategy](#reasoning-strategy)
@@ -121,18 +122,25 @@ A program states clauses with these calls:
 
 ### Deriving rules
 
-An `implies` conclusion can contain inline templates: `forward(Body, Head)`
-and `backward(Head, Body)`. Arrays work in both parts, and a conclusion can
-combine several templates and ordinary facts:
+Write a rule inside another rule's conclusion with the same calls:
+`implies(Body, Head)` and `implied_by(Head, Body)`. Arrays work in both parts,
+and a conclusion can combine several templates and ordinary facts:
 
 ```js
 fact(enabled('demo'), p('a'), q('a'))
 implies(enabled(Name), [
-  forward([p(X), q(X)], [r(Name, X), s(Name, X)]),
-  backward([known(Name, X), available(Name, X)], r(Name, X)),
+  implies([p(X), q(X)], [r(Name, X), s(Name, X)]),
+  implied_by([known(Name, X), available(Name, X)], r(Name, X)),
 ])
 query([known('demo', X), available('demo', X)])
 ```
+
+The inner calls build templates; they do not also state standalone rules.
+An ordinary rule call still states a clause when its returned value is not
+embedded in another statement. Helpers can return rule values, and a stored
+value can be reused in several generators. Program builds collect these
+registrations independently. `forward(Body, Head)` and `backward(Head, Body)`
+are also available as pure template constructors.
 
 This reports `and(known('demo', 'a'), available('demo', 'a'))`. `Name` is
 captured from the generator. `X` appears only inside templates, so each
@@ -156,6 +164,36 @@ See the decks for [derived forward rules](examples/deck/derived-rule),
 [derived backward rules](examples/deck/derived-backward-rule), and a
 [conjunction of backward templates](examples/deck/derived-backward-rule-2).
 [SPEC §4.6](SPEC.md#46-inline-rule-templates) defines the scope and lowering.
+
+### Inspecting rules
+
+In a premise, the same calls inspect source rules as data:
+
+```js
+fact(a('b'))
+implies(a(X), c(X))
+implies(implies(X, Y), test(X, Y))
+query(test(X, Y))
+```
+
+The answer is `test(a(A), c(A))`: the inspected rule's shared variable is
+preserved. The query selects that answer; forward reasoning also derives
+`c('b')`. `implied_by(Head, Body)` inspects backward rules. Inspection can
+match conjunctions or instantiate a pattern, and works in goals passed with
+`--goal` too. It examines structure without proving a rule's premise.
+
+The catalogue contains ordinary source rules. It excludes facts, queries,
+constraints, template generators, generated clauses, and rules with inspection
+goals, so an inspecting rule does not report itself. Each match and each use
+of a derived pattern receives fresh variables. Its proof includes a
+`source(N)` step; the checker verifies the pattern against that source rule.
+Negation and collection still report their obligations, with the catalogue
+available to refute inconsistent evidence. If a conclusion introduces an
+existential witness, bind its inspected pattern variables first: a generic
+pattern cannot share one witness across all its instances.
+
+See the [rule inspection deck](examples/deck/rule-inspection) and
+[SPEC §4.7](SPEC.md#47-source-rule-inspection).
 
 ### Terms and names
 
@@ -184,8 +222,8 @@ Once stated, a clause is a term, and reasoning over it calls no code of yours.
 **Data that is not a program.** Everything eyemind writes, conclusions, proofs and check reports, is a *document*: plain expressions, one per line. `facts_from` reads such a document as data and states each expression as a fact. It never executes the text, so it is also the safe way to take in data you do not trust; a data file written as a program would run as JavaScript. It is what lets one run reason over another, as [audited-grants](examples/audited-grants.js) reasons over its own proof and check report:
 
 ```js
-facts_from('data.js')                                          // a file of expressions such as score('ann', 3)
-facts_from({ text: eyemind.checkReport(result.proofReport) })  // or text, such as another run's report
+facts_from('data.js')
+facts_from({ text: eyemind.checkReport(result.proofReport) })
 ```
 
 ### RDF 1.2
@@ -350,7 +388,7 @@ A clause is listed when no conclusion's proof uses it. A negation or collection 
 
 ## Explore the examples
 
-The [example collection](https://eyereasoner.github.io/eyemind/examples/) is 93 complete programs, each with its conclusions, proof and C1–C8 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a card deck that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to practical planning (outage recovery, critical paths, battery dispatch), policy reasoning (research-portal, package-holiday), mathematical calculations (Bézout certificates, Pell equations, regression), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
+The [example collection](https://eyereasoner.github.io/eyemind/examples/) is 94 complete programs, each with its conclusions, proof and C1–C8 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a card deck that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to practical planning (outage recovery, critical paths, battery dispatch), policy reasoning (research-portal, package-holiday), mathematical calculations (Bézout certificates, Pell equations, regression), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
 
 ## Browser
 
@@ -405,9 +443,9 @@ implies(human(X), mortal(X))
 `);
 const goals = ['mortal(X)'];
 const result = run(socrates, { goals, proof: true });
-console.log(result.answers);                          // [ "mortal('socrates')" ]
-console.log(result.bindings);                         // [ { X: "'socrates'" } ]
-console.log(checkProof(socrates, result.proof, { goals }).valid); // true
+console.log(result.answers);
+console.log(result.bindings);
+console.log(checkProof(socrates, result.proof, { goals }).valid);
 ```
 
 `loadText(source, filename, io)` loads program text and `loadSources([[text, filename], ...], io)` several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `run()` returns a `Result` with `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`; its options are `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`, and exceeding a bound throws an `EyemindError` rather than return a partial result. `checkProof(program, document, { goals, allowTrusted })` checks a proof, `checkReport(report)` formats a report, and `readTerm`, `readTerms` and `write` read and write the canonical text. A program reaches the same functions as `eyemind.run`, `eyemind.build` and so on.
@@ -421,13 +459,20 @@ Cut, conditional commitment, mutable databases, attributed variables, constraint
 ## Development and testing
 
 ```sh
-systemd-run --user --scope -q -p MemoryMax=3G -p MemorySwapMax=0 -- npm test  # full suite, memory capped
-npm test -- unit examples                       # only these sections
-npm test -- -k skolem                           # only tests whose line contains "skolem"
-EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties  # a deeper search by the generated tests
-node tools/update-examples.js                   # regenerate example artifacts after an intended change
-node conformance/run.js                         # the conformance suite of SPEC.md
-node conformance/run.js --command "my-eyemind"  # against another implementation
+# npm test full suite, memory capped
+systemd-run --user --scope -q -p MemoryMax=3G -p MemorySwapMax=0 -- npm test
+# npm test only these sections
+npm test -- unit examples
+# npm test only tests whose line contains "skolem"
+npm test -- -k skolem
+# npm test a deeper search by the generated tests
+EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties
+# regenerate example artifacts after an intended change
+node tools/update-examples.js
+# run the conformance suite of SPEC.md
+node conformance/run.js
+# run the conformance suite of SPEC.md against another implementation
+node conformance/run.js --command "my-eyemind"
 ```
 
 The full suite and large examples need substantial memory. On this development machine, use the memory cap above with swap disabled and run one heavy job at a time. Focused tests can use `npm test -- unit -k NAME`.

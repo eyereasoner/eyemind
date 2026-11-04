@@ -62,6 +62,13 @@ export const tests = {
     assert.ok(result.proofReport.valid);
   },
 
+  'the guide inspects a rule and preserves its shared variable'() {
+    const [source] = blocks('GUIDE.md', '### Inspecting rules');
+    const result = run(loadText(source), { proof: true });
+    assert.deepEqual(result.answers, ['test(a(A), c(A))']);
+    assert.ok(result.proofReport.valid);
+  },
+
   async 'the guide library example runs with the documented results'() {
     const [source] = blocks('GUIDE.md', '## JavaScript library');
     const logged = [];

@@ -10,8 +10,9 @@
 // Atoms are strings, integers are numbers with an integral value or bigints,
 // floats are other numbers, lists are arrays, and [H, ...T] is a list with
 // head H and tail T. An array in a goal position is the conjunction of its
-// goals. Each call states one clause, in source order; loadText runs the
-// script and collects them into a Program.
+// goals. Rule calls embedded in another statement are templates; other
+// statements contribute clauses in source order. loadText runs the script
+// and collects them into a Program.
 //
 // A name the program does not define is supplied as it runs: a name
 // beginning with an uppercase letter or _ is the variable of that name, and
@@ -148,10 +149,13 @@ class Builder {
   constructor(locate) {
     this.sources = [];
     this.locate = locate;
+    this.rules = new WeakMap();
+    this.embedded = new Set();
   }
 
   add(kind, head, body, line = null) {
     if (line === null) line = statedLine !== null ? statedLine : this.locate();
+    const pending = [head, ...body];
     const counter = new Anonymous(head, body);
     // In the order the statement writes them: a forward rule, implies(),
     // writes its premise first.
@@ -171,7 +175,35 @@ class Builder {
       }
       if (goal === EMPTY) throw new EyemindError('an empty array is not a goal');
     }
-    this.sources.push(new Source(kind, head, body, line));
+    // JavaScript evaluates an inner rule first. Only a valid enclosing
+    // statement consumes it, using its value before anonymous renaming.
+    while (pending.length) {
+      const term = pending.pop();
+      if (!(term instanceof Struct)) continue;
+      const source = this.rules.get(term);
+      if (source !== undefined) this.embedded.add(source);
+      pending.push(...term.args);
+    }
+    const source = new Source(kind, head, body, line);
+    this.sources.push(source);
+    return source;
+  }
+
+  rule(name, args) {
+    if (args.length !== 2) throw new EyemindError(`${name} takes 2 arguments, got ${args.length}`);
+    const forward = name === 'implies';
+    const head = forward ? goalOf(args[1]) : toTerm(args[0]);
+    const premise = goalOf(args[forward ? 0 : 1]);
+    // Keep the returned value's anonymous variables untouched: each enclosing
+    // clause names its own occurrences, including those inside templates.
+    const value = new Struct(name, forward ? [premise, head] : [normalizeGoal(head), premise]);
+    const source = this.add(forward ? 'forward' : 'backward', head, [premise]);
+    this.rules.set(value, source);
+    return value;
+  }
+
+  program() {
+    return new Program(this.sources.filter((source) => !this.embedded.has(source)));
   }
 }
 
@@ -254,8 +286,8 @@ function exportsFor(io) {
     fact: (...terms) => {
       for (const term of terms) builder.add('fact', toTerm(term), []);
     },
-    implies: (premise, conclusion) => builder.add('forward', goalOf(conclusion), [goalOf(premise)]),
-    implied_by: (conclusion, premise) => builder.add('backward', toTerm(conclusion), [goalOf(premise)]),
+    implies: (...args) => active().rule('implies', args),
+    implied_by: (...args) => active().rule('implied_by', args),
     forward: (...args) => {
       if (args.length !== 2) throw new EyemindError(`forward takes 2 arguments, got ${args.length}`);
       return new Struct('forward', args.map(goalOf));
@@ -686,7 +718,7 @@ function execute(source, filename, builder, io) {
 export function loadText(source, filename = '<program>', io = null) {
   const builder = new Builder(() => null);
   execute(String(source).replace(/^#![^\n]*/, ''), filename, builder, io);
-  return new Program(builder.sources);
+  return builder.program();
 }
 
 // One Program from several sources, given as [text, filename] pairs, run in
@@ -696,7 +728,7 @@ export function loadSources(sources, io = null) {
   for (const [source, filename] of sources) {
     execute(String(source).replace(/^#![^\n]*/, ''), filename, builder, io);
   }
-  return new Program(builder.sources);
+  return builder.program();
 }
 
 // A Program from a function that states clauses when called: a function of a
@@ -706,7 +738,7 @@ export function build(statements) {
   const outer = builders.length ? builders[builders.length - 1] : null;
   const builder = new Builder(outer ? outer.locate : () => null);
   within(builder, () => statements(exportsFor(null)));
-  return new Program(builder.sources);
+  return builder.program();
 }
 
 export { FloatLiteral, PREDICATE };

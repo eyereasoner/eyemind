@@ -17,8 +17,8 @@ Enable two backward rules: Socrates is human, and every human is mortal.
 
 ```js
 implies('true', [
-  backward(type('Socrates', 'Human'), 'true'),
-  backward(subclass_of('Human', 'Mortal'), 'true'),
+  implied_by(type('Socrates', 'Human'), 'true'),
+  implied_by(subclass_of('Human', 'Mortal'), 'true'),
 ])
 
 implies([type(S, A), subclass_of(A, B)], type(S, B))

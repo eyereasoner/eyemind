@@ -6,7 +6,7 @@ conformance('an inline forward template has local universal variables and activa
   file('program.js', [
     "fact(cat('minka'))",
     "fact(dog('charly'))",
-    "implies(cat(X), forward(dog(Y), test('yes')))",
+    "implies(cat(X), implies(dog(Y), test('yes')))",
   ]),
   stdout([
     "test('yes')",
@@ -28,7 +28,7 @@ conformance('a backward template captures inverse names and keeps endpoints loca
   file('program.js', [
     "fact(inverse('parent', 'child'))",
     "fact(t('alice', 'parent', 'bob'))",
-    'implies(inverse(P, Q), backward(t(X, Q, Y), t(Y, P, X)))',
+    'implies(inverse(P, Q), implied_by(t(X, Q, Y), t(Y, P, X)))',
     "implies(t(X, 'child', Y), parent(X, Y))",
   ]),
   stdout(["parent('bob', 'alice')"]),
@@ -38,7 +38,7 @@ conformance('template bodies heads and generators support conjunctions', [
   spec('4.6'),
   file('program.js', [
     "fact(p('a'), p('b'), q('a'))",
-    "implies('true', [ready('yes'), forward([p(X), q(X)], [r(X), s(X)]), backward([u(X), v(X)], [r(X), s(X)])])",
+    "implies('true', [ready('yes'), implies([p(X), q(X)], [r(X), s(X)]), implied_by([u(X), v(X)], [r(X), s(X)])])",
     'query([u(X), v(X)])',
   ]),
   stdout(["and(u('a'), v('a'))"]),
@@ -48,7 +48,7 @@ conformance('a variable shared only by sibling templates is local to each', [
   spec('4.6'),
   file('program.js', [
     "fact(p('a'), q('b'))",
-    "implies('true', [forward(p(X), r(X)), backward(s(X), q(X))])",
+    "implies('true', [implies(p(X), r(X)), implied_by(s(X), q(X))])",
     'query([r(X), s(Y)])',
   ]),
   stdout(["and(r('a'), s('b'))"]),
@@ -58,7 +58,7 @@ conformance('an inactive generator supplies neither forward nor backward conclus
   spec('4.6'),
   file('program.js', [
     "fact(p('a'))",
-    "implies(enabled('yes'), [forward(p(X), q(X)), backward(r(X), p(X))])",
+    "implies(enabled('yes'), [implies(p(X), q(X)), implied_by(r(X), p(X))])",
     'query(or(q(X), r(X)))',
   ]),
   stdout([]),
@@ -70,7 +70,7 @@ conformance('negation and collection wait for an enabled template to finish', [
     "fact(seed('a'))",
     'implies(findall(X, item(X), L), items(L))',
     "implies(not(item('a')), missing('a'))",
-    "implies(enabled('yes'), forward(seed(X), item(X)))",
+    "implies(enabled('yes'), implies(seed(X), item(X)))",
     "implies('true', enabled('yes'))",
   ]),
   stdout(["enabled('yes')", "item('a')", "items(['a'])"]),
@@ -79,7 +79,7 @@ conformance('negation and collection wait for an enabled template to finish', [
 conformance('a closed cycle through a forward template is rejected', [
   spec('4.5, 4.6'),
   exit(1),
-  file('program.js', ["implies(not(p('a')), forward('true', p('a')))"]),
+  file('program.js', ["implies(not(p('a')), implies('true', p('a')))"]),
   stdout([]),
   stderr(prefix('eyemind: unstratified negation or collection dependency')),
 ])
@@ -87,7 +87,7 @@ conformance('a closed cycle through a forward template is rejected', [
 conformance('a closed cycle through a backward template is rejected', [
   spec('4.5, 4.6'),
   exit(1),
-  file('program.js', ["implies(findall(X, p(X), L), backward(p('a'), 'true'))"]),
+  file('program.js', ["implies(findall(X, p(X), L), implied_by(p('a'), 'true'))"]),
   stdout([]),
   stderr(prefix('eyemind: unstratified negation or collection dependency')),
 ])
@@ -95,7 +95,7 @@ conformance('a closed cycle through a backward template is rejected', [
 conformance('a variable call in a generated backward body is rejected', [
   spec('4.6'),
   exit(1),
-  file('program.js', ["implies('true', backward(p(X), call(G)))"]),
+  file('program.js', ["implies('true', implied_by(p(X), call(G)))"]),
   stdout([]),
   stderr(prefix('eyemind: line 1: generated rule bodies require statically named calls')),
 ])
@@ -633,4 +633,68 @@ conformance('strata compare whole terms, not just names', [
   stdout([
     "t('a', 'blocked', 'true')",
   ]),
+])
+
+conformance('a helper-returned rule value can be reused without a standalone rule', [
+  spec('4.2, 4.6'),
+  file('program.js', [
+    "fact(dog('a'))",
+    'function rule() { return implies(dog(Y), tagged(Y)) }',
+    'const template = rule()',
+    'implies(cat(X), template)',
+    'implies(tame(X), template)',
+    'query(tagged(Y))',
+  ]),
+  stdout([]),
+])
+
+conformance('an unembedded rule return value still states its clause', [
+  spec('4.2, 4.6'),
+  file('program.js', [
+    "fact(p('a'))",
+    'const direct = implies(p(X), q(X))',
+    'const backward = implied_by(r(X), q(X))',
+    'query(r(X))',
+  ]),
+  stdout(["r('a')"]),
+])
+
+conformance('anonymous variables of nested rules do not capture the generator', [
+  spec('4.4, 4.6'),
+  file('program.js', [
+    "fact(p('a'), q('b'))",
+    'implies(p(_), implied_by(r(_), q(_)))',
+    "query(r('z'))",
+  ]),
+  stdout(["r('z')"]),
+])
+
+conformance('pure template constructors have the same guarded behavior', [
+  spec('4.6'),
+  file('program.js', [
+    "fact(p('a'))",
+    "implies('true', [forward(p(X), q(X)), backward(r(X), q(X))])",
+    'query(r(X))',
+  ]),
+  stdout(["r('a')"]),
+])
+
+conformance('source rule inspection excludes its own inspecting rule', [
+  spec('4.7'),
+  file('program.js', [
+    "fact(a('b'))",
+    'implies(a(X), c(X))',
+    'implies(implies(X, Y), test(X, Y))',
+    'query(test(X, Y))',
+  ]),
+  stdout(['test(a(A), c(A))']),
+])
+
+conformance('backward rule inspection preserves a conjunction and shared variables', [
+  spec('4.7'),
+  file('program.js', [
+    'implied_by(c(X), [a(X), b(X)])',
+    'implies(implied_by(H, B), inspected(H, B))',
+  ]),
+  stdout(['inspected(c(A), and(a(A), b(A)))']),
 ])

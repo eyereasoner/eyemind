@@ -11,6 +11,7 @@
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
 import { freshClause, text } from './common.js';
 import { readGoal } from './goals.js';
+import { INSPECTION_KEYS, isInspection } from './inspection.js';
 import { CONTROL_KEYS, Program } from './program.js';
 import { readTerms } from './reader.js';
 import { isActivation } from './templates.js';
@@ -320,6 +321,15 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name) {
     }
     if (isTerm(by, 'clause', 1)) {
       if (checkResolution(program, step, fail, tally)) tally.verified++;
+    } else if (isTerm(by, 'source', 1)) {
+      const clause = clauseNamed(program, by.args[0]);
+      const inspected = clause === null ? null : program.inspectedById.get(clause.id);
+      const env = new Env();
+      const pattern = inspected ? freshTerm(inspected.term, 'inspection') : null;
+      if (!inspected || bindings.length || uses.length || !isInspection(goal) ||
+          !unify(pattern, goal, env) || !resolvesTo(pattern, env, goal)) {
+        fail.add('C1', `not an instance of inspectable source rule ${text(by.args[0])}: ${text(goal)}`, goal);
+      } else tally.verified++;
     } else if (by === BUILTIN_BY) {
       if (bindings.length || uses.length || !isCallable(goal) || !PRIMITIVE_KEYS.has(key(goal))) {
         fail.add('C3', 'invalid builtin justification', goal);
@@ -493,6 +503,9 @@ function witnessNames(clause) {
 function checkWitnesses(clause, head, names, env) {
   const witnessed = witnessNames(clause);
   if (!witnessed.length) return null;
+  // An existential firing needs bound inspection values. A generic rule
+  // pattern cannot silently share one witness across all its instances.
+  if (!isGround(copyResolved(head, env))) return false;
   let firing = null;
   for (const name of witnessed) {
     const value = copyResolved(names.get(name), env);
@@ -564,6 +577,9 @@ function checkBoundaries(program, steps, boundaries, fail) {
       return [];
     }
     if (CONTROL_KEYS.has(goalKey)) return null;
+    if (INSPECTION_KEYS.has(goalKey)) {
+      return program.inspections.get(goalKey).map((entry) => freshTerm(entry.term, `evidence${nextSerial()}`));
+    }
     const facts = (program.groups.get(goalKey) || [])
       .filter((clause) => !clause.body.length && !clause.forward)
       .map((clause) => freshTerm(clause.head, `evidence${nextSerial()}`));

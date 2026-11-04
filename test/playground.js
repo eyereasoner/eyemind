@@ -114,6 +114,37 @@ export const tests = [
     await p.select('mode', '');
   }],
 
+  ['source rule inspection preserves variables and checks in the playground', async (page, base) => {
+    const p = driver(page);
+    await p.open(`${base}#example=rule-inspection`);
+    await p.run();
+    assert.equal(await p.output(), 'test(a(A), c(A))\n');
+    await p.select('mode', '--proof');
+    await p.run();
+    assert.match(await p.output(), /source\(2\)/);
+    await p.select('mode', '--prove-and-check');
+    await p.run();
+    assert.match(await p.output(), /test\(a\(A\), c\(A\)\)/);
+    assert.match(await p.output(), /verdict\('checked'\)/);
+    await p.select('mode', '');
+  }],
+
+  ['nested rule calls in the playground require their generator', async (page, base) => {
+    const p = driver(page);
+    await p.open(`${base}#example=derived-rule`);
+    await p.type('input', `fact(p('a'))
+implies(enabled('yes'), [implies(p(X), q(X)), implied_by(r(X), p(X))])
+query(or(q(X), r(X)))`);
+    await p.run();
+    assert.match(await p.status(), /^Done · exit 0/);
+    assert.equal(await p.output(), '');
+    await p.select('mode', '--prove-and-check');
+    await p.run();
+    assert.match(await p.output(), /^\/\/ No answers claimed;/);
+    assert.match(await p.output(), /verdict\('checked'\)/);
+    await p.select('mode', '');
+  }],
+
   ['prove-and-check shows checked answers and supports strict and JSON output', async (page, base) => {
     const p = driver(page);
     await p.open(`${base}#example=socrates`);
