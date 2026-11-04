@@ -1,4 +1,5 @@
 // Rule inspection reads a fixed source catalogue, not the run's rule index.
+import { subgoals } from './goals.js';
 import { Struct, conjunction, isTerm } from './terms.js';
 
 export const INSPECTION_KEYS = new Set(['implies/2', 'implied_by/2']);
@@ -6,9 +7,8 @@ export const isInspection = (term) => isTerm(term, 'implies', 2) || isTerm(term,
 
 export function hasInspection(goal) {
   if (isInspection(goal)) return true;
-  if (isTerm(goal, 'and', 2) || isTerm(goal, 'or', 2)) return goal.args.some(hasInspection);
-  if (isTerm(goal, 'not', 1) || isTerm(goal, 'call', 1) || isTerm(goal, 'once', 1)) return hasInspection(goal.args[0]);
-  return isTerm(goal, 'findall', 3) && hasInspection(goal.args[1]);
+  const inner = subgoals(goal);
+  return inner !== null && inner.some(hasInspection);
 }
 
 export function inspectionTerm(clause) {

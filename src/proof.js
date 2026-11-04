@@ -10,7 +10,7 @@
 // missing derivation. Only pure primitives are independently recomputed.
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
 import { freshClause, text } from './common.js';
-import { readGoal } from './goals.js';
+import { goalTerm } from './goals.js';
 import { INSPECTION_KEYS, isInspection } from './inspection.js';
 import { CONTROL_KEYS, Program } from './program.js';
 import { readTerms } from './reader.js';
@@ -64,6 +64,14 @@ function resolvesTo(term, env, target) {
     }
   }
   return true;
+}
+
+// Whether goal is an instance of pattern: a copy of pattern renamed with
+// suffix matches goal without binding any variable of goal.
+function isInstance(goal, pattern, suffix) {
+  const renamed = freshTerm(pattern, suffix);
+  const env = new Env();
+  return unify(renamed, goal, env) && resolvesTo(renamed, env, goal);
 }
 
 // The canonical text of terms, written once per term object. A proof names
@@ -305,13 +313,8 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name) {
     if (steps.has(spellings.spell(goal))) return true;
     // Source facts are available as leaves, including universal facts.
     if (!isCallable(goal)) return false;
-    for (const clause of program.groups.get(key(goal)) || []) {
-      if (clause.body.length) continue;
-      const head = freshTerm(clause.head, 'given');
-      const env = new Env();
-      if (unify(head, goal, env) && resolvesTo(head, env, goal)) return true;
-    }
-    return false;
+    return (program.groups.get(key(goal)) || [])
+      .some((clause) => !clause.body.length && isInstance(goal, clause.head, 'given'));
   }
 
   for (const step of steps.values()) {
@@ -324,10 +327,8 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name) {
     } else if (isTerm(by, 'source', 1)) {
       const clause = clauseNamed(program, by.args[0]);
       const inspected = clause === null ? null : program.inspectedById.get(clause.id);
-      const env = new Env();
-      const pattern = inspected ? freshTerm(inspected.term, 'inspection') : null;
       if (!inspected || bindings.length || uses.length || !isInspection(goal) ||
-          !unify(pattern, goal, env) || !resolvesTo(pattern, env, goal)) {
+          !isInstance(goal, inspected.term, 'inspection')) {
         fail.add('C1', `not an instance of inspectable source rule ${text(by.args[0])}: ${text(goal)}`, goal);
       } else tally.verified++;
     } else if (by === BUILTIN_BY) {
@@ -482,17 +483,6 @@ function checkResolution(program, step, fail, tally) {
   return true;
 }
 
-// The variables of a forward rule's conclusions that its premise does not
-// mention: each stands for something that exists, its witness.
-function witnessNames(clause) {
-  if (clause.witnessNames === undefined) {
-    const inBody = new Set();
-    for (const goal of clause.body) for (const name of variables(goal).keys()) inBody.add(name);
-    clause.witnessNames = [...variables(clause.head).keys()].filter((name) => !inBody.has(name));
-  }
-  return clause.witnessNames;
-}
-
 // C8: under a step's substitution, each witness of a forward rule is the
 // Skolem term of this firing, skolem(Rule, Variable, Arguments), where
 // Arguments are the ground values of the conclusions' other variables, in
@@ -501,7 +491,7 @@ function witnessNames(clause) {
 // rule has no witnesses, else whether they all hold; head is the rule's
 // renamed conclusions and names maps its variables to their renamed ones.
 function checkWitnesses(clause, head, names, env) {
-  const witnessed = witnessNames(clause);
+  const witnessed = clause.witnessNames;
   if (!witnessed.length) return null;
   // An existential firing needs bound inspection values. A generic rule
   // pattern cannot silently share one witness across all its instances.
@@ -630,24 +620,18 @@ function checkBoundaries(program, steps, boundaries, fail) {
 // query() goal or, for printed conclusions, of a forward head.
 function checkRelevance(program, claims, steps, goals, fail, spellings) {
   let serial = 0;
-  function instanceOf(claim, question) {
-    serial++;
-    const env = new Env();
-    const pattern = freshTerm(question, `asked${serial}`);
-    return unify(pattern, claim, env) && resolvesTo(pattern, env, claim);
-  }
-  const asked = goals.map((goal) => (typeof goal === 'string' ? readGoal(goal) : goal));
+  const instanceOf = (claim, question) => isInstance(claim, question, `asked${++serial}`);
+  const asked = goals.map(goalTerm);
   const halted = claims.some((claim) => claim === 'false');
   const questions = [];
   if (asked.length && !halted) {
     questions.push(...asked);
   } else {
     for (const clause of program.forward) {
-      const heads = flattenConjunction(clause.head);
-      if (heads.some((head) => head === 'true')) {
+      if (clause.heads.some((head) => head === 'true')) {
         if (!halted && clause.body.length) questions.push(conjunction(clause.body));
       }
-      for (const head of heads) if (head !== 'true' && !isActivation(head)) questions.push(head);
+      for (const head of clause.heads) if (head !== 'true' && !isActivation(head)) questions.push(head);
     }
   }
   for (const claim of claims) {

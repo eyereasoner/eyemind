@@ -1,7 +1,7 @@
 // Backward resolution, forward fixpoints and proof recording.
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
 import { freshClause, matchHead, renaming, text, variant } from './common.js';
-import { readGoal } from './goals.js';
+import { goalTerm, subgoals } from './goals.js';
 import { INSPECTION_KEYS } from './inspection.js';
 import { checkRendered, clauseDisplay, renderProof } from './proof.js';
 import { CONTROL_KEYS, Program } from './program.js';
@@ -221,13 +221,9 @@ export function clausesBehindBoundaries(program, roots) {
   const pending = [];
   function visit(goal) {
     if (!isCallable(goal)) return;
-    if (isTerm(goal, 'and', 2) || isTerm(goal, 'or', 2)) {
-      visit(goal.args[0]);
-      visit(goal.args[1]);
-    } else if (isTerm(goal, 'not', 1) || isTerm(goal, 'call', 1) || isTerm(goal, 'once', 1)) {
-      visit(goal.args[0]);
-    } else if (isTerm(goal, 'findall', 3)) {
-      visit(goal.args[1]);
+    const inner = subgoals(goal);
+    if (inner !== null) {
+      for (const part of inner) visit(part);
     } else if (!PRIMITIVE_KEYS.has(key(goal))) {
       pending.push(key(goal));
     }
@@ -247,8 +243,12 @@ export function clausesBehindBoundaries(program, roots) {
     const goalKey = pending.pop();
     if (seen.has(goalKey)) continue;
     seen.add(goalKey);
-    const candidates = INSPECTION_KEYS.has(goalKey) ? program.inspections.get(goalKey) : byKey.get(goalKey) || [];
-    for (const clause of candidates) {
+    if (INSPECTION_KEYS.has(goalKey)) {
+      // Inspection reads a rule's structure without solving its body.
+      for (const entry of program.inspections.get(goalKey)) reached.add(entry.id);
+      continue;
+    }
+    for (const clause of byKey.get(goalKey) || []) {
       reached.add(clause.id);
       for (const goal of clause.body) visit(goal);
     }
@@ -717,12 +717,8 @@ export class Solver {
       // conclusion or captures still have variables an inspection could scope.
       if (relevant.length) {
         const scoped = scopedVariables(nodes, answerEnv);
-        if (relevant.some((name) => scoped.has(name))) {
-          const inBody = new Set();
-          for (const goal of clause.body) for (const name of variables(goal).keys()) inBody.add(name);
-          if ([...variables(clause.head).keys()].some((name) => !inBody.has(name))) {
-            throw new EyemindError('bind inspected rule variables before deriving existential witnesses');
-          }
+        if (clause.witnessNames.length && relevant.some((name) => scoped.has(name))) {
+          throw new EyemindError('bind inspected rule variables before deriving existential witnesses');
         }
         for (const name of scoped.keys()) unresolved.delete(name);
       }
@@ -871,10 +867,6 @@ export function run(program, { goal = null, goals = null, proof = false, maxDept
     }
     throw error;
   }
-}
-
-function goalTerm(goal) {
-  return typeof goal === 'string' ? readGoal(goal) : goal;
 }
 
 function reason(program, goalInputs, options) {

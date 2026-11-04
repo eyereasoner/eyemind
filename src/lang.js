@@ -277,6 +277,12 @@ const LIBRARY = Object.freeze({
 
 // The names a program is given: the statements and the terms it builds goals
 // with. The statements report to the innermost program being built.
+// A rule template built by forward() or backward(), which states no clause.
+function template(name, args) {
+  if (args.length !== 2) throw new EyemindError(`${name} takes 2 arguments, got ${args.length}`);
+  return new Struct(name, args.map(goalOf));
+}
+
 function exportsFor(io) {
   const builder = {
     add: (...args) => active().add(...args),
@@ -288,14 +294,8 @@ function exportsFor(io) {
     },
     implies: (...args) => active().rule('implies', args),
     implied_by: (...args) => active().rule('implied_by', args),
-    forward: (...args) => {
-      if (args.length !== 2) throw new EyemindError(`forward takes 2 arguments, got ${args.length}`);
-      return new Struct('forward', args.map(goalOf));
-    },
-    backward: (...args) => {
-      if (args.length !== 2) throw new EyemindError(`backward takes 2 arguments, got ${args.length}`);
-      return new Struct('backward', args.map(goalOf));
-    },
+    forward: (...args) => template('forward', args),
+    backward: (...args) => template('backward', args),
     query: (...body) => builder.add('query', TRUE_ATOM, body.map(goalOf)),
     contradiction: (...body) => builder.add('contradiction', 'false', body.map(goalOf)),
     facts_from: (source) => {

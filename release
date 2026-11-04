@@ -4,7 +4,7 @@
 # publish the package to npm.
 #
 #     ./release                          a patch release, message "Release vX.Y.Z"
-#     ./release minor "Release message"
+#     ./release minor "Release vX.Y.Z: what changed"   the message is used as given
 set -euo pipefail
 
 RELEASE_TYPE="${1:-patch}"
@@ -49,4 +49,4 @@ git tag -a "$VERSION" -m "$MESSAGE"
 # Push the branch and the tag together, so the release workflows see both.
 git push --atomic origin main "$VERSION"
 
-echo "Released $VERSION: $MESSAGE"
+echo "Released $VERSION with the message: $MESSAGE"

@@ -1,10 +1,11 @@
 // A program: its clauses, validated, indexed and stratified.
 import { PRIMITIVE_KEYS } from './builtins.js';
 import { ACTIVATION_KEY, containsTemplate, expandTemplates } from './templates.js';
+import { subgoals } from './goals.js';
 import { hasInspection, inspectionTerm } from './inspection.js';
 import {
   Env, EyemindError, Struct, Var, deref, flattenConjunction, freshTerm, identity, isCallable,
-  isGround, isTerm, key, keyArity, unify,
+  isGround, isTerm, key, keyArity, unify, variables,
 } from './terms.js';
 
 export const CONTROL_KEYS = new Set(['and/2', 'or/2', 'not/1', 'call/1', 'once/1', 'findall/3']);
@@ -26,6 +27,18 @@ export class Clause {
     this.captures = captures;
     this.renaming = null; // how to rename it apart, worked out once it is used often
     this.uses = 0;
+    this.witnessed = null;
+  }
+
+  // The names of the variables only the conclusion mentions: a forward rule
+  // gives each a Skolem witness per firing (SPEC Section 7.2).
+  get witnessNames() {
+    if (this.witnessed === null) {
+      const inBody = new Set();
+      for (const goal of this.body) for (const name of variables(goal).keys()) inBody.add(name);
+      this.witnessed = [...variables(this.head).keys()].filter((name) => !inBody.has(name));
+    }
+    return this.witnessed;
   }
 }
 
@@ -152,7 +165,7 @@ export class Program {
       if (!source || !['forward', 'backward'].includes(source.kind) ||
           containsTemplate(source.head) || source.body.some(hasInspection)) continue;
       const term = inspectionTerm(clause);
-      const entry = { id: clause.id, term, body: [] };
+      const entry = { id: clause.id, term };
       this.inspectionCatalogue.get(key(term)).push(entry);
       this.inspectionSources.set(clause.id, entry);
     }
@@ -262,19 +275,12 @@ function bucketEntries(found) {
   return found instanceof Bucket ? found.entries : [found];
 }
 
-const CONTROL_NAMES = new Set(['and', 'or', 'not', 'call', 'once', 'findall']);
-
 // Closed dependencies arise from absence and collection.
 function dependencies(goal, closed = false, out = []) {
-  if (isTerm(goal, 'and', 2) || isTerm(goal, 'or', 2)) {
-    dependencies(goal.args[0], closed, out);
-    dependencies(goal.args[1], closed, out);
-  } else if (isTerm(goal, 'not', 1)) {
-    dependencies(goal.args[0], true, out);
-  } else if (isTerm(goal, 'findall', 3)) {
-    dependencies(goal.args[1], true, out);
-  } else if (isTerm(goal, 'once', 1) || isTerm(goal, 'call', 1)) {
-    dependencies(goal.args[0], closed, out);
+  const inner = subgoals(goal);
+  if (inner !== null) {
+    const inside = closed || isTerm(goal, 'not', 1) || isTerm(goal, 'findall', 3);
+    for (const part of inner) dependencies(part, inside, out);
   } else if (goal instanceof Var || (isCallable(goal) && !PRIMITIVE_KEYS.has(key(goal)))) {
     out.push([goal, closed]);
   }
@@ -283,14 +289,9 @@ function dependencies(goal, closed = false, out = []) {
 
 // Whether a goal could contribute a closed dependency or a dynamic call.
 function mayNeedStratifying(goal) {
-  if (goal instanceof Var) return true;
-  if (!(goal instanceof Struct) || !CONTROL_NAMES.has(goal.name)) return false;
-  if (isTerm(goal, 'and', 2) || isTerm(goal, 'or', 2)) {
-    return mayNeedStratifying(goal.args[0]) || mayNeedStratifying(goal.args[1]);
-  }
-  if (isTerm(goal, 'not', 1) || isTerm(goal, 'findall', 3)) return true;
-  if (isTerm(goal, 'once', 1) || isTerm(goal, 'call', 1)) return mayNeedStratifying(goal.args[0]);
-  return false;
+  if (goal instanceof Var || isTerm(goal, 'not', 1) || isTerm(goal, 'findall', 3)) return true;
+  const inner = subgoals(goal);
+  return inner !== null && inner.some(mayNeedStratifying);
 }
 
 function headIndex(clauses) {
