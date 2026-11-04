@@ -76,13 +76,15 @@ export const tests = {
     assert.match(document('README.md'), new RegExp(`\\b${loadCases().length} cases that test`));
   },
 
-  'the example catalogs link every program and deck'() {
+  'the example catalog links every deck before its source program'() {
     const manifest = JSON.parse(document('examples/manifest.json'));
-    const programs = document('examples/README.md');
-    const decks = document('examples/deck/README.md');
-    for (const { name } of manifest) {
-      assert.ok(programs.includes(`[${name}.js](https://github.com/eyereasoner/eyemind/blob/main/examples/${name}.js)`), name);
-      assert.ok(decks.includes(`[${name}](https://eyereasoner.github.io/eyemind/examples/deck/${name})`), name);
-    }
+    const rows = document('examples/README.md').split('\n').filter((line) => line.startsWith('| ['))
+      .map((line) => line.split('|').slice(1, -1).map((cell) => cell.trim()));
+    assert.deepEqual(rows, manifest.sort((a, b) => a.name.localeCompare(b.name, 'en')).map(({ name, description }) => [
+      `[${name}](https://eyereasoner.github.io/eyemind/examples/deck/${name})`,
+      `[${name}.js](https://github.com/eyereasoner/eyemind/blob/main/examples/${name}.js)`,
+      description,
+    ]));
+    assert.ok(document('README.md').includes('**[Examples](https://eyereasoner.github.io/eyemind/examples/)**'));
   },
 };

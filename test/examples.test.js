@@ -72,7 +72,7 @@ export const tests = {
     const examples = join(ROOT, 'examples');
     assert.deepEqual(readdirSync(examples).filter((name) => name.endsWith('.js')).sort(), names);
     for (const kind of KINDS) assert.deepEqual(readdirSync(join(examples, kind)).sort(), names);
-    const decks = [...MANIFEST.map((entry) => `${entry.name}.md`), 'README.md'].sort();
+    const decks = MANIFEST.map((entry) => `${entry.name}.md`).sort();
     assert.deepEqual(readdirSync(join(examples, 'deck')).filter((name) => name.endsWith('.md')).sort(), decks);
   },
 
