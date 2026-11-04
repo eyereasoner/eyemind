@@ -2,7 +2,7 @@
 
 ```text
 Title:      The eyemind Rule Language and Proof Format
-Version:    eyemind 0.1.25
+Version:    eyemind 0.1.26
 Status:     Informational
 Author:     Jos De Roo, KNoWS office of IDLab, Ghent University - imec
 Repository: https://github.com/eyereasoner/eyemind
@@ -22,7 +22,7 @@ command line.
 ## Status of This Memo
 
 This document is not an Internet Standards Track specification. It describes
-the language and formats as implemented by eyemind 0.1.25, for readers who want
+the language and formats as implemented by eyemind 0.1.26, for readers who want
 to write programs, produce or consume proofs and reports, or implement a
 compatible reasoner or checker. Where this document and the implementation
 disagree, that is a defect in one of them.
@@ -957,7 +957,7 @@ conclusions and proof documents in the canonical text, and checks every proof
 it produces as Section 11 describes. A conforming **checker** implements
 Sections 9, 11 and 12 and does not depend on a reasoner. For the same
 program, a conforming reasoner and checker MUST produce the same
-conclusions, proof documents and reports as eyemind 0.1.25, byte for byte,
+conclusions, proof documents and reports as eyemind 0.1.26, byte for byte,
 except for comments and the `Detail` texts of failures (Section 12), the internal names of
 variables where Section 3 says so, and where the host's floating-point
 library functions (`exp`, `log`, the trigonometric and hyperbolic functions,
