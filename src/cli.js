@@ -7,19 +7,19 @@ import { VERSION } from './version.js';
 
 export const HELP = `Usage: eyemind [OPTION ...] [FILE ...]
 Programs are JavaScript; forward rules run to a fixpoint.
-  --proof             Print the claims with clause(...) and step(...) records
-  --check-proof FILE  Print a C1-C8 check report of a proof (- for stdin)
-  --json              Print the check report as JSON instead
-  --goal GOAL         Ask a backward goal after forward reasoning; with
-                      --check-proof, the goal the proof answers
-  --strict-proof      Reject proofs relying on absence or collection
-  --unused            List the clauses that make no difference to the conclusions
-  --stats             Print reasoning statistics to stderr
-  --max-depth N       Bound backward recursion (default 1000000)
-  --max-iterations N  Bound forward rounds per stratum (default 1000)
-  --max-inferences N  Bound reasoning work (default 1000000)
-  --version           Print the version
-  --help              Print this help
+  -p, --proof             Print the claims with clause(...) and step(...) records
+  -c, --check-proof FILE  Print a C1-C8 check report of a proof (- for stdin)
+      --json              Print the check report as JSON instead
+      --goal GOAL         Ask a backward goal after forward reasoning; with
+                          --check-proof, the goal the proof answers
+      --strict-proof      Reject proofs relying on absence or collection
+      --unused            List the clauses that make no difference to the conclusions
+      --stats             Print reasoning statistics to stderr
+      --max-depth N       Bound backward recursion (default 1000000)
+      --max-iterations N  Bound forward rounds per stratum (default 1000)
+      --max-inferences N  Bound reasoning work (default 1000000)
+  -v, --version           Print the version
+  -h, --help              Print this help
 Source defaults to stdin; multiple files form one program.
 Exit codes: 0 success, 1 error, 2 invalid proof, 65 contradiction.
 `;
@@ -66,11 +66,11 @@ export function main(argv, io) {
         asJson = true;
       } else if (arg === '--unused') {
         unused = true;
-      } else if (arg === '--check-proof' || arg === '--goal' || Object.hasOwn(LIMITS, arg)) {
+      } else if (arg === '--check-proof' || arg === '-c' || arg === '--goal' || Object.hasOwn(LIMITS, arg)) {
         i++;
         if (i >= argv.length) throw new UsageError(`${arg} needs a value`);
         const value = argv[i];
-        if (arg === '--check-proof') {
+        if (arg === '--check-proof' || arg === '-c') {
           proofFile = value;
         } else if (arg === '--goal') {
           goals.push(value);

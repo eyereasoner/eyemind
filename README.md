@@ -15,10 +15,10 @@ JavaScript library, and a browser application, with no dependencies.
   write rules, check proofs, use the library, and develop eyemind.
 - **[Specification](https://eyereasoner.github.io/eyemind/SPEC)**: the
   language, its canonical text, the proof format, and the C1–C8 checks.
-- **[Examples](examples/)**: 80 runnable programs, with their conclusions,
+- **[Examples](examples/)**: 90 runnable programs, with their conclusions,
   proofs and check reports, and a
   [card deck](https://eyereasoner.github.io/eyemind/examples/deck/) for each.
-- **[Conformance suite](conformance/)**: 353 cases that test any
+- **[Conformance suite](conformance/)**: 356 cases that test any
   implementation of the specification through its command line.
 
 ```js

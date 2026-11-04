@@ -67,6 +67,20 @@ export const tests = [
     assert.equal(await p.output(), socrates);
   }],
 
+  ['practical and mathematical examples load from the manifest and run', async (page, base) => {
+    const p = driver(page);
+    for (const name of [
+      'service-outage-recovery', 'critical-path-schedule', 'battery-dispatch', 'cold-chain-recall', 'school-placement-audit',
+      'gcd-bezout-identity', 'pell-equation', 'binomial-vandermonde', 'least-squares-regression', 'hamming-code',
+    ]) {
+      await p.open(`${base}#example=${name}`);
+      assert.equal(await page.evaluate("document.getElementById('examples').value"), name);
+      await p.run();
+      assert.match(await p.status(), /^Done · exit 0/, name);
+      assert.equal(await p.output(), readFileSync(new URL(`../examples/output/${name}.js`, import.meta.url), 'utf8'), name);
+    }
+  }],
+
   ['a proof made in the playground checks there', async (page, base) => {
     const p = driver(page);
     await p.open(`${base}#example=socrates`);

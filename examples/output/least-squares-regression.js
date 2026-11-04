@@ -1,0 +1,5 @@
+fit('demo', 0.8, 1.5, 0.64)
+fit('declining', -2.0, 3.0, 1.0)
+rejected('single', 'too_few_points')
+rejected('vertical', 'no_x_variation')
+rejected('constant', 'no_y_variation')

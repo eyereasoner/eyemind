@@ -296,7 +296,7 @@ A clause is listed when no conclusion's proof uses it. A negation or collection 
 
 ## Explore the examples
 
-The [example collection](examples/) is 80 complete programs, each with its conclusions, proof and C1–C8 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a [card deck](https://eyereasoner.github.io/eyemind/examples/deck/) that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to policy reasoning (research-portal, package-holiday), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
+The [example collection](examples/) is 90 complete programs, each with its conclusions, proof and C1–C8 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a [card deck](https://eyereasoner.github.io/eyemind/examples/deck/) that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to practical planning (outage recovery, critical paths, battery dispatch), policy reasoning (research-portal, package-holiday), mathematical calculations (Bézout certificates, Pell equations, regression), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
 
 ## Browser
 
@@ -313,15 +313,16 @@ eyemind [OPTION ...] [FILE ...]
 | Option | Meaning |
 | --- | --- |
 | (none) | Load the files, or standard input, as one program and print its conclusions. |
-| `--proof` | Print the proof document instead. |
-| `--check-proof FILE` | Check the proof in `FILE` (`-` for standard input) against the program and print its report. |
+| `-p`, `--proof` | Print the proof document instead. |
+| `-c FILE`, `--check-proof FILE` | Check the proof in `FILE` (`-` for standard input) against the program and print its report. |
 | `--json` | With `--check-proof`, print the report as JSON. |
 | `--goal GOAL` | Ask `GOAL` after forward reasoning; may be repeated. With `--check-proof`, the goals the proof answers. |
 | `--strict-proof` | With `--check-proof`, reject proofs that rely on absence or collection. |
 | `--unused` | List the clauses that make no difference to the conclusions. |
 | `--stats` | Print reasoning statistics as JSON to standard error: `inferences`, the goals started, which `--max-inferences` bounds; `rounds`, the forward rounds run over all strata; and `derived`, the facts forward rules added, not counting a conclusion the program states as a fact, a query's answers or `'false'`. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000). Each bound must be a positive safe integer, at most 9007199254740991. |
-| `--version`, `--help` | Print the version, or the usage. |
+| `-v`, `--version` | Print the version. |
+| `-h`, `--help` | Print the usage, including every option and its short alias where one exists. |
 
 Exit codes: 0 success, 1 error, 2 a proof that is not valid, 65 a contradiction.
 

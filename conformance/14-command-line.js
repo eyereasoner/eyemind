@@ -246,6 +246,52 @@ conformance('--help prints the usage', [
   stdout('nonempty'),
 ])
 
+conformance('-h prints the usage', [
+  spec('14'),
+  args('-h'),
+  stdout('nonempty'),
+])
+
+conformance('-c checks a proof against the program', [
+  spec('14'),
+  args('-c proof.js program.js'),
+  stderr('empty'),
+  file('program.js', [
+    'fact(p(1))',
+    'query(p(X))',
+  ]),
+  file('proof.js', [
+    'p(1)',
+    'clause(1, fact(p(1)))',
+    'step(p(1), clause(1), {}, [])',
+  ]),
+  stdout([
+    "condition('C1', 'resolution', 'ok', 1)",
+    "condition('C2', 'well_founded', 'ok', 1)",
+    "condition('C3', 'justification', 'ok', 1)",
+    "condition('C4', 'coverage', 'ok', 1)",
+    "condition('C5', 're_decision', 'ok', 0)",
+    "condition('C6', 'boundary_consistency', 'ok', 0)",
+    "condition('C7', 'relevance', 'ok', 2)",
+    "condition('C8', 'witness_integrity', 'ok', 0)",
+    'steps(1)',
+    'verified(1)',
+    'recomputed(0)',
+    'composed(0)',
+    'trusted(0)',
+    'claims(1)',
+    "verdict('checked')",
+  ]),
+])
+
+conformance('-c requires a proof filename', [
+  spec('14'),
+  args('-c'),
+  exit(1),
+  stderr(prefix('eyemind: -c needs a value')),
+  stdout([]),
+])
+
 conformance('--version prints the version', [
   spec('14'),
   args('--version'),

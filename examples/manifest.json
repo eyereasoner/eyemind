@@ -453,5 +453,63 @@
     "name": "group-inverse-uniqueness",
     "description": "Uniqueness of group inverses derived from the associativity, identity and inverse laws",
     "trusted": []
+  },
+  {
+    "name": "service-outage-recovery",
+    "description": "Least-cost repairs that restore checkout through redundant providers and a dependency cycle",
+    "trusted": [
+      "absent"
+    ]
+  },
+  {
+    "name": "critical-path-schedule",
+    "description": "Earliest task times and every critical predecessor in a launch schedule",
+    "trusted": []
+  },
+  {
+    "name": "battery-dispatch",
+    "description": "Cheapest four-slot battery schedule under energy and power limits",
+    "trusted": [
+      "absent"
+    ]
+  },
+  {
+    "name": "cold-chain-recall",
+    "description": "Conflicting temperature evidence, checkpoint filtering and a witnessed inspection task",
+    "trusted": [
+      "absent"
+    ]
+  },
+  {
+    "name": "school-placement-audit",
+    "description": "Walking-route and preference scores audit provisional school placements",
+    "trusted": [
+      "absent"
+    ]
+  },
+  {
+    "name": "gcd-bezout-identity",
+    "description": "Exact extended Euclidean certificates for positive, negative and zero inputs",
+    "trusted": []
+  },
+  {
+    "name": "pell-equation",
+    "description": "Exact Pell solutions through step 50, checked against the defining equation",
+    "trusted": []
+  },
+  {
+    "name": "binomial-vandermonde",
+    "description": "Exact binomial coefficients and finite checks of Vandermonde and Pascal row sums",
+    "trusted": []
+  },
+  {
+    "name": "least-squares-regression",
+    "description": "Straight-line fits from exact sufficient statistics, with explicit degenerate cases",
+    "trusted": []
+  },
+  {
+    "name": "hamming-code",
+    "description": "Parity syndromes and correction of a single flipped bit in Hamming(7,4)",
+    "trusted": []
   }
 ]

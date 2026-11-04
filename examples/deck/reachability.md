@@ -50,13 +50,21 @@ written as an array, `[A, B]`, holds when A and B both hold.
 ## What eyemind concludes
 
 ```js
-reachable('a', 'b')   reachable('b', 'c')   reachable('c', 'a')
-reachable('c', 'd')   reachable('a', 'c')   reachable('b', 'a')
-reachable('b', 'd')   reachable('c', 'b')   reachable('a', 'a')
-reachable('a', 'd')   reachable('b', 'b')   reachable('c', 'c')
+reachable('a', 'b')
+reachable('b', 'c')
+reachable('c', 'a')
+reachable('c', 'd')
+reachable('a', 'c')
+reachable('b', 'a')
+reachable('b', 'd')
+reachable('c', 'b')
+reachable('a', 'a')
+reachable('a', 'd')
+reachable('b', 'b')
+reachable('c', 'c')
 ```
 
-12 conclusions (shown three per line). With no query, eyemind lists every
+12 conclusions. With no query, eyemind lists every
 fact it derived. From a, b or c you can reach all
 four places — including the place you started, by going round the loop.
 From d you reach nothing. And the run stops: once no new pair appears,

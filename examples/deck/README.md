@@ -10,10 +10,14 @@ Each example comes with a short card deck that explains it for a wide audience: 
 | [audited-grants](https://eyereasoner.github.io/eyemind/examples/deck/audited-grants) | A grant policy whose own proof and check report are read back as facts and audited, in the same language |
 | [aunt-agatha](https://eyereasoner.github.io/eyemind/examples/deck/aunt-agatha) | Who killed Aunt Agatha? A conclusion entailed by holding in every model of the premises |
 | [backward](https://eyereasoner.github.io/eyemind/examples/deck/backward) | Backward definitions inside forward bodies |
+| [battery-dispatch](https://eyereasoner.github.io/eyemind/examples/deck/battery-dispatch) | Cheapest four-slot battery schedule under energy and power limits |
 | [bayes-diagnosis](https://eyereasoner.github.io/eyemind/examples/deck/bayes-diagnosis) | Normalized probabilities for illustrative printer faults |
+| [binomial-vandermonde](https://eyereasoner.github.io/eyemind/examples/deck/binomial-vandermonde) | Exact binomial coefficients and finite checks of Vandermonde and Pascal row sums |
+| [cold-chain-recall](https://eyereasoner.github.io/eyemind/examples/deck/cold-chain-recall) | Conflicting temperature evidence, checkpoint filtering and a witnessed inspection task |
 | [collatz](https://eyereasoner.github.io/eyemind/examples/deck/collatz) | Parity-based recursive trajectories over a range of starts |
 | [complex](https://eyereasoner.github.io/eyemind/examples/deck/complex) | Complex arithmetic, exact over Gaussian integers and polar beyond them |
 | [control-system](https://eyereasoner.github.io/eyemind/examples/deck/control-system) | Feedforward and nonlinear feedback commands for two actuators |
+| [critical-path-schedule](https://eyereasoner.github.io/eyemind/examples/deck/critical-path-schedule) | Earliest task times and every critical predecessor in a launch schedule |
 | [data-value-right](https://eyereasoner.github.io/eyemind/examples/deck/data-value-right) | A right to the value of personal data in the age of AI: how it fits existing EU law, and how it could become an autonomous right |
 | [deep-taxonomy-10](https://eyereasoner.github.io/eyemind/examples/deck/deep-taxonomy-10) | A ten-level subclass chain with branches that lead nowhere |
 | [deep-taxonomy-100](https://eyereasoner.github.io/eyemind/examples/deck/deep-taxonomy-100) | The same taxonomy benchmark at a hundred levels |
@@ -31,17 +35,20 @@ Each example comes with a short card deck that explains it for a wide audience: 
 | [fibonacci](https://eyereasoner.github.io/eyemind/examples/deck/fibonacci) | Fast doubling for exact Fibonacci numbers, and the golden ratio |
 | [flat-map](https://eyereasoner.github.io/eyemind/examples/deck/flat-map) | Predicate-based mapping with multiple or missing values |
 | [four-color](https://eyereasoner.github.io/eyemind/examples/deck/four-color) | Four-colouring the map of the European Union |
+| [gcd-bezout-identity](https://eyereasoner.github.io/eyemind/examples/deck/gcd-bezout-identity) | Exact extended Euclidean certificates for positive, negative and zero inputs |
 | [goldbach](https://eyereasoner.github.io/eyemind/examples/deck/goldbach) | Goldbach splits of every power of two up to 2^25 |
 | [good-cobbler](https://eyereasoner.github.io/eyemind/examples/deck/good-cobbler) | Trade-specific classification from structured descriptions |
 | [gps](https://eyereasoner.github.io/eyemind/examples/deck/gps) | Goal-driven parallel sequences: routes to a goal state within duration, cost, belief and comfort limits |
 | [graphs](https://eyereasoner.github.io/eyemind/examples/deck/graphs) | Base data, negation and collection |
 | [group-inverse-uniqueness](https://eyereasoner.github.io/eyemind/examples/deck/group-inverse-uniqueness) | Uniqueness of group inverses derived from the associativity, identity and inverse laws |
+| [hamming-code](https://eyereasoner.github.io/eyemind/examples/deck/hamming-code) | Parity syndromes and correction of a single flipped bit in Hamming(7,4) |
 | [hanoi](https://eyereasoner.github.io/eyemind/examples/deck/hanoi) | Recursive construction of a disk-move sequence |
 | [integrity](https://eyereasoner.github.io/eyemind/examples/deck/integrity) | A provable integrity violation |
 | [interval-relations](https://eyereasoner.github.io/eyemind/examples/deck/interval-relations) | All thirteen interval relations and endpoint completion |
 | [inventory](https://eyereasoner.github.io/eyemind/examples/deck/inventory) | An invoice from collected line totals |
 | [kaprekar](https://eyereasoner.github.io/eyemind/examples/deck/kaprekar) | Every four-digit Kaprekar routine reaches 6174 within seven steps |
 | [knapsack-optimization](https://eyereasoner.github.io/eyemind/examples/deck/knapsack-optimization) | The 0/1 knapsack problem: the most valuable pack within a weight limit |
+| [least-squares-regression](https://eyereasoner.github.io/eyemind/examples/deck/least-squares-regression) | Straight-line fits from exact sufficient statistics, with explicit degenerate cases |
 | [lists](https://eyereasoner.github.io/eyemind/examples/deck/lists) | Concatenation, mapping and summation |
 | [lldm](https://eyereasoner.github.io/eyemind/examples/deck/lldm) | Leg length discrepancy measured from radiograph landmarks, with an alarm and its reason |
 | [monkey-bananas](https://eyereasoner.github.io/eyemind/examples/deck/monkey-bananas) | Every plan of up to five moves that gets the monkey the bananas |
@@ -52,6 +59,7 @@ Each example comes with a short card deck that explains it for a wide audience: 
 | [path-discovery](https://eyereasoner.github.io/eyemind/examples/deck/path-discovery) | Full airport network with configurable endpoints and maximum stopovers |
 | [peano](https://eyereasoner.github.io/eyemind/examples/deck/peano) | Symbolic arithmetic, relational addition and a chained derivation |
 | [peasant](https://eyereasoner.github.io/eyemind/examples/deck/peasant) | Peasant multiplication and exponentiation by halving and doubling |
+| [pell-equation](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation) | Exact Pell solutions through step 50, checked against the defining equation |
 | [permissions](https://eyereasoner.github.io/eyemind/examples/deck/permissions) | Role permissions with exclusions |
 | [policy-risk](https://eyereasoner.github.io/eyemind/examples/deck/policy-risk) | Ranked findings with explanations and suggested mitigations |
 | [polynomial](https://eyereasoner.github.io/eyemind/examples/deck/polynomial) | Complex roots of polynomials up to degree 4 by Cardan and Lagrange |
@@ -67,7 +75,9 @@ Each example comes with a short card deck that explains it for a wide audience: 
 | [reachability](https://eyereasoner.github.io/eyemind/examples/deck/reachability) | Finite closure in a graph containing a cycle |
 | [research-portal](https://eyereasoner.github.io/eyemind/examples/deck/research-portal) | A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans |
 | [schema-inference](https://eyereasoner.github.io/eyemind/examples/deck/schema-inference) | Subclasses, subproperties, domains and ranges |
+| [school-placement-audit](https://eyereasoner.github.io/eyemind/examples/deck/school-placement-audit) | Walking-route and preference scores audit provisional school placements |
 | [scoped-audit](https://eyereasoner.github.io/eyemind/examples/deck/scoped-audit) | Presence and absence within separate quoted graphs |
+| [service-outage-recovery](https://eyereasoner.github.io/eyemind/examples/deck/service-outage-recovery) | Least-cost repairs that restore checkout through redundant providers and a dependency cycle |
 | [shortest-path](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path) | Weighted paths and stratified minimum selection |
 | [sieve](https://eyereasoner.github.io/eyemind/examples/deck/sieve) | The sieve of Eratosthenes over an explicit list of integers |
 | [socrates](https://eyereasoner.github.io/eyemind/examples/deck/socrates) | Class membership derived through a subclass rule |

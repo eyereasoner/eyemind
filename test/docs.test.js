@@ -75,4 +75,14 @@ export const tests = {
     assert.match(document('GUIDE.md'), new RegExp(`is ${count} complete programs`));
     assert.match(document('README.md'), new RegExp(`\\b${loadCases().length} cases that test`));
   },
+
+  'the example catalogs link every program and deck'() {
+    const manifest = JSON.parse(document('examples/manifest.json'));
+    const programs = document('examples/README.md');
+    const decks = document('examples/deck/README.md');
+    for (const { name } of manifest) {
+      assert.ok(programs.includes(`[${name}.js](https://github.com/eyereasoner/eyemind/blob/main/examples/${name}.js)`), name);
+      assert.ok(decks.includes(`[${name}](https://eyereasoner.github.io/eyemind/examples/deck/${name})`), name);
+    }
+  },
 };

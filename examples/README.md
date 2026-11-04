@@ -3,6 +3,13 @@
 Every example also has a [card deck](https://eyereasoner.github.io/eyemind/examples/deck/) that explains it for a
 wide audience.
 
+For practical decisions, try [outage recovery](service-outage-recovery.js),
+[project scheduling](critical-path-schedule.js), [battery dispatch](battery-dispatch.js),
+[cold-chain evidence](cold-chain-recall.js), or [school placement audits](school-placement-audit.js).
+For mathematical calculations, try [Bézout certificates](gcd-bezout-identity.js),
+[Pell equations](pell-equation.js), [binomial identities](binomial-vandermonde.js),
+[least-squares regression](least-squares-regression.js), or [Hamming codes](hamming-code.js).
+
 Run a source, generate its proof, or check its saved proof:
 
 ```sh
@@ -24,10 +31,14 @@ expressions, one per line. The names match the source: `lists.js` has
 | [audited-grants.js](https://github.com/eyereasoner/eyemind/blob/main/examples/audited-grants.js) | A grant policy whose own proof and check report are read back as facts and audited, in the same language |
 | [aunt-agatha.js](https://github.com/eyereasoner/eyemind/blob/main/examples/aunt-agatha.js) | Who killed Aunt Agatha? A conclusion entailed by holding in every model of the premises |
 | [backward.js](https://github.com/eyereasoner/eyemind/blob/main/examples/backward.js) | Backward definitions inside forward bodies |
+| [battery-dispatch.js](https://github.com/eyereasoner/eyemind/blob/main/examples/battery-dispatch.js) | Cheapest four-slot battery schedule under energy and power limits |
 | [bayes-diagnosis.js](https://github.com/eyereasoner/eyemind/blob/main/examples/bayes-diagnosis.js) | Normalized probabilities for illustrative printer faults |
+| [binomial-vandermonde.js](https://github.com/eyereasoner/eyemind/blob/main/examples/binomial-vandermonde.js) | Exact binomial coefficients and finite checks of Vandermonde and Pascal row sums |
+| [cold-chain-recall.js](https://github.com/eyereasoner/eyemind/blob/main/examples/cold-chain-recall.js) | Conflicting temperature evidence, checkpoint filtering and a witnessed inspection task |
 | [collatz.js](https://github.com/eyereasoner/eyemind/blob/main/examples/collatz.js) | Parity-based recursive trajectories over a range of starts |
 | [complex.js](https://github.com/eyereasoner/eyemind/blob/main/examples/complex.js) | Complex arithmetic, exact over Gaussian integers and polar beyond them |
 | [control-system.js](https://github.com/eyereasoner/eyemind/blob/main/examples/control-system.js) | Feedforward and nonlinear feedback commands for two actuators |
+| [critical-path-schedule.js](https://github.com/eyereasoner/eyemind/blob/main/examples/critical-path-schedule.js) | Earliest task times and every critical predecessor in a launch schedule |
 | [data-value-right.js](https://github.com/eyereasoner/eyemind/blob/main/examples/data-value-right.js) | A right to the value of personal data in the age of AI: how it fits existing EU law, and how it could become an autonomous right |
 | [deep-taxonomy-10.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-10.js) | A ten-level subclass chain with branches that lead nowhere |
 | [deep-taxonomy-100.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-100.js) | The same taxonomy benchmark at a hundred levels |
@@ -45,17 +56,20 @@ expressions, one per line. The names match the source: `lists.js` has
 | [fibonacci.js](https://github.com/eyereasoner/eyemind/blob/main/examples/fibonacci.js) | Fast doubling for exact Fibonacci numbers, and the golden ratio |
 | [flat-map.js](https://github.com/eyereasoner/eyemind/blob/main/examples/flat-map.js) | Predicate-based mapping with multiple or missing values |
 | [four-color.js](https://github.com/eyereasoner/eyemind/blob/main/examples/four-color.js) | Four-colouring the map of the European Union |
+| [gcd-bezout-identity.js](https://github.com/eyereasoner/eyemind/blob/main/examples/gcd-bezout-identity.js) | Exact extended Euclidean certificates for positive, negative and zero inputs |
 | [goldbach.js](https://github.com/eyereasoner/eyemind/blob/main/examples/goldbach.js) | Goldbach splits of every power of two up to 2^25 |
 | [good-cobbler.js](https://github.com/eyereasoner/eyemind/blob/main/examples/good-cobbler.js) | Trade-specific classification from structured descriptions |
 | [gps.js](https://github.com/eyereasoner/eyemind/blob/main/examples/gps.js) | Goal-driven parallel sequences: routes to a goal state within duration, cost, belief and comfort limits |
 | [graphs.js](https://github.com/eyereasoner/eyemind/blob/main/examples/graphs.js) | Base data, negation and collection |
 | [group-inverse-uniqueness.js](https://github.com/eyereasoner/eyemind/blob/main/examples/group-inverse-uniqueness.js) | Uniqueness of group inverses derived from the associativity, identity and inverse laws |
+| [hamming-code.js](https://github.com/eyereasoner/eyemind/blob/main/examples/hamming-code.js) | Parity syndromes and correction of a single flipped bit in Hamming(7,4) |
 | [hanoi.js](https://github.com/eyereasoner/eyemind/blob/main/examples/hanoi.js) | Recursive construction of a disk-move sequence |
 | [integrity.js](https://github.com/eyereasoner/eyemind/blob/main/examples/integrity.js) | A provable integrity violation |
 | [interval-relations.js](https://github.com/eyereasoner/eyemind/blob/main/examples/interval-relations.js) | All thirteen interval relations and endpoint completion |
 | [inventory.js](https://github.com/eyereasoner/eyemind/blob/main/examples/inventory.js) | An invoice from collected line totals |
 | [kaprekar.js](https://github.com/eyereasoner/eyemind/blob/main/examples/kaprekar.js) | Every four-digit Kaprekar routine reaches 6174 within seven steps |
 | [knapsack-optimization.js](https://github.com/eyereasoner/eyemind/blob/main/examples/knapsack-optimization.js) | The 0/1 knapsack problem: the most valuable pack within a weight limit |
+| [least-squares-regression.js](https://github.com/eyereasoner/eyemind/blob/main/examples/least-squares-regression.js) | Straight-line fits from exact sufficient statistics, with explicit degenerate cases |
 | [lists.js](https://github.com/eyereasoner/eyemind/blob/main/examples/lists.js) | Concatenation, mapping and summation |
 | [lldm.js](https://github.com/eyereasoner/eyemind/blob/main/examples/lldm.js) | Leg length discrepancy measured from radiograph landmarks, with an alarm and its reason |
 | [monkey-bananas.js](https://github.com/eyereasoner/eyemind/blob/main/examples/monkey-bananas.js) | Every plan of up to five moves that gets the monkey the bananas |
@@ -66,6 +80,7 @@ expressions, one per line. The names match the source: `lists.js` has
 | [path-discovery.js](https://github.com/eyereasoner/eyemind/blob/main/examples/path-discovery.js) | Full airport network with configurable endpoints and maximum stopovers |
 | [peano.js](https://github.com/eyereasoner/eyemind/blob/main/examples/peano.js) | Symbolic arithmetic, relational addition and a chained derivation |
 | [peasant.js](https://github.com/eyereasoner/eyemind/blob/main/examples/peasant.js) | Peasant multiplication and exponentiation by halving and doubling |
+| [pell-equation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/pell-equation.js) | Exact Pell solutions through step 50, checked against the defining equation |
 | [permissions.js](https://github.com/eyereasoner/eyemind/blob/main/examples/permissions.js) | Role permissions with exclusions |
 | [policy-risk.js](https://github.com/eyereasoner/eyemind/blob/main/examples/policy-risk.js) | Ranked findings with explanations and suggested mitigations |
 | [polynomial.js](https://github.com/eyereasoner/eyemind/blob/main/examples/polynomial.js) | Complex roots of polynomials up to degree 4 by Cardan and Lagrange |
@@ -81,7 +96,9 @@ expressions, one per line. The names match the source: `lists.js` has
 | [reachability.js](https://github.com/eyereasoner/eyemind/blob/main/examples/reachability.js) | Finite closure in a graph containing a cycle |
 | [research-portal.js](https://github.com/eyereasoner/eyemind/blob/main/examples/research-portal.js) | A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans |
 | [schema-inference.js](https://github.com/eyereasoner/eyemind/blob/main/examples/schema-inference.js) | Subclasses, subproperties, domains and ranges |
+| [school-placement-audit.js](https://github.com/eyereasoner/eyemind/blob/main/examples/school-placement-audit.js) | Walking-route and preference scores audit provisional school placements |
 | [scoped-audit.js](https://github.com/eyereasoner/eyemind/blob/main/examples/scoped-audit.js) | Presence and absence within separate quoted graphs |
+| [service-outage-recovery.js](https://github.com/eyereasoner/eyemind/blob/main/examples/service-outage-recovery.js) | Least-cost repairs that restore checkout through redundant providers and a dependency cycle |
 | [shortest-path.js](https://github.com/eyereasoner/eyemind/blob/main/examples/shortest-path.js) | Weighted paths and stratified minimum selection |
 | [sieve.js](https://github.com/eyereasoner/eyemind/blob/main/examples/sieve.js) | The sieve of Eratosthenes over an explicit list of integers |
 | [socrates.js](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates.js) | Class membership derived through a subclass rule |

@@ -814,15 +814,16 @@ eyemind [OPTION ...] [FILE ...]
 | Option | Meaning |
 | --- | --- |
 | (none) | Load the files, or standard input, as one program and print its conclusions. |
-| `--proof` | Print the proof document instead. |
-| `--check-proof FILE` | Check the proof in `FILE` (`-` for standard input) against the program and print its report. |
+| `-p`, `--proof` | Print the proof document instead. |
+| `-c FILE`, `--check-proof FILE` | Check the proof in `FILE` (`-` for standard input) against the program and print its report. |
 | `--json` | With `--check-proof`, print the report as JSON. |
 | `--goal GOAL` | Ask `GOAL`, read as in Section 9, where an array is a conjunction; MAY be repeated. With `--check-proof`, the goals the proof answers. |
 | `--strict-proof` | With `--check-proof`, forbid trusted boundaries. |
 | `--unused` | Print the unused clauses (Section 13). |
 | `--stats` | Print reasoning statistics as JSON to standard error: `inferences`, the goals started, which `--max-inferences` bounds; `rounds`, the forward rounds run over all strata; and `derived`, the facts forward rules added, not counting a conclusion the program states as a fact, a query's answers or `'false'`. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | The bounds of Section 7.3; `N` MUST be a positive safe integer, at most 9007199254740991. |
-| `--version`, `--help` | Print the version, or the usage. |
+| `-v`, `--version` | Print the version. |
+| `-h`, `--help` | Print the usage, including every option and its short alias where one exists. |
 
 `--check-proof` MUST NOT be combined with `--proof`, nor `--unused` with
 either, and `--json` and `--strict-proof` need `--check-proof`. A program

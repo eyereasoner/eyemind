@@ -46,6 +46,35 @@ export const tests = {
     assert.equal(cli(['--check-proof', '-', 'examples/socrates.js'], `${generated.stdout}bogus()\n`).code, 2);
   },
 
+  'short proof checking has the same reports validation and stdin behavior'() {
+    const proof = readFileSync(join(ROOT, 'examples/proof/socrates.js'), 'utf8');
+    for (const [args, stdin] of [
+      [['examples/proof/socrates.js', 'examples/socrates.js'], ''],
+      [['-', 'examples/socrates.js'], proof],
+      [['-', 'examples/socrates.js', '--json'], proof],
+      [['-', 'examples/socrates.js'], `${proof}bogus()\n`],
+      [['examples/proof/permissions.js', 'examples/permissions.js', '--strict-proof'], ''],
+      [['examples/proof/socrates.js', 'examples/socrates.js', '-p'], ''],
+      [['-'], proof],
+    ]) assert.deepEqual(cli(['-c', ...args], stdin), cli(['--check-proof', ...args], stdin));
+    assert.equal(command(['-c', 'examples/proof/socrates.js', 'examples/socrates.js']).code, 0);
+    assert.deepEqual(cli(['-c']), { code: 1, stdout: '', stderr: 'eyemind: -c needs a value\n' });
+  },
+
+  'both help flags list every long option and every short alias'() {
+    const help = cli(['--help']);
+    assert.deepEqual(cli(['-h']), help);
+    assert.equal(help.code, 0);
+    assert.equal(help.stderr, '');
+    assert.deepEqual([...help.stdout.matchAll(/^(?:  -[a-z], |      )(--[a-z-]+)/gm)].map((match) => match[1]), [
+      '--proof', '--check-proof', '--json', '--goal', '--strict-proof', '--unused', '--stats',
+      '--max-depth', '--max-iterations', '--max-inferences', '--version', '--help',
+    ]);
+    for (const [short, long] of [['-p', '--proof'], ['-c', '--check-proof'], ['-v', '--version'], ['-h', '--help']]) {
+      assert.ok(help.stdout.includes(`${short}, ${long}`));
+    }
+  },
+
   'a proof document given as a program says how to check it'() {
     const ran = cli(['examples/proof/socrates.js']);
     assert.equal(ran.code, 1);
