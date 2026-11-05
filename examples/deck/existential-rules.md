@@ -25,12 +25,12 @@ with another, or with anything it already knows?
 fact(person('ann'), person('bob'))                                    // clauses 1, 2
 implies(person(X), has_parent(X, P))                                  // clause 3
 
-fact(has_parent('dan', 'eve'), has_parent('fay', 'eve'))              // clauses 4, 5
-implies([has_parent(X, P), has_parent(Y, P), not_identical(X, Y)], sibling(X, Y))   // clause 6
+fact(has_parent('dan', 'eve'), has_parent('fay', 'eve'))                           // clauses 4, 5
+implies([has_parent(X, P), has_parent(Y, P), not_identical(X, Y)], sibling(X, Y))  // clause 6
 
-fact(ordered('carl', 'lamp'), ordered('carl', 'desk'), ordered('dora', 'chair'))     // clauses 7, 8, 9
-implies(ordered(C, Item), invoice_for(C, I))                          // clause 10
-implies(invoice_for(C, I), sent(I))                                   // clause 11
+fact(ordered('carl', 'lamp'), ordered('carl', 'desk'), ordered('dora', 'chair'))  // clauses 7, 8, 9
+implies(ordered(C, Item), invoice_for(C, I))                                      // clause 10
+implies(invoice_for(C, I), sent(I))                                               // clause 11
 
 fact(colleagues('ann', 'dora'))                                       // clause 12
 implies(colleagues(X, Y), [meeting(M), attends(M, X), attends(M, Y)]) // clause 13

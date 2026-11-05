@@ -48,10 +48,10 @@ implied_by(
     measurement10('input1', M1),
     measurement2('input2', 'true'),
     measurement3('disturbance1', D1),
-    gt(D1, 0), // the logarithm needs a positive disturbance
-    is(C1, mul(M1, 19.6)), // proportional part
-    is(C2, div(log(D1), log(10))), // compensation part: log10 of the disturbance
-    is(C, sub(C1, C2)), // simple feedforward control
+    gt(D1, 0),                      // the logarithm needs a positive disturbance
+    is(C1, mul(M1, 19.6)),          // proportional part
+    is(C2, div(log(D1), log(10))),  // compensation part: log10 of the disturbance
+    is(C, sub(C1, C2)),             // simple feedforward control
   ],
 )
 ```
@@ -87,11 +87,11 @@ implied_by(
     observation3('state3', P3),
     measurement4('output2', M4),
     target2('output2', T2),
-    is(E, sub(T2, M4)), // error: target minus output
-    is(D, sub(P3, M4)), // differential error: observed state minus output
-    is(C1, mul(5.8, E)), // proportional part
-    nonlinear_part(E, D, C2), // nonlinear differential part
-    is(C, add(C1, C2)), // PND feedback control
+    is(E, sub(T2, M4)),        // error: target minus output
+    is(D, sub(P3, M4)),        // differential error: observed state minus output
+    is(C1, mul(5.8, E)),       // proportional part
+    nonlinear_part(E, D, C2),  // nonlinear differential part
+    is(C, add(C1, C2)),        // PND feedback control
   ],
 )
 

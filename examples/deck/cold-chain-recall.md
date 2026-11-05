@@ -25,15 +25,15 @@ and which destinations need notice?**
 ## What we tell eyemind: the data
 
 ```js
-fact(checkpoint(42), temperature_limit(80))                          // clauses 1, 2
-fact(sensor_priority('handheld', 1), sensor_priority('calibrated_logger', 2))   // 3, 4
+fact(checkpoint(42), temperature_limit(80))                                    // clauses 1, 2
+fact(sensor_priority('handheld', 1), sensor_priority('calibrated_logger', 2))  // 3, 4
 // observation(Id, Sample, Batch, Sequence, Sensor, TemperatureTenthC)
-fact(observation('old_b', 'old_handover', 'batch_b', 41, 'calibrated_logger', 120))   // 5
-fact(observation('handheld_a', 'handover_a', 'batch_a', 43, 'handheld', 72))           // 6
-fact(observation('logger_a', 'handover_a', 'batch_a', 44, 'calibrated_logger', 94))    // 7
-fact(observation('logger_b', 'handover_b', 'batch_b', 45, 'calibrated_logger', 75))    // 8
-fact(destination('batch_a', 'north_depot'), destination('batch_a', 'station_shop'))     // 9, 10
-fact(destination('batch_b', 'south_depot'))                                              // 11
+fact(observation('old_b', 'old_handover', 'batch_b', 41, 'calibrated_logger', 120))  // 5
+fact(observation('handheld_a', 'handover_a', 'batch_a', 43, 'handheld', 72))         // 6
+fact(observation('logger_a', 'handover_a', 'batch_a', 44, 'calibrated_logger', 94))  // 7
+fact(observation('logger_b', 'handover_b', 'batch_b', 45, 'calibrated_logger', 75))  // 8
+fact(destination('batch_a', 'north_depot'), destination('batch_a', 'station_shop'))  // 9, 10
+fact(destination('batch_b', 'south_depot'))                                          // 11
 ```
 
 Each `fact` states something true outright, and each item is a numbered

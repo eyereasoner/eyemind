@@ -57,8 +57,8 @@ visible up front. The inner rule becomes rule 4 with an extra condition, a
 switch, and the outer rule becomes the rule that flips that switch:
 
 ```js
-implies(type(X, 'Cat'), activated(4, []))                                // rule 3
-implies([activated(4, []), type(Y, 'Dog')], t('test', 'is', 'true'))    // rule 4
+implies(type(X, 'Cat'), activated(4, []))                             // rule 3
+implies([activated(4, []), type(Y, 'Dog')], t('test', 'is', 'true'))  // rule 4
 ```
 
 `activated(4, [])` reads *"rule 4 is switched on"*. The `4` is the number of

@@ -74,8 +74,8 @@ visible up front. The inner rule becomes rule 5 with an extra condition, a
 switch, and the outer rule becomes the rule that flips that switch:
 
 ```js
-implies(inv_of(P, Q), activated(5, [Q, P]))                     // rule 3
-implied_by(t(X, Q, Y), [activated(5, [Q, P]), t(Y, P, X)])     // rule 5
+implies(inv_of(P, Q), activated(5, [Q, P]))                 // rule 3
+implied_by(t(X, Q, Y), [activated(5, [Q, P]), t(Y, P, X)])  // rule 5
 ```
 
 `activated(5, [Q, P])` reads *"rule 5 is switched on, for these values of Q
