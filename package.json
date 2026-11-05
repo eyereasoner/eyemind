@@ -1,6 +1,6 @@
 {
   "name": "eyemind",
-  "version": "0.1.36",
+  "version": "0.1.37",
   "description": "A dependency-free JavaScript rule language with forward and backward reasoning and checkable proofs.",
   "type": "module",
   "main": "./src/index.js",
