@@ -230,3 +230,11 @@ eyemind --check-proof examples/proof/permissions.js examples/permissions.js
 Delete the line `fact(suspended('carol'))` and run again: Carol is now
 allowed to read and write, like Alice. Add `fact(suspended('bob'))` instead:
 Bob's answer disappears, and only Alice's two remain.
+
+---
+
+## Takeaway
+
+"Allowed unless excluded" decisions rest on what is *not* in the data.
+eyemind makes those absences visible, so you know exactly what you are
+trusting when you grant access.

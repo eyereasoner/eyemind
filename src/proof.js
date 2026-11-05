@@ -552,7 +552,9 @@ function checkBoundaries(program, steps, boundaries, fail) {
   const nextSerial = () => ++serial;
 
   // Each solution of a simple goal that the evidence shows, or null when the
-  // evidence cannot speak for the goal.
+  // evidence cannot speak for the goal. A recomputed primitive always speaks,
+  // even when it fails; a predicate with no fact or step at all does not, so
+  // a boundary over it is left undecided rather than counted as confronted.
   function evidence(goal) {
     if (!isCallable(goal)) return null;
     const goalKey = key(goal);
@@ -567,13 +569,16 @@ function checkBoundaries(program, steps, boundaries, fail) {
       return [];
     }
     if (CONTROL_KEYS.has(goalKey)) return null;
+    let shown;
     if (INSPECTION_KEYS.has(goalKey)) {
-      return program.inspections.get(goalKey).map((entry) => freshTerm(entry.term, `evidence${nextSerial()}`));
+      shown = program.inspections.get(goalKey).map((entry) => freshTerm(entry.term, `evidence${nextSerial()}`));
+    } else {
+      const facts = (program.groups.get(goalKey) || [])
+        .filter((clause) => !clause.body.length && !clause.forward)
+        .map((clause) => freshTerm(clause.head, `evidence${nextSerial()}`));
+      shown = [...facts, ...(stepGoals.get(goalKey) || []).map((item) => freshTerm(item, `evidence${nextSerial()}`))];
     }
-    const facts = (program.groups.get(goalKey) || [])
-      .filter((clause) => !clause.body.length && !clause.forward)
-      .map((clause) => freshTerm(clause.head, `evidence${nextSerial()}`));
-    return [...facts, ...(stepGoals.get(goalKey) || []).map((item) => freshTerm(item, `evidence${nextSerial()}`))];
+    return shown.length ? shown : null;
   }
 
   for (const boundary of boundaries) {

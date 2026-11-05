@@ -305,3 +305,11 @@ comes down to 1. Change the `1` in `add(mul(3, N), 1)` to `3` instead: now 3
 goes to 12, 6 and back to 3, a loop that never reaches 1. eyemind keeps
 searching until it hits its built-in limit and stops with
 `reasoning exceeded max_inferences`.
+
+---
+
+## Takeaway
+
+A proof here does not settle the conjecture — nothing about 21 or beyond is
+claimed. What it does give you is honesty about exactly what was shown:
+twenty paths, every move recorded and every sum recomputed.

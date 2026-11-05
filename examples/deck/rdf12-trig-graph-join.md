@@ -199,3 +199,10 @@ Add a reading for a second sensor, `sensor2`, in the sensor graph: a second
 answer appears, saying station 7 reported sensor 2 too. Move sensor 1's
 reading to `'default_graph'` instead: there is no answer, because the rule
 only joins readings that are *in* the sensor graph.
+
+---
+
+## Takeaway
+
+Provenance often lives outside the data it describes. Named graphs let a
+rule bring the two together, and the proof shows how.

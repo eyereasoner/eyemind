@@ -327,3 +327,10 @@ moves: only the shortest plan remains. Or start the monkey next to the box,
 by changing the initial state to `['loc1', 'loc3', 'loc3', 'n', 'n']`: the
 shortest plan is now three moves, `[push('loc1'), 'climb_on', 'grab']`, and
 there are 18 plans in all.
+
+---
+
+## Takeaway
+
+A plan is a chain of small, checkable moves. eyemind finds the plans and
+records why each move was allowed, so you can follow the monkey step by step.

@@ -234,3 +234,11 @@ out what comes before `['c']` and adds
 `append(['a', 'b'], ['c'], ['a', 'b', 'c'])`. Add
 `query(matching_pair(pair('same', 'other')))` instead: the two halves differ,
 so the pattern cannot match and no new answer appears.
+
+---
+
+## Takeaway
+
+Unification is how a logic program fills in its blanks. Because each filled
+blank is written into the proof, you can see — and a checker can confirm —
+exactly how every answer was matched.

@@ -226,3 +226,10 @@ change the last line to `query(type(X, 'j7'))` and the answer becomes
 `type('ind', 'j7')`: a side branch, reached by climbing six levels first. Its
 proof has 8 steps: the `j7` rule, the six `n` rules from `n6` down to `n1`,
 and the fact.
+
+---
+
+## Takeaway
+
+A long chain of reasoning stays easy to trust when every link is written
+down and checked, and the dead ends stay out of the explanation.

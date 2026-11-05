@@ -304,3 +304,11 @@ Change the demo's last point from (4, 4) to (4, 6): the fit becomes
 variation. Or give the `'single'` dataset a second point, (3, 6): its
 rejection disappears, and eyemind fits `fit('single', 2.0, 0.0, 1.0)`, the
 line Y = 2X through both points.
+
+---
+
+## Takeaway
+
+Fitting a line is arithmetic you can follow. Exact sums come first, and the
+few approximate divisions come last, so every number in the fit can be
+retraced, and a dataset that cannot be fitted is reported, not hidden.

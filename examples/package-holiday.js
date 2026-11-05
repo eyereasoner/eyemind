@@ -41,6 +41,10 @@
 //   5. assessment/4 combines both gates per version, with the basis cited;
 //   6. complaints are planned per version with complaint_plan/4;
 //   7. changed/3 lists every outcome the revision would change.
+//
+// Sources: https://eur-lex.europa.eu/eli/dir/2015/2302/oj/eng
+// https://www.europarl.europa.eu/news/en/press-room/20260306IPR37536/package-travel-parliament-greenlights-new-rules-to-protect-holidaymakers
+// https://www.w3.org/TR/odrl-model/
 
 fact(regime('directive_2015'))
 fact(regime('revised_2026'))

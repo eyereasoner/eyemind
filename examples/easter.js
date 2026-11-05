@@ -6,6 +6,8 @@
 // Every step is exact integer arithmetic on the year (floordiv and mod). A
 // backward rule computes one date, a backward in_range rule counts through the
 // years, and one forward rule turns each year into an easter/2 conclusion.
+//
+// The method is the anonymous Gregorian algorithm (Meeus/Jones/Butcher).
 
 implied_by(
   computus(Year, [Month, Day]),

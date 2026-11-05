@@ -12,6 +12,8 @@
 // A state is [Bananas, Monkey, Box, OnBox, HasBananas]: the locations of the
 // bananas, monkey and box, then 'y' or 'n' for whether the monkey is on the
 // box and whether it holds the bananas.
+//
+// See https://www.cs.toronto.edu/~hector/PublicTCSlides.pdf
 
 implied_by(reaches_goal(Moves), [initial_state(I), goal_state(G), reachable(I, Moves, G)])
 

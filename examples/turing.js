@@ -9,6 +9,8 @@
 // The tape is held as the cells to the left (reversed), the cell under the
 // head, and the cells to the right; # is a blank cell. The whole run is a
 // chain of backward rules over lists.
+//
+// See https://en.wikipedia.org/wiki/Universal_Turing_machine
 
 // compute(InTape, OutTape): run from the start state with the head on the
 // first cell; an empty tape starts on a blank.

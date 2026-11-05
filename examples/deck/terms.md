@@ -250,3 +250,10 @@ Add a second triple to the list, for example
 and run again: two `found` lines appear, one for "hello" in English and one
 for "hallo" in Dutch. There is still one `witness`, because there is still
 one quoted graph, but its Skolem term now holds the larger graph.
+
+---
+
+## Takeaway
+
+Web addresses, language-tagged text, statements and quotations all fit into
+plain terms, so the same simple, checkable reasoning works on them.

@@ -215,3 +215,11 @@ Add `fact(description('ann', ['good', 'baker']))` and run again: Ann is now
 good at baking and classified as a baker, with her own proof. Ask
 `good_at('sam', Trade)` with `--goal` and eyemind answers
 `// No answers: no instance of a goal holds.`
+
+---
+
+## Takeaway
+
+What a computer concludes depends on exactly how the knowledge is written.
+Keeping "good" attached to the trade stops the program from claiming more
+than the facts say, and the proof shows it never did.

@@ -205,3 +205,10 @@ Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#
 Add a Hebrew label to the facts,
 `rdf(iri(ex + 'welcome'), iri(ex + 'label'), literal('ברוכים הבאים', lang('he', 'rtl')), 'default_graph')`,
 and run again: a third display label appears, still marked `'he'`, `'rtl'`.
+
+---
+
+## Takeaway
+
+A rule that passes a value on whole cannot lose part of it: the direction
+arrives on the screen as it left the data.

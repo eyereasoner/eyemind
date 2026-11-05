@@ -295,3 +295,11 @@ The two questions give `complex(256, 0)` and `complex(0.0, -1.0)` (so
 `integer_power(4, complex(-4, 0))`, half-way round. Change w to
 `complex(2, 1)`: the sum becomes `complex(5, 5)`, the product
 `complex(2, 11)`, and z ÷ w happens to come out as the round `complex(2.0, 1.0)`.
+
+---
+
+## Takeaway
+
+A new kind of number is just a handful of rules. Because every calculation is
+recorded and redone by the checker, you can see exactly where results stay
+exact and where decimals creep in.

@@ -95,6 +95,22 @@ export const tests = {
     assert.ok(cli([], "fact(struct('clause', 'a', 'b'))\n").stderr.includes('reserved head clause/2'));
   },
 
+  'an option written where a value belongs says the value is missing'() {
+    const proof = 'examples/proof/socrates.js';
+    for (const [args, message] of [
+      [['--check-proof', '--strict-proof', proof, 'examples/socrates.js'], '--check-proof needs a value right after it, not the option --strict-proof'],
+      [['--goal', '-p', 'examples/socrates.js'], '--goal needs a value right after it, not the option -p'],
+      [['--max-depth', '--stats', 'examples/socrates.js'], '--max-depth needs a value right after it, not the option --stats'],
+    ]) {
+      const ran = cli(args);
+      assert.equal(ran.code, 1);
+      assert.ok(ran.stderr.includes(message), ran.stderr);
+    }
+    // Standard input stays a value, and the options work in either order.
+    assert.equal(cli(['--strict-proof', '--check-proof', proof, 'examples/socrates.js']).code, 0);
+    assert.equal(cli(['--check-proof', proof, '--strict-proof', 'examples/socrates.js']).code, 0);
+  },
+
   'prints the version'() {
     for (const [flag, ran] of [['-v', command], ['--version', cli]]) {
       const result = ran([flag, 'examples/socrates.js']);

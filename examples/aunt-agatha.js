@@ -24,6 +24,8 @@
 // labelling then tries yes and then no for each answer still open, so every
 // model is found exactly once. Premise 9 holds because two different names
 // never match.
+//
+// This is Pelletier's problem 55, puzzle PUZ001 in TPTP.
 
 // model(Killer, World): World answers every open question so that all the
 // premises hold with Killer as the killer. Each yes/no answer is a variable:

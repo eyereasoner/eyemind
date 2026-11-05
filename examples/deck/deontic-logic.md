@@ -268,3 +268,11 @@ Delete `fact(performed('alice', 'notify_dpo'))` instead: the compensation
 disappears, and the same goal now also finds
 `uncompensated_violation('alice', prohibited_action('share_record'))`,
 concluded by rule 12 because no compensation could be found.
+
+---
+
+## Takeaway
+
+Duties, prohibitions and amends can be stated as plain facts and rules. Kept
+apart, they let you say exactly what went wrong, what was made good, and
+what still needs a human to look at it.

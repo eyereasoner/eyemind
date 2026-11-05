@@ -187,3 +187,11 @@ Remove Minka's fact: no cat, so rule 4 is never switched on, and there is no
 conclusion. Remove Charly's fact instead: rule 4 is switched on but finds no
 dog. Change `'Cat'` to `'Dog'` in the outer rule: now Charly switches the
 rule on *and* satisfies it.
+
+---
+
+## Takeaway
+
+A rule can switch other rules on. Because eyemind writes the switched rule
+down before it starts, the proof can show exactly when it was switched on and
+why, and the checker can confirm both steps against the program.

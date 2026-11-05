@@ -268,3 +268,11 @@ the difference becomes 9 and the answer `result('example', 15)`. Change
 `'add'` to `'mul'` in the `total` node: the answer becomes
 `result('example', 36)`. Change it to `'div'` instead: no rule says what
 `'div'` means, so eyemind reports no answers.
+
+---
+
+## Takeaway
+
+Even simple arithmetic is a chain of small steps. When each one is written
+down and rechecked, a wrong input is easy to find, and a right answer is
+easy to trust.

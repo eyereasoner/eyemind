@@ -215,7 +215,7 @@ condition('C2', 'well_founded', 'ok', 16)
 condition('C3', 'justification', 'ok', 16)
 condition('C4', 'coverage', 'ok', 20)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 4)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 20)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -251,11 +251,12 @@ at:
   each backed by a step.
 - **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
   recomputing.
-- **C6 boundary consistency (4)**: the 4 collected lists were compared with
-  every `path` the checker could see, in the program's facts and the proof's
-  steps, to find a way missing from a list. There are none to see: the ways
-  are computed by rules, not listed as facts, and the proof does not record
-  them. So nothing refutes the lists, but nothing confirms them either.
+- **C6 boundary consistency (0)**: the checker had nothing to confront the
+  4 collected lists with. It would look for a `path` in the program's facts
+  and the proof's steps that is missing from a list, but there are none to
+  see: the ways are computed by rules, not listed as facts, and the proof
+  does not record them. So the lists are left undecided: nothing refutes
+  them, but nothing confirms them either.
 - **C7 relevance (20)**: the 4 claims answer the question, and all 16 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
@@ -296,3 +297,11 @@ longer entangled: the four correct pairs give way to ten mixed-up ones, and
 
 Its sibling, [teleportation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/teleportation.js), runs the companion
 protocol, quantum teleportation, in the same theory with the same relations.
+
+---
+
+## Takeaway
+
+Quantum interference can be expressed as ordinary rules plus one twist:
+count the ways, keep the odd ones. eyemind shows each answer's ways, and is
+upfront that "these are all the ways" is the one thing taken on trust.

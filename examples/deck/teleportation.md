@@ -243,7 +243,7 @@ condition('C2', 'well_founded', 'ok', 31)
 condition('C3', 'justification', 'ok', 31)
 condition('C4', 'coverage', 'ok', 48)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 12)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 43)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -287,9 +287,11 @@ at:
   (3 each) are each backed by a step.
 - **C5 re-decision (0)**: no arithmetic or other built-in calculation
   appears as a step of its own.
-- **C6 boundary consistency (12)**: the checker confronted all 12 collected
-  lists with the rest of the proof, looking for a step that shows Bob
-  receiving a value missing from a list. It found none.
+- **C6 boundary consistency (0)**: the checker had nothing to confront the
+  12 collected lists with. A `received` fact or step showing Bob receiving a
+  value missing from a list would refute it, but `received` is only a rule
+  and the proof records no `received` step. All 12 lists are left undecided
+  and stay obligations taken on trust.
 - **C7 relevance (43)**: the 12 claims answer the query, and all 31 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
@@ -322,3 +324,11 @@ prints `'false'` and exits with code 65.
 To see the interference for yourself, ask for the paths with
 `--goal "path('one', 0, Z, P)"`: `'false'` is reached twice and cancels,
 `'true'` once and survives.
+
+---
+
+## Takeaway
+
+Even a quantum protocol can be checked case by case with a few rules. eyemind
+covers all 12 cases, and is upfront that the "all answers" lists are the
+part you are trusting.

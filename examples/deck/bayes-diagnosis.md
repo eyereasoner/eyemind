@@ -284,3 +284,12 @@ Make paper jams twice as common: change its prior from `20` to `40`. Its
 weight doubles to 36000, the total becomes 55200, and the paper jam rises to
 about 65% (0.6521739130434783), while network loss falls to about 26% and
 power loss to about 9%.
+
+---
+
+## Takeaway
+
+A probability is only as trustworthy as the arithmetic behind it. Here every
+multiplication, sum and division is on the record and recomputed, and the one
+thing taken on trust — that the list of weights is complete — is named
+rather than hidden.

@@ -341,3 +341,10 @@ Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#
 - Delete the instruction `t([1, '#', 1, 's'], 'halt')`: 111111 and the empty
   tape now get no answer, because the carry runs off the left end onto a
   blank and the machine has no instruction for it. The first two answers stay.
+
+---
+
+## Takeaway
+
+A Turing machine is computation at its barest. With a proof, every tick of
+it becomes something you can read, replay and check.

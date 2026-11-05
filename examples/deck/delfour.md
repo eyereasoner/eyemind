@@ -4,6 +4,8 @@
 
 [delfour.js](https://github.com/eyereasoner/eyemind/blob/main/examples/delfour.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/delfour.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/delfour.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/delfour.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=delfour)
 
+The scenario is the one Ruben Verborgh describes in [*Inside the insight economy*](https://ruben.verborgh.org/blog/2025/08/12/inside-the-insight-economy/).
+
 ---
 
 ## The question
@@ -42,6 +44,33 @@ so 100 is 10 g and every comparison is between whole numbers, exact. The
 shopping case (which store, which device, which product was scanned, when)
 and a catalog of four products: Classic and Low-Sugar Tea Biscuits, a Milk
 Chocolate Bar and an 85% Dark Chocolate.
+
+### The phone reasons in private
+
+The phone's own reasoning is a separate, private program, run inside this
+one:
+
+```js
+function phone() {
+  fact(household('delfour', 'household_profile'))
+  fact(condition('household_profile', 'Diabetes'))
+  fact(shares('delfour', 'sugar_insight'))
+  implies([household(Case, Household), condition(Household, 'Diabetes')], low_sugar_case(Case))
+  implies([low_sugar_case(Case), shares(Case, Insight)], derived_need(Insight, 'low_sugar'))
+  query(derived_need(Insight, Need))
+}
+facts_from({ text: eyemind.run(eyemind.build(phone)).stdout })
+```
+
+`eyemind.build(phone)` turns the function into a program of its own, and
+`eyemind.run` runs it: the household has diabetes, so the case is a
+low-sugar case, so the shared insight carries a low-sugar need. Its only
+output is the answer to its query, the line
+`derived_need('sugar_insight', 'low_sugar')`. `facts_from` reads that output
+back as data and states it as a **fact** of the scanner's program. The
+household, the diabetes condition and the two phone rules stay inside the
+private run: they are not part of the scanner's program, its facts or its
+proof.
 
 ### A policy travels with it
 
@@ -176,7 +205,8 @@ all_checks_pass('delfour')
 In plain words:
 
 - The phone turned the household's condition into a neutral low-sugar need
-  (`derived_need`).
+  in its private run; the scanner received only that need
+  (`derived_need`), as a fact.
 - The scanner **may use** the insight (`'Allowed'`).
 - The banner shows **12.0 g** of sugar per serving for the Classic Tea
   Biscuits, with a **High sugar** note: 12.0 g is over the 10 g threshold.
@@ -191,8 +221,9 @@ In plain words:
 
 `eyemind --proof` writes down how it reached each conclusion. The proof has
 73 steps and is too long to show whole ([full file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/delfour.js)).
-Below are its claims, all its clauses, and two complete chains: the decision
-to allow use, and the minimal-payload check. Comment lines starting with
+Below are its claims, all its clauses, the steps for the case name and the
+phone's derived need, and two complete chains: the decision to allow use,
+and the minimal-payload check. Comment lines starting with
 `// …` mark what is left out:
 
 ```js
@@ -226,95 +257,94 @@ all_checks_pass('delfour')
 
 // Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(case_name('delfour', 'delfour')))
-clause(2, fact(household('delfour', 'household_profile')))
-clause(3, fact(condition('household_profile', 'Diabetes')))
-clause(4, fact(request_purpose('delfour', 'shopping_assist')))
-clause(5, fact(request_action('delfour', 'use')))
-clause(8, fact(authorization_time('delfour', '2025-10-05T20:35:48.907163+00:00')))
-clause(9, fact(duty_time('delfour', '2025-10-05T20:37:48.907163+00:00')))
-clause(10, fact(files_written('delfour', 6)))
-clause(11, fact(audit_entries('delfour', 1)))
-clause(12, fact(store('delfour', 'Delfour')))
-clause(13, fact(scanning_device('delfour', 'self-scanner')))
-clause(14, fact(scanned_product('delfour', 'prod_BIS_001')))
-clause(15, fact(envelope('delfour', 'shopping_envelope')))
-clause(16, fact(signature('delfour', 'scanner_signature')))
-clause(17, fact(product_name('prod_BIS_001', 'Classic Tea Biscuits')))
-clause(18, fact(sugar('prod_BIS_001', 120)))
-clause(19, fact(category('prod_BIS_001', 'biscuits')))
-clause(20, fact(product_name('prod_BIS_101', 'Low-Sugar Tea Biscuits')))
-clause(21, fact(sugar('prod_BIS_101', 30)))
-clause(22, fact(category('prod_BIS_101', 'biscuits')))
-clause(29, fact(aisle('biscuits', 'aisle 7')))
-clause(31, fact(metric('sugar_insight', 'sugar_g_per_serving')))
-clause(32, fact(threshold('sugar_insight', 100)))
-clause(33, fact(threshold_display('sugar_insight', '10.0')))
-clause(35, fact(device('sugar_insight', 'self-scanner')))
-clause(36, fact(scope_event('sugar_insight', 'pick_up_scanner')))
-clause(37, fact(retailer('sugar_insight', 'Delfour')))
-clause(39, fact(expires('sugar_insight', '2025-10-05T22:33:48.907185+00:00')))
-clause(40, fact(payload_text('sugar_insight', 'createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner')))
-clause(41, fact(permission('shopping_policy', 'use', 'sugar_insight', 'shopping_assist')))
-clause(42, fact(prohibition('shopping_policy', 'distribute', 'sugar_insight', 'marketing')))
-clause(43, fact(deletion_deadline('shopping_policy', '2025-10-05T22:33:48.907185+00:00')))
-clause(44, fact(insight('shopping_envelope', 'sugar_insight')))
-clause(45, fact(policy('shopping_envelope', 'shopping_policy')))
-clause(46, fact(hash('shopping_envelope', '34ad35638dfd7c67d031eeca8abb235ec24280740f863f3f31cd9d7b6517f098')))
-clause(47, fact(algorithm('scanner_signature', 'HMAC-SHA256')))
-clause(50, fact(payload_hash('scanner_signature', '34ad35638dfd7c67d031eeca8abb235ec24280740f863f3f31cd9d7b6517f098')))
-clause(52, fact(verification_mode('scanner_signature', 'trusted_precomputed_input')))
-clause(54, implied_by(not_after(Time, Limit), [compare(Order, Time, Limit), not_identical(Order, '>')]))
-clause(55, implied_by(case_insight(Case, Insight), [envelope(Case, Envelope), insight(Envelope, Insight)]))
-clause(56, implied_by(case_policy(Case, Policy), [envelope(Case, Envelope), policy(Envelope, Policy)]))
-clause(57, implied_by(scanned_sugar(Case, Sugar), [scanned_product(Case, Product), sugar(Product, Sugar)]))
-clause(58, implied_by(scope(Insight, [Device, Event]), [device(Insight, Device), scope_event(Insight, Event)]))
-clause(59, implies([household(Case, Household), condition(Household, 'Diabetes')], low_sugar_case(Case)))
-clause(60, implies([low_sugar_case(Case), case_insight(Case, Insight)], derived_need(Insight, 'low_sugar')))
-clause(61, implies([signature(Case, Signature), verification_mode(Signature, 'trusted_precomputed_input')], passed(Case, 'trusted_signature')))
-clause(62, implies([envelope(Case, Envelope), signature(Case, Signature), hash(Envelope, Hash), payload_hash(Signature, Hash)], passed(Case, 'matching_hash')))
-clause(63, implies([case_insight(Case, Insight), payload_text(Insight, Payload), not(contains(Payload, 'diabetes')), not(contains(Payload, 'medical'))], passed(Case, 'minimal_payload')))
-clause(64, implies([case_insight(Case, Insight), device(Insight, _0), scope_event(Insight, _1), expires(Insight, _2)], passed(Case, 'complete_scope')))
-clause(65, implies([case_insight(Case, Insight), case_policy(Case, Policy), store(Case, Store), retailer(Insight, Store), scanning_device(Case, Device), device(Insight, Device), request_action(Case, Action), request_purpose(Case, Purpose), permission(Policy, Action, Insight, Purpose), authorization_time(Case, Time), expires(Insight, Expires), not_after(Time, Expires)], passed(Case, 'authorization')))
-clause(66, implies([passed(Case, 'authorization'), case_insight(Case, Insight)], decision(Case, 'Allowed', Insight)))
-clause(67, implies([passed(Case, 'authorization'), scanned_sugar(Case, Sugar), case_insight(Case, Insight), threshold(Insight, Threshold), ge(Sugar, Threshold)], passed(Case, 'high_sugar')))
-clause(68, implies([passed(Case, 'authorization'), scanned_product(Case, Product), product_name(Product, Label), sugar(Product, Tenths), is(Grams, div(Tenths, 10))], [headline(Case, 'Track sugar per serving while you scan'), banner(Case, Label, Grams)]))
-clause(69, implies(passed(Case, 'high_sugar'), note(Case, 'High sugar')))
-clause(70, implied_by(considers(Case, Product), [scanned_product(Case, Scanned), category(Scanned, Shelf), sugar(Scanned, Most), category(Product, Shelf), sugar(Product, Sugar), lt(Sugar, Most)]))
-clause(72, implies([considers(Case, Product), not(beaten(Case, Product))], alternative(Case, Product)))
-clause(73, implies([passed(Case, 'high_sugar'), alternative(Case, Product), product_name(Product, Label), category(Product, Shelf), aisle(Shelf, Aisle)], banner_alternative(Case, Label, Aisle)))
-clause(74, implies([scanned_sugar(Case, Most), alternative(Case, Product), sugar(Product, Sugar), lt(Sugar, Most)], passed(Case, 'lower_sugar')))
-clause(75, implies([case_policy(Case, Policy), duty_time(Case, Time), deletion_deadline(Policy, Deadline), not_after(Time, Deadline)], passed(Case, 'duty_timing')))
-clause(76, implies([case_policy(Case, Policy), case_insight(Case, Insight), prohibition(Policy, 'distribute', Insight, 'marketing')], passed(Case, 'marketing_prohibited')))
-clause(77, implies(files_written(Case, 6), passed(Case, 'expected_file_count')))
-clause(78, implies([passed(Case, 'trusted_signature'), passed(Case, 'matching_hash'), passed(Case, 'minimal_payload'), passed(Case, 'complete_scope'), passed(Case, 'authorization'), passed(Case, 'high_sugar'), passed(Case, 'lower_sugar'), passed(Case, 'duty_timing'), passed(Case, 'marketing_prohibited'), passed(Case, 'expected_file_count')], all_checks_pass(Case)))
+clause(2, fact(request_purpose('delfour', 'shopping_assist')))
+clause(3, fact(request_action('delfour', 'use')))
+clause(6, fact(authorization_time('delfour', '2025-10-05T20:35:48.907163+00:00')))
+clause(7, fact(duty_time('delfour', '2025-10-05T20:37:48.907163+00:00')))
+clause(8, fact(files_written('delfour', 6)))
+clause(9, fact(audit_entries('delfour', 1)))
+clause(10, fact(store('delfour', 'Delfour')))
+clause(11, fact(scanning_device('delfour', 'self-scanner')))
+clause(12, fact(scanned_product('delfour', 'prod_BIS_001')))
+clause(13, fact(envelope('delfour', 'shopping_envelope')))
+clause(14, fact(signature('delfour', 'scanner_signature')))
+clause(15, fact(product_name('prod_BIS_001', 'Classic Tea Biscuits')))
+clause(16, fact(sugar('prod_BIS_001', 120)))
+clause(17, fact(category('prod_BIS_001', 'biscuits')))
+clause(18, fact(product_name('prod_BIS_101', 'Low-Sugar Tea Biscuits')))
+clause(19, fact(sugar('prod_BIS_101', 30)))
+clause(20, fact(category('prod_BIS_101', 'biscuits')))
+clause(27, fact(aisle('biscuits', 'aisle 7')))
+clause(29, fact(metric('sugar_insight', 'sugar_g_per_serving')))
+clause(30, fact(threshold('sugar_insight', 100)))
+clause(31, fact(threshold_display('sugar_insight', '10.0')))
+clause(33, fact(device('sugar_insight', 'self-scanner')))
+clause(34, fact(scope_event('sugar_insight', 'pick_up_scanner')))
+clause(35, fact(retailer('sugar_insight', 'Delfour')))
+clause(37, fact(expires('sugar_insight', '2025-10-05T22:33:48.907185+00:00')))
+clause(38, fact(payload_text('sugar_insight', 'createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner')))
+clause(39, fact(permission('shopping_policy', 'use', 'sugar_insight', 'shopping_assist')))
+clause(40, fact(prohibition('shopping_policy', 'distribute', 'sugar_insight', 'marketing')))
+clause(41, fact(deletion_deadline('shopping_policy', '2025-10-05T22:33:48.907185+00:00')))
+clause(42, fact(insight('shopping_envelope', 'sugar_insight')))
+clause(43, fact(policy('shopping_envelope', 'shopping_policy')))
+clause(44, fact(hash('shopping_envelope', '34ad35638dfd7c67d031eeca8abb235ec24280740f863f3f31cd9d7b6517f098')))
+clause(45, fact(algorithm('scanner_signature', 'HMAC-SHA256')))
+clause(48, fact(payload_hash('scanner_signature', '34ad35638dfd7c67d031eeca8abb235ec24280740f863f3f31cd9d7b6517f098')))
+clause(50, fact(verification_mode('scanner_signature', 'trusted_precomputed_input')))
+clause(52, implied_by(not_after(Time, Limit), [compare(Order, Time, Limit), not_identical(Order, '>')]))
+clause(53, implied_by(case_insight(Case, Insight), [envelope(Case, Envelope), insight(Envelope, Insight)]))
+clause(54, implied_by(case_policy(Case, Policy), [envelope(Case, Envelope), policy(Envelope, Policy)]))
+clause(55, implied_by(scanned_sugar(Case, Sugar), [scanned_product(Case, Product), sugar(Product, Sugar)]))
+clause(56, implied_by(scope(Insight, [Device, Event]), [device(Insight, Device), scope_event(Insight, Event)]))
+clause(57, fact(derived_need('sugar_insight', 'low_sugar')))
+clause(58, implies([signature(Case, Signature), verification_mode(Signature, 'trusted_precomputed_input')], passed(Case, 'trusted_signature')))
+clause(59, implies([envelope(Case, Envelope), signature(Case, Signature), hash(Envelope, Hash), payload_hash(Signature, Hash)], passed(Case, 'matching_hash')))
+clause(60, implies([case_insight(Case, Insight), payload_text(Insight, Payload), not(contains(Payload, 'diabetes')), not(contains(Payload, 'medical'))], passed(Case, 'minimal_payload')))
+clause(61, implies([case_insight(Case, Insight), device(Insight, _0), scope_event(Insight, _1), expires(Insight, _2)], passed(Case, 'complete_scope')))
+clause(62, implies([case_insight(Case, Insight), case_policy(Case, Policy), store(Case, Store), retailer(Insight, Store), scanning_device(Case, Device), device(Insight, Device), request_action(Case, Action), request_purpose(Case, Purpose), permission(Policy, Action, Insight, Purpose), authorization_time(Case, Time), expires(Insight, Expires), not_after(Time, Expires)], passed(Case, 'authorization')))
+clause(63, implies([passed(Case, 'authorization'), case_insight(Case, Insight)], decision(Case, 'Allowed', Insight)))
+clause(64, implies([passed(Case, 'authorization'), scanned_sugar(Case, Sugar), case_insight(Case, Insight), threshold(Insight, Threshold), ge(Sugar, Threshold)], passed(Case, 'high_sugar')))
+clause(65, implies([passed(Case, 'authorization'), scanned_product(Case, Product), product_name(Product, Label), sugar(Product, Tenths), is(Grams, div(Tenths, 10))], [headline(Case, 'Track sugar per serving while you scan'), banner(Case, Label, Grams)]))
+clause(66, implies(passed(Case, 'high_sugar'), note(Case, 'High sugar')))
+clause(67, implied_by(considers(Case, Product), [scanned_product(Case, Scanned), category(Scanned, Shelf), sugar(Scanned, Most), category(Product, Shelf), sugar(Product, Sugar), lt(Sugar, Most)]))
+clause(69, implies([considers(Case, Product), not(beaten(Case, Product))], alternative(Case, Product)))
+clause(70, implies([passed(Case, 'high_sugar'), alternative(Case, Product), product_name(Product, Label), category(Product, Shelf), aisle(Shelf, Aisle)], banner_alternative(Case, Label, Aisle)))
+clause(71, implies([scanned_sugar(Case, Most), alternative(Case, Product), sugar(Product, Sugar), lt(Sugar, Most)], passed(Case, 'lower_sugar')))
+clause(72, implies([case_policy(Case, Policy), duty_time(Case, Time), deletion_deadline(Policy, Deadline), not_after(Time, Deadline)], passed(Case, 'duty_timing')))
+clause(73, implies([case_policy(Case, Policy), case_insight(Case, Insight), prohibition(Policy, 'distribute', Insight, 'marketing')], passed(Case, 'marketing_prohibited')))
+clause(74, implies(files_written(Case, 6), passed(Case, 'expected_file_count')))
+clause(75, implies([passed(Case, 'trusted_signature'), passed(Case, 'matching_hash'), passed(Case, 'minimal_payload'), passed(Case, 'complete_scope'), passed(Case, 'authorization'), passed(Case, 'high_sugar'), passed(Case, 'lower_sugar'), passed(Case, 'duty_timing'), passed(Case, 'marketing_prohibited'), passed(Case, 'expected_file_count')], all_checks_pass(Case)))
 
 // Steps: each goal, what justifies it (a clause, a builtin, a control, or an
 // absence or collection taken on trust), the bindings and the goals it uses.
-// … the proof has 73 steps; 23 are shown: the chain for the decision and the
-// chain for the minimal-payload check. Left out here: 5 steps for the case
-// name and the phone's derived need, which rests on the diabetes fact.
-step(case_insight('delfour', 'sugar_insight'), clause(55), {Case: 'delfour', Insight: 'sugar_insight', Envelope: 'shopping_envelope'}, [envelope('delfour', 'shopping_envelope'), insight('shopping_envelope', 'sugar_insight')])
-step(envelope('delfour', 'shopping_envelope'), clause(15), {}, [])
-step(insight('shopping_envelope', 'sugar_insight'), clause(44), {}, [])
-step(decision('delfour', 'Allowed', 'sugar_insight'), clause(66), {Case: 'delfour', Insight: 'sugar_insight'}, [passed('delfour', 'authorization'), case_insight('delfour', 'sugar_insight')])
-step(passed('delfour', 'authorization'), clause(65), {Case: 'delfour', Insight: 'sugar_insight', Policy: 'shopping_policy', Store: 'Delfour', Device: 'self-scanner', Action: 'use', Purpose: 'shopping_assist', Time: '2025-10-05T20:35:48.907163+00:00', Expires: '2025-10-05T22:33:48.907185+00:00'}, [case_insight('delfour', 'sugar_insight'), case_policy('delfour', 'shopping_policy'), store('delfour', 'Delfour'), retailer('sugar_insight', 'Delfour'), scanning_device('delfour', 'self-scanner'), device('sugar_insight', 'self-scanner'), request_action('delfour', 'use'), request_purpose('delfour', 'shopping_assist'), permission('shopping_policy', 'use', 'sugar_insight', 'shopping_assist'), authorization_time('delfour', '2025-10-05T20:35:48.907163+00:00'), expires('sugar_insight', '2025-10-05T22:33:48.907185+00:00'), not_after('2025-10-05T20:35:48.907163+00:00', '2025-10-05T22:33:48.907185+00:00')])
-step(case_policy('delfour', 'shopping_policy'), clause(56), {Case: 'delfour', Policy: 'shopping_policy', Envelope: 'shopping_envelope'}, [envelope('delfour', 'shopping_envelope'), policy('shopping_envelope', 'shopping_policy')])
-step(policy('shopping_envelope', 'shopping_policy'), clause(45), {}, [])
-step(store('delfour', 'Delfour'), clause(12), {}, [])
-step(retailer('sugar_insight', 'Delfour'), clause(37), {}, [])
-step(scanning_device('delfour', 'self-scanner'), clause(13), {}, [])
-step(device('sugar_insight', 'self-scanner'), clause(35), {}, [])
-step(request_action('delfour', 'use'), clause(5), {}, [])
-step(request_purpose('delfour', 'shopping_assist'), clause(4), {}, [])
-step(permission('shopping_policy', 'use', 'sugar_insight', 'shopping_assist'), clause(41), {}, [])
-step(authorization_time('delfour', '2025-10-05T20:35:48.907163+00:00'), clause(8), {}, [])
-step(expires('sugar_insight', '2025-10-05T22:33:48.907185+00:00'), clause(39), {}, [])
-step(not_after('2025-10-05T20:35:48.907163+00:00', '2025-10-05T22:33:48.907185+00:00'), clause(54), {Time: '2025-10-05T20:35:48.907163+00:00', Limit: '2025-10-05T22:33:48.907185+00:00', Order: '<'}, [compare('<', '2025-10-05T20:35:48.907163+00:00', '2025-10-05T22:33:48.907185+00:00'), not_identical('<', '>')])
+// … the proof has 70 steps; 25 are shown: the case name, the phone's
+// derived need, the chain for the decision and the chain for the
+// minimal-payload check.
+step(case_name('delfour', 'delfour'), clause(1), {}, [])
+step(derived_need('sugar_insight', 'low_sugar'), clause(57), {}, [])
+step(decision('delfour', 'Allowed', 'sugar_insight'), clause(63), {Case: 'delfour', Insight: 'sugar_insight'}, [passed('delfour', 'authorization'), case_insight('delfour', 'sugar_insight')])
+step(passed('delfour', 'authorization'), clause(62), {Case: 'delfour', Insight: 'sugar_insight', Policy: 'shopping_policy', Store: 'Delfour', Device: 'self-scanner', Action: 'use', Purpose: 'shopping_assist', Time: '2025-10-05T20:35:48.907163+00:00', Expires: '2025-10-05T22:33:48.907185+00:00'}, [case_insight('delfour', 'sugar_insight'), case_policy('delfour', 'shopping_policy'), store('delfour', 'Delfour'), retailer('sugar_insight', 'Delfour'), scanning_device('delfour', 'self-scanner'), device('sugar_insight', 'self-scanner'), request_action('delfour', 'use'), request_purpose('delfour', 'shopping_assist'), permission('shopping_policy', 'use', 'sugar_insight', 'shopping_assist'), authorization_time('delfour', '2025-10-05T20:35:48.907163+00:00'), expires('sugar_insight', '2025-10-05T22:33:48.907185+00:00'), not_after('2025-10-05T20:35:48.907163+00:00', '2025-10-05T22:33:48.907185+00:00')])
+step(case_insight('delfour', 'sugar_insight'), clause(53), {Case: 'delfour', Insight: 'sugar_insight', Envelope: 'shopping_envelope'}, [envelope('delfour', 'shopping_envelope'), insight('shopping_envelope', 'sugar_insight')])
+step(envelope('delfour', 'shopping_envelope'), clause(13), {}, [])
+step(insight('shopping_envelope', 'sugar_insight'), clause(42), {}, [])
+step(case_policy('delfour', 'shopping_policy'), clause(54), {Case: 'delfour', Policy: 'shopping_policy', Envelope: 'shopping_envelope'}, [envelope('delfour', 'shopping_envelope'), policy('shopping_envelope', 'shopping_policy')])
+step(policy('shopping_envelope', 'shopping_policy'), clause(43), {}, [])
+step(store('delfour', 'Delfour'), clause(10), {}, [])
+step(retailer('sugar_insight', 'Delfour'), clause(35), {}, [])
+step(scanning_device('delfour', 'self-scanner'), clause(11), {}, [])
+step(device('sugar_insight', 'self-scanner'), clause(33), {}, [])
+step(request_action('delfour', 'use'), clause(3), {}, [])
+step(request_purpose('delfour', 'shopping_assist'), clause(2), {}, [])
+step(permission('shopping_policy', 'use', 'sugar_insight', 'shopping_assist'), clause(39), {}, [])
+step(authorization_time('delfour', '2025-10-05T20:35:48.907163+00:00'), clause(6), {}, [])
+step(expires('sugar_insight', '2025-10-05T22:33:48.907185+00:00'), clause(37), {}, [])
+step(not_after('2025-10-05T20:35:48.907163+00:00', '2025-10-05T22:33:48.907185+00:00'), clause(52), {Time: '2025-10-05T20:35:48.907163+00:00', Limit: '2025-10-05T22:33:48.907185+00:00', Order: '<'}, [compare('<', '2025-10-05T20:35:48.907163+00:00', '2025-10-05T22:33:48.907185+00:00'), not_identical('<', '>')])
 step(compare('<', '2025-10-05T20:35:48.907163+00:00', '2025-10-05T22:33:48.907185+00:00'), 'builtin', {}, [])
 step(not_identical('<', '>'), 'builtin', {}, [])
 // … 43 steps for the banner, the note, the alternative and the other checks
-step(passed('delfour', 'minimal_payload'), clause(63), {Case: 'delfour', Insight: 'sugar_insight', Payload: 'createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner'}, [case_insight('delfour', 'sugar_insight'), payload_text('sugar_insight', 'createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner'), not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'diabetes')), not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical'))])
-step(payload_text('sugar_insight', 'createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner'), clause(40), {}, [])
+step(passed('delfour', 'minimal_payload'), clause(60), {Case: 'delfour', Insight: 'sugar_insight', Payload: 'createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner'}, [case_insight('delfour', 'sugar_insight'), payload_text('sugar_insight', 'createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner'), not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'diabetes')), not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical'))])
+step(payload_text('sugar_insight', 'createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner'), clause(38), {}, [])
 step(not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'diabetes')), 'absent', {}, [])
 step(not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical')), 'absent', {}, [])
 // … 2 steps for the lower-sugar check and for all checks passing
@@ -325,9 +355,9 @@ It has three parts:
 - **The claims**: the 26 conclusions the proof is about.
 - **The clauses**: the program facts and rules the steps cite, numbered in
   program order (the catalog loop's facts and the queries count too).
-  Numbers are skipped where nothing cites a clause: the chocolates (23–28,
-  30), the signature's key, creation time and HMAC (48, 49, 51), and a few
-  other details. The `contains` rule (53) and the `beaten` rule (71) are
+  Numbers are skipped where nothing cites a clause: the chocolates (21–26,
+  28), the signature's key, creation time and HMAC (46, 47, 49), and a few
+  other details. The `contains` rule (51) and the `beaten` rule (68) are
   skipped too: they only appear inside `not(...)`, which the proof records
   as absences. In displays a lone `_` becomes a named placeholder such as
   `_0`.
@@ -343,29 +373,34 @@ Three kinds of justification occur:
 - `'absent'`: concluded because a search found nothing. A proof cannot point
   at a fact that shows something is missing, so this is taken on trust.
 
-Read the two chains as sentences:
+Read the steps as sentences:
 
-1. *The case's insight is the sugar insight* — by rule 55, because the
-   case's envelope (fact 15) carries that insight (fact 44).
-2. *Use is allowed* — by rule 66, because the authorization check passed.
-3. *The authorization check passed* — by rule 65, with the store Delfour,
+1. *The case is named `delfour`* — fact 1.
+2. *The sugar insight carries a low-sugar need* — fact 57, the line the
+   phone's private run produced and `facts_from` read back. To the scanner
+   it is simply a fact; nothing behind it appears in the proof.
+3. *Use is allowed* — by rule 63, because the authorization check passed
+   and the case's insight is the sugar insight.
+4. *The authorization check passed* — by rule 62, with the store Delfour,
    the device the self-scanner, the action `use` and the purpose
    `shopping_assist`. It uses twelve things, each established below.
-4. *The case's policy is the shopping policy* — by rule 56, from the
-   envelope and fact 45.
-5. *The store is Delfour, and the insight is restricted to Delfour* — facts
-   12 and 37. *The device is the self-scanner, and so is the insight's* —
-   facts 13 and 35.
-6. *The request is to use, for shopping assistance, and the policy permits
-   exactly that* — facts 5, 4 and 41.
-7. *The request came at 20:35:48 and the insight expires at 22:33:48* —
-   facts 8 and 39.
-8. *20:35:48 is not after 22:33:48* — by rule 54: comparing the two texts
-   gives `'<'` (recomputed), and `'<'` is not `'>'` (recomputed).
-9. *The minimal-payload check passed* — by rule 63, because the shared text
-   is the payload of fact 40, and it contains neither `diabetes` nor
-   `medical`.
-10. *The text contains no `diabetes`*, *and no `medical`* — absent: two
+5. *The case's insight is the sugar insight* — by rule 53, because the
+   case's envelope (fact 13) carries that insight (fact 42).
+6. *The case's policy is the shopping policy* — by rule 54, from the
+   envelope and fact 43.
+7. *The store is Delfour, and the insight is restricted to Delfour* — facts
+   10 and 35. *The device is the self-scanner, and so is the insight's* —
+   facts 11 and 33.
+8. *The request is to use, for shopping assistance, and the policy permits
+   exactly that* — facts 3, 2 and 39.
+9. *The request came at 20:35:48 and the insight expires at 22:33:48* —
+   facts 6 and 37.
+10. *20:35:48 is not after 22:33:48* — by rule 52: comparing the two texts
+    gives `'<'` (recomputed), and `'<'` is not `'>'` (recomputed).
+11. *The minimal-payload check passed* — by rule 60, because the shared text
+    is the payload of fact 38, and it contains neither `diabetes` nor
+    `medical`.
+12. *The text contains no `diabetes`*, *and no `medical`* — absent: two
     trusted steps.
 
 Each step leans only on steps listed below it, or on a step shown earlier
@@ -375,11 +410,12 @@ patterns; among them `is(12.0, div(120, 10))` for the banner,
 alternative, and a third absence: no product on the biscuit shelf beats the
 Low-Sugar Tea Biscuits.
 
-Notice one more thing: the left-out steps for `derived_need` rest on the
-fact `condition('household_profile', 'Diabetes')`. The proof covers the
-phone's reasoning as well as the scanner's, so it contains the medical
-fact. The scanner itself reasons only from the insight; a proof meant for
-the store would have to leave out the phone's part.
+Notice one more thing: the medical fact appears nowhere in this proof. The
+household's diabetes stays inside the phone's private run; what reaches the
+scanner is the single fact `derived_need('sugar_insight', 'low_sugar')`
+(fact 57), and the proof cites it like any other fact. So the scanner's
+facts and its proof can be handed to the store without revealing the
+condition.
 
 ---
 
@@ -421,13 +457,13 @@ all_checks_pass('delfour')
 
 // C1-C8: resolution, acyclicity, justification, coverage,
 // re-decision, boundary consistency, relevance and witness integrity.
-condition('C1', 'resolution', 'ok', 64)
-condition('C2', 'well_founded', 'ok', 73)
-condition('C3', 'justification', 'ok', 73)
-condition('C4', 'coverage', 'ok', 121)
+condition('C1', 'resolution', 'ok', 61)
+condition('C2', 'well_founded', 'ok', 70)
+condition('C3', 'justification', 'ok', 70)
+condition('C4', 'coverage', 'ok', 117)
 condition('C5', 're_decision', 'ok', 6)
-condition('C6', 'boundary_consistency', 'ok', 3)
-condition('C7', 'relevance', 'ok', 99)
+condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C7', 'relevance', 'ok', 96)
 condition('C8', 'witness_integrity', 'ok', 0)
 
 // Obligations: absence and collection completeness are taken on trust.
@@ -436,8 +472,8 @@ obligation('absent', 'theory_scoped', not(contains('createdat expiresat insight 
 obligation('absent', 'theory_scoped', not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical')))
 
 // Proof statistics: recorded steps and how they were checked.
-steps(73)
-verified(64)
+steps(70)
+verified(61)
 recomputed(6)
 composed(0)
 trusted(3)
@@ -450,28 +486,30 @@ verdict('checked_with_obligations')
 Each `condition` line names a check, says `'ok'`, and counts what it looked
 at:
 
-- **C1 resolution (64)**: the 64 steps that cite a clause really are
+- **C1 resolution (61)**: the 61 steps that cite a clause really are
   instances of it with the values shown; for example, the authorization
-  step is rule 65 with `Store` = Delfour and `Device` = the self-scanner.
-- **C2 well-founded (73)**: none of the 73 steps depends on itself, even
+  step is rule 62 with `Store` = Delfour and `Device` = the self-scanner.
+- **C2 well-founded (70)**: none of the 70 steps depends on itself, even
   indirectly.
-- **C3 justification (73)**: every step says how it was justified, in a form
+- **C3 justification (70)**: every step says how it was justified, in a form
   the checker understands.
-- **C4 coverage (121)**: the 26 claims and the 95 things the steps use are
+- **C4 coverage (117)**: the 26 claims and the 91 things the steps use are
   each backed by a step: nothing is taken for granted silently.
 - **C5 re-decision (6)**: the 6 calculations were recomputed and agree: the
   two timestamp comparisons, `'<'` differing from `'>'`, 120 ÷ 10 = 12.0,
   120 ≥ 100 and 30 < 120.
-- **C6 boundary consistency (3)**: the 3 absences were confronted with the
-  evidence in the program and the proof, and none is contradicted: nothing
-  there shows a biscuit beating the Low-Sugar Tea Biscuits, or either word in
-  the shared text.
-- **C7 relevance (99)**: the 26 claims each answer one of the program's
-  queries, and all 73 steps serve a claim.
+- **C6 boundary consistency (0)**: the checker had nothing to confront the
+  3 absences with. `beaten` and `contains` are only rules: no program fact
+  and no step of the proof is a `beaten` or `contains` statement, so
+  nothing could show a biscuit beating the Low-Sugar Tea Biscuits, or either
+  word in the shared text. All three are left undecided and stay
+  obligations taken on trust.
+- **C7 relevance (96)**: the 26 claims each answer one of the program's
+  queries, and all 70 steps serve a claim.
 - **C8 witness integrity (0)**: no rule invents a new, unnamed thing, so
   there is no invented name to verify.
 
-The statistics: 73 steps, 64 verified against the program, 6 recomputed, 3
+The statistics: 70 steps, 61 verified against the program, 6 recomputed, 3
 trusted, none composed from parts; 26 claims.
 
 The three `obligation` lines are the trusted steps, in plain words: *no
@@ -505,6 +543,10 @@ eyemind --check-proof delfour.proof.js examples/delfour.js
   `all_checks_pass`.
 - Add the word `medical` to the payload text. The minimal-payload check
   fails, so `all_checks_pass` disappears, though use is still allowed.
+
+---
+
+## Takeaway
 
 A service can act on a sensitive fact without ever holding it, when what it
 receives is a scoped, expiring conclusion with its policy attached, and every

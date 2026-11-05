@@ -234,3 +234,11 @@ Run again: Alice is now also Dave's great-grandparent,
 `triple('alice', 'great_grandparent', 'dave')`, with no new rule. The chain
 `['parent', 'grandparent']` gives the same answer, since a chain can use a
 relationship that was itself derived.
+
+---
+
+## Takeaway
+
+When a definition is data rather than code, one general rule covers every
+definition of its kind. Adding a relationship means adding one line, and
+every link it produces still comes with the exact path that was walked.

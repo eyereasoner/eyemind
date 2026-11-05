@@ -176,3 +176,10 @@ Add `fact(type('plato', 'human'))` and run again: Plato becomes mortal too,
 with his own proof. Then add `fact(subclass_of('mortal', 'living'))`: the same
 rule, used twice in a row, now also concludes that Socrates and Plato are
 living.
+
+---
+
+## Takeaway
+
+A conclusion you can follow step by step, and that a machine has checked,
+is one you can explain, question and build on — not just believe.

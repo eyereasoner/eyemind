@@ -292,7 +292,7 @@ condition('C2', 'well_founded', 'ok', 77)
 condition('C3', 'justification', 'ok', 77)
 condition('C4', 'coverage', 'ok', 102)
 condition('C5', 're_decision', 'ok', 41)
-condition('C6', 'boundary_consistency', 'ok', 1)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 78)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -327,9 +327,11 @@ at:
 - **C5 re-decision (41)**: the checker **recomputed** all 41 builtin steps,
   every addition, multiplication and limit comparison, and got the same
   results.
-- **C6 boundary consistency (1)**: the checker confronted the one absence,
-  *"no cheaper feasible schedule"*, with the evidence in the proof. Nothing
-  in the proof shows a cheaper schedule, so it is not refuted.
+- **C6 boundary consistency (0)**: the checker had nothing to confront the
+  one absence, *"no cheaper feasible schedule"*, with: `cheaper_dispatch` is
+  only a rule, and neither the program's facts nor the proof's steps contain
+  a single `cheaper_dispatch`. Nothing could refute the absence, so it is
+  left undecided and stays an obligation taken on trust.
 - **C7 relevance (78)**: the 1 claim answers the query, and all 77 steps
   serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
@@ -360,3 +362,11 @@ Raise the final required charge from 2 to 4 kWh: the battery must refill,
 and the best plan now costs 43 cents. Lowering that requirement to 1 gives
 more room to discharge at the end: slot 4 discharges 2 kW instead of 1, and
 the cost drops to 21 cents.
+
+---
+
+## Takeaway
+
+"Cheapest" is a claim about every other option, not only the chosen one.
+The proof shows the chosen schedule meets every limit, and says plainly that
+"nothing cheaper exists" rests on a search taken on trust.

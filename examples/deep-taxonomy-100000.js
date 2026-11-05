@@ -5,6 +5,8 @@
 // means following the single productive branch the whole way down, one
 // backward step per level, so it tests how deep goal-directed search and its
 // proof can go. A JavaScript loop states the three rules of every level.
+//
+// See https://web.archive.org/web/20101025233525/http://www.ruleml.org/WellnessRules/files/WellnessRulesN3-2009-11-10.pdf
 
 fact(type('ind', 'n0'))
 for (let level = 1; level <= 100000; level++) {

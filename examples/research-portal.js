@@ -56,6 +56,15 @@
 //   5. assessment/4 combines both gates per regime, with the basis cited;
 //   6. breaches are planned per regime with breach_plan/5;
 //   7. changed/3 lists every outcome the proposal would change.
+//
+// The proposal modelled is the original Commission Digital Omnibus proposal,
+// COM(2025) 837 final (19 November 2025).
+// Sources: https://www.w3.org/TR/odrl-model/
+// https://www.w3.org/TR/odrl-vocab/
+// https://w3id.org/dpv/2.3/dpv/
+// https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52025PC0837
+// https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng
+// https://eur-lex.europa.eu/eli/dir/2002/58/2009-12-19
 
 // A small excerpt of the DPV purpose taxonomy.
 fact(t('dpv:AcademicResearch', 'skos:broader', 'dpv:ResearchAndDevelopment'))

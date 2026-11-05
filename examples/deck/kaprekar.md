@@ -183,7 +183,7 @@ condition('C2', 'well_founded', 'ok', 2)
 condition('C3', 'justification', 'ok', 2)
 condition('C4', 'coverage', 'ok', 2)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 1)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 3)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -215,9 +215,11 @@ at:
   are each backed by a step.
 - **C5 re-decision (0)**: no built-in calculation appears in the proof, so
   nothing needed recomputing.
-- **C6 boundary consistency (1)**: the checker tried to refute the 1
-  absence with the evidence in hand: is there a fact or a proof step saying
-  there *is* a counterexample? There is none, so the absence stands.
+- **C6 boundary consistency (0)**: the checker had nothing to confront the
+  1 absence with. Only a fact or a proof step saying there *is* a
+  counterexample could refute it, and `'counterexample'` is only a rule
+  that no fact and no step mentions. The absence is left undecided and
+  stays an obligation taken on trust.
 - **C7 relevance (3)**: the 1 claim answers the query, and both steps
   serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.

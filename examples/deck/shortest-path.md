@@ -17,10 +17,11 @@ a --2--> c --1--> b
          c --8--> d
 ```
 
-**What is the cheapest way to get from a to d?**
-
 Finding *a* route is easy. Saying a route is the *cheapest* means saying that
-**no cheaper route exists** — a claim about everything you didn't pick.
+**no cheaper route exists**: a claim about every route you didn't pick.
+
+**What is the cheapest way to get from a to d, and how can we trust that
+nothing cheaper exists?**
 
 ---
 
@@ -40,10 +41,19 @@ implies(
 )
 ```
 
-A road is a path; a path followed by one more road is a longer path, and the
-costs add up. `implies` means "keep applying this until nothing new follows".
-The map has no loops, so this ends with every route and its total cost. Listing
-all routes before choosing suits a small map; it is not Dijkstra's algorithm.
+- `fact(edge('a', 'b', 4))` states that a road from a to b costs 4.
+- `implies(conditions, conclusion)` is a **forward rule**: whenever all the
+  conditions in the square brackets hold, eyemind adds the conclusion, and it
+  keeps applying the rules until nothing new follows.
+- Capitalized names such as `X`, `Cost` or `Weight` are variables:
+  placeholders that take whatever values make the rule fit.
+- `is(Cost, add(Before, Weight))` is a **built-in** calculation: it adds the
+  two numbers and calls the result `Cost`.
+
+In words: a road is a path; a path followed by one more road is a longer
+path, and the costs add up. The map has no loops, so this ends with every
+route and its total cost. Listing all routes before choosing suits a small
+map; it is not Dijkstra's algorithm.
 
 ---
 
@@ -56,51 +66,174 @@ implies([path(X, Y, Cost), not(cheaper(X, Y, Cost))], shortest(X, Y, Cost))
 query(shortest('a', 'd', Cost))
 ```
 
-`not(...)` means **"not"**: it succeeds when its goal cannot be proved. A path is the shortest if there is **no** cheaper path
-between the same two places. The last line asks the question.
+- `implied_by(conclusion, conditions)` is a **backward rule**, a definition
+  consulted when a question needs it: *something cheaper than Cost exists if
+  some path between the same places costs less* (`lt` means "less than").
+- `not(…)` means **"not found"**: it succeeds when its goal cannot be proved.
+  A path is the shortest if there is **no** cheaper path between the same two
+  places.
+- `query(…)` asks the question.
 
 eyemind first finishes listing all paths, and only then looks for "no cheaper
-one", so the search for something cheaper is over a complete list.
+one". It cuts the program into layers, called *strata*, so a negation waits
+for everything it denies; the search for something cheaper is therefore over
+a complete list.
 
 ---
 
 ## What eyemind concludes
 
 ```js
+// Answers: each instance of a query() that holds.
 shortest('a', 'd', 6)
 ```
 
+The first line is a comment saying what follows: the answers to the query.
 There are three ways from a to d, costing 7 (via b), 10 (via c) and 6 (via c,
 then b). The cheapest costs **6**.
 
 ---
 
-## Why: the proof in plain words
+## The proof, line by line
 
-1. Road a → c costs 2 — *fact 2*, so there is a path of cost 2.
-2. Road c → b costs 1 — *fact 3*; path a → b now costs 2 + 1 = 3.
-3. Road b → d costs 3 — *fact 4*; path a → d now costs 3 + 3 = 6.
-4. **No** path from a to d is cheaper than 6 — *searched, none found*.
-5. So the shortest a → d costs 6 — *the `shortest` rule*.
+`eyemind --proof` writes down how it reached the answer. This is the complete
+proof:
 
-Steps 1–3 are shown in full. Step 4 is different: it is a claim that
-something does *not* exist.
+```js
+// Answers: each instance of a query() that holds.
+shortest('a', 'd', 6)
+
+// Clauses: the program clauses the steps cite, by clause number.
+clause(2, fact(edge('a', 'c', 2)))
+clause(3, fact(edge('c', 'b', 1)))
+clause(4, fact(edge('b', 'd', 3)))
+clause(6, implies(edge(X, Y, Cost), path(X, Y, Cost)))
+clause(7, implies([path(X, Y, Before), edge(Y, Z, Weight), is(Cost, add(Before, Weight))], path(X, Z, Cost)))
+clause(9, implies([path(X, Y, Cost), not(cheaper(X, Y, Cost))], shortest(X, Y, Cost)))
+
+// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
+// absence or collection taken on trust), the bindings and the goals it uses.
+step(shortest('a', 'd', 6), clause(9), {X: 'a', Y: 'd', Cost: 6}, [path('a', 'd', 6), not(cheaper('a', 'd', 6))])
+step(path('a', 'd', 6), clause(7), {X: 'a', Y: 'b', Before: 3, Z: 'd', Weight: 3, Cost: 6}, [path('a', 'b', 3), edge('b', 'd', 3), is(6, add(3, 3))])
+step(path('a', 'b', 3), clause(7), {X: 'a', Y: 'c', Before: 2, Z: 'b', Weight: 1, Cost: 3}, [path('a', 'c', 2), edge('c', 'b', 1), is(3, add(2, 1))])
+step(path('a', 'c', 2), clause(6), {X: 'a', Y: 'c', Cost: 2}, [edge('a', 'c', 2)])
+step(edge('a', 'c', 2), clause(2), {}, [])
+step(edge('c', 'b', 1), clause(3), {}, [])
+step(is(3, add(2, 1)), 'builtin', {}, [])
+step(edge('b', 'd', 3), clause(4), {}, [])
+step(is(6, add(3, 3)), 'builtin', {}, [])
+step(not(cheaper('a', 'd', 6)), 'absent', {}, [])
+```
+
+It has three parts:
+
+- **The claim**: the answer the proof is about.
+- **The clauses**: the program lines the steps rely on, by their number in
+  the program. The roads a → b and c → d (clauses 1 and 5) and the
+  definition of `cheaper` (clause 8) are not cited: no step is an instance
+  of them.
+- **The steps**: one per thing established. A step reads
+  `step(what, by what, with which values, using what)`.
+
+Read the steps as sentences:
+
+1. *The shortest route from a to d costs 6* — by rule 9, because there is a
+   path from a to d costing 6, and nothing cheaper was found.
+2. *There is a path from a to d costing 6* — by rule 7, with `Y` = b, because
+   there is a path from a to b costing 3, the road b → d costs 3, and
+   6 is 3 + 3.
+3. *There is a path from a to b costing 3* — by rule 7, with `Y` = c, because
+   there is a path from a to c costing 2, the road c → b costs 1, and
+   3 is 2 + 1.
+4. *There is a path from a to c costing 2* — by rule 6, because the road
+   a → c costs 2.
+5. *The road a → c costs 2* — fact 2.
+6. *The road c → b costs 1* — fact 3.
+7. *3 is 2 + 1* — `'builtin'`: a calculation, which anyone checking the proof
+   simply redoes.
+8. *The road b → d costs 3* — fact 4.
+9. *6 is 3 + 3* — `'builtin'`.
+10. *No path from a to d is cheaper than 6* — `'absent'`: eyemind searched
+    everything it had concluded and found none. This is not derived from a
+    rule; it is taken on trust, and the check report lists it as an
+    obligation.
+
+Steps 2 to 9 show the route in full. Step 10 is different: it is a claim that
+something does *not* exist, and the other two routes, costing 7 and 10, do
+not appear in the proof at all.
 
 ---
 
-## Checked, with one obligation
+## Checked: what the report says
 
-- **10 steps**: 7 verified against the program lines they cite, and the
-  two additions recomputed by the checker.
-- **1 step is taken on trust**: an **`absent`** obligation,
-  `not(cheaper('a', 'd', 6))`.
+A proof is only worth something if someone else can check it. `eyemind -c`
+generates the proof and checks it against the program; `--check-proof` checks
+a saved proof. The checker never reasons by itself: it only confirms each step
+against the program. This is the complete report:
 
-An absence means eyemind looked through everything it knows and found no
-cheaper path. A proof can show a path exists; it cannot show one doesn't. So
-the checker records this as an obligation, and checks that nothing in the
-proof contradicts it — no cheaper path appears there.
+```js
+// Answers checked subject to the obligations below.
+shortest('a', 'd', 6)
 
-Verdict: **checked_with_obligations**.
+// C1-C8: resolution, acyclicity, justification, coverage,
+// re-decision, boundary consistency, relevance and witness integrity.
+condition('C1', 'resolution', 'ok', 7)
+condition('C2', 'well_founded', 'ok', 10)
+condition('C3', 'justification', 'ok', 10)
+condition('C4', 'coverage', 'ok', 10)
+condition('C5', 're_decision', 'ok', 2)
+condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C7', 'relevance', 'ok', 11)
+condition('C8', 'witness_integrity', 'ok', 0)
+
+// Obligations: absence and collection completeness are taken on trust.
+obligation('absent', 'theory_scoped', not(cheaper('a', 'd', 6)))
+
+// Proof statistics: recorded steps and how they were checked.
+steps(10)
+verified(7)
+recomputed(2)
+composed(0)
+trusted(1)
+claims(1)
+
+// This verdict applies to the claims above; it does not establish completeness.
+verdict('checked_with_obligations')
+```
+
+Each `condition` line names a check, says `'ok'`, and counts what it looked
+at:
+
+- **C1 resolution (7)**: the 7 steps that cite a rule or fact really are
+  instances of it with the values shown.
+- **C2 well-founded (10)**: none of the 10 steps depends on itself, even
+  indirectly.
+- **C3 justification (10)**: every step says how it was justified, in a form
+  the checker understands, including the `'absent'` one.
+- **C4 coverage (10)**: the 1 claim and the 9 things the steps use are each
+  backed by a step.
+- **C5 re-decision (2)**: the two additions, 2 + 1 and 3 + 3, were redone by
+  the checker and agree.
+- **C6 boundary consistency (0)**: the checker had nothing to confront the
+  one "not found" step with. `cheaper` is only a rule, and neither the
+  program's facts nor the proof's steps contain a `cheaper` statement, so
+  nothing could show a route from a to d cheaper than 6. The absence is
+  left undecided and stays an obligation taken on trust.
+- **C7 relevance (11)**: the 1 claim answers the query, and all 10 steps
+  serve it.
+- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
+  there is no invented name to verify.
+
+The one `obligation` line says, in plain words: *no route from a to d costs
+less than 6*. `'theory_scoped'` means this holds relative to this program:
+true of this map, not necessarily of the real roads.
+
+The statistics repeat this: 10 steps, 7 verified against the program, 2
+recomputed, 1 taken on trust. The verdict is **checked with obligations**:
+the route of cost 6 certainly exists, and it is the cheapest *provided* the
+absence holds. A proof can show a path exists; it cannot show that none
+cheaper does. The verdict also does not establish that there are no other
+answers.
 
 ---
 
@@ -113,9 +246,11 @@ eyemind --proof examples/shortest-path.js > /tmp/sp-proof.js
 eyemind --strict-proof --check-proof /tmp/sp-proof.js examples/shortest-path.js
 ```
 
-The strict check refuses this proof — verdict `failed(1)` — because it leans
-on the trusted absence. Nothing is wrong with the answer; strict mode just
-does not accept "searched and found nothing" as evidence.
+The strict check refuses this proof, with verdict `failed(1)` and exit code
+2, because it leans on the trusted absence: the report adds
+`failure('C5', not(cheaper('a', 'd', 6)), 'trusted boundary forbidden: absent')`.
+Nothing is wrong with the answer; strict mode just does not accept "searched
+and found nothing" as evidence.
 
 ---
 
@@ -128,7 +263,9 @@ eyemind --proof examples/shortest-path.js    # with its proof
 
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=shortest-path).
 Add a direct road `fact(edge('a', 'd', 5))` and run again: the answer becomes
-`shortest('a', 'd', 5)`.
+`shortest('a', 'd', 5)`. Or make the road c → b cost 5 instead of 1: the
+route via c and b now costs 10, and the cheapest becomes the one via b alone,
+`shortest('a', 'd', 7)`.
 
 ---
 

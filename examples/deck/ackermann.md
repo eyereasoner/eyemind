@@ -295,3 +295,11 @@ eyemind --proof examples/ackermann.js    # answers with their proof
 Add `query(ackermann([3, 5], _))` at the end: a new answer appears,
 `ackermann([3, 5], 253)`, that is 2⁸ − 3. Try `ackermann([3, 20], _)`:
 2²³ − 3 = 8388605.
+
+---
+
+## Takeaway
+
+Enormous numbers are no excuse for "trust me". Every rung of the ladder is
+an ordinary rule, every sum and power is recomputed by an independent
+checker, and the answer is exact down to the last of its 19,729 digits.

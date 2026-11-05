@@ -351,3 +351,11 @@ the conflict disappears, and you get `flies_safely('mythic', 'true')` and
 `moves_by('mythic', 'flying')`. The check report then lists eight
 obligations instead of seven: the new one is `not(flies('mythic', 'false'))`,
 the absence that Mythic's decision now relies on.
+
+---
+
+## Takeaway
+
+Contradictions in data are not a reason to give up or to guess. Kept local
+and labelled, they become a to-do list for a human, while everything that
+is clear-cut still gets decided.

@@ -332,3 +332,11 @@ More to try:
   `choose` refuses and eyemind reports no answers.
 - Ask for `row_sum(20, 0, Sum)`: row 20 of Pascal's triangle adds up to
   1048576 = 2²⁰.
+
+---
+
+## Takeaway
+
+Counting the same thing two ways is a classic check. Here both counts are
+exact whole numbers, and every step that produced them is written down and
+recomputed by the checker.

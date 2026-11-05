@@ -294,7 +294,7 @@ condition('C2', 'well_founded', 'ok', 57)
 condition('C3', 'justification', 'ok', 57)
 condition('C4', 'coverage', 'ok', 69)
 condition('C5', 're_decision', 'ok', 18)
-condition('C6', 'boundary_consistency', 'ok', 7)
+condition('C6', 'boundary_consistency', 'ok', 2)
 condition('C7', 'relevance', 'ok', 61)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -333,10 +333,14 @@ and counts what it looked at:
   backed by a step.
 - **C5 re-decision (18)**: the 18 calculations and comparisons were redone by
   the checker and agree, from 90 + 20 = 110 to 70 < 80.
-- **C6 boundary consistency (7)**: the 3 "nothing found" steps and the 4
-  collected lists were confronted with the proof's own evidence, and none is
-  contradicted. For example, every score the proof establishes as higher
-  than 85 is indeed in the list `[100, 97]`.
+- **C6 boundary consistency (2)**: the checker tries to refute each of the
+  7 trusted steps with the program's facts and the proof's steps. Only the
+  two missing safeguards could be confronted, because the program has
+  `safeguard` facts: none of them says c1 has an "inform" safeguard or c3 a
+  consent safeguard. The other 5 are left undecided: no fact or step of
+  `has_notice` or of `higher` exists (both are computed by rules), so
+  nothing could refute "c1 has no notice period" or the 4 lists of higher
+  scores. All 7 stay obligations.
 - **C7 relevance (61)**: the 4 claims answer the query, and all 57 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
@@ -373,3 +377,11 @@ Add `fact(safeguard('c3', 'consent'))` and run again: the c3 finding
 disappears, and c2 and c4 move up to ranks 2 and 3. Or change c2's notice to
 `fact(notice_days('c2', 14))`: c2 now gives enough notice, its finding
 disappears, and c4 moves up to rank 3.
+
+---
+
+## Takeaway
+
+A risk list is only useful if you can see why each item is on it. Here every
+finding carries its reason and fix, and the report spells out exactly which
+"nothing was found" assumptions the ranking depends on.

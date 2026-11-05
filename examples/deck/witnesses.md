@@ -209,3 +209,11 @@ Replace both `record('person_rule', Name)` with a bare variable `R`: eyemind
 invents the names itself, `skolem(3, 'R', ['alice'])` and
 `skolem(3, 'R', ['bob'])`, and the check report's C8 line now counts 4 such
 names.
+
+---
+
+## Takeaway
+
+A good name carries its own history. By building the witness from the rule
+and the binding, every new thing eyemind concludes can be traced to where it
+came from — even before you look at the proof.

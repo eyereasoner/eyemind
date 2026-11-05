@@ -58,7 +58,8 @@ type('ind', 'n100')
 
 Yes: `ind` is a member of `n100`.
 
-This is a **benchmark**, a standard test, for reasoners. It checks that a
+This is a **benchmark**, a standard test, for reasoners, from the
+WellnessRules work cited in the file. It checks that a
 reasoner can follow a long chain without getting lost in the side branches.
 eyemind works backward from the question, one step per level, so the test is
 how deep goal-directed search, and its proof, can go.
@@ -317,3 +318,11 @@ Change the last line to `query(type(X, 'n50'))`: the answer becomes
 `query(type(X, Class))` to ask for every class of `ind`: there are 301
 answers, `n0` plus the three classes of each of the 100 levels, dead ends
 included.
+
+---
+
+## Takeaway
+
+A long chain of simple reasons is still simple to check. However deep the
+taxonomy, the proof is exactly as long as the path, and every link in it can
+be verified.

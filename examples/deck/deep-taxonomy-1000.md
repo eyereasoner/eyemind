@@ -212,3 +212,11 @@ Change the last line to `query(type(X, 'i500'))` and run with `--stats`
 again: the answer is `type('ind', 'i500')`, reached in 501 inferences, and
 its proof has 501 steps: one into the side branch i500, then 500 for the
 categories n499, n498, … n0 above it.
+
+---
+
+## Takeaway
+
+Long reasoning does not have to be opaque. Time, proof size and checking
+grow in step with the depth, so a chain a thousand steps long is just as
+followable — and just as checkable — as one with ten.

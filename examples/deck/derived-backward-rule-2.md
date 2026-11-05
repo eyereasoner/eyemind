@@ -222,3 +222,11 @@ the class rule then has nothing to combine, and eyemind reports no
 conclusions at all. Change `'Mortal'` to `'Philosopher'` in that created
 rule instead: eyemind concludes `type('Socrates', 'Philosopher')`, but the
 test fact no longer follows, because it asks for a mortal Socrates.
+
+---
+
+## Takeaway
+
+One rule can set up several others at once. Each created rule still has to
+earn its place: the proof shows the switch that turned it on, and the
+checker confirms every rule it used.

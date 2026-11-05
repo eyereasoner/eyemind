@@ -332,3 +332,10 @@ Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#
   earliest date Easter can fall on.
 - Swap the bounds to `in_range(2050, 2021, Year)`: the range is empty, so
   there are no conclusions at all.
+
+---
+
+## Takeaway
+
+A centuries-old calendar recipe becomes a list of dates where each one comes
+with its own worked arithmetic, recomputed by an independent checker.

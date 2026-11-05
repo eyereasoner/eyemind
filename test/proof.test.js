@@ -143,6 +143,22 @@ export const tests = {
       program('implies(not(lt(1, 2)), q)'));
   },
 
+  'a boundary over a predicate with no fact or step is left undecided'() {
+    const text = "fact(p('a'), p('b'))\nimplies([p(X), not(blocked(X))], out(X))\n";
+    const c6 = (source) => checkProof(program(source), run(program(source), { proof: true }).proof).conditions[5];
+    // Nothing could refute not(blocked(X)): no blocked fact, no blocked step.
+    assert.deepEqual(c6(text), { id: 'C6', name: 'boundary_consistency', covered: 0, failed: 0 });
+    // One blocked fact of another value is evidence: both absences are confronted.
+    assert.deepEqual(c6(`${text}fact(blocked('c'))`), { id: 'C6', name: 'boundary_consistency', covered: 2, failed: 0 });
+    // A ground primitive always speaks, even when it fails.
+    assert.deepEqual(c6('fact(p(1))\nimplies([p(X), not(lt(X, 0))], ok(X))'),
+      { id: 'C6', name: 'boundary_consistency', covered: 1, failed: 0 });
+    // An undecided absence is still an obligation, and evidence still refutes.
+    const document = run(program(text), { proof: true }).proof;
+    assert.equal(checkProof(program(text), document).trusted.length, 2);
+    invalid(document, 'C6', program(`${text}fact(blocked('a'))`));
+  },
+
   'an absence with anonymous variables is refuted by any instance'() {
     const text = "fact(p('a'), p('b'), q('b', 1))\nimplies([p(X), not(q(X, _))], s(X))\n";
     const document = run(program(text), { proof: true }).proof;

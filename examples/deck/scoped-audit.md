@@ -248,3 +248,10 @@ disappears and `consented('incomplete', 'bob')` appears instead.
 Put Bob's consent in the *approved* graph instead: eyemind concludes
 `consented('approved', 'bob')`, and Bob *still* needs review in the
 incomplete record. A consent in one record never fills a gap in another.
+
+---
+
+## Takeaway
+
+Keeping records separate keeps audits honest. Each conclusion says which
+record it came from, and the one "not found" claim is limited to that record.

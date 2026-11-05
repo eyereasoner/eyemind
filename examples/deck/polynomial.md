@@ -43,7 +43,9 @@ has complex coefficients; its roots are 3+2i, 5+i, i and 1+i.
 
 ## What we tell eyemind: the method
 
-The program is about 150 lines; its names are in French. This is its heart:
+The program is the solver of Alain Colmerauer, one of the creators of
+Prolog, adapted for eyemind. It is about 150 lines, and his names and
+comments are kept in French. This is its heart:
 
 ```js
 implied_by(roots(P, L), findall(Z, racine(P, Z), L))
@@ -177,7 +179,7 @@ condition('C2', 'well_founded', 'ok', 4)
 condition('C3', 'justification', 'ok', 4)
 condition('C4', 'coverage', 'ok', 4)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 2)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 6)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -211,10 +213,11 @@ at:
   are each backed by a step.
 - **C5 re-decision (0)**: no built-in calculation appears as a step of its
   own here, so there is nothing to recompute.
-- **C6 boundary consistency (2)**: the checker confronted both collected
-  lists with the rest of the proof: if some step had shown a root `racine`
-  finds that is missing from a list, the list would be refuted. Nothing
-  contradicts either list.
+- **C6 boundary consistency (0)**: the checker had nothing to confront the
+  two collected lists with. A `racine` step showing a root missing from a
+  list would refute it, but `racine` is only a rule and the proof records
+  no `racine` step. Both lists are left undecided and stay obligations
+  taken on trust.
 - **C7 relevance (6)**: the 2 claims answer the two queries, and all 4 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
@@ -251,3 +254,11 @@ Ask for `roots([[1, 0], [-3, 0], [2, 0]], L)` with `--goal`: the quadratic
 x² − 3x + 2 has the roots `[2.0, 0.0]` and `[1.0, 0.0]`. Ask for
 `roots([[1, 0], [0, 0], [1, 0]], L)`: x² + 1 has no ordinary roots, and
 eyemind finds i and −i (with a real part of about 6·10⁻¹⁷ for 0).
+
+---
+
+## Takeaway
+
+You can choose the shape of the explanation: a compact one that trusts a
+complete search, or a long one where every multiplication is rechecked.
+Either way, the report says exactly which one you got.

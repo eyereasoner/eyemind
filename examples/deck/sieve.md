@@ -240,3 +240,11 @@ eyemind --proof examples/sieve.js
 Change `primes(100, _)` to `primes(50, _)`: you get the 15 primes up to 47.
 To watch one crossing-out on its own, ask
 `--goal "remove(3, [4, 6, 7, 9, 10], R)"`: the answer is `[4, 7, 10]`.
+
+---
+
+## Takeaway
+
+An old algorithm becomes a fully audited one: not just "here are the
+primes", but every single crossing-out, independently rechecked. The cost
+of that honesty is visible too, in the size of the proof.

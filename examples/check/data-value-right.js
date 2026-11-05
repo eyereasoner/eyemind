@@ -20,7 +20,7 @@ condition('C2', 'well_founded', 'ok', 68)
 condition('C3', 'justification', 'ok', 68)
 condition('C4', 'coverage', 'ok', 70)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 23)
+condition('C6', 'boundary_consistency', 'ok', 17)
 condition('C7', 'relevance', 'ok', 81)
 condition('C8', 'witness_integrity', 'ok', 0)
 

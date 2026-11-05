@@ -7,6 +7,8 @@
 // conjecture; they do not prove it. Backward rules do the search, once keeps
 // the first split and the first next prime found, not(has_factor(...)) states
 // primality, and exact integer arithmetic handles the large numbers.
+//
+// See https://en.wikipedia.org/wiki/Goldbach%27s_conjecture
 
 fact(split(4, [2, 2]))
 implied_by(split(N, Pair), [eq(0, mod(N, 2)), gt(N, 4), once(split_from(N, Pair, 3))])

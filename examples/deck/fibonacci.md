@@ -318,3 +318,11 @@ eyemind --proof examples/fibonacci.js    # with their proof
 Add the line `query(fib(20, F))`: the answers end with `fib(20, 6765)`.
 Add `query(golden_ratio(30, Ratio))`: the ratio is `1.6180339887505408`,
 already right to 10 decimals.
+
+---
+
+## Takeaway
+
+A clever algorithm and a huge number need not mean "trust me". Each
+shortcut is spelled out as ordinary arithmetic, and a checker redoes that
+arithmetic itself.

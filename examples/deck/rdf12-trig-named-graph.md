@@ -203,3 +203,10 @@ Put Bob's parent link in another graph, say `iri(ex + 'school')`, and run
 again: Bob is still Carol's ancestor, now in the school graph, but Alice is
 no longer Carol's ancestor, because the rule joins two links only within one
 graph.
+
+---
+
+## Takeaway
+
+A graph is context. Rules that carry it along keep each conclusion in the
+context its evidence came from.

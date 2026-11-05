@@ -28,13 +28,13 @@ all_checks_pass('delfour')
 
 // C1-C8: resolution, acyclicity, justification, coverage,
 // re-decision, boundary consistency, relevance and witness integrity.
-condition('C1', 'resolution', 'ok', 64)
-condition('C2', 'well_founded', 'ok', 73)
-condition('C3', 'justification', 'ok', 73)
-condition('C4', 'coverage', 'ok', 121)
+condition('C1', 'resolution', 'ok', 61)
+condition('C2', 'well_founded', 'ok', 70)
+condition('C3', 'justification', 'ok', 70)
+condition('C4', 'coverage', 'ok', 117)
 condition('C5', 're_decision', 'ok', 6)
-condition('C6', 'boundary_consistency', 'ok', 3)
-condition('C7', 'relevance', 'ok', 99)
+condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C7', 'relevance', 'ok', 96)
 condition('C8', 'witness_integrity', 'ok', 0)
 
 // Obligations: absence and collection completeness are taken on trust.
@@ -43,8 +43,8 @@ obligation('absent', 'theory_scoped', not(contains('createdat expiresat insight 
 obligation('absent', 'theory_scoped', not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical')))
 
 // Proof statistics: recorded steps and how they were checked.
-steps(73)
-verified(64)
+steps(70)
+verified(61)
 recomputed(6)
 composed(0)
 trusted(3)

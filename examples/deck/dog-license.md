@@ -251,3 +251,10 @@ Add `fact(owns('bob', 'dog8'))`, `fact(owns('bob', 'dog9'))` and
 `fact(owns('bob', 'dog10'))`, and run again: Bob's count becomes 5 and he
 needs a license too. Or lower the threshold by changing `gt(N, 4)` to
 `gt(N, 1)`: Bob's two dogs are then enough.
+
+---
+
+## Takeaway
+
+Counting is a claim about *everything* you know. eyemind does the count, shows
+it, and tells you plainly which part rests on "that was the full list".

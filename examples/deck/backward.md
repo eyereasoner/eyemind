@@ -188,3 +188,11 @@ eyemind concludes nothing and says so: `// No conclusions: the program
 derives no facts.` Then change `gt` to `ge` ("greater than or equal") in the
 first line and both pairs to `(5, 5)`: now the rule fires and concludes
 `indeed_more_interesting(5, 5)`.
+
+---
+
+## Takeaway
+
+Forward rules build up what is known; backward definitions answer questions
+on demand. eyemind lets you mix them freely, and the proof stitches both into
+one readable chain of reasons.

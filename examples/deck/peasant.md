@@ -336,3 +336,11 @@ Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#
 - Add `query(prod([13, 238], _))`: the answer is again 3094, but the table
   is shorter, because 13 halves to 0 in four rows (13, 6, 3, 1) instead of
   eight.
+
+---
+
+## Takeaway
+
+An old method is still a good method when each step is simple enough to
+check. eyemind keeps every row, and an independent checker redoes every sum —
+whether the numbers have three digits or eighteen thousand.

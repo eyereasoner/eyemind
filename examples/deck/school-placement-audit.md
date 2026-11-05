@@ -354,7 +354,7 @@ condition('C2', 'well_founded', 'ok', 57)
 condition('C3', 'justification', 'ok', 57)
 condition('C4', 'coverage', 'ok', 87)
 condition('C5', 're_decision', 'ok', 15)
-condition('C6', 'boundary_consistency', 'ok', 11)
+condition('C6', 'boundary_consistency', 'ok', 3)
 condition('C7', 'relevance', 'ok', 75)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -398,10 +398,13 @@ at:
   each backed by a step: nothing is taken for granted silently.
 - **C5 re-decision (15)**: the 15 comparisons and calculations (four `le`,
   four score sums, four detours, three `gt`) were recomputed and agree.
-- **C6 boundary consistency (11)**: the 11 absences were confronted with the
-  evidence in the proof, and none is contradicted by it: the proof never
-  establishes a better map option, a better route option or a Centrum
-  recommendation for these children.
+- **C6 boundary consistency (3)**: only the 3 absences about Centrum
+  recommendations could be confronted, because the proof has `recommended`
+  steps (for the schools that were recommended); none of them recommends
+  Centrum to Ada, Bjorn or Davi. The other 8 absences are left undecided:
+  no fact or step of `better_map_option` or `better_route_option` exists,
+  so nothing could refute them. None is contradicted, and all 11 stay
+  obligations.
 - **C7 relevance (75)**: the 18 claims each answer one of the program's
   queries, and all 57 steps serve a claim.
 - **C8 witness integrity (0)**: no rule invents a new, unnamed thing, so
@@ -443,3 +446,11 @@ Raise the walking limit from 2500 to 4000 m. The three
 `walking_limit_exceeded` flags disappear, but the recommendations stay the
 same: Ada's Centrum would now be allowed but scores 3600 + 600 = 4200, far
 worse than Lindholmen, so the three `assignment_differs` flags remain.
+
+---
+
+## Takeaway
+
+A choice that looks right on a map can be wrong on foot. Checking each
+placement against walking distance and family preference shows exactly which
+families the first choice let down, and why.

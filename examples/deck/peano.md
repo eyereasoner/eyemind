@@ -241,3 +241,11 @@ command repeats the first question alone. Try
 `--goal "multiply(s(s('zero')), s(s(s('zero'))), P)"`: 2 × 3 comes back as
 `s(s(s(s(s(s('zero'))))))`, which is 6.
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=peano).
+
+---
+
+## Takeaway
+
+Arithmetic can be pure reasoning: two ideas, a few rules, and every result
+traced back to "zero" and "one more". The same rules even run backward,
+answering "what adds up to 3?".

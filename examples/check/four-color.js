@@ -8,7 +8,7 @@ condition('C2', 'well_founded', 'ok', 95)
 condition('C3', 'justification', 'ok', 95)
 condition('C4', 'coverage', 'ok', 118)
 condition('C5', 're_decision', 'ok', 1)
-condition('C6', 'boundary_consistency', 'ok', 28)
+condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 96)
 condition('C8', 'witness_integrity', 'ok', 0)
 

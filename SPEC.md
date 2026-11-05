@@ -820,9 +820,12 @@ forbidden ("strict"), each `'absent'` or `'collected'` step fails C5.
 
 A trusted boundary cannot be proved, but the evidence at hand can refute it.
 The evidence for a goal is: when the goal is a ground primitive, the goal
-itself if it holds; when it is a control, none, and the boundary is left
-undecided; otherwise the program's facts and the goals of the document's
-steps with the same name and arity.
+itself if it holds, and otherwise the recomputed fact that it fails; when it
+is a control, none, and the boundary is left undecided; otherwise the
+program's facts and the goals of the document's steps with the same name and
+arity. A goal of the last kind **has evidence** only when there is at least
+one such fact or step goal; with none, nothing could refute the boundary, and
+it is left undecided.
 
 - An absence `not(G)` is decided when `G` is a single goal, or a ground
   conjunction, whose every goal has evidence. It fails C6 when every goal of

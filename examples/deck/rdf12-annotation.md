@@ -255,3 +255,10 @@ again: the reifier alone is not enough, and nothing follows; eyemind
 reports `// No answers: no query() instance holds.` Add a second `recorded`
 date for `claim1` instead: rule 5 fires once per date, and a fifth result
 quad appears with the new date.
+
+---
+
+## Takeaway
+
+An annotation is data about a statement, and rules can insist that the
+statement itself holds before they use it.

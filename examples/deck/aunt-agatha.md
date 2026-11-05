@@ -380,3 +380,11 @@ disappears. Without that clue, the mystery has no single answer. Delete
 models, all with Agatha as killer. If Agatha hated the butler as well, clue 7
 would make the butler hate everyone too, which the butler's part of clue 8
 forbids.
+
+---
+
+## Takeaway
+
+"It follows" is a strong claim: true in every situation the facts allow.
+Here you can see all the situations counted, one of them in full, and
+exactly which part of the argument rests on the search being complete.

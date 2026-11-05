@@ -389,3 +389,11 @@ branch `'c'`, and becomes a cousin of Heidi and Ivan, both ways round. Or
 change Eve's branch fact to `fact(branch('eve', 'e'))`: Eve's line becomes a
 branch of its own, so Dave and Eve, and Heidi and Ivan, now count as cousins
 too, and there are 16 cousin facts instead of 12.
+
+---
+
+## Takeaway
+
+Small, plain rules about parents add up to a whole family picture. And when
+a result surprises you, the proof shows which rule produced it, so you can
+tell a bug in the data from a choice in the definition.

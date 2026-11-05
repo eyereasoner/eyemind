@@ -306,3 +306,12 @@ parent witness of his own as well, beside Eve, because the rule says only
 that some parent exists. Every later clause moves up one number, so the
 names change too: Dan's parent is `skolem(4, 'P', ['dan'])`, and Carl's
 invoice becomes `skolem(11, 'I', ['carl'])`.
+
+---
+
+## Takeaway
+
+An existential rule says that something exists. eyemind names each such
+something by a Skolem function of what the rule knew: the same activation
+always gives the same name, and the name can never be mistaken for anything
+else.

@@ -74,6 +74,12 @@ export function main(argv, io) {
         i++;
         if (i >= argv.length) throw new UsageError(`${arg} needs a value`);
         const value = argv[i];
+        // An option in the value's place means the value was left out, as in
+        // --check-proof --strict-proof proof.js; reading the option as a file
+        // name would only fail later with a puzzling message.
+        if (/^--./.test(value) || ['-p', '-c', '-h'].includes(value)) {
+          throw new UsageError(`${arg} needs a value right after it, not the option ${value}`);
+        }
         if (arg === '--check-proof') {
           proofFile = value;
         } else if (arg === '--goal') {

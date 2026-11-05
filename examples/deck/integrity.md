@@ -174,3 +174,10 @@ prints only `// No conclusions: the program derives no facts.`, and the exit
 code is 0. Make Alice's balance −30 as well: the run still halts with
 `'false'`, but now the proof points at Alice, the first account eyemind
 checks; Bob's case is never reached.
+
+---
+
+## Takeaway
+
+A good constraint fails loudly and explains itself. Here the run stops with a
+distinct exit code, and the checked proof points straight at Bob's −5.

@@ -356,7 +356,7 @@ condition('C2', 'well_founded', 'ok', 47)
 condition('C3', 'justification', 'ok', 47)
 condition('C4', 'coverage', 'ok', 53)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 12)
+condition('C6', 'boundary_consistency', 'ok', 6)
 condition('C7', 'relevance', 'ok', 57)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -400,10 +400,14 @@ at:
 - **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
   recomputing in the audit's own proof. (The income comparisons belong to
   the policy's proof, which `eyemind.run` checked before returning it.)
-- **C6 boundary consistency (12)**: the 12 collected lists were confronted
-  with the evidence at hand, the program's facts and the proof's own steps,
-  and none is refuted: no established `rests_on` or `assumes` fact is
-  missing from its list.
+- **C6 boundary consistency (6)**: the checker tries to refute each
+  collected list with the evidence at hand, the program's facts and the
+  proof's own steps. The 6 `rests_on` lists could be confronted: the proof
+  holds three `rests_on` steps (the data behind Cara's grant and Dan's two
+  decisions), and each of them appears in its list. The 6 `assumes` lists
+  are left undecided: no fact or step of `assumes` exists in the program or
+  the proof, so nothing could refute them. None is refuted, and all 12 stay
+  obligations taken on trust.
 - **C7 relevance (57)**: the 10 claims answer the queries, and all 47 steps
   serve them. There is no padding.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
@@ -445,3 +449,11 @@ at risk, and only Dan's two decisions are. Lower the threshold in the grant
 rule to `lt(I, 2000)` instead: only Cara still gets a grant, Ann and Dan get
 no decision at all (their incomes are too high for a grant but below the
 2500 refusal line), and only Cara's grant is at risk.
+
+---
+
+## Takeaway
+
+When rules, data, conclusions, proofs and reports share one language, a
+program can audit its own decisions with the same tools it used to make
+them, and every answer it gives about its reasoning can be checked too.

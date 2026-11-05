@@ -213,3 +213,11 @@ Remove the inverse-pair fact: rule 5 is never switched on, nobody is known to
 be anyone's child, and eyemind reports no conclusions. Add
 `fact(t('alice', 'parentOf', 'carol'))` instead: the same derived rule now
 also concludes `t('carol', 'hasParent', 'alice')`.
+
+---
+
+## Takeaway
+
+A rule can teach eyemind a new way to answer questions. The new rule is part
+of the program from the start, so every answer it gives comes with steps the
+checker can trace back to the rule that created it.

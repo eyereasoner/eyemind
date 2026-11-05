@@ -18,6 +18,11 @@
 // one. racine gives a single principal root; the other roots come from
 // multiplying it by each root of unity, and for degree 4 from dans, which
 // picks each of four candidates in turn.
+//
+// Original code by Alain Colmerauer, from
+// http://alain.colmerauer.free.fr/alcol/ArchivesPublications/Equation4/Equation4.pdf
+// Colmerauer's comments are kept in their original French, with English
+// translations added.
 
 // Liste des racines dun polynome: the list of a polynomial's roots.
 implied_by(roots(P, L), findall(Z, racine(P, Z), L))

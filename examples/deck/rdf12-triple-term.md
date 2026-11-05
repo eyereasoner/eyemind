@@ -189,3 +189,10 @@ Add a second claim, Bob claiming that Carol knows Dave, and run again: the
 rule asserts it too, and a second answer appears. Add a claim of Alice that
 Bob *likes* Carol instead: nothing new appears, because the rule only accepts
 claims about who knows whom.
+
+---
+
+## Takeaway
+
+A claim and a fact are different things, and RDF 1.2 can keep them apart.
+Which claims to accept is a rule you write down, and the proof shows it.

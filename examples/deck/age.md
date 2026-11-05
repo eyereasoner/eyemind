@@ -328,3 +328,11 @@ Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#
 Change `as_of` to `date(2024, 8, 21)`, the 80th birthday itself: there is no
 answer, because on that day Pat is exactly 80, not *above* 80. Change it to
 `date(2024, 8, 22)`, one day later, and the answer comes back.
+
+---
+
+## Takeaway
+
+Date arithmetic is where small mistakes hide. Here each day number, each
+leap-year decision and each comparison is written down and rechecked, so a
+"yes" can be audited down to the last day.

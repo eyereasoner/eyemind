@@ -256,3 +256,11 @@ Add `fact(triple('bob', 'parent_of', 'carol'))` and run again: Bob becomes
 related to Carol, and Carol is concluded to be a person. Or add
 `fact(subclass('animal', 'living_thing'))`: the subclass rule chains further,
 and Koko becomes a living thing too.
+
+---
+
+## Takeaway
+
+A schema says a lot in a few lines. eyemind spells out what it implies, and
+every implied fact comes with the exact statements that support it — so a
+surprising conclusion can be traced to the schema line that caused it.

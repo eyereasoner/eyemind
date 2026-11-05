@@ -200,3 +200,9 @@ Change `'carol'` to `'dave'` in the fact: the answer follows the change and
 says Bob knows Dave. Change Alice's `'claims'` to `'denies'` instead: the
 pattern no longer matches, and eyemind reports `// No answers: no query()
 instance holds.`
+
+---
+
+## Takeaway
+
+Nesting is no obstacle: the shape of the data is the shape of the pattern.

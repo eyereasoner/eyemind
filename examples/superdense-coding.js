@@ -16,6 +16,8 @@
 // findall, and the pair is kept when the number of ways is odd. The count
 // depends on all the ways, so the proof records each collection as an
 // obligation for the checker to confirm.
+//
+// See https://arxiv.org/pdf/1101.3764.pdf and https://arxiv.org/pdf/1010.2929.pdf
 
 // A two-qubit state |a, b) is written as the set of its terms, one fact per
 // term, with false for 0 and true for 1; a state with several terms is a

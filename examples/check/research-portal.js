@@ -44,7 +44,7 @@ condition('C2', 'well_founded', 'ok', 273)
 condition('C3', 'justification', 'ok', 273)
 condition('C4', 'coverage', 'ok', 474)
 condition('C5', 're_decision', 'ok', 15)
-condition('C6', 'boundary_consistency', 'ok', 30)
+condition('C6', 'boundary_consistency', 'ok', 22)
 condition('C7', 'relevance', 'ok', 310)
 condition('C8', 'witness_integrity', 'ok', 0)
 

@@ -19,6 +19,8 @@
 // Alice sent. It shows findall collecting every path, a parity test on the
 // list, and a contradiction rule as a built-in check: it halts the run if any
 // outcome left Bob holding something else.
+//
+// See https://arxiv.org/pdf/1101.3764.pdf and https://arxiv.org/pdf/1010.2929.pdf
 
 // The three nonzero one-qubit states: |0), |1) and |0) + |1)
 fact(state('zero', 'false'))

@@ -191,3 +191,11 @@ Replace `c(X)` with `d(X)` in the ordinary rule: the answer becomes
 the answer stays `test(a(A), c(A))`, because inspection reads the rule, not
 the facts. Add a second rule `implies(b(X), d(X))`: the query then reports
 both rules, `test(a(A), c(A))` and `test(b(B), d(B))`.
+
+---
+
+## Takeaway
+
+Rules are not only instructions; they can also be facts to look at. When a
+rule reports on another rule, the proof points to the exact rule it read,
+and the checker confirms the report matches it.

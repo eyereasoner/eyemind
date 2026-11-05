@@ -293,7 +293,7 @@ condition('C2', 'well_founded', 'ok', 72)
 condition('C3', 'justification', 'ok', 72)
 condition('C4', 'coverage', 'ok', 113)
 condition('C5', 're_decision', 'ok', 15)
-condition('C6', 'boundary_consistency', 'ok', 1)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 75)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -326,8 +326,10 @@ at:
   each backed by a step.
 - **C5 re-decision (15)**: the checker redid the 14 built-in tests and
   calculations and rebuilt the 1 `once(...)` from its part, and all agree.
-- **C6 boundary consistency (1)**: the 1 absence was confronted with the
-  evidence: nothing in the proof shows a shorter solution.
+- **C6 boundary consistency (0)**: the checker had nothing to confront the
+  1 absence with: `'shorter_solution'` is only a rule, and no program fact
+  or proof step mentions it, so nothing could refute it. The absence is left
+  undecided and stays an obligation taken on trust.
 - **C7 relevance (75)**: the 3 claims answer the queries, and all 72 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
@@ -357,3 +359,11 @@ Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#
 Change `in_range(0, 6, N)` to `in_range(0, 7, N)`. Now "a shorter solution"
 includes seven-crossing plans, which exist, so `not('shorter_solution')`
 fails and eyemind reports `// No answers: no query() instance holds.`
+
+---
+
+## Takeaway
+
+"Here is a plan" and "no better plan exists" are different kinds of claim.
+eyemind proves the first step by step, and labels the second clearly as the
+part that rests on an exhaustive search.

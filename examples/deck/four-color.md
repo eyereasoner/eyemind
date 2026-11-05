@@ -280,7 +280,7 @@ condition('C2', 'well_founded', 'ok', 95)
 condition('C3', 'justification', 'ok', 95)
 condition('C4', 'coverage', 'ok', 118)
 condition('C5', 're_decision', 'ok', 1)
-condition('C6', 'boundary_consistency', 'ok', 28)
+condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 96)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -341,12 +341,13 @@ at:
   each backed by a step: nothing is taken for granted silently.
 - **C5 re-decision (1)**: the 1 `'control'` step, for `once`, was rebuilt
   from the step beneath it and agrees. There is no arithmetic to recompute.
-- **C6 boundary consistency (28)**: the checker tried to refute each of the
-  28 trusted steps with the evidence in hand. For each "no conflict" it
-  looked among the program's facts and the proof's steps for a conflict
-  that would contradict it; for the collected list, it confirmed that every
-  country with a `neighbours` fact appears in the list. Nothing refuted any
-  of them.
+- **C6 boundary consistency (1)**: the checker tries to refute each of the
+  28 trusted steps with the evidence in hand. Only the collected list could
+  be confronted: it confirmed that every country with a `neighbours` fact
+  appears in the list. The 27 "no conflict" absences are left undecided:
+  `conflict` is only a rule, and no program fact or proof step is a
+  `conflict` statement, so nothing could refute them. Nothing refuted
+  anything, and all 28 stay obligations.
 - **C7 relevance (96)**: the 1 claim answers the query, and all 95 steps
   serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.

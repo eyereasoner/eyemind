@@ -340,3 +340,11 @@ fact(program('shadow', lam('x', 'bool', lam('x', 'int', ref('x')))))
 The two `bad_` programs get no type at all: adding a boolean, and branches
 of different types, do not fit. `second_of_pair` is `'int'`, and `shadow` is
 `fun('bool', fun('int', 'int'))`: the inner `x` hides the outer one.
+
+---
+
+## Takeaway
+
+Typing rules are usually written as logic on paper. Written as eyemind
+rules, they run as a type checker — and every type it reports comes with a
+checked derivation, the same kind a textbook would draw by hand.

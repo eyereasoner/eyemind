@@ -249,3 +249,11 @@ Change `fact(base('bob', 'blocked', 'true'))` to
 appears instead of `allowed('carol')`. Or add
 `fact(base('alice', 'parent_of', 'dan'))`: Dan becomes a child of Alice and
 allowed, and the list grows to `['bob', 'carol', 'dan']`.
+
+---
+
+## Takeaway
+
+"Not" and "all" are claims about what is *missing*, and a proof cannot
+display a missing thing. eyemind still uses them — and tells you exactly
+which conclusions rest on them, so you know what you are trusting.

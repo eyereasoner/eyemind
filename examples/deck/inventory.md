@@ -158,7 +158,7 @@ condition('C2', 'well_founded', 'ok', 9)
 condition('C3', 'justification', 'ok', 9)
 condition('C4', 'coverage', 'ok', 9)
 condition('C5', 're_decision', 'ok', 3)
-condition('C6', 'boundary_consistency', 'ok', 1)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 10)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -191,8 +191,11 @@ at:
   backed by a step.
 - **C5 re-decision (3)**: the checker redid the 3 additions and got the same
   results.
-- **C6 boundary consistency (1)**: the 1 collection was confronted with the
-  evidence in the proof; nothing there contradicts it.
+- **C6 boundary consistency (0)**: the checker had nothing to confront the
+  1 collection with. Line totals come from a rule, not from facts, and the
+  proof records no `line_total` step, so nothing could show a total missing
+  from the list. It is left undecided and stays an obligation taken on
+  trust.
 - **C7 relevance (10)**: the 1 claim answers the query, and all 9 steps
   serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
@@ -225,3 +228,10 @@ The last command asks for the line totals, which the query does not show:
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=inventory).
 Add `fact(item('fig', 5, 1))` and run again: the invoice becomes
 `invoice(33)`, because the collection now gathers four line totals.
+
+---
+
+## Takeaway
+
+A total is only right if no line was left out. eyemind does not hide that
+assumption: the report names it, so you know exactly what you are trusting.

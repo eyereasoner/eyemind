@@ -13,8 +13,10 @@
 // Biscuits in aisle 7, and confirms ten checks: the payload hash, the
 // signature, that the shared text names no condition, the scope, the
 // authorization, the high-sugar flag, the alternative, the deletion duty, the
-// marketing prohibition and the audit's file count. It shows policy reasoning
-// with permissions, prohibitions and duties, a search for words in text with
+// marketing prohibition and the audit's file count. It shows a private run
+// on the phone whose result alone reaches the scanner (eyemind.build and run
+// inside a program, read back with facts_from), policy reasoning with
+// permissions, prohibitions and duties, a search for words in text with
 // atom_concat, timestamps compared as text, and a best choice found through
 // negation.
 //
@@ -23,11 +25,12 @@
 // as the signature). Sugar is counted in tenths
 // of a gram, so every comparison is exact. Timestamps share one UTC format,
 // so their text order is their time order.
+//
+// This is the scenario of "Inside the insight economy" by Ruben Verborgh:
+// https://ruben.verborgh.org/blog/2025/08/12/inside-the-insight-economy/
 
 // The shopping case.
 fact(case_name('delfour', 'delfour'))
-fact(household('delfour', 'household_profile'))
-fact(condition('household_profile', 'Diabetes'))
 fact(request_purpose('delfour', 'shopping_assist'))
 fact(request_action('delfour', 'use'))
 fact(phone_created('delfour', '2025-10-05T20:33:48.907163+00:00'))
@@ -93,9 +96,19 @@ implied_by(case_policy(Case, Policy), [envelope(Case, Envelope), policy(Envelope
 implied_by(scanned_sugar(Case, Sugar), [scanned_product(Case, Product), sugar(Product, Sugar)])
 implied_by(scope(Insight, [Device, Event]), [device(Insight, Device), scope_event(Insight, Event)])
 
-// The phone's side: a diabetes condition becomes a neutral low-sugar need.
-implies([household(Case, Household), condition(Household, 'Diabetes')], low_sugar_case(Case))
-implies([low_sugar_case(Case), case_insight(Case, Insight)], derived_need(Insight, 'low_sugar'))
+// The phone's side runs privately, as a program of its own: the household's
+// diabetes becomes a neutral low-sugar need for the insight the phone shares.
+// Only that need leaves the phone, so neither the scanner's facts nor any
+// proof of its conclusions contain the medical condition.
+function phone() {
+  fact(household('delfour', 'household_profile'))
+  fact(condition('household_profile', 'Diabetes'))
+  fact(shares('delfour', 'sugar_insight'))
+  implies([household(Case, Household), condition(Household, 'Diabetes')], low_sugar_case(Case))
+  implies([low_sugar_case(Case), shares(Case, Insight)], derived_need(Insight, 'low_sugar'))
+  query(derived_need(Insight, Need))
+}
+facts_from({ text: eyemind.run(eyemind.build(phone)).stdout })
 
 // The scanner's checks.
 implies(

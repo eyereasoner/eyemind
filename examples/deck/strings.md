@@ -216,3 +216,11 @@ Add `query(characters('Zoë', Chars, Length))` and run again: you get
 `characters('Zoë', ['Z', 'o', 'ë'], 3)`. Add `query(label(Name, 'hello_bob'))`
 to run rule 1 backward: `atom_concat` splits the label instead of joining,
 and the answer is `label('bob', 'hello_bob')`.
+
+---
+
+## Takeaway
+
+Text is data like any other: it can be built, split and measured with
+plain rules — and the checker recounts the letters rather than taking the
+program's word for it.

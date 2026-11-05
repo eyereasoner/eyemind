@@ -270,3 +270,11 @@ Add a road `fact(edge('d', 'e'))` and run again: there are now 16
 conclusions, because a, b, c and d can all reach e. Delete the road
 `fact(edge('c', 'a'))` instead: the loop is gone, and only 6 pairs remain,
 each going forward along a → b → c → d.
+
+---
+
+## Takeaway
+
+A loop in the data does not have to mean a loop in the reasoning. eyemind
+collects every reachable pair, stops when nothing is new, and backs each
+pair with a chain that leads straight back to the roads.

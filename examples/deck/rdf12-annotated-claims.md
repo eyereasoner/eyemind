@@ -144,9 +144,11 @@ missed without searching again, and the checker never searches by itself.
 So the proof records such a list as **`'collected'`**: gathered by a search
 and complete only on trust. The checker reports it as an **obligation**, a
 point taken on trust that anyone may challenge by finding a missing item. It
-does confront the list with the evidence in the proof: if the proof itself
-contained a claim scoring above 9310, the list `[]` would be refuted and the
-proof rejected.
+would confront the list with the evidence at hand: if the program or the
+proof contained a `higher` statement showing a score above 9310, the list
+`[]` would be refuted and the proof rejected. Here neither contains any
+`higher` statement, so there is nothing to confront it with, and the list
+simply stays on trust.
 
 ---
 
@@ -309,7 +311,7 @@ condition('C2', 'well_founded', 'ok', 60)
 condition('C3', 'justification', 'ok', 60)
 condition('C4', 'coverage', 'ok', 82)
 condition('C5', 're_decision', 'ok', 22)
-condition('C6', 'boundary_consistency', 'ok', 2)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 69)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -344,10 +346,11 @@ at:
 - **C5 re-decision (22)**: the 22 calculations were recomputed and agree: the
   two multiplications, the rank sums, the `ge` comparison, the joined web
   address, and the character conversions between numbers and text.
-- **C6 boundary consistency (2)**: the 2 collected lists were confronted with
-  the evidence in the proof, and none is contradicted: the proof has no
-  claim scoring above 9310, and the only claim scoring above 700 is the
-  9310 that the second list contains.
+- **C6 boundary consistency (0)**: the checker had nothing to confront the
+  2 collected lists with. `higher` is only a rule, and neither the program's
+  facts nor the proof's steps contain a `higher` statement, so nothing
+  could show a missing score. Both lists are left undecided and stay
+  obligations taken on trust.
 - **C7 relevance (69)**: the 9 claims each answer the program's query, and all
   60 steps serve a claim.
 - **C8 witness integrity (0)**: no rule invents a new, unnamed thing, so
@@ -388,3 +391,10 @@ Raise the anonymous post's trust score from `'20'` to `'290'`: it now scores
 35 × 290 = 10150, beats the authority, and the decision becomes
 `cross_bridge` on the post's word. The rule follows the numbers, so the
 numbers you give it matter.
+
+---
+
+## Takeaway
+
+When sources conflict, the reasons for following one of them can be written
+down, computed, ranked and checked, not just asserted.

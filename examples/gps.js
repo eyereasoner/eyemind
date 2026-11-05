@@ -19,6 +19,9 @@
 // The state is passed along the search, and a transition replaces its From
 // fluent by its To fluent. Each step checks the running totals against the
 // limits, so a path is cut off as soon as it exceeds one.
+//
+// Goal driven Parallel Sequences -- Jos De Roo
+// See background paper https://www.sciencedirect.com/science/article/pii/S1532046421000794
 
 // Find paths from the current state to a goal state within the limits,
 // starting with no steps, zero duration and cost, and belief and comfort 1.

@@ -364,7 +364,7 @@ condition('C2', 'well_founded', 'ok', 68)
 condition('C3', 'justification', 'ok', 68)
 condition('C4', 'coverage', 'ok', 70)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 23)
+condition('C6', 'boundary_consistency', 'ok', 17)
 condition('C7', 'relevance', 'ok', 81)
 condition('C8', 'witness_integrity', 'ok', 0)
 
@@ -419,10 +419,17 @@ at:
   each backed by a step: nothing is taken for granted silently.
 - **C5 re-decision (0)**: there is no arithmetic or other built-in
   calculation to recompute.
-- **C6 boundary consistency (23)**: the 6 absences and 17 collected lists
-  were confronted with the program's facts and the proof's steps, and none
-  is contradicted. For instance, each list of anchoring provisions contains
-  every `anchor` fact the program has for that component.
+- **C6 boundary consistency (17)**: the checker tries to refute each
+  trusted step with the program's facts and the proof's steps. 17 could be
+  confronted: the 5 absences about anchoring (the program has `anchor` facts
+  and the proof has `anchored` and `fully_anchored` steps), the 7 lists of
+  anchoring provisions and the 5 lists of what each option delivers (the
+  program has `anchor` and `delivers` facts). None is contradicted: for
+  instance, each list of anchoring provisions contains every `anchor` fact
+  the program has for that component. The other 6 are left undecided: the
+  absence "the autonomous right is not objectionable" and the 5 lists of
+  objections, because no fact or step of `objectionable` or `objection`
+  exists, so nothing could refute them. All 23 stay obligations.
 - **C7 relevance (81)**: the 13 claims each answer one of the program's
   queries, and all 68 steps serve a claim.
 - **C8 witness integrity (0)**: no rule invents a new, unnamed thing, so
@@ -468,6 +475,14 @@ Change `data_ownership`'s framing from `'property'` to `'inalienable_right'`:
 the objection "treats personal data as a commodity" disappears, but data
 ownership still leaves transparency and collective exercise unaddressed, so
 the autonomous right remains the only recommendation.
+
+Legal analysis and policy evaluation become one chain of reasoning, from
+each provision to the recommendation. Change an assumption, a provision or a
+criterion, and the whole chain follows, with a proof of every step.
+
+---
+
+## Takeaway
 
 Legal analysis and policy evaluation become one chain of reasoning, from
 each provision to the recommendation. Change an assumption, a provision or a

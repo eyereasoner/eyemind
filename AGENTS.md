@@ -88,8 +88,9 @@ very large proofs; redirect them to a file and inspect focused parts.
   and must never execute text.
 - Every example starts with `//` header comments for a wide audience saying
   what situation it models, what it concludes, and which feature it shows.
-  Describe the example as it is; do not mention where it came from or
-  sibling projects.
+  Describe the example as it is. Keep credits to external sources (authors,
+  papers, puzzles, standards) in the program and its deck, but never
+  mention sibling projects.
 - When adding an example, register it in `examples/manifest.json`, write its
   deck in `examples/deck/`, and generate its artifacts. The playground lists
   examples from the manifest.

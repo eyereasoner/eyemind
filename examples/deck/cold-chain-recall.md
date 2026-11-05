@@ -267,7 +267,7 @@ condition('C2', 'well_founded', 'ok', 24)
 condition('C3', 'justification', 'ok', 24)
 condition('C4', 'coverage', 'ok', 33)
 condition('C5', 're_decision', 'ok', 5)
-condition('C6', 'boundary_consistency', 'ok', 2)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 31)
 condition('C8', 'witness_integrity', 'ok', 1)
 
@@ -300,10 +300,12 @@ at:
   each backed by a step: nothing is taken for granted.
 - **C5 re-decision (5)**: the 5 comparisons (43 > 42, 44 > 42, 72 ≤ 80,
   94 > 80 and 45 > 42) were calculated again by the checker, and they hold.
-- **C6 boundary consistency (2)**: the 2 absences were confronted with the
-  evidence at hand, the program's facts and the proof's own steps. Neither
-  contains anything saying `logger_a` or `logger_b` is superseded, so
-  neither absence is refuted.
+- **C6 boundary consistency (0)**: the checker had nothing to confront the
+  2 absences with. `superseded` is only a rule: no program fact and no step
+  of the proof is a `superseded` statement about any reading, so nothing
+  could refute "`logger_a` is not superseded" or "`logger_b` is not
+  superseded". Both are left undecided and stay obligations taken on
+  trust.
 - **C7 relevance (31)**: the 7 claims answer the queries, and all 24 steps
   serve them. There is no padding.
 - **C8 witness integrity (1)**: the 1 step that invents a name (step 24)
@@ -345,3 +347,11 @@ supersedes the other, so both `selected_reading('handheld_a', 'batch_a', 72)`
 and the logger's reading are selected. Batch A is still quarantined, on the
 logger's evidence. Or lower the logger's reading from 94 to 79: no reading
 is above the limit, so there is no conflict, no quarantine and no task.
+
+---
+
+## Takeaway
+
+A recall decision is only as good as the reading it rests on. Writing down
+which reading counts, and why, makes the decision one you can trace from the
+thermometer to the notice, and check.

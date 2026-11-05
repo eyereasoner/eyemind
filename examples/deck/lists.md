@@ -258,3 +258,10 @@ which two lists join to give `['a', 'b']`? eyemind lists all three ways to
 split it: `[]` and `['a', 'b']`, `['a']` and `['b']`, `['a', 'b']` and `[]`.
 Or change the last query to `query(sum([10, 20, 30], Total))`: the answer is
 `sum([10, 20, 30], 60)`.
+
+---
+
+## Takeaway
+
+Two plain rules per job are enough, and the proof follows the list item by
+item. Nothing is hidden inside a library: what you read is what ran.

@@ -248,3 +248,11 @@ center → right. Or open it in the [playground](https://eyereasoner.github.io/e
 
 Change the `3` in the query to `4`: the answer grows to 15 moves, and the
 proof to 37 steps.
+
+---
+
+## Takeaway
+
+A recursive idea — "solve the smaller puzzle, twice" — becomes a proof with
+the same shape: each big move list is justified by smaller ones, down to
+single disks that anyone can check by eye.

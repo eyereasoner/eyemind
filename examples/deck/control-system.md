@@ -308,3 +308,11 @@ unchanged. Set the target to `24`, the current output: the error is zero, the
 nonlinear part is left out, and the command is `0.0`. Set the disturbance to
 `0`: actuator 1 gets no command, since its compensation is undefined, and
 actuator 2 is unaffected.
+
+---
+
+## Takeaway
+
+When a machine setting comes from a chain of formulas, a proof that lists and
+re-checks every intermediate value turns "the controller said so" into
+something an engineer can audit line by line.

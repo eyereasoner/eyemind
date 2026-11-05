@@ -254,3 +254,11 @@ Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#
 
 Add the fact `fact(t('s2', 'p1', 'o5'))` and run again: the first answer
 becomes `['o1', 'o2', 'o5', 'o3', 'o4']`.
+
+---
+
+## Takeaway
+
+"Here are all the matches" is a stronger statement than "here are some
+matches". eyemind gives you the answer and marks precisely where it relied on
+having seen everything — so you know what to recheck when the data grows.

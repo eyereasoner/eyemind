@@ -8,6 +8,8 @@
 // [Country, Colour] pairs. findall builds that list with the colours still
 // unknown, once keeps the first complete colouring, and not(conflict(...))
 // rejects a colour an already-coloured neighbour has.
+//
+// See https://en.wikipedia.org/wiki/Four_color_theorem
 
 implied_by(
   colors(_Map, Places),
