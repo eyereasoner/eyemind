@@ -13,8 +13,8 @@ Repository: https://github.com/eyereasoner/eyemind
 eyemind is a rule language written in JavaScript, with forward and backward
 reasoning, and a proof format whose documents a separate checker verifies
 against the program that produced them. This document specifies the terms
-the language reasons over, how a program is stated in JavaScript, what a
-program concludes, the canonical text in which terms, conclusions, proofs and
+the language reasons over, how a program is stated in JavaScript, its semantics
+and conclusions, the canonical text in which terms, conclusions, proofs and
 check reports are written and read back, the proof document, the eight
 conditions (C1-C8) a proof checker establishes, the check report, and the
 command line.
@@ -45,6 +45,13 @@ disagree, that is a defect in one of them.
 14. [Command Line](#14-command-line)
 15. [Security Considerations](#15-security-considerations)
 16. [Conformance](#16-conformance)
+17. [Semantics](#17-semantics)
+    1. [Herbrand interpretation](#171-herbrand-interpretation)
+    2. [Variables and witnesses](#172-variables-and-witnesses)
+    3. [Positive least model](#173-positive-least-model)
+    4. [Negation and collection](#174-negation-and-collection)
+    5. [Sets, solutions and operational behavior](#175-sets-solutions-and-operational-behavior)
+    6. [Termination and proofs](#176-termination-and-proofs)
 - [Appendix A. Document Grammar](#appendix-a-document-grammar)
 - [Appendix B. Example](#appendix-b-example)
 
@@ -1050,8 +1057,9 @@ obligations holds only conditional on them.
 
 ## 16. Conformance
 
-A conforming **reasoner** implements Sections 3 to 10, produces
-conclusions and proof documents in the canonical text, and checks every proof
+A conforming **reasoner** implements Sections 3 to 10 with the semantics of
+Section 17, produces conclusions and proof documents in the canonical text,
+and checks every proof
 it produces as Section 11 describes. A conforming **checker** implements
 Sections 9, 11 and 12 and does not depend on a reasoner. For the same
 program, a conforming reasoner and checker MUST produce the same
@@ -1067,6 +1075,167 @@ each case naming the sections it tests; `conformance/README.md` describes how
 to run it against any implementation. The repository's examples, with their
 saved conclusions (`examples/output/`), proofs (`examples/proof/`) and reports
 (`examples/check/`), test the same on larger programs.
+
+## 17. Semantics
+
+This section gives the model-theoretic reading of ordinary relations and its
+limits. Section 7 defines the evaluation and output of every accepted program,
+including controls and primitives whose behavior depends on current bindings.
+
+### 17.1 Herbrand interpretation
+
+Ordinary predicates have a **Herbrand interpretation**: they relate terms,
+and ground terms denote themselves. The **Herbrand universe** is the set of
+finite ground terms built from the atoms, integers, finite floats and compound
+constructors of Section 3, including lists and the Skolem terms of Section 7.2.
+It includes values constructed during reasoning, even when they do not occur
+literally in the source. For example, `implies(is(X, add(1, 2)), p(X))`
+concludes `p(3)`.
+
+The **Herbrand base** is the set of ground ordinary predicate applications
+over this universe, including atoms used as predicates of arity 0. A Herbrand
+interpretation is a subset of this base. Controls, primitives and source rule
+inspection have the interpretations of Sections 4.7, 5 and 6; their meaning
+is not supplied by ordinary clauses.
+
+Asserting `equal('a', 'b')` adds a relation between two atoms; it does not make
+them the same term. `unify` performs the finite-tree matching of Section 3,
+and `is` evaluates an arithmetic expression. An ordinary argument such as
+`add(1, 2)` remains a compound until an arithmetic primitive evaluates it.
+Integers and floats remain distinct. Section 3's signed-zero convention also
+applies: `0.0` and `-0.0` unify, although canonical identity distinguishes
+them. Thus matching a ground goal against an interpretation uses unification,
+while storage and output use the identity rules of Section 7.
+
+### 17.2 Variables and witnesses
+
+Variables used only inside a collection's template and goal are local to
+that search (Section 17.4); template variables have the scope of Section 4.6.
+Other variables of a source fact or a backward clause are universally
+quantified within that clause. For example, `fact(p(X))` states every ground
+instance of `p(X)`; a backward clause with a head-only variable likewise leaves that
+variable universal. Resolution uses fresh variables for each clause attempt
+and MAY return an answer containing variables. It does not enumerate all
+ground instances of a universal answer.
+
+A forward rule instead introduces a witness for each head variable left
+unbound by a body solution, except for scoped inspection variables
+(Section 4.7). A head-only variable has an existential reading: for each
+successful body instance there exists a value making the heads hold. For
+example, `implies(person(X), has_token(X, T))` supplies a witness for `T`.
+Section 7.2 chooses the deterministic Skolem term for it. Witnesses depend
+on the rule number and the resolved head context, including captures for an
+appended template clause; body variables absent from that context do not
+distinguish witnesses. Shared variables in several heads share one witness.
+
+This is a specified Skolemized interpretation of existential conclusions.
+It does not claim that the original existential rule has a least model over
+its original vocabulary, or that its witnesses denote different real-world
+objects. A witness is an ordinary compound term in subsequent reasoning.
+Inline templates first become the fixed clauses and activation predicates
+of Section 4.6. Source inspection reads its fixed catalogue and can supply
+universal patterns; it does not assert the inspected rule's head.
+
+### 17.3 Positive least model
+
+Consider the positive relational fragment: ground facts and rules whose
+bodies contain ordinary calls and conjunction or disjunction, with every
+head variable bound by the body. There is no negation, collection, `once`,
+source inspection or test of an unbound variable's current state. Primitives
+MAY be included when earlier goals supply their required inputs and their
+solutions agree with their ground interpretation under further substitution.
+
+For this fragment, a ground instance of a rule's body holding requires its
+head, or every head of a conjunction, to hold. The meaning is the **least
+Herbrand model**: the smallest interpretation containing the source facts
+and closed under the rules, with matching as in Section 17.1 and primitives
+interpreted as specified. Equivalently, start with the facts and repeatedly
+add the heads of satisfied rule instances until no new ground atom follows;
+the closure can be infinite. Existential forward rules extend this reading
+with the specified Skolem witnesses rather than arbitrary witness choices.
+
+Forward and backward clauses express implication in this fragment. Their
+directions determine how consequences are obtained: forward rules store
+derived facts, while backward rules are searched on demand. A completed
+search for an ordinary goal returns its instances that hold in the model.
+The model includes source facts and consequences available only by backward
+search; it is not just the list of materialized facts or printed conclusions
+(Section 7.6).
+
+For example, `fact(human('socrates'))` and
+`implies(human(X), mortal(X))` give a model containing
+`human('socrates')` and `mortal('socrates')`. With no query or explicit goal,
+only the newly derived `mortal('socrates')` is printed.
+
+### 17.4 Negation and collection
+
+Negation and collection use the completed dependencies required by the clause
+ranks of Section 4.5. The strata are interpreted in increasing order, with
+lower strata fixed before a higher stratum uses their absence or solutions.
+Dependencies compare whole terms, so a stratum need not contain every clause
+with the same predicate name and arity.
+
+`not(G)` succeeds when searching `G` has no solution. Named variables must
+already be bound; anonymous variables stand for any value. Thus
+`not(p('a', _))` requires that no `p('a', T)` succeeds for any `T`.
+This is absence relative to the program's completed dependencies, not a
+claim that the relation is false in the world. For goals in the relational
+fragment, this gives the stratified least-model reading; a goal containing
+binding-sensitive controls or tests retains their operational meaning.
+
+`findall(T, G, L)` collects the search solutions of `G`, in order, including
+repeated derivations, and copies each instance of `T` with fresh variables.
+Bindings made inside the search do not escape except through the resulting
+list. An empty search gives `[]`. This ordered collection of solutions is
+not determined by a set of ground atoms alone: duplicate source clauses,
+alternative derivations and clause order can affect its result even when
+they leave that set unchanged.
+
+### 17.5 Sets, solutions and operational behavior
+
+Ground forward conclusions are stored once by canonical identity, including
+comparison with ground source facts. Scoped inspection patterns are stored
+once up to variable renaming. Reported goal answers are also suppressed up
+to variable renaming; query-rule reports follow Section 7.2. These rules do
+not remove alternative derivations during backward search, so a `findall`
+can contain the same term more than once. Nonground answers and inspection
+patterns represent universally scoped terms, not existential witnesses.
+
+The unrestricted least-model reading does not specify every accepted
+program's answers. `once` selects the first solution. `is_var`, `identical`,
+`not_unify` and other tests can observe current bindings, and primitives can
+require inputs that a ground rule instance alone would supply. For example:
+
+```js
+fact(q('b'))
+implied_by(p(X), [not_unify(X, 'a'), q(X)])
+```
+
+An explicit goal `p(X)` has no answer: the initial unbound `X` unifies with
+`'a'`, so `not_unify` fails. The goal `p('b')` succeeds. A forward rule that
+calls such a backward rule can inherit this dependence on call bindings.
+Section 7's goal order and search strategy therefore remain part of the
+meaning of these programs. Output order, first proofs and witness spellings
+can also depend on clause order even in programs whose relational answer
+sets agree.
+
+### 17.6 Termination and proofs
+
+A least model need not be finite. Arithmetic, term construction and repeated
+witness introduction can generate infinitely many facts. A finite model
+does not ensure that depth-first backward search terminates: for example,
+`implied_by(p(X), p(X))` has an empty least model but searching `p('a')`
+keeps recurring. Backward search is not tabled. Successful completion without
+a contradiction requires terminating searches and forward rounds that reach
+a fixed point within Section 7.3's bounds. Exceeding a bound raises an error
+rather than certifying completion.
+A contradiction halts immediately as Section 7.5 specifies, so its output
+does not claim a completed closure, and it does not entail arbitrary terms.
+
+A valid proof certifies its recorded claims subject to any trusted absence
+or collection boundaries (Section 11.11). It does not certify that the
+entire least model was computed, that all answers were returned, or that no
+contradiction follows.
 
 ---
 
