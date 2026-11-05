@@ -2,7 +2,7 @@
 
 These cases test an implementation against [SPEC.md](../SPEC.md). They are
 black-box: each case creates some files, runs the implementation's command
-line (SPEC Section 14) and compares what it prints and its exit code with what
+line (SPEC Section 13.1) and compares what it prints and its exit code with what
 the specification requires. Any implementation with that command line can be
 tested, not only eyemind.
 
@@ -20,21 +20,21 @@ the case files in order, with the SPEC sections and the topic of each.
 
 | File | SPEC | Cases | What it tests |
 | --- | --- | --- | --- |
-| [03-terms.js](03-terms.js) | 3 | 27 | Unification, the occurs check, integers and finite floats, lists, the standard order |
-| [04-programs.js](04-programs.js) | 4 | 63 | Statements, clause numbering, names a program leaves undefined, rejected clauses, stratification |
-| [05-controls-and-primitives.js](05-controls-and-primitives.js) | 5 | 56 | Every control and primitive, and the errors of their flow patterns |
-| [06-arithmetic.js](06-arithmetic.js) | 6 | 45 | The meaning of every arithmetic term and function, exact integers, and each error |
-| [07-reasoning.js](07-reasoning.js) | 7 | 37 | Search order, forward rounds, Skolem terms, conclusions, halting, bounds |
-| [08-canonical-text.js](08-canonical-text.js) | 8 | 19 | The one spelling of atoms, numbers, variables, lists and compounds |
-| [09-reading.js](09-reading.js) | 9 | 41 | What a document reader accepts, and what it must reject without running anything |
+| [03-terms.js](03-terms.js) | 2 | 27 | Unification, the occurs check, integers and finite floats, lists, the standard order |
+| [04-programs.js](04-programs.js) | 3, 6 | 63 | Statements, clause numbering, names a program leaves undefined, rejected clauses, stratification |
+| [05-controls-and-primitives.js](05-controls-and-primitives.js) | 4 | 56 | Every control and primitive, and the errors of their flow patterns |
+| [06-arithmetic.js](06-arithmetic.js) | 5 | 45 | The meaning of every arithmetic term and function, exact integers, and each error |
+| [07-reasoning.js](07-reasoning.js) | 8 | 37 | Search order, forward rounds, Skolem terms, conclusions, halting, bounds |
+| [08-canonical-text.js](08-canonical-text.js) | 9 | 19 | The one spelling of atoms, numbers, variables, lists and compounds |
+| [09-reading.js](09-reading.js) | 9.1 | 41 | What a document reader accepts, and what it must reject without running anything |
 | [10-proofs.js](10-proofs.js) | 10 | 17 | Proof documents for every kind of justification, step order and sharing |
 | [11-checking.js](11-checking.js) | 11, 12 | 51 | Valid proofs and proofs tampered with to break each of C1-C8, with their exact reports |
-| [13-unused.js](13-unused.js) | 13 | 11 | Unused clauses, including those a negation or collection consults |
-| [14-command-line.js](14-command-line.js) | 14 | 33 | Options, their combinations, standard input, errors and exit codes |
+| [13-unused.js](13-unused.js) | 13.2 | 11 | Unused clauses, including those a negation or collection consults |
+| [14-command-line.js](14-command-line.js) | 13.1 | 33 | Options, their combinations, standard input, errors and exit codes |
 
 ## Case format
 
-A case file is an eyemind document (SPEC Section 9), like the conclusions,
+A case file is an eyemind document (SPEC Section 9.1), like the conclusions,
 proofs and reports eyemind writes: it is read, never run. Each case is one
 term, `conformance(Name, [Setting, ...])`, and each block of text in it, such
 as a file or the expected output, is an array of its lines:

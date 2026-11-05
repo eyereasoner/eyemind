@@ -51,7 +51,7 @@ conformance('a valid proof is checked', [
 ])
 
 conformance('the proof can come from standard input', [
-  spec('14'),
+  spec('13.1'),
   args('--check-proof - program.js'),
   file('program.js', [
     "fact(p('a'))",
@@ -625,7 +625,7 @@ conformance('C3: a builtin step must name a primitive', [
 ])
 
 conformance('C3: a document that does not read fails', [
-  spec('9, 11.1'),
+  spec('9.1, 11.1'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -665,7 +665,7 @@ conformance('C3: a document that does not read fails', [
 ])
 
 conformance('C3: a document is never executed', [
-  spec('9, 11.1, 15'),
+  spec('9.1, 11.1, 15'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -705,7 +705,7 @@ conformance('C3: a document is never executed', [
 ])
 
 conformance('C3: a document with a nonfinite number does not read', [
-  spec('3, 9, 11.1, 12'),
+  spec('2, 9.1, 11.1, 12'),
   args('--check-proof proof.js program.js'),
   exit(2),
   stderr('empty'),
@@ -1256,7 +1256,7 @@ conformance('obligations are listed and make the verdict conditional', [
 ])
 
 conformance('strict checking forbids trusted boundaries', [
-  spec('11.6, 14'),
+  spec('11.6, 13.1'),
   args('--strict-proof --check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -1886,7 +1886,7 @@ conformance("a report's variables are lettered in order of appearance", [
 ])
 
 conformance('a report as JSON', [
-  spec('12, 14'),
+  spec('12, 13.1'),
   args("--json --check-proof proof.js --goal 'p(X)' program.js"),
   file('program.js', [
     "fact(p('a'))",
@@ -1911,7 +1911,7 @@ conformance('a report as JSON', [
 ])
 
 conformance('a failing report as JSON', [
-  spec('12, 14'),
+  spec('12, 13.1'),
   args("--json --check-proof proof.js --goal 'is(7, add(2, 3))' program.js"),
   exit(2),
   file('program.js', []),
@@ -1936,7 +1936,7 @@ conformance('a failing report as JSON', [
 ])
 
 conformance('a generated proof checks', [
-  spec('7.7, 11'),
+  spec('8.7, 11'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'fact(n(1), n(3))',
@@ -2136,7 +2136,7 @@ conformance("C8: another firing's witness fails", [
 ])
 
 conformance('C1 rejects an inspection that separates a source rule variable', [
-  spec('4.7, 11.2'),
+  spec('6.3, 11.2'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'implies(a(X), c(X))',
@@ -2151,7 +2151,7 @@ conformance('C1 rejects an inspection that separates a source rule variable', [
 ])
 
 conformance('C8 rejects an open inspection pattern with one shared existential witness', [
-  spec('4.7, 11.9'),
+  spec('6.3, 11.9'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'implies(a(X), c(X))',

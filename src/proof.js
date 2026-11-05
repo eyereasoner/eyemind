@@ -494,7 +494,7 @@ function checkResolution(program, step, fail, tally) {
 // Skolem term of this firing, skolem(Rule, Variable, Arguments), where
 // Arguments are the ground values of the conclusions' other variables, in
 // order of first occurrence, leaving out those that hold a witness of this
-// firing: the term the reasoner makes (Section 7.2). Returns null when the
+// firing: the term the reasoner makes (Section 8.2). Returns null when the
 // rule has no witnesses, else whether they all hold; head is the rule's
 // renamed conclusions and names maps its variables to their renamed ones.
 function checkWitnesses(clause, head, names, env) {

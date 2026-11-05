@@ -1,8 +1,8 @@
-// SPEC 9: reading documents. Accepted forms are read through facts_from and
+// SPEC 9.1: reading documents. Accepted forms are read through facts_from and
 // printed back; rejected forms are given as goals and must stop the run.
 
 conformance('canonical text reads back as the same term', [
-  spec('8, 9'),
+  spec('9, 9.1'),
   file('program.js', [
     "facts_from('data.js')",
     'query(d(X))',
@@ -45,7 +45,7 @@ conformance('canonical text reads back as the same term', [
 ])
 
 conformance('other spellings read as the same terms', [
-  spec('9'),
+  spec('9.1'),
   file('program.js', [
     "facts_from('data.js')",
     'query(d(X))',
@@ -88,7 +88,7 @@ conformance('other spellings read as the same terms', [
 ])
 
 conformance('a dictionary display reads as a list of = pairs', [
-  spec('9'),
+  spec('9.1'),
   file('program.js', [
     "facts_from('data.js')",
     'query(d(X))',
@@ -103,7 +103,7 @@ conformance('a dictionary display reads as a list of = pairs', [
 ])
 
 conformance('a name reads as a variable, and each _ as a new one', [
-  spec('9'),
+  spec('9.1'),
   args("program.js --goal 'same(1, 1)' --goal 'same(1, 2)' --goal 'any(1, 2)'"),
   file('program.js', [
     "facts_from('data.js')",
@@ -120,7 +120,7 @@ conformance('a name reads as a variable, and each _ as a new one', [
 ])
 
 conformance('a document is not executed', [
-  spec('9, 15'),
+  spec('9.1, 15'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -133,7 +133,7 @@ conformance('a document is not executed', [
 ])
 
 conformance('a statement that is not an expression is rejected', [
-  spec('9'),
+  spec('9.1'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -146,7 +146,7 @@ conformance('a statement that is not an expression is rejected', [
 ])
 
 conformance('a declaration is rejected', [
-  spec('9'),
+  spec('9.1'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -159,7 +159,7 @@ conformance('a declaration is rejected', [
 ])
 
 conformance('two statements on one line need a semicolon', [
-  spec('9'),
+  spec('9.1'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -172,7 +172,7 @@ conformance('two statements on one line need a semicolon', [
 ])
 
 conformance('a syntax error is rejected', [
-  spec('9'),
+  spec('9.1'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -185,7 +185,7 @@ conformance('a syntax error is rejected', [
 ])
 
 conformance('goal text rejects a property access', [
-  spec('9'),
+  spec('9.1'),
   args('--goal os.path'),
   exit(1),
   stderr('nonempty'),
@@ -194,7 +194,7 @@ conformance('goal text rejects a property access', [
 ])
 
 conformance('goal text rejects a subscript', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'x[0]'"),
   exit(1),
   stderr('nonempty'),
@@ -203,7 +203,7 @@ conformance('goal text rejects a subscript', [
 ])
 
 conformance('goal text rejects an assignment', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'f(X = 1)'"),
   exit(1),
   stderr('nonempty'),
@@ -212,7 +212,7 @@ conformance('goal text rejects an assignment', [
 ])
 
 conformance('goal text rejects a method call', [
-  spec('9'),
+  spec('9.1'),
   args('--goal \'os.system(\'"\'"\'true\'"\'"\')\''),
   exit(1),
   stderr('nonempty'),
@@ -221,7 +221,7 @@ conformance('goal text rejects a method call', [
 ])
 
 conformance('goal text rejects a call of a call', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'f()()'"),
   exit(1),
   stderr('nonempty'),
@@ -230,7 +230,7 @@ conformance('goal text rejects a call of a call', [
 ])
 
 conformance('goal text rejects a spread call argument', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'f(...X)'"),
   exit(1),
   stderr('nonempty'),
@@ -239,7 +239,7 @@ conformance('goal text rejects a spread call argument', [
 ])
 
 conformance('goal text rejects a comma expression', [
-  spec('9'),
+  spec('9.1'),
   args("--goal '(1, 2)'"),
   exit(1),
   stderr('nonempty'),
@@ -248,7 +248,7 @@ conformance('goal text rejects a comma expression', [
 ])
 
 conformance('goal text rejects an object spread', [
-  spec('9'),
+  spec('9.1'),
   args("--goal '{...X}'"),
   exit(1),
   stderr('nonempty'),
@@ -257,7 +257,7 @@ conformance('goal text rejects an object spread', [
 ])
 
 conformance('goal text rejects true', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'p(true)'"),
   exit(1),
   stderr('nonempty'),
@@ -266,7 +266,7 @@ conformance('goal text rejects true', [
 ])
 
 conformance('goal text rejects undefined', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'p(undefined)'"),
   exit(1),
   stderr('nonempty'),
@@ -275,7 +275,7 @@ conformance('goal text rejects undefined', [
 ])
 
 conformance('goal text rejects a regular expression', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'p(/x/)'"),
   exit(1),
   stderr('nonempty'),
@@ -284,7 +284,7 @@ conformance('goal text rejects a regular expression', [
 ])
 
 conformance('goal text rejects a template literal', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'p(`${X}`)'"),
   exit(1),
   stderr('nonempty'),
@@ -293,7 +293,7 @@ conformance('goal text rejects a template literal', [
 ])
 
 conformance('goal text rejects a hexadecimal number', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'p(0x10)'"),
   exit(1),
   stderr('nonempty'),
@@ -302,7 +302,7 @@ conformance('goal text rejects a hexadecimal number', [
 ])
 
 conformance('goal text rejects ===', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'X === Y'"),
   exit(1),
   stderr('nonempty'),
@@ -311,7 +311,7 @@ conformance('goal text rejects ===', [
 ])
 
 conformance('goal text rejects !==', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'X !== Y'"),
   exit(1),
   stderr('nonempty'),
@@ -320,7 +320,7 @@ conformance('goal text rejects !==', [
 ])
 
 conformance('goal text rejects in', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'X in Y'"),
   exit(1),
   stderr('nonempty'),
@@ -329,7 +329,7 @@ conformance('goal text rejects in', [
 ])
 
 conformance('goal text rejects instanceof', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'X instanceof Y'"),
   exit(1),
   stderr('nonempty'),
@@ -338,7 +338,7 @@ conformance('goal text rejects instanceof', [
 ])
 
 conformance('goal text rejects !', [
-  spec('9'),
+  spec('9.1'),
   args("--goal '!X'"),
   exit(1),
   stderr('nonempty'),
@@ -347,7 +347,7 @@ conformance('goal text rejects !', [
 ])
 
 conformance('goal text rejects &&', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'X && Y'"),
   exit(1),
   stderr('nonempty'),
@@ -356,7 +356,7 @@ conformance('goal text rejects &&', [
 ])
 
 conformance('goal text rejects ||', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'X || Y'"),
   exit(1),
   stderr('nonempty'),
@@ -365,7 +365,7 @@ conformance('goal text rejects ||', [
 ])
 
 conformance('goal text rejects an operator', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'X + Y'"),
   exit(1),
   stderr('nonempty'),
@@ -374,7 +374,7 @@ conformance('goal text rejects an operator', [
 ])
 
 conformance('goal text rejects a comparison', [
-  spec('9'),
+  spec('9.1'),
   args("--goal '1 < 2'"),
   exit(1),
   stderr('nonempty'),
@@ -383,7 +383,7 @@ conformance('goal text rejects a comparison', [
 ])
 
 conformance('goal text rejects a spread item before the end of a list', [
-  spec('9'),
+  spec('9.1'),
   args("--goal '[...X, 1]'"),
   exit(1),
   stderr('nonempty'),
@@ -392,7 +392,7 @@ conformance('goal text rejects a spread item before the end of a list', [
 ])
 
 conformance('goal text rejects a numeric separator', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'p(1_000)'"),
   exit(1),
   stderr('nonempty'),
@@ -401,7 +401,7 @@ conformance('goal text rejects a numeric separator', [
 ])
 
 conformance('goal text rejects a conditional expression', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'X ? Y : Z'"),
   exit(1),
   stderr('nonempty'),
@@ -410,7 +410,7 @@ conformance('goal text rejects a conditional expression', [
 ])
 
 conformance('goal text rejects an arrow function', [
-  spec('9'),
+  spec('9.1'),
   args("--goal '() => 1'"),
   exit(1),
   stderr('nonempty'),
@@ -419,7 +419,7 @@ conformance('goal text rejects an arrow function', [
 ])
 
 conformance('goal text rejects struct without a name', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'struct()'"),
   exit(1),
   stderr('nonempty'),
@@ -428,7 +428,7 @@ conformance('goal text rejects struct without a name', [
 ])
 
 conformance('goal text rejects struct with a name that is not a string', [
-  spec('9'),
+  spec('9.1'),
   args("--goal 'struct(1, 2)'"),
   exit(1),
   stderr('nonempty'),
@@ -437,7 +437,7 @@ conformance('goal text rejects struct with a name that is not a string', [
 ])
 
 conformance('goal text rejects overflowing float literals', [
-  spec('3, 9'),
+  spec('2, 9.1'),
   args("--goal 'eq(1e999, 2e999)'"),
   exit(1),
   stderr('nonempty'),
@@ -446,7 +446,7 @@ conformance('goal text rejects overflowing float literals', [
 ])
 
 conformance('documents reject overflowing float literals', [
-  spec('3, 9'),
+  spec('2, 9.1'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -459,7 +459,7 @@ conformance('documents reject overflowing float literals', [
 ])
 
 conformance('documents reject a null character in a string literal', [
-  spec('9'),
+  spec('9.1'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -469,7 +469,7 @@ conformance('documents reject a null character in a string literal', [
 ])
 
 conformance('documents reject a nonbreaking space outside a literal', [
-  spec('9'),
+  spec('9.1'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [

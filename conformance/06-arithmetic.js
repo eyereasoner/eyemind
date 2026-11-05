@@ -1,7 +1,7 @@
-// SPEC 6: integers are exact, division floors, and floats are IEEE doubles.
+// SPEC 5: integers are exact, division floors, and floats are IEEE doubles.
 
 conformance('true division', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, div(4, 2))' --goal 'is(Y, div(7, 2))' --goal 'is(Z, div(1, 3))'"),
   stdin([]),
   stdout([
@@ -13,7 +13,7 @@ conformance('true division', [
 ])
 
 conformance('floor division and modulo round towards negative infinity', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, floordiv(-7, 2))' --goal 'is(B, floordiv(7, -2))' --goal 'is(C, mod(-7, 3))' --goal 'is(D, mod(7, -3))' --goal 'is(E, floordiv(7.5, 2))'"),
   stdin([]),
   stdout([
@@ -27,7 +27,7 @@ conformance('floor division and modulo round towards negative infinity', [
 ])
 
 conformance('powers are exact on integers', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, pow(2, 100))' --goal 'is(B, pow(2, -1))' --goal 'is(C, pow(2.0, 2))' --goal 'is(D, pow(2, pow(3, 2)))' --goal 'is(E, pow(-2, 2))' --goal 'is(F, neg(pow(2, 2)))'"),
   stdin([]),
   stdout([
@@ -42,7 +42,7 @@ conformance('powers are exact on integers', [
 ])
 
 conformance('integers never round through a float', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, sub(add(pow(10, 30), 1), pow(10, 30)))' --goal 'is(Y, add(9007199254740993, 1))'"),
   stdin([]),
   stdout([
@@ -53,7 +53,7 @@ conformance('integers never round through a float', [
 ])
 
 conformance('floats are IEEE-754 doubles', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, add(0.1, 0.2))' --goal 'eq(add(0.1, 0.2), 0.3)'"),
   stdin([]),
   stdout([
@@ -63,7 +63,7 @@ conformance('floats are IEEE-754 doubles', [
 ])
 
 conformance('bitwise operators, in an expression', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, and(6, 3))' --goal 'is(B, or(6, 3))' --goal 'is(C, xor(6, 3))' --goal 'is(D, not(5))' --goal 'is(E, shl(1, 70))' --goal 'is(F, shr(-1, 1))'"),
   stdin([]),
   stdout([
@@ -78,7 +78,7 @@ conformance('bitwise operators, in an expression', [
 ])
 
 conformance('unary minus and plus', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, neg(add(2, 3)))' --goal 'is(B, pos(sub(2, 3)))' --goal 'is(C, neg(-4))'"),
   stdin([]),
   stdout([
@@ -90,7 +90,7 @@ conformance('unary minus and plus', [
 ])
 
 conformance('abs, min, max, round, int, float, pow', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, abs(-3))' --goal 'is(B, min(2, 1.5))' --goal 'is(C, max(1, 3, 2))' --goal 'is(D, round(2.5))' --goal 'is(E, round(3.5))' --goal 'is(F, round(2.675, 2))' --goal 'is(G, int(-2.7))' --goal 'is(H, float(3))' --goal 'is(I, pow(2, 10))'"),
   stdin([]),
   stdout([
@@ -108,7 +108,7 @@ conformance('abs, min, max, round, int, float, pow', [
 ])
 
 conformance('math functions', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, floor(-2.5))' --goal 'is(B, ceil(2.1))' --goal 'is(C, trunc(-2.7))' --goal 'is(D, sqrt(16))' --goal 'is(E, isqrt(17))' --goal 'is(F, exp(0))' --goal 'is(G, log(8, 2))' --goal 'is(H, log2(8))' --goal 'is(I, log10(1000))' --goal 'is(J, hypot(3, 4))' --goal 'is(K, fmod(7, 3))' --goal 'is(L, copysign(1, -0.0))' --goal 'is(M, gcd(12, 18))' --goal 'is(N, lcm(4, 6))' --goal 'is(O, sin(0))' --goal 'is(P, atan2(0, 1))'"),
   stdin([]),
   stdout([
@@ -133,7 +133,7 @@ conformance('math functions', [
 ])
 
 conformance('the constants pi, e and tau', [
-  spec('6'),
+  spec('5'),
   args('--goal \'is(A, \'"\'"\'pi\'"\'"\')\' --goal \'is(B, \'"\'"\'e\'"\'"\')\' --goal \'is(C, \'"\'"\'tau\'"\'"\')\' --goal \'is(D, degrees(\'"\'"\'pi\'"\'"\'))\''),
   stdin([]),
   stdout([
@@ -146,7 +146,7 @@ conformance('the constants pi, e and tau', [
 ])
 
 conformance('an expression may be a variable bound to an expression', [
-  spec('6'),
+  spec('5'),
   args("--goal '[unify(E, mul(2, 3)), is(X, add(E, 1))]'"),
   stdin([]),
   stdout([
@@ -156,7 +156,7 @@ conformance('an expression may be a variable bound to an expression', [
 ])
 
 conformance('comparison is exact across integers and floats', [
-  spec('6'),
+  spec('5'),
   args("--goal 'gt(9007199254740993, 9007199254740992.0)' --goal 'eq(9007199254740993, 9007199254740992.0)' --goal 'eq(1, 1.0)'"),
   stdin([]),
   stdout([
@@ -167,7 +167,7 @@ conformance('comparison is exact across integers and floats', [
 ])
 
 conformance('error: division by zero', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, div(1, 0))'"),
   exit(1),
   stderr('nonempty'),
@@ -176,7 +176,7 @@ conformance('error: division by zero', [
 ])
 
 conformance('error: floor division by zero', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, floordiv(1, 0))'"),
   exit(1),
   stderr('nonempty'),
@@ -185,7 +185,7 @@ conformance('error: floor division by zero', [
 ])
 
 conformance('error: modulo by zero', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, mod(1, 0))'"),
   exit(1),
   stderr('nonempty'),
@@ -194,7 +194,7 @@ conformance('error: modulo by zero', [
 ])
 
 conformance('error: zero to a negative power', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, pow(0, -1))'"),
   exit(1),
   stderr('nonempty'),
@@ -203,7 +203,7 @@ conformance('error: zero to a negative power', [
 ])
 
 conformance('error: square root of a negative number', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, sqrt(-1))'"),
   exit(1),
   stderr('nonempty'),
@@ -212,7 +212,7 @@ conformance('error: square root of a negative number', [
 ])
 
 conformance('error: logarithm of zero', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, log(0))'"),
   exit(1),
   stderr('nonempty'),
@@ -221,7 +221,7 @@ conformance('error: logarithm of zero', [
 ])
 
 conformance('error: a result that is not a real number', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, pow(-8, 0.5))'"),
   exit(1),
   stderr('nonempty'),
@@ -230,7 +230,7 @@ conformance('error: a result that is not a real number', [
 ])
 
 conformance('error: a float overflow', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, mul(1e+308, 10))'"),
   exit(1),
   stderr('nonempty'),
@@ -239,7 +239,7 @@ conformance('error: a float overflow', [
 ])
 
 conformance('error: a float power overflow', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, pow(10.0, 400))'"),
   exit(1),
   stderr('nonempty'),
@@ -248,7 +248,7 @@ conformance('error: a float power overflow', [
 ])
 
 conformance('error: a power too large to hold', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, pow(2, pow(10, 10)))'"),
   exit(1),
   stderr('nonempty'),
@@ -257,7 +257,7 @@ conformance('error: a power too large to hold', [
 ])
 
 conformance('error: a shift too large to hold', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, shl(1, pow(2, 30)))'"),
   exit(1),
   stderr('nonempty'),
@@ -266,7 +266,7 @@ conformance('error: a shift too large to hold', [
 ])
 
 conformance('error: an atom that is not a constant', [
-  spec('6'),
+  spec('5'),
   args('--goal \'is(X, add(\'"\'"\'foo\'"\'"\', 1))\''),
   exit(1),
   stderr('nonempty'),
@@ -275,7 +275,7 @@ conformance('error: an atom that is not a constant', [
 ])
 
 conformance('error: an unbound variable', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, add(Y, 1))'"),
   exit(1),
   stderr('nonempty'),
@@ -284,7 +284,7 @@ conformance('error: an unbound variable', [
 ])
 
 conformance('error: an unknown function', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, foo(1))'"),
   exit(1),
   stderr('nonempty'),
@@ -293,7 +293,7 @@ conformance('error: an unknown function', [
 ])
 
 conformance('error: a bitwise operator on a float', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, and(1.5, 1))'"),
   exit(1),
   stderr('nonempty'),
@@ -302,7 +302,7 @@ conformance('error: a bitwise operator on a float', [
 ])
 
 conformance('in a program, arithmetic on numbers alone is computed by JavaScript', [
-  spec('4.4, 6'),
+  spec('3.3, 5'),
   file('program.js', [
     'query(unify(Y, 3 + 4), is(X, mul(Y, 2)))',
   ]),
@@ -313,7 +313,7 @@ conformance('in a program, arithmetic on numbers alone is computed by JavaScript
 ])
 
 conformance('round rounds half to even, also below zero', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, round(-2.5))' --goal 'is(B, round(0.5))' --goal 'is(C, round(-0.5))' --goal 'is(D, round(1.5))'"),
   stdin([]),
   stdout([
@@ -326,7 +326,7 @@ conformance('round rounds half to even, also below zero', [
 ])
 
 conformance('floor division and modulo of floats', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, floordiv(-7.5, 2))' --goal 'is(B, mod(-7.5, 2))' --goal 'is(C, mod(7.5, -2))'"),
   stdin([]),
   stdout([
@@ -338,7 +338,7 @@ conformance('floor division and modulo of floats', [
 ])
 
 conformance('int, floor and ceil give exact integers', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, int(1e20))' --goal 'is(B, floor(1e20))' --goal 'is(C, ceil(-0.5))'"),
   stdin([]),
   stdout([
@@ -350,7 +350,7 @@ conformance('int, floor and ceil give exact integers', [
 ])
 
 conformance('powers of negative bases, of zero, and to a float', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, pow(-2, 3))' --goal 'is(B, pow(0, 0))' --goal 'is(C, pow(-1, 101))' --goal 'is(D, pow(4, 0.5))'"),
   stdin([]),
   stdout([
@@ -363,7 +363,7 @@ conformance('powers of negative bases, of zero, and to a float', [
 ])
 
 conformance('div of integers is the nearest float', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, div(1, 3))' --goal 'is(B, div(2, 3))' --goal 'is(C, div(6, 3))'"),
   stdin([]),
   stdout([
@@ -375,7 +375,7 @@ conformance('div of integers is the nearest float', [
 ])
 
 conformance('a float operand gives a float, integers an integer', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, add(1, 2.0))' --goal 'is(B, mul(2, 3))' --goal 'is(C, sub(5.5, 0.5))' --goal 'is(D, abs(-2.0))'"),
   stdin([]),
   stdout([
@@ -388,7 +388,7 @@ conformance('a float operand gives a float, integers an integer', [
 ])
 
 conformance('floor, ceil and trunc of integers, and exact roots', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, floor(3))' --goal 'is(B, ceil(-3))' --goal 'is(C, trunc(7))' --goal 'is(D, sqrt(2.25))' --goal 'is(E, isqrt(100000000000000000000))'"),
   stdin([]),
   stdout([
@@ -402,7 +402,7 @@ conformance('floor, ceil and trunc of integers, and exact roots', [
 ])
 
 conformance('error: a comparison in an expression', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, lt(1, 2))'"),
   exit(1),
   stderr('nonempty'),
@@ -411,7 +411,7 @@ conformance('error: a comparison in an expression', [
 ])
 
 conformance('error: gcd of a float', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, gcd(4.0, 2))'"),
   exit(1),
   stderr('nonempty'),
@@ -420,7 +420,7 @@ conformance('error: gcd of a float', [
 ])
 
 conformance('error: a shift of a float', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, shl(1.0, 2))'"),
   exit(1),
   stderr('nonempty'),
@@ -429,7 +429,7 @@ conformance('error: a shift of a float', [
 ])
 
 conformance('error: the integer square root of a negative number', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, isqrt(-1))'"),
   exit(1),
   stderr('nonempty'),
@@ -438,7 +438,7 @@ conformance('error: the integer square root of a negative number', [
 ])
 
 conformance('integer division preserves the smallest positive float', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, div(1, shl(1, 1074)))'"),
   stdin([]),
   stdout([
@@ -448,7 +448,7 @@ conformance('integer division preserves the smallest positive float', [
 ])
 
 conformance('integer division rounds subnormal halfway cases to even', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, div(1, shl(1, 1075)))' --goal 'is(X, div(3, shl(1, 1075)))' --goal 'is(X, div(-5, shl(1, 1075)))'"),
   stdin([]),
   stdout([
@@ -460,7 +460,7 @@ conformance('integer division rounds subnormal halfway cases to even', [
 ])
 
 conformance('float floor division and modulo keep the sign of a zero result', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, mod(6.0, 3.0))' --goal 'is(B, mod(6.0, -3.0))' --goal 'is(C, floordiv(1.0, 3.0))' --goal 'is(D, floordiv(-1.0, 3.0))' --goal 'is(E, floordiv(0.0, -3.0))'"),
   stdin([]),
   stdout([
@@ -474,7 +474,7 @@ conformance('float floor division and modulo keep the sign of a zero result', [
 ])
 
 conformance('round to a number of decimals rounds half to even and keeps integers exact', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, round(1250, -2))' --goal 'is(B, round(1350, -2))' --goal 'is(C, round(-1250, -2))' --goal 'is(D, round(7, 2))' --goal 'is(E, round(1250.0, -2))' --goal 'is(F, round(123456789012345678901, -10))'"),
   stdin([]),
   stdout([
@@ -489,7 +489,7 @@ conformance('round to a number of decimals rounds half to even and keeps integer
 ])
 
 conformance('round of a subnormal float is the integer zero', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(A, round(5e-324))' --goal 'is(B, round(-5e-324))'"),
   stdin([]),
   stdout([
@@ -500,7 +500,7 @@ conformance('round of a subnormal float is the integer zero', [
 ])
 
 conformance('error: the logarithm of a negative integer beyond the float range', [
-  spec('6'),
+  spec('5'),
   args("--goal 'is(X, log(neg(pow(10, 400))))'"),
   exit(1),
   stderr('nonempty'),

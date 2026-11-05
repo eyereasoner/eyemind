@@ -611,7 +611,7 @@ export class Solver {
   // For a rule semi-naive search can take, the key of each body goal answered
   // by facts alone, or null for a primitive or a negation or collection; null
   // for other rules. Negations and collections consult lower strata only
-  // (Section 4.5), so they do not change within one.
+  // (Section 6.1), so they do not change within one.
   directKeys(clause) {
     if (this.direct.has(clause.id)) return this.direct.get(clause.id);
     let keys = [];
@@ -887,7 +887,7 @@ export function run(program, { goal = null, goals = null, proof = false, maxDept
 }
 
 // The comment that opens a run's output and proof: what its conclusions are
-// (SPEC Section 7.6), and that there are none when there are none.
+// (SPEC Section 8.6), and that there are none when there are none.
 function conclusionsHeading(kind, count) {
   if (kind === 'halted') return "// Halted: a contradiction() holds; the facts derived until then, ending with 'false'.";
   if (kind === 'goals') {

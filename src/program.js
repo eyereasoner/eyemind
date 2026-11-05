@@ -31,7 +31,7 @@ export class Clause {
   }
 
   // The names of the variables only the conclusion mentions: a forward rule
-  // gives each a Skolem witness per firing (SPEC Section 7.2).
+  // gives each a Skolem witness per firing (SPEC Section 8.2).
   get witnessNames() {
     if (this.witnessed === null) {
       const inBody = new Set();

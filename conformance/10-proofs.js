@@ -342,7 +342,7 @@ conformance('arithmetic in a step is the instance of the clause', [
 ])
 
 conformance('a run with no conclusions has a proof of its comment and two empty lines', [
-  spec('7.6, 10.1'),
+  spec('8.6, 10.1'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -355,7 +355,7 @@ conformance('a run with no conclusions has a proof of its comment and two empty 
 ])
 
 conformance('inspection evidence cites the source rule without solving its premise', [
-  spec('4.7, 10.3, 11.2'),
+  spec('6.3, 10.3, 11.2'),
   args('--proof program.js'),
   file('program.js', [
     "fact(a('b'))",

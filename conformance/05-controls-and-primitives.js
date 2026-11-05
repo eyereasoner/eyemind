@@ -1,7 +1,7 @@
-// SPEC 5: controls and primitives. Most cases ask goals of a small program.
+// SPEC 4: controls and primitives. Most cases ask goals of a small program.
 
 conformance('conjunction solves left to right', [
-  spec('5.1'),
+  spec('4.2'),
   args("program.js --goal '[p(X), q(X)]'"),
   file('program.js', [
     'fact(p(1), p(2), q(2))',
@@ -13,7 +13,7 @@ conformance('conjunction solves left to right', [
 ])
 
 conformance('disjunction gives the solutions of the left side first', [
-  spec('5.1'),
+  spec('4.2'),
   args("program.js --goal 'or(b(X), a(X))'"),
   file('program.js', [
     'fact(a(1), b(2))',
@@ -26,7 +26,7 @@ conformance('disjunction gives the solutions of the left side first', [
 ])
 
 conformance('negation succeeds when its goal has no solution', [
-  spec('5.1'),
+  spec('4.2'),
   args("program.js --goal 'not(p(2))' --goal 'not(p(1))'"),
   file('program.js', [
     'fact(p(1))',
@@ -38,7 +38,7 @@ conformance('negation succeeds when its goal has no solution', [
 ])
 
 conformance('negation needs its named variables bound', [
-  spec('5.1'),
+  spec('4.2'),
   args("program.js --goal 'not(p(X))'"),
   exit(1),
   stderr('nonempty'),
@@ -49,7 +49,7 @@ conformance('negation needs its named variables bound', [
 ])
 
 conformance("a variable a negation's clause binds nowhere else must still be anonymous", [
-  spec('5.1'),
+  spec('4.2'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -60,7 +60,7 @@ conformance("a variable a negation's clause binds nowhere else must still be ano
 ])
 
 conformance('the anonymous variables of a negation stand for any value', [
-  spec('4.4, 5.1'),
+  spec('3.3, 4.2'),
   file('program.js', [
     "fact(p('a'), p('b'), q('a', 1))",
     'implies([p(X), not(q(X, _))], s(X))',
@@ -72,7 +72,7 @@ conformance('the anonymous variables of a negation stand for any value', [
 ])
 
 conformance('in goal text, _ in a negation stands for any value', [
-  spec('5.1, 9'),
+  spec('4.2, 9.1'),
   args('program.js --goal \'not(q(\'"\'"\'b\'"\'"\', VAR____23_0))\' --goal \'not(q(\'"\'"\'a\'"\'"\', VAR____23_0))\''),
   file('program.js', [
     "fact(q('a', 1))",
@@ -84,7 +84,7 @@ conformance('in goal text, _ in a negation stands for any value', [
 ])
 
 conformance('a negation with anonymous variables is an absent step that checks', [
-  spec('5.1, 10.3, 11.7'),
+  spec('4.2, 10.3, 11.7'),
   args('--proof'),
   stdin([
     "fact(p('a'), p('b'), q('a', 1))",
@@ -107,7 +107,7 @@ conformance('a negation with anonymous variables is an absent step that checks',
 ])
 
 conformance('not_ in a program negates the conjunction of its goals', [
-  spec('5.1'),
+  spec('4.2'),
   file('program.js', [
     'fact(p(1))',
     'query(not(p(1), q(1)))',
@@ -120,7 +120,7 @@ conformance('not_ in a program negates the conjunction of its goals', [
 ])
 
 conformance('call and once in a program join several goals into one', [
-  spec('5.1'),
+  spec('4.2'),
   file('program.js', [
     'fact(p(1), p(2), q(2))',
     'query(call(p(X), q(X)))',
@@ -134,7 +134,7 @@ conformance('call and once in a program join several goals into one', [
 ])
 
 conformance('in goal text not_ is an ordinary compound', [
-  spec('5.1, 9'),
+  spec('4.2, 9.1'),
   args("program.js --goal 'not_(p(2))'"),
   file('program.js', [
     'fact(p(1))',
@@ -145,7 +145,7 @@ conformance('in goal text not_ is an ordinary compound', [
 ])
 
 conformance('negation of an undefined predicate succeeds', [
-  spec('5.1, 5.2'),
+  spec('4.2, 4.3'),
   args("--goal 'not(missing(1))'"),
   stdin([]),
   stdout([
@@ -155,7 +155,7 @@ conformance('negation of an undefined predicate succeeds', [
 ])
 
 conformance('call solves its goal', [
-  spec('5.1'),
+  spec('4.2'),
   args("program.js --goal 'call(p(X))'"),
   file('program.js', [
     'fact(p(1), p(2))',
@@ -168,7 +168,7 @@ conformance('call solves its goal', [
 ])
 
 conformance('call solves a variable bound to a goal', [
-  spec('5.1'),
+  spec('4.2'),
   args("program.js --goal '[unify(G, p(X)), call(G)]'"),
   file('program.js', [
     'fact(p(1))',
@@ -180,7 +180,7 @@ conformance('call solves a variable bound to a goal', [
 ])
 
 conformance('once keeps the first solution only', [
-  spec('5.1'),
+  spec('4.2'),
   args("program.js --goal 'once(p(X))'"),
   file('program.js', [
     'fact(p(1), p(2))',
@@ -192,7 +192,7 @@ conformance('once keeps the first solution only', [
 ])
 
 conformance('once commits inside a rule', [
-  spec('5.1'),
+  spec('4.2'),
   args("program.js --goal 'first(X)'"),
   file('program.js', [
     'fact(p(1), p(2))',
@@ -205,7 +205,7 @@ conformance('once commits inside a rule', [
 ])
 
 conformance('findall collects every solution in order', [
-  spec('5.1'),
+  spec('4.2'),
   args("program.js --goal 'findall(X, p(X), L)'"),
   file('program.js', [
     'fact(p(3), p(1), p(2))',
@@ -217,7 +217,7 @@ conformance('findall collects every solution in order', [
 ])
 
 conformance('findall collects the empty list when nothing holds', [
-  spec('5.1'),
+  spec('4.2'),
   args("--goal 'findall(X, missing(X), L)'"),
   stdin([]),
   stdout([
@@ -227,7 +227,7 @@ conformance('findall collects the empty list when nothing holds', [
 ])
 
 conformance('findall renames each collected instance apart', [
-  spec('5.1'),
+  spec('4.2'),
   args('program.js --goal \'\'"\'"\'distinct\'"\'"\'\''),
   file('program.js', [
     'fact(item(f(_)), item(f(_)))',
@@ -240,7 +240,7 @@ conformance('findall renames each collected instance apart', [
 ])
 
 conformance('findall fails when its result does not unify', [
-  spec('5.1'),
+  spec('4.2'),
   args("program.js --goal 'findall(X, p(X), [1])'"),
   file('program.js', [
     'fact(p(1), p(2))',
@@ -251,7 +251,7 @@ conformance('findall fails when its result does not unify', [
 ])
 
 conformance('a goal of an undefined predicate fails', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal 'nothing(1)'"),
   stdin([]),
   stdout([
@@ -260,7 +260,7 @@ conformance('a goal of an undefined predicate fails', [
 ])
 
 conformance('true succeeds, fail and false fail', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'\'"\'"\'true\'"\'"\'\' --goal \'\'"\'"\'fail\'"\'"\'\' --goal \'\'"\'"\'false\'"\'"\'\''),
   stdin([]),
   stdout([
@@ -270,7 +270,7 @@ conformance('true succeeds, fail and false fail', [
 ])
 
 conformance('unify binds both sides', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'unify(f(X, \'"\'"\'b\'"\'"\'), f(\'"\'"\'a\'"\'"\', Y))\''),
   stdin([]),
   stdout([
@@ -280,7 +280,7 @@ conformance('unify binds both sides', [
 ])
 
 conformance('not_unify succeeds without binding', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'not_unify(f(X, \'"\'"\'b\'"\'"\'), f(\'"\'"\'a\'"\'"\', \'"\'"\'c\'"\'"\'))\' --goal \'not_unify(X, \'"\'"\'a\'"\'"\')\''),
   stdin([]),
   stdout([
@@ -290,7 +290,7 @@ conformance('not_unify succeeds without binding', [
 ])
 
 conformance('identical compares without binding', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal 'identical(f(X), f(X))' --goal 'identical(f(X), f(Y))' --goal 'not_identical(X, Y)' --goal 'identical(1, 1.0)'"),
   stdin([]),
   stdout([
@@ -301,7 +301,7 @@ conformance('identical compares without binding', [
 ])
 
 conformance('is_ evaluates and unifies', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal 'is(X, add(2, 3))' --goal 'is(6, add(2, 3))' --goal 'is(Y, floordiv(7, 2))'"),
   stdin([]),
   stdout([
@@ -312,7 +312,7 @@ conformance('is_ evaluates and unifies', [
 ])
 
 conformance('an answer is reported once across all goals of a run', [
-  spec('7.4'),
+  spec('8.4'),
   args("--goal 'is(X, add(2, 3))' --goal 'is(5, add(2, 3))' --goal 'is(Y, add(2, 3))'"),
   stdin([]),
   stdout([
@@ -322,7 +322,7 @@ conformance('an answer is reported once across all goals of a run', [
 ])
 
 conformance('eq and ne compare values', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal 'eq(1, 1.0)' --goal 'ne(1, 1.0)' --goal 'eq(mul(2, 3), 6)' --goal 'ne(1, 2)'"),
   stdin([]),
   stdout([
@@ -334,7 +334,7 @@ conformance('eq and ne compare values', [
 ])
 
 conformance('comparisons compare values', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal 'lt(1, 2)' --goal 'le(2, 2)' --goal 'gt(3, 2)' --goal 'ge(2, 3)' --goal 'gt(add(1, 1), 1.5)'"),
   stdin([]),
   stdout([
@@ -347,7 +347,7 @@ conformance('comparisons compare values', [
 ])
 
 conformance('a comparison of an unbound variable is an error', [
-  spec('5.2, 6'),
+  spec('4.3, 5'),
   args("--goal 'lt(X, 1)'"),
   exit(1),
   stderr('nonempty'),
@@ -356,7 +356,7 @@ conformance('a comparison of an unbound variable is an error', [
 ])
 
 conformance('type tests', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'is_var(X)\' --goal \'is_var(1)\' --goal \'is_nonvar(\'"\'"\'a\'"\'"\')\' --goal \'is_nonvar(X)\' --goal \'is_ground(f(1))\' --goal \'is_ground(f(X))\''),
   stdin([]),
   stdout([
@@ -368,7 +368,7 @@ conformance('type tests', [
 ])
 
 conformance('atom, number, integer, float and compound tests', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'is_atom(\'"\'"\'a\'"\'"\')\' --goal \'is_atom([])\' --goal \'is_atom(1)\' --goal \'is_number(1.5)\' --goal \'is_number(\'"\'"\'1\'"\'"\')\' --goal \'is_int(1)\' --goal \'is_int(1.0)\' --goal \'is_float(1.0)\' --goal \'is_float(1)\' --goal \'is_compound([1])\' --goal \'is_compound(\'"\'"\'a\'"\'"\')\''),
   stdin([]),
   stdout([
@@ -383,7 +383,7 @@ conformance('atom, number, integer, float and compound tests', [
 ])
 
 conformance('functor takes a term apart', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'functor(f(\'"\'"\'a\'"\'"\', \'"\'"\'b\'"\'"\'), N, A)\' --goal \'functor(\'"\'"\'a\'"\'"\', N, A)\' --goal \'functor(3, N, A)\''),
   stdin([]),
   stdout([
@@ -395,7 +395,7 @@ conformance('functor takes a term apart', [
 ])
 
 conformance('functor builds a term with fresh arguments', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'[functor(T, \'"\'"\'g\'"\'"\', 2), arg(1, T, \'"\'"\'x\'"\'"\'), arg(2, T, \'"\'"\'y\'"\'"\')]\' --goal \'functor(T, \'"\'"\'g\'"\'"\', 0)\''),
   stdin([]),
   stdout([
@@ -406,7 +406,7 @@ conformance('functor builds a term with fresh arguments', [
 ])
 
 conformance('functor needs a bound name to build a term', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal 'functor(T, N, 2)'"),
   exit(1),
   stderr('nonempty'),
@@ -415,7 +415,7 @@ conformance('functor needs a bound name to build a term', [
 ])
 
 conformance('functor arities are bounded', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'functor(T, \'"\'"\'g\'"\'"\', 1025)\''),
   exit(1),
   stderr('nonempty'),
@@ -424,7 +424,7 @@ conformance('functor arities are bounded', [
 ])
 
 conformance('arg selects an argument, counting from 1', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'arg(2, f(\'"\'"\'a\'"\'"\', \'"\'"\'b\'"\'"\', \'"\'"\'c\'"\'"\'), X)\' --goal \'arg(4, f(\'"\'"\'a\'"\'"\'), X)\''),
   stdin([]),
   stdout([
@@ -434,7 +434,7 @@ conformance('arg selects an argument, counting from 1', [
 ])
 
 conformance('arg needs a positive position', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'arg(0, f(\'"\'"\'a\'"\'"\'), X)\''),
   exit(1),
   stderr('nonempty'),
@@ -443,7 +443,7 @@ conformance('arg needs a positive position', [
 ])
 
 conformance('univ converts between a term and a list', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'univ(f(\'"\'"\'a\'"\'"\', 1), L)\' --goal \'univ(\'"\'"\'a\'"\'"\', L)\' --goal \'univ(T, [\'"\'"\'g\'"\'"\', 1])\' --goal \'univ(T, [5])\''),
   stdin([]),
   stdout([
@@ -456,7 +456,7 @@ conformance('univ converts between a term and a list', [
 ])
 
 conformance('univ needs an atom name to build a compound', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal 'univ(T, [1, 2])'"),
   exit(1),
   stderr('nonempty'),
@@ -465,7 +465,7 @@ conformance('univ needs an atom name to build a compound', [
 ])
 
 conformance('atom_chars in both directions', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'atom_chars(\'"\'"\'héllo\'"\'"\', L)\' --goal \'atom_chars(A, [\'"\'"\'a\'"\'"\', \'"\'"\'b\'"\'"\'])\''),
   stdin([]),
   stdout([
@@ -476,7 +476,7 @@ conformance('atom_chars in both directions', [
 ])
 
 conformance('atom_codes in both directions', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'atom_codes(\'"\'"\'ab\'"\'"\', L)\' --goal \'atom_codes(A, [104, 105])\' --goal \'atom_codes(\'"\'"\'😀\'"\'"\', L)\''),
   stdin([]),
   stdout([
@@ -488,7 +488,7 @@ conformance('atom_codes in both directions', [
 ])
 
 conformance('atom_length counts characters', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'atom_length(\'"\'"\'😀a\'"\'"\', N)\' --goal \'atom_length(\'"\'"\'\'"\'"\', N)\''),
   stdin([]),
   stdout([
@@ -499,7 +499,7 @@ conformance('atom_length counts characters', [
 ])
 
 conformance('atom_length needs a bound atom', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal 'atom_length(X, N)'"),
   exit(1),
   stderr('nonempty'),
@@ -508,7 +508,7 @@ conformance('atom_length needs a bound atom', [
 ])
 
 conformance('number_chars reads and spells numbers', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal \"number_chars(N, ['0', '0', '7'])\" --goal \"number_chars(N, ['-', '2', '1', '.', '5'])\" --goal \"number_chars(N, ['+', '1', 'E', '3'])\" --goal \"number_chars(7, ['0', '7'])\" --goal 'number_chars(42, L)' --goal 'number_chars(0.5, L)' --goal \"number_chars(N, ['4', 'a'])\""),
   stdin([]),
   stdout([
@@ -523,7 +523,7 @@ conformance('number_chars reads and spells numbers', [
 ])
 
 conformance('error: atom_chars given an item that is not one character', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal \"atom_chars(A, ['a', 'bc'])\""),
   exit(1),
   stderr('nonempty'),
@@ -532,7 +532,7 @@ conformance('error: atom_chars given an item that is not one character', [
 ])
 
 conformance('error: number_chars given a first argument that is not a number', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal \"number_chars('x', L)\""),
   exit(1),
   stderr('nonempty'),
@@ -541,7 +541,7 @@ conformance('error: number_chars given a first argument that is not a number', [
 ])
 
 conformance('error: number_chars given list items that are not characters', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal 'number_chars(N, [1, 2])'"),
   exit(1),
   stderr('nonempty'),
@@ -550,7 +550,7 @@ conformance('error: number_chars given list items that are not characters', [
 ])
 
 conformance('number_chars needs a number or a bound list', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal \"number_chars(N, ['4', X])\""),
   exit(1),
   stderr('nonempty'),
@@ -559,7 +559,7 @@ conformance('number_chars needs a number or a bound list', [
 ])
 
 conformance('atom_concat joins two atoms', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'atom_concat(\'"\'"\'ab\'"\'"\', \'"\'"\'cd\'"\'"\', X)\' --goal \'atom_concat(\'"\'"\'ab\'"\'"\', \'"\'"\'cd\'"\'"\', \'"\'"\'abc\'"\'"\')\''),
   stdin([]),
   stdout([
@@ -569,7 +569,7 @@ conformance('atom_concat joins two atoms', [
 ])
 
 conformance('atom_concat enumerates every split, shortest first', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'atom_concat(A, B, \'"\'"\'ab\'"\'"\')\''),
   stdin([]),
   stdout([
@@ -581,7 +581,7 @@ conformance('atom_concat enumerates every split, shortest first', [
 ])
 
 conformance('atom_concat needs the result or both operands', [
-  spec('5.2'),
+  spec('4.3'),
   args('--goal \'atom_concat(A, \'"\'"\'b\'"\'"\', C)\''),
   exit(1),
   stderr('nonempty'),
@@ -590,7 +590,7 @@ conformance('atom_concat needs the result or both operands', [
 ])
 
 conformance('arg sees a list as its head and tail', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal \"arg(1, ['a', 'b'], X)\" --goal \"arg(2, ['a', 'b'], X)\""),
   stdin([]),
   stdout([
@@ -601,7 +601,7 @@ conformance('arg sees a list as its head and tail', [
 ])
 
 conformance('functor of a list', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal 'functor([1], N, A)'"),
   stdin([]),
   stdout([
@@ -611,7 +611,7 @@ conformance('functor of a list', [
 ])
 
 conformance('univ of a list', [
-  spec('5.2'),
+  spec('4.3'),
   args("--goal 'univ([1, 2], L)'"),
   stdin([]),
   stdout([
@@ -621,7 +621,7 @@ conformance('univ of a list', [
 ])
 
 conformance('canonical identity distinguishes signed zero inside terms', [
-  spec('2, 5.2, 8.1'),
+  spec('1.3, 4.3, 9.2'),
   file('program.js', [
     "query(identical(float(0), float(-0)))",
     "query(not_identical(f(float(0)), f(float(-0))))",

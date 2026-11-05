@@ -1,7 +1,7 @@
-// SPEC 14: the command line.
+// SPEC 13.1: the command line.
 
 conformance('without files the program is read from standard input', [
-  spec('14'),
+  spec('13.1'),
   args(''),
   stdin([
     'fact(p(1))',
@@ -14,7 +14,7 @@ conformance('without files the program is read from standard input', [
 ])
 
 conformance('standard input can be one of several program files', [
-  spec('14'),
+  spec('13.1'),
   args("a.js - --goal 'q(X)'"),
   file('a.js', [
     'fact(p(1))',
@@ -29,7 +29,7 @@ conformance('standard input can be one of several program files', [
 ])
 
 conformance('goals may be repeated', [
-  spec('14'),
+  spec('13.1'),
   args("program.js --goal 'p(X)' --goal 'q(X)'"),
   file('program.js', [
     'fact(p(1), q(2))',
@@ -42,7 +42,7 @@ conformance('goals may be repeated', [
 ])
 
 conformance('the exit code is 65 when the run halted', [
-  spec('7.5, 14'),
+  spec('8.5, 13.1'),
   exit(65),
   file('program.js', [
     'fact(p)',
@@ -55,7 +55,7 @@ conformance('the exit code is 65 when the run halted', [
 ])
 
 conformance('an invalid proof exits with 2 and prints its report', [
-  spec('14'),
+  spec('13.1'),
   args('--check-proof proof.js program.js'),
   exit(2),
   stderr('empty'),
@@ -98,7 +98,7 @@ conformance('an invalid proof exits with 2 and prints its report', [
 ])
 
 conformance('a run without conclusions has a proof without claims', [
-  spec('7.6, 7.7, 10.1, 11.5, 14'),
+  spec('8.6, 8.7, 10.1, 11.5, 13.1'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -112,7 +112,7 @@ conformance('a run without conclusions has a proof without claims', [
 ])
 
 conformance('errors are printed as eyemind: message and exit with 1', [
-  spec('14'),
+  spec('13.1'),
   exit(1),
   stderr(prefix('eyemind:')),
   file('program.js', [
@@ -123,7 +123,7 @@ conformance('errors are printed as eyemind: message and exit with 1', [
 ])
 
 conformance('a missing program file is an error', [
-  spec('14'),
+  spec('13.1'),
   args('missing.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -131,7 +131,7 @@ conformance('a missing program file is an error', [
 ])
 
 conformance('a proof document given as a program says how to check it', [
-  spec('14'),
+  spec('13.1'),
   args('proof.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -146,7 +146,7 @@ conformance('a proof document given as a program says how to check it', [
 ])
 
 conformance('--check-proof cannot be combined with --proof', [
-  spec('14'),
+  spec('13.1'),
   args('--proof --check-proof proof.js program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -156,7 +156,7 @@ conformance('--check-proof cannot be combined with --proof', [
 ])
 
 conformance('--unused cannot be combined with --proof', [
-  spec('14'),
+  spec('13.1'),
   args('--unused --proof program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -165,7 +165,7 @@ conformance('--unused cannot be combined with --proof', [
 ])
 
 conformance('--unused cannot be combined with --check-proof', [
-  spec('14'),
+  spec('13.1'),
   args('--unused --check-proof proof.js program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -175,7 +175,7 @@ conformance('--unused cannot be combined with --check-proof', [
 ])
 
 conformance('--json requires a checking mode', [
-  spec('14'),
+  spec('13.1'),
   args('--json program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -184,7 +184,7 @@ conformance('--json requires a checking mode', [
 ])
 
 conformance('--strict-proof requires a checking mode', [
-  spec('14'),
+  spec('13.1'),
   args('--strict-proof program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -193,7 +193,7 @@ conformance('--strict-proof requires a checking mode', [
 ])
 
 conformance('an unknown option is an error', [
-  spec('14'),
+  spec('13.1'),
   args('--frobnicate program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -202,7 +202,7 @@ conformance('an unknown option is an error', [
 ])
 
 conformance('an option missing its value is an error', [
-  spec('14'),
+  spec('13.1'),
   args('program.js --goal'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -211,7 +211,7 @@ conformance('an option missing its value is an error', [
 ])
 
 conformance('a bound must be a positive integer', [
-  spec('7.3, 14'),
+  spec('8.3, 13.1'),
   args('program.js --max-depth 0'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -220,7 +220,7 @@ conformance('a bound must be a positive integer', [
 ])
 
 conformance('a bound must be an integer', [
-  spec('7.3, 14'),
+  spec('8.3, 13.1'),
   args('program.js --max-inferences many'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -229,7 +229,7 @@ conformance('a bound must be an integer', [
 ])
 
 conformance('standard input can be read only once', [
-  spec('14'),
+  spec('13.1'),
   args('- -'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -238,7 +238,7 @@ conformance('standard input can be read only once', [
 ])
 
 conformance('a proof from standard input needs the program in files', [
-  spec('14'),
+  spec('13.1'),
   args('--check-proof -'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -247,7 +247,7 @@ conformance('a proof from standard input needs the program in files', [
 ])
 
 conformance('--stats prints statistics as JSON to standard error', [
-  spec('14'),
+  spec('13.1'),
   args('--stats program.js'),
   stderr('json'),
   file('program.js', [
@@ -261,19 +261,19 @@ conformance('--stats prints statistics as JSON to standard error', [
 ])
 
 conformance('--help prints the usage', [
-  spec('14'),
+  spec('13.1'),
   args('--help'),
   stdout('nonempty'),
 ])
 
 conformance('-h prints the usage', [
-  spec('14'),
+  spec('13.1'),
   args('-h'),
   stdout('nonempty'),
 ])
 
 conformance('-c generates a proof and checks it against the program', [
-  spec('14'),
+  spec('13.1'),
   args('-c program.js'),
   stderr('empty'),
   file('program.js', [
@@ -309,7 +309,7 @@ conformance('-c generates a proof and checks it against the program', [
 ])
 
 conformance('-c reads the input program from standard input', [
-  spec('14'),
+  spec('13.1'),
   args('-c'),
   stderr('empty'),
   stdin(['fact(p(1))', 'query(p(X))']),
@@ -342,13 +342,13 @@ conformance('-c reads the input program from standard input', [
 ])
 
 conformance('--version prints the version', [
-  spec('14'),
+  spec('13.1'),
   args('--version'),
   stdout('nonempty'),
 ])
 
 conformance('a bound must be exactly representable as a safe integer', [
-  spec('7.3, 14'),
+  spec('8.3, 13.1'),
   args('program.js --max-inferences 9007199254740992'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -357,7 +357,7 @@ conformance('a bound must be exactly representable as a safe integer', [
 ])
 
 conformance('an overflowing bound is rejected instead of disabling the limit', [
-  spec('7.3, 14'),
+  spec('8.3, 13.1'),
   args('program.js --max-depth 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -366,7 +366,7 @@ conformance('an overflowing bound is rejected instead of disabling the limit', [
 ])
 
 conformance('--prove-and-check generates answers for an external goal', [
-  spec('12, 14'),
+  spec('12, 13.1'),
   args('--prove-and-check --goal "p(2)" program.js'),
   file('program.js', ['fact(p(1), p(2))']),
   stdout([
@@ -393,7 +393,7 @@ conformance('--prove-and-check generates answers for an external goal', [
 ])
 
 conformance('--prove-and-check can reject its generated proof under strict checking', [
-  spec('11.6, 12, 14'),
+  spec('11.6, 12, 13.1'),
   args('--prove-and-check --strict-proof program.js'),
   file('program.js', ["implies(not('q'), 'p')"]),
   exit(2),
@@ -401,19 +401,19 @@ conformance('--prove-and-check can reject its generated proof under strict check
 ])
 
 conformance('--prove-and-check cannot be combined with --proof', [
-  spec('14'),
+  spec('13.1'),
   args('-c --proof'),
   exit(1), stderr(prefix('eyemind:')), stdout([]),
 ])
 
 conformance('--prove-and-check cannot be combined with --check-proof', [
-  spec('14'),
+  spec('13.1'),
   args('-c --check-proof proof.js'),
   exit(1), stderr(prefix('eyemind:')), stdout([]),
 ])
 
 conformance('--prove-and-check cannot be combined with --unused', [
-  spec('14'),
+  spec('13.1'),
   args('-c --unused'),
   exit(1), stderr(prefix('eyemind:')), stdout([]),
 ])

@@ -1,7 +1,7 @@
-// SPEC 7: search order, forward reasoning, bounds, halting and conclusions.
+// SPEC 8: search order, forward reasoning, bounds, halting and conclusions.
 
 conformance('embedded control characters do not merge distinct derived facts', [
-  spec('7.2, 8.1'),
+  spec('8.2, 9.2'),
   file('program.js', [
     'fact(seed)',
     "implies(seed, [p('a\\u0001\\u0000a\\u0001b', 'c'), p('a', 'b\\u0001\\u0000a\\u0001c')])",
@@ -14,7 +14,7 @@ conformance('embedded control characters do not merge distinct derived facts', [
 ])
 
 conformance('derived facts are tried before program clauses', [
-  spec('7.1'),
+  spec('8.1'),
   args("program.js --goal 'p(X)'"),
   file('program.js', [
     "fact(p('source'))",
@@ -29,7 +29,7 @@ conformance('derived facts are tried before program clauses', [
 ])
 
 conformance('program clauses are tried in clause order', [
-  spec('7.1'),
+  spec('8.1'),
   args("program.js --goal 'p(X)'"),
   file('program.js', [
     'fact(p(1))',
@@ -46,7 +46,7 @@ conformance('program clauses are tried in clause order', [
 ])
 
 conformance("a forward rule's conclusions feed rules in later rounds", [
-  spec('7.2'),
+  spec('8.2'),
   file('program.js', [
     'fact(a(1))',
     'implies(b(X), c(X))',
@@ -60,7 +60,7 @@ conformance("a forward rule's conclusions feed rules in later rounds", [
 ])
 
 conformance('forward rules close over cycles', [
-  spec('7.2'),
+  spec('8.2'),
   file('program.js', [
     "fact(edge('a', 'b'), edge('b', 'a'))",
     'implies(edge(X, Y), path(X, Y))',
@@ -76,7 +76,7 @@ conformance('forward rules close over cycles', [
 ])
 
 conformance('a conclusion identical to a program fact is not derived again', [
-  spec('7.2'),
+  spec('8.2'),
   file('program.js', [
     'fact(p(1))',
     'implies(p(X), p(X))',
@@ -87,7 +87,7 @@ conformance('a conclusion identical to a program fact is not derived again', [
 ])
 
 conformance('an unbound head variable becomes a Skolem term of its own per activation', [
-  spec('7.2'),
+  spec('8.2'),
   file('program.js', [
     "fact(person('ann'), person('bob'))",
     'implies(person(X), has_parent(X, Y))',
@@ -101,7 +101,7 @@ conformance('an unbound head variable becomes a Skolem term of its own per activ
 ])
 
 conformance('activations giving the same head instance share their Skolem terms', [
-  spec('7.2'),
+  spec('8.2'),
   file('program.js', [
     "fact(p('a', 1), p('a', 2))",
     'implies(p(X, Y), q(X, B))',
@@ -113,7 +113,7 @@ conformance('activations giving the same head instance share their Skolem terms'
 ])
 
 conformance('each rule has Skolem terms of its own', [
-  spec('7.2'),
+  spec('8.2'),
   file('program.js', [
     "fact(p('a', 1))",
     'implies(p(X, Y), q(X, B))',
@@ -127,7 +127,7 @@ conformance('each rule has Skolem terms of its own', [
 ])
 
 conformance('a Skolem term a head variable stands for is named after it in any order', [
-  spec('7.2'),
+  spec('8.2'),
   file('program.js', [
     'fact(p(Y))',
     'implies(p(X), q(X, Y))',
@@ -141,7 +141,7 @@ conformance('a Skolem term a head variable stands for is named after it in any o
 ])
 
 conformance('head variables sharing a Skolem term are named by the first', [
-  spec('7.2'),
+  spec('8.2'),
   file('program.js', [
     'fact(same(Z, Z))',
     'implies(same(A, B), r(B, A, _))',
@@ -153,7 +153,7 @@ conformance('head variables sharing a Skolem term are named by the first', [
 ])
 
 conformance('a brought-in variable keeps its name when free and is numbered otherwise', [
-  spec('7.2'),
+  spec('8.2'),
   file('program.js', [
     'fact(p(f(Y, Y1)))',
     'implies(p(X), q(X, Y))',
@@ -165,7 +165,7 @@ conformance('a brought-in variable keeps its name when free and is numbered othe
 ])
 
 conformance('a rule that keeps meeting new activations exceeds the bound', [
-  spec('7.2, 7.3'),
+  spec('8.2, 8.3'),
   args('--max-iterations 10 program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -177,7 +177,7 @@ conformance('a rule that keeps meeting new activations exceeds the bound', [
 ])
 
 conformance('the same activation in a later round gets the same Skolem terms', [
-  spec('7.2'),
+  spec('8.2'),
   file('program.js', [
     "fact(person('ann'))",
     'implies(person(X), has_parent(X, Y))',
@@ -191,7 +191,7 @@ conformance('the same activation in a later round gets the same Skolem terms', [
 ])
 
 conformance('Skolem terms are shared across the heads of one activation', [
-  spec('7.2'),
+  spec('8.2'),
   file('program.js', [
     "fact(person('ann'))",
     'implies(person(X), [r(X, Y, Z, Y), s(Z)])',
@@ -204,7 +204,7 @@ conformance('Skolem terms are shared across the heads of one activation', [
 ])
 
 conformance('query reports each instance once', [
-  spec('7.2, 7.6'),
+  spec('8.2, 8.6'),
   file('program.js', [
     'fact(p(1), p(1), p(2))',
     'query(p(X))',
@@ -217,7 +217,7 @@ conformance('query reports each instance once', [
 ])
 
 conformance('query reports in order of first report', [
-  spec('7.6'),
+  spec('8.6'),
   file('program.js', [
     'fact(p(1), q(2))',
     'query(q(X))',
@@ -231,7 +231,7 @@ conformance('query reports in order of first report', [
 ])
 
 conformance('a query without answers concludes nothing', [
-  spec('7.6'),
+  spec('8.6'),
   file('program.js', [
     'fact(p(1))',
     'implies(p(X), q(X))',
@@ -243,7 +243,7 @@ conformance('a query without answers concludes nothing', [
 ])
 
 conformance("a Skolem term has the values of the head's other variables as arguments", [
-  spec('4.4, 7.2'),
+  spec('3.3, 8.2'),
   file('program.js', [
     "fact(edge('a', 'b', 3))",
     'implies(edge(X, Y, W), via(Y, _, X))',
@@ -255,7 +255,7 @@ conformance("a Skolem term has the values of the head's other variables as argum
 ])
 
 conformance('query output replaces the derived facts', [
-  spec('7.6'),
+  spec('8.6'),
   file('program.js', [
     'fact(p(1))',
     'implies(p(X), q(X))',
@@ -268,7 +268,7 @@ conformance('query output replaces the derived facts', [
 ])
 
 conformance("goals replace the program's own queries", [
-  spec('7.2, 7.6'),
+  spec('8.2, 8.6'),
   args("program.js --goal 'q(Y)'"),
   file('program.js', [
     'fact(p(1))',
@@ -282,7 +282,7 @@ conformance("goals replace the program's own queries", [
 ])
 
 conformance('several goals are answered in turn', [
-  spec('7.4'),
+  spec('8.4'),
   args("program.js --goal 'q(X)' --goal 'p(X)'"),
   file('program.js', [
     'fact(p(1), q(2))',
@@ -295,7 +295,7 @@ conformance('several goals are answered in turn', [
 ])
 
 conformance('a goal with no solution has no conclusion', [
-  spec('7.4, 7.6'),
+  spec('8.4, 8.6'),
   args("program.js --goal 'p(2)'"),
   file('program.js', [
     'fact(p(1))',
@@ -306,7 +306,7 @@ conformance('a goal with no solution has no conclusion', [
 ])
 
 conformance('a contradiction stops reasoning and prints what was derived', [
-  spec('7.2, 7.5, 7.6'),
+  spec('8.2, 8.5, 8.6'),
   exit(65),
   file('program.js', [
     'fact(p(1))',
@@ -322,7 +322,7 @@ conformance('a contradiction stops reasoning and prints what was derived', [
 ])
 
 conformance('a contradiction overrides goals', [
-  spec('7.5, 7.6'),
+  spec('8.5, 8.6'),
   args("program.js --goal 'p(X)'"),
   exit(65),
   file('program.js', [
@@ -338,7 +338,7 @@ conformance('a contradiction overrides goals', [
 ])
 
 conformance('a contradiction stops the rules after it', [
-  spec('7.2'),
+  spec('8.2'),
   exit(65),
   file('program.js', [
     'fact(p(1))',
@@ -352,7 +352,7 @@ conformance('a contradiction stops the rules after it', [
 ])
 
 conformance('a contradiction that never holds changes nothing', [
-  spec('7.5'),
+  spec('8.5'),
   file('program.js', [
     'fact(p(1))',
     'implies(p(X), q(X))',
@@ -365,7 +365,7 @@ conformance('a contradiction that never holds changes nothing', [
 ])
 
 conformance('exceeding max-depth is an error', [
-  spec('7.3'),
+  spec('8.3'),
   args('program.js --goal \'\'"\'"\'p\'"\'"\'\' --max-depth 10'),
   exit(1),
   stderr('nonempty'),
@@ -376,7 +376,7 @@ conformance('exceeding max-depth is an error', [
 ])
 
 conformance('exceeding max-iterations is an error', [
-  spec('7.3'),
+  spec('8.3'),
   args('program.js --max-iterations 3'),
   exit(1),
   stderr('nonempty'),
@@ -388,7 +388,7 @@ conformance('exceeding max-iterations is an error', [
 ])
 
 conformance('exceeding max-inferences is an error', [
-  spec('7.3'),
+  spec('8.3'),
   args('program.js --max-inferences 1'),
   exit(1),
   stderr('nonempty'),
@@ -400,7 +400,7 @@ conformance('exceeding max-inferences is an error', [
 ])
 
 conformance('bounds large enough change nothing', [
-  spec('7.3'),
+  spec('8.3'),
   args('program.js --max-depth 5 --max-iterations 5 --max-inferences 100'),
   file('program.js', [
     'fact(n(0))',
@@ -415,7 +415,7 @@ conformance('bounds large enough change nothing', [
 ])
 
 conformance('a run without a proof may use a mode test', [
-  spec('7.7'),
+  spec('8.7'),
   args("program.js --goal 'p(X)'"),
   file('program.js', [
     "implied_by(p(X), [is_var(X), unify(X, 'a')])",
@@ -427,7 +427,7 @@ conformance('a run without a proof may use a mode test', [
 ])
 
 conformance('a proof that cannot be recorded faithfully is refused', [
-  spec('7.7'),
+  spec('8.7'),
   args("--proof program.js --goal 'p(X)'"),
   exit(1),
   stderr('nonempty'),
@@ -438,7 +438,7 @@ conformance('a proof that cannot be recorded faithfully is refused', [
 ])
 
 conformance('generated witnesses distinguish captures omitted from the head', [
-  spec('4.6, 7.2'),
+  spec('6.2, 8.2'),
   file('program.js', [
     "fact(p('a'), p('b'))",
     'implies(p(X), implies(p(X), witness(Y)))',
@@ -451,7 +451,7 @@ conformance('generated witnesses distinguish captures omitted from the head', [
 ])
 
 conformance('a derived inspection pattern can be instantiated independently twice', [
-  spec('4.7, 7.2'),
+  spec('6.3, 8.2'),
   file('program.js', [
     'implies(a(X), c(X))',
     'implies(implies(X, Y), test(X, Y))',
@@ -465,7 +465,7 @@ conformance('a derived inspection pattern can be instantiated independently twic
 ])
 
 conformance('bound inspection values can supply an existential firing', [
-  spec('4.7, 7.2'),
+  spec('6.3, 8.2'),
   file('program.js', [
     'implies(a(X), c(X))',
     "implies(implies(a('b'), Y), found(Y, W))",
@@ -477,7 +477,7 @@ conformance('bound inspection values can supply an existential firing', [
 ])
 
 conformance('open inspection variables cannot share an existential witness', [
-  spec('4.7, 7.2'),
+  spec('6.3, 8.2'),
   file('program.js', [
     'implies(a(X), c(X))',
     'implies(implies(X, Y), found(X, Y, W))',

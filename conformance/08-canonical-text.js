@@ -1,8 +1,8 @@
-// SPEC 8: every term has one canonical text. The programs state terms and
+// SPEC 9: every term has one canonical text. The programs state terms and
 // print them back as conclusions.
 
 conformance('atoms are written as single-quoted strings', [
-  spec('8.1'),
+  spec('9.2'),
   file('program.js', [
     'fact(d(\'plain\'), d(\'it\\\'s\'), d(\'say "hi"\'), d(\'both \\\' and "\'), d(\'tab\\there\'), d(\'new\\nline\'))',
     "fact(d('back\\\\slash'), d('café'), d('😀'), d('bell\\u0007'), d('zero​width'), d(''))",
@@ -26,7 +26,7 @@ conformance('atoms are written as single-quoted strings', [
 ])
 
 conformance('the empty list is written []', [
-  spec('8.1'),
+  spec('9.2'),
   file('program.js', [
     "fact(d([]), d('[]'), d(struct('[]')))",
     'query(d(X))',
@@ -38,7 +38,7 @@ conformance('the empty list is written []', [
 ])
 
 conformance('integers are written in decimal', [
-  spec('8.1'),
+  spec('9.2'),
   file('program.js', [
     'fact(d(0), d(-7), d(10n ** 40n))',
     'query(d(X))',
@@ -52,7 +52,7 @@ conformance('integers are written in decimal', [
 ])
 
 conformance('floats are written in their shortest round-trip form', [
-  spec('8.1'),
+  spec('9.2'),
   file('program.js', [
     'fact(',
     '  d(0.1),',
@@ -82,7 +82,7 @@ conformance('floats are written in their shortest round-trip form', [
 ])
 
 conformance('a variable is written as its name', [
-  spec('8.1'),
+  spec('9.2'),
   args('--proof'),
   stdin([
     "const [Lower, Kw] = vars('lowercase struct')",
@@ -103,7 +103,7 @@ conformance('a variable is written as its name', [
 ])
 
 conformance('a variable name starting with VAR_ is encoded', [
-  spec('8.1'),
+  spec('9.2'),
   args('--proof'),
   stdin([
     "const Odd = vars('VAR_X')",
@@ -124,7 +124,7 @@ conformance('a variable name starting with VAR_ is encoded', [
 ])
 
 conformance('an encoded variable name reads back as the variable it encodes', [
-  spec('8.1, 9'),
+  spec('9.2, 9.1'),
   args("--goal '[unify(X, 1), unify(X, Y)]'"),
   stdin([]),
   stdout([
@@ -134,7 +134,7 @@ conformance('an encoded variable name reads back as the variable it encodes', [
 ])
 
 conformance('an identifier starting with VAR_ that encodes no name is rejected', [
-  spec('8.1, 9'),
+  spec('9.2, 9.1'),
   args("--goal 'unify(VAR_a_b, 1)'"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -143,7 +143,7 @@ conformance('an identifier starting with VAR_ that encodes no name is rejected',
 ])
 
 conformance('variables in conclusions are named A, B, ... in order of first occurrence', [
-  spec('8.3'),
+  spec('9.4'),
   args("--goal 'unify(f(Y, X, Y), Z)' --goal 'unify(g(P), Q)'"),
   stdin([]),
   stdout([
@@ -154,7 +154,7 @@ conformance('variables in conclusions are named A, B, ... in order of first occu
 ])
 
 conformance('each _ of a clause is a variable named _0, _1, ... skipping names the clause uses', [
-  spec('4.4'),
+  spec('3.3'),
   args('--proof'),
   stdin([
     'fact(p(1))',
@@ -177,7 +177,7 @@ conformance('each _ of a clause is a variable named _0, _1, ... skipping names t
 ])
 
 conformance('lists and open lists', [
-  spec('8.1'),
+  spec('9.2'),
   args('--goal \'unify(L, [1, [2, 3], []])\' --goal \'unify(M, [1, ...T])\' --goal \'unify(N, [1, ...\'"\'"\'b\'"\'"\'])\''),
   stdin([]),
   stdout([
@@ -189,7 +189,7 @@ conformance('lists and open lists', [
 ])
 
 conformance('a compound named by an identifier is written as a call', [
-  spec('8.2'),
+  spec('9.3'),
   file('program.js', [
     "fact(d(struct('Upper', 1)), d(struct('café', 'x')), d(struct('_hidden', 2)))",
     'query(d(X))',
@@ -203,7 +203,7 @@ conformance('a compound named by an identifier is written as a call', [
 ])
 
 conformance('any other compound is written with struct', [
-  spec('8.2'),
+  spec('9.3'),
   file('program.js', [
     'fact(',
     "  d(struct('hello world', 1)),",
@@ -227,7 +227,7 @@ conformance('any other compound is written with struct', [
 ])
 
 conformance('arithmetic and comparison terms are written as the calls that build them', [
-  spec('6, 8.2'),
+  spec('5, 9.3'),
   file('program.js', [
     'fact(d(add(1, 2)), d(sub(sub(1, 2), 3)), d(sub(1, sub(2, 3))), d(mul(add(1, 2), 3)))',
     'fact(d(mod(7, 2)), d(floordiv(7, 2)), d(div(7, 2)), d(pow(2, pow(3, 2))))',
@@ -253,7 +253,7 @@ conformance('arithmetic and comparison terms are written as the calls that build
 ])
 
 conformance('negation and the unary arithmetic terms are calls', [
-  spec('8.2'),
+  spec('9.3'),
   file('program.js', [
     "fact(d(neg('x')), d(pos(1)), d(not('g')), d(neg(neg('x'))), d(neg(add(1, 2))))",
     'query(d(X))',
@@ -269,7 +269,7 @@ conformance('negation and the unary arithmetic terms are calls', [
 ])
 
 conformance('a minus sign on a number is a negative number, and neg a compound', [
-  spec('8.1, 8.2'),
+  spec('9.2, 9.3'),
   file('program.js', [
     'fact(d(neg(1)), d(-1), d(neg(-1)), d(sub(1, -1)), d(-2.5))',
     'query(d(X))',
@@ -285,7 +285,7 @@ conformance('a minus sign on a number is a negative number, and neg a compound',
 ])
 
 conformance('a chain of conjunctions or disjunctions is written as one call', [
-  spec('8.2'),
+  spec('9.3'),
   file('program.js', [
     "fact(d(and('a', 'b', 'c')), d(and('a', and('b', 'c'))), d(['a', 'b']))",
     "fact(d(or('a', and('b', 'c'))), d(and(or('a', 'b'), 'c')), d(or('a', 'b', 'c')))",
@@ -307,7 +307,7 @@ conformance('a chain of conjunctions or disjunctions is written as one call', [
 ])
 
 conformance("an open list's tail may be any term", [
-  spec('8.1'),
+  spec('9.2'),
   file('program.js', [
     "fact(d([1, ...lt(1, 2)]), d([1, ...or('a', 'b')]), d([1, ...[2, 3]]))",
     'query(d(X))',
@@ -321,7 +321,7 @@ conformance("an open list's tail may be any term", [
 ])
 
 conformance('floats take the exponent form from 1e16, and below 1e-4', [
-  spec('8.1'),
+  spec('9.2'),
   args("--goal 'is(A, float(10000000000000000))' --goal 'is(B, float(1000000000000000))' --goal 'is(C, div(1, 10000))' --goal 'is(D, div(1, 100000))'"),
   stdin([]),
   stdout([

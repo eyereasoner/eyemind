@@ -163,7 +163,7 @@ backward templates conclude ordinary heads.
 See the decks for [derived forward rules](examples/deck/derived-rule),
 [derived backward rules](examples/deck/derived-backward-rule), and a
 [conjunction of backward templates](examples/deck/derived-backward-rule-2).
-[SPEC §4.6](SPEC.md#46-inline-rule-templates) defines the scope and lowering.
+[SPEC §6.2](SPEC.md#62-inline-rule-templates) defines the scope and lowering.
 
 ### Inspecting rules
 
@@ -196,7 +196,7 @@ existential witness, bind its inspected pattern variables first: a generic
 pattern cannot share one witness across all its instances.
 
 See the [rule inspection deck](examples/deck/rule-inspection) and
-[SPEC §4.7](SPEC.md#47-source-rule-inspection).
+[SPEC §6.3](SPEC.md#63-source-rule-inspection).
 
 ### Terms and names
 
@@ -218,7 +218,7 @@ Once stated, a clause is a term, and reasoning over it calls no code of yours.
 
 `unify`, `identical` and `compare` answer different questions. The floats `0.0` and `-0.0` unify and compare equal, but `identical` distinguishes their canonical texts, including inside lists and compounds. In a program, write them as `float(0)` and `float(-0)`.
 
-**Arithmetic is a term, not an operator.** `is(Y, add(X, 1))` binds `Y` to `X + 1`, and `gt(X, 1)` compares. Operators do not apply to terms: `X + 1` or `X > 1` in a program stops it with a message that says what to write instead. Operators on plain numbers are JavaScript's own, so `query(unify(Y, 3 + 4))` binds `Y` to 7. `div` is true division, `floordiv` and `mod` floor toward negative infinity, and `round` rounds half to even. The primitives (`unify`, `is`, `eq`, `lt` and the other comparisons, type tests, `functor`, `univ`, `atom_concat` and the rest) are listed in [SPEC §5](SPEC.md#5-goals-controls-and-primitives), and the arithmetic functions in [SPEC §6](SPEC.md#6-arithmetic). Everything else, such as membership, mapping or graph traversal, is written as ordinary clauses.
+**Arithmetic is a term, not an operator.** `is(Y, add(X, 1))` binds `Y` to `X + 1`, and `gt(X, 1)` compares. Operators do not apply to terms: `X + 1` or `X > 1` in a program stops it with a message that says what to write instead. Operators on plain numbers are JavaScript's own, so `query(unify(Y, 3 + 4))` binds `Y` to 7. `div` is true division, `floordiv` and `mod` floor toward negative infinity, and `round` rounds half to even. The primitives (`unify`, `is`, `eq`, `lt` and the other comparisons, type tests, `functor`, `univ`, `atom_concat` and the rest) are listed in [SPEC §4](SPEC.md#4-goals-and-primitives), and the arithmetic functions in [SPEC §5](SPEC.md#5-arithmetic). Everything else, such as membership, mapping or graph traversal, is written as ordinary clauses.
 
 **Domains get representations, not syntax.** eyemind has no built-in notion of RDF or of anything else: IRIs, typed literals, triples and quoted graphs are just terms, such as `literal(V, lang(L))` or `triple(S, P, O)` (see [RDF 1.2](#rdf-12) below). A forward conclusion may contain variables its premise never binds, and then says that something exists. Each such unknown becomes a Skolem function of the activation: `implies(person(X), has_parent(X, P))` concludes `has_parent('ann', skolem(2, 'P', ['ann']))`, the `P` of rule 2 for Ann.
 
@@ -294,8 +294,8 @@ values directly, instead of being renamed and then unified.
 
 When a proof is asked for, the first derivation of each conclusion is
 recorded, and the checker verifies that record against the program without
-calling the reasoner. [SPEC §7](SPEC.md#7-reasoning) defines the search, the
-rounds, the Skolem terms and the bounds, and [SPEC §4.5](SPEC.md#45-stratification)
+calling the reasoner. [SPEC §8](SPEC.md#8-evaluation-and-conclusions) defines the search, the
+rounds, the Skolem terms and the bounds, and [SPEC §6.1](SPEC.md#61-dependencies-and-stratification)
 the strata.
 
 ## Proofs, and what checking one means

@@ -1,7 +1,7 @@
-// SPEC 4: programs, statements, names, rejected clauses and stratification.
+// SPEC 3 and 6: programs, statements, names, rejected clauses and stratification.
 
 conformance('an inline forward template has local universal variables and activation evidence', [
-  spec('4.6, 10.2'),
+  spec('6.2, 10.2'),
   args('--proof program.js'),
   file('program.js', [
     "fact(cat('minka'))",
@@ -28,7 +28,7 @@ conformance('an inline forward template has local universal variables and activa
 ])
 
 conformance('a backward template captures inverse names and keeps endpoints local', [
-  spec('4.6'),
+  spec('6.2'),
   file('program.js', [
     "fact(inverse('parent', 'child'))",
     "fact(t('alice', 'parent', 'bob'))",
@@ -42,7 +42,7 @@ conformance('a backward template captures inverse names and keeps endpoints loca
 ])
 
 conformance('template bodies heads and generators support conjunctions', [
-  spec('4.6'),
+  spec('6.2'),
   file('program.js', [
     "fact(p('a'), p('b'), q('a'))",
     "implies('true', [ready('yes'), implies([p(X), q(X)], [r(X), s(X)]), implied_by([u(X), v(X)], [r(X), s(X)])])",
@@ -55,7 +55,7 @@ conformance('template bodies heads and generators support conjunctions', [
 ])
 
 conformance('a variable shared only by sibling templates is local to each', [
-  spec('4.6'),
+  spec('6.2'),
   file('program.js', [
     "fact(p('a'), q('b'))",
     "implies('true', [implies(p(X), r(X)), implied_by(s(X), q(X))])",
@@ -68,7 +68,7 @@ conformance('a variable shared only by sibling templates is local to each', [
 ])
 
 conformance('an inactive generator supplies neither forward nor backward conclusions', [
-  spec('4.6'),
+  spec('6.2'),
   file('program.js', [
     "fact(p('a'))",
     "implies(enabled('yes'), [implies(p(X), q(X)), implied_by(r(X), p(X))])",
@@ -80,7 +80,7 @@ conformance('an inactive generator supplies neither forward nor backward conclus
 ])
 
 conformance('negation and collection wait for an enabled template to finish', [
-  spec('4.5, 4.6, 7.2'),
+  spec('6.1, 6.2, 8.2'),
   file('program.js', [
     "fact(seed('a'))",
     'implies(findall(X, item(X), L), items(L))',
@@ -97,7 +97,7 @@ conformance('negation and collection wait for an enabled template to finish', [
 ])
 
 conformance('a closed cycle through a forward template is rejected', [
-  spec('4.5, 4.6'),
+  spec('6.1, 6.2'),
   exit(1),
   file('program.js', ["implies(not(p('a')), implies('true', p('a')))"]),
   stdout([]),
@@ -105,7 +105,7 @@ conformance('a closed cycle through a forward template is rejected', [
 ])
 
 conformance('a closed cycle through a backward template is rejected', [
-  spec('4.5, 4.6'),
+  spec('6.1, 6.2'),
   exit(1),
   file('program.js', ["implies(findall(X, p(X), L), implied_by(p('a'), 'true'))"]),
   stdout([]),
@@ -113,7 +113,7 @@ conformance('a closed cycle through a backward template is rejected', [
 ])
 
 conformance('a variable call in a generated backward body is rejected', [
-  spec('4.6'),
+  spec('6.2'),
   exit(1),
   file('program.js', ["implies('true', implied_by(p(X), call(G)))"]),
   stdout([]),
@@ -121,7 +121,7 @@ conformance('a variable call in a generated backward body is rejected', [
 ])
 
 conformance('a forward rule with a variable body goal is rejected', [
-  spec('4.5'),
+  spec('6.1'),
   exit(1),
   file('program.js', [
     "fact(p(q('a')), q('a'))",
@@ -132,7 +132,7 @@ conformance('a forward rule with a variable body goal is rejected', [
 ])
 
 conformance('a forward rule reaching a variable goal through a backward rule is rejected', [
-  spec('4.5'),
+  spec('6.1'),
   exit(1),
   file('program.js', [
     "fact(p(q('a')), q('a'))",
@@ -144,7 +144,7 @@ conformance('a forward rule reaching a variable goal through a backward rule is 
 ])
 
 conformance('a variable goal no forward rule reaches is allowed', [
-  spec('4.5'),
+  spec('6.1'),
   args("--goal 'holds(G)' program.js"),
   file('program.js', [
     "fact(p(q('a')), p(r('b')), q('a'))",
@@ -157,7 +157,7 @@ conformance('a variable goal no forward rule reaches is allowed', [
 ])
 
 conformance('a rule value inside an ordinary body goal is rejected', [
-  spec('4.6'),
+  spec('6.2'),
   exit(1),
   file('program.js', [
     "fact(p('a'))",
@@ -168,7 +168,7 @@ conformance('a rule value inside an ordinary body goal is rejected', [
 ])
 
 conformance('a rule value as the template of findall is rejected', [
-  spec('4.6'),
+  spec('6.2'),
   exit(1),
   file('program.js', [
     "fact(p('a'))",
@@ -179,7 +179,7 @@ conformance('a rule value as the template of findall is rejected', [
 ])
 
 conformance('a source program cannot state its own activation fact', [
-  spec('4.6'),
+  spec('6.2'),
   exit(1),
   file('program.js', ['fact(activated(2, []))']),
   stdout([]),
@@ -187,7 +187,7 @@ conformance('a source program cannot state its own activation fact', [
 ])
 
 conformance('fact states one fact per argument, numbered in order', [
-  spec('4.2'),
+  spec('3.4'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1), p(2))',
@@ -213,7 +213,7 @@ conformance('fact states one fact per argument, numbered in order', [
 ])
 
 conformance('a forward rule may conclude several heads joined with &', [
-  spec('4.2'),
+  spec('3.4'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -237,7 +237,7 @@ conformance('a forward rule may conclude several heads joined with &', [
 ])
 
 conformance('a backward rule without a body is a fact', [
-  spec('4.2'),
+  spec('3.4'),
   args("--proof --goal 'p(X)' program.js"),
   file('program.js', [
     'fact(p(1))',
@@ -256,7 +256,7 @@ conformance('a backward rule without a body is a fact', [
 ])
 
 conformance('a body conjunction is split into its goals', [
-  spec('4.2'),
+  spec('3.4'),
   args("--proof --goal 'r(X)' program.js"),
   file('program.js', [
     'fact(p(1), q(1))',
@@ -280,7 +280,7 @@ conformance('a body conjunction is split into its goals', [
 ])
 
 conformance('query publishes each instance of its body', [
-  spec('4.2'),
+  spec('3.4'),
   file('program.js', [
     'fact(p(1), p(2), q(2))',
     'query(p(X), q(X))',
@@ -292,7 +292,7 @@ conformance('query publishes each instance of its body', [
 ])
 
 conformance('contradiction stops with exit code 65', [
-  spec('4.2, 7.5'),
+  spec('3.4, 8.5'),
   exit(65),
   file('program.js', [
     "fact(account('bob', -5))",
@@ -305,7 +305,7 @@ conformance('contradiction stops with exit code 65', [
 ])
 
 conformance('facts_from states every expression of a document as a fact', [
-  spec('4.2, 9'),
+  spec('3.4, 9.1'),
   file('program.js', [
     "facts_from('data.js')",
     "query(edge('a', X))",
@@ -324,7 +324,7 @@ conformance('facts_from states every expression of a document as a fact', [
 ])
 
 conformance('facts_from reads text too', [
-  spec('4.2'),
+  spec('3.4'),
   file('program.js', [
     "facts_from({text: 'score(\\'ann\\', 3)\\nscore(\\'bob\\', 5)\\n'})",
     'query(score(Who, S), gt(S, 4))',
@@ -336,7 +336,7 @@ conformance('facts_from reads text too', [
 ])
 
 conformance('several program files form one program, numbered in order', [
-  spec('4.1'),
+  spec('3.1'),
   args('--proof a.js b.js'),
   file('a.js', [
     'fact(p(1))',
@@ -360,7 +360,7 @@ conformance('several program files form one program, numbered in order', [
 ])
 
 conformance('undefined lowercase names are predicates', [
-  spec('4.3'),
+  spec('3.2'),
   file('program.js', [
     "fact(type('socrates', 'human'))",
     "fact(sum(1, 2), id(7), max('x'))",
@@ -373,7 +373,7 @@ conformance('undefined lowercase names are predicates', [
 ])
 
 conformance('undefined names starting with a capital or _ are variables', [
-  spec('4.3'),
+  spec('3.2'),
   file('program.js', [
     'fact(pair(1, 2))',
     'query(pair(First, _Second))',
@@ -385,7 +385,7 @@ conformance('undefined names starting with a capital or _ are variables', [
 ])
 
 conformance('kept globals keep their JavaScript meaning', [
-  spec('4.3'),
+  spec('3.2'),
   file('program.js', [
     'for (let i = 0; i < 3; i++) {',
     '  fact(n(i, JSON.stringify(i * 10).length))',
@@ -401,7 +401,7 @@ conformance('kept globals keep their JavaScript meaning', [
 ])
 
 conformance('other JavaScript globals are predicates and variables', [
-  spec('4.3'),
+  spec('3.2'),
   file('program.js', [
     "fact(eval(1), name('x'), born(1990))",
     'query(eval(E))',
@@ -417,7 +417,7 @@ conformance('other JavaScript globals are predicates and variables', [
 ])
 
 conformance("an error in a program's own JavaScript code is reported at its line", [
-  spec('4.1, 14'),
+  spec('3.1, 13.1'),
   exit(1),
   stderr(prefix('eyemind: line 2:')),
   file('program.js', [
@@ -428,7 +428,7 @@ conformance("an error in a program's own JavaScript code is reported at its line
 ])
 
 conformance('a program may name a kept global as a predicate', [
-  spec('4.3'),
+  spec('3.2'),
   file('program.js', [
     "const isFinite = preds('isFinite')",
     "fact(isFinite('parent_of', 'person'))",
@@ -441,7 +441,7 @@ conformance('a program may name a kept global as a predicate', [
 ])
 
 conformance('preds and vars name predicates and variables explicitly', [
-  spec('4.3'),
+  spec('3.2'),
   file('program.js', [
     "const [p, q] = preds('p q')",
     "const A = vars('A')",
@@ -455,7 +455,7 @@ conformance('preds and vars name predicates and variables explicitly', [
 ])
 
 conformance('helper functions see the names a program leaves undefined', [
-  spec('4.3'),
+  spec('3.2'),
   file('program.js', [
     'function chain(n) {',
     '  for (let i = 0; i < n; i++) fact(edge(i, i + 1))',
@@ -475,7 +475,7 @@ conformance('helper functions see the names a program leaves undefined', [
 ])
 
 conformance('a predicate called on its own states nothing and is an error', [
-  spec('4.3'),
+  spec('3.2'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -486,7 +486,7 @@ conformance('a predicate called on its own states nothing and is an error', [
 ])
 
 conformance('a predicate name used uncalled is its atom', [
-  spec('4.3'),
+  spec('3.2'),
   file('program.js', [
     'fact(ready)',
     'query(ready, not(blocked))',
@@ -498,7 +498,7 @@ conformance('a predicate name used uncalled is its atom', [
 ])
 
 conformance('every _ in a clause is a variable of its own', [
-  spec('4.4'),
+  spec('3.3'),
   args("program.js --goal 'pair(1, 2)'"),
   file('program.js', [
     'fact(pair(_, _))',
@@ -510,7 +510,7 @@ conformance('every _ in a clause is a variable of its own', [
 ])
 
 conformance('struct builds a compound with any name', [
-  spec('4.4'),
+  spec('3.3'),
   args('program.js --goal \'struct(\'"\'"\'hello world\'"\'"\', X)\' --goal \'from(Y)\''),
   file('program.js', [
     "fact(struct('hello world', 1))",
@@ -524,7 +524,7 @@ conformance('struct builds a compound with any name', [
 ])
 
 conformance('struct with only a name is the atom', [
-  spec('4.4'),
+  spec('3.3'),
   args("program.js --goal 'p(X)'"),
   file('program.js', [
     "fact(p(struct('lonely')))",
@@ -536,7 +536,7 @@ conformance('struct with only a name is the atom', [
 ])
 
 conformance('arithmetic terms are built by calls', [
-  spec('4.4'),
+  spec('3.3'),
   file('program.js', [
     'query(unify(T, add(mul(X, 2), 1)), unify(X, 3))',
   ]),
@@ -547,7 +547,7 @@ conformance('arithmetic terms are built by calls', [
 ])
 
 conformance('[H, *T] is a list with head H and tail T', [
-  spec('4.4'),
+  spec('3.3'),
   args("program.js --goal 'split([1, 2, 3], H, T)'"),
   file('program.js', [
     'fact(split([H, ...T], H, T))',
@@ -559,7 +559,7 @@ conformance('[H, *T] is a list with head H and tail T', [
 ])
 
 conformance('a term used as a truth value is an error', [
-  spec('4.4'),
+  spec('3.3'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -569,7 +569,7 @@ conformance('a term used as a truth value is an error', [
 ])
 
 conformance('a head of step/4 is reserved', [
-  spec('4.2'),
+  spec('3.4'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -579,7 +579,7 @@ conformance('a head of step/4 is reserved', [
 ])
 
 conformance('a head of clause/2 is reserved', [
-  spec('4.2'),
+  spec('3.4'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -589,7 +589,7 @@ conformance('a head of clause/2 is reserved', [
 ])
 
 conformance('a primitive cannot be a head', [
-  spec('4.2'),
+  spec('3.4'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -599,7 +599,7 @@ conformance('a primitive cannot be a head', [
 ])
 
 conformance('a control cannot be a head', [
-  spec('4.2'),
+  spec('3.4'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -609,7 +609,7 @@ conformance('a control cannot be a head', [
 ])
 
 conformance('true and false are not the conclusion of a backward rule', [
-  spec('4.2'),
+  spec('3.4'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -619,7 +619,7 @@ conformance('true and false are not the conclusion of a backward rule', [
 ])
 
 conformance('implies cannot conclude true or false: query and contradiction do', [
-  spec('4.2'),
+  spec('3.4'),
   exit(1),
   stderr(prefix("eyemind: line 2: implies() cannot conclude 'true' or 'false'")),
   file('program.js', [
@@ -630,7 +630,7 @@ conformance('implies cannot conclude true or false: query and contradiction do',
 ])
 
 conformance('query and contradiction need a goal', [
-  spec('4.2'),
+  spec('3.4'),
   exit(1),
   stderr(prefix('eyemind: line 1: query() needs at least one goal')),
   file('program.js', [
@@ -640,7 +640,7 @@ conformance('query and contradiction need a goal', [
 ])
 
 conformance('a number cannot be a head', [
-  spec('4.2'),
+  spec('3.4'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -650,7 +650,7 @@ conformance('a number cannot be a head', [
 ])
 
 conformance('an empty array is not a goal', [
-  spec('4.2'),
+  spec('3.4'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -660,7 +660,7 @@ conformance('an empty array is not a goal', [
 ])
 
 conformance('a number is not a goal', [
-  spec('4.2'),
+  spec('3.4'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -670,7 +670,7 @@ conformance('a number is not a goal', [
 ])
 
 conformance('a forward rule needs a premise', [
-  spec('4.2'),
+  spec('3.4'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -680,7 +680,7 @@ conformance('a forward rule needs a premise', [
 ])
 
 conformance('negation through a cycle is unstratified', [
-  spec('4.5'),
+  spec('6.1'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -691,7 +691,7 @@ conformance('negation through a cycle is unstratified', [
 ])
 
 conformance('collection through a cycle is unstratified', [
-  spec('4.5'),
+  spec('6.1'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -701,7 +701,7 @@ conformance('collection through a cycle is unstratified', [
 ])
 
 conformance('a forward rule cannot reach a call of a variable', [
-  spec('4.5'),
+  spec('6.1'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -713,7 +713,7 @@ conformance('a forward rule cannot reach a call of a variable', [
 ])
 
 conformance('a backward rule may call a variable goal when asked from outside', [
-  spec('4.5'),
+  spec('6.1'),
   args('program.js --goal \'apply(p(\'"\'"\'a\'"\'"\'))\''),
   file('program.js', [
     "fact(p('a'))",
@@ -726,7 +726,7 @@ conformance('a backward rule may call a variable goal when asked from outside', 
 ])
 
 conformance('negation runs after the closure it inspects', [
-  spec('4.5, 7.2'),
+  spec('6.1, 8.2'),
   file('program.js', [
     "fact(seed('a'), seed('b'))",
     'implies([seed(X), not(blocked(X))], clear(X))',
@@ -741,7 +741,7 @@ conformance('negation runs after the closure it inspects', [
 ])
 
 conformance('strata compare whole terms, not just names', [
-  spec('4.5'),
+  spec('6.1'),
   file('program.js', [
     "fact(t('a', 'seed', 'true'))",
     "implies([t(X, 'seed', 'true'), not(t(X, 'blocked', 'true'))], t(X, 'allowed', 'true'))",
@@ -754,7 +754,7 @@ conformance('strata compare whole terms, not just names', [
 ])
 
 conformance('a helper-returned rule value can be reused without a standalone rule', [
-  spec('4.2, 4.6'),
+  spec('3.4, 6.2'),
   file('program.js', [
     "fact(dog('a'))",
     'function rule() { return implies(dog(Y), tagged(Y)) }',
@@ -769,7 +769,7 @@ conformance('a helper-returned rule value can be reused without a standalone rul
 ])
 
 conformance('an unembedded rule return value still states its clause', [
-  spec('4.2, 4.6'),
+  spec('3.4, 6.2'),
   file('program.js', [
     "fact(p('a'))",
     'const direct = implies(p(X), q(X))',
@@ -783,7 +783,7 @@ conformance('an unembedded rule return value still states its clause', [
 ])
 
 conformance('anonymous variables of nested rules do not capture the generator', [
-  spec('4.4, 4.6'),
+  spec('3.3, 6.2'),
   file('program.js', [
     "fact(p('a'), q('b'))",
     'implies(p(_), implied_by(r(_), q(_)))',
@@ -796,7 +796,7 @@ conformance('anonymous variables of nested rules do not capture the generator', 
 ])
 
 conformance('pure template constructors have the same guarded behavior', [
-  spec('4.6'),
+  spec('6.2'),
   file('program.js', [
     "fact(p('a'))",
     "implies('true', [forward(p(X), q(X)), backward(r(X), q(X))])",
@@ -809,7 +809,7 @@ conformance('pure template constructors have the same guarded behavior', [
 ])
 
 conformance('source rule inspection excludes its own inspecting rule', [
-  spec('4.7'),
+  spec('6.3'),
   file('program.js', [
     "fact(a('b'))",
     'implies(a(X), c(X))',
@@ -823,7 +823,7 @@ conformance('source rule inspection excludes its own inspecting rule', [
 ])
 
 conformance('backward rule inspection preserves a conjunction and shared variables', [
-  spec('4.7'),
+  spec('6.3'),
   file('program.js', [
     'implied_by(c(X), [a(X), b(X)])',
     'implies(implied_by(H, B), inspected(H, B))',

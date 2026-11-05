@@ -12,7 +12,7 @@ import { CHAINED, RESERVED_WORDS, decodeName } from './writer.js';
 const JS_VALUES = new Set(['undefined', 'NaN', 'Infinity']);
 
 // The name of the variable an identifier writes: names starting VAR_ are
-// encoded (Section 8.1).
+// encoded (Section 9.2).
 function variableName(text, line) {
   if (!text.startsWith('VAR_')) return text;
   const name = decodeName(text);

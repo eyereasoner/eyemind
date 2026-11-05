@@ -1,7 +1,7 @@
-// SPEC 13: unused clauses, reported with the line their statement begins on.
+// SPEC 13.2: unused clauses, reported with the line their statement begins on.
 
 conformance('clauses no conclusion rests on are unused', [
-  spec('13'),
+  spec('13.2'),
   args('--unused program.js'),
   file('program.js', [
     "fact(p('a'))",
@@ -18,7 +18,7 @@ conformance('clauses no conclusion rests on are unused', [
 ])
 
 conformance('a program whose every clause is used lists nothing', [
-  spec('13'),
+  spec('13.2'),
   args('--unused program.js'),
   file('program.js', [
     "fact(type('socrates', 'human'))",
@@ -30,7 +30,7 @@ conformance('a program whose every clause is used lists nothing', [
 ])
 
 conformance('a clause a negation consults is used when leaving it out changes the conclusions', [
-  spec('13'),
+  spec('13.2'),
   args('--unused program.js'),
   file('program.js', [
     "fact(p('a'), p('b'))",
@@ -43,7 +43,7 @@ conformance('a clause a negation consults is used when leaving it out changes th
 ])
 
 conformance('a clause a negation consults is unused when leaving it out changes nothing', [
-  spec('13'),
+  spec('13.2'),
   args('--unused program.js'),
   file('program.js', [
     "fact(p('a'))",
@@ -56,7 +56,7 @@ conformance('a clause a negation consults is unused when leaving it out changes 
 ])
 
 conformance('leaving a clause out keeps the numbers of the others and their Skolem terms', [
-  spec('13'),
+  spec('13.2'),
   args('--unused program.js'),
   file('program.js', [
     "fact(p('a'))",
@@ -70,7 +70,7 @@ conformance('leaving a clause out keeps the numbers of the others and their Skol
 ])
 
 conformance('a clause a collection consults is used when leaving it out changes the conclusions', [
-  spec('13'),
+  spec('13.2'),
   args('--unused program.js'),
   file('program.js', [
     'fact(p(1), p(2))',
@@ -82,7 +82,7 @@ conformance('a clause a collection consults is used when leaving it out changes 
 ])
 
 conformance('a multi-line clause is reported with its first line', [
-  spec('13'),
+  spec('13.2'),
   args('--unused program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -95,7 +95,7 @@ conformance('a multi-line clause is reported with its first line', [
 ])
 
 conformance('unused clauses are relative to the goals asked', [
-  spec('13'),
+  spec('13.2'),
   args("--unused --goal 'a(X)' program.js"),
   file('program.js', [
     'fact(a(1))',
@@ -107,7 +107,7 @@ conformance('unused clauses are relative to the goals asked', [
 ])
 
 conformance('a forward rule that concludes nothing is unused', [
-  spec('13'),
+  spec('13.2'),
   args('--unused program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -120,7 +120,7 @@ conformance('a forward rule that concludes nothing is unused', [
 ])
 
 conformance('facts stated by facts_from record the line of the call', [
-  spec('4.2, 13'),
+  spec('3.4, 13.2'),
   args('--unused program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -134,7 +134,7 @@ conformance('facts stated by facts_from record the line of the call', [
 ])
 
 conformance('a generated rule that never fires is unused and keeps its generator line', [
-  spec('4.6, 13'),
+  spec('6.2, 13.2'),
   args('--unused program.js'),
   file('program.js', [
     "fact(enabled('x'), p('a'))",

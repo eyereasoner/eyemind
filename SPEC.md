@@ -3,60 +3,62 @@
 ```text
 Title:      The eyemind Rule Language and Proof Format
 Version:    eyemind 0.1.36
-Status:     Informational
-Author:     Jos De Roo, KNoWS office of IDLab, Ghent University - imec
-Repository: https://github.com/eyereasoner/eyemind
 ```
 
-## Abstract
-
-eyemind is a rule language written in JavaScript, with forward and backward
-reasoning, and a proof format whose documents a separate checker verifies
-against the program that produced them. This document specifies the terms
-the language reasons over, how a program is stated in JavaScript, its semantics
-and conclusions, the canonical text in which terms, conclusions, proofs and
-check reports are written and read back, the proof document, the eight
-conditions (C1-C8) a proof checker establishes, the check report, and the
-command line.
-
-## Status of This Memo
-
-This document is not an Internet Standards Track specification. It describes
-the language and formats as implemented by eyemind 0.1.36, for readers who want
-to write programs, produce or consume proofs and reports, or implement a
-compatible reasoner or checker. Where this document and the implementation
-disagree, that is a defect in one of them.
+This document specifies the syntax and meaning of eyemind programs and data
+documents, their observable evaluation, and the conditions for checking a
+proof.
 
 ## Table of Contents
 
-- [1. Introduction](#1-introduction)
-- [2. Conventions and Terminology](#2-conventions-and-terminology)
-- [3. Terms](#3-terms)
-- [4. Programs](#4-programs)
-  - [4.1 Program scripts](#41-program-scripts)
-  - [4.2 Statements](#42-statements)
-  - [4.3 Names a program does not define](#43-names-a-program-does-not-define)
-  - [4.4 Terms in a program](#44-terms-in-a-program)
-  - [4.5 Stratification](#45-stratification)
-  - [4.6 Inline rule templates](#46-inline-rule-templates)
-  - [4.7 Source rule inspection](#47-source-rule-inspection)
-- [5. Goals, Controls and Primitives](#5-goals-controls-and-primitives)
-  - [5.1 Controls](#51-controls)
-  - [5.2 Primitives](#52-primitives)
-- [6. Arithmetic](#6-arithmetic)
-- [7. Reasoning](#7-reasoning)
-  - [7.1 Search](#71-search)
-  - [7.2 Forward reasoning](#72-forward-reasoning)
-  - [7.3 Bounds](#73-bounds)
-  - [7.4 Goals](#74-goals)
-  - [7.5 Halting](#75-halting)
-  - [7.6 Conclusions](#76-conclusions)
-  - [7.7 Proof recording](#77-proof-recording)
-- [8. Canonical Text](#8-canonical-text)
-  - [8.1 Atoms, numbers, variables and lists](#81-atoms-numbers-variables-and-lists)
-  - [8.2 Compounds](#82-compounds)
-  - [8.3 Variables in written documents](#83-variables-in-written-documents)
-- [9. Reading Documents](#9-reading-documents)
+- [1. Scope and Conventions](#1-scope-and-conventions)
+  - [1.1 Scope](#11-scope)
+  - [1.2 Requirements and notation](#12-requirements-and-notation)
+  - [1.3 Terminology](#13-terminology)
+- [2. Terms](#2-terms)
+  - [2.1 Kinds of terms](#21-kinds-of-terms)
+  - [2.2 Lists](#22-lists)
+  - [2.3 Identity and unification](#23-identity-and-unification)
+  - [2.4 Standard order](#24-standard-order)
+- [3. Program Syntax](#3-program-syntax)
+  - [3.1 Scripts](#31-scripts)
+  - [3.2 Names](#32-names)
+  - [3.3 Term construction](#33-term-construction)
+  - [3.4 Statements](#34-statements)
+  - [3.5 Clause constraints and numbering](#35-clause-constraints-and-numbering)
+- [4. Goals and Primitives](#4-goals-and-primitives)
+  - [4.1 Goal syntax](#41-goal-syntax)
+  - [4.2 Controls](#42-controls)
+  - [4.3 Primitives](#43-primitives)
+- [5. Arithmetic](#5-arithmetic)
+  - [5.1 Expressions](#51-expressions)
+  - [5.2 Functions and arities](#52-functions-and-arities)
+  - [5.3 Numeric results](#53-numeric-results)
+  - [5.4 Arithmetic errors and limits](#54-arithmetic-errors-and-limits)
+- [6. Rule Structure](#6-rule-structure)
+  - [6.1 Dependencies and stratification](#61-dependencies-and-stratification)
+  - [6.2 Inline rule templates](#62-inline-rule-templates)
+  - [6.3 Source rule inspection](#63-source-rule-inspection)
+- [7. Semantics](#7-semantics)
+  - [7.1 Herbrand interpretation](#71-herbrand-interpretation)
+  - [7.2 Variables and witnesses](#72-variables-and-witnesses)
+  - [7.3 Positive least model](#73-positive-least-model)
+  - [7.4 Negation and collection](#74-negation-and-collection)
+  - [7.5 Sets and operational behavior](#75-sets-and-operational-behavior)
+  - [7.6 Termination and proof claims](#76-termination-and-proof-claims)
+- [8. Evaluation and Conclusions](#8-evaluation-and-conclusions)
+  - [8.1 Goal search](#81-goal-search)
+  - [8.2 Forward evaluation and witnesses](#82-forward-evaluation-and-witnesses)
+  - [8.3 Resource bounds](#83-resource-bounds)
+  - [8.4 External goals](#84-external-goals)
+  - [8.5 Contradictions](#85-contradictions)
+  - [8.6 Reported conclusions](#86-reported-conclusions)
+  - [8.7 Proof generation](#87-proof-generation)
+- [9. Document Syntax and Canonical Text](#9-document-syntax-and-canonical-text)
+  - [9.1 Accepted document syntax](#91-accepted-document-syntax)
+  - [9.2 Canonical atoms, numbers, variables and lists](#92-canonical-atoms-numbers-variables-and-lists)
+  - [9.3 Canonical compounds](#93-canonical-compounds)
+  - [9.4 Variable scope in output](#94-variable-scope-in-output)
 - [10. Proof Documents](#10-proof-documents)
   - [10.1 Structure](#101-structure)
   - [10.2 Clause displays](#102-clause-displays)
@@ -72,179 +74,158 @@ disagree, that is a defect in one of them.
   - [11.8 C7 Relevance](#118-c7-relevance)
   - [11.9 C8 Witness integrity](#119-c8-witness-integrity)
   - [11.10 Counts and validity](#1110-counts-and-validity)
-  - [11.11 What a valid proof establishes](#1111-what-a-valid-proof-establishes)
+  - [11.11 Scope of a valid proof](#1111-scope-of-a-valid-proof)
 - [12. Check Reports](#12-check-reports)
-- [13. Unused Clauses](#13-unused-clauses)
-- [14. Command Line](#14-command-line)
-- [15. Security Considerations](#15-security-considerations)
-- [16. Conformance](#16-conformance)
-- [17. Semantics](#17-semantics)
-  - [17.1 Herbrand interpretation](#171-herbrand-interpretation)
-  - [17.2 Variables and witnesses](#172-variables-and-witnesses)
-  - [17.3 Positive least model](#173-positive-least-model)
-  - [17.4 Negation and collection](#174-negation-and-collection)
-  - [17.5 Sets, solutions and operational behavior](#175-sets-solutions-and-operational-behavior)
-  - [17.6 Termination and proofs](#176-termination-and-proofs)
-
+  - [12.1 JSON form](#121-json-form)
+- [13. Command-Line Interface](#13-command-line-interface)
+  - [13.1 Invocation and options](#131-invocation-and-options)
+  - [13.2 Unused clauses](#132-unused-clauses)
+- [14. Conformance](#14-conformance)
+- [15. Security](#15-security)
 - [Appendix A. Document Grammar](#appendix-a-document-grammar)
 - [Appendix B. Example](#appendix-b-example)
 
 ---
 
-## 1. Introduction
+## 1. Scope and Conventions
 
-An eyemind program states facts and rules. Forward rules are applied until no
-new conclusion follows; backward rules are applied when a goal asks for them.
-Every conclusion can be accompanied by a proof: a document that names, for
-each step, the program clause or primitive that justifies it. A checker that
-never consults the reasoner verifies such a document against the program and
-reports, condition by condition, what it established and what it had to take
-on trust.
+### 1.1 Scope
 
+This specification defines eyemind's terms, program syntax, semantics,
+evaluation, document formats, proof checking and command-line interface.
 Programs are JavaScript scripts. Conclusions, proofs and check reports are
-JavaScript expressions, one per line, which a reader turns back into terms
-without executing them. One language thus states the rules, computes with
-them, and holds every result.
+data documents whose expressions MUST be read without execution.
 
-## 2. Conventions and Terminology
+The JavaScript library API, browser interface, installation and release
+procedures are outside this specification.
+
+### 1.2 Requirements and notation
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY" and "OPTIONAL" in this document
-are to be interpreted as described in BCP 14 (RFC 2119, RFC 8174) when, and
-only when, they appear in all capitals.
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY" and "OPTIONAL" are to be
+interpreted as described in BCP 14 (RFC 2119, RFC 8174) when they appear in
+all capitals.
 
-- **Term**: a value the language reasons over (Section 3).
-- **Clause**: a fact, a forward rule or a backward rule (Section 4).
-- **Goal**: a term solved by resolution or by a primitive (Section 5).
-- **Substitution**: a mapping from variable names to terms.
-- **Instance**: a term obtained from another by applying a substitution.
-- **Identical**: two terms are identical when their canonical texts
-  (Section 8) are equal; variables are identical only to themselves.
+In syntax descriptions, `T` denotes a term, `G` a goal, `Body` a premise and
+`Head` a conclusion. Subscripts distinguish arguments; `T1, ..., Tn` means
+comma-separated arguments, not a literal ellipsis. The token `...` is literal
+only in list-tail syntax such as `[Head, ...Tail]`. Code blocks marked `js`
+show actual syntax. `name/arity` identifies a predicate or constructor by
+its name and number of arguments.
+
+### 1.3 Terminology
+
+- **Clause**: a fact, a forward rule or a backward rule.
+- **Substitution**: an assignment of terms to variables.
+- **Instance**: the result of applying a substitution to a term or clause.
 - **Ground**: containing no variable.
-- **Conclusion**: a term a run reports (Section 7.6).
-- **Document**: text holding a sequence of expressions (Sections 9-12).
-- **Reasoner**: an implementation of Sections 3-10, which checks its own
-  proofs as Section 11 describes.
-- **Checker**: an implementation of Sections 9, 11 and 12.
+- **Identical**: equal by canonical text (Section 9), with each variable
+  identical only to itself.
+- **Renamed apart**: with fresh variables, preserving all sharing within
+  the renamed terms and avoiding capture of other variables.
+- **Conclusion**: a term reported by a run (Section 8.6).
+- **Document**: a sequence of expressions in the data syntax of Section 9.
+- **Reasoner**: a processor that evaluates programs and checks its generated
+  proofs before returning them.
+- **Checker**: a processor that verifies proof documents against a supplied
+  program, without using reasoning to fill missing derivations.
 
-## 3. Terms
+## 2. Terms
 
-A term is one of:
+### 2.1 Kinds of terms
 
-| Kind | Representation | Example |
+A term is one of the following. The examples use document syntax; program
+construction is defined separately in Section 3.3.
+
+| Kind | Meaning | Examples |
 | --- | --- | --- |
-| Atom | a JavaScript string | `'socrates'`, `'[]'` |
-| Integer | a JavaScript `BigInt`, of unbounded size | `42`, `-7` |
-| Float | a JavaScript number that is a float, an IEEE-754 binary64 value | `0.5`, `1e+22`, `2.0` |
-| Variable | a name | `X`, `_Rest` |
-| Compound | a name (an atom) and one or more argument terms | `parent('alice', 'bob')` |
+| Atom | Character text. | `'socrates'`, `'human'` |
+| Integer | An exact integer of unbounded size. | `42`, `-7` |
+| Float | A finite IEEE-754 binary64 value. | `0.5`, `2.0`, `1e+22` |
+| Variable | A named logical variable. | `X`, `_Rest` |
+| Compound | An atom naming a constructor and one or more argument terms. | `parent('alice', 'bob')` |
 
-A compound term is identified by its name and its arity, the number of its
-arguments, written `name/arity`. An atom used as a goal has arity 0.
+An atom used as a predicate has arity 0. A compound's name and arity identify
+its constructor. Integers and floats are distinct: `1` and `1.0` MUST NOT
+unify. Booleans, `null`, `undefined`, infinities and NaN are not terms.
+Nonfinite numeric values MUST be rejected.
 
-**Lists.** The empty list is the atom `'[]'`. A non-empty list is the
-compound `'.'(Head, Tail)`. A list whose final tail is not `'[]'` is an open
-list. Character text is a list of one-character atoms.
+### 2.2 Lists
 
-**Numbers.** Integers and floats are distinct: `1` and `1.0` MUST NOT unify.
-Floats MUST be finite; no operation produces an infinity or a NaN as a term
-(Section 6). Nonfinite JavaScript values and float literals that overflow,
-such as `1e999`, MUST be rejected in programs, goals and documents. Booleans,
-`null` and `undefined` are not terms.
+Lists use bracket syntax:
 
-**Unification** is syntactic unification on finite trees. It MUST apply the
-occurs check: binding a variable to a term that contains it fails. Atoms unify
-when their texts are equal; numbers when they are of the same kind and equal;
-compounds when their names and arities are equal and their arguments unify
-pairwise.
-
-**Standard order.** Terms are totally ordered as: variables, then numbers,
-then atoms, then compounds. Numbers are ordered by value, compared exactly
-across integers and floats; a float precedes an integer of equal value.
-Atoms are ordered by the code points of their characters. Compounds are
-ordered by arity, then name, then arguments from left to right. Distinct
-variables are ordered by the code points of their names, so the order is the
-same in every comparison. The names of renamed-apart variables (Section 7.1)
-are implementation-specific, so a program SHOULD NOT depend on the relative
-order of two distinct unbound variables.
-
-The floats `0.0` and `-0.0` unify and compare equal, but are not identical:
-their canonical texts differ (Sections 2 and 8.1). This distinction also
-applies when they occur inside compounds or lists. A lone UTF-16 surrogate
-in a JavaScript string is ordered by its own code point; a valid surrogate
-pair denotes one supplementary code point.
-
-## 4. Programs
-
-### 4.1 Program scripts
-
-A program is a JavaScript script, run in sloppy mode with every name it does
-not declare resolved as Section 4.3 says. It needs no import. Running the
-script states the program's clauses in the order the calls are made; `fact`
-MAY state several clauses in one call (Section 4.2). Several scripts MAY be
-loaded as one program; their clauses are then numbered in the order the
-scripts are run.
-
-A program is given exactly the names needed to state it: the statements of
-Section 4.2, `forward`, `backward`, `preds`, `vars`, `struct`, the controls and primitives of
-Section 5, the atom `fail`, and `eyemind`, the library, with which a program
-can build and run another program and read and write documents
-(`eyemind.build`, `eyemind.run`, `eyemind.checkProof`, `eyemind.checkReport`,
-`eyemind.verdictText`, `eyemind.readTerm`, `eyemind.readTerms`, `eyemind.write`).
-
-### 4.2 Statements
-
-| Statement | Clause stated |
+| Form | Meaning |
 | --- | --- |
-| `fact(T1, T2, ...)` | One fact per argument. |
-| `implies(Premise, Conclusion)` | A forward rule: the premise's goals are its body and the conclusion its head, or its heads when the conclusion is an array of them. |
-| `implied_by(Conclusion, Premise)` | A backward rule: the conclusion is its head and the premise's goals are its body. |
-| `query(G1, G2, ...)` | A forward rule with the head `'true'` and the body `G1, G2, ...`: it reports its body's instances (Section 7.2). At least one goal is REQUIRED. |
-| `contradiction(G1, G2, ...)` | A forward rule with the head `'false'` and the body `G1, G2, ...`: it halts the run (Section 7.2). At least one goal is REQUIRED. |
-| `facts_from(path)` or `facts_from({text: ...})` | One fact per expression of a document (Section 9). |
+| `[]` | Empty list. |
+| `[T1, ..., Tn]` | List of `n` elements, for `n >= 1`. |
+| `[Head, ...Tail]` | One element followed by a tail. The comma before `...` is required. |
+| `[T1, ..., Tn, ...Tail]` | Several elements followed by a tail. |
 
-A premise is a goal or an array of goals, their conjunction (Section 5.1). A
-body goal that is a conjunction is split into its conjuncts; the clause body
-is the resulting sequence of goals.
+For example, `[1, 2]` and `[1, ...[2]]` denote the same list. A **proper
+list** ends in `[]`. A tail left as a variable gives an **open list**;
+a non-list tail gives an **improper list**. Only the final item may be a
+spread tail. In document syntax, `[...Tail]` denotes `Tail` itself.
+Program spread expressions also follow Section 3.3.
 
-`implies` and `implied_by` take exactly two arguments. Each call also returns
-a rule value; when that value is embedded in another statement of the same
-program build, the call contributes a template instead of a standalone clause
-(Section 4.6). An ignored or unembedded return value keeps its standalone
-clause.
+The empty list is the atom whose text is `[]`, so `'[]'` denotes the same
+term. A non-empty list has the compound structure exposed by `functor` and
+`univ`: name `'.'`, arity 2, and arguments head and tail. This describes
+term structure, not an alternative written list syntax. A character list
+contains one-character atoms.
 
-Clauses are numbered from 1 in the order they are stated, omitting embedded
-rule calls. Each clause records
-the line of the program on which the statement stating it begins; the facts
-of `facts_from` record the line of that call.
+A non-empty proper list in a goal position denotes conjunction instead
+(Section 4.1). A list inside an ordinary argument remains list data.
 
-`facts_from` is how a program takes in data that is not a program: a document
-of plain expressions, one per line, such as the conclusions, proof or check
-report of another run, or data from a source that is not trusted. The
-document is read as Section 9 describes and is never executed, so it can only
-ever state facts. A data file written as a program instead (`fact(...)`
-statements) would run as JavaScript code.
+### 2.3 Identity and unification
 
-A clause MUST be rejected when:
+Unification is syntactic matching on finite trees. It MUST apply the occurs
+check: binding a variable to a term containing that variable fails. Atoms
+unify when their texts are equal; numbers when they have the same kind and
+value; compounds when their names and arities agree and their arguments
+unify pairwise. Lists unify by their heads and tails.
 
-- a head is not an atom or a compound;
-- a head is `step/4` or `clause/2`, which are reserved for proof documents,
-  or explicitly states `activated/2`, reserved for template activations;
-- a head is a primitive (Section 5.2) or a control (Section 5.1), except the
-  head `'true'` of a query and `'false'` of a contradiction; in particular a
-  conclusion of `implies` is never `'true'` or `'false'`;
-- a body goal is not a variable, an atom or a compound, or is an empty array.
+The floats `0.0` and `-0.0` unify and compare equal, but their canonical
+texts differ, so they are not identical. This distinction also applies
+inside compounds and lists. Asserting a relation between two terms does not
+make the terms identical.
 
-### 4.3 Names a program does not define
+### 2.4 Standard order
 
-A name a program uses without declaring it (with `const`, `let`, `var`,
-`function` or `class`, or by assigning to it) is supplied as follows:
+Terms are totally ordered: variables, numbers, atoms, then compounds.
+Numbers are ordered by value, compared exactly across integers and floats;
+a float precedes an integer of equal value. Atoms are ordered by Unicode
+code point. Compounds are ordered by arity, then name, then arguments from
+left to right. Lists follow their compound structure (Section 2.2).
 
-1. a name the program is given (Section 4.1) has that meaning;
+Variables are ordered by the code points of their names. Fresh variables
+introduced by renaming apart have unspecified names, so programs SHOULD NOT
+depend on their relative order. A lone UTF-16 surrogate is ordered by its
+own code point; a valid surrogate pair denotes one supplementary code point.
+
+## 3. Program Syntax
+
+### 3.1 Scripts
+
+A program consists of one or more non-strict JavaScript scripts. Each script
+may use JavaScript declarations, expressions, functions and control flow to
+construct its clauses. No import is required for the statements and term
+constructors defined here. Clauses are stated in the order their statement
+calls occur; multiple input scripts are processed in input order.
+
+The supplied names are the statements of Section 3.4, `forward`, `backward`,
+`preds`, `vars`, `struct`, the controls and primitives of Section 4, the
+atom `fail`, and the library name `eyemind`. Library operations are outside
+this specification. Other names are resolved as Section 3.2 specifies.
+
+### 3.2 Names
+
+A name a script does not declare or assign is resolved as follows:
+
+1. a supplied name (Section 3.1) has that meaning;
 2. the JavaScript globals `Math`, `JSON`, `BigInt`, `Infinity`, `NaN`,
    `undefined`, `console`, `globalThis`, `parseInt`, `parseFloat`, `isNaN`
    and `isFinite` keep their meaning;
-3. any other name beginning with an uppercase letter or `_` is the variable of
+3. any other name beginning with an ASCII uppercase letter or `_` is the variable of
    that name, so that `Date`, `Map` or `Object` are variables as logic
    programs name them (`globalThis.Date` still reaches the global);
 4. any other name is the predicate of that name: calling it with arguments
@@ -257,163 +238,160 @@ with a lowercase letter: `const [p, q] = preds('p q')` and
 `const [X, Y] = vars('X Y')`, where one name gives the predicate or variable
 itself rather than an array.
 
+`preds` and `vars` take a string of names separated by spaces or commas.
+Each name MUST be an ASCII identifier and MUST NOT be a reserved JavaScript
+word. `preds` MUST also reject control and primitive names and the reserved
+names `step`, `clause`, `activated`, `forward`, `backward`, `struct`,
+`implies` and `implied_by`.
+
 A top-level expression statement that calls a predicate supplied by rule 4,
 such as a misspelled `fcat(p(1))`, states nothing; a loader MUST report it as
 an error rather than ignore it.
 
-### 4.4 Terms in a program
+### 3.3 Term construction
 
-Within a program, a JavaScript string is an atom and a `BigInt` an integer. A
-finite JavaScript number is an integer when it is integral and a float
-otherwise: `2` and `2.0` are both the integer 2, and `float(2)` is the float
-2.0. An integer beyond 2^53 is written as a `BigInt` literal, such as
-`9007199254740993n`, since a number literal would already have rounded it. An
-array is a list, and `[H, ...T]` the list with head `H` and tail `T`.
-`struct('name', A1, ...)` builds a compound with any name, and
-`struct('name')` the atom. Every occurrence of `_` in a clause is a distinct
-variable, an **anonymous variable**: the occurrences are named `_0`, `_1`,
-... in the order of the clause's text, skipping names the clause already
-uses, and clause displays and bindings (Section 10) show these names. A
-program SHOULD NOT name its own variables `_` followed by digits, which
-Section 5.1 treats as anonymous.
+Program expressions construct terms as follows. This is distinct from
+reading a data document (Section 9.1).
 
-In a goal position, an array is the conjunction of its items: a statement's
-goal, the argument of `and`, `or`, `not`, `call` and `once`, and the goal of
-`findall`, and either part of a rule template (Section 4.6). Anywhere else an
-array is a list.
+| Program expression | Term constructed |
+| --- | --- |
+| A JavaScript string, such as `'alice'` | Atom. |
+| A `BigInt` literal, such as `42n` | Exact integer. |
+| An integral finite number, such as `2` or `2.0` | Integer. |
+| A non-integral finite number, such as `0.5` | Float. |
+| `float(N)`, where `N` is a finite JavaScript number | Float, including an integral value or signed zero. |
+| An implicit variable name, such as `X` | Variable (Section 3.2). |
+| `p(T1, ..., Tn)`, with `n >= 1` | Compound named `p`, when `p` is a predicate constructor. |
+| `p` or `p()` | Atom `p`, when `p` is a predicate constructor. |
+| `struct(Name, T1, ..., Tn)` | Compound with the atom name `Name`; `struct(Name)` gives the atom. |
+| `[]`, `[T1, ..., Tn]`, `[Head, ...Tail]` | Lists (Section 2.2). |
 
-Operators do not build terms. Variables, compounds and predicates have no
-JavaScript primitive value, so an operator applied to one, such as `X + 1` or
-`X > 1`, MUST raise an error that says what to write instead: `add(X, 1)`,
-`gt(X, 1)`. An operator applied only to plain JavaScript values is
-JavaScript's own: `3 + 4` is the integer 7, and `1 < 2` is the JavaScript
-`true`, which is not a term, so stating it is an error.
+Thus `2.0` in a program is an integer; use `float(2)` for the float `2.0`.
+Use a `BigInt` literal for an integer outside JavaScript's exact number
+range, for example `9007199254740993n`. Numeric expressions are evaluated by
+JavaScript before conversion to terms.
 
-### 4.5 Stratification
+The first argument of `struct` MUST be a JavaScript string.
 
-A body goal depends on a clause when the goal, renamed apart, unifies with
-one of the clause's heads. The dependency is **closed** when the goal occurs
-inside a negation or as the goal of a collection (Section 5.1), and **open**
-otherwise. Each clause has a rank: the least assignment such that a clause's
-rank is at least the rank of every clause it depends on, plus one for a closed
-dependency. Forward rules run in order of rank (Section 7.2).
+In `[Head, ...Tail]`, a logical variable or compound used as `Tail` supplies
+the tail term, and a JavaScript array supplies its elements. Spreading a
+JavaScript string uses JavaScript's character iteration; it does not supply
+an atom tail. To construct an arbitrary atom or numeric tail in a program,
+use `struct('.', Head, Tail)`. Documents use the bracket-tail syntax for any
+tail term without executing a JavaScript spread.
 
-A program MUST be rejected when:
+Each occurrence of `_` in a clause is a distinct anonymous variable.
+Anonymous occurrences are named `_0`, `_1`, ... in textual order, skipping
+names already used in the clause. Clause displays and proof bindings use
+these names. Programs SHOULD NOT give their own variables names consisting
+of `_` followed by digits, which negation treats as anonymous.
 
-- no such assignment exists ("unstratified negation or collection
-  dependency"), that is, a closed dependency lies on a cycle;
-- a forward rule can reach, through dependencies, a clause with a body goal
-  that is a variable ("forward dependencies require statically named calls").
+Operators do not construct logical terms. An operator applied to a variable,
+compound or predicate constructor, such as `X + 1` or `X > 1`, MUST raise
+an error identifying the term form to write: `add(X, 1)` or `gt(X, 1)`.
+Operators on ordinary JavaScript values keep their JavaScript meaning:
+`3 + 4` gives the integer 7, but `1 < 2` gives a boolean, which is not a term.
 
-Because dependencies compare whole terms, two relations sharing a predicate
-name MAY have different ranks.
+### 3.4 Statements
 
-### 4.6 Inline rule templates
+The basic statement forms are:
 
-Nested `implies(Body, Head)` and `implied_by(Head, Body)` calls construct rule
-templates. A rule value in a conclusion MUST occur as a top-level conjunct of
-an `implies` conclusion; in a body, `implies` and `implied_by` are inspection
-goals (Section 4.7). A rule value anywhere else in a clause, such as an
-argument of an ordinary head or goal, or the template or result of `findall`,
-MUST be rejected. The
-conclusion MAY combine ordinary heads and several templates. Each template's
-body and head MAY themselves be conjunctions, written as arrays. A backward
-template with several heads defines one backward clause per head, sharing
-the same activation and body. Empty and open lists are not goals or heads.
+| Form | Meaning |
+| --- | --- |
+| `fact(T)` | State one fact with head `T` and no body. |
+| `implies(Body, Head)` | State a forward rule. `Body` is a goal or a non-empty array of goals; `Head` is one head or a non-empty array of heads. |
+| `implied_by(Head, Body)` | State a backward rule with one head. `Body` is a goal or a non-empty array of goals. |
+| `query(G)` | Report the successful instances of `G`. An array denotes one conjunction. |
+| `contradiction(G)` | Halt with conclusion `'false'` when `G` succeeds. An array denotes one conjunction. |
+| `facts_from(Path)` | Read a document from a path and state one fact per expression. |
+| `facts_from({text: Text})` | Read a document from a string and state one fact per expression. |
 
-JavaScript evaluates inner calls first. When a statement embeds the rule
-value returned by an earlier call in the same program build, the earlier
-call's standalone registration MUST be removed before clause numbering and
-validation. This applies through arrays, helpers and stored values. A value
-MAY be reused in several generators; none of those uses restores its
-standalone registration. Separate program builds collect their registrations
-independently, even when a rule value is passed between them. Anonymous
-variables are named within each enclosing clause, so anonymous variables of
-the template cannot capture unrelated anonymous variables of the generator.
-
-The pure constructors `forward(Body, Head)` and `backward(Head, Body)` also
-construct templates with the same lowering and scope. They do not themselves
-register clauses.
-
-A template variable is **captured** when it also occurs in the generating
-clause's body or in an ordinary sibling head. The other variables are local
-to that template: they are universally quantified within the generated rule,
-except for head-only variables of a forward template, which receive witnesses
-as Section 7.2 describes. Variables shared only between sibling templates are
-local to each. Every call in a template body, including calls inside controls,
-MUST be statically named; a variable in a term's argument is permitted, but a
-variable used as a goal is not. A forward template MAY conclude further inline
-templates. A backward template MUST NOT conclude templates.
-
-Templates are lowered before validation, indexing and stratification. Starting
-with all stated clauses, in clause order, replace each template conjunct,
-left to right, with `activated(N, Captures)`. `Captures` is a list of its
-captured variables in order of first occurrence in the template as written;
-`N` is the number of the first clause appended for it. Append a forward or
-backward clause as specified by the template, with the activation as its first
-body goal, followed by the template's body goals. A forward template keeps its
-head conjunction; a backward template appends one clause per head in order.
-Continue processing the appended clauses in order, lowering any nested
-templates the same way. Original clause numbers are kept; appended clauses
-are numbered consecutively after them and inherit the generator's source line.
-Capture metadata belongs to each appended clause, including one whose head
-is subsequently lowered again.
-
-For example, `implies(cat(X), implies(dog(Y), test('yes')))` as the only
-stated clause becomes these two clauses:
+`implies` and `implied_by` require exactly two arguments. The variadic forms
+of `fact`, `query` and `contradiction` are also defined:
 
 ```js
-implies(cat(X), activated(2, []))
-implies([activated(2, []), dog(Y)], test('yes'))
+fact(p('a'), p('b'))       // Two facts: fact(p('a')); fact(p('b')).
+query(p(X), q(X))         // One query: query([p(X), q(X)]).
+contradiction(p(X), q(X)) // One conjunction that triggers a contradiction.
 ```
 
-`Y` stays local to the second clause. Its activation is required even though
-the template does not capture `X`. A generator with several solutions but
-identical captures enables the same rule instance. No arbitrary rule term is
-installed during reasoning. All potential generated clauses and their
-activation dependencies participate in Section 4.5, including clauses whose
-generators never fire. A closed dependency cycle MUST therefore be rejected
-even if its template would remain inactive.
+`fact(T1, ..., Tn)` states `n` independent facts in argument order;
+`fact()` states none. `query(G1, ..., Gn)` and
+`contradiction(G1, ..., Gn)` require `n >= 1` and form one conjunctive body,
+not separate queries or contradictions. `query()` and `contradiction()`
+MUST be rejected. For example:
 
-### 4.7 Source rule inspection
+```js
+fact(parent('alice', 'bob'))
+fact(parent('bob', 'carol'))
+implies([parent(X, Y), parent(Y, Z)], grandparent(X, Z))
+query(grandparent(X, Z))
+```
 
-As goals, `implies(Body, Head)` and `implied_by(Head, Body)` match ordinary
-forward and backward source rules respectively. The fixed catalogue contains
-only original `implies` and `implied_by` clauses whose heads contain no rule
-templates and whose bodies contain no inspection goals, including inside
-controls. Facts, queries, contradictions, template generators and appended
-clauses are excluded. Inspecting rules therefore cannot inspect themselves.
-A rule value used as an inspection pattern is embedded in the inspecting
-statement (Section 4.6), so a stored rule value used as a pattern loses its
-standalone clause and is not in the catalogue.
+Queries are forward rules with head `'true'`; contradictions are forward
+rules with head `'false'`. Their reporting and halting behavior is defined
+in Section 8. `implies` and `implied_by` also return rule values. A value
+embedded in another statement contributes a template or inspection pattern
+as Section 6 specifies, instead of a separate clause.
 
-The catalogue keeps source order. A rule's body and forward head conjunctions
-are terms `and(...)`, as normalized goals are, and inspection arguments are
-goal positions. Each attempt freshens the whole rule with one variable map:
-shared variables stay shared, and different attempts are independent. Matching
-can instantiate these variables. Inspection reads the rule's structure; it
-does not solve its body or establish that its head holds.
+`facts_from` input MUST be read using Section 9.1 and MUST NOT be executed.
+It only states facts. A path requires file access; a text string does not.
 
-Free variables supplied by a successful inspection are scoped universal
-pattern variables. Forward conclusions preserve them, including through
-backward derivations and copied collection results. Derived patterns are
-identified up to variable renaming and freshened, together with their evidence,
-at every use. Unrelated unbound variables keep Section 7.2's witness behavior.
-When inspection variables remain free in a conclusion or its captured
-template context, that firing MUST NOT introduce head-only existential
-witnesses: it MUST fail with an error requiring the inspection variables to
-be bound first. Section 11.9 rejects certificates that bypass this boundary.
+### 3.5 Clause constraints and numbering
 
-Inspection uses a fixed source catalogue, so its own results do not depend on
-forward rounds. Other goals using derived patterns still participate in
-stratification. Negation and collection retain their explicit obligations.
+After embedded rule calls have been excluded (Section 6.2), clauses are
+numbered from 1 in statement order. A multi-argument `fact` contributes one
+numbered clause per argument. Each clause records the source line where its
+statement call begins; facts read by `facts_from` use that call's line.
 
-## 5. Goals, Controls and Primitives
+A clause MUST be rejected when:
 
-The program-dependent source inspection goals `implies/2` and `implied_by/2`
-are defined in Section 4.7.
+- a head is not an atom or compound;
+- a head uses `step/4` or `clause/2`, reserved for proof documents, or
+  explicitly states `activated/2`, reserved for template activations;
+- a head is a primitive or control, except the head `'true'` of a query or
+  `'false'` of a contradiction; `implies` MUST NOT conclude either atom;
+- a body goal is neither a variable, atom nor compound, or is an empty or
+  non-proper list in a goal position.
 
-### 5.1 Controls
+Conjunctive bodies are flattened to their ordered goals. Conjunctive forward
+heads retain their order. Only a forward rule may have several heads;
+backward templates with several heads are expanded as Section 6.2 defines.
+Reserved template and inspection forms are permitted only in the positions
+specified in Section 6.
+
+## 4. Goals and Primitives
+
+### 4.1 Goal syntax
+
+A goal is an atom, a compound, a variable to be bound to a callable term,
+or a non-empty proper array of goals denoting their conjunction. A number,
+an empty array or an open or improper list is not a goal.
+
+Array-to-conjunction notation applies in these positions:
+
+- a rule body and each argument of `query` or `contradiction`;
+- each argument of `and`, `or`, `not`, `call` and `once`;
+- the second argument of `findall`;
+- both arguments of a rule template or source inspection pattern.
+
+It also applies to a forward head, where the conjunction means several
+conclusions. Elsewhere an array denotes list data. For example:
+
+```js
+query([p(X), q(X)])       // Conjunction of two goals.
+query(p([X, Y]))          // One goal with a list argument.
+implies(p(X), [q(X), r(X)]) // Two heads.
+```
+
+The control meanings apply in goal contexts. Arithmetic terms with the
+names `and`, `or` and `not` instead have the meanings of Section 5.
+
+Unbound callable variables and forward dependencies are restricted by
+Section 6.1. A goal whose name and arity identify neither a control,
+primitive, inspection form nor any clause head has no solution.
+
+### 4.2 Controls
 
 | Control | Term | Meaning |
 | --- | --- | --- |
@@ -424,17 +402,27 @@ are defined in Section 4.7.
 | `once(G)` | `once(G)` | The first solution of `G`. |
 | `findall(T, G, L)` | `findall(T, G, L)` | Unifies `L` with the list of instances of `T`, one per solution of `G`, in order, each renamed apart. |
 
-A variable is anonymous when its name, up to any `#` a renaming apart
-(Section 7.1) adds, is `_` followed by digits (Section 4.4), or is one a
-reader made for a `_` (Section 9).
+Anonymous variables are `_` occurrences and source variables named `_`
+followed by digits (Section 3.3), including their renamed-apart copies.
 
-Conjunction and disjunction are binary. In a program, `and` and `or` with
-more than two goals build the chain from the left, `and(A, B, C)` being
-`and(and(A, B), C)`, and `or` with one goal is that goal. `not`, `call` and
-`once` with several goals take their conjunction. A goal text (Section 9)
-reads `and` and `or` with more than two arguments the same way.
+The term forms in the table have exactly the displayed arities. In program
+scripts, the following constructors additionally accept goal sequences:
 
-### 5.2 Primitives
+| Constructor | Result |
+| --- | --- |
+| `and(G1, ..., Gn)` | Left-associated conjunction; for `n = 1`, `G1`; for `n = 0`, `'true'`. |
+| `or(G1, ..., Gn)` | Left-associated disjunction; for `n = 1`, `G1`; for `n = 0`, `'fail'`. |
+| `not(G1, ..., Gn)` | `not` of the conjunction, using `'true'` when `n = 0`. |
+| `call(G1, ..., Gn)` | `call` of that conjunction. |
+| `once(G1, ..., Gn)` | `once` of that conjunction. |
+
+For example, `and(A, B, C)` constructs `and(and(A, B), C)` and
+`not(A, B)` constructs `not(and(A, B))`. Document calls to `and` and `or`
+with more than two arguments also denote left-associated chains. Other
+document calls retain their stated name and arity; in particular `not(A, B)`
+in a document is a compound `not/2`, not the unary control.
+
+### 4.3 Primitives
 
 In a flow pattern, `+` marks an argument that MUST be bound when the goal
 runs, `-` one that MUST be unbound, `?` either, and `@` one only inspected. A
@@ -448,7 +436,7 @@ primitive called outside its patterns raises an error.
 | `identical(@X, @Y)` | | `X` and `Y` are identical. |
 | `not_identical(@X, @Y)` | | `X` and `Y` are not identical. |
 | `compare(?O, @X, @Y)` | | Unifies `O` with `'<'`, `'='` or `'>'`, by the standard order. |
-| `is(?V, +E)` | | Evaluates `E` (Section 6) and unifies `V` with the result. |
+| `is(?V, +E)` | | Evaluates `E` (Section 5) and unifies `V` with the result. |
 | `eq(+E1, +E2)`, `ne(+E1, +E2)` | | The values of `E1` and `E2` are equal, or not. |
 | `lt(+E1, +E2)`, `le(+E1, +E2)`, `gt(+E1, +E2)`, `ge(+E1, +E2)` | | Compares the values of `E1` and `E2`. |
 | `is_var(@X)`, `is_nonvar(@X)` | | `X` is an unbound variable, or is not. |
@@ -456,13 +444,13 @@ primitive called outside its patterns raises an error.
 | `is_atom(@X)`, `is_number(@X)` | | `X` is an atom, or a number. |
 | `is_int(@X)`, `is_float(@X)` | | `X` is an integer, or a float. |
 | `is_compound(@X)` | | `X` is a compound; a non-empty list is one. |
-| `functor` | `functor(+T, ?N, ?A)`, `functor(-T, +N, +A)` | Name and arity of `T`, or `T` built with fresh variable arguments. `A` MUST be between 0 and 1024. |
+| `functor` | `functor(+T, ?N, ?A)`, `functor(-T, +N, +A)` | Name and arity of `T`, or `T` built with fresh variable arguments. When constructing, `A` MUST be an integer from 0 to 1024. |
 | `arg` | `arg(+N, +T, ?A)` | `A` is the `N`th argument of `T`, counting from 1. |
 | `univ` | `univ(+T, ?L)`, `univ(-T, +L)` | `L` is the list of `T`'s name and arguments. |
 | `atom_chars` | `atom_chars(+A, ?L)`, `atom_chars(-A, +L)` | `L` is the list of `A`'s characters as atoms. |
 | `atom_codes` | `atom_codes(+A, ?L)`, `atom_codes(-A, +L)` | `L` is the list of `A`'s character code points. |
 | `atom_length` | `atom_length(+A, ?N)` | `N` is the number of characters of `A`. |
-| `number_chars` | `number_chars(?N, +L)`, `number_chars(+N, -L)` | A bound `L` is read as a number: an optional sign and decimal digits give an integer, and with a fraction or an exponent a float, as in `'007'`, `'-21.5'`, `'.5'` and `'1E3'`; other text fails. Otherwise `L` spells `N` in its canonical text (Section 8.1). |
+| `number_chars` | `number_chars(?N, +L)`, `number_chars(+N, -L)` | A bound `L` is read as a number: an optional sign and decimal digits give an integer, and with a fraction or an exponent a float, as in `'007'`, `'-21.5'`, `'.5'` and `'1E3'`; other text fails. Otherwise `L` spells `N` in its canonical text (Section 9.2). |
 | `atom_concat` | `atom_concat(+A, +B, ?AB)`, `atom_concat(?A, ?B, +AB)` | `AB` is `A` followed by `B`; with `AB` given, every split, shortest `A` first. |
 
 A character is a Unicode code point. Every primitive except `atom_concat` has
@@ -471,75 +459,326 @@ their arguments. A primitive given an argument of the wrong kind for its
 patterns raises an error, as `atom_length(123, N)` does; one given arguments
 of the right kinds that has no solution fails, as `arg(5, f(1), A)` does.
 
-A goal whose name and arity are neither a control, a primitive nor the head
-of any clause has no solution.
+All primitives take exactly the displayed number of arguments. `functor`
+and `univ` expose list structure as specified in Section 2.2; use bracket
+syntax when writing lists.
 
-## 6. Arithmetic
+## 5. Arithmetic
 
-An expression term is evaluated as follows:
+### 5.1 Expressions
 
-- a number is its value; the atoms `'pi'`, `'e'` and `'tau'` are π, e and
-  2π; a variable bound to an expression is that expression's value; an
-  unbound variable or any other atom is an error;
-- `add`, `sub`, `mul`, `div`, `floordiv`, `mod`, `pow`, `shl`, `shr` and
-  `xor` with two arguments are addition, subtraction, multiplication, true
-  division, floor division, modulo, power, shifts and exclusive or; `and` and
-  `or` with two arguments are bitwise and and or; `not`, `neg` and `pos` with
-  one argument are bitwise inversion, negation and identity;
-- the functions `abs`, `min`, `max` (with two or more arguments), `round`
-  (with one or two), `int`, `float`, `floor`, `ceil`, `trunc`, `sqrt`,
-  `isqrt`, `exp`, `log` (with one or two: a value and a base), `log2`,
-  `log10`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`,
-  `cosh`, `tanh`, `hypot`, `degrees`, `radians`, `fmod`, `copysign`, `gcd`
-  and `lcm`.
+An arithmetic expression is a number, a variable bound to an expression,
+one of the atoms `'pi'`, `'e'`, `'tau'`, or a function term from Section 5.2.
+The constants denote binary64 approximations of pi, e and twice pi.
+Arguments of a function term are evaluated recursively. An unbound variable,
+an unknown function, an unsupported arity or any other atom is an error.
 
-Integers are exact and unbounded. An operation on integers gives an integer,
-except `div`, which always gives a float, and `pow` with a negative exponent.
-An operation with a float operand gives a float. `floordiv` rounds toward
-negative infinity and `mod` takes the sign of its divisor: `floordiv(-7, 3)`
-is -3 and `mod(-7, 3)` is 2. `div` of two integers is the float nearest to
-their exact quotient. `round` rounds half to even, to an integer with one
-argument and to the given number of decimals with two; `int`, `floor`, `ceil`
-and `trunc` give integers. A float is written as Section 8.1 says.
+Arithmetic is evaluated only where required by a primitive such as `is`,
+`eq` or `lt`. Elsewhere `add(1, 2)` is a compound term, not the number 3.
+Comparisons are goals (Section 4.3), not arithmetic expressions.
 
-Integer true division rounds once, including in the subnormal range: the
-nearest float to `div(1, shl(1, 1074))` is `5e-324`. Halfway cases round to
-even; a result that underflows to zero keeps its sign.
+### 5.2 Functions and arities
+
+The arity column gives the exact accepted number of arguments, or an
+inclusive range. Function names are written as calls, for example
+`add(X, 1)` and `round(X, 2)`.
+
+| Names | Arity | Meaning |
+| --- | --- | --- |
+| `add`, `sub`, `mul` | 2 | Addition, subtraction, multiplication. |
+| `div`, `floordiv`, `mod` | 2 | True division, floor division, floor remainder. |
+| `pow` | 2 | Exponentiation. |
+| `shl`, `shr`, `xor`, `and`, `or` | 2 | Integer shifts and bitwise operations. Shift counts must be nonnegative integers. |
+| `not` | 1 | Integer bitwise inversion. |
+| `neg`, `pos` | 1 | Numeric negation, identity. |
+| `abs` | 1 | Absolute value. |
+| `min`, `max` | 2 or more | Least or greatest argument. |
+| `round` | 1 or 2 | Round half to even, optionally to an integer decimal-place count. |
+| `int`, `trunc`, `floor`, `ceil` | 1 | Integer conversion: toward zero, toward zero, down, up. |
+| `float` | 1 | Conversion to binary64. |
+| `sqrt`, `isqrt` | 1 | Square root as a float; floor square root of a nonnegative integer. |
+| `exp`, `log2`, `log10` | 1 | Exponential, base-2 logarithm, base-10 logarithm. |
+| `log` | 1 or 2 | Natural logarithm, or logarithm with the second argument as base. |
+| `sin`, `cos`, `tan`, `asin`, `acos`, `atan` | 1 | Trigonometric functions and inverses; angles are in radians. |
+| `atan2` | 2 | Angle from its ordinate and abscissa, in that order. |
+| `sinh`, `cosh`, `tanh` | 1 | Hyperbolic functions. |
+| `hypot` | 1 or more | Euclidean norm. |
+| `degrees`, `radians` | 1 | Conversion from radians to degrees, or degrees to radians. |
+| `fmod`, `copysign` | 2 | Float remainder with the dividend's sign; magnitude of the first argument with the second's sign. |
+| `gcd`, `lcm` | 1 or more | Nonnegative integer greatest common divisor or least common multiple. |
+
+A zero-argument call denotes an atom, not a function term; only the three
+constant atoms of Section 5.1 are arithmetic values. A `float(N)` applied
+directly to a JavaScript number in a script constructs a float immediately
+(Section 3.3).
+
+### 5.3 Numeric results
+
+Integer arithmetic is exact and unbounded. Integer operands give an integer
+result except for `div`, a negative exponent in `pow`, and functions defined
+to return a float. Mixed `add`, `sub`, `mul`, `div`, `floordiv`, `mod` and
+`pow` give a float. Integer-conversion functions return integers; `min` and
+`max` return the selected operand with its original kind. No operation
+implicitly makes an integer and a float unify.
+
+`floordiv` rounds down and `mod` has the divisor's sign:
+`floordiv(-7, 3)` is -3 and `mod(-7, 3)` is 2. `div` of integers rounds
+their exact quotient once to the nearest binary64 value, with halfway cases
+rounded to even, including in the subnormal range. Underflow to zero keeps
+the sign. `round(X)` gives an integer; `round(X, Digits)` rounds to the
+specified number of decimal places. Float spelling is defined in Section 9.2.
+
+Numeric comparison is exact across integers and floats. Bitwise operations
+use unbounded two's-complement integers.
+
+### 5.4 Arithmetic errors and limits
 
 An evaluation MUST raise an error, rather than produce a value, on a division
 or modulo by zero, a domain error (such as `sqrt(-1)` or `log(0)`), a bitwise
-operation or `gcd` on a float, when the result is not a finite real number,
+operation, `gcd` or `lcm` on a float, a negative shift count, when the result
+is not a finite real number,
 or when a power or left shift would need more than 2^26 bits: for a power of
 integers `pow(A, B)` with `B > 0` and `abs(A) > 1`, when `B` times the bit
 length of `A` exceeds 2^26; for a shift `shl(A, B)` of integers, when `B`
 exceeds 2^26.
 
-Comparisons are primitives (Section 5.2), not arithmetic functions: `lt` and
-the other comparisons in an expression are an error. Comparison primitives
-compare values exactly, including across integers and floats.
+## 6. Rule Structure
 
-## 7. Reasoning
+### 6.1 Dependencies and stratification
 
-### 7.1 Search
+A body goal depends on a clause when the goal, renamed apart, unifies with
+one of the clause's heads. The dependency is **closed** when the goal occurs
+inside a negation or as the goal of a collection (Section 4.2), and **open**
+otherwise. Each clause has a rank: the least assignment such that a clause's
+rank is at least the rank of every clause it depends on, plus one for a closed
+dependency. Forward rules run in order of rank (Section 8.2).
+
+A program MUST be rejected when:
+
+- no such assignment exists, because a closed dependency lies on a cycle;
+- a forward rule can reach, through dependencies, a clause with a body goal
+  that is a variable.
+
+Because dependencies compare whole terms, two relations sharing a predicate
+name MAY have different ranks.
+
+### 6.2 Inline rule templates
+
+Nested `implies(Body, Head)` and `implied_by(Head, Body)` calls construct rule
+templates. A rule value in a conclusion MUST occur as a top-level conjunct of
+an `implies` conclusion; in a body, `implies` and `implied_by` are inspection
+goals (Section 6.3). A rule value anywhere else in a clause, such as an
+argument of an ordinary head or goal, or the template or result of `findall`,
+MUST be rejected. The conclusion MAY combine ordinary heads and several
+templates. Each template's
+body and head MAY themselves be conjunctions, written as arrays. A backward
+template with several heads defines one backward clause per head, sharing
+the same activation and body. Empty and open lists are not goals or heads.
+
+A rule call embedded in another statement of the same program contributes
+only its rule value, not a standalone clause. This exclusion precedes clause
+numbering and validation. This applies through arrays, helpers and stored
+values. A value MAY be reused in several generators; it contributes no
+standalone clause in that program. Separate programs apply this rule
+independently. Anonymous variables are named within each enclosing clause,
+so a template's anonymous variables cannot capture unrelated anonymous
+variables of the generator.
+
+The pure constructors `forward(Body, Head)` and `backward(Head, Body)` also
+construct templates with the same expansion and scope. They state no clauses
+unless embedded in a generating statement.
+
+A template variable is **captured** when it also occurs in the generating
+clause's body or in an ordinary sibling head. The other variables are local
+to that template: they are universally quantified within the generated rule,
+except for head-only variables of a forward template, which receive witnesses
+as Section 8.2 describes. Variables shared only between sibling templates are
+local to each. Every call in a template body, including calls inside controls,
+MUST be statically named; a variable in a term's argument is permitted, but a
+variable used as a goal is not. A forward template MAY conclude further inline
+templates. A backward template MUST NOT conclude templates.
+
+Template expansion is part of the language and precedes validation and
+stratification. Starting with all stated clauses, in clause order, replace
+each template conjunct,
+left to right, with `activated(N, Captures)`. `Captures` is a list of its
+captured variables in order of first occurrence in the template as written;
+`N` is the number of the first clause appended for it. Append a forward or
+backward clause as specified by the template, with the activation as its first
+body goal, followed by the template's body goals. A forward template keeps its
+head conjunction; a backward template appends one clause per head in order.
+Continue processing the appended clauses in order, lowering any nested
+templates the same way. Original clause numbers are kept; appended clauses
+are numbered consecutively after them and inherit the generator's source line.
+Each appended clause retains its capture list, including when its head
+contains another template.
+
+For example, `implies(cat(X), implies(dog(Y), test('yes')))` as the only
+stated clause gives these expanded clause displays:
+
+```js
+clause(1, implies(cat(X), activated(2, [])))
+clause(2, implies([activated(2, []), dog(Y)], test('yes')))
+```
+
+`Y` stays local to the second clause. Its activation is required even though
+the template does not capture `X`. A generator with several solutions but
+identical captures enables the same rule instance. All potential generated
+clauses and their activation dependencies participate in Section 6.1,
+including clauses whose
+generators never fire. A closed dependency cycle MUST therefore be rejected
+even if its template would remain inactive.
+
+### 6.3 Source rule inspection
+
+As goals, `implies(Body, Head)` and `implied_by(Head, Body)` match ordinary
+forward and backward source rules respectively. The fixed catalogue contains
+only original `implies` and `implied_by` clauses whose heads contain no rule
+templates and whose bodies contain no inspection goals, including inside
+controls. Facts, queries, contradictions, template generators and appended
+clauses are excluded. Inspecting rules therefore cannot inspect themselves.
+A rule value used as an inspection pattern is embedded in the inspecting
+statement (Section 6.2), so a stored rule value used as a pattern loses its
+standalone clause and is not in the catalogue.
+
+The catalogue keeps source order. A rule's body and forward head conjunctions
+are terms `and(...)`, as normalized goals are, and inspection arguments are
+goal positions. Each attempt renames the entire rule apart, preserving
+shared variables. Matching can instantiate these variables. Inspection reads
+the rule's structure; it
+does not solve its body or establish that its head holds.
+
+Free variables supplied by a successful inspection are scoped universal
+pattern variables. Forward conclusions preserve them, including through
+backward derivations and copied collection results. Derived patterns are
+identified up to variable renaming and freshened, together with their evidence,
+at every use. Unrelated unbound variables keep Section 8.2's witness behavior.
+When inspection variables remain free in a conclusion or its captured
+template context, that firing MUST NOT introduce head-only existential
+witnesses: it MUST fail with an error requiring the inspection variables to
+be bound first. Section 11.9 rejects certificates that bypass this boundary.
+
+Inspection uses a fixed source catalogue, so its own results do not depend on
+forward rounds. Other goals using derived patterns still participate in
+stratification. Negation and collection retain their explicit obligations.
+
+## 7. Semantics
+
+### 7.1 Herbrand interpretation
+
+Ordinary predicates have a **Herbrand interpretation**: ground terms denote
+themselves, and predicates relate those terms. The **Herbrand universe**
+contains the finite ground terms of Section 2, including values constructed
+by arithmetic or text operations and Skolem terms. The **Herbrand base** is
+the set of ordinary ground predicate applications over that universe,
+including predicates of arity 0. An interpretation is a subset of the base.
+
+Matching uses Section 2.3's unification, including its signed-zero rule.
+Asserting a relation does not change term identity. Controls, primitives
+and source inspection have the fixed meanings of Sections 4-6.
+
+### 7.2 Variables and witnesses
+
+Variables of facts and backward clauses are universally quantified within
+their clause, except for collection-local variables (Section 4.2).
+`fact(p(X))` states every ground instance of `p(X)`. Resolution may return
+a universal answer containing variables without enumerating its ground
+instances. Template variables have the scope of Section 6.2.
+
+An unbound variable in a forward conclusion instead receives a witness,
+unless it is a scoped inspection variable (Section 6.3). For example,
+`implies(person(X), has_token(X, T))` introduces an existential witness for
+`T`. Section 8.2 determines its Skolem term from the rule and head context,
+including captured template values. Body variables absent from that context
+do not distinguish witnesses; shared head variables share a witness.
+
+This gives the specified Skolemized reading of existential conclusions.
+The original existential rule need not have a least model over its original
+vocabulary. A witness is an ordinary compound in subsequent reasoning; it
+does not imply the existence of a distinct real-world object.
+
+### 7.3 Positive least model
+
+The positive relational fragment consists of ground facts and rules with
+ordinary body calls, conjunction and disjunction, with each head variable
+bound by the body. Primitives may be included when earlier goals supply
+their required inputs and their solutions agree with the ground relation
+under further substitution. This fragment excludes negation, collection,
+`once`, inspection and tests of an unbound variable's current state.
+
+Its meaning is the **least Herbrand model**: the smallest interpretation
+containing the facts and closed under ground rule instances, with matching
+as in Section 7.1. If a body holds, every head of that rule instance holds.
+Existential forward rules extend this reading with the specified witnesses.
+The closure can be infinite.
+
+Forward and backward clauses both express implication in this fragment;
+their directions determine evaluation. A completed ordinary goal search
+returns the goal's instances that hold in the model. The model includes
+source facts and consequences available only by backward search, beyond
+the newly derived facts or selected answers printed by a run.
+
+### 7.4 Negation and collection
+
+For stratified negation, interpret ranks in increasing order, fixing lower
+strata before testing absence at a higher rank (Section 6.1). `not(G)`
+holds when `G` has no solution, with the binding restrictions of Section
+4.2. This is absence relative to the program, not falsity in the world.
+For relational goals this gives the stratified least-model reading.
+
+Collection also waits for its dependencies. `findall` collects ordered
+search solutions, including repeated derivations and nonground instances;
+its meaning is not determined by a set of ground atoms alone. Bindings
+made while solving its goal do not escape except through the copied result
+list. Clause order and duplicate source clauses can affect that list.
+
+### 7.5 Sets and operational behavior
+
+Derived facts and reported answers follow the duplicate-suppression rules
+of Section 8. These rules do not remove alternative search derivations.
+The unrestricted least-model reading alone therefore does not define every
+program's answers. `once` selects the first solution, and tests such as
+`is_var`, `identical` and `not_unify` can observe current bindings:
+
+```js
+fact(q('b'))
+implied_by(p(X), [not_unify(X, 'a'), q(X)])
+```
+
+The goal `p(X)` has no answer because the initial unbound `X` unifies with
+`'a'`, causing `not_unify` to fail. The goal `p('b')` succeeds. Forward
+rules calling such clauses can inherit their dependence on call bindings.
+Section 8 defines the observable goal, clause and result order.
+
+### 7.6 Termination and proof claims
+
+Arithmetic, term construction and witness introduction can generate an
+infinite closure. A finite model does not ensure search termination:
+`implied_by(p(X), p(X))` has an empty least model, but searching `p('a')`
+recurs indefinitely. Exceeding a resource bound raises an error (Section
+8.3). Contradictions halt without completing the closure (Section 8.5).
+A valid proof establishes only its claims subject to its trusted boundaries
+(Section 11.11), not completeness of the model or the answers.
+
+## 8. Evaluation and Conclusions
+
+### 8.1 Goal search
 
 Goals are solved depth-first, left to right. A goal is solved, in order:
 
-1. by a control or primitive (Section 5), when it is one;
+1. by a control, primitive or source inspection (Sections 4 and 6.3), when
+   it is one;
 2. otherwise against the facts derived so far by forward rules with the same
    name and arity, in the order they were derived;
 3. then against the program's facts and backward rules with the same name and
    arity, in clause order, each renamed apart before it is unified with the
    goal; a rule's body is then solved in its place.
 
-Renaming a clause apart gives each of its variables a fresh variable whose
-name is the variable's name followed by `#` and an implementation-specific
-suffix. Such names never appear in the documents a run writes (Section 8.3).
+Each clause attempt MUST rename its variables apart before unification.
 
-An implementation MAY index clauses, provided the order above is kept.
+### 8.2 Forward evaluation and witnesses
 
-### 7.2 Forward reasoning
-
-Forward rules run stratum by stratum, in increasing rank (Section 4.5). Within
+Forward rules run stratum by stratum, in increasing rank (Section 6.1). Within
 a stratum, rounds are repeated until a round adds no new fact. In a round,
 each rule in clause order is renamed apart and its body solved against the
 current state; all solutions of the body are collected first, then each is
@@ -548,7 +787,7 @@ concluded:
 - a head variable the solution leaves unbound is bound to a **Skolem term**
   `skolem(Rule, Variable, Arguments)`: `Rule` is the clause number of the
   rule, `Variable` the name of the head variable the term stands for, as the
-  program writes it (an anonymous one as `_0`, `_1`, ..., Section 4.4), and
+  program writes it (an anonymous one as `_0`, `_1`, ..., Section 3.3), and
   `Arguments` the list of
   the ground values the solution gives the heads' other variables, in order
   of their first occurrence in the heads. A Skolem term is thus a function of
@@ -561,8 +800,8 @@ concluded:
   for, keeps its own name when no other term of the activation has it; the
   others take that name followed by the first of `1`, `2`, ... that is
   free, in order of first occurrence in the heads. A rule that keeps meeting new activations does
-  not terminate (Section 7.3). Derived facts other than scoped inspection
-  patterns (Section 4.7) are therefore ground. A
+  not terminate (Section 8.3). Derived facts other than scoped inspection
+  patterns (Section 6.3) are therefore ground. A
   checker verifies the Skolem terms of a proof (C8, Section 11.9);
 - a head `'true'` reports the instance of the rule's body, as a conjunction,
   once per distinct instance (by identity of canonical text);
@@ -571,22 +810,22 @@ concluded:
 - any other head is added as a derived fact unless an identical fact is
   already derived or is a ground fact of the program.
 
-When the run asks its own goals (Section 7.4), rules whose heads are all
+When the run asks its own goals (Section 8.4), rules whose heads are all
 `'true'` are not run.
 
-For an appended forward clause of Section 4.6, prepend one element to
+For an appended forward clause of Section 6.2, prepend one element to
 `Arguments`: the grounded capture list of its activation. This distinguishes
 witnesses of different captured contexts even when a head does not mention
 those values. An empty capture list still contributes one element, `[]`.
 Original clauses, including generators, use the ordinary witness convention.
 
-Scoped inspection variables of Section 4.7 are preserved instead of receiving
+Scoped inspection variables of Section 6.3 are preserved instead of receiving
 witnesses; derived conclusions may therefore be universal patterns. Each use
 renames a pattern and its evidence apart. Such patterns are suppressed when
 an alpha-equivalent pattern was already derived. Other derived facts keep
 their ordinary ground identity convention.
 
-### 7.3 Bounds
+### 8.3 Resource bounds
 
 A run is bounded by `max_depth`, the depth of nested rule bodies (default
 1000000), by `max_inferences`, the number of goals started (default
@@ -594,21 +833,20 @@ A run is bounded by `max_depth`, the depth of nested rule bodies (default
 Exceeding a bound MUST raise an error; a partial result MUST NOT be returned
 as complete.
 
-Each supplied bound MUST be a positive safe integer, at most
-9007199254740991, so a work counter can represent it exactly.
+Each supplied bound MUST be a positive integer no greater than 9007199254740991.
 
-### 7.4 Goals
+### 8.4 External goals
 
 A run MAY be given goals. After forward reasoning, each goal is solved in
 turn, and each solution is reported as the instance of its goal, unless an
 instance identical up to renaming of its variables was already reported for
 this goal or an earlier one of the same run.
 
-### 7.5 Halting
+### 8.5 Contradictions
 
 A run that concluded `'false'` has halt code 65; otherwise it has none.
 
-### 7.6 Conclusions
+### 8.6 Reported conclusions
 
 The conclusions of a run are, in order:
 
@@ -620,17 +858,17 @@ The conclusions of a run are, in order:
 4. otherwise: every derived fact except template activations, in the order derived.
 
 An explicit goal MAY ask for an activation. Activations remain available as
-premises and proof steps; the library's `inferred` list omits them. The
+premises and proof steps. The
 `derived` statistic counts them as facts added during reasoning.
 
 The output of a run is a comment line saying which of these the conclusions
-are, followed by the canonical text (Section 8) of each conclusion, one per
+are, followed by the canonical text (Section 9) of each conclusion, one per
 line. The comment MUST say when the run halted, when the conclusions answer
 goals, when they answer `query()` rules, or when they are derived facts, and
 MUST say so when there are none. Comments are informative and MAY be worded
-differently; they are ignored when the output is read (Section 9).
+differently; they are ignored when the output is read (Section 9.1).
 
-### 7.7 Proof recording
+### 8.7 Proof generation
 
 When a proof is requested, each solution records how each of its goals was
 justified: by a fact or rule of the program, by a derived fact (whose own
@@ -645,96 +883,128 @@ A goal such as `is_var(X)` followed by `unify(X, 'a')`
 cannot be recorded faithfully by its final substitution, so such a run
 cannot produce a proof.
 
-## 8. Canonical Text
+## 9. Document Syntax and Canonical Text
 
-Every term has exactly one canonical text, which is a JavaScript expression.
+A document is data, not a program. Readers MUST use the syntax below and
+MUST NOT execute any expression. Writers MUST use the canonical forms of
+Sections 9.2-9.4. The grammar is given in Appendix A.
 
-### 8.1 Atoms, numbers, variables and lists
+### 9.1 Accepted document syntax
 
-- An atom is written between single quotes, with `\\`, `\'`, and the
-  characters that need it escaped as `\n`, `\t`, `\r`, `\b`, `\f`, `\v`,
-  `\0`, `\xHH` or `\uHHHH`; `'[]'` is written `[]`.
-- An integer is written in decimal. A float is written as the shortest
-  decimal that reads back as the same value, with at least one digit after
-  the point, in exponent form `1e+22` or `1e-05` when the exponent is below
-  -4 or at least 16: `0.1`, `2.0`, `-0.0`, `1e+22`.
+A document is UTF-8 text containing expression statements. A statement ends
+at a line feed outside brackets, a `;`, or the end of the document. Empty
+statements, comments (`// ...` and `/* ... */`) and indentation are ignored.
+Each term records the line where its expression begins. Writers emit one
+expression per line. Readers accept exactly:
+
+- a string literal between single or double quotes, with the escapes
+  defined below: an atom;
+- a decimal integer literal with optional suffix `n`, or a finite decimal
+  float literal containing a point or exponent: a number;
+- a name: the variable of that name, where each `_` is a new anonymous
+  variable (Section 4.2) and a name starting with `VAR_` is decoded
+  (Section 9.2), with malformed encodings rejected;
+- a call of a plain name: the compound, or the atom when there are no
+  arguments; `struct('name', ...)` as in Section 9.3; `and` and `or` with
+  more than two arguments as in Section 4.2;
+- an array literal: the list, where only the last item MAY be spread
+  (`...Tail`) and then is the tail; `[...T]` is `T`;
+- an object literal `{K: V, ...}` whose keys are names or strings: the list
+  of `struct('=', K, V)` terms, in order;
+- a minus sign applied directly to a numeric literal: the negative number;
+- an expression in parentheses: that expression.
+
+A trailing comma is allowed in a call, an array and an object. All syntax
+outside these forms MUST be rejected, including operators other than a
+numeric minus, property or subscript access, spread call arguments,
+assignments, declarations, functions and template literals. Numeric literals
+MUST be decimal without separators; integers other than `0` MUST NOT start
+with `0`. Reading canonical text MUST recover the original term.
+
+A call's name and opening `(` MUST NOT be separated by a line feed outside
+a comment. The same restriction applies between a numeric minus and its
+literal. Other line feeds inside brackets are layout.
+
+Bare names are variables regardless of case: `alice` in a document is a
+variable; use `'alice'` for an atom. A no-argument call such as `alice()`
+also denotes the atom. `2` and `2n` denote integers, while `2.0` and `2e0`
+denote floats. `float(2)` is a compound expression, not a float literal.
+Array syntax denotes list data; only reading it as a goal applies the
+conjunction rules of Section 4.1.
+
+String escapes are `\\`, `\'`, `\"`, `\n`, `\r`, `\t`, `\b`, `\f`,
+`\v`, `\0` (not followed by a decimal digit), `\xHH`, `\uHHHH` and
+`\u{H...}` with one to six hexadecimal digits denoting a Unicode code point.
+Other escapes and raw line breaks in strings MUST be rejected. Outside
+strings, layout consists of spaces, tabs, carriage returns, line feeds and
+the byte-order-mark character, plus comments. A line feed outside brackets
+ends the current expression statement.
+
+Names use ASCII letters, digits and `_`, beginning with a letter or `_`.
+The following names are reserved, both bare and as call names:
+
+```text
+await break case catch class const continue debugger default delete do else
+enum export extends false finally for function if implements import in
+instanceof interface let new null package private protected public return
+static super switch this throw true try typeof var void while with yield
+undefined NaN Infinity
+```
+
+Object keys may also use these reserved names, since keys denote atom text.
+
+### 9.2 Canonical atoms, numbers, variables and lists
+
+- An atom is single-quoted. Backslash and quote are escaped as `\\` and
+  `\'`; newline, tab, carriage return, backspace, form feed and vertical tab
+  as `\n`, `\t`, `\r`, `\b`, `\f` and `\v`. Other characters in
+  U+0000-U+001F or U+007F-U+009F, U+2028, U+2029 and lone UTF-16
+  surrogates use `\uHHHH` with four lowercase hexadecimal digits. Other
+  characters are written literally. The empty-list atom is written `[]`.
+- An integer is decimal without a suffix, leading zeros or a plus sign.
+  A float uses the shortest significant decimal digits that recover its
+  binary64 value. For decimal exponents from -4 through 15, use fixed-point
+  form with at least one fractional digit, such as `0.1`, `2.0`, `-0.0`.
+  Otherwise use `e`, an explicit exponent sign and at least two exponent
+  digits, such as `1e+22` or `1e-05`.
 - A variable is written as its name when the name is an ASCII identifier
   (letters, digits and `_`, not starting with a digit), not a reserved word
   of JavaScript, not `_` and does not begin with `VAR_`. Any other name is
   written `VAR_` followed by the name with every ASCII letter and digit kept,
   every `_` doubled and every other character `c` replaced by `_hex_` where
-  `hex` is the lowercase hexadecimal code point of `c`. The variable `X#12`
-  is thus written `VAR_X_23_12`. A reader decodes such a name back
-  (Section 9).
+  `hex` is the lowercase hexadecimal code point of `c`. The variable name `A-B`
+  is thus written `VAR_A_2d_B`. A reader decodes such a name back
+  (Section 9.1).
 - A list is written `[I1, I2, ...]`; an open list ends with `, ...Tail`.
 
-### 8.2 Compounds
+### 9.3 Canonical compounds
 
 A compound is written `name(A1, A2, ...)` when its name is an ASCII
 identifier, not a reserved word of JavaScript and not `struct`, and
 `struct('name', A1, ...)` otherwise. Arguments are separated by `, `.
-There are no operators: `add(X, 1)` is written `add(X, 1)`.
 
 A chain of conjunctions or disjunctions built from the left,
 `and(and(A, B), C)`, is written as one call, `and(A, B, C)`. A compound
 `and/N` or `or/N` with more than two arguments is written with `struct`, as
 `struct('and', A, B, C)`.
 
-### 8.3 Variables in written documents
+### 9.4 Variable scope in output
 
 The conclusions a run writes, its proof documents (Section 10) and check
-reports (Section 12) do not show the names variables have inside a run. In
+reports (Section 12) use the following variable names. In
 the conclusions of a run and in a proof document, the variables are named
 `A`, `B`, ..., `Z`, `A1`, ..., `Z1`, `A2`, ... in the order the document
 first shows them, across the whole document, the conclusions written first;
 the clause displays of a proof keep the program's names. A check report
-names the variables of each fact anew (Section 12). The bindings an
-implementation reports for each answer to a goal SHOULD name its variables as
-the answer does.
-
-## 9. Reading Documents
-
-A document is UTF-8 text holding a sequence of JavaScript expression
-statements. A statement ends at the end of its line, unless a bracket is
-still open, or at a `;`; comments (`// ...` and `/* ... */`), blank lines and
-indentation are ignored; each term records the line on which its statement
-begins. The documents eyemind writes hold one statement per line. A reader
-MUST NOT execute the text. It accepts exactly:
-
-- a string literal between single or double quotes, with JavaScript's
-  escapes: the atom; a decimal integer literal, or one with the `BigInt`
-  suffix `n`, or a finite decimal float literal (one with a point or an
-  exponent): the number;
-- a name: the variable of that name, where each `_` is a new anonymous
-  variable (Section 5.1) and a name starting with `VAR_` is decoded
-  (Section 8.1), or rejected when it encodes no name;
-- a call of a plain name: the compound, or the atom when there are no
-  arguments; `struct('name', ...)` as in Section 8.2; `and` and `or` with
-  more than two arguments as in Section 5.1;
-- an array literal: the list, where only the last item MAY be spread
-  (`...Tail`) and then is the tail; `[...T]` is `T`;
-- an object literal `{K: V, ...}` whose keys are names or strings: the list
-  of compounds `'='(K, V)`, in order;
-- a minus sign applied directly to a numeric literal: the negative number;
-- an expression in parentheses: that expression.
-
-A trailing comma is allowed in a call, an array and an object. Anything else
-MUST be rejected: an operator, a property access, a subscript, a call of a
-call, a spread argument, a comma expression, an assignment, a template
-literal, a regular expression, a hexadecimal, octal or binary literal, a
-numeric separator, an integer literal with a leading zero, the names `true`,
-`false`, `null`, `undefined`, `NaN`, `Infinity` and the other reserved words,
-a name containing `$`, an arrow function, a declaration, a raw control
-character other than a tab in a string, and a nonbreaking space outside a
-string. Reading the canonical text of a term MUST give the term back.
+names the variables of each fact anew (Section 12).
 
 ## 10. Proof Documents
 
 ### 10.1 Structure
 
-A proof document is a document (Section 9) holding, in this order:
+A proof document is a document (Section 9.1) holding, in this order:
 
-1. the output of the run (Section 7.6): its comment line, then its
+1. the output of the run (Section 8.6): its comment line, then its
    conclusions, one per line;
 2. an empty line;
 3. when the proof cites any clause, a comment line introducing the clauses,
@@ -752,16 +1022,20 @@ as a claim, whatever its position.
 
 ### 10.2 Clause displays
 
-`Display` shows clause `N` as the program states it: `fact(Head)`,
+`Display` shows clause `N` in normalized statement form: `fact(Head)`,
 `implies(Body, Head)`, `implied_by(Head, Body)`, `query(G1, ...)` or
 `contradiction(G1, ...)`, where `Body` is the clause's one body goal, or the
 array of its body goals when it has several, `Head` likewise the head or the
 array of heads, and `G1, ...` are the body goals themselves. Displays are not
 authority: a checker MUST compare each with the program it checks against.
 
+Each argument of a multi-argument `fact` has its own `fact(Head)` display.
+Conjunctive query and contradiction bodies are displayed as separate goal
+arguments: `query([p(X), q(X)])` has display `query(p(X), q(X))`.
+
 For a program with templates, displays show the deterministically lowered
-clauses of Section 4.6, including activation heads and premises. The program
-supplied to the checker MUST be lowered from the source as Section 4.6
+clauses of Section 6.2, including activation heads and premises. The program
+supplied to the checker MUST be lowered from the source as Section 6.2
 requires; displays cannot authorize extra generated rules. Each use of a
 generated clause requires its activation as the first use, with a justified
 step of its own. All existing checks apply.
@@ -805,7 +1079,7 @@ detail and, where there is one, the term concerned.
 
 ### 11.1 Reading the document
 
-The document MUST read (Section 9); otherwise C3 fails and the document has
+The document MUST read (Section 9.1); otherwise C3 fails and the document has
 no claims and no steps. Each `clause(N, Display)` MUST name a clause of the
 program whose display (Section 10.2) is identical to `Display`; otherwise C1
 fails. Each `step` MUST have bindings that read as a list of `'='/2` pairs,
@@ -826,7 +1100,7 @@ source clause `same(X, X)` cannot justify `same('a', 'b')`.
 
 For a `source(N)` step, `N` MUST identify an eligible source rule of Section
 4.7. Bindings and uses MUST both be empty. The rule's inspection term,
-freshened with one variable map, MUST unify with `Goal` and resolve exactly
+renamed apart, MUST unify with `Goal` and resolve exactly
 to it without instantiating the step's own terms. This checks variable
 sharing as well as the rule's direction and structure. The source rule is
 read as data; its body is not derived by the checker. These steps count as
@@ -891,12 +1165,12 @@ conjuncts of uses.
 
 A forward rule's head MAY contain variables its body does not contain; each
 says that something exists, and a reasoner concludes it with a Skolem term
-(Section 7.2). C1 alone would accept any value for such a variable, since any
+(Section 8.2). C1 alone would accept any value for such a variable, since any
 value gives an instance of the rule, so for a `clause(N)` step citing a
 forward rule, under the substitution of C1, each such variable `V` MUST be
 bound to `skolem(N, Name, Args)`, where:
 
-- `Name` is the name of `V` as the program writes it (Section 7.2);
+- `Name` is the name of `V` as the program writes it (Section 8.2);
 - `Args` is the same for every such variable of the step, and is the list of
   the values of the heads' variables, in order of their first occurrence in
   the heads, that are ground and contain no Skolem term `skolem(N, _, Args)`:
@@ -904,12 +1178,12 @@ bound to `skolem(N, Name, Args)`, where:
 
 When a forward clause has any such variables, its full head under the step's
 substitution MUST be ground. A generic inspection pattern cannot share one
-existential witness across all its instances (Section 4.7).
+existential witness across all its instances (Section 6.3).
 
-For an appended forward clause of Section 4.6, prepend the capture list,
+For an appended forward clause of Section 6.2, prepend the capture list,
 instantiated under the step's substitution, as one element of `Args`, as
-required by Section 7.2. The checker MUST compute this from the source
-template's capture metadata and the substitution, not from the witness term.
+required by Section 8.2. The checker MUST compute this from the source
+template's capture list and the substitution, not from the witness term.
 
 A variable of the head that also occurs in the body is not checked by C8,
 even when the body leaves it unbound; its value comes from the uses, which
@@ -938,7 +1212,7 @@ steps **trusted**.
 A proof is **valid** when no condition failed. A valid proof with trusted
 boundaries is valid *conditional on* them.
 
-### 11.11 What a valid proof establishes
+### 11.11 Scope of a valid proof
 
 A valid proof establishes that each of its claims follows from the program
 by the recorded steps, given its trusted boundaries. It does not establish
@@ -948,7 +1222,7 @@ leave conclusions out, and a run's own proof holds exactly its conclusions.
 
 ## 12. Check Reports
 
-A check report is a document (Section 9) beginning with the proof's claims,
+A check report is a document (Section 9.1) beginning with the proof's claims,
 in proof order, in canonical text, one per line, followed by a blank line and
 the following report facts, one per line:
 
@@ -979,25 +1253,15 @@ order; then for each step, in document order, C4 for its uses and the C1, C3,
 C5 or C8 failure of its justification; C6 for each boundary, in step order;
 C7 for each claim, then for each step; and C2.
 
-`Detail` is a short human-readable text that names what failed, often with
-the canonical text of a term; it is informative, and implementations MAY word
-it differently. eyemind's details are, by condition:
-
-| Condition | Details |
-| --- | --- |
-| C1 | `clause display differs from source`, `unknown clause ...`, `not an instance of source clause N: ...`, `not an instance of inspectable source rule N: ...` |
-| C2 | `cyclic derivation at ...` |
-| C3 | the reader's error, `step bindings must be an object and uses an array`, `duplicate justification for ...`, `invalid builtin justification`, `trusted boundaries cannot have bindings or uses`, `unknown justification ...` |
-| C4 | `unjustified claim ...`, `unjustified use ...` |
-| C5 | `primitive disagrees: ...`, `control step does not follow from its uses: ...`, `trusted boundary forbidden: absent` or `collected` |
-| C6 | `absence contradicted by evidence: ...`, `collected result is not a proper list: ...`, `collection misses ...: ...` |
-| C7 | `claim answers no goal: ...`, `step serves no claim: ...` |
-| C8 | `not the witness of this firing of clause N: ...` |
+`Detail` is informative text identifying what failed; its wording is not
+specified. It MUST NOT affect validity, counts or the condition reported.
 
 The initial answers keep the variable names of the proof. The variables of
 each subsequent report fact are renamed `A`, `B`, ..., `Z`, `A1`, ... in order
-of first occurrence. A report is ordinary data: `facts_from` (Section 4.2)
+of first occurrence. A report is ordinary data: `facts_from` (Section 3.4)
 states it as facts.
+
+### 12.1 JSON form
 
 The JSON form includes `answers`, an array of the initial claims' canonical
 texts, including unverified claims when `valid` is false. It also has `valid` (boolean), `steps`,
@@ -1007,29 +1271,9 @@ texts, including unverified claims when `valid` is false. It also has `valid` (b
 `{condition, detail, conclusion?}`) and `conditions` (a list of
 `{id, name, covered, failed}`), where `conclusion` is a canonical text.
 
-## 13. Unused Clauses
+## 13. Command-Line Interface
 
-A clause is **unused** when no conclusion's recorded derivation cites it,
-unless a negation or collection in the proof could consult it and running the
-program without it changes the conclusions or the halt code, or fails. The clauses a
-negation or collection could consult are those whose heads have the name and
-arity of a goal it reaches through the program's bodies. Running the program
-without a clause leaves every other clause its number (Section 4.2), so the
-Skolem terms of the other rules (Section 7.2) do not change.
-
-Unused clauses are reported one per line, in clause order, as
-`unused(line(L), Display)`, where `L` is the clause's line (Section 4.2) and
-`Display` as in Section 10.2.
-
-"Unused" is relative to the recorded derivations, which are the first ones
-found (Section 7.7). A clause that only offers a second derivation of a
-conclusion, such as a duplicate rule, is unused, though leaving out the
-clause that offers the first one would make it used; leaving out several
-unused clauses together can therefore change the conclusions. A
-`contradiction` rule that never fires changes no conclusion and is unused,
-though it guards the program against data that would make it fire.
-
-## 14. Command Line
+### 13.1 Invocation and options
 
 ```text
 eyemind [OPTION ...] [FILE ...]
@@ -1042,11 +1286,11 @@ eyemind [OPTION ...] [FILE ...]
 | `-c`, `--prove-and-check` | Generate a proof, check the rendered proof against the input program, and print its answers and check report. |
 | `--check-proof FILE` | Check the proof in `FILE` (`-` for standard input) against the program and print its answers and report. |
 | `--json` | With either checking mode, print the report, including `answers`, as JSON. |
-| `--goal GOAL` | Ask `GOAL`, read as in Section 9, where an array is a conjunction; MAY be repeated. With `--check-proof`, the goals the proof answers. |
+| `--goal GOAL` | Ask `GOAL`, read as in Section 9.1, where an array is a conjunction; MAY be repeated. With `--check-proof`, the goals the proof answers. |
 | `--strict-proof` | With either checking mode, forbid trusted boundaries. |
-| `--unused` | Print the unused clauses (Section 13). |
+| `--unused` | Print the unused clauses (Section 13.2). |
 | `--stats` | Print reasoning statistics as JSON to standard error: `inferences`, the goals started, which `--max-inferences` bounds; `rounds`, the forward rounds run over all strata; and `derived`, the facts forward rules added, not counting a conclusion the program states as a fact, a query's answers or `'false'`. |
-| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | The bounds of Section 7.3; `N` MUST be a positive safe integer, at most 9007199254740991. |
+| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | The bounds of Section 8.3; `N` MUST be a positive safe integer, at most 9007199254740991. |
 | `-v`, `--version` | Print the version. |
 | `-h`, `--help` | Print the usage, including every option and its short alias where one exists. |
 
@@ -1063,241 +1307,93 @@ a program, the command line MUST say how to check it instead.
 | 0 | Success, including a check that found the proof valid. |
 | 1 | An error, printed to standard error as `eyemind: message`. |
 | 2 | A check that found the proof not valid; the report is printed as usual. |
-| 65 | The run halted (Section 7.5). |
+| 65 | The run halted (Section 8.5). |
 
-## 15. Security Considerations
+### 13.2 Unused clauses
 
-A **program** is JavaScript code and runs with the privileges of whoever runs
-it; only programs from trusted sources should be run. Reasoning itself calls
-no code of the program: once stated, clauses are terms.
+A clause is **unused** when no conclusion's recorded derivation cites it,
+unless a negation or collection in the proof could consult it and its
+omission changes the conclusions or halt code, or causes an error. The clauses a
+negation or collection could consult are those whose heads have the name and
+arity of a goal it reaches through the program's bodies. Running the program
+without a clause leaves every other clause its number (Section 3.4), so the
+Skolem terms of the other rules (Section 8.2) do not change.
 
-A **document** (conclusions, proofs, reports, `facts_from` input and goals)
-is untrusted data. It MUST NOT be executed. The reader of Section 9 accepts
-literals, names, calls of a plain name and array and object literals, so no
-document can run code, import modules or reach properties. Checking a proof
-from a third party is therefore safe in the sense that it runs none of the
-third party's code.
+Unused clauses are reported one per line, in clause order, as
+`unused(line(L), Display)`, where `L` is the clause's line (Section 3.4) and
+`Display` as in Section 10.2.
 
-Reasoning and checking consume time and memory. The bounds of Section 7.3,
-the limit on powers and shifts in Section 6 and the limit on `functor`
-arities in Section 5.2 bound some of this; a deployment that checks untrusted
-proofs SHOULD additionally bound document size, nesting depth and running
-time.
+"Unused" is relative to the recorded derivations, which are the first ones
+found (Section 8.7). A clause that only offers a second derivation of a
+conclusion, such as a duplicate rule, is unused, though leaving out the
+clause that offers the first one would make it used; leaving out several
+unused clauses together can therefore change the conclusions. A
+`contradiction` rule that never fires changes no conclusion and is unused,
+though it guards the program against data that would make it fire.
 
-A valid proof establishes that its claims follow from the program supplied
-to the checker (Section 11.11). It does not establish that the program is
-correct or that the claims are all its conclusions, and a proof with
-obligations holds only conditional on them.
+## 14. Conformance
 
-## 16. Conformance
+A conforming reasoner MUST implement the program syntax, semantics and
+evaluation of Sections 2-8 and the document and proof formats of Sections
+9-12. It MUST check every proof it generates before returning it. A
+conforming checker MUST implement Sections 9-12 against the supplied
+program, including the clause and template rules of Sections 3 and 6,
+without invoking a reasoner to complete the certificate. The command-line
+interface of Section 13 is a separate conformance requirement.
 
-A conforming **reasoner** implements Sections 3 to 10 with the semantics of
-Section 17, produces conclusions and proof documents in the canonical text,
-and checks every proof
-it produces as Section 11 describes. A conforming **checker** implements
-Sections 9, 11 and 12 and does not depend on a reasoner. For the same
-program, a conforming reasoner and checker MUST produce the same
-conclusions, proof documents and reports as eyemind 0.1.36, byte for byte,
-except for comments and the `Detail` texts of failures (Section 12), the internal names of
-variables where Section 3 says so, and where the host's floating-point
-library functions (`exp`, `log`, the trigonometric and hyperbolic functions,
-`pow` of floats) differ in the last digit.
+Canonical term spelling, conclusion order, proof contents and report counts
+are required as specified. Comment wording and failure `Detail` text are
+informative. Fresh variable names are unspecified where Section 2.4 says
+so. Float results of `exp`, logarithms, trigonometric and hyperbolic
+functions, and `pow` with floats MAY differ in the last decimal digit.
 
-The conformance suite in the repository's `conformance/` directory tests an
-implementation against this document through its command line, case by case,
-each case naming the sections it tests; `conformance/README.md` describes how
-to run it against any implementation. The repository's examples, with their
-saved conclusions (`examples/output/`), proofs (`examples/proof/`) and reports
-(`examples/check/`), test the same on larger programs.
+The conformance cases and saved example documents exercise these
+requirements. They do not replace the definitions in this specification.
 
-## 17. Semantics
+## 15. Security
 
-This section gives the model-theoretic reading of ordinary relations and its
-limits. Section 7 defines the evaluation and output of every accepted program,
-including controls and primitives whose behavior depends on current bindings.
-
-### 17.1 Herbrand interpretation
-
-Ordinary predicates have a **Herbrand interpretation**: they relate terms,
-and ground terms denote themselves. The **Herbrand universe** is the set of
-finite ground terms built from the atoms, integers, finite floats and compound
-constructors of Section 3, including lists and the Skolem terms of Section 7.2.
-It includes values constructed during reasoning, even when they do not occur
-literally in the source. For example, `implies(is(X, add(1, 2)), p(X))`
-concludes `p(3)`.
-
-The **Herbrand base** is the set of ground ordinary predicate applications
-over this universe, including atoms used as predicates of arity 0. A Herbrand
-interpretation is a subset of this base. Controls, primitives and source rule
-inspection have the interpretations of Sections 4.7, 5 and 6; their meaning
-is not supplied by ordinary clauses.
-
-Asserting `equal('a', 'b')` adds a relation between two atoms; it does not make
-them the same term. `unify` performs the finite-tree matching of Section 3,
-and `is` evaluates an arithmetic expression. An ordinary argument such as
-`add(1, 2)` remains a compound until an arithmetic primitive evaluates it.
-Integers and floats remain distinct. Section 3's signed-zero convention also
-applies: `0.0` and `-0.0` unify, although canonical identity distinguishes
-them. Thus matching a ground goal against an interpretation uses unification,
-while storage and output use the identity rules of Section 7.
-
-### 17.2 Variables and witnesses
-
-Variables used only inside a collection's template and goal are local to
-that search (Section 17.4); template variables have the scope of Section 4.6.
-Other variables of a source fact or a backward clause are universally
-quantified within that clause. For example, `fact(p(X))` states every ground
-instance of `p(X)`; a backward clause with a head-only variable likewise leaves that
-variable universal. Resolution uses fresh variables for each clause attempt
-and MAY return an answer containing variables. It does not enumerate all
-ground instances of a universal answer.
-
-A forward rule instead introduces a witness for each head variable left
-unbound by a body solution, except for scoped inspection variables
-(Section 4.7). A head-only variable has an existential reading: for each
-successful body instance there exists a value making the heads hold. For
-example, `implies(person(X), has_token(X, T))` supplies a witness for `T`.
-Section 7.2 chooses the deterministic Skolem term for it. Witnesses depend
-on the rule number and the resolved head context, including captures for an
-appended template clause; body variables absent from that context do not
-distinguish witnesses. Shared variables in several heads share one witness.
-
-This is a specified Skolemized interpretation of existential conclusions.
-It does not claim that the original existential rule has a least model over
-its original vocabulary, or that its witnesses denote different real-world
-objects. A witness is an ordinary compound term in subsequent reasoning.
-Inline templates first become the fixed clauses and activation predicates
-of Section 4.6. Source inspection reads its fixed catalogue and can supply
-universal patterns; it does not assert the inspected rule's head.
-
-### 17.3 Positive least model
-
-Consider the positive relational fragment: ground facts and rules whose
-bodies contain ordinary calls and conjunction or disjunction, with every
-head variable bound by the body. There is no negation, collection, `once`,
-source inspection or test of an unbound variable's current state. Primitives
-MAY be included when earlier goals supply their required inputs and their
-solutions agree with their ground interpretation under further substitution.
-
-For this fragment, a ground instance of a rule's body holding requires its
-head, or every head of a conjunction, to hold. The meaning is the **least
-Herbrand model**: the smallest interpretation containing the source facts
-and closed under the rules, with matching as in Section 17.1 and primitives
-interpreted as specified. Equivalently, start with the facts and repeatedly
-add the heads of satisfied rule instances until no new ground atom follows;
-the closure can be infinite. Existential forward rules extend this reading
-with the specified Skolem witnesses rather than arbitrary witness choices.
-
-Forward and backward clauses express implication in this fragment. Their
-directions determine how consequences are obtained: forward rules store
-derived facts, while backward rules are searched on demand. A completed
-search for an ordinary goal returns its instances that hold in the model.
-The model includes source facts and consequences available only by backward
-search; it is not just the list of materialized facts or printed conclusions
-(Section 7.6).
-
-For example, `fact(human('socrates'))` and
-`implies(human(X), mortal(X))` give a model containing
-`human('socrates')` and `mortal('socrates')`. With no query or explicit goal,
-only the newly derived `mortal('socrates')` is printed.
-
-### 17.4 Negation and collection
-
-Negation and collection use the completed dependencies required by the clause
-ranks of Section 4.5. The strata are interpreted in increasing order, with
-lower strata fixed before a higher stratum uses their absence or solutions.
-Dependencies compare whole terms, so a stratum need not contain every clause
-with the same predicate name and arity.
-
-`not(G)` succeeds when searching `G` has no solution. Named variables must
-already be bound; anonymous variables stand for any value. Thus
-`not(p('a', _))` requires that no `p('a', T)` succeeds for any `T`.
-This is absence relative to the program's completed dependencies, not a
-claim that the relation is false in the world. For goals in the relational
-fragment, this gives the stratified least-model reading; a goal containing
-binding-sensitive controls or tests retains their operational meaning.
-
-`findall(T, G, L)` collects the search solutions of `G`, in order, including
-repeated derivations, and copies each instance of `T` with fresh variables.
-Bindings made inside the search do not escape except through the resulting
-list. An empty search gives `[]`. This ordered collection of solutions is
-not determined by a set of ground atoms alone: duplicate source clauses,
-alternative derivations and clause order can affect its result even when
-they leave that set unchanged.
-
-### 17.5 Sets, solutions and operational behavior
-
-Ground forward conclusions are stored once by canonical identity, including
-comparison with ground source facts. Scoped inspection patterns are stored
-once up to variable renaming. Reported goal answers are also suppressed up
-to variable renaming; query-rule reports follow Section 7.2. These rules do
-not remove alternative derivations during backward search, so a `findall`
-can contain the same term more than once. Nonground answers and inspection
-patterns represent universally scoped terms, not existential witnesses.
-
-The unrestricted least-model reading does not specify every accepted
-program's answers. `once` selects the first solution. `is_var`, `identical`,
-`not_unify` and other tests can observe current bindings, and primitives can
-require inputs that a ground rule instance alone would supply. For example:
-
-```js
-fact(q('b'))
-implied_by(p(X), [not_unify(X, 'a'), q(X)])
-```
-
-An explicit goal `p(X)` has no answer: the initial unbound `X` unifies with
-`'a'`, so `not_unify` fails. The goal `p('b')` succeeds. A forward rule that
-calls such a backward rule can inherit this dependence on call bindings.
-Section 7's goal order and search strategy therefore remain part of the
-meaning of these programs. Output order, first proofs and witness spellings
-can also depend on clause order even in programs whose relational answer
-sets agree.
-
-### 17.6 Termination and proofs
-
-A least model need not be finite. Arithmetic, term construction and repeated
-witness introduction can generate infinitely many facts. A finite model
-does not ensure that depth-first backward search terminates: for example,
-`implied_by(p(X), p(X))` has an empty least model but searching `p('a')`
-keeps recurring. Backward search is not tabled. Successful completion without
-a contradiction requires terminating searches and forward rounds that reach
-a fixed point within Section 7.3's bounds. Exceeding a bound raises an error
-rather than certifying completion.
-A contradiction halts immediately as Section 7.5 specifies, so its output
-does not claim a completed closure, and it does not entail arbitrary terms.
-
-A valid proof certifies its recorded claims subject to any trusted absence
-or collection boundaries (Section 11.11). It does not certify that the
-entire least model was computed, that all answers were returned, or that no
-contradiction follows.
-
----
+Programs execute JavaScript and require the caller's trust. Documents,
+including proofs, reports, goals and `facts_from` input, MUST be read as data
+without executing code. A deployment accepting untrusted documents SHOULD
+bound their size, nesting depth, processing time and memory, in addition to
+the reasoning bounds of Section 8.3. A valid proof establishes only the
+claims and assumptions described in Section 11.11.
 
 ## Appendix A. Document Grammar
 
-The documents of Sections 9 to 12 use this subset of JavaScript's expression
-grammar, in the ABNF style of RFC 5234, with spaces, tabs and comments
-between tokens allowed, and line breaks too inside brackets.
+This grammar defines document expressions. Quoted strings are literal
+tokens; `|` gives alternatives, `[ ... ]` an optional part, `{ ... }`
+repetition, parentheses grouping, and `? ... ?` a lexical class defined in
+prose. String literals, reserved names and
+layout follow Section 9.1. Line feeds inside brackets are layout; outside
+brackets they separate statements.
 
-```abnf
-document    = *( line LF ) [ line ]
-line        = [ expression *( ";" expression ) [ ";" ] ]
-expression  = string / number / "-" number / name / call / array / object
-            / "(" expression ")"
-call        = name "(" [ expression *( "," expression ) [ "," ] ] ")"
-array       = "[" [ items ] "]"
-items       = expression *( "," expression ) [ "," "..." expression ] [ "," ]
-            / "..." expression [ "," ]
-object      = "{" [ pair *( "," pair ) [ "," ] ] "}"
-pair        = ( name / string ) ":" expression
-string      = "'" *<character or escape> "'" / DQUOTE *<character or escape> DQUOTE
-number      = 1*DIGIT [ "n" ] / float
-float       = ( 1*DIGIT "." *DIGIT / "." 1*DIGIT ) [ exponent ] / 1*DIGIT exponent
-exponent    = ( "e" / "E" ) [ "+" / "-" ] 1*DIGIT
-name        = ( ALPHA / "_" ) *( ALPHA / DIGIT / "_" )   ; not a reserved word
+```ebnf
+document   = { separator | expression separator }, [ expression ] ;
+separator  = ";" | LF ;
+expression = string | number | "-", number | name | call | array | object
+           | "(", expression, ")" ;
+call       = name, "(", [ arguments ], ")" ;
+arguments  = expression, { ",", expression }, [ "," ] ;
+array      = "[", [ items ], "]" ;
+items      = expression, { ",", expression }, [ ",", "...", expression ], [ "," ]
+           | "...", expression, [ "," ] ;
+object     = "{", [ pair, { ",", pair }, [ "," ] ], "}" ;
+pair       = ( identifier | string ), ":", expression ;
+number     = integer, [ "n" ] | float ;
+integer    = "0" | nonzero, { digit } ;
+float      = ( digits, ".", { digit } | ".", digits ), [ exponent ]
+           | digits, exponent ;
+exponent   = ( "e" | "E" ), [ "+" | "-" ], digits ;
+digits     = digit, { digit } ;
+digit      = "0" | nonzero ;
+nonzero    = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+identifier = ( letter | "_" ), { letter | digit | "_" } ;
+letter     = ? ASCII letter A-Z or a-z ? ;
+name       = ? identifier excluding the reserved names of Section 9.1 ? ;
+string     = ? quoted string literal as defined in Section 9.1 ? ;
+LF         = ? U+000A line feed ? ;
 ```
-
-An integer literal other than `0` MUST NOT begin with `0`.
 
 ## Appendix B. Example
 
