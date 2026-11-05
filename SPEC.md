@@ -52,6 +52,7 @@ disagree, that is a defect in one of them.
     4. [Negation and collection](#174-negation-and-collection)
     5. [Sets, solutions and operational behavior](#175-sets-solutions-and-operational-behavior)
     6. [Termination and proofs](#176-termination-and-proofs)
+
 - [Appendix A. Document Grammar](#appendix-a-document-grammar)
 - [Appendix B. Example](#appendix-b-example)
 
