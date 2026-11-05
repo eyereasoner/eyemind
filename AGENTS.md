@@ -119,10 +119,10 @@ forges proofs at random and catches a checker with C1, C2, C4, C5 or C8
 switched off; after changing the checker, run it with a larger
 `EYEMIND_PROPERTY_SCALE`.
 
-eyemind is the JavaScript sibling of peye (Python); eyeron, eyeling and eyepl
+eyemind is the JavaScript sibling of eyekind (Python); eyeron, eyeling and eyepl
 belong to the same family. A behavior fixed in one usually belongs in the
 others. Floats from the host's math library (`exp`, `log`, trigonometry) may
-differ from peye's in the last digit, as SPEC Section 16 allows.
+differ from eyekind's in the last digit, as SPEC Section 16 allows.
 
 Run focused tests while working, then the full suite before finishing code
 changes. Add a regression test for each behavior change, in the style of the
