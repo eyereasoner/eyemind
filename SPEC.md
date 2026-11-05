@@ -1099,7 +1099,7 @@ use. A step's own terms MUST NOT need further instantiation to match: a
 source clause `same(X, X)` cannot justify `same('a', 'b')`.
 
 For a `source(N)` step, `N` MUST identify an eligible source rule of Section
-4.7. Bindings and uses MUST both be empty. The rule's inspection term,
+6.3. Bindings and uses MUST both be empty. The rule's inspection term,
 renamed apart, MUST unify with `Goal` and resolve exactly
 to it without instantiating the step's own terms. This checks variable
 sharing as well as the rule's direction and structure. The source rule is
