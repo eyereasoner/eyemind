@@ -128,7 +128,8 @@ query(item(X))`);
       throwsMatching(() => program(`implies('true', implies(${body}, q(X)))`), /generated rule goal|empty array|open list/);
     }
     for (const head of ['[]', '[p(X), ...T]']) {
-      throwsMatching(() => program(`implies('true', implies(p(X), ${head}))`), /generated rule conclusion/);
+      throwsMatching(() => program(`implies('true', implies(p(X), ${head}))`),
+        head === '[]' ? /an empty array is not a goal/ : /an open list is not a goal/);
     }
     throwsMatching(() => program("fact(activated(1, []))"), /reserved for generated rules/);
     throwsMatching(() => program("preds('forward')"), /reserved name/);

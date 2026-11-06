@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>The eyemind Playground</title>
+    <link rel="icon" href="../assets/eye.png" type="image/png" />
+    <style>
+      * { box-sizing: border-box; }
+      :root { color-scheme: light; --bg: #f5f5f7; --panel: #fff; --border: #d1d5db; --text: #111827; --muted: #6b7280; --accent: #2563eb; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      input, select, button { font: inherit; }
+      button, select, input[type="text"], input[type="url"], input[type="number"] { min-height: 40px; border-radius: 0.5rem; }
+      button { cursor: pointer; border: 0; padding: 0.5rem 0.85rem; background: var(--accent); color: #fff; font-weight: 600; }
+      button.secondary { background: #e5e7eb; color: var(--text); }
+      button:disabled { cursor: default; opacity: 0.5; }
+      button:hover:not(:disabled) { filter: brightness(0.95); }
+      input[type="text"], input[type="url"], input[type="number"], select { min-width: 0; border: 1px solid var(--border); padding: 0.45rem 0.6rem; background: var(--panel); color: var(--text); }
+      :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      [hidden] { display: none !important; }
+      .page { max-width: 1500px; margin: 0 auto; padding: calc(1.5rem + env(safe-area-inset-top)) calc(1rem + env(safe-area-inset-right)) calc(2rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left)); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "nav nav" "heading options" "actions options" "input output"; align-items: start; gap: 1rem; }
+      header { grid-area: heading; display: flex; align-items: center; gap: 1rem; text-align: left; }
+      header .logo { display: block; flex: none; border-radius: 50%; }
+      header .header-copy { min-width: 0; }
+      header h1 { margin: 0; font-size: 1.9rem; font-weight: 650; letter-spacing: -0.02em; }
+      header p { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.92rem; line-height: 1.55; }
+      header a { color: var(--accent); }
+      .site-nav { grid-area: nav; justify-self: end; display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; font-size: 0.82rem; font-weight: 650; }
+      .site-nav a { color: inherit; text-underline-offset: 4px; }
+      .site-nav [aria-current="page"] { text-decoration-thickness: 2px; }
+      .card { min-width: 0; padding: 1rem 1.25rem; border: 1px solid #e5e7eb; border-radius: 0.85rem; background: var(--panel); }
+      h2, legend { margin: 0 0 0.75rem; padding: 0; font-size: 1rem; font-weight: 650; }
+      .row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
+      .row + .row { margin-top: 0.75rem; }
+      .grow { flex: 1 1 12rem; }
+      .field { display: grid; gap: 0.3rem; }
+      .field > span, .field > label { font-size: 0.85rem; font-weight: 600; }
+      .options-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.5rem 0.75rem; }
+      .output-mode { grid-column: 1 / -1; display: flex; align-items: center; gap: 0.75rem; }
+      .output-mode select { flex: 1; }
+      .wide { grid-column: 1 / -1; }
+      .flags { gap: 0.8rem 1.5rem; }
+      .toggle { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; }
+      .toggle input { width: 1rem; height: 1rem; accent-color: var(--accent); }
+      .hint, .status { color: var(--muted); font-size: 0.84rem; line-height: 1.5; }
+      .hint { margin: 0.65rem 0 0; }
+      .command { margin: 0.5rem 0 0; max-height: 5rem; padding: 0.45rem 0.6rem; background: #f9fafb; border-radius: 0.5rem; overflow: auto; overflow-wrap: anywhere; white-space: pre-wrap; font-size: 0.8rem; }
+      .grid { display: contents; }
+      .input-card { grid-area: input; }
+      .options-card { grid-area: options; align-self: stretch; padding: 0.85rem 1rem; }
+      .options-card h2 { margin-bottom: 0.5rem; }
+      .options-card .flags { margin-top: 0.5rem; gap: 0.25rem 1rem; }
+      .options-card .toggle { min-height: 32px; }
+      .options-card input[type="text"], .options-card input[type="number"], .options-card select { min-height: 34px; padding: 0.35rem 0.5rem; font-size: 0.9rem; }
+      .output-card { grid-area: output; }
+      .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 0.65rem; margin-bottom: 0.75rem; }
+      .panel-heading h2 { margin: 0; }
+      .example-select { flex: 0 1 20rem; }
+      .input-source { margin: 0 0 0.5rem; color: var(--muted); font-size: 0.82rem; overflow-wrap: anywhere; }
+      .additional-input { margin-top: 1rem; }
+      .additional-input h3 { margin: 0 0 0.5rem; font-size: 0.9rem; }
+      .url-row { margin-bottom: 0.75rem; }
+      .url-row input { flex: 1 1 14rem; }
+      .proof-input { margin-top: 1rem; }
+      .share-result { flex: 1 1 100%; min-width: 0; }
+      .share-result input { width: 100%; }
+      /* An editor is a transparent textarea over a colored copy of its text.
+         Both share one grid cell, font, and wrapping, so the caret and the
+         colors stay aligned; the layer changes colors only, never weight or
+         slant, which would move the text under the caret. */
+      .editor { position: relative; display: grid; min-height: 32rem; border: 1px solid var(--border); border-radius: 0.5rem; background: var(--panel); }
+      .editor > textarea, .editor > .highlight { grid-area: 1 / 1; min-height: 100%; margin: 0; padding: 0.5rem 0.65rem; border: 0; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.87rem; line-height: 1.45; tab-size: 4; white-space: pre-wrap; overflow-wrap: anywhere; }
+      .editor > textarea { overflow: hidden; resize: none; background: transparent; color: transparent; caret-color: var(--text); }
+      .editor > textarea::selection { color: transparent; background: #22bde747; }
+      .editor > textarea:focus-visible { outline: none; }
+      .editor:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+      .editor > .highlight { pointer-events: none; color: var(--text); }
+      /* The line an error names: a red bar behind it, the full width of the
+         editor and as tall as the line wraps, placed from the marked text. */
+      .editor > textarea, .editor > .highlight { position: relative; z-index: 1; }
+      .editor > .error-bar { position: absolute; left: 0; right: 0; z-index: 0; background: #fee2e2; box-shadow: inset 3px 0 0 #dc2626; pointer-events: none; }
+      .editor > .highlight mark.error-line { background: transparent; color: inherit; }
+      #proof-panel .editor { min-height: 15rem; }
+      .additional-input .editor { min-height: 18rem; }
+      .output-card .editor { min-height: 24rem; }
+      .t-comment { color: var(--muted); }
+      .t-keyword { color: #b3261e; }
+      .t-var { color: #0b6f8c; }
+      .t-blank { color: #a0469b; }
+      .t-string { color: #2b7a2f; }
+      .t-iri { color: #6c3fb5; }
+      .t-number { color: #9a5200; }
+      .t-brace { color: var(--accent); }
+      .t-punct { color: var(--muted); }
+      .messages { margin: 0.85rem 0 0; max-height: 18rem; padding: 0.75rem; border-radius: 0.5rem; background: #fef2f2; color: #991b1b; font-size: 0.82rem; line-height: 1.45; white-space: pre-wrap; overflow: auto; overflow-wrap: anywhere; }
+      .run-toolbar { grid-area: actions; align-self: stretch; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; align-content: start; flex-wrap: wrap; gap: 0.6rem 1.25rem; box-shadow: 0 3px 8px #1118270a; }
+      .run-toolbar .status { flex: 1 1 12rem; min-width: 0; margin: 0; overflow-wrap: anywhere; }
+      .run-toolbar #share-status { flex-basis: 100%; }
+      .actions button { color: var(--text); }
+      #run { background: #48e654; }
+      #stop { background: #ff472f; }
+      #share-link { background: #22bde7; }
+      #create-gist-share { background: #fcfa44; }
+      .error { color: #b91c1c; }
+      .ok { color: #047857; }
+      @media (max-width: 980px) { .page { grid-template-columns: minmax(0, 1fr); grid-template-areas: "nav" "heading" "actions" "input" "options" "output"; } }
+      @media (max-width: 640px) {
+        header { align-items: flex-start; gap: 0.75rem; }
+        .site-nav { justify-self: start; }
+        header .logo { width: 48px; height: 48px; }
+        .card { padding: 1rem; }
+        .page { padding-top: calc(1rem + env(safe-area-inset-top)); }
+        header h1 { font-size: 1.5rem; }
+        .run-toolbar { padding-top: calc(0.75rem + env(safe-area-inset-top)); padding-bottom: 0.75rem; }
+        .actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; width: 100%; }
+        .actions button { padding-inline: 0.5rem; font-size: 0.94rem; white-space: normal; }
+        .run-toolbar .status { flex-basis: 100%; }
+        .options-fields { gap: 0.75rem; }
+        .options-fields .field > span { overflow-wrap: anywhere; }
+        .panel-heading { flex-wrap: wrap; }
+        .example-select { flex: 1 1 100%; }
+        .url-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+        button, select, input[type="text"], input[type="url"], input[type="number"] { min-height: 44px; font-size: 16px; }
+        .options-card input[type="text"], .options-card input[type="number"], .options-card select { min-height: 44px; font-size: 16px; }
+        .options-card .toggle { min-height: 44px; }
+        .toggle { min-height: 44px; }
+        .flags { gap: 0 1rem; }
+        .editor { min-height: 22rem; min-height: clamp(16rem, 50svh, 28rem); }
+        .editor > textarea, .editor > .highlight { font-size: 16px; }
+        .additional-input .editor, #proof-panel .editor { min-height: 16rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <nav class="site-nav" aria-label="Project">
+        <a href="../GUIDE">Guide</a>
+        <a href="./" aria-current="page">Playground</a>
+        <a href="../SPEC">Specification</a>
+        <a href="conformance">Conformance</a>
+        <a href="https://github.com/eyereasoner/eyemind">Repository ↗</a>
+      </nav>
+      <header>
+        <img class="logo" src="../assets/eye.png" alt="" width="64" height="64">
+        <div class="header-copy">
+          <h1>The eyemind Playground</h1>
+          <p>Write rules in JavaScript or try an example with eyemind.</p>
+          <p class="hint">Version <strong id="version">…</strong></p>
+        </div>
+      </header>
+
+      <section class="card run-toolbar" aria-label="Run and share controls">
+        <div class="row actions">
+          <button id="run" type="button" disabled>Run</button>
+          <button id="stop" type="button" disabled>Stop</button>
+          <button id="share-link" type="button" title="Copy a link containing the current inputs, proof, and options.">Share link</button>
+          <button id="create-gist-share" type="button" title="Upload the current inputs, proof, and options to an unlisted GitHub Gist and copy a short link.">Create Gist share</button>
+        </div>
+        <p id="status" class="status" role="status">Loading eyemind…</p>
+        <p id="share-status" class="status" role="status" hidden></p>
+        <label id="share-result" class="field share-result" hidden><span>Share link</span><input id="share-url" type="text" readonly spellcheck="false" /></label>
+      </section>
+
+      <div class="grid">
+        <div class="card input-card">
+          <div class="panel-heading">
+            <h2>Input</h2>
+            <select id="examples" class="example-select" aria-label="Load a bundled example"><option value="">Load an example…</option></select>
+          </div>
+          <form id="input-url-form" class="row url-row">
+            <input id="input-url" type="url" placeholder="https://example.org/program.js" aria-label="Input URL" autocomplete="url" autocapitalize="off" spellcheck="false" required />
+            <button id="load-url" class="secondary" type="submit">Load URL</button>
+          </form>
+          <p id="input-source" class="input-source" hidden></p>
+          <textarea id="input" spellcheck="false" aria-label="Input text"></textarea>
+          <p id="example-description" class="hint" hidden></p>
+          <p class="hint">Edit the program above, choose an example, or load a URL. Loading replaces the input.</p>
+          <section id="proof-panel" class="proof-input" aria-labelledby="proof-heading" hidden>
+            <h2 id="proof-heading">Proof to check</h2>
+            <form id="proof-url-form" class="row url-row"><input id="proof-url" type="url" placeholder="https://example.org/proof.js" aria-label="Proof URL" autocapitalize="off" spellcheck="false" required /><button id="load-proof-url" class="secondary" type="submit">Load URL</button></form>
+            <textarea id="proof-input" spellcheck="false" aria-label="Saved proof"></textarea>
+          </section>
+        </div>
+        <section class="card options-card" aria-labelledby="options-heading">
+          <h2 id="options-heading">Options</h2>
+          <div class="options-fields">
+            <label class="field output-mode" for="mode"><span>Output</span>
+              <select id="mode">
+                <option value="">Conclusions (default)</option>
+                <option value="--proof">--proof · Proof document</option>
+                <option value="--prove-and-check">--prove-and-check · Checked answers</option>
+                <option value="--check-proof">--check-proof FILE · Check a saved proof</option>
+                <option value="--unused">--unused · Clauses that make no difference</option>
+              </select>
+            </label>
+            <label class="field wide" for="goal"><span>--goal GOAL</span><input id="goal" type="text" placeholder="Ask a goal, such as type(X, 'mortal')" spellcheck="false" autocapitalize="off" /></label>
+            <label class="field" for="max-depth"><span>--max-depth N</span><input id="max-depth" type="number" min="1" step="1" placeholder="1000000 (default)" /></label>
+            <label class="field" for="max-inferences"><span>--max-inferences N</span><input id="max-inferences" type="number" min="1" step="1" placeholder="1000000 (default)" /></label>
+          </div>
+          <div class="row flags">
+            <label class="toggle" title="With either checking mode, reject proofs that rely on absence or collection"><input id="strict-proof" type="checkbox" /><span><code>--strict-proof</code></span></label>
+            <label class="toggle" title="With either checking mode, print the report as JSON"><input id="json" type="checkbox" /><span><code>--json</code></span></label>
+            <label class="toggle" title="Print reasoning statistics"><input id="stats" type="checkbox" /><span><code>--stats</code></span></label>
+          </div>
+          <pre class="command" aria-label="Equivalent command"><code id="command">eyemind -</code></pre>
+        </section>
+        <div class="card output-card">
+          <div class="panel-heading"><h2>Output</h2><button id="save-output" class="secondary" type="button" disabled>Save output</button></div>
+          <textarea id="output" spellcheck="false" aria-label="Command output"></textarea>
+          <pre id="messages" class="messages" aria-label="Command messages" hidden></pre>
+        </div>
+      </div>
+    </main>
+    <script type="module">
+      const projectRoot = new URL('../', location.href);
+      const byId = (id) => document.getElementById(id);
+      // One pass over a program or document: comments, strings, numbers,
+      // variables (capitalized or _ names), the statements and controls,
+      // JavaScript keywords, predicate names, brackets, and punctuation.
+      const jsTokens = new RegExp([
+        /(?<comment>\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$))/,
+        /(?<string>'(?:[^'\\\n]|\\.)*'?|"(?:[^"\\\n]|\\.)*"?|`(?:[^`\\]|\\.)*`?)/,
+        /(?<number>\b(?:\d+n|(?:\d+\.\d*|\.\d+|\d+)(?:[eE][+-]?\d+)?)\b)/,
+        /(?<variable>\b[A-Z_][A-Za-z0-9_]*\b)/,
+        /(?<keyword>\b(?:fact|implies|implied_by|query|contradiction|facts_from|preds|vars|struct|and|or|not|call|once|findall|for|let|const|var|function|return|if|else|of|in|new)\b)/,
+        /(?<name>\b[a-z$][A-Za-z0-9_$]*\b)/,
+        /(?<brace>[[\]{}])/,
+        /(?<punct>[(),;.]|\.\.\.)/,
+      ].map((part) => part.source).join('|'), 'g');
+      const tokenClasses = { comment: 't-comment', string: 't-string', number: 't-number', variable: 't-var',
+        keyword: 't-keyword', name: 't-iri', brace: 't-brace', punct: 't-punct' };
+      // Coloring a very large document would stall typing; it is shown plain.
+      const maxHighlighted = 200000;
+
+      function escapeHtml(text) {
+        return text.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+      }
+
+      /** Programs, proofs and reports share one lexical coloring. The text
+          from marked[0] to marked[1], the line an error names, is wrapped in
+          marks, piece by piece, so a token that runs past the line stays
+          whole. */
+      function highlight(text, marked = null, colored = true) {
+        let html = '';
+        let at = 0;
+        const wrap = (piece, kind) => (!piece ? '' : kind ? `<span class="${kind}">${escapeHtml(piece)}</span>` : escapeHtml(piece));
+        const emit = (piece, kind, offset) => {
+          if (marked === null || offset >= marked[1] || offset + piece.length <= marked[0]) {
+            html += wrap(piece, kind);
+            return;
+          }
+          const from = Math.max(marked[0] - offset, 0);
+          const to = Math.min(marked[1] - offset, piece.length);
+          html += wrap(piece.slice(0, from), kind) + `<mark class="error-line">${wrap(piece.slice(from, to), kind)}</mark>` + wrap(piece.slice(to), kind);
+        };
+        if (colored) {
+          for (const match of text.matchAll(jsTokens)) {
+            const [kind] = Object.entries(match.groups).find(([, value]) => value !== undefined);
+            emit(text.slice(at, match.index), null, at);
+            emit(match[0], tokenClasses[kind], match.index);
+            at = match.index + match[0].length;
+          }
+        }
+        emit(text.slice(at), null, at);
+        return html;
+      }
+
+      // Where line n (from 1) of text starts and ends, or null.
+      function lineRange(text, n) {
+        let start = 0;
+        for (let line = 1; line < n; line++) {
+          const end = text.indexOf('\n', start);
+          if (end < 0) return null;
+          start = end + 1;
+        }
+        const end = text.indexOf('\n', start);
+        return [start, end < 0 ? text.length : end];
+      }
+
+      // The subset of an editor the page uses: value, change events, a
+      // read-only switch, and whether to color its text.
+      function createEditor(textarea, { label, readOnly = false } = {}) {
+        const frame = document.createElement('div');
+        frame.className = 'editor';
+        const layer = document.createElement('pre');
+        layer.className = 'highlight';
+        layer.setAttribute('aria-hidden', 'true');
+        const bar = document.createElement('div');
+        bar.className = 'error-bar';
+        bar.hidden = true;
+        textarea.replaceWith(frame);
+        frame.append(bar, layer, textarea);
+        textarea.spellcheck = false;
+        textarea.readOnly = readOnly;
+        if (label) textarea.setAttribute('aria-label', label);
+        const listeners = [];
+        let colored = true;
+        let pending = [];
+        let frameRequested = false;
+        let markedLine = null;
+        function paint() {
+          frameRequested = false;
+          if (pending.length) { textarea.value += pending.join(''); pending = []; }
+          const text = textarea.value;
+          const marked = markedLine === null ? null : lineRange(text, markedLine);
+          // A trailing space keeps a final empty line as tall as the textarea's.
+          if (marked !== null || (colored && text.length <= maxHighlighted)) {
+            layer.innerHTML = highlight(text, marked, colored && text.length <= maxHighlighted) + ' ';
+          } else layer.textContent = text + ' ';
+          placeBar();
+        }
+        // The bar spans the rectangles of the marked text, so it follows the
+        // line however it wraps.
+        function placeBar() {
+          const marks = markedLine === null ? [] : layer.querySelectorAll('mark.error-line');
+          let top = Infinity;
+          let bottom = -Infinity;
+          for (const mark of marks) {
+            for (const rect of mark.getClientRects()) { top = Math.min(top, rect.top); bottom = Math.max(bottom, rect.bottom); }
+          }
+          if (top === Infinity) { bar.hidden = true; return; }
+          const origin = frame.getBoundingClientRect().top + frame.clientTop;
+          bar.style.top = `${top - origin}px`;
+          bar.style.height = `${bottom - top}px`;
+          bar.hidden = false;
+        }
+        new ResizeObserver(() => { if (markedLine !== null) placeBar(); }).observe(frame);
+        textarea.addEventListener('input', () => { markedLine = null; paint(); for (const listener of listeners) listener(); });
+        paint();
+        return {
+          getValue: () => { if (pending.length) paint(); return textarea.value; },
+          setValue(text) {
+            pending = [];
+            textarea.value = text;
+            paint();
+            for (const listener of listeners) listener();
+          },
+          append(text) {
+            pending.push(text);
+            if (!frameRequested) { frameRequested = true; requestAnimationFrame(paint); }
+          },
+          on(event, listener) { if (event === 'change') listeners.push(listener); },
+          // Mark line n (from 1) as the one an error names, or no line.
+          markLine(n) { markedLine = n; paint(); },
+          setOption(name, value) {
+            if (name === 'readOnly') textarea.readOnly = value;
+            if (name === 'colored') { colored = value; paint(); }
+          },
+        };
+      }
+
+      const input = createEditor(byId('input'), { label: 'Program' });
+      const proof = createEditor(byId('proof-input'), { label: 'Saved proof' });
+      const output = createEditor(byId('output'), { label: 'Command output', readOnly: true });
+      const defaultProgram = "// Socrates is human, and every human is mortal.\nfact(type('socrates', 'human'))\nfact(subclass_of('human', 'mortal'))\n\nimplies([type(S, A), subclass_of(A, B)], type(S, B))\n\nquery(type(X, Y))\n";
+      const stateKey = 'eyemind.playground.cli.v1';
+      const gistTokenKey = 'eyemind.playground.github.gistToken.v1';
+      const modes = ['', '--proof', '--prove-and-check', '--check-proof', '--unused'];
+      let examples = [];
+      let source = { name: '-', text: defaultProgram };
+      let originalExample = null;
+      let proofName = 'proof.js';
+      let restoring = false;
+      let busy = false;
+      let sharing = false;
+      let worker = null;
+      let workerReady = null;
+      let workerUrl = null;
+      let failReady = null;
+      let finishRun = null;
+      let failRun = null;
+      let saveTimer;
+      let loadController = null;
+
+      function setStatus(text, kind = '') {
+        byId('status').textContent = text;
+        byId('status').className = 'status ' + kind;
+      }
+
+      function revealPanel(element) {
+        if (!matchMedia('(max-width: 980px)').matches) return;
+        const toolbarHeight = document.querySelector('.run-toolbar').getBoundingClientRect().height;
+        const top = scrollY + element.getBoundingClientRect().top - toolbarHeight - 12;
+        window.scrollTo({ top, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      }
+
+      function exampleNamed(name) {
+        return examples.find((entry) => entry.name === name) ?? null;
+      }
+
+      function showSource() {
+        const wasRestoring = restoring;
+        restoring = true;
+        input.setValue(source.text);
+        byId('input-source').textContent = source.name;
+        byId('input-source').hidden = source.name === '-';
+        const entry = exampleNamed(byId('examples').value);
+        byId('example-description').textContent = entry ? entry.description : '';
+        byId('example-description').hidden = !entry;
+        restoring = wasRestoring;
+        updateOptions();
+      }
+
+      function argumentsForRun() {
+        const args = [];
+        const mode = byId('mode').value;
+        if (mode) args.push(mode);
+        if (mode === '--check-proof') {
+          args.push(proofName);
+        }
+        if (mode === '--check-proof' || mode === '--prove-and-check') {
+          if (byId('strict-proof').checked) args.push('--strict-proof');
+          if (byId('json').checked) args.push('--json');
+        }
+        if (byId('stats').checked && mode !== '--check-proof') args.push('--stats');
+        const goal = byId('goal').value.trim();
+        if (goal) args.push('--goal', goal);
+        for (const id of ['max-depth', 'max-inferences']) {
+          const value = byId(id).value;
+          if (value !== '' && mode !== '--check-proof') args.push('--' + id, value);
+        }
+        return args.concat(source.name.trim() || '-');
+      }
+
+      function quoteArgument(value) {
+        return /^[a-zA-Z0-9_./:=@%+-]+$/.test(value) ? value : "'" + value.replaceAll("'", "'\\''") + "'";
+      }
+
+      function updateOptions() {
+        const mode = byId('mode').value;
+        const checking = mode === '--check-proof' || mode === '--prove-and-check';
+        byId('proof-panel').hidden = mode !== '--check-proof';
+        byId('strict-proof').disabled = byId('json').disabled = busy || !checking;
+        byId('command').textContent = 'eyemind ' + argumentsForRun().map(quoteArgument).join(' ');
+        scheduleSave();
+      }
+
+      function state() {
+        return { v: 1, source, mode: byId('mode').value, goal: byId('goal').value,
+          strictProof: byId('strict-proof').checked, json: byId('json').checked, stats: byId('stats').checked,
+          maxDepth: byId('max-depth').value, maxInferences: byId('max-inferences').value,
+          proof: { name: proofName, text: proof.getValue() }, example: byId('examples').value };
+      }
+
+      function scheduleSave() {
+        if (restoring) return;
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => { try { localStorage.setItem(stateKey, JSON.stringify(state())); } catch {} }, 200);
+      }
+
+      function setBusy(value) {
+        busy = value;
+        for (const element of document.querySelectorAll('button, input, select')) {
+          if (element.id !== 'stop' && element.id !== 'save-output') element.disabled = value;
+        }
+        byId('stop').disabled = !value;
+        byId('save-output').disabled = !output.getValue();
+        input.setOption('readOnly', value);
+        proof.setOption('readOnly', value);
+        updateShareButtons();
+        updateOptions();
+      }
+
+      function updateShareButtons() {
+        byId('share-link').disabled = byId('create-gist-share').disabled = busy || sharing;
+      }
+
+      function setShareStatus(text, kind = '') {
+        byId('share-status').hidden = false;
+        byId('share-status').textContent = text;
+        byId('share-status').className = 'status ' + kind;
+      }
+
+      function normalizeState(raw) {
+        if (!raw || typeof raw !== 'object' || (raw.v !== undefined && raw.v !== 1)) throw new Error('Unsupported playground state.');
+        if (!raw.source || typeof raw.source.name !== 'string' || typeof raw.source.text !== 'string') {
+          throw new Error('Playground state must contain a named program.');
+        }
+        const mode = raw.mode ?? '';
+        if (!modes.includes(mode)) throw new Error('Unknown shared output mode.');
+        for (const key of ['strictProof', 'json', 'stats']) {
+          if (raw[key] !== undefined && typeof raw[key] !== 'boolean') throw new Error(`Invalid shared option: ${key}.`);
+        }
+        for (const key of ['goal', 'maxDepth', 'maxInferences']) {
+          if (raw[key] !== undefined && typeof raw[key] !== 'string') throw new Error(`Invalid shared option: ${key}.`);
+        }
+        if (raw.proof !== undefined && (!raw.proof || typeof raw.proof.name !== 'string' || typeof raw.proof.text !== 'string')) throw new Error('Invalid shared proof.');
+        return { v: 1, source: { name: raw.source.name, text: raw.source.text }, mode, goal: raw.goal ?? '',
+          strictProof: raw.strictProof ?? false, json: raw.json ?? false, stats: raw.stats ?? false,
+          maxDepth: raw.maxDepth ?? '', maxInferences: raw.maxInferences ?? '',
+          proof: raw.proof ?? { name: 'proof.js', text: '' }, example: exampleNamed(raw.example) ? raw.example : '' };
+      }
+
+      function applyState(saved) {
+        originalExample = null;
+        source = saved.source;
+        byId('mode').value = saved.mode;
+        byId('goal').value = saved.goal;
+        byId('strict-proof').checked = saved.strictProof;
+        byId('json').checked = saved.json;
+        byId('stats').checked = saved.stats;
+        byId('max-depth').value = saved.maxDepth;
+        byId('max-inferences').value = saved.maxInferences;
+        proofName = saved.proof.name;
+        proof.setValue(saved.proof.text);
+        byId('examples').value = saved.example;
+      }
+
+      function bytesToBase64Url(bytes) {
+        let binary = '';
+        for (let offset = 0; offset < bytes.length; offset += 0x8000) binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+        return btoa(binary).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
+      }
+
+      function base64UrlToBytes(value) {
+        return Uint8Array.from(atob(value.replaceAll('-', '+').replaceAll('_', '/')), (character) => character.charCodeAt(0));
+      }
+
+      async function packState(snapshot) {
+        const json = JSON.stringify(snapshot);
+        const plain = 'j.' + bytesToBase64Url(new TextEncoder().encode(json));
+        try {
+          const stream = new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'));
+          const compressed = 'g.' + bytesToBase64Url(new Uint8Array(await new Response(stream).arrayBuffer()));
+          if (compressed.length < plain.length) return compressed;
+        } catch { /* Browsers without gzip support can still share JSON links. */ }
+        return plain;
+      }
+
+      async function unpackState(token) {
+        if (!/^[gj]\.[A-Za-z0-9_-]+$/.test(token)) throw new Error('Invalid playground share link.');
+        const bytes = base64UrlToBytes(token.slice(2));
+        let json;
+        if (token.startsWith('g.')) {
+          if (typeof DecompressionStream === 'undefined') throw new Error('This browser cannot open compressed links. Ask for a Gist share.');
+          json = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+        } else json = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+        return normalizeState(JSON.parse(json));
+      }
+
+      function shareBaseUrl() {
+        const url = new URL(location.href);
+        for (const key of ['example', 'ex', 'state', 's', 'stateurl']) url.searchParams.delete(key);
+        url.hash = '';
+        return url;
+      }
+
+      async function makeShareUrl(snapshot) {
+        const url = shareBaseUrl();
+        const defaultOptions = !snapshot.mode && !snapshot.goal && !snapshot.stats && snapshot.maxDepth === '' &&
+          snapshot.maxInferences === '' && !snapshot.proof.text;
+        if (exampleNamed(snapshot.example) && defaultOptions) {
+          try {
+            if (originalExample?.name !== snapshot.example) {
+              const controller = new AbortController();
+              const timeout = setTimeout(() => controller.abort(), 10000);
+              try { originalExample = { name: snapshot.example, source: await readExampleSource(snapshot.example, controller.signal) }; }
+              finally { clearTimeout(timeout); }
+            }
+            if (snapshot.source.name === originalExample.source.name && snapshot.source.text === originalExample.source.text) {
+              url.search = '';
+              url.hash = 'example=' + encodeURIComponent(snapshot.example);
+              return url.href;
+            }
+          } catch { /* A failed reference check can still share the full snapshot. */ }
+        }
+        url.hash = 'state=' + await packState(snapshot);
+        return url.href;
+      }
+
+      async function createGistShareUrl(snapshot, token) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 20000);
+        try {
+          const response = await fetch('https://api.github.com/gists', {
+            method: 'POST', credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer', signal: controller.signal,
+            headers: { Accept: 'application/vnd.github+json', 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            body: JSON.stringify({ description: 'eyemind playground shared state', public: false,
+              files: { 'eyemind-playground-state.json': { content: JSON.stringify(snapshot, null, 2) + '\n' } } }),
+          });
+          const payload = await response.json().catch(() => null);
+          if (!response.ok) {
+            if (response.status === 401 || response.status === 403) { try { sessionStorage.removeItem(gistTokenKey); } catch {} }
+            throw new Error(`GitHub Gist HTTP ${response.status}: ${payload?.message || 'Could not create the Gist.'}`);
+          }
+          const raw = payload?.files?.['eyemind-playground-state.json']?.raw_url;
+          if (typeof raw !== 'string' || !raw.startsWith('https://gist.githubusercontent.com/')) throw new Error('GitHub did not return the Gist state URL.');
+          const url = shareBaseUrl();
+          url.searchParams.set('stateurl', raw);
+          return url.href;
+        } catch (error) {
+          if (error.name === 'AbortError') throw new Error('GitHub Gist request timed out.');
+          throw error;
+        } finally { clearTimeout(timeout); }
+      }
+
+      async function copyShareUrl(url) {
+        byId('share-url').value = url;
+        try { await navigator.clipboard.writeText(url); return true; } catch {}
+        byId('share-result').hidden = false;
+        byId('share-url').focus();
+        byId('share-url').select();
+        try { if (document.execCommand('copy')) return true; } catch {}
+        return false;
+      }
+
+      async function sharePlayground(useGist) {
+        if (busy || sharing) return;
+        const current = state();
+        const snapshot = { ...current, source: { ...current.source } };
+        let token = '';
+        if (useGist) {
+          try { token = sessionStorage.getItem(gistTokenKey) || ''; } catch {}
+          if (!token) token = prompt('Enter a GitHub token with gist permission to upload this program, proof, and options to an unlisted Gist. Anyone with its link can read it. The token stays in this tab for this session only.', '') || '';
+          token = token.trim().replace(/^(?:Bearer|token)\s+/i, '').replace(/^['"]|['"]$/g, '').trim();
+          if (!token) { setShareStatus('Gist sharing cancelled.'); return; }
+          try { sessionStorage.setItem(gistTokenKey, token); } catch {}
+        }
+        sharing = true;
+        updateShareButtons();
+        byId('share-result').hidden = true;
+        setShareStatus(useGist ? 'Creating an unlisted GitHub Gist…' : 'Creating share link…');
+        try {
+          const url = useGist ? await createGistShareUrl(snapshot, token) : await makeShareUrl(snapshot);
+          const copied = await copyShareUrl(url);
+          const long = !useGist && url.length > 2000 ? ' Use Create Gist share for a shorter link.' : '';
+          setShareStatus((copied ? (useGist ? 'Gist share link copied.' : 'Share link copied.') : 'Select and copy the link below.') + long, 'ok');
+        } catch (error) { setShareStatus('Could not share: ' + error.message, 'error'); }
+        finally { sharing = false; updateShareButtons(); }
+      }
+
+      // eyemind runs in a worker, so a long run never freezes the page and Stop
+      // can end it. The worker runs the same command line as the eyemind command,
+      // with the inputs as its files.
+      function ensureWorker() {
+        if (worker) return workerReady;
+        const cacheKey = Date.now().toString(36);
+        const moduleUrl = (path) => { const url = new URL(path, projectRoot); url.searchParams.set('v', cacheKey); return url.href; };
+        const code = `
+          import { main } from ${JSON.stringify(moduleUrl('./src/cli.js'))};
+          import { VERSION } from ${JSON.stringify(moduleUrl('./src/version.js'))};
+          // The line of a syntax error in a program, which a browser gives only
+          // for a script it loads: the program, wrapped in a function that is
+          // never called, as a worker of its own. null when none is found.
+          function syntaxLine(text) {
+            if (typeof Worker === 'undefined') return Promise.resolve(null);
+            return new Promise((resolve) => {
+              const url = URL.createObjectURL(new Blob(['(function () {\\n' + text + '\\n});\\npostMessage(0);'], { type: 'text/javascript' }));
+              const checker = new Worker(url);
+              const done = (line) => { clearTimeout(timer); checker.terminate(); URL.revokeObjectURL(url); resolve(line); };
+              const timer = setTimeout(() => done(null), 3000);
+              checker.onerror = (event) => { event.preventDefault(); done(event.lineno > 1 ? event.lineno - 1 : null); };
+              checker.onmessage = () => done(null);
+            });
+          }
+          self.onmessage = async (event) => {
+            const files = new Map(event.data.files);
+            let stderr = '';
+            try {
+              const exitCode = main(event.data.args, {
+                stdout: (text) => self.postMessage({ type: 'output', text }),
+                stderr: (text) => { stderr += text; },
+                stdin: () => files.get('-') ?? '',
+                readFile: (path) => {
+                  if (files.has(path)) return files.get(path);
+                  const error = new Error('no such file in the playground: ' + path);
+                  error.code = 'ENOENT';
+                  throw error;
+                },
+              });
+              // A syntax error is reported with its line, as the command does.
+              const syntax = stderr.match(/^eyemind: (?!line \\d+:)[^\\n]*?SyntaxError: ([^\\n]*)$/m);
+              if (syntax && event.data.files.length) {
+                const line = await syntaxLine(event.data.files[0][1]);
+                if (line !== null) stderr = stderr.replace(syntax[0], 'eyemind: line ' + line + ': ' + syntax[1]);
+              }
+              self.postMessage({ type: 'done', report: { exitCode, stderr } });
+            } catch (error) { self.postMessage({ type: 'error', message: String(error.message || error) }); }
+          };
+          self.postMessage({ type: 'ready', version: VERSION });
+        `;
+        workerUrl = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+        worker = new Worker(workerUrl, { type: 'module' });
+        workerReady = new Promise((resolve, reject) => {
+          failReady = reject;
+          worker.onmessage = (event) => {
+            const message = event.data;
+            if (message.type === 'ready') {
+              URL.revokeObjectURL(workerUrl); workerUrl = null;
+              byId('version').textContent = message.version;
+              failReady = null;
+              resolve();
+            } else if (message.type === 'output') {
+              output.append(message.text);
+              if (message.text) byId('save-output').disabled = false;
+            } else if (message.type === 'done') {
+              if (finishRun) finishRun(message.report);
+              finishRun = failRun = null;
+            } else if (message.type === 'error') {
+              if (failRun) failRun(new Error(message.message));
+              reject(new Error(message.message));
+              terminateWorker();
+            }
+          };
+          worker.onerror = (event) => {
+            const error = new Error(event.message || 'Could not start eyemind.');
+            if (failRun) failRun(error);
+            reject(error);
+            terminateWorker();
+          };
+        });
+        return workerReady;
+      }
+
+      function terminateWorker() {
+        if (failReady) failReady(new Error('Stopped.'));
+        failReady = null;
+        if (worker) worker.terminate();
+        if (workerUrl) URL.revokeObjectURL(workerUrl);
+        worker = workerReady = workerUrl = null;
+      }
+
+      async function run(args = argumentsForRun()) {
+        if (busy) return;
+        for (const id of ['max-depth', 'max-inferences']) {
+          if (!byId(id).checkValidity()) { byId(id).reportValidity(); return; }
+        }
+        setBusy(true);
+        output.setValue('');
+        input.markLine(null);
+        output.setOption('colored', !byId('json').checked || !['--check-proof', '--prove-and-check'].includes(byId('mode').value));
+        byId('messages').hidden = true;
+        byId('messages').textContent = '';
+        const started = performance.now();
+        setStatus('Running…');
+        try {
+          await ensureWorker();
+          const name = source.name.trim() || '-';
+          const files = [[name, source.text], [proofName, proof.getValue()]];
+          const report = await new Promise((resolve, reject) => { finishRun = resolve; failRun = reject; worker.postMessage({ args, files }); });
+          byId('messages').textContent = report.stderr;
+          byId('messages').hidden = !report.stderr;
+          // An error in the program names its line: mark it in the input.
+          const failedLine = report.stderr.match(/^eyemind: line (\d+):/m);
+          if (failedLine && report.exitCode !== 0) input.markLine(Number(failedLine[1]));
+          const verdict = report.exitCode === 0 ? 'Done' : report.exitCode === 65 ? 'Contradiction' :
+            report.exitCode === 2 ? 'Proof not valid' : 'Failed';
+          setStatus(`${verdict} · exit ${report.exitCode} · ${((performance.now() - started) / 1000).toFixed(2)} s`, report.exitCode === 0 ? 'ok' : 'error');
+          revealPanel(document.querySelector('.output-card'));
+        } catch (error) {
+          setStatus(error.message, error.message === 'Stopped.' ? '' : 'error');
+        } finally { setBusy(false); }
+      }
+
+      async function fetchSource(url, name, signal) {
+        const value = new URL(url, location.href);
+        if (!['http:', 'https:'].includes(value.protocol)) throw new Error('Use an HTTP or HTTPS input URL.');
+        const response = await fetch(value, { signal, referrerPolicy: 'no-referrer' });
+        if (!response.ok) throw new Error(`Could not load ${value.href}: HTTP ${response.status}.`);
+        return { name: name || response.url, text: await response.text() };
+      }
+
+      async function loadInputs(action) {
+        if (busy) return;
+        setBusy(true);
+        setStatus('Loading inputs…');
+        loadController = new AbortController();
+        try { await action(loadController.signal); setStatus('Inputs ready.'); }
+        catch (error) { setStatus(error.name === 'AbortError' ? 'Stopped.' : error.message, error.name === 'AbortError' ? '' : 'error'); }
+        finally { loadController = null; setBusy(false); updateOptions(); }
+      }
+
+      async function readExampleSource(name, signal) {
+        if (!exampleNamed(name)) throw new Error('Unknown bundled example.');
+        return fetchSource(`../examples/${name}.js`, `examples/${name}.js`, signal);
+      }
+
+      async function loadExample(name, signal) {
+        const loaded = await readExampleSource(name, signal);
+        originalExample = { name, source: { ...loaded } };
+        source = loaded;
+        byId('examples').value = name;
+        showSource();
+      }
+
+      async function restore() {
+        restoring = true;
+        const url = new URL(location.href);
+        const hash = url.hash.slice(1);
+        const hashParams = new URLSearchParams(hash);
+        const token = url.searchParams.get('state') ?? url.searchParams.get('s') ??
+          hashParams.get('state') ?? (/^[gj]\./.test(hash) ? hash : null);
+        const stateUrl = url.searchParams.get('stateurl');
+        const example = hashParams.get('example') ?? url.searchParams.get('example') ?? url.searchParams.get('ex');
+        const shared = token !== null || stateUrl !== null || example !== null;
+        let sharedLoaded = false;
+        let sharedError = '';
+        if (shared) {
+          await loadInputs(async (signal) => {
+            try {
+              if (token !== null) applyState(await unpackState(token));
+              else if (stateUrl !== null) applyState(normalizeState(JSON.parse((await fetchSource(stateUrl, '', signal)).text)));
+              else {
+                applyState(normalizeState({ source: { name: '-', text: defaultProgram } }));
+                await loadExample(example.replace(/\.js$/, ''), signal);
+              }
+              sharedLoaded = true;
+              setShareStatus('Opened shared playground. Changes save locally.');
+            } catch (error) {
+              sharedError = 'Could not open shared playground: ' + error.message;
+              setShareStatus(sharedError, 'error');
+            }
+          });
+        } else {
+          try {
+            const saved = JSON.parse(localStorage.getItem(stateKey) || 'null');
+            if (saved) applyState(normalizeState(saved));
+          } catch { /* An unavailable or outdated saved state does not block the editor. */ }
+        }
+        showSource();
+        updateOptions();
+        restoring = false;
+        if (!shared || sharedLoaded) scheduleSave();
+        return sharedError;
+      }
+
+      try {
+        const response = await fetch('../examples/manifest.json');
+        if (response.ok) examples = await response.json();
+      } catch { /* The editor still works without the bundled examples. */ }
+      for (const entry of [...examples].sort((a, b) => a.name.localeCompare(b.name))) {
+        byId('examples').add(new Option(entry.name, entry.name));
+      }
+      input.on('change', () => { if (!restoring) { source.text = input.getValue(); scheduleSave(); } });
+      proof.on('change', scheduleSave);
+      for (const id of ['mode', 'goal', 'strict-proof', 'json', 'stats', 'max-depth', 'max-inferences']) {
+        byId(id).addEventListener('input', updateOptions);
+      }
+      byId('mode').addEventListener('change', () => {
+        updateOptions();
+        if (byId('mode').value === '--check-proof') revealPanel(byId('proof-panel'));
+      });
+      byId('run').addEventListener('click', () => run());
+      byId('stop').addEventListener('click', () => {
+        if (loadController) loadController.abort();
+        else { if (failRun) failRun(new Error('Stopped.')); finishRun = failRun = null; terminateWorker(); }
+      });
+      byId('examples').addEventListener('change', () => { if (byId('examples').value) loadInputs((signal) => loadExample(byId('examples').value, signal)); });
+      byId('input-url-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        loadInputs(async (signal) => {
+          source = await fetchSource(byId('input-url').value, '', signal);
+          originalExample = null;
+          byId('examples').value = '';
+          showSource();
+          byId('input-url').value = '';
+        });
+      });
+      byId('proof-url-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        loadInputs(async (signal) => { const loaded = await fetchSource(byId('proof-url').value, '', signal); proof.setValue(loaded.text); proofName = loaded.name; byId('proof-url').value = ''; });
+      });
+      byId('share-link').addEventListener('click', () => sharePlayground(false));
+      byId('create-gist-share').addEventListener('click', () => sharePlayground(true));
+      byId('share-url').addEventListener('click', () => byId('share-url').select());
+      byId('save-output').addEventListener('click', () => {
+        const url = URL.createObjectURL(new Blob([output.getValue()], { type: 'text/plain;charset=utf-8' }));
+        const link = document.createElement('a'); link.href = url; link.download = byId('mode').value === '--proof' ? 'proof.js' : 'output.js';
+        link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+      document.addEventListener('keydown', (event) => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter' && !busy) { event.preventDefault(); run(); } });
+      // Fragment navigation in the same tab must restore the linked snapshot too.
+      window.addEventListener('hashchange', () => location.reload());
+      const restoreError = await restore();
+      try { await ensureWorker(); setBusy(false); setStatus(restoreError || 'Ready.', restoreError ? 'error' : ''); }
+      catch (error) { setStatus(error.message, 'error'); }
+    </script>
+  </body>
+</html>

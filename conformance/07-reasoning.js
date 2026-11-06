@@ -486,3 +486,79 @@ conformance('open inspection variables cannot share an existential witness', [
   stderr(prefix('eyemind: bind inspected rule variables before deriving existential witnesses')),
   stdout([]),
 ])
+
+// Additional boundary and specification-coverage cases.
+
+conformance("an asserted relation does not identify its arguments", [
+  spec("7.1, 2.3"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(same('a', 'b'))",
+    "query(identical('a', 'b'))",
+  ]),
+  stdout([
+    "// No answers: no query() instance holds.",
+  ]),
+])
+
+conformance("universal fact variables are fresh and shared independently at every call", [
+  spec("7.2, 8.1"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(pair(X, X))",
+    "query(pair('a', 'a'))",
+    "query(pair('b', 'b'))",
+    "query(pair('a', 'b'))",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "pair('a', 'a')",
+    "pair('b', 'b')",
+  ]),
+])
+
+conformance("a positive cyclic closure reaches its finite least model", [
+  spec("7.3, 8.2"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(edge('a', 'b'), edge('b', 'a'), edge('b', 'c'))",
+    "implies(edge(X, Y), path(X, Y))",
+    "implies([path(X, Y), edge(Y, Z)], path(X, Z))",
+    "query(path('a', Z))",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "path('a', 'b')",
+    "path('a', 'a')",
+    "path('a', 'c')",
+  ]),
+])
+
+conformance("stratified negation is absence relative to the program", [
+  spec("7.4, 6.1"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(person('a'), person('b'))",
+    "fact(blocked('b'))",
+    "implies([person(X), not(blocked(X))], allowed(X))",
+    "query(allowed(X))",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "allowed('a')",
+  ]),
+])
+
+conformance("mode-sensitive disequality can distinguish an open and a bound call", [
+  spec("7.5"),
+  args("--goal 'p(X)' --goal 'p('\"'\"'b'\"'\"')' program.js"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(q('b'))",
+    "implied_by(p(X), [not_unify(X, 'a'), q(X)])",
+  ]),
+  stdout([
+    "// Answers: each instance of a goal that holds.",
+    "p('b')",
+  ]),
+])

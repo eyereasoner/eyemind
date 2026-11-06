@@ -1,9 +1,10 @@
 // The playground's tests, run in a real Chrome by npm test (section
 // playground) and by test/browser.mjs. Each test gets the page connection
-// and the URL of playground.html; they run in order, on one page, and each
+// and the URL of playground/; they run in order, on one page, and each
 // opens or sets up what it needs, so -k can pick any of them.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { loadCases } from '../conformance/run.js';
 
 const expected = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 const socrates = readFileSync(new URL('../examples/output/socrates.js', import.meta.url), 'utf8');
@@ -28,7 +29,7 @@ export function driver(page) {
       await command('Page.navigate', { url: 'about:blank' });
       await until("location.href === 'about:blank'", 'a blank page');
       await command('Page.navigate', { url });
-      await until("document.readyState === 'complete' && /^(Ready|Could)/.test(document.getElementById('status').textContent)", 'the page');
+      await until("document.readyState === 'complete' && !!document.getElementById('status') && /^(Ready|Could)/.test(document.getElementById('status').textContent)", 'the page');
     },
     status: () => evaluate("document.getElementById('status').textContent"),
     output: () => evaluate("document.getElementById('output').value"),
@@ -227,7 +228,44 @@ query(or(q(X), r(X)))`);
     }
   }],
 
-  ['the page threw no exceptions', async (page) => {
+  ['legacy playground links preserve their query and shared example', async (page, base) => {
+    const p = driver(page);
+    await p.open(new URL('../playground.html?probe=1#example=graphs', base).href);
+    assert.equal(await page.evaluate('location.pathname'), '/playground/');
+    assert.equal(await page.evaluate('location.search + location.hash'), '?probe=1#example=graphs');
+    assert.equal(await page.evaluate("document.getElementById('examples').value"), 'graphs');
+    await p.run();
+    assert.equal(await p.output(), readFileSync(new URL('../examples/output/graphs.js', import.meta.url), 'utf8'));
+  }],
+
+  ['the navigation opens conformance and every case passes in the browser', async (page, base) => {
+    const p = driver(page);
+    await p.open(`${base}#example=socrates`);
+    const labels = ['Guide', 'Playground', 'Specification', 'Conformance', 'Repository ↗'];
+    assert.deepEqual(await page.evaluate("[...document.querySelectorAll('nav a')].map(a => a.textContent)"), labels);
+    await page.evaluate("[...document.querySelectorAll('nav a')].find(a => a.textContent === 'Conformance').click()");
+    const count = loadCases().length;
+    await p.until(`document.querySelectorAll('.cases > li').length === ${count} && !document.getElementById('run').disabled`, 'conformance cases');
+    assert.equal(await page.evaluate('location.pathname'), '/playground/conformance');
+    assert.deepEqual(await page.evaluate("[...document.querySelectorAll('nav a')].map(a => a.textContent)"), labels);
+    assert.equal(await page.evaluate("document.querySelector('nav [aria-current=page]').textContent"), 'Conformance');
+    await p.type('filter', 'C8');
+    const filtered = await page.evaluate("document.querySelectorAll('.cases > li:not(.hidden)').length");
+    assert.ok(filtered > 0 && filtered < count);
+    await p.type('filter', '');
+    await page.evaluate("document.getElementById('run').click()");
+    await p.until(`!document.getElementById('run').disabled && document.querySelectorAll('.mark.pass, .mark.fail').length === ${count}`, 'all browser conformance cases', 120000);
+    assert.equal(await page.evaluate("[...document.querySelectorAll('.mark.fail')].map(mark => mark.closest('li').textContent).join('\\n')"), '');
+    assert.equal(await page.evaluate("document.querySelectorAll('.mark.pass').length"), count);
+    for (const width of [1280, 390]) {
+      await page.command('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width === 390 });
+      assert.ok(await page.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth'), `conformance at ${width}px`);
+    }
+    await page.evaluate("document.querySelector('nav a[href=\"./\"]').click()");
+    await p.until("document.getElementById('input') && !document.getElementById('run').disabled", 'return to the playground');
+  }],
+
+  ['the page threw no exceptions' , async (page) => {
     assert.deepEqual(page.exceptions, []);
   }],
 ];

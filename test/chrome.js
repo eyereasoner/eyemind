@@ -43,6 +43,7 @@ export async function serve(root) {
       return;
     }
     let file = path;
+    if (!existsSync(file) && !extname(file) && existsSync(`${file}.html`)) file += '.html';
     try {
       if (statSync(file).isDirectory()) file = join(file, 'index.html');
       const body = readFileSync(file);

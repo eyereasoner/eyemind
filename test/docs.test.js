@@ -17,6 +17,16 @@ function blocks(path, heading, language = 'js') {
 const slug = (title) => title.trim().toLowerCase().replace(/[^\p{L}\p{N}_\- ]/gu, '').replace(/ /g, '-');
 
 export const tests = {
+  'every top navigation links conformance immediately after the specification'() {
+    for (const path of ['_layouts/default.html', 'playground/index.html', 'playground/conformance.html']) {
+      const nav = document(path).match(/<nav\b[^>]*>([\s\S]*?)<\/nav>/)[1];
+      assert.deepEqual([...nav.matchAll(/<a\b[^>]*>([^<]+)<\/a>/g)].map((m) => m[1]),
+        ['Guide', 'Playground', 'Specification', 'Conformance', 'Repository ↗'], path);
+      assert.match(nav, /href="[^"]*conformance[^"]*"/, path);
+    }
+    assert.match(document('README.md'), /https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/conformance/);
+  },
+
   'the spec appendix output proof and report match the program'() {
     const [source, output, proof, report] = blocks('SPEC.md', '## Appendix B. Example');
     const program = loadText(source);

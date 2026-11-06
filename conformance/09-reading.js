@@ -477,3 +477,172 @@ conformance('documents reject a nonbreaking space outside a literal', [
   ]),
   stdout([]),
 ])
+
+// Additional boundary and specification-coverage cases.
+
+conformance("document syntax rejects 'p\\n(1)'", [
+  spec("9.1, 15"),
+  args("--goal 'p\n(1)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("document syntax rejects '-\\n1'", [
+  spec("9.1, 15"),
+  args("--goal '-\n1'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("document syntax rejects '007'", [
+  spec("9.1, 15"),
+  args("--goal 007"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("document syntax rejects '0x10'", [
+  spec("9.1, 15"),
+  args("--goal 0x10"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("document syntax rejects '1_000'", [
+  spec("9.1, 15"),
+  args("--goal 1_000"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("document syntax rejects \"'\\\\a'\"", [
+  spec("9.1, 15"),
+  args("--goal ''\"'\"'\\a'\"'\"''"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("document syntax rejects \"'\\\\01'\"", [
+  spec("9.1, 15"),
+  args("--goal ''\"'\"'\\01'\"'\"''"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("document syntax rejects \"'\\\\u{110000}'\"", [
+  spec("9.1, 15"),
+  args("--goal ''\"'\"'\\u{110000}'\"'\"''"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("document syntax rejects \"'\\\\x4'\"", [
+  spec("9.1, 15"),
+  args("--goal ''\"'\"'\\x4'\"'\"''"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("document syntax rejects 'f(...X)'", [
+  spec("9.1, 15"),
+  args("--goal 'f(...X)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("document syntax rejects '{...X}'", [
+  spec("9.1, 15"),
+  args("--goal '{...X}'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("document syntax rejects 'f(X = 1)'", [
+  spec("9.1, 15"),
+  args("--goal 'f(X = 1)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("document syntax rejects 'f()()'", [
+  spec("9.1, 15"),
+  args("--goal 'f()()'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("comments trailing commas and layout are accepted in documents", [
+  spec("9.1"),
+  args("--goal 'unify(X, /* comment */ [1,\n2,])'"),
+  stderr('empty'),
+  stdin([
+  ]),
+  stdout([
+    "// Answers: each instance of a goal that holds.",
+    "unify([1, 2], [1, 2])",
+  ]),
+])
+
+conformance("reserved object keys denote atoms rather than evaluated names", [
+  spec("9.1"),
+  args("--goal 'unify(X, {class: 1, true: 2})'"),
+  stderr('empty'),
+  stdin([
+  ]),
+  stdout([
+    "// Answers: each instance of a goal that holds.",
+    "unify([struct('=', 'class', 1), struct('=', 'true', 2)], [struct('=', 'class', 1), struct('=', 'true', 2)])",
+  ]),
+])

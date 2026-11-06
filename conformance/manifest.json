@@ -21,7 +21,7 @@
   },
   {
     "file": "07-reasoning.js",
-    "spec": "8",
+    "spec": "7, 8",
     "topic": "Search order, forward rounds, Skolem names, conclusions, halting, bounds"
   },
   {

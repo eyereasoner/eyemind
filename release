@@ -3,8 +3,8 @@
 # GitHub workflows that create the GitHub release (which Zenodo archives) and
 # publish the package to npm.
 #
-#     ./release                          a patch release, message "Release vX.Y.Z"
-#     ./release minor "Release vX.Y.Z: what changed"   the message is used as given
+#     ./release patch "Improve reasoning and broaden conformance coverage"
+#     ./release minor "Add rule inspection"   the message is used as given
 set -euo pipefail
 
 RELEASE_TYPE="${1:-patch}"
@@ -13,10 +13,18 @@ MESSAGE="${2:-}"
 case "$RELEASE_TYPE" in
   major|minor|patch) ;;
   *)
-    echo "Usage: $0 [major|minor|patch] [\"release message\"]" >&2
+    echo "Usage: $0 {major|minor|patch} \"description of the changes\"" >&2
     exit 1
     ;;
 esac
+
+# The commit subject becomes the Actions run title as well as the release
+# message. Require the change summary before pulling, testing or bumping.
+VERSION_ONLY='^[[:space:]]*([Rr]elease[[:space:]]+)?v?[0-9]+\.[0-9]+\.[0-9]+[[:space:]]*:?[[:space:]]*$'
+if [[ -z "${MESSAGE//[[:space:]]/}" || "$MESSAGE" =~ $VERSION_ONLY ]]; then
+  echo 'Error: supply a descriptive release message, for example: ./release patch "Improve reasoning and broaden conformance coverage".' >&2
+  exit 1
+fi
 
 cd "$(dirname "$0")"
 
@@ -40,7 +48,6 @@ fi
 VERSION="v$(npm version "$RELEASE_TYPE" --no-git-tag-version | sed 's/^v//')"
 node tools/version.js
 node tools/version.js --check
-MESSAGE="${MESSAGE:-Release $VERSION}"
 
 git add -A
 git commit -m "$MESSAGE"

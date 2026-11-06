@@ -24,7 +24,7 @@ let failed = 0;
 try {
   const page = await connect(chrome.debugUrl);
   await prepare(page);
-  const base = `${server.url}playground.html`;
+  const base = `${server.url}playground/`;
   for (const [name, test] of tests) {
     try {
       await test(page, base);

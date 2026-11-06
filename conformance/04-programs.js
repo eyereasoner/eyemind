@@ -187,7 +187,7 @@ conformance('a source program cannot state its own activation fact', [
 ])
 
 conformance('fact states one fact per argument, numbered in order', [
-  spec('3.4'),
+  spec('3.4, 3.5'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1), p(2))',
@@ -213,7 +213,7 @@ conformance('fact states one fact per argument, numbered in order', [
 ])
 
 conformance('a forward rule may conclude several heads joined with &', [
-  spec('3.4'),
+  spec('3.4, 3.5'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -256,7 +256,7 @@ conformance('a backward rule without a body is a fact', [
 ])
 
 conformance('a body conjunction is split into its goals', [
-  spec('3.4'),
+  spec('3.4, 3.5'),
   args("--proof --goal 'r(X)' program.js"),
   file('program.js', [
     'fact(p(1), q(1))',
@@ -569,7 +569,7 @@ conformance('a term used as a truth value is an error', [
 ])
 
 conformance('a head of step/4 is reserved', [
-  spec('3.4'),
+  spec('3.4, 3.5'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -579,7 +579,7 @@ conformance('a head of step/4 is reserved', [
 ])
 
 conformance('a head of clause/2 is reserved', [
-  spec('3.4'),
+  spec('3.4, 3.5'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -589,7 +589,7 @@ conformance('a head of clause/2 is reserved', [
 ])
 
 conformance('a primitive cannot be a head', [
-  spec('3.4'),
+  spec('3.4, 3.5'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -599,7 +599,7 @@ conformance('a primitive cannot be a head', [
 ])
 
 conformance('a control cannot be a head', [
-  spec('3.4'),
+  spec('3.4, 3.5'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -640,7 +640,7 @@ conformance('query and contradiction need a goal', [
 ])
 
 conformance('a number cannot be a head', [
-  spec('3.4'),
+  spec('3.4, 3.5'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -650,7 +650,7 @@ conformance('a number cannot be a head', [
 ])
 
 conformance('an empty array is not a goal', [
-  spec('3.4'),
+  spec('3.4, 3.5'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -660,7 +660,7 @@ conformance('an empty array is not a goal', [
 ])
 
 conformance('a number is not a goal', [
-  spec('3.4'),
+  spec('3.4, 3.5'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -670,7 +670,7 @@ conformance('a number is not a goal', [
 ])
 
 conformance('a forward rule needs a premise', [
-  spec('3.4'),
+  spec('3.4, 3.5'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -831,5 +831,227 @@ conformance('backward rule inspection preserves a conjunction and shared variabl
   stdout([
     '// Conclusions: the facts the program derives, in the order derived.',
     'inspected(c(A), and(a(A), b(A)))',
+  ]),
+])
+
+// Additional boundary and specification-coverage cases.
+
+conformance("explicit predicate names reject the reserved name step", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('step')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit predicate names reject the reserved name clause", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('clause')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit predicate names reject the reserved name activated", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('activated')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit predicate names reject the reserved name forward", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('forward')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit predicate names reject the reserved name backward", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('backward')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit predicate names reject the reserved name struct", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('struct')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit predicate names reject the reserved name implies", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('implies')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit predicate names reject the reserved name implied_by", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('implied_by')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit predicate names reject the reserved name unify", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('unify')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit predicate names reject the reserved name not", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('not')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit names reject preds('a-b')", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('a-b')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit names reject vars('1X')", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "vars('1X')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit names reject vars('class')", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "vars('class')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("struct requires an atom name", [
+  spec("3.3"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "fact(struct(1, 2))",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("implies rejects 1 statement arguments", [
+  spec("3.4"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implies(p)",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("implies rejects 3 statement arguments", [
+  spec("3.4"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implies(p, q, r)",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("implied_by rejects 1 statement arguments", [
+  spec("3.4"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implied_by(p)",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("implied_by rejects 3 statement arguments", [
+  spec("3.4"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implied_by(p, q, r)",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("an open body list is not a conjunction", [
+  spec("3.5, 4.1"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implied_by(p, [q, ...T])",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("fact with no arguments states no clauses", [
+  spec("3.4, 3.5"),
+  stderr('empty'),
+  file('program.js', [
+    "fact()",
+  ]),
+  stdout([
+    "// No conclusions: the program derives no facts.",
   ]),
 ])

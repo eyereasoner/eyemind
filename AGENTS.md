@@ -26,11 +26,13 @@ goals, and keep error messages specific and user-facing text direct.
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
     library API. `version.js`: the version, synced from `package.json`.
 - `bin/eyemind.js`: the `eyemind` command.
-- `playground.html`: hand-written browser playground; it runs `src/` in a
-  module worker, with no build step.
+- `playground/index.html`: hand-written browser playground; it runs `src/`
+  in a module worker, with no build step. `playground.html` redirects older
+  shared links to the directory URL, preserving their query and fragment.
+  `playground/conformance.html` and `conformance/worker.js` run the shared suite in a browser.
 - `_config.yml`, `_layouts/default.html`, `assets/docs.css`: GitHub Pages
   renders the Markdown documents with one masthead (Guide, Playground,
-  Specification, Repository), the same nav the playground shows.
+  Specification, Conformance, Repository), the same nav the playground shows.
 - `examples/*.js`: runnable programs, listed in `examples/manifest.json` with
   their description, halt code and proof obligations. `examples/output/`,
   `examples/proof/` and `examples/check/` hold each one's saved conclusions,
@@ -142,11 +144,17 @@ about committing, pushing, and releasing.
 with the release script:
 
 ```sh
-./release                         # patch, message "Release vX.Y.Z"
-./release patch "<release message>"
-./release minor "<release message>"
-./release major "<release message>"
+./release patch "Improve reasoning and broaden conformance coverage"
+./release minor "Add rule inspection"
+./release major "Describe the incompatible language change"
 ```
+
+Every release message must describe what changed; never use only
+`Release vX.Y.Z` or a version number. Pass the message explicitly to the
+release script. It becomes the release commit subject, annotated tag message,
+GitHub release description and Actions run title for the release, publishing,
+CI and Pages workflows. Check the Actions titles and publication after a
+release. The script rejects empty and version-only messages before doing work.
 
 The script requires a clean working tree, switches to `main`, pulls with
 `--ff-only`, runs `npm test` under a memory cap, bumps the version with

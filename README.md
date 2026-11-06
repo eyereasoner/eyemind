@@ -9,7 +9,7 @@ draws conclusions, and every conclusion can come with a proof that a separate
 checker verifies against your program. It runs as a command-line program, a
 JavaScript library, and a browser application, with no dependencies.
 
-- **[Playground](https://eyereasoner.github.io/eyemind/playground)**: run
+- **[Playground](https://eyereasoner.github.io/eyemind/playground/)**: run
   programs in your browser.
 - **[Guide](https://eyereasoner.github.io/eyemind/GUIDE)**: run programs,
   write rules, check proofs, use the library, and develop eyemind.
@@ -18,8 +18,9 @@ JavaScript library, and a browser application, with no dependencies.
 - **[Examples](https://eyereasoner.github.io/eyemind/examples/)**:
   94 runnable programs, each with a card deck and saved conclusions, proofs
   and check reports.
-- **[Conformance suite](conformance/)**: 400 cases that test any
+- **[Conformance suite](conformance/)**: 530 cases that test any
   implementation of the specification through its command line.
+  Run the suite [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ```js
 fact(type('socrates', 'human'))

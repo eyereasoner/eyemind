@@ -631,3 +631,215 @@ conformance('canonical identity distinguishes signed zero inside terms', [
     'not_identical(f(0.0), f(-0.0))',
   ]),
 ])
+
+// Additional boundary and specification-coverage cases.
+
+conformance("an external goal rejects []", [
+  spec("4.1, 8.4"),
+  args("--goal '[]'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("an external goal rejects [p(1), ...T]", [
+  spec("4.1, 8.4"),
+  args("--goal '[p(1), ...T]'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("an external goal rejects [p(1), ...7]", [
+  spec("4.1, 8.4"),
+  args("--goal '[p(1), ...7]'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("an external goal rejects 7", [
+  spec("4.1, 8.4"),
+  args("--goal 7"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("zero goal control constructors use true and fail as specified", [
+  spec("4.2"),
+  stderr('empty'),
+  file('program.js', [
+    "query(and())",
+    "query(or())",
+    "query(not())",
+    "query(call())",
+    "query(once())",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "'true'",
+    "call('true')",
+    "once('true')",
+  ]),
+])
+
+conformance("single goal conjunction and disjunction constructors preserve their goals", [
+  spec("4.2"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(p(1), p(2))",
+    "query(and(p(1)))",
+    "query(or(p(2)))",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "p(1)",
+    "p(2)",
+  ]),
+])
+
+conformance("once preserves the alternatives of its caller", [
+  spec("4.2, 7.5"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(p(1), p(2), q(3), q(4))",
+    "query([p(X), once(q(Y))])",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "and(p(1), once(q(3)))",
+    "and(p(2), once(q(3)))",
+  ]),
+])
+
+conformance("findall preserves repeated derivations", [
+  spec("4.2, 7.4"),
+  args("--goal 'findall(X, p(X), L)' program.js"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(p(1), p(1))",
+  ]),
+  stdout([
+    "// Answers: each instance of a goal that holds.",
+    "findall(A, p(A), [1, 1])",
+  ]),
+])
+
+conformance("findall does not bind a collection-local variable outside the collection", [
+  spec("4.2, 7.2"),
+  args("--goal '[findall(X, p(X), L), is_var(X)]' program.js"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(p(1), p(2))",
+  ]),
+  stdout([
+    "// Answers: each instance of a goal that holds.",
+    "and(findall(A, p(A), [1, 2]), is_var(A))",
+  ]),
+])
+
+conformance("functor constructs an atom at arity zero", [
+  spec("2.1, 4.3"),
+  args("--goal 'functor(T, '\"'\"'atom'\"'\"', 0)'"),
+  stderr('empty'),
+  stdin([
+  ]),
+  stdout([
+    "// Answers: each instance of a goal that holds.",
+    "functor('atom', 'atom', 0)",
+  ]),
+])
+
+conformance("functor rejects construction arity -1", [
+  spec("4.3"),
+  args("--goal 'functor(T, '\"'\"'p'\"'\"', -1)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("functor rejects construction arity 1.0", [
+  spec("4.3"),
+  args("--goal 'functor(T, '\"'\"'p'\"'\"', 1.0)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("functor rejects construction arity 1025", [
+  spec("4.3"),
+  args("--goal 'functor(T, '\"'\"'p'\"'\"', 1025)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("an argument beyond a compounds arity fails without an error", [
+  spec("4.3"),
+  args("--goal 'arg(3, f(1, 2), X)'"),
+  stderr('empty'),
+  stdin([
+  ]),
+  stdout([
+    "// No answers: no instance of a goal holds.",
+  ]),
+])
+
+conformance("Unicode character primitives count and construct code points", [
+  spec("4.3"),
+  args("--goal 'atom_length('\"'\"'\ud83d\ude00'\"'\"', N)' --goal 'atom_codes(A, [0, 128512, 1114111])' --goal 'atom_chars('\"'\"'\ud83d\ude00a'\"'\"', L)'"),
+  stderr('empty'),
+  stdin([
+  ]),
+  stdout([
+    "// Answers: each instance of a goal that holds.",
+    "atom_length('\ud83d\ude00', 1)",
+    "atom_codes('\\u0000\ud83d\ude00\udbff\udfff', [0, 128512, 1114111])",
+    "atom_chars('\ud83d\ude00a', ['\ud83d\ude00', 'a'])",
+  ]),
+])
+
+conformance("number_chars rejects nonnumeric text by failure", [
+  spec("4.3"),
+  args("--goal 'number_chars(N, ['\"'\"'n'\"'\"', '\"'\"'o'\"'\"'])'"),
+  stderr('empty'),
+  stdin([
+  ]),
+  stdout([
+    "// No answers: no instance of a goal holds.",
+  ]),
+])
+
+conformance("atom_concat solves bound prefixes and suffixes", [
+  spec("4.3"),
+  args("--goal 'atom_concat('\"'\"'a'\"'\"', B, '\"'\"'ab'\"'\"')' --goal 'atom_concat(A, '\"'\"'b'\"'\"', '\"'\"'ab'\"'\"')'"),
+  stderr('empty'),
+  stdin([
+  ]),
+  stdout([
+    "// Answers: each instance of a goal that holds.",
+    "atom_concat('a', 'b', 'ab')",
+  ]),
+])

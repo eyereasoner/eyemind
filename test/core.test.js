@@ -22,6 +22,16 @@ function random(seed) {
 }
 
 export const tests = {
+  'goal lists must be nonempty and proper in text, terms and nested controls'() {
+    const source = program('fact(p([1, 2]), q(3))');
+    for (const goal of ['[]', '[p(1), ...T]', '[p(1), ...7]', 'call([])', 'once([q(3), ...T])', 'findall(X, [], L)']) {
+      throwsMatching(() => run(source, { goal }), /empty array|open list|improper list/);
+      throwsMatching(() => run(source, { goal: readTerm(goal) }), /empty array|open list|improper list/);
+    }
+    assert.deepEqual(run(source, { goal: readTerm('[p([1, 2]), q(3)]') }).answers, ['and(p([1, 2]), q(3))']);
+    throwsMatching(() => program('query(call([]))'), /empty array/);
+  },
+
   'proof bookkeeping visits shared derivations once'() {
     const source = program('fact(base)\nimplied_by(hidden, base)');
     let node = new Node(readTerm('not(hidden())'), 'absent');

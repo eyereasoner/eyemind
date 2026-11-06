@@ -4,7 +4,7 @@
 // is and(p(X), q(X)). A goal position is a statement's goal, an argument of
 // and, or, not, call or once, either part of a rule template, or the goal of
 // findall. Anywhere else an array is a list.
-import { EMPTY, Env, Struct, conjunction, properListItems } from './terms.js';
+import { EMPTY, Env, EyemindError, Struct, Var, conjunction, properListItems } from './terms.js';
 import { readTerm } from './reader.js';
 
 const EMPTY_ENV = new Env();
@@ -32,8 +32,12 @@ function isList(term) {
 export function normalizeGoal(term) {
   if (isList(term)) {
     const items = properListItems(term, EMPTY_ENV);
-    // An empty or open list stays a list; a goal position rejects it later.
-    if (items === null || !items.length) return term;
+    if (items === null) {
+      let tail = term;
+      while (isList(tail) && tail !== EMPTY) tail = tail.args[1];
+      throw new EyemindError(tail instanceof Var ? 'an open list is not a goal' : 'an improper list is not a goal');
+    }
+    if (!items.length) throw new EyemindError('an empty array is not a goal');
     return conjunction(items.map(normalizeGoal));
   }
   if (!(term instanceof Struct)) return term;
@@ -61,5 +65,5 @@ export function readGoal(text) {
 
 // A goal given either as text or as a term already.
 export function goalTerm(goal) {
-  return typeof goal === 'string' ? readGoal(goal) : goal;
+  return typeof goal === 'string' ? readGoal(goal) : normalizeGoal(goal);
 }

@@ -15,22 +15,30 @@ node conformance/run.js 11-checking.js -v               # one file, listing ever
 
 The suite also runs with eyemind's own tests (`npm test`). `manifest.json` lists
 the case files in order, with the SPEC sections and the topic of each.
+[Run the same cases in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Coverage
 
 | File | SPEC | Cases | What it tests |
 | --- | --- | --- | --- |
-| [03-terms.js](03-terms.js) | 2 | 27 | Unification, the occurs check, integers and finite floats, lists, the standard order |
-| [04-programs.js](04-programs.js) | 3, 6 | 63 | Statements, clause numbering, names a program leaves undefined, rejected clauses, stratification |
-| [05-controls-and-primitives.js](05-controls-and-primitives.js) | 4 | 56 | Every control and primitive, and the errors of their flow patterns |
-| [06-arithmetic.js](06-arithmetic.js) | 5 | 45 | The meaning of every arithmetic term and function, exact integers, and each error |
-| [07-reasoning.js](07-reasoning.js) | 8 | 37 | Search order, forward rounds, Skolem terms, conclusions, halting, bounds |
+| [03-terms.js](03-terms.js) | 2 | 30 | Unification, the occurs check, integers and finite floats, lists, the standard order |
+| [04-programs.js](04-programs.js) | 3, 6 | 83 | Statements, clause numbering, names a program leaves undefined, rejected clauses, stratification |
+| [05-controls-and-primitives.js](05-controls-and-primitives.js) | 4 | 73 | Every control and primitive, and the errors of their flow patterns |
+| [06-arithmetic.js](06-arithmetic.js) | 5 | 103 | The meaning of every arithmetic term and function, exact integers, and each error |
+| [07-reasoning.js](07-reasoning.js) | 7, 8 | 42 | Search order, forward rounds, Skolem terms, conclusions, halting, bounds |
 | [08-canonical-text.js](08-canonical-text.js) | 9 | 19 | The one spelling of atoms, numbers, variables, lists and compounds |
-| [09-reading.js](09-reading.js) | 9.1 | 41 | What a document reader accepts, and what it must reject without running anything |
+| [09-reading.js](09-reading.js) | 9.1 | 56 | What a document reader accepts, and what it must reject without running anything |
 | [10-proofs.js](10-proofs.js) | 10 | 17 | Proof documents for every kind of justification, step order and sharing |
-| [11-checking.js](11-checking.js) | 11, 12 | 51 | Valid proofs and proofs tampered with to break each of C1-C8, with their exact reports |
+| [11-checking.js](11-checking.js) | 11, 12 | 63 | Valid proofs and proofs tampered with to break each of C1-C8, with their exact reports |
 | [13-unused.js](13-unused.js) | 13.2 | 11 | Unused clauses, including those a negation or collection consults |
 | [14-command-line.js](14-command-line.js) | 13.1 | 33 | Options, their combinations, standard input, errors and exit codes |
+
+Every behavioral subsection of SPEC Sections 2–13 has an explicitly tagged
+case, and Section 15 has document-security cases. The suite includes every
+arithmetic function, its arity errors, every control and primitive, and valid
+and forged certificates covering C1–C8. Tags index the requirements exercised;
+they do not imply exhaustive coverage of all inputs or combinations. Section 14
+allows the host math library's last-digit differences.
 
 ## Case format
 

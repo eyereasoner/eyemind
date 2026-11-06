@@ -159,16 +159,13 @@ function runInProcess(reporter) {
   }
 }
 
-// The cases of 14-command-line.js, about options, standard input, errors and
-// exit codes, each through the eyemind command as a process of its own, so
-// they run side by side; results are reported in case order. Every case also
-// runs in process, through the same main, and starting Node for each costs
-// more than most cases take: node conformance/run.js --command "node
-// bin/eyemind.js" runs them all through the command.
+// Every conformance case also runs through the actual command, in a process
+// and directory of its own. Results retain case order; bounded concurrency
+// keeps process startup from dominating the suite.
 async function runThroughCommandLine(reporter) {
   const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
-  const cases = casesFor(reporter).filter((item) => item.where.startsWith('14-command-line.js:'));
+  const cases = casesFor(reporter);
   const outcomes = new Array(cases.length);
   let next = 0;
   const one = (item) => new Promise((resolve) => {
@@ -202,7 +199,7 @@ async function runThroughCommandLine(reporter) {
 }
 
 // The playground's tests, in order, on one page of a headless Chrome that
-// loads playground.html from a server of the repository started here.
+// loads playground/index.html from a server of the repository started here.
 async function runPlayground(reporter) {
   const { tests, prepare } = await import('./playground.js');
   const wanted = tests.filter(([name]) => reporter.wanted(`playground: ${name}`));
@@ -233,7 +230,7 @@ async function runPlayground(reporter) {
     return;
   }
   try {
-    const base = `${server.url}playground.html`;
+    const base = `${server.url}playground/`;
     for (const [name, test] of wanted) {
       const begun = performance.now();
       let problem = null;
