@@ -88,7 +88,11 @@ function lineMatches(expected, actual) {
   return new RegExp(`^${pattern}$`).test(actual);
 }
 
-function sameJson(a, b) {
+// Whether actual JSON data equals the expected, where an expected string with
+// … matches as an expected line does.
+function sameJson(actual, expected) {
+  if (typeof expected === 'string' && typeof actual === 'string') return lineMatches(expected, actual);
+  const [a, b] = [actual, expected];
   if (a === b) return true;
   if (!a || !b || typeof a !== 'object' || typeof b !== 'object' || Array.isArray(a) !== Array.isArray(b)) return false;
   const keys = Object.keys(a);

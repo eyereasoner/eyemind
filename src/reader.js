@@ -79,6 +79,7 @@ class Tokens {
             if (digits.length > 1 && digits[0] === '0') throw this.error(`an integer has no leading zero: ${digits}`, line);
             return { kind: 'int', text: digits, line };
           }
+          if (/^0\d/.test(match[2])) throw this.error(`a number has no leading zero: ${match[2]}`, line);
           return { kind: 'float', text: match[2], line };
         } else if (isNameStart(code)) {
           const start = pos;

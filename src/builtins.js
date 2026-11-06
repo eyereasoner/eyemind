@@ -13,7 +13,7 @@
 import * as arith from './arith.js';
 import {
   EyemindError, Struct, Var, codePoints, compareTerms, copyResolved, deref, identical, isGround, key,
-  listFromItems, nonfinite, properListItems, unify,
+  listFromItems, properListItems, unify,
 } from './terms.js';
 import { floatText } from './writer.js';
 
@@ -49,6 +49,7 @@ function functor(args, resolved, env, bind) {
   const count = boundedInteger(arity, 0, 1024);
   if (name instanceof Var) throw new EyemindError('functor/3 needs a bound name');
   if (count > 0 && typeof name !== 'string') throw new EyemindError('functor/3 needs an atom name');
+  if (name instanceof Struct) throw new EyemindError('functor/3 needs an atomic name');
   // Unique names across primitive invocations preserve variable isolation.
   functorSerial++;
   if (count === 0) return bind(args[0], name);
@@ -129,7 +130,8 @@ function numberChars(args, resolved, env, bind) {
   if (!match) return false;
   if (match[1] !== undefined) return bind(args[0], BigInt(text));
   const value = Number(text);
-  if (!Number.isFinite(value)) throw nonfinite(value, 'number_chars/2: ');
+  // Text too large for a finite float names no number term.
+  if (!Number.isFinite(value)) return false;
   return bind(args[0], value);
 }
 

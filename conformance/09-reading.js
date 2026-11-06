@@ -1279,3 +1279,129 @@ conformance('goal text rejects a name with a dollar sign', [
   stdin([]),
   stdout([]),
 ])
+
+// Behaviors the specification settles explicitly (resolved gaps).
+
+conformance('a float with a leading zero is rejected', [
+  spec('9.1'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'facts_from(\'data.js\')',
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    'd(00.5)',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('a float with a leading zero before its exponent is rejected', [
+  spec('9.1'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'facts_from(\'data.js\')',
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    'd(05e1)',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('zero before a point or exponent reads as a float', [
+  spec('9.1'),
+  file('program.js', [
+    'facts_from(\'data.js\')',
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    'd(0.5)',
+    'd(0e1)',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'd(0.5)',
+    'd(0.0)',
+  ]),
+])
+
+conformance('a float literal that underflows reads as a zero of its sign', [
+  spec('9.1'),
+  file('program.js', [
+    'facts_from(\'data.js\')',
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    'd(1e-400)',
+    'd(-1e-400)',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'd(0.0)',
+    'd(-0.0)',
+  ]),
+])
+
+conformance('a float literal too large for a finite float is rejected', [
+  spec('9.1'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'facts_from(\'data.js\')',
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    'd(1e400)',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('a raw carriage return in a string is rejected', [
+  spec('9.1'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'facts_from(\'data.js\')',
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    'd(\'a\rb\')',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('U+2028 and U+2029 are allowed in a string as themselves', [
+  spec('9.1, 9.2'),
+  file('program.js', [
+    'facts_from(\'data.js\')',
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    'd(\'a\u2028b\u2029c\')',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'd(\'a\\u2028b\\u2029c\')',
+  ]),
+])
+
+conformance('a decoded variable named _ is one named variable', [
+  spec('9.1, 9.2'),
+  file('program.js', [
+    'facts_from(\'data.js\')',
+    'query(d(X, Y))',
+  ]),
+  file('data.js', [
+    'd(VAR___, VAR___)',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'd(A, A)',
+  ]),
+])

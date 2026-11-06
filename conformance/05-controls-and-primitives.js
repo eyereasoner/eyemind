@@ -1944,3 +1944,197 @@ conformance('a primitive name used with another arity has no solution', [
     '// No answers: no instance of a goal holds.',
   ]),
 ])
+
+// Behaviors the specification settles explicitly (resolved gaps).
+
+conformance('a one-element goal array is its goal', [
+  spec('4.1'),
+  args('--goal "[unify(X, 1)]"'),
+  stdin([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'unify(1, 1)',
+  ]),
+])
+
+conformance('an array in a control argument of goal text is answered as an and chain', [
+  spec('4.1'),
+  args('--goal "once([p(X), p(Y)])" program.js'),
+  file('program.js', [
+    'fact(p(1))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'once(and(p(1), p(1)))',
+  ]),
+])
+
+conformance('a goal variable bound to a number is an error', [
+  spec('4.1'),
+  args('--goal "[unify(G, 1), call(G)]"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('an unbound goal variable is an error', [
+  spec('4.1'),
+  args('--goal "call(G)"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('a list bound to a goal variable at run time is not a conjunction', [
+  spec('4.1'),
+  args('--goal "[unify(G, [p(X)]), call(G)]" program.js'),
+  file('program.js', [
+    'fact(p(1))',
+  ]),
+  stdout([
+    '// No answers: no instance of a goal holds.',
+  ]),
+])
+
+conformance('arg of an atom fails', [
+  spec('4.3'),
+  args('--goal "arg(1, \'a\', A)"'),
+  stdin([]),
+  stdout([
+    '// No answers: no instance of a goal holds.',
+  ]),
+])
+
+conformance('arg position above 1024 is an error', [
+  spec('4.3'),
+  args('--goal "arg(1025, f(1), A)"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('a float arg position is an error', [
+  spec('4.3'),
+  args('--goal "arg(1.0, f(1), A)"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('functor with arity 0 and a number name gives the number', [
+  spec('4.3'),
+  args('--goal "functor(T, 3, 0)"'),
+  stdin([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'functor(3, 3, 0)',
+  ]),
+])
+
+conformance('functor with a compound name is an error', [
+  spec('4.3'),
+  args('--goal "functor(T, f(1), 0)"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('univ of a one-number list gives the number', [
+  spec('4.3'),
+  args('--goal "univ(T, [3])"'),
+  stdin([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'univ(3, [3])',
+  ]),
+])
+
+conformance('univ with a partial list is an error', [
+  spec('4.3'),
+  args('--goal "univ(T, [\'f\', ...R])"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('univ with the empty list is an error', [
+  spec('4.3'),
+  args('--goal "univ(T, [])"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('univ with a number first and arguments is an error', [
+  spec('4.3'),
+  args('--goal "univ(T, [3, 1])"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('atom_codes rejects a code above 0x10FFFF', [
+  spec('4.3'),
+  args('--goal "atom_codes(A, [1114112])"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('atom_codes rejects a negative code', [
+  spec('4.3'),
+  args('--goal "atom_codes(A, [-1])"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('atom_codes gives a lone surrogate for its code', [
+  spec('4.3'),
+  args('--goal "atom_codes(A, [55296])"'),
+  stdin([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'atom_codes(\'\\ud800\', [55296])',
+  ]),
+])
+
+conformance('number_chars fails on text too large for a finite float', [
+  spec('4.3'),
+  args('--goal "number_chars(N, [\'1\', \'e\', \'4\', \'0\', \'0\'])"'),
+  stdin([]),
+  stdout([
+    '// No answers: no instance of a goal holds.',
+  ]),
+])
+
+conformance('number_chars reads a trailing point and a signed exponent', [
+  spec('4.3'),
+  args('--goal "number_chars(N, [\'1\', \'.\'])" --goal "number_chars(M, [\'2\', \'E\', \'-\', \'2\'])"'),
+  stdin([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'number_chars(1.0, [\'1\', \'.\'])',
+    'number_chars(0.02, [\'2\', \'E\', \'-\', \'2\'])',
+  ]),
+])

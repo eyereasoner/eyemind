@@ -4,9 +4,10 @@ import { containsTemplate, expandTemplates } from './templates.js';
 import { subgoals } from './goals.js';
 import { hasInspection, inspectionTerm } from './inspection.js';
 import {
-  Env, EyemindError, Struct, Var, deref, flattenConjunction, freshTerm, identity, isCallable,
+  EMPTY, Env, EyemindError, Struct, Var, deref, flattenConjunction, freshTerm, identity, isCallable,
   isGround, isTerm, key, keyArity, unify, variables,
 } from './terms.js';
+import { write } from './writer.js';
 
 export const CONTROL_KEYS = new Set(['and/2', 'or/2', 'not/1', 'call/1', 'once/1', 'findall/3']);
 export const RESERVED_KEYS = new Set(['step/4', 'clause/2', 'activated/2', 'implies/2', 'implied_by/2', 'forward/2', 'backward/2']);
@@ -134,6 +135,10 @@ export class Program {
       for (const [position, item] of heads.entries()) {
         if (templatePositions.has(position)) continue;
         if (!isCallable(item)) throw new EyemindError(`line ${source.line}: a head must be an atom or a compound term`);
+        // A list goal is a conjunction, so a clause with a list head could never be called.
+        if (item === EMPTY || isTerm(item, '.', 2)) {
+          throw new EyemindError(`line ${source.line}: a head cannot be a list; name the relation, such as items(${write(item)})`);
+        }
         const itemKey = keys.of(item);
         headKey = itemKey;
         if (allowed.has(itemKey)) continue;

@@ -1973,3 +1973,153 @@ conformance('a proof binds a head-only variable to its Skolem term', [
     "step(person('ann'), clause(1), {}, [])",
   ]),
 ])
+
+// Behaviors the specification settles explicitly (resolved gaps).
+
+conformance('a rule publishes its conclusions solution by solution, heads in order', [
+  spec('8.2'),
+  file('program.js', [
+    'fact(p(1))',
+    'fact(p(2))',
+    'implies(p(X), [a(X), b(X)])',
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'a(1)',
+    'b(1)',
+    'a(2)',
+    'b(2)',
+  ]),
+])
+
+conformance('captured variables are listed in order of first occurrence in the template', [
+  spec('6.2, 8.2'),
+  file('program.js', [
+    'fact(s(1, 2))',
+    'fact(t(9))',
+    'implies(s(X, Y), implies([t(Z), gt(Y, X)], u(Z, W)))',
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'u(9, skolem(4, \'W\', [[2, 1], 9]))',
+  ]),
+])
+
+conformance('captured variables follow the template, not the generator', [
+  spec('6.2, 8.2'),
+  file('program.js', [
+    'fact(s(1, 2))',
+    'fact(t(9))',
+    'implies(s(X, Y), implies(t(Z), u(Y, X, Z, W)))',
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'u(2, 1, 9, skolem(4, \'W\', [[2, 1], 2, 1, 9]))',
+  ]),
+])
+
+conformance('max_iterations counts the final round that adds nothing', [
+  spec('8.3'),
+  args('--max-iterations 1 program.js'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(n(0))',
+    'implies(n(0), n(1))',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('two rounds suffice for one productive round', [
+  spec('8.3'),
+  args('--max-iterations 2 program.js'),
+  file('program.js', [
+    'fact(n(0))',
+    'implies(n(0), n(1))',
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'n(1)',
+  ]),
+])
+
+conformance('max_depth counts the rule bodies a goal is nested in', [
+  spec('8.3'),
+  args('--max-depth 1 --goal "q(X)" program.js'),
+  file('program.js', [
+    'fact(p(1))',
+    'implied_by(q(X), p(X))',
+    'implied_by(r(X), q(X))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'q(1)',
+  ]),
+])
+
+conformance('max_depth stops a goal nested one rule body too deep', [
+  spec('8.3'),
+  args('--max-depth 1 --goal "r(X)" program.js'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(p(1))',
+    'implied_by(q(X), p(X))',
+    'implied_by(r(X), q(X))',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('max_inferences counts a conjunction as a goal started', [
+  spec('8.3'),
+  args('--max-inferences 2 --goal "[p(X), p(Y)]" program.js'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(p(1))',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('three inferences answer a conjunction of two goals', [
+  spec('8.3'),
+  args('--max-inferences 3 --goal "[p(X), p(Y)]" program.js'),
+  file('program.js', [
+    'fact(p(1))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'and(p(1), p(1))',
+  ]),
+])
+
+conformance('a bound error writes no conclusions, not even earlier answers', [
+  spec('8.3'),
+  args('--max-depth 50 --goal "n(X)" --goal "loop(1)" program.js'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(n(0))',
+    'implies([n(X), lt(X, 2), is(Y, add(X, 1))], n(Y))',
+    'implied_by(loop(X), loop(X))',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('separate goals share no variables', [
+  spec('8.4'),
+  args('--goal "p(X)" --goal "q(X)" program.js'),
+  file('program.js', [
+    'fact(p(1))',
+    'fact(q(2))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(1)',
+    'q(2)',
+  ]),
+])

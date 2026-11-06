@@ -1900,3 +1900,91 @@ conformance('nested conjunction arrays in a body are flattened', [
     'step(s(1), clause(3), {}, [])',
   ]),
 ])
+
+// Behaviors the specification settles explicitly (resolved gaps).
+
+conformance('scripts share no declarations', [
+  spec('3.1'),
+  args('a.js b.js'),
+  file('a.js', [
+    'const K = 3',
+  ]),
+  file('b.js', [
+    'fact(p(K))',
+    'query(p(X))',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'p(A)',
+  ]),
+])
+
+conformance('float of a BigInt is the arithmetic function float/1', [
+  spec('3.3'),
+  file('program.js', [
+    'fact(p(float(2n)))',
+    'query(p(X))',
+    'query(is(Y, float(2n)))',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'p(float(2))',
+    'is(2.0, float(2))',
+  ]),
+])
+
+conformance('a list cannot be the head of a backward rule', [
+  spec('3.5'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'implied_by([p, q], r)',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('a list cannot be a fact', [
+  spec('3.5'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact([1])',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('the empty list cannot be a fact', [
+  spec('3.5'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact([])',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('a list cannot be a forward head conjunct', [
+  spec('3.5'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(a)',
+    'implies(a, [b, [1]])',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('spreading a variable before the last item is an error', [
+  spec('2.2, 3.3'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(p([...T, 1]))',
+  ]),
+  stdout([
+  ]),
+])

@@ -1192,3 +1192,105 @@ conformance('a proof is refused when a later clause binds a variable a mode test
   ]),
   stdout([]),
 ])
+
+// Behaviors the specification settles explicitly (resolved gaps).
+
+conformance('a disjunction chain solved on its left has a step for each level', [
+  spec('10.3'),
+  args('--proof program.js'),
+  file('program.js', [
+    'fact(a)',
+    'implied_by(r, or(or(a, b), c))',
+    'query(r)',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    '\'r\'',
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    'clause(1, fact(\'a\'))',
+    'clause(2, implied_by(\'r\', or(\'a\', \'b\', \'c\')))',
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
+    'step(\'r\', clause(2), {}, [or(\'a\', \'b\', \'c\')])',
+    'step(or(\'a\', \'b\', \'c\'), \'control\', {}, [or(\'a\', \'b\')])',
+    'step(or(\'a\', \'b\'), \'control\', {}, [\'a\'])',
+    'step(\'a\', clause(1), {}, [])',
+  ]),
+])
+
+conformance('a disjunction chain solved on its right uses that side directly', [
+  spec('10.3'),
+  args('--proof program.js'),
+  file('program.js', [
+    'fact(c)',
+    'implied_by(r, or(or(a, b), c))',
+    'query(r)',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    '\'r\'',
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    'clause(1, fact(\'c\'))',
+    'clause(2, implied_by(\'r\', or(\'a\', \'b\', \'c\')))',
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
+    'step(\'r\', clause(2), {}, [or(\'a\', \'b\', \'c\')])',
+    'step(or(\'a\', \'b\', \'c\'), \'control\', {}, [\'c\'])',
+    'step(\'c\', clause(1), {}, [])',
+  ]),
+])
+
+conformance('an and in a body is displayed flattened', [
+  spec('10.2'),
+  args('--proof program.js'),
+  file('program.js', [
+    'fact(a)',
+    'fact(b)',
+    'implied_by(r, and(a, b))',
+    'query(r)',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    '\'r\'',
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    'clause(1, fact(\'a\'))',
+    'clause(2, fact(\'b\'))',
+    'clause(3, implied_by(\'r\', [\'a\', \'b\']))',
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
+    'step(\'r\', clause(3), {}, [\'a\', \'b\'])',
+    'step(\'a\', clause(1), {}, [])',
+    'step(\'b\', clause(2), {}, [])',
+  ]),
+])
+
+conformance('a binding key that is not a plain name is a string', [
+  spec('10.3'),
+  args('--proof program.js'),
+  file('program.js', [
+    'facts_from(\'data.js\')',
+    'implies(p(X), q(X))',
+  ]),
+  file('data.js', [
+    'p(VAR_A_2d_B)',
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'q(skolem(2, \'X\', []))',
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    'clause(1, fact(p(VAR_A_2d_B)))',
+    'clause(2, implies(p(X), q(X)))',
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
+    'step(q(skolem(2, \'X\', [])), clause(2), {X: skolem(2, \'X\', [])}, [p(skolem(2, \'X\', []))])',
+    'step(p(skolem(2, \'X\', [])), clause(1), {\'A-B\': skolem(2, \'X\', [])}, [])',
+  ]),
+])

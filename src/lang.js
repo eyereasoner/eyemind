@@ -153,16 +153,18 @@ class Builder {
     this.embedded = new Set();
   }
 
-  add(kind, head, body, line = null) {
+  // anonymous says whether the program's _ still needs numbering; a document's
+  // terms come numbered, and its variable decoded as _ is a named one.
+  add(kind, head, body, line = null, anonymous = true) {
     if (line === null) line = statedLine !== null ? statedLine : this.locate();
     const pending = [head, ...body];
     const counter = new Anonymous(head, body);
     // In the order the statement writes them: a forward rule, implies(),
     // writes its premise first.
-    if (kind !== 'backward') {
+    if (anonymous && kind !== 'backward') {
       body = body.map((goal) => renameAnonymous(goal, counter));
       head = renameAnonymous(head, counter);
-    } else {
+    } else if (anonymous) {
       head = renameAnonymous(head, counter);
       body = body.map((goal) => renameAnonymous(goal, counter));
     }
@@ -322,7 +324,7 @@ function exportsFor(io) {
       }
       // Each fact is stated by this call, so it records the call's line, as
       // every clause records the line of the statement that states it.
-      for (const [term] of terms) builder.add('fact', term, [], line);
+      for (const [term] of terms) builder.add('fact', term, [], line, false);
     },
     struct: (name, ...args) => {
       if (typeof name !== 'string') throw new EyemindError('struct() needs a name string first');

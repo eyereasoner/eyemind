@@ -22,15 +22,15 @@ the case files in order, with the SPEC sections and the topic of each.
 | File | SPEC | Cases | What it tests |
 | --- | --- | --- | --- |
 | [03-terms.js](03-terms.js) | 2 | 90 | Unification, the occurs check, integers and finite floats, lists, the standard order |
-| [04-programs.js](04-programs.js) | 3, 6 | 150 | Statements, clause numbering, names a program leaves undefined, rejected clauses, stratification |
-| [05-controls-and-primitives.js](05-controls-and-primitives.js) | 4 | 173 | Every control and primitive, and the errors of their flow patterns |
-| [06-arithmetic.js](06-arithmetic.js) | 5 | 184 | The meaning of every arithmetic term and function, exact integers, and each error |
-| [07-reasoning.js](07-reasoning.js) | 7, 8 | 145 | Search order, forward rounds, Skolem terms, conclusions, halting, bounds |
+| [04-programs.js](04-programs.js) | 3, 6 | 157 | Statements, clause numbering, names a program leaves undefined, rejected clauses, stratification |
+| [05-controls-and-primitives.js](05-controls-and-primitives.js) | 4 | 192 | Every control and primitive, and the errors of their flow patterns |
+| [06-arithmetic.js](06-arithmetic.js) | 5 | 191 | The meaning of every arithmetic term and function, exact integers, and each error |
+| [07-reasoning.js](07-reasoning.js) | 7, 8 | 156 | Search order, forward rounds, Skolem terms, conclusions, halting, bounds |
 | [08-canonical-text.js](08-canonical-text.js) | 9 | 57 | The one spelling of atoms, numbers, variables, lists and compounds |
-| [09-reading.js](09-reading.js) | 9.1 | 107 | What a document reader accepts, and what it must reject without running anything |
-| [10-proofs.js](10-proofs.js) | 10 | 56 | Proof documents for every kind of justification, step order and sharing |
-| [11-checking.js](11-checking.js) | 11, 12 | 153 | Valid proofs and proofs tampered with to break each of C1-C8, with their exact reports |
-| [13-unused.js](13-unused.js) | 13.2 | 26 | Unused clauses, including those a negation or collection consults |
+| [09-reading.js](09-reading.js) | 9.1 | 115 | What a document reader accepts, and what it must reject without running anything |
+| [10-proofs.js](10-proofs.js) | 10 | 60 | Proof documents for every kind of justification, step order and sharing |
+| [11-checking.js](11-checking.js) | 11, 12 | 163 | Valid proofs and proofs tampered with to break each of C1-C8, with their exact reports |
+| [13-unused.js](13-unused.js) | 13.2 | 29 | Unused clauses, including those a negation or collection consults |
 | [14-command-line.js](14-command-line.js) | 13.1 | 60 | Options, their combinations, standard input, errors and exit codes |
 
 Every behavioral subsection of SPEC Sections 2–13 has an explicitly tagged

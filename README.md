@@ -18,7 +18,7 @@ JavaScript library, and a browser application, with no dependencies.
 - **[Examples](https://eyereasoner.github.io/eyemind/examples/)**:
   94 runnable programs, each with a card deck and saved conclusions, proofs
   and check reports.
-- **[Conformance suite](conformance/)**: 1201 cases that test any
+- **[Conformance suite](conformance/)**: 1270 cases that test any
   implementation of the specification through its command line.
   Run the suite [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 

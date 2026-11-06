@@ -2041,3 +2041,79 @@ conformance('error: an arithmetic error inside a comparison', [
   stdin([]),
   stdout([]),
 ])
+
+// Behaviors the specification settles explicitly (resolved gaps).
+
+conformance('min and max keep the first of equal operands', [
+  spec('5.3'),
+  args('--goal "is(A, min(1, 1.0))" --goal "is(B, min(1.0, 1))" --goal "is(C, max(1, 1.0))" --goal "is(D, max(1.0, 1))"'),
+  stdin([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'is(1, min(1, 1.0))',
+    'is(1.0, min(1.0, 1))',
+    'is(1, max(1, 1.0))',
+    'is(1.0, max(1.0, 1))',
+  ]),
+])
+
+conformance('a zero quotient of integers has the sign binary64 division gives it', [
+  spec('5.3'),
+  args('--goal "is(X, div(0, -5))" --goal "is(Y, div(0, 5))"'),
+  stdin([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'is(-0.0, div(0, -5))',
+    'is(0.0, div(0, 5))',
+  ]),
+])
+
+conformance('sqrt of negative zero is negative zero', [
+  spec('5.3'),
+  args('--goal "is(X, sqrt(-0.0))"'),
+  stdin([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'is(-0.0, sqrt(-0.0))',
+  ]),
+])
+
+conformance('a logarithm with base 1 is an error', [
+  spec('5.4'),
+  args('--goal "is(X, log(2, 1))"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('a logarithm with base 0 is an error', [
+  spec('5.4'),
+  args('--goal "is(X, log(2, 0))"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('a logarithm with a negative base is an error', [
+  spec('5.4'),
+  args('--goal "is(X, log(2, -2))"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])
+
+conformance('isqrt of a float is an error', [
+  spec('5.4'),
+  args('--goal "is(X, isqrt(4.0))"'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([
+  ]),
+])

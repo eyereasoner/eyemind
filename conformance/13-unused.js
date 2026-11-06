@@ -351,3 +351,51 @@ conformance("unused clauses of a program read from standard input", [
     "unused(line(2), fact(q(2)))",
   ]),
 ])
+
+// Behaviors the specification settles explicitly (resolved gaps).
+
+conformance('--unused lists nothing and exits 0 for a program that halts', [
+  spec('13.2'),
+  args('--unused program.js'),
+  file('program.js', [
+    'fact(a)',
+    'implies(a, b)',
+    'contradiction(b)',
+  ]),
+  stdout([
+  ]),
+])
+
+conformance('--unused gives each clause its line in its own script', [
+  spec('13.2'),
+  args('--unused a.js b.js'),
+  file('a.js', [
+    'fact(a)',
+    '',
+    'fact(z)',
+  ]),
+  file('b.js', [
+    '',
+    'fact(y)',
+    'query(a)',
+  ]),
+  stdout([
+    'unused(line(3), fact(\'z\'))',
+    'unused(line(2), fact(\'y\'))',
+  ]),
+])
+
+conformance('clauses only a contradiction that never fires consults are unused', [
+  spec('13.2'),
+  args('--unused program.js'),
+  file('program.js', [
+    'fact(a)',
+    'fact(g)',
+    'contradiction([a, not(g)])',
+    'query(a)',
+  ]),
+  stdout([
+    'unused(line(2), fact(\'g\'))',
+    'unused(line(3), contradiction(\'a\', not(\'g\')))',
+  ]),
+])

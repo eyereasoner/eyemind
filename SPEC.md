@@ -165,7 +165,8 @@ Lists use bracket syntax:
 For example, `[1, 2]` and `[1, ...[2]]` denote the same list. A **proper
 list** ends in `[]`. A tail left as a variable gives an **open list**;
 a non-list tail gives an **improper list**. Only the final item may be a
-spread tail. In document syntax, `[...Tail]` denotes `Tail` itself.
+spread tail; a program that spreads a logical variable or compound before
+the last item, as in `[...T, 1]`, MUST raise an error. In document syntax, `[...Tail]` denotes `Tail` itself.
 Program spread expressions also follow Section 3.3.
 
 The empty list is the atom whose text is `[]`, so `'[]'` denotes the same
@@ -211,7 +212,10 @@ A program consists of one or more non-strict JavaScript scripts. Each script
 may use JavaScript declarations, expressions, functions and control flow to
 construct its clauses. No import is required for the statements and term
 constructors defined here. Clauses are stated in the order their statement
-calls occur; multiple input scripts are processed in input order.
+calls occur; multiple input scripts are processed in input order. Each
+script runs in a scope of its own: a name one script declares is, in
+another script, resolved as Section 3.2 specifies, so scripts share no
+declarations.
 
 The supplied names are the statements of Section 3.4, `forward`, `backward`,
 `preds`, `vars`, `struct`, the controls and primitives of Section 4, the
@@ -247,7 +251,9 @@ names `step`, `clause`, `activated`, `forward`, `backward`, `struct`,
 
 A top-level expression statement that calls a predicate supplied by rule 4,
 such as a misspelled `fcat(p(1))`, states nothing; a loader MUST report it as
-an error rather than ignore it.
+an error rather than ignore it. Only statements at the top level of a script
+are checked: inside a function or a block, such a call builds a term the
+script discards, and a loader MAY accept it.
 
 ### 3.3 Term construction
 
@@ -268,6 +274,9 @@ reading a data document (Section 9.1).
 | `[]`, `[T1, ..., Tn]`, `[Head, ...Tail]` | Lists (Section 2.2). |
 
 Thus `2.0` in a program is an integer; use `float(2)` for the float `2.0`.
+Applied to anything other than a JavaScript number, such as a `BigInt`, a
+string or a variable, `float(...)` is the ordinary compound `float/1`, the
+arithmetic function of Section 5.2: `is(Y, float(2n))` binds `Y` to `2.0`.
 Use a `BigInt` literal for an integer outside JavaScript's exact number
 range, for example `9007199254740993n`. Numeric expressions are evaluated by
 JavaScript before conversion to terms.
@@ -353,7 +362,9 @@ statement call begins; facts read by `facts_from` use that call's line.
 
 A clause MUST be rejected when:
 
-- a head is not an atom or compound;
+- a head is not an atom or compound, or is a list, the atom `'[]'` or a
+  `'.'/2` compound, which as a goal would be a conjunction (Section 4.1) and
+  could never call the clause;
 - a head uses `step/4` or `clause/2`, reserved for proof documents, or
   explicitly states the reserved predicate `activated/2`;
 - a head is a primitive or control, except the head `'true'` of a query or
@@ -373,7 +384,15 @@ specified in Section 6.
 
 A goal is an atom, a compound, a variable to be bound to a callable term,
 or a non-empty proper array of goals denoting their conjunction. A number,
-an empty array or an open or improper list is not a goal.
+an empty array or an open or improper list is not a goal. An array of one
+goal denotes that goal: `[p(X)]` is `p(X)`. Arrays of several goals denote
+the left-nested `and` chain, also in goal text, so the goal text
+`once([p(X), q(X)])` is answered as `once(and(p(1), q(1)))`.
+
+A variable called as a goal MUST be bound when it runs: an unbound variable,
+or one bound to a number, MUST raise an error. A variable bound to an atom or
+compound calls that term as it is; a list bound at run time is the compound
+`'.'/2`, not a conjunction, and so has no solution.
 
 Array-to-conjunction notation applies in these positions:
 
@@ -451,13 +470,13 @@ primitive called outside its patterns raises an error.
 | `is_atom(@X)`, `is_number(@X)` | | `X` is an atom, or a number. |
 | `is_int(@X)`, `is_float(@X)` | | `X` is an integer, or a float. |
 | `is_compound(@X)` | | `X` is a compound; a non-empty list is one. |
-| `functor` | `functor(+T, ?N, ?A)`, `functor(-T, +N, +A)` | Name and arity of `T`, or `T` built with fresh variable arguments. When constructing, `A` MUST be an integer from 0 to 1024. |
-| `arg` | `arg(+N, +T, ?A)` | `A` is the `N`th argument of `T`, counting from 1. |
-| `univ` | `univ(+T, ?L)`, `univ(-T, +L)` | `L` is the list of `T`'s name and arguments. |
+| `functor` | `functor(+T, ?N, ?A)`, `functor(-T, +N, +A)` | Name and arity of `T`, or `T` built with fresh variable arguments. When constructing, `A` MUST be an integer from 0 to 1024; with `A` 0, `N` MUST be atomic and `T` is `N` itself, so `functor(T, 3, 0)` gives `3`; with `A` above 0, `N` MUST be an atom. |
+| `arg` | `arg(+N, +T, ?A)` | `A` is the `N`th argument of `T`, counting from 1. `N` MUST be an integer from 1 to 1024. An atomic `T`, or an `N` above `T`'s arity, has no such argument, and `arg` fails. |
+| `univ` | `univ(+T, ?L)`, `univ(-T, +L)` | `L` is the list of `T`'s name and arguments; for atomic `T`, `[T]`. When constructing, `L` MUST be a non-empty proper list whose first element is an atom, or a one-element list of a number; a partial list raises an error. |
 | `atom_chars` | `atom_chars(+A, ?L)`, `atom_chars(-A, +L)` | `L` is the list of `A`'s characters as atoms. |
-| `atom_codes` | `atom_codes(+A, ?L)`, `atom_codes(-A, +L)` | `L` is the list of `A`'s character code points. |
+| `atom_codes` | `atom_codes(+A, ?L)`, `atom_codes(-A, +L)` | `L` is the list of `A`'s character code points. Each code MUST be an integer from 0 to 1114111 (0x10FFFF); a code of a lone surrogate gives that lone surrogate. |
 | `atom_length` | `atom_length(+A, ?N)` | `N` is the number of characters of `A`. |
-| `number_chars` | `number_chars(?N, +L)`, `number_chars(+N, -L)` | A bound `L` is read as a number: an optional sign and decimal digits give an integer, and with a fraction or an exponent a float, as in `'007'`, `'-21.5'`, `'.5'` and `'1E3'`; other text fails. Otherwise `L` spells `N` in its canonical text (Section 9.2). |
+| `number_chars` | `number_chars(?N, +L)`, `number_chars(+N, -L)` | A bound `L` is read as a number: an optional sign and decimal digits give an integer, and with a fraction or an exponent a float, as in `'007'`, `'-21.5'`, `'.5'`, `'1.'` and `'2E-2'`; other text fails, as does text whose value is too large for a finite float, such as `'1e400'`. Otherwise `L` spells `N` in its canonical text (Section 9.2). |
 | `atom_concat` | `atom_concat(+A, +B, ?AB)`, `atom_concat(?A, ?B, +AB)` | `AB` is `A` followed by `B`; with `AB` given, every split, shortest `A` first. |
 
 A character is a Unicode code point. Every primitive except `atom_concat` has
@@ -525,14 +544,16 @@ Integer arithmetic is exact and unbounded. Integer operands give an integer
 result except for `div`, a negative exponent in `pow`, and functions defined
 to return a float. Mixed `add`, `sub`, `mul`, `div`, `floordiv`, `mod` and
 `pow` give a float. Integer-conversion functions return integers; `min` and
-`max` return the selected operand with its original kind. No operation
+`max` return the selected operand with its original kind, and among equal
+operands the first: `min(1, 1.0)` is `1` and `min(1.0, 1)` is `1.0`. No operation
 implicitly makes an integer and a float unify.
 
 `floordiv` rounds down and `mod` has the divisor's sign:
 `floordiv(-7, 3)` is -3 and `mod(-7, 3)` is 2. `div` of integers rounds
 their exact quotient once to the nearest binary64 value, with halfway cases
 rounded to even, including in the subnormal range. Underflow to zero keeps
-the sign. `round(X)` gives an integer; `round(X, Digits)` rounds to the
+the sign, and a zero quotient has the sign binary64 division gives it:
+`div(0, -5)` is `-0.0`. `sqrt(-0.0)` is `-0.0`. `round(X)` gives an integer; `round(X, Digits)` rounds to the
 specified number of decimal places. Float spelling is defined in Section 9.2.
 
 Numeric comparison is exact across integers and floats. Bitwise operations
@@ -541,8 +562,10 @@ use unbounded two's-complement integers.
 ### 5.4 Arithmetic errors and limits
 
 An evaluation MUST raise an error, rather than produce a value, on a division
-or modulo by zero, a domain error (such as `sqrt(-1)` or `log(0)`), a bitwise
-operation, `gcd` or `lcm` on a float, a negative shift count, when the result
+or modulo by zero, a domain error (such as `sqrt(-1)`, `log(0)`, or a
+logarithm `log(X, B)` whose `X` or base `B` is not positive or whose `B` is
+1), a bitwise operation, `isqrt`, `gcd` or `lcm` on a float, a negative shift
+count, when the result
 is not a finite real number,
 or when a power or left shift would need more than 2^26 bits: for a power of
 integers `pow(A, B)` with `B > 0` and `abs(A) > 1`, when `B` times the bit
@@ -637,7 +660,8 @@ intermediate enabling steps: the generator's premises are direct uses of
 the derived rule's step. A nested instance retains all enclosing premises.
 
 For witness construction, a generating head's **scope projection** replaces
-each template conjunct by the list of its captured variables, leaving ordinary
+each template conjunct by the list of its captured variables, in order of
+their first occurrence in the template as written, leaving ordinary
 heads in place. These lists are compiler data and are never concluded as
 facts. Only variables of this projection participate in that firing's witness
 construction (Section 8.2). A witness introduced by the generator remains
@@ -812,7 +836,10 @@ In a round, clauses run in clause order. An appended clause runs its derived
 instances in the order they were created; a potential clause with no instance
 is skipped. Each instance searches only its own body with its captures bound.
 All instances of one clause search the same current state, and all solutions
-are collected before any conclusion of that clause is published:
+are collected before any conclusion of that clause is published. They are
+published solution by solution, in the order found, and the heads of each
+solution in their stated order: `implies(p(X), [a(X), b(X)])` over `p(1)`
+and `p(2)` publishes `a(1)`, `b(1)`, `a(2)`, `b(2)`. For each head:
 
 - a head variable the solution leaves unbound is bound to a **Skolem term**
   `skolem(Rule, Variable, Arguments)`: `Rule` is the clause number of the
@@ -864,13 +891,30 @@ A run is bounded by `max_depth`, the depth of nested rule bodies (default
 1000000), by `max_inferences`, the number of goals started (default
 1000000), and by `max_iterations`, the rounds per stratum (default 1000).
 Exceeding a bound MUST raise an error; a partial result MUST NOT be returned
-as complete.
+as complete. The bounds count as follows:
+
+- A goal solved by a rule is one level deeper than the goal whose body it is
+  in, and a goal asked from outside or a forward rule's premise is at level
+  0; solving a goal through more than `max_depth` nested rule bodies exceeds
+  the bound. A goal solved by a fact adds no level.
+- Every goal the search starts counts once toward `max_inferences`,
+  including each conjunction, control and primitive, in forward premises as
+  in goals: `[p(X), p(Y)]` against one fact starts three goals.
+- Every forward round of a stratum counts toward `max_iterations`,
+  including the final round that adds nothing; a stratum without forward
+  rules has no rounds.
+
+A run that exceeds a bound concludes nothing: the command line writes no
+conclusions to standard output, even answers found before the bound was
+reached, and exits with code 1 (Section 13.1).
 
 Each supplied bound MUST be a positive integer no greater than 9007199254740991.
 
 ### 8.4 External goals
 
-A run MAY be given goals. After forward reasoning, each goal is solved in
+A run MAY be given goals. Each goal is read on its own, so goals share no
+variables: `p(X)` and `q(X)` given separately ask two unrelated questions.
+After forward reasoning, each goal is solved in
 turn, and each solution is reported as the instance of its goal, unless an
 instance identical up to renaming of its variables was already reported for
 this goal or an earlier one of the same run.
@@ -935,7 +979,8 @@ expression per line. Readers accept exactly:
   float literal containing a point or exponent: a number;
 - a name: the variable of that name, where each `_` is a new anonymous
   variable (Section 4.2) and a name starting with `VAR_` is decoded
-  (Section 9.2), with malformed encodings rejected;
+  (Section 9.2), with malformed encodings rejected; a decoded name is a
+  named variable even when it is `_`, so `VAR___` twice is one variable;
 - a call of a plain name: the compound, or the atom when there are no
   arguments; `struct('name', ...)` as in Section 9.3; `and` and `or` with
   more than two arguments as in Section 4.2;
@@ -951,7 +996,12 @@ outside these forms MUST be rejected, including operators other than a
 numeric minus, property or subscript access, spread call arguments,
 assignments, declarations, functions and template literals. Numeric literals
 MUST be decimal without separators; integers other than `0` MUST NOT start
-with `0`. Reading canonical text MUST recover the original term.
+with `0`, and neither may the digits before a float's point or exponent, so
+`00.5` and `05.5` MUST be rejected while `0.5` and `0e1` are floats. A float
+literal denotes the nearest binary64 value: one that underflows reads as a
+zero of its sign, as `1e-400` reads as `0.0`, and one whose value is too
+large for a finite float MUST be rejected. Reading canonical text MUST
+recover the original term.
 
 A call's name and opening `(` MUST NOT be separated by a line feed outside
 a comment. The same restriction applies between a numeric minus and its
@@ -967,7 +1017,9 @@ conjunction rules of Section 4.1.
 String escapes are `\\`, `\'`, `\"`, `\n`, `\r`, `\t`, `\b`, `\f`,
 `\v`, `\0` (not followed by a decimal digit), `\xHH`, `\uHHHH` and
 `\u{H...}` with one to six hexadecimal digits denoting a Unicode code point.
-Other escapes and raw line breaks in strings MUST be rejected. Outside
+Other escapes and raw line breaks in strings MUST be rejected; a raw line
+break is a line feed or a carriage return, while the characters U+2028 and
+U+2029 are allowed in a string as themselves. Outside
 strings, layout consists of spaces, tabs, carriage returns, line feeds and
 the byte-order-mark character, plus comments. A line feed outside brackets
 ends the current expression statement.
@@ -1062,6 +1114,9 @@ array of heads, and `G1, ...` are the body goals themselves. Displays are not
 authority: a checker MUST compare each with the program it checks against.
 
 Each argument of a multi-argument `fact` has its own `fact(Head)` display.
+A body is displayed with its conjunctions flattened (Section 3.5), whether
+the program wrote them as arrays or with `and`: `implied_by(r, and(a, b))`
+has display `implied_by('r', ['a', 'b'])`.
 Conjunctive query and contradiction bodies are displayed as separate goal
 arguments: `query([p(X), q(X)])` has display `query(p(X), q(X))`.
 
@@ -1090,12 +1145,14 @@ order. `By` is one of:
 | `clause(N)` | `Goal` is an instance of a head of clause `N`, a fact or a rule, whose body instance is `Uses`. | the clause's variables | the body instance, empty for a fact |
 | `source(N)` | `Goal` is an instance of the inspectable source rule `N` as `implies(Body, Head)` or `implied_by(Head, Body)`. | empty | empty |
 | `'builtin'` | `Goal` is a primitive that holds. | empty | empty |
-| `'control'` | `Goal` is `call`, `once` or a disjunction, solved by `Uses`. | empty | the solved goals |
+| `'control'` | `Goal` is `call`, `once` or a disjunction, solved by `Uses`. | empty | the solved goals; for a disjunction, the side that was solved, so `or(or(A, B), C)` solved by `A` uses `or(A, B)`, which has a step of its own |
 | `'absent'` | `Goal` is a negation taken on trust. | empty | empty |
 | `'collected'` | `Goal` is a `findall` taken on trust. | empty | empty |
 
 `Bindings` is an object from each variable name of the cited clause, as
-the program wrote it, to its value in this step: `{X: 'socrates'}`. A
+the program wrote it, to its value in this step: `{X: 'socrates'}`. A key
+that is a plain name of Section 9.2 is written bare, and any other name as a
+string, such as `{'A-B': 1}`. A
 reasoner writes every variable of the clause, in the order the clause display
 first shows them (for `implies`, the premise first);
 a checker MUST accept partial bindings when the goal and uses determine the
@@ -1118,22 +1175,25 @@ detail and, where there is one, the term concerned.
 
 The document MUST read (Section 9.1); otherwise C3 fails and the document has
 no claims and no steps. Each `clause(N, Display)` MUST name a clause of the
-program whose display (Section 10.2) is identical to `Display`; otherwise C1
-fails. Each `step` MUST have bindings that read as a list of `'='/2` pairs,
+program whose display (Section 10.2) is identical to `Display`, variable
+names included, so a display that merely renames the clause's variables
+differs; otherwise C1 fails. Each `step` MUST have bindings that read as a list of `'='/2` pairs,
 as an object literal does, and a list of uses, and no two steps may have
 identical goals; otherwise C3 fails and the step is set aside. Every other
 statement is a claim (Section 10.1).
 
 ### 11.2 C1 Resolution
 
-For a `clause(N)` step, `N` MUST be a clause of the program. The clause,
+For a `clause(N)` step, `N` MUST be a clause of the program; an `N` that is
+not such a clause number, such as `'x'` or `1.0`, fails C1. The clause,
 renamed apart, MUST satisfy: each binding names a distinct variable of the
 clause and unifies it with its value; and for one of the clause's heads
 (each conjunct of a forward rule's head), the head unifies with `Goal` and
 the body, of the same length as `Uses`, unifies with `Uses` pairwise, such
 that afterwards the head is identical to `Goal` and each body goal to its
 use. A step's own terms MUST NOT need further instantiation to match: a
-source clause `same(X, X)` cannot justify `same('a', 'b')`.
+source clause `same(X, X)` cannot justify `same('a', 'b')`. Identity keeps
+the sign of zero, so a fact `z(0.0)` cannot justify the goal `z(-0.0)`.
 
 For a derived clause step, each enclosing generator MUST belong to the
 program. Its bindings may name variables of those generators' scope
@@ -1150,20 +1210,28 @@ verified C1 steps and cite the usual source clause display.
 
 ### 11.3 C2 Well-foundedness
 
-No step MAY depend on itself through the uses of steps.
+No step MAY depend on itself through the uses of steps. A checker finds
+the dependencies by a depth-first search that starts from each step not yet
+visited, in document order, and follows each step's uses in order, each
+conjunct of a conjunctive use separately, to the steps whose goals they are.
+Each use that leads back to a step on the current search path is one C2
+failure, whose conclusion is the goal of that step.
 
 ### 11.4 C3 Justification
 
 `By` MUST be one of the forms of Section 10.3. A `'builtin'` step MUST have
 no bindings and no uses and a goal that is a primitive; an `'absent'` or
 `'collected'` step MUST have no bindings and no uses and a goal that is a
-negation or a `findall`, respectively.
+negation or a `findall`, respectively. A step that fails C3 is not a trusted
+boundary: it counts in neither `trusted` nor C6.
 
 ### 11.5 C4 Coverage
 
 Each conjunct of each claim MUST have a step. Each use, and each conjunct of
 a use, MUST have a step or be identical to an instance of a fact of the
-program. A document without claims is valid and certifies nothing.
+program. The conclusion of a failure for a use without a step is the goal of
+the step that uses it. A document without claims is valid and certifies
+nothing.
 
 ### 11.6 C5 Re-decision
 
@@ -1229,7 +1297,8 @@ bound to `skolem(N, Name, Args)`, where:
   the values that do contain one hold a witness of this firing.
 
 When a forward clause has any such variables, its full head under the step's
-substitution MUST be ground. A generic inspection pattern cannot share one
+substitution MUST be ground; a step that leaves such a variable unbound, or
+bound to anything but its Skolem term, fails C8 rather than C1. A generic inspection pattern cannot share one
 existential witness across all its instances (Section 6.3).
 
 For a generator, use its scope projection (Section 6.2) as the head for this
@@ -1329,6 +1398,8 @@ texts, including unverified claims when `valid` is false. It also has `valid` (b
 (a list of `{kind, conclusion}`), `failures` (a list of
 `{condition, detail, conclusion?}`) and `conditions` (a list of
 `{id, name, covered, failed}`), where `conclusion` is a canonical text.
+Its variables keep the names the document gives them, rather than being
+renamed for each report fact as in the text form.
 
 ## 13. Command-Line Interface
 
@@ -1379,8 +1450,11 @@ without a clause leaves every other clause its number (Section 3.4), so the
 Skolem terms of the other rules (Section 8.2) do not change.
 
 Unused clauses are reported one per line, in clause order, as
-`unused(line(L), Display)`, where `L` is the clause's line (Section 3.4) and
-`Display` as in Section 10.2.
+`unused(line(L), Display)`, where `L` is the clause's line (Section 3.4) in
+the script that states it, and `Display` as in Section 10.2; with several
+scripts, clause order tells which script a line belongs to. The listing is
+the result whether or not the program halts with `'false'`, and the command
+exits with code 0 after it.
 
 "Unused" is relative to the recorded derivations, which are the first ones
 found (Section 8.7). A clause that only offers a second derivation of a
@@ -1388,7 +1462,9 @@ conclusion, such as a duplicate rule, is unused, though leaving out the
 clause that offers the first one would make it used; leaving out several
 unused clauses together can therefore change the conclusions. A
 `contradiction` rule that never fires changes no conclusion and is unused,
-though it guards the program against data that would make it fire.
+though it guards the program against data that would make it fire; so are
+the clauses only its negations or collections could consult, since they are
+not in the proof.
 
 ## 14. Conformance
 
@@ -1466,7 +1542,9 @@ and each expected line MUST equal the actual one, except that each `…`
 line; this specification leaves such text, for example a failure detail, to
 the implementation (Section 14). As JSON, both outputs MUST parse, and they
 MUST be equal as JSON values: arrays element by element, objects with the
-same member names whatever their order, and numbers by their values.
+same member names whatever their order, numbers by their values, and
+strings as lines are, so that an expected string containing `…` matches any
+string of that form.
 
 ## 15. Security
 
