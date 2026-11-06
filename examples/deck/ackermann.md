@@ -2,7 +2,7 @@
 
 *A function that grows faster than you can imagine, computed exactly and checked step by step.*
 
-[ackermann.js](https://github.com/eyereasoner/eyemind/blob/main/examples/ackermann.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/ackermann.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/ackermann.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/ackermann.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=ackermann)
+[ackermann.js](https://github.com/eyereasoner/eyemind/blob/main/examples/ackermann.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/ackermann.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/ackermann.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/ackermann.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=ackermann)
 
 ---
 

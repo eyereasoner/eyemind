@@ -2,7 +2,7 @@
 
 *Data about a graph meets data in the graph.*
 
-[rdf12-trig-graph-join.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-graph-join.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-graph-join.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-graph-join.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-graph-join.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-trig-graph-join)
+[rdf12-trig-graph-join.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-graph-join.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-graph-join.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-graph-join.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-graph-join.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-graph-join)
 
 ---
 

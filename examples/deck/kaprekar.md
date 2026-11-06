@@ -2,7 +2,7 @@
 
 *A number trick that always lands on 6174 — checked for every case, with one honest caveat.*
 
-[kaprekar.js](https://github.com/eyereasoner/eyemind/blob/main/examples/kaprekar.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/kaprekar.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/kaprekar.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/kaprekar.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=kaprekar)
+[kaprekar.js](https://github.com/eyereasoner/eyemind/blob/main/examples/kaprekar.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/kaprekar.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/kaprekar.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/kaprekar.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=kaprekar)
 
 ---
 
@@ -254,7 +254,7 @@ eyemind --proof examples/kaprekar.js    # answers with their proof
 eyemind --goal "kaprekar_step(3524, B)" examples/kaprekar.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=kaprekar).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=kaprekar).
 The `--goal` line asks for one step of the routine: it answers
 `kaprekar_step(3524, 3087)`, the first line of the example above.
 

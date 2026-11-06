@@ -2,7 +2,7 @@
 
 *A rule that depends on counting, and an honest note about the count.*
 
-[dog-license.js](https://github.com/eyereasoner/eyemind/blob/main/examples/dog-license.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/dog-license.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/dog-license.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/dog-license.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=dog-license)
+[dog-license.js](https://github.com/eyereasoner/eyemind/blob/main/examples/dog-license.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/dog-license.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/dog-license.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/dog-license.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=dog-license)
 
 ---
 
@@ -246,7 +246,7 @@ eyemind --strict-proof --check-proof examples/proof/dog-license.js examples/dog-
 The second command refuses any proof that leans on trust, so here it reports
 `verdict(failed(2))`: the two obligations.
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=dog-license).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=dog-license).
 Add `fact(owns('bob', 'dog8'))`, `fact(owns('bob', 'dog9'))` and
 `fact(owns('bob', 'dog10'))`, and run again: Bob's count becomes 5 and he
 needs a license too. Or lower the threshold by changing `gt(N, 4)` to

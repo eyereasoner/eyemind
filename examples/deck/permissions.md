@@ -2,7 +2,7 @@
 
 *Who may read and write, and why a suspended editor may not.*
 
-[permissions.js](https://github.com/eyereasoner/eyemind/blob/main/examples/permissions.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/permissions.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/permissions.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/permissions.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=permissions)
+[permissions.js](https://github.com/eyereasoner/eyemind/blob/main/examples/permissions.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/permissions.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/permissions.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/permissions.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=permissions)
 
 ---
 

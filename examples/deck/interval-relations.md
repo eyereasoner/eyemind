@@ -2,7 +2,7 @@
 
 *Thirteen ways two time slots can relate, worked out for a whole schedule.*
 
-[interval-relations.js](https://github.com/eyereasoner/eyemind/blob/main/examples/interval-relations.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/interval-relations.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/interval-relations.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/interval-relations.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=interval-relations)
+[interval-relations.js](https://github.com/eyereasoner/eyemind/blob/main/examples/interval-relations.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/interval-relations.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/interval-relations.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/interval-relations.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=interval-relations)
 
 ---
 

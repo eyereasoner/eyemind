@@ -2,7 +2,7 @@
 
 *What was owed, what was forbidden, and why making amends is not the same as being in the clear.*
 
-[deontic-logic.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deontic-logic.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deontic-logic.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deontic-logic.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deontic-logic.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=deontic-logic)
+[deontic-logic.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deontic-logic.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deontic-logic.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deontic-logic.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deontic-logic.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=deontic-logic)
 
 ---
 

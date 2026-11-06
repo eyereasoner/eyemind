@@ -2,7 +2,7 @@
 
 *Exact binomial coefficients and a finite check of Vandermonde's identity.*
 
-[program](https://github.com/eyereasoner/eyemind/blob/main/examples/binomial-vandermonde.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/binomial-vandermonde.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/binomial-vandermonde.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/binomial-vandermonde.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=binomial-vandermonde)
+[program](https://github.com/eyereasoner/eyemind/blob/main/examples/binomial-vandermonde.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/binomial-vandermonde.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/binomial-vandermonde.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/binomial-vandermonde.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=binomial-vandermonde)
 
 ---
 

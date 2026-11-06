@@ -2,7 +2,7 @@
 
 *A first theorem of algebra, proved from the axioms and checked step by step.*
 
-[group-inverse-uniqueness.js](https://github.com/eyereasoner/eyemind/blob/main/examples/group-inverse-uniqueness.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/group-inverse-uniqueness.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/group-inverse-uniqueness.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/group-inverse-uniqueness.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=group-inverse-uniqueness)
+[group-inverse-uniqueness.js](https://github.com/eyereasoner/eyemind/blob/main/examples/group-inverse-uniqueness.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/group-inverse-uniqueness.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/group-inverse-uniqueness.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/group-inverse-uniqueness.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=group-inverse-uniqueness)
 
 ---
 
@@ -259,7 +259,7 @@ eyemind --check-proof examples/proof/group-inverse-uniqueness.js examples/group-
 eyemind --goal 'equal(A, B)' examples/group-inverse-uniqueness.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=group-inverse-uniqueness).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=group-inverse-uniqueness).
 
 The last command asks a different question: which equalities follow at all?
 Besides `equal('i', 'j')` and `equal('j', 'i')`, eyemind lists the dull ones

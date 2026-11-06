@@ -2,7 +2,7 @@
 
 *Reviewing a contract's clauses: what is risky, how risky, and what to fix.*
 
-[policy-risk.js](https://github.com/eyereasoner/eyemind/blob/main/examples/policy-risk.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/policy-risk.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/policy-risk.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/policy-risk.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=policy-risk)
+[policy-risk.js](https://github.com/eyereasoner/eyemind/blob/main/examples/policy-risk.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/policy-risk.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/policy-risk.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/policy-risk.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=policy-risk)
 
 ---
 
@@ -372,7 +372,7 @@ eyemind examples/policy-risk.js                                              # t
 eyemind --check-proof examples/proof/policy-risk.js examples/policy-risk.js  # the check
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=policy-risk).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=policy-risk).
 Add `fact(safeguard('c3', 'consent'))` and run again: the c3 finding
 disappears, and c2 and c4 move up to ranks 2 and 3. Or change c2's notice to
 `fact(notice_days('c2', 14))`: c2 now gives enough notice, its finding

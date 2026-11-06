@@ -2,7 +2,7 @@
 
 *The river crossing puzzle, with the shortest answer shown to be shortest.*
 
-[wolf-goat-cabbage.js](https://github.com/eyereasoner/eyemind/blob/main/examples/wolf-goat-cabbage.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/wolf-goat-cabbage.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/wolf-goat-cabbage.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/wolf-goat-cabbage.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=wolf-goat-cabbage)
+[wolf-goat-cabbage.js](https://github.com/eyereasoner/eyemind/blob/main/examples/wolf-goat-cabbage.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/wolf-goat-cabbage.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/wolf-goat-cabbage.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/wolf-goat-cabbage.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=wolf-goat-cabbage)
 
 ---
 
@@ -355,7 +355,7 @@ eyemind examples/wolf-goat-cabbage.js            # the answers
 eyemind --proof examples/wolf-goat-cabbage.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=wolf-goat-cabbage).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=wolf-goat-cabbage).
 Change `in_range(0, 6, N)` to `in_range(0, 7, N)`. Now "a shorter solution"
 includes seven-crossing plans, which exist, so `not('shorter_solution')`
 fails and eyemind reports `// No answers: no query() instance holds.`

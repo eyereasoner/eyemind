@@ -2,7 +2,7 @@
 
 *Building and taking apart text, accents and emoji included.*
 
-[strings.js](https://github.com/eyereasoner/eyemind/blob/main/examples/strings.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/strings.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/strings.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/strings.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=strings)
+[strings.js](https://github.com/eyereasoner/eyemind/blob/main/examples/strings.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/strings.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/strings.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/strings.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=strings)
 
 ---
 
@@ -211,7 +211,7 @@ eyemind examples/strings.js            # the answers
 eyemind --proof examples/strings.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=strings).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=strings).
 Add `query(characters('Zoë', Chars, Length))` and run again: you get
 `characters('Zoë', ['Z', 'o', 'ë'], 3)`. Add `query(label(Name, 'hello_bob'))`
 to run rule 1 backward: `atom_concat` splits the label instead of joining,

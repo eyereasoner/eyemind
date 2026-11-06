@@ -2,7 +2,7 @@
 
 *Joining, squaring and adding up lists, one small step at a time.*
 
-[lists.js](https://github.com/eyereasoner/eyemind/blob/main/examples/lists.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/lists.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/lists.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/lists.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=lists)
+[lists.js](https://github.com/eyereasoner/eyemind/blob/main/examples/lists.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/lists.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/lists.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/lists.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=lists)
 
 ---
 
@@ -252,7 +252,7 @@ eyemind examples/lists.js            # the answers
 eyemind --proof examples/lists.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=lists).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=lists).
 Add `query(append(X, Y, ['a', 'b']))`, which asks the question *backward*:
 which two lists join to give `['a', 'b']`? eyemind lists all three ways to
 split it: `[]` and `['a', 'b']`, `['a']` and `['b']`, `['a', 'b']` and `[]`.

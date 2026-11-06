@@ -2,7 +2,7 @@
 
 *Who is a child of whom, who is allowed, and how a "no" is handled honestly.*
 
-[graphs.js](https://github.com/eyereasoner/eyemind/blob/main/examples/graphs.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/graphs.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/graphs.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/graphs.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=graphs)
+[graphs.js](https://github.com/eyereasoner/eyemind/blob/main/examples/graphs.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/graphs.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/graphs.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/graphs.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=graphs)
 
 ---
 
@@ -243,7 +243,7 @@ eyemind examples/graphs.js            # the answers
 eyemind --proof examples/graphs.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=graphs).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=graphs).
 Change `fact(base('bob', 'blocked', 'true'))` to
 `fact(base('carol', 'blocked', 'true'))` and run again: now `allowed('bob')`
 appears instead of `allowed('carol')`. Or add

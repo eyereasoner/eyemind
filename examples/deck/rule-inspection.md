@@ -2,7 +2,7 @@
 
 *The rule itself can be evidence.*
 
-[rule-inspection.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rule-inspection.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rule-inspection.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rule-inspection.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rule-inspection.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=rule-inspection)
+[rule-inspection.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rule-inspection.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rule-inspection.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rule-inspection.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rule-inspection.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=rule-inspection)
 
 ---
 

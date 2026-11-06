@@ -2,7 +2,7 @@
 
 *A classic planning puzzle: how does the monkey reach the bananas?*
 
-[monkey-bananas.js](https://github.com/eyereasoner/eyemind/blob/main/examples/monkey-bananas.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/monkey-bananas.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/monkey-bananas.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/monkey-bananas.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=monkey-bananas)
+[monkey-bananas.js](https://github.com/eyereasoner/eyemind/blob/main/examples/monkey-bananas.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/monkey-bananas.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/monkey-bananas.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/monkey-bananas.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=monkey-bananas)
 
 ---
 
@@ -321,7 +321,7 @@ eyemind examples/monkey-bananas.js            # the answers
 eyemind --proof examples/monkey-bananas.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=monkey-bananas).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=monkey-bananas).
 Change `in_range(1, 5, N)` to `in_range(1, 4, N)` to allow at most four
 moves: only the shortest plan remains. Or start the monkey next to the box,
 by changing the initial state to `['loc1', 'loc3', 'loc3', 'n', 'n']`: the

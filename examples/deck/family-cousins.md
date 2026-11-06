@@ -2,7 +2,7 @@
 
 *Work out who belongs to which generation, and who counts as a cousin.*
 
-[family-cousins.js](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-cousins.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-cousins.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-cousins.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=family-cousins)
+[family-cousins.js](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-cousins.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-cousins.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-cousins.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=family-cousins)
 
 ---
 
@@ -383,7 +383,7 @@ eyemind examples/family-cousins.js
 eyemind --proof examples/family-cousins.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=family-cousins).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-cousins).
 Add `fact(parent('grace', 'kim'))` and run again: Kim joins generation 3 and
 branch `'c'`, and becomes a cousin of Heidi and Ivan, both ways round. Or
 change Eve's branch fact to `fact(branch('eve', 'e'))`: Eve's line becomes a

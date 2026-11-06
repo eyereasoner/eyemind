@@ -2,7 +2,7 @@
 
 *Exact Fibonacci numbers, one of them 2090 digits long, with every calculation on the record.*
 
-[fibonacci.js](https://github.com/eyereasoner/eyemind/blob/main/examples/fibonacci.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/fibonacci.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/fibonacci.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/fibonacci.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=fibonacci)
+[fibonacci.js](https://github.com/eyereasoner/eyemind/blob/main/examples/fibonacci.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/fibonacci.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/fibonacci.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/fibonacci.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=fibonacci)
 
 ---
 

@@ -2,7 +2,7 @@
 
 *Thirty years of Easter Sundays, worked out by pure arithmetic.*
 
-[easter.js](https://github.com/eyereasoner/eyemind/blob/main/examples/easter.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/easter.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/easter.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/easter.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=easter)
+[easter.js](https://github.com/eyereasoner/eyemind/blob/main/examples/easter.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/easter.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/easter.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/easter.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=easter)
 
 ---
 
@@ -324,7 +324,7 @@ eyemind -c examples/easter.js
 eyemind --check-proof examples/proof/easter.js examples/easter.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=easter).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=easter).
 
 - Change the range in the last line to `in_range(2000, 2000, Year)` and run
   again: you get `easter(2000, [4, 23])`, April 23.

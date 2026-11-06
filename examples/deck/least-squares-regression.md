@@ -2,7 +2,7 @@
 
 *Exact statistics first; approximate ratios at the end.*
 
-[program](https://github.com/eyereasoner/eyemind/blob/main/examples/least-squares-regression.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/least-squares-regression.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/least-squares-regression.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/least-squares-regression.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=least-squares-regression)
+[program](https://github.com/eyereasoner/eyemind/blob/main/examples/least-squares-regression.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/least-squares-regression.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/least-squares-regression.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/least-squares-regression.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=least-squares-regression)
 
 ---
 

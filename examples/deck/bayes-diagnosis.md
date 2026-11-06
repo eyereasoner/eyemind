@@ -2,7 +2,7 @@
 
 *A printer shows two symptoms. Which fault is most likely, and by how much?*
 
-[bayes-diagnosis.js](https://github.com/eyereasoner/eyemind/blob/main/examples/bayes-diagnosis.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/bayes-diagnosis.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/bayes-diagnosis.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/bayes-diagnosis.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=bayes-diagnosis)
+[bayes-diagnosis.js](https://github.com/eyereasoner/eyemind/blob/main/examples/bayes-diagnosis.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/bayes-diagnosis.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/bayes-diagnosis.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/bayes-diagnosis.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=bayes-diagnosis)
 
 ---
 
@@ -279,7 +279,7 @@ eyemind examples/bayes-diagnosis.js            # the answers
 eyemind --proof examples/bayes-diagnosis.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=bayes-diagnosis).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=bayes-diagnosis).
 Make paper jams twice as common: change its prior from `20` to `40`. Its
 weight doubles to 36000, the total becomes 55200, and the paper jam rises to
 about 65% (0.6521739130434783), while network loss falls to about 26% and

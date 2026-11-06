@@ -2,7 +2,7 @@
 
 *Working out (2 × 3) + (10 − 4), and showing every intermediate result.*
 
-[expression-eval.js](https://github.com/eyereasoner/eyemind/blob/main/examples/expression-eval.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/expression-eval.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/expression-eval.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/expression-eval.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=expression-eval)
+[expression-eval.js](https://github.com/eyereasoner/eyemind/blob/main/examples/expression-eval.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/expression-eval.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/expression-eval.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/expression-eval.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=expression-eval)
 
 ---
 
@@ -261,7 +261,7 @@ eyemind -c examples/expression-eval.js
 eyemind --check-proof examples/proof/expression-eval.js examples/expression-eval.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=expression-eval).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=expression-eval).
 
 Change `fact(literal('n4', 4))` to `fact(literal('n4', 1))` and run again:
 the difference becomes 9 and the answer `result('example', 15)`. Change

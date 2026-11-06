@@ -2,7 +2,7 @@
 
 *When a rule creates something new, give it a name that says where it came from.*
 
-[witnesses.js](https://github.com/eyereasoner/eyemind/blob/main/examples/witnesses.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/witnesses.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/witnesses.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/witnesses.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=witnesses)
+[witnesses.js](https://github.com/eyereasoner/eyemind/blob/main/examples/witnesses.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/witnesses.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/witnesses.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/witnesses.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=witnesses)
 
 ---
 

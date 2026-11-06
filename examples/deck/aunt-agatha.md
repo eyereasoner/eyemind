@@ -2,7 +2,7 @@
 
 *A murder mystery where the answer has to hold no matter how the gaps are filled.*
 
-[aunt-agatha.js](https://github.com/eyereasoner/eyemind/blob/main/examples/aunt-agatha.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/aunt-agatha.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/aunt-agatha.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/aunt-agatha.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=aunt-agatha)
+[aunt-agatha.js](https://github.com/eyereasoner/eyemind/blob/main/examples/aunt-agatha.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/aunt-agatha.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/aunt-agatha.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/aunt-agatha.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=aunt-agatha)
 
 ---
 
@@ -371,7 +371,7 @@ eyemind -c examples/aunt-agatha.js
 eyemind --check-proof examples/proof/aunt-agatha.js examples/aunt-agatha.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=aunt-agatha).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=aunt-agatha).
 
 Delete clue 4 (the three `if_then_not` lines) and run again: now there are 14
 models with Agatha as killer and 6 with Charles, so `entailed(...)`

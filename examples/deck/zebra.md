@@ -2,7 +2,7 @@
 
 *Einstein's riddle: fifteen clues, five houses, one answer you can check.*
 
-[zebra.js](https://github.com/eyereasoner/eyemind/blob/main/examples/zebra.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/zebra.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/zebra.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/zebra.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=zebra)
+[zebra.js](https://github.com/eyereasoner/eyemind/blob/main/examples/zebra.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/zebra.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/zebra.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/zebra.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=zebra)
 
 ---
 
@@ -349,7 +349,7 @@ eyemind examples/zebra.js            # the answer
 eyemind --proof examples/zebra.js    # with the finished street
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=zebra).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=zebra).
 On a copy of the program, delete the line for clue 15 ("The Norwegian lives
 next to the blue house") and run again: eyemind prints
 `// No answers: no query() instance holds.` Clue 15 is the only one that

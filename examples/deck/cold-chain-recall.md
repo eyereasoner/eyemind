@@ -2,7 +2,7 @@
 
 *Keep the message boundary, the evidence policy and the resulting task visible.*
 
-[program](https://github.com/eyereasoner/eyemind/blob/main/examples/cold-chain-recall.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/cold-chain-recall.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/cold-chain-recall.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/cold-chain-recall.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=cold-chain-recall)
+[program](https://github.com/eyereasoner/eyemind/blob/main/examples/cold-chain-recall.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/cold-chain-recall.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/cold-chain-recall.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/cold-chain-recall.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=cold-chain-recall)
 
 ---
 

@@ -2,7 +2,7 @@
 
 *Sending a quantum state with two ordinary bits, checked for every case.*
 
-[teleportation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/teleportation.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/teleportation.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/teleportation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/teleportation.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=teleportation)
+[teleportation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/teleportation.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/teleportation.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/teleportation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/teleportation.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=teleportation)
 
 ---
 

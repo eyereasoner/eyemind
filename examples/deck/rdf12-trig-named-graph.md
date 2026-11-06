@@ -2,7 +2,7 @@
 
 *Keeping conclusions where they belong.*
 
-[rdf12-trig-named-graph.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-named-graph.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-named-graph.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-named-graph.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-named-graph.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-trig-named-graph)
+[rdf12-trig-named-graph.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-named-graph.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-named-graph.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-named-graph.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-named-graph.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-named-graph)
 
 ---
 
@@ -197,7 +197,7 @@ eyemind examples/rdf12-trig-named-graph.js > out.js && eyemind-to-rdf out.js -o 
 `eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyemind's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-trig-named-graph).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-named-graph).
 
 Put Bob's parent link in another graph, say `iri(ex + 'school')`, and run
 again: Bob is still Carol's ancestor, now in the school graph, but Alice is

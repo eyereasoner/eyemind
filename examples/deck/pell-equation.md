@@ -2,7 +2,7 @@
 
 *Generate large exact numbers, then check the equation they must satisfy.*
 
-[program](https://github.com/eyereasoner/eyemind/blob/main/examples/pell-equation.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/pell-equation.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/pell-equation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/pell-equation.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=pell-equation)
+[program](https://github.com/eyereasoner/eyemind/blob/main/examples/pell-equation.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/pell-equation.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/pell-equation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/pell-equation.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=pell-equation)
 
 ---
 

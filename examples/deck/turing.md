@@ -2,7 +2,7 @@
 
 *The simplest model of a computer, adding one to a binary number, step by step.*
 
-[turing.js](https://github.com/eyereasoner/eyemind/blob/main/examples/turing.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/turing.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/turing.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/turing.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=turing)
+[turing.js](https://github.com/eyereasoner/eyemind/blob/main/examples/turing.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/turing.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/turing.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/turing.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=turing)
 
 ---
 
@@ -334,7 +334,7 @@ eyemind -c examples/turing.js
 eyemind --check-proof examples/proof/turing.js examples/turing.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=turing).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=turing).
 
 - Add `query(compute([1, 0, 1, 1], _))` and run again: you get
   `compute([1, 0, 1, 1], [1, 1, 0, 0, '#'])`, that is 11 + 1 = 12.

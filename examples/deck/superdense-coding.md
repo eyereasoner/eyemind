@@ -2,7 +2,7 @@
 
 *Two bits through one qubit — a quantum protocol, reasoned out by counting paths.*
 
-[superdense-coding.js](https://github.com/eyereasoner/eyemind/blob/main/examples/superdense-coding.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/superdense-coding.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/superdense-coding.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/superdense-coding.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=superdense-coding)
+[superdense-coding.js](https://github.com/eyereasoner/eyemind/blob/main/examples/superdense-coding.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/superdense-coding.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/superdense-coding.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/superdense-coding.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=superdense-coding)
 
 ---
 
@@ -286,7 +286,7 @@ eyemind --goal "path(0, M, P)" examples/superdense-coding.js   # every way for m
 
 The last lists every way message 0 can travel: one to reading 0, two to
 reading 1, two to reading 3. Or open it in the
-[playground](https://eyereasoner.github.io/eyemind/playground#example=superdense-coding).
+[playground](https://eyereasoner.github.io/eyemind/playground/#example=superdense-coding).
 
 Switch off interference: replace `odd(Paths)` in rule 35 with
 `not_identical(Paths, [])`, so any way at all counts. Now 14 of the 16

@@ -2,7 +2,7 @@
 
 *Two machine settings computed from sensor readings, with every sum shown.*
 
-[control-system.js](https://github.com/eyereasoner/eyemind/blob/main/examples/control-system.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/control-system.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/control-system.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/control-system.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=control-system)
+[control-system.js](https://github.com/eyereasoner/eyemind/blob/main/examples/control-system.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/control-system.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/control-system.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/control-system.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=control-system)
 
 ---
 

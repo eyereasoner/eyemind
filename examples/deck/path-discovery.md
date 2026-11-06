@@ -2,7 +2,7 @@
 
 *Find flight routes from Ostend to Prague in a network of 7,698 airports.*
 
-[path-discovery.js](https://github.com/eyereasoner/eyemind/blob/main/examples/path-discovery.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/path-discovery.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/path-discovery.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/path-discovery.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=path-discovery)
+[path-discovery.js](https://github.com/eyereasoner/eyemind/blob/main/examples/path-discovery.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/path-discovery.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/path-discovery.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/path-discovery.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=path-discovery)
 
 ---
 

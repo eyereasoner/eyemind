@@ -2,7 +2,7 @@
 
 *A famous unsolved question, tested on numbers up to 33 million.*
 
-[goldbach.js](https://github.com/eyereasoner/eyemind/blob/main/examples/goldbach.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/goldbach.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/goldbach.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/goldbach.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=goldbach)
+[goldbach.js](https://github.com/eyereasoner/eyemind/blob/main/examples/goldbach.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/goldbach.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/goldbach.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/goldbach.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=goldbach)
 
 ---
 
@@ -364,7 +364,7 @@ eyemind examples/goldbach.js                                           # the spl
 eyemind --check-proof examples/proof/goldbach.js examples/goldbach.js  # the report
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=goldbach).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=goldbach).
 
 Change `in_range(2, 25, I)` to `in_range(2, 26, I)` and run again: one more
 line appears, `goldbach(67108864, [5, 67108859])`.

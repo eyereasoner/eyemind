@@ -2,7 +2,7 @@
 
 *Replay a bank account's history, one event at a time, to get today's balance.*
 
-[state-transitions.js](https://github.com/eyereasoner/eyemind/blob/main/examples/state-transitions.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/state-transitions.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/state-transitions.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/state-transitions.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=state-transitions)
+[state-transitions.js](https://github.com/eyereasoner/eyemind/blob/main/examples/state-transitions.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/state-transitions.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/state-transitions.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/state-transitions.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=state-transitions)
 
 ---
 
@@ -263,7 +263,7 @@ eyemind examples/state-transitions.js            # the answers
 eyemind --proof examples/state-transitions.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=state-transitions).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=state-transitions).
 Things to try on a copy of the program:
 
 - Add `fact(event(4, 'deposit', 10))` and change the last line to

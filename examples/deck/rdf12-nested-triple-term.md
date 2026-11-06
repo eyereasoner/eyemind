@@ -2,7 +2,7 @@
 
 *A claim inside a review, and the fact inside the claim.*
 
-[rdf12-nested-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-nested-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-nested-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-nested-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-nested-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-nested-triple-term)
+[rdf12-nested-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-nested-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-nested-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-nested-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-nested-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-nested-triple-term)
 
 ---
 
@@ -194,7 +194,7 @@ eyemind examples/rdf12-nested-triple-term.js > out.js && eyemind-to-rdf out.js -
 `eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyemind's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-nested-triple-term).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-nested-triple-term).
 
 Change `'carol'` to `'dave'` in the fact: the answer follows the change and
 says Bob knows Dave. Change Alice's `'claims'` to `'denies'` instead: the

@@ -2,7 +2,7 @@
 
 *Matching shapes: how eyemind fills in the blanks by fitting patterns together.*
 
-[unification.js](https://github.com/eyereasoner/eyemind/blob/main/examples/unification.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/unification.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/unification.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/unification.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=unification)
+[unification.js](https://github.com/eyereasoner/eyemind/blob/main/examples/unification.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/unification.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/unification.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/unification.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=unification)
 
 ---
 
@@ -227,7 +227,7 @@ eyemind -c examples/unification.js
 eyemind --check-proof examples/proof/unification.js examples/unification.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=unification).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=unification).
 
 Add `query(append(X, ['c'], ['a', 'b', 'c']))` and run again: eyemind works
 out what comes before `['c']` and adds

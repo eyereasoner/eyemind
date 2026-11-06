@@ -2,7 +2,7 @@
 
 *Parity checks locate an error in a seven-bit word.*
 
-[program](https://github.com/eyereasoner/eyemind/blob/main/examples/hamming-code.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/hamming-code.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/hamming-code.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/hamming-code.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=hamming-code)
+[program](https://github.com/eyereasoner/eyemind/blob/main/examples/hamming-code.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/hamming-code.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/hamming-code.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/hamming-code.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=hamming-code)
 
 ---
 

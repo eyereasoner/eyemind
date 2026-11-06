@@ -2,7 +2,7 @@
 
 *Ten thousand steps of reasoning, every one written down and checked.*
 
-[deep-taxonomy-10000.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-10000.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deep-taxonomy-10000.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-10000.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deep-taxonomy-10000.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=deep-taxonomy-10000)
+[deep-taxonomy-10000.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-10000.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deep-taxonomy-10000.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-10000.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deep-taxonomy-10000.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=deep-taxonomy-10000)
 
 ---
 

@@ -2,7 +2,7 @@
 
 *Packing for an expedition: the most value that fits in 15, and how sure we are.*
 
-[knapsack-optimization.js](https://github.com/eyereasoner/eyemind/blob/main/examples/knapsack-optimization.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/knapsack-optimization.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/knapsack-optimization.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/knapsack-optimization.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=knapsack-optimization)
+[knapsack-optimization.js](https://github.com/eyereasoner/eyemind/blob/main/examples/knapsack-optimization.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/knapsack-optimization.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/knapsack-optimization.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/knapsack-optimization.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=knapsack-optimization)
 
 ---
 
@@ -362,7 +362,7 @@ eyemind examples/knapsack-optimization.js            # the answers
 eyemind --proof examples/knapsack-optimization.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=knapsack-optimization).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=knapsack-optimization).
 Raise the limit to `fact(capacity(20))` and run again: 187 packs fit, and
 the best adds the emergency radio, weighing 20 and worth 51. With
 `fact(capacity(16))`, 128 packs fit and the best swaps the medkit for the

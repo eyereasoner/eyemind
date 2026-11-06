@@ -2,7 +2,7 @@
 
 *Two rules of thumb disagree about one person: which one wins, and why.*
 
-[nixon-diamond.js](https://github.com/eyereasoner/eyemind/blob/main/examples/nixon-diamond.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/nixon-diamond.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/nixon-diamond.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/nixon-diamond.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=nixon-diamond)
+[nixon-diamond.js](https://github.com/eyereasoner/eyemind/blob/main/examples/nixon-diamond.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/nixon-diamond.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/nixon-diamond.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/nixon-diamond.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=nixon-diamond)
 
 ---
 

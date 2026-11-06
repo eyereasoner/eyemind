@@ -89,6 +89,17 @@ export const tests = {
     invalid(`${proof()}unrelated('a')\n`, 'C4');
   },
 
+  'coverage checks every conjunct of a use'() {
+    const source = program('fact(p(1))\nimplied_by(q(G), G)');
+    for (const [second, valid] of [['p(1)', true], ['missing(1)', false]]) {
+      const goal = `q(and(p(1), ${second}))`;
+      const document = `${goal}\nstep(${goal}, clause(2), {}, [and(p(1), ${second})])\n`;
+      const report = checkProof(source, document, { goals: ['q(G)'] });
+      assert.equal(report.valid, valid, JSON.stringify(report.failures));
+      if (!valid) assert.ok(report.failures.some((failure) => failure.condition === 'C4'), JSON.stringify(report.failures));
+    }
+  },
+
   'a document that claims nothing is valid and certifies nothing'() {
     const report = checkProof(SOURCE, '');
     assert.ok(report.valid);

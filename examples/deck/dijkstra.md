@@ -2,7 +2,7 @@
 
 *The shortest road from a to f, found the way a route planner finds it.*
 
-[dijkstra.js](https://github.com/eyereasoner/eyemind/blob/main/examples/dijkstra.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/dijkstra.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/dijkstra.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/dijkstra.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=dijkstra)
+[dijkstra.js](https://github.com/eyereasoner/eyemind/blob/main/examples/dijkstra.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/dijkstra.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/dijkstra.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/dijkstra.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=dijkstra)
 
 ---
 

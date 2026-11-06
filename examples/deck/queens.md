@@ -2,7 +2,7 @@
 
 *Place eight queens on a chessboard so that none can attack another.*
 
-[queens.js](https://github.com/eyereasoner/eyemind/blob/main/examples/queens.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/queens.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/queens.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/queens.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=queens)
+[queens.js](https://github.com/eyereasoner/eyemind/blob/main/examples/queens.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/queens.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/queens.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/queens.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=queens)
 
 ---
 
@@ -315,7 +315,7 @@ The 4×4 board has two solutions, `[2, 4, 1, 3]` and `[3, 1, 4, 2]`. Without
 `once`, `--goal "queens(8, C)"` lists all 92 solutions for the 8×8 board,
 and `queens(6, C)` finds 4.
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=queens).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=queens).
 
 ---
 

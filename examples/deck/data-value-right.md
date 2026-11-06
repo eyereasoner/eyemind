@@ -2,7 +2,7 @@
 
 *How such a right fits existing EU law, and how it could become a right of its own.*
 
-[data-value-right.js](https://github.com/eyereasoner/eyemind/blob/main/examples/data-value-right.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/data-value-right.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/data-value-right.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/data-value-right.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=data-value-right)
+[data-value-right.js](https://github.com/eyereasoner/eyemind/blob/main/examples/data-value-right.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/data-value-right.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/data-value-right.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/data-value-right.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=data-value-right)
 
 ---
 
@@ -464,7 +464,7 @@ eyemind --proof examples/data-value-right.js    # with the proof
 eyemind --unused examples/data-value-right.js   # nothing is decoration
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=data-value-right).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=data-value-right).
 
 Add a provision that anchors `value_share`, even only in part, to the
 `ANCHORS` table and run again: the value share now fits "by interpretation",

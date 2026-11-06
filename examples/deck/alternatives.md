@@ -2,7 +2,7 @@
 
 *Two ways out of Paris, and three ways of asking about them.*
 
-[alternatives.js](https://github.com/eyereasoner/eyemind/blob/main/examples/alternatives.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/alternatives.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/alternatives.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/alternatives.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=alternatives)
+[alternatives.js](https://github.com/eyereasoner/eyemind/blob/main/examples/alternatives.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/alternatives.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/alternatives.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/alternatives.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=alternatives)
 
 ---
 
@@ -221,7 +221,7 @@ eyemind -c examples/alternatives.js
 eyemind --check-proof examples/proof/alternatives.js examples/alternatives.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=alternatives).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=alternatives).
 
 Add `fact(train('paris', 'amsterdam'))` after the bus line and run again: a
 third route, `route('paris', 'amsterdam')`, appears, listed before Lille

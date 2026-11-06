@@ -2,7 +2,7 @@
 
 *Gather every matching value from a list of things, and be honest about what "every" means.*
 
-[flat-map.js](https://github.com/eyereasoner/eyemind/blob/main/examples/flat-map.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/flat-map.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/flat-map.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/flat-map.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=flat-map)
+[flat-map.js](https://github.com/eyereasoner/eyemind/blob/main/examples/flat-map.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/flat-map.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/flat-map.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/flat-map.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=flat-map)
 
 ---
 
@@ -250,7 +250,7 @@ eyemind --goal "flat_map(['s3', 's1'], 'p1', Objects)" examples/flat-map.js
 ```
 
 The second gives `['o3', 'o4', 'o1']`: the order follows the subject list.
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=flat-map).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=flat-map).
 
 Add the fact `fact(t('s2', 'p1', 'o5'))` and run again: the first answer
 becomes `['o1', 'o2', 'o5', 'o3', 'o4']`.

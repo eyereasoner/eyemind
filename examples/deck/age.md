@@ -2,7 +2,7 @@
 
 *Is someone over 80? A calendar question, answered with every day counted.*
 
-[age.js](https://github.com/eyereasoner/eyemind/blob/main/examples/age.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/age.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/age.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/age.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=age)
+[age.js](https://github.com/eyereasoner/eyemind/blob/main/examples/age.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/age.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/age.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/age.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=age)
 
 ---
 
@@ -324,7 +324,7 @@ The second asks about 22 August 2024, the day after the 80th birthday: it
 holds. The last one counts days and answers
 `age_days('pat_h', date(2026, 10, 1), 29991)`: 739890 − 709899.
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=age).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=age).
 Change `as_of` to `date(2024, 8, 21)`, the 80th birthday itself: there is no
 answer, because on that day Pat is exactly 80, not *above* 80. Change it to
 `date(2024, 8, 22)`, one day later, and the answer comes back.

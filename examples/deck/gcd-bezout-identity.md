@@ -2,7 +2,7 @@
 
 *An integer answer comes with an identity you can substitute into.*
 
-[program](https://github.com/eyereasoner/eyemind/blob/main/examples/gcd-bezout-identity.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/gcd-bezout-identity.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/gcd-bezout-identity.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/gcd-bezout-identity.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=gcd-bezout-identity)
+[program](https://github.com/eyereasoner/eyemind/blob/main/examples/gcd-bezout-identity.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/gcd-bezout-identity.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/gcd-bezout-identity.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/gcd-bezout-identity.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=gcd-bezout-identity)
 
 ---
 

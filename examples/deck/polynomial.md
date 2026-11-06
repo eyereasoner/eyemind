@@ -2,7 +2,7 @@
 
 *Solving equations up to x⁴ with formulas from the 1500s and 1700s.*
 
-[polynomial.js](https://github.com/eyereasoner/eyemind/blob/main/examples/polynomial.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/polynomial.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/polynomial.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/polynomial.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=polynomial)
+[polynomial.js](https://github.com/eyereasoner/eyemind/blob/main/examples/polynomial.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/polynomial.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/polynomial.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/polynomial.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=polynomial)
 
 ---
 

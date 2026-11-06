@@ -2,7 +2,7 @@
 
 *A rule that creates another rule, and a proof that shows both at work.*
 
-[derived-rule.js](https://github.com/eyereasoner/eyemind/blob/main/examples/derived-rule.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/derived-rule.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/derived-rule.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/derived-rule.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=derived-rule)
+[derived-rule.js](https://github.com/eyereasoner/eyemind/blob/main/examples/derived-rule.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/derived-rule.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/derived-rule.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/derived-rule.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=derived-rule)
 
 ---
 

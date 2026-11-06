@@ -2,7 +2,7 @@
 
 *A store scanner that gives diabetes-aware advice without ever learning about the diabetes.*
 
-[delfour.js](https://github.com/eyereasoner/eyemind/blob/main/examples/delfour.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/delfour.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/delfour.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/delfour.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=delfour)
+[delfour.js](https://github.com/eyereasoner/eyemind/blob/main/examples/delfour.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/delfour.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/delfour.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/delfour.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=delfour)
 
 The scenario is the one Ruben Verborgh describes in [*Inside the insight economy*](https://ruben.verborgh.org/blog/2025/08/12/inside-the-insight-economy/).
 

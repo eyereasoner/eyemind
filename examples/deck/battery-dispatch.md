@@ -2,7 +2,7 @@
 
 *A small energy schedule with an explicit cost and physical limits.*
 
-[program](https://github.com/eyereasoner/eyemind/blob/main/examples/battery-dispatch.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/battery-dispatch.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/battery-dispatch.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/battery-dispatch.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=battery-dispatch)
+[program](https://github.com/eyereasoner/eyemind/blob/main/examples/battery-dispatch.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/battery-dispatch.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/battery-dispatch.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/battery-dispatch.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=battery-dispatch)
 
 ---
 

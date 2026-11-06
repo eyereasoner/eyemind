@@ -2,7 +2,7 @@
 
 *Counting with nothing but zero and "one more" — and getting 5! = 120 out of it.*
 
-[peano.js](https://github.com/eyereasoner/eyemind/blob/main/examples/peano.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/peano.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/peano.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/peano.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=peano)
+[peano.js](https://github.com/eyereasoner/eyemind/blob/main/examples/peano.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/peano.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/peano.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/peano.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=peano)
 
 ---
 
@@ -240,7 +240,7 @@ eyemind --goal "add(A, B, s(s(s('zero'))))" examples/peano.js
 command repeats the first question alone. Try
 `--goal "multiply(s(s('zero')), s(s(s('zero'))), P)"`: 2 × 3 comes back as
 `s(s(s(s(s(s('zero'))))))`, which is 6.
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=peano).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=peano).
 
 ---
 

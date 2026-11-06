@@ -2,7 +2,7 @@
 
 *One tour operator, eight cancellations, and EU holiday rules about to change: who pays, who gets their money back, and what would change?*
 
-[package-holiday.js](https://github.com/eyereasoner/eyemind/blob/main/examples/package-holiday.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/package-holiday.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/package-holiday.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/package-holiday.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=package-holiday)
+[package-holiday.js](https://github.com/eyereasoner/eyemind/blob/main/examples/package-holiday.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/package-holiday.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/package-holiday.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/package-holiday.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=package-holiday)
 
 ---
 
@@ -438,7 +438,7 @@ eyemind --proof examples/package-holiday.js > /tmp/holiday-proof.js
 eyemind --strict-proof --check-proof /tmp/holiday-proof.js examples/package-holiday.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=package-holiday).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=package-holiday).
 Two experiments, one at each gate:
 
 - let Ivy ask instead of Hugo (`by('hugo')` → `by('ivy')` in r8): the terms

@@ -2,7 +2,7 @@
 
 *Multiplying huge numbers with nothing but halving, doubling and adding — the way ancient scribes did.*
 
-[peasant.js](https://github.com/eyereasoner/eyemind/blob/main/examples/peasant.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/peasant.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/peasant.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/peasant.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=peasant)
+[peasant.js](https://github.com/eyereasoner/eyemind/blob/main/examples/peasant.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/peasant.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/peasant.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/peasant.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=peasant)
 
 ---
 
@@ -329,7 +329,7 @@ eyemind --proof examples/peasant.js    # every row of every table
 eyemind -c examples/peasant.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=peasant).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=peasant).
 
 - Add `query(pow([2, 100], _))` at the end and run again: a new line
   appears, `pow([2, 100], 1267650600228229401496703205376)`.

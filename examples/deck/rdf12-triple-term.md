@@ -2,7 +2,7 @@
 
 *Talking about a statement without making it.*
 
-[rdf12-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-triple-term)
+[rdf12-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-triple-term)
 
 ---
 
@@ -183,7 +183,7 @@ eyemind examples/rdf12-triple-term.js > out.js && eyemind-to-rdf out.js -o out.t
 `eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyemind's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-triple-term).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-triple-term).
 
 Add a second claim, Bob claiming that Carol knows Dave, and run again: the
 rule asserts it too, and a second answer appears. Add a claim of Alice that

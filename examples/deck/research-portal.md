@@ -2,7 +2,7 @@
 
 *One hospital, one research policy, two sets of device rules: which research sessions may go ahead, and what would change?*
 
-[research-portal.js](https://github.com/eyereasoner/eyemind/blob/main/examples/research-portal.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/research-portal.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/research-portal.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/research-portal.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=research-portal)
+[research-portal.js](https://github.com/eyereasoner/eyemind/blob/main/examples/research-portal.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/research-portal.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/research-portal.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/research-portal.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=research-portal)
 
 ---
 
@@ -521,7 +521,7 @@ eyemind examples/research-portal.js
 eyemind --goal "policy_result('ex:r4', Result)" examples/research-portal.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=research-portal).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=research-portal).
 The question asks gate 1 about r4 alone, and answers that r4 is refused,
 listing the one unmet condition: consent withdrawn. Two experiments, one at
 each gate:

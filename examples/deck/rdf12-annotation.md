@@ -2,7 +2,7 @@
 
 *Who said it, and when.*
 
-[rdf12-annotation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-annotation.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-annotation.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-annotation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-annotation.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-annotation)
+[rdf12-annotation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-annotation.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-annotation.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-annotation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-annotation.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-annotation)
 
 ---
 
@@ -248,7 +248,7 @@ eyemind examples/rdf12-annotation.js > out.js && eyemind-to-rdf out.js -o out.tt
 `eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyemind's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-annotation).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-annotation).
 
 Remove the asserted name triple (the first quad of the `fact`) and run
 again: the reifier alone is not enough, and nothing follows; eyemind

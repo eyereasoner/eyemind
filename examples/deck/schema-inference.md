@@ -2,7 +2,7 @@
 
 *A few general statements about categories and relations, and the facts that follow from them.*
 
-[schema-inference.js](https://github.com/eyereasoner/eyemind/blob/main/examples/schema-inference.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/schema-inference.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/schema-inference.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/schema-inference.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=schema-inference)
+[schema-inference.js](https://github.com/eyereasoner/eyemind/blob/main/examples/schema-inference.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/schema-inference.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/schema-inference.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/schema-inference.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=schema-inference)
 
 ---
 
@@ -250,7 +250,7 @@ eyemind examples/schema-inference.js            # the new facts
 eyemind --proof examples/schema-inference.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=schema-inference).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=schema-inference).
 
 Add `fact(triple('bob', 'parent_of', 'carol'))` and run again: Bob becomes
 related to Carol, and Carol is concluded to be a person. Or add

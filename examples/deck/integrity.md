@@ -2,7 +2,7 @@
 
 *A rule that should never fire, and a clear alarm when it does.*
 
-[integrity.js](https://github.com/eyereasoner/eyemind/blob/main/examples/integrity.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/integrity.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/integrity.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/integrity.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=integrity)
+[integrity.js](https://github.com/eyereasoner/eyemind/blob/main/examples/integrity.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/integrity.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/integrity.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/integrity.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=integrity)
 
 ---
 

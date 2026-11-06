@@ -2,7 +2,7 @@
 
 *A hundred-step chain of "every A is a B", with dead ends at every turn.*
 
-[deep-taxonomy-100.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-100.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deep-taxonomy-100.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-100.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deep-taxonomy-100.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=deep-taxonomy-100)
+[deep-taxonomy-100.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-100.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deep-taxonomy-100.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-100.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deep-taxonomy-100.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=deep-taxonomy-100)
 
 ---
 
@@ -311,7 +311,7 @@ eyemind -c examples/deep-taxonomy-100.js
 eyemind --check-proof examples/proof/deep-taxonomy-100.js examples/deep-taxonomy-100.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=deep-taxonomy-100).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=deep-taxonomy-100).
 
 Change the last line to `query(type(X, 'n50'))`: the answer becomes
 `type('ind', 'n50')`, and `--stats` drops to 51 inferences. Change it to

@@ -170,7 +170,7 @@ export const tests = {
       for (const file of [`${name}.js`, `output/${name}.js`, `proof/${name}.js`, `check/${name}.js`]) {
         assert.ok(links.has(`https://github.com/eyereasoner/eyemind/blob/main/examples/${file}`), `${name}: ${file}`);
       }
-      assert.ok(links.has(`https://eyereasoner.github.io/eyemind/playground#example=${name}`), name);
+      assert.ok(links.has(`https://eyereasoner.github.io/eyemind/playground/#example=${name}`), name);
     }
   },
 

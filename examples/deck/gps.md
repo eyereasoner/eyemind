@@ -2,7 +2,7 @@
 
 *Plan a trip from Gent to Oostende that stays within your time, budget and comfort limits.*
 
-[gps.js](https://github.com/eyereasoner/eyemind/blob/main/examples/gps.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/gps.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/gps.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/gps.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=gps)
+[gps.js](https://github.com/eyereasoner/eyemind/blob/main/examples/gps.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/gps.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/gps.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/gps.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=gps)
 
 ---
 

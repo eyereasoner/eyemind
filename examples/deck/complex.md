@@ -2,7 +2,7 @@
 
 *Teaching a reasoner a kind of number it has never heard of.*
 
-[complex.js](https://github.com/eyereasoner/eyemind/blob/main/examples/complex.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/complex.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/complex.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/complex.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=complex)
+[complex.js](https://github.com/eyereasoner/eyemind/blob/main/examples/complex.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/complex.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/complex.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/complex.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=complex)
 
 ---
 

@@ -2,7 +2,7 @@
 
 *Arabic runs right to left. The data should say so.*
 
-[rdf12-directional-language.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-directional-language.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-directional-language.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-directional-language.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-directional-language.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-directional-language)
+[rdf12-directional-language.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-directional-language.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-directional-language.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-directional-language.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-directional-language.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-directional-language)
 
 ---
 
@@ -200,7 +200,7 @@ eyemind examples/rdf12-directional-language.js > out.js && eyemind-to-rdf out.js
 `eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyemind's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-directional-language).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-directional-language).
 
 Add a Hebrew label to the facts,
 `rdf(iri(ex + 'welcome'), iri(ex + 'label'), literal('ברוכים הבאים', lang('he', 'rtl')), 'default_graph')`,

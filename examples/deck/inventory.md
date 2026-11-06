@@ -2,7 +2,7 @@
 
 *Adding up a shopping bill, and being honest about what "all the lines" means.*
 
-[inventory.js](https://github.com/eyereasoner/eyemind/blob/main/examples/inventory.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/inventory.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/inventory.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/inventory.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=inventory)
+[inventory.js](https://github.com/eyereasoner/eyemind/blob/main/examples/inventory.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/inventory.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/inventory.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/inventory.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=inventory)
 
 ---
 
@@ -225,7 +225,7 @@ The last command asks for the line totals, which the query does not show:
 `line_total('apple', 6)`, `line_total('pear', 12)` and
 `line_total('plum', 10)`.
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=inventory).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=inventory).
 Add `fact(item('fig', 5, 1))` and run again: the invoice becomes
 `invoice(33)`, because the collection now gathers four line totals.
 

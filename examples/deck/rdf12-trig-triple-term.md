@@ -2,7 +2,7 @@
 
 *A claim, kept in the graph that holds it.*
 
-[rdf12-trig-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-trig-triple-term)
+[rdf12-trig-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-triple-term)
 
 ---
 
@@ -192,7 +192,7 @@ eyemind examples/rdf12-trig-triple-term.js > out.js && eyemind-to-rdf out.js -o 
 `eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyemind's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-trig-triple-term).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-triple-term).
 
 Move the claim to the default graph: replace `iri(ex + 'claimsGraph')` in
 the fact with `'default_graph'`. The conclusion moves with it and now ends in

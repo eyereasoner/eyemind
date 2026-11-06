@@ -2,7 +2,7 @@
 
 *When the facts disagree, say so, instead of pretending they don't.*
 
-[paraconsistent-animals.js](https://github.com/eyereasoner/eyemind/blob/main/examples/paraconsistent-animals.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/paraconsistent-animals.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/paraconsistent-animals.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/paraconsistent-animals.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=paraconsistent-animals)
+[paraconsistent-animals.js](https://github.com/eyereasoner/eyemind/blob/main/examples/paraconsistent-animals.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/paraconsistent-animals.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/paraconsistent-animals.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/paraconsistent-animals.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=paraconsistent-animals)
 
 ---
 
@@ -345,7 +345,7 @@ eyemind examples/paraconsistent-animals.js            # the answers
 eyemind --proof examples/paraconsistent-animals.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=paraconsistent-animals).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=paraconsistent-animals).
 Delete the line `fact(observed('mythic', 'flies', 'false'))` and run again:
 the conflict disappears, and you get `flies_safely('mythic', 'true')` and
 `moves_by('mythic', 'flying')`. The check report then lists eight

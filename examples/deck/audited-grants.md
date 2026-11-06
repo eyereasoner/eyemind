@@ -2,7 +2,7 @@
 
 *A program that reasons about its own reasoning, because there is only one language to speak.*
 
-[audited-grants.js](https://github.com/eyereasoner/eyemind/blob/main/examples/audited-grants.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/audited-grants.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/audited-grants.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/audited-grants.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=audited-grants)
+[audited-grants.js](https://github.com/eyereasoner/eyemind/blob/main/examples/audited-grants.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/audited-grants.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/audited-grants.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/audited-grants.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=audited-grants)
 
 ---
 
@@ -438,7 +438,7 @@ eyemind --proof examples/audited-grants.js    # the audit, with its own proof
 eyemind --goal 'obligation(K, S, G)' examples/audited-grants.js   # what the policy's proof took on trust
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=audited-grants).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=audited-grants).
 The last command asks the audit program for the obligations of the
 *policy's* report, read in as facts: the three absences
 `not(already_received('ann'))`, `not(already_received('cara'))` and

@@ -2,7 +2,7 @@
 
 *Web data, quoted statements and invented names, without any new syntax.*
 
-[terms.js](https://github.com/eyereasoner/eyemind/blob/main/examples/terms.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/terms.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/terms.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/terms.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=terms)
+[terms.js](https://github.com/eyereasoner/eyemind/blob/main/examples/terms.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/terms.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/terms.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/terms.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=terms)
 
 ---
 
@@ -244,7 +244,7 @@ eyemind examples/terms.js            # the answers
 eyemind --proof examples/terms.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=terms).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=terms).
 Add a second triple to the list, for example
 `triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hallo', lang('nl')))`,
 and run again: two `found` lines appear, one for "hello" in English and one

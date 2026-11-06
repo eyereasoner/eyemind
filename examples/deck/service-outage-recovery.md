@@ -2,7 +2,7 @@
 
 *Choose repairs from their effects on business functions.*
 
-[program](https://github.com/eyereasoner/eyemind/blob/main/examples/service-outage-recovery.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/service-outage-recovery.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/service-outage-recovery.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/service-outage-recovery.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=service-outage-recovery)
+[program](https://github.com/eyereasoner/eyemind/blob/main/examples/service-outage-recovery.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/service-outage-recovery.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/service-outage-recovery.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/service-outage-recovery.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=service-outage-recovery)
 
 ---
 

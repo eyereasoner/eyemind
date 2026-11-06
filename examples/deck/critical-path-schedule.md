@@ -2,7 +2,7 @@
 
 *Follow the longest prerequisite chain, including ties.*
 
-[program](https://github.com/eyereasoner/eyemind/blob/main/examples/critical-path-schedule.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/critical-path-schedule.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/critical-path-schedule.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/critical-path-schedule.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=critical-path-schedule)
+[program](https://github.com/eyereasoner/eyemind/blob/main/examples/critical-path-schedule.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/critical-path-schedule.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/critical-path-schedule.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/critical-path-schedule.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=critical-path-schedule)
 
 ---
 
@@ -371,7 +371,7 @@ eyemind examples/critical-path-schedule.js
 eyemind --proof examples/critical-path-schedule.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=critical-path-schedule).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=critical-path-schedule).
 Change frontend's duration from 5 to 11. It then finishes at 15, tying backend.
 Both branches become critical, and the program reports nine critical tasks
 while the finish time remains 23: frontend and API design join the seven. Make

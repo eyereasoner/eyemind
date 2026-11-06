@@ -2,7 +2,7 @@
 
 *Calculus rules applied to formulas, not numbers, with every rule shown.*
 
-[symbolic-derivative.js](https://github.com/eyereasoner/eyemind/blob/main/examples/symbolic-derivative.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/symbolic-derivative.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/symbolic-derivative.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/symbolic-derivative.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=symbolic-derivative)
+[symbolic-derivative.js](https://github.com/eyereasoner/eyemind/blob/main/examples/symbolic-derivative.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/symbolic-derivative.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/symbolic-derivative.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/symbolic-derivative.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=symbolic-derivative)
 
 ---
 
@@ -295,7 +295,7 @@ eyemind --goal "d(mul(num(5), sym('x')), 'x', D)" examples/symbolic-derivative.j
 
 The `--goal` line asks for the derivative of 5x and gets
 `add(mul(num(0), sym('x')), mul(num(5), num(1)))`, that is 0·x + 5·1.
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=symbolic-derivative).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=symbolic-derivative).
 Change the `square` formula to `pow(sym('x'), 2)` and run again: the power
 rule answers `mul(mul(num(2), pow(sym('x'), 1)), num(1))`, that is 2·x¹·1.
 

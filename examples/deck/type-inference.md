@@ -2,7 +2,7 @@
 
 *Working out the type of each small program, from the types of its parts.*
 
-[type-inference.js](https://github.com/eyereasoner/eyemind/blob/main/examples/type-inference.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/type-inference.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/type-inference.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/type-inference.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=type-inference)
+[type-inference.js](https://github.com/eyereasoner/eyemind/blob/main/examples/type-inference.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/type-inference.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/type-inference.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/type-inference.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=type-inference)
 
 ---
 
@@ -326,7 +326,7 @@ eyemind examples/type-inference.js            # the types
 eyemind --proof examples/type-inference.js    # with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=type-inference).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=type-inference).
 
 Add these programs and run again:
 

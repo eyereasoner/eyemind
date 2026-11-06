@@ -2,7 +2,7 @@
 
 *Checking each record on its own, so one file cannot fill gaps in another.*
 
-[scoped-audit.js](https://github.com/eyereasoner/eyemind/blob/main/examples/scoped-audit.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/scoped-audit.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/scoped-audit.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/scoped-audit.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=scoped-audit)
+[scoped-audit.js](https://github.com/eyereasoner/eyemind/blob/main/examples/scoped-audit.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/scoped-audit.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/scoped-audit.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/scoped-audit.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=scoped-audit)
 
 ---
 

@@ -2,7 +2,7 @@
 
 *One rule that creates two others, and a proof that shows all three at work.*
 
-[derived-backward-rule-2.js](https://github.com/eyereasoner/eyemind/blob/main/examples/derived-backward-rule-2.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/derived-backward-rule-2.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/derived-backward-rule-2.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/derived-backward-rule-2.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=derived-backward-rule-2)
+[derived-backward-rule-2.js](https://github.com/eyereasoner/eyemind/blob/main/examples/derived-backward-rule-2.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/derived-backward-rule-2.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/derived-backward-rule-2.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/derived-backward-rule-2.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=derived-backward-rule-2)
 
 ---
 

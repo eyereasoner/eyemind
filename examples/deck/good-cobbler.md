@@ -2,7 +2,7 @@
 
 *"Good at what?" A small lesson in not over-generalising.*
 
-[good-cobbler.js](https://github.com/eyereasoner/eyemind/blob/main/examples/good-cobbler.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/good-cobbler.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/good-cobbler.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/good-cobbler.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=good-cobbler)
+[good-cobbler.js](https://github.com/eyereasoner/eyemind/blob/main/examples/good-cobbler.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/good-cobbler.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/good-cobbler.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/good-cobbler.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=good-cobbler)
 
 ---
 
@@ -210,7 +210,7 @@ eyemind examples/good-cobbler.js
 eyemind --proof examples/good-cobbler.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=good-cobbler).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=good-cobbler).
 Add `fact(description('ann', ['good', 'baker']))` and run again: Ann is now
 good at baking and classified as a baker, with her own proof. Ask
 `good_at('sam', Trade)` with `--goal` and eyemind answers

@@ -2,7 +2,7 @@
 
 *A thousand-step chain of reasoning, every step written down and checked.*
 
-[deep-taxonomy-1000.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-1000.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deep-taxonomy-1000.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-1000.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deep-taxonomy-1000.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=deep-taxonomy-1000)
+[deep-taxonomy-1000.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-1000.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deep-taxonomy-1000.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-1000.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deep-taxonomy-1000.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=deep-taxonomy-1000)
 
 ---
 
@@ -206,7 +206,7 @@ eyemind --stats examples/deep-taxonomy-1000.js    # and its cost
 ```
 
 `--stats` reports `"inferences":1001`: one step per level, plus the fact.
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=deep-taxonomy-1000).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=deep-taxonomy-1000).
 
 Change the last line to `query(type(X, 'i500'))` and run with `--stats`
 again: the answer is `type('ind', 'i500')`, reached in 501 inferences, and

@@ -2,7 +2,7 @@
 
 *A simple game with numbers that nobody has managed to fully explain — played out, with every move justified.*
 
-[collatz.js](https://github.com/eyereasoner/eyemind/blob/main/examples/collatz.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/collatz.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/collatz.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/collatz.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=collatz)
+[collatz.js](https://github.com/eyereasoner/eyemind/blob/main/examples/collatz.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/collatz.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/collatz.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/collatz.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=collatz)
 
 ---
 
@@ -297,7 +297,7 @@ eyemind -c examples/collatz.js
 eyemind --check-proof examples/proof/collatz.js examples/collatz.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=collatz).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=collatz).
 
 Change `in_range(1, 20, N)` to `in_range(27, 27, N)` and run again: the start
 27 takes a famous detour of 112 numbers, climbing as high as 9232 before it

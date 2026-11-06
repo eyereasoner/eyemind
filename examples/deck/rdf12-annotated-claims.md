@@ -2,7 +2,7 @@
 
 *Two sources disagree. Which one do we follow, and why?*
 
-[rdf12-annotated-claims.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-annotated-claims.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-annotated-claims.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-annotated-claims.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-annotated-claims.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-annotated-claims)
+[rdf12-annotated-claims.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-annotated-claims.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-annotated-claims.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-annotated-claims.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-annotated-claims.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-annotated-claims)
 
 ---
 
@@ -381,7 +381,7 @@ eyemind examples/rdf12-annotated-claims.js > out.js && eyemind-to-rdf out.js -o 
 `eyemind-to-rdf` and `rdf-to-eyemind` come with
 [rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
 they turn eyemind's quads into RDF and RDF into quads.
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=rdf12-annotated-claims).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-annotated-claims).
 
 Lower the authority's confidence from `'98'` to `'80'` and run again: its
 score becomes 80 × 95 = 7600, still the best but below the threshold, so the

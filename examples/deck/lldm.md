@@ -2,7 +2,7 @@
 
 *From four dots on an X-ray to an alarm, with the reason it fired, and every calculation rechecked.*
 
-[lldm.js](https://github.com/eyereasoner/eyemind/blob/main/examples/lldm.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/lldm.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/lldm.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/lldm.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=lldm)
+[lldm.js](https://github.com/eyereasoner/eyemind/blob/main/examples/lldm.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/lldm.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/lldm.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/lldm.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=lldm)
 
 ---
 

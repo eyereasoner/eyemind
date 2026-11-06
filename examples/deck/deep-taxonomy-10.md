@@ -2,7 +2,7 @@
 
 *Ten levels down a family tree of categories, ignoring every dead end on the way.*
 
-[deep-taxonomy-10.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-10.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deep-taxonomy-10.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-10.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deep-taxonomy-10.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=deep-taxonomy-10)
+[deep-taxonomy-10.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-10.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deep-taxonomy-10.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-10.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deep-taxonomy-10.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=deep-taxonomy-10)
 
 ---
 
@@ -221,7 +221,7 @@ eyemind --check-proof examples/proof/deep-taxonomy-10.js examples/deep-taxonomy-
 ```
 
 `--stats` adds a line counting the work: 11 inferences, one per step of the
-ladder. In the [playground](https://eyereasoner.github.io/eyemind/playground#example=deep-taxonomy-10),
+ladder. In the [playground](https://eyereasoner.github.io/eyemind/playground/#example=deep-taxonomy-10),
 change the last line to `query(type(X, 'j7'))` and the answer becomes
 `type('ind', 'j7')`: a side branch, reached by climbing six levels first. Its
 proof has 8 steps: the `j7` rule, the six `n` rules from `n6` down to `n1`,

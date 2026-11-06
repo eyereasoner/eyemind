@@ -2,7 +2,7 @@
 
 *Audit a provisional choice using walking routes and preferences.*
 
-[program](https://github.com/eyereasoner/eyemind/blob/main/examples/school-placement-audit.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/school-placement-audit.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/school-placement-audit.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/school-placement-audit.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=school-placement-audit)
+[program](https://github.com/eyereasoner/eyemind/blob/main/examples/school-placement-audit.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/school-placement-audit.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/school-placement-audit.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/school-placement-audit.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=school-placement-audit)
 
 ---
 

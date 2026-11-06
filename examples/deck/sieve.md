@@ -2,7 +2,7 @@
 
 *A 2,200-year-old recipe for prime numbers, with every crossed-out number on record.*
 
-[sieve.js](https://github.com/eyereasoner/eyemind/blob/main/examples/sieve.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/sieve.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/sieve.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/sieve.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=sieve)
+[sieve.js](https://github.com/eyereasoner/eyemind/blob/main/examples/sieve.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/sieve.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/sieve.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/sieve.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=sieve)
 
 ---
 

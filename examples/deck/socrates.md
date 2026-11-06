@@ -2,7 +2,7 @@
 
 *The oldest example in logic, with the reasoning written down and checked.*
 
-[socrates.js](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/socrates.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/socrates.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/socrates.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground#example=socrates)
+[socrates.js](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/socrates.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/socrates.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/socrates.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=socrates)
 
 ---
 
@@ -171,7 +171,7 @@ eyemind examples/socrates.js            # the answers
 eyemind --proof examples/socrates.js    # answers with their proof
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground#example=socrates).
+Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=socrates).
 Add `fact(type('plato', 'human'))` and run again: Plato becomes mortal too,
 with his own proof. Then add `fact(subclass_of('mortal', 'living'))`: the same
 rule, used twice in a row, now also concludes that Socrates and Plato are

@@ -2,7 +2,7 @@
 
 *An inverse relation becomes a rule that answers questions.*
 
-[derived-backward-rule.js](https://github.com/eyereasoner/eyemind/blob/main/examples/derived-backward-rule.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/derived-backward-rule.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/derived-backward-rule.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/derived-backward-rule.js) · [playground](https://eyereasoner.github.io/eyemind/playground#example=derived-backward-rule)
+[derived-backward-rule.js](https://github.com/eyereasoner/eyemind/blob/main/examples/derived-backward-rule.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/derived-backward-rule.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/derived-backward-rule.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/derived-backward-rule.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=derived-backward-rule)
 
 ---
 
