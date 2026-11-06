@@ -16,7 +16,7 @@ import { CONTROL_KEYS, Program } from './program.js';
 import { readTerms } from './reader.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
-  isCallable, isGround, isTerm, key, listFromItems, properListItems, unify, variables,
+  isCallable, isFloat, isGround, isTerm, key, listFromItems, properListItems, unify, variables,
 } from './terms.js';
 import { Lettering, letterName, quote, write, writeNotingVariables } from './writer.js';
 
@@ -52,6 +52,51 @@ function sameValue(a, b) {
 }
 
 // Whether term, read through env, is exactly target, variables included.
+// The functions whose float results may differ between hosts' math libraries
+// (SPEC Section 14), and how far apart, in units in the last place, a claimed
+// result of one of them may be from the recomputed one (Section 11.6).
+const HOST_MATH = new Set(['exp', 'log', 'log2', 'log10', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'atan2',
+  'sinh', 'cosh', 'tanh', 'pow']);
+const HOST_MATH_ULPS = 4n;
+
+function usesHostMath(expression) {
+  const pending = [expression];
+  while (pending.length) {
+    const term = pending.pop();
+    if (!(term instanceof Struct)) continue;
+    if (HOST_MATH.has(term.name)) return true;
+    pending.push(...term.args);
+  }
+  return false;
+}
+
+// A float's position among all floats, so that adjacent floats differ by one.
+const BITS = new DataView(new ArrayBuffer(8));
+function floatPosition(value) {
+  BITS.setFloat64(0, value);
+  const bits = BITS.getBigInt64(0);
+  return bits < 0n ? -(bits & 0x7fffffffffffffffn) : bits;
+}
+
+// is(Claimed, Expression) with a float claimed for an expression that uses
+// host math agrees when the recomputed float lies within HOST_MATH_ULPS of it.
+function nearHostMath(goal) {
+  if (!isTerm(goal, 'is', 2) || !isFloat(goal.args[0]) || !usesHostMath(goal.args[1])) return false;
+  const result = new Var('Result');
+  const env = new Env();
+  try {
+    for (const solution of primitive(new Struct('is', [result, goal.args[1]]), env)) {
+      const value = deref(result, solution);
+      if (!isFloat(value)) return false;
+      const distance = floatPosition(value) - floatPosition(goal.args[0]);
+      return (distance < 0n ? -distance : distance) <= HOST_MATH_ULPS;
+    }
+  } catch (error) {
+    if (!(error instanceof EyemindError)) throw error;
+  }
+  return false;
+}
+
 function resolvesTo(term, env, target) {
   const pending = [term, target];
   while (pending.length) {
@@ -366,6 +411,7 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name) {
         // A primitive that cannot be recomputed does not pass C5.
         if (!(error instanceof EyemindError)) throw error;
       }
+      if (!agrees) agrees = nearHostMath(goal);
       if (!agrees) fail.add('C5', `primitive disagrees: ${text(goal)}`, goal);
       else tally.redecided++;
     } else if (by === CONTROL_BY) {

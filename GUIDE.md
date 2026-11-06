@@ -319,7 +319,7 @@ A proof holds the claims, the source clauses it cites, and one `step(...)` recor
 | **C2** | well-foundedness | The derivation has no cycles |
 | **C3** | justification | Every step's justification is known, well-formed and unique |
 | **C4** | coverage | Every claim and every premise is accounted for |
-| **C5** | re-decision | Built-in calculations are recomputed rather than trusted |
+| **C5** | re-decision | Built-in calculations are recomputed rather than trusted; a float from `exp`, `log`, trigonometry or `pow` may be up to 4 units in the last place off, since math libraries differ |
 | **C6** | boundary consistency | No trusted absence or collection is contradicted by the evidence at hand |
 | **C7** | relevance | Every claim answers the question asked, and every step serves a claim |
 | **C8** | witness integrity | Every "something exists" conclusion uses the Skolem term of its own rule firing, not a value of the prover's choosing |

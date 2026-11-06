@@ -72,6 +72,30 @@ export const tests = {
       program(`query(is(X, ${expression}))`));
   },
 
+  'host math may be a few units in the last place off and exact arithmetic none'() {
+    const view = new DataView(new ArrayBuffer(8));
+    const ulps = (value, count) => {
+      view.setFloat64(0, value);
+      view.setBigInt64(0, view.getBigInt64(0) + BigInt(count));
+      return view.getFloat64(0);
+    };
+    // The failed conditions of a one-step proof that is(Value, Expression) holds.
+    const failed = (value, expression) => {
+      const document = `is(${value}, ${expression})\nstep(is(${value}, ${expression}), 'builtin', {}, [])\n`;
+      const report = checkProof(program(''), document, { goals: [`is(X, ${expression})`] });
+      return report.failures.map((failure) => failure.condition);
+    };
+    const nested = 'div(mul(cos(1.25), sub(exp(0.5), exp(neg(0.5)))), 2)';
+    const value = Number(run(program(`query(is(X, ${nested}))`)).answers[0].match(/^is\(([^,]+),/)[1]);
+    for (const [expression, exact] of [['exp(1)', Math.exp(1)], ['pow(2.0, 0.5)', 2 ** 0.5], [nested, value]]) {
+      for (const count of [-4, -1, 1, 4]) assert.deepEqual(failed(ulps(exact, count), expression), [], `${expression} ${count}`);
+      for (const count of [-5, 5, 1000]) assert.deepEqual(failed(ulps(exact, count), expression), ['C5'], `${expression} ${count}`);
+    }
+    assert.deepEqual(failed(ulps(2.5, 1), 'add(1.5, 1.0)'), ['C5']);
+    assert.deepEqual(failed(ulps(2.5, 1), 'sqrt(6.25)'), ['C5']);
+    assert.deepEqual(failed('3.0', 'pow(3, 1)'), ['C5']);
+  },
+
   'proofs are checked against source rather than display records'() {
     invalid(proof().replace("clause(1, fact(p('a')))", "clause(1, fact(p('b')))"), 'C1');
     invalid(proof(), 'C1', program("fact(p('b'))\nimplies(p(X), q(X))\nimplies(q(X), r(X))"));

@@ -1935,6 +1935,80 @@ conformance('a failing report as JSON', [
   ]),
 ])
 
+conformance('a host math result within four units in the last place re-decides', [
+  spec('11.6, 14'),
+  args("--json --check-proof proof.js --goal 'is(2.718281828459047, exp(1))' program.js"),
+  file('program.js', []),
+  file('proof.js', [
+    'is(2.718281828459047, exp(1))',
+    '',
+    "step(is(2.718281828459047, exp(1)), 'builtin', {}, [])",
+  ]),
+  stdout_json([
+    "{\"valid\": true, \"steps\": 1, \"claims\": 1, \"answers\": [\"is(2.718281828459047, exp(1))\"], \"verified\": 0, \"redecided\": 1, \"composed\": 0, \"uses\": 0,",
+    " \"trusted\": [],",
+    " \"failures\": [],",
+    " \"conditions\": [{\"id\": \"C1\", \"name\": \"resolution\", \"covered\": 0, \"failed\": 0},",
+    "                {\"id\": \"C2\", \"name\": \"well_founded\", \"covered\": 1, \"failed\": 0},",
+    "                {\"id\": \"C3\", \"name\": \"justification\", \"covered\": 1, \"failed\": 0},",
+    "                {\"id\": \"C4\", \"name\": \"coverage\", \"covered\": 1, \"failed\": 0},",
+    "                {\"id\": \"C5\", \"name\": \"re_decision\", \"covered\": 1, \"failed\": 0},",
+    "                {\"id\": \"C6\", \"name\": \"boundary_consistency\", \"covered\": 0, \"failed\": 0},",
+    "                {\"id\": \"C7\", \"name\": \"relevance\", \"covered\": 2, \"failed\": 0},",
+    "                {\"id\": \"C8\", \"name\": \"witness_integrity\", \"covered\": 0, \"failed\": 0}]}",
+  ]),
+])
+
+conformance('a host math result five units in the last place away fails re-decision', [
+  spec('11.6, 14'),
+  args("--json --check-proof proof.js --goal 'is(2.7182818284590473, exp(1))' program.js"),
+  exit(2),
+  file('program.js', []),
+  file('proof.js', [
+    'is(2.7182818284590473, exp(1))',
+    '',
+    "step(is(2.7182818284590473, exp(1)), 'builtin', {}, [])",
+  ]),
+  stdout_json([
+    "{\"valid\": false, \"steps\": 1, \"claims\": 1, \"answers\": [\"is(2.7182818284590473, exp(1))\"], \"verified\": 0, \"redecided\": 0, \"composed\": 0, \"uses\": 0,",
+    " \"trusted\": [],",
+    " \"failures\": [{\"condition\": \"C5\", \"detail\": \"primitive disagrees: is(2.7182818284590473, exp(1))\", \"conclusion\": \"is(2.7182818284590473, exp(1))\"}],",
+    " \"conditions\": [{\"id\": \"C1\", \"name\": \"resolution\", \"covered\": 0, \"failed\": 0},",
+    "                {\"id\": \"C2\", \"name\": \"well_founded\", \"covered\": 1, \"failed\": 0},",
+    "                {\"id\": \"C3\", \"name\": \"justification\", \"covered\": 1, \"failed\": 0},",
+    "                {\"id\": \"C4\", \"name\": \"coverage\", \"covered\": 1, \"failed\": 0},",
+    "                {\"id\": \"C5\", \"name\": \"re_decision\", \"covered\": 0, \"failed\": 1},",
+    "                {\"id\": \"C6\", \"name\": \"boundary_consistency\", \"covered\": 0, \"failed\": 0},",
+    "                {\"id\": \"C7\", \"name\": \"relevance\", \"covered\": 2, \"failed\": 0},",
+    "                {\"id\": \"C8\", \"name\": \"witness_integrity\", \"covered\": 0, \"failed\": 0}]}",
+  ]),
+])
+
+conformance('an exact operation allows no unit in the last place', [
+  spec('11.6'),
+  args("--json --check-proof proof.js --goal 'is(2.5000000000000004, add(1.5, 1.0))' program.js"),
+  exit(2),
+  file('program.js', []),
+  file('proof.js', [
+    'is(2.5000000000000004, add(1.5, 1.0))',
+    '',
+    "step(is(2.5000000000000004, add(1.5, 1.0)), 'builtin', {}, [])",
+  ]),
+  stdout_json([
+    "{\"valid\": false, \"steps\": 1, \"claims\": 1, \"answers\": [\"is(2.5000000000000004, add(1.5, 1.0))\"], \"verified\": 0, \"redecided\": 0, \"composed\": 0, \"uses\": 0,",
+    " \"trusted\": [],",
+    " \"failures\": [{\"condition\": \"C5\", \"detail\": \"primitive disagrees: is(2.5000000000000004, add(1.5, 1.0))\", \"conclusion\": \"is(2.5000000000000004, add(1.5, 1.0))\"}],",
+    " \"conditions\": [{\"id\": \"C1\", \"name\": \"resolution\", \"covered\": 0, \"failed\": 0},",
+    "                {\"id\": \"C2\", \"name\": \"well_founded\", \"covered\": 1, \"failed\": 0},",
+    "                {\"id\": \"C3\", \"name\": \"justification\", \"covered\": 1, \"failed\": 0},",
+    "                {\"id\": \"C4\", \"name\": \"coverage\", \"covered\": 1, \"failed\": 0},",
+    "                {\"id\": \"C5\", \"name\": \"re_decision\", \"covered\": 0, \"failed\": 1},",
+    "                {\"id\": \"C6\", \"name\": \"boundary_consistency\", \"covered\": 0, \"failed\": 0},",
+    "                {\"id\": \"C7\", \"name\": \"relevance\", \"covered\": 2, \"failed\": 0},",
+    "                {\"id\": \"C8\", \"name\": \"witness_integrity\", \"covered\": 0, \"failed\": 0}]}",
+  ]),
+])
+
 conformance('a generated proof checks', [
   spec('8.7, 11'),
   args('--check-proof proof.js program.js'),

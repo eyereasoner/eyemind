@@ -29,7 +29,7 @@ the case files in order, with the SPEC sections and the topic of each.
 | [08-canonical-text.js](08-canonical-text.js) | 9 | 19 | The one spelling of atoms, numbers, variables, lists and compounds |
 | [09-reading.js](09-reading.js) | 9.1 | 56 | What a document reader accepts, and what it must reject without running anything |
 | [10-proofs.js](10-proofs.js) | 10 | 17 | Proof documents for every kind of justification, step order and sharing |
-| [11-checking.js](11-checking.js) | 11, 12 | 70 | Valid proofs and proofs tampered with to break each of C1-C8, with their exact reports |
+| [11-checking.js](11-checking.js) | 11, 12 | 73 | Valid proofs and proofs tampered with to break each of C1-C8, with their exact reports |
 | [13-unused.js](13-unused.js) | 13.2 | 11 | Unused clauses, including those a negation or collection consults |
 | [14-command-line.js](14-command-line.js) | 13.1 | 33 | Options, their combinations, standard input, errors and exit codes |
 
@@ -38,7 +38,8 @@ case, and Section 15 has document-security cases. The suite includes every
 arithmetic function, its arity errors, every control and primitive, and valid
 and forged certificates covering C1–C8. Tags index the requirements exercised;
 they do not imply exhaustive coverage of all inputs or combinations. Section 14
-allows the host math library's last-digit differences.
+allows the host math library's last-digit differences, and the checking
+cases show how far C5 accepts them.
 
 ## Case format
 

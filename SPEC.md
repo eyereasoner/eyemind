@@ -1172,6 +1172,16 @@ and its uses MUST be identical, in order, to the conjuncts of the argument of
 `call` or `once`, or of one side of a disjunction. When trusted boundaries are
 forbidden ("strict"), each `'absent'` or `'collected'` step fails C5.
 
+Host math is the one exception to identical re-decision. A `'builtin'` step
+`is(V, E)`, where `V` is a float and `E` applies `exp`, `log`, `log2`,
+`log10`, a trigonometric or hyperbolic function, or `pow`, also passes C5
+when `E` evaluates to a float at most 4 units in the last place from `V`,
+that is, with at most 3 floats between them. Such results may differ between
+conforming implementations (Section 14), so a proof made by one still checks
+with another. Every other recomputed result MUST be identical; a difference
+that grows beyond this bound, for example through cancellation, MAY make a
+proof fail on an implementation other than the one that made it.
+
 ### 11.7 C6 Boundary consistency
 
 A trusted boundary cannot be proved, but the evidence at hand can refute it.
@@ -1393,7 +1403,8 @@ Canonical term spelling, conclusion order, proof contents and report counts
 are required as specified. Comment wording and failure `Detail` text are
 informative. Fresh variable names are unspecified where Section 2.4 says
 so. Float results of `exp`, logarithms, trigonometric and hyperbolic
-functions, and `pow` with floats MAY differ in the last decimal digit.
+functions, and `pow` with floats MAY differ by one unit in the last place,
+and C5 accepts a result of such a function within 4 units (Section 11.6).
 
 The conformance cases and saved example documents exercise these
 requirements. They do not replace the definitions in this specification.
