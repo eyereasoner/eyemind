@@ -5,7 +5,6 @@ import { goalTerm, subgoals } from './goals.js';
 import { INSPECTION_KEYS } from './inspection.js';
 import { checkRendered, clauseDisplay, renderProof } from './proof.js';
 import { CONTROL_KEYS, Program } from './program.js';
-import { isActivation } from './templates.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
   identity, isAnonymous, isCallable, isGround, isGroundButAnonymous, isTerm, key, keyArity, listFromItems,
@@ -38,11 +37,12 @@ export class Node {
 
 // The step a frame's body will justify once it is finished.
 class Pending {
-  constructor(goal, by, bindings, cut) {
+  constructor(goal, by, bindings, cut, prefix = NO_NODES) {
     this.goal = goal;
     this.by = by;
     this.bindings = bindings;
     this.cut = cut;
+    this.prefix = prefix;
   }
 }
 
@@ -130,8 +130,7 @@ function scopedVariables(nodes, env) {
 
 // A universal derived pattern is renamed together with its evidence at each
 // use. Renaming just its head would disconnect the certificate's variables.
-function freshNode(node, suffix) {
-  const names = new Map();
+function freshNode(node, suffix, names = new Map()) {
   const copies = new Map();
   const make = (source) => new Node(freshTerm(source.goal, suffix, names, true), source.by,
     source.bindings.map(([name, value]) => [name, freshTerm(value, suffix, names, true)]),
@@ -250,6 +249,7 @@ export function clausesBehindBoundaries(program, roots) {
     }
     for (const clause of byKey.get(goalKey) || []) {
       reached.add(clause.id);
+      for (const parent of clause.scopeIds) if (program.byId.has(parent)) reached.add(parent);
       for (const goal of clause.body) visit(goal);
     }
   }
@@ -295,6 +295,8 @@ export class Solver {
     this.chosen = null;
     this.snapshots = new Map();
     this.direct = new Map();
+    this.rules = new Map();
+    this.ruleKeys = new Map();
     this.maxInferences = options.maxInferences || 1000000;
   }
 
@@ -334,7 +336,7 @@ export class Solver {
       nodes = [...parent.nodes, ...frame.nodes];
     } else {
       const pending = frame.pending;
-      nodes = [...parent.nodes, new Node(pending.goal, pending.by, pending.bindings, [...frame.nodes])];
+      nodes = [...parent.nodes, new Node(pending.goal, pending.by, pending.bindings, [...pending.prefix, ...frame.nodes])];
     }
     return new Frame(parent.goals, parent.index + 1, nodes, parent.parent, parent.pending, parent.depth);
   }
@@ -458,7 +460,7 @@ export class Solver {
       const [start, stop, withClauses] = this.window[frame.index];
       point = new Point('resolve', frame, env.mark(), goal, {
         facts: this.facts.get(goalKey) || NO_NODES,
-        clauses: withClauses ? this.program.candidates(goal, env, goalKey) : NO_NODES,
+        clauses: withClauses ? this.candidates(goal, env, goalKey) : NO_NODES,
         start, stop, order: this.factOrder(goal, env, goalKey),
       });
     } else {
@@ -466,7 +468,7 @@ export class Solver {
       // while a search runs.
       point = new Point('resolve', frame, env.mark(), goal, {
         facts: this.facts.get(goalKey) || NO_NODES,
-        clauses: this.program.candidates(goal, env, goalKey),
+        clauses: this.candidates(goal, env, goalKey),
         order: this.factOrder(goal, env, goalKey),
       });
     }
@@ -474,6 +476,50 @@ export class Solver {
     if (next === null) return null;
     if (point.kind === 'primitive' || point.position < point.count()) choices.push(point);
     return next;
+  }
+
+  candidates(goal, env, goalKey) {
+    const candidates = this.program.candidates(goal, env, goalKey);
+    if (!this.program.hasTemplates) return candidates;
+    if (!candidates.some((clause) => clause.parentId !== null)) return candidates;
+    return candidates.flatMap((clause) => clause.parentId === null ? [clause] : this.rules.get(clause.id) || NO_NODES);
+  }
+
+  // A derived rule's captures are bound before its head meets the caller.
+  // Its generator has already been solved; only its own body is searched.
+  context(clause, names, env) {
+    if (!clause.instance) return NO_NODES;
+    const instance = clause.instance;
+    const fresh = new Map();
+    for (const [name, value] of instance.bindings) {
+      if (names.has(name)) unify(names.get(name), instance.generic ? freshTerm(value, this.serial, fresh, true) : value, env);
+    }
+    return instance.generic ? instance.children.map((node) => freshNode(node, this.serial, fresh)) : instance.children;
+  }
+
+  deriveRules(template, captures, bindings, children) {
+    const first = template.ids[0];
+    let known = this.ruleKeys.get(first);
+    if (known === undefined) this.ruleKeys.set(first, known = new Set());
+    const generic = this.program.inspectionEnabled && !isGround(captures);
+    const id = generic ? variant(captures) : identity(captures);
+    if (known.has(id)) return false;
+    known.add(id);
+    // Ground captures cannot be changed by a caller. Their already-resolved
+    // generator evidence can be shared by every use of the derived rule.
+    if (!generic) for (const node of children) node.final = true;
+    let derived = false;
+    for (const ruleId of template.ids) {
+      const original = this.program.byId.get(ruleId);
+      if (!original) continue;
+      const rule = Object.create(original);
+      rule.instance = { bindings, children, generic };
+      let instances = this.rules.get(ruleId);
+      if (instances === undefined) this.rules.set(ruleId, instances = []);
+      instances.push(rule);
+      derived = true;
+    }
+    return derived;
   }
 
   addFact(goalKey, node) {
@@ -571,6 +617,18 @@ export class Solver {
       const clause = point.clauses[position - inWindow];
       if (windowed) this.chosen[point.frame.index] = [1, clause.id];
       this.serial++;
+      if (clause.instance) {
+        const [head, body, names] = freshClause(clause, this.serial, true);
+        const prefix = this.context(clause, names, env);
+        if (!unify(point.goal, head, env)) {
+          env.undo(point.mark);
+          continue;
+        }
+        const pending = recording
+          ? new Pending(point.goal, new Struct('clause', [BigInt(clause.id)]), [...names], null, prefix)
+          : QUIET;
+        return this.childFrame(point.frame, body.slice(clause.prefixLength), pending, point.frame.depth + 1);
+      }
       // The body is renamed only once the head unifies: many candidate
       // clauses of a goal fail on their head.
       const renamed = clause.renaming || renaming(clause);
@@ -613,11 +671,11 @@ export class Solver {
   // for other rules. Negations and collections consult lower strata only
   // (Section 6.1), so they do not change within one.
   directKeys(clause) {
-    if (this.direct.has(clause.id)) return this.direct.get(clause.id);
+    if (this.direct.has(clause)) return this.direct.get(clause);
     let keys = [];
     // A forward rule's body goals are all callable: Program rejects numbers,
     // and stratification rejects variables a forward rule can reach.
-    for (const goal of clause.body) {
+    for (const goal of clause.localBody) {
       const goalKey = key(goal);
       if (PRIMITIVE_KEYS.has(goalKey) || INSPECTION_KEYS.has(goalKey) || goalKey === 'not/1' || goalKey === 'findall/3') {
         keys.push(null);
@@ -628,27 +686,27 @@ export class Solver {
         keys.push(goalKey);
       }
     }
-    this.direct.set(clause.id, keys);
+    this.direct.set(clause, keys);
     return keys;
   }
 
-  // The activations of a forward rule against the current state, in the
+  // The firings of a forward rule against the current state, in the
   // order a full search of its body finds them. After a rule's first search,
   // a rule whose body goals are answered by facts alone is searched
-  // semi-naively: only activations that use a fact derived since its last
+  // semi-naively: only firings that use a fact derived since its last
   // search can conclude anything new, so the body is searched once for each
   // goal that has such facts, that goal limited to them and the goals before
-  // it to the older ones. The activations are then put back in the order a
+  // it to the older ones. The firings are then put back in the order a
   // full search would find them.
-  activations(clause) {
+  firings(clause) {
     const keys = this.directKeys(clause);
     let now = null;
     let previous = null;
     if (keys !== null) {
       now = new Map();
       for (const goalKey of keys) if (goalKey) now.set(goalKey, (this.facts.get(goalKey) || NO_NODES).length);
-      previous = this.snapshots.get(clause.id) || null;
-      this.snapshots.set(clause.id, now);
+      previous = this.snapshots.get(clause) || null;
+      this.snapshots.set(clause, now);
     }
     let positions = null;
     if (previous !== null) {
@@ -656,13 +714,16 @@ export class Solver {
       keys.forEach((goalKey, i) => {
         if (goalKey && now.get(goalKey) > previous.get(goalKey)) positions.push(i);
       });
-      if (!positions.some((i) => this.mayMatchNew(clause.body[i], keys[i], previous, now))) {
+      if (!positions.some((i) => this.mayMatchNew(clause.localBody[i], keys[i], previous, now))) {
         return []; // nothing derived since its last search can be used, so nothing new follows
       }
     }
     this.serial++;
-    const [head, body, names] = freshClause(clause, this.serial, true);
-    if (previous === null) return this.scan(clause, head, body, names).map(([found]) => found);
+    const [head, fullBody, names] = freshClause(clause, this.serial, true);
+    const body = fullBody.slice(clause.prefixLength);
+    const env = new Env();
+    const prefix = this.context(clause, names, env);
+    if (previous === null) return this.scan(clause, head, body, names, env, prefix).map(([found]) => found);
     const found = [];
     for (const delta of positions) {
       const window = keys.map((goalKey, i) => {
@@ -675,13 +736,13 @@ export class Solver {
       this.windowGoals = body;
       this.chosen = new Array(body.length).fill(null);
       try {
-        found.push(...this.scan(clause, head, body, names));
+        found.push(...this.scan(clause, head, body, names, env, prefix));
       } finally {
         this.window = this.windowGoals = this.chosen = null;
       }
     }
     found.sort((a, b) => compareChosen(a[1], b[1]));
-    return found.map(([activation]) => activation);
+    return found.map(([firing]) => firing);
   }
 
   // Whether a body goal, as the rule writes it, could match a fact derived
@@ -697,24 +758,25 @@ export class Solver {
   // Each solution of a renamed rule's body, as what it concludes, with the
   // alternatives its goals took when the body is searched in a window.
   // Bindings last only until the next answer is requested, and adding facts
-  // mid-scan would extend a live search, so each activation is copied out
+  // mid-scan would extend a live search, so each firing is copied out
   // first and concluded afterwards.
-  scan(clause, head, body, names) {
+  scan(clause, head, body, names, env, prefix) {
     const found = [];
-    for (const [answerEnv, nodes] of this.solve(body)) {
+    for (const [answerEnv, nodes] of this.solve(body, env)) {
       const mark = answerEnv.mark();
       // Head variables the body leaves unbound become Skolem terms, shared
       // between the heads of one conclusion.
       const resolved = copyResolved(head, answerEnv);
       const unresolved = variables(resolved);
-      const captured = clause.captures === null ? null : copyResolved(body[0].args[1], answerEnv);
+      const captured = clause.captures === null ? null : listFromItems(
+        clause.captures.map((name) => copyResolved(names.get(name), answerEnv)));
       const relevant = this.program.inspectionEnabled
         ? [...unresolved.keys(), ...(captured === null ? [] : variables(captured).keys())]
         : [];
       // Walking the evidence is linear in its size, so do it only when the
       // conclusion or captures still have variables an inspection could scope.
       if (relevant.length) {
-        const scoped = scopedVariables(nodes, answerEnv);
+        const scoped = scopedVariables([...prefix, ...nodes], answerEnv);
         if (clause.witnessNames.length && relevant.some((name) => scoped.has(name))) {
           throw new EyemindError('bind inspected rule variables before deriving existential witnesses');
         }
@@ -732,9 +794,9 @@ export class Solver {
       let children = NO_NODES;
       let bindings = NO_NODES;
       if (this.recording) {
-        children = nodes.map((node) => resolveNode(node, answerEnv));
-        bindings = [...names].map(([name, value]) => [name, copyResolved(value, answerEnv)]);
+        children = [...prefix, ...nodes].map((node) => resolveNode(node, answerEnv));
       }
+      if (this.recording || clause.templates.length) bindings = [...names].map(([name, value]) => [name, copyResolved(value, answerEnv)]);
       const claim = conclusions.some((item) => item === 'true') ? copyResolved(conjunction(body), answerEnv) : null;
       found.push([[conclusions, children, bindings, claim], this.chosen !== null ? [...this.chosen] : null]);
       answerEnv.undo(mark);
@@ -762,10 +824,23 @@ export class Solver {
         if (rounds > maxIterations) throw new EyemindError('forward reasoning exceeded max_iterations');
         this.stats.rounds++;
         changed = false;
-        for (const clause of rules) {
-          if (!reporting && clause.heads.every((item) => item === 'true')) continue;
-          for (const [conclusions, children, bindings, claim] of this.activations(clause)) {
-            for (const conclusion of conclusions) {
+        for (const original of rules) {
+          const instances = original.parentId === null ? [original] : this.rules.get(original.id) || NO_NODES;
+          const firings = [];
+          for (const clause of instances) {
+            if (!reporting && clause.heads.every((item) => item === 'true')) continue;
+            for (const firing of this.firings(clause)) firings.push([clause, firing]);
+          }
+          // All instances of this template see the same state. Publishing one
+          // instance's conclusions during another's search changes recursive
+          // bodies and their observable order.
+          for (const [clause, [conclusions, children, bindings, claim]] of firings) {
+            for (const [position, conclusion] of conclusions.entries()) {
+              const template = clause.templates.find((item) => item.position === position);
+              if (template) {
+                if (this.deriveRules(template, conclusion, bindings, children)) changed = true;
+                continue;
+              }
               if (conclusion === 'true') {
                 const claimId = this.program.inspectionEnabled ? variant(claim) : text(claim);
                 if (!this.reported.has(claimId)) this.reported.set(claimId, [claim, children, clause.id]);
@@ -797,7 +872,7 @@ export class Solver {
 // The Skolem terms for the variables a solution leaves unbound in a rule's
 // heads: skolem(Rule, Variable, Arguments), a function of the rule, the
 // variable and the values the solution gave the heads' other variables. The
-// same activation thus always gives the same terms, and a different one
+// same firing thus always gives the same terms, and a different one
 // different terms.
 export function skolemTerms(clause, head, unresolved, env, context = null) {
   const values = context === null ? [] : [context];
@@ -855,7 +930,7 @@ export class Result {
 
   // The derived facts as text, written only when asked for.
   get inferred() {
-    return this.derived.filter((node) => !isActivation(node.goal)).map((node) => text(node.goal));
+    return this.derived.map((node) => text(node.goal));
   }
 }
 
@@ -932,7 +1007,6 @@ function reason(program, goalInputs, options) {
     }
   } else {
     for (const node of solver.derived) {
-      if (isActivation(node.goal)) continue;
       roots.push(node);
       claims.push(node.goal);
     }
@@ -956,6 +1030,9 @@ function reason(program, goalInputs, options) {
   const used = options.proof ? clausesUsed(roots) : null;
   if (used !== null && solver.haltCode === null && !goals.length) {
     for (const [, , clauseId] of solver.reported.values()) used.add(clauseId);
+  }
+  if (used !== null) {
+    for (const id of [...used]) for (const parent of program.byId.get(id)?.scopeIds || []) used.add(parent);
   }
   let report = null;
   if (document !== null) {

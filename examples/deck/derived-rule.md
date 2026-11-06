@@ -52,20 +52,20 @@ typed this fact in.
 
 ## How eyemind reads the rule inside a rule
 
-Before reasoning starts, eyemind rewrites the program so that every rule is
-visible up front. The inner rule becomes rule 4 with an extra condition, a
-switch, and the outer rule becomes the rule that flips that switch:
+Before reasoning starts, eyemind compiles the potential inner rule as rule
+4 and checks all its dependencies. Its certificate body includes the outer
+premise:
 
 ```js
-implies(type(X, 'Cat'), activated(4, []))                             // rule 3
-implies([activated(4, []), type(Y, 'Dog')], t('test', 'is', 'true'))  // rule 4
+implies(type(X, 'Cat'), implies(type(Y, 'Dog'), t('test', 'is', 'true'))) // rule 3
+implies([type(X, 'Cat'), type(Y, 'Dog')], t('test', 'is', 'true'))      // rule 4
 ```
 
-`activated(4, [])` reads *"rule 4 is switched on"*. The `4` is the number of
-the rule it switches on; the empty list `[]` holds the values the outer rule
-hands over to the inner one. Here there are none, because the inner rule does
-not mention `X`. No rule is ever invented while the program runs, so eyemind
-can check the whole program, generated rules included, before it starts.
+When the outer premise succeeds for Minka, rule 4 gets an instance with that
+evidence. `Y` stays local and is fresh whenever the instance is used. The
+proof cites Minka's cat fact and Charly's dog fact directly; there is no
+intermediate enabling fact. Negation and collection still use the complete
+dependency graph built before reasoning starts.
 
 ---
 
@@ -81,13 +81,12 @@ t('test', 'is', 'true')
 // Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(type('Minka', 'Cat')))
 clause(2, fact(type('Charly', 'Dog')))
-clause(3, implies(type(X, 'Cat'), activated(4, [])))
-clause(4, implies([activated(4, []), type(Y, 'Dog')], t('test', 'is', 'true')))
+clause(3, implies(type(X, 'Cat'), implies(type(Y, 'Dog'), t('test', 'is', 'true'))))
+clause(4, implies([type(X, 'Cat'), type(Y, 'Dog')], t('test', 'is', 'true')))
 
 // Steps: each goal, what justifies it (a clause, a builtin, a control, or an
 // absence or collection taken on trust), the bindings and the goals it uses.
-step(t('test', 'is', 'true'), clause(4), {Y: 'Charly'}, [activated(4, []), type('Charly', 'Dog')])
-step(activated(4, []), clause(3), {X: 'Minka'}, [type('Minka', 'Cat')])
+step(t('test', 'is', 'true'), clause(4), {X: 'Minka', Y: 'Charly'}, [type('Minka', 'Cat'), type('Charly', 'Dog')])
 step(type('Minka', 'Cat'), clause(1), {}, [])
 step(type('Charly', 'Dog'), clause(2), {}, [])
 ```
@@ -102,14 +101,13 @@ It has three parts:
 
 Read the steps as sentences:
 
-1. *The test is true* — by rule 4, with `Y` being Charly, because rule 4 is
-   switched on and Charly is a dog.
-2. *Rule 4 is switched on* — by rule 3, with `X` being Minka, because Minka is
-   a cat.
-3. *Minka is a cat* — fact 1; it uses nothing.
-4. *Charly is a dog* — fact 2; it uses nothing.
+1. *The test is true* — by rule 4, with `X` being Minka and `Y` being
+   Charly, because Minka is a cat and Charly is a dog.
+2. *Minka is a cat* — fact 1; it uses nothing.
+3. *Charly is a dog* — fact 2; it uses nothing.
 
-Every step leans only on steps listed below it, down to the two facts.
+The generator's evidence is a direct premise of the conclusion. The checker
+can verify it from the source without reconstructing a reasoning run.
 
 ---
 
@@ -126,18 +124,18 @@ t('test', 'is', 'true')
 
 // C1-C8: resolution, acyclicity, justification, coverage,
 // re-decision, boundary consistency, relevance and witness integrity.
-condition('C1', 'resolution', 'ok', 4)
-condition('C2', 'well_founded', 'ok', 4)
-condition('C3', 'justification', 'ok', 4)
-condition('C4', 'coverage', 'ok', 4)
+condition('C1', 'resolution', 'ok', 3)
+condition('C2', 'well_founded', 'ok', 3)
+condition('C3', 'justification', 'ok', 3)
+condition('C4', 'coverage', 'ok', 3)
 condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 5)
+condition('C7', 'relevance', 'ok', 4)
 condition('C8', 'witness_integrity', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
-steps(4)
-verified(4)
+steps(3)
+verified(3)
 recomputed(0)
 composed(0)
 trusted(0)
@@ -147,30 +145,21 @@ claims(1)
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
+Each condition reports what the checker verified:
 
-- **C1 resolution (4)**: each of the 4 steps really is an instance of the
-  rule or fact it cites. Step 1 is rule 4 with `Y` = Charly, and step 2 is
-  rule 3 with `X` = Minka.
-- **C2 well-founded (4)**: no step depends on itself, even indirectly.
-- **C3 justification (4)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (4)**: the 1 claim and the 3 things the steps use are each
-  backed by a step: nothing is taken for granted.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (5)**: the 1 claim answers what the program asks, and all 4
-  steps serve it. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
+- **C1 resolution (3)**: each rule or fact step matches the compiled
+  source clause, including every generating premise.
+- **C2 well-foundedness (3)**: no step depends on itself.
+- **C3 justification (3)**: each step uses a recognized justification.
+- **C4 coverage (3)**: all 1 claims and 2 premise uses have evidence.
+- **C5 re-decision (0)**: there are no primitive calculations to repeat.
+- **C6 boundary consistency (0)**: no absence or collection is taken on trust.
+- **C7 relevance (4)**: the 1 claims answer the program and all 3 steps
+  serve those claims.
+- **C8 witness integrity (0)**: this example introduces no existential witness.
 
-The statistics repeat this: 4 steps, all 4 verified against the program, none
-taken on trust. The verdict is **checked**: the test fact follows from the
-program. As the last comment says, this confirms the claim; it does not say
-the program has no other conclusions.
+The report records 3 steps, 3 verified against program clauses. The verdict is **checked**: the recorded claims follow from
+the source program. It establishes no completeness claim.
 
 ---
 
@@ -192,6 +181,6 @@ rule on *and* satisfies it.
 
 ## Takeaway
 
-A rule can switch other rules on. Because eyemind writes the switched rule
-down before it starts, the proof can show exactly when it was switched on and
-why, and the checker can confirm both steps against the program.
+A rule can derive another rule. Every potential rule is checked before
+reasoning, and every use cites the creating condition and its own premises.
+The checker verifies this evidence directly against the source program.

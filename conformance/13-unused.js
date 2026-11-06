@@ -144,6 +144,6 @@ conformance('a generated rule that never fires is unused and keeps its generator
     '])',
   ]),
   stdout([
-    'unused(line(2), implies([activated(5, []), missing(X)], s(X)))',
+    'unused(line(2), implies([enabled(N), missing(X)], s(X)))',
   ]),
 ])

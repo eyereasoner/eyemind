@@ -17,6 +17,7 @@ goals, and keep error messages specific and user-facing text direct.
   - `lang.js`: stating programs in JavaScript (the implicit-name scope,
     statements, line numbers). `goals.js`: arrays as conjunctions.
   - `program.js`: clause validation, indexing and stratification.
+    `templates.js`: potential derived clauses, scopes and generator links.
     `builtins.js`, `arith.js`: primitives and arithmetic.
   - `engine.js`: backward search as an explicit machine, semi-naive forward
     rounds, Skolem terms, proof recording, unused clauses.
@@ -108,6 +109,12 @@ Match the surrounding JavaScript: its naming, comment density, and comments
 that say why. Prefer small, direct changes over new machinery, add no
 dependencies, and fix the code that produces a wrong result rather than
 patching its output.
+
+Derived rule instances carry their generator's captured values and evidence;
+never reevaluate a generator under a backward caller's bindings. Analyze all
+potential rules and their generator dependencies before evaluating negation
+or collection, including rules whose generator never succeeds. Certificates
+cite generator premises directly and check witnesses in every enclosing scope.
 
 Proof checking must stay sound: a forged proof must never report `checked`.
 The checker follows the certificate and never calls the engine to fill a gap;

@@ -4,18 +4,18 @@ t('test', 'is', 'true')
 
 // C1-C8: resolution, acyclicity, justification, coverage,
 // re-decision, boundary consistency, relevance and witness integrity.
-condition('C1', 'resolution', 'ok', 6)
-condition('C2', 'well_founded', 'ok', 7)
-condition('C3', 'justification', 'ok', 7)
-condition('C4', 'coverage', 'ok', 11)
+condition('C1', 'resolution', 'ok', 4)
+condition('C2', 'well_founded', 'ok', 5)
+condition('C3', 'justification', 'ok', 5)
+condition('C4', 'coverage', 'ok', 9)
 condition('C5', 're_decision', 'ok', 1)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 9)
+condition('C7', 'relevance', 'ok', 7)
 condition('C8', 'witness_integrity', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
-steps(7)
-verified(6)
+steps(5)
+verified(4)
 recomputed(1)
 composed(0)
 trusted(0)

@@ -91,7 +91,7 @@ export const tests = [
       await p.select('mode', '--proof');
       await p.run();
       const proof = await p.output();
-      assert.match(proof, /step\(activated\(/);
+      assert.doesNotMatch(proof, /activated\(/);
       await p.select('mode', '--check-proof');
       await p.type('proof-input', proof);
       await p.run();

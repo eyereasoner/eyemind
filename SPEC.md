@@ -348,7 +348,7 @@ A clause MUST be rejected when:
 
 - a head is not an atom or compound;
 - a head uses `step/4` or `clause/2`, reserved for proof documents, or
-  explicitly states `activated/2`, reserved for template activations;
+  explicitly states the reserved predicate `activated/2`;
 - a head is a primitive or control, except the head `'true'` of a query or
   `'false'` of a contradiction; `implies` MUST NOT conclude either atom;
 - a body goal is neither a variable, atom nor compound, or is an empty or
@@ -573,7 +573,7 @@ MUST be rejected. The conclusion MAY combine ordinary heads and several
 templates. Each template's
 body and head MAY themselves be conjunctions, written as arrays. A backward
 template with several heads defines one backward clause per head, sharing
-the same activation and body. Empty and open lists are not goals or heads.
+the same captures and body. Empty and open lists are not goals or heads.
 
 A rule call embedded in another statement of the same program contributes
 only its rule value, not a standalone clause. This exclusion precedes clause
@@ -598,36 +598,54 @@ MUST be statically named; a variable in a term's argument is permitted, but a
 variable used as a goal is not. A forward template MAY conclude further inline
 templates. A backward template MUST NOT conclude templates.
 
-Template expansion is part of the language and precedes validation and
-stratification. Starting with all stated clauses, in clause order, replace
-each template conjunct,
-left to right, with `activated(N, Captures)`. `Captures` is a list of its
-captured variables in order of first occurrence in the template as written;
-`N` is the number of the first clause appended for it. Append a forward or
-backward clause as specified by the template, with the activation as its first
-body goal, followed by the template's body goals. A forward template keeps its
-head conjunction; a backward template appends one clause per head in order.
-Continue processing the appended clauses in order, lowering any nested
-templates the same way. Original clause numbers are kept; appended clauses
-are numbered consecutively after them and inherit the generator's source line.
-Each appended clause retains its capture list, including when its head
-contains another template.
+Template compilation precedes validation and stratification. Starting with
+all stated clauses in order, append a potential clause for each template,
+left to right. Its body is the generating clause's full body followed by the
+template's body; its head and direction are those of the template. A forward
+template keeps its head conjunction; a backward template appends one clause
+per head. Continue processing appended clauses in order, compiling nested
+forward templates in the same way. Original clause numbers are kept;
+appended clauses are numbered consecutively and inherit the generator's
+source line. `forward` and `backward` are displayed as `implies` and
+`implied_by`. The original generating clause retains its template heads.
 
 For example, `implies(cat(X), implies(dog(Y), test('yes')))` as the only
-stated clause gives these expanded clause displays:
+stated clause has these displays:
 
 ```js
-clause(1, implies(cat(X), activated(2, [])))
-clause(2, implies([activated(2, []), dog(Y)], test('yes')))
+clause(1, implies(cat(X), implies(dog(Y), test('yes'))))
+clause(2, implies([cat(X), dog(Y)], test('yes')))
 ```
 
-`Y` stays local to the second clause. Its activation is required even though
-the template does not capture `X`. A generator with several solutions but
-identical captures enables the same rule instance. All potential generated
-clauses and their activation dependencies participate in Section 6.1,
-including clauses whose
-generators never fire. A closed dependency cycle MUST therefore be rejected
-even if its template would remain inactive.
+The appended body describes the premises a certificate must justify. It is
+not a prescription to reevaluate the generator when the appended rule is
+called. During forward evaluation, each solution of the generator creates a
+rule instance with its captures bound to that solution and its generator's
+evidence retained. Identical captures of the same template create one
+instance. The rule instance searches only the template's own body; a
+backward caller cannot change how the generator's body was evaluated.
+Template-local variables remain universal and are renamed apart on each use.
+The run derives no synthetic enabling facts, and certificates have no
+intermediate enabling steps: the generator's premises are direct uses of
+the derived rule's step. A nested instance retains all enclosing premises.
+
+For witness construction, a generating head's **scope projection** replaces
+each template conjunct by the list of its captured variables, leaving ordinary
+heads in place. These lists are compiler data and are never concluded as
+facts. Only variables of this projection participate in that firing's witness
+construction (Section 8.2). A witness introduced by the generator remains
+shared across every use of the derived rule; a witness introduced by a derived
+forward rule additionally depends on its captured context. An existential
+variable is a feature of a forward rule, not a third rule direction.
+
+All potential clauses participate in Section 6.1, including clauses whose
+generators never succeed. Each appended clause has an open dependency on its
+generator as well as the dependencies of its own body. Consequently, negation
+and collection wait for both the generator and all potential rules they may
+consult to finish. A closed dependency cycle MUST be rejected even if its
+generator would never succeed. Only a forward clause can generate templates;
+backward generators and backward templates that conclude templates are
+rejected.
 
 ### 6.3 Source rule inspection
 
@@ -775,14 +793,19 @@ Goals are solved depth-first, left to right. A goal is solved, in order:
    goal; a rule's body is then solved in its place.
 
 Each clause attempt MUST rename its variables apart before unification.
+An appended backward clause is eligible only through its derived instances,
+tried in their creation order. Each instance binds its captures before its
+head meets the goal, and searches only its own body.
 
 ### 8.2 Forward evaluation and witnesses
 
 Forward rules run stratum by stratum, in increasing rank (Section 6.1). Within
-a stratum, rounds are repeated until a round adds no new fact. In a round,
-each rule in clause order is renamed apart and its body solved against the
-current state; all solutions of the body are collected first, then each is
-concluded:
+a stratum, rounds are repeated until a round adds no new fact or rule instance.
+In a round, clauses run in clause order. An appended clause runs its derived
+instances in the order they were created; a potential clause with no instance
+is skipped. Each instance searches only its own body with its captures bound.
+All instances of one clause search the same current state, and all solutions
+are collected before any conclusion of that clause is published:
 
 - a head variable the solution leaves unbound is bound to a **Skolem term**
   `skolem(Rule, Variable, Arguments)`: `Rule` is the clause number of the
@@ -791,15 +814,15 @@ concluded:
   `Arguments` the list of
   the ground values the solution gives the heads' other variables, in order
   of their first occurrence in the heads. A Skolem term is thus a function of
-  the activation: the rule and the instance of its heads. The same activation
+  the firing: the rule and the instance of its heads. The same firing
   gives the same terms, in any round and in any run, and different
-  activations give different terms; variables shared between heads stay
+  firings give different terms; variables shared between heads stay
   shared. When several head variables stand for one term, the first of them
   in the heads names it, whichever way unification bound them. A variable
   that a value of the solution brought in, which no head variable stands
-  for, keeps its own name when no other term of the activation has it; the
+  for, keeps its own name when no other term of the firing has it; the
   others take that name followed by the first of `1`, `2`, ... that is
-  free, in order of first occurrence in the heads. A rule that keeps meeting new activations does
+  free, in order of first occurrence in the heads. A rule that keeps meeting new firings does
   not terminate (Section 8.3). Derived facts other than scoped inspection
   patterns (Section 6.3) are therefore ground. A
   checker verifies the Skolem terms of a proof (C8, Section 11.9);
@@ -807,14 +830,17 @@ concluded:
   once per distinct instance (by identity of canonical text);
 - a head `'false'` records the conclusion `'false'` and stops all reasoning
   with halt code 65;
+- a template head derives a rule instance as specified in Section 6.2;
 - any other head is added as a derived fact unless an identical fact is
   already derived or is a ground fact of the program.
 
 When the run asks its own goals (Section 8.4), rules whose heads are all
 `'true'` are not run.
 
-For an appended forward clause of Section 6.2, prepend one element to
-`Arguments`: the grounded capture list of its activation. This distinguishes
+For a generator, use its scope projection (Section 6.2) as its head when
+constructing witnesses. For an appended forward clause of Section 6.2,
+prepend one element to
+`Arguments`: the grounded capture list of its rule instance. This distinguishes
 witnesses of different captured contexts even when a head does not mention
 those values. An empty capture list still contributes one element, `[]`.
 Original clauses, including generators, use the ordinary witness convention.
@@ -850,16 +876,15 @@ A run that concluded `'false'` has halt code 65; otherwise it has none.
 
 The conclusions of a run are, in order:
 
-1. when it halted: every derived fact except template activations, in the order derived, ending with
+1. when it halted: every derived fact, in the order derived, ending with
    `'false'`;
 2. otherwise, when it was given goals: the reported instances of its goals;
 3. otherwise, when the program has a forward rule with a head `'true'`: the
    reported instances, in order of first report, which MAY be none;
-4. otherwise: every derived fact except template activations, in the order derived.
+4. otherwise: every derived fact, in the order derived.
 
-An explicit goal MAY ask for an activation. Activations remain available as
-premises and proof steps. The
-`derived` statistic counts them as facts added during reasoning.
+Rule instances are not facts and cannot be queried as enabling predicates.
+The `derived` statistic counts only facts added during reasoning.
 
 The output of a run is a comment line saying which of these the conclusions
 are, followed by the canonical text (Section 9) of each conclusion, one per
@@ -1033,12 +1058,13 @@ Each argument of a multi-argument `fact` has its own `fact(Head)` display.
 Conjunctive query and contradiction bodies are displayed as separate goal
 arguments: `query([p(X), q(X)])` has display `query(p(X), q(X))`.
 
-For a program with templates, displays show the deterministically lowered
-clauses of Section 6.2, including activation heads and premises. The program
-supplied to the checker MUST be lowered from the source as Section 6.2
-requires; displays cannot authorize extra generated rules. Each use of a
-generated clause requires its activation as the first use, with a justified
-step of its own. All existing checks apply.
+For a program with templates, displays show the original generators and the
+potential appended clauses of Section 6.2. A derived rule's body includes all
+enclosing generator premises. The source program is the authority for its
+origin, captures and scope projections; a display cannot introduce a new
+rule. A reasoner displays the enclosing generators as well as the clauses its
+steps cite. Each derived rule step lists its generator's premise evidence
+before its own body evidence, with no intermediate enabling step.
 
 ### 10.3 Steps
 
@@ -1065,9 +1091,13 @@ order. `By` is one of:
 the program wrote it, to its value in this step: `{X: 'socrates'}`. A
 reasoner writes every variable of the clause, in the order the clause display
 first shows them (for `implies`, the premise first);
-a checker MUST accept any subset, since the goal and uses determine the
-rest. A primitive has no variables of its own, so `'builtin'` steps have
-empty bindings.
+a checker MUST accept partial bindings when the goal and uses determine the
+omitted values needed by C1 and C8. Values needed only by an enclosing
+witness scope must be supplied when those terms do not determine them.
+A primitive has no variables of its own, so `'builtin'` steps have
+empty bindings. A derived clause's bindings also include variables of its
+enclosing generators' scope projections, so their witnesses can be checked.
+These variables are renamed together with the clause's head and full body.
 
 ## 11. Proof Checking
 
@@ -1097,6 +1127,11 @@ the body, of the same length as `Uses`, unifies with `Uses` pairwise, such
 that afterwards the head is identical to `Goal` and each body goal to its
 use. A step's own terms MUST NOT need further instantiation to match: a
 source clause `same(X, X)` cannot justify `same('a', 'b')`.
+
+For a derived clause step, each enclosing generator MUST belong to the
+program. Its bindings may name variables of those generators' scope
+projections as well as of the clause itself. The checker renames these
+projections together with the clause before applying the bindings.
 
 For a `source(N)` step, `N` MUST identify an eligible source rule of Section
 6.3. Bindings and uses MUST both be empty. The rule's inspection term,
@@ -1155,8 +1190,8 @@ A boundary that is not refuted remains an obligation (Section 12).
 ### 11.8 C7 Relevance
 
 When goals were given and no claim is `'false'`, the questions are the goals.
-Otherwise the questions are, for each forward rule, each head other than
-`'true'` or a template activation, and the rule's body as a conjunction when one of its heads is
+Otherwise the questions are, for each forward rule, each ordinary head other
+than `'true'`, and the rule's body as a conjunction when one of its heads is
 `'true'` and no claim is `'false'`. Each claim MUST be an instance of a
 question. Each step MUST be reachable from a conjunct of a claim through the
 conjuncts of uses.
@@ -1180,6 +1215,13 @@ When a forward clause has any such variables, its full head under the step's
 substitution MUST be ground. A generic inspection pattern cannot share one
 existential witness across all its instances (Section 6.3).
 
+For a generator, use its scope projection (Section 6.2) as the head for this
+check. For every derived clause step, including a backward clause step, the
+checker MUST also perform C8 for each enclosing generator under the same
+substitution. A forged outer witness cannot be authorized by using it in a
+backward conclusion. Variables supplied by the instance's captures are not
+new witnesses of the derived clause.
+
 For an appended forward clause of Section 6.2, prepend the capture list,
 instantiated under the step's substitution, as one element of `Args`, as
 required by Section 8.2. The checker MUST compute this from the source
@@ -1187,8 +1229,8 @@ template's capture list and the substitution, not from the witness term.
 
 A variable of the head that also occurs in the body is not checked by C8,
 even when the body leaves it unbound; its value comes from the uses, which
-other conditions check. A step citing a rule without such variables is not
-covered by C8.
+other conditions check. A step with no witnesses in its own forward head or enclosing generators is
+not covered by C8.
 
 ### 11.10 Counts and validity
 
@@ -1201,7 +1243,7 @@ covered by C8.
 | C5 re_decision | `'builtin'` and `'control'` steps that passed C5 |
 | C6 boundary_consistency | boundaries decided |
 | C7 relevance | claims plus steps |
-| C8 witness_integrity | `clause` steps of forward rules with witnesses that passed C8 |
+| C8 witness_integrity | `clause` steps with witnesses in their forward head or enclosing generators that passed C8 |
 
 A check also counts the **steps** it read, the **claims**, the `clause` steps
 **verified** by C1, the `source` inspection steps also **verified** by C1,

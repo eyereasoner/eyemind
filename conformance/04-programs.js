@@ -1,6 +1,6 @@
 // SPEC 3 and 6: programs, statements, names, rejected clauses and stratification.
 
-conformance('an inline forward template has local universal variables and activation evidence', [
+conformance('an inline forward template has local universal variables and direct generator evidence', [
   spec('6.2, 10.2'),
   args('--proof program.js'),
   file('program.js', [
@@ -15,13 +15,12 @@ conformance('an inline forward template has local universal variables and activa
     '// Clauses: the program clauses the steps cite, by clause number.',
     "clause(1, fact(cat('minka')))",
     "clause(2, fact(dog('charly')))",
-    'clause(3, implies(cat(X), activated(4, [])))',
-    "clause(4, implies([activated(4, []), dog(Y)], test('yes')))",
+    "clause(3, implies(cat(X), implies(dog(Y), test('yes'))))",
+    "clause(4, implies([cat(X), dog(Y)], test('yes')))",
     '',
     '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
     '// absence or collection taken on trust), the bindings and the goals it uses.',
-    "step(test('yes'), clause(4), {Y: 'charly'}, [activated(4, []), dog('charly')])",
-    "step(activated(4, []), clause(3), {X: 'minka'}, [cat('minka')])",
+    "step(test('yes'), clause(4), {X: 'minka', Y: 'charly'}, [cat('minka'), dog('charly')])",
     "step(cat('minka'), clause(1), {}, [])",
     "step(dog('charly'), clause(2), {}, [])",
   ]),
@@ -178,12 +177,12 @@ conformance('a rule value as the template of findall is rejected', [
   stderr(prefix('eyemind: line 2: ')),
 ])
 
-conformance('a source program cannot state its own activation fact', [
+conformance('a source program cannot state the reserved enabling predicate', [
   spec('6.2'),
   exit(1),
   file('program.js', ['fact(activated(2, []))']),
   stdout([]),
-  stderr(prefix('eyemind: line 1: activated/2 is reserved for generated rules')),
+  stderr(prefix('eyemind: line 1: activated/2 is reserved')),
 ])
 
 conformance('fact states one fact per argument, numbered in order', [
@@ -1053,5 +1052,38 @@ conformance("fact with no arguments states no clauses", [
   ]),
   stdout([
     "// No conclusions: the program derives no facts.",
+  ]),
+])
+
+conformance("a backward outer rule cannot generate a forward template", [
+  spec("6.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implied_by(implies(p(X), q(X)), enabled)",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("a backward outer rule cannot generate a backward template", [
+  spec("6.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implied_by(implied_by(q(X), p(X)), enabled)",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("an inactive nested generator cannot hide a collection dependency cycle", [
+  spec("6.1, 6.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implies(enabled('off'), implies(findall(X, p(X), L), implied_by(p('a'), 'true')))",
+  ]),
+  stdout([
   ]),
 ])

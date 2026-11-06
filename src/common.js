@@ -24,6 +24,7 @@ export function freshClause(clause, suffix, unique = false) {
       head = freshTerm(clause.head, suffix, names, unique);
       body = clause.body.map((goal) => freshTerm(goal, suffix, names, unique));
     }
+    for (const term of clause.extraTerms || []) freshTerm(term, suffix, names, unique);
     return [head, body, names];
   }
   const tag = String(suffix);
@@ -73,6 +74,7 @@ function workOut(clause) {
   collectNames([clause.head], index);
   const headCount = index.size;
   collectNames(clause.body, index);
+  collectNames(clause.extraTerms || [], index);
   const names = [...index.keys()];
   const pattern = compile(clause.head, index);
   const patterns = clause.body.map((goal) => compile(goal, index));
@@ -81,7 +83,7 @@ function workOut(clause) {
     // A forward rule is written premise first, implies(Body, Head), and its
     // variables are listed in that order.
     const order = new Map();
-    collectNames([...clause.body, clause.head], order);
+    collectNames([...clause.body, clause.head, ...(clause.extraTerms || [])], order);
     written = [...order.keys()];
   }
   return {

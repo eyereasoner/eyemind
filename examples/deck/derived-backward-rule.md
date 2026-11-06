@@ -69,23 +69,21 @@ pair answered it by turning *Alice is parent of Bob* around.
 
 ## How eyemind reads the rule inside a rule
 
-Before reasoning starts, eyemind rewrites the program so that every rule is
-visible up front. The inner rule becomes rule 5 with an extra condition, a
-switch, and the outer rule becomes the rule that flips that switch:
+Before reasoning starts, eyemind compiles the potential backward rule as
+rule 5 and checks all its dependencies. Its certificate body includes the
+outer premise:
 
 ```js
-implies(inv_of(P, Q), activated(5, [Q, P]))                 // rule 3
-implied_by(t(X, Q, Y), [activated(5, [Q, P]), t(Y, P, X)])  // rule 5
+implies(inv_of(P, Q), implied_by(t(X, Q, Y), t(Y, P, X))) // rule 3
+implied_by(t(X, Q, Y), [inv_of(P, Q), t(Y, P, X)])        // rule 5
 ```
 
-`activated(5, [Q, P])` reads *"rule 5 is switched on, for these values of Q
-and P"*. The `5` is the number of the rule it switches on; the list `[Q, P]`
-holds the values the outer rule hands over to the inner one, here the two
-relation names. So rule 5 only answers `childOf` questions, by reversing
-`parentOf` sentences, after the inverse-pair fact has switched it on for
-exactly that pair. No rule is ever invented while the program runs, so
-eyemind can check the whole program, generated rules included, before it
-starts.
+The inverse-pair fact supplies the captures `P = parentOf` and `Q = childOf`.
+The resulting rule instance answers childOf questions; `X` and `Y` stay fresh
+for each call. It searches its own body, not the generating condition again.
+The proof cites the inverse-pair fact and the parent triple directly, without
+an intermediate enabling fact. All potential rules and their generator
+dependencies are analyzed before negation or collection is evaluated.
 
 ---
 
@@ -101,15 +99,14 @@ t('bob', 'hasParent', 'alice')
 // Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(inv_of('parentOf', 'childOf')))
 clause(2, fact(t('alice', 'parentOf', 'bob')))
-clause(3, implies(inv_of(P, Q), activated(5, [Q, P])))
+clause(3, implies(inv_of(P, Q), implied_by(t(X, Q, Y), t(Y, P, X))))
 clause(4, implies(t(X, 'childOf', Y), t(X, 'hasParent', Y)))
-clause(5, implied_by(t(X, Q, Y), [activated(5, [Q, P]), t(Y, P, X)]))
+clause(5, implied_by(t(X, Q, Y), [inv_of(P, Q), t(Y, P, X)]))
 
 // Steps: each goal, what justifies it (a clause, a builtin, a control, or an
 // absence or collection taken on trust), the bindings and the goals it uses.
 step(t('bob', 'hasParent', 'alice'), clause(4), {X: 'bob', Y: 'alice'}, [t('bob', 'childOf', 'alice')])
-step(t('bob', 'childOf', 'alice'), clause(5), {X: 'bob', Q: 'childOf', Y: 'alice', P: 'parentOf'}, [activated(5, ['childOf', 'parentOf']), t('alice', 'parentOf', 'bob')])
-step(activated(5, ['childOf', 'parentOf']), clause(3), {P: 'parentOf', Q: 'childOf'}, [inv_of('parentOf', 'childOf')])
+step(t('bob', 'childOf', 'alice'), clause(5), {X: 'bob', Q: 'childOf', Y: 'alice', P: 'parentOf'}, [inv_of('parentOf', 'childOf'), t('alice', 'parentOf', 'bob')])
 step(inv_of('parentOf', 'childOf'), clause(1), {}, [])
 step(t('alice', 'parentOf', 'bob'), clause(2), {}, [])
 ```
@@ -124,17 +121,14 @@ It has three parts:
 
 Read the steps as sentences:
 
-1. *Bob has Alice as a parent* — by rule 4, with `X` being Bob and `Y` being
-   Alice, because Bob is a child of Alice.
-2. *Bob is a child of Alice* — by rule 5, with `Q` being childOf and `P`
-   being parentOf, because rule 5 is switched on for that pair and Alice is
-   parent of Bob.
-3. *Rule 5 is switched on for childOf and parentOf* — by rule 3, because
-   parentOf and childOf are inverses.
-4. *parentOf and childOf are inverses* — fact 1; it uses nothing.
-5. *Alice is parent of Bob* — fact 2; it uses nothing.
+1. *Bob has Alice as a parent* — by rule 4, because Bob is a child of Alice.
+2. *Bob is a child of Alice* — by rule 5, because parentOf and childOf are
+   inverses and Alice is parent of Bob.
+3. *parentOf and childOf are inverses* — fact 1; it uses nothing.
+4. *Alice is parent of Bob* — fact 2; it uses nothing.
 
-Every step leans only on steps listed below it, down to the two facts.
+The creating condition and the backward rule's own premise are both direct
+uses of rule 5's step. The checker verifies them against the source program.
 
 ---
 
@@ -151,18 +145,18 @@ t('bob', 'hasParent', 'alice')
 
 // C1-C8: resolution, acyclicity, justification, coverage,
 // re-decision, boundary consistency, relevance and witness integrity.
-condition('C1', 'resolution', 'ok', 5)
-condition('C2', 'well_founded', 'ok', 5)
-condition('C3', 'justification', 'ok', 5)
-condition('C4', 'coverage', 'ok', 5)
+condition('C1', 'resolution', 'ok', 4)
+condition('C2', 'well_founded', 'ok', 4)
+condition('C3', 'justification', 'ok', 4)
+condition('C4', 'coverage', 'ok', 4)
 condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 6)
+condition('C7', 'relevance', 'ok', 5)
 condition('C8', 'witness_integrity', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
-steps(5)
-verified(5)
+steps(4)
+verified(4)
 recomputed(0)
 composed(0)
 trusted(0)
@@ -172,31 +166,21 @@ claims(1)
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
+Each condition reports what the checker verified:
 
-- **C1 resolution (5)**: each of the 5 steps really is an instance of the
-  rule or fact it cites. The checker compares against the rules it rewrites
-  from the source program itself, not against the clause lines the proof
-  displays, so a proof cannot switch rule 5 on without the inverse-pair fact.
-- **C2 well-founded (5)**: no step depends on itself, even indirectly.
-- **C3 justification (5)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (5)**: the 1 claim and the 4 things the steps use are each
-  backed by a step.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (6)**: the 1 claim answers what the program asks, and all 5
-  steps serve it.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
+- **C1 resolution (4)**: each rule or fact step matches the compiled
+  source clause, including every generating premise.
+- **C2 well-foundedness (4)**: no step depends on itself.
+- **C3 justification (4)**: each step uses a recognized justification.
+- **C4 coverage (4)**: all 1 claims and 3 premise uses have evidence.
+- **C5 re-decision (0)**: there are no primitive calculations to repeat.
+- **C6 boundary consistency (0)**: no absence or collection is taken on trust.
+- **C7 relevance (5)**: the 1 claims answer the program and all 4 steps
+  serve those claims.
+- **C8 witness integrity (0)**: this example introduces no existential witness.
 
-The statistics repeat this: 5 steps, all 5 verified against the program, none
-taken on trust. The verdict is **checked**: Bob has Alice as a parent follows
-from the program. It confirms this claim; it does not say the program has no
-other conclusions.
+The report records 4 steps, 4 verified against program clauses. The verdict is **checked**: the recorded claims follow from
+the source program. It establishes no completeness claim.
 
 ---
 

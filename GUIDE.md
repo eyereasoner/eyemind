@@ -149,16 +149,27 @@ rule is applied. A variable shared with an ordinary sibling conclusion is
 also captured. A forward template's head-only variables receive Skolem
 witnesses, including its captured context in their arguments.
 
-Templates are compiled into guarded clauses before reasoning. A generator
-derives an activation; the generated rule requires that activation. Proofs
-show both clauses and the activation's evidence, and the independent checker
-verifies them against the compiled source program. Activations are omitted from
-ordinary conclusions. All potential generated rules participate in
-stratification, so `not` and `findall` wait for their dependencies to finish,
-and closed dependency cycles are rejected. Their proof obligations remain
-visible as usual. Template bodies require statically named calls; a goal
-such as `call(G)` with variable `G` is rejected. Forward templates can nest;
-backward templates conclude ordinary heads.
+Every potential derived rule is compiled before reasoning, so all its
+dependencies participate in stratification even when its generator never
+succeeds. Negation and `findall` wait for their dependencies, including the
+generators, to finish; closed dependency cycles are rejected.
+
+A generator derives rule instances with their captured values bound. A
+backward call uses an existing instance and searches its own body; it does
+not reevaluate the generating condition with the caller's bindings. This
+preserves `once` and binding-sensitive tests. Local variables remain fresh
+on each use. An outer witness stays shared across uses, while an inner
+forward witness includes its captured context in its Skolem arguments.
+Only forward rules can generate templates; a backward template concludes
+ordinary heads. Template bodies require statically named calls, so a goal
+such as `call(G)` with variable `G` is rejected.
+
+Proofs cite the generator's premises directly, followed by the derived
+rule's own premises. They contain no synthetic enabling facts or steps. The
+checker reconstructs the compiled clauses from the source and checks both
+the derived rule's witnesses and those of its enclosing generators.
+Negations and collections retain their explicit proof obligations; the
+checker never runs the reasoner to fill them in.
 
 See the decks for [derived forward rules](examples/deck/derived-rule),
 [derived backward rules](examples/deck/derived-backward-rule), and a
@@ -220,7 +231,7 @@ Once stated, a clause is a term, and reasoning over it calls no code of yours.
 
 **Arithmetic is a term, not an operator.** `is(Y, add(X, 1))` binds `Y` to `X + 1`, and `gt(X, 1)` compares. Operators do not apply to terms: `X + 1` or `X > 1` in a program stops it with a message that says what to write instead. Operators on plain numbers are JavaScript's own, so `query(unify(Y, 3 + 4))` binds `Y` to 7. `div` is true division, `floordiv` and `mod` floor toward negative infinity, and `round` rounds half to even. The primitives (`unify`, `is`, `eq`, `lt` and the other comparisons, type tests, `functor`, `univ`, `atom_concat` and the rest) are listed in [SPEC §4](SPEC.md#4-goals-and-primitives), and the arithmetic functions in [SPEC §5](SPEC.md#5-arithmetic). Everything else, such as membership, mapping or graph traversal, is written as ordinary clauses.
 
-**Domains get representations, not syntax.** eyemind has no built-in notion of RDF or of anything else: IRIs, typed literals, triples and quoted graphs are just terms, such as `literal(V, lang(L))` or `triple(S, P, O)` (see [RDF 1.2](#rdf-12) below). A forward conclusion may contain variables its premise never binds, and then says that something exists. Each such unknown becomes a Skolem function of the activation: `implies(person(X), has_parent(X, P))` concludes `has_parent('ann', skolem(2, 'P', ['ann']))`, the `P` of rule 2 for Ann.
+**Domains get representations, not syntax.** eyemind has no built-in notion of RDF or of anything else: IRIs, typed literals, triples and quoted graphs are just terms, such as `literal(V, lang(L))` or `triple(S, P, O)` (see [RDF 1.2](#rdf-12) below). A forward conclusion may contain variables its premise never binds, and then says that something exists. Each such unknown becomes a Skolem function of the firing: `implies(person(X), has_parent(X, P))` concludes `has_parent('ann', skolem(2, 'P', ['ann']))`, the `P` of rule 2 for Ann.
 
 **Data that is not a program.** Everything eyemind writes, conclusions, proofs and check reports, is a *document*: plain expressions, one per line. `facts_from` reads such a document as data and states each expression as a fact. It never executes the text, so it is also the safe way to take in data you do not trust; a data file written as a program would run as JavaScript. It is what lets one run reason over another, as [audited-grants](examples/audited-grants.js) reasons over its own proof and check report:
 
@@ -279,10 +290,10 @@ Forward rules run **stratum by stratum**. A negation or a `findall` is used
 only after every rule that could still produce what it inspects has reached
 its fixpoint (see [Why negation and collection are safe](#why-negation-and-collection-are-safe)).
 Within a stratum, rounds are evaluated semi-naively: a rule is searched again
-only for activations that use a fact derived since its last search, which
+only for firings that use a fact derived since its last search, which
 concludes exactly what searching everything again would. A variable that
 appears only in a forward rule's conclusion becomes a Skolem term of the
-activation, so a rule that says "something exists" names the same something
+firing, so a rule that says "something exists" names the same something
 however often it fires. `max_depth`, `max_inferences` and `max_iterations`
 bound a run, and exceeding one is an error, never a partial answer.
 

@@ -14,7 +14,6 @@ import { goalTerm } from './goals.js';
 import { INSPECTION_KEYS, isInspection } from './inspection.js';
 import { CONTROL_KEYS, Program } from './program.js';
 import { readTerms } from './reader.js';
-import { isActivation } from './templates.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
   isCallable, isGround, isTerm, key, listFromItems, properListItems, unify, variables,
@@ -27,13 +26,21 @@ function goalsDisplay(goals) {
   return goals.length === 1 ? goals[0] : listFromItems(goals);
 }
 
+function templateDisplay(term) {
+  if (!(term instanceof Struct)) return term;
+  const name = term.args.length === 2 && term.name === 'forward' ? 'implies'
+    : term.args.length === 2 && term.name === 'backward' ? 'implied_by' : term.name;
+  return new Struct(name, term.args.map(templateDisplay));
+}
+
 // A clause as the program states it.
 export function clauseDisplay(clause) {
   if (clause.forward) {
     // A query or a contradiction is displayed as the statement that wrote it.
     if (clause.head === 'true') return new Struct('query', clause.body);
     if (clause.head === 'false') return new Struct('contradiction', clause.body);
-    return new Struct('implies', [goalsDisplay(clause.body), goalsDisplay(clause.heads)]);
+    const heads = flattenConjunction(clause.originalHead ?? clause.head);
+    return new Struct('implies', [goalsDisplay(clause.body), goalsDisplay(clause.templates.length ? heads.map(templateDisplay) : heads)]);
   }
   if (clause.body.length) return new Struct('implied_by', [clause.head, goalsDisplay(clause.body)]);
   return new Struct('fact', [clause.head]);
@@ -130,7 +137,11 @@ export function renderProof(program, claims, roots, checkable = false, heading =
     const nodeId = spellings.spell(node.goal);
     if (steps.has(nodeId)) continue;
     steps.set(nodeId, node);
-    if (node.by instanceof Struct) cited.add(Number(node.by.args[0]));
+    if (node.by instanceof Struct) {
+      const id = Number(node.by.args[0]);
+      cited.add(id);
+      for (const parent of program.byId.get(id)?.scopeIds || []) cited.add(parent);
+    }
     for (let i = node.children.length - 1; i >= 0; i--) pending.push(node.children[i]);
   }
   // Variables are named A, B, ... in the order the document first shows
@@ -393,7 +404,7 @@ export const shortcuts = { flatResolution: true };
 // general unifier. Flat ground steps need neither renamed terms nor a
 // substitution trail: source variables can be matched directly.
 function flatResolution(clause, goal, bindings, uses) {
-  if (clause.forward) return null;
+  if (clause.forward || clause.scopeIds.length) return null;
   const values = new Map();
   for (const binding of bindings) {
     if (!isTerm(binding, '=', 2) || typeof binding.args[0] !== 'string' || values.has(binding.args[0])) return false;
@@ -446,6 +457,10 @@ function checkResolution(program, step, fail, tally) {
     fail.add('C1', `unknown clause ${text(by)}`, goal);
     return false;
   }
+  if (clause.scopeIds.some((id) => !program.byId.has(id))) {
+    fail.add('C1', `missing generator of clause ${clauseId}`, goal);
+    return false;
+  }
   const flat = shortcuts.flatResolution ? flatResolution(clause, goal, bindings, uses) : null;
   if (flat !== null) {
     if (!flat) fail.add('C1', `not an instance of source clause ${clauseId}: ${text(goal)}`, goal);
@@ -476,7 +491,14 @@ function checkResolution(program, step, fail, tally) {
     if (matches && resolvesTo(candidate, env, goal) && body.every((item, i) => resolvesTo(item, env, uses[i]))) {
       resolution = true;
       // Any head the step can be an instance of decides; a verified witness wins.
-      const found = clause.forward ? checkWitnesses(clause, head, names, env) : null;
+      let found = clause.forward ? checkWitnesses(clause, head, names, env) : null;
+      for (const parentId of clause.scopeIds) {
+        const parent = program.byId.get(parentId);
+        const scopeHead = freshTerm(parent.head, `check${clauseId}`, names);
+        const checked = checkWitnesses(parent, scopeHead, names, env);
+        if (checked === false) found = false;
+        else if (checked === true && found === null) found = true;
+      }
       if (found !== null && witnesses !== true) witnesses = found;
     }
     env.undo(mark);
@@ -485,7 +507,7 @@ function checkResolution(program, step, fail, tally) {
     fail.add('C1', `not an instance of source clause ${clauseId}: ${text(goal)}`, goal);
     return false;
   }
-  if (witnesses === false) fail.add('C8', `not the witness of this firing of clause ${clauseId}: ${text(goal)}`, goal);
+  if (witnesses === false) fail.add('C8', `witnesses do not match the source scopes of clause ${clauseId}: ${text(goal)}`, goal);
   else if (witnesses === true) tally.witnessed++;
   return true;
 }
@@ -636,7 +658,7 @@ function checkRelevance(program, claims, steps, goals, fail, spellings) {
       if (clause.heads.some((head) => head === 'true')) {
         if (!halted && clause.body.length) questions.push(conjunction(clause.body));
       }
-      for (const head of clause.heads) if (head !== 'true' && !isActivation(head)) questions.push(head);
+      for (const head of clause.plainHeads) if (head !== 'true') questions.push(head);
     }
   }
   for (const claim of claims) {

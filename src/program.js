@@ -1,6 +1,6 @@
 // A program: its clauses, validated, indexed and stratified.
 import { PRIMITIVE_KEYS } from './builtins.js';
-import { ACTIVATION_KEY, containsTemplate, expandTemplates } from './templates.js';
+import { containsTemplate, expandTemplates } from './templates.js';
 import { subgoals } from './goals.js';
 import { hasInspection, inspectionTerm } from './inspection.js';
 import {
@@ -9,7 +9,7 @@ import {
 } from './terms.js';
 
 export const CONTROL_KEYS = new Set(['and/2', 'or/2', 'not/1', 'call/1', 'once/1', 'findall/3']);
-export const RESERVED_KEYS = new Set(['step/4', 'clause/2', ACTIVATION_KEY, 'implies/2', 'implied_by/2', 'forward/2', 'backward/2']);
+export const RESERVED_KEYS = new Set(['step/4', 'clause/2', 'activated/2', 'implies/2', 'implied_by/2', 'forward/2', 'backward/2']);
 
 // The statements that state a forward rule, and how an error names them.
 const FORWARD_KINDS = { forward: 'a forward rule', query: 'query()', contradiction: 'contradiction()' };
@@ -25,6 +25,12 @@ export class Clause {
     this.forward = forward;
     this.line = line;
     this.captures = captures;
+    this.parentId = null;
+    this.prefixLength = 0;
+    this.localBody = body;
+    this.templates = [];
+    this.scopeIds = [];
+    this.extraTerms = [];
     this.renaming = null; // how to rename it apart, worked out once it is used often
     this.uses = 0;
     this.witnessed = null;
@@ -36,6 +42,7 @@ export class Clause {
     if (this.witnessed === null) {
       const inBody = new Set();
       for (const goal of this.body) for (const name of variables(goal).keys()) inBody.add(name);
+      for (const name of this.captures || []) inBody.add(name);
       this.witnessed = [...variables(this.head).keys()].filter((name) => !inBody.has(name));
     }
     return this.witnessed;
@@ -85,6 +92,7 @@ export class Program {
   constructor(sources, without = null) {
     this.sources = [...sources];
     const expanded = expandTemplates(this.sources);
+    this.hasTemplates = expanded.some((source) => source.parentId !== undefined);
     this.maxClauseId = expanded.length;
     this.clauses = [];
     this.byId = new Map();
@@ -122,12 +130,14 @@ export class Program {
         if (!stratifying && mayNeedStratifying(goal)) stratifying = true;
       }
       let headKey = null;
-      for (const item of heads) {
+      const templatePositions = new Set((source.templates || []).map((item) => item.position));
+      for (const [position, item] of heads.entries()) {
+        if (templatePositions.has(position)) continue;
         if (!isCallable(item)) throw new EyemindError(`line ${source.line}: a head must be an atom or a compound term`);
         const itemKey = keys.of(item);
         headKey = itemKey;
         if (allowed.has(itemKey)) continue;
-        if ((RESERVED_KEYS.has(itemKey) && itemKey !== ACTIVATION_KEY) ||
+        if (RESERVED_KEYS.has(itemKey) ||
             ((PRIMITIVE_KEYS.has(itemKey) || CONTROL_KEYS.has(itemKey)) &&
              !(forward && (item === 'true' || item === 'false')))) {
           throw new EyemindError(`line ${source.line}: unsupported or reserved head ${itemKey}`);
@@ -135,6 +145,17 @@ export class Program {
         allowed.add(itemKey);
       }
       const clause = new Clause(ordinal, source.head, forward ? heads : null, body, forward, source.line, source.captures ?? null);
+      clause.parentId = source.parentId ?? null;
+      clause.prefixLength = source.prefixLength ?? 0;
+      clause.localBody = clause.prefixLength ? body.slice(clause.prefixLength) : body;
+      clause.templates = source.templates || [];
+      clause.originalHead = source.originalHead ?? source.head;
+      clause.plainHeads = templatePositions.size ? heads.filter((_, position) => !templatePositions.has(position)) : heads;
+      for (let parent = clause.parentId; parent !== null;) {
+        clause.scopeIds.unshift(parent);
+        clause.extraTerms.unshift(expanded[parent - 1].head);
+        parent = expanded[parent - 1].parentId ?? null;
+      }
       this.clauses.push(clause);
       this.byId.set(ordinal, clause);
       if (forward) {
@@ -302,7 +323,7 @@ function mayNeedStratifying(goal) {
 function headIndex(clauses) {
   const index = new Map();
   for (const clause of clauses) {
-    for (const head of clause.heads || [clause.head]) {
+    for (const head of clause.plainHeads) {
       const headKey = key(head);
       let entry = index.get(headKey);
       if (entry === undefined) {
@@ -339,9 +360,14 @@ function stratify(clauses, stratifying) {
   const dynamic = new Set();
   const index = headIndex(clauses);
   const everyHead = [];
-  for (const clause of clauses) for (const head of clause.heads || [clause.head]) everyHead.push([clause, head]);
+  for (const clause of clauses) for (const head of clause.plainHeads) everyHead.push([clause, head]);
   for (const clause of clauses) {
-    for (const goal of clause.body) {
+    if (clause.parentId !== null && ranks.has(clause.parentId)) {
+      const edge = [clause.id, clause.parentId, false];
+      edges.push(edge);
+      outgoing.set(clause.id, [edge]);
+    }
+    for (const goal of clause.localBody) {
       for (const [depGoal, closed] of dependencies(goal)) {
         const named = !(depGoal instanceof Var);
         if (!named) dynamic.add(clause.id);

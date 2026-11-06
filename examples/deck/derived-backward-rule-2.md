@@ -69,23 +69,23 @@ rule created.
 
 ## How eyemind reads a rule that creates rules
 
-Before reasoning starts, eyemind rewrites the program so that every rule is
-visible up front. Each created rule gets its own number and an extra
-condition, a switch, and the creating rule becomes the rule that flips both
-switches:
+Before reasoning starts, eyemind compiles both potential backward rules,
+numbered 4 and 5 after the three stated rules:
 
 ```js
-implies('true', [activated(4, []), activated(5, [])])                        // rule 1
-implied_by(type('Socrates', 'Human'), [activated(4, []), 'true'])            // rule 4
-implied_by(subclass_of('Human', 'Mortal'), [activated(5, []), 'true'])       // rule 5
+implies('true', [
+  implied_by(type('Socrates', 'Human'), 'true'),
+  implied_by(subclass_of('Human', 'Mortal'), 'true'),
+])                                                                    // rule 1
+implied_by(type('Socrates', 'Human'), ['true', 'true'])                  // rule 4
+implied_by(subclass_of('Human', 'Mortal'), ['true', 'true'])             // rule 5
 ```
 
-`activated(4, [])` reads *"rule 4 is switched on"*. The `4` is the number of
-the rule it switches on; the empty list `[]` holds values the creating rule
-would hand over, and here there are none. Rules 2 and 3 are the two ordinary
-forward rules, in program order. No rule is ever invented while the program
-runs, so eyemind can check the whole program, created rules included, before
-it starts.
+The generator succeeds unconditionally and derives both rule instances.
+Each certificate body contains the generator's premise followed by the
+inner body's premise. Both are `true` here, so the same primitive evidence
+serves twice. There are no intermediate enabling facts or proof steps. All
+potential rules participate in dependency analysis before reasoning starts.
 
 ---
 
@@ -100,20 +100,18 @@ type('Socrates', 'Mortal')
 t('test', 'is', 'true')
 
 // Clauses: the program clauses the steps cite, by clause number.
-clause(1, implies('true', [activated(4, []), activated(5, [])]))
+clause(1, implies('true', [implied_by(type('Socrates', 'Human'), 'true'), implied_by(subclass_of('Human', 'Mortal'), 'true')]))
 clause(2, implies([type(S, A), subclass_of(A, B)], type(S, B)))
 clause(3, implies(type('Socrates', 'Mortal'), t('test', 'is', 'true')))
-clause(4, implied_by(type('Socrates', 'Human'), [activated(4, []), 'true']))
-clause(5, implied_by(subclass_of('Human', 'Mortal'), [activated(5, []), 'true']))
+clause(4, implied_by(type('Socrates', 'Human'), ['true', 'true']))
+clause(5, implied_by(subclass_of('Human', 'Mortal'), ['true', 'true']))
 
 // Steps: each goal, what justifies it (a clause, a builtin, a control, or an
 // absence or collection taken on trust), the bindings and the goals it uses.
 step(type('Socrates', 'Mortal'), clause(2), {S: 'Socrates', A: 'Human', B: 'Mortal'}, [type('Socrates', 'Human'), subclass_of('Human', 'Mortal')])
-step(type('Socrates', 'Human'), clause(4), {}, [activated(4, []), 'true'])
-step(activated(4, []), clause(1), {}, ['true'])
+step(type('Socrates', 'Human'), clause(4), {}, ['true', 'true'])
 step('true', 'builtin', {}, [])
-step(subclass_of('Human', 'Mortal'), clause(5), {}, [activated(5, []), 'true'])
-step(activated(5, []), clause(1), {}, ['true'])
+step(subclass_of('Human', 'Mortal'), clause(5), {}, ['true', 'true'])
 step(t('test', 'is', 'true'), clause(3), {}, [type('Socrates', 'Mortal')])
 ```
 
@@ -126,22 +124,15 @@ It has three parts:
 
 Read the steps as sentences:
 
-1. *Socrates is mortal*: by rule 2, with `S` = Socrates, `A` = Human and
-   `B` = Mortal, because Socrates is human and Human is a subclass of Mortal.
-2. *Socrates is human*: by rule 4, because rule 4 is switched on and
-   `'true'` holds.
-3. *Rule 4 is switched on*: by rule 1, because `'true'` holds.
-4. *`'true'` holds*: justified as `'builtin'`, one of eyemind's own primitive
-   tests rather than a program line. The checker does not take it on faith:
-   it decides it again itself. For `'true'` that is trivial.
-5. *Human is a subclass of Mortal*: by rule 5, because rule 5 is switched on
-   and `'true'` holds.
-6. *Rule 5 is switched on*: by rule 1, because `'true'` holds.
-7. *The test is true*: by rule 3, because Socrates is mortal.
+1. *Socrates is mortal*: by rule 2, because Socrates is human and Human is
+   a subclass of Mortal.
+2. *Socrates is human*: by rule 4, using the generator's `true` premise and
+   the inner rule's `true` premise.
+3. *`true` holds*: the primitive succeeds, and the checker decides it again.
+4. *Human is a subclass of Mortal*: by rule 5, using the same two premises.
+5. *The test is true*: by rule 3, because Socrates is mortal.
 
-The step for `'true'` is written once and serves every place that uses it.
-Every step leans only on steps listed elsewhere in the proof, down to that
-one built-in test.
+The `true` step is written once and serves every use of that primitive.
 
 ---
 
@@ -159,18 +150,18 @@ t('test', 'is', 'true')
 
 // C1-C8: resolution, acyclicity, justification, coverage,
 // re-decision, boundary consistency, relevance and witness integrity.
-condition('C1', 'resolution', 'ok', 6)
-condition('C2', 'well_founded', 'ok', 7)
-condition('C3', 'justification', 'ok', 7)
-condition('C4', 'coverage', 'ok', 11)
+condition('C1', 'resolution', 'ok', 4)
+condition('C2', 'well_founded', 'ok', 5)
+condition('C3', 'justification', 'ok', 5)
+condition('C4', 'coverage', 'ok', 9)
 condition('C5', 're_decision', 'ok', 1)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 9)
+condition('C7', 'relevance', 'ok', 7)
 condition('C8', 'witness_integrity', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
-steps(7)
-verified(6)
+steps(5)
+verified(4)
 recomputed(1)
 composed(0)
 trusted(0)
@@ -180,31 +171,22 @@ claims(2)
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
+Each condition reports what the checker verified:
 
-- **C1 resolution (6)**: the 6 steps that cite a rule really are instances of
-  it. Step 1 is rule 2 with `S` = Socrates, `A` = Human, `B` = Mortal; the
-  others need no values.
-- **C2 well-founded (7)**: none of the 7 steps depends on itself, even
-  indirectly.
-- **C3 justification (7)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (11)**: the 2 claims and the 9 things the steps use are each
-  backed by a step: nothing is taken for granted.
-- **C5 re-decision (1)**: the one built-in step, `'true'`, was decided again
-  by the checker.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (9)**: the 2 claims are conclusions of the program, and all
-  7 steps serve them. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
+- **C1 resolution (4)**: each rule or fact step matches the compiled
+  source clause, including every generating premise.
+- **C2 well-foundedness (5)**: no step depends on itself.
+- **C3 justification (5)**: each step uses a recognized justification.
+- **C4 coverage (9)**: all 2 claims and 7 premise uses have evidence.
+- **C5 re-decision (1)**: the primitive `true` is decided again.
+- **C6 boundary consistency (0)**: no absence or collection is taken on trust.
+- **C7 relevance (7)**: the 2 claims answer the program and all 5 steps
+  serve those claims.
+- **C8 witness integrity (0)**: this example introduces no existential witness.
 
-The statistics repeat this: 7 steps, 6 verified against program rules and 1
-recomputed, none taken on trust, for 2 claims. The verdict is **checked**:
-both conclusions follow from the program. As the last comment says, this
-confirms the claims; it does not say the program has no other conclusions.
+The report records 5 steps, 4 verified against program clauses and one
+primitive recomputed. The verdict is **checked**: the recorded claims follow from
+the source program. It establishes no completeness claim.
 
 ---
 
@@ -228,5 +210,5 @@ test fact no longer follows, because it asks for a mortal Socrates.
 ## Takeaway
 
 One rule can set up several others at once. Each created rule still has to
-earn its place: the proof shows the switch that turned it on, and the
-checker confirms every rule it used.
+earn its place: its proof cites the creating condition directly, and the
+checker verifies those premises against the source.

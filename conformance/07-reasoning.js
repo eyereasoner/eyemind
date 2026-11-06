@@ -562,3 +562,201 @@ conformance("mode-sensitive disequality can distinguish an open and a bound call
     "p('b')",
   ]),
 ])
+
+conformance("a backward caller cannot bind a generator before its binding-sensitive test", [
+  spec("6.2, 7.5"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(seed('b'))",
+    "implies(not_unify(X, 'a'), implied_by(q(X), seed(X)))",
+    "query(q('b'))",
+  ]),
+  stdout([
+    "// No answers: no query() instance holds.",
+  ]),
+])
+
+conformance("once in a generator chooses before a backward caller supplies bindings", [
+  spec("4.2, 6.2, 7.5"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(seed('a'), seed('b'))",
+    "implies(once(seed(X)), implied_by(selected(X), 'true'))",
+    "query(selected('b'))",
+  ]),
+  stdout([
+    "// No answers: no query() instance holds.",
+  ]),
+])
+
+conformance("collection and absence observe every instance derived by an earlier once choice", [
+  spec("4.2, 6.2, 8.2"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(seed('a'), seed('b'))",
+    "implies(once(seed(X)), implied_by(selected(X), 'true'))",
+    "implies('true', seed('c'))",
+    "query(findall(X, selected(X), L))",
+    "query(not(selected('b')))",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "findall(A, selected(A), ['a', 'c'])",
+    "not(selected('b'))",
+  ]),
+])
+
+conformance("collection suppresses duplicate forward conclusions from distinct captures", [
+  spec("4.2, 6.2, 8.1"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(seed('a'), seed('b'))",
+    "implies(seed(X), implies(seed(X), item('yes')))",
+    "query(findall(Y, item(Y), L))",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "findall(A, item(A), ['yes'])",
+  ]),
+])
+
+conformance("collection preserves backward derivations from distinct captures", [
+  spec("4.2, 6.2, 8.1"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(seed('a'), seed('b'))",
+    "implies(seed(X), implied_by(item('yes'), seed(X)))",
+    "query(findall(Y, item(Y), L))",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "findall(A, item(A), ['yes', 'yes'])",
+  ]),
+])
+
+conformance("a collection keeps existential witnesses of different captured contexts distinct", [
+  spec("4.2, 6.2, 8.2"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(p('a'), p('b'))",
+    "implies(p(X), implies(p(X), witness(Y)))",
+    "query(findall(Y, witness(Y), L))",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "findall(A, witness(A), [skolem(5, 'Y', [['a']]), skolem(5, 'Y', [['b']])])",
+  ]),
+])
+
+conformance("an outer witness stays shared through a collection over forward instances", [
+  spec("4.2, 6.2, 8.2"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(seed('a'), item(1), item(2))",
+    "implies(seed(X), [created(X, W), implies(item(Y), linked(W, Y))])",
+    "query([created('a', W), findall(Y, linked(W, Y), L)])",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "and(created('a', skolem(4, 'W', ['a'])), findall(A, linked(skolem(4, 'W', ['a']), A), [1, 2]))",
+  ]),
+])
+
+conformance("an outer witness stays shared through a collection over backward instances", [
+  spec("4.2, 6.2, 8.2"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(seed('a'), item(1), item(2))",
+    "implies(seed(X), [created(X, W), implied_by(linked(W, Y), item(Y))])",
+    "query([created('a', W), findall(Y, linked(W, Y), L)])",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "and(created('a', skolem(4, 'W', ['a'])), findall(A, linked(skolem(4, 'W', ['a']), A), [1, 2]))",
+  ]),
+])
+
+conformance("inactive forward and backward generators supply no collection members", [
+  spec("4.2, 6.2"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(seed('a'), seed('b'))",
+    "implies(enabled('off'), [implies(seed(X), f(X)), implied_by(b(X), seed(X))])",
+    "query([findall(X, f(X), L), findall(Y, b(Y), M), not(f('a')), not(b('a'))])",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "and(findall(A, f(A), []), findall(B, b(B), []), not(f('a')), not(b('a')))",
+  ]),
+])
+
+conformance("a nested collection generator finishes before its backward instances are queried", [
+  spec("4.2, 6.1, 6.2"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(seed('a'), seed('b'))",
+    "implies('true', implies(findall(X, seed(X), L), implied_by(batch(L), 'true')))",
+    "query(batch(L))",
+    "query(not(batch([])))",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "batch(['a', 'b'])",
+    "not(batch([]))",
+  ]),
+])
+
+conformance("a negated generator waits for its own lower dependencies before collecting its inner rules", [
+  spec("4.2, 6.1, 6.2"),
+  stderr('empty'),
+  file('program.js', [
+    "fact(seed('a'), seed('b'))",
+    "implies(not(present('a')), implied_by(item(X), seed(X)))",
+    "implies(seed(X), present(X))",
+    "query(findall(X, item(X), L))",
+    "query(not(item('a')))",
+  ]),
+  stdout([
+    "// Answers: each instance of a query() that holds.",
+    "findall(A, item(A), [])",
+    "not(item('a'))",
+  ]),
+])
+
+conformance("inspected universal captures are fresh across uses of forward instances", [
+  spec('6.2, 6.3, 8.2'),
+  stderr('empty'),
+  file('program.js', [
+    "implies(p(X), q(X))",
+    "implies(implies(A, B), implies('true', pair(A, B)))",
+    "query(pair(p('a'), q('a')))",
+    "query(pair(p('b'), q('b')))",
+    "query(pair(p('a'), q('b')))",
+    "query(not(pair(p('a'), q('b'))))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "pair(p('a'), q('a'))",
+    "pair(p('b'), q('b'))",
+    "not(pair(p('a'), q('b')))",
+  ]),
+])
+
+conformance("inspected universal captures are fresh across uses of backward instances", [
+  spec('6.2, 6.3, 8.2'),
+  stderr('empty'),
+  file('program.js', [
+    "implies(p(X), q(X))",
+    "implies(implies(A, B), implied_by(pair(A, B), 'true'))",
+    "query(pair(p('a'), q('a')))",
+    "query(pair(p('b'), q('b')))",
+    "query(pair(p('a'), q('b')))",
+    "query(not(pair(p('a'), q('b'))))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "pair(p('a'), q('a'))",
+    "pair(p('b'), q('b'))",
+    "not(pair(p('a'), q('b')))",
+  ]),
+])

@@ -546,7 +546,7 @@ implies(implied_by(H, B), backward_rule(H, B))`);
       const source = lines.join('\n');
       const loaded = program(source);
       // Independently interpret each generator as an extra premise of the
-      // original rule. The oracle knows nothing about compiled activations.
+      // original rule. The oracle knows nothing about compiled rule instances.
       const model = naiveModel({ ...generated, rules: generated.rules.map((rule) => ({
         ...rule, body: [['e1', ['X']], ...rule.body],
       })) });
@@ -557,6 +557,45 @@ implies(implied_by(H, B), backward_rule(H, B))`);
         assert.deepEqual([...new Set(result.answers)].sort(), expected, `${goal}\n${source}`);
         const report = checkProof(loaded, result.proof, { goals: [readTerm(goal)] });
         assert.ok(report.valid, `${goal}: ${JSON.stringify(report.failures)}\n${source}`);
+      }
+    });
+  },
+
+  'derived rule collections and negations agree with an independent finite model'() {
+    forSeeds(120, (r) => {
+      const contexts = ['a', 'b', 'c'].filter(() => r.chance(0.6));
+      const rows = [];
+      for (const context of ['a', 'b', 'c']) for (const value of ['x', 'y', 'z']) {
+        if (r.chance(0.5)) rows.push([context, value]);
+      }
+      const once = r.chance(0.5);
+      const backward = r.chance(0.5);
+      const selected = once ? contexts.slice(0, 1) : contexts;
+      let expected = selected.flatMap((context) => rows.filter(([c]) => c === context).map(([, value]) => value));
+      if (!backward) expected = [...new Set(expected)];
+      const list = `[${expected.map((value) => `'${value}'`).join(', ')}]`;
+      const template = backward ? 'implied_by(item(X), row(C, X))' : 'implies(row(C, X), item(X))';
+      const source = [
+        ...contexts.map((context) => `fact(enabled('${context}'))`),
+        ...rows.map(([context, value]) => `fact(row('${context}', '${value}'))`),
+        `implies(${once ? 'once(enabled(C))' : 'enabled(C)'}, ${template})`,
+        'implies(findall(X, item(X), L), gathered(L))',
+        'query(gathered(L))',
+        "query(not(item('x')))",
+        'query(item(X))',
+      ].join('\n');
+      const loaded = program(source);
+      const result = run(loaded, { proof: true });
+      assert.ok(result.answers.includes(`gathered(${list})`), source);
+      assert.equal(result.answers.includes("not(item('x'))"), !expected.includes('x'), source);
+      assert.deepEqual(result.answers.filter((answer) => answer.startsWith('item(')).sort(),
+        [...new Set(expected)].map((value) => `item('${value}')`).sort(), source);
+      assert.doesNotMatch(result.proof, /activated\(/);
+      if (expected.length) {
+        const forged = result.proof.replaceAll(list, '[]');
+        const report = checkProof(loaded, forged);
+        assert.ok(!report.valid && report.failures.some((failure) => failure.condition === 'C6'),
+          `${JSON.stringify(report.failures)}\n${source}\n${forged}`);
       }
     });
   },

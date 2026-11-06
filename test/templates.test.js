@@ -15,7 +15,10 @@ implies(type(X, 'Cat'), implies(type(Y, 'Dog'), t('test', 'is', 'true')))`;
     assert.equal(program(source).sources.length, 3);
     assert.deepEqual(result.answers, ["t('test', 'is', 'true')"]);
     assert.deepEqual(result.inferred, result.answers);
-    assert.match(result.proof, /step\(activated\(/);
+    assert.equal(result.derived.length, 1);
+    assert.equal(result.stats.derived, 1);
+    assert.doesNotMatch(result.proof, /activated\(/);
+    assert.match(result.proof, /\[type\('Minka', 'Cat'\), type\('Charly', 'Dog'\)\]/);
     assert.doesNotMatch(result.proof, /skolem/);
     assert.deepEqual(proven(source.replace("type('Minka', 'Cat'), ", '')).answers, []);
   },
@@ -131,7 +134,7 @@ query(item(X))`);
       throwsMatching(() => program(`implies('true', implies(p(X), ${head}))`),
         head === '[]' ? /an empty array is not a goal/ : /an open list is not a goal/);
     }
-    throwsMatching(() => program("fact(activated(1, []))"), /reserved for generated rules/);
+    throwsMatching(() => program("fact(activated(1, []))"), /activated\/2 is reserved/);
     throwsMatching(() => program("preds('forward')"), /reserved name/);
     throwsMatching(() => program('implies(p(X))'), /takes 2 arguments/);
     throwsMatching(() => program('implied_by(p(X), q(X), r(X))'), /takes 2 arguments/);
@@ -167,7 +170,8 @@ implies(p(_), implied_by(r(_), q(_)))
 query(r('z'))`);
     assert.deepEqual(proven(source).answers, ["r('z')"]);
     assert.deepEqual(source.clauses.at(-1).captures, []);
-    assert.match(proven(source).proof, /activated\(5, \[\]\)/);
+    assert.doesNotMatch(proven(source).proof, /activated\(/);
+    assert.match(proven(source).proof, /implied_by\(r\(_1\), \[p\(_0\), q\(_2\)\]\)/);
   },
 
   'unembedded rule values keep their standalone clauses and statement lines'() {
@@ -208,7 +212,7 @@ query(q(X))`).answers, ["q('a')"]);
     assert.deepEqual(proven(inner, { goal: 'p(X)' }).answers, []);
   },
 
-  'the explicit template constructors compile to the same guarded clauses'() {
+  'the explicit template constructors compile to the same scoped rules'() {
     const nested = `fact(p('a'))
 implies('true', [implies(p(X), q(X)), implied_by(r(X), q(X))])
 query(r(X))`;
@@ -228,16 +232,97 @@ query(r(X))`;
     assert.deepEqual(proven(new Program(source.sources, 4)).answers, []);
   },
 
-  'forged derived rule proofs cannot omit or invent the activation'() {
+  'forged derived rule proofs cannot omit or invent the generating premises'() {
     for (const template of ['implies(p(X), q(X))', 'implied_by(q(X), p(X))']) {
-      const source = program(`fact(p('a'))\nimplies('true', ${template})\nquery(q(X))`);
+      const source = program(`fact(p('a'))
+implies('true', ${template})
+query(q(X))`);
       const document = proven(source).proof;
-      rejected(source, document.replace(/^step\(activated\([^\n]*\n/m, ''), 'C4');
-      rejected(source, document.replaceAll("[activated(4, []), p('a')]", "[p('a')]"), 'C1');
-      rejected(source, document.replace('step(activated(4, []), clause(2), {},', 'step(activated(4, []), clause(1), {},'), 'C1');
-      rejected(source, document.replace('activated(4, []), p(X)', 'activated(99, []), p(X)'), 'C1');
-      rejected(source, document.replaceAll('activated(4, [])', 'activated(99, [])'), 'C1');
-      rejected(source, document.replace(/^q\('a'\)$/m, 'activated(4, [])'), 'C7');
+      rejected(source, document.replace(/^step\('true'[^\n]*\n/m, ''), 'C4');
+      rejected(source, document.replaceAll("['true', p('a')]", "[p('a')]"), 'C1');
+      rejected(source, document.replace("['true', p('a')]", "['true', p('b')]"), 'C1');
+      rejected(source, document.replace('clause(4)', 'clause(99)'), 'C1');
+      assert.ok(!checkProof(new Program(source.sources, 2), document).valid);
+    }
+  },
+
+  'a backward derived rule checks the witnesses of its generating scopes'() {
+    const source = program(`fact(p('a'))
+implies(p(X), [created(X, W, V), implied_by(owner(W, X), 'true')])
+query(owner(W, X))`);
+    const document = proven(source).proof;
+    assert.doesNotMatch(document, /activated\(/);
+    rejected(source, document.replaceAll("skolem(2, 'W', ['a'])", "'invented'"), 'C8');
+    rejected(source, document.replaceAll("skolem(2, 'W', ['a'])", "skolem(2, 'W', ['b'])"), 'C8');
+    rejected(source, document.replaceAll("skolem(2, 'W', ['a'])", "skolem(9, 'W', ['a'])"), 'C8');
+    rejected(source, document.replaceAll("skolem(2, 'V', ['a'])", "'invented'"), 'C8');
+  },
+
+  'a generator is solved before a backward caller binds the captured variables'() {
+    const source = `fact(seed('b'))
+implies(not_unify(X, 'a'), implied_by(q(X), seed(X)))
+query(q('b'))`;
+    assert.deepEqual(proven(source).answers, []);
+    const inlined = source.replace("implies(not_unify(X, 'a'), implied_by(q(X), seed(X)))",
+      "implied_by(q(X), [not_unify(X, 'a'), seed(X)])");
+    assert.deepEqual(proven(inlined).answers, ["q('b')"]);
+  },
+
+  'collections and negations see every rule instance a once generator has derived'() {
+    const source = `fact(seed('a'), seed('b'))
+implies(once(seed(X)), implied_by(selected(X), 'true'))
+implies('true', seed('c'))`;
+    const result = proven(source, { goals: ["findall(X, selected(X), L)", "not(selected('b'))"] });
+    assert.deepEqual(result.answers, ["findall(A, selected(A), ['a', 'c'])", "not(selected('b'))"]);
+    assert.doesNotMatch(result.proof, /activated\(/);
+    assert.equal(result.proofReport.trusted.length, 2);
+  },
+
+  'collections keep backward derivation multiplicity and suppress duplicate forward facts'() {
+    for (const backward of [false, true]) {
+      const template = backward ? "implied_by(item('yes'), seed(X))" : "implies(seed(X), item('yes'))";
+      for (const duplicate of [false, true]) {
+        const facts = duplicate ? "seed('a'), seed('a'), seed('b')" : "seed('a'), seed('b')";
+        const source = `fact(${facts})
+implies(seed(X), ${template})`;
+        const result = proven(source, { goal: 'findall(Y, item(Y), L)' });
+        const values = backward ? (duplicate ? "['yes', 'yes', 'yes']" : "['yes', 'yes']") : "['yes']";
+        assert.deepEqual(result.answers, [`findall(A, item(A), ${values})`]);
+      }
+    }
+  },
+
+  'collections distinguish witnesses of different captured contexts'() {
+    const source = `fact(p('a'), p('b'))
+implies(p(X), implies(p(X), witness(Y)))`;
+    const result = proven(source, { goal: 'findall(Y, witness(Y), L)' });
+    assert.deepEqual(result.answers, ["findall(A, witness(A), [skolem(4, 'Y', [['a']]), skolem(4, 'Y', [['b']])])"]);
+  },
+
+  'outer witnesses stay shared across uses of forward and backward derived rules'() {
+    for (const backward of [false, true]) {
+      const template = backward ? 'implied_by(linked(W, Y), item(Y))' : 'implies(item(Y), linked(W, Y))';
+      const source = `fact(seed('a'), item(1), item(2))
+implies(seed(X), [created(X, W), ${template}])
+query([created('a', W), linked(W, 1), linked(W, 2)])`;
+      const result = proven(source);
+      assert.deepEqual(result.answers, ["and(created('a', skolem(4, 'W', ['a'])), linked(skolem(4, 'W', ['a']), 1), linked(skolem(4, 'W', ['a']), 2))"]);
+      rejected(program(source), result.proof.replaceAll("skolem(4, 'W', ['a'])", "'invented'"), 'C8');
+    }
+  },
+
+  'inspected universal captures remain fresh and shared within each rule use'() {
+    for (const backward of [false, true]) {
+      const template = backward ? "implied_by(pair(A, B), 'true')" : "implies('true', pair(A, B))";
+      const source = `implies(p(X), q(X))
+implies(implies(A, B), ${template})
+query(pair(p('a'), q('a')))
+query(pair(p('b'), q('b')))
+query(pair(p('a'), q('b')))
+query(not(pair(p('a'), q('b'))))`;
+      const result = proven(source);
+      assert.deepEqual(result.answers, ["pair(p('a'), q('a'))", "pair(p('b'), q('b'))", "not(pair(p('a'), q('b')))"]);
+      assert.doesNotMatch(result.proof, /activated\(/);
     }
   },
 
