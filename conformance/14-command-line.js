@@ -417,3 +417,603 @@ conformance('--prove-and-check cannot be combined with --unused', [
   args('-c --unused'),
   exit(1), stderr(prefix('eyemind:')), stdout([]),
 ])
+
+// Further command-line cases.
+
+conformance("-p prints the proof document, also after the files", [
+  spec("10.1, 13.1"),
+  args("program.js -p"),
+  file("program.js", [
+    "fact(p(1))",
+    "implies(p(X), q(X))",
+  ]),
+  stdout([
+    "// Conclusions: the facts the program derives, in the order derived.",
+    "q(1)",
+    "",
+    "// Clauses: the program clauses the steps cite, by clause number.",
+    "clause(1, fact(p(1)))",
+    "clause(2, implies(p(X), q(X)))",
+    "",
+    "// Steps: each goal, what justifies it (a clause, a builtin, a control, or an",
+    "// absence or collection taken on trust), the bindings and the goals it uses.",
+    "step(q(1), clause(2), {X: 1}, [p(1)])",
+    "step(p(1), clause(1), {}, [])",
+  ]),
+])
+
+conformance("several files are numbered as one program in input order", [
+  spec("3.1, 3.5, 13.1"),
+  args("-p a.js b.js"),
+  file("a.js", [
+    "fact(p(1))",
+  ]),
+  file("b.js", [
+    "implies(p(X), q(X))",
+  ]),
+  stdout([
+    "// Conclusions: the facts the program derives, in the order derived.",
+    "q(1)",
+    "",
+    "// Clauses: the program clauses the steps cite, by clause number.",
+    "clause(1, fact(p(1)))",
+    "clause(2, implies(p(X), q(X)))",
+    "",
+    "// Steps: each goal, what justifies it (a clause, a builtin, a control, or an",
+    "// absence or collection taken on trust), the bindings and the goals it uses.",
+    "step(q(1), clause(2), {X: 1}, [p(1)])",
+    "step(p(1), clause(1), {}, [])",
+  ]),
+])
+
+conformance("-c keeps the halt code 65 when its proof checks", [
+  spec("8.5, 13.1"),
+  args("-c program.js"),
+  exit(65),
+  file("program.js", [
+    "fact(account('bob', -5))",
+    "contradiction(account(O, B), lt(B, 0))",
+  ]),
+  stdout([
+    "// Checked answers: these follow from the input program.",
+    "'false'",
+    "",
+    "// C1-C8: resolution, acyclicity, justification, coverage,",
+    "// re-decision, boundary consistency, relevance and witness integrity.",
+    "condition('C1', 'resolution', 'ok', 2)",
+    "condition('C2', 'well_founded', 'ok', 3)",
+    "condition('C3', 'justification', 'ok', 3)",
+    "condition('C4', 'coverage', 'ok', 3)",
+    "condition('C5', 're_decision', 'ok', 1)",
+    "condition('C6', 'boundary_consistency', 'ok', 0)",
+    "condition('C7', 'relevance', 'ok', 4)",
+    "condition('C8', 'witness_integrity', 'ok', 0)",
+    "",
+    "// Proof statistics: recorded steps and how they were checked.",
+    "steps(3)",
+    "verified(2)",
+    "recomputed(1)",
+    "composed(0)",
+    "trusted(0)",
+    "claims(1)",
+    "",
+    "// This verdict applies to the claims above; it does not establish completeness.",
+    "verdict('checked')",
+  ]),
+])
+
+conformance("-c exits 0 when its proof checks with obligations", [
+  spec("12, 13.1"),
+  args("-c program.js"),
+  file("program.js", [
+    "implies(not('q'), 'p')",
+  ]),
+  stdout([
+    "// Answers checked subject to the obligations below.",
+    "'p'",
+    "",
+    "// C1-C8: resolution, acyclicity, justification, coverage,",
+    "// re-decision, boundary consistency, relevance and witness integrity.",
+    "condition('C1', 'resolution', 'ok', 1)",
+    "condition('C2', 'well_founded', 'ok', 2)",
+    "condition('C3', 'justification', 'ok', 2)",
+    "condition('C4', 'coverage', 'ok', 2)",
+    "condition('C5', 're_decision', 'ok', 0)",
+    "condition('C6', 'boundary_consistency', 'ok', 0)",
+    "condition('C7', 'relevance', 'ok', 3)",
+    "condition('C8', 'witness_integrity', 'ok', 0)",
+    "",
+    "// Obligations: absence and collection completeness are taken on trust.",
+    "obligation('absent', 'theory_scoped', not('q'))",
+    "",
+    "// Proof statistics: recorded steps and how they were checked.",
+    "steps(2)",
+    "verified(1)",
+    "recomputed(0)",
+    "composed(0)",
+    "trusted(1)",
+    "claims(1)",
+    "",
+    "// This verdict applies to the claims above; it does not establish completeness.",
+    "verdict('checked_with_obligations')",
+  ]),
+])
+
+conformance("--prove-and-check --json prints the report as JSON", [
+  spec("12.1, 13.1"),
+  args("--prove-and-check --json program.js"),
+  file("program.js", [
+    "fact(p(1))",
+    "query(p(X))",
+  ]),
+  stdout_json([
+    "{",
+    "  \"valid\": true,",
+    "  \"steps\": 1,",
+    "  \"claims\": 1,",
+    "  \"answers\": [",
+    "    \"p(1)\"",
+    "  ],",
+    "  \"verified\": 1,",
+    "  \"redecided\": 0,",
+    "  \"composed\": 0,",
+    "  \"uses\": 0,",
+    "  \"trusted\": [],",
+    "  \"failures\": [],",
+    "  \"conditions\": [",
+    "    {",
+    "      \"id\": \"C1\",",
+    "      \"name\": \"resolution\",",
+    "      \"covered\": 1,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C2\",",
+    "      \"name\": \"well_founded\",",
+    "      \"covered\": 1,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C3\",",
+    "      \"name\": \"justification\",",
+    "      \"covered\": 1,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C4\",",
+    "      \"name\": \"coverage\",",
+    "      \"covered\": 1,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C5\",",
+    "      \"name\": \"re_decision\",",
+    "      \"covered\": 0,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C6\",",
+    "      \"name\": \"boundary_consistency\",",
+    "      \"covered\": 0,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C7\",",
+    "      \"name\": \"relevance\",",
+    "      \"covered\": 2,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C8\",",
+    "      \"name\": \"witness_integrity\",",
+    "      \"covered\": 0,",
+    "      \"failed\": 0",
+    "    }",
+    "  ]",
+    "}",
+  ]),
+])
+
+conformance("-c combines with --strict-proof and --json", [
+  spec("12.1, 13.1"),
+  args("-c --strict-proof --json program.js"),
+  file("program.js", [
+    "fact(p(1))",
+    "implies(p(X), q(X))",
+  ]),
+  stdout_json([
+    "{",
+    "  \"valid\": true,",
+    "  \"steps\": 2,",
+    "  \"claims\": 1,",
+    "  \"answers\": [",
+    "    \"q(1)\"",
+    "  ],",
+    "  \"verified\": 2,",
+    "  \"redecided\": 0,",
+    "  \"composed\": 0,",
+    "  \"uses\": 1,",
+    "  \"trusted\": [],",
+    "  \"failures\": [],",
+    "  \"conditions\": [",
+    "    {",
+    "      \"id\": \"C1\",",
+    "      \"name\": \"resolution\",",
+    "      \"covered\": 2,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C2\",",
+    "      \"name\": \"well_founded\",",
+    "      \"covered\": 2,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C3\",",
+    "      \"name\": \"justification\",",
+    "      \"covered\": 2,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C4\",",
+    "      \"name\": \"coverage\",",
+    "      \"covered\": 2,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C5\",",
+    "      \"name\": \"re_decision\",",
+    "      \"covered\": 0,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C6\",",
+    "      \"name\": \"boundary_consistency\",",
+    "      \"covered\": 0,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C7\",",
+    "      \"name\": \"relevance\",",
+    "      \"covered\": 3,",
+    "      \"failed\": 0",
+    "    },",
+    "    {",
+    "      \"id\": \"C8\",",
+    "      \"name\": \"witness_integrity\",",
+    "      \"covered\": 0,",
+    "      \"failed\": 0",
+    "    }",
+    "  ]",
+    "}",
+  ]),
+])
+
+conformance("--strict-proof accepts a proof without trusted boundaries", [
+  spec("11.6, 13.1"),
+  args("--strict-proof --check-proof proof.js program.js"),
+  file("program.js", [
+    "fact(p(1))",
+    "implies(p(X), q(X))",
+  ]),
+  file("proof.js", [
+    "q(1)",
+    "",
+    "step(q(1), clause(2), {X: 1}, [p(1)])",
+    "step(p(1), clause(1), {}, [])",
+  ]),
+  stdout([
+    "// Checked answers: these follow from the input program.",
+    "q(1)",
+    "",
+    "// C1-C8: resolution, acyclicity, justification, coverage,",
+    "// re-decision, boundary consistency, relevance and witness integrity.",
+    "condition('C1', 'resolution', 'ok', 2)",
+    "condition('C2', 'well_founded', 'ok', 2)",
+    "condition('C3', 'justification', 'ok', 2)",
+    "condition('C4', 'coverage', 'ok', 2)",
+    "condition('C5', 're_decision', 'ok', 0)",
+    "condition('C6', 'boundary_consistency', 'ok', 0)",
+    "condition('C7', 'relevance', 'ok', 3)",
+    "condition('C8', 'witness_integrity', 'ok', 0)",
+    "",
+    "// Proof statistics: recorded steps and how they were checked.",
+    "steps(2)",
+    "verified(2)",
+    "recomputed(0)",
+    "composed(0)",
+    "trusted(0)",
+    "claims(1)",
+    "",
+    "// This verdict applies to the claims above; it does not establish completeness.",
+    "verdict('checked')",
+  ]),
+])
+
+conformance("the program to check against may come from standard input", [
+  spec("13.1"),
+  args("--check-proof proof.js"),
+  file("proof.js", [
+    "q(1)",
+    "",
+    "step(q(1), clause(2), {X: 1}, [p(1)])",
+    "step(p(1), clause(1), {}, [])",
+  ]),
+  stdin([
+    "fact(p(1))",
+    "implies(p(X), q(X))",
+  ]),
+  stdout([
+    "// Checked answers: these follow from the input program.",
+    "q(1)",
+    "",
+    "// C1-C8: resolution, acyclicity, justification, coverage,",
+    "// re-decision, boundary consistency, relevance and witness integrity.",
+    "condition('C1', 'resolution', 'ok', 2)",
+    "condition('C2', 'well_founded', 'ok', 2)",
+    "condition('C3', 'justification', 'ok', 2)",
+    "condition('C4', 'coverage', 'ok', 2)",
+    "condition('C5', 're_decision', 'ok', 0)",
+    "condition('C6', 'boundary_consistency', 'ok', 0)",
+    "condition('C7', 'relevance', 'ok', 3)",
+    "condition('C8', 'witness_integrity', 'ok', 0)",
+    "",
+    "// Proof statistics: recorded steps and how they were checked.",
+    "steps(2)",
+    "verified(2)",
+    "recomputed(0)",
+    "composed(0)",
+    "trusted(0)",
+    "claims(1)",
+    "",
+    "// This verdict applies to the claims above; it does not establish completeness.",
+    "verdict('checked')",
+  ]),
+])
+
+conformance("--json reports an invalid proof with exit code 2", [
+  spec("12.1, 13.1"),
+  args("--json --check-proof proof.js program.js"),
+  exit(2),
+  stderr('empty'),
+  file("program.js", [
+    "fact(p(1))",
+  ]),
+  file("proof.js", [
+    "p(2)",
+  ]),
+  stdout('nonempty'),
+])
+
+conformance("an array goal asks a conjunction", [
+  spec("4.1, 13.1"),
+  args("program.js --goal '[p(X), q(X)]'"),
+  file("program.js", [
+    "fact(p(1), p(2), q(2))",
+  ]),
+  stdout([
+    "// Answers: each instance of a goal that holds.",
+    "and(p(2), q(2))",
+  ]),
+])
+
+conformance("a goal that does not read is an error", [
+  spec("9.1, 13.1"),
+  args("program.js --goal 'p(X'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file("program.js", [
+    "fact(p(1))",
+  ]),
+  stdout([
+]),
+])
+
+conformance("a goal with an assignment is rejected rather than run", [
+  spec("9.1, 13.1, 15"),
+  args("program.js --goal 'X = 1'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file("program.js", [
+    "fact(p(1))",
+  ]),
+  stdout([
+]),
+])
+
+conformance("--max-depth stops runaway recursion with an error", [
+  spec("8.3, 13.1"),
+  args("program.js --goal 'p(1)' --max-depth 10"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file("program.js", [
+    "implied_by(p(X), p(X))",
+  ]),
+  stdout([
+]),
+])
+
+conformance("--max-iterations bounds the forward rounds", [
+  spec("8.3, 13.1"),
+  args("program.js --max-iterations 5"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file("program.js", [
+    "fact(n(0))",
+    "implies([n(X), is(Y, add(X, 1))], n(Y))",
+  ]),
+  stdout([
+]),
+])
+
+conformance("--max-inferences bounds the goals started", [
+  spec("8.3, 13.1"),
+  args("program.js --max-inferences 50"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file("program.js", [
+    "fact(n(0))",
+    "implies([n(X), is(Y, add(X, 1))], n(Y))",
+  ]),
+  stdout([
+]),
+])
+
+conformance("-c applies reasoning bounds to proof generation", [
+  spec("8.3, 13.1"),
+  args("-c --max-iterations 5 program.js"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file("program.js", [
+    "fact(n(0))",
+    "implies([n(X), is(Y, add(X, 1))], n(Y))",
+  ]),
+  stdout([
+]),
+])
+
+conformance("the largest safe integer is an accepted bound", [
+  spec("8.3, 13.1"),
+  args("program.js --max-iterations 9007199254740991"),
+  file("program.js", [
+    "fact(p(1))",
+    "implies(p(X), q(X))",
+  ]),
+  stdout([
+    "// Conclusions: the facts the program derives, in the order derived.",
+    "q(1)",
+  ]),
+])
+
+conformance("a negative bound is rejected", [
+  spec("8.3, 13.1"),
+  args("program.js --max-iterations -5"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file("program.js", [
+]),
+  stdout([
+]),
+])
+
+conformance("a fractional bound is rejected", [
+  spec("8.3, 13.1"),
+  args("program.js --max-depth 2.5"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file("program.js", [
+]),
+  stdout([
+]),
+])
+
+conformance("--stats with -c prints statistics to standard error and the report to standard output", [
+  spec("13.1"),
+  args("-c --stats program.js"),
+  stderr('json'),
+  file("program.js", [
+    "fact(p(1))",
+    "query(p(X))",
+  ]),
+  stdout([
+    "// Checked answers: these follow from the input program.",
+    "p(1)",
+    "",
+    "// C1-C8: resolution, acyclicity, justification, coverage,",
+    "// re-decision, boundary consistency, relevance and witness integrity.",
+    "condition('C1', 'resolution', 'ok', 1)",
+    "condition('C2', 'well_founded', 'ok', 1)",
+    "condition('C3', 'justification', 'ok', 1)",
+    "condition('C4', 'coverage', 'ok', 1)",
+    "condition('C5', 're_decision', 'ok', 0)",
+    "condition('C6', 'boundary_consistency', 'ok', 0)",
+    "condition('C7', 'relevance', 'ok', 2)",
+    "condition('C8', 'witness_integrity', 'ok', 0)",
+    "",
+    "// Proof statistics: recorded steps and how they were checked.",
+    "steps(1)",
+    "verified(1)",
+    "recomputed(0)",
+    "composed(0)",
+    "trusted(0)",
+    "claims(1)",
+    "",
+    "// This verdict applies to the claims above; it does not establish completeness.",
+    "verdict('checked')",
+  ]),
+])
+
+conformance("-v prints the version", [
+  spec("13.1"),
+  args("-v"),
+  stdout('nonempty'),
+])
+
+conformance("--json with --proof is an error", [
+  spec("13.1"),
+  args("--json --proof program.js"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file("program.js", [
+]),
+  stdout([
+]),
+])
+
+conformance("--strict-proof with --unused is an error", [
+  spec("13.1"),
+  args("--strict-proof --unused program.js"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file("program.js", [
+]),
+  stdout([
+]),
+])
+
+conformance("a proof document on standard input is refused as a program", [
+  spec("13.1"),
+  args(""),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([
+    "p(1)",
+    "",
+    "step(p(1), clause(1), {}, [])",
+  ]),
+  stdout([
+]),
+])
+
+conformance("a missing proof file is an error", [
+  spec("13.1"),
+  args("--check-proof missing.js program.js"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file("program.js", [
+    "fact(p(1))",
+  ]),
+  stdout([
+]),
+])
+
+conformance("a misspelled statement is an error, not an empty program", [
+  spec("3.2, 13.1"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file("program.js", [
+    "fcat(p(1))",
+  ]),
+  stdout([
+]),
+])
+
+conformance("an empty program has no conclusions", [
+  spec("8.6, 13.1"),
+  args(""),
+  stdin([
+]),
+  stdout([
+    "// No conclusions: the program derives no facts.",
+  ]),
+])

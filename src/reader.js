@@ -9,7 +9,6 @@ import { EMPTY, EyemindError, Struct, Var, nonfinite } from './terms.js';
 import { CHAINED, RESERVED_WORDS, decodeName } from './writer.js';
 
 // Names that a program reads as JavaScript values, so a document may not use them.
-const JS_VALUES = new Set(['undefined', 'NaN', 'Infinity']);
 
 // The name of the variable an identifier writes: names starting VAR_ are
 // encoded (Section 9.2).
@@ -222,7 +221,7 @@ export class Reader {
           else throw tokens.error('a minus sign applies only to a number', token.line);
           state = 'after';
         } else if (token.kind === 'name') {
-          if (RESERVED_WORDS.has(token.text) || JS_VALUES.has(token.text) || token.text.includes('$')) {
+          if (RESERVED_WORDS.has(token.text) || token.text.includes('$')) {
             throw tokens.error(`${token.text} is not a term`, token.line);
           }
           if (tokens.at('(')) {

@@ -646,3 +646,636 @@ conformance("reserved object keys denote atoms rather than evaluated names", [
     "unify([struct('=', 'class', 1), struct('=', 'true', 2)], [struct('=', 'class', 1), struct('=', 'true', 2)])",
   ]),
 ])
+
+// Accepted forms, read through facts_from or as goals and printed back.
+
+conformance('every string escape reads as the character it denotes', [
+  spec('9.1'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    "d('\\\\')",
+    "d('\\'')",
+    "d('\\\"')",
+    'd("\\n\\r\\t")',
+    "d('\\b\\f\\v')",
+    "d('\\0')",
+    "d('\\x41\\x7e\\xFF')",
+    "d('\\u0041\\u00e9\\u00E9')",
+    "d('\\u{41}\\u{1F600}\\u{10FFFF}')",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "d('\\\\')",
+    "d('\\'')",
+    "d('\"')",
+    "d('\\n\\r\\t')",
+    "d('\\b\\f\\v')",
+    "d('\\u0000')",
+    "d('A~\u00ff')",
+    "d('A\u00e9\u00e9')",
+    "d('A\u{1F600}\u{10FFFF}')",
+  ]),
+])
+
+conformance('a \\u{...} escape takes up to six hexadecimal digits', [
+  spec('9.1'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X, Y))',
+  ]),
+  file('data.js', [
+    "d('\\u{000041}', '\\u{0}')",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "d('A', '\\u0000')",
+  ]),
+])
+
+conformance('an escaped lone surrogate reads back as itself, an escaped pair as one character', [
+  spec('9.1, 9.2'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    "d('\\ud800')",
+    "d('\\ud800\\udc00')",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "d('\\ud800')",
+    "d('\u{10000}')",
+  ]),
+])
+
+conformance('a double-quoted string may hold a single quote unescaped', [
+  spec('9.1'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X, Y))',
+  ]),
+  file('data.js', [
+    "d(\"it's\", '\"')",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "d('it\\'s', '\"')",
+  ]),
+])
+
+conformance('integer literals read with and without the n suffix', [
+  spec('9.1'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    'd(0n)',
+    'd(-5n)',
+    'd(-0)',
+    'd(123456789012345678901234567890)',
+    'd(123456789012345678901234567891n)',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'd(0)',
+    'd(-5)',
+    'd(123456789012345678901234567890)',
+    'd(123456789012345678901234567891)',
+  ]),
+])
+
+conformance('float literals read in each decimal form', [
+  spec('9.1'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    'd(.5)',
+    'd(5.)',
+    'd(1E3)',
+    'd(1.5e+2)',
+    'd(2e-3)',
+    'd(-0.0)',
+    'd(0.0)',
+    'd(1e21)',
+    'd(0.10)',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'd(0.5)',
+    'd(5.0)',
+    'd(1000.0)',
+    'd(150.0)',
+    'd(0.002)',
+    'd(-0.0)',
+    'd(0.0)',
+    'd(1e+21)',
+    'd(0.1)',
+  ]),
+])
+
+conformance('a numeric minus may be separated from its literal by spaces', [
+  spec('9.1'),
+  args("--goal 'unify(X, - 1)'"),
+  stdin([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'unify(-1, -1)',
+  ]),
+])
+
+conformance('an object reads with string keys, variable values and a trailing comma', [
+  spec('9.1'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    "d({'a b': 1, \"c\": [], d: 2,})",
+    'd({})',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "d([struct('=', 'a b', 1), struct('=', 'c', []), struct('=', 'd', 2)])",
+    'd([])',
+  ]),
+])
+
+conformance('object keys that mean something to JavaScript are only atoms', [
+  spec('9.1, 15'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    'd({__proto__: 1, constructor: 2, toString: 3, prototype: 4})',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "d([struct('=', '__proto__', 1), struct('=', 'constructor', 2), struct('=', 'toString', 3), struct('=', 'prototype', 4)])",
+  ]),
+])
+
+conformance('a spread that is the only item is the tail itself', [
+  spec('2.2, 9.1'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    "d([...'a'])",
+    'd([...[1, 2]])',
+    'd([...[]])',
+    'd([...f(1),])',
+    'd([1, ...T,])',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "d('a')",
+    'd([1, 2])',
+    'd([])',
+    'd(f(1))',
+    'd([1, ...A])',
+  ]),
+])
+
+conformance('and with more than two arguments reads as a left chain of and/2', [
+  spec('4.2, 9.1'),
+  args('--goal "functor(and(\'a\', \'b\', \'c\'), N, A)" --goal "arg(1, or(1, 2, 3, 4), X)"'),
+  stdin([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    "functor(and('a', 'b', 'c'), 'and', 2)",
+    'arg(1, or(1, 2, 3, 4), or(1, 2, 3))',
+  ]),
+])
+
+conformance('not with two arguments in a document is a compound not/2', [
+  spec('4.2, 9.1'),
+  args('--goal "functor(not(\'a\', \'b\'), N, A)"'),
+  stdin([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    "functor(not('a', 'b'), 'not', 2)",
+  ]),
+])
+
+conformance('struct in a document builds reserved names, lists and long conjunctions', [
+  spec('9.1, 9.3'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    "d(struct('class', 1))",
+    "d(struct('.', 1, []))",
+    "d(struct('and', 'a', 'b', 'c'))",
+    "d(struct('p', 'q'))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "d(struct('class', 1))",
+    'd([1])',
+    "d(struct('and', 'a', 'b', 'c'))",
+    "d(p('q'))",
+  ]),
+])
+
+conformance('a byte-order mark, carriage returns, empty statements and comments are layout', [
+  spec('9.1'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    '\uFEFFd(1)\r',
+    'd(2); ; d(3);;\r',
+    '/* a comment\r',
+    'over lines */ d(4) // trailing\r',
+    '\t\td(5)',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'd(1)',
+    'd(2)',
+    'd(3)',
+    'd(4)',
+    'd(5)',
+  ]),
+])
+
+conformance('a line feed inside a comment may separate a call name from its parenthesis', [
+  spec('9.1'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X))',
+  ]),
+  file('data.js', [
+    'd/* a comment',
+    '*/(1)',
+    'd (2)',
+    'd(-/*',
+    '*/3)',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'd(1)',
+    'd(2)',
+    'd(-3)',
+  ]),
+])
+
+conformance('the last statement needs no line break', [
+  spec('9.1'),
+  file('program.js', [
+    "facts_from({text: 'd(1)\\nd(2)'})",
+    'query(d(X))',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'd(1)',
+    'd(2)',
+  ]),
+])
+
+conformance('names of JavaScript functions and globals read as compounds and variables, never run', [
+  spec('9.1, 15'),
+  file('program.js', [
+    "facts_from('data.js')",
+    'query(d(X))',
+    'query(g(X, Y))',
+  ]),
+  file('data.js', [
+    "d(require('child_process'))",
+    "d(eval('process.exit(3)'))",
+    "d(Function('return 1'))",
+    'g(globalThis, process)',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "d(require('child_process'))",
+    "d(eval('process.exit(3)'))",
+    "d(Function('return 1'))",
+    'g(A, B)',
+  ]),
+])
+
+// Rejected forms.
+
+conformance('documents reject a raw line break in a string', [
+  spec('9.1'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "facts_from({text: 'd(\\'a\\nb\\')'})",
+  ]),
+  stdout([]),
+])
+
+conformance('documents reject a backslash line continuation in a string', [
+  spec('9.1'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "facts_from({text: 'd(\\'a\\\\\\nb\\')'})",
+  ]),
+  stdout([]),
+])
+
+conformance('documents reject an unterminated string', [
+  spec('9.1'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "facts_from('data.js')",
+  ]),
+  file('data.js', [
+    "d('abc)",
+  ]),
+  stdout([]),
+])
+
+conformance('goal text rejects a \\u{} escape without digits', [
+  spec('9.1'),
+  args("--goal \"unify(X, '\\u{}')\""),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a \\u{...} escape with seven digits', [
+  spec('9.1'),
+  args("--goal \"unify(X, '\\u{0000041}')\""),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a \\u escape with fewer than four digits', [
+  spec('9.1'),
+  args("--goal \"unify(X, '\\u41')\""),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a legacy octal escape', [
+  spec('9.1'),
+  args("--goal \"unify(X, '\\1')\""),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects null', [
+  spec('9.1'),
+  args("--goal 'p(null)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects NaN', [
+  spec('2.1, 9.1'),
+  args("--goal 'p(NaN)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a negative Infinity', [
+  spec('2.1, 9.1'),
+  args("--goal 'p(-Infinity)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects this', [
+  spec('9.1'),
+  args("--goal 'p(this)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a reserved word as a call name', [
+  spec('9.1'),
+  args("--goal 'class(1)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects undefined as a call name', [
+  spec('9.1'),
+  args("--goal 'undefined(1)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects new', [
+  spec('9.1'),
+  args("--goal 'new p(1)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects typeof', [
+  spec('9.1'),
+  args("--goal 'p(typeof X)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a BigInt suffix on a float', [
+  spec('9.1'),
+  args("--goal 'p(1.5n)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a BigInt with a leading zero', [
+  spec('9.1'),
+  args("--goal 'p(01n)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects 00', [
+  spec('9.1'),
+  args("--goal 'p(00)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects an exponent without digits', [
+  spec('9.1'),
+  args("--goal 'p(1e)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a unary plus', [
+  spec('9.1'),
+  args("--goal 'p(+1)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a double minus', [
+  spec('9.1'),
+  args("--goal 'p(--1)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a minus on a parenthesized number', [
+  spec('9.1'),
+  args("--goal 'p(-(1))'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a minus on a variable', [
+  spec('9.1'),
+  args("--goal 'p(-X)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a minus on a string', [
+  spec('9.1'),
+  args("--goal \"p(-'a')\""),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a numeric object key', [
+  spec('9.1'),
+  args("--goal 'p({1: 2})'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a computed object key', [
+  spec('9.1'),
+  args("--goal 'p({[X]: 1})'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a shorthand object property', [
+  spec('9.1'),
+  args("--goal 'p({X})'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a call of a string', [
+  spec('9.1'),
+  args("--goal \"'p'(1)\""),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a call of a parenthesized name', [
+  spec('9.1'),
+  args("--goal '(p)(1)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects an empty call argument', [
+  spec('9.1'),
+  args("--goal 'p(1,,2)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a hole in an array', [
+  spec('9.1'),
+  args("--goal 'p([1,,2])'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects two spreads in an array', [
+  spec('9.1'),
+  args("--goal 'p([...X, ...Y])'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a non-ASCII name', [
+  spec('9.1'),
+  args("--goal 'p(café)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])
+
+conformance('goal text rejects a name with a dollar sign', [
+  spec('9.1'),
+  args("--goal 'p($x)'"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  stdin([]),
+  stdout([]),
+])

@@ -1036,8 +1036,10 @@ function reason(program, goalInputs, options) {
   }
   let report = null;
   if (document !== null) {
-    // The generated proof is checked before it is returned.
-    report = checkRendered(program, rendered[1], goals);
+    // The generated proof is checked before it is returned, against the goals
+    // as they were given: an atom goal is a string, which read again as goal
+    // text would be a variable or no term at all.
+    report = checkRendered(program, rendered[1], goalInputs);
     if (!report.valid) throw new EyemindError(`cannot certify this result: ${report.failures[0].detail}`);
   }
   let behind = null;

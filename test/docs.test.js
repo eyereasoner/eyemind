@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { checkReport, loadText, run } from '../src/index.js';
-import { loadCases } from '../conformance/run.js';
+import { loadCases, parseCases } from '../conformance/run.js';
 import { ROOT, assert, cli } from './helpers.js';
 
 const document = (path) => readFileSync(join(ROOT, path), 'utf8');
@@ -25,6 +25,25 @@ export const tests = {
       assert.match(nav, /href="[^"]*conformance[^"]*"/, path);
     }
     assert.match(document('README.md'), /https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/conformance/);
+  },
+
+  'the specification defines the conformance manifest and every setting the cases use'() {
+    const section = document('SPEC.md').split('### 14.1 Conformance test suite\n')[1].split(/\n## /)[0];
+    const defined = new Set([...section.matchAll(/^\| `([a-z_]+)\(/gm)].map((match) => match[1]));
+    assert.deepEqual([...defined].sort(),
+      ['args', 'exit', 'file', 'spec', 'stderr', 'stdin', 'stdout', 'stdout_json', 'stdout_text']);
+    const manifest = JSON.parse(document('conformance/manifest.json'));
+    for (const entry of manifest) {
+      assert.deepEqual(Object.keys(entry).sort(), ['file', 'spec', 'topic'], JSON.stringify(entry));
+      assert.ok(Object.values(entry).every((value) => typeof value === 'string'), JSON.stringify(entry));
+    }
+    // Settings stand at the start of a case's lines, indented by two spaces.
+    for (const { file } of manifest) {
+      for (const [, name] of document(`conformance/${file}`).matchAll(/^ {2}([a-z_]+)\(/gm)) {
+        assert.ok(defined.has(name), `${file}: ${name} is not a setting SPEC Section 14.1 defines`);
+      }
+    }
+    assert.throws(() => parseCases("conformance('x', [timeout(1)])"), /unknown setting timeout\/1/);
   },
 
   'the spec appendix output proof and report match the program'() {

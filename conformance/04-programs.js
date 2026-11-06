@@ -1087,3 +1087,816 @@ conformance("an inactive nested generator cannot hide a collection dependency cy
   stdout([
   ]),
 ])
+
+// Scripts (3.1).
+
+conformance('clauses are numbered in the order their statement calls run', [
+  spec('3.1, 3.5'),
+  args("--proof --goal 'p(2)' program.js"),
+  file('program.js', [
+    'function later() { fact(p(2)) }',
+    'fact(p(1))',
+    'later()',
+    'fact(p(3))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(2)',
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    'clause(2, fact(p(2)))',
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
+    'step(p(2), clause(2), {}, [])',
+  ]),
+])
+
+conformance('scripts are processed in command-line order, not by name', [
+  spec('3.1, 3.5'),
+  args("--proof --goal 'p(X)' b.js a.js"),
+  file('a.js', [
+    'fact(p(1))',
+  ]),
+  file('b.js', [
+    'fact(q(1))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(1)',
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    'clause(2, fact(p(1)))',
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
+    'step(p(1), clause(2), {}, [])',
+  ]),
+])
+
+conformance('a program is a non-strict script', [
+  spec('3.1, 3.2'),
+  args("program.js --goal 'p(X, Y)'"),
+  file('program.js', [
+    'count = 2',
+    'fact(p(count, 010))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(2, 8)',
+  ]),
+])
+
+conformance('the supplied name fail is the atom fail', [
+  spec('3.1'),
+  file('program.js', [
+    'fact(p(1))',
+    'query(or(fail, p(X)))',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "or('fail', p(1))",
+  ]),
+])
+
+// Names (3.2).
+
+conformance('Math keeps its JavaScript meaning', [
+  spec('3.2, 3.3'),
+  args("program.js --goal 'p(X, Y)'"),
+  file('program.js', [
+    'fact(p(Math.max(2, 5), Math.sqrt(2)))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(5, 1.4142135623730951)',
+  ]),
+])
+
+conformance('BigInt keeps its JavaScript meaning', [
+  spec('3.2, 3.3'),
+  args("program.js --goal 'p(X)'"),
+  file('program.js', [
+    "fact(p(BigInt('123456789012345678901234567890')))",
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(123456789012345678901234567890)',
+  ]),
+])
+
+conformance('parseInt and parseFloat keep their JavaScript meaning', [
+  spec('3.2, 3.3'),
+  args("program.js --goal 'p(X, Y)'"),
+  file('program.js', [
+    "fact(p(parseInt('42', 10), parseFloat('2.5')))",
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(42, 2.5)',
+  ]),
+])
+
+conformance('globalThis reaches a global whose bare name is a variable', [
+  spec('3.2'),
+  args("program.js --goal 'p(T, 1)'"),
+  file('program.js', [
+    'fact(p(typeof globalThis.Date, Date))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    "p('function', 1)",
+  ]),
+])
+
+conformance('Map and Object are logic variables', [
+  spec('3.2'),
+  file('program.js', [
+    'query(unify(Map, 1), unify(Object, Map))',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'and(unify(1, 1), unify(1, 1))',
+  ]),
+])
+
+conformance('an underscore followed by a lowercase letter names a variable', [
+  spec('3.2'),
+  args("program.js --goal 'pair(1, 2)' --goal 'pair(3, 3)'"),
+  file('program.js', [
+    'fact(pair(_x, _x))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'pair(3, 3)',
+  ]),
+])
+
+conformance('a name starting with a non-ASCII capital is a predicate', [
+  spec('3.2'),
+  args("program.js --goal \"struct('Été', X)\""),
+  file('program.js', [
+    'fact(Été(1))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    "struct('Été', 1)",
+  ]),
+])
+
+conformance('vars names a variable that starts with a lowercase letter', [
+  spec('3.2'),
+  args("program.js --goal 'pair(1, 2)' --goal 'pair(3, 3)'"),
+  file('program.js', [
+    "const x = vars('x')",
+    'fact(pair(x, x))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'pair(3, 3)',
+  ]),
+])
+
+conformance('preds accepts names separated by commas', [
+  spec('3.2'),
+  args("program.js --goal 'alpha(X)' --goal 'beta(Y)'"),
+  file('program.js', [
+    "const [p1, p2] = preds('alpha,beta')",
+    'fact(p1(1), p2(2))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'alpha(1)',
+    'beta(2)',
+  ]),
+])
+
+conformance('preds may name a predicate after a supplied statement', [
+  spec('3.2'),
+  args("program.js --goal 'query(X)'"),
+  file('program.js', [
+    "const asked = preds('query')",
+    "fact(asked('x'))",
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    "query('x')",
+  ]),
+])
+
+conformance('explicit predicate names reject the primitive fail', [
+  spec('3.2'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('fail')",
+  ]),
+  stdout([]),
+])
+
+conformance('explicit predicate names reject a reserved JavaScript word', [
+  spec('3.2'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('delete')",
+  ]),
+  stdout([]),
+])
+
+conformance('explicit predicate names must be ASCII identifiers', [
+  spec('3.2'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('été')",
+  ]),
+  stdout([]),
+])
+
+conformance('a misspelled statement without arguments is an error', [
+  spec('3.2'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(p(1))',
+    'fcat()',
+  ]),
+  stdout([]),
+])
+
+// Term construction (3.3).
+
+conformance('JavaScript arithmetic can lose integer precision before a term exists', [
+  spec('3.3'),
+  args("program.js --goal 'p(X)'"),
+  file('program.js', [
+    'fact(p(2 ** 60 + 1))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(1152921504606846976)',
+  ]),
+])
+
+conformance('the program number 2.0 is the integer 2', [
+  spec('3.3'),
+  args("program.js --goal 'p(2)' --goal 'p(2.0)'"),
+  file('program.js', [
+    'fact(p(2.0))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(2)',
+  ]),
+])
+
+conformance('a large integral JavaScript number is an integer', [
+  spec('3.3'),
+  args("program.js --goal 'p(X)'"),
+  file('program.js', [
+    'fact(p(1e22))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(10000000000000000000000)',
+  ]),
+])
+
+conformance('JavaScript negative zero is the integer 0', [
+  spec('3.3'),
+  args("program.js --goal 'p(X)'"),
+  file('program.js', [
+    'fact(p(-0))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(0)',
+  ]),
+])
+
+conformance('float makes integral values and signed zero floats', [
+  spec('3.3, 9.2'),
+  args("program.js --goal 'p(A, B, C, D)'"),
+  file('program.js', [
+    'fact(p(float(2), float(-0), float(1e22), float(0.00001)))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(2.0, -0.0, 1e+22, 1e-05)',
+  ]),
+])
+
+conformance('the sum of two halves is the integer 1', [
+  spec('3.3'),
+  file('program.js', [
+    'query(is_int(0.5 + 0.5))',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'is_int(1)',
+  ]),
+])
+
+conformance('operators on plain JavaScript values are evaluated first', [
+  spec('3.3'),
+  args("program.js --goal 'p(X, Y)'"),
+  file('program.js', [
+    "fact(p(3 + 4, 'a' + 'b'))",
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    "p(7, 'ab')",
+  ]),
+])
+
+conformance('adding to a variable is an error', [
+  spec('3.3'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'implies(q(X), p(X + 1))',
+  ]),
+  stdout([]),
+])
+
+conformance('multiplying a compound is an error', [
+  spec('3.3'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(p(f(1) * 2))',
+  ]),
+  stdout([]),
+])
+
+conformance('an operator on a predicate constructor is an error', [
+  spec('3.3'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(p(q + 1))',
+  ]),
+  stdout([]),
+])
+
+conformance('negating a variable with a minus sign is an error', [
+  spec('3.3'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'implies(q(X), p(-X))',
+  ]),
+  stdout([]),
+])
+
+conformance('concatenating a string with a variable is an error', [
+  spec('3.3'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implies(q(X), p('id-' + X))",
+  ]),
+  stdout([]),
+])
+
+conformance('struct rejects a predicate constructor as its name', [
+  spec('3.3'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(struct(q, 1))',
+  ]),
+  stdout([]),
+])
+
+conformance("struct('[]') is the empty list", [
+  spec('2.2, 3.3'),
+  file('program.js', [
+    "query(identical(struct('[]'), []))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'identical([], [])',
+  ]),
+])
+
+conformance("struct('.', H, T) builds a list cell", [
+  spec('2.2, 3.3'),
+  file('program.js', [
+    "query(identical(struct('.', 1, [2]), [1, 2]))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'identical([1, 2], [1, 2])',
+  ]),
+])
+
+conformance('a spread JavaScript array supplies its elements', [
+  spec('3.3'),
+  args("program.js --goal 'p(L)'"),
+  file('program.js', [
+    'fact(p([...[1, 2], 3, ...[4]]))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p([1, 2, 3, 4])',
+  ]),
+])
+
+conformance('a spread string supplies its characters', [
+  spec('3.3'),
+  args("program.js --goal 'p(L)'"),
+  file('program.js', [
+    "fact(p(['a', ...'b𐀀']))",
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    "p(['a', 'b', '𐀀'])",
+  ]),
+])
+
+conformance('a spread compound supplies the tail', [
+  spec('2.2, 3.3'),
+  args("program.js --goal 'p(L)'"),
+  file('program.js', [
+    'fact(p([1, ...f(2)]))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p([1, ...f(2)])',
+  ]),
+])
+
+conformance('anonymous variable names restart in every clause', [
+  spec('3.3, 10.2, 10.3'),
+  args("--proof --goal 'q(1)' program.js"),
+  file('program.js', [
+    "fact(p(_, 'x'))",
+    'implied_by(q(_), p(_, _))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'q(1)',
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    "clause(1, fact(p(_0, 'x')))",
+    'clause(2, implied_by(q(_0), p(_1, _2)))',
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
+    "step(q(1), clause(2), {_0: 1, _1: A, _2: 'x'}, [p(A, 'x')])",
+    "step(p(A, 'x'), clause(1), {_0: A}, [])",
+  ]),
+])
+
+conformance('a predicate called with no arguments is its atom', [
+  spec('3.3'),
+  args('program.js --goal "\'done\'"'),
+  file('program.js', [
+    'fact(done())',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    "'done'",
+  ]),
+])
+
+// Statements (3.4).
+
+conformance('contradiction needs a goal', [
+  spec('3.4'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'contradiction()',
+  ]),
+  stdout([]),
+])
+
+conformance('contradiction with several goals is one conjunction', [
+  spec('3.4'),
+  file('program.js', [
+    'fact(p(1), q(2))',
+    'contradiction(p(X), q(X))',
+  ]),
+  stdout([
+    '// No conclusions: the program derives no facts.',
+  ]),
+])
+
+conformance('contradiction accepts an array as one conjunction', [
+  spec('3.4, 8.5'),
+  exit(65),
+  file('program.js', [
+    'fact(p(1), q(1))',
+    'contradiction([p(X), q(X)])',
+  ]),
+  stdout([
+    "// Halted: a contradiction() holds; the facts derived until then, ending with 'false'.",
+    "'false'",
+  ]),
+])
+
+conformance('implies rejects an empty array of premises', [
+  spec('3.4, 3.5'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'implies([], p)',
+  ]),
+  stdout([]),
+])
+
+conformance('implies rejects an empty array of heads', [
+  spec('3.4, 3.5'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'implies(p, [])',
+  ]),
+  stdout([]),
+])
+
+conformance("implies cannot conclude 'true'", [
+  spec('3.4, 3.5'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implies(p, 'true')",
+  ]),
+  stdout([]),
+])
+
+conformance('facts_from reads bare names as variables', [
+  spec('3.4, 9.1'),
+  args("program.js --goal 'likes(X, Y)'"),
+  file('program.js', [
+    "facts_from({text: 'likes(alice, bob)'})",
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'likes(A, B)',
+  ]),
+])
+
+conformance('facts_from reads 2.0 as a float, unlike a program', [
+  spec('3.3, 3.4, 9.1'),
+  file('program.js', [
+    "facts_from({text: 'p(2.0)\\np(2)'})",
+    'query(p(X), is_float(X))',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    'and(p(2.0), is_float(2.0))',
+  ]),
+])
+
+conformance('facts_from rejects an operator rather than evaluating it', [
+  spec('3.4, 9.1'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "facts_from({text: 'p(1 + 2)'})",
+  ]),
+  stdout([]),
+])
+
+conformance('facts_from with empty text states nothing', [
+  spec('3.4'),
+  file('program.js', [
+    "facts_from({text: ''})",
+  ]),
+  stdout([
+    '// No conclusions: the program derives no facts.',
+  ]),
+])
+
+conformance('facts_from of a missing file is an error', [
+  spec('3.4'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "facts_from('missing.js')",
+  ]),
+  stdout([]),
+])
+
+conformance('facts_from reads an object literal as a list of pairs', [
+  spec('3.4, 9.1'),
+  args("program.js --goal 'p(L)'"),
+  file('program.js', [
+    "facts_from({text: 'p({a: 1, \"b c\": [2]})'})",
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    "p([struct('=', 'a', 1), struct('=', 'b c', [2])])",
+  ]),
+])
+
+// Clause constraints and numbering (3.5).
+
+conformance('a query takes a clause number', [
+  spec('3.5'),
+  args("--proof --goal 'q(X)' program.js"),
+  file('program.js', [
+    'fact(p(1))',
+    'query(p(X))',
+    'fact(q(1))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'q(1)',
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    'clause(3, fact(q(1)))',
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
+    'step(q(1), clause(3), {}, [])',
+  ]),
+])
+
+conformance('an embedded rule call takes no clause number', [
+  spec('3.5, 6.2'),
+  args("--proof --goal 'q(X)' program.js"),
+  file('program.js', [
+    'implies(p(X), implies(q(Y), r(Y)))',
+    'fact(q(2))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'q(2)',
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    'clause(2, fact(q(2)))',
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
+    'step(q(2), clause(2), {}, [])',
+  ]),
+])
+
+conformance('facts read by facts_from are numbered where the call stands', [
+  spec('3.4, 3.5'),
+  args("--proof --goal 'c(X)' program.js"),
+  file('program.js', [
+    'fact(a(1))',
+    "facts_from({text: 'b(1)\\nb(2)'})",
+    'fact(c(1))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'c(1)',
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    'clause(4, fact(c(1)))',
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
+    'step(c(1), clause(4), {}, [])',
+  ]),
+])
+
+conformance('a clause records the line where its statement call begins', [
+  spec('3.5, 13.2'),
+  args('--unused program.js'),
+  file('program.js', [
+    'fact(p(1))',
+    '',
+    'fact(',
+    '  q(2),',
+    '  r(3)',
+    ')',
+  ]),
+  stdout([
+    'unused(line(1), fact(p(1)))',
+    'unused(line(3), fact(q(2)))',
+    'unused(line(3), fact(r(3)))',
+  ]),
+])
+
+conformance('facts read by facts_from record the line of the call', [
+  spec('3.5, 13.2'),
+  args('--unused program.js'),
+  file('program.js', [
+    '// data',
+    "facts_from({text: 'p(1)\\n\\np(2)'})",
+  ]),
+  stdout([
+    'unused(line(2), fact(p(1)))',
+    'unused(line(2), fact(p(2)))',
+  ]),
+])
+
+conformance('a variable cannot be a head', [
+  spec('3.5'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'implied_by(X, p(X))',
+  ]),
+  stdout([]),
+])
+
+conformance('the primitive fail cannot be a head', [
+  spec('3.5'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(fail)',
+  ]),
+  stdout([]),
+])
+
+conformance('the control or cannot be a head', [
+  spec('3.5'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'implied_by(or(p, q), r)',
+  ]),
+  stdout([]),
+])
+
+conformance('implies cannot conclude a primitive', [
+  spec('3.5'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(p(1))',
+    'implies(p(X), unify(X, 1))',
+  ]),
+  stdout([]),
+])
+
+conformance('step and clause of other arities are ordinary predicates', [
+  spec('3.5'),
+  args("program.js --goal 'step(A, B, C)' --goal 'clause(X)'"),
+  file('program.js', [
+    "fact(struct('step', 1, 2, 3), struct('clause', 1))",
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'step(1, 2, 3)',
+    'clause(1)',
+  ]),
+])
+
+conformance('activated of another arity is an ordinary predicate', [
+  spec('3.5'),
+  args("program.js --goal 'activated(X)'"),
+  file('program.js', [
+    'fact(activated(1))',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'activated(1)',
+  ]),
+])
+
+conformance('an improper list is not a goal', [
+  spec('3.5, 4.1'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implied_by(p, struct('.', q, 'r'))",
+  ]),
+  stdout([]),
+])
+
+conformance('an empty array inside not is not a goal', [
+  spec('3.5, 4.1'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'query(not([]))',
+  ]),
+  stdout([]),
+])
+
+conformance('nested conjunction arrays in a body are flattened', [
+  spec('3.5, 10.2'),
+  args("--proof --goal 'r(X)' program.js"),
+  file('program.js', [
+    'fact(p(1), q(1), s(1))',
+    'implied_by(r(X), [[p(X), q(X)], s(X)])',
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'r(1)',
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    'clause(1, fact(p(1)))',
+    'clause(2, fact(q(1)))',
+    'clause(3, fact(s(1)))',
+    'clause(4, implied_by(r(X), [p(X), q(X), s(X)]))',
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
+    '// absence or collection taken on trust), the bindings and the goals it uses.',
+    'step(r(1), clause(4), {X: 1}, [p(1), q(1), s(1)])',
+    'step(p(1), clause(1), {}, [])',
+    'step(q(1), clause(2), {}, [])',
+    'step(s(1), clause(3), {}, [])',
+  ]),
+])

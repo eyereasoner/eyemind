@@ -60,6 +60,7 @@ function functor(args, resolved, env, bind) {
 function arg(args, resolved, env, bind) {
   const [position, term] = resolved;
   const index = boundedInteger(position, 1, 1024);
+  if (term instanceof Var) throw new EyemindError('arg/3 needs a bound term');
   return term instanceof Struct && index <= term.args.length && bind(args[2], term.args[index - 1]);
 }
 

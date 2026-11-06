@@ -81,6 +81,7 @@ proof.
   - [13.1 Invocation and options](#131-invocation-and-options)
   - [13.2 Unused clauses](#132-unused-clauses)
 - [14. Conformance](#14-conformance)
+  - [14.1 Conformance test suite](#141-conformance-test-suite)
 - [15. Security](#15-security)
 - [Appendix A. Document Grammar](#appendix-a-document-grammar)
 - [Appendix B. Example](#appendix-b-example)
@@ -999,8 +1000,8 @@ Object keys may also use these reserved names, since keys denote atom text.
   Otherwise use `e`, an explicit exponent sign and at least two exponent
   digits, such as `1e+22` or `1e-05`.
 - A variable is written as its name when the name is an ASCII identifier
-  (letters, digits and `_`, not starting with a digit), not a reserved word
-  of JavaScript, not `_` and does not begin with `VAR_`. Any other name is
+  (letters, digits and `_`, not starting with a digit), not a reserved name
+  of Section 9.1, not `_` and does not begin with `VAR_`. Any other name is
   written `VAR_` followed by the name with every ASCII letter and digit kept,
   every `_` doubled and every other character `c` replaced by `_hex_` where
   `hex` is the lowercase hexadecimal code point of `c`. The variable name `A-B`
@@ -1011,7 +1012,7 @@ Object keys may also use these reserved names, since keys denote atom text.
 ### 9.3 Canonical compounds
 
 A compound is written `name(A1, A2, ...)` when its name is an ASCII
-identifier, not a reserved word of JavaScript and not `struct`, and
+identifier, not a reserved name of Section 9.1 and not `struct`, and
 `struct('name', A1, ...)` otherwise. Arguments are separated by `, `.
 
 A chain of conjunctions or disjunctions built from the left,
@@ -1408,6 +1409,64 @@ and C5 accepts a result of such a function within 4 units (Section 11.6).
 
 The conformance cases and saved example documents exercise these
 requirements. They do not replace the definitions in this specification.
+
+### 14.1 Conformance test suite
+
+The conformance test suite tests an implementation of the command line of
+Section 13.1 as a black box: each case creates files, runs the command and
+compares its exit code and output with what this specification requires.
+The suite is the `conformance` directory of the eyemind repository. Its
+expected outputs are derived from this specification; where a case and this
+specification disagree, the specification governs and the case is wrong.
+
+**Manifest.** `manifest.json` is a JSON array that lists the case files in
+the order they run. Each element is an object with three string members:
+`file`, the name of a case file in the same directory; `spec`, the sections
+of this specification it tests, separated by commas; and `topic`, a
+description. The cases of a file run in the order they appear in it.
+
+**Case files.** A case file is a document (Section 9.1), read as data and
+never executed, whatever its file name extension. Each of its terms is one
+case, `conformance(Name, Settings)`, where `Name` is an atom unique in the
+suite and `Settings` is a proper list of the settings below. A **block** is a
+proper list of atoms, each one line; its text is each line followed by a
+line feed, so `[]` is empty text. A file MUST NOT contain any other term,
+and a setting other than these is an error in the suite.
+
+| Setting | Meaning | When absent |
+| --- | --- | --- |
+| `spec(S)` | `S`, an atom: the sections the case tests, separated by commas. | |
+| `args(A)` | `A`, an atom: the command's arguments, split into words as described below. | `'program.js'` |
+| `exit(N)` | `N`, an integer: the exit code required. | `0` |
+| `stderr(M)` | Standard error: `'empty'`, no text; `'nonempty'`, some text other than white space; `'json'`, one JSON value; `prefix(T)`, text that starts with the atom `T`. | Not compared |
+| `file(Name, Block)` | A file the case creates before running; `Name` is a relative path whose `/` separates directories. | |
+| `stdin(Block)` | Standard input. | Empty |
+| `stdout(Block)` | Standard output, compared line by line. | Not compared |
+| `stdout('nonempty')` | Standard output contains text other than white space. | |
+| `stdout_json(Block)` | Standard output, compared as JSON. | |
+| `stdout_text(T)` | Standard output given as the atom `T`, for text a block cannot show, such as text without a final line feed; compared as `stdout` compares. | |
+
+Each setting appears at most once in a case, except `file`.
+
+**Running a case.** A case runs in a new empty directory. Each `file`
+setting creates its file there, with any directories its path names. The
+command then runs in that directory, with the words of `args` after the
+command's own words and with the `stdin` text on standard input. `args` is
+split into words as a POSIX shell splits a command line without expansions:
+white space separates words; text between single quotes is taken as is;
+between double quotes a backslash escapes only `"`, `\`, `$`, `` ` `` and a
+line feed; elsewhere a backslash escapes the next character; and adjacent
+quoted and unquoted parts join into one word.
+
+**Passing.** A case passes when the exit code equals `exit` and standard
+output and standard error meet the settings that compare them. Line by line,
+the expected and actual standard output MUST have the same number of lines,
+and each expected line MUST equal the actual one, except that each `…`
+(U+2026) in an expected line matches any sequence of characters within that
+line; this specification leaves such text, for example a failure detail, to
+the implementation (Section 14). As JSON, both outputs MUST parse, and they
+MUST be equal as JSON values: arrays element by element, objects with the
+same member names whatever their order, and numbers by their values.
 
 ## 15. Security
 

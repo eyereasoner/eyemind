@@ -9,8 +9,10 @@
 // plain identifier is written struct('name', Arg, ...).
 import { Struct, Var, deref } from './terms.js';
 
-// Words a JavaScript expression cannot use as a plain name.
+// Words a document cannot use as a plain name: JavaScript's reserved words,
+// and the names of its values that are not terms (Section 9.1).
 export const RESERVED_WORDS = new Set([
+  'undefined', 'NaN', 'Infinity',
   'await', 'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'default', 'delete',
   'do', 'else', 'enum', 'export', 'extends', 'false', 'finally', 'for', 'function', 'if',
   'implements', 'import', 'in', 'instanceof', 'interface', 'let', 'new', 'null', 'package',

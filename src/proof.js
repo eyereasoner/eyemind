@@ -339,7 +339,7 @@ function readDocument(program, document, fail, spellings) {
       const [goal, by, bindingList, useList] = term.args;
       const bindings = properListItems(bindingList, empty);
       const uses = properListItems(useList, empty);
-      if (bindings === null || uses === null) {
+      if (bindings === null || uses === null || !bindings.every((pair) => isTerm(pair, '=', 2))) {
         fail.add('C3', 'step bindings must be an object and uses an array', goal);
         continue;
       }
@@ -660,15 +660,16 @@ function checkBoundaries(program, steps, boundaries, fail) {
       const solved = parts.every((part, i) => shown[i].some((item) => unify(freshTerm(part, `absent${nextSerial()}`), item, new Env())));
       if (solved) fail.add('C6', `absence contradicted by evidence: ${text(boundary)}`, boundary);
     } else {
+      const parts = flattenConjunction(boundary.args[1]);
+      const shown = parts.length === 1 ? evidence(parts[0]) : null;
+      // Whether the collection is decided does not depend on its result.
+      if (shown !== null) confronted++;
       const items = properListItems(boundary.args[2], new Env());
       if (items === null) {
         fail.add('C6', `collected result is not a proper list: ${text(boundary)}`, boundary);
         continue;
       }
-      const parts = flattenConjunction(boundary.args[1]);
-      const shown = parts.length === 1 ? evidence(parts[0]) : null;
       if (shown === null) continue;
-      confronted++;
       for (const item of shown) {
         const names = new Map();
         const number = nextSerial();
