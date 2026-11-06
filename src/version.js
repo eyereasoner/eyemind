@@ -1,2 +1,2 @@
 // The release this checkout is; ./release keeps it in step with package.json.
-export const VERSION = '0.2.4';
+export const VERSION = '0.2.5';
