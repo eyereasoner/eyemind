@@ -289,8 +289,14 @@ of `_` followed by digits, which negation treats as anonymous.
 Operators do not construct logical terms. An operator applied to a variable,
 compound or predicate constructor, such as `X + 1` or `X > 1`, MUST raise
 an error identifying the term form to write: `add(X, 1)` or `gt(X, 1)`.
-Operators on ordinary JavaScript values keep their JavaScript meaning:
-`3 + 4` gives the integer 7, but `1 < 2` gives a boolean, which is not a term.
+Operators on ordinary JavaScript values keep their JavaScript meaning and
+are evaluated by JavaScript before any term exists: `3 + 4` reaches the
+implementation as the number 7, and `1 < 2` as a boolean, which is not a
+term. Such a result is converted by the rules above like any other
+number, so JavaScript arithmetic can lose integer precision, as in
+`2 ** 60 + 1`, or the distinction between integers and floats, as in
+`0.5 + 0.5`, which gives the integer 1. Programs SHOULD compute with `is`
+and the arithmetic functions of Section 5, such as `is(Y, add(3, 4))`.
 
 ### 3.4 Statements
 
