@@ -9,18 +9,15 @@ draws conclusions, and every conclusion can come with a proof that a separate
 checker verifies against your program. It runs as a command-line program, a
 JavaScript library, and a browser application, with no dependencies.
 
-- **[Playground](https://eyereasoner.github.io/eyemind/playground/)**: run
-  programs in your browser.
-- **[Guide](https://eyereasoner.github.io/eyemind/GUIDE)**: run programs,
-  write rules, check proofs, use the library, and develop eyemind.
-- **[Specification](https://eyereasoner.github.io/eyemind/SPEC)**: the
-  language, its canonical text, the proof format, and the C1–C8 checks.
-- **[Examples](https://eyereasoner.github.io/eyemind/examples/)**:
-  94 runnable programs, each with a card deck and saved conclusions, proofs
-  and check reports.
-- **[Conformance suite](conformance/)**: 1270 cases that test any
-  implementation of the specification through its command line.
-  Run the suite [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+[Guide](https://eyereasoner.github.io/eyemind/GUIDE) · [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
+
+The guide shows how to run programs, write rules, check proofs, use the
+library and develop eyemind; the playground runs programs in your browser;
+the specification defines the language, its canonical text, the proof format
+and the C1–C8 checks. The examples are 94 runnable programs, each with a card
+deck and saved conclusions, proofs and check reports. The conformance suite
+has 1270 cases that test any implementation of the specification through its
+command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ```js
 fact(type('socrates', 'human'))

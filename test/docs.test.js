@@ -128,6 +128,6 @@ export const tests = {
       `[${name}.js](https://github.com/eyereasoner/eyemind/blob/main/examples/${name}.js)`,
       description,
     ]));
-    assert.ok(document('README.md').includes('**[Examples](https://eyereasoner.github.io/eyemind/examples/)**'));
+    assert.ok(document('README.md').includes('[Examples](https://eyereasoner.github.io/eyemind/examples/)'));
   },
 };
