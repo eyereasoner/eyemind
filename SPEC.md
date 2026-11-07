@@ -63,6 +63,7 @@ proof.
   - [10.1 Structure](#101-structure)
   - [10.2 Clause displays](#102-clause-displays)
   - [10.3 Steps](#103-steps)
+  - [10.4 Search certificates](#104-search-certificates)
 - [11. Proof Checking](#11-proof-checking)
   - [11.1 Reading the document](#111-reading-the-document)
   - [11.2 C1 Resolution](#112-c1-resolution)
@@ -365,8 +366,9 @@ A clause MUST be rejected when:
 - a head is not an atom or compound, or is a list, the atom `'[]'` or a
   `'.'/2` compound, which as a goal would be a conjunction (Section 4.1) and
   could never call the clause;
-- a head uses `step/4` or `clause/2`, reserved for proof documents, or
-  explicitly states the reserved predicate `activated/2`;
+- a head uses `step/4`, `clause/2`, `searched/2` or `derived/2`, reserved
+  for proof documents, or explicitly states the reserved predicate
+  `activated/2`;
 - a head is a primitive or control, except the head `'true'` of a query or
   `'false'` of a contradiction; `implies` MUST NOT conclude either atom;
 - a body goal is neither a variable, atom nor compound, or is an empty or
@@ -709,7 +711,7 @@ be bound first. Section 11.9 rejects certificates that bypass this boundary.
 
 Inspection uses a fixed source catalogue, so its own results do not depend on
 forward rounds. Other goals using derived patterns still participate in
-stratification. Negation and collection retain their explicit obligations.
+stratification. Negation and collection keep their own justifications (Section 10.3).
 
 ## 7. Semantics
 
@@ -807,7 +809,8 @@ infinite closure. A finite model does not ensure search termination:
 recurs indefinitely. Exceeding a resource bound raises an error (Section
 8.3). Contradictions halt without completing the closure (Section 8.5).
 A valid proof establishes only its claims subject to its trusted boundaries
-(Section 11.11), not completeness of the model or the answers.
+(Section 11.11), not completeness of the model or the answers. Its search
+certificate settles the negations and collections it can (Section 10.4).
 
 ## 8. Evaluation and Conclusions
 
@@ -949,11 +952,16 @@ differently; they are ignored when the output is read (Section 9.1).
 When a proof is requested, each solution records how each of its goals was
 justified: by a fact or rule of the program, by a derived fact (whose own
 record is kept), by a primitive, by a control, by an absence (a negation) or
-by a collection (`findall`). For each conclusion the first derivation found
-is recorded. A reasoner MUST check every proof it generates (Section 11)
-before returning it, and MUST fail with an error rather than return a proof
-that does not pass. A run without conclusions has a proof without claims,
-which is valid and certifies nothing.
+by a collection (`findall`). For each conclusion the first derivation found is
+recorded. Each negation and collection of a proof gets the search certificate
+that settles it (Sections 10.4 and 11.7) whenever Section 11.7 allows one. A
+table holds every answer of its call, so it can search beyond where the run
+stopped, as under `once`; a boundary whose tables would meet an error, or
+exceed `max_inferences` calls and answers (Section 8.3), stays trusted. A
+reasoner MUST check every proof it generates (Section 11) before returning it,
+and MUST fail with an error rather than return a proof that does not pass. A
+run without conclusions has a proof without claims, which is valid and
+certifies nothing.
 
 A goal such as `is_var(X)` followed by `unify(X, 'a')`
 cannot be recorded faithfully by its final substitution, so such a run
@@ -1096,13 +1104,16 @@ A proof document is a document (Section 9.1) holding, in this order:
    increasing `N`;
 4. an empty line;
 5. when there are steps, comment lines saying what a step records, then one
-   `step(Goal, By, Bindings, Uses)` per justified goal.
+   `step(Goal, By, Bindings, Uses)` per justified goal;
+6. when it has a search certificate (Section 10.4), an empty line, comment
+   lines introducing it, then one `derived(Pattern, Facts)` per listed
+   relation, then one `searched(Call, Answers)` per table.
 
 Comments are informative and MAY be worded differently; they are ignored when
 the document is read.
 
-A checker MUST treat every statement that is neither `clause/2` nor `step/4`
-as a claim, whatever its position.
+A checker MUST treat every statement that is neither `clause/2`, `step/4`,
+`searched/2` nor `derived/2` as a claim, whatever its position.
 
 ### 10.2 Clause displays
 
@@ -1146,8 +1157,8 @@ order. `By` is one of:
 | `source(N)` | `Goal` is an instance of the inspectable source rule `N` as `implies(Body, Head)` or `implied_by(Head, Body)`. | empty | empty |
 | `'builtin'` | `Goal` is a primitive that holds. | empty | empty |
 | `'control'` | `Goal` is `call`, `once` or a disjunction, solved by `Uses`. | empty | the solved goals; for a disjunction, the side that was solved, so `or(or(A, B), C)` solved by `A` uses `or(A, B)`, which has a step of its own |
-| `'absent'` | `Goal` is a negation taken on trust. | empty | empty |
-| `'collected'` | `Goal` is a `findall` taken on trust. | empty | empty |
+| `'absent'` | `Goal` is a negation, settled by the search certificate or taken on trust. | empty | empty |
+| `'collected'` | `Goal` is a `findall`, settled by the search certificate or taken on trust. | empty | empty |
 
 `Bindings` is an object from each variable name of the cited clause, as
 the program wrote it, to its value in this step: `{X: 'socrates'}`. A key
@@ -1163,11 +1174,43 @@ empty bindings. A derived clause's bindings also include variables of its
 enclosing generators' scope projections, so their witnesses can be checked.
 These variables are renamed together with the clause's head and full body.
 
+### 10.4 Search certificates
+
+No step can show that a goal has no solution, or that a list holds every
+solution. A search certificate shows it by recording the searches behind a
+proof's negations and collections:
+
+- `searched(Call, Answers)` is a **table**: `Call` is a goal as one of those
+  searches called it, and `Answers` the array of its answers, each the
+  instance of `Call` that one solution gave, in the order of Section 8.1,
+  repetitions included. Each answer's variables are its own: they are shared
+  neither with `Call` nor with another answer.
+- `derived(Pattern, Facts)` is a **listing**: `Pattern` is the name of a
+  relation that forward rules conclude, applied to distinct variables, or the
+  name alone for arity 0, and `Facts` the array of every fact the run derived
+  for that relation, in the order derived (Section 8.2). Each listed fact has
+  steps of its own.
+
+A table exists for each call to a relation that a backward rule defines or
+forward rules conclude, made by those searches or by the closure checks of
+Section 11.7; a call to a relation defined by facts alone needs none. A
+listing exists for each relation forward rules conclude that a table or a
+closure check consults. A reasoner writes only the tables and listings of
+the boundaries it settles: listings first, in the order first consulted,
+then tables, in the order their calls are first met. For example:
+
+```js
+derived(nonpacifist(A), [nonpacifist('nixon')])
+searched(nonpacifist('ada'), [])
+```
+
 ## 11. Proof Checking
 
 A checker is given a program, a proof document and, when the proof answers
 goals asked from outside the program, those goals. It MUST NOT call a
-reasoner to supply a missing step; it MAY recompute primitives. It
+reasoner to supply a missing step; it MAY recompute primitives, and it MAY
+expand a call one level against the program with every inner call answered
+by the search certificate (Section 11.7). It
 establishes eight conditions and records each failure with its condition, a
 detail and, where there is one, the term concerned.
 
@@ -1179,8 +1222,12 @@ program whose display (Section 10.2) is identical to `Display`, variable
 names included, so a display that merely renames the clause's variables
 differs; otherwise C1 fails. Each `step` MUST have bindings that read as a list of `'='/2` pairs,
 as an object literal does, and a list of uses, and no two steps may have
-identical goals; otherwise C3 fails and the step is set aside. Every other
-statement is a claim (Section 10.1).
+identical goals; otherwise C3 fails and the step is set aside. A `searched`
+statement MUST have a callable `Call` and an array of answers, and a
+`derived` statement a callable `Pattern` and an array of facts; no two tables
+may have calls identical up to renaming of their variables, and no two
+listings may name the same relation; otherwise C3 fails and the statement is
+set aside. Every other statement is a claim (Section 10.1).
 
 ### 11.2 C1 Resolution
 
@@ -1253,14 +1300,69 @@ proof fail on an implementation other than the one that made it.
 
 ### 11.7 C6 Boundary consistency
 
-A trusted boundary cannot be proved, but the evidence at hand can refute it.
-The evidence for a goal is: when the goal is a ground primitive, the goal
-itself if it holds, and otherwise the recomputed fact that it fails; when it
-is a control, none, and the boundary is left undecided; otherwise the
-program's facts and the goals of the document's steps with the same name and
-arity. A goal of the last kind **has evidence** only when there is at least
-one such fact or step goal; with none, nothing could refute the boundary, and
-it is left undecided.
+A negation or collection is a **boundary**. A checker first tries to
+**settle** each well-formed boundary step (Section 11.4) with the search
+certificate, by searching its goal `G` as Section 8.1 does, except that:
+
+- a call to a relation that a backward rule defines or forward rules
+  conclude is answered by the table whose call is identical to it up to
+  renaming, each answer renamed apart in turn, and a call to a relation
+  defined by facts alone by those facts, in clause order;
+- a negation inside the search treats its unbound variables as anonymous.
+
+The **expansion** of a call is the search of Section 8.1 taken one level:
+the facts in the listing of its relation, in order, then the program's facts
+and backward rules of that name and arity, in clause order, each rule's body
+searched in its place, inner calls answered as above. The boundary's search
+**rests on** each table and listing it consults, and on those its tables and
+the closure checks of its listings consult, transitively. The boundary is
+settled when:
+
+1. each table it rests on equals its expansion: the same number of answers,
+   each identical up to renaming of variables to the answer in the same
+   position;
+2. each listing it rests on has a step for each fact, every fact of the
+   listed name and arity and ground, and is **closed**: for each forward
+   rule with a head of that relation, each solution of the rule's body under
+   the certificate, with the rule's witnesses bound to their Skolem terms
+   (Section 8.2), gives head instances of that relation that are listed or
+   are ground facts of the program;
+3. no table it rests on depends on itself through the tables its expansion
+   consults;
+4. its outcome agrees: for a negation, `G` has no solution; for a collection
+   `findall(T, G, L)`, `L` is an instance of the list of the instances of
+   `T`, one per solution of `G`, in order, each renamed apart;
+5. no collection or `once` within its search, a table it rests on or a
+   closure check uses a table whose answers rest on a listing, since the
+   order of derived facts cannot be checked this way; and its search reaches
+   no source inspection and no clause appended by a template, and it
+   consults no listing whose relation a forward rule with a template head
+   or captures concludes (Section 6.2).
+
+For example, the absence `not(nonpacifist('ada'))` rests on the table
+`searched(nonpacifist('ada'), [])` and the listing `derived(nonpacifist(A),
+[nonpacifist('nixon')])`. The table equals its expansion: the listed fact
+does not match the call, and no backward rule defines `nonpacifist/1`. The
+listing is closed: the only rule concluding `nonpacifist/1` derives
+`nonpacifist('nixon')`, which is listed, and that fact has its own step.
+
+A boundary fails C6 when its certificate is wrong: a table differs from its
+expansion, a listed fact has no step or another name or arity, a listing is
+not closed, tables depend on themselves, a search leads to an error, or a
+negation's goal has a solution. Each wrong table or listing is reported once,
+for the first boundary resting on it. A boundary whose certificate is
+missing, incomplete or not applicable under item 5, or a collection whose
+list does not agree, is not settled. A boundary that is not settled is
+trusted, including one that fails C6.
+
+A trusted boundary that is not settled cannot be proved, but the evidence at
+hand can refute it. The evidence for a goal is: when the goal is a ground
+primitive, the goal itself if it holds, and otherwise the recomputed fact
+that it fails; when it is a control, none, and the boundary is left
+undecided; otherwise the program's facts and the goals of the document's
+steps with the same name and arity. A goal of the last kind **has evidence**
+only when there is at least one such fact or step goal; with none, nothing
+could refute the boundary, and it is left undecided.
 
 - An absence `not(G)` is decided when `G` is a single goal, or a ground
   conjunction, whose every goal has evidence. It fails C6 when every goal of
@@ -1270,7 +1372,7 @@ it is left undecided.
   decided when `G` is a single goal with evidence. It fails C6 when an
   instance of `T` for some evidence of `G` unifies with no element of `L`.
 
-A boundary that is not refuted remains an obligation (Section 12).
+A trusted boundary that is not refuted remains an obligation (Section 12).
 
 ### 11.8 C7 Relevance
 
@@ -1279,7 +1381,9 @@ Otherwise the questions are, for each forward rule, each ordinary head other
 than `'true'`, and the rule's body as a conjunction when one of its heads is
 `'true'` and no claim is `'false'`. Each claim MUST be an instance of a
 question. Each step MUST be reachable from a conjunct of a claim through the
-conjuncts of uses.
+conjuncts of uses and, from a settled boundary, through the facts of the
+listings it rests on. Each table and listing MUST be consulted by the search
+or closure check of some boundary.
 
 ### 11.9 C8 Witness integrity
 
@@ -1327,7 +1431,7 @@ not covered by C8.
 | C3 justification | steps |
 | C4 coverage | claims plus uses |
 | C5 re_decision | `'builtin'` and `'control'` steps that passed C5 |
-| C6 boundary_consistency | boundaries decided |
+| C6 boundary_consistency | boundaries settled, failed or decided |
 | C7 relevance | claims plus steps |
 | C8 witness_integrity | `clause` steps with witnesses in their forward head or enclosing generators that passed C8 |
 
@@ -1335,7 +1439,7 @@ A check also counts the **steps** it read, the **claims**, the `clause` steps
 **verified** by C1, the `source` inspection steps also **verified** by C1,
 the `'builtin'` steps **recomputed** by C5, the
 `'control'` steps **composed** by C5, and the `'absent'` and `'collected'`
-steps **trusted**.
+steps **trusted**, those C6 did not settle.
 
 A proof is **valid** when no condition failed. A valid proof with trusted
 boundaries is valid *conditional on* them.
@@ -1343,7 +1447,8 @@ boundaries is valid *conditional on* them.
 ### 11.11 Scope of a valid proof
 
 A valid proof establishes that each of its claims follows from the program
-by the recorded steps, given its trusted boundaries. It does not establish
+by the recorded steps, given its trusted boundaries; a settled boundary is
+established by its search certificate. It does not establish
 that the claims are all the conclusions of the program, that the program
 derives no `'false'`, or that the program is the one intended: a proof MAY
 leave conclusions out, and a run's own proof holds exactly its conclusions.
@@ -1378,8 +1483,9 @@ and MAY be worded differently. They are ignored when the document is read.
 Failures are listed in the order they are found: those of reading the
 document (Section 11.1), in document order; C4 for each claim, in claim
 order; then for each step, in document order, C4 for its uses and the C1, C3,
-C5 or C8 failure of its justification; C6 for each boundary, in step order;
-C7 for each claim, then for each step; and C2.
+C5 or C8 failure of its justification; C6 for each boundary, in step order,
+those of its search certificate in the order found; C7 for each claim, then
+for each step, then for each table and listing, in document order; and C2.
 
 `Detail` is informative text identifying what failed; its wording is not
 specified. It MUST NOT affect validity, counts or the condition reported.
@@ -1622,8 +1728,8 @@ clause(1, fact(type('socrates', 'human')))
 clause(2, fact(subclass_of('human', 'mortal')))
 clause(3, implies([type(S, A), subclass_of(A, B)], type(S, B)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(type('socrates', 'mortal'), clause(3), {S: 'socrates', A: 'human', B: 'mortal'}, [type('socrates', 'human'), subclass_of('human', 'mortal')])
 step(type('socrates', 'human'), clause(1), {}, [])
 step(subclass_of('human', 'mortal'), clause(2), {}, [])

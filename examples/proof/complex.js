@@ -76,8 +76,8 @@ clause(51, implies([arccosine(_0, Angle), complex_cos(Angle, Value)], cosine(Val
 clause(52, implies(complex_atan(complex(1, 2), Value), arctangent(Value)))
 clause(53, implies([arctangent(Angle), complex_tan(Angle, Value)], tangent(Value)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(sum(complex(4, 6)), clause(16), {Z: complex(3, 4), W: complex(1, 2), Sum: complex(4, 6)}, [point('z', complex(3, 4)), point('w', complex(1, 2)), complex_add(complex(3, 4), complex(1, 2), complex(4, 6))])
 step(point('z', complex(3, 4)), clause(12), {}, [])
 step(point('w', complex(1, 2)), clause(13), {}, [])

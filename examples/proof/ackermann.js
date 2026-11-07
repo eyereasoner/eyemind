@@ -20,8 +20,8 @@ clause(5, implied_by(hyper(3, Y, Z, A), is(A, pow(Z, Y))))
 clause(6, implied_by(hyper(X, 0, _0, 1), gt(X, 3)))
 clause(7, implied_by(hyper(X, Y, Z, A), [gt(X, 3), gt(Y, 0), is(B, sub(Y, 1)), hyper(X, B, Z, C), is(D, sub(X, 1)), hyper(D, C, Z, A)]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(ackermann([0, 6], 7), clause(1), {X: 0, Y: 6, A: 7, B: 9, C: 10}, [is(9, add(6, 3)), hyper(0, 9, 2, 10), is(7, sub(10, 3))])
 step(is(9, add(6, 3)), 'builtin', {}, [])
 step(hyper(0, 9, 2, 10), clause(2), {Y: 9, _0: 2, A: 10}, [is(10, add(9, 1))])

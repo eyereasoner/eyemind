@@ -194,8 +194,10 @@ implies([node(X), not(edge(X, _))], isolated(X))
     assert.ok(!result.answers.includes("allowed('bob')"));
     assert.ok(result.answers.some((answer) => answer.startsWith("children('alice',")));
     assert.deepEqual(run(graphs, { goal: "base('bob', 'child_of', 'alice')" }).answers, []);
+    // Its search certificate settles the absence; the collection of derived
+    // facts stays an obligation, since their order cannot be checked.
     const report = checkProof(graphs, result.proof);
-    assert.deepEqual(new Set(report.trusted.map((item) => item.kind)), new Set(['absent', 'collected']));
+    assert.deepEqual(report.trusted.map((item) => item.kind), ['collected']);
     assert.ok(!checkProof(graphs, result.proof, { allowTrusted: false }).valid);
   },
 

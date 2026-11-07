@@ -103,8 +103,8 @@ clause(4, implied_by(squares([X, ...Xs], [Y, ...Ys]), [is(Y, mul(X, X)), squares
 clause(5, fact(sum([], 0)))
 clause(6, implied_by(sum([X, ...Xs], Total), [sum(Xs, Rest), is(Total, add(X, Rest))]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(append(['a', 'b'], ['c', 'd'], ['a', 'b', 'c', 'd']), clause(2), {X: 'a', Xs: ['b'], Ys: ['c', 'd'], Zs: ['b', 'c', 'd']}, [append(['b'], ['c', 'd'], ['b', 'c', 'd'])])
 step(append(['b'], ['c', 'd'], ['b', 'c', 'd']), clause(2), {X: 'b', Xs: [], Ys: ['c', 'd'], Zs: ['c', 'd']}, [append([], ['c', 'd'], ['c', 'd'])])
 step(append([], ['c', 'd'], ['c', 'd']), clause(1), {Ys: ['c', 'd']}, [])

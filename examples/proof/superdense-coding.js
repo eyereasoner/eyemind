@@ -12,8 +12,8 @@ clause(32, fact(message(3)))
 clause(33, fact(odd([_0])))
 clause(35, implies([message(N), message(M), findall(Path, path(N, M, Path), Paths), odd(Paths)], sdcoding(N, M)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(sdcoding(0, 0), clause(35), {N: 0, M: 0, Path: A, Paths: [['true', 'true', 'true']]}, [message(0), message(0), findall(A, path(0, 0, A), [['true', 'true', 'true']]), odd([['true', 'true', 'true']])])
 step(message(0), clause(29), {}, [])
 step(findall(A, path(0, 0, A), [['true', 'true', 'true']]), 'collected', {}, [])
@@ -30,3 +30,32 @@ step(sdcoding(3, 3), clause(35), {N: 3, M: 3, Path: A, Paths: [['false', 'false'
 step(message(3), clause(32), {}, [])
 step(findall(A, path(3, 3, A), [['false', 'false', 'false']]), 'collected', {}, [])
 step(odd([['false', 'false', 'false']]), clause(33), {_0: ['false', 'false', 'false']}, [])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched(path(0, 0, B), [path(0, 0, ['true', 'true', 'true'])])
+searched(alice(0, ['false', C]), [alice(0, ['false', 'false'])])
+searched(bob(['false', 'false'], 0), [])
+searched(gk('false', 'false'), [])
+searched(alice(0, ['true', C]), [alice(0, ['true', 'true'])])
+searched(bob(['true', 'true'], 0), [bob(['true', 'true'], 0)])
+searched(gk('true', 'true'), [gk('true', 'true')])
+searched(path(1, 1, D), [path(1, 1, ['false', 'false', 'true'])])
+searched(alice(1, ['false', E]), [alice(1, ['false', 'true'])])
+searched(bob(['true', 'false'], 1), [bob(['true', 'false'], 1)])
+searched(alice(1, ['true', E]), [alice(1, ['true', 'false'])])
+searched(bob(['false', 'true'], 1), [])
+searched(path(2, 2, F), [path(2, 2, ['true', 'true', 'false'])])
+searched(alice(2, ['false', G]), [alice(2, ['false', 'false'])])
+searched(bob(['false', 'false'], 2), [])
+searched(alice(2, ['true', G]), [alice(2, ['true', 'false']), alice(2, ['true', 'true'])])
+searched(bob(['false', 'true'], 2), [bob(['false', 'true'], 2)])
+searched(bob(['true', 'true'], 2), [])
+searched(path(3, 3, H), [path(3, 3, ['false', 'false', 'false'])])
+searched(alice(3, ['false', I]), [alice(3, ['false', 'false']), alice(3, ['false', 'true'])])
+searched(kg('false', J), [kg('false', 'false'), kg('false', 'true')])
+searched(bob(['false', 'false'], 3), [bob(['false', 'false'], 3)])
+searched(bob(['true', 'false'], 3), [])
+searched(alice(3, ['true', I]), [alice(3, ['true', 'false'])])
+searched(kg('true', K), [kg('true', 'false')])
+searched(bob(['false', 'true'], 3), [])

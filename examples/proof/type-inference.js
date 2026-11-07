@@ -30,8 +30,8 @@ clause(19, implied_by(type_answer(Name, Type), [program(Name, Expr), type_expr([
 clause(20, implied_by(type_reason('compose', 'application unifies f with t1 -> t2 and g with t0 -> t1'), type_answer('compose', _0)))
 clause(21, implied_by(type_reason('apply_id', 'the identity function\'s parameter type is unified with int'), type_answer('apply_id', 'int')))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(type_answer('id', fun('t0', 't0')), clause(19), {Name: 'id', Type: fun('t0', 't0'), Expr: lam('x', 't0', ref('x'))}, [program('id', lam('x', 't0', ref('x'))), type_expr([], lam('x', 't0', ref('x')), fun('t0', 't0'))])
 step(program('id', lam('x', 't0', ref('x'))), clause(1), {}, [])
 step(type_expr([], lam('x', 't0', ref('x')), fun('t0', 't0')), clause(12), {Env: [], Name: 'x', ArgType: 't0', Body: ref('x'), BodyType: 't0'}, [type_expr([['x', 't0']], ref('x'), 't0')])

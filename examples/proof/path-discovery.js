@@ -25,8 +25,8 @@ clause(45208, implied_by(unvisited(Airport, [Other, ...Rest]), [not_unify(Airpor
 clause(45209, fact(airport_names([], [])))
 clause(45210, implied_by(airport_names([Id, ...Ids], [Name, ...Names]), [airport(Id, Name), airport_names(Ids, Names)]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(path_discovery('Ostend-Bruges International Airport', 'Václav Havel Airport Prague', 2, ['Ostend-Bruges International Airport', 'Liège Airport', 'Heraklion International Nikos Kazantzakis Airport', 'Václav Havel Airport Prague']), clause(45204), {From: 'Ostend-Bruges International Airport', To: 'Václav Havel Airport Prague', MaxStopovers: 2, Path: ['Ostend-Bruges International Airport', 'Liège Airport', 'Heraklion International Nikos Kazantzakis Airport', 'Václav Havel Airport Prague'], Source: 'AIRPORT_310', Destination: 'AIRPORT_1587', Airports: ['AIRPORT_310', 'AIRPORT_309', 'AIRPORT_1452', 'AIRPORT_1587']}, [is_int(2), ge(2, 0), airport('AIRPORT_310', 'Ostend-Bruges International Airport'), airport('AIRPORT_1587', 'Václav Havel Airport Prague'), not_unify('AIRPORT_310', 'AIRPORT_1587'), route_airports('AIRPORT_310', 'AIRPORT_1587', 2, ['AIRPORT_310'], ['AIRPORT_310', 'AIRPORT_309', 'AIRPORT_1452', 'AIRPORT_1587']), airport_names(['AIRPORT_310', 'AIRPORT_309', 'AIRPORT_1452', 'AIRPORT_1587'], ['Ostend-Bruges International Airport', 'Liège Airport', 'Heraklion International Nikos Kazantzakis Airport', 'Václav Havel Airport Prague'])])
 step(is_int(2), 'builtin', {}, [])
 step(ge(2, 0), 'builtin', {}, [])

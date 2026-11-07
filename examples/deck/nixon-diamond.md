@@ -118,8 +118,8 @@ clause(7, implies(republican(Person), classification(Person, 'republican')))
 clause(8, implies(pacifist(Person), classification(Person, 'pacifist')))
 clause(9, implies(nonpacifist(Person), classification(Person, 'nonpacifist')))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(classification('nixon', 'quaker'), clause(6), {Person: 'nixon'}, [quaker('nixon')])
 step(quaker('nixon'), clause(1), {}, [])
 step(classification('ada', 'quaker'), clause(6), {Person: 'ada'}, [quaker('ada')])
@@ -131,9 +131,14 @@ step(nonpacifist('nixon'), clause(5), {Person: 'nixon'}, [republican('nixon')])
 step(classification('ada', 'pacifist'), clause(8), {Person: 'ada'}, [pacifist('ada')])
 step(pacifist('ada'), clause(4), {Person: 'ada'}, [quaker('ada'), not(nonpacifist('ada'))])
 step(not(nonpacifist('ada')), 'absent', {}, [])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+derived(nonpacifist(A), [nonpacifist('nixon')])
+searched(nonpacifist('ada'), [])
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the five answers the proof is about.
 - **The clauses**: the program's facts and rules, numbered in program order.
@@ -141,13 +146,15 @@ It has three parts:
   `step(what, by what, with which values, using what)`. The values say who
   `Person` stood for; *using what* lists the things the step needs, each with
   a step of its own.
+- **The search certificate**: what eyemind found when it looked for
+  something and came up empty, written down so the checker can verify it.
 
 Two kinds of justification occur:
 
 - `clause(N)`: the step is an instance of fact or rule N.
 - `'absent'`: the step says that something could **not** be found. Nothing
-  can be shown for a missing fact, so this step is taken on trust: it is an
-  **obligation**, a promise the checker records rather than proves.
+  can be shown for a missing fact, so the step leans on the search
+  certificate instead.
 
 Read the steps as sentences:
 
@@ -173,6 +180,13 @@ Read the steps as sentences:
 There is no step for "Nixon is a pacifist": the default could not fire for
 him, because step 8 makes him a nonpacifist.
 
+The search certificate backs step 11 with two lines:
+
+- `searched(nonpacifist('ada'), [])`: the search for *Ada is a
+  nonpacifist* returned no answers at all.
+- `derived(nonpacifist(A), [nonpacifist('nixon')])`: the only nonpacifist
+  fact the rules derived is Nixon's.
+
 ---
 
 ## Checked: what the report says
@@ -183,7 +197,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 classification('nixon', 'quaker')
 classification('ada', 'quaker')
 classification('nixon', 'republican')
@@ -201,19 +215,16 @@ condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 16)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(nonpacifist('ada')))
-
 // Proof statistics: recorded steps and how they were checked.
 steps(11)
 verified(10)
 recomputed(0)
 composed(0)
-trusted(1)
+trusted(0)
 claims(5)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -236,15 +247,23 @@ at:
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The `obligation` line spells out what was taken on trust: an `'absent'`
-step, that `nonpacifist('ada')` cannot be concluded. `'theory_scoped'` means
-the absence is relative to this program: with these facts and rules, nothing
-makes Ada a nonpacifist. A different rulebook could.
+The absence is not taken on trust: the checker settles it from the search
+certificate, without searching itself. It expands `nonpacifist('ada')` one
+level against the program, as a search would: a forward rule derives
+`nonpacifist` facts, so the call is matched against the listed ones, and
+`nonpacifist('nixon')` is not Ada; no fact or backward rule adds more. So the
+call has no answers, just as `searched(nonpacifist('ada'), [])` claims. It
+accepts the `derived` listing because `nonpacifist('nixon')` has a step of
+its own, and because the listing is closed: rule 5 derives a nonpacifist for
+each Republican, only Nixon is one, and his fact is listed. A wrong certificate would show up as a disagreement
+and fail the check. The absence is still relative to this program: with
+these facts and rules, nothing makes Ada a nonpacifist. A different rulebook
+could.
 
-The statistics repeat this: 11 steps, 10 verified against the program, 1
-trusted. The verdict is **checked with obligations**: every answer follows
-from the program, provided that the absence really holds. As the last
-comment says, the verdict does not establish completeness: it does not say
+The statistics: 11 steps, 10 verified against the program and the absence
+settled by the certificate, so none is trusted and there are no obligations.
+The verdict is **checked**: every answer follows from the program. As the
+last comment says, the verdict does not establish completeness: it does not say
 these are the only classifications there could be.
 
 ---
@@ -259,14 +278,15 @@ eyemind -c examples/nixon-diamond.js
 ```
 
 Delete the line `fact(republican('nixon'))` and run again: nothing blocks the
-default any more, and Nixon is classified as a pacifist, like Ada. The check
-report now lists two absences, one for each of them.
+default any more, and Nixon is classified as a pacifist, like Ada. C6 now
+counts two absences, one for each of them, and the search certificate
+settles both.
 
 Or remove the guard: replace the default with
 `implies(quaker(Person), pacifist(Person))`. Nixon is then classified as
 both a pacifist and a nonpacifist. eyemind does not object to the clash,
-because nothing in the program says the two cannot go together; and with no
-absence left, the verdict becomes plain **checked**.
+because nothing in the program says the two cannot go together; with no
+absence left, the proof needs no search certificate at all.
 
 ---
 

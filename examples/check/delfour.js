@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 case_name('delfour', 'delfour')
 derived_need('sugar_insight', 'low_sugar')
 decision('delfour', 'Allowed', 'sugar_insight')
@@ -33,22 +33,17 @@ condition('C2', 'well_founded', 'ok', 70)
 condition('C3', 'justification', 'ok', 70)
 condition('C4', 'coverage', 'ok', 117)
 condition('C5', 're_decision', 'ok', 6)
-condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C6', 'boundary_consistency', 'ok', 3)
 condition('C7', 'relevance', 'ok', 96)
 condition('C8', 'witness_integrity', 'ok', 0)
-
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(beaten('delfour', 'prod_BIS_101')))
-obligation('absent', 'theory_scoped', not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'diabetes')))
-obligation('absent', 'theory_scoped', not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical')))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(70)
 verified(61)
 recomputed(6)
 composed(0)
-trusted(3)
+trusted(0)
 claims(26)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')

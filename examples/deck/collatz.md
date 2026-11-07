@@ -122,8 +122,8 @@ clause(3, implied_by(trajectory(N, [N, ...Rest]), [gt(N, 1), eq(1, mod(N, 2)), i
 clause(4, implied_by(in_range(Low, High, Low), le(Low, High)))
 clause(5, implied_by(in_range(Low, High, N), [lt(Low, High), is(Next, add(Low, 1)), in_range(Next, High, N)]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 // … 2 steps left out
 step(trajectory(1, [1]), clause(1), {}, [])
 // … 1 step left out

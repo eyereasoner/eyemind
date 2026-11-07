@@ -19,8 +19,8 @@ clause(10, implies([moments(Name, N, _0, _1, _2, _3, _4), lt(N, 2)], rejected(Na
 clause(11, implies([moments(Name, N, _0, _1, DX, _2, _3), ge(N, 2), le(DX, 0)], rejected(Name, 'no_x_variation')))
 clause(12, implies([moments(Name, N, _0, _1, _2, DY, _3), ge(N, 2), le(DY, 0)], rejected(Name, 'no_y_variation')))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(fit('demo', 0.8, 1.5, 0.64), clause(9), {Name: 'demo', N: 4, SX: 10, SY: 14, DX: 20, DY: 20, Cross: 16, Slope: 0.8, Intercept: 1.5, R2: 0.64}, [moments('demo', 4, 10, 14, 20, 20, 16), ge(4, 2), gt(20, 0), gt(20, 0), is(0.8, div(16, 20)), is(1.5, div(sub(mul(14, 20), mul(16, 10)), mul(4, 20))), is(0.64, div(mul(16, 16), mul(20, 20)))])
 step(moments('demo', 4, 10, 14, 20, 20, 16), clause(8), {Name: 'demo', Points: [point(1, 2), point(2, 3), point(3, 5), point(4, 4)], N: 4, SX: 10, SY: 14, SXX: 30, SXY: 39, SYY: 54, DX: 20, DY: 20, Cross: 16}, [dataset('demo', [point(1, 2), point(2, 3), point(3, 5), point(4, 4)]), stats([point(1, 2), point(2, 3), point(3, 5), point(4, 4)], 4, 10, 14, 30, 39, 54), is(20, sub(mul(4, 30), mul(10, 10))), is(20, sub(mul(4, 54), mul(14, 14))), is(16, sub(mul(4, 39), mul(10, 14)))])
 step(dataset('demo', [point(1, 2), point(2, 3), point(3, 5), point(4, 4)]), clause(1), {}, [])

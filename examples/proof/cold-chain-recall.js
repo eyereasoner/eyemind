@@ -10,6 +10,8 @@ inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a'
 // Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(checkpoint(42)))
 clause(2, fact(temperature_limit(80)))
+clause(3, fact(sensor_priority('handheld', 1)))
+clause(4, fact(sensor_priority('calibrated_logger', 2)))
 clause(6, fact(observation('handheld_a', 'handover_a', 'batch_a', 43, 'handheld', 72)))
 clause(7, fact(observation('logger_a', 'handover_a', 'batch_a', 44, 'calibrated_logger', 94)))
 clause(8, fact(observation('logger_b', 'handover_b', 'batch_b', 45, 'calibrated_logger', 75)))
@@ -17,13 +19,14 @@ clause(9, fact(destination('batch_a', 'north_depot')))
 clause(10, fact(destination('batch_a', 'station_shop')))
 clause(12, implies([observation(Id, Sample, Batch, Sequence, Sensor, Temperature), checkpoint(Committed), gt(Sequence, Committed)], current_reading(Id, Sample, Batch, Sensor, Temperature)))
 clause(13, implies([current_reading(_0, Sample, Batch, _1, Low), current_reading(_2, Sample, Batch, _3, High), temperature_limit(Limit), le(Low, Limit), gt(High, Limit)], conflicting_sample(Sample, Batch)))
+clause(14, implies([current_reading(Id, Sample, Batch, Sensor, _0), current_reading(_1, Sample, Batch, OtherSensor, _2), sensor_priority(Sensor, Priority), sensor_priority(OtherSensor, OtherPriority), gt(OtherPriority, Priority)], superseded(Id)))
 clause(15, implies([current_reading(Id, _0, Batch, _1, Temperature), not(superseded(Id))], selected_reading(Id, Batch, Temperature)))
 clause(16, implies([selected_reading(Id, Batch, Temperature), temperature_limit(Limit), gt(Temperature, Limit)], quarantine(Batch, Id)))
 clause(17, implies([quarantine(Batch, _0), destination(Batch, Site)], notify(Site, Batch)))
 clause(18, implies(quarantine(Batch, Evidence), inspection_task(Batch, Evidence, Task)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(conflicting_sample('handover_a', 'batch_a'), clause(13), {_0: 'handheld_a', Sample: 'handover_a', Batch: 'batch_a', _1: 'handheld', Low: 72, _2: 'logger_a', _3: 'calibrated_logger', High: 94, Limit: 80}, [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), temperature_limit(80), le(72, 80), gt(94, 80)])
 step(current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), clause(12), {Id: 'handheld_a', Sample: 'handover_a', Batch: 'batch_a', Sequence: 43, Sensor: 'handheld', Temperature: 72, Committed: 42}, [observation('handheld_a', 'handover_a', 'batch_a', 43, 'handheld', 72), checkpoint(42), gt(43, 42)])
 step(observation('handheld_a', 'handover_a', 'batch_a', 43, 'handheld', 72), clause(6), {}, [])
@@ -48,3 +51,17 @@ step(destination('batch_a', 'north_depot'), clause(9), {}, [])
 step(notify('station_shop', 'batch_a'), clause(17), {Batch: 'batch_a', _0: 'logger_a', Site: 'station_shop'}, [quarantine('batch_a', 'logger_a'), destination('batch_a', 'station_shop')])
 step(destination('batch_a', 'station_shop'), clause(10), {}, [])
 step(inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a'])), clause(18), {Batch: 'batch_a', Evidence: 'logger_a', Task: skolem(18, 'Task', ['batch_a', 'logger_a'])}, [quarantine('batch_a', 'logger_a')])
+step(superseded('handheld_a'), clause(14), {Id: 'handheld_a', Sample: 'handover_a', Batch: 'batch_a', Sensor: 'handheld', _0: 72, _1: 'logger_a', OtherSensor: 'calibrated_logger', _2: 94, Priority: 1, OtherPriority: 2}, [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), sensor_priority('handheld', 1), sensor_priority('calibrated_logger', 2), gt(2, 1)])
+step(sensor_priority('handheld', 1), clause(3), {}, [])
+step(sensor_priority('calibrated_logger', 2), clause(4), {}, [])
+step(gt(2, 1), 'builtin', {}, [])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+derived(superseded(A), [superseded('handheld_a')])
+derived(current_reading(A, B, C, D, E), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
+searched(superseded('logger_a'), [])
+searched(current_reading(F, G, H, I, J), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
+searched(current_reading(K, 'handover_a', 'batch_a', L, M), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94)])
+searched(current_reading(K, 'handover_b', 'batch_b', L, M), [current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
+searched(superseded('logger_b'), [])

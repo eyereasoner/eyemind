@@ -20,8 +20,8 @@ clause(10, implies([triple(S, P, O), subproperty(P, Q)], triple(S, Q, O)))
 clause(11, implies([triple(S, P, _0), domain(P, Class)], type(S, Class)))
 clause(12, implies([triple(_0, P, O), codomain(P, Class)], type(O, Class)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(subclass('cat', 'animal'), clause(8), {A: 'cat', B: 'mammal', C: 'animal'}, [subclass('cat', 'mammal'), subclass('mammal', 'animal')])
 step(subclass('cat', 'mammal'), clause(1), {}, [])
 step(subclass('mammal', 'animal'), clause(2), {}, [])

@@ -153,11 +153,12 @@ than Agatha and whether Charles hates the butler.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each conclusion. The full proof
-has 52 steps and is too long to show here: see the
+has 52 steps and a 52-line search certificate, and is too long to show here: see the
 [proof file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/aunt-agatha.js).
 Below are its claims, its clauses, and the complete chain of 20 steps behind
 the main claim, `entailed(killed('agatha', 'agatha'))`. The `// …` lines mark
-what is left out: the 32 steps that check the witness model, clue by clue.
+what is left out: the 32 steps that check the witness model, clue by clue,
+and all but two lines of the certificate.
 
 ```js
 // Conclusions: the facts the program derives, in the order derived.
@@ -192,8 +193,8 @@ clause(32, implies([resident(Suspect), findall(W, model(Suspect, W), Ws), count(
 clause(33, implies([models('agatha', N), gt(N, 0), models('butler', 0), models('charles', 0)], entailed(killed('agatha', 'agatha'))))
 clause(34, implies(once(model(Killer, W)), witness(Killer, W)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 // … 5 steps left out
 step(resident('agatha'), clause(2), {}, [])
 // … 27 steps left out
@@ -216,9 +217,16 @@ step(resident('charles'), clause(4), {}, [])
 step(findall(A, model('charles', A), []), 'collected', {}, [])
 step(entailed(killed('agatha', 'agatha')), clause(33), {N: 4}, [models('agatha', 4), gt(4, 0), models('butler', 0), models('charles', 0)])
 step(gt(4, 0), 'builtin', {}, [])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+// … 46 lines for the search behind Agatha's list: model('agatha', B) and its label calls
+searched(model('butler', J1), [])
+// … 4 label calls
+searched(model('charles', L1), [])
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the five conclusions the proof is about.
 - **The clauses**: the program lines the steps cite, by their number. A `_`
@@ -226,6 +234,11 @@ It has three parts:
   a step can name it.
 - **The steps**: one per thing established. A step reads
   `step(what, by which clause, with which values, using what)`.
+- **The search certificate**: every search behind the three collections,
+  each written `searched(call, answers)` with every answer it gave. The
+  search for Agatha's models gives the four worlds; the label calls inside
+  it record how the open answers were filled in. The searches for models
+  with the butler or Charles as killer give none.
 
 Read the chain as sentences, in the order shown:
 
@@ -236,8 +249,8 @@ Read the chain as sentences, in the order shown:
    (`W: A` says the collecting variable stays a blank.)
 3. *All the models with Agatha as killer are these four*: justified as
    `'collected'`. eyemind ran the search and recorded the resulting list;
-   the proof takes that list on trust, both that each item is a model and
-   that there are no others.
+   the search certificate records the search, so the checker can confirm
+   both that each item is a model and that there are no others.
 4. *The four-model list counts 4*: by rule 31, because its last three count
    3 and 3 + 1 = 4.
 5. *The last three count 3*: rule 31, because the last two count 2 and
@@ -255,12 +268,12 @@ Read the chain as sentences, in the order shown:
 13. *The butler is the killer in 0 models*: by rule 32, because he is a
     resident, the list of his models is empty, and it counts 0.
 14. *The butler lives in the mansion*: fact 3.
-15. *There are no models with the butler as killer*: `'collected'`, taken on
-    trust.
+15. *There are no models with the butler as killer*: `'collected'`, backed
+    by `searched(model('butler', J1), [])`.
 16. *Charles is the killer in 0 models*: by rule 32, the same way.
 17. *Charles lives in the mansion*: fact 4.
-18. *There are no models with Charles as killer*: `'collected'`, taken on
-    trust.
+18. *There are no models with Charles as killer*: `'collected'`, backed by
+    `searched(model('charles', L1), [])`.
 19. *Agatha's killing herself is entailed*: by rule 33 with `N` = 4, because
     Agatha has 4 models, 4 is greater than 0, and the butler and Charles have
     none.
@@ -284,7 +297,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 witness('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')))
 models('agatha', 4)
 models('butler', 0)
@@ -302,21 +315,16 @@ condition('C6', 'boundary_consistency', 'ok', 3)
 condition('C7', 'relevance', 'ok', 57)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('collected', 'theory_scoped', findall(A, model('agatha', A), [world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))]))
-obligation('collected', 'theory_scoped', findall(A, model('butler', A), []))
-obligation('collected', 'theory_scoped', findall(A, model('charles', A), []))
-
 // Proof statistics: recorded steps and how they were checked.
 steps(52)
 verified(40)
 recomputed(8)
 composed(1)
-trusted(3)
+trusted(0)
 claims(5)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -339,24 +347,28 @@ at:
   every `model` the checker could see in the program's facts and the proof's
   steps. The proof does show one model, the witness, and it is indeed in
   Agatha's list; none is shown with the butler or Charles as killer. So
-  nothing refutes the lists.
+  nothing refutes the lists, and the search certificate settles all three.
 - **C7 relevance (57)**: the 5 claims are conclusions of the program, and all
   52 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify. (The `witness` conclusion is a model
   shown as an example, which is something else.)
 
-The three `obligation` lines spell out what is taken on trust: that Agatha's
-list holds all her models, and that the butler's and Charles's lists, both
-empty, are complete. `'theory_scoped'` means "all within this program". The
-statistics: 52 steps, 40 verified, 8 recomputed, 1 composed and 3 trusted, for
-5 claims.
+Nothing is taken on trust. That Agatha's list holds all her models, and
+that the butler's and Charles's lists, both empty, are complete, is checked
+from the search certificate. The checker never searches: it expands each
+`searched` call one level against the program, as a search would, and
+answers every inner call from that call's own line, so no line vouches for
+itself. For the butler, the clues leave no way to fill in the open answers,
+and the expansion agrees with `searched(model('butler', J1), [])`. "All"
+means all within this program. The statistics: 52 steps, 40 verified, 8
+recomputed, 1 composed and the 3 collections settled by the certificate,
+none trusted, for 5 claims.
 
-The verdict is **checked with obligations**. Every step follows from the
-program, *provided* the three searches missed nothing. That is the heart of
-the argument: "no model has the butler as killer" is exactly what makes
-Agatha's guilt entailed, and it rests on eyemind's exhaustive search, not on
-a step the checker can verify. As the last comment says, the verdict
+The verdict is **checked**: every step follows from the program. That is the
+heart of the argument: "no model has the butler as killer" is exactly what
+makes Agatha's guilt entailed, and the checker confirms it from the record
+of eyemind's exhaustive search. As the last comment says, the verdict
 confirms these claims; it does not establish that the program has no other
 conclusions.
 
@@ -386,5 +398,5 @@ forbids.
 ## Takeaway
 
 "It follows" is a strong claim: true in every situation the facts allow.
-Here you can see all the situations counted, one of them in full, and
-exactly which part of the argument rests on the search being complete.
+Here you can see all the situations counted, one of them in full, and the
+record of the search that makes the count complete.

@@ -106,8 +106,11 @@ reduces imports in the final, expensive slot.
 
 ## The proof, line by line
 
-`eyemind --proof` writes down how it reached the answer. This is the
-complete proof:
+`eyemind --proof` writes down how it reached the answer. The
+[full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/battery-dispatch.js)
+has 182 steps and a search certificate. Below are its claim, its clauses,
+the complete 77 steps behind the chosen schedule, and the start of the
+certificate:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -134,8 +137,8 @@ clause(17, implied_by(dispatch_from(Time, Charge, [dispatch(Time, Power, Grid, N
 clause(18, implies([initial_charge_kwh(Charge), dispatch_from(1, Charge, Plan, Cost)], feasible_dispatch(Plan, Cost)))
 clause(20, implies([feasible_dispatch(Plan, Cost), not(cheaper_dispatch(Cost))], best_dispatch(Plan, Cost)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(best_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28), clause(20), {Plan: [dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], Cost: 28}, [feasible_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28), not(cheaper_dispatch(28))])
 step(feasible_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28), clause(18), {Charge: 2, Plan: [dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], Cost: 28}, [initial_charge_kwh(2), dispatch_from(1, 2, [dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28)])
 step(initial_charge_kwh(2), clause(5), {}, [])
@@ -213,9 +216,16 @@ step(is(14, add(0, 14)), 'builtin', {}, [])
 step(is(22, add(8, 14)), 'builtin', {}, [])
 step(is(28, add(6, 22)), 'builtin', {}, [])
 step(not(cheaper_dispatch(28)), 'absent', {}, [])
+// … 105 more steps derive the other 11 feasible schedules
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+// … derived(feasible_dispatch(A, B), [...]) lists all 12 feasible schedules
+searched(cheaper_dispatch(28), [])
+// … 65 more searched lines
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claim**: the best schedule and its cost.
 - **The clauses**: the facts and rules the steps cite, numbered by their
@@ -226,6 +236,8 @@ It has three parts:
   `step(what, justified by, with which values, using what)`. A `'builtin'`
   step is a calculation or comparison the checker redoes itself. An
   `'absent'` step is concluded because something could **not** be found.
+- **The search certificate**: what eyemind found while it looked for a
+  cheaper schedule, written down so the checker can verify step 77.
 
 Read the steps as sentences:
 
@@ -269,8 +281,20 @@ little shorter.
 73. –76. *14 + 0 = 14, 0 + 14 = 14, 8 + 14 = 22, 6 + 22 = 28* — builtins:
     adding the costs back up, from the last slot to the first.
 77. *No feasible schedule costs less than 28* — `'absent'`: eyemind searched
-    for a cheaper one and found none. This step uses nothing; it is taken on
-    trust.
+    for a cheaper one and found none. This step uses nothing; the search
+    certificate backs it.
+
+The remaining 105 steps prove the other 11 feasible schedules, in the same
+way as steps 4 to 76. No answer needs them; they are there because the
+certificate relies on them. Its lines read:
+
+- `derived(feasible_dispatch(A, B), [...])`: every feasible schedule the
+  forward rule derived, 12 in all, with its cost. The cheapest costs 28.
+- `searched(cheaper_dispatch(28), [])`: the search for a schedule cheaper
+  than 28 found none.
+- the other `searched` lines record the calls behind the schedules: every
+  `dispatch_from` from each slot and charge, and the power settings
+  `member` offers.
 
 ---
 
@@ -282,71 +306,71 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 best_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28)
 
 // C1-C8: resolution, acyclicity, justification, coverage,
 // re-decision, boundary consistency, relevance and witness integrity.
-condition('C1', 'resolution', 'ok', 35)
-condition('C2', 'well_founded', 'ok', 77)
-condition('C3', 'justification', 'ok', 77)
-condition('C4', 'coverage', 'ok', 102)
-condition('C5', 're_decision', 'ok', 41)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 78)
+condition('C1', 'resolution', 'ok', 92)
+condition('C2', 'well_founded', 'ok', 182)
+condition('C3', 'justification', 'ok', 182)
+condition('C4', 'coverage', 'ok', 500)
+condition('C5', 're_decision', 'ok', 89)
+condition('C6', 'boundary_consistency', 'ok', 1)
+condition('C7', 'relevance', 'ok', 183)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(cheaper_dispatch(28)))
-
 // Proof statistics: recorded steps and how they were checked.
-steps(77)
-verified(35)
-recomputed(41)
+steps(182)
+verified(92)
+recomputed(89)
 composed(0)
-trusted(1)
+trusted(0)
 claims(1)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
 at:
 
-- **C1 resolution (35)**: the 35 steps that cite a program line really are
-  instances of it, with the values shown: 12 facts, 12 `member` steps, 4
-  `transition` steps, 5 `dispatch_from` steps, and one use each of rules 18
-  and 20.
-- **C2 well-founded (77)**: none of the 77 steps depends on itself, even
+- **C1 resolution (92)**: the 92 steps that cite a program line really are
+  instances of it, with the values shown. In the chosen schedule's 77 steps
+  that is 35: 12 facts, 12 `member` steps, 4 `transition` steps, 5
+  `dispatch_from` steps, and one use each of rules 18 and 20.
+- **C2 well-founded (182)**: none of the 182 steps depends on itself, even
   indirectly.
-- **C3 justification (77)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (102)**: the 1 claim and the 101 things the steps use are
+- **C3 justification (182)**: every step says how it was justified, in a
+  form the checker understands.
+- **C4 coverage (500)**: the 1 claim and the 499 things the steps use are
   each backed by a step: nothing is taken for granted silently.
-- **C5 re-decision (41)**: the checker **recomputed** all 41 builtin steps,
+- **C5 re-decision (89)**: the checker **recomputed** all 89 builtin steps,
   every addition, multiplication and limit comparison, and got the same
   results.
-- **C6 boundary consistency (0)**: the checker had nothing to confront the
-  one absence, *"no cheaper feasible schedule"*, with: `cheaper_dispatch` is
-  only a rule, and neither the program's facts nor the proof's steps contain
-  a single `cheaper_dispatch`. Nothing could refute the absence, so it is
-  left undecided and stays an obligation taken on trust.
-- **C7 relevance (78)**: the 1 claim answers the query, and all 77 steps
+- **C6 boundary consistency (1)**: the one absence, *"no cheaper feasible
+  schedule"*, was confronted with the evidence, and the search certificate
+  settles it.
+- **C7 relevance (183)**: the 1 claim answers the query, and all 182 steps
   serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
 
-The `obligation('absent', 'theory_scoped', not(cheaper_dispatch(28)))` line
-says, in plain words: *"we take on trust that no feasible schedule under
-these rules costs less than 28."* A proof can show that a schedule works; it
-cannot list every schedule that was tried and failed. `'theory_scoped'`
-means the claim is limited to this program: the five power settings, whole
-hours, and the stated limits.
+*No feasible schedule under these rules costs less than 28* is not taken
+on trust. The checker expands `cheaper_dispatch(28)` one level against the
+program, as a search would, without searching itself: the rule asks for a
+feasible schedule whose cost is less than 28. Feasible schedules come from
+a forward rule, so they are read from the `derived` listing, and none of
+its 12 costs is below 28. The listing itself is accepted because each
+listed schedule has its own steps and, given the certificate's `searched`
+lines, the forward rule derives no schedule the listing leaves out. A
+cheaper schedule hidden from the certificate would show up as a
+disagreement. The claim is limited to this program: the five power
+settings, whole hours, and the stated limits.
 
-The statistics: 77 steps, 35 verified against the program, 41 recomputed, 1
-taken on trust. The verdict is **checked with obligations**: the schedule
-is feasible and costs 28 cents, and it is the cheapest provided the absence
-holds. The model assumes perfect efficiency and ignores battery wear,
+The statistics: 182 steps, 92 verified against the program, 89 recomputed
+and the absence settled by the certificate, none taken on trust. The
+verdict is **checked**: the schedule is feasible, costs 28 cents, and is
+the cheapest. The model assumes perfect efficiency and ignores battery wear,
 forecast uncertainty and changing power within a slot.
 
 ---
@@ -368,5 +392,5 @@ the cost drops to 21 cents.
 ## Takeaway
 
 "Cheapest" is a claim about every other option, not only the chosen one.
-The proof shows the chosen schedule meets every limit, and says plainly that
-"nothing cheaper exists" rests on a search taken on trust.
+The proof shows the chosen schedule meets every limit, and records the
+search behind "nothing cheaper exists" so that the checker can confirm it.

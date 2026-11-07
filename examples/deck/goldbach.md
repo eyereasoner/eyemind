@@ -108,11 +108,12 @@ factor. Testing cases illustrates the conjecture; it does not prove it.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each conclusion. The full proof
-has 913 steps; see the
+has 913 steps and a search certificate of 9,915 lines; see the
 [proof file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/goldbach.js).
 Below are its claims, its clauses, and the complete chain of 17 steps behind
 one claim, `goldbach(8, [3, 5])`. The `// …` lines mark the steps left out:
-the 5 for 4 and the 891 for the larger numbers.
+the 5 for 4 and the 891 for the larger numbers. The certificate shows its
+first three lines.
 
 ```js
 // Conclusions: the facts the program derives, in the order derived.
@@ -153,8 +154,8 @@ clause(12, implied_by(in_range(Low, High, Low), le(Low, High)))
 clause(13, implied_by(in_range(Low, High, N), [lt(Low, High), is(Next, add(Low, 1)), in_range(Next, High, N)]))
 clause(14, implies([in_range(2, 25, I), is(N, pow(2, I)), split(N, Pair)], goldbach(N, Pair)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 // … 5 steps left out
 step(goldbach(8, [3, 5]), clause(14), {I: 3, N: 8, Pair: [3, 5]}, [in_range(2, 25, 3), is(8, pow(2, 3)), split(8, [3, 5])])
 step(in_range(2, 25, 3), clause(13), {Low: 2, High: 25, N: 3, Next: 3}, [lt(2, 25), is(3, add(2, 1)), in_range(3, 25, 3)])
@@ -174,9 +175,16 @@ step(gt(5, 3), 'builtin', {}, [])
 step(eq(1, mod(5, 2)), 'builtin', {}, [])
 step(not(has_factor(5, 3)), 'absent', {}, [])
 // … 891 steps left out
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched(has_factor(5, 3), [])
+searched(has_factor(13, 3), [])
+searched(has_factor(13, 5), [])
+// … 9912 more searched lines
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the 24 conclusions.
 - **The clauses**: the program lines the steps cite, by their number. Facts
@@ -184,6 +192,8 @@ It has three parts:
   cited; why the last two are missing is explained below.
 - **The steps**: one per thing established. A step reads
   `step(what, by which clause, with which values, using what)`.
+- **The search certificate**: every search behind the 35 "no factor"
+  steps, each written `searched(call, answers)` with every answer it gave.
 
 Read the chain for 8 as sentences:
 
@@ -213,9 +223,10 @@ Read the chain for 8 as sentences:
 16. *5 leaves remainder 1 when divided by 2*: `'builtin'`.
 17. *5 has no factor from 3 on*: justified as `'absent'`. eyemind searched
     for a factor and found none. A proof can show a factor that exists, but
-    it cannot show that none exists, so this step is taken on trust. That is
-    why the `has_factor` rules are never cited: the search that failed leaves
-    no steps behind.
+    no step can show that none exists. That is why the `has_factor` rules
+    are never cited: the search that failed leaves no steps behind. It
+    leaves certificate lines instead: `searched(has_factor(5, 3), [])` says
+    the search for a factor of 5 from 3 on gave no answers.
 
 Larger numbers follow the same pattern, sometimes after stepping through
 several primes P, each found by `next_prime`, before N − P turns out to be
@@ -231,7 +242,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 goldbach(4, [2, 2])
 goldbach(8, [3, 5])
 goldbach(16, [3, 13])
@@ -264,57 +275,20 @@ condition('C2', 'well_founded', 'ok', 913)
 condition('C3', 'justification', 'ok', 913)
 condition('C4', 'coverage', 'ok', 1478)
 condition('C5', 're_decision', 'ok', 372)
-condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C6', 'boundary_consistency', 'ok', 35)
 condition('C7', 'relevance', 'ok', 937)
 condition('C8', 'witness_integrity', 'ok', 0)
-
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(has_factor(5, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(13, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(29, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(61, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(7, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(11, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(17, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(19, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(109, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(251, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(509, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(1021, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(2029, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(4093, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(8179, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(16381, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(32749, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(65519, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(131059, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(262139, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(524269, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(1048573, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(2097133, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(4194301, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(23, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(31, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(37, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(8388571, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(16777213, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(41, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(43, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(47, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(53, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(59, 3)))
-obligation('absent', 'theory_scoped', not(has_factor(33554371, 3)))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(913)
 verified(506)
 recomputed(333)
 composed(39)
-trusted(35)
+trusted(0)
 claims(24)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -331,28 +305,30 @@ at:
 - **C5 re-decision (372)**: the 333 built-in calculations were done again by
   the checker, including 2²⁵ = 33,554,432 and every remainder, and the 39
   `once` steps were rebuilt from their parts.
-- **C6 boundary consistency (0)**: the checker had nothing to confront the
-  35 absences with. A `has_factor` fact or step would show a factor after
-  all, but `has_factor` is only a rule, and neither the program nor the
-  proof contains a single `has_factor` statement. So nothing could refute
-  the absences: they are left undecided and stay obligations taken on
-  trust.
+- **C6 boundary consistency (35)**: the 35 absences were confronted with
+  the evidence, and the search certificate settles every one: no number
+  declared prime has a factor.
 - **C7 relevance (937)**: the 24 claims are conclusions of the program, and
   all 913 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The 35 `obligation` lines are the absences taken on trust, one per number
-the proof declares prime by trial division: 5, 13, 29, 61, and so on up to
-33,554,371. Each reads "this number has no factor from 3 on, within this
-program" (`'theory_scoped'`). The statistics: 913 steps, 506 verified, 333
-recomputed, 39 composed and 35 trusted, for 24 claims.
+The 35 absences are one per number the proof declares prime by trial
+division: 5, 13, 29, 61, and so on up to 33,554,371. Each reads "this number
+has no factor from 3 on, within this program". None is taken on trust. The
+checker never searches; it expands each `searched` call one level against
+the program, as a search would. For `has_factor(13, 3)`: 13 mod 3 is not 0,
+which it recomputes, and 3 × 3 < 13, so the rule moves on to
+`has_factor(13, 5)`, which is answered by its own line, `[]`. That line in
+turn: 13 mod 5 is not 0, and 5 × 5 is not below 13, so it has no answers.
+Every line agrees with its expansion, so a hidden factor would show up as a
+disagreement. The statistics: 913 steps, 506 verified, 333 recomputed, 39
+composed and the 35 absences settled by the certificate, none trusted, for
+24 claims.
 
-The verdict is **checked with obligations**: every split follows from the
-program, provided those 35 "no factor found" searches were complete. Want no
-trust at all? Put `--strict-proof` before `--check-proof`, and the checker
-rejects this proof with 35 failures, one per trusted absence. As the last
-comment says, the verdict does not establish completeness, and it certainly
+The verdict is **checked**: every split follows from the program. Even
+`--strict-proof`, which rejects any trusted step, accepts this proof. As
+the last comment says, the verdict does not establish completeness, and it certainly
 does not prove the conjecture.
 
 ---
@@ -374,5 +350,5 @@ line appears, `goldbach(67108864, [5, 67108859])`.
 ## Takeaway
 
 Even a search for "no factor" is made visible: the proof shows every split it
-found, and the report is honest about the 35 places where it relies on
-"searched and found nothing".
+found, and its search certificate lets the checker confirm the 35 places
+where it relies on "searched and found nothing".

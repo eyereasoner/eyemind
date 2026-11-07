@@ -132,8 +132,8 @@ clause(7, implied_by(pell(N, X, Y), [gt(N, 0), is(Before, sub(N, 1)), pell(Befor
 clause(8, implies([requested_step(N), pell(N, X, Y)], solution(N, X, Y)))
 clause(9, implies([solution(N, X, Y), is(1, sub(mul(X, X), mul(2, mul(Y, Y))))], equation_holds(N)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(solution(0, 1, 0), clause(8), {N: 0, X: 1, Y: 0}, [requested_step(0), pell(0, 1, 0)])
 step(requested_step(0), clause(1), {}, [])
 step(pell(0, 1, 0), clause(6), {}, [])

@@ -189,25 +189,39 @@ Two kinds of conclusion cannot be shown by pointing at a fact:
   nothing. The proof records such a step as **`'absent'`**.
 - **A collected list**, such as the provisions anchoring a component, or the
   objections to an option. eyemind gathered it by searching everything. The
-  proof records it as **`'collected'`**: the list is taken as given, complete
-  only on trust.
+  proof records it as **`'collected'`**.
 
-The checker never searches by itself, so it cannot confirm these outright.
-It lists each as an **obligation**: a point taken on trust, which anyone may
-challenge by showing the missing thing. It does confront each with the
-evidence it has, the program's facts and the proof's own steps: if, say, the
-program had an `anchor` fact for the value share, the absence and the empty
-list would be refuted and the proof rejected.
+The checker never searches by itself. Instead the proof ends with a
+**search certificate**: `derived(Pattern, Facts)` lists every fact the
+forward rules derived for one relation, each with steps of its own, and
+`searched(Call, Answers)` records one search with every answer it gave. The
+checker verifies each `searched` line by expanding its call one level
+against the program, as a search would, answering every inner call from
+that call's own line, from the `derived` listings, or from the facts, so
+no line vouches for itself. A boundary that passes is **settled**, not
+taken on trust.
+
+That settles every absence here, and every list gathered from facts alone,
+such as the provisions anchoring a component. It does not settle a list
+gathered from facts that forward rules derived, such as an option's
+objections: a `findall` list gives its items in the order they were
+derived, and that order is not something the checker can confirm. Each such
+list stays an **obligation**: a point taken on trust, which anyone may
+challenge by showing the missing thing. The checker also confronts every
+boundary with the evidence it has, the program's facts and the proof's own
+steps: if, say, the program had an `anchor` fact for the value share, the
+absence and the empty list would be refuted and the proof rejected.
 
 ---
 
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each conclusion. The proof has
-68 steps and is too long to show whole ([full file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/data-value-right.js)).
+108 steps and a search certificate, and is too long to show whole ([full file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/data-value-right.js)).
 Below are its claims, all its clauses, and two complete chains: the analysis
 of the value share, and the evaluation and recommendation of the autonomous
-right. Comment lines starting with `// …` mark what is left out:
+right, followed by a few lines of the certificate. Comment lines starting
+with `// …` mark what is left out:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -244,6 +258,7 @@ clause(18, fact(option('extend_portability', 'right')))
 clause(21, fact(option('data_dividend', 'levy')))
 clause(24, fact(option('data_ownership', 'property')))
 clause(29, fact(option('autonomous_right', 'inalienable_right')))
+clause(40, fact(commodifies('property')))
 clause(41, implies(anchor(P, C, D, W), anchored(C)))
 clause(42, implies(anchor(P, C, 'full', W), fully_anchored(C)))
 clause(43, implies([component(C, Description), not(anchored(C))], gap(C)))
@@ -251,12 +266,18 @@ clause(44, implies(fully_anchored(C), fit(C, 'in existing law')))
 clause(45, implies([anchored(C), not(fully_anchored(C))], fit(C, 'by interpretation')))
 clause(46, implies(gap(C), fit(C, 'needs an autonomous right')))
 clause(47, implies([component(C, Meaning), fit(C, How), findall(P, anchor(P, C, D, W), Provisions)], analysis(C, Meaning, How, Provisions)))
+clause(49, implies(anchored(C), delivers('interpret_existing_law', C)))
+clause(50, implies([component(C, Meaning), not(fully_anchored(C))], needs_development(C)))
+clause(51, implies([option(O, F), needs_development(C), not(delivers(O, C))], objection(O, unaddressed(C))))
+clause(52, implies([option(O, F), commodifies(F)], objection(O, 'treats personal data as a commodity')))
+clause(53, implies([option(O, F), not(own_claim(F))], objection(O, 'gives the data subject no claim of their own')))
+clause(54, implies(objection(O, Why), objectionable(O)))
 clause(55, implies([option(O, F), not(objectionable(O))], recommended(O)))
 clause(56, implies([option(O, F), findall(C, delivers(O, C), Delivered), findall(Why, objection(O, Why), Objections)], evaluation(O, Delivered, Objections)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
-// … the proof has 68 steps; 12 are shown. Left out here: 40 steps for the
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
+// … the proof has 108 steps; 12 are shown. Left out here: 40 steps for the
 // first six analyses, which follow the same pattern per component.
 step(analysis('value_share', 'receiving a share of the value one\'s data creates', 'needs an autonomous right', []), clause(47), {C: 'value_share', Meaning: 'receiving a share of the value one\'s data creates', How: 'needs an autonomous right', P: A, D: B, W: C, Provisions: []}, [component('value_share', 'receiving a share of the value one\'s data creates'), fit('value_share', 'needs an autonomous right'), findall(A, anchor(A, 'value_share', B, C), [])])
 step(component('value_share', 'receiving a share of the value one\'s data creates'), clause(7), {}, [])
@@ -271,9 +292,21 @@ step(findall(D, delivers('autonomous_right', D), ['value_transparency', 'use_con
 step(findall(E, objection('autonomous_right', E), []), 'collected', {}, [])
 step(recommended('autonomous_right'), clause(55), {O: 'autonomous_right', F: 'inalienable_right'}, [option('autonomous_right', 'inalienable_right'), not(objectionable('autonomous_right'))])
 step(not(objectionable('autonomous_right')), 'absent', {}, [])
+// … 40 more steps prove the facts the search certificate lists: the
+// remaining anchored and delivers facts, every objection and objectionable
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+// … six derived(...) listings, for fully_anchored, anchored, delivers,
+// objection, needs_development and objectionable
+// … 4 searched lines
+searched(anchored('value_share'), [])
+// … 30 searched lines
+searched(objectionable('autonomous_right'), [])
+// … 1 more searched line
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the 13 conclusions the proof is about.
 - **The clauses**: the program facts and rules the steps cite, numbered in
@@ -281,17 +314,22 @@ It has three parts:
   count too). Many numbers are skipped. Only one anchoring provision per
   component is cited, because one is enough to make it *anchored*; the
   others, such as the AI Act, appear only inside collected lists. The
-  `delivers` facts and all objection rules are skipped for the same reason:
-  they only feed collected lists.
+  `delivers` facts are skipped for the same reason. The objection rules
+  (51–54) and the `delivers` rule (49) are cited, by the steps behind the
+  search certificate.
 - **The steps**: one per thing established. A step reads
   `step(what, justified by, with which values, using what)`.
+- **The search certificate**: the facts and searches behind the absences
+  and lists, explained in the previous card. For example,
+  `searched(anchored('value_share'), [])`: the search for an anchoring of
+  the value share found none.
 
 Three kinds of justification occur:
 
 - `clause(N)`: an instance of program clause N, with the values in `{...}`.
   A fact cites itself and uses nothing.
 - `'absent'`: concluded because a search found nothing.
-- `'collected'`: a list gathered by searching, taken as given.
+- `'collected'`: a list gathered by searching.
 
 In the values, letters such as `A`, `B`, `C`, `D` and `E` stand for "any
 value": `findall(A, anchor(A, 'value_share', B, C), [])` reads *the
@@ -327,10 +365,13 @@ The left-out steps follow the same patterns: for each other component, an
 where the component is not fully anchored, and a collected list of its
 provisions; for each other option, its fact and two collected lists.
 
-Notice what the proof does *not* show: the objection lists are collected, so
-no step derives an individual objection. The proof's guarantee for the
-policy evaluation therefore rests mostly on trust; the legal analysis is
-covered by verified steps down to the provisions.
+The last 40 steps answer no question. They prove the facts the certificate
+lists, such as each objection: `objection('extend_portability',
+unaddressed('use_control'))` holds because use control needs development
+and extending portability does not deliver it, an absence of its own. So
+every individual objection now has steps. What remains on trust is only
+that each option's lists of deliveries and objections are complete, in the
+order given.
 
 ---
 
@@ -359,28 +400,16 @@ recommended('autonomous_right')
 
 // C1-C8: resolution, acyclicity, justification, coverage,
 // re-decision, boundary consistency, relevance and witness integrity.
-condition('C1', 'resolution', 'ok', 45)
-condition('C2', 'well_founded', 'ok', 68)
-condition('C3', 'justification', 'ok', 68)
-condition('C4', 'coverage', 'ok', 70)
+condition('C1', 'resolution', 'ok', 74)
+condition('C2', 'well_founded', 'ok', 108)
+condition('C3', 'justification', 'ok', 108)
+condition('C4', 'coverage', 'ok', 123)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 17)
-condition('C7', 'relevance', 'ok', 81)
+condition('C6', 'boundary_consistency', 'ok', 34)
+condition('C7', 'relevance', 'ok', 121)
 condition('C8', 'witness_integrity', 'ok', 0)
 
 // Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(fully_anchored('value_transparency')))
-obligation('collected', 'theory_scoped', findall(A, anchor(A, 'value_transparency', B, C), ['GDPR art. 13-15', 'AI Act art. 53(1)(d)']))
-obligation('absent', 'theory_scoped', not(fully_anchored('use_control')))
-obligation('collected', 'theory_scoped', findall(A, anchor(A, 'use_control', B, C), ['GDPR art. 7(3)', 'GDPR art. 21']))
-obligation('absent', 'theory_scoped', not(fully_anchored('value_mobility')))
-obligation('collected', 'theory_scoped', findall(A, anchor(A, 'value_mobility', B, C), ['GDPR art. 20', 'DMA art. 6(9)']))
-obligation('collected', 'theory_scoped', findall(A, anchor(A, 'value_recognition', B, C), ['Directive 2019/770 art. 3(1)']))
-obligation('absent', 'theory_scoped', not(fully_anchored('collective_exercise')))
-obligation('collected', 'theory_scoped', findall(A, anchor(A, 'collective_exercise', B, C), ['DGA ch. III']))
-obligation('collected', 'theory_scoped', findall(A, anchor(A, 'individual_enforcement', B, C), ['GDPR art. 79 and 82']))
-obligation('absent', 'theory_scoped', not(anchored('value_share')))
-obligation('collected', 'theory_scoped', findall(A, anchor(A, 'value_share', B, C), []))
 obligation('collected', 'theory_scoped', findall(A, delivers('interpret_existing_law', A), ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement']))
 obligation('collected', 'theory_scoped', findall(A, objection('interpret_existing_law', A), [unaddressed('value_share')]))
 obligation('collected', 'theory_scoped', findall(A, delivers('extend_portability', A), ['value_mobility', 'value_transparency']))
@@ -391,14 +420,13 @@ obligation('collected', 'theory_scoped', findall(A, delivers('data_ownership', A
 obligation('collected', 'theory_scoped', findall(A, objection('data_ownership', A), ['treats personal data as a commodity', unaddressed('value_transparency'), unaddressed('collective_exercise')]))
 obligation('collected', 'theory_scoped', findall(A, delivers('autonomous_right', A), ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share']))
 obligation('collected', 'theory_scoped', findall(A, objection('autonomous_right', A), []))
-obligation('absent', 'theory_scoped', not(objectionable('autonomous_right')))
 
 // Proof statistics: recorded steps and how they were checked.
-steps(68)
-verified(45)
+steps(108)
+verified(74)
 recomputed(0)
 composed(0)
-trusted(23)
+trusted(10)
 claims(13)
 
 // This verdict applies to the claims above; it does not establish completeness.
@@ -408,45 +436,48 @@ verdict('checked_with_obligations')
 Each `condition` line names a check, says `'ok'`, and counts what it looked
 at:
 
-- **C1 resolution (45)**: the 45 steps that cite a clause really are
+- **C1 resolution (74)**: the 74 steps that cite a clause really are
   instances of it with the values shown; for example, the gap step is rule
   43 with `C` = the value share.
-- **C2 well-founded (68)**: none of the 68 steps depends on itself, even
+- **C2 well-founded (108)**: none of the 108 steps depends on itself, even
   indirectly.
-- **C3 justification (68)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (70)**: the 13 claims and the 57 things the steps use are
+- **C3 justification (108)**: every step says how it was justified, in a
+  form the checker understands.
+- **C4 coverage (123)**: the 13 claims and the 110 things the steps use are
   each backed by a step: nothing is taken for granted silently.
 - **C5 re-decision (0)**: there is no arithmetic or other built-in
   calculation to recompute.
-- **C6 boundary consistency (17)**: the checker tries to refute each
-  trusted step with the program's facts and the proof's steps. 17 could be
-  confronted: the 5 absences about anchoring (the program has `anchor` facts
-  and the proof has `anchored` and `fully_anchored` steps), the 7 lists of
-  anchoring provisions and the 5 lists of what each option delivers (the
-  program has `anchor` and `delivers` facts). None is contradicted: for
-  instance, each list of anchoring provisions contains every `anchor` fact
-  the program has for that component. The other 6 are left undecided: the
-  absence "the autonomous right is not objectionable" and the 5 lists of
-  objections, because no fact or step of `objectionable` or `objection`
-  exists, so nothing could refute them. All 23 stay obligations.
-- **C7 relevance (81)**: the 13 claims each answer one of the program's
-  queries, and all 68 steps serve a claim.
+- **C6 boundary consistency (34)**: all 34 boundary steps, 17 absences and
+  17 collected lists, were confronted with the program's facts and the
+  proof's steps, and none is contradicted: for instance, each list of
+  anchoring provisions contains every `anchor` fact the program has for
+  that component. The 17 absences are settled by the search certificate,
+  and so are the 7 lists of anchoring provisions, which the checker reads
+  from the `anchor` facts. The 10 lists of what each option delivers and
+  meets as objections are not settled: `delivers` and `objection` facts
+  are partly or wholly derived by forward rules, so these lists stay
+  obligations.
+- **C7 relevance (121)**: the 13 claims each answer one of the program's
+  queries, and all 108 steps serve a claim.
 - **C8 witness integrity (0)**: no rule invents a new, unnamed thing, so
   there is no invented name to verify.
 
-The statistics: 68 steps, 45 verified against the program, 23 trusted, none
-recomputed or composed; 13 claims.
+The statistics: 108 steps, 74 verified against the program, 24 settled and
+10 trusted, none recomputed or composed; 13 claims.
 
-The 23 `obligation` lines are the trusted steps, in plain words: four
-components are *not fully anchored*, the value share is *not anchored at
-all*, the autonomous right is *not objectionable*, and 17 lists (the
-provisions per component, and what each option delivers and meets as
-objections) are *complete*. `'theory_scoped'` means each is meant relative to
-this program.
+The difference between settled and trusted is plain here. Settled, and so
+not obligations: four components are *not fully anchored*, the value share
+is *not anchored at all*, the autonomous right is *not objectionable*, each
+option leaves the listed components undelivered, and the 7 lists of
+provisions per component are complete. The 10 `obligation` lines are the
+trusted steps: for each of the five options, the list of what it delivers
+and the list of objections it meets are *complete*. Those lists gather
+facts that forward rules derived, and the order in which derived facts
+arose cannot be checked from the certificate. `'theory_scoped'` means each
+is meant relative to this program.
 
 The verdict is **checked with obligations**: every claim follows from the
-program, provided those 23 absences and lists hold. As the last comment says,
+program, provided those 10 lists hold. As the last comment says,
 it also does not establish completeness: it does not say these are all the
 conclusions the program has.
 

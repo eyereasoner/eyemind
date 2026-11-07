@@ -93,8 +93,8 @@ clause(11, implied_by(length([_0, ...Xs], N), [length(Xs, Before), is(N, add(Bef
 clause(12, implies([owner(Owner), findall(Dog, owns(Owner, Dog), Dogs), length(Dogs, N)], dog_count(Owner, N)))
 clause(13, implies([dog_count(Owner, N), gt(N, 4)], requires(Owner, 'dog_license')))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(dog_count('alice', 5), clause(12), {Owner: 'alice', Dog: A, Dogs: ['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], N: 5}, [owner('alice'), findall(A, owns('alice', A), ['dog1', 'dog2', 'dog3', 'dog4', 'dog5']), length(['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], 5)])
 step(owner('alice'), clause(8), {}, [])
 step(findall(A, owns('alice', A), ['dog1', 'dog2', 'dog3', 'dog4', 'dog5']), 'collected', {}, [])
@@ -136,8 +136,8 @@ Read the steps as sentences:
   her collected dogs are `dog1` to `dog5`, and that list has length 5.
 - **Step 2.** *Alice is an owner* — fact 8.
 - **Step 3.** *Alice's dogs are exactly `dog1` to `dog5`* — **collected**:
-  the list of every dog eyemind found for her. Taken on trust as complete
-  (see below).
+  the list of every dog eyemind found for her. The checker confirms it is
+  complete (see below).
 - **Steps 4 to 8.** *The list of five dogs has length 5*, *of four has
   length 4*, and so on down to *the list of one dog has length 1* — each by
   rule 11, one dog shorter each time, and each using an addition of 1.
@@ -146,8 +146,8 @@ Read the steps as sentences:
   *4 + 1 = 5* — **builtin**: calculations, which the checker redoes itself.
 - **Step 15.** *Bob has 2 dogs* — by rule 12, in the same way as Alice.
 - **Step 16.** *Bob is an owner* — fact 9.
-- **Step 17.** *Bob's dogs are exactly `dog6` and `dog7`* — collected, taken
-  on trust.
+- **Step 17.** *Bob's dogs are exactly `dog6` and `dog7`* — collected, and
+  confirmed the same way.
 - **Steps 18 and 19.** *Bob's list has length 2*, and *its last dog alone has
   length 1* — by rule 11. They reuse steps 9, 10 and 11 (the empty list,
   0 + 1 and 1 + 1), which are not repeated.
@@ -158,8 +158,10 @@ Read the steps as sentences:
 Why do no steps cite the `owns` facts? A `'collected'` step stands for the
 whole search behind a `findall`. Its list could be checked dog by dog, but
 the part that matters, "there are no other dogs", can only come from having
-searched everything. A proof cannot point at a missing dog, so this step is
-taken on trust rather than proved.
+searched everything. A proof cannot point at a missing dog, but here the
+checker does not need one: `owns` is defined only by facts, so the checker
+scans those facts itself and finds exactly the dogs in the list, in the same
+order.
 
 ---
 
@@ -171,7 +173,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 dog_count('alice', 5)
 dog_count('bob', 2)
 requires('alice', 'dog_license')
@@ -187,20 +189,16 @@ condition('C6', 'boundary_consistency', 'ok', 2)
 condition('C7', 'relevance', 'ok', 24)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('collected', 'theory_scoped', findall(A, owns('alice', A), ['dog1', 'dog2', 'dog3', 'dog4', 'dog5']))
-obligation('collected', 'theory_scoped', findall(A, owns('bob', A), ['dog6', 'dog7']))
-
 // Proof statistics: recorded steps and how they were checked.
 steps(21)
 verified(13)
 recomputed(6)
 composed(0)
-trusted(2)
+trusted(0)
 claims(3)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -217,22 +215,23 @@ at:
 - **C5 re-decision (6)**: the checker redid the 5 additions and the test
   5 > 4, and got the same results.
 - **C6 boundary consistency (2)**: both collected lists were confronted with
-  the evidence: no dog the proof or the program shows for Alice or Bob is
-  missing from their list.
+  the evidence and settled: scanning the `owns` facts gives exactly these
+  lists, so no dog of Alice or Bob is missing.
 - **C7 relevance (24)**: the 3 claims are conclusions of the program, and all
   21 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The statistics: 21 steps, 13 verified against the program, 6 recomputed, 2
-trusted, 3 claims.
+The statistics: 21 steps, 13 verified against the program, 6 recomputed and
+the 2 collections settled from the facts, none trusted, 3 claims.
 
-The two `obligation` lines are the two collections taken on trust: Alice's
-dogs are exactly `dog1` to `dog5`, and Bob's are exactly `dog6` and `dog7`.
-`'theory_scoped'` means "complete with respect to this program": add a dog
-and the list changes. The verdict is **checked with obligations**: the
-conclusions follow from the program, provided those lists are complete. The
-verdict does not say the program has no other conclusions.
+Neither collection is taken on trust. Because only facts define `owns`, the
+proof needs no search certificate: the checker reads the facts and confirms
+that Alice's dogs are exactly `dog1` to `dog5`, and Bob's exactly `dog6` and
+`dog7`. "Complete" means complete with respect to this program: add a dog
+and the list changes. The verdict is **checked**: the conclusions follow
+from the program. The verdict does not say the program has no other
+conclusions.
 
 ---
 
@@ -243,8 +242,8 @@ eyemind examples/dog-license.js
 eyemind --strict-proof --check-proof examples/proof/dog-license.js examples/dog-license.js
 ```
 
-The second command refuses any proof that leans on trust, so here it reports
-`verdict(failed(2))`: the two obligations.
+The second command refuses any proof that leans on trust. This one takes
+nothing on trust, so it reports `verdict('checked')`.
 
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=dog-license).
 Add `fact(owns('bob', 'dog8'))`, `fact(owns('bob', 'dog9'))` and

@@ -309,9 +309,11 @@ for (const entry of MANIFEST) {
 
   tests[`${name} deck verdict agrees with its check report`] = () => {
     const text = proofCard(deck(name));
-    const verdict = terms(read(`check/${name}.js`)).find((term) => term.name === 'verdict').args[0];
-    const stated = text.match(/\*\*(checked(?:_with_obligations| with obligations)?)\*\*/)?.[1]
-      ?? text.match(/verdict\('(checked(?:_with_obligations)?)'\)/)?.[1];
+    // The report's own verdict is its last fact; a deck states it last, after
+    // any verdicts its answers mention, as audited-grants does.
+    const verdict = terms(read(`check/${name}.js`)).findLast((term) => term.name === 'verdict').args[0];
+    const stated = [...text.matchAll(/\*\*(checked(?:_with_obligations| with obligations)?)\*\*/g)].at(-1)?.[1]
+      ?? [...text.matchAll(/verdict\('(checked(?:_with_obligations)?)'\)/g)].at(-1)?.[1];
     assert.ok(stated, `${name}: no verdict stated`);
     assert.equal(stated.replaceAll(' ', '_'), verdict);
   };

@@ -117,8 +117,8 @@ clause(4, implied_by(multiply(A, s(B), C), [multiply(A, B, D), add(A, D, C)]))
 clause(5, fact(factorial('zero', s('zero'))))
 clause(6, implied_by(factorial(s(N), F), [factorial(N, Before), multiply(s(N), Before, F)]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(add(s(s(s('zero'))), 'zero', s(s(s('zero')))), clause(1), {A: s(s(s('zero')))}, [])
 step(add(s(s('zero')), s('zero'), s(s(s('zero')))), clause(2), {A: s(s('zero')), B: 'zero', C: s(s('zero'))}, [add(s(s('zero')), 'zero', s(s('zero')))])
 step(add(s(s('zero')), 'zero', s(s('zero'))), clause(1), {A: s(s('zero'))}, [])

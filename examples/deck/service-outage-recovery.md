@@ -110,12 +110,13 @@ Why the plan works:
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each answer. The full proof has
-69 steps; see the
+494 steps and a search certificate of 377 `searched` lines; see the
 [proof file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/service-outage-recovery.js).
 Below are its claims, its clauses, and the complete chain of 61 steps behind
 the main answer, `best_repair(['catalog_replica', 'bank_backup'], 3)`. The
 `// …` lines mark the 6 steps for the two affected functions and the 2 for
-the restored ones.
+the restored ones, then the 425 steps behind the certificate, and all but
+a few lines of the certificate itself.
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -166,8 +167,8 @@ clause(45, implies([feasible_repair(Plan, Cost), not(cheaper_repair(Cost))], bes
 clause(46, implies([business_function(Function, Node), not(operating([], Node))], affected_function(Function)))
 clause(47, implies([best_repair(Plan, _0), business_function(Function, Node), operating(Plan, Node)], restored_function(Function)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 // … 6 steps left out
 step(best_repair(['catalog_replica', 'bank_backup'], 3), clause(45), {Plan: ['catalog_replica', 'bank_backup'], Cost: 3}, [feasible_repair(['catalog_replica', 'bank_backup'], 3), not(cheaper_repair(3))])
 step(feasible_repair(['catalog_replica', 'bank_backup'], 3), clause(43), {Plan: ['catalog_replica', 'bank_backup'], Cost: 3, Required: ['web_store', 'mobile_app']}, [repair_plan(['catalog_replica', 'bank_backup'], 3), critical_services(['web_store', 'mobile_app']), all_operating(['web_store', 'mobile_app'], ['catalog_replica', 'bank_backup'])])
@@ -231,9 +232,20 @@ step(node('mobile_app', 'up', ['checkout']), clause(10), {}, [])
 step(all_operating([], ['catalog_replica', 'bank_backup']), clause(41), {_0: ['catalog_replica', 'bank_backup']}, [])
 step(not(cheaper_repair(3)), 'absent', {}, [])
 // … 2 steps left out
+// … 425 more steps derive every other plan and what operates under it
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+// … four derived(...) listings: every operating, hardware_ready, repair_plan
+// and feasible_repair fact the rules derived
+searched(operating([], 'web_store'), [])
+// … 315 searched lines
+searched(operating([], 'mobile_app'), [])
+searched(cheaper_repair(3), [])
+// … 59 more searched lines
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the five answers.
 - **The clauses**: the program lines the steps cite, by their number. Lines
@@ -241,6 +253,10 @@ It has three parts:
   blanks are shown as `_0`, `_1`, ... so a step can name them.
 - **The steps**: one per thing established. A step reads
   `step(what, by which clause, with which values, using what)`.
+- **The search certificate**: the facts and searches behind the three
+  absences: each `derived(...)` line lists every fact the forward rules
+  derived for one relation, and each `searched(call, answers)` line records
+  one search with every answer it gave.
 
 Read the chain as sentences, grouped where steps repeat a pattern:
 
@@ -267,12 +283,21 @@ Read the chain as sentences, grouped where steps repeat a pattern:
    same checkout, already shown.
 8. Step 61: *no repair costs less than 3*: justified as `'absent'`. eyemind
    searched for a cheaper feasible plan and found none. The proof cannot show
-   something missing, so this is taken on trust.
+   something missing, so the search certificate backs it:
+   `searched(cheaper_repair(3), [])`.
 
 Two more steps of the same kind are among those left out: `not(operating([],
 'web_store'))` and `not(operating([], 'mobile_app'))`, "with no repairs, the
 website and the app do not run". They justify the two `affected_function`
-answers.
+answers, and the certificate backs them with
+`searched(operating([], 'web_store'), [])` and
+`searched(operating([], 'mobile_app'), [])`, with the searches for each
+node they depend on.
+
+The 425 extra steps answer no question. They prove every fact the
+`derived` listings name: each of the 16 repair plans with its cost, the 9
+feasible ones, and which nodes operate under each. Each listed fact needs
+steps of its own, so that the checker can trust the listing.
 
 ---
 
@@ -284,7 +309,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 affected_function('place_order')
 affected_function('mobile_checkout')
 best_repair(['catalog_replica', 'bank_backup'], 3)
@@ -293,68 +318,64 @@ restored_function('mobile_checkout')
 
 // C1-C8: resolution, acyclicity, justification, coverage,
 // re-decision, boundary consistency, relevance and witness integrity.
-condition('C1', 'resolution', 'ok', 64)
-condition('C2', 'well_founded', 'ok', 69)
-condition('C3', 'justification', 'ok', 69)
-condition('C4', 'coverage', 'ok', 98)
-condition('C5', 're_decision', 'ok', 2)
-condition('C6', 'boundary_consistency', 'ok', 2)
-condition('C7', 'relevance', 'ok', 74)
+condition('C1', 'resolution', 'ok', 476)
+condition('C2', 'well_founded', 'ok', 494)
+condition('C3', 'justification', 'ok', 494)
+condition('C4', 'coverage', 'ok', 1018)
+condition('C5', 're_decision', 'ok', 15)
+condition('C6', 'boundary_consistency', 'ok', 3)
+condition('C7', 'relevance', 'ok', 499)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(operating([], 'web_store')))
-obligation('absent', 'theory_scoped', not(operating([], 'mobile_app')))
-obligation('absent', 'theory_scoped', not(cheaper_repair(3)))
-
 // Proof statistics: recorded steps and how they were checked.
-steps(69)
-verified(64)
-recomputed(2)
+steps(494)
+verified(476)
+recomputed(15)
 composed(0)
-trusted(3)
+trusted(0)
 claims(5)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
 at:
 
-- **C1 resolution (64)**: the 64 steps that cite a program line really are
+- **C1 resolution (476)**: the 476 steps that cite a program line really are
   instances of it with the values shown.
-- **C2 well-founded (69)**: none of the 69 steps depends on itself, even
+- **C2 well-founded (494)**: none of the 494 steps depends on itself, even
   indirectly. This is where the payment and risk circle matters: payment
   operating rests on the risk engine, which rests on the risk cache, never
   back on payment.
-- **C3 justification (69)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (98)**: the 5 answers and the 93 things the steps use are
-  each backed by a step.
-- **C5 re-decision (2)**: the 2 sums, 1 + 0 = 1 and 2 + 1 = 3, were done
-  again by the checker.
-- **C6 boundary consistency (2)**: the 2 absences about operating with no
-  repairs were confronted with the evidence at hand: the proof shows nodes
-  operating only under the chosen plan, never with no repairs, so neither is
-  refuted. The third, "no cheaper repair", is left undecided: `cheaper_repair`
-  is only a rule, and no fact or step of it exists, so nothing could refute
-  it. All three stay obligations.
-- **C7 relevance (74)**: the 5 answers each answer one of the three
-  questions, and all 69 steps serve them.
+- **C3 justification (494)**: every step says how it was justified, in a
+  form the checker understands.
+- **C4 coverage (1018)**: the 5 answers and the 1013 things the steps use
+  are each backed by a step.
+- **C5 re-decision (15)**: the 15 sums, such as 1 + 0 = 1 and 2 + 1 = 3 for
+  the chosen plan, were done again by the checker.
+- **C6 boundary consistency (3)**: the 3 absences were confronted with the
+  evidence at hand: the proof shows nodes operating under many plans, but
+  the website and the app never with no repairs, and no feasible plan
+  costing less than 3. The search certificate settles all three.
+- **C7 relevance (499)**: the 5 answers each answer one of the three
+  questions, and all 494 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The three `obligation` lines spell out what is taken on trust: with no
-repairs, the website does not operate; with no repairs, the app does not
-operate; and no feasible plan costs less than 3. `'theory_scoped'` means
-these hold *within this program*. The statistics: 69 steps, 64 verified, 2
-recomputed and 3 trusted, for 5 claims.
+The three settled absences are: with no repairs, the website does not
+operate; with no repairs, the app does not operate; and no feasible plan
+costs less than 3. These hold *within this program*. The checker never
+repeats the search over every repair plan: it expands each `searched` call
+one level against the program, as a search would, answers every inner call
+from that call's own line, and reads relations the forward rules derive
+from the `derived` listings, which it accepts because each listed fact has
+its own steps and no rule derives a fact they leave out. The statistics:
+494 steps, 476 verified, 15 recomputed and the 3 absences settled, none
+trusted, for 5 claims.
 
-The verdict is **checked with obligations**. The plan works and costs 3,
-and that part is fully checked. That it is the *cheapest* rests on the
-obligation: the checker follows the certificate and does not repeat the
-search over every repair plan. The result also assumes the supplied hardware
+The verdict is **checked**. The plan works and costs 3, and that it is the
+*cheapest* is checked too. The result also assumes the supplied hardware
 states and dependency model, and, as the last comment says, it does not
 establish completeness.
 

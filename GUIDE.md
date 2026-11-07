@@ -168,8 +168,8 @@ Proofs cite the generator's premises directly, followed by the derived
 rule's own premises. They contain no synthetic enabling facts or steps. The
 checker reconstructs the compiled clauses from the source and checks both
 the derived rule's witnesses and those of its enclosing generators.
-Negations and collections retain their explicit proof obligations; the
-checker never runs the reasoner to fill them in.
+A negation or collection whose search reaches a derived rule instance stays
+an obligation; the checker never runs the reasoner to fill it in.
 
 See the decks for [derived forward rules](https://eyereasoner.github.io/eyemind/examples/deck/derived-rule),
 [derived backward rules](https://eyereasoner.github.io/eyemind/examples/deck/derived-backward-rule), and a
@@ -201,8 +201,8 @@ pattern in place: passing a stored rule value, as in
 so that rule is no longer stated and the inspection finds nothing. Each match and each use
 of a derived pattern receives fresh variables. Its proof includes a
 `source(N)` step; the checker verifies the pattern against that source rule.
-Negation and collection still report their obligations, with the catalogue
-available to refute inconsistent evidence. If a conclusion introduces an
+A negation or collection whose search reaches an inspection stays an
+obligation, with the catalogue available to refute inconsistent evidence. If a conclusion introduces an
 existential witness, bind its inspected pattern variables first: a generic
 pattern cannot share one witness across all its instances.
 
@@ -320,7 +320,7 @@ A proof holds the claims, the source clauses it cites, and one `step(...)` recor
 | **C3** | justification | Every step's justification is known, well-formed and unique |
 | **C4** | coverage | Every claim and every premise is accounted for |
 | **C5** | re-decision | Built-in calculations are recomputed rather than trusted; a float from `exp`, `log`, trigonometry or `pow` may be up to 4 units in the last place off, since math libraries differ |
-| **C6** | boundary consistency | No trusted absence or collection is contradicted by the evidence at hand |
+| **C6** | boundary consistency | Every absence and collection is settled by the proof's search certificate, or else is an obligation the evidence at hand does not contradict |
 | **C7** | relevance | Every claim answers the question asked, and every step serves a claim |
 | **C8** | witness integrity | Every "something exists" conclusion uses the Skolem term of its own rule firing, not a value of the prover's choosing |
 
@@ -362,7 +362,7 @@ Failures appear as `failed(N)` outcomes with `failure(Condition, Conclusion, Det
 
 ### Why negation and collection are safe
 
-A negation, `not(G)`, concludes something from what is *not* there, and a collection, `findall(T, G, L)`, from *everything* that is there. Both are only right once nothing more can be derived. eyemind guards them in four ways.
+A negation, `not(G)`, concludes something from what is *not* there, and a collection, `findall(T, G, L)`, from *everything* that is there. Both are only right once nothing more can be derived. eyemind guards them in five ways.
 
 **Ask only once the answer is final.** eyemind works out which clauses each body goal depends on, ranks the rules so that every rule that could still produce a fact a negation or collection inspects runs to its fixpoint first, and rejects a program with no such ranking:
 
@@ -375,9 +375,16 @@ Positive cycles, such as transitive closure, are fine. Ranks compare whole terms
 
 **Negate only what is bound.** The variables of `not(G)` must be bound when it is solved; otherwise eyemind stops with an error. When "no value at all" is what you mean, say so with `_`: `not(q(X, _))` holds when `q(X, Y)` has no solution for any `Y`.
 
-**Say what was taken on trust.** A proof records each negation as an `'absent'` step and each collection as a `'collected'` step, the report lists them as `obligation('absent', 'theory_scoped', Goal)`, and the verdict is `checked_with_obligations`. `--strict-proof` rejects any proof that leans on one.
+**Check the search, not just its result.** A proof records each negation as an `'absent'` step and each collection as a `'collected'` step, and ends with a *search certificate* that settles them. For every call the search behind them made, `searched(Call, Answers)` lists every answer, in order; for every relation that forward rules derive and the search consulted, `derived(Pattern, Facts)` lists every derived fact. The checker expands each call one level against the program, as a search would, with every inner call answered by its own table: no table vouches for itself, so a wrong one shows as a disagreement, and the checker still never searches. A listing must have a step for each fact and be closed: under the listed facts, no forward rule derives one it leaves out. Facts alone need no table, and a primitive is simply recomputed. In Nixon's case the certificate is two lines:
 
-**Refute them when the evidence allows.** An absence fails C6 when a fact of the program, a step of the proof or a recomputed primitive is a solution after all, and a collection fails when such a solution is missing from its list.
+```js
+derived(nonpacifist(A), [nonpacifist('nixon')])
+searched(nonpacifist('ada'), [])
+```
+
+**Say what was taken on trust.** What a certificate cannot settle stays an obligation: a collection or `once` whose answers rest on derived facts, since the order facts were derived in cannot be checked this way, and a search that reaches rule templates or inspection. The report lists each as `obligation('absent', 'theory_scoped', Goal)` or `obligation('collected', ...)`, and the verdict is `checked_with_obligations`. `--strict-proof` rejects any proof that leans on one.
+
+**Refute them when the evidence allows.** An absence fails C6 when its own search finds a solution, or, without a certificate, when a fact of the program, a step of the proof or a recomputed primitive is a solution after all; a collection fails when such a solution is missing from its list.
 
 ## Checking the translation
 

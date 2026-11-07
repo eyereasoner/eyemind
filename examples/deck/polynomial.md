@@ -111,7 +111,8 @@ number standing in for 0).
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each answer. This is the
-complete proof:
+proof, with its claims, clause and steps in full; its search certificate
+has 654 lines, of which a few are shown:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -121,15 +122,23 @@ roots([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], [[3.000000000000004, 2.
 // Clauses: the program clauses the steps cite, by clause number.
 clause(1, implied_by(roots(P, L), findall(Z, racine(P, Z), L)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(roots([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]]), clause(1), {P: [[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], L: [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]], Z: A}, [findall(A, racine([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], A), [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]])])
 step(findall(A, racine([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], A), [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]]), 'collected', {}, [])
 step(roots([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]]), clause(1), {P: [[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], L: [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]], Z: B}, [findall(B, racine([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], B), [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]])])
 step(findall(B, racine([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], B), [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]]), 'collected', {}, [])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+// … searched(racine(...), [...]) with the four roots of the first polynomial
+searched(est(D, floordiv([-10, 0], fois([-4, 0], [1, 0]))), [est([2.5, -0.0], floordiv([-10, 0], fois([-4, 0], [1, 0])))])
+searched(est(E, [-10, 0]), [est([-10, 0], [-10, 0])])
+searched(est(F, fois([-4, 0], [1, 0])), [est([-4, 0], fois([-4, 0], [1, 0]))])
+// … 650 more searched lines, down to each calculation, for both polynomials
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the two answers the proof is about.
 - **The clauses**: the one program rule the steps cite, the `roots` rule,
@@ -137,6 +146,11 @@ It has three parts:
 - **The steps**: one per thing established. A step reads
   `step(what, justified by, with which values, using what)`. The variable
   `A` (and `B`) stands for "a root" inside the collection.
+- **The search certificate**: every call the two collections made, each
+  written `searched(call, answers)` with every answer it gave. The first
+  line lists the four roots `racine` finds for the first polynomial; the
+  lines below it record the calls that search made, down to each
+  calculation, such as `est(D, floordiv(...))`, one complex division.
 
 Read the steps as sentences:
 
@@ -152,11 +166,11 @@ Read the steps as sentences:
 4. *Collecting every root for the second polynomial gives that list* —
    `'collected'` again.
 
-All the arithmetic happens *inside* the collection, so this proof is short.
-A `'collected'` step is not proved: the claim that the list holds **all**
-the roots, and nothing else, rests on eyemind's search being complete. The
-checker treats it as an *obligation*, something taken on trust and listed
-openly. To see every calculation, ask for one root at a time (see "Try it").
+All the arithmetic happens *inside* the collection, so the steps are few.
+A `'collected'` step has no steps of its own: the claim that the list holds
+**all** the roots, and nothing else, is backed by the search certificate.
+To see every calculation as steps, ask for one root at a time (see "Try
+it").
 
 ---
 
@@ -168,7 +182,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 roots([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]])
 roots([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]])
 
@@ -179,24 +193,20 @@ condition('C2', 'well_founded', 'ok', 4)
 condition('C3', 'justification', 'ok', 4)
 condition('C4', 'coverage', 'ok', 4)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C6', 'boundary_consistency', 'ok', 2)
 condition('C7', 'relevance', 'ok', 6)
 condition('C8', 'witness_integrity', 'ok', 0)
-
-// Obligations: absence and collection completeness are taken on trust.
-obligation('collected', 'theory_scoped', findall(A, racine([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], A), [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]]))
-obligation('collected', 'theory_scoped', findall(A, racine([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], A), [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]]))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(4)
 verified(2)
 recomputed(0)
 composed(0)
-trusted(2)
+trusted(0)
 claims(2)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -213,24 +223,23 @@ at:
   are each backed by a step.
 - **C5 re-decision (0)**: no built-in calculation appears as a step of its
   own here, so there is nothing to recompute.
-- **C6 boundary consistency (0)**: the checker had nothing to confront the
-  two collected lists with. A `racine` step showing a root missing from a
-  list would refute it, but `racine` is only a rule and the proof records
-  no `racine` step. Both lists are left undecided and stay obligations
-  taken on trust.
+- **C6 boundary consistency (2)**: the two collected lists were confronted
+  with the evidence, and the search certificate settles both.
 - **C7 relevance (6)**: the 2 claims answer the two queries, and all 4 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
 
-The two `obligation(...)` lines say, in plain words: *"we take on trust that
-this list is every root `racine` finds for this polynomial."* The label
-`'theory_scoped'` means the trust is limited to this program: the claim is
-"every root these rules produce", not a statement about mathematics at large.
+Each list is "every root `racine` finds for this polynomial", and the
+checker confirms it without searching: it expands each `searched` call one
+level against the program, as a search would, and answers every inner call
+from that call's own line, recomputing the calculations, so no line vouches
+for itself. The claim is "every root these rules produce", not a statement
+about mathematics at large.
 
-The statistics: 4 steps, 2 verified against the program, 2 taken on trust,
-none recomputed. The verdict is **checked with obligations**: the answers
-follow from the program, provided the two collections are complete. It does
-not establish that the rounded roots are exact, nor that there are no other
+The statistics: 4 steps, 2 verified against the program and the 2
+collections settled by the certificate, none trusted, none recomputed as
+steps. The verdict is **checked**: the answers follow from the program. It
+does not establish that the rounded roots are exact, nor that there are no other
 answers.
 
 ---
@@ -248,7 +257,8 @@ with no collection: about 3, 1 and 2, each with a rounding error near 10⁻¹⁶
 The third checks that proof against the same goal. It has 263 steps, and the
 checker recomputes 124 calculations itself. Its verdict is `'checked'`, with
 nothing taken on trust, even under `--strict-proof`, which rejects any
-obligation.
+obligation. The main proof passes `--strict-proof` too, since its
+certificate settles both collections.
 
 Ask for `roots([[1, 0], [-3, 0], [2, 0]], L)` with `--goal`: the quadratic
 x² − 3x + 2 has the roots `[2.0, 0.0]` and `[1.0, 0.0]`. Ask for
@@ -259,6 +269,6 @@ eyemind finds i and −i (with a real part of about 6·10⁻¹⁷ for 0).
 
 ## Takeaway
 
-You can choose the shape of the explanation: a compact one that trusts a
-complete search, or a long one where every multiplication is rechecked.
-Either way, the report says exactly which one you got.
+You can choose the shape of the explanation: a compact one whose steps
+leave the search to a certificate, or a long one where every multiplication
+is a step of its own. Either way, the checker confirms the answer.

@@ -155,8 +155,8 @@ clause(16, implied_by(in_range(Low, High, Low), le(Low, High)))
 clause(17, implied_by(in_range(Low, High, N), [lt(Low, High), is(Next, add(Low, 1)), in_range(Next, High, N)]))
 clause(18, implies([in_range(1, 5, N), moves(N, Moves), reaches_goal(Moves)], plan(Moves)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(plan([go('loc3'), push('loc1'), 'climb_on', 'grab']), clause(18), {N: 4, Moves: [go('loc3'), push('loc1'), 'climb_on', 'grab']}, [in_range(1, 5, 4), moves(4, [go('loc3'), push('loc1'), 'climb_on', 'grab']), reaches_goal([go('loc3'), push('loc1'), 'climb_on', 'grab'])])
 step(in_range(1, 5, 4), clause(17), {Low: 1, High: 5, N: 4, Next: 2}, [lt(1, 5), is(2, add(1, 1)), in_range(2, 5, 4)])
 step(lt(1, 5), 'builtin', {}, [])

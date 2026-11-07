@@ -94,8 +94,8 @@ clause(3, fact(description('sam', ['novice', 'cobbler'])))
 clause(4, implies(description(Person, [_0, Trade]), classified_as(Person, Trade)))
 clause(5, implies(description(Person, ['good', Trade]), good_at(Person, Trade)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(good_at('joe', 'cobbler'), clause(5), {Person: 'joe', Trade: 'cobbler'}, [description('joe', ['good', 'cobbler'])])
 step(description('joe', ['good', 'cobbler']), clause(1), {}, [])
 step(good_at('jane', 'carpenter'), clause(5), {Person: 'jane', Trade: 'carpenter'}, [description('jane', ['good', 'carpenter'])])

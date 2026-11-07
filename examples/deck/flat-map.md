@@ -92,8 +92,8 @@ clause(6, implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs)))
 clause(7, fact(flat_map([], _0, [])))
 clause(8, implied_by(flat_map([S, ...Subjects], P, Objects), [findall(O, t(S, P, O), Here), flat_map(Subjects, P, Rest), append(Here, Rest, Objects)]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4']), clause(8), {S: 's1', Subjects: ['s2', 's3'], P: 'p1', Objects: ['o1', 'o2', 'o3', 'o4'], O: A, Here: ['o1'], Rest: ['o2', 'o3', 'o4']}, [findall(A, t('s1', 'p1', A), ['o1']), flat_map(['s2', 's3'], 'p1', ['o2', 'o3', 'o4']), append(['o1'], ['o2', 'o3', 'o4'], ['o1', 'o2', 'o3', 'o4'])])
 step(findall(A, t('s1', 'p1', A), ['o1']), 'collected', {}, [])
 step(flat_map(['s2', 's3'], 'p1', ['o2', 'o3', 'o4']), clause(8), {S: 's2', Subjects: ['s3'], P: 'p1', Objects: ['o2', 'o3', 'o4'], O: B, Here: ['o2'], Rest: ['o3', 'o4']}, [findall(B, t('s2', 'p1', B), ['o2']), flat_map(['s3'], 'p1', ['o3', 'o4']), append(['o2'], ['o3', 'o4'], ['o2', 'o3', 'o4'])])
@@ -134,7 +134,7 @@ Read the steps as sentences:
    rule 8: the values of `s1` are `['o1']`, the flat map of the rest is
    `['o2', 'o3', 'o4']`, and joining them gives the answer.
 2. *All `p1` values of `s1` are `['o1']`* — **collected**: everything eyemind
-   found. Taken on trust as complete (see below).
+   found. The checker confirms it is complete (see below).
 3. *The flat map of `s2`, `s3` is `['o2', 'o3', 'o4']`* — by rule 8, in the
    same way.
 4. *All `p1` values of `s2` are `['o2']`* — collected.
@@ -160,7 +160,9 @@ Read the steps as sentences:
 Why do no steps cite the `t` facts? A `'collected'` step stands for the whole
 search behind a `findall`. The part that matters, "there are no other
 values", can only come from having searched everything. A proof cannot point
-at a missing value, so this step is taken on trust rather than proved.
+at a missing value, but here the checker does not need one: `t` is defined
+only by facts, so the checker scans those facts itself and finds exactly the
+values in each list, in the same order.
 
 ---
 
@@ -172,7 +174,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4'])
 flat_map(['missing'], 'p1', [])
 flat_map(['s1'], 'p2', [])
@@ -188,23 +190,16 @@ condition('C6', 'boundary_consistency', 'ok', 5)
 condition('C7', 'relevance', 'ok', 22)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('collected', 'theory_scoped', findall(A, t('s1', 'p1', A), ['o1']))
-obligation('collected', 'theory_scoped', findall(A, t('s2', 'p1', A), ['o2']))
-obligation('collected', 'theory_scoped', findall(A, t('s3', 'p1', A), ['o3', 'o4']))
-obligation('collected', 'theory_scoped', findall(A, t('missing', 'p1', A), []))
-obligation('collected', 'theory_scoped', findall(A, t('s1', 'p2', A), []))
-
 // Proof statistics: recorded steps and how they were checked.
 steps(19)
 verified(14)
 recomputed(0)
 composed(0)
-trusted(5)
+trusted(0)
 claims(3)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -220,25 +215,24 @@ at:
   backed by a step.
 - **C5 re-decision (0)**: there was no calculation to redo.
 - **C6 boundary consistency (5)**: all 5 collected lists were confronted with
-  the evidence, and none is contradicted: no value in the program or the
-  proof is missing from its list.
+  the evidence and settled: scanning the `t` facts gives exactly these lists,
+  so no value is missing from any of them.
 - **C7 relevance (22)**: the 3 claims answer the queries, and all 19 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The statistics: 19 steps, 14 verified against the program, 5 trusted, 3
-claims.
+The statistics: 19 steps, 14 verified against the program and the 5
+collections settled from the facts, none trusted, 3 claims.
 
-The five `obligation` lines are the five collections taken on trust: for
-example that `s3` has exactly `['o3', 'o4']` and that `missing` has nothing
-at all. `'theory_scoped'` means "complete with respect to this program": if
-someone adds a fact, these lists could change, and the report says exactly
-which ones. The verdict is **checked with obligations**: the three answers
-follow from the program, provided those lists are complete. The verdict does
-not say the program has no other conclusions. A stricter check,
-`--strict-proof`, rejects any proof that leans on such trust; this one would
-fail it on exactly these 5 lists.
+None of the five collections is taken on trust: for example that `s3` has
+exactly `['o3', 'o4']` and that `missing` has nothing at all. Because only
+facts define `t`, the proof needs no search certificate; the checker reads
+the facts. "Complete" means complete with respect to this program: if
+someone adds a fact, these lists could change. The verdict is **checked**:
+the three answers follow from the program. The verdict does not say the
+program has no other conclusions. A stricter check, `--strict-proof`,
+rejects any proof that leans on trust; this one passes it.
 
 ---
 
@@ -260,5 +254,5 @@ becomes `['o1', 'o2', 'o5', 'o3', 'o4']`.
 ## Takeaway
 
 "Here are all the matches" is a stronger statement than "here are some
-matches". eyemind gives you the answer and marks precisely where it relied on
-having seen everything — so you know what to recheck when the data grows.
+matches". eyemind gives you the answer, the proof marks precisely where it relied on
+having seen everything, and the checker confirms that nothing was missed.

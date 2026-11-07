@@ -11,8 +11,8 @@ clause(2, implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs)))
 clause(3, fact(matching_pair(pair(X, X))))
 clause(4, fact(head_tail([Head, ...Tail], Head, Tail)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(append([], ['a', 'b'], ['a', 'b']), clause(1), {Ys: ['a', 'b']}, [])
 step(append(['a'], ['b'], ['a', 'b']), clause(2), {X: 'a', Xs: [], Ys: ['b'], Zs: ['b']}, [append([], ['b'], ['b'])])
 step(append([], ['b'], ['b']), clause(1), {Ys: ['b']}, [])

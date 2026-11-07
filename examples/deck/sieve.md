@@ -104,8 +104,8 @@ clause(6, fact(remove(_0, [], [])))
 clause(7, implied_by(remove(P, [I, ...Is], Rest), [eq(0, mod(I, P)), remove(P, Is, Rest)]))
 clause(8, implied_by(remove(P, [I, ...Is], [I, ...Rest]), [ne(0, mod(I, P)), remove(P, Is, Rest)]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 // … steps 1–697: build the list 2 to 100, sift out 2, 3 and 5, start on 7
 step(remove(7, [77, 79, 83, 89, 91, 97], [79, 83, 89, 97]), clause(7), {P: 7, I: 77, Is: [79, 83, 89, 91, 97], Rest: [79, 83, 89, 97]}, [eq(0, mod(77, 7)), remove(7, [79, 83, 89, 91, 97], [79, 83, 89, 97])])
 step(eq(0, mod(77, 7)), 'builtin', {}, [])

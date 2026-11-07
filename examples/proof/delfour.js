@@ -87,8 +87,8 @@ clause(73, implies([case_policy(Case, Policy), case_insight(Case, Insight), proh
 clause(74, implies(files_written(Case, 6), passed(Case, 'expected_file_count')))
 clause(75, implies([passed(Case, 'trusted_signature'), passed(Case, 'matching_hash'), passed(Case, 'minimal_payload'), passed(Case, 'complete_scope'), passed(Case, 'authorization'), passed(Case, 'high_sugar'), passed(Case, 'lower_sugar'), passed(Case, 'duty_timing'), passed(Case, 'marketing_prohibited'), passed(Case, 'expected_file_count')], all_checks_pass(Case)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(case_name('delfour', 'delfour'), clause(1), {}, [])
 step(derived_need('sugar_insight', 'low_sugar'), clause(57), {}, [])
 step(decision('delfour', 'Allowed', 'sugar_insight'), clause(63), {Case: 'delfour', Insight: 'sugar_insight'}, [passed('delfour', 'authorization'), case_insight('delfour', 'sugar_insight')])
@@ -159,3 +159,10 @@ step(not(contains('createdat expiresat insight metric sugar_g_per_serving retail
 step(not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical')), 'absent', {}, [])
 step(passed('delfour', 'lower_sugar'), clause(71), {Case: 'delfour', Most: 120, Product: 'prod_BIS_101', Sugar: 30}, [scanned_sugar('delfour', 120), alternative('delfour', 'prod_BIS_101'), sugar('prod_BIS_101', 30), lt(30, 120)])
 step(all_checks_pass('delfour'), clause(75), {Case: 'delfour'}, [passed('delfour', 'trusted_signature'), passed('delfour', 'matching_hash'), passed('delfour', 'minimal_payload'), passed('delfour', 'complete_scope'), passed('delfour', 'authorization'), passed('delfour', 'high_sugar'), passed('delfour', 'lower_sugar'), passed('delfour', 'duty_timing'), passed('delfour', 'marketing_prohibited'), passed('delfour', 'expected_file_count')])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched(beaten('delfour', 'prod_BIS_101'), [])
+searched(considers('delfour', A), [considers('delfour', 'prod_BIS_101')])
+searched(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'diabetes'), [])
+searched(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical'), [])

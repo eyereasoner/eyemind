@@ -11,17 +11,14 @@ condition('C2', 'well_founded', 'ok', 57)
 condition('C3', 'justification', 'ok', 57)
 condition('C4', 'coverage', 'ok', 69)
 condition('C5', 're_decision', 'ok', 18)
-condition('C6', 'boundary_consistency', 'ok', 2)
+condition('C6', 'boundary_consistency', 'ok', 3)
 condition('C7', 'relevance', 'ok', 61)
 condition('C8', 'witness_integrity', 'ok', 0)
 
 // Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(has_notice('c1')))
-obligation('absent', 'theory_scoped', not(safeguard('c1', 'inform')))
 obligation('collected', 'theory_scoped', findall(A, higher(100, A), []))
 obligation('collected', 'theory_scoped', findall(A, higher(85, A), [100, 97]))
 obligation('collected', 'theory_scoped', findall(A, higher(70, A), [100, 85, 97]))
-obligation('absent', 'theory_scoped', not(safeguard('c3', 'consent')))
 obligation('collected', 'theory_scoped', findall(A, higher(97, A), [100]))
 
 // Proof statistics: recorded steps and how they were checked.
@@ -29,7 +26,7 @@ steps(57)
 verified(32)
 recomputed(18)
 composed(0)
-trusted(7)
+trusted(4)
 claims(4)
 
 // This verdict applies to the claims above; it does not establish completeness.

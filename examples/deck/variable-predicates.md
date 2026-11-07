@@ -92,8 +92,8 @@ clause(3, fact(maps('source_name', 'name')))
 clause(4, fact(maps('source_age', 'age')))
 clause(5, implies([t(S, Source, O), maps(Source, Target)], t(S, Target, O)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(t('alice', 'name', 'Alice'), clause(5), {S: 'alice', Source: 'source_name', O: 'Alice', Target: 'name'}, [t('alice', 'source_name', 'Alice'), maps('source_name', 'name')])
 step(t('alice', 'source_name', 'Alice'), clause(1), {}, [])
 step(maps('source_name', 'name'), clause(3), {}, [])

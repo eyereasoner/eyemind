@@ -146,8 +146,8 @@ clause(16, implies([point('z', Z), point('w', W), complex_add(Z, W, Sum)], sum(S
 clause(17, implies([point('z', Z), point('w', W), complex_mul(Z, W, Product)], product(Product)))
 // … clauses 18 to 53, without 29 and 30, which no step needs
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(sum(complex(4, 6)), clause(16), {Z: complex(3, 4), W: complex(1, 2), Sum: complex(4, 6)}, [point('z', complex(3, 4)), point('w', complex(1, 2)), complex_add(complex(3, 4), complex(1, 2), complex(4, 6))])
 step(point('z', complex(3, 4)), clause(12), {}, [])
 step(point('w', complex(1, 2)), clause(13), {}, [])

@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 consented('approved', 'alice')
 needs_review('incomplete', 'bob')
 
@@ -13,16 +13,13 @@ condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 12)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes'))))
-
 // Proof statistics: recorded steps and how they were checked.
 steps(10)
 verified(9)
 recomputed(0)
 composed(0)
-trusted(1)
+trusted(0)
 claims(2)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')

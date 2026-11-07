@@ -144,8 +144,8 @@ clause(32, fact(message(3)))
 clause(33, fact(odd([_0])))
 clause(35, implies([message(N), message(M), findall(Path, path(N, M, Path), Paths), odd(Paths)], sdcoding(N, M)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(sdcoding(0, 0), clause(35), {N: 0, M: 0, Path: A, Paths: [['true', 'true', 'true']]}, [message(0), message(0), findall(A, path(0, 0, A), [['true', 'true', 'true']]), odd([['true', 'true', 'true']])])
 step(message(0), clause(29), {}, [])
 step(findall(A, path(0, 0, A), [['true', 'true', 'true']]), 'collected', {}, [])
@@ -162,6 +162,35 @@ step(sdcoding(3, 3), clause(35), {N: 3, M: 3, Path: A, Paths: [['false', 'false'
 step(message(3), clause(32), {}, [])
 step(findall(A, path(3, 3, A), [['false', 'false', 'false']]), 'collected', {}, [])
 step(odd([['false', 'false', 'false']]), clause(33), {_0: ['false', 'false', 'false']}, [])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched(path(0, 0, B), [path(0, 0, ['true', 'true', 'true'])])
+searched(alice(0, ['false', C]), [alice(0, ['false', 'false'])])
+searched(bob(['false', 'false'], 0), [])
+searched(gk('false', 'false'), [])
+searched(alice(0, ['true', C]), [alice(0, ['true', 'true'])])
+searched(bob(['true', 'true'], 0), [bob(['true', 'true'], 0)])
+searched(gk('true', 'true'), [gk('true', 'true')])
+searched(path(1, 1, D), [path(1, 1, ['false', 'false', 'true'])])
+searched(alice(1, ['false', E]), [alice(1, ['false', 'true'])])
+searched(bob(['true', 'false'], 1), [bob(['true', 'false'], 1)])
+searched(alice(1, ['true', E]), [alice(1, ['true', 'false'])])
+searched(bob(['false', 'true'], 1), [])
+searched(path(2, 2, F), [path(2, 2, ['true', 'true', 'false'])])
+searched(alice(2, ['false', G]), [alice(2, ['false', 'false'])])
+searched(bob(['false', 'false'], 2), [])
+searched(alice(2, ['true', G]), [alice(2, ['true', 'false']), alice(2, ['true', 'true'])])
+searched(bob(['false', 'true'], 2), [bob(['false', 'true'], 2)])
+searched(bob(['true', 'true'], 2), [])
+searched(path(3, 3, H), [path(3, 3, ['false', 'false', 'false'])])
+searched(alice(3, ['false', I]), [alice(3, ['false', 'false']), alice(3, ['false', 'true'])])
+searched(kg('false', J), [kg('false', 'false'), kg('false', 'true')])
+searched(bob(['false', 'false'], 3), [bob(['false', 'false'], 3)])
+searched(bob(['true', 'false'], 3), [])
+searched(alice(3, ['true', I]), [alice(3, ['true', 'false'])])
+searched(kg('true', K), [kg('true', 'false')])
+searched(bob(['false', 'true'], 3), [])
 ```
 
 It has three parts:
@@ -172,6 +201,9 @@ It has three parts:
   `_` of fact 33 is shown as `_0` so a step can name it.
 - **The steps**: one per thing established. A step reads
   `step(what, by which clause, with which values, using what)`.
+- **The search certificate**: every search that the four collections made,
+  each written `searched(call, answers)` with every answer it gave, in the
+  order the calls were first met.
 
 Read the steps for message 0 as sentences:
 
@@ -184,13 +216,23 @@ Read the steps for message 0 as sentences:
 3. *All the ways from 0 to 0 are `[['true', 'true', 'true']]`*: justified as
    `'collected'`. This step is not derived from the program within the
    proof. eyemind ran the search and recorded the resulting list, and the
-   proof takes that list on trust: that these are the ways, and that there
-   are no others.
+   search certificate records the search itself, so the checker can confirm
+   that these are the ways, and that there are no others.
 4. *A list of one item is odd*: fact 33, with `_0` = the one way.
 
 Steps 5–8, 9–12 and 13–16 say the same for messages 1, 2 and 3, each with
 exactly one way: `['false', 'false', 'true']`, `['true', 'true', 'false']`
 and `['false', 'false', 'false']`.
+
+The certificate's first seven lines are the search behind step 3. The way
+from 0 to 0 needs a shared pair `[X, Y]`, Alice's operation for message 0
+on X, and Bob's reading 0 of the result. With X false, Alice gives
+`['false', 'false']`, but Bob cannot read `['false', 'false']` as 0
+(`gk('false', 'false')` has no answers). With X true, Alice gives
+`['true', 'true']`, and Bob does read that as 0. So the search gives
+exactly one way, `path(0, 0, ['true', 'true', 'true'])`. The other lines do
+the same for messages 1, 2 and 3. No `derived` line is needed: no forward
+rule concludes anything these searches consult.
 
 ---
 
@@ -202,7 +244,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 sdcoding(0, 0)
 sdcoding(1, 1)
 sdcoding(2, 2)
@@ -215,26 +257,20 @@ condition('C2', 'well_founded', 'ok', 16)
 condition('C3', 'justification', 'ok', 16)
 condition('C4', 'coverage', 'ok', 20)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C6', 'boundary_consistency', 'ok', 4)
 condition('C7', 'relevance', 'ok', 20)
 condition('C8', 'witness_integrity', 'ok', 0)
-
-// Obligations: absence and collection completeness are taken on trust.
-obligation('collected', 'theory_scoped', findall(A, path(0, 0, A), [['true', 'true', 'true']]))
-obligation('collected', 'theory_scoped', findall(A, path(1, 1, A), [['false', 'false', 'true']]))
-obligation('collected', 'theory_scoped', findall(A, path(2, 2, A), [['true', 'true', 'false']]))
-obligation('collected', 'theory_scoped', findall(A, path(3, 3, A), [['false', 'false', 'false']]))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(16)
 verified(12)
 recomputed(0)
 composed(0)
-trusted(4)
+trusted(0)
 claims(4)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -251,26 +287,26 @@ at:
   each backed by a step.
 - **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
   recomputing.
-- **C6 boundary consistency (0)**: the checker had nothing to confront the
-  4 collected lists with. It would look for a `path` in the program's facts
-  and the proof's steps that is missing from a list, but there are none to
-  see: the ways are computed by rules, not listed as facts, and the proof
-  does not record them. So the lists are left undecided: nothing refutes
-  them, but nothing confirms them either.
+- **C6 boundary consistency (4)**: the 4 collected lists were confronted
+  with the evidence, and the search certificate settles all four: each list
+  holds exactly the ways the searches found, in the same order.
 - **C7 relevance (20)**: the 4 claims answer the question, and all 16 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The four `obligation` lines spell out what is taken on trust: for each
-message, that its list holds *all* the ways to the matching reading.
-`'theory_scoped'` means "all within this program". The statistics: 16 steps,
-12 verified against the program, 4 trusted, for 4 claims.
+Nothing is taken on trust. The checker verifies each `searched` line
+without searching itself: it expands the call one level against the
+program, as a search would, and answers every inner call from that call's
+own line, or from the facts when only facts define the relation. So no line
+vouches for itself, and a list with a way missing or added would disagree
+with the expansion and fail the check. That matters here more than usual: a
+single missing or extra way would flip an odd count to even, and the answer
+would change. "All the ways" means all within this program. The
+statistics: 16 steps, 12 verified against the program and the 4
+collections settled by the certificate, none trusted, for 4 claims.
 
-The verdict is **checked with obligations**: each answer follows from the
-program *provided* the four collected lists are right. This matters here more
-than usual: a single missing or extra way would flip an odd count to even,
-and the answer would change. The verdict also does not establish
+The verdict is **checked**: each answer follows from the program. The verdict also does not establish
 completeness: that no message arrives as a *different* one rests on eyemind's
 own search, which the proof does not record.
 
@@ -303,5 +339,5 @@ protocol, quantum teleportation, in the same theory with the same relations.
 ## Takeaway
 
 Quantum interference can be expressed as ordinary rules plus one twist:
-count the ways, keep the odd ones. eyemind shows each answer's ways, and is
-upfront that "these are all the ways" is the one thing taken on trust.
+count the ways, keep the odd ones. eyemind shows each answer's ways, and its
+search certificate lets the checker confirm that these are all the ways.

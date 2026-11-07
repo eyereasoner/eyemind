@@ -157,7 +157,7 @@ query(or(q(X), r(X)))`);
     await page.evaluate("document.getElementById('json').click()");
     await p.run();
     assert.deepEqual(JSON.parse(await p.output()).answers, ["type('socrates', 'mortal')", "type('socrates', 'human')"]);
-    await p.open(`${base}#example=permissions`);
+    await p.open(`${base}#example=inventory`);
     await p.select('mode', '--prove-and-check');
     await page.evaluate("document.getElementById('strict-proof').click()");
     await p.run();

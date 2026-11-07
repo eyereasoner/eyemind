@@ -129,8 +129,8 @@ clause(25, implies(relation(I, 'starts', J), relation(J, 'started_by', I)))
 clause(26, implies(relation(I, 'during', J), relation(J, 'contains', I)))
 clause(27, implies(relation(I, 'finishes', J), relation(J, 'finished_by', I)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(relation('a', 'before', 'i'), clause(15), {I: 'a', J: 'i', SI: 600, EI: 720, SJ: 960, EJ: 1080}, [pair('a', 'i', 600, 720, 960, 1080), lt(720, 960)])
 step(pair('a', 'i', 600, 720, 960, 1080), clause(14), {I: 'a', J: 'i', SI: 600, EI: 720, SJ: 960, EJ: 1080}, [valid_interval('a', 600, 720), valid_interval('i', 960, 1080)])
 step(valid_interval('a', 600, 720), clause(13), {I: 'a', S: 600, E: 720}, [interval('a', 600, 720), lt(600, 720)])

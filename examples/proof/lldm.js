@@ -62,8 +62,8 @@ clause(53, implied_by(lld_discrepancy_cm(M, D), [type(M, 'lld_alarm'), val(M, 'd
 clause(54, implied_by(lld_threshold_cm(M, T), [type(M, 'lld_alarm'), threshold(M, 'lld_alarm_threshold_cm', T)]))
 clause(55, implied_by(lld_reason(M, Reason), alarm(M, Reason)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(type('meas47', 'lld_alarm'), clause(50), {M: 'meas47', _0: 'discrepancy below negative threshold'}, [alarm('meas47', 'discrepancy below negative threshold')])
 step(alarm('meas47', 'discrepancy below negative threshold'), clause(48), {M: 'meas47', D: -1.9082339805374957, T: 1.25, Negt: -1.25}, [measurement('meas47'), val('meas47', 'dCm', -1.9082339805374957), threshold('meas47', 'lld_alarm_threshold_cm', 1.25), is(-1.25, sub(0, 1.25)), lt(-1.9082339805374957, -1.25)])
 step(measurement('meas47'), clause(1), {}, [])

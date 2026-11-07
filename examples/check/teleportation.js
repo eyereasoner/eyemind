@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 teleported('zero', 0, ['false'])
 teleported('zero', 1, ['false'])
 teleported('zero', 2, ['false'])
@@ -19,31 +19,17 @@ condition('C2', 'well_founded', 'ok', 31)
 condition('C3', 'justification', 'ok', 31)
 condition('C4', 'coverage', 'ok', 48)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C6', 'boundary_consistency', 'ok', 12)
 condition('C7', 'relevance', 'ok', 43)
 condition('C8', 'witness_integrity', 'ok', 0)
-
-// Obligations: absence and collection completeness are taken on trust.
-obligation('collected', 'theory_scoped', findall(A, received('zero', 0, A), ['false']))
-obligation('collected', 'theory_scoped', findall(A, received('zero', 1, A), ['false']))
-obligation('collected', 'theory_scoped', findall(A, received('zero', 2, A), ['false']))
-obligation('collected', 'theory_scoped', findall(A, received('zero', 3, A), ['false']))
-obligation('collected', 'theory_scoped', findall(A, received('one', 0, A), ['true']))
-obligation('collected', 'theory_scoped', findall(A, received('one', 1, A), ['true']))
-obligation('collected', 'theory_scoped', findall(A, received('one', 2, A), ['true']))
-obligation('collected', 'theory_scoped', findall(A, received('one', 3, A), ['true']))
-obligation('collected', 'theory_scoped', findall(A, received('plus', 0, A), ['false', 'true']))
-obligation('collected', 'theory_scoped', findall(A, received('plus', 1, A), ['false', 'true']))
-obligation('collected', 'theory_scoped', findall(A, received('plus', 2, A), ['false', 'true']))
-obligation('collected', 'theory_scoped', findall(A, received('plus', 3, A), ['false', 'true']))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(31)
 verified(19)
 recomputed(0)
 composed(0)
-trusted(12)
+trusted(0)
 claims(12)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')

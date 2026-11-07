@@ -86,8 +86,8 @@ clause(5, fact(sum([], 0)))
 clause(6, implied_by(sum([X, ...Xs], Total), [sum(Xs, Rest), is(Total, add(X, Rest))]))
 clause(7, implies([findall(Amount, line_total(_0, Amount), Amounts), sum(Amounts, Total)], invoice(Total)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(invoice(28), clause(7), {Amount: A, _0: B, Amounts: [6, 12, 10], Total: 28}, [findall(A, line_total(B, A), [6, 12, 10]), sum([6, 12, 10], 28)])
 step(findall(A, line_total(B, A), [6, 12, 10]), 'collected', {}, [])
 step(sum([6, 12, 10], 28), clause(6), {X: 6, Xs: [12, 10], Total: 28, Rest: 22}, [sum([12, 10], 22), is(28, add(6, 22))])
@@ -135,8 +135,11 @@ Two kinds of justification appear besides program lines. A `'builtin'` step
 is a calculation; anyone can redo it. A `'collected'` step is different: it
 says a list is *complete*. Each number in it is a line total, but "there are
 no others" is something eyemind knows only because it searched everything
-it had derived. A proof cannot point at a missing line, so this step is taken
-on trust.
+it had derived. A proof cannot point at a missing line. The checker can
+confirm some collected lists from a search certificate, but not one over
+facts a forward rule derived, as these line totals are: the list gives them
+in the order they were derived, which the checker cannot confirm. So this
+step is taken on trust.
 
 ---
 

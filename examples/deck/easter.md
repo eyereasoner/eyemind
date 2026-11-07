@@ -143,8 +143,8 @@ clause(2, implied_by(in_range(Low, High, Low), le(Low, High)))
 clause(3, implied_by(in_range(Low, High, N), [lt(Low, High), is(Next, add(Low, 1)), in_range(Next, High, N)]))
 clause(4, implies([in_range(2021, 2050, Year), computus(Year, Date)], easter(Year, Date)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(easter(2021, [4, 4]), clause(4), {Year: 2021, Date: [4, 4]}, [in_range(2021, 2050, 2021), computus(2021, [4, 4])])
 step(in_range(2021, 2050, 2021), clause(2), {Low: 2021, High: 2050}, [le(2021, 2050)])
 step(le(2021, 2050), 'builtin', {}, [])

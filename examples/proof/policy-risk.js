@@ -27,8 +27,8 @@ clause(26, fact(count([], 0)))
 clause(27, implied_by(count([_0, ...Rest], N), [count(Rest, Before), is(N, add(Before, 1))]))
 clause(28, implies([score(Clause, Score), finding(Clause, Raw, Why, Fix), severity(Score, Severity), findall(Other, higher(Score, Other), Higher), count(Higher, Count), is(Rank, add(Count, 1))], report(Rank, Clause, Score, Severity, Why, Fix)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(report(1, 'c1', 100, 'high', 'no_removal_safeguards', 'add_notice_and_inform'), clause(28), {Clause: 'c1', Score: 100, Raw: 110, Why: 'no_removal_safeguards', Fix: 'add_notice_and_inform', Severity: 'high', Other: A, Higher: [], Count: 0, Rank: 1}, [score('c1', 100), finding('c1', 110, 'no_removal_safeguards', 'add_notice_and_inform'), severity(100, 'high'), findall(A, higher(100, A), []), count([], 0), is(1, add(0, 1))])
 step(score('c1', 100), clause(20), {Clause: 'c1', Raw: 110, Why: 'no_removal_safeguards', Fix: 'add_notice_and_inform'}, [finding('c1', 110, 'no_removal_safeguards', 'add_notice_and_inform'), gt(110, 100)])
 step(finding('c1', 110, 'no_removal_safeguards', 'add_notice_and_inform'), clause(16), {Clause: 'c1', Weight: 20, Raw: 110}, [permission('c1', 'remove_account'), importance('retention', 20), not(has_notice('c1')), not(safeguard('c1', 'inform')), is(110, add(90, 20))])
@@ -86,3 +86,7 @@ step(severity(97, 'high'), clause(22), {Score: 97}, [ge(97, 80)])
 step(ge(97, 80), 'builtin', {}, [])
 step(findall(A, higher(97, A), [100]), 'collected', {}, [])
 step(count([100], 1), clause(27), {_0: 100, Rest: [], N: 1, Before: 0}, [count([], 0), is(1, add(0, 1))])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched(has_notice('c1'), [])

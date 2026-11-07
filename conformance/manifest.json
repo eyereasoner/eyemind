@@ -41,8 +41,8 @@
   },
   {
     "file": "11-checking.js",
-    "spec": "11, 12",
-    "topic": "Valid proofs and proofs tampered with to break each of C1-C8, with their exact reports"
+    "spec": "10.4, 11, 12",
+    "topic": "Valid proofs, search certificates, and proofs tampered with to break each of C1-C8, with their exact reports"
   },
   {
     "file": "13-unused.js",

@@ -11,8 +11,8 @@ clause(5, implied_by(includes(graph(Triples), Triple), member(Triple, Triples)))
 clause(6, implies([context(Context, Graph), includes(Graph, triple(Person, 'consent', 'yes'))], consented(Context, Person)))
 clause(7, implies([context(Context, Graph), includes(Graph, triple(Person, 'role', 'editor')), not(includes(Graph, triple(Person, 'consent', 'yes')))], needs_review(Context, Person)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(consented('approved', 'alice'), clause(6), {Context: 'approved', Graph: graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), Person: 'alice'}, [context('approved', graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])), includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple('alice', 'consent', 'yes'))])
 step(context('approved', graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])), clause(1), {}, [])
 step(includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple('alice', 'consent', 'yes')), clause(5), {Triples: [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')], Triple: triple('alice', 'consent', 'yes')}, [member(triple('alice', 'consent', 'yes'), [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])])
@@ -23,3 +23,9 @@ step(context('incomplete', graph([triple('bob', 'role', 'editor')])), clause(2),
 step(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'role', 'editor')), clause(5), {Triples: [triple('bob', 'role', 'editor')], Triple: triple('bob', 'role', 'editor')}, [member(triple('bob', 'role', 'editor'), [triple('bob', 'role', 'editor')])])
 step(member(triple('bob', 'role', 'editor'), [triple('bob', 'role', 'editor')]), clause(3), {X: triple('bob', 'role', 'editor'), _0: []}, [])
 step(not(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes'))), 'absent', {}, [])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes')), [])
+searched(member(triple('bob', 'consent', 'yes'), [triple('bob', 'role', 'editor')]), [])
+searched(member(triple('bob', 'consent', 'yes'), []), [])

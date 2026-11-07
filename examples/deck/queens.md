@@ -138,8 +138,8 @@ clause(7, implied_by(place(Available, Placed, [Column, ...Rest]), [select(Column
 clause(8, fact(safe(_0, [], _1)))
 clause(9, implied_by(safe(Column, [Other, ...Rest], Distance), [ne(Column, add(Other, Distance)), ne(Column, sub(Other, Distance)), is(Next, add(Distance, 1)), safe(Column, Rest, Next)]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(once(queens(8, [1, 5, 8, 6, 3, 7, 2, 4])), 'control', {}, [queens(8, [1, 5, 8, 6, 3, 7, 2, 4])])
 step(queens(8, [1, 5, 8, 6, 3, 7, 2, 4]), clause(1), {N: 8, Columns: [1, 5, 8, 6, 3, 7, 2, 4], Available: [1, 2, 3, 4, 5, 6, 7, 8]}, [is_int(8), ge(8, 0), columns(1, 8, [1, 2, 3, 4, 5, 6, 7, 8]), place([1, 2, 3, 4, 5, 6, 7, 8], [], [1, 5, 8, 6, 3, 7, 2, 4])])
 step(is_int(8), 'builtin', {}, [])

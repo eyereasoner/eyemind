@@ -71,7 +71,7 @@ And the list of Alice's children is `['bob', 'carol']`.
 
 ---
 
-## Two kinds of honest "trust me"
+## Two claims about what is missing
 
 `not` and `findall` are claims about what is *missing*:
 
@@ -83,11 +83,18 @@ And the list of Alice's children is `['bob', 'carol']`.
   **collection**.
 
 eyemind does not hide this. In the proof, an absence is justified as
-`'absent'` and a collection as `'collected'`, and the check report lists each
-one as an **obligation**: a step taken on trust, named so you know what you
-are trusting. Both stay safe because eyemind first finishes everything that
-could make Carol blocked or add a child, and only then looks for what is
-missing.
+`'absent'` and a collection as `'collected'`, and a **search certificate**
+after the steps records what the searches behind them found, so the checker
+can verify them. Both are safe to conclude because eyemind first finishes
+everything that could make Carol blocked or add a child, and only then looks
+for what is missing.
+
+The checker can settle the absence but not the collection. A collection's
+list is in the order its items were found, and here the children are
+`child_of` triples that a forward rule derived; the order in which derived
+facts arose is not something the checker can confirm. So the collection
+stays an **obligation**: a step taken on trust, named so you know what you
+are trusting.
 
 ---
 
@@ -111,8 +118,8 @@ clause(5, implies(t(P, 'parent_of', C), t(C, 'child_of', P)))
 clause(6, implies([t(C, 'child_of', 'alice'), not(t(C, 'blocked', 'true'))], allowed(C)))
 clause(7, implies([base(P, 'parent_of', _0), findall(C, t(C, 'child_of', P), Children)], children(P, Children)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(t('bob', 'child_of', 'alice'), clause(5), {P: 'alice', C: 'bob'}, [t('alice', 'parent_of', 'bob')])
 step(t('alice', 'parent_of', 'bob'), clause(4), {S: 'alice', P: 'parent_of', O: 'bob'}, [base('alice', 'parent_of', 'bob')])
 step(base('alice', 'parent_of', 'bob'), clause(1), {}, [])
@@ -123,9 +130,15 @@ step(allowed('carol'), clause(6), {C: 'carol'}, [t('carol', 'child_of', 'alice')
 step(not(t('carol', 'blocked', 'true')), 'absent', {}, [])
 step(children('alice', ['bob', 'carol']), clause(7), {P: 'alice', _0: 'bob', C: A, Children: ['bob', 'carol']}, [base('alice', 'parent_of', 'bob'), findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol'])])
 step(findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']), 'collected', {}, [])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+derived(t(B, C, D), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
+searched(t('carol', 'blocked', 'true'), [])
+searched(t(E, 'parent_of', F), [t('alice', 'parent_of', 'bob'), t('alice', 'parent_of', 'carol')])
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the four conclusions the proof is about.
 - **The clauses**: the program lines the steps cite, numbered by their place
@@ -137,6 +150,8 @@ It has three parts:
   braces say what each variable of the cited line stood for. The `A` in the
   last two steps is not a value: it is the open placeholder of the
   collection, "every child".
+- **The search certificate**: what the searches behind the absence and the
+  collection found.
 
 Read the steps as sentences:
 
@@ -152,13 +167,23 @@ Read the steps as sentences:
 6. *Alice is a parent of Carol* — fact 2.
 7. *Carol is allowed* — by rule 6, because she is a child of Alice and she
    is not blocked.
-8. *Carol is not blocked* — **absent**: no such fact could be found. Taken on
-   trust.
+8. *Carol is not blocked* — **absent**: no such fact could be found. The
+   checker settles this from the search certificate.
 9. *Alice's children are `['bob', 'carol']`* — by rule 7, because Alice is a
    parent of someone (Bob, which fills the `_0`) and the collection of her
    children is that list.
 10. *Every child of Alice is in `['bob', 'carol']`* — **collected**: the list
     of everything found. Taken on trust as complete.
+
+The search certificate has three lines:
+
+- `derived(t(B, C, D), [...])`: the only `t` triples the forward rules
+  derived are the two `child_of` triples, for Bob and for Carol. Each also
+  has a step of its own (steps 1 and 4).
+- `searched(t('carol', 'blocked', 'true'), [])`: the search for "Carol is
+  blocked" gave no answers.
+- `searched(t(E, 'parent_of', F), [...])`: a search over every `parent_of`
+  triple, which the forward rule consults, gave Alice's two.
 
 ---
 
@@ -188,7 +213,6 @@ condition('C7', 'relevance', 'ok', 14)
 condition('C8', 'witness_integrity', 'ok', 0)
 
 // Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(t('carol', 'blocked', 'true')))
 obligation('collected', 'theory_scoped', findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']))
 
 // Proof statistics: recorded steps and how they were checked.
@@ -196,7 +220,7 @@ steps(10)
 verified(8)
 recomputed(0)
 composed(0)
-trusted(2)
+trusted(1)
 claims(4)
 
 // This verdict applies to the claims above; it does not establish completeness.
@@ -218,21 +242,32 @@ at:
 - **C6 boundary consistency (2)**: the absence and the collection were both
   confronted with the evidence in the proof, and neither is contradicted:
   nothing in the proof says Carol is blocked, and every child of Alice that
-  the proof shows (Bob and Carol) is in the list.
+  the proof shows (Bob and Carol) is in the list. The absence is also
+  settled by the search certificate.
 - **C7 relevance (14)**: the 4 claims are conclusions of the program, and all
   10 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The statistics: 10 steps, 8 verified against the program, 2 trusted, 4
-claims.
+The statistics: 10 steps, 8 verified against the program, the absence
+settled by the certificate, 1 trusted, 4 claims.
 
-The two `obligation` lines are the two steps taken on trust: *Carol is not
-blocked* (`'absent'`) and *the children of Alice are exactly Bob and Carol*
-(`'collected'`). `'theory_scoped'` means "with respect to this program": a
-new fact could change either one. The verdict is **checked with
-obligations**: the four conclusions follow from the program, provided those
-two are true. The verdict does not say the program has no other conclusions.
+*Carol is not blocked* is not an obligation. The checker expands the call
+one level against the program, as a search would: a `t` triple is either a
+base triple, and no base fact says Carol is blocked, or one the forward rule
+derived, and the `derived` listing has none about blocking. That agrees
+with `searched(t('carol', 'blocked', 'true'), [])`. The listing itself is
+accepted because each of its triples has its own steps and, given the
+`parent_of` triples, the rule derives no `t` triple it leaves out.
+
+The one `obligation` line is the step still taken on trust: *the children of
+Alice are exactly Bob and Carol* (`'collected'`). Its answers rest on
+triples a forward rule derived, and the list gives them in the order they
+were derived; that order is not something the checker can confirm this
+way. `'theory_scoped'` means "with respect to this program": a new fact
+could change it. The verdict is **checked with obligations**: the four
+conclusions follow from the program, provided that collection is right. The
+verdict does not say the program has no other conclusions.
 
 ---
 
@@ -255,5 +290,6 @@ allowed, and the list grows to `['bob', 'carol', 'dan']`.
 ## Takeaway
 
 "Not" and "all" are claims about what is *missing*, and a proof cannot
-display a missing thing. eyemind still uses them — and tells you exactly
-which conclusions rest on them, so you know what you are trusting.
+display a missing thing. eyemind still uses them, writes down what its
+searches found so the checker can confirm the absence, and names the one
+collection it must still take on trust.

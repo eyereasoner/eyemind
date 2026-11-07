@@ -17,8 +17,8 @@ clause(12, implied_by(calculate('sub', L, R, Value), is(Value, sub(L, R))))
 clause(13, implied_by(calculate('mul', L, R, Value), is(Value, mul(L, R))))
 clause(14, implies([root(Name, Node), value(Node, Value)], result(Name, Value)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(result('example', 12), clause(14), {Name: 'example', Node: 'total', Value: 12}, [root('example', 'total'), value('total', 12)])
 step(root('example', 'total'), clause(8), {}, [])
 step(value('total', 12), clause(10), {Node: 'total', Value: 12, Operation: 'add', Left: 'product', Right: 'difference', L: 6, R: 6}, [expression('total', 'add', 'product', 'difference'), value('product', 6), value('difference', 6), calculate('add', 6, 6, 12)])

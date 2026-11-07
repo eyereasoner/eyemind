@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 flies('tweety', 'true')
 flies('falco', 'true')
 flies('mythic', 'true')
@@ -61,22 +61,13 @@ condition('C6', 'boundary_consistency', 'ok', 7)
 condition('C7', 'relevance', 'ok', 116)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(flies('falco', 'false')))
-obligation('absent', 'theory_scoped', not(flies('batsy', 'false')))
-obligation('absent', 'theory_scoped', not(flies('opus', 'true')))
-obligation('absent', 'theory_scoped', not(wings('tweety', 'false')))
-obligation('absent', 'theory_scoped', not(wings('falco', 'false')))
-obligation('absent', 'theory_scoped', not(wings('mythic', 'false')))
-obligation('absent', 'theory_scoped', not(wings('nemo', 'true')))
-
 // Proof statistics: recorded steps and how they were checked.
 steps(66)
 verified(59)
 recomputed(0)
 composed(0)
-trusted(7)
+trusted(0)
 claims(50)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')

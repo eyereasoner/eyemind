@@ -43,7 +43,6 @@
     "name": "graphs",
     "description": "Base data, negation and collection",
     "trusted": [
-      "absent",
       "collected"
     ]
   },
@@ -65,9 +64,7 @@
   {
     "name": "shortest-path",
     "description": "Weighted paths and stratified minimum selection",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "path-discovery",
@@ -94,9 +91,7 @@
   {
     "name": "permissions",
     "description": "Role permissions with exclusions",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "witnesses",
@@ -137,9 +132,7 @@
   {
     "name": "dog-license",
     "description": "A licensing threshold based on collected dog counts",
-    "trusted": [
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "hanoi",
@@ -154,23 +147,17 @@
   {
     "name": "flat-map",
     "description": "Predicate-based mapping with multiple or missing values",
-    "trusted": [
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "paraconsistent-animals",
     "description": "Local summaries of conflicting observations",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "scoped-audit",
     "description": "Presence and absence within separate quoted graphs",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "control-system",
@@ -210,9 +197,7 @@
   {
     "name": "polynomial",
     "description": "Complex roots of polynomials up to degree 4 by Cardan and Lagrange",
-    "trusted": [
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "interval-relations",
@@ -230,16 +215,13 @@
     "name": "policy-risk",
     "description": "Ranked findings with explanations and suggested mitigations",
     "trusted": [
-      "absent",
       "collected"
     ]
   },
   {
     "name": "research-portal",
     "description": "A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans",
-    "trusted": [
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "package-holiday",
@@ -249,9 +231,7 @@
   {
     "name": "delfour",
     "description": "A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "queens",
@@ -281,16 +261,12 @@
   {
     "name": "goldbach",
     "description": "Goldbach splits of every power of two up to 2^25",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "kaprekar",
     "description": "Every four-digit Kaprekar routine reaches 6174 within seven steps",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "easter",
@@ -310,24 +286,17 @@
   {
     "name": "aunt-agatha",
     "description": "Who killed Aunt Agatha? A conclusion entailed by holding in every model of the premises",
-    "trusted": [
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "four-color",
     "description": "Four-colouring the map of the European Union",
-    "trusted": [
-      "absent",
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "wolf-goat-cabbage",
     "description": "The river crossing, with seven crossings shown to be minimal",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "monkey-bananas",
@@ -342,16 +311,12 @@
   {
     "name": "superdense-coding",
     "description": "Superdense coding in discrete quantum theory, with interference as odd path counts",
-    "trusted": [
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "teleportation",
     "description": "Quantum teleportation in discrete quantum theory, checked for every state and outcome",
-    "trusted": [
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "audited-grants",
@@ -364,7 +329,6 @@
     "name": "data-value-right",
     "description": "A right to the value of personal data in the age of AI: how it fits existing EU law, and how it could become an autonomous right",
     "trusted": [
-      "absent",
       "collected"
     ]
   },
@@ -440,9 +404,7 @@
   {
     "name": "nixon-diamond",
     "description": "A default guarded by negation, so a contrary rule takes priority",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "symbolic-derivative",
@@ -457,9 +419,7 @@
   {
     "name": "service-outage-recovery",
     "description": "Least-cost repairs that restore checkout through redundant providers and a dependency cycle",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "critical-path-schedule",
@@ -469,23 +429,17 @@
   {
     "name": "battery-dispatch",
     "description": "Cheapest four-slot battery schedule under energy and power limits",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "cold-chain-recall",
     "description": "Conflicting temperature evidence, checkpoint filtering and a witnessed inspection task",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "school-placement-audit",
     "description": "Walking-route and preference scores audit provisional school placements",
-    "trusted": [
-      "absent"
-    ]
+    "trusted": []
   },
   {
     "name": "gcd-bezout-identity",

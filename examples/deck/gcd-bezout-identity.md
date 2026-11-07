@@ -165,8 +165,8 @@ clause(13, implied_by(bezout(A, B, G, S, T), [is(R0, abs(A)), is(R1, abs(B)), is
 clause(14, implies([pair(Name, A, B), bezout(A, B, G, S, T)], certificate(Name, G, S, T)))
 clause(15, implies([pair(Name, A, B), certificate(Name, G, S, T), is(G, add(mul(A, S), mul(B, T))), is(G, gcd(A, B))], identity_holds(Name)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(certificate('common_factor', 6, -1, 3), clause(14), {Name: 'common_factor', A: 48, B: 18, G: 6, S: -1, T: 3}, [pair('common_factor', 48, 18), bezout(48, 18, 6, -1, 3)])
 step(pair('common_factor', 48, 18), clause(1), {}, [])
 step(bezout(48, 18, 6, -1, 3), clause(13), {A: 48, B: 18, G: 6, S: -1, T: 3, R0: 48, R1: 18, Total: 66, U: -1, V: 3, AS: 1, BS: 1}, [is(48, abs(48)), is(18, abs(18)), is(66, add(48, 18)), gt(66, 0), euclid(48, 18, 1, 0, 0, 1, 6, -1, 3), sign(48, 1), sign(18, 1), is(-1, mul(1, -1)), is(3, mul(1, 3))])

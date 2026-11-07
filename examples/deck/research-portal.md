@@ -214,9 +214,10 @@ conclusions.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each conclusion. The full proof
-is 413 lines (about 95 KB) with 273 steps, so here is its opening, a selection
-of its 97 clauses, and the complete steps behind one conclusion: *under the
-proposal, r1 may go ahead*. The
+is 739 lines (about 124 KB) with 273 steps and a 323-line search
+certificate, so here is its opening, a selection of its 97 clauses, the
+complete steps behind one conclusion, *under the proposal, r1 may go
+ahead*, and the certificate lines for r1's three collections. The
 [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/research-portal.js)
 is online.
 
@@ -243,8 +244,8 @@ clause(102, fact(consent('omnibus_proposal', 'own_audience_measurement', 'not_ne
 clause(118, implies([regime(R), policy_result(P, permit(Rule)), session(P, Kind, _0), consent(R, Kind, 'not_needed', Provision)], assessment(R, P, permit(Rule), basis(['ex:policy', Provision]))))
 // … 12 more clauses, 97 in total
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 // … 14 steps
 step(regime('omnibus_proposal'), clause(96), {}, [])
 // … 16 steps
@@ -281,9 +282,18 @@ step(findall(Z, prohibited('ex:r1', Z), []), 'collected', {}, [])
 step(session('ex:r1', 'own_audience_measurement', 'first_visit'), clause(84), {}, [])
 step(consent('omnibus_proposal', 'own_audience_measurement', 'not_needed', 'GDPR Art. 88a(3)(c)'), clause(102), {}, [])
 // … 88 more steps, 273 in total
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched(t('ex:policy', 'odrl:conflict', H1), [t('ex:policy', 'odrl:conflict', 'odrl:prohibit')])
+// …
+searched(unmet('ex:r1', 'ex:research', X4), [])
+// …
+searched(prohibited('ex:r1', H5), [])
+// … 323 searched lines in all
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the 37 conclusions the proof is about.
 - **The clauses**: the program's facts and rules that some step cites,
@@ -294,12 +304,17 @@ It has three parts:
   once and shared, which is why r1's steps are spread out: those it shares
   with conclusions derived earlier, the breach plans and r6's policy
   conflict, come first.
+- **The search certificate**: every search behind the collected lists, each
+  written `searched(call, answers)` with every answer it gave, in the order
+  the calls were first met. For r1, the policy's conflict strategies are
+  `'odrl:prohibit'` alone, the search for an unmet condition of the
+  research permission found none, and so did the search for a prohibition.
 
 Three kinds of justification occur in the whole proof: `clause(N)`, an
 instance of program line N; `'builtin'`, a comparison or test that anyone
 checking the proof simply redoes, such as 5 < 6 months; and `'collected'`, a
-`findall` list. A collected list's items can be checked, but that *nothing
-is missing from it* is taken on trust.
+`findall` list. A collected list's items can be checked as steps; that *nothing
+is missing from it* is checked against the search certificate.
 
 The 27 steps for r1, read from the conclusion down:
 
@@ -316,7 +331,7 @@ The 27 steps for r1, read from the conclusion down:
 6. *The policy is ready for r1* — by rule 79, because it governs r1 and its
    only conflict strategy is "prohibition wins".
 7. *The policy's conflict strategies are exactly `['odrl:prohibit']`* —
-   `'collected'`, on trust.
+   `'collected'`, backed by the certificate.
 8. *The policy governs r1* — by rule 75, because it is an agreement
    (fact 6), assigned by the hospital (fact 7), and the hospital is r1's data
    controller.
@@ -338,8 +353,9 @@ The 27 steps for r1, read from the conclusion down:
 17. *The Belgian partner counts as the consortium* — by rule 70, because it
     is part of the consortium (fact 4).
 18. *The unmet conditions of the research permission for r1 are `[]`* —
-    `'collected'`, on trust.
-19. *The prohibitions that apply to r1 are `[]`* — `'collected'`, on trust.
+    `'collected'`, backed by the certificate.
+19. *The prohibitions that apply to r1 are `[]`* — `'collected'`, backed by
+    the certificate.
 20. to 27. The remaining facts: the policy is an agreement (6), assigned by
     the hospital (7), contains the research permission (9), for the
     consortium (10), for the action *use* (11), on the lab results (12);
@@ -349,7 +365,9 @@ The 27 steps for r1, read from the conclusion down:
 Note what the proof does **not** contain: a step showing, condition by
 condition, that r1 meets each of the five policy conditions. That r1 meets
 them is carried by step 18, a list of unmet conditions that eyemind found to
-be empty, and the checker takes its completeness on trust.
+be empty, and the checker confirms that list from the search certificate:
+`searched(unmet('ex:r1', 'ex:research', X4), [])` and the lines for the
+calls that search made, condition by condition.
 
 ---
 
@@ -361,7 +379,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 breach_plan('in_force', 'b1', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
 breach_plan('in_force', 'b2', notify(authority(within_hours(72)), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
 breach_plan('in_force', 'b3', notify(authority(within_hours(72)), people('without_undue_delay')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
@@ -407,59 +425,23 @@ condition('C2', 'well_founded', 'ok', 273)
 condition('C3', 'justification', 'ok', 273)
 condition('C4', 'coverage', 'ok', 474)
 condition('C5', 're_decision', 'ok', 15)
-condition('C6', 'boundary_consistency', 'ok', 22)
+condition('C6', 'boundary_consistency', 'ok', 33)
 condition('C7', 'relevance', 'ok', 310)
 condition('C8', 'witness_integrity', 'ok', 0)
-
-// Obligations: absence and collection completeness are taken on trust.
-obligation('collected', 'theory_scoped', findall(A, t('ex:policy', 'odrl:conflict', A), ['odrl:prohibit']))
-obligation('collected', 'theory_scoped', findall(A, unmet('ex:r6', 'ex:research', A), []))
-obligation('collected', 'theory_scoped', findall(A, unmet('ex:r6', 'ex:noTransferUS', A), []))
-obligation('collected', 'theory_scoped', findall(A, t('ex:policy', 'odrl:conflict', A), ['odrl:prohibit']))
-obligation('collected', 'theory_scoped', findall(A, permitted('ex:r2', A), []))
-obligation('collected', 'theory_scoped', findall(A, prohibited('ex:r2', A), []))
-obligation('collected', 'theory_scoped', findall(A, and(governs(B, 'ex:r2'), t(B, 'odrl:permission', C), unmet('ex:r2', C, A)), [unmet('ex:forResearch', 'odrl:purpose', 'dpv:PersonalisedAdvertising', 'odrl:isA', 'dpv:ResearchAndDevelopment'), unmet('ex:underConsent', 'ex:legalBasis', 'dpv:LegitimateInterest', 'odrl:eq', 'dpv:Consent'), unmet('ex:consentGiven', 'ex:consentStatus', 'dpv:ConsentUnknown', 'odrl:eq', 'dpv:ConsentGiven')]))
-obligation('collected', 'theory_scoped', findall(A, t('ex:policy', 'odrl:conflict', A), ['odrl:prohibit']))
-obligation('collected', 'theory_scoped', findall(A, unmet('ex:r3', 'ex:noMarketing', A), []))
-obligation('collected', 'theory_scoped', findall(A, t('ex:policy', 'odrl:conflict', A), ['odrl:prohibit']))
-obligation('collected', 'theory_scoped', findall(A, permitted('ex:r4', A), []))
-obligation('collected', 'theory_scoped', findall(A, prohibited('ex:r4', A), []))
-obligation('collected', 'theory_scoped', findall(A, and(governs(B, 'ex:r4'), t(B, 'odrl:permission', C), unmet('ex:r4', C, A)), [unmet('ex:consentGiven', 'ex:consentStatus', 'dpv:ConsentWithdrawn', 'odrl:eq', 'dpv:ConsentGiven')]))
-obligation('collected', 'theory_scoped', findall(A, t('ex:policy', 'odrl:conflict', A), ['odrl:prohibit']))
-obligation('collected', 'theory_scoped', findall(A, permitted('ex:r5', A), []))
-obligation('collected', 'theory_scoped', findall(A, prohibited('ex:r5', A), []))
-obligation('collected', 'theory_scoped', findall(A, and(governs(B, 'ex:r5'), t(B, 'odrl:permission', C), unmet('ex:r5', C, A)), [unmet('ex:pseudonymised', 'ex:technicalMeasure', 'dpv:Encryption', 'odrl:eq', 'dpv:Pseudonymisation'), unmet('ex:before2027', 'odrl:dateTime', 20270301, 'odrl:lt', 20270101)]))
-obligation('collected', 'theory_scoped', findall(A, t('ex:policy', 'odrl:conflict', A), ['odrl:prohibit']))
-obligation('collected', 'theory_scoped', findall(A, candidate('ex:r11', A), []))
-obligation('collected', 'theory_scoped', findall(A, prohibited('ex:r11', A), []))
-obligation('collected', 'theory_scoped', findall(A, t('ex:policy', 'odrl:conflict', A), ['odrl:prohibit']))
-obligation('collected', 'theory_scoped', findall(A, unmet('ex:r10', 'ex:research', A), []))
-obligation('collected', 'theory_scoped', findall(A, prohibited('ex:r10', A), []))
-obligation('collected', 'theory_scoped', findall(A, t('ex:policy', 'odrl:conflict', A), ['odrl:prohibit']))
-obligation('collected', 'theory_scoped', findall(A, unmet('ex:r1', 'ex:research', A), []))
-obligation('collected', 'theory_scoped', findall(A, prohibited('ex:r1', A), []))
-obligation('collected', 'theory_scoped', findall(A, t('ex:policy', 'odrl:conflict', A), ['odrl:prohibit']))
-obligation('collected', 'theory_scoped', findall(A, unmet('ex:r7', 'ex:research', A), []))
-obligation('collected', 'theory_scoped', findall(A, prohibited('ex:r7', A), []))
-obligation('collected', 'theory_scoped', findall(A, unmet('ex:r8', 'ex:research', A), []))
-obligation('collected', 'theory_scoped', findall(A, prohibited('ex:r8', A), []))
-obligation('collected', 'theory_scoped', findall(A, unmet('ex:r9', 'ex:research', A), []))
-obligation('collected', 'theory_scoped', findall(A, prohibited('ex:r9', A), []))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(273)
 verified(225)
 recomputed(15)
 composed(0)
-trusted(33)
+trusted(0)
 claims(37)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
-The report first repeats the 37 conclusions, "checked subject to the
-obligations below". Each `condition` line then names a check, says `'ok'`,
+The report first repeats the 37 conclusions, now checked answers. Each `condition` line then names a check, says `'ok'`,
 and counts what it looked at:
 
 - **C1 resolution (225)**: the 225 steps that cite a rule or fact really are
@@ -475,39 +457,35 @@ and counts what it looked at:
   and agree: comparisons of months (5 < 6, 6 ≥ 6, and that they are whole
   numbers), and tests that two results really differ, such as "wait for
   consent" and "go ahead" for r1.
-- **C6 boundary consistency (22)**: 22 of the 33 collected lists were
-  confronted with the evidence in the proof and the program, and none is
-  contradicted: the 9 conflict-strategy lists (against the policy's `t`
-  facts), the 9 lists of prohibitions, the 3 empty lists of permissions and
-  the 1 empty list of candidate permissions (against the proof's
-  `prohibited`, `permitted` and `candidate` steps). For example, the proof
-  shows prohibitions only for r3 and r6, so none applies to r1. The other
-  11 are left undecided: the 3 lists of reasons for refusing r2, r4 and r5
-  are gathered over a combined condition, which the checker cannot
-  confront, and the 8 lists of unmet conditions have nothing to be
-  confronted with, since no fact or step of `unmet` exists. They rest on
-  trust alone.
+- **C6 boundary consistency (33)**: all 33 collected lists were confronted
+  with the evidence in the proof and the program, and none is contradicted.
+  For example, the proof shows prohibitions only for r3 and r6, so none
+  applies to r1. The search certificate settles all 33, including the 8
+  lists of unmet conditions and the 3 lists of reasons for refusing r2, r4
+  and r5, which nothing in the proof's steps could confront.
 - **C7 relevance (310)**: the 37 claims are the program's conclusions, and
   all 273 steps serve at least one of them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The 33 `obligation` lines are the collected lists taken on trust, in plain
-words: nine times, "the policy's only conflict strategy is *prohibition
+The 33 settled lists are, in plain words: nine times, "the policy's only conflict strategy is *prohibition
 wins*"; for the sessions that pass gate 1 (r1, r7, r8, r9, r10), "no
 condition of the research permission is unmet" and "no prohibition applies";
 for r6, "no condition of the research permission is unmet, and none of the
 US ban"; for r3, "no condition of the marketing ban is unmet"; for r2, r4 and r5, "nothing is permitted, nothing is
 prohibited, and these are *all* the unmet conditions"; for r11, "no
-permission even addresses it, and no prohibition applies". `'theory_scoped'`
-means each holds relative to this program, not necessarily to the world.
+permission even addresses it, and no prohibition applies". The checker
+confirms each without searching: it expands every `searched` call one level
+against the program, as a search would, answers each inner call from that
+call's own line, and reads the facts directly where only facts define a
+relation, so no line vouches for itself. Each list holds relative to this
+program, not necessarily to the world.
 
-The statistics repeat this: 273 steps, 225 verified against the program, 15
-recomputed, 33 taken on trust. The verdict is **checked with obligations**:
-every conclusion follows from the program, *provided* those 33 lists are
-complete.
+The statistics: 273 steps, 225 verified against the program, 15 recomputed
+and the 33 collections settled by the certificate, none taken on trust. The
+verdict is **checked**: every conclusion follows from the program.
 
-What the certificate does **not** show: that the program has no other
+What the checked proof does **not** show: that the program has no other
 conclusions, that the rules are legally correct, that consent was really
 given, or that the data was really deleted. It shows that the conclusions
 follow from these rules and these facts.

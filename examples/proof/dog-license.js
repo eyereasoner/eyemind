@@ -11,8 +11,8 @@ clause(11, implied_by(length([_0, ...Xs], N), [length(Xs, Before), is(N, add(Bef
 clause(12, implies([owner(Owner), findall(Dog, owns(Owner, Dog), Dogs), length(Dogs, N)], dog_count(Owner, N)))
 clause(13, implies([dog_count(Owner, N), gt(N, 4)], requires(Owner, 'dog_license')))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(dog_count('alice', 5), clause(12), {Owner: 'alice', Dog: A, Dogs: ['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], N: 5}, [owner('alice'), findall(A, owns('alice', A), ['dog1', 'dog2', 'dog3', 'dog4', 'dog5']), length(['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], 5)])
 step(owner('alice'), clause(8), {}, [])
 step(findall(A, owns('alice', A), ['dog1', 'dog2', 'dog3', 'dog4', 'dog5']), 'collected', {}, [])

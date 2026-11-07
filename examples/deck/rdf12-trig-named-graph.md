@@ -92,8 +92,8 @@ clause(2, fact(rdf(iri('https://example.org/bob'), iri('https://example.org/pare
 clause(3, implies(rdf(S, iri('https://example.org/parent'), O, G), result_rdf(S, iri('https://example.org/ancestor'), O, G)))
 clause(4, implies([rdf(S, iri('https://example.org/parent'), M, G), rdf(M, iri('https://example.org/parent'), O, G)], result_rdf(S, iri('https://example.org/ancestor'), O, G)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(result_rdf(iri('https://example.org/alice'), iri('https://example.org/ancestor'), iri('https://example.org/bob'), iri('https://example.org/family')), clause(3), {S: iri('https://example.org/alice'), O: iri('https://example.org/bob'), G: iri('https://example.org/family')}, [rdf(iri('https://example.org/alice'), iri('https://example.org/parent'), iri('https://example.org/bob'), iri('https://example.org/family'))])
 step(rdf(iri('https://example.org/alice'), iri('https://example.org/parent'), iri('https://example.org/bob'), iri('https://example.org/family')), clause(1), {}, [])
 step(result_rdf(iri('https://example.org/bob'), iri('https://example.org/ancestor'), iri('https://example.org/carol'), iri('https://example.org/family')), clause(3), {S: iri('https://example.org/bob'), O: iri('https://example.org/carol'), G: iri('https://example.org/family')}, [rdf(iri('https://example.org/bob'), iri('https://example.org/parent'), iri('https://example.org/carol'), iri('https://example.org/family'))])

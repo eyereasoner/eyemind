@@ -89,8 +89,8 @@ clause(6, fact(permits('viewer', 'read')))
 clause(8, implies([role(User, Role), permits(Role, Action)], candidate(User, Action)))
 clause(9, implies([candidate(User, Action), not(suspended(User))], allowed(User, Action)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(allowed('alice', 'read'), clause(9), {User: 'alice', Action: 'read'}, [candidate('alice', 'read'), not(suspended('alice'))])
 step(candidate('alice', 'read'), clause(8), {User: 'alice', Role: 'editor', Action: 'read'}, [role('alice', 'editor'), permits('editor', 'read')])
 step(role('alice', 'editor'), clause(1), {}, [])
@@ -139,8 +139,9 @@ Read the steps as sentences:
 
 Steps 5 and 13 are different in kind. They do not point at a program line;
 they point at a line that is *missing*. A proof cannot show something
-missing, so these steps are taken on trust, and the checker lists them as
-obligations.
+missing, but the checker can look for it: `suspended` is defined only by
+facts, so it reads those facts itself and confirms that none is about Alice
+or Bob.
 
 ---
 
@@ -152,7 +153,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 allowed('alice', 'read')
 allowed('alice', 'write')
 allowed('bob', 'read')
@@ -168,20 +169,16 @@ condition('C6', 'boundary_consistency', 'ok', 2)
 condition('C7', 'relevance', 'ok', 16)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(suspended('alice')))
-obligation('absent', 'theory_scoped', not(suspended('bob')))
-
 // Proof statistics: recorded steps and how they were checked.
 steps(13)
 verified(11)
 recomputed(0)
 composed(0)
-trusted(2)
+trusted(0)
 claims(3)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -206,16 +203,18 @@ at:
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The two `obligation` lines spell out what is taken on trust: "Alice is not
-suspended" and "Bob is not suspended". `'theory_scoped'` means the absence
-holds *within this program*: these are the facts we gave, and nobody
-outside it was asked.
+Neither absence is taken on trust. Because no rule concludes `suspended`,
+the checker settles "Alice is not suspended" and "Bob is not suspended" by
+scanning the program's facts directly, so the proof needs no search
+certificate and the report lists no obligations. The absence holds *within
+this program*: these are the facts we gave, and nobody outside it was asked.
 
-The statistics: 13 steps, 11 verified against the program, 2 trusted, for 3
-claims. The verdict is **checked with obligations**: the three answers follow
-from the program, provided the program lists every suspension. If Bob were in
-fact suspended somewhere the program does not know about, the answer for Bob
-would be wrong. And as the last comment says, the verdict confirms these
+The statistics: 13 steps, 11 verified against the program and the 2 absences
+settled from the facts, none trusted, for 3 claims. The verdict is
+**checked**: the three answers follow from the program. If Bob were in fact
+suspended somewhere the program does not know about, the answer for Bob
+would be wrong, but that is a question about the data, not about the
+proof. And as the last comment says, the verdict confirms these
 answers; it does not say they are the only ones.
 
 ---

@@ -14,8 +14,8 @@
 //
 // Here every way Alice's message N can reach Bob as M is collected with
 // findall, and the pair is kept when the number of ways is odd. The count
-// depends on all the ways, so the proof records each collection as an
-// obligation for the checker to confirm.
+// depends on all the ways, so the proof carries a search certificate with
+// every answer of each collection's search, which the checker confirms.
 //
 // See https://arxiv.org/pdf/1101.3764.pdf and https://arxiv.org/pdf/1010.2929.pdf
 

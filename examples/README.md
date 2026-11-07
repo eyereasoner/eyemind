@@ -132,15 +132,22 @@ are visible to stratification before reasoning starts.
 energy grant policy as a program of its own, has eyemind prove the decisions,
 and then reads that proof and its check report back as ordinary facts, with
 `eyemind.readTerms` and `facts_from`, to audit the reasoning: the data each decision
-rests on, the assumptions it took on trust, and the decisions at risk because
+rests on, the absences it assumes, and the decisions at risk because
 they rest on self-declared income. Rules, data, conclusions, proof and report
 are all the same terms, so the audit needs no export format, no parser and no
 second tool, and its own conclusions come with a checked proof too.
 
 `integrity.js` intentionally exits with code 65 because it concludes `false`.
 Its proof-check report is valid: the certificate explains why the constraint was
-violated. Negation and collection examples list their `absent` and `collected`
-obligations in the check report; `--strict-proof` rejects those obligations.
+violated. A proof with negations or collections carries a search certificate
+after its steps: `searched(Call, Answers)` records every answer of one call
+the search behind a negation or collection made, and `derived(Pattern, Facts)`
+every fact the forward rules derived for one relation it consulted. The
+checker uses it to settle `absent` and `collected` steps without searching
+itself; calls over relations only facts define need no table, since the
+checker scans those facts. A collection over facts that forward rules derived
+stays an obligation in the check report, because the order in which derived
+facts arose cannot be checked this way; `--strict-proof` rejects obligations.
 Every check file includes `condition(...)` facts for C1-C8, verification counts and
 a `verdict(...)` fact. Reports with failures include `failure(...)`; reports with
 trusted boundaries include `obligation(...)`. Add `--json` to the check command
@@ -237,9 +244,9 @@ numbers instead of cutting. Lagrange's step collects the roots of a cubic with
 a predicate of its own, so that collection depends only on a lower degree.
 
 A list of all roots is a completed collection, so the default certificate is
-small: four steps, with the arithmetic inside two `collected` obligations. Ask
-for one root at a time and every arithmetic step is in the certificate
-instead. For a cubic it passes strict checking:
+small: four steps, with the arithmetic inside two `collected` steps that its
+search certificate settles. Ask for one root at a time and every arithmetic
+step is in the steps instead. For a cubic it passes strict checking:
 
 ```sh
 eyemind --proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" examples/polynomial.js
@@ -283,7 +290,8 @@ weights and their collected total alongside a floating-point probability.
 mitigation. Rank 1 has the highest score; equal scores share a rank. Output
 follows inference order, with ranks recorded explicitly. Adding the missing
 safeguards removes the affected findings. Both examples expose their collection
-obligations, and policy findings also expose absence obligations.
+obligations, collections over derived facts; the absences behind the policy
+findings are settled by the checker.
 
 `research-portal.js` evaluates a hospital research portal under two rulebooks.
 An ODRL/DPV policy decides research access first, then the baseline or
@@ -317,7 +325,8 @@ the 12 g biscuits against the 10 g threshold, and suggests the 3 g biscuits
 in aisle 7. Ten checks pass, among them
 that the shared text names no condition, found by searching it with
 `atom_concat`. That no other biscuit has less sugar and that the text holds
-neither "diabetes" nor "medical" are absences, listed as obligations. The
+neither "diabetes" nor "medical" are absences, which the proof's search
+certificate settles. The
 signature is accepted because the input says it was verified upstream; the
 rules do not recompute the HMAC.
 
@@ -334,8 +343,9 @@ and Republicans are nonpacifists, and nixon is both. The pacifist default is
 guarded by `not(nonpacifist(Person))`, so the Republican rule takes priority,
 and stratification runs the default only after the nonpacifist rule has
 finished. nixon is classified as a nonpacifist and not as a pacifist, while
-ada, only a Quaker, gets the default. The proof rests on one `absent`
-obligation: that nothing concludes ada is a nonpacifist.
+ada, only a Quaker, gets the default. The proof rests on one `absent` step,
+that nothing concludes ada is a nonpacifist, which its search certificate
+settles.
 
 `owl-property-chain.js` defines grandparent as a chain of two parent links,
 stored as a plain list of property names next to the triples. One forward rule
@@ -416,8 +426,8 @@ each of Alice's messages N and Bob's readings M collects its ways through the
 shared entangled pair and keeps the pair when their number is odd. Every
 message arrives as itself by exactly one way, and every wrong reading by two
 ways that cancel or by none, so Bob reads 0 to 3 exactly as Alice sent them.
-The parity depends on all the ways, so the certificate carries the four
-collections behind its answers as obligations.
+The parity depends on all the ways, so the proof's search certificate records
+the four collections behind its answers, and the checker settles them.
 
 `teleportation.js` runs the companion protocol in the same theory, with the
 same relations. Alice measures the qubit to send together with her half of the
@@ -429,11 +439,13 @@ of the four outcomes, Bob ends up holding exactly the state Alice sent, and a
 `contradiction(...)` rule would stop the run with exit code 65 if he did not. The
 protocol was written for this collection, not taken from a sibling project.
 
-Certificates that lean on a completed search say so. In `kaprekar.js` the whole
-verification sits inside one negation, so its certificate is two steps plus an
-`absent` obligation: the exhaustive check over 705 digit multisets is exactly
-what the obligation names. `four-color.js` collects the countries with
-`findall` and rules out conflicts with negation, so it carries both kinds.
+Proofs that lean on a completed search write that search down. In
+`kaprekar.js` the whole verification sits inside one negation, so its proof is
+two steps plus an `absent` step, backed by a search certificate of 13,555
+lines: the exhaustive check over 705 digit multisets, which the checker
+confirms line by line. `four-color.js` collects the countries with `findall`
+and rules out conflicts with negation, so it carries both kinds, and both
+are settled.
 
 Run `npm test` for the full suite, or `npm test -- examples` for this corpus;
 `npm test -- -k socrates` limits it to the tests that mention socrates. Every example

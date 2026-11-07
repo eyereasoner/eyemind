@@ -100,8 +100,8 @@ clause(2, fact(bus('paris', 'lille')))
 clause(3, implied_by(route(From, To), train(From, To)))
 clause(4, implied_by(route(From, To), bus(From, To)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(route('paris', 'brussels'), clause(3), {From: 'paris', To: 'brussels'}, [train('paris', 'brussels')])
 step(train('paris', 'brussels'), clause(1), {}, [])
 step(route('paris', 'lille'), clause(4), {From: 'paris', To: 'lille'}, [bus('paris', 'lille')])

@@ -138,8 +138,8 @@ clause(4, implied_by(parity_pair(N, C, D, A, B), [eq(0, mod(N, 2)), unify(A, C),
 clause(5, implied_by(parity_pair(N, C, D, A, B), [eq(1, mod(N, 2)), unify(A, D), is(B, add(C, D))]))
 clause(6, implied_by(golden_ratio(N, Ratio), [fib(N, A), gt(A, 0), is(Next, add(N, 1)), fib(Next, B), is(Ratio, div(B, A))]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(fib(0, 0), clause(1), {N: 0, F: 0, _0: 1}, [ge(0, 0), fib_pair(0, 0, 1)])
 step(ge(0, 0), 'builtin', {}, [])
 step(fib_pair(0, 0, 1), clause(2), {}, [])

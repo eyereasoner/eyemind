@@ -12,8 +12,8 @@ clause(8, implies(inverse_of(Y, X), [product(X, Y, 'e'), product(Y, X, 'e')]))
 clause(9, implies([product(A, B, AB), product(AB, C, Left), product(B, C, BC), product(A, BC, Right)], equal(Left, Right)))
 clause(10, implies([inverse_of(Y, X), inverse_of(Z, X), not_identical(Y, Z), equal(Y, Z)], same_inverse(X, Y, Z)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(same_inverse('x', 'i', 'j'), clause(10), {Y: 'i', X: 'x', Z: 'j'}, [inverse_of('i', 'x'), inverse_of('j', 'x'), not_identical('i', 'j'), equal('i', 'j')])
 step(inverse_of('i', 'x'), clause(5), {}, [])
 step(inverse_of('j', 'x'), clause(6), {}, [])

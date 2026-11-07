@@ -140,6 +140,9 @@ A rank depends on a *complete* list: "the scores higher than 9310 are
 `[]`, none at all". eyemind built this list by searching every claim. A proof
 can show that each listed item belongs, but it cannot show that nothing was
 missed without searching again, and the checker never searches by itself.
+A search certificate can stand in for that search in some proofs, but not
+here: the scores belong to claims a forward rule derived, and the order in
+which derived facts arose is not something the checker can confirm.
 
 So the proof records such a list as **`'collected'`**: gathered by a search
 and complete only on trust. The checker reports it as an **obligation**, a
@@ -194,8 +197,8 @@ clause(21, implies([ranked(1, Status, Source, Score), threshold(Limit), ge(Score
 clause(23, implies([decision(Action, Source, Score), atom_concat('https://example.org/', Action, ActionIri), integer_literal(Score, ScoreText)], [result_rdf(iri('https://example.org/bridge'), iri('https://example.org/decision'), iri(ActionIri), 'default_graph'), result_rdf(iri('https://example.org/bridge'), iri('https://example.org/trustedSource'), Source, 'default_graph'), result_rdf(iri('https://example.org/bridge'), iri('https://example.org/score'), ScoreText, 'default_graph')]))
 clause(24, implies([ranked(Rank, Status, Source, Score), integer_literal(Rank, RankText), integer_literal(Score, ScoreText)], [result_rdf(Status, iri('https://example.org/rank'), RankText, 'default_graph'), result_rdf(Status, iri('https://example.org/assertedBy'), Source, 'default_graph'), result_rdf(Status, iri('https://example.org/score'), ScoreText, 'default_graph')]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(result_rdf(iri('https://example.org/bridge'), iri('https://example.org/decision'), iri('https://example.org/avoid_bridge'), 'default_graph'), clause(23), {Action: 'avoid_bridge', Source: iri('https://example.org/transportAuthority'), Score: 9310, ActionIri: 'https://example.org/avoid_bridge', ScoreText: literal('9310', datatype('http://www.w3.org/2001/XMLSchema#integer'))}, [decision('avoid_bridge', iri('https://example.org/transportAuthority'), 9310), atom_concat('https://example.org/', 'avoid_bridge', 'https://example.org/avoid_bridge'), integer_literal(9310, literal('9310', datatype('http://www.w3.org/2001/XMLSchema#integer')))])
 step(decision('avoid_bridge', iri('https://example.org/transportAuthority'), 9310), clause(21), {Status: iri('https://example.org/closed'), Source: iri('https://example.org/transportAuthority'), Score: 9310, Limit: 8000, Action: 'avoid_bridge'}, [ranked(1, iri('https://example.org/closed'), iri('https://example.org/transportAuthority'), 9310), threshold(8000), ge(9310, 8000), status_action(iri('https://example.org/closed'), 'avoid_bridge')])
 step(ranked(1, iri('https://example.org/closed'), iri('https://example.org/transportAuthority'), 9310), clause(17), {Status: iri('https://example.org/closed'), Source: iri('https://example.org/transportAuthority'), Score: 9310, Other: A, Higher: [], Count: 0, Rank: 1}, [claim(iri('https://example.org/closed'), iri('https://example.org/transportAuthority'), 9310), findall(A, higher(9310, A), []), count([], 0), is(1, add(0, 1))])

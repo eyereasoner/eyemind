@@ -10004,8 +10004,8 @@ clause(29993, implied_by(type(X, 'n9998'), type(X, 'n9997')))
 clause(29996, implied_by(type(X, 'n9999'), type(X, 'n9998')))
 clause(29999, implied_by(type(X, 'n10000'), type(X, 'n9999')))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(type('ind', 'n10000'), clause(29999), {X: 'ind'}, [type('ind', 'n9999')])
 step(type('ind', 'n9999'), clause(29996), {X: 'ind'}, [type('ind', 'n9998')])
 step(type('ind', 'n9998'), clause(29993), {X: 'ind'}, [type('ind', 'n9997')])

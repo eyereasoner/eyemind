@@ -123,9 +123,10 @@ there at all.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each conclusion. The full proof
-is 155 lines with 66 steps, so here is its opening, a selection of its
-clauses, and the complete steps behind two decisions: Falco flies safely, and
-Tweety's flight is undecided. The
+is 167 lines with 66 steps and a 9-line search certificate, so here is its
+opening, a selection of its clauses, the complete steps behind two
+decisions, Falco flies safely and Tweety's flight is undecided, and the
+start of the certificate. The
 [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/paraconsistent-animals.js)
 is online.
 
@@ -152,8 +153,8 @@ clause(25, implies(flight_status(X, 'true_only'), flies_safely(X, 'true')))
 clause(27, implies(flight_status(X, 'both'), flies_safely(X, 'undecided')))
 // … clauses 28 to 33
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(flies('tweety', 'true'), clause(10), {X: 'tweety'}, [bird('tweety')])
 step(bird('tweety'), clause(1), {}, [])
 step(flies('falco', 'true'), clause(10), {X: 'falco'}, [bird('falco')])
@@ -171,15 +172,27 @@ step(not(flies('falco', 'false')), 'absent', {}, [])
 // … 12 steps
 step(flies_safely('falco', 'true'), clause(25), {X: 'falco'}, [flight_status('falco', 'true_only')])
 // … 12 more steps, 66 in total
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+derived(flies(A, B), [flies('tweety', 'true'), flies('falco', 'true'), flies('mythic', 'true'), flies('tweety', 'false'), flies('opus', 'false'), flies('batsy', 'true'), flies('mythic', 'false')])
+derived(wings(A, B), [wings('tweety', 'true'), wings('falco', 'true'), wings('mythic', 'true'), wings('batsy', 'false'), wings('batsy', 'true'), wings('nemo', 'false')])
+searched(flies('falco', 'false'), [])
+// … 6 more searched lines, one for each other absence
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the 50 conclusions the proof is about.
 - **The clauses**: the program's 9 facts and 24 rules, numbered 1 to 33 in
   the order they appear in the program.
 - **The steps**: one per thing established. A step reads
   `step(what, by what, with which values, using what)`.
+- **The search certificate**: what eyemind found when it looked for the
+  facts the seven `'absent'` steps say are missing. `derived(flies(A, B),
+  [...])` lists every `flies` fact the rules derived, and likewise for
+  `wings`; each `searched(Call, [])` line records a search that found
+  nothing.
 
 Falco's decision, read from the bottom up:
 
@@ -187,8 +200,8 @@ Falco's decision, read from the bottom up:
 2. *Falco flies* — by rule 10, with `X` being Falco, because Falco is a bird.
 3. *Nothing says Falco does not fly* — justified by `'absent'`: eyemind
    searched everything it had concluded and found no `flies('falco',
-   'false')`. This step is not derived from a rule; it is taken on trust, and
-   the check report lists it as an obligation.
+   'false')`. This step is not derived from a rule; the search certificate
+   backs it with `searched(flies('falco', 'false'), [])`.
 4. *Falco's flight status is "true only"* — by rule 18, because Falco flies
    and nothing says he does not.
 5. *Falco flies safely* — by rule 25, because his status is "true only".
@@ -216,7 +229,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 flies('tweety', 'true')
 flies('falco', 'true')
 flies('mythic', 'true')
@@ -279,29 +292,19 @@ condition('C6', 'boundary_consistency', 'ok', 7)
 condition('C7', 'relevance', 'ok', 116)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(flies('falco', 'false')))
-obligation('absent', 'theory_scoped', not(flies('batsy', 'false')))
-obligation('absent', 'theory_scoped', not(flies('opus', 'true')))
-obligation('absent', 'theory_scoped', not(wings('tweety', 'false')))
-obligation('absent', 'theory_scoped', not(wings('falco', 'false')))
-obligation('absent', 'theory_scoped', not(wings('mythic', 'false')))
-obligation('absent', 'theory_scoped', not(wings('nemo', 'true')))
-
 // Proof statistics: recorded steps and how they were checked.
 steps(66)
 verified(59)
 recomputed(0)
 composed(0)
-trusted(7)
+trusted(0)
 claims(50)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
-The report first repeats the 50 conclusions, "checked subject to the
-obligations below". Each `condition` line then names a check, says `'ok'`,
+The report first repeats the 50 conclusions, now checked answers. Each `condition` line then names a check, says `'ok'`,
 and counts what it looked at:
 
 - **C1 resolution (59)**: the 59 steps that cite a rule or fact really are
@@ -316,24 +319,29 @@ and counts what it looked at:
   recomputing.
 - **C6 boundary consistency (7)**: the 7 "not found" steps were each
   confronted with the proof's own evidence, and none is contradicted: for
-  example, no step in the proof concludes `flies('falco', 'false')`.
+  example, no step in the proof concludes `flies('falco', 'false')`. The
+  search certificate settles all seven.
 - **C7 relevance (116)**: the 50 claims are the program's conclusions, and
   all 66 steps serve at least one of them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The seven `obligation` lines are the "not found" facts the decisions lean on,
-in plain words: nothing says Falco or Batsy cannot fly, nothing says Opus
-can fly, nothing says Tweety, Falco or Mythic lack wings, and nothing says
-Nemo has wings. `'theory_scoped'` means each holds only relative to this
-program: it is true of what the program states, not necessarily of the real
-world.
+The seven absences the decisions lean on are, in plain words: nothing says
+Falco or Batsy cannot fly, nothing says Opus can fly, nothing says Tweety,
+Falco or Mythic lack wings, and nothing says Nemo has wings. None is taken
+on trust. For each, the checker expands the call one level against the
+program, as a search would, without searching itself: the rules that could
+conclude it need facts that are not there, and the `derived` listings,
+which it accepts because each listed fact has its own steps and no rule
+derives a fact they leave out, contain no such fact. Each expansion agrees
+with its `searched(..., [])` line. Each absence holds only relative to this
+program: it is true of what the program states, not necessarily of the
+real world.
 
-The statistics repeat this: 66 steps, 59 verified against the program, 7
-taken on trust. The verdict is **checked with obligations**: every conclusion
-follows from the program, *provided* those seven absences hold. The checker
-cannot prove an absence; it only confirms that nothing in the proof
-contradicts one. It also does not establish that the program has no other
+The statistics: 66 steps, 59 verified against the program and the 7
+absences settled by the certificate, so none is trusted and there are no
+obligations. The verdict is **checked**: every conclusion follows from the
+program. It does not establish that the program has no other
 conclusions.
 
 ---
@@ -348,9 +356,9 @@ eyemind --proof examples/paraconsistent-animals.js    # answers with their proof
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=paraconsistent-animals).
 Delete the line `fact(observed('mythic', 'flies', 'false'))` and run again:
 the conflict disappears, and you get `flies_safely('mythic', 'true')` and
-`moves_by('mythic', 'flying')`. The check report then lists eight
-obligations instead of seven: the new one is `not(flies('mythic', 'false'))`,
-the absence that Mythic's decision now relies on.
+`moves_by('mythic', 'flying')`. C6 then counts eight absences
+instead of seven, all settled: the new one is `not(flies('mythic',
+'false'))`, the absence that Mythic's decision now relies on.
 
 ---
 

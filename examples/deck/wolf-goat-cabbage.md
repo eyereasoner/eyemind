@@ -131,9 +131,9 @@ wolf or the cabbage goes over first. The first plan, crossing by crossing:
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each answer. The whole proof
-has 72 steps; see the [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/wolf-goat-cabbage.js).
-Here are its claims, its clauses, and the complete chain of 55 steps for
-the first answer:
+has 72 steps and a 72-line search certificate; see the [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/wolf-goat-cabbage.js).
+Here are its claims, its clauses, the complete chain of 55 steps for
+the first answer, and the start of the certificate:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -158,8 +158,8 @@ clause(13, implied_by(moves(N, [_0, ...Rest]), [gt(N, 0), is(M, sub(N, 1)), move
 clause(17, implied_by(wolf_goat_cabbage_verified(7), [not('shorter_solution'), moves(7, Plan), once(solution(['w', 'w', 'w', 'w'], Plan))]))
 clause(18, implied_by(shortest_crossing(Plan), [not('shorter_solution'), moves(7, Plan), solution(['w', 'w', 'w', 'w'], Plan)]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(wolf_goat_cabbage_verified(7), clause(17), {Plan: ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']}, [not('shorter_solution'), moves(7, ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']), once(solution(['w', 'w', 'w', 'w'], ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']))])
 step(not('shorter_solution'), 'absent', {}, [])
 step(moves(7, ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']), clause(13), {N: 7, _0: 'goat', Rest: ['nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'], M: 6}, [gt(7, 0), is(6, sub(7, 1)), moves(6, ['nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])])
@@ -217,19 +217,26 @@ step(safe(['e', 'e', 'e', 'e']), clause(9), {Farmer: 'e', Wolf: 'e', Goat: 'e', 
 step(solution(['e', 'e', 'e', 'e'], []), clause(1), {}, [])
 // … 17 more steps, 72 in total, prove the two shortest_crossing answers.
 // They reuse the steps above, so only the second plan needs new ones.
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched('shorter_solution', [])
+// … 71 more searched lines: the lengths 0 to 6, and every plan tried
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the three answers.
 - **The clauses**: the program lines the steps cite, numbered by their place
   in the program. Lines 14 to 16 (`in_range` and `'shorter_solution'`) are
   not cited: no step uses them, because the absence of a shorter plan is
-  taken on trust rather than proved (see below). The `_` of the program is
+  backed by the search certificate rather than by steps (see below). The `_` of the program is
   shown as `_0`.
 - **The steps**: one per thing established. A step reads
   `step(what, by what, with which values, using what)`. The values in curly
   braces say what each variable of the cited line stood for.
+- **The search certificate**: the search behind the absence, written as
+  `searched(call, answers)` lines, each with every answer the call gave.
 
 Four kinds of justification occur. `clause(N)` means "by line N of the
 program". `'builtin'` means a test or calculation, such as `gt(7, 0)`, that
@@ -243,7 +250,7 @@ The 55 steps say:
   shorter solution, the plan is a list of 7 moves, and it is a solution.
 - **Step 2.** *There is no shorter solution* — **absent**: eyemind tried
   every plan of 0 to 6 crossings and none worked. A proof cannot point at a
-  missing plan, so this is taken on trust.
+  missing plan, so the search certificate records that search instead.
 - **Steps 3 to 24.** *The plan is a list of 7 moves* — by rule 13, taking
   one move off at a time (7 > 0, 7 − 1 = 6, …), down to the empty list
   (fact 12).
@@ -281,7 +288,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 wolf_goat_cabbage_verified(7)
 shortest_crossing(['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])
 shortest_crossing(['goat', 'nothing', 'cabbage', 'goat', 'wolf', 'nothing', 'goat'])
@@ -293,23 +300,20 @@ condition('C2', 'well_founded', 'ok', 72)
 condition('C3', 'justification', 'ok', 72)
 condition('C4', 'coverage', 'ok', 113)
 condition('C5', 're_decision', 'ok', 15)
-condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 75)
 condition('C8', 'witness_integrity', 'ok', 0)
-
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not('shorter_solution'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(72)
 verified(56)
 recomputed(14)
 composed(1)
-trusted(1)
+trusted(0)
 claims(3)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -326,24 +330,30 @@ at:
   each backed by a step.
 - **C5 re-decision (15)**: the checker redid the 14 built-in tests and
   calculations and rebuilt the 1 `once(...)` from its part, and all agree.
-- **C6 boundary consistency (0)**: the checker had nothing to confront the
-  1 absence with: `'shorter_solution'` is only a rule, and no program fact
-  or proof step mentions it, so nothing could refute it. The absence is left
-  undecided and stays an obligation taken on trust.
+- **C6 boundary consistency (1)**: the 1 absence was confronted with the
+  evidence, and the search certificate settles it: there is no shorter
+  solution.
 - **C7 relevance (75)**: the 3 claims answer the queries, and all 72 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
 The statistics: 72 steps, 56 verified against the program, 14 recomputed, 1
-composed (the `once`), 1 trusted, 3 claims.
+composed (the `once`) and the absence settled by the certificate, none
+trusted, 3 claims.
 
-The `obligation` line is the step taken on trust: *there is no shorter
-solution*. `'theory_scoped'` means "with respect to this program": the
+*There is no shorter solution* is not taken on trust. The certificate opens
+with `searched('shorter_solution', [])`: the search for a shorter plan gave
+no answers. Below it come the calls that search made: the lengths 0 to 6
+from `in_range`, a plan of each length, the moves possible from each state,
+and which states are safe. The checker verifies every line without
+searching itself: it expands the call one level against the program, as a
+search would, and answers each inner call from that call's own line, so no
+line vouches for itself, and a plan the certificate hid would show up as a
+disagreement. "No shorter plan" is meant with respect to this program: the
 search covered every plan of 0 to 6 crossings the program allows. The
-verdict is **checked with obligations**: the two plans are fully checked,
-move by move; the claim that *7 is the minimum* rests on that exhaustive
-search, and the report says so. The verdict does not say the program has no
+verdict is **checked**: the two plans are fully checked, move by move, and
+so is the claim that *7 is the minimum*. The verdict does not say the program has no
 other conclusions.
 
 ---
@@ -365,5 +375,5 @@ fails and eyemind reports `// No answers: no query() instance holds.`
 ## Takeaway
 
 "Here is a plan" and "no better plan exists" are different kinds of claim.
-eyemind proves the first step by step, and labels the second clearly as the
-part that rests on an exhaustive search.
+eyemind proves the first step by step, and records the exhaustive search
+behind the second so that it can be checked as well.

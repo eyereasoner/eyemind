@@ -13,8 +13,8 @@ clause(6, implied_by(sum_weights([W, ...Ws], Sum), [sum_weights(Ws, Rest), is(Su
 clause(7, implies([findall(W, weight(Fault, W), Weights), sum_weights(Weights, Total)], total(Total)))
 clause(8, implies([weight(Fault, Numerator), total(Denominator), gt(Denominator, 0), is(Probability, div(Numerator, Denominator))], posterior(Fault, Numerator, Denominator, Probability)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(posterior('paper_jam', 18000, 37200, 0.4838709677419355), clause(8), {Fault: 'paper_jam', Numerator: 18000, Denominator: 37200, Probability: 0.4838709677419355}, [weight('paper_jam', 18000), total(37200), gt(37200, 0), is(0.4838709677419355, div(18000, 37200))])
 step(weight('paper_jam', 18000), clause(4), {Fault: 'paper_jam', Prior: 20, Jam: 90, Offline: 10, Weight: 18000}, [fault('paper_jam', 20, 90, 10), is(18000, mul(mul(20, 90), 10))])
 step(fault('paper_jam', 20, 90, 10), clause(1), {}, [])

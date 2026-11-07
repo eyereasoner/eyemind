@@ -25,8 +25,8 @@ clause(11, implies(invoice_for(C, I), sent(I)))
 clause(12, fact(colleagues('ann', 'dora')))
 clause(13, implies(colleagues(X, Y), [meeting(M), attends(M, X), attends(M, Y)]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(has_parent('ann', skolem(3, 'P', ['ann'])), clause(3), {X: 'ann', P: skolem(3, 'P', ['ann'])}, [person('ann')])
 step(person('ann'), clause(1), {}, [])
 step(has_parent('bob', skolem(3, 'P', ['bob'])), clause(3), {X: 'bob', P: skolem(3, 'P', ['bob'])}, [person('bob')])

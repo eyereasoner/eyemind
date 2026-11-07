@@ -179,8 +179,8 @@ clause(15, implies([parent(Parent, Child), generation(Parent, N), is(Next, add(N
 clause(16, implies([parent(Parent, Child), branch(Parent, Branch)], branch(Child, Branch)))
 clause(17, implies([generation(X, N), generation(Y, N), branch(X, A), branch(Y, B), not_unify(A, B)], cousin(X, Y)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(generation('bob', 1), clause(15), {Parent: 'adam', Child: 'bob', N: 0, Next: 1}, [parent('adam', 'bob'), generation('adam', 0), is(1, add(0, 1))])
 step(parent('adam', 'bob'), clause(1), {}, [])
 step(generation('adam', 0), clause(10), {}, [])

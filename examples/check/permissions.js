@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 allowed('alice', 'read')
 allowed('alice', 'write')
 allowed('bob', 'read')
@@ -14,17 +14,13 @@ condition('C6', 'boundary_consistency', 'ok', 2)
 condition('C7', 'relevance', 'ok', 16)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(suspended('alice')))
-obligation('absent', 'theory_scoped', not(suspended('bob')))
-
 // Proof statistics: recorded steps and how they were checked.
 steps(13)
 verified(11)
 recomputed(0)
 composed(0)
-trusted(2)
+trusted(0)
 claims(3)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')

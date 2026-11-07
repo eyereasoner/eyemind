@@ -140,8 +140,8 @@ clause(29, implied_by(leap_extra(Y, M, 0), [gt(M, 2), common_year(Y)]))
 clause(37, fact(month_offset(8, 212)))
 clause(39, fact(month_offset(10, 273)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(age_above('pat_h', years(80)), clause(3), {Person: 'pat_h', Duration: years(80), Date: date(2026, 10, 1)}, [as_of(date(2026, 10, 1)), age_above('pat_h', years(80), date(2026, 10, 1))])
 step(as_of(date(2026, 10, 1)), clause(2), {}, [])
 step(age_above('pat_h', years(80), date(2026, 10, 1)), clause(4), {Person: 'pat_h', Years: 80, Date: date(2026, 10, 1), Birth: date(1944, 8, 21), Born: 709899, Today: 739890, Anniversary: date(2024, 8, 21), Threshold: 739119}, [is_int(80), ge(80, 0), birth_date('pat_h', date(1944, 8, 21)), date_day(date(1944, 8, 21), 709899), date_day(date(2026, 10, 1), 739890), ge(739890, 709899), anniversary(date(1944, 8, 21), 80, date(2024, 8, 21)), date_day(date(2024, 8, 21), 739119), gt(739890, 739119)])

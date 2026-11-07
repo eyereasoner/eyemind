@@ -102,8 +102,8 @@ clause(74, implies(complaint(K, _0), complaint_plan('revised_2026', K, deadlines
 clause(75, implies([assessment('directive_2015', C, Old, _0), assessment('revised_2026', C, New, _1), not_identical(Old, New)], changed(cancellation(C), from(Old), to(New))))
 clause(76, implies([complaint_plan('directive_2015', K, Old, _0), complaint_plan('revised_2026', K, New, _1), not_identical(Old, New)], changed(complaint(K), from(Old), to(New))))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(assessment('directive_2015', 'r7', refused_by_terms([unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)]), basis(['ex:terms'])), clause(69), {R: 'directive_2015', C: 'r7', Reasons: [unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)]}, [regime('directive_2015'), policy_result('r7', refuse([unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)]))])
 step(regime('directive_2015'), clause(1), {}, [])
 step(policy_result('r7', refuse([unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)])), clause(49), {C: 'r7', Reasons: [unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)], Rule: 'ex:cancellation', X: 'ex:conditions', Ks: ['ex:byLeadTraveller', 'ex:beforeDeparture']}, [addresses('r7', 'ex:cancellation'), t('ex:cancellation', 'odrl:constraint', 'ex:conditions'), t('ex:conditions', 'odrl:and', ['ex:byLeadTraveller', 'ex:beforeDeparture']), unmet('r7', ['ex:byLeadTraveller', 'ex:beforeDeparture'], [unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)]), not_identical([unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)], [])])

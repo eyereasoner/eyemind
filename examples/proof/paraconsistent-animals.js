@@ -85,8 +85,8 @@ clause(31, implies(flight_status(X, 'true_only'), [moves_by(X, 'flying'), migrat
 clause(32, implies(flight_status(X, 'false_only'), [moves_by(X, 'walking'), migrates(X, 'false')]))
 clause(33, implies(flight_status(X, 'both'), [moves_by(X, 'unknown'), migrates(X, 'undecided')]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(flies('tweety', 'true'), clause(10), {X: 'tweety'}, [bird('tweety')])
 step(bird('tweety'), clause(1), {}, [])
 step(flies('falco', 'true'), clause(10), {X: 'falco'}, [bird('falco')])
@@ -153,3 +153,15 @@ step(moves_by('batsy', 'flying'), clause(31), {X: 'batsy'}, [flight_status('bats
 step(migrates('batsy', 'true'), clause(31), {X: 'batsy'}, [flight_status('batsy', 'true_only')])
 step(moves_by('opus', 'walking'), clause(32), {X: 'opus'}, [flight_status('opus', 'false_only')])
 step(migrates('opus', 'false'), clause(32), {X: 'opus'}, [flight_status('opus', 'false_only')])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+derived(flies(A, B), [flies('tweety', 'true'), flies('falco', 'true'), flies('mythic', 'true'), flies('tweety', 'false'), flies('opus', 'false'), flies('batsy', 'true'), flies('mythic', 'false')])
+derived(wings(A, B), [wings('tweety', 'true'), wings('falco', 'true'), wings('mythic', 'true'), wings('batsy', 'false'), wings('batsy', 'true'), wings('nemo', 'false')])
+searched(flies('falco', 'false'), [])
+searched(flies('batsy', 'false'), [])
+searched(flies('opus', 'true'), [])
+searched(wings('tweety', 'false'), [])
+searched(wings('falco', 'false'), [])
+searched(wings('mythic', 'false'), [])
+searched(wings('nemo', 'true'), [])

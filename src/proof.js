@@ -3,20 +3,22 @@
 // A proof document is JavaScript source, one expression per line: first the
 // claims, then clause(N, Display) for every source clause the proof cites,
 // written as the program states it (fact(...), implies(...) or
-// implied_by(...)), then one step(Goal, By, Bindings, Uses) per inference. The
+// implied_by(...)), then one step(Goal, By, Bindings, Uses) per inference,
+// then the search certificate that settles its negations and collections. The
 // document reader parses it as data; it never executes it.
 //
 // Verification follows recorded uses; it never asks the solver to find a
 // missing derivation. Only pure primitives are independently recomputed.
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
-import { freshClause, text } from './common.js';
+import { Settler } from './closure.js';
+import { freshClause, text, variant } from './common.js';
 import { goalTerm } from './goals.js';
 import { INSPECTION_KEYS, isInspection } from './inspection.js';
 import { CONTROL_KEYS, Program } from './program.js';
 import { readTerms } from './reader.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
-  isCallable, isFloat, isGround, isTerm, key, listFromItems, properListItems, unify, variables,
+  isCallable, isFloat, isGround, isTerm, key, keyArity, keyName, listFromItems, properListItems, unify, variables,
 } from './terms.js';
 import { Lettering, letterName, quote, write, writeNotingVariables } from './writer.js';
 
@@ -168,27 +170,46 @@ function bindingsText(bindings, lettering) {
   return `{${parts.join(', ')}}`;
 }
 
+// The most general goal of a name and arity, as a listing of derived facts
+// names its relation.
+function relationPattern(goalKey) {
+  const arity = keyArity(goalKey);
+  if (!arity) return keyName(goalKey);
+  return new Struct(keyName(goalKey), Array.from({ length: arity }, (_, i) => new Var(`_relation${i}`)));
+}
+
 // The proof document of a run's claims and their derivations, opened by
 // heading, the comment that says what the claims are. With checkable, also
 // what checkRendered() needs to check it without reading the document back:
 // the document and that, as a pair. Comments are ignored when it is read.
-export function renderProof(program, claims, roots, checkable = false, heading = null) {
+// certify, given the goals of the negations and collections, gives their
+// search certificate: [Call, Answers] tables and [Key, Nodes] listings, the
+// nodes of each listed derived fact.
+export function renderProof(program, claims, roots, checkable = false, heading = null, certify = null) {
   const spellings = new Spellings();
   const steps = new Map();
   const cited = new Set();
-  const pending = [...roots].reverse();
-  while (pending.length) {
-    const node = pending.pop();
-    const nodeId = spellings.spell(node.goal);
-    if (steps.has(nodeId)) continue;
-    steps.set(nodeId, node);
-    if (node.by instanceof Struct) {
-      const id = Number(node.by.args[0]);
-      cited.add(id);
-      for (const parent of program.byId.get(id)?.scopeIds || []) cited.add(parent);
+  const walk = (starts) => {
+    const pending = [...starts].reverse();
+    while (pending.length) {
+      const node = pending.pop();
+      const nodeId = spellings.spell(node.goal);
+      if (steps.has(nodeId)) continue;
+      steps.set(nodeId, node);
+      if (node.by instanceof Struct) {
+        const id = Number(node.by.args[0]);
+        cited.add(id);
+        for (const parent of program.byId.get(id)?.scopeIds || []) cited.add(parent);
+      }
+      for (let i = node.children.length - 1; i >= 0; i--) pending.push(node.children[i]);
     }
-    for (let i = node.children.length - 1; i >= 0; i--) pending.push(node.children[i]);
-  }
+  };
+  walk(roots);
+  const boundaries = [...steps.values()].filter((node) => node.by === 'absent' || node.by === 'collected')
+    .map((node) => node.goal);
+  const certificate = certify !== null && boundaries.length ? certify(boundaries) : { tables: [], listings: [] };
+  // A listed derived fact is shown by its own steps, after the claims' steps.
+  walk(certificate.listings.flatMap(([, nodes]) => nodes));
   // Variables are named A, B, ... in the order the document first shows
   // them, the claims written first, as in the run's conclusions.
   const lettering = new Lettering();
@@ -201,13 +222,30 @@ export function renderProof(program, claims, roots, checkable = false, heading =
   }
   lines.push('');
   if (steps.size) {
-    lines.push('// Steps: each goal, what justifies it (a clause, a builtin, a control, or an',
-      '// absence or collection taken on trust), the bindings and the goals it uses.');
+    lines.push('// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
+      '// absence or a collection), the bindings and the goals it uses.');
   }
   for (const node of steps.values()) {
     const uses = `[${node.children.map((child) => spellings.lettered(child.goal, lettering)).join(', ')}]`;
     lines.push(`step(${spellings.lettered(node.goal, lettering)}, ${text(node.by)}, ` +
                `${bindingsText(node.bindings, lettering)}, ${uses})`);
+  }
+  const read = { tables: new Map(), listings: new Map(), order: [] };
+  if (certificate.tables.length || certificate.listings.length) {
+    lines.push('', '// Search certificate: every fact derived for each relation the searches behind',
+      '// negations and collections consult, and every answer of each call they made, in order.');
+  }
+  for (const [goalKey, nodes] of certificate.listings) {
+    const facts = nodes.map((node) => node.goal);
+    const pattern = relationPattern(goalKey);
+    lines.push(spellings.lettered(new Struct('derived', [pattern, listFromItems(facts)]), lettering));
+    read.listings.set(goalKey, facts);
+    read.order.push(['listing', goalKey, pattern]);
+  }
+  for (const [call, answers] of certificate.tables) {
+    lines.push(spellings.lettered(new Struct('searched', [call, listFromItems(answers)]), lettering));
+    read.tables.set(variant(call), answers);
+    read.order.push(['table', variant(call), call]);
   }
   const document = `${lines.join('\n')}\n`;
   if (!checkable) return document;
@@ -215,16 +253,16 @@ export function renderProof(program, claims, roots, checkable = false, heading =
   // pairs, uses as goals. Their variables keep the run's names, which the
   // document only spells differently, so the checks come out the same; what a
   // report shows of a term is spelled as the document spells it.
-  const read = new Map();
+  const readSteps = new Map();
   for (const [nodeId, node] of steps) {
-    read.set(nodeId, {
+    readSteps.set(nodeId, {
       goal: node.goal,
       by: node.by,
       bindings: node.bindings.map(([name, value]) => new Struct('=', [name, value])),
       uses: node.children.map((child) => child.goal),
     });
   }
-  return [document, [[...claims], read, spellings, (term) => spellings.lettered(term, lettering)]];
+  return [document, [[...claims], readSteps, spellings, (term) => spellings.lettered(term, lettering), read]];
 }
 
 class Failures {
@@ -248,8 +286,8 @@ export function checkProof(program, document, { goals = null, allowTrusted = tru
   if (!(program instanceof Program)) throw new EyemindError('checkProof() needs a Program; load one first');
   const fail = new Failures();
   const spellings = new Spellings();
-  const [claims, steps] = readDocument(program, document, fail, spellings);
-  return check(program, claims, steps, goals, allowTrusted, fail, spellings, text);
+  const [claims, steps, certificate] = readDocument(program, document, fail, spellings);
+  return check(program, claims, steps, certificate, goals, allowTrusted, fail, spellings, text);
 }
 
 // Check a proof as renderProof(..., true) gave it: the report checkProof()
@@ -257,19 +295,41 @@ export function checkProof(program, document, { goals = null, allowTrusted = tru
 // checks its own proofs this way; their text is covered by the tests that
 // what is written reads back as the same terms.
 export function checkRendered(program, checkable, goals = null, allowTrusted = true) {
-  const [claims, steps, spellings, name] = checkable;
-  return check(program, claims, steps, goals, allowTrusted, new Failures(name), spellings, name);
+  const [claims, steps, spellings, name, certificate] = checkable;
+  return check(program, claims, steps, certificate, goals, allowTrusted, new Failures(name), spellings, name);
 }
 
-function check(program, claims, steps, goals, allowTrusted, fail, spellings, name) {
+// Settle each negation and collection that is well formed by its search
+// certificate (C6), before the steps are checked: a settled one is no
+// obligation.
+function settleBoundaries(program, steps, certificate, spellings) {
+  const settler = new Settler(program, {
+    answers: (call) => certificate.tables.get(variant(call)) ?? null,
+    facts: (goalKey) => certificate.listings.get(goalKey) ?? null,
+    supported: (fact) => steps.has(spellings.spell(fact)),
+  });
+  const outcomes = new Map();
+  for (const [stepId, step] of steps) {
+    if (isBoundary(step)) outcomes.set(stepId, settler.settle(step.goal));
+  }
+  return { settler, outcomes };
+}
+
+function isBoundary({ goal, by, bindings, uses }) {
+  return ((by === 'absent' && isTerm(goal, 'not', 1)) || (by === 'collected' && isTerm(goal, 'findall', 3))) &&
+    !bindings.length && !uses.length;
+}
+
+function check(program, claims, steps, certificate, goals, allowTrusted, fail, spellings, name) {
+  const settlement = settleBoundaries(program, steps, certificate, spellings);
   for (const claim of claims) {
     if (!flattenConjunction(claim).every((part) => steps.has(spellings.spell(part)))) {
       fail.add('C4', `unjustified claim ${text(claim)}`, claim);
     }
   }
-  const tally = checkSteps(program, steps, allowTrusted, fail, spellings, name);
-  const confronted = checkBoundaries(program, steps, tally.boundaries, fail);
-  checkRelevance(program, claims, steps, goals || [], fail, spellings);
+  const tally = checkSteps(program, steps, allowTrusted, fail, spellings, name, settlement.outcomes);
+  const confronted = checkBoundaries(program, steps, tally.boundaries, fail, settlement.outcomes, spellings);
+  checkRelevance(program, claims, steps, goals || [], fail, spellings, settlement, certificate);
   checkWellFounded(steps, fail, spellings);
   let uses = 0;
   for (const step of steps.values()) uses += step.uses.length;
@@ -316,14 +376,20 @@ export function strict(report) {
   return { ...report, valid: !failures.length, failures, conditions, failureTerms: [...report.trustedTerms] };
 }
 
-// C3: split a document into claims and steps keyed by the goal's text.
+// C3: split a document into claims, steps keyed by the goal's text, and the
+// statements of its search certificate.
 // clause/2 records are compared with the source.
 function readDocument(program, document, fail, spellings) {
   const claims = [];
   const steps = new Map();
+  const certificate = { tables: new Map(), listings: new Map(), order: [] };
   const empty = new Env();
   try {
     for (const [term] of readTerms(document)) {
+      if (isTerm(term, 'searched', 2) || isTerm(term, 'derived', 2)) {
+        readCertificate(term, certificate, fail, empty);
+        continue;
+      }
       if (isTerm(term, 'clause', 2)) {
         // These display records are not authority: the source program is.
         const clause = clauseNamed(program, term.args[0]);
@@ -354,7 +420,32 @@ function readDocument(program, document, fail, spellings) {
     if (!(error instanceof EyemindError)) throw error;
     fail.add('C3', error.message);
   }
-  return [claims, steps];
+  return [claims, steps, certificate];
+}
+
+// A search certificate statement: searched(Call, Answers), a table of every
+// answer of a call, or derived(Pattern, Facts), every fact forward rules
+// derived for the relation of Pattern.
+function readCertificate(term, certificate, fail, empty) {
+  const [subject, list] = term.args;
+  const items = properListItems(list, empty);
+  const table = term.name === 'searched';
+  // A listing names its relation by the name applied to distinct variables.
+  const pattern = table || typeof subject === 'string' || (subject instanceof Struct &&
+    subject.args.every((arg, i) => arg instanceof Var && subject.args.findIndex((other) => other instanceof Var && other.name === arg.name) === i));
+  if (!isCallable(subject) || items === null || !pattern) {
+    fail.add('C3', table ? 'a search table must be searched(Goal, Answers) with an array of answers'
+      : 'a listing must be derived(Pattern, Facts) with an array of facts', subject);
+    return;
+  }
+  const entryKey = table ? variant(subject) : key(subject);
+  const entries = table ? certificate.tables : certificate.listings;
+  if (entries.has(entryKey)) {
+    fail.add('C3', `duplicate ${table ? 'search table' : 'listing'} for ${table ? text(subject) : entryKey}`, subject);
+    return;
+  }
+  entries.set(entryKey, items);
+  certificate.order.push([table ? 'table' : 'listing', entryKey, subject]);
 }
 
 function clauseNamed(program, id) {
@@ -368,7 +459,7 @@ const CONTROL_BY = 'control';
 // C4, C1, C3 and C5 for each step: every use is justified, and the step is an
 // instance of the clause it cites, a recomputed primitive, a control composed
 // of its uses, or a trusted boundary the later checks confront.
-function checkSteps(program, steps, allowTrusted, fail, spellings, name) {
+function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcomes) {
   const tally = { verified: 0, redecided: 0, composed: 0, witnessed: 0, boundaries: [], trusted: [] };
 
   function covered(goal) {
@@ -430,6 +521,8 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name) {
     } else if ((by === 'absent' && isTerm(goal, 'not', 1)) || (by === 'collected' && isTerm(goal, 'findall', 3))) {
       if (bindings.length || uses.length) fail.add('C3', 'trusted boundaries cannot have bindings or uses', goal);
       tally.boundaries.push(goal);
+      // A boundary its search certificate settles is checked, not trusted.
+      if (outcomes.get(spellings.spell(goal))?.status === 'settled') continue;
       tally.trusted.push([{ kind: by, conclusion: name(goal) }, goal]);
       if (!allowTrusted) fail.add('C5', `trusted boundary forbidden: ${by}`, goal);
     } else {
@@ -601,12 +694,13 @@ function checkWitnesses(clause, head, names, env) {
   return text(listFromItems(expected)) === text(firing);
 }
 
-// C6: a trusted boundary cannot be proved, but evidence at hand can refute
-// it. An absence fails when a source fact, a step of this certificate or a
-// recomputed primitive is a solution; a collection fails when such a solution
-// is missing from its list. Returns how many boundaries the evidence could
-// speak for.
-function checkBoundaries(program, steps, boundaries, fail) {
+// C6: a boundary its search certificate settles holds; one whose certificate
+// fails does not. Without a certificate a boundary cannot be proved, but
+// evidence at hand can refute it. An absence fails when a source fact, a step
+// of this certificate or a recomputed primitive is a solution; a collection
+// fails when such a solution is missing from its list. Returns how many
+// boundaries a certificate or the evidence could speak for.
+function checkBoundaries(program, steps, boundaries, fail, outcomes, spellings) {
   const stepGoals = new Map();
   for (const step of steps.values()) {
     if (isCallable(step.goal)) {
@@ -650,6 +744,12 @@ function checkBoundaries(program, steps, boundaries, fail) {
   }
 
   for (const boundary of boundaries) {
+    const outcome = outcomes.get(spellings.spell(boundary));
+    if (outcome !== undefined && outcome.status !== 'unsettled') {
+      confronted++;
+      for (const [detail, term] of outcome.failures) fail.add('C6', detail, term);
+      continue;
+    }
     if (isTerm(boundary, 'not', 1)) {
       const parts = flattenConjunction(boundary.args[0]);
       // Without a join, only a single goal or a ground conjunction is decided.
@@ -692,7 +792,7 @@ function checkBoundaries(program, steps, boundaries, fail) {
 // C7: the certificate answers the question that was asked and carries nothing
 // beside it. A claim is an instance of a goal asked from outside, of a
 // query() goal or, for printed conclusions, of a forward head.
-function checkRelevance(program, claims, steps, goals, fail, spellings) {
+function checkRelevance(program, claims, steps, goals, fail, spellings, settlement, certificate) {
   let serial = 0;
   const instanceOf = (claim, question) => isInstance(claim, question, `asked${++serial}`);
   const asked = goals.map(goalTerm);
@@ -721,9 +821,20 @@ function checkRelevance(program, claims, steps, goals, fail, spellings) {
     for (const use of steps.get(stepId).uses) {
       for (const part of flattenConjunction(use)) reach.push(spellings.spell(part));
     }
+    // A settled boundary rests on the derived facts its certificate lists.
+    const outcome = settlement.outcomes.get(stepId);
+    if (outcome?.status === 'settled') {
+      for (const goalKey of outcome.listings) {
+        for (const fact of settlement.settler.listings.get(goalKey).facts) reach.push(spellings.spell(fact));
+      }
+    }
   }
   for (const [stepId, step] of steps) {
     if (!reached.has(stepId)) fail.add('C7', `step serves no claim: ${stepId}`, step.goal);
+  }
+  for (const [kind, entryKey, subject] of certificate.order) {
+    const used = kind === 'table' ? settlement.settler.tables : settlement.settler.listings;
+    if (!used.has(entryKey)) fail.add('C7', `search certificate serves no boundary: ${text(subject)}`, subject);
   }
 }
 

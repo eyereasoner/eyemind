@@ -157,8 +157,8 @@ clause(4, fact(pow([_0, 0], 1)))
 clause(5, implied_by(pow([X, Y], Z), [ne(Y, 0), eq(0, mod(Y, 2)), is(S, mul(X, X)), is(T, floordiv(Y, 2)), pow([S, T], Z)]))
 clause(6, implied_by(pow([X, Y], Z), [ne(Y, 0), eq(1, mod(Y, 2)), is(S, mul(X, X)), is(T, floordiv(Y, 2)), pow([S, T], R), is(Z, mul(R, X))]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 // … 25 steps for 3 × 0 and 5 × 6, among them these six, which 238 × 13 reuses:
 step(ne(3, 0), 'builtin', {}, [])
 step(eq(1, mod(3, 2)), 'builtin', {}, [])

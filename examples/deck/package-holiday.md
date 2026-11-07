@@ -243,8 +243,8 @@ clause(65, fact(money_basis(_0, 'yes', 'not_offered', 'PTD Art. 12(4)')))
 clause(70, implies([regime(R), policy_result(C, permit(Rule)), request(C, B, _0, _1, days(D), circumstances(What), voucher(V)), booking(B, _2, _3, price(P)), free_cancellation(R, What, F, Free), settle(R, F, Rule, P, D, V, Outcome), money_basis(R, F, V, Money)], assessment(R, C, Outcome, basis(['ex:terms', Free, Money]))))
 // … 6 clauses left out
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 // … 4 steps left out
 step(t('ex:terms', 'rdf:type', 'odrl:Offer'), clause(3), {}, [])
 step(t('ex:terms', 'odrl:assigner', 'ex:sunTrips'), clause(4), {}, [])

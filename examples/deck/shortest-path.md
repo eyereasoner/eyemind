@@ -104,15 +104,17 @@ proof:
 shortest('a', 'd', 6)
 
 // Clauses: the program clauses the steps cite, by clause number.
+clause(1, fact(edge('a', 'b', 4)))
 clause(2, fact(edge('a', 'c', 2)))
 clause(3, fact(edge('c', 'b', 1)))
 clause(4, fact(edge('b', 'd', 3)))
+clause(5, fact(edge('c', 'd', 8)))
 clause(6, implies(edge(X, Y, Cost), path(X, Y, Cost)))
 clause(7, implies([path(X, Y, Before), edge(Y, Z, Weight), is(Cost, add(Before, Weight))], path(X, Z, Cost)))
 clause(9, implies([path(X, Y, Cost), not(cheaper(X, Y, Cost))], shortest(X, Y, Cost)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(shortest('a', 'd', 6), clause(9), {X: 'a', Y: 'd', Cost: 6}, [path('a', 'd', 6), not(cheaper('a', 'd', 6))])
 step(path('a', 'd', 6), clause(7), {X: 'a', Y: 'b', Before: 3, Z: 'd', Weight: 3, Cost: 6}, [path('a', 'b', 3), edge('b', 'd', 3), is(6, add(3, 3))])
 step(path('a', 'b', 3), clause(7), {X: 'a', Y: 'c', Before: 2, Z: 'b', Weight: 1, Cost: 3}, [path('a', 'c', 2), edge('c', 'b', 1), is(3, add(2, 1))])
@@ -123,17 +125,38 @@ step(is(3, add(2, 1)), 'builtin', {}, [])
 step(edge('b', 'd', 3), clause(4), {}, [])
 step(is(6, add(3, 3)), 'builtin', {}, [])
 step(not(cheaper('a', 'd', 6)), 'absent', {}, [])
+step(path('a', 'b', 4), clause(6), {X: 'a', Y: 'b', Cost: 4}, [edge('a', 'b', 4)])
+step(edge('a', 'b', 4), clause(1), {}, [])
+step(path('c', 'b', 1), clause(6), {X: 'c', Y: 'b', Cost: 1}, [edge('c', 'b', 1)])
+step(path('b', 'd', 3), clause(6), {X: 'b', Y: 'd', Cost: 3}, [edge('b', 'd', 3)])
+step(path('c', 'd', 8), clause(6), {X: 'c', Y: 'd', Cost: 8}, [edge('c', 'd', 8)])
+step(edge('c', 'd', 8), clause(5), {}, [])
+step(path('a', 'd', 7), clause(7), {X: 'a', Y: 'b', Before: 4, Z: 'd', Weight: 3, Cost: 7}, [path('a', 'b', 4), edge('b', 'd', 3), is(7, add(4, 3))])
+step(is(7, add(4, 3)), 'builtin', {}, [])
+step(path('a', 'd', 10), clause(7), {X: 'a', Y: 'c', Before: 2, Z: 'd', Weight: 8, Cost: 10}, [path('a', 'c', 2), edge('c', 'd', 8), is(10, add(2, 8))])
+step(is(10, add(2, 8)), 'builtin', {}, [])
+step(path('c', 'd', 4), clause(7), {X: 'c', Y: 'b', Before: 1, Z: 'd', Weight: 3, Cost: 4}, [path('c', 'b', 1), edge('b', 'd', 3), is(4, add(1, 3))])
+step(is(4, add(1, 3)), 'builtin', {}, [])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+derived(path(A, B, C), [path('a', 'b', 4), path('a', 'c', 2), path('c', 'b', 1), path('b', 'd', 3), path('c', 'd', 8), path('a', 'd', 7), path('a', 'b', 3), path('a', 'd', 10), path('c', 'd', 4), path('a', 'd', 6)])
+searched(cheaper('a', 'd', 6), [])
+searched(path('a', 'd', D), [path('a', 'd', 7), path('a', 'd', 10), path('a', 'd', 6)])
+searched(path(E, F, G), [path('a', 'b', 4), path('a', 'c', 2), path('c', 'b', 1), path('b', 'd', 3), path('c', 'd', 8), path('a', 'd', 7), path('a', 'b', 3), path('a', 'd', 10), path('c', 'd', 4), path('a', 'd', 6)])
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claim**: the answer the proof is about.
 - **The clauses**: the program lines the steps rely on, by their number in
-  the program. The roads a → b and c → d (clauses 1 and 5) and the
-  definition of `cheaper` (clause 8) are not cited: no step is an instance
-  of them.
+  the program. The definition of `cheaper` (clause 8) is not cited: no step
+  is an instance of it.
 - **The steps**: one per thing established. A step reads
   `step(what, by what, with which values, using what)`.
+- **The search certificate**: what eyemind found while it looked for a
+  cheaper route, written down so the checker can verify the "nothing
+  cheaper" step.
 
 Read the steps as sentences:
 
@@ -155,12 +178,23 @@ Read the steps as sentences:
 9. *6 is 3 + 3* — `'builtin'`.
 10. *No path from a to d is cheaper than 6* — `'absent'`: eyemind searched
     everything it had concluded and found none. This is not derived from a
-    rule; it is taken on trust, and the check report lists it as an
-    obligation.
+    rule; the search certificate backs it.
 
 Steps 2 to 9 show the route in full. Step 10 is different: it is a claim that
-something does *not* exist, and the other two routes, costing 7 and 10, do
-not appear in the proof at all.
+something does *not* exist. The remaining twelve steps derive every other
+path the rules found, including the two other routes from a to d, costing 7
+and 10, because the certificate relies on them.
+
+The certificate has two kinds of line:
+
+- `derived(path(A, B, C), [...])` lists every `path` fact the forward rules
+  derived, ten in all, in the order they were found.
+- `searched(Call, Answers)` records one search and every answer it gave, in
+  order. `searched(cheaper('a', 'd', 6), [])` says the search for a route
+  from a to d cheaper than 6 found none. It looked through
+  `path('a', 'd', D)`, whose answers were the routes costing 7, 10 and 6,
+  and none of them is less than 6. The last line, `searched(path(E, F, G),
+  ...)`, records a search over every path, which finds the same ten.
 
 ---
 
@@ -172,85 +206,86 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 shortest('a', 'd', 6)
 
 // C1-C8: resolution, acyclicity, justification, coverage,
 // re-decision, boundary consistency, relevance and witness integrity.
-condition('C1', 'resolution', 'ok', 7)
-condition('C2', 'well_founded', 'ok', 10)
-condition('C3', 'justification', 'ok', 10)
-condition('C4', 'coverage', 'ok', 10)
-condition('C5', 're_decision', 'ok', 2)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 11)
+condition('C1', 'resolution', 'ok', 16)
+condition('C2', 'well_founded', 'ok', 22)
+condition('C3', 'justification', 'ok', 22)
+condition('C4', 'coverage', 'ok', 23)
+condition('C5', 're_decision', 'ok', 5)
+condition('C6', 'boundary_consistency', 'ok', 1)
+condition('C7', 'relevance', 'ok', 23)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(cheaper('a', 'd', 6)))
-
 // Proof statistics: recorded steps and how they were checked.
-steps(10)
-verified(7)
-recomputed(2)
+steps(22)
+verified(16)
+recomputed(5)
 composed(0)
-trusted(1)
+trusted(0)
 claims(1)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
 at:
 
-- **C1 resolution (7)**: the 7 steps that cite a rule or fact really are
+- **C1 resolution (16)**: the 16 steps that cite a rule or fact really are
   instances of it with the values shown.
-- **C2 well-founded (10)**: none of the 10 steps depends on itself, even
+- **C2 well-founded (22)**: none of the 22 steps depends on itself, even
   indirectly.
-- **C3 justification (10)**: every step says how it was justified, in a form
+- **C3 justification (22)**: every step says how it was justified, in a form
   the checker understands, including the `'absent'` one.
-- **C4 coverage (10)**: the 1 claim and the 9 things the steps use are each
+- **C4 coverage (23)**: the 1 claim and the 22 things the steps use are each
   backed by a step.
-- **C5 re-decision (2)**: the two additions, 2 + 1 and 3 + 3, were redone by
-  the checker and agree.
-- **C6 boundary consistency (0)**: the checker had nothing to confront the
-  one "not found" step with. `cheaper` is only a rule, and neither the
-  program's facts nor the proof's steps contain a `cheaper` statement, so
-  nothing could show a route from a to d cheaper than 6. The absence is
-  left undecided and stays an obligation taken on trust.
-- **C7 relevance (11)**: the 1 claim answers the query, and all 10 steps
+- **C5 re-decision (5)**: the five additions were redone by the checker and
+  agree.
+- **C6 boundary consistency (1)**: the one "not found" step was confronted
+  with the evidence. The search certificate settles it: no route from a to
+  d is cheaper than 6.
+- **C7 relevance (23)**: the 1 claim answers the query, and all 22 steps
   serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The one `obligation` line says, in plain words: *no route from a to d costs
-less than 6*. `'theory_scoped'` means this holds relative to this program:
-true of this map, not necessarily of the real roads.
+The checker settles the absence without searching itself. It expands
+`cheaper('a', 'd', 6)` one level against the program, as a search would:
+the definition asks for `path('a', 'd', Other)` with `Other` less than 6.
+That inner call is answered by its own `searched` line, the routes costing
+7, 10 and 6, and none passes the test, so the search has no answers, as
+claimed. The `derived` listing is trusted only because each of its ten
+paths has a step of its own, and because, given those paths, the rules
+derive no `path` fact the listing leaves out. A wrong certificate, say one
+that hid a cheaper route, would disagree with this expansion and fail the
+check.
 
-The statistics repeat this: 10 steps, 7 verified against the program, 2
-recomputed, 1 taken on trust. The verdict is **checked with obligations**:
-the route of cost 6 certainly exists, and it is the cheapest *provided* the
-absence holds. A proof can show a path exists; it cannot show that none
-cheaper does. The verdict also does not establish that there are no other
-answers.
+The statistics: 22 steps, 16 verified against the program, 5 recomputed,
+and the absence settled by the certificate, so none is taken on trust and
+there are no obligations. The verdict is **checked**: the route of cost 6
+exists, and no route from a to d is cheaper. This holds relative to this
+program: true of this map, not necessarily of the real roads. The verdict
+also does not establish that there are no other answers.
 
 ---
 
 ## Strict mode
 
-If you need a proof with nothing taken on trust, ask for it:
+Strict mode refuses any proof that takes something on trust:
 
 ```sh
 eyemind --proof examples/shortest-path.js > /tmp/sp-proof.js
 eyemind --strict-proof --check-proof /tmp/sp-proof.js examples/shortest-path.js
 ```
 
-The strict check refuses this proof, with verdict `failed(1)` and exit code
-2, because it leans on the trusted absence: the report adds
-`failure('C5', not(cheaper('a', 'd', 6)), 'trusted boundary forbidden: absent')`.
-Nothing is wrong with the answer; strict mode just does not accept "searched
-and found nothing" as evidence.
+The strict check accepts this proof, with verdict `checked` and exit code
+0: the absence is settled by the search certificate, so nothing rests on
+trust. A proof whose absence the certificate could not settle would fail
+here with `failure('C5', ..., 'trusted boundary forbidden: absent')`.
 
 ---
 

@@ -145,8 +145,8 @@ clause(11, implied_by(correct_bit(Position, Syndrome, Bit, Bit), ne(Position, Sy
 clause(12, implied_by(decode([B1, B2, B3, B4, B5, B6, B7], Syndrome, Corrected, [D1, D2, D3, D4]), [bits([B1, B2, B3, B4, B5, B6, B7]), is(S1, mod(add(add(B1, B3), add(B5, B7)), 2)), is(S2, mod(add(add(B2, B3), add(B6, B7)), 2)), is(S4, mod(add(add(B4, B5), add(B6, B7)), 2)), is(Syndrome, add(S1, add(mul(2, S2), mul(4, S4)))), correct([B1, B2, B3, B4, B5, B6, B7], 1, Syndrome, Corrected), unify(Corrected, [_0, _1, D1, _2, D2, D3, D4])]))
 clause(13, implies([received(Name, Word), decode(Word, Syndrome, Corrected, Payload)], decoded(Name, Syndrome, Corrected, Payload)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(decoded('damaged', 5, [1, 0, 1, 1, 0, 1, 0], [1, 0, 1, 0]), clause(13), {Name: 'damaged', Word: [1, 0, 1, 1, 1, 1, 0], Syndrome: 5, Corrected: [1, 0, 1, 1, 0, 1, 0], Payload: [1, 0, 1, 0]}, [received('damaged', [1, 0, 1, 1, 1, 1, 0]), decode([1, 0, 1, 1, 1, 1, 0], 5, [1, 0, 1, 1, 0, 1, 0], [1, 0, 1, 0])])
 step(received('damaged', [1, 0, 1, 1, 1, 1, 0]), clause(1), {}, [])
 step(decode([1, 0, 1, 1, 1, 1, 0], 5, [1, 0, 1, 1, 0, 1, 0], [1, 0, 1, 0]), clause(12), {B1: 1, B2: 0, B3: 1, B4: 1, B5: 1, B6: 1, B7: 0, Syndrome: 5, Corrected: [1, 0, 1, 1, 0, 1, 0], D1: 1, D2: 0, D3: 1, D4: 0, S1: 1, S2: 0, S4: 1, _0: 1, _1: 0, _2: 1}, [bits([1, 0, 1, 1, 1, 1, 0]), is(1, mod(add(add(1, 1), add(1, 0)), 2)), is(0, mod(add(add(0, 1), add(1, 0)), 2)), is(1, mod(add(add(1, 1), add(1, 0)), 2)), is(5, add(1, add(mul(2, 0), mul(4, 1)))), correct([1, 0, 1, 1, 1, 1, 0], 1, 5, [1, 0, 1, 1, 0, 1, 0]), unify([1, 0, 1, 1, 0, 1, 0], [1, 0, 1, 1, 0, 1, 0])])

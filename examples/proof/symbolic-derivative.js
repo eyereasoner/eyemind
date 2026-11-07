@@ -21,8 +21,8 @@ clause(12, implied_by(d(pow(U, N), X, mul(mul(num(N), pow(U, N1)), Du)), [is(N1,
 clause(13, implied_by(d(log(U), X, divide(Du, U)), d(U, X, Du)))
 clause(14, implies([expr(Name, Formula), d(Formula, 'x', Derivative)], derivative(Name, Derivative)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1)))), clause(14), {Name: 'square', Formula: mul(sym('x'), sym('x')), Derivative: add(mul(num(1), sym('x')), mul(sym('x'), num(1)))}, [expr('square', mul(sym('x'), sym('x'))), d(mul(sym('x'), sym('x')), 'x', add(mul(num(1), sym('x')), mul(sym('x'), num(1))))])
 step(expr('square', mul(sym('x'), sym('x'))), clause(1), {}, [])
 step(d(mul(sym('x'), sym('x')), 'x', add(mul(num(1), sym('x')), mul(sym('x'), num(1)))), clause(10), {U: sym('x'), V: sym('x'), X: 'x', Du: num(1), Dv: num(1)}, [d(sym('x'), 'x', num(1)), d(sym('x'), 'x', num(1))])

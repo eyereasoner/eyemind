@@ -10,7 +10,7 @@ import {
 import { write } from './writer.js';
 
 export const CONTROL_KEYS = new Set(['and/2', 'or/2', 'not/1', 'call/1', 'once/1', 'findall/3']);
-export const RESERVED_KEYS = new Set(['step/4', 'clause/2', 'activated/2', 'implies/2', 'implied_by/2', 'forward/2', 'backward/2']);
+export const RESERVED_KEYS = new Set(['step/4', 'clause/2', 'searched/2', 'derived/2', 'activated/2', 'implies/2', 'implied_by/2', 'forward/2', 'backward/2']);
 
 // The statements that state a forward rule, and how an error names them.
 const FORWARD_KINDS = { forward: 'a forward rule', query: 'query()', contradiction: 'contradiction()' };

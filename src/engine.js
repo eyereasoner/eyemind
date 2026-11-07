@@ -1,5 +1,6 @@
 // Backward resolution, forward fixpoints and proof recording.
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
+import { Reliance, Settler, Unsettled } from './closure.js';
 import { freshClause, matchHead, renaming, text, variant } from './common.js';
 import { goalTerm, subgoals } from './goals.js';
 import { INSPECTION_KEYS } from './inspection.js';
@@ -918,6 +919,123 @@ export function skolemTerms(clause, head, unresolved, env, context = null) {
   return [...unresolved.keys()].map((name) => new Struct('skolem', [BigInt(clause.id), named.get(name), argumentsList]));
 }
 
+// The search certificate of a run's negations and collections. Each call
+// their searches make is answered by expanding it one level, every inner call
+// by its own table, so the tables cost what the searches did; the checker
+// then checks each table again, and each boundary against what the run found.
+// A boundary the certificate cannot settle stays an obligation; one the run
+// and its certificate disagree on is an error, since a proof must not hide it.
+function certify(solver, boundaries) {
+  const program = solver.program;
+  const computed = new Map();
+  const met = new Map();
+  const open = new Set();
+  const listed = new Map();
+  let budget = 0;
+  let depth = 0;
+  const settler = new Settler(program, {
+    answers(call) {
+      const callKey = variant(call);
+      if (computed.has(callKey)) return computed.get(callKey);
+      if (!met.has(callKey)) met.set(callKey, met.size);
+      // A search that met its own call again would not have finished, and
+      // one that keeps meeting new calls is cut off.
+      if (open.has(callKey) || ++budget > solver.maxInferences) throw new Unsettled();
+      // Deep searches are taken up again from an explicit stack.
+      if (depth >= CERTIFY_DEPTH) throw new Missing(call);
+      depth++;
+      open.add(callKey);
+      try {
+        const term = freshTerm(call, `certificate${++settler.serial}`);
+        const env = new Env();
+        const answers = [];
+        for (const _ of settler.expand(term, env, new Reliance())) { // eslint-disable-line no-unused-vars
+          if (++budget > solver.maxInferences) throw new Unsettled();
+          // Each answer is written with variables of its own.
+          answers.push(freshTerm(copyResolved(term, env), `answer${++settler.serial}`));
+        }
+        computed.set(callKey, answers);
+        return answers;
+      } catch (error) {
+        // A full table can search past where the run stopped, as under once/1,
+        // and meet an error the run never did: such a boundary stays trusted.
+        if (error instanceof EyemindError) throw new Unsettled();
+        throw error;
+      } finally {
+        depth--;
+        open.delete(callKey);
+      }
+    },
+    facts(goalKey) {
+      const nodes = solver.facts.get(goalKey) || NO_NODES;
+      if (nodes.some((node) => node.generic)) throw new Unsettled();
+      listed.set(goalKey, nodes);
+      return nodes.map((node) => node.goal);
+    },
+    supported: () => true,
+  });
+  // Answer a call too deep to reach directly, and the deeper calls it needs.
+  function ensure(start) {
+    const pending = [start];
+    const waiting = new Set([variant(start)]);
+    while (pending.length) {
+      const call = pending[pending.length - 1];
+      try {
+        settler.source.answers(call);
+        waiting.delete(variant(pending.pop()));
+      } catch (error) {
+        if (!(error instanceof Missing)) throw error;
+        const deeper = variant(error.call);
+        if (waiting.has(deeper)) throw new Unsettled();
+        waiting.add(deeper);
+        pending.push(error.call);
+      }
+    }
+  }
+  const tables = new Set();
+  const listings = new Set();
+  for (const boundary of boundaries) {
+    let outcome = null;
+    budget = 0;
+    while (outcome === null) {
+      try {
+        outcome = settler.settle(boundary);
+      } catch (error) {
+        if (!(error instanceof Missing)) throw error;
+        try {
+          ensure(error.call);
+        } catch (failure) {
+          if (!(failure instanceof Unsettled)) throw failure;
+          outcome = { status: 'unsettled' };
+        }
+      }
+    }
+    if (outcome.status === 'settled') {
+      for (const item of outcome.tables) tables.add(item);
+      for (const item of outcome.listings) listings.add(item);
+    } else if (outcome.status === 'failed') {
+      throw new EyemindError(`cannot certify this result: ${outcome.failures[0]?.[0] ?? 'its search certificate fails'}`);
+    }
+  }
+  return {
+    // Tables in the order their calls were first met.
+    tables: [...settler.tables].filter(([callKey]) => tables.has(callKey))
+      .sort(([a], [b]) => met.get(a) - met.get(b)).map(([, entry]) => [entry.call, entry.answers]),
+    listings: [...settler.listings.keys()].filter((goalKey) => listings.has(goalKey)).map((goalKey) => [goalKey, listed.get(goalKey)]),
+  };
+}
+
+// How many calls deep a certificate's tables are made by direct recursion.
+const CERTIFY_DEPTH = 100;
+
+// A call whose table is not made yet, too deep to make it directly.
+class Missing extends Error {
+  constructor(call) {
+    super('missing table');
+    this.call = call;
+  }
+}
+
 // What a run concluded. answers are the conclusions as printable text and
 // bindings one object per answer of the goal's variables; with a proof, proof
 // is the document and proofReport its check, clausesUsed the ids of the
@@ -1023,7 +1141,8 @@ function reason(program, goalInputs, options) {
     for (const [name, value] of answer) out[name] = write(value, null, lettering);
     return out;
   });
-  const rendered = options.proof ? renderProof(program, claims, roots, true, heading) : null;
+  const rendered = options.proof
+    ? renderProof(program, claims, roots, true, heading, (boundaries) => certify(solver, boundaries)) : null;
   const document = rendered !== null ? rendered[0] : null;
   // A rule that reports a claim is used by it, though a proof records only
   // the claim's support.

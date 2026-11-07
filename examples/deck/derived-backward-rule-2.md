@@ -106,8 +106,8 @@ clause(3, implies(type('Socrates', 'Mortal'), t('test', 'is', 'true')))
 clause(4, implied_by(type('Socrates', 'Human'), ['true', 'true']))
 clause(5, implied_by(subclass_of('Human', 'Mortal'), ['true', 'true']))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(type('Socrates', 'Mortal'), clause(2), {S: 'Socrates', A: 'Human', B: 'Mortal'}, [type('Socrates', 'Human'), subclass_of('Human', 'Mortal')])
 step(type('Socrates', 'Human'), clause(4), {}, ['true', 'true'])
 step('true', 'builtin', {}, [])

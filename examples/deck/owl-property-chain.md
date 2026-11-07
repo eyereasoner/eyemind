@@ -105,8 +105,8 @@ clause(5, implies([property_chain(P, [First, ...Rest]), triple(S, First, M), fol
 clause(6, fact(follow_chain([], N, N)))
 clause(7, implied_by(follow_chain([P, ...Rest], S, E), [triple(S, P, M), follow_chain(Rest, M, E)]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(triple('alice', 'grandparent', 'carol'), clause(5), {P: 'grandparent', First: 'parent', Rest: ['parent'], S: 'alice', M: 'bob', E: 'carol'}, [property_chain('grandparent', ['parent', 'parent']), triple('alice', 'parent', 'bob'), follow_chain(['parent'], 'bob', 'carol')])
 step(property_chain('grandparent', ['parent', 'parent']), clause(1), {}, [])
 step(triple('alice', 'parent', 'bob'), clause(2), {}, [])

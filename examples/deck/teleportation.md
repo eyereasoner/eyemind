@@ -117,8 +117,11 @@ In every case Bob holds exactly what Alice sent, and the alarm never fires.
 
 ## The proof, line by line
 
-`eyemind --proof` writes down how it reached each answer. This is the
-complete proof:
+`eyemind --proof` writes down how it reached each answer. Here is the
+proof with all its steps; of its 84-line search certificate only the
+search for the first case is shown, and the
+[full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/teleportation.js)
+is online:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -145,8 +148,8 @@ clause(31, fact(outcome(2)))
 clause(32, fact(outcome(3)))
 clause(37, implies([name(S), outcome(M), findall(Z, received(S, M, Z), Received)], teleported(S, M, Received)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(teleported('zero', 0, ['false']), clause(37), {S: 'zero', M: 0, Z: A, Received: ['false']}, [name('zero'), outcome(0), findall(A, received('zero', 0, A), ['false'])])
 step(name('zero'), clause(5), {}, [])
 step(outcome(0), clause(29), {}, [])
@@ -178,9 +181,26 @@ step(teleported('plus', 2, ['false', 'true']), clause(37), {S: 'plus', M: 2, Z: 
 step(findall(A, received('plus', 2, A), ['false', 'true']), 'collected', {}, [])
 step(teleported('plus', 3, ['false', 'true']), clause(37), {S: 'plus', M: 3, Z: A, Received: ['false', 'true']}, [name('plus'), outcome(3), findall(A, received('plus', 3, A), ['false', 'true'])])
 step(findall(A, received('plus', 3, A), ['false', 'true']), 'collected', {}, [])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched(received('zero', 0, B), [received('zero', 0, 'false')])
+searched(path('zero', 0, 'false', C), [path('zero', 0, 'false', ['false', 'true', 'true'])])
+searched(alice(0, ['false', 'false']), [])
+searched(gk('false', 'false'), [])
+searched(alice(0, ['false', 'true']), [alice(0, ['false', 'true'])])
+searched(gk('false', 'true'), [gk('false', 'true')])
+searched(bob(0, 'true', 'false'), [bob(0, 'true', 'false')])
+searched(kg('true', 'false'), [kg('true', 'false')])
+searched(odd([['false', 'true', 'true']]), [odd([['false', 'true', 'true']])])
+searched(path('zero', 0, 'true', C), [])
+searched(bob(0, 'true', 'true'), [])
+searched(kg('true', 'true'), [])
+searched(odd([]), [])
+// … 71 more searched lines for the other 11 cases
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the 12 answers the proof is about.
 - **The clauses**: the facts naming the three states (clauses 5–7) and the
@@ -189,6 +209,9 @@ It has three parts:
 - **The steps**: one per thing established. A step reads
   `step(what, justified by, with which values, using what)`. `A` stands for
   "a value Bob receives" inside each collection.
+- **The search certificate**: every search the 12 collections made, each
+  written `searched(call, answers)` with every answer it gave, in the order
+  the calls were first met.
 
 The first four steps, for `zero` and outcome 0, read:
 
@@ -206,11 +229,14 @@ The other 11 cases follow the same pattern. A fact already established is
 not repeated, so `name('zero')` appears once and is reused by the next three
 cases; likewise each outcome fact appears once.
 
-A `'collected'` step is not proved inside the proof. Everything quantum, the
-paths and the odd-or-even counting, happens inside those collections, so the
-claim that each list holds **all** the values Bob receives, and nothing
-else, rests on eyemind's search being complete. The checker treats it as an
-*obligation*: something taken on trust, and listed openly.
+A `'collected'` step has no steps of its own. Everything quantum, the paths
+and the odd-or-even counting, happens inside those collections, and the
+search certificate writes that work down. For the first case it reads:
+Bob receives `'false'`, because exactly one way leads there (`zero` with
+Alice's pair `['false', 'true']` and Bob's correction to `'false'`), and one
+is odd. He does not receive `'true'`: no way leads there, and an empty list
+is not odd. So the claim that each list holds **all** the values Bob
+receives, and nothing else, can be checked.
 
 ---
 
@@ -222,7 +248,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 teleported('zero', 0, ['false'])
 teleported('zero', 1, ['false'])
 teleported('zero', 2, ['false'])
@@ -243,34 +269,20 @@ condition('C2', 'well_founded', 'ok', 31)
 condition('C3', 'justification', 'ok', 31)
 condition('C4', 'coverage', 'ok', 48)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C6', 'boundary_consistency', 'ok', 12)
 condition('C7', 'relevance', 'ok', 43)
 condition('C8', 'witness_integrity', 'ok', 0)
-
-// Obligations: absence and collection completeness are taken on trust.
-obligation('collected', 'theory_scoped', findall(A, received('zero', 0, A), ['false']))
-obligation('collected', 'theory_scoped', findall(A, received('zero', 1, A), ['false']))
-obligation('collected', 'theory_scoped', findall(A, received('zero', 2, A), ['false']))
-obligation('collected', 'theory_scoped', findall(A, received('zero', 3, A), ['false']))
-obligation('collected', 'theory_scoped', findall(A, received('one', 0, A), ['true']))
-obligation('collected', 'theory_scoped', findall(A, received('one', 1, A), ['true']))
-obligation('collected', 'theory_scoped', findall(A, received('one', 2, A), ['true']))
-obligation('collected', 'theory_scoped', findall(A, received('one', 3, A), ['true']))
-obligation('collected', 'theory_scoped', findall(A, received('plus', 0, A), ['false', 'true']))
-obligation('collected', 'theory_scoped', findall(A, received('plus', 1, A), ['false', 'true']))
-obligation('collected', 'theory_scoped', findall(A, received('plus', 2, A), ['false', 'true']))
-obligation('collected', 'theory_scoped', findall(A, received('plus', 3, A), ['false', 'true']))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(31)
 verified(19)
 recomputed(0)
 composed(0)
-trusted(12)
+trusted(0)
 claims(12)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -287,23 +299,24 @@ at:
   (3 each) are each backed by a step.
 - **C5 re-decision (0)**: no arithmetic or other built-in calculation
   appears as a step of its own.
-- **C6 boundary consistency (0)**: the checker had nothing to confront the
-  12 collected lists with. A `received` fact or step showing Bob receiving a
-  value missing from a list would refute it, but `received` is only a rule
-  and the proof records no `received` step. All 12 lists are left undecided
-  and stay obligations taken on trust.
+- **C6 boundary consistency (12)**: the 12 collected lists were confronted
+  with the evidence, and the search certificate settles all 12: each list
+  holds exactly the values the searches found.
 - **C7 relevance (43)**: the 12 claims answer the query, and all 31 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
 
-The 12 `obligation(...)` lines say, in plain words: *"we take on trust that
-this list is every value Bob receives in this case."* `'theory_scoped'`
-means the trust is limited to this program's rules.
+The checker verifies each `searched` line without searching itself: it
+expands the call one level against the program, as a search would, and
+answers every inner call from that call's own line, or from the facts when
+only facts define the relation. No line vouches for itself, and a list with
+a value missing or added would disagree with the expansion and fail the
+check. So the path counting is checked too, not taken on trust. "Every
+value" means every value within this program's rules.
 
-The statistics: 31 steps, 19 verified against the program, 12 taken on
-trust. The verdict is **checked with obligations**: each answer follows from
-the program, provided its collection is complete. Honestly put, the path
-counting sits inside those 12 obligations. The verdict does not establish
+The statistics: 31 steps, 19 verified against the program and the 12
+collections settled by the certificate, none taken on trust. The verdict is
+**checked**: each answer follows from the program. The verdict does not establish
 that there are no other answers.
 
 ---
@@ -330,5 +343,5 @@ To see the interference for yourself, ask for the paths with
 ## Takeaway
 
 Even a quantum protocol can be checked case by case with a few rules. eyemind
-covers all 12 cases, and is upfront that the "all answers" lists are the
-part you are trusting.
+covers all 12 cases, and its search certificate lets the checker confirm
+the "all answers" lists too.

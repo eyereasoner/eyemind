@@ -214,6 +214,11 @@ function mutateDocument(r, terms, pool, compounds, results) {
 
 const isRecord = (term, name, arity) => term instanceof Struct && term.name === name && term.args.length === arity;
 
+// Whether a statement of a proof document is a claim: not a step, a clause
+// display or a statement of its search certificate.
+const isClaim = (term) => !['step/4', 'clause/2', 'searched/2', 'derived/2']
+  .some((goalKey) => isRecord(term, goalKey.split('/')[0], Number(goalKey.split('/')[1])));
+
 // The obligations of a proof document: the goals of its steps justified as
 // an absence or a collection, which the checker trusts rather than proves.
 const obligations = (terms) => new Set(terms.filter((term) => isRecord(term, 'step', 4) &&
@@ -227,7 +232,7 @@ function forgeable(entry, text) {
   const established = new Set();
   for (const term of terms) {
     if (isRecord(term, 'step', 4)) established.add(variant(term.args[0]));
-    else if (!isRecord(term, 'clause', 2)) established.add(variant(term));
+    else if (isClaim(term)) established.add(variant(term));
   }
   const subterms = terms.flatMap((term) => positions(term).map(([, t]) => t));
   const pool = [...new Set(subterms.filter(atomic))];
@@ -281,8 +286,7 @@ function forgeExample(entry, text, count) {
       rejected++;
       return;
     }
-    const unentailed = terms.filter((term) => !isRecord(term, 'step', 4) && !isRecord(term, 'clause', 2) &&
-      !entailed(example, term));
+    const unentailed = terms.filter((term) => isClaim(term) && !entailed(example, term));
     if (!unentailed.length) return;
     const forged = `a forged proof was accepted for ${write(unentailed[0])}, which does not hold`;
     assert.ok([...obligations(terms)].some((goal) => !example.trusted.has(goal)),

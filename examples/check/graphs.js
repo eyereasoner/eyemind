@@ -16,7 +16,6 @@ condition('C7', 'relevance', 'ok', 14)
 condition('C8', 'witness_integrity', 'ok', 0)
 
 // Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(t('carol', 'blocked', 'true')))
 obligation('collected', 'theory_scoped', findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']))
 
 // Proof statistics: recorded steps and how they were checked.
@@ -24,7 +23,7 @@ steps(10)
 verified(8)
 recomputed(0)
 composed(0)
-trusted(2)
+trusted(1)
 claims(4)
 
 // This verdict applies to the claims above; it does not establish completeness.

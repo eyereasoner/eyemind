@@ -149,8 +149,8 @@ clause(26, fact(count([], 0)))
 clause(27, implied_by(count([_0, ...Rest], N), [count(Rest, Before), is(N, add(Before, 1))]))
 clause(28, implies([score(Clause, Score), finding(Clause, Raw, Why, Fix), severity(Score, Severity), findall(Other, higher(Score, Other), Higher), count(Higher, Count), is(Rank, add(Count, 1))], report(Rank, Clause, Score, Severity, Why, Fix)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(report(1, 'c1', 100, 'high', 'no_removal_safeguards', 'add_notice_and_inform'), clause(28), {Clause: 'c1', Score: 100, Raw: 110, Why: 'no_removal_safeguards', Fix: 'add_notice_and_inform', Severity: 'high', Other: A, Higher: [], Count: 0, Rank: 1}, [score('c1', 100), finding('c1', 110, 'no_removal_safeguards', 'add_notice_and_inform'), severity(100, 'high'), findall(A, higher(100, A), []), count([], 0), is(1, add(0, 1))])
 step(score('c1', 100), clause(20), {Clause: 'c1', Raw: 110, Why: 'no_removal_safeguards', Fix: 'add_notice_and_inform'}, [finding('c1', 110, 'no_removal_safeguards', 'add_notice_and_inform'), gt(110, 100)])
 step(finding('c1', 110, 'no_removal_safeguards', 'add_notice_and_inform'), clause(16), {Clause: 'c1', Weight: 20, Raw: 110}, [permission('c1', 'remove_account'), importance('retention', 20), not(has_notice('c1')), not(safeguard('c1', 'inform')), is(110, add(90, 20))])
@@ -208,9 +208,13 @@ step(severity(97, 'high'), clause(22), {Score: 97}, [ge(97, 80)])
 step(ge(97, 80), 'builtin', {}, [])
 step(findall(A, higher(97, A), [100]), 'collected', {}, [])
 step(count([100], 1), clause(27), {_0: 100, Rest: [], N: 1, Before: 0}, [count([], 0), is(1, add(0, 1))])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched(has_notice('c1'), [])
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the four reports.
 - **The clauses**: the program lines the steps rely on, by their number in
@@ -219,6 +223,9 @@ It has three parts:
 - **The steps**: 57 of them, one per thing established. A step reads
   `step(what, by what, with which values, using what)`. The values in curly
   braces say what each variable stood for.
+- **The search certificate**: one line,
+  `searched(has_notice('c1'), [])`: the search for a notice period of c1
+  gave no answers.
 
 Four kinds of justification occur:
 
@@ -226,9 +233,10 @@ Four kinds of justification occur:
 - `'builtin'`: a calculation or comparison, which anyone checking the proof
   simply redoes.
 - `'absent'`: *nothing found*. eyemind searched everything it knows and found
-  no such fact. This cannot be derived from a rule; it is taken on trust.
+  no such fact. No rule derives that; the checker settles it another way
+  (see the report below).
 - `'collected'`: a `findall` list. The list's items can be checked one by
-  one, but that *nothing is missing from it* is taken on trust.
+  one, but that *nothing is missing from it* is, here, taken on trust.
 
 The first 14 steps explain clause c1's report:
 
@@ -294,17 +302,14 @@ condition('C2', 'well_founded', 'ok', 57)
 condition('C3', 'justification', 'ok', 57)
 condition('C4', 'coverage', 'ok', 69)
 condition('C5', 're_decision', 'ok', 18)
-condition('C6', 'boundary_consistency', 'ok', 2)
+condition('C6', 'boundary_consistency', 'ok', 3)
 condition('C7', 'relevance', 'ok', 61)
 condition('C8', 'witness_integrity', 'ok', 0)
 
 // Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(has_notice('c1')))
-obligation('absent', 'theory_scoped', not(safeguard('c1', 'inform')))
 obligation('collected', 'theory_scoped', findall(A, higher(100, A), []))
 obligation('collected', 'theory_scoped', findall(A, higher(85, A), [100, 97]))
 obligation('collected', 'theory_scoped', findall(A, higher(70, A), [100, 85, 97]))
-obligation('absent', 'theory_scoped', not(safeguard('c3', 'consent')))
 obligation('collected', 'theory_scoped', findall(A, higher(97, A), [100]))
 
 // Proof statistics: recorded steps and how they were checked.
@@ -312,7 +317,7 @@ steps(57)
 verified(32)
 recomputed(18)
 composed(0)
-trusted(7)
+trusted(4)
 claims(4)
 
 // This verdict applies to the claims above; it does not establish completeness.
@@ -333,34 +338,36 @@ and counts what it looked at:
   backed by a step.
 - **C5 re-decision (18)**: the 18 calculations and comparisons were redone by
   the checker and agree, from 90 + 20 = 110 to 70 < 80.
-- **C6 boundary consistency (2)**: the checker tries to refute each of the
-  7 trusted steps with the program's facts and the proof's steps. Only the
-  two missing safeguards could be confronted, because the program has
-  `safeguard` facts: none of them says c1 has an "inform" safeguard or c3 a
-  consent safeguard. The other 5 are left undecided: no fact or step of
-  `has_notice` or of `higher` exists (both are computed by rules), so
-  nothing could refute "c1 has no notice period" or the 4 lists of higher
-  scores. All 7 stay obligations.
+- **C6 boundary consistency (3)**: the 3 absences were confronted with the
+  evidence and settled. The two missing safeguards are settled from the
+  program's `safeguard` facts, which the checker scans directly: none says
+  c1 has an "inform" safeguard or c3 a consent safeguard. "c1 has no notice
+  period" is settled from the search certificate: `has_notice` asks for a
+  `notice_days` fact for c1, and there is none, which agrees with
+  `searched(has_notice('c1'), [])`. Nothing refutes any of them.
 - **C7 relevance (61)**: the 4 claims answer the query, and all 57 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The seven `obligation` lines are what was taken on trust, in plain words:
-
-- `'absent'`: c1 has no notice period; c1 has no "inform" safeguard; c3 has
-  no consent safeguard.
-- `'collected'`: the scores higher than 100 are none; those higher than 85
-  are exactly 100 and 97; those higher than 70 are exactly 100, 85 and 97;
-  the only one higher than 97 is 100.
+The absences and the collections differ. The three absences, c1 has no
+notice period, c1 has no "inform" safeguard and c3 has no consent
+safeguard, are settled, so they are not obligations. The four collections
+are, and the four `obligation` lines are what is still taken on trust, in
+plain words: the scores higher than 100 are none; those higher than 85 are
+exactly 100 and 97; those higher than 70 are exactly 100, 85 and 97; the
+only one higher than 97 is 100. Those scores are `score` facts that forward
+rules derived, and a `findall` list gives them in the order they were
+derived; that order is not something the checker can confirm, so it does
+not settle these lists.
 
 `'theory_scoped'` means each holds relative to this program: true of what
 the policy model states, not necessarily of the real contract.
 
-The statistics repeat this: 57 steps, 32 verified against the program, 18
-recomputed, 7 taken on trust. The verdict is **checked with obligations**:
-the four reports follow from the program, *provided* those seven absences and
-lists are complete. The verdict does not establish that the program has no
+The statistics: 57 steps, 32 verified against the program, 18 recomputed,
+the 3 absences settled and the 4 collections taken on trust. The verdict is
+**checked with obligations**: the four reports follow from the program,
+*provided* those four lists are complete. The verdict does not establish that the program has no
 other answers.
 
 ---
@@ -383,5 +390,6 @@ disappears, and c4 moves up to rank 3.
 ## Takeaway
 
 A risk list is only useful if you can see why each item is on it. Here every
-finding carries its reason and fix, and the report spells out exactly which
-"nothing was found" assumptions the ranking depends on.
+finding carries its reason and fix, and the report spells out which parts of
+the ranking rest on trust: the "nothing was found" checks are confirmed, and
+only the lists of higher scores remain as obligations.

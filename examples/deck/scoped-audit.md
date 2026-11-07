@@ -103,8 +103,8 @@ clause(5, implied_by(includes(graph(Triples), Triple), member(Triple, Triples)))
 clause(6, implies([context(Context, Graph), includes(Graph, triple(Person, 'consent', 'yes'))], consented(Context, Person)))
 clause(7, implies([context(Context, Graph), includes(Graph, triple(Person, 'role', 'editor')), not(includes(Graph, triple(Person, 'consent', 'yes')))], needs_review(Context, Person)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(consented('approved', 'alice'), clause(6), {Context: 'approved', Graph: graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), Person: 'alice'}, [context('approved', graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])), includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple('alice', 'consent', 'yes'))])
 step(context('approved', graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])), clause(1), {}, [])
 step(includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple('alice', 'consent', 'yes')), clause(5), {Triples: [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')], Triple: triple('alice', 'consent', 'yes')}, [member(triple('alice', 'consent', 'yes'), [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])])
@@ -115,15 +115,23 @@ step(context('incomplete', graph([triple('bob', 'role', 'editor')])), clause(2),
 step(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'role', 'editor')), clause(5), {Triples: [triple('bob', 'role', 'editor')], Triple: triple('bob', 'role', 'editor')}, [member(triple('bob', 'role', 'editor'), [triple('bob', 'role', 'editor')])])
 step(member(triple('bob', 'role', 'editor'), [triple('bob', 'role', 'editor')]), clause(3), {X: triple('bob', 'role', 'editor'), _0: []}, [])
 step(not(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes'))), 'absent', {}, [])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes')), [])
+searched(member(triple('bob', 'consent', 'yes'), [triple('bob', 'role', 'editor')]), [])
+searched(member(triple('bob', 'consent', 'yes'), []), [])
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the two conclusions the proof is about.
 - **The clauses**: the seven program clauses, numbered as above. Each
   don't-care `_` gets a name, `_0`, so a step can say what it stood for.
 - **The steps**: one per thing established. A step reads
   `step(what, by what, with which values, using what)`.
+- **The search certificate**: the searches behind the one "not found"
+  step, each with every answer it gave, so the checker can verify them.
 
 Two kinds of justification occur:
 
@@ -131,8 +139,7 @@ Two kinds of justification occur:
   variables standing for the values shown.
 - `'absent'`: the step holds because something could **not** be found. It
   cites no clause and uses nothing. A proof cannot point at a missing
-  thing, so this step is taken on trust and listed as an *obligation*
-  (something the reader must accept or verify separately).
+  thing, so this step leans on the search certificate instead.
 
 Read the steps as sentences:
 
@@ -156,6 +163,14 @@ Read the steps as sentences:
 10. *That graph does not include "Bob consented"*: `'absent'`. eyemind
     searched that one graph and found no such triple.
 
+Each `searched(Call, Answers)` line records one search eyemind made for
+step 10, with every answer it gave, here none:
+
+- the graph includes "Bob consented": no answers;
+- "Bob consented" is a member of Bob's one-item list: no answers, since the
+  only item is Bob's role and the rest of the list is empty;
+- "Bob consented" is a member of the empty list: no answers.
+
 ---
 
 ## Checked: what the report says
@@ -166,7 +181,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 consented('approved', 'alice')
 needs_review('incomplete', 'bob')
 
@@ -181,19 +196,16 @@ condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 12)
 condition('C8', 'witness_integrity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes'))))
-
 // Proof statistics: recorded steps and how they were checked.
 steps(10)
 verified(9)
 recomputed(0)
 composed(0)
-trusted(1)
+trusted(0)
 claims(2)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -213,24 +225,27 @@ at:
 - **C6 boundary consistency (1)**: the 1 absence was confronted with the
   evidence at hand: the program's facts and the proof's own `includes`
   steps (steps 3 and 8). None of them says the incomplete graph includes a
-  consent by Bob, so the absence is not refuted.
+  consent by Bob, so the absence is not refuted. The search certificate
+  settles it.
 - **C7 relevance (12)**: the 2 claims answer what the program concludes,
   and all 10 steps serve them. There is no padding.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 
-The `obligation` line says, in plain words: *it is taken on trust that the
-incomplete record's graph, `[triple('bob', 'role', 'editor')]`, does not
-include "Bob consented"*. `'theory_scoped'` means the claim is about what the
-program says, here about one particular graph, not about the world at large.
-Note how small the trusted part is: it is scoped to one record, not "nothing
-anywhere".
+The absence is not taken on trust. The checker verifies each `searched`
+line by expanding its call one level against the program, as a search
+would, and answering every inner call from that call's own line: `includes`
+leads to `member` of Bob's one-item list, which leads to `member` of the
+empty list, which nothing matches. Every expansion agrees with its line, so
+the incomplete record's graph, `[triple('bob', 'role', 'editor')]`, does not
+include "Bob consented". The claim is about what the program says, here
+about one particular graph, not about the world at large: it is scoped to
+one record, not "nothing anywhere".
 
-The statistics repeat this: 10 steps, 9 verified against the program, 1
-trusted. The verdict is **checked with obligations**: both conclusions
-follow from the program, provided the one absence is accepted. It does not
-establish that eyemind found every conclusion, and the absence itself was
-taken on trust rather than proved.
+The statistics: 10 steps, 9 verified against the program and the absence
+settled by the certificate, so none is trusted and there are no
+obligations. The verdict is **checked**: both conclusions follow from the
+program. It does not establish that eyemind found every conclusion.
 
 ---
 

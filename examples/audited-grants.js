@@ -2,17 +2,18 @@
 // has eyemind prove the policy's decisions, and then reads that proof and its
 // check report back as ordinary facts, in the same language, to answer audit
 // questions about the reasoning itself: which data each decision rests on,
-// which assumptions it takes on trust, and which decisions are at risk if
+// which absences it assumes, and which decisions are at risk if
 // self-declared data is wrong. There is no export format, no schema and no
 // second tool: rules, data, conclusions, proofs and reports are all terms.
 //
 // ann, cara and dan get a grant, ann and dan also a top-up for a household of
 // three or more, bob is refused for his income, and eve gets nothing because
-// she already received a grant. The proof checks, with obligations: each grant
-// assumes the applicant received none before, an absence the proof can only
-// take on trust. The decisions for cara and dan are at risk, because their
-// incomes are self-declared. It shows the library API (eyemind.build, run and
-// readTerms) used inside a program, and proofs read back as ordinary data.
+// she already received a grant. The policy's proof checks with nothing taken
+// on trust: each grant assumes the applicant received none before, an absence
+// the checker confirms from the already_received facts. The decisions for
+// cara and dan are at risk, because their incomes are self-declared. It shows
+// the library API (eyemind.build, run and readTerms) used inside a program,
+// and proofs read back as ordinary data.
 
 // The applications, as JavaScript data: name, monthly income, household size
 // and the evidence for the income. JavaScript computes clauses from them;
@@ -67,11 +68,11 @@ implies([depends(G, U), depends(U, W)], depends(G, W))
 
 // The data a decision rests on are the policy's facts in its support: the
 // steps justified by a clause that used nothing. Its assumptions are the
-// absences the proof could only take on trust.
+// absences in its support: the steps justified as 'absent'.
 implies([decision(D), depends(D, F), step_of(F, clause(_), [])], rests_on(D, F))
 implies([decision(D), depends(D, A), step_of(A, 'absent', [])], assumes(D, A))
 
-// Was the policy's own reasoning certified, and on what conditions?
+// Was the policy's own reasoning certified?
 query(verdict(V))
 
 // A decision is at risk when it rests on an income nobody has verified.

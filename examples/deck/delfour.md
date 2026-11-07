@@ -220,10 +220,11 @@ In plain words:
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each conclusion. The proof has
-73 steps and is too long to show whole ([full file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/delfour.js)).
+70 steps and a search certificate, and is too long to show whole ([full file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/delfour.js)).
 Below are its claims, all its clauses, the steps for the case name and the
 phone's derived need, and two complete chains: the decision to allow use,
-and the minimal-payload check. Comment lines starting with
+and the minimal-payload check, followed by the whole certificate. Comment
+lines starting with
 `// …` mark what is left out:
 
 ```js
@@ -316,8 +317,8 @@ clause(73, implies([case_policy(Case, Policy), case_insight(Case, Insight), proh
 clause(74, implies(files_written(Case, 6), passed(Case, 'expected_file_count')))
 clause(75, implies([passed(Case, 'trusted_signature'), passed(Case, 'matching_hash'), passed(Case, 'minimal_payload'), passed(Case, 'complete_scope'), passed(Case, 'authorization'), passed(Case, 'high_sugar'), passed(Case, 'lower_sugar'), passed(Case, 'duty_timing'), passed(Case, 'marketing_prohibited'), passed(Case, 'expected_file_count')], all_checks_pass(Case)))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 // … the proof has 70 steps; 25 are shown: the case name, the phone's
 // derived need, the chain for the decision and the chain for the
 // minimal-payload check.
@@ -348,9 +349,16 @@ step(payload_text('sugar_insight', 'createdat expiresat insight metric sugar_g_p
 step(not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'diabetes')), 'absent', {}, [])
 step(not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical')), 'absent', {}, [])
 // … 2 steps for the lower-sugar check and for all checks passing
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched(beaten('delfour', 'prod_BIS_101'), [])
+searched(considers('delfour', A), [considers('delfour', 'prod_BIS_101')])
+searched(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'diabetes'), [])
+searched(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical'), [])
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the 26 conclusions the proof is about.
 - **The clauses**: the program facts and rules the steps cite, numbered in
@@ -363,6 +371,11 @@ It has three parts:
   `_0`.
 - **The steps**: one per thing established. A step reads
   `step(what, justified by, with which values, using what)`.
+- **The search certificate**: every search behind the three absences, each
+  as `searched(call, answers)` with every answer it gave. Both word searches
+  in the shared text found nothing, and so did the search for a biscuit
+  beating the Low-Sugar Tea Biscuits; that one looked through the products
+  the case considers, and found only the biscuits themselves.
 
 Three kinds of justification occur:
 
@@ -371,7 +384,8 @@ Three kinds of justification occur:
 - `'builtin'`: a comparison or calculation, here `compare`, `not_identical`,
   `is`, `ge` and `lt`. The checker recomputes it.
 - `'absent'`: concluded because a search found nothing. A proof cannot point
-  at a fact that shows something is missing, so this is taken on trust.
+  at a fact that shows something is missing, so the search certificate
+  backs it instead.
 
 Read the steps as sentences:
 
@@ -401,7 +415,7 @@ Read the steps as sentences:
     is the payload of fact 38, and it contains neither `diabetes` nor
     `medical`.
 12. *The text contains no `diabetes`*, *and no `medical`* — absent: two
-    trusted steps.
+    steps the search certificate backs.
 
 Each step leans only on steps listed below it, or on a step shown earlier
 and reused, such as the case's insight. The left-out steps follow the same
@@ -427,7 +441,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 case_name('delfour', 'delfour')
 derived_need('sugar_insight', 'low_sugar')
 decision('delfour', 'Allowed', 'sugar_insight')
@@ -462,25 +476,20 @@ condition('C2', 'well_founded', 'ok', 70)
 condition('C3', 'justification', 'ok', 70)
 condition('C4', 'coverage', 'ok', 117)
 condition('C5', 're_decision', 'ok', 6)
-condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C6', 'boundary_consistency', 'ok', 3)
 condition('C7', 'relevance', 'ok', 96)
 condition('C8', 'witness_integrity', 'ok', 0)
-
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not(beaten('delfour', 'prod_BIS_101')))
-obligation('absent', 'theory_scoped', not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'diabetes')))
-obligation('absent', 'theory_scoped', not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical')))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(70)
 verified(61)
 recomputed(6)
 composed(0)
-trusted(3)
+trusted(0)
 claims(26)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -498,27 +507,32 @@ at:
 - **C5 re-decision (6)**: the 6 calculations were recomputed and agree: the
   two timestamp comparisons, `'<'` differing from `'>'`, 120 ÷ 10 = 12.0,
   120 ≥ 100 and 30 < 120.
-- **C6 boundary consistency (0)**: the checker had nothing to confront the
-  3 absences with. `beaten` and `contains` are only rules: no program fact
-  and no step of the proof is a `beaten` or `contains` statement, so
-  nothing could show a biscuit beating the Low-Sugar Tea Biscuits, or either
-  word in the shared text. All three are left undecided and stay
-  obligations taken on trust.
+- **C6 boundary consistency (3)**: the 3 absences were confronted with the
+  evidence, and the search certificate settles all three: nothing shows a
+  biscuit beating the Low-Sugar Tea Biscuits, or either word in the shared
+  text.
 - **C7 relevance (96)**: the 26 claims each answer one of the program's
   queries, and all 70 steps serve a claim.
 - **C8 witness integrity (0)**: no rule invents a new, unnamed thing, so
   there is no invented name to verify.
 
-The statistics: 70 steps, 61 verified against the program, 6 recomputed, 3
-trusted, none composed from parts; 26 claims.
+The statistics: 70 steps, 61 verified against the program, 6 recomputed and
+the 3 absences settled by the certificate, none trusted, none composed from
+parts; 26 claims.
 
-The three `obligation` lines are the trusted steps, in plain words: *no
-product on the shelf has less sugar than the Low-Sugar Tea Biscuits*, and
-*the shared text contains neither "diabetes" nor "medical"*.
-`'theory_scoped'` means each is meant relative to this program.
+The three absences are, in plain words: *no product on the shelf has less
+sugar than the Low-Sugar Tea Biscuits*, and *the shared text contains
+neither "diabetes" nor "medical"*. The checker verifies each `searched` line
+without searching itself: it expands the call one level against the
+program, as a search would, and answers each inner call from that call's
+own line or, for a calculation such as `atom_concat` or `lt`, by
+recomputing it. For `beaten`, the only product considered is the biscuits,
+which do not have less sugar than themselves. For `contains`, no way of
+splitting the shared text starts with either word. Each expansion agrees
+with its line, so nothing is left as an obligation. Each absence is meant
+relative to this program.
 
-The verdict is **checked with obligations**: every claim follows from the
-program, provided those three absences hold. As the last comment says, it
+The verdict is **checked**: every claim follows from the program. As the last comment says, it
 also does not establish completeness: it does not say these are all the
 conclusions the program has. And the `trusted_signature` check vouches only
 for the input's statement that the signature was verified upstream, not for

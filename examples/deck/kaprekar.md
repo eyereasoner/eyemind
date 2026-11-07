@@ -122,15 +122,20 @@ was *not* found. There is nothing to point at.
 
 eyemind records such a conclusion as an **absence**: a step marked
 `'absent'`. It says: "I looked for this, the search finished, and it was not
-there." The checker cannot redo that search from the proof alone, so it
-accepts the step **on trust** and says so openly, as an **obligation**: a
-statement that the reader must take on eyemind's word, listed by name.
+there." To back it, the proof ends with a **search certificate**: every call
+that search made, each written `searched(call, answers)` with every answer
+it gave. The checker never redoes the search. It checks each line by
+expanding its call one level against the program, as a search would, and
+answering every inner call from that call's own line, so no line vouches
+for itself. If all lines agree, the absence is **settled**: checked, not
+taken on trust.
 
 ---
 
 ## The proof, line by line
 
-This is the complete proof:
+This is the proof, with all its claims, clauses and steps; its search
+certificate has 13,555 lines, of which only the first is shown:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -139,19 +144,28 @@ kaprekar_verified(6174, 7)
 // Clauses: the program clauses the steps cite, by clause number.
 clause(19, implied_by(kaprekar_verified(6174, 7), not('counterexample')))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 step(kaprekar_verified(6174, 7), clause(19), {}, [not('counterexample')])
 step(not('counterexample'), 'absent', {}, [])
+
+// Search certificate: every fact derived for each relation the searches behind
+// negations and collections consult, and every answer of each call they made, in order.
+searched('counterexample', [])
+// … 13554 more searched lines: the 705 multisets, and every Kaprekar step they take
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claim**: the answer the proof is about.
 - **The clauses**: only the program lines the steps cite. The program has 19
   rules and facts; this proof needs only the last one, clause 19.
 - **The steps**: one per thing established. A step reads
   `step(what, by what, with which values, using what)`.
+- **The search certificate**: the search behind the absence. Its first line
+  says the search for a counterexample gave no answers; the rest record the
+  calls that search made, from the digit multisets down to each Kaprekar
+  step, with their answers.
 
 Read the steps as sentences:
 
@@ -160,9 +174,10 @@ Read the steps as sentences:
 2. *There is no counterexample* — `'absent'`: eyemind searched for one and
    found none. It uses nothing.
 
-The whole exhaustive search sits inside that second step: all 705 multisets
-and every Kaprekar step they take. A proof can list what *was* found; it
-cannot list, one by one, all the ways something failed to be found.
+The whole exhaustive search sits behind that second step: all 705 multisets
+and every Kaprekar step they take. The steps list what *was* found; the
+certificate lists the search that found nothing, so that it can be checked
+too.
 
 ---
 
@@ -173,7 +188,7 @@ cannot list, one by one, all the ways something failed to be found.
 only confirms each step against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 kaprekar_verified(6174, 7)
 
 // C1-C8: resolution, acyclicity, justification, coverage,
@@ -183,23 +198,20 @@ condition('C2', 'well_founded', 'ok', 2)
 condition('C3', 'justification', 'ok', 2)
 condition('C4', 'coverage', 'ok', 2)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 3)
 condition('C8', 'witness_integrity', 'ok', 0)
-
-// Obligations: absence and collection completeness are taken on trust.
-obligation('absent', 'theory_scoped', not('counterexample'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(2)
 verified(1)
 recomputed(0)
 composed(0)
-trusted(1)
+trusted(0)
 claims(1)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -215,34 +227,32 @@ at:
   are each backed by a step.
 - **C5 re-decision (0)**: no built-in calculation appears in the proof, so
   nothing needed recomputing.
-- **C6 boundary consistency (0)**: the checker had nothing to confront the
-  1 absence with. Only a fact or a proof step saying there *is* a
-  counterexample could refute it, and `'counterexample'` is only a rule
-  that no fact and no step mentions. The absence is left undecided and
-  stays an obligation taken on trust.
+- **C6 boundary consistency (1)**: the 1 absence was confronted with the
+  evidence, and the search certificate settles it: no counterexample.
 - **C7 relevance (3)**: the 1 claim answers the query, and both steps
   serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
 
-The obligation line, in plain words: *"there is no counterexample" was taken
-on trust; it is true relative to this program* (`'theory_scoped'`), that is,
+There is no obligation line: *"there is no counterexample"* was checked
+against the certificate, and it is true relative to this program, that is,
 as far as these rules and facts can show. The statistics say the same: 2
-steps, 1 verified against the program, 1 trusted.
+steps, 1 verified against the program and the absence settled by the
+certificate, none trusted.
 
-The verdict is **checked with obligations**: the claim follows from the
-program, provided you accept the one listed absence. It does not establish
-completeness, and it does not re-run the search.
+The verdict is **checked**: the claim follows from the program. It does not
+establish completeness, and the checker did not re-run the search: it
+confirmed the record of it, line by line.
 
 ---
 
-## Why the caveat is honest, not a flaw
+## Checking a search without redoing it
 
-The claim *is* a claim about absence: no number fails. Any checker would have
-to either redo the whole search or take it on trust.
-
-eyemind chooses to say so in writing. If you need a proof with no trusted
-steps, `--strict-proof` rejects this one; for most uses, knowing exactly
-where the trust sits is what matters.
+The claim *is* a claim about absence: no number fails. A checker could
+redo the whole search, or take it on trust. eyemind's checker does neither:
+it checks the written record of the search, one call at a time, and never
+searches itself. The record is large, 13,555 lines, but each line is a
+small check. Because nothing is taken on trust, `--strict-proof`, which
+rejects any proof with trusted steps, accepts this one.
 
 ---
 
@@ -268,6 +278,6 @@ The `--goal` line asks for one step of the routine: it answers
 
 ## Takeaway
 
-eyemind checked a famous number fact case by case, and its certificate says
-plainly which part rests on "we searched and found nothing" — so you know
-exactly what you are trusting.
+eyemind checked a famous number fact case by case, and its search
+certificate turns "we searched and found nothing" into something a checker
+can confirm.

@@ -55,7 +55,7 @@ export const tests = {
       [[], "fact(p('a'))\nquery(p(X))"],
       [['examples/socrates.js', '--json'], ''],
       [['examples/socrates.js', '--goal', "type(X, 'mortal')"], ''],
-      [['examples/permissions.js', '--strict-proof'], ''],
+      [['examples/inventory.js', '--strict-proof'], ''],
     ]) assert.deepEqual(cli(['-c', ...args], stdin), cli(['--prove-and-check', ...args], stdin));
     assert.equal(command(['-c', 'examples/socrates.js']).code, 0);
     assert.equal(cli(['-c', 'examples/socrates.js']).stdout,
@@ -66,7 +66,7 @@ export const tests = {
     assert.equal(cli(['-c'], "fact(p('a'))\nquery(p(X))").code, 0);
     assert.deepEqual(JSON.parse(cli(['-c', '--json', 'examples/socrates.js']).stdout).answers,
       ["type('socrates', 'mortal')", "type('socrates', 'human')"]);
-    assert.equal(cli(['-c', '--strict-proof', 'examples/permissions.js']).code, 2);
+    assert.equal(cli(['-c', '--strict-proof', 'examples/inventory.js']).code, 2);
     assert.equal(cli(['-c', 'examples/integrity.js']).code, 65);
     assert.equal(JSON.parse(cli(['-c', '--stats', 'examples/socrates.js']).stderr).derived, 1);
     for (const args of [['-p'], ['--check-proof', 'examples/proof/socrates.js'], ['--unused']]) {
@@ -163,9 +163,9 @@ export const tests = {
     assert.ok(failed.stdout.includes("condition('C5', 're_decision', failed(1), 0)\n"));
     assert.ok(failed.stdout.includes("failure('C5', is(7, add(2, 3)),"));
     assert.ok(failed.stdout.includes('verdict(failed(1))\n'));
-    const strictly = cli(['--strict-proof', '--check-proof', 'examples/proof/permissions.js', 'examples/permissions.js']);
+    const strictly = cli(['--strict-proof', '--check-proof', 'examples/proof/inventory.js', 'examples/inventory.js']);
     assert.equal(strictly.code, 2);
-    assert.ok(strictly.stdout.includes("obligation('absent', 'theory_scoped',"));
+    assert.ok(strictly.stdout.includes("obligation('collected', 'theory_scoped',"));
     assert.ok(strictly.stdout.includes('verdict(failed('));
     assert.equal(cli(['--json', 'examples/socrates.js']).code, 1);
   },

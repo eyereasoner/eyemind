@@ -131,8 +131,8 @@ clause(6, implied_by(vandermonde(N, M, R, Sum), [ge(N, 0), ge(M, 0), ge(R, 0), i
 clause(7, implied_by(row_sum(N, K, 0), gt(K, N)))
 clause(8, implied_by(row_sum(N, K, Sum), [le(K, N), choose(N, K, C), is(Next, add(K, 1)), row_sum(N, Next, Tail), is(Sum, add(C, Tail))]))
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, or an
-// absence or collection taken on trust), the bindings and the goals it uses.
+// Steps: each goal, what justifies it (a clause, a builtin, a control, an
+// absence or a collection), the bindings and the goals it uses.
 // The 66 steps for choose(24, 12, 2704156), complete:
 step(choose(24, 12, 2704156), clause(1), {N: 24, K: 12, C: 2704156, Steps: 12}, [ge(24, 0), ge(12, 0), le(12, 24), is(12, min(12, sub(24, 12))), choose_step(24, 12, 0, 1, 2704156)])
 step(ge(24, 0), 'builtin', {}, [])
