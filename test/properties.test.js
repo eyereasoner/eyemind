@@ -517,6 +517,33 @@ function mutateText(r, text) {
 }
 
 export const tests = {
+  'source-grounded witness contexts survive adversarial Skolem-shaped input data'() {
+    forSeeds(150, (r) => {
+      const hops = r.below(5);
+      const id = hops + 2;
+      let context = `skolem(${id}, '${r.pick(['W', 'X', 'Bogus'])}', [])`;
+      for (let i = 0, depth = r.below(4); i < depth; i++) {
+        context = r.chance(0.5) ? `box(${context})` : `[${context}, '${r.pick(['a', 'b'])}']`;
+      }
+      const lines = [`fact(p0(${context}))`];
+      for (let i = 0; i < hops; i++) {
+        lines.push(r.chance(0.5) ? `implies(p${i}(X), p${i + 1}(X))` : `implied_by(p${i + 1}(X), p${i}(X))`);
+      }
+      lines.push(`implies(p${hops}(X), q(X, W))`);
+      const source = program(lines.join('\n'));
+      const document = run(source, { proof: true }).proof;
+      const expected = `skolem(${id}, 'W', [${context}])`;
+      assert.ok(document.includes(expected), document);
+      assert.ok(checkBothWays(source, document).valid);
+      const forged = document.replaceAll(expected, `skolem(${id}, 'W', [])`);
+      const report = checkBothWays(source, forged);
+      assert.equal(report.valid, false, forged);
+      assert.ok(report.failures.some(({ condition }) => condition === 'C8'), JSON.stringify(report.failures));
+      assert.ok(!report.failures.some(({ condition }) => condition === 'C1'), JSON.stringify(report.failures));
+      assert.equal(checkProof(source, forged, { allowTrusted: false }).valid, false);
+    });
+  },
+
   'inspection agrees with independently constructed source rule patterns'() {
     forSeeds(100, (r) => {
       const generated = randomProgram(r);

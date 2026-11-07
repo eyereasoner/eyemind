@@ -327,6 +327,10 @@ A proof holds the claims, the source clauses it cites, and one `step(...)` recor
 
 Two properties make this worth more than a log. **The checker follows the certificate:** it never calls the reasoner to fill a gap, so a missing step fails the check rather than being quietly re-derived. **The source is the authority:** the clauses a proof displays cannot override the program, so you cannot smuggle a rule into a proof, nor pad it with steps no claim needs. Every proof eyemind generates is checked before it is returned.
 
+C8 checks provenance as well as witness spelling. When a proposed witness context omits a value because it contains a witness of that firing, the checker replaces the proposed fresh symbols by variables and checks that the premise evidence still follows from the source. Literal input constants and already-derived ground facts remain fixed data, even when they look like Skolem terms. Generator captures remain fixed too. A more general negation or collection needs its own settling evidence; a specific obligation cannot justify it.
+
+The verdict applies to the recorded instances. It does not establish that an original open query would select them when calls depend on bindings or search order. For example, with `fact(p('a'), p('b'))` and `implied_by(q(X), once(p(X)))`, `q(X)` returns only `q('a')`, while a proof of the specialized call `q('b')` can pass C1–C9. Establishing fidelity to the original query would require checked call-time bindings and evidence of the first-solution choice. [SPEC Section 11.13](https://eyereasoner.github.io/eyemind/SPEC#1113-operational-query-fidelity) defines that additional property and distinguishes it from answer completeness.
+
 The report is a document too, so one program's evidence is material another program can reason over:
 
 ```js

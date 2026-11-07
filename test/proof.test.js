@@ -279,6 +279,118 @@ export const tests = {
     }
   },
 
+  'source Skolem constants cannot impersonate fresh witness provenance'() {
+    for (const name of ['Bogus', 'W']) {
+      for (const wrap of [(term) => term, (term) => `box([${term}])`]) {
+        for (const intermediate of ['', 'implied_by(p(X), seed(X))', 'implies(seed(X), p(X))']) {
+          const id = intermediate ? 3 : 2;
+          const context = wrap(`skolem(${id}, '${name}', [])`);
+          const source = program(`fact(${intermediate ? 'seed' : 'p'}(${context}))\n${intermediate}\nimplies(p(X), q(X, W))`);
+          const document = run(source, { proof: true }).proof;
+          const actual = `skolem(${id}, 'W', [${context}])`;
+          assert.ok(document.includes(actual));
+          assert.ok(checkProof(source, document, { allowTrusted: false }).valid);
+          const forged = document.replaceAll(actual, `skolem(${id}, 'W', [])`);
+          for (const text of [forged, forged.replace(/\{X:[^\n]*?\}, \[/g, '{}, [')]) {
+            const report = checkProof(source, text, { allowTrusted: false });
+            assert.equal(report.valid, false, text);
+            assert.ok(report.failures.some(({ condition }) => condition === 'C8'), JSON.stringify(report.failures));
+            assert.ok(!report.failures.some(({ condition }) => condition === 'C1'), JSON.stringify(report.failures));
+          }
+        }
+      }
+    }
+  },
+
+  'a source constant in a generator retains its provenance in a backward use'() {
+    const source = program(`fact(p(skolem(2, 'W', [])))
+implies(p(X), [created(X, W), implied_by(owner(W), 'true')])
+query(owner(W))`);
+    const document = run(source, { proof: true }).proof;
+    assert.ok(checkProof(source, document).valid);
+    invalid(document.replaceAll("skolem(2, 'W', [skolem(2, 'W', [])])", "skolem(2, 'W', [])"), 'C8', source);
+  },
+
+  'genuine parameterized premise evidence still establishes witness provenance'() {
+    for (const lines of [
+      ['fact(p(X))'],
+      ['fact(seed(f(Z)))', 'implied_by(p(X), seed(X))'],
+      ['fact(seed(X))', 'implied_by(p(X), [seed(X), unify(X, X)])'],
+      ['fact(seed(f(Z)))', 'implied_by(p(X), call(seed(X)))'],
+      ['fact(seed(f(Z)))', "implied_by(p(X), or('fail', seed(X)))"],
+      ['fact(seed(X))', "implies('true', implied_by(p(f(Z)), seed(Z)))"],
+      ['fact(seed(X))', 'implied_by(p(L), findall(X, seed(X), L))'],
+    ]) {
+      const source = program([...lines, 'implies(p(X), q(X, W))'].join('\n'));
+      const result = run(source, { proof: true });
+      const report = checkProof(source, result.proof, { allowTrusted: false });
+      assert.ok(report.valid, `${lines.join('\n')}\n${JSON.stringify(report.failures)}`);
+    }
+  },
+
+  'captured witnesses stay fixed during provenance rechecking'() {
+    // A finite proof may cite this program without evaluating its infinite
+    // closure. The link instance already captured the first firing's W.
+    const source = program(`fact(seed(Z))
+implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
+    const x = "skolem(2, 'X', [])";
+    const w = "skolem(2, 'W', [])";
+    const document = [
+      `mark(${w}, ${w})`,
+      `step(mark(${w}, ${w}), clause(2), {X: ${w}, W: ${w}}, [or(seed(${w}), link(${w}))])`,
+      `step(or(seed(${w}), link(${w})), 'control', {}, [link(${w})])`,
+      `step(link(${w}), clause(3), {X: ${x}, W: ${w}}, [or(seed(${x}), link(${x})), 'true'])`,
+      `step(or(seed(${x}), link(${x})), 'control', {}, [seed(${x})])`,
+      "step('true', 'builtin', {}, [])",
+    ].join('\n');
+    const report = checkProof(source, document);
+    assert.deepEqual(report.failures.map(({ condition }) => condition), ['C8']);
+    assert.equal(report.trusted.length, 0);
+  },
+
+  'a settled specific absence cannot establish freshness when its generalization is false'() {
+    const source = program("fact(p('blocked'))\nimplies(not(p(X)), q(X, W))");
+    const x = "skolem(2, 'X', [])";
+    const w = "skolem(2, 'W', [])";
+    const document = `q(${x}, ${w})\nstep(q(${x}, ${w}), clause(2), {}, [not(p(${x}))])\n` +
+      `step(not(p(${x})), 'absent', {}, [])\n`;
+    const report = checkProof(source, document);
+    assert.deepEqual(report.failures.map(({ condition }) => condition), ['C8']);
+    assert.equal(report.conditions[8].covered, 1);
+    assert.equal(report.trusted.length, 0);
+  },
+
+  'provenance cannot generalize a trusted collection into a stronger assumption'() {
+    const source = program("implied_by(p(X), 'true')\nimplies(findall(X, p(X), L), q(L, W))");
+    const document = run(source, { proof: true }).proof;
+    assert.ok(checkProof(source, document, { allowTrusted: false }).valid);
+    const report = checkProof(source, withoutCertificate(document));
+    assert.equal(report.valid, false);
+    assert.equal(report.trusted.length, 1);
+    assert.ok(report.failures.some(({ condition }) => condition === 'C8'));
+  },
+
+  'C3-invalid boundaries enter neither obligation accounting nor C6 and C9'() {
+    for (const [goal, by, body] of [["not('missing')", 'absent', 'not(missing)'],
+      ["findall(A, 'missing', [])", 'collected', 'findall(X, missing, L)']]) {
+      for (const prefix of ['', 'fact(missing)\n']) {
+        const source = program(`${prefix}implies(${body}, q)`);
+        for (const [bindings, uses] of [['{X: 1}', '[]'], ['{}', "['true']"]]) {
+          const document = `'q'\nstep('q', clause(${source.forward[0].id}), {}, [${goal}])\nstep(${goal}, '${by}', ${bindings}, ${uses})\n`;
+          for (const allowTrusted of [false, true]) {
+            const report = checkProof(source, document, { allowTrusted });
+            assert.equal(report.valid, false);
+            assert.deepEqual(report.trusted, []);
+            assert.equal(report.conditions[2].failed, 1);
+            assert.equal(report.conditions[4].failed, 0);
+            assert.equal(report.conditions[5].covered, 0);
+            assert.equal(report.conditions[8].covered, 0);
+          }
+        }
+      }
+    }
+  },
+
   'reports expose coverage and source and primitive counts'() {
     const source = program("fact(p('a'))\nimplied_by(q(X), [p(X), unify(X, 'a')])");
     const report = checkProof(source, run(source, { goal: 'q(X)', proof: true }).proof, { goals: ['q(X)'] });
@@ -401,6 +513,47 @@ export const tests = {
     const source = program("implied_by(p(X), q(X))\nimplied_by(q(X), p(X))\nimplies(not(p('a')), r)");
     invalid("'r'\nstep('r', clause(3), {}, [not(p('a'))])\nstep(not(p('a')), 'absent', {}, [])\n" +
       "searched(p('a'), [])\nsearched(q('a'), [])", 'C9', source);
+  },
+
+  'shared table dependencies cannot hide a collection ordering obligation'() {
+    const source = program([
+      'fact(seed(1), seed(2))',
+      'implies(seed(X), f(X))',
+      'implied_by(c(X), f(X))',
+      'implied_by(a(X), c(X))',
+      'implied_by(d(X), c(X))',
+      'implied_by(b(X), d(X))',
+      'implied_by(root(X), or(a(X), b(X)))',
+      'implies(findall(X, root(X), L), allroot(L))',
+      'implies(findall(X, a(X), L), alla(L))',
+    ].join('\n'));
+    // The first boundary visits root -> a, b -> d, both resting on c -> f.
+    // Its order check must not cache a as independent of f's listing.
+    const document = withoutCertificate(run(source, { proof: true }).proof) + '\n' + [
+      'derived(f(Z), [f(1), f(2)])',
+      'searched(root(Z), [root(1), root(2), root(1), root(2)])',
+      'searched(a(Z), [a(1), a(2)])',
+      'searched(b(Z), [b(1), b(2)])',
+      'searched(c(Z), [c(1), c(2)])',
+      'searched(d(Z), [d(1), d(2)])',
+      'searched(f(Z), [f(1), f(2)])',
+      '',
+    ].join('\n');
+    let reordered = document.replaceAll('[1, 2, 1, 2]', '[2, 1, 2, 1]').replaceAll('[1, 2]', '[2, 1]')
+      .replaceAll('[root(1), root(2), root(1), root(2)]', '[root(2), root(1), root(2), root(1)]');
+    for (const name of ['f', 'c', 'a', 'b', 'd']) {
+      reordered = reordered.replaceAll(`[${name}(1), ${name}(2)]`, `[${name}(2), ${name}(1)]`);
+    }
+    for (const forged of [document, reordered]) {
+      const report = checkProof(source, forged);
+      assert.ok(report.valid, JSON.stringify(report.failures));
+      assert.equal(report.trusted.length, 2);
+      assert.ok(report.trusted.some(({ conclusion }) => conclusion.includes(', a(')));
+      assert.equal(report.conditions[8].covered, 0);
+      const strict = checkProof(source, forged, { allowTrusted: false });
+      assert.equal(strict.valid, false);
+      assert.equal(strict.conditions[4].failed, 2);
+    }
   },
 
   'a certificate statement that settles nothing fails C7, and a repeated one C3'() {

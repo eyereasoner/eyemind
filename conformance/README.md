@@ -29,7 +29,7 @@ the case files in order, with the SPEC sections and the topic of each.
 | [08-canonical-text.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/08-canonical-text.js) | 9 | 57 | The one spelling of atoms, numbers, variables, lists and compounds |
 | [09-reading.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/09-reading.js) | 9.1 | 115 | What a document reader accepts, and what it must reject without running anything |
 | [10-proofs.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/10-proofs.js) | 10 | 60 | Proof documents for every kind of justification, step order and sharing |
-| [11-checking.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/11-checking.js) | 10.4, 11, 12 | 176 | Valid proofs, search certificates, and proofs tampered with to break each of C1-C9, with their exact reports |
+| [11-checking.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/11-checking.js) | 10.4, 11, 12 | 183 | Valid proofs, search certificates, and proofs tampered with to break each of C1-C9, with their exact reports |
 | [13-unused.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/13-unused.js) | 13.2 | 29 | Unused clauses, including those a negation or collection consults |
 | [14-command-line.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/14-command-line.js) | 13.1 | 60 | Options, their combinations, standard input, errors and exit codes |
 

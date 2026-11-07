@@ -390,19 +390,20 @@ export class Settler {
   exact(callKey) {
     const memo = this.exactness ??= new Map();
     if (memo.has(callKey)) return memo.get(callKey);
-    const order = [];
-    const pending = [callKey];
-    const seen = new Set();
-    while (pending.length) {
-      const item = pending.pop();
-      if (seen.has(item) || memo.has(item)) continue;
-      seen.add(item);
-      order.push(item);
-      pending.push(...this.tables.get(item).reliance.tables);
-    }
-    for (let i = order.length - 1; i >= 0; i--) {
-      const reliance = this.tables.get(order[i]).reliance;
-      memo.set(order[i], !reliance.listings.size && [...reliance.tables].every((item) => memo.get(item) !== false));
+    // Finish each dependency before caching its parent. Reversing discovery
+    // order is insufficient when two branches share a dependency.
+    const frame = (item) => [item, [...this.tables.get(item).reliance.tables], 0];
+    const stack = [frame(callKey)];
+    while (stack.length) {
+      const top = stack[stack.length - 1];
+      if (top[2] < top[1].length) {
+        const next = top[1][top[2]++];
+        if (!memo.has(next)) stack.push(frame(next));
+        continue;
+      }
+      const reliance = this.tables.get(top[0]).reliance;
+      memo.set(top[0], !reliance.listings.size && top[1].every((item) => memo.get(item)));
+      stack.pop();
     }
     return memo.get(callKey);
   }

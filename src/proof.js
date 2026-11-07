@@ -327,7 +327,8 @@ function check(program, claims, steps, certificate, goals, allowTrusted, fail, s
       fail.add('C4', `unjustified claim ${text(claim)}`, claim);
     }
   }
-  const tally = checkSteps(program, steps, allowTrusted, fail, spellings, name, settlement.outcomes);
+  const provenance = new WitnessProvenance(program, steps, certificate, settlement.outcomes, spellings);
+  const tally = checkSteps(program, steps, allowTrusted, fail, spellings, name, settlement.outcomes, provenance);
   const [confronted, closed] = checkBoundaries(program, steps, tally.boundaries, fail, settlement.outcomes, spellings);
   checkRelevance(program, claims, steps, goals || [], fail, spellings, settlement, certificate);
   checkWellFounded(steps, fail, spellings);
@@ -460,7 +461,7 @@ const CONTROL_BY = 'control';
 // C4, C1, C3 and C5 for each step: every use is justified, and the step is an
 // instance of the clause it cites, a recomputed primitive, a control composed
 // of its uses, or a trusted boundary the later checks confront.
-function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcomes) {
+function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcomes, provenance) {
   const tally = { verified: 0, redecided: 0, composed: 0, witnessed: 0, boundaries: [], trusted: [] };
 
   function covered(goal) {
@@ -478,7 +479,7 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcome
       if (!covered(use)) fail.add('C4', `unjustified use ${text(use)}`, goal);
     }
     if (isTerm(by, 'clause', 1)) {
-      if (checkResolution(program, step, fail, tally)) tally.verified++;
+      if (checkResolution(program, step, fail, tally, provenance)) tally.verified++;
     } else if (isTerm(by, 'source', 1)) {
       const clause = clauseNamed(program, by.args[0]);
       const inspected = clause === null ? null : program.inspectedById.get(clause.id);
@@ -491,19 +492,7 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcome
         fail.add('C3', 'invalid builtin justification', goal);
         continue;
       }
-      let agrees = false;
-      try {
-        for (const env of primitive(goal, new Env())) {
-          if (resolvesTo(goal, env, goal)) {
-            agrees = true;
-            break;
-          }
-        }
-      } catch (error) {
-        // A primitive that cannot be recomputed does not pass C5.
-        if (!(error instanceof EyemindError)) throw error;
-      }
-      if (!agrees) agrees = nearHostMath(goal);
+      const agrees = redecides(goal);
       if (!agrees) fail.add('C5', `primitive disagrees: ${text(goal)}`, goal);
       else tally.redecided++;
     } else if (by === CONTROL_BY) {
@@ -520,7 +509,10 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcome
         tally.composed++;
       }
     } else if ((by === 'absent' && isTerm(goal, 'not', 1)) || (by === 'collected' && isTerm(goal, 'findall', 3))) {
-      if (bindings.length || uses.length) fail.add('C3', 'trusted boundaries cannot have bindings or uses', goal);
+      if (bindings.length || uses.length) {
+        fail.add('C3', 'trusted boundaries cannot have bindings or uses', goal);
+        continue;
+      }
       tally.boundaries.push(goal);
       // A boundary its search certificate settles is checked, not trusted.
       if (outcomes.get(spellings.spell(goal))?.status === 'settled') continue;
@@ -531,6 +523,17 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcome
     }
   }
   return tally;
+}
+
+function redecides(goal) {
+  try {
+    for (const env of primitive(goal, new Env())) {
+      if (resolvesTo(goal, env, goal)) return true;
+    }
+  } catch (error) {
+    if (!(error instanceof EyemindError)) throw error;
+  }
+  return nearHostMath(goal);
 }
 
 const isConstant = (term) => typeof term === 'string' || typeof term === 'bigint' || typeof term === 'number';
@@ -589,7 +592,7 @@ function flatResolution(clause, goal, bindings, uses) {
 // variables of that clause, and under them one of the clause's heads is the
 // step's goal and its body is exactly the step's uses. C8 is checked under
 // the same substitution.
-function checkResolution(program, step, fail, tally) {
+function checkResolution(program, step, fail, tally, provenance = null) {
   const { goal, by, bindings, uses } = step;
   const clauseId = by.args[0];
   const clause = clauseNamed(program, clauseId);
@@ -631,11 +634,11 @@ function checkResolution(program, step, fail, tally) {
     if (matches && resolvesTo(candidate, env, goal) && body.every((item, i) => resolvesTo(item, env, uses[i]))) {
       resolution = true;
       // Any head the step can be an instance of decides; a verified witness wins.
-      let found = clause.forward ? checkWitnesses(clause, head, names, env) : null;
-      for (const parentId of clause.scopeIds) {
+      let found = clause.forward && provenance !== null ? checkWitnesses(clause, head, body, names, env, provenance) : null;
+      for (const parentId of provenance === null ? [] : clause.scopeIds) {
         const parent = program.byId.get(parentId);
         const scopeHead = freshTerm(parent.head, `check${clauseId}`, names);
-        const checked = checkWitnesses(parent, scopeHead, names, env);
+        const checked = checkWitnesses(parent, scopeHead, body.slice(0, parent.body.length), names, env, provenance);
         if (checked === false) found = false;
         else if (checked === true && found === null) found = true;
       }
@@ -647,7 +650,7 @@ function checkResolution(program, step, fail, tally) {
     fail.add('C1', `not an instance of source clause ${clauseId}: ${text(goal)}`, goal);
     return false;
   }
-  if (witnesses === false) fail.add('C8', `witnesses do not match the source scopes of clause ${clauseId}: ${text(goal)}`, goal);
+  if (witnesses === false) fail.add('C8', `witnesses or their premise provenance do not match the source scopes of clause ${clauseId}: ${text(goal)}`, goal);
   else if (witnesses === true) tally.witnessed++;
   return true;
 }
@@ -655,11 +658,11 @@ function checkResolution(program, step, fail, tally) {
 // C8: under a step's substitution, each witness of a forward rule is the
 // Skolem term of this firing, skolem(Rule, Variable, Arguments), where
 // Arguments are the ground values of the conclusions' other variables, in
-// order of first occurrence, leaving out those that hold a witness of this
-// firing: the term the reasoner makes (Section 8.2). Returns null when the
+// order of first occurrence, leaving out fresh parameters only when their
+// premise evidence establishes that provenance. Returns null when the
 // rule has no witnesses, else whether they all hold; head is the rule's
 // renamed conclusions and names maps its variables to their renamed ones.
-function checkWitnesses(clause, head, names, env) {
+function checkWitnesses(clause, head, body, names, env, provenance) {
   const witnessed = clause.witnessNames;
   if (!witnessed.length) return null;
   // An existential firing needs bound inspection values. A generic rule
@@ -688,11 +691,161 @@ function checkWitnesses(clause, head, names, env) {
   const expected = clause.captures === null ? [] : [listFromItems(
     clause.captures.map((name) => copyResolved(names.get(name), env)),
   )];
+  const introduced = new Set(witnessed.map((name) => names.get(name).name));
+  let contextual = false;
   for (const variable of variables(head).values()) {
     const value = copyResolved(variable, env);
     if (isGround(value) && !ofThisFiring(value)) expected.push(value);
+    else if (!introduced.has(variable.name)) contextual = true;
   }
-  return text(listFromItems(expected)) === text(firing);
+  return text(listFromItems(expected)) === text(firing) &&
+    (!contextual || provenance.check(clause, head, body, names, env, firing));
+}
+
+// A value may be omitted from a firing's context only when its apparent
+// fresh symbols really are parameters of the premise derivation. Abstract
+// those symbols together, then check the recorded evidence against the
+// source again. In particular, abstracting a literal input Skolem constant
+// must fail; its spelling does not make it a fresh value of this firing.
+class WitnessProvenance {
+  constructor(program, steps, certificate, outcomes, spellings) {
+    this.program = program;
+    this.steps = steps;
+    this.certificate = certificate;
+    this.outcomes = outcomes;
+    this.spellings = spellings;
+    this.serial = 0;
+    this.usedNames = null;
+  }
+
+  fresh() {
+    if (this.usedNames === null) {
+      this.usedNames = new Map();
+      for (const step of this.steps.values()) {
+        for (const term of [step.goal, ...step.bindings, ...step.uses]) variables(term, this.usedNames);
+      }
+      for (const clause of this.program.clauses) {
+        for (const term of [clause.head, ...clause.body, ...clause.extraTerms]) variables(term, this.usedNames);
+      }
+    }
+    let name;
+    do { name = `\0witness${++this.serial}`; } while (this.usedNames.has(name));
+    return new Var(name);
+  }
+
+  check(clause, head, body, names, env, firing) {
+    const argumentsId = text(firing);
+    const symbols = new Map();
+    const copied = new Map();
+    const abstract = (term) => {
+      if (!(term instanceof Struct)) return term;
+      if (copied.has(term)) return copied.get(term);
+      let result;
+      if (isTerm(term, 'skolem', 3) && term.args[0] === BigInt(clause.id) && text(term.args[2]) === argumentsId) {
+        const id = text(term);
+        if (!symbols.has(id)) symbols.set(id, this.fresh());
+        result = symbols.get(id);
+      } else {
+        const args = term.args.map(abstract);
+        result = args.every((arg, i) => arg === term.args[i]) ? term : new Struct(term.name, args);
+      }
+      copied.set(term, result);
+      return result;
+    };
+    // Captures belong to an already-created instance, before this firing.
+    for (const name of clause.captures || []) {
+      const value = copyResolved(names.get(name), env);
+      if (abstract(value) !== value) return false;
+    }
+    const projected = abstract(copyResolved(new Struct('scope', [head, ...body]), env));
+    const source = new Struct('scope', [clause.head, ...clause.body]);
+    if (!isInstance(projected, source, 'provenance')) return false;
+    const pending = body.map((goal) => copyResolved(goal, env));
+    const seen = new Set();
+    const fail = new Failures();
+    while (pending.length) {
+      const original = pending.pop();
+      if (isTerm(original, 'and', 2)) {
+        pending.push(...flattenConjunction(original));
+        continue;
+      }
+      const goal = abstract(original);
+      if (goal === original) continue;
+      const id = this.spellings.spell(original);
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const step = this.steps.get(id);
+      if (step === undefined) {
+        if (!isCallable(goal) || !(this.program.groups.get(key(goal)) || []).some((given) =>
+          !given.body.length && isInstance(goal, given.head, 'provenanceFact'))) return false;
+        continue;
+      }
+      if (isTerm(step.by, 'clause', 1)) {
+        const cited = clauseNamed(this.program, step.by.args[0]);
+        if (cited === null) return false;
+        if (cited.forward) {
+          // A premise's derived fact already exists. Its ground values are
+          // data, and only its universal variables may be instantiated.
+          if (!isInstance(goal, step.goal, 'provenanceDerived')) return false;
+          continue;
+        }
+        if (!this.fixedScopes(cited, step, abstract)) return false;
+        const generalized = { ...step, goal, bindings: step.bindings.map(abstract), uses: step.uses.map(abstract) };
+        // Original steps receive their own C8 checks. Here only source
+        // resolution is repeated, under the one shared abstraction.
+        if (!checkResolution(this.program, generalized, fail, { witnessed: 0 })) return false;
+        pending.push(...step.uses);
+      } else if (isTerm(step.by, 'source', 1)) {
+        const cited = clauseNamed(this.program, step.by.args[0]);
+        const inspected = cited === null ? null : this.program.inspectedById.get(cited.id);
+        if (!inspected || step.bindings.length || step.uses.length || !isInspection(goal) ||
+            !isInstance(goal, inspected.term, 'provenanceInspection')) return false;
+      } else if (step.by === BUILTIN_BY) {
+        if (step.bindings.length || step.uses.length || !isCallable(goal) ||
+            !PRIMITIVE_KEYS.has(key(goal)) || !redecides(goal)) return false;
+      } else if (step.by === CONTROL_BY) {
+        const candidates = isTerm(goal, 'call', 1) || isTerm(goal, 'once', 1) ? [goal.args[0]]
+          : isTerm(goal, 'or', 2) ? goal.args : [];
+        const uses = step.uses.map(abstract);
+        if (step.bindings.length || !candidates.some((candidate) => {
+          const parts = flattenConjunction(candidate);
+          return parts.length === uses.length && parts.every((part, i) => text(part) === text(uses[i]));
+        })) return false;
+        pending.push(...step.uses);
+      } else if (isBoundary(step)) {
+        // Generalizing a trusted assumption would silently strengthen it.
+        // Only the already-consulted certificate may discharge a stronger
+        // boundary; missing evidence fails provenance instead.
+        const outcome = this.outcomes.get(id);
+        if (outcome?.status !== 'settled') return false;
+        const tables = new Set(outcome.tables);
+        const listings = new Set(outcome.listings);
+        const settler = new Settler(this.program, {
+          answers: (call) => tables.has(variant(call)) ? this.certificate.tables.get(variant(call)) : null,
+          facts: (goalKey) => listings.has(goalKey) ? this.certificate.listings.get(goalKey) : null,
+          supported: (fact) => this.steps.has(this.spellings.spell(fact)),
+        });
+        if (settler.settle(goal).status !== 'settled') return false;
+      } else return false;
+    }
+    return true;
+  }
+
+  fixedScopes(clause, step, abstract) {
+    if (!clause.scopeIds.length) return true;
+    const [head, body, names] = freshClause(clause, 'provenanceScope');
+    const env = new Env();
+    for (const pair of step.bindings) {
+      if (!names.has(pair.args[0]) || !unify(names.get(pair.args[0]), pair.args[1], env)) return false;
+    }
+    if (!unify(head, step.goal, env) || body.length !== step.uses.length ||
+        !body.every((goal, i) => unify(goal, step.uses[i], env))) return false;
+    for (const term of clause.extraTerms) {
+      const value = copyResolved(freshTerm(term, 'provenanceScope', names), env);
+      if (abstract(value) !== value) return false;
+    }
+    return true;
+  }
 }
 
 // C9 and C6. A boundary its search certificate settles holds, and one whose

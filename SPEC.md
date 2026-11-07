@@ -77,6 +77,7 @@ proof.
   - [11.10 C9 Search closure](#1110-c9-search-closure)
   - [11.11 Counts and validity](#1111-counts-and-validity)
   - [11.12 Scope of a valid proof](#1112-scope-of-a-valid-proof)
+  - [11.13 Operational query fidelity](#1113-operational-query-fidelity)
 - [12. Check Reports](#12-check-reports)
   - [12.1 JSON form](#121-json-form)
 - [13. Command-Line Interface](#13-command-line-interface)
@@ -1347,8 +1348,48 @@ bound to `skolem(N, Name, Args)`, where:
 - `Name` is the name of `V` as the program writes it (Section 8.2);
 - `Args` is the same for every such variable of the step, and is the list of
   the values of the heads' variables, in order of their first occurrence in
-  the heads, that are ground and contain no Skolem term `skolem(N, _, Args)`:
-  the values that do contain one hold a witness of this firing.
+  the heads, omitting a value only when it holds a fresh parameter of this
+  firing, as established below. The spelling of a Skolem term alone MUST
+  NOT establish that it is fresh.
+
+A value containing `skolem(N, _, Args)` is a **candidate** for omission.
+Values of variables occurring only in the head hold the witnesses checked
+above. If any other head variable's value is omitted, the checker MUST
+establish its **parametric provenance**:
+
+1. In the instantiated full head and premises, replace each distinct term
+   `skolem(N, Name, Args)` by one fresh variable, using the same replacement
+   throughout. Distinct such terms receive distinct variables, disjoint
+   from all source and document variables. The abstracted head and premises
+   together MUST still be an instance of the source clause, with all
+   variable sharing preserved and without further instantiating their terms.
+   A literal Skolem-shaped constant of the source is therefore fixed data,
+   not a parameter the proof may abstract.
+2. Each affected premise MUST have evidence under this same abstraction.
+   Follow the recorded uses: backward clauses MUST still satisfy C1,
+   inspection steps the source-instance check of C1, primitives C5, and
+   controls the composition check of C5. An unrecorded source fact is
+   available as in C4. A previously derived forward fact is fixed evidence:
+   the abstracted premise MUST be an instance of that fact, allowing only
+   its existing universal variables to be instantiated. Its ground terms
+   MUST NOT be generalized. Each original step remains subject to its own
+   checks, including C8 and C2; this traversal supplies no missing derivation.
+3. Captured values and enclosing generator projections of a premise's
+   derived backward rule instance are fixed before its use and MUST NOT
+   change under abstraction. Likewise, this firing's captures MUST NOT
+   change. A backward caller cannot make an earlier firing's data fresh.
+4. An unchanged boundary may use its original evidence or obligation. A
+   changed boundary MUST already be settled in its original form, and its
+   abstracted form MUST also be settled by Section 11.10, consulting only
+   tables and listings the original boundary rests on. A missing or
+   incomplete certificate fails provenance; an obligation for a specific
+   boundary MUST NOT silently become an obligation for a stronger one.
+
+Failure of this provenance check is C8, not C1: the original step may be a
+valid clause instance while proposing the wrong witness context. Provenance
+rechecks do not add steps or change the C1, C5 or C9 counts. They establish
+that the displayed firing's evidence permits fresh parameters, not that the
+firing is the one an original open call would select (Section 11.13).
 
 When a forward clause has any such variables, its full head under the step's
 substitution MUST be ground; a step that leaves such a variable unbound, or
@@ -1369,8 +1410,10 @@ template's capture list and the substitution, not from the witness term.
 
 A variable of the head that also occurs in the body is not checked by C8,
 even when the body leaves it unbound; its value comes from the uses, which
-other conditions check. A step with no witnesses in its own forward head or enclosing generators is
-not covered by C8.
+other conditions check. Its effect on a head-only variable's witness context
+is nevertheless subject to the provenance check above. A step with no
+witnesses in its own forward head or enclosing generators is not covered
+by C8.
 
 ### 11.10 C9 Search closure
 
@@ -1461,6 +1504,42 @@ established by its search certificate. It does not establish
 that the claims are all the conclusions of the program, that the program
 derives no `'false'`, or that the program is the one intended: a proof MAY
 leave conclusions out, and a run's own proof holds exactly its conclusions.
+
+### 11.13 Operational query fidelity
+
+**Operational query fidelity** means that a claimed answer can be reported
+for an original question under Section 8, retaining its original call-time
+bindings, control choices and applicable forward state. Each claimed answer
+must be reachable in that question's ordered search. This is distinct from
+completeness: a proof may omit other reachable answers without falsifying
+the answers it does give.
+
+C1–C9 check the recorded instances and their evidence. They do not establish
+operational query fidelity for binding-sensitive or order-sensitive goals.
+In particular, a checker MUST NOT treat C7's instance test, or C5's
+composition of a `once` step, as proof that the original open call selected
+that instance. For example:
+
+```js
+fact(p('a'), p('b'))
+implied_by(q(X), once(p(X)))
+```
+
+The question `q(X)` answers only `q('a')`. Nevertheless, a C1–C9 proof may
+justify `q('b')` with `once(p('b'))` and `p('b')`, since the specialized
+call `q('b')` succeeds. A final substitution does not show that the original
+call was `once(p(X))` with `X` unbound, or that its first answer was `'a'`.
+Tests of current variable state have the same distinction (Section 7.5).
+
+A checker claiming the additional property MUST validate evidence of the
+original call state, propagation of bindings between ordered premises,
+freshening and scope, and any first-solution choice or required search
+closure. A claimed call state or substitution is not authority: it must
+follow from the original question, source clauses and checked evidence.
+It MUST preserve generator captures independently of later caller bindings
+and MUST NOT invoke the reasoner to fill gaps. No additional condition or
+evidence format for that property is defined by this specification; a
+C1–C9 verdict alone MUST NOT be presented as establishing it.
 
 ## 12. Check Reports
 
