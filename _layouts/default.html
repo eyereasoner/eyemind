@@ -49,5 +49,13 @@
     <article>{{ body }}</article>
     <footer><span>eyemind · JavaScript rules with checked proofs</span><span>MIT licensed</span></footer>
   </main>
+  <script>
+    // Rouge gives a called name and a variable the same class; GitHub colors
+    // a call, so mark each name that a "(" follows.
+    for (const name of document.querySelectorAll('.highlight .nx, .highlight .n')) {
+      const next = name.nextSibling;
+      if (next && next.nodeType === 1 && next.classList.contains('p') && next.textContent.startsWith('(')) name.classList.add('call');
+    }
+  </script>
 </body>
 </html>
