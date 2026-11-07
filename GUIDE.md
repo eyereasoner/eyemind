@@ -481,6 +481,8 @@ npm test -- unit examples
 npm test -- -k skolem
 # npm test a deeper search by the generated tests
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties
+# npm test every conformance case through the command too, as CI does
+EYEMIND_CLI_ALL=1 npm test -- cli
 # regenerate example artifacts after an intended change
 node tools/update-examples.js
 # run the conformance suite of SPEC.md

@@ -65,6 +65,7 @@ npm test -- unit conformance      # only these sections
 npm test -- -k skolem             # only tests whose line contains "skolem"
 npm test -- playground            # the playground in a headless Chrome
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
+EYEMIND_CLI_ALL=1 npm test -- cli # every case through the command, as CI runs it
 node conformance/run.js 11-checking.js -v
 node tools/update-examples.js [NAME ...]
 git diff --check

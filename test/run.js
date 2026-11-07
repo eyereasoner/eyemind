@@ -2,7 +2,8 @@
 // Every test of eyemind in one run, one numbered line per test: npm test
 //
 //     npm test                       unit tests, examples, conformance in process,
-//                                    its command-line cases through the command,
+//                                    a selection of its cases through the command
+//                                    (EYEMIND_CLI_ALL=1: all of them, as in CI),
 //                                    and the playground in a headless Chrome
 //     npm test -- unit examples      only these sections
 //     npm test -- -k skolem          only tests whose line contains "skolem"
@@ -159,13 +160,34 @@ function runInProcess(reporter) {
   }
 }
 
-// Every conformance case also runs through the actual command, in a process
-// and directory of its own. Results retain case order; bounded concurrency
-// keeps process startup from dominating the suite.
+// The cases that run through the command. The conformance section has already
+// run every case in process through the same main(); a process adds only what
+// bin/eyemind.js does with its arguments, standard streams and exit code. So
+// by default these are every command-line case, the first case of each kind
+// (case file, exit code, standard input or not, standard error setting) and
+// every tenth case besides; EYEMIND_CLI_ALL=1, as CI sets it, runs them all.
+function throughCommand(cases) {
+  if (process.env.EYEMIND_CLI_ALL === '1') return cases;
+  const kinds = new Set();
+  return cases.filter((item, i) => {
+    const kind = [item.path, item.exit, item.stdin !== null, item.stderr].join('\0');
+    const first = !kinds.has(kind);
+    kinds.add(kind);
+    return item.path.endsWith('14-command-line.js') || first || i % 10 === 0;
+  });
+}
+
+// Cases run through the actual command, each in a process and directory of
+// its own. Results retain case order; bounded concurrency keeps process
+// startup from dominating the suite.
 async function runThroughCommandLine(reporter) {
   const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
-  const cases = casesFor(reporter);
+  const all = casesFor(reporter);
+  const cases = throughCommand(all);
+  if (cases.length < all.length) {
+    reporter.note(`${cases.length} of ${all.length} cases, each kind of case and every tenth; EYEMIND_CLI_ALL=1 runs them all.`);
+  }
   const outcomes = new Array(cases.length);
   // Starting Node dominates each case; a compile cache shared by the cases
   // spares each process compiling eyemind's modules again.

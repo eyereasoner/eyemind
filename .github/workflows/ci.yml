@@ -26,6 +26,8 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       # Unit tests, the example corpus, the conformance suite in process and
-      # its command-line cases through the command, and the playground in the
+      # all its cases through the command, and the playground in the
       # runner's Chrome (skipped on a Node.js without WebSocket).
       - run: npm test
+        env:
+          EYEMIND_CLI_ALL: '1'
