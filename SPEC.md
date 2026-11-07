@@ -1510,7 +1510,9 @@ not closed, tables depend on themselves, a search leads to an error, or a
 negation's goal has a solution. Each wrong table or listing is reported once,
 for the first boundary resting on it. A boundary whose certificate is
 missing, incomplete or not applicable under item 5, or a collection whose
-list does not agree, is not settled. A boundary that is not settled is
+list does not agree, is not settled. A listing's facts are examined in
+order, and the first that is not ground, such as a pattern a source
+inspection derived, leaves the boundary not settled rather than failing it. A boundary that is not settled is
 trusted, including one that fails C9; C6 confronts each boundary C9 neither
 settled nor refuted with the evidence (Section 11.7).
 
@@ -1661,10 +1663,13 @@ from closing even when `once` itself terminates. C10 then cannot be
 established; a search-prefix certificate is not defined here. A reasoner
 MUST attempt call-fidelity certification for every generated proof and check
 the resulting proof before returning it. Unresolved evidence remains an
-obligation. The implementation bounds this auxiliary production per question
-by the smaller of `max_inferences` and 50,000 calls plus answers, and by
-8,388,608 UTF-16 code units of answer text. Exceeding either bound leaves call
-fidelity unproved; it does not change the run's answers.
+obligation. A reasoner MAY bound this auxiliary production; exceeding its
+bound leaves call fidelity unproved, and it MUST NOT change the run's
+answers. The bounds are not part of conformance, so two conforming reasoners
+may differ in which claims of a generated proof carry call-fidelity
+obligations. (eyemind bounds it per question by the smaller of
+`max_inferences` and 50,000 calls plus answers, and by 8,388,608 UTF-16 code
+units of answer text.)
 
 Call tables and their supporting listings consulted for C10 serve the claims
 for C7, and their listed facts are reachable through that evidence. C10's
