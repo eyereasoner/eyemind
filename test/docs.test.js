@@ -107,6 +107,25 @@ export const tests = {
     for (const [, anchor] of guide.matchAll(/\]\(#([^)]+)\)/g)) assert.ok(anchors.has(anchor), `#${anchor} names no heading`);
   },
 
+  'the specification links every section it mentions, and every link within it has a heading'() {
+    const spec = document('SPEC.md');
+    const headings = [...spec.matchAll(/^(#{2,3}) (.+)$/gm)].filter((match) => match[2] !== 'Table of Contents');
+    const contents = spec.split('## Table of Contents\n')[1].split(/\n---\n/)[0];
+    const listed = [...contents.matchAll(/^( *)- \[(.+)\]\(#([^)]+)\)$/gm)];
+    assert.deepEqual(
+      listed.map(([, indent, title, anchor]) => [indent.length / 2 + 2, title, anchor]),
+      headings.map(([, hashes, title]) => [hashes.length, title, slug(title)]),
+    );
+    const anchors = new Set([...spec.matchAll(/^#{1,6} (.+)$/gm)].map((match) => slug(match[1])));
+    for (const [, anchor] of spec.matchAll(/\]\(#([^)]+)\)/g)) assert.ok(anchors.has(anchor), `#${anchor} names no heading`);
+    // Prose outside headings, code blocks and code spans: a section or an
+    // appendix it names is a link, written [Section 9.1](#...) or as
+    // Sections [9.2](#...) and [9.4](#...).
+    const prose = spec.split(/\n---\n/).slice(1).join('\n').replace(/^```[\s\S]*?^```$/gm, '').replace(/^#{1,6} .*$/gm, '')
+      .replace(/``[\s\S]*?``|`[^`]*`/g, '').replace(/\[[^\]]*\]\(#[^)]+\)/g, '');
+    assert.doesNotMatch(prose, /\bSections?\s+\d|\bAppendix [A-Z]\b/);
+  },
+
   'the guide report is the socrates report'() {
     const [report] = blocks('GUIDE.md', '## Proofs, and what checking one means');
     assert.equal(report, document('examples/check/socrates.js'));
