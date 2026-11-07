@@ -58,7 +58,7 @@ premise:
 
 ```js
 implies(type(X, 'Cat'), implies(type(Y, 'Dog'), t('test', 'is', 'true'))) // rule 3
-implies([type(X, 'Cat'), type(Y, 'Dog')], t('test', 'is', 'true'))      // rule 4
+implies([type(X, 'Cat'), type(Y, 'Dog')], t('test', 'is', 'true'))        // rule 4
 ```
 
 When the outer premise succeeds for Minka, rule 4 gets an instance with that

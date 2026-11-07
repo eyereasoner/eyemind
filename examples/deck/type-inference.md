@@ -43,8 +43,8 @@ types, not general type inference: the rules check that every use agrees.
 ## What we tell eyemind: the typing rules
 
 ```js
-fact(lookup(Name, [[Name, Type], ..._], Type))                                   // clause 7
-implied_by(lookup(Name, [[Other, _], ...Rest], Type), [not_identical(Name, Other), lookup(Name, Rest, Type)])   // 8
+fact(lookup(Name, [[Name, Type], ..._], Type))                                                                // clause 7
+implied_by(lookup(Name, [[Other, _], ...Rest], Type), [not_identical(Name, Other), lookup(Name, Rest, Type)]) // 8
 
 fact(type_expr(_, int_lit(_), 'int'))                                            // 9
 fact(type_expr(_, bool_lit(_), 'bool'))                                          // 10

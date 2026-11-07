@@ -60,12 +60,12 @@ node bin/eyemind.js examples/socrates.js
 node bin/eyemind.js --proof examples/socrates.js > /tmp/proof.js
 node bin/eyemind.js --check-proof /tmp/proof.js examples/socrates.js
 node bin/eyemind.js --unused examples/graphs.js
-npm test                          # unit, examples, conformance, command line, playground
-npm test -- unit conformance      # only these sections
-npm test -- -k skolem             # only tests whose line contains "skolem"
-npm test -- playground            # the playground in a headless Chrome
+npm test                                              # unit, examples, conformance, command line, playground
+npm test -- unit conformance                          # only these sections
+npm test -- -k skolem                                 # only tests whose line contains "skolem"
+npm test -- playground                                # the playground in a headless Chrome
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
-EYEMIND_CLI_ALL=1 npm test -- cli # every case through the command, as CI runs it
+EYEMIND_CLI_ALL=1 npm test -- cli                     # every case through the command, as CI runs it
 node conformance/run.js 11-checking.js -v
 node tools/update-examples.js [NAME ...]
 git diff --check
@@ -107,7 +107,8 @@ very large proofs; redirect them to a file and inspect focused parts.
 ## Implementation and verification
 
 Match the surrounding JavaScript: its naming, comment density, and comments
-that say why. Prefer small, direct changes over new machinery, add no
+that say why. Align the inline comments of consecutive lines in one column,
+in code and in documentation code blocks alike. Prefer small, direct changes over new machinery, add no
 dependencies, and fix the code that produces a wrong result rather than
 patching its output.
 

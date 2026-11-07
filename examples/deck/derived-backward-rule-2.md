@@ -76,9 +76,9 @@ numbered 4 and 5 after the three stated rules:
 implies('true', [
   implied_by(type('Socrates', 'Human'), 'true'),
   implied_by(subclass_of('Human', 'Mortal'), 'true'),
-])                                                                    // rule 1
-implied_by(type('Socrates', 'Human'), ['true', 'true'])                  // rule 4
-implied_by(subclass_of('Human', 'Mortal'), ['true', 'true'])             // rule 5
+])                                                           // rule 1
+implied_by(type('Socrates', 'Human'), ['true', 'true'])      // rule 4
+implied_by(subclass_of('Human', 'Mortal'), ['true', 'true']) // rule 5
 ```
 
 The generator succeeds unconditionally and derives both rule instances.

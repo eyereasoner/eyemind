@@ -326,7 +326,7 @@ The basic statement forms are:
 of `fact`, `query` and `contradiction` are also defined:
 
 ```js
-fact(p('a'), p('b'))       // Two facts: fact(p('a')); fact(p('b')).
+fact(p('a'), p('b'))      // Two facts: fact(p('a')); fact(p('b')).
 query(p(X), q(X))         // One query: query([p(X), q(X)]).
 contradiction(p(X), q(X)) // One conjunction that triggers a contradiction.
 ```
@@ -405,8 +405,8 @@ It also applies to a forward head, where the conjunction means several
 conclusions. Elsewhere an array denotes list data. For example:
 
 ```js
-query([p(X), q(X)])       // Conjunction of two goals.
-query(p([X, Y]))          // One goal with a list argument.
+query([p(X), q(X)])         // Conjunction of two goals.
+query(p([X, Y]))            // One goal with a list argument.
 implies(p(X), [q(X), r(X)]) // Two heads.
 ```
 

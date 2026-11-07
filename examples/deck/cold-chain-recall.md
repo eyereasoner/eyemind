@@ -49,19 +49,19 @@ Message 41 (an old 12°C reading of batch B) falls before the checkpoint.
 
 ```js
 implies([observation(Id, Sample, Batch, Sequence, Sensor, Temperature), checkpoint(Committed), gt(Sequence, Committed)],
-  current_reading(Id, Sample, Batch, Sensor, Temperature))                                  // 12
+  current_reading(Id, Sample, Batch, Sensor, Temperature))                                                                   // 12
 implies([
   current_reading(_, Sample, Batch, _, Low), current_reading(_, Sample, Batch, _, High),
   temperature_limit(Limit), le(Low, Limit), gt(High, Limit),
-], conflicting_sample(Sample, Batch))                                                       // 13
+], conflicting_sample(Sample, Batch))                                                                                        // 13
 implies([
   current_reading(Id, Sample, Batch, Sensor, _), current_reading(_, Sample, Batch, OtherSensor, _),
   sensor_priority(Sensor, Priority), sensor_priority(OtherSensor, OtherPriority), gt(OtherPriority, Priority),
-], superseded(Id))                                                                          // 14
-implies([current_reading(Id, _, Batch, _, Temperature), not(superseded(Id))], selected_reading(Id, Batch, Temperature))   // 15
-implies([selected_reading(Id, Batch, Temperature), temperature_limit(Limit), gt(Temperature, Limit)], quarantine(Batch, Id))   // 16
-implies([quarantine(Batch, _), destination(Batch, Site)], notify(Site, Batch))              // 17
-implies(quarantine(Batch, Evidence), inspection_task(Batch, Evidence, Task))                // 18
+], superseded(Id))                                                                                                           // 14
+implies([current_reading(Id, _, Batch, _, Temperature), not(superseded(Id))], selected_reading(Id, Batch, Temperature))      // 15
+implies([selected_reading(Id, Batch, Temperature), temperature_limit(Limit), gt(Temperature, Limit)], quarantine(Batch, Id)) // 16
+implies([quarantine(Batch, _), destination(Batch, Site)], notify(Site, Batch))                                               // 17
+implies(quarantine(Batch, Evidence), inspection_task(Batch, Evidence, Task))                                                 // 18
 ```
 
 - `implies(premise, conclusion)` is a **forward rule**: whenever everything

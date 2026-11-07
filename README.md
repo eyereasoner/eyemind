@@ -9,7 +9,7 @@ draws conclusions, and every conclusion can come with a proof that a separate
 checker verifies against your program. It runs as a command-line program, a
 JavaScript library, and a browser application, with no dependencies.
 
-[Guide](https://eyereasoner.github.io/eyemind/GUIDE) · [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
+[Guide](https://eyereasoner.github.io/eyemind/GUIDE) · [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
 The guide shows how to run programs, write rules, check proofs, use the
 library and develop eyemind; the playground runs programs in your browser;

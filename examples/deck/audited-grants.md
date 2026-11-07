@@ -433,9 +433,9 @@ and checked.
 ## Try it
 
 ```sh
-eyemind examples/audited-grants.js            # the audit
-eyemind --proof examples/audited-grants.js    # the audit, with its own proof
-eyemind --goal 'obligation(K, S, G)' examples/audited-grants.js   # what the policy's proof took on trust
+eyemind examples/audited-grants.js                              # the audit
+eyemind --proof examples/audited-grants.js                      # the audit, with its own proof
+eyemind --goal 'obligation(K, S, G)' examples/audited-grants.js # what the policy's proof took on trust
 ```
 
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=audited-grants).

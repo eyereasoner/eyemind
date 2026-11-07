@@ -1,5 +1,5 @@
 // Runnable documentation stays tied to what eyemind does.
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { checkReport, loadText, run } from '../src/index.js';
 import { loadCases, parseCases } from '../conformance/run.js';
@@ -32,8 +32,37 @@ export const tests = {
       for (const [, target] of document(path).matchAll(/\]\(([^)#][^)]*)\)/g)) {
         assert.doesNotMatch(target, /^(?!https?:)(?:.*\/)?(?:SPEC|GUIDE)(?:\.md)?(?:#|$)|^(?!https?:).*\bdeck\//,
           `${path}: ${target} should be a https://eyereasoner.github.io/eyemind/ link`);
-        assert.doesNotMatch(target, /^https:\/\/github\.com\/eyereasoner\/eyemind\/blob\/main\/(?:SPEC|GUIDE)\.md/, `${path}: ${target}`);
+        assert.doesNotMatch(target, /^https:\/\/github\.com\/eyereasoner\/eyemind\/(?:blob|tree)\/main\/(?:SPEC\.md|GUIDE\.md|conformance\/?$)/, `${path}: ${target}`);
       }
+    }
+  },
+
+  'the site pages link within the site and leave going back to the navigation'() {
+    for (const path of ['playground/index.html', 'playground/conformance.html']) {
+      const page = document(path).replace(/<nav\b[\s\S]*?<\/nav>/, '');
+      assert.doesNotMatch(page, />\s*Back to\b/i, path);
+      assert.doesNotMatch(page, /href="https:\/\/github\.com\/eyereasoner\/eyemind\/tree\/main\/conformance/, path);
+    }
+    assert.match(document('playground/conformance.html'), /<a href="\.\.\/conformance\/">conformance suite<\/a>/);
+  },
+
+  'consecutive lines with inline comments align them in one column'() {
+    const sources = ['README.md', 'GUIDE.md', 'SPEC.md', 'AGENTS.md', 'conformance/README.md', 'examples/README.md',
+      ...['src', 'bin', 'tools', 'test', 'conformance'].flatMap((dir) => readdirSync(join(ROOT, dir))
+        .filter((name) => /\.m?js$/.test(name)).map((name) => `${dir}/${name}`))];
+    for (const path of sources) {
+      let run = [];
+      const check = () => {
+        if (new Set(run.map(([, column]) => column)).size > 1) assert.fail(`${path}:${run[0][0]}: inline comments are not aligned`);
+        run = [];
+      };
+      document(path).split('\n').forEach((line, index) => {
+        const match = /^(\s*\S.*?\S)( +)(#|\/\/) /.exec(line);
+        if (match && !/^\s*(#|\/\/)/.test(line) && !/:\/\/$/.test(match[1] + match[2] + match[3])) {
+          run.push([index + 1, match[1].length + match[2].length]);
+        } else check();
+      });
+      check();
     }
   },
 
