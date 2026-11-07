@@ -1,9 +1,9 @@
 /* The guide and specification pages, rendered by Jekyll through
-   _layouts/default.html. The masthead matches the playground's. */
+   _layouts/default.html. The masthead matches the playground's; the
+   documents are on white, as on github.com. */
 :root {
   color-scheme: light;
-  --bg: #f5f5f7;
-  --panel: #fff;
+  --bg: #fff;
   --line: #d1d5db;
   --text: #111827;
   --muted: #6b7280;
@@ -70,64 +70,140 @@ a {
 .site-nav [aria-current="page"] {
   text-decoration-thickness: 2px;
 }
+/* The documents themselves follow GitHub's rendering of Markdown, so a page
+   reads as the file does on github.com: its type, inline code, code blocks,
+   tables and syntax colors. */
 .documentation article {
   max-width: 900px;
   margin: 48px auto;
-  line-height: 1.8;
+  color: #1f2328;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-wrap: break-word;
 }
-.documentation h2 {
-  margin: 44px 0 16px;
-  font-size: 25px;
-  line-height: 1.3;
+.documentation article > :first-child {
+  margin-top: 0;
+}
+.documentation article :where(p, ul, ol, pre, table, blockquote, .highlighter-rouge) {
+  margin: 0 0 16px;
+}
+.documentation article :is(h2, h3, h4) {
+  margin: 24px 0 16px;
+  font-weight: 600;
+  line-height: 1.25;
   scroll-margin-top: 20px;
 }
-.documentation h3 {
-  margin-top: 30px;
-  font-size: 20px;
-  scroll-margin-top: 20px;
+.documentation article h2 {
+  padding-bottom: .3em;
+  border-bottom: 1px solid #d1d9e0b3;
+  font-size: 1.5em;
+}
+.documentation article h3 {
+  font-size: 1.25em;
+}
+.documentation article h4 {
+  font-size: 1em;
 }
 .documentation article a {
-  color: var(--accent);
+  color: #0969da;
+  text-decoration: none;
+}
+.documentation article a:hover {
+  text-decoration: underline;
 }
 .documentation article img {
   max-width: 100%;
 }
-.documentation pre {
+.documentation article :is(ul, ol) {
+  padding-left: 2em;
+}
+.documentation article li + li {
+  margin-top: .25em;
+}
+.documentation article li > :is(ul, ol) {
+  margin: 0;
+}
+.documentation article li > p {
+  margin-top: 16px;
+}
+.documentation article hr {
+  height: .25em;
+  margin: 24px 0;
+  padding: 0;
+  border: 0;
+  background: #d1d9e0;
+}
+.documentation article blockquote {
+  padding: 0 1em;
+  border-left: .25em solid #d1d9e0;
+  color: #59636e;
+}
+.documentation article code {
+  margin: 0;
+  padding: .2em .4em;
+  border-radius: 6px;
+  background: #818b981f;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 85%;
+  white-space: break-spaces;
+}
+.documentation article pre {
   overflow: auto;
-  margin: 22px 0;
-  padding: 17px 20px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--panel);
+  padding: 16px;
+  border-radius: 6px;
+  background: #f6f8fa;
+  color: #1f2328;
+  font-size: 85%;
+  line-height: 1.45;
+  word-wrap: normal;
+}
+.documentation article pre code {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 100%;
   white-space: pre;
 }
-.documentation code {
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-  font-size: .88em;
+.documentation article .highlight pre {
+  margin: 0;
 }
-.documentation pre code {
-  font-size: inherit;
-}
-.documentation table {
+.documentation article table {
   display: block;
+  width: max-content;
   max-width: 100%;
-  overflow-x: auto;
-  margin: 22px 0;
+  overflow: auto;
+  border-spacing: 0;
   border-collapse: collapse;
-  font-size: 14px;
 }
-.documentation th, .documentation td {
-  padding: 10px 14px;
-  border: 1px solid var(--line);
+.documentation article :is(th, td) {
+  padding: 6px 13px;
+  border: 1px solid #d1d9e0;
   text-align: left;
   vertical-align: top;
 }
-.documentation th {
-  background: var(--panel);
+.documentation article th {
+  font-weight: 600;
 }
-.documentation li + li {
-  margin-top: 7px;
+.documentation article tr {
+  border-top: 1px solid #d1d9e0b3;
+  background: #fff;
 }
+.documentation article tr:nth-child(2n) {
+  background: #f6f8fa;
+}
+/* GitHub's light syntax colors, on the classes the Rouge highlighter of
+   GitHub Pages gives each token. A name followed by "(" is a call, which
+   the layout marks, since Rouge does not tell it from a variable. */
+.highlight :is(.c, .c1, .cm, .cs, .cp, .cpf) { color: #59636e; }
+.highlight :is(.k, .kd, .kn, .kr, .kv, .o, .ow) { color: #cf222e; }
+.highlight :is(.s, .s1, .s2, .sb, .sc, .sd, .se, .sh, .si, .sx, .sr, .ss, .dl) { color: #0a3069; }
+.highlight :is(.m, .mi, .mf, .mh, .mo, .mb, .il, .kc, .kt, .nb, .bp, .no, .nt, .nl) { color: #0550ae; }
+.language-sh .highlight .nt { color: inherit; }
+.highlight :is(.nf, .fm, .nx.call) { color: #6639ba; }
+.highlight :is(.gd) { color: #82071e; background: #ffebe9; }
+.highlight :is(.gi) { color: #116329; background: #dafbe1; }
+.highlight .err { color: inherit; background: none; }
 footer {
   display: flex;
   justify-content: space-between;
@@ -157,10 +233,6 @@ footer {
   }
   .documentation article {
     margin: 32px 0;
-    font-size: 15px;
-  }
-  .documentation h2 {
-    font-size: 23px;
   }
   footer {
     flex-direction: column;
