@@ -7,6 +7,8 @@
 //                                    and the playground in a headless Chrome
 //     npm test -- unit examples      only these sections
 //     npm test -- -k skolem          only tests whose line contains "skolem"
+//     EYEMIND_TEST_JOBS=1 npm test   unit and example tests in this process,
+//                                    not in worker processes (default 4)
 //
 // Sections: unit, examples, conformance, cli, playground. The playground
 // section needs Chrome (CHROME names it when it is not on the PATH); without
@@ -14,7 +16,7 @@
 // number, what it tests and how long it took; each section and the whole run
 // end with a total. The exit code is 1 when a test failed.
 import { spawn } from 'node:child_process';
-import { readdirSync } from 'node:fs';
+import { readdirSync, statSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -50,16 +52,17 @@ class Reporter {
   }
 
   // The heading waits for the section's first test, so a section -k leaves
-  // empty does not show.
-  section(name) {
+  // empty does not show. Sections run together in workers pass the times
+  // they started and ended.
+  section(name, started = performance.now()) {
     this.heading = name;
-    this.sectionStart = [performance.now(), this.passed, this.total];
+    this.sectionStart = [started, this.passed, this.total];
   }
 
-  endSection(name) {
+  endSection(name, ended = performance.now()) {
     const [started, passed, total] = this.sectionStart;
     if (this.total === total) return;
-    this.summary(this.passed - passed, this.total - total, COUNTED[name], performance.now() - started);
+    this.summary(this.passed - passed, this.total - total, COUNTED[name], ended - started);
   }
 
   summary(passed, total, what, ms) {
@@ -128,18 +131,121 @@ function problemOf(error) {
   return `${error && error.stack ? error.stack : String(error)}\n`;
 }
 
+async function runOne(fn) {
+  const started = performance.now();
+  let problem = null;
+  try {
+    await fn();
+  } catch (error) {
+    problem = problemOf(error);
+  }
+  return [performance.now() - started, problem];
+}
+
 async function runTests(reporter, tests) {
   for (const [, label, fn] of tests) {
-    if (!reporter.wanted(label)) continue;
-    const started = performance.now();
-    let problem = null;
-    try {
-      await fn();
-    } catch (error) {
-      problem = problemOf(error);
-    }
-    reporter.result(label, performance.now() - started, problem);
+    if (reporter.wanted(label)) reporter.result(label, ...await runOne(fn));
   }
+}
+
+// The unit and example tests in worker processes, a group at a time, with
+// their results printed in the order a single process would print them. A
+// group is every test of one example, in order, across modules, so that the
+// tests sharing an example's runs stay in one process and a large example
+// is never worked on in two at once; any other test is a group of its own.
+// The largest examples, by saved proof, start first so that they do not
+// finish last. EYEMIND_TEST_JOBS=1 runs everything in this process.
+const JOBS = Math.max(1, Number(process.env.EYEMIND_TEST_JOBS ?? Math.min(cpus().length || 1, 4)) || 1);
+const EXAMPLE = /(?:examples\/(?:check\/)?|^decks: )([\w-]+)(?:\.js| deck)/;
+
+function groupsOf(tests, indices) {
+  const groups = new Map();
+  for (const index of indices) {
+    const name = tests[index][1].match(EXAMPLE)?.[1] ?? null;
+    const id = name ?? `test ${index}`;
+    if (!groups.has(id)) groups.set(id, { indices: [], cost: 0 });
+    groups.get(id).indices.push(index);
+    if (name !== null && groups.get(id).cost === 0) {
+      try {
+        groups.get(id).cost = statSync(join(ROOT, 'examples', 'proof', `${name}.js`)).size;
+      } catch {
+        groups.get(id).cost = 1;
+      }
+    }
+  }
+  return [...groups.values()].sort((a, b) => b.cost - a.cost);
+}
+
+async function runPool(reporter, tests, names) {
+  const indices = names.flatMap((name) => tests.flatMap(([section, label], index) =>
+    section === name && reporter.wanted(label) ? [index] : []));
+  const groups = groupsOf(tests, indices);
+  const jobs = Math.min(JOBS, groups.length);
+  if (jobs <= 1) {
+    for (const name of names) {
+      reporter.section(name);
+      await runTests(reporter, tests.filter(([section]) => section === name));
+      reporter.endSection(name);
+    }
+    return;
+  }
+  const { fork } = await import('node:child_process');
+  const started = performance.now();
+  const results = new Map();
+  const finished = new Map();
+  let printed = 0;
+  let current = null;
+  // Print every result that follows those already printed, in order.
+  const flush = () => {
+    while (printed < indices.length && results.has(indices[printed])) {
+      const index = indices[printed++];
+      const [section, label] = tests[index];
+      if (section !== current) {
+        if (current !== null) reporter.endSection(current, finished.get(current));
+        reporter.section(section, started);
+        current = section;
+      }
+      reporter.result(label, ...results.get(index));
+    }
+  };
+  const done = (index, result) => {
+    results.set(index, result);
+    finished.set(tests[index][0], performance.now());
+    flush();
+  };
+  let next = 0;
+  const worker = () => new Promise((resolve) => {
+    const child = fork(fileURLToPath(import.meta.url), [], { env: { ...process.env, EYEMIND_TEST_WORKER: '1' } });
+    let group = null;
+    const send = () => {
+      group = next < groups.length ? groups[next++] : null;
+      if (group === null) child.disconnect();
+      else child.send(group.indices);
+    };
+    child.on('message', ([index, ms, problem]) => {
+      done(index, [ms, problem]);
+      if (group.indices.every((i) => results.has(i))) send();
+    });
+    // A worker that ends with tests of its group unrun fails them, so a
+    // crash, such as one the memory cap causes, cannot pass unnoticed.
+    child.on('exit', (code, signal) => {
+      for (const index of group?.indices ?? []) {
+        if (!results.has(index)) done(index, [0, `the test worker ended (${signal ?? `code ${code}`}) before this test finished\n`]);
+      }
+      resolve();
+    });
+    send();
+  });
+  await Promise.all(Array.from({ length: jobs }, worker));
+  if (current !== null) reporter.endSection(current, finished.get(current));
+}
+
+// A worker of runPool: it runs each group it is sent and reports each test.
+async function serveTests() {
+  const tests = await moduleTests();
+  process.on('message', async (indices) => {
+    for (const index of indices) process.send([index, ...await runOne(tests[index][2])]);
+  });
 }
 
 function casesFor(reporter) {
@@ -292,16 +398,18 @@ async function main(argv) {
   const reporter = new Reporter(pattern);
   console.log(paint('2', `eyemind ${VERSION} on Node.js ${process.versions.node}`));
   const tests = await moduleTests();
+  const pooled = ['unit', 'examples'].filter((section) => !sections.length || sections.includes(section));
+  if (pooled.length) await runPool(reporter, tests, pooled);
   for (const section of SECTIONS) {
-    if (sections.length && !sections.includes(section)) continue;
+    if ((sections.length && !sections.includes(section)) || pooled.includes(section)) continue;
     reporter.section(section);
     if (section === 'conformance') runInProcess(reporter);
     else if (section === 'cli') await runThroughCommandLine(reporter);
     else if (section === 'playground') await runPlayground(reporter);
-    else await runTests(reporter, tests.filter(([name]) => name === section));
     reporter.endSection(section);
   }
   return reporter.finish();
 }
 
-process.exitCode = await main(process.argv.slice(2));
+if (process.env.EYEMIND_TEST_WORKER === '1') await serveTests();
+else process.exitCode = await main(process.argv.slice(2));
