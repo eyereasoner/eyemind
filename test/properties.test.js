@@ -306,7 +306,9 @@ function conclusions(prog) {
 // conclusions must not change. An example with many such clauses, such as a
 // large graph of facts, has a seeded sample of them left out. Returns how many
 // clauses were left out.
-function leaveOutUncited(prog, limit = 40) {
+// Each clause left out rebuilds the whole program, so a program of very many
+// clauses, such as path-discovery's 45000 facts, leaves out fewer of them.
+function leaveOutUncited(prog, limit = Math.min(40, Math.max(10, Math.floor(200000 / prog.clauses.length)))) {
   const result = run(prog, { proof: true });
   const cited = new Set(result.clausesUsed);
   const consulted = new Set(result.clausesBehindBoundaries);

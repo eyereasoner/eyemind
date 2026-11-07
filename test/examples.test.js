@@ -1,6 +1,6 @@
 // The example corpus: every program reproduces its saved output, proof and
 // check report, its saved proof checks from disk, and a tampered one does not.
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { checkProof, checkReport, publicReport, readTerms, run, strict, write } from '../src/index.js';
 import { KINDS, artifactPath, certify, loadExample, readManifest, sourcePath } from '../tools/corpus.js';
@@ -11,6 +11,11 @@ export const section = 'examples';
 const MANIFEST = readManifest();
 const CHANGED = (kind) => `${kind} changed; review it, then run node tools/update-examples.js`;
 const read = (path) => readFileSync(path, 'utf8');
+// A saved proof this large is not reasoned over again for what the library
+// path already compares: the command line's prove-and-check repeats the
+// certified run of the check test, and a tampered copy repeats its check.
+const LARGE = 1_000_000;
+const large = (entry) => statSync(artifactPath('proof', entry)).size > LARGE;
 
 // Each example is three tests, so their times show where it spends them: its
 // output (loading and a plain run), its proof (a certified run, whose proof
@@ -59,7 +64,7 @@ function checkCheck(entry) {
     const derived = strict(proved.proofReport);
     assert.deepEqual(publicReport(strictly), publicReport(derived));
     assert.equal(checkReport(strictly), checkReport(derived));
-    assert.ok(!checkProof(program, `${saved}\nunjustified_example_claim()\n`).valid);
+    if (!large(entry)) assert.ok(!checkProof(program, `${saved}\nunjustified_example_claim()\n`).valid);
   } finally {
     // The last of the three: what they shared, a large proof among it, goes.
     states.delete(entry.name);
@@ -102,6 +107,7 @@ for (const entry of MANIFEST) {
     const answers = saved.split('\n// C1-C8:')[0];
     assert.deepEqual(readTerms(answers).map(([term]) => write(term)),
       readTerms(read(artifactPath('output', entry))).map(([term]) => write(term)));
+    if (large(entry)) return;
     const result = cli(['--prove-and-check', relative(ROOT, sourcePath(entry))]);
     assert.equal(result.code, entry.halt_code ?? 0, result.stderr);
     assert.equal(result.stdout, saved);

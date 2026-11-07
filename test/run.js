@@ -167,6 +167,10 @@ async function runThroughCommandLine(reporter) {
   const { tmpdir } = await import('node:os');
   const cases = casesFor(reporter);
   const outcomes = new Array(cases.length);
+  // Starting Node dominates each case; a compile cache shared by the cases
+  // spares each process compiling eyemind's modules again.
+  const cache = mkdtempSync(join(tmpdir(), 'eyemind-compile-cache-'));
+  const env = { ...process.env, NODE_COMPILE_CACHE: cache };
   let next = 0;
   const one = (item) => new Promise((resolve) => {
     const directory = mkdtempSync(join(tmpdir(), 'eyemind-cli-'));
@@ -175,7 +179,7 @@ async function runThroughCommandLine(reporter) {
       writeFileSync(join(directory, name), text);
     }
     const started = performance.now();
-    const child = spawn(process.execPath, [join(ROOT, 'bin', 'eyemind.js'), ...shellSplit(item.args)], { cwd: directory });
+    const child = spawn(process.execPath, [join(ROOT, 'bin', 'eyemind.js'), ...shellSplit(item.args)], { cwd: directory, env });
     const out = [];
     const err = [];
     child.stdout.on('data', (chunk) => out.push(chunk));
@@ -194,7 +198,11 @@ async function runThroughCommandLine(reporter) {
       outcomes[index] = await one(cases[index]);
     }
   };
-  await Promise.all(Array.from({ length: Math.min(cpus().length || 4, 8) }, worker));
+  try {
+    await Promise.all(Array.from({ length: Math.min(cpus().length || 4, 8) }, worker));
+  } finally {
+    rmSync(cache, { recursive: true, force: true });
+  }
   cases.forEach((item, i) => reporter.result(`${item.where} ${item.name}`, ...outcomes[i]));
 }
 
