@@ -281,16 +281,17 @@ migrates('batsy', 'true')
 moves_by('opus', 'walking')
 migrates('opus', 'false')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 59)
 condition('C2', 'well_founded', 'ok', 66)
 condition('C3', 'justification', 'ok', 66)
 condition('C4', 'coverage', 'ok', 110)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 7)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 116)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 7)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(66)
@@ -317,14 +318,14 @@ and counts what it looked at:
   each backed by a step.
 - **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
   recomputing.
-- **C6 boundary consistency (7)**: the 7 "not found" steps were each
-  confronted with the proof's own evidence, and none is contradicted: for
-  example, no step in the proof concludes `flies('falco', 'false')`. The
-  search certificate settles all seven.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled all seven absences.
 - **C7 relevance (116)**: the 50 claims are the program's conclusions, and
   all 66 steps serve at least one of them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (7)**: the 7 "not found" steps were each settled by
+  the search certificate, as explained below.
 
 The seven absences the decisions lean on are, in plain words: nothing says
 Falco or Batsy cannot fly, nothing says Opus can fly, nothing says Tweety,
@@ -356,7 +357,7 @@ eyemind --proof examples/paraconsistent-animals.js    # answers with their proof
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=paraconsistent-animals).
 Delete the line `fact(observed('mythic', 'flies', 'false'))` and run again:
 the conflict disappears, and you get `flies_safely('mythic', 'true')` and
-`moves_by('mythic', 'flying')`. C6 then counts eight absences
+`moves_by('mythic', 'flying')`. C9 then counts eight absences
 instead of seven, all settled: the new one is `not(flies('mythic',
 'false'))`, the absence that Mythic's decision now relies on.
 

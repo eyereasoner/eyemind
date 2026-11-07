@@ -187,8 +187,8 @@ against the program. This is the complete report:
 found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))
 witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])]))
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 5)
 condition('C2', 'well_founded', 'ok', 5)
 condition('C3', 'justification', 'ok', 5)
@@ -197,6 +197,7 @@ condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 7)
 condition('C8', 'witness_integrity', 'ok', 1)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(5)
@@ -229,6 +230,8 @@ at:
   (step 5) uses exactly the name that firing must produce. The checker
   rebuilt `skolem(6, 'W', [the graph])` itself from rule 6 and the graph, and
   it matches; a proof could not slip in some other name there.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics: 5 steps, all 5 verified against the program, none taken on
 trust, 2 claims. The verdict is **checked**: both conclusions follow from the

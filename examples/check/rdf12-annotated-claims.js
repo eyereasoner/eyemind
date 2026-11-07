@@ -9,8 +9,8 @@ result_rdf(iri('https://example.org/open'), iri('https://example.org/rank'), lit
 result_rdf(iri('https://example.org/open'), iri('https://example.org/assertedBy'), iri('https://example.org/anonymousPost'), 'default_graph')
 result_rdf(iri('https://example.org/open'), iri('https://example.org/score'), literal('700', datatype('http://www.w3.org/2001/XMLSchema#integer')), 'default_graph')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 36)
 condition('C2', 'well_founded', 'ok', 60)
 condition('C3', 'justification', 'ok', 60)
@@ -19,6 +19,7 @@ condition('C5', 're_decision', 'ok', 22)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 69)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Obligations: absence and collection completeness are taken on trust.
 obligation('collected', 'theory_scoped', findall(A, higher(9310, A), []))

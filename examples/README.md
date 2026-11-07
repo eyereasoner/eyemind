@@ -19,7 +19,7 @@ eyemind --check-proof examples/proof/socrates.js examples/socrates.js
 ```
 
 Each program has a matching conclusion file in `output/`, a certificate in
-`proof/`, and a C1-C8 verification report in `check/`, each written as JavaScript
+`proof/`, and a C1-C9 verification report in `check/`, each written as JavaScript
 expressions, one per line. The names match the source: `lists.js` has
 `output/lists.js`, `proof/lists.js` and `check/lists.js`.
 
@@ -144,11 +144,14 @@ after its steps: `searched(Call, Answers)` records every answer of one call
 the search behind a negation or collection made, and `derived(Pattern, Facts)`
 every fact the forward rules derived for one relation it consulted. The
 checker uses it to settle `absent` and `collected` steps without searching
-itself; calls over relations only facts define need no table, since the
-checker scans those facts. A collection over facts that forward rules derived
+itself (C9, search closure); calls over relations only facts define, and
+ground primitives, need no table, since the checker scans those facts or
+recomputes the primitive. A collection over facts that forward rules derived
 stays an obligation in the check report, because the order in which derived
-facts arose cannot be checked this way; `--strict-proof` rejects obligations.
-Every check file includes `condition(...)` facts for C1-C8, verification counts and
+facts arose cannot be checked this way; C6 (boundary consistency) confronts
+such obligations with the evidence at hand, and `--strict-proof` rejects
+them.
+Every check file includes `condition(...)` facts for C1-C9, verification counts and
 a `verdict(...)` fact. Reports with failures include `failure(...)`; reports with
 trusted boundaries include `obligation(...)`. Add `--json` to the check command
 for JSON output instead.

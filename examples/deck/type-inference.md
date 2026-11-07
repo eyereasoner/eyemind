@@ -265,8 +265,8 @@ type_answer('first_of_pair', 'bool')
 type_reason('compose', 'application unifies f with t1 -> t2 and g with t0 -> t1')
 type_reason('apply_id', 'the identity function\'s parameter type is unified with int')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 49)
 condition('C2', 'well_founded', 'ok', 53)
 condition('C3', 'justification', 'ok', 53)
@@ -275,6 +275,7 @@ condition('C5', 're_decision', 'ok', 4)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 61)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(53)
@@ -310,6 +311,8 @@ at:
   serve them. There is no padding.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics repeat this: 53 steps, 49 verified against the program, 4
 recomputed, none taken on trust. The verdict is **checked**: all eight

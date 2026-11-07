@@ -201,8 +201,8 @@ against the program. This is the complete report:
 // Checked answers: these follow from the input program.
 result('example', 12)
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 19)
 condition('C2', 'well_founded', 'ok', 22)
 condition('C3', 'justification', 'ok', 22)
@@ -211,6 +211,7 @@ condition('C5', 're_decision', 'ok', 3)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 23)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(22)
@@ -244,6 +245,8 @@ at:
   serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics repeat this: 22 steps, 19 verified against the program and 3
 recomputed, none taken on trust, for 1 claim. The verdict is **checked**: the

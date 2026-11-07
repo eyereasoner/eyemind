@@ -297,16 +297,17 @@ notify('north_depot', 'batch_a')
 notify('station_shop', 'batch_a')
 inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a']))
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 20)
 condition('C2', 'well_founded', 'ok', 28)
 condition('C3', 'justification', 'ok', 28)
 condition('C4', 'coverage', 'ok', 38)
 condition('C5', 're_decision', 'ok', 6)
-condition('C6', 'boundary_consistency', 'ok', 2)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 35)
 condition('C8', 'witness_integrity', 'ok', 1)
+condition('C9', 'search_closure', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(28)
@@ -334,16 +335,17 @@ at:
 - **C5 re-decision (6)**: the 6 comparisons (43 > 42, 44 > 42, 72 ≤ 80,
   94 > 80, 45 > 42 and 2 > 1) were calculated again by the checker, and
   they hold.
-- **C6 boundary consistency (2)**: the 2 absences, "`logger_a` is not
-  superseded" and "`logger_b` is not superseded", were confronted with the
-  evidence. The proof does show one superseded reading, the handheld one,
-  which refutes neither, and the search certificate settles both.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled both absences.
 - **C7 relevance (35)**: the 7 claims answer the queries, and all 28 steps
   serve them. There is no padding.
 - **C8 witness integrity (1)**: the 1 step that invents a name (step 24)
   was checked: the checker recomputes the Skolem term from rule 18, the
   variable `Task` and the values batch A and `logger_a`, and confirms that
   the step uses exactly that name.
+- **C9 search closure (2)**: the 2 absences, "`logger_a` is not
+  superseded" and "`logger_b` is not superseded", were settled by the
+  search certificate, as explained below.
 
 Neither absence is taken on trust. The checker expands
 `superseded('logger_a')` one level against the program, as a search would,

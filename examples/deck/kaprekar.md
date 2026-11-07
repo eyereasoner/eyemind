@@ -191,16 +191,17 @@ only confirms each step against the program. This is the complete report:
 // Checked answers: these follow from the input program.
 kaprekar_verified(6174, 7)
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 1)
 condition('C2', 'well_founded', 'ok', 2)
 condition('C3', 'justification', 'ok', 2)
 condition('C4', 'coverage', 'ok', 2)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 1)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 3)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 1)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(2)
@@ -227,11 +228,14 @@ at:
   are each backed by a step.
 - **C5 re-decision (0)**: no built-in calculation appears in the proof, so
   nothing needed recomputing.
-- **C6 boundary consistency (1)**: the 1 absence was confronted with the
-  evidence, and the search certificate settles it: no counterexample.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled the only absence.
 - **C7 relevance (3)**: the 1 claim answers the query, and both steps
   serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
+- **C9 search closure (1)**: the 1 absence was settled by the search
+  certificate, `searched('counterexample', [])` and the lines that answer
+  its inner calls: no counterexample.
 
 There is no obligation line: *"there is no counterexample"* was checked
 against the certificate, and it is true relative to this program, that is,

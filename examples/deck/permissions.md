@@ -158,16 +158,17 @@ allowed('alice', 'read')
 allowed('alice', 'write')
 allowed('bob', 'read')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 11)
 condition('C2', 'well_founded', 'ok', 13)
 condition('C3', 'justification', 'ok', 13)
 condition('C4', 'coverage', 'ok', 15)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 2)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 16)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(13)
@@ -195,13 +196,14 @@ at:
   each backed by a step.
 - **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
   recomputing.
-- **C6 boundary consistency (2)**: the 2 absences were confronted with the
-  evidence. Nothing in the proof shows Alice or Bob suspended, so neither is
-  refuted.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled both absences.
 - **C7 relevance (16)**: the 3 answers each answer the question, and all 13
   steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (2)**: the 2 absences were settled by scanning the
+  `suspended` facts: none names Alice or Bob.
 
 Neither absence is taken on trust. Because no rule concludes `suspended`,
 the checker settles "Alice is not suspended" and "Bob is not suspended" by

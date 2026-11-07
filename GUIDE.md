@@ -311,7 +311,7 @@ the strata.
 
 ## Proofs, and what checking one means
 
-A proof holds the claims, the source clauses it cites, and one `step(...)` record per inference, each part introduced by a comment that says what it holds. The checker establishes eight conditions:
+A proof holds the claims, the source clauses it cites, and one `step(...)` record per inference, each part introduced by a comment that says what it holds. The checker establishes nine conditions:
 
 | | Condition | What it establishes |
 | --- | --- | --- |
@@ -320,9 +320,10 @@ A proof holds the claims, the source clauses it cites, and one `step(...)` recor
 | **C3** | justification | Every step's justification is known, well-formed and unique |
 | **C4** | coverage | Every claim and every premise is accounted for |
 | **C5** | re-decision | Built-in calculations are recomputed rather than trusted; a float from `exp`, `log`, trigonometry or `pow` may be up to 4 units in the last place off, since math libraries differ |
-| **C6** | boundary consistency | Every absence and collection is settled by the proof's search certificate, or else is an obligation the evidence at hand does not contradict |
+| **C6** | boundary consistency | No absence or collection the search certificate leaves unsettled is contradicted by the evidence at hand |
 | **C7** | relevance | Every claim answers the question asked, and every step serves a claim |
 | **C8** | witness integrity | Every "something exists" conclusion uses the Skolem term of its own rule firing, not a value of the prover's choosing |
+| **C9** | search closure | Every absence and collection its search certificate settles holds: each table equals its call expanded one level, and each listing of derived facts is supported and closed |
 
 Two properties make this worth more than a log. **The checker follows the certificate:** it never calls the reasoner to fill a gap, so a missing step fails the check rather than being quietly re-derived. **The source is the authority:** the clauses a proof displays cannot override the program, so you cannot smuggle a rule into a proof, nor pad it with steps no claim needs. Every proof eyemind generates is checked before it is returned.
 
@@ -333,8 +334,8 @@ The report is a document too, so one program's evidence is material another prog
 type('socrates', 'mortal')
 type('socrates', 'human')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 3)
 condition('C2', 'well_founded', 'ok', 3)
 condition('C3', 'justification', 'ok', 3)
@@ -343,6 +344,7 @@ condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 5)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(3)
@@ -384,7 +386,7 @@ searched(nonpacifist('ada'), [])
 
 **Say what was taken on trust.** What a certificate cannot settle stays an obligation: a collection or `once` whose answers rest on derived facts, since the order facts were derived in cannot be checked this way, and a search that reaches rule templates or inspection. The report lists each as `obligation('absent', 'theory_scoped', Goal)` or `obligation('collected', ...)`, and the verdict is `checked_with_obligations`. `--strict-proof` rejects any proof that leans on one.
 
-**Refute them when the evidence allows.** An absence fails C6 when its own search finds a solution, or, without a certificate, when a fact of the program, a step of the proof or a recomputed primitive is a solution after all; a collection fails when such a solution is missing from its list.
+**Refute them when the evidence allows.** An absence fails C9 when its own search finds a solution. Without a settling certificate, it fails C6 when a fact of the program, a step of the proof or a recomputed primitive is a solution after all, and a collection fails C6 when such a solution is missing from its list.
 
 ## Checking the translation
 
@@ -409,7 +411,7 @@ A clause is listed when no conclusion's proof uses it. A negation or collection 
 
 ## Explore the examples
 
-The [example collection](https://eyereasoner.github.io/eyemind/examples/) is 94 complete programs, each with its conclusions, proof and C1–C8 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a card deck that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to practical planning (outage recovery, critical paths, battery dispatch), policy reasoning (research-portal, package-holiday), mathematical calculations (Bézout certificates, Pell equations, regression), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
+The [example collection](https://eyereasoner.github.io/eyemind/examples/) is 94 complete programs, each with its conclusions, proof and C1–C9 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a card deck that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to practical planning (outage recovery, critical paths, battery dispatch), policy reasoning (research-portal, package-holiday), mathematical calculations (Bézout certificates, Pell equations, regression), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
 
 ## Browser
 

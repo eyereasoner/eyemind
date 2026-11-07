@@ -1,4 +1,4 @@
-// Proof documents: rendering, and checking C1-C8 against the source program.
+// Proof documents: rendering, and checking C1-C9 against the source program.
 //
 // A proof document is JavaScript source, one expression per line: first the
 // claims, then clause(N, Display) for every source clause the proof cites,
@@ -300,7 +300,7 @@ export function checkRendered(program, checkable, goals = null, allowTrusted = t
 }
 
 // Settle each negation and collection that is well formed by its search
-// certificate (C6), before the steps are checked: a settled one is no
+// certificate (C9), before the steps are checked: a settled one is no
 // obligation.
 function settleBoundaries(program, steps, certificate, spellings) {
   const settler = new Settler(program, {
@@ -328,7 +328,7 @@ function check(program, claims, steps, certificate, goals, allowTrusted, fail, s
     }
   }
   const tally = checkSteps(program, steps, allowTrusted, fail, spellings, name, settlement.outcomes);
-  const confronted = checkBoundaries(program, steps, tally.boundaries, fail, settlement.outcomes, spellings);
+  const [confronted, closed] = checkBoundaries(program, steps, tally.boundaries, fail, settlement.outcomes, spellings);
   checkRelevance(program, claims, steps, goals || [], fail, spellings, settlement, certificate);
   checkWellFounded(steps, fail, spellings);
   let uses = 0;
@@ -343,6 +343,7 @@ function check(program, claims, steps, certificate, goals, allowTrusted, fail, s
     { id: 'C6', name: 'boundary_consistency', covered: confronted, failed: failed('C6') },
     { id: 'C7', name: 'relevance', covered: claims.length + steps.size, failed: failed('C7') },
     { id: 'C8', name: 'witness_integrity', covered: tally.witnessed, failed: failed('C8') },
+    { id: 'C9', name: 'search_closure', covered: closed, failed: failed('C9') },
   ];
   return {
     valid: !fail.items.length,
@@ -694,12 +695,13 @@ function checkWitnesses(clause, head, names, env) {
   return text(listFromItems(expected)) === text(firing);
 }
 
-// C6: a boundary its search certificate settles holds; one whose certificate
-// fails does not. Without a certificate a boundary cannot be proved, but
-// evidence at hand can refute it. An absence fails when a source fact, a step
-// of this certificate or a recomputed primitive is a solution; a collection
-// fails when such a solution is missing from its list. Returns how many
-// boundaries a certificate or the evidence could speak for.
+// C9 and C6. A boundary its search certificate settles holds, and one whose
+// certificate is wrong fails C9. Without a settling certificate a boundary
+// cannot be proved, but evidence at hand can refute it (C6). An absence fails
+// when a source fact, a step of this certificate or a recomputed primitive is
+// a solution; a collection fails when such a solution is missing from its
+// list. Returns how many boundaries the evidence could speak for, and how
+// many their certificates settled or refuted.
 function checkBoundaries(program, steps, boundaries, fail, outcomes, spellings) {
   const stepGoals = new Map();
   for (const step of steps.values()) {
@@ -711,6 +713,7 @@ function checkBoundaries(program, steps, boundaries, fail, outcomes, spellings) 
   }
   let serial = 0;
   let confronted = 0;
+  let closed = 0;
   const nextSerial = () => ++serial;
 
   // Each solution of a simple goal that the evidence shows, or null when the
@@ -746,8 +749,8 @@ function checkBoundaries(program, steps, boundaries, fail, outcomes, spellings) 
   for (const boundary of boundaries) {
     const outcome = outcomes.get(spellings.spell(boundary));
     if (outcome !== undefined && outcome.status !== 'unsettled') {
-      confronted++;
-      for (const [detail, term] of outcome.failures) fail.add('C6', detail, term);
+      closed++;
+      for (const [detail, term] of outcome.failures) fail.add('C9', detail, term);
       continue;
     }
     if (isTerm(boundary, 'not', 1)) {
@@ -786,7 +789,7 @@ function checkBoundaries(program, steps, boundaries, fail, outcomes, spellings) 
       }
     }
   }
-  return confronted;
+  return [confronted, closed];
 }
 
 // C7: the certificate answers the question that was asked and carries nothing
@@ -923,8 +926,8 @@ export function checkReport(report) {
     : report.trusted.length ? '// Answers checked subject to the obligations below.'
     : '// Checked answers: these follow from the input program.';
   const lines = [heading, ...report.answers, '',
-    '// C1-C8: resolution, acyclicity, justification, coverage,',
-    '// re-decision, boundary consistency, relevance and witness integrity.'];
+    '// C1-C9: resolution, acyclicity, justification, coverage, re-decision,',
+    '// boundary consistency, relevance, witness integrity and search closure.'];
   let previous = null;
   for (const fact of facts) {
     if (fact.name === 'failure' && previous !== 'failure') {

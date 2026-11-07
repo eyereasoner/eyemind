@@ -243,8 +243,8 @@ against the program. This is the complete report:
 control1('actuator1', 39.27346198678276)
 control1('actuator2', 26.08)
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 10)
 condition('C2', 'well_founded', 'ok', 24)
 condition('C3', 'justification', 'ok', 24)
@@ -253,6 +253,7 @@ condition('C5', 're_decision', 'ok', 14)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 26)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(24)
@@ -287,6 +288,8 @@ at:
 - **C7 relevance (26)**: the 2 claims answer the query, and all 24 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics repeat this: 24 steps, 10 verified against the program, 14
 recomputed, none taken on trust. The verdict is **checked**: both commands

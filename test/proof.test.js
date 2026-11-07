@@ -34,7 +34,7 @@ export const tests = {
     const document = run(source, { proof: true }).proof;
     const report = checkProof(source, document);
     assert.deepEqual(report.answers, ["q('a')"]);
-    assert.match(checkReport(report), /^\/\/ Checked answers:[^\n]*\nq\('a'\)\n\n\/\/ C1-C8:/);
+    assert.match(checkReport(report), /^\/\/ Checked answers:[^\n]*\nq\('a'\)\n\n\/\/ C1-C9:/);
     const failed = checkProof(source, document.replace("step(q('a')", "step(q('b')"));
     assert.match(checkReport(failed), /^\/\/ Unverified claims:[^\n]*\nq\('a'\)/);
     assert.deepEqual(failed.answers, ["q('a')"]);
@@ -185,15 +185,18 @@ export const tests = {
     assert.ok(!checkProof(source, bare, { allowTrusted: false }).valid);
   },
 
-  'absences and collections contradicted by evidence fail boundary consistency'() {
+  'contradicted absences fail search closure when searched, and boundary consistency on the evidence'() {
     const text = "fact(p('a'), p('b'))\nimplies([p(X), not(blocked(X))], out(X))\nimplies(findall(X, p(X), L), all_(L))\n";
     const source = program(text);
     const document = run(source, { proof: true }).proof;
     assert.ok(checkProof(source, document).valid);
-    invalid(document, 'C6', program(`${text}fact(blocked('a'))`));
-    invalid(document.replaceAll("['a', 'b']", "['a']"), 'C6', source);
-    invalid("'q'\nstep('q', clause(1), {}, [not(lt(1, 2))])\nstep(not(lt(1, 2)), 'absent', {}, [])", 'C6',
+    // Facts and primitives are searched where they stand: their search refutes.
+    invalid(document, 'C9', program(`${text}fact(blocked('a'))`));
+    invalid("'q'\nstep('q', clause(1), {}, [not(lt(1, 2))])\nstep(not(lt(1, 2)), 'absent', {}, [])", 'C9',
       program('implies(not(lt(1, 2)), q)'));
+    // Without a table to settle it, the evidence refutes.
+    invalid(document, 'C6', program(`${text}implied_by(blocked(X), banned(X))\nfact(blocked('a'))`));
+    invalid(document.replaceAll("['a', 'b']", "['a']"), 'C6', source);
   },
 
   'without a certificate, a boundary over a predicate with no fact or step is left undecided'() {
@@ -203,9 +206,12 @@ export const tests = {
     assert.deepEqual(c6(text), { id: 'C6', name: 'boundary_consistency', covered: 0, failed: 0 });
     // One blocked fact of another value is evidence: both absences are confronted.
     assert.deepEqual(c6(`${text}fact(blocked('c'))`), { id: 'C6', name: 'boundary_consistency', covered: 2, failed: 0 });
-    // A ground primitive is recomputed, which settles it.
-    assert.deepEqual(c6('fact(p(1))\nimplies([p(X), not(lt(X, 0))], ok(X))'),
-      { id: 'C6', name: 'boundary_consistency', covered: 1, failed: 0 });
+    // A ground primitive is recomputed, which settles it under C9 instead.
+    const primitiveCheck = run(program('fact(p(1))\nimplies([p(X), not(lt(X, 0))], ok(X))'), { proof: true }).proofReport;
+    assert.deepEqual(primitiveCheck.conditions.slice(5, 6).concat(primitiveCheck.conditions.slice(8)), [
+      { id: 'C6', name: 'boundary_consistency', covered: 0, failed: 0 },
+      { id: 'C9', name: 'search_closure', covered: 1, failed: 0 },
+    ]);
     // An undecided absence is still an obligation, and evidence still refutes.
     const document = withoutCertificate(run(program(text), { proof: true }).proof);
     assert.equal(checkProof(program(text), document).trusted.length, 2);
@@ -217,7 +223,7 @@ export const tests = {
     const document = run(program(text), { proof: true }).proof;
     assert.ok(document.includes("not(q('a', A))"));
     assert.ok(checkProof(program(text), document).valid);
-    invalid(document, 'C6', program(`${text}fact(q('a', 2))`));
+    invalid(document, 'C9', program(`${text}fact(q('a', 2))`));
   },
 
   'claims must answer the goal asked and every step must serve a claim'() {
@@ -285,10 +291,11 @@ export const tests = {
       { id: 'C6', name: 'boundary_consistency', covered: 0, failed: 0 },
       { id: 'C7', name: 'relevance', covered: 4, failed: 0 },
       { id: 'C8', name: 'witness_integrity', covered: 0, failed: 0 },
+      { id: 'C9', name: 'search_closure', covered: 0, failed: 0 },
     ]);
     assert.equal(report.uses, 2);
     assert.equal(verdictText(report), "verdict('checked')\n");
-    assert.equal(named(facts(report), 'condition').length, 8);
+    assert.equal(named(facts(report), 'condition').length, 9);
     assert.ok(checkReport(report).includes('recomputed(1)\n'));
   },
 
@@ -299,8 +306,9 @@ export const tests = {
       ['C3', '', "'p'\nstep('p', 'magic', {}, [])"],
       ['C4', '', "'missing'\n'true'\nstep('true', 'builtin', {}, [])"],
       ['C5', '', "is(7, add(2, 3))\nstep(is(7, add(2, 3)), 'builtin', {}, [])"],
-      ['C6', "fact(p('a'))\nimplies(not(p('a')), q)", "'q'\nstep('q', clause(2), {}, [not(p('a'))])\nstep(not(p('a')), 'absent', {}, [])"],
+      ['C6', "fact(p('a'))\nimplied_by(p(X), w(X))\nimplies(not(p('a')), q)", "'q'\nstep('q', clause(3), {}, [not(p('a'))])\nstep(not(p('a')), 'absent', {}, [])"],
       ['C7', "fact(p('a'))", "p('a')\nstep(p('a'), clause(1), {}, [])"],
+      ['C9', "fact(p('a'))\nimplies(not(p('a')), q)", "'q'\nstep('q', clause(2), {}, [not(p('a'))])\nstep(not(p('a')), 'absent', {}, [])"],
     ];
     for (const [id, source, document] of cases) {
       const report = checkProof(program(source), document);
@@ -349,7 +357,7 @@ export const tests = {
       assert.ok(result.proof.includes(`\n${line}\n`), line);
     }
     assert.equal(result.proofReport.trusted.length, 0);
-    assert.equal(result.proofReport.conditions[5].covered, 4);
+    assert.equal(result.proofReport.conditions[8].covered, 4);
     assert.ok(checkProof(CERTIFIED, result.proof, { allowTrusted: false }).valid);
     // Facts alone need no table: their search is scanned where it stands.
     const facts = program("fact(p('a'))\nimplies([p(X), not(q(X))], r(X))\nimplies(findall(X, p(X), L), all(L))");
@@ -358,7 +366,7 @@ export const tests = {
     assert.equal(plain.proofReport.trusted.length, 0);
   },
 
-  'a search table that disagrees with its one-level expansion fails C6'() {
+  'a search table that disagrees with its one-level expansion fails C9'() {
     const document = run(CERTIFIED, { proof: true }).proof;
     for (const [original, forged] of [
       ["[path('a', 'b'), path('a', 'c')]", "[path('a', 'b')]"],
@@ -368,14 +376,14 @@ export const tests = {
       ["[tagged('a', I), tagged('b', J)]", "[tagged('a', 'x'), tagged('b', J)]"],
     ]) {
       assert.ok(document.includes(original), original);
-      invalid(document.replace(original, forged), 'C6', CERTIFIED);
+      invalid(document.replace(original, forged), 'C9', CERTIFIED);
     }
   },
 
-  'an absence its own search contradicts fails C6, with or without a table'() {
-    invalid("'q'\nstep('q', clause(2), {}, [not(p('a'))])\nstep(not(p('a')), 'absent', {}, [])", 'C6',
+  'an absence its own search contradicts fails C9, with or without a table'() {
+    invalid("'q'\nstep('q', clause(2), {}, [not(p('a'))])\nstep(not(p('a')), 'absent', {}, [])", 'C9',
       program("fact(p('a'))\nimplies(not(p('a')), q)"));
-    invalid("'q'\nstep('q', clause(3), {}, [not(p('a'))])\nstep(not(p('a')), 'absent', {}, [])\nsearched(p('a'), [p('a')])", 'C6',
+    invalid("'q'\nstep('q', clause(3), {}, [not(p('a'))])\nstep(not(p('a')), 'absent', {}, [])\nsearched(p('a'), [p('a')])", 'C9',
       program("fact(s('a'))\nimplied_by(p(X), s(X))\nimplies(not(p('a')), q)"));
   },
 
@@ -384,15 +392,15 @@ export const tests = {
     const document = run(source, { proof: true }).proof;
     assert.ok(document.includes("\nderived(np(A), [np('n')])\n"));
     assert.ok(checkProof(source, document, { allowTrusted: false }).valid);
-    invalid(document.replace("derived(np(A), [np('n')])", 'derived(np(A), [])'), 'C6', source);
-    invalid(document.replace("derived(np(A), [np('n')])", "derived(np(A), [np('n'), np('z')])"), 'C6', source);
-    invalid(document.replace("derived(np(A), [np('n')])", "derived(np(A), [np('n'), k('a')])"), 'C6', source);
+    invalid(document.replace("derived(np(A), [np('n')])", 'derived(np(A), [])'), 'C9', source);
+    invalid(document.replace("derived(np(A), [np('n')])", "derived(np(A), [np('n'), np('z')])"), 'C9', source);
+    invalid(document.replace("derived(np(A), [np('n')])", "derived(np(A), [np('n'), k('a')])"), 'C9', source);
   },
 
-  'circular search tables fail C6'() {
+  'circular search tables fail C9'() {
     const source = program("implied_by(p(X), q(X))\nimplied_by(q(X), p(X))\nimplies(not(p('a')), r)");
     invalid("'r'\nstep('r', clause(3), {}, [not(p('a'))])\nstep(not(p('a')), 'absent', {}, [])\n" +
-      "searched(p('a'), [])\nsearched(q('a'), [])", 'C6', source);
+      "searched(p('a'), [])\nsearched(q('a'), [])", 'C9', source);
   },
 
   'a certificate statement that settles nothing fails C7, and a repeated one C3'() {
@@ -440,7 +448,7 @@ export const tests = {
   'malformed document diagnostics stay readable data'() {
     const report = checkProof(program(''), "p('unterminated");
     const records = facts(report);
-    assert.equal(named(records, 'condition').length, 8);
+    assert.equal(named(records, 'condition').length, 9);
     const [failure] = named(records, 'failure');
     assert.equal(failure.args[1], 'proof_document');
     assert.equal(failure.args[2], report.failures[0].detail);

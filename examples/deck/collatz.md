@@ -236,8 +236,8 @@ and(in_range(1, 20, 18), trajectory(18, [18, 9, 28, 14, 7, 22, 11, 34, 17, 52, 2
 and(in_range(1, 20, 19), trajectory(19, [19, 58, 29, 88, 44, 22, 11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1]))
 and(in_range(1, 20, 20), trajectory(20, [20, 10, 5, 16, 8, 4, 2, 1]))
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 248)
 condition('C2', 'well_founded', 'ok', 417)
 condition('C3', 'justification', 'ok', 417)
@@ -246,6 +246,7 @@ condition('C5', 're_decision', 'ok', 169)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 437)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(417)
@@ -279,6 +280,8 @@ at:
   417 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics repeat this: 417 steps, 248 verified against the program and
 169 recomputed, none taken on trust, for 20 claims. The verdict is

@@ -201,16 +201,17 @@ t('carol', 'child_of', 'alice')
 allowed('carol')
 children('alice', ['bob', 'carol'])
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 8)
 condition('C2', 'well_founded', 'ok', 10)
 condition('C3', 'justification', 'ok', 10)
 condition('C4', 'coverage', 'ok', 12)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 2)
+condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 14)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 1)
 
 // Obligations: absence and collection completeness are taken on trust.
 obligation('collected', 'theory_scoped', findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']))
@@ -239,15 +240,16 @@ at:
 - **C4 coverage (12)**: the 4 claims and the 8 things the steps use are each
   backed by a step.
 - **C5 re-decision (0)**: there was no calculation to redo.
-- **C6 boundary consistency (2)**: the absence and the collection were both
-  confronted with the evidence in the proof, and neither is contradicted:
-  nothing in the proof says Carol is blocked, and every child of Alice that
-  the proof shows (Bob and Carol) is in the list. The absence is also
-  settled by the search certificate.
+- **C6 boundary consistency (1)**: the collection, which the certificate
+  left open, was confronted with the evidence in the proof and is not
+  contradicted: every child of Alice that the proof shows (Bob and Carol)
+  is in the list.
 - **C7 relevance (14)**: the 4 claims are conclusions of the program, and all
   10 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (1)**: the absence *Carol is not blocked* was settled
+  by the search certificate, as explained below.
 
 The statistics: 10 steps, 8 verified against the program, the absence
 settled by the certificate, 1 trusted, 4 claims.

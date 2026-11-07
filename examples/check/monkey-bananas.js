@@ -4,8 +4,8 @@ plan([go('loc1'), go('loc3'), push('loc1'), 'climb_on', 'grab'])
 plan([go('loc3'), push('loc1'), 'climb_on', 'grab', 'climb_off'])
 plan([go('loc3'), push('loc2'), push('loc1'), 'climb_on', 'grab'])
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 61)
 condition('C2', 'well_founded', 'ok', 86)
 condition('C3', 'justification', 'ok', 86)
@@ -14,6 +14,7 @@ condition('C5', 're_decision', 'ok', 25)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 90)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(86)

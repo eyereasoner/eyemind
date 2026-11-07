@@ -185,16 +185,17 @@ against the program. This is the complete report:
 consented('approved', 'alice')
 needs_review('incomplete', 'bob')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 9)
 condition('C2', 'well_founded', 'ok', 10)
 condition('C3', 'justification', 'ok', 10)
 condition('C4', 'coverage', 'ok', 10)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 1)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 12)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 1)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(10)
@@ -222,15 +223,15 @@ at:
   each backed by a step: nothing is taken for granted.
 - **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
   recomputing.
-- **C6 boundary consistency (1)**: the 1 absence was confronted with the
-  evidence at hand: the program's facts and the proof's own `includes`
-  steps (steps 3 and 8). None of them says the incomplete graph includes a
-  consent by Bob, so the absence is not refuted. The search certificate
-  settles it.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled the only absence.
 - **C7 relevance (12)**: the 2 claims answer what the program concludes,
   and all 10 steps serve them. There is no padding.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (1)**: the absence, that the incomplete graph has no
+  consent by Bob, was settled by the search certificate, as explained
+  below.
 
 The absence is not taken on trust. The checker verifies each `searched`
 line by expanding its call one level against the program, as a search

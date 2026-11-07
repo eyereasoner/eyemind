@@ -178,16 +178,17 @@ dog_count('alice', 5)
 dog_count('bob', 2)
 requires('alice', 'dog_license')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 13)
 condition('C2', 'well_founded', 'ok', 21)
 condition('C3', 'justification', 'ok', 21)
 condition('C4', 'coverage', 'ok', 25)
 condition('C5', 're_decision', 'ok', 6)
-condition('C6', 'boundary_consistency', 'ok', 2)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 24)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(21)
@@ -214,13 +215,15 @@ at:
   backed by a step.
 - **C5 re-decision (6)**: the checker redid the 5 additions and the test
   5 > 4, and got the same results.
-- **C6 boundary consistency (2)**: both collected lists were confronted with
-  the evidence and settled: scanning the `owns` facts gives exactly these
-  lists, so no dog of Alice or Bob is missing.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled both collections.
 - **C7 relevance (24)**: the 3 claims are conclusions of the program, and all
   21 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (2)**: both collected lists were settled by scanning
+  the `owns` facts, which give exactly these lists, so no dog of Alice or
+  Bob is missing.
 
 The statistics: 21 steps, 13 verified against the program, 6 recomputed and
 the 2 collections settled from the facts, none trusted, 3 claims.

@@ -3,7 +3,7 @@
 // Facts and rules are JavaScript. Forward rules materialize conclusions until
 // a fixpoint, backward rules are decided when a goal asks for them, and every
 // answer can come with a proof that a separate checker verifies against the
-// program, condition by condition (C1-C8).
+// program, condition by condition (C1-C9).
 export { VERSION } from './version.js';
 export { Result, run, unusedClauses } from './engine.js';
 export { readGoal } from './goals.js';

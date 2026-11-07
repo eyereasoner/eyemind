@@ -201,8 +201,8 @@ reachable('a', 'd')
 reachable('b', 'b')
 reachable('c', 'c')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 16)
 condition('C2', 'well_founded', 'ok', 16)
 condition('C3', 'justification', 'ok', 16)
@@ -211,6 +211,7 @@ condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 28)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(16)
@@ -246,6 +247,8 @@ at:
   all 16 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics repeat this: 16 steps, all 16 verified against the program,
 none taken on trust, for 12 claims. The verdict is **checked**: every

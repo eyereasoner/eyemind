@@ -295,16 +295,17 @@ report(3, 'c2', 85, 'high', short_notice(3, 14), increase_notice(14))
 report(4, 'c4', 70, 'moderate', 'export_prohibited', 'permit_export')
 report(2, 'c3', 97, 'high', 'sharing_without_consent', 'require_consent')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 32)
 condition('C2', 'well_founded', 'ok', 57)
 condition('C3', 'justification', 'ok', 57)
 condition('C4', 'coverage', 'ok', 69)
 condition('C5', 're_decision', 'ok', 18)
-condition('C6', 'boundary_consistency', 'ok', 3)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 61)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 3)
 
 // Obligations: absence and collection completeness are taken on trust.
 obligation('collected', 'theory_scoped', findall(A, higher(100, A), []))
@@ -338,17 +339,19 @@ and counts what it looked at:
   backed by a step.
 - **C5 re-decision (18)**: the 18 calculations and comparisons were redone by
   the checker and agree, from 90 + 20 = 110 to 70 < 80.
-- **C6 boundary consistency (3)**: the 3 absences were confronted with the
-  evidence and settled. The two missing safeguards are settled from the
-  program's `safeguard` facts, which the checker scans directly: none says
-  c1 has an "inform" safeguard or c3 a consent safeguard. "c1 has no notice
-  period" is settled from the search certificate: `has_notice` asks for a
-  `notice_days` fact for c1, and there is none, which agrees with
-  `searched(has_notice('c1'), [])`. Nothing refutes any of them.
+- **C6 boundary consistency (0)**: the evidence could decide none of the 4
+  collections C9 left open: `higher` is defined by a rule, and the proof
+  records no `higher` step to confront them with.
 - **C7 relevance (61)**: the 4 claims answer the query, and all 57 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (3)**: the 3 absences were settled. The two missing
+  safeguards are settled from the program's `safeguard` facts, which the
+  checker scans directly: none says c1 has an "inform" safeguard or c3 a
+  consent safeguard. "c1 has no notice period" is settled from the search
+  certificate: `has_notice` asks for a `notice_days` fact for c1, and there
+  is none, which agrees with `searched(has_notice('c1'), [])`.
 
 The absences and the collections differ. The three absences, c1 has no
 notice period, c1 has no "inform" safeguard and c3 has no consent

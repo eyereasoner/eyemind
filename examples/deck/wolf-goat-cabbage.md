@@ -293,16 +293,17 @@ wolf_goat_cabbage_verified(7)
 shortest_crossing(['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])
 shortest_crossing(['goat', 'nothing', 'cabbage', 'goat', 'wolf', 'nothing', 'goat'])
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 56)
 condition('C2', 'well_founded', 'ok', 72)
 condition('C3', 'justification', 'ok', 72)
 condition('C4', 'coverage', 'ok', 113)
 condition('C5', 're_decision', 'ok', 15)
-condition('C6', 'boundary_consistency', 'ok', 1)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 75)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 1)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(72)
@@ -330,13 +331,14 @@ at:
   each backed by a step.
 - **C5 re-decision (15)**: the checker redid the 14 built-in tests and
   calculations and rebuilt the 1 `once(...)` from its part, and all agree.
-- **C6 boundary consistency (1)**: the 1 absence was confronted with the
-  evidence, and the search certificate settles it: there is no shorter
-  solution.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled the only absence.
 - **C7 relevance (75)**: the 3 claims answer the queries, and all 72 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (1)**: the 1 absence was settled by the search
+  certificate: there is no shorter solution, as explained below.
 
 The statistics: 72 steps, 56 verified against the program, 14 recomputed, 1
 composed (the `once`) and the absence settled by the certificate, none

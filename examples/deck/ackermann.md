@@ -234,8 +234,8 @@ ackermann([4, 1], 65533)
 ackermann([4, 2], 2003529930406846464979072351560255750447…) // … 19,729 digits
 ackermann([5, 0], 65533)
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 33)
 condition('C2', 'well_founded', 'ok', 74)
 condition('C3', 'justification', 'ok', 74)
@@ -244,6 +244,7 @@ condition('C5', 're_decision', 'ok', 41)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 85)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(74)
@@ -277,6 +278,8 @@ at:
 - **C7 relevance (85)**: the 11 claims answer the queries, and all 74 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics repeat this: 74 steps, 33 verified against the program, 41
 recomputed, none taken on trust. The verdict is **checked**: all 11 values,

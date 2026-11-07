@@ -209,16 +209,17 @@ against the program. This is the complete report:
 // Checked answers: these follow from the input program.
 shortest('a', 'd', 6)
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 16)
 condition('C2', 'well_founded', 'ok', 22)
 condition('C3', 'justification', 'ok', 22)
 condition('C4', 'coverage', 'ok', 23)
 condition('C5', 're_decision', 'ok', 5)
-condition('C6', 'boundary_consistency', 'ok', 1)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 23)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 1)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(22)
@@ -245,13 +246,14 @@ at:
   backed by a step.
 - **C5 re-decision (5)**: the five additions were redone by the checker and
   agree.
-- **C6 boundary consistency (1)**: the one "not found" step was confronted
-  with the evidence. The search certificate settles it: no route from a to
-  d is cheaper than 6.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled the only one.
 - **C7 relevance (23)**: the 1 claim answers the query, and all 22 steps
   serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (1)**: the one "not found" step was settled by the
+  search certificate: no route from a to d is cheaper than 6.
 
 The checker settles the absence without searching itself. It expands
 `cheaper('a', 'd', 6)` one level against the program, as a search would:

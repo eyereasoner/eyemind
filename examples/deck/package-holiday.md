@@ -371,8 +371,8 @@ changed(cancellation('r6'), from(voucher(value(1600), terms('as_agreed'))), to(v
 changed(complaint('k1'), from(deadlines('set_by_national_law')), to(deadlines(acknowledge(within_days(7)), reasoned_reply(within_days(60)))))
 changed(complaint('k2'), from(deadlines('set_by_national_law')), to(deadlines(acknowledge(within_days(7)), reasoned_reply(within_days(60)))))
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 185)
 condition('C2', 'well_founded', 'ok', 218)
 condition('C3', 'justification', 'ok', 218)
@@ -381,6 +381,7 @@ condition('C5', 're_decision', 'ok', 33)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 242)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(218)
@@ -416,6 +417,8 @@ at:
   and all 218 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics repeat this: 218 steps, 185 verified against the program and
 33 recomputed, none taken on trust, for 24 claims. The verdict is

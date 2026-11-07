@@ -5,16 +5,17 @@ best_repair(['catalog_replica', 'bank_backup'], 3)
 restored_function('place_order')
 restored_function('mobile_checkout')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 476)
 condition('C2', 'well_founded', 'ok', 494)
 condition('C3', 'justification', 'ok', 494)
 condition('C4', 'coverage', 'ok', 1018)
 condition('C5', 're_decision', 'ok', 15)
-condition('C6', 'boundary_consistency', 'ok', 3)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 499)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(494)

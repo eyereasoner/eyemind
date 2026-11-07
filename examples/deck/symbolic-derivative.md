@@ -232,8 +232,8 @@ derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num
 derivative('nested_log', divide(divide(num(1), sym('x')), log(sym('x'))))
 d(divide(sym('y'), sub(sym('x'), num(1))), 'x', divide(sub(mul(num(0), sub(sym('x'), num(1))), mul(sym('y'), sub(num(1), num(0)))), pow(sub(sym('x'), num(1)), 2)))
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 26)
 condition('C2', 'well_founded', 'ok', 29)
 condition('C3', 'justification', 'ok', 29)
@@ -242,6 +242,7 @@ condition('C5', 're_decision', 'ok', 3)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 34)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(29)
@@ -276,6 +277,8 @@ line then names a check, says `'ok'`, and counts what it looked at:
   steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics repeat this: 29 steps, 26 verified against the program, 3
 recomputed, none taken on trust. The verdict is **checked**: the five

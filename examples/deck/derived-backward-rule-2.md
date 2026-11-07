@@ -148,8 +148,8 @@ against the program. This is the complete report:
 type('Socrates', 'Mortal')
 t('test', 'is', 'true')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 4)
 condition('C2', 'well_founded', 'ok', 5)
 condition('C3', 'justification', 'ok', 5)
@@ -158,6 +158,7 @@ condition('C5', 're_decision', 'ok', 1)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 7)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(5)
@@ -183,6 +184,8 @@ Each condition reports what the checker verified:
 - **C7 relevance (7)**: the 2 claims answer the program and all 5 steps
   serve those claims.
 - **C8 witness integrity (0)**: this example introduces no existential witness.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The report records 5 steps, 4 verified against program clauses and one
 primitive recomputed. The verdict is **checked**: the recorded claims follow from

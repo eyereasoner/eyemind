@@ -419,16 +419,17 @@ audit_flag('ada', 'assignment_differs')
 audit_flag('bjorn', 'assignment_differs')
 audit_flag('davi', 'assignment_differs')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 42)
 condition('C2', 'well_founded', 'ok', 79)
 condition('C3', 'justification', 'ok', 79)
 condition('C4', 'coverage', 'ok', 118)
 condition('C5', 're_decision', 'ok', 26)
-condition('C6', 'boundary_consistency', 'ok', 11)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 97)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 11)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(79)
@@ -458,15 +459,16 @@ at:
   recomputed and agree: the 15 behind the answers (four `le`, four score
   sums, four detours, three `gt`) and 11 more behind the certificate's
   facts.
-- **C6 boundary consistency (11)**: all 11 absences were confronted with the
-  evidence in the proof, and none is contradicted: the proof shows better
-  map and route options, but none for a placed or recommended school, and
-  no recommendation of Centrum to Ada, Bjorn or Davi. The search
-  certificate settles all 11.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled all 11 absences.
 - **C7 relevance (97)**: the 18 claims each answer one of the program's
   queries, and all 79 steps serve a claim.
 - **C8 witness integrity (0)**: no rule invents a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (11)**: all 11 absences were settled by the search
+  certificate: each `searched` line agrees with its call expanded one level
+  against the program, and the `derived` listings of better options, route
+  scores and recommendations are closed under the forward rules.
 
 The statistics: 79 steps, of which 42 were verified against the program, 26
 recomputed and 11 settled by the certificate; none was composed from parts

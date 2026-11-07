@@ -14,7 +14,7 @@ JavaScript library, and a browser application, with no dependencies.
 The guide shows how to run programs, write rules, check proofs, use the
 library and develop eyemind; the playground runs programs in your browser;
 the specification defines the language, its canonical text, the proof format
-and the C1–C8 checks. The examples are 94 runnable programs, each with a card
+and the C1–C9 checks. The examples are 94 runnable programs, each with a card
 deck and saved conclusions, proofs and check reports. The conformance suite
 has 1283 cases that test any implementation of the specification through its
 command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).

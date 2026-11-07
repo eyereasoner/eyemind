@@ -104,7 +104,7 @@ for (const entry of MANIFEST) {
   tests[`examples/${entry.name}.js check`] = () => checkCheck(entry);
   tests[`examples/check/${entry.name}.js checked answers and prove-and-check output`] = () => {
     const saved = read(artifactPath('check', entry));
-    const answers = saved.split('\n// C1-C8:')[0];
+    const answers = saved.split('\n// C1-C9:')[0];
     assert.deepEqual(readTerms(answers).map(([term]) => write(term)),
       readTerms(read(artifactPath('output', entry))).map(([term]) => write(term)));
     if (large(entry)) return;

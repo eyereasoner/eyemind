@@ -176,8 +176,8 @@ against the program. This is the complete report:
 // Checked answers: these follow from the input program.
 primes(100, [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97])
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 563)
 condition('C2', 'well_founded', 'ok', 1173)
 condition('C3', 'justification', 'ok', 1173)
@@ -186,6 +186,7 @@ condition('C5', 're_decision', 'ok', 610)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 1174)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(1173)
@@ -218,6 +219,8 @@ at:
 - **C7 relevance (1174)**: the 1 claim answers the query, and all 1,173
   steps serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics repeat this: 1,173 steps, 563 verified against the program,
 610 recomputed, none taken on trust. The verdict is **checked**: the list of

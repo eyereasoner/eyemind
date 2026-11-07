@@ -418,16 +418,17 @@ changed(session('ex:r1'), from(await_device_consent('ex:research')), to(permit('
 changed(session('ex:r7'), from(await_device_consent('ex:research')), to(deny_device('refused_by_signal')))
 changed(session('ex:r8'), from(await_device_consent('ex:research')), to(deny_device('do_not_ask_again')))
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 225)
 condition('C2', 'well_founded', 'ok', 273)
 condition('C3', 'justification', 'ok', 273)
 condition('C4', 'coverage', 'ok', 474)
 condition('C5', 're_decision', 'ok', 15)
-condition('C6', 'boundary_consistency', 'ok', 33)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 310)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 33)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(273)
@@ -457,16 +458,16 @@ and counts what it looked at:
   and agree: comparisons of months (5 < 6, 6 ≥ 6, and that they are whole
   numbers), and tests that two results really differ, such as "wait for
   consent" and "go ahead" for r1.
-- **C6 boundary consistency (33)**: all 33 collected lists were confronted
-  with the evidence in the proof and the program, and none is contradicted.
-  For example, the proof shows prohibitions only for r3 and r6, so none
-  applies to r1. The search certificate settles all 33, including the 8
-  lists of unmet conditions and the 3 lists of reasons for refusing r2, r4
-  and r5, which nothing in the proof's steps could confront.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled all 33 collections.
 - **C7 relevance (310)**: the 37 claims are the program's conclusions, and
   all 273 steps serve at least one of them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (33)**: all 33 collected lists were settled by the
+  search certificate's 323 `searched` lines, including the 8 lists of unmet
+  conditions and the 3 lists of reasons for refusing r2, r4 and r5, as
+  explained below.
 
 The 33 settled lists are, in plain words: nine times, "the policy's only conflict strategy is *prohibition
 wins*"; for the sessions that pass gate 1 (r1, r7, r8, r9, r10), "no

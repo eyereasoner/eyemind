@@ -10,8 +10,8 @@ golden_ratio(10, 1.6181818181818182)
 golden_ratio(100, 1.618033988749895)
 golden_ratio(1000, 1.618033988749895)
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 81)
 condition('C2', 'well_founded', 'ok', 314)
 condition('C3', 'justification', 'ok', 314)
@@ -20,6 +20,7 @@ condition('C5', 're_decision', 'ok', 233)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 324)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(314)

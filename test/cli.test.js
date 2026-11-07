@@ -44,7 +44,7 @@ export const tests = {
     const asJson = cli(['--json', '--check-proof', '-', 'examples/socrates.js'], generated.stdout);
     assert.equal(asJson.code, 0);
     assert.ok(JSON.parse(asJson.stdout).valid);
-    assert.equal(JSON.parse(asJson.stdout).conditions.length, 8);
+    assert.equal(JSON.parse(asJson.stdout).conditions.length, 9);
     assert.equal(cli(['--check-proof', '-', 'examples/socrates.js'], `${generated.stdout}bogus()\n`).code, 2);
   },
 

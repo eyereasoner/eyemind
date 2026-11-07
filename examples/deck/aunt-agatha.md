@@ -304,16 +304,17 @@ models('butler', 0)
 models('charles', 0)
 entailed(killed('agatha', 'agatha'))
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 40)
 condition('C2', 'well_founded', 'ok', 52)
 condition('C3', 'justification', 'ok', 52)
 condition('C4', 'coverage', 'ok', 72)
 condition('C5', 're_decision', 'ok', 9)
-condition('C6', 'boundary_consistency', 'ok', 3)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 57)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(52)
@@ -343,16 +344,16 @@ at:
 - **C5 re-decision (9)**: the 8 built-in steps (three `unify` checks, four
   additions and 4 > 0) were decided again by the checker, and the 1 `once`
   step was rebuilt from its part.
-- **C6 boundary consistency (3)**: the 3 collected lists were compared with
-  every `model` the checker could see in the program's facts and the proof's
-  steps. The proof does show one model, the witness, and it is indeed in
-  Agatha's list; none is shown with the butler or Charles as killer. So
-  nothing refutes the lists, and the search certificate settles all three.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled all three collections.
 - **C7 relevance (57)**: the 5 claims are conclusions of the program, and all
   52 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify. (The `witness` conclusion is a model
   shown as an example, which is something else.)
+- **C9 search closure (3)**: the 3 collected lists, Agatha's models and the
+  empty lists for the butler and Charles, were settled by the search
+  certificate, as explained below.
 
 Nothing is taken on trust. That Agatha's list holds all her models, and
 that the butler's and Charles's lists, both empty, are complete, is checked

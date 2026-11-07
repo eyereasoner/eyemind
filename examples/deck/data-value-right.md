@@ -398,16 +398,17 @@ evaluation('data_ownership', ['value_share', 'use_control', 'value_mobility', 'i
 evaluation('autonomous_right', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share'], [])
 recommended('autonomous_right')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 74)
 condition('C2', 'well_founded', 'ok', 108)
 condition('C3', 'justification', 'ok', 108)
 condition('C4', 'coverage', 'ok', 123)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 34)
+condition('C6', 'boundary_consistency', 'ok', 10)
 condition('C7', 'relevance', 'ok', 121)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 24)
 
 // Obligations: absence and collection completeness are taken on trust.
 obligation('collected', 'theory_scoped', findall(A, delivers('interpret_existing_law', A), ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement']))
@@ -447,20 +448,20 @@ at:
   each backed by a step: nothing is taken for granted silently.
 - **C5 re-decision (0)**: there is no arithmetic or other built-in
   calculation to recompute.
-- **C6 boundary consistency (34)**: all 34 boundary steps, 17 absences and
-  17 collected lists, were confronted with the program's facts and the
-  proof's steps, and none is contradicted: for instance, each list of
-  anchoring provisions contains every `anchor` fact the program has for
-  that component. The 17 absences are settled by the search certificate,
-  and so are the 7 lists of anchoring provisions, which the checker reads
-  from the `anchor` facts. The 10 lists of what each option delivers and
-  meets as objections are not settled: `delivers` and `objection` facts
-  are partly or wholly derived by forward rules, so these lists stay
-  obligations.
+- **C6 boundary consistency (10)**: the 10 lists C9 left open, of what
+  each option delivers and meets as objections, were confronted with the
+  program's facts and the proof's steps, and none is contradicted: every
+  `delivers` or `objection` the proof shows for an option is in its list.
+  `delivers` and `objection` facts are partly or wholly derived by forward
+  rules, so these lists stay obligations.
 - **C7 relevance (121)**: the 13 claims each answer one of the program's
   queries, and all 108 steps serve a claim.
 - **C8 witness integrity (0)**: no rule invents a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (24)**: the search certificate settled 24 of the 34
+  boundary steps: the 17 absences, checked against their `searched` lines
+  and the `derived` listings, and the 7 lists of anchoring provisions,
+  which the checker reads from the `anchor` facts.
 
 The statistics: 108 steps, 74 verified against the program, 24 settled and
 10 trusted, none recomputed or composed; 13 claims.

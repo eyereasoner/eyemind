@@ -316,16 +316,17 @@ best_repair(['catalog_replica', 'bank_backup'], 3)
 restored_function('place_order')
 restored_function('mobile_checkout')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 476)
 condition('C2', 'well_founded', 'ok', 494)
 condition('C3', 'justification', 'ok', 494)
 condition('C4', 'coverage', 'ok', 1018)
 condition('C5', 're_decision', 'ok', 15)
-condition('C6', 'boundary_consistency', 'ok', 3)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 499)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(494)
@@ -354,14 +355,15 @@ at:
   are each backed by a step.
 - **C5 re-decision (15)**: the 15 sums, such as 1 + 0 = 1 and 2 + 1 = 3 for
   the chosen plan, were done again by the checker.
-- **C6 boundary consistency (3)**: the 3 absences were confronted with the
-  evidence at hand: the proof shows nodes operating under many plans, but
-  the website and the app never with no repairs, and no feasible plan
-  costing less than 3. The search certificate settles all three.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled all three absences.
 - **C7 relevance (499)**: the 5 answers each answer one of the three
   questions, and all 494 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (3)**: the 3 absences were settled by the search
+  certificate: the website and the app do not operate with no repairs, and
+  no feasible plan costs less than 3, as explained below.
 
 The three settled absences are: with no repairs, the website does not
 operate; with no repairs, the app does not operate; and no feasible plan

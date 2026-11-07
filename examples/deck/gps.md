@@ -284,8 +284,8 @@ against the program. This is the complete report:
 findpath('map_be', [location('i1', 'oostende'), ['drive_gent_brugge', 'drive_brugge_oostende'], 2400.0, 0.01, 0.9408, 0.99, [5000.0, 5.0, 0.2, 0.4, 1]])
 findpath('map_be', [location('i1', 'oostende'), ['drive_gent_kortrijk', 'drive_kortrijk_brugge', 'drive_brugge_oostende'], 4100.0, 0.018000000000000002, 0.903168, 0.9801, [5000.0, 5.0, 0.2, 0.4, 1]])
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 44)
 condition('C2', 'well_founded', 'ok', 93)
 condition('C3', 'justification', 'ok', 93)
@@ -294,6 +294,7 @@ condition('C5', 're_decision', 'ok', 49)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 95)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(93)
@@ -326,6 +327,8 @@ at:
 - **C7 relevance (95)**: the 2 claims answer the query, and all 93 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics repeat this: 93 steps, 44 verified against the program, 44
 recomputed, 5 composed (the `once` controls), none taken on trust. The

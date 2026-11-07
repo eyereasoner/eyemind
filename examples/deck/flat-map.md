@@ -179,16 +179,17 @@ flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4'])
 flat_map(['missing'], 'p1', [])
 flat_map(['s1'], 'p2', [])
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 14)
 condition('C2', 'well_founded', 'ok', 19)
 condition('C3', 'justification', 'ok', 19)
 condition('C4', 'coverage', 'ok', 22)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 5)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 22)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 5)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(19)
@@ -214,13 +215,15 @@ at:
 - **C4 coverage (22)**: the 3 claims and the 19 things the steps use are each
   backed by a step.
 - **C5 re-decision (0)**: there was no calculation to redo.
-- **C6 boundary consistency (5)**: all 5 collected lists were confronted with
-  the evidence and settled: scanning the `t` facts gives exactly these lists,
-  so no value is missing from any of them.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled all 5 collections.
 - **C7 relevance (22)**: the 3 claims answer the queries, and all 19 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (5)**: all 5 collected lists were settled by scanning
+  the `t` facts, which give exactly these lists, so no value is missing from
+  any of them.
 
 The statistics: 19 steps, 14 verified against the program and the 5
 collections settled from the facts, none trusted, 3 claims.

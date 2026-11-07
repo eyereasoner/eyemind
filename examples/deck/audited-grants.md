@@ -355,8 +355,8 @@ explanation(grant('dan'), [applicant('dan'), income('dan', 2400)], [not(already_
 explanation(top_up('ann'), [household('ann', 4), applicant('ann'), income('ann', 2100)], [not(already_received('ann'))])
 explanation(top_up('dan'), [household('dan', 3), applicant('dan'), income('dan', 2400)], [not(already_received('dan'))])
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 35)
 condition('C2', 'well_founded', 'ok', 47)
 condition('C3', 'justification', 'ok', 47)
@@ -365,6 +365,7 @@ condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 6)
 condition('C7', 'relevance', 'ok', 57)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Obligations: absence and collection completeness are taken on trust.
 obligation('collected', 'theory_scoped', findall(A, rests_on(refused('bob', 'income above 2500'), A), [applicant('bob'), income('bob', 2900)]))
@@ -411,9 +412,9 @@ at:
 - **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
   recomputing in the audit's own proof. (The income comparisons belong to
   the policy's proof, which `eyemind.run` checked before returning it.)
-- **C6 boundary consistency (6)**: the checker tries to refute each
-  collected list with the evidence at hand, the program's facts and the
-  proof's own steps. The 6 `rests_on` lists could be confronted: the proof
+- **C6 boundary consistency (6)**: no certificate settled the collected
+  lists, so the checker tries to refute each with the evidence at hand, the
+  program's facts and the proof's own steps. The 6 `rests_on` lists could be confronted: the proof
   holds three `rests_on` steps (the data behind Cara's grant and Dan's two
   decisions), and each of them appears in its list. The 6 `assumes` lists
   are left undecided: no fact or step of `assumes` exists in the program or
@@ -424,6 +425,8 @@ at:
   serve them. There is no padding.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (0)**: the proof carries no search certificate for
+  the 12 collections, so none is settled as complete.
 
 The twelve `obligation` lines are the twelve `findall` lists, two per
 decision. In plain words, each says: *it is taken on trust that this is the

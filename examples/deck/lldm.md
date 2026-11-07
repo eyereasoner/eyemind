@@ -355,8 +355,8 @@ lld_discrepancy_cm('meas47', -1.9082339805374957)
 lld_threshold_cm('meas47', 1.25)
 lld_reason('meas47', 'discrepancy below negative threshold')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 54)
 condition('C2', 'well_founded', 'ok', 93)
 condition('C3', 'justification', 'ok', 93)
@@ -365,6 +365,7 @@ condition('C5', 're_decision', 'ok', 39)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 99)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(93)
@@ -397,6 +398,8 @@ at:
 - **C7 relevance (99)**: the 6 claims answer the queries, and all 93 steps
   serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics repeat this: 93 steps, 54 verified against the program, 39
 recomputed, none taken on trust. The verdict is **checked**: the alarm,

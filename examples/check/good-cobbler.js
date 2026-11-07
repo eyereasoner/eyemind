@@ -5,8 +5,8 @@ classified_as('joe', 'cobbler')
 classified_as('jane', 'carpenter')
 classified_as('sam', 'cobbler')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 8)
 condition('C2', 'well_founded', 'ok', 8)
 condition('C3', 'justification', 'ok', 8)
@@ -15,6 +15,7 @@ condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 13)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(8)

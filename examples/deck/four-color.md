@@ -299,16 +299,17 @@ only confirms each step against the program. This is the complete report:
 // Checked answers: these follow from the input program.
 colors('mapEU', [['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']])
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 66)
 condition('C2', 'well_founded', 'ok', 95)
 condition('C3', 'justification', 'ok', 95)
 condition('C4', 'coverage', 'ok', 118)
 condition('C5', 're_decision', 'ok', 1)
-condition('C6', 'boundary_consistency', 'ok', 28)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 96)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 28)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(95)
@@ -337,13 +338,16 @@ at:
   each backed by a step: nothing is taken for granted silently.
 - **C5 re-decision (1)**: the 1 `'control'` step, for `once`, was rebuilt
   from the step beneath it and agrees. There is no arithmetic to recompute.
-- **C6 boundary consistency (28)**: the checker confronted all 28
-  boundary steps with the evidence and settled each one. The collected list
-  matches the `neighbours` facts, which it scans directly, and the 27 "no
-  conflict" absences agree with the search certificate.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled all 28.
 - **C7 relevance (96)**: the 1 claim answers the query, and all 95 steps
   serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
+- **C9 search closure (28)**: the checker settled all 28 boundary steps.
+  The collected list matches the `neighbours` facts, which it scans
+  directly, and the 27 "no conflict" absences agree with the search
+  certificate, whose lines it checks by expanding each call one level
+  against the program.
 
 The statistics: 95 steps, 66 verified against the program, 1 composed from
 its parts and 28 settled, none trusted, 1 claim.

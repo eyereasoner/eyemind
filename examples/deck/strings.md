@@ -153,8 +153,8 @@ label('alice', 'hello_alice')
 characters('café', ['c', 'a', 'f', 'é'], 4)
 unicode_codes('😀', [128512])
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 3)
 condition('C2', 'well_founded', 'ok', 7)
 condition('C3', 'justification', 'ok', 7)
@@ -163,6 +163,7 @@ condition('C5', 're_decision', 'ok', 4)
 condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 10)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(7)
@@ -196,6 +197,8 @@ at:
   serve them. There is no padding.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (0)**: there was no absence or collection to
+  settle, so no search certificate to check.
 
 The statistics repeat this: 7 steps, 3 verified against the rules, 4
 recomputed, none taken on trust. The verdict is **checked**: all three

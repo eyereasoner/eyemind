@@ -204,16 +204,17 @@ classification('nixon', 'republican')
 classification('nixon', 'nonpacifist')
 classification('ada', 'pacifist')
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 10)
 condition('C2', 'well_founded', 'ok', 11)
 condition('C3', 'justification', 'ok', 11)
 condition('C4', 'coverage', 'ok', 13)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 1)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 16)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 1)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(11)
@@ -239,13 +240,14 @@ at:
 - **C4 coverage (13)**: the 5 claims and the 8 things the steps use are each
   backed by a step.
 - **C5 re-decision (0)**: there was no calculation or built-in test to redo.
-- **C6 boundary consistency (1)**: the 1 absence, *nothing says Ada is a
-  nonpacifist*, was confronted with the evidence in the proof. No step
-  concludes `nonpacifist('ada')`, so nothing refutes it.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled the only absence.
 - **C7 relevance (16)**: each of the 5 claims answers the question, and all
   11 steps serve a claim.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (1)**: the 1 absence, *nothing says Ada is a
+  nonpacifist*, was settled by the search certificate, as explained below.
 
 The absence is not taken on trust: the checker settles it from the search
 certificate, without searching itself. It expands `nonpacifist('ada')` one
@@ -278,9 +280,9 @@ eyemind -c examples/nixon-diamond.js
 ```
 
 Delete the line `fact(republican('nixon'))` and run again: nothing blocks the
-default any more, and Nixon is classified as a pacifist, like Ada. C6 now
-counts two absences, one for each of them, and the search certificate
-settles both.
+default any more, and Nixon is classified as a pacifist, like Ada. C9 now
+counts two absences, one for each of them, both settled by the search
+certificate.
 
 Or remove the guard: replace the default with
 `implies(quaker(Person), pacifist(Person))`. Nixon is then classified as

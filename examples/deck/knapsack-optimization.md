@@ -290,8 +290,8 @@ knapsack_answer('total_weight', 15)
 knapsack_answer('total_value', 40)
 knapsack_answer('feasible_pack_count', 113)
 
-// C1-C8: resolution, acyclicity, justification, coverage,
-// re-decision, boundary consistency, relevance and witness integrity.
+// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity and search closure.
 condition('C1', 'resolution', 'ok', 257)
 condition('C2', 'well_founded', 'ok', 469)
 condition('C3', 'justification', 'ok', 469)
@@ -300,6 +300,7 @@ condition('C5', 're_decision', 'ok', 211)
 condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 473)
 condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
 
 // Obligations: absence and collection completeness are taken on trust.
 obligation('collected', 'theory_scoped', findall(A, feasible_pack(B, C, A), [37, 35, 40, 33, 31, 24, 36, 29, 36, 34, 27, 39, 32, 32, 25, 23, 16, 36, 34, 27, 34, 32, 25, 37, 30, 30, 23, 21, 14, 37, 30, 35, 35, 28, 26, 19, 33, 33, 26, 24, 17, 38, 31, 29, 22, 22, 15, 13, 6, 38, 31, 36, 29, 34, 34, 27, 25, 18, 34, 32, 30, 23, 37, 30, 28, 21, 35, 33, 26, 26, 19, 17, 10, 32, 37, 30, 28, 21, 35, 35, 28, 26, 19, 33, 31, 24, 24, 17, 15, 8, 33, 31, 24, 36, 29, 29, 22, 20, 13, 34, 27, 27, 20, 18, 11, 32, 25, 23, 16, 16, 9, 7, 0]))
@@ -332,14 +333,16 @@ at:
   additions, 87 maximum comparisons, the 10 weight and value sums and the
   capacity check) were calculated again by the checker itself, and they
   agree.
-- **C6 boundary consistency (1)**: the 1 collected list was confronted with
-  the evidence at hand, the program's facts and the proof's own
-  `feasible_pack` step. The best pack's value, 40, is in the list, so the
+- **C6 boundary consistency (1)**: the 1 collected list, which no
+  certificate settled, was confronted with the evidence at hand, the
+  program's facts and the proof's own `feasible_pack` step. The best pack's value, 40, is in the list, so the
   list is not refuted.
 - **C7 relevance (473)**: the 4 claims answer the query, and all 469 steps
   serve them. There is no padding.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
+- **C9 search closure (0)**: the proof carries no search certificate for
+  the collected list, so it is not settled as complete.
 
 The `obligation` line says, in plain words: *it is taken on trust that
 these 113 values are the values of all the feasible packs*. That no feasible
