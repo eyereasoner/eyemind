@@ -108,6 +108,12 @@ step(atom_chars('café', ['c', 'a', 'f', 'é']), 'builtin', {}, [])
 step(atom_length('café', 4), 'builtin', {}, [])
 step(unicode_codes('😀', [128512]), clause(3), {Text: '😀', Codes: [128512]}, [atom_codes('😀', [128512])])
 step(atom_codes('😀', [128512]), 'builtin', {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(label('alice', A), [label('alice', 'hello_alice')])
+called(characters('café', B, C), [characters('café', ['c', 'a', 'f', 'é'], 4)])
+called(unicode_codes('😀', D), [unicode_codes('😀', [128512])])
 ```
 
 It has three parts:
@@ -153,8 +159,8 @@ label('alice', 'hello_alice')
 characters('café', ['c', 'a', 'f', 'é'], 4)
 unicode_codes('😀', [128512])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 3)
 condition('C2', 'well_founded', 'ok', 7)
 condition('C3', 'justification', 'ok', 7)
@@ -164,6 +170,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 10)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(7)

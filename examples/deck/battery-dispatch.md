@@ -218,8 +218,8 @@ step(is(28, add(6, 22)), 'builtin', {}, [])
 step(not(cheaper_dispatch(28)), 'absent', {}, [])
 // … 105 more steps derive the other 11 feasible schedules
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 // … derived(feasible_dispatch(A, B), [...]) lists all 12 feasible schedules
 searched(cheaper_dispatch(28), [])
 // … 65 more searched lines
@@ -306,11 +306,11 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 best_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28)
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 92)
 condition('C2', 'well_founded', 'ok', 182)
 condition('C3', 'justification', 'ok', 182)
@@ -320,17 +320,21 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 183)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', best_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(182)
 verified(92)
 recomputed(89)
 composed(0)
-trusted(0)
+trusted(1)
 claims(1)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -370,10 +374,16 @@ disagreement. The claim is limited to this program: the five power
 settings, whole hours, and the stated limits.
 
 The statistics: 182 steps, 92 verified against the program, 89 recomputed
-and the absence settled by the certificate, none taken on trust. The
-verdict is **checked**: the schedule is feasible, costs 28 cents, and is
+and the absence settled by the certificate, no boundary steps taken on trust. The
+verdict is **checked with obligations**: the schedule is feasible, costs 28 cents, and is
 the cheapest. The model assumes perfect efficiency and ignores battery wear,
 forecast uncertainty and changing power within a slot.
+
+C10 leaves 1 original-call claim unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

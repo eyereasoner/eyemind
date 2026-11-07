@@ -182,8 +182,8 @@ step(sensor_priority('handheld', 1), clause(3), {}, [])
 step(sensor_priority('calibrated_logger', 2), clause(4), {}, [])
 step(gt(2, 1), 'builtin', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 derived(superseded(A), [superseded('handheld_a')])
 derived(current_reading(A, B, C, D, E), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
 searched(superseded('logger_a'), [])
@@ -288,7 +288,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 conflicting_sample('handover_a', 'batch_a')
 selected_reading('logger_a', 'batch_a', 94)
 selected_reading('logger_b', 'batch_b', 75)
@@ -297,8 +297,8 @@ notify('north_depot', 'batch_a')
 notify('station_shop', 'batch_a')
 inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a']))
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 20)
 condition('C2', 'well_founded', 'ok', 28)
 condition('C3', 'justification', 'ok', 28)
@@ -308,17 +308,27 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 35)
 condition('C8', 'witness_integrity', 'ok', 1)
 condition('C9', 'search_closure', 'ok', 2)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', conflicting_sample('handover_a', 'batch_a'))
+obligation('call_fidelity', 'original_call', selected_reading('logger_a', 'batch_a', 94))
+obligation('call_fidelity', 'original_call', selected_reading('logger_b', 'batch_b', 75))
+obligation('call_fidelity', 'original_call', quarantine('batch_a', 'logger_a'))
+obligation('call_fidelity', 'original_call', notify('north_depot', 'batch_a'))
+obligation('call_fidelity', 'original_call', notify('station_shop', 'batch_a'))
+obligation('call_fidelity', 'original_call', inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a'])))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(28)
 verified(20)
 recomputed(6)
 composed(0)
-trusted(0)
+trusted(7)
 claims(7)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -362,13 +372,19 @@ superseded: no higher-priority sensor read the same samples. The claim is about 
 world.
 
 The statistics: 28 steps, 20 verified against the program, 6 recomputed and
-the 2 absences settled by the certificate, none trusted. The verdict is
-**checked**: the answers follow from the program. It does not establish
+the 2 absences settled by the certificate, no boundary steps trusted. The verdict is
+**checked with obligations**: the answers follow from the program. It does not establish
 that eyemind found every answer.
 
 The supplied priorities express an evidence policy; they do not establish
 sensor calibration in the real world. Equal priorities can leave multiple
 readings selected. The program reports actions without executing them.
+
+C10 leaves 7 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

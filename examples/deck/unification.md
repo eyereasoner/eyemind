@@ -114,6 +114,12 @@ step(append(['b'], [], ['b']), clause(2), {X: 'b', Xs: [], Ys: [], Zs: []}, [app
 step(append([], [], []), clause(1), {Ys: []}, [])
 step(matching_pair(pair('same', 'same')), clause(3), {X: 'same'}, [])
 step(head_tail(['a', 'b', 'c'], 'a', ['b', 'c']), clause(4), {Head: 'a', Tail: ['b', 'c']}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(append(A, B, ['a', 'b']), [append([], ['a', 'b'], ['a', 'b']), append(['a'], ['b'], ['a', 'b']), append(['a', 'b'], [], ['a', 'b'])])
+called(append(C, D, ['b']), [append([], ['b'], ['b']), append(['b'], [], ['b'])])
+called(append(E, F, []), [append([], [], [])])
 ```
 
 It has three parts:
@@ -166,8 +172,8 @@ append(['a', 'b'], [], ['a', 'b'])
 matching_pair(pair('same', 'same'))
 head_tail(['a', 'b', 'c'], 'a', ['b', 'c'])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 8)
 condition('C2', 'well_founded', 'ok', 8)
 condition('C3', 'justification', 'ok', 8)
@@ -177,6 +183,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 13)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 5)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(8)

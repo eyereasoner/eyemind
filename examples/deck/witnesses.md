@@ -105,6 +105,13 @@ step(record_owner(record('person_rule', 'alice'), 'alice'), clause(3), {Name: 'a
 step(has_record('bob', record('person_rule', 'bob')), clause(3), {Name: 'bob'}, [person('bob')])
 step(person('bob'), clause(2), {}, [])
 step(record_owner(record('person_rule', 'bob'), 'bob'), clause(3), {Name: 'bob'}, [person('bob')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(has_record(A, B), [has_record('alice', record('person_rule', 'alice')), has_record('bob', record('person_rule', 'bob'))])
+derived(record_owner(A, B), [record_owner(record('person_rule', 'alice'), 'alice'), record_owner(record('person_rule', 'bob'), 'bob')])
+called(has_record(A, record('person_rule', A)), [has_record('alice', record('person_rule', 'alice')), has_record('bob', record('person_rule', 'bob'))])
+called(record_owner(record('person_rule', B), B), [record_owner(record('person_rule', 'alice'), 'alice'), record_owner(record('person_rule', 'bob'), 'bob')])
 ```
 
 It has three parts:
@@ -146,8 +153,8 @@ record_owner(record('person_rule', 'alice'), 'alice')
 has_record('bob', record('person_rule', 'bob'))
 record_owner(record('person_rule', 'bob'), 'bob')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 6)
 condition('C2', 'well_founded', 'ok', 6)
 condition('C3', 'justification', 'ok', 6)
@@ -157,6 +164,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 10)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 4)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(6)

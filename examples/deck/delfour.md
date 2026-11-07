@@ -350,8 +350,8 @@ step(not(contains('createdat expiresat insight metric sugar_g_per_serving retail
 step(not(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical')), 'absent', {}, [])
 // … 2 steps for the lower-sugar check and for all checks passing
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(beaten('delfour', 'prod_BIS_101'), [])
 searched(considers('delfour', A), [considers('delfour', 'prod_BIS_101')])
 searched(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'diabetes'), [])
@@ -441,7 +441,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 case_name('delfour', 'delfour')
 derived_need('sugar_insight', 'low_sugar')
 decision('delfour', 'Allowed', 'sugar_insight')
@@ -469,8 +469,8 @@ passed('delfour', 'minimal_payload')
 passed('delfour', 'lower_sugar')
 all_checks_pass('delfour')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 61)
 condition('C2', 'well_founded', 'ok', 70)
 condition('C3', 'justification', 'ok', 70)
@@ -480,17 +480,36 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 96)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 3)
+condition('C10', 'call_fidelity', 'ok', 10)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', decision('delfour', 'Allowed', 'sugar_insight'))
+obligation('call_fidelity', 'original_call', headline('delfour', 'Track sugar per serving while you scan'))
+obligation('call_fidelity', 'original_call', banner('delfour', 'Classic Tea Biscuits', 12.0))
+obligation('call_fidelity', 'original_call', note('delfour', 'High sugar'))
+obligation('call_fidelity', 'original_call', banner_alternative('delfour', 'Low-Sugar Tea Biscuits', 'aisle 7'))
+obligation('call_fidelity', 'original_call', passed('delfour', 'trusted_signature'))
+obligation('call_fidelity', 'original_call', passed('delfour', 'matching_hash'))
+obligation('call_fidelity', 'original_call', passed('delfour', 'complete_scope'))
+obligation('call_fidelity', 'original_call', passed('delfour', 'authorization'))
+obligation('call_fidelity', 'original_call', passed('delfour', 'high_sugar'))
+obligation('call_fidelity', 'original_call', passed('delfour', 'duty_timing'))
+obligation('call_fidelity', 'original_call', passed('delfour', 'marketing_prohibited'))
+obligation('call_fidelity', 'original_call', passed('delfour', 'expected_file_count'))
+obligation('call_fidelity', 'original_call', passed('delfour', 'minimal_payload'))
+obligation('call_fidelity', 'original_call', passed('delfour', 'lower_sugar'))
+obligation('call_fidelity', 'original_call', all_checks_pass('delfour'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(70)
 verified(61)
 recomputed(6)
 composed(0)
-trusted(0)
+trusted(16)
 claims(26)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -519,7 +538,7 @@ at:
   or either word in the shared text, as explained below.
 
 The statistics: 70 steps, 61 verified against the program, 6 recomputed and
-the 3 absences settled by the certificate, none trusted, none composed from
+the 3 absences settled by the certificate, no boundary steps trusted, none composed from
 parts; 26 claims.
 
 The three absences are, in plain words: *no product on the shelf has less
@@ -534,11 +553,17 @@ splitting the shared text starts with either word. Each expansion agrees
 with its line, so nothing is left as an obligation. Each absence is meant
 relative to this program.
 
-The verdict is **checked**: every claim follows from the program. As the last comment says, it
+The verdict is **checked with obligations**: every claim follows from the program. As the last comment says, it
 also does not establish completeness: it does not say these are all the
 conclusions the program has. And the `trusted_signature` check vouches only
 for the input's statement that the signature was verified upstream, not for
 the signature's bytes.
+
+C10 leaves 16 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

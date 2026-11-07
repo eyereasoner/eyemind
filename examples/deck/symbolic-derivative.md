@@ -163,6 +163,14 @@ step(d(divide(sym('y'), sub(sym('x'), num(1))), 'x', divide(sub(mul(num(0), sub(
 step(d(sym('y'), 'x', num(0)), clause(7), {Y: 'y', X: 'x'}, [not_identical('x', 'y')])
 step(not_identical('x', 'y'), 'builtin', {}, [])
 step(d(sub(sym('x'), num(1)), 'x', sub(num(1), num(0))), clause(9), {U: sym('x'), V: num(1), X: 'x', Du: num(1), Dv: num(0)}, [d(sym('x'), 'x', num(1)), d(num(1), 'x', num(0))])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(d(divide(sym('y'), sub(sym('x'), num(1))), 'x', A), [d(divide(sym('y'), sub(sym('x'), num(1))), 'x', divide(sub(mul(num(0), sub(sym('x'), num(1))), mul(sym('y'), sub(num(1), num(0)))), pow(sub(sym('x'), num(1)), 2)))])
+called(d(sym('y'), 'x', B), [d(sym('y'), 'x', num(0))])
+called(d(sub(sym('x'), num(1)), 'x', C), [d(sub(sym('x'), num(1)), 'x', sub(num(1), num(0)))])
+called(d(sym('x'), 'x', D), [d(sym('x'), 'x', num(1))])
+called(d(num(1), 'x', E), [d(num(1), 'x', num(0))])
 ```
 
 It has three parts:
@@ -225,15 +233,15 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1))))
 derivative('linear_plus_const', add(num(1), num(0)))
 derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0)))))))
 derivative('nested_log', divide(divide(num(1), sym('x')), log(sym('x'))))
 d(divide(sym('y'), sub(sym('x'), num(1))), 'x', divide(sub(mul(num(0), sub(sym('x'), num(1))), mul(sym('y'), sub(num(1), num(0)))), pow(sub(sym('x'), num(1)), 2)))
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 26)
 condition('C2', 'well_founded', 'ok', 29)
 condition('C3', 'justification', 'ok', 29)
@@ -243,17 +251,24 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 34)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 1)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1)))))
+obligation('call_fidelity', 'original_call', derivative('linear_plus_const', add(num(1), num(0))))
+obligation('call_fidelity', 'original_call', derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))))))))
+obligation('call_fidelity', 'original_call', derivative('nested_log', divide(divide(num(1), sym('x')), log(sym('x')))))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(29)
 verified(26)
 recomputed(3)
 composed(0)
-trusted(0)
+trusted(4)
 claims(5)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 The report first repeats the five answers it confirmed. Each `condition`
@@ -281,10 +296,16 @@ line then names a check, says `'ok'`, and counts what it looked at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 29 steps, 26 verified against the program, 3
-recomputed, none taken on trust. The verdict is **checked**: the five
+recomputed, no boundary steps taken on trust. The verdict is **checked with obligations**: the five
 derivatives follow from the program's rules of calculus. It confirms them;
 it does not say there are no other answers, and it does not judge whether
 the calculus rules themselves are written correctly.
+
+C10 leaves 4 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

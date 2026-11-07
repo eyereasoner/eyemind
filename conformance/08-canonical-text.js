@@ -970,5 +970,9 @@ conformance('a variable first shown in a step is named after those of the conclu
     'step(q(A), clause(2), {X: A, Z: B}, [p(A), p(B)])',
     'step(p(A), clause(1), {X: A}, [])',
     'step(p(B), clause(1), {X: B}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'called(q(A), [q(B)])',
   ]),
 ])

@@ -27,12 +27,16 @@
   {
     "name": "deep-taxonomy-100000",
     "description": "The same taxonomy benchmark at a hundred thousand levels",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "backward",
     "description": "Backward definitions inside forward bodies",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "fibonacci",
@@ -43,18 +47,23 @@
     "name": "graphs",
     "description": "Base data, negation and collection",
     "trusted": [
+      "call_fidelity",
       "collected"
     ]
   },
   {
     "name": "terms",
     "description": "Quoted graphs, triple terms and residual witnesses",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "existential-rules",
     "description": "Existential rules: a fresh witness per activation, never a clash",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "reachability",
@@ -64,7 +73,9 @@
   {
     "name": "shortest-path",
     "description": "Weighted paths and stratified minimum selection",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "path-discovery",
@@ -85,13 +96,16 @@
     "name": "inventory",
     "description": "An invoice from collected line totals",
     "trusted": [
+      "call_fidelity",
       "collected"
     ]
   },
   {
     "name": "permissions",
     "description": "Role permissions with exclusions",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "witnesses",
@@ -127,12 +141,16 @@
   {
     "name": "family-cousins",
     "description": "Generations, family branches and cousin relationships",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "dog-license",
     "description": "A licensing threshold based on collected dog counts",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "hanoi",
@@ -152,12 +170,16 @@
   {
     "name": "paraconsistent-animals",
     "description": "Local summaries of conflicting observations",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "scoped-audit",
     "description": "Presence and absence within separate quoted graphs",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "control-system",
@@ -187,12 +209,16 @@
   {
     "name": "expression-eval",
     "description": "Recursive expression graphs used in forward inference",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "complex",
     "description": "Complex arithmetic, exact over Gaussian integers and polar beyond them",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "polynomial",
@@ -202,12 +228,15 @@
   {
     "name": "interval-relations",
     "description": "All thirteen interval relations and endpoint completion",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "bayes-diagnosis",
     "description": "Normalized probabilities for illustrative printer faults",
     "trusted": [
+      "call_fidelity",
       "collected"
     ]
   },
@@ -215,23 +244,30 @@
     "name": "policy-risk",
     "description": "Ranked findings with explanations and suggested mitigations",
     "trusted": [
+      "call_fidelity",
       "collected"
     ]
   },
   {
     "name": "research-portal",
     "description": "A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "package-holiday",
     "description": "Package holiday cancellations under the tour operator's ODRL terms and the 2015 and revised EU Package Travel Directive",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "delfour",
     "description": "A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "queens",
@@ -261,7 +297,9 @@
   {
     "name": "goldbach",
     "description": "Goldbach splits of every power of two up to 2^25",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "kaprekar",
@@ -271,7 +309,9 @@
   {
     "name": "easter",
     "description": "Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "turing",
@@ -281,17 +321,23 @@
   {
     "name": "zebra",
     "description": "The zebra puzzle solved by narrowing five partially known houses",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "aunt-agatha",
     "description": "Who killed Aunt Agatha? A conclusion entailed by holding in every model of the premises",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "four-color",
     "description": "Four-colouring the map of the European Union",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "wolf-goat-cabbage",
@@ -301,7 +347,9 @@
   {
     "name": "monkey-bananas",
     "description": "Every plan of up to five moves that gets the monkey the bananas",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "gps",
@@ -311,17 +359,22 @@
   {
     "name": "superdense-coding",
     "description": "Superdense coding in discrete quantum theory, with interference as odd path counts",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "teleportation",
     "description": "Quantum teleportation in discrete quantum theory, checked for every state and outcome",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "audited-grants",
     "description": "A grant policy whose own proof and check report are read back as facts and audited, in the same language",
     "trusted": [
+      "call_fidelity",
       "collected"
     ]
   },
@@ -329,6 +382,7 @@
     "name": "data-value-right",
     "description": "A right to the value of personal data in the age of AI: how it fits existing EU law, and how it could become an autonomous right",
     "trusted": [
+      "call_fidelity",
       "collected"
     ]
   },
@@ -351,6 +405,7 @@
     "name": "rdf12-annotated-claims",
     "description": "Conflicting RDF 1.2 annotated claims ranked by confidence and trust, with typed literals read as numbers",
     "trusted": [
+      "call_fidelity",
       "collected"
     ]
   },
@@ -383,13 +438,16 @@
     "name": "knapsack-optimization",
     "description": "The 0/1 knapsack problem: the most valuable pack within a weight limit",
     "trusted": [
+      "call_fidelity",
       "collected"
     ]
   },
   {
     "name": "owl-property-chain",
     "description": "A property chain declared as data, followed by one general rule",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "type-inference",
@@ -399,57 +457,79 @@
   {
     "name": "deontic-logic",
     "description": "Obligations, prohibitions and compensation that does not erase a violation",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "nixon-diamond",
     "description": "A default guarded by negation, so a contrary rule takes priority",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "symbolic-derivative",
     "description": "Symbolic differentiation of structured formulas by the sum, product, quotient, power and chain rules",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "group-inverse-uniqueness",
     "description": "Uniqueness of group inverses derived from the associativity, identity and inverse laws",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "service-outage-recovery",
     "description": "Least-cost repairs that restore checkout through redundant providers and a dependency cycle",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "critical-path-schedule",
     "description": "Earliest task times and every critical predecessor in a launch schedule",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "battery-dispatch",
     "description": "Cheapest four-slot battery schedule under energy and power limits",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "cold-chain-recall",
     "description": "Conflicting temperature evidence, checkpoint filtering and a witnessed inspection task",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "school-placement-audit",
     "description": "Walking-route and preference scores audit provisional school placements",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "gcd-bezout-identity",
     "description": "Exact extended Euclidean certificates for positive, negative and zero inputs",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "pell-equation",
     "description": "Exact Pell solutions through step 50, checked against the defining equation",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "binomial-vandermonde",
@@ -459,31 +539,43 @@
   {
     "name": "least-squares-regression",
     "description": "Straight-line fits from exact sufficient statistics, with explicit degenerate cases",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "hamming-code",
     "description": "Parity syndromes and correction of a single flipped bit in Hamming(7,4)",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "derived-rule",
     "description": "An inline forward rule enabled by a cat and applied to a dog",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "derived-backward-rule",
     "description": "A captured inverse pair enables a reusable backward rule",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "derived-backward-rule-2",
     "description": "A conjunction of backward templates supplies premises for forward reasoning",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "rule-inspection",
     "description": "Inspecting a source rule as data while preserving its shared variable",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   }
 ]

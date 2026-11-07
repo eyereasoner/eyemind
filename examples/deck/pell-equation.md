@@ -206,7 +206,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 solution(0, 1, 0)
 solution(1, 3, 2)
 solution(5, 3363, 2378)
@@ -218,8 +218,8 @@ equation_holds(5)
 equation_holds(8)
 equation_holds(50)
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 66)
 condition('C2', 'well_founded', 'ok', 271)
 condition('C3', 'justification', 'ok', 271)
@@ -229,17 +229,30 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 281)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', solution(0, 1, 0))
+obligation('call_fidelity', 'original_call', solution(1, 3, 2))
+obligation('call_fidelity', 'original_call', solution(5, 3363, 2378))
+obligation('call_fidelity', 'original_call', solution(8, 665857, 470832))
+obligation('call_fidelity', 'original_call', solution(50, 94741125149636933417873079920900017937, 66992092050551637663438906713182313772))
+obligation('call_fidelity', 'original_call', equation_holds(0))
+obligation('call_fidelity', 'original_call', equation_holds(1))
+obligation('call_fidelity', 'original_call', equation_holds(5))
+obligation('call_fidelity', 'original_call', equation_holds(8))
+obligation('call_fidelity', 'original_call', equation_holds(50))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(271)
 verified(66)
 recomputed(205)
 composed(0)
-trusted(0)
+trusted(10)
 claims(10)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -268,12 +281,18 @@ at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 271 steps, 66 verified against the program, 205
-recomputed, none taken on trust. The verdict is **checked**: all five
+recomputed, no boundary steps taken on trust. The verdict is **checked with obligations**: all five
 solutions and their equation checks follow from the program.
 
 This checks the five requested instances. It does not establish that every
 nonnegative solution appears in this sequence, or provide an induction proof
 for all step numbers.
+
+C10 leaves 10 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

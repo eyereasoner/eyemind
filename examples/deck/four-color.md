@@ -217,8 +217,8 @@ step(not(conflict('green', [['Romania', 'red'], ['Croatia', 'red']], ['Romania',
 // … 55 more steps: the neighbours fact, the colour choice and the
 // no-conflict absence for each of the other 24 countries
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(conflict('red', [], ['Slovenia', 'Hungary']), [])
 searched(member([D, 'red'], []), [])
 searched(conflict('red', [['Croatia', 'red']], ['Hungary', 'Bulgaria']), [])
@@ -296,11 +296,11 @@ Germany (red) leave only yellow.
 only confirms each step against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 colors('mapEU', [['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 66)
 condition('C2', 'well_founded', 'ok', 95)
 condition('C3', 'justification', 'ok', 95)
@@ -310,17 +310,21 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 96)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 28)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', colors('mapEU', [['Belgium', 'yellow'], ['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']]))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(95)
 verified(66)
 recomputed(0)
 composed(1)
-trusted(0)
+trusted(1)
 claims(1)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -350,7 +354,7 @@ at:
   against the program.
 
 The statistics: 95 steps, 66 verified against the program, 1 composed from
-its parts and 28 settled, none trusted, 1 claim.
+its parts and 28 settled, no boundary steps trusted, 1 claim.
 
 The 28 settled steps, in plain words:
 
@@ -362,9 +366,15 @@ The 28 settled steps, in plain words:
   to Belgium (yellow, against France, the Netherlands, Luxemburg and
   Germany).
 
-The verdict is **checked**: the colouring follows from the program, with
-nothing taken on trust. The verdict does not establish completeness: it does not
+The verdict is **checked with obligations**: the colouring follows from the program, with
+no boundary step taken on trust. The verdict does not establish completeness: it does not
 say this is the only colouring.
+
+C10 leaves 1 original-call claim unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

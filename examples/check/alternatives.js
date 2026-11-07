@@ -4,8 +4,8 @@ route('paris', 'lille')
 or(train('paris', 'brussels'), bus('paris', 'lille'))
 once(route('paris', 'brussels'))
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 4)
 condition('C2', 'well_founded', 'ok', 6)
 condition('C3', 'justification', 'ok', 6)
@@ -15,6 +15,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 10)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 4)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(6)

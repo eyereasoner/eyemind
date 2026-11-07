@@ -234,8 +234,8 @@ ackermann([4, 1], 65533)
 ackermann([4, 2], 2003529930406846464979072351560255750447…) // … 19,729 digits
 ackermann([5, 0], 65533)
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 33)
 condition('C2', 'well_founded', 'ok', 74)
 condition('C3', 'justification', 'ok', 74)
@@ -245,6 +245,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 85)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 11)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(74)

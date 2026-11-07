@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 schedule('requirements', 0, 2)
 schedule('architecture', 2, 5)
 schedule('api_design', 2, 4)
@@ -19,8 +19,8 @@ critical_task('database')
 critical_task('architecture')
 critical_task('requirements')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 56)
 condition('C2', 'well_founded', 'ok', 78)
 condition('C3', 'justification', 'ok', 78)
@@ -30,14 +30,25 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 97)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 11)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', project_finish(23))
+obligation('call_fidelity', 'original_call', critical_task('launch'))
+obligation('call_fidelity', 'original_call', critical_task('security_review'))
+obligation('call_fidelity', 'original_call', critical_task('integration'))
+obligation('call_fidelity', 'original_call', critical_task('backend'))
+obligation('call_fidelity', 'original_call', critical_task('database'))
+obligation('call_fidelity', 'original_call', critical_task('architecture'))
+obligation('call_fidelity', 'original_call', critical_task('requirements'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(78)
 verified(56)
 recomputed(22)
 composed(0)
-trusted(0)
+trusted(8)
 claims(19)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')

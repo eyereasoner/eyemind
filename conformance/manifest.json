@@ -45,6 +45,11 @@
     "topic": "Valid proofs, search certificates, and proofs tampered with to break each of C1-C9, with their exact reports"
   },
   {
+    "file": "12-fidelity.js",
+    "spec": "10.5, 11.14, 13.1",
+    "topic": "C10 call fidelity: original bindings, ordered answers, closed call certificates and unsupported evidence"
+  },
+  {
     "file": "13-unused.js",
     "spec": "13.2",
     "topic": "Unused clauses, including those a negation or collection consults"

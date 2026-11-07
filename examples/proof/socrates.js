@@ -12,3 +12,8 @@ clause(3, implies([type(S, A), subclass_of(A, B)], type(S, B)))
 step(type('socrates', 'mortal'), clause(3), {S: 'socrates', A: 'human', B: 'mortal'}, [type('socrates', 'human'), subclass_of('human', 'mortal')])
 step(type('socrates', 'human'), clause(1), {}, [])
 step(subclass_of('human', 'mortal'), clause(2), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(type(A, B), [type('socrates', 'mortal')])
+called(type(A, B), [type('socrates', 'mortal'), type('socrates', 'human')])

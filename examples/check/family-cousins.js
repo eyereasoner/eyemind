@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 generation('bob', 1)
 generation('carol', 1)
 branch('heidi', 'b')
@@ -24,8 +24,8 @@ cousin('ivan', 'judy')
 cousin('judy', 'heidi')
 cousin('judy', 'ivan')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 38)
 condition('C2', 'well_founded', 'ok', 43)
 condition('C3', 'justification', 'ok', 43)
@@ -35,14 +35,38 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 67)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 3)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', generation('bob', 1))
+obligation('call_fidelity', 'original_call', generation('carol', 1))
+obligation('call_fidelity', 'original_call', generation('dave', 2))
+obligation('call_fidelity', 'original_call', generation('eve', 2))
+obligation('call_fidelity', 'original_call', generation('frank', 2))
+obligation('call_fidelity', 'original_call', generation('grace', 2))
+obligation('call_fidelity', 'original_call', cousin('dave', 'frank'))
+obligation('call_fidelity', 'original_call', cousin('dave', 'grace'))
+obligation('call_fidelity', 'original_call', cousin('eve', 'frank'))
+obligation('call_fidelity', 'original_call', cousin('eve', 'grace'))
+obligation('call_fidelity', 'original_call', cousin('frank', 'dave'))
+obligation('call_fidelity', 'original_call', cousin('frank', 'eve'))
+obligation('call_fidelity', 'original_call', cousin('grace', 'dave'))
+obligation('call_fidelity', 'original_call', cousin('grace', 'eve'))
+obligation('call_fidelity', 'original_call', generation('heidi', 3))
+obligation('call_fidelity', 'original_call', generation('ivan', 3))
+obligation('call_fidelity', 'original_call', generation('judy', 3))
+obligation('call_fidelity', 'original_call', cousin('heidi', 'judy'))
+obligation('call_fidelity', 'original_call', cousin('ivan', 'judy'))
+obligation('call_fidelity', 'original_call', cousin('judy', 'heidi'))
+obligation('call_fidelity', 'original_call', cousin('judy', 'ivan'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(43)
 verified(38)
 recomputed(5)
 composed(0)
-trusted(0)
+trusted(21)
 claims(24)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')

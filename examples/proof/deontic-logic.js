@@ -30,3 +30,11 @@ step(compensates('share_record', 'notify_dpo'), clause(3), {}, [])
 step(performed('alice', 'notify_dpo'), clause(5), {}, [])
 step(status('alice', 'requires_review'), clause(13), {Actor: 'alice', _0: missed_obligation('obtain_consent')}, [uncompensated_violation('alice', missed_obligation('obtain_consent'))])
 step(uncompensated_violation('alice', missed_obligation('obtain_consent')), clause(11), {Actor: 'alice', Action: 'obtain_consent'}, [violation('alice', missed_obligation('obtain_consent'))])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(violation(A, B), [violation('alice', missed_obligation('obtain_consent')), violation('alice', prohibited_action('share_record'))])
+derived(compensation(A, B), [compensation('alice', compensation('share_record', 'notify_dpo'))])
+called(violation(A, B), [violation('alice', missed_obligation('obtain_consent')), violation('alice', prohibited_action('share_record'))])
+called(compensation(C, D), [compensation('alice', compensation('share_record', 'notify_dpo'))])
+called(violation(E, prohibited_action(F)), [violation('alice', prohibited_action('share_record'))])

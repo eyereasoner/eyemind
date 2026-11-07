@@ -121,8 +121,8 @@ step(le(1400, 2500), 'builtin', {}, [])
 step(is(2000, add(1400, mul(600, sub(2, 1)))), 'builtin', {}, [])
 step(lt(800, 2000), 'builtin', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 derived(better_map_option(B, C), [better_map_option('ada', 'lindholmen'), better_map_option('ada', 'haga'), better_map_option('bjorn', 'backa'), better_map_option('clara', 'centrum'), better_map_option('davi', 'haga')])
 derived(better_route_option(B, C), [better_route_option('ada', 'haga'), better_route_option('clara', 'centrum')])
 derived(route_score(B, C, D), [route_score('ada', 'lindholmen', 1800), route_score('ada', 'haga', 3400), route_score('bjorn', 'backa', 2600), route_score('clara', 'haga', 800), route_score('clara', 'centrum', 2000), route_score('davi', 'haga', 1600)])

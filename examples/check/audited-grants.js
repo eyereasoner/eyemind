@@ -1,5 +1,5 @@
 // Answers checked subject to the obligations below.
-verdict('checked')
+verdict('checked_with_obligations')
 at_risk(grant('cara'), income('cara', 1800))
 at_risk(grant('dan'), income('dan', 2400))
 at_risk(top_up('dan'), income('dan', 2400))
@@ -10,8 +10,8 @@ explanation(grant('dan'), [applicant('dan'), income('dan', 2400)], [not(already_
 explanation(top_up('ann'), [household('ann', 4), applicant('ann'), income('ann', 2100)], [not(already_received('ann'))])
 explanation(top_up('dan'), [household('dan', 3), applicant('dan'), income('dan', 2400)], [not(already_received('dan'))])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 35)
 condition('C2', 'well_founded', 'ok', 47)
 condition('C3', 'justification', 'ok', 47)
@@ -21,8 +21,9 @@ condition('C6', 'boundary_consistency', 'ok', 6)
 condition('C7', 'relevance', 'ok', 57)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 1)
 
-// Obligations: absence and collection completeness are taken on trust.
+// Obligations: absence, collection or original-call evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, rests_on(refused('bob', 'income above 2500'), A), [applicant('bob'), income('bob', 2900)]))
 obligation('collected', 'theory_scoped', findall(A, assumes(refused('bob', 'income above 2500'), A), []))
 obligation('collected', 'theory_scoped', findall(A, rests_on(grant('ann'), A), [applicant('ann'), income('ann', 2100)]))
@@ -35,13 +36,22 @@ obligation('collected', 'theory_scoped', findall(A, rests_on(top_up('ann'), A), 
 obligation('collected', 'theory_scoped', findall(A, assumes(top_up('ann'), A), [not(already_received('ann'))]))
 obligation('collected', 'theory_scoped', findall(A, rests_on(top_up('dan'), A), [household('dan', 3), applicant('dan'), income('dan', 2400)]))
 obligation('collected', 'theory_scoped', findall(A, assumes(top_up('dan'), A), [not(already_received('dan'))]))
+obligation('call_fidelity', 'original_call', at_risk(grant('cara'), income('cara', 1800)))
+obligation('call_fidelity', 'original_call', at_risk(grant('dan'), income('dan', 2400)))
+obligation('call_fidelity', 'original_call', at_risk(top_up('dan'), income('dan', 2400)))
+obligation('call_fidelity', 'original_call', explanation(refused('bob', 'income above 2500'), [applicant('bob'), income('bob', 2900)], []))
+obligation('call_fidelity', 'original_call', explanation(grant('ann'), [applicant('ann'), income('ann', 2100)], [not(already_received('ann'))]))
+obligation('call_fidelity', 'original_call', explanation(grant('cara'), [applicant('cara'), income('cara', 1800)], [not(already_received('cara'))]))
+obligation('call_fidelity', 'original_call', explanation(grant('dan'), [applicant('dan'), income('dan', 2400)], [not(already_received('dan'))]))
+obligation('call_fidelity', 'original_call', explanation(top_up('ann'), [household('ann', 4), applicant('ann'), income('ann', 2100)], [not(already_received('ann'))]))
+obligation('call_fidelity', 'original_call', explanation(top_up('dan'), [household('dan', 3), applicant('dan'), income('dan', 2400)], [not(already_received('dan'))]))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(47)
 verified(35)
 recomputed(0)
 composed(0)
-trusted(12)
+trusted(21)
 claims(10)
 
 // This verdict applies to the claims above; it does not establish completeness.

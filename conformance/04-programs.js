@@ -208,6 +208,11 @@ conformance('fact states one fact per argument, numbered in order', [
     'step(p(1), clause(1), {}, [])',
     'step(q(2), clause(3), {X: 2}, [p(2)])',
     'step(p(2), clause(2), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(q(A), [q(1), q(2)])',
+    'called(q(A), [q(1), q(2)])',
   ]),
 ])
 
@@ -232,6 +237,13 @@ conformance('a forward rule may conclude several heads joined with &', [
     'step(a(1), clause(2), {X: 1}, [p(1)])',
     'step(p(1), clause(1), {}, [])',
     'step(b(1), clause(2), {X: 1}, [p(1)])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(a(A), [a(1)])',
+    'derived(b(A), [b(1)])',
+    'called(a(A), [a(1)])',
+    'called(b(B), [b(1)])',
   ]),
 ])
 
@@ -275,6 +287,10 @@ conformance('a body conjunction is split into its goals', [
     'step(r(1), clause(3), {X: 1}, [p(1), q(1)])',
     'step(p(1), clause(1), {}, [])',
     'step(q(1), clause(2), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'called(r(A), [r(1)])',
   ]),
 ])
 
@@ -355,6 +371,11 @@ conformance('several program files form one program, numbered in order', [
     '// absence or a collection), the bindings and the goals it uses.',
     'step(q(1), clause(2), {X: 1}, [p(1)])',
     'step(p(1), clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(q(A), [q(1)])',
+    'called(q(A), [q(1)])',
   ]),
 ])
 
@@ -1547,6 +1568,10 @@ conformance('anonymous variable names restart in every clause', [
     '// absence or a collection), the bindings and the goals it uses.',
     "step(q(1), clause(2), {_0: 1, _1: A, _2: 'x'}, [p(A, 'x')])",
     "step(p(A, 'x'), clause(1), {_0: A}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'called(q(1), [q(1)])',
   ]),
 ])
 
@@ -1898,10 +1923,12 @@ conformance('nested conjunction arrays in a body are flattened', [
     'step(p(1), clause(1), {}, [])',
     'step(q(1), clause(2), {}, [])',
     'step(s(1), clause(3), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'called(r(A), [r(1)])',
   ]),
 ])
-
-// Behaviors the specification settles explicitly (resolved gaps).
 
 conformance('scripts share no declarations', [
   spec('3.1'),

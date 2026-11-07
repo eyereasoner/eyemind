@@ -133,8 +133,8 @@ step(not(conflict('green', [['Luxemburg', 'green'], ['France', 'blue'], ['German
 step(neighbours('Belgium', ['France', 'Netherlands', 'Luxemburg', 'Germany']), clause(7), {}, [])
 step(not(conflict('yellow', [['Netherlands', 'green'], ['Luxemburg', 'green'], ['France', 'blue'], ['Germany', 'red'], ['Italy', 'red'], ['Denmark', 'green'], ['Ireland', 'red'], ['Greece', 'red'], ['Spain', 'green'], ['Portugal', 'red'], ['Austria', 'yellow'], ['Sweden', 'green'], ['Finland', 'red'], ['Cyprus', 'red'], ['Malta', 'red'], ['Poland', 'blue'], ['Hungary', 'blue'], ['Czech Republic', 'green'], ['Slovakia', 'red'], ['Slovenia', 'green'], ['Estonia', 'red'], ['Latvia', 'green'], ['Lithuania', 'red'], ['Bulgaria', 'green'], ['Romania', 'red'], ['Croatia', 'red']], ['France', 'Netherlands', 'Luxemburg', 'Germany'])), 'absent', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(conflict('red', [], ['Slovenia', 'Hungary']), [])
 searched(member([D, 'red'], []), [])
 searched(conflict('red', [['Croatia', 'red']], ['Hungary', 'Bulgaria']), [])

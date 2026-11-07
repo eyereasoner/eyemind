@@ -40,3 +40,9 @@ step(ne(5, 0), 'builtin', {}, [])
 step(is(1.46, div(7.3, 5)), 'builtin', {}, [])
 step(is(-2.92, mul(1.46, -2)), 'builtin', {}, [])
 step(is(26.08, add(29.0, -2.92)), 'builtin', {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(control1(_0, _1), [control1('actuator1', 39.27346198678276), control1('actuator2', 26.08)])
+called(measurement10('input1', C), [measurement10('input1', 2.23606797749979)])
+called(nonlinear_part(5, -2, D), [nonlinear_part(5, -2, -2.92)])

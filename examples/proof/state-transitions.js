@@ -29,3 +29,10 @@ step(opening_balance(100), clause(1), {}, [])
 step(is(125, add(100, 25)), 'builtin', {}, [])
 step(is(85, sub(125, 40)), 'builtin', {}, [])
 step(is(65, sub(85, 20)), 'builtin', {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(balance(3, A), [balance(3, 65)])
+called(balance(2, B), [balance(2, 85)])
+called(balance(1, C), [balance(1, 125)])
+called(balance(0, D), [balance(0, 100)])

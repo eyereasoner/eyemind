@@ -284,11 +284,11 @@ Anyone can check the answer this way, without redoing the search.
 only confirms each step against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 zebra('norwegian', 'japanese')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 54)
 condition('C2', 'well_founded', 'ok', 108)
 condition('C3', 'justification', 'ok', 108)
@@ -298,17 +298,21 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 109)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', zebra('norwegian', 'japanese'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(108)
 verified(54)
 recomputed(52)
 composed(2)
-trusted(0)
+trusted(1)
 claims(1)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -337,11 +341,17 @@ at:
   settle, so no search certificate to check.
 
 The statistics: 108 steps, 54 verified against the program, 52 recomputed,
-2 composed from their parts, none taken on trust.
+2 composed from their parts, no boundary steps taken on trust.
 
-The verdict is **checked**: this street satisfies every clue, so the answer
+The verdict is **checked with obligations**: this street satisfies every clue, so the answer
 follows from the program. It does not show that no *other* street would fit:
 the verdict does not establish completeness, and that was never claimed.
+
+C10 leaves 1 original-call claim unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

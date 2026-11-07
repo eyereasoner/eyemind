@@ -99,6 +99,20 @@ step(type('ind', 'n3'), clause(8), {X: 'ind'}, [type('ind', 'n2')])
 step(type('ind', 'n2'), clause(5), {X: 'ind'}, [type('ind', 'n1')])
 step(type('ind', 'n1'), clause(2), {X: 'ind'}, [type('ind', 'n0')])
 step(type('ind', 'n0'), clause(1), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(type(A, 'n10'), [type('ind', 'n10')])
+called(type(B, 'n9'), [type('ind', 'n9')])
+called(type(C, 'n8'), [type('ind', 'n8')])
+called(type(D, 'n7'), [type('ind', 'n7')])
+called(type(E, 'n6'), [type('ind', 'n6')])
+called(type(F, 'n5'), [type('ind', 'n5')])
+called(type(G, 'n4'), [type('ind', 'n4')])
+called(type(H, 'n3'), [type('ind', 'n3')])
+called(type(I, 'n2'), [type('ind', 'n2')])
+called(type(J, 'n1'), [type('ind', 'n1')])
+called(type(K, 'n0'), [type('ind', 'n0')])
 ```
 
 It has three parts:
@@ -143,8 +157,8 @@ against the program. This is the complete report:
 // Checked answers: these follow from the input program.
 type('ind', 'n10')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 11)
 condition('C2', 'well_founded', 'ok', 11)
 condition('C3', 'justification', 'ok', 11)
@@ -154,6 +168,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 12)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 1)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(11)

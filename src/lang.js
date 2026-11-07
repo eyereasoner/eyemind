@@ -642,7 +642,7 @@ function compile(source, url, names = null) {
   return new Function('__eyemind_scope__', `with (__eyemind_scope__) {\n${source}\n}\n//# sourceURL=${url}`);
 }
 
-const PROOF_LINE = /^step\(/m;
+const PROOF_LINE = /^(?:step|called)\(/m;
 const LEADING_CALL = /^([A-Za-z_$][\w$]*)[ \t]*\(/gm;
 const DECLARED = /\b(?:function\s*\*?\s*|class\s+|(?:const|let|var)\s+)([A-Za-z_$][\w$]*)|^[ \t]*([A-Za-z_$][\w$]*)[ \t]*=(?!=)/gm;
 // Statements of earlier versions, and what states the same clause now.

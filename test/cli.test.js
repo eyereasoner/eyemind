@@ -44,7 +44,7 @@ export const tests = {
     const asJson = cli(['--json', '--check-proof', '-', 'examples/socrates.js'], generated.stdout);
     assert.equal(asJson.code, 0);
     assert.ok(JSON.parse(asJson.stdout).valid);
-    assert.equal(JSON.parse(asJson.stdout).conditions.length, 9);
+    assert.equal(JSON.parse(asJson.stdout).conditions.length, 10);
     assert.equal(cli(['--check-proof', '-', 'examples/socrates.js'], `${generated.stdout}bogus()\n`).code, 2);
   },
 
@@ -86,6 +86,20 @@ export const tests = {
     for (const [short, long] of [['-p', '--proof'], ['-c', '--prove-and-check'], ['-v', '--version'], ['-h', '--help']]) {
       assert.ok(help.stdout.includes(`${short}, ${long}`));
     }
+  },
+
+  'call fidelity generates a C10 certificate and checks it automatically'() {
+    const generated = cli(['--proof', 'examples/socrates.js']);
+    assert.equal(generated.code, 0, generated.stderr);
+    const checked = cli(['--json', '--check-proof', '-', 'examples/socrates.js'], generated.stdout);
+    assert.equal(checked.code, 0, checked.stderr);
+    assert.equal(JSON.parse(checked.stdout).conditions.at(-1).id, 'C10');
+    const direct = cli(['--prove-and-check', '--json', 'examples/socrates.js']);
+    assert.deepEqual(JSON.parse(direct.stdout), JSON.parse(checked.stdout));
+    const legacy = readFileSync(join(ROOT, 'examples/proof/socrates.js'), 'utf8').split('\n').filter((line) => !line.startsWith('called(')).join('\n');
+    const missing = cli(['--strict-proof', '--check-proof', '-', 'examples/socrates.js'], legacy);
+    assert.equal(missing.code, 2);
+    assert.match(missing.stdout, /failure\('C10'/);
   },
 
   'a proof document given as a program says how to check it'() {
@@ -162,7 +176,7 @@ export const tests = {
     assert.equal(failed.stderr, '');
     assert.ok(failed.stdout.includes("condition('C5', 're_decision', failed(1), 0)\n"));
     assert.ok(failed.stdout.includes("failure('C5', is(7, add(2, 3)),"));
-    assert.ok(failed.stdout.includes('verdict(failed(1))\n'));
+    assert.ok(failed.stdout.includes('verdict(failed(2))\n'));
     const strictly = cli(['--strict-proof', '--check-proof', 'examples/proof/inventory.js', 'examples/inventory.js']);
     assert.equal(strictly.code, 2);
     assert.ok(strictly.stdout.includes("obligation('collected', 'theory_scoped',"));

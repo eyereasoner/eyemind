@@ -116,8 +116,8 @@ step(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'role', 'e
 step(member(triple('bob', 'role', 'editor'), [triple('bob', 'role', 'editor')]), clause(3), {X: triple('bob', 'role', 'editor'), _0: []}, [])
 step(not(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes'))), 'absent', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes')), [])
 searched(member(triple('bob', 'consent', 'yes'), [triple('bob', 'role', 'editor')]), [])
 searched(member(triple('bob', 'consent', 'yes'), []), [])
@@ -181,12 +181,12 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 consented('approved', 'alice')
 needs_review('incomplete', 'bob')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 9)
 condition('C2', 'well_founded', 'ok', 10)
 condition('C3', 'justification', 'ok', 10)
@@ -196,17 +196,22 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 12)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', consented('approved', 'alice'))
+obligation('call_fidelity', 'original_call', needs_review('incomplete', 'bob'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(10)
 verified(9)
 recomputed(0)
 composed(0)
-trusted(0)
+trusted(2)
 claims(2)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -245,8 +250,14 @@ one record, not "nothing anywhere".
 
 The statistics: 10 steps, 9 verified against the program and the absence
 settled by the certificate, so none is trusted and there are no
-obligations. The verdict is **checked**: both conclusions follow from the
+obligations. The verdict is **checked with obligations**: both conclusions follow from the
 program. It does not establish that eyemind found every conclusion.
+
+C10 leaves 2 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

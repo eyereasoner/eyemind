@@ -11,6 +11,11 @@ function invalid(document, condition, source = SOURCE) {
   assert.ok(report.failures.some((failure) => failure.condition === condition), JSON.stringify(report.failures));
 }
 
+// Boundary-specific assertions keep C10's independent claim obligations separate.
+const boundaries = (report) => report.trusted.filter(({ kind }) => kind !== 'call_fidelity');
+const strictBoundaries = (source, document) => checkProof(source, document, { allowTrusted: false })
+  .failures.filter(({ condition }) => condition !== 'C10');
+
 const facts = (report) => readTerms(checkReport(report)).map(([term]) => term);
 const named = (records, name) => records.filter((record) => record instanceof Struct && record.name === name);
 
@@ -34,7 +39,7 @@ export const tests = {
     const document = run(source, { proof: true }).proof;
     const report = checkProof(source, document);
     assert.deepEqual(report.answers, ["q('a')"]);
-    assert.match(checkReport(report), /^\/\/ Checked answers:[^\n]*\nq\('a'\)\n\n\/\/ C1-C9:/);
+    assert.match(checkReport(report), /^\/\/ Checked answers:[^\n]*\nq\('a'\)\n\n\/\/ C1-C10:/);
     const failed = checkProof(source, document.replace("step(q('a')", "step(q('b')"));
     assert.match(checkReport(failed), /^\/\/ Unverified claims:[^\n]*\nq\('a'\)/);
     assert.deepEqual(failed.answers, ["q('a')"]);
@@ -97,7 +102,7 @@ export const tests = {
     const failed = (value, expression) => {
       const document = `is(${value}, ${expression})\nstep(is(${value}, ${expression}), 'builtin', {}, [])\n`;
       const report = checkProof(program(''), document, { goals: [`is(X, ${expression})`] });
-      return report.failures.map((failure) => failure.condition);
+      return report.failures.filter(({ condition }) => condition !== 'C10').map((failure) => failure.condition);
     };
     const nested = 'div(mul(cos(1.25), sub(exp(0.5), exp(neg(0.5)))), 2)';
     const value = Number(run(program(`query(is(X, ${nested}))`)).answers[0].match(/^is\(([^,]+),/)[1]);
@@ -178,10 +183,10 @@ export const tests = {
     const source = program("fact(p('a'))\nimplies([p(X), not(missing(X))], out(X))\nimplied_by(missing(X), banned(X))");
     const document = run(source, { proof: true }).proof;
     assert.ok(document.includes("searched(missing('a'), [])"));
-    assert.equal(checkProof(source, document).trusted.length, 0);
-    assert.ok(checkProof(source, document, { allowTrusted: false }).valid);
+    assert.equal(boundaries(checkProof(source, document)).length, 0);
+    assert.deepEqual(strictBoundaries(source, document), []);
     const bare = withoutCertificate(document);
-    assert.equal(checkProof(source, bare).trusted.length, 1);
+    assert.equal(boundaries(checkProof(source, bare)).length, 1);
     assert.ok(!checkProof(source, bare, { allowTrusted: false }).valid);
   },
 
@@ -208,13 +213,13 @@ export const tests = {
     assert.deepEqual(c6(`${text}fact(blocked('c'))`), { id: 'C6', name: 'boundary_consistency', covered: 2, failed: 0 });
     // A ground primitive is recomputed, which settles it under C9 instead.
     const primitiveCheck = run(program('fact(p(1))\nimplies([p(X), not(lt(X, 0))], ok(X))'), { proof: true }).proofReport;
-    assert.deepEqual(primitiveCheck.conditions.slice(5, 6).concat(primitiveCheck.conditions.slice(8)), [
+    assert.deepEqual(primitiveCheck.conditions.slice(5, 6).concat(primitiveCheck.conditions.slice(8, 9)), [
       { id: 'C6', name: 'boundary_consistency', covered: 0, failed: 0 },
       { id: 'C9', name: 'search_closure', covered: 1, failed: 0 },
     ]);
     // An undecided absence is still an obligation, and evidence still refutes.
     const document = withoutCertificate(run(program(text), { proof: true }).proof);
-    assert.equal(checkProof(program(text), document).trusted.length, 2);
+    assert.equal(boundaries(checkProof(program(text), document)).length, 2);
     invalid(document, 'C6', program(`${text}fact(blocked('a'))`));
   },
 
@@ -289,7 +294,7 @@ export const tests = {
           const document = run(source, { proof: true }).proof;
           const actual = `skolem(${id}, 'W', [${context}])`;
           assert.ok(document.includes(actual));
-          assert.ok(checkProof(source, document, { allowTrusted: false }).valid);
+          assert.deepEqual(strictBoundaries(source, document), []);
           const forged = document.replaceAll(actual, `skolem(${id}, 'W', [])`);
           for (const text of [forged, forged.replace(/\{X:[^\n]*?\}, \[/g, '{}, [')]) {
             const report = checkProof(source, text, { allowTrusted: false });
@@ -323,8 +328,8 @@ query(owner(W))`);
     ]) {
       const source = program([...lines, 'implies(p(X), q(X, W))'].join('\n'));
       const result = run(source, { proof: true });
-      const report = checkProof(source, result.proof, { allowTrusted: false });
-      assert.ok(report.valid, `${lines.join('\n')}\n${JSON.stringify(report.failures)}`);
+      const report = checkProof(source, result.proof);
+      assert.deepEqual(strictBoundaries(source, result.proof), [], `${lines.join('\n')}\n${JSON.stringify(report.failures)}`);
     }
   },
 
@@ -345,7 +350,7 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
     ].join('\n');
     const report = checkProof(source, document);
     assert.deepEqual(report.failures.map(({ condition }) => condition), ['C8']);
-    assert.equal(report.trusted.length, 0);
+    assert.equal(boundaries(report).length, 0);
   },
 
   'a settled specific absence cannot establish freshness when its generalization is false'() {
@@ -357,16 +362,16 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
     const report = checkProof(source, document);
     assert.deepEqual(report.failures.map(({ condition }) => condition), ['C8']);
     assert.equal(report.conditions[8].covered, 1);
-    assert.equal(report.trusted.length, 0);
+    assert.equal(boundaries(report).length, 0);
   },
 
   'provenance cannot generalize a trusted collection into a stronger assumption'() {
     const source = program("implied_by(p(X), 'true')\nimplies(findall(X, p(X), L), q(L, W))");
     const document = run(source, { proof: true }).proof;
-    assert.ok(checkProof(source, document, { allowTrusted: false }).valid);
+    assert.deepEqual(strictBoundaries(source, document), []);
     const report = checkProof(source, withoutCertificate(document));
     assert.equal(report.valid, false);
-    assert.equal(report.trusted.length, 1);
+    assert.equal(boundaries(report).length, 1);
     assert.ok(report.failures.some(({ condition }) => condition === 'C8'));
   },
 
@@ -380,7 +385,7 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
           for (const allowTrusted of [false, true]) {
             const report = checkProof(source, document, { allowTrusted });
             assert.equal(report.valid, false);
-            assert.deepEqual(report.trusted, []);
+            assert.deepEqual(boundaries(report), []);
             assert.equal(report.conditions[2].failed, 1);
             assert.equal(report.conditions[4].failed, 0);
             assert.equal(report.conditions[5].covered, 0);
@@ -404,10 +409,11 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
       { id: 'C7', name: 'relevance', covered: 4, failed: 0 },
       { id: 'C8', name: 'witness_integrity', covered: 0, failed: 0 },
       { id: 'C9', name: 'search_closure', covered: 0, failed: 0 },
+      { id: 'C10', name: 'call_fidelity', covered: 1, failed: 0 },
     ]);
     assert.equal(report.uses, 2);
     assert.equal(verdictText(report), "verdict('checked')\n");
-    assert.equal(named(facts(report), 'condition').length, 9);
+    assert.equal(named(facts(report), 'condition').length, 10);
     assert.ok(checkReport(report).includes('recomputed(1)\n'));
   },
 
@@ -462,20 +468,20 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
     assert.ok(checkReport(strictly).includes("condition('C5', 're_decision', failed(1), 0)\n"));
   },
 
-  'a search certificate settles absences and collections, so a strict check accepts them'() {
+  'a search certificate settles absences and collections without boundary obligations'() {
     const result = run(CERTIFIED, { proof: true });
     for (const line of ["searched(path('a', 'a'), [])", "searched(path('b', E), [path('b', 'c')])",
       "searched(path('a', D), [path('a', 'b'), path('a', 'c')])", "searched(tagged(G, H), [tagged('a', I), tagged('b', J)])"]) {
       assert.ok(result.proof.includes(`\n${line}\n`), line);
     }
-    assert.equal(result.proofReport.trusted.length, 0);
+    assert.equal(boundaries(result.proofReport).length, 0);
     assert.equal(result.proofReport.conditions[8].covered, 4);
-    assert.ok(checkProof(CERTIFIED, result.proof, { allowTrusted: false }).valid);
+    assert.deepEqual(strictBoundaries(CERTIFIED, result.proof), []);
     // Facts alone need no table: their search is scanned where it stands.
     const facts = program("fact(p('a'))\nimplies([p(X), not(q(X))], r(X))\nimplies(findall(X, p(X), L), all(L))");
     const plain = run(facts, { proof: true });
     assert.ok(!plain.proof.includes('searched('));
-    assert.equal(plain.proofReport.trusted.length, 0);
+    assert.equal(boundaries(plain.proofReport).length, 0);
   },
 
   'a search table that disagrees with its one-level expansion fails C9'() {
@@ -503,7 +509,7 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
     const source = program("fact(r('n'))\nfact(k('n'), k('a'))\nimplies(r(X), np(X))\nimplies([k(X), not(np(X))], pac(X))");
     const document = run(source, { proof: true }).proof;
     assert.ok(document.includes("\nderived(np(A), [np('n')])\n"));
-    assert.ok(checkProof(source, document, { allowTrusted: false }).valid);
+    assert.deepEqual(strictBoundaries(source, document), []);
     invalid(document.replace("derived(np(A), [np('n')])", 'derived(np(A), [])'), 'C9', source);
     invalid(document.replace("derived(np(A), [np('n')])", "derived(np(A), [np('n'), np('z')])"), 'C9', source);
     invalid(document.replace("derived(np(A), [np('n')])", "derived(np(A), [np('n'), k('a')])"), 'C9', source);
@@ -547,7 +553,7 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
     for (const forged of [document, reordered]) {
       const report = checkProof(source, forged);
       assert.ok(report.valid, JSON.stringify(report.failures));
-      assert.equal(report.trusted.length, 2);
+      assert.equal(boundaries(report).length, 2);
       assert.ok(report.trusted.some(({ conclusion }) => conclusion.includes(', a(')));
       assert.equal(report.conditions[8].covered, 0);
       const strict = checkProof(source, forged, { allowTrusted: false });
@@ -579,13 +585,13 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
     ].join('\n'));
     const result = run(source, { proof: true, maxInferences: 5000 });
     assert.deepEqual(result.answers, ['r1(0)']);
-    assert.deepEqual(result.proofReport.trusted.map((item) => item.kind), ['absent']);
+    assert.deepEqual(boundaries(result.proofReport).map((item) => item.kind), ['absent']);
   },
 
   'a collection whose answers rest on derived facts stays an obligation'() {
     const source = program('fact(a(1), a(2))\nimplies(a(X), b(X))\nimplies(findall(X, b(X), L), all(L))');
     const result = run(source, { proof: true });
-    assert.deepEqual(result.proofReport.trusted.map((item) => item.kind), ['collected']);
+    assert.deepEqual(boundaries(result.proofReport).map((item) => item.kind), ['collected']);
     assert.ok(!result.proof.includes('searched('));
   },
 
@@ -601,7 +607,7 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
   'malformed document diagnostics stay readable data'() {
     const report = checkProof(program(''), "p('unterminated");
     const records = facts(report);
-    assert.equal(named(records, 'condition').length, 9);
+    assert.equal(named(records, 'condition').length, 10);
     const [failure] = named(records, 'failure');
     assert.equal(failure.args[1], 'proof_document');
     assert.equal(failure.args[2], report.failures[0].detail);

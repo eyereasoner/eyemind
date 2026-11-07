@@ -38,3 +38,8 @@ step(reachable('a', 'a'), clause(6), {X: 'a', Y: 'c', Z: 'a'}, [reachable('a', '
 step(reachable('a', 'd'), clause(6), {X: 'a', Y: 'c', Z: 'd'}, [reachable('a', 'c'), edge('c', 'd')])
 step(reachable('b', 'b'), clause(6), {X: 'b', Y: 'a', Z: 'b'}, [reachable('b', 'a'), edge('a', 'b')])
 step(reachable('c', 'c'), clause(6), {X: 'c', Y: 'b', Z: 'c'}, [reachable('c', 'b'), edge('b', 'c')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(reachable(A, B), [reachable('a', 'b'), reachable('b', 'c'), reachable('c', 'a'), reachable('c', 'd'), reachable('a', 'c'), reachable('b', 'a'), reachable('b', 'd'), reachable('c', 'b'), reachable('a', 'a'), reachable('a', 'd'), reachable('b', 'b'), reachable('c', 'c')])
+called(reachable(A, B), [reachable('a', 'b'), reachable('b', 'c'), reachable('c', 'a'), reachable('c', 'd'), reachable('a', 'c'), reachable('b', 'a'), reachable('b', 'd'), reachable('c', 'b'), reachable('a', 'a'), reachable('a', 'd'), reachable('b', 'b'), reachable('c', 'c')])

@@ -160,8 +160,8 @@ step(objectionable('interpret_existing_law'), clause(54), {O: 'interpret_existin
 step(objectionable('extend_portability'), clause(54), {O: 'extend_portability', Why: unaddressed('use_control')}, [objection('extend_portability', unaddressed('use_control'))])
 step(objectionable('data_dividend'), clause(54), {O: 'data_dividend', Why: unaddressed('value_transparency')}, [objection('data_dividend', unaddressed('value_transparency'))])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 derived(fully_anchored(F), [fully_anchored('value_recognition'), fully_anchored('individual_enforcement')])
 derived(anchored(F), [anchored('value_transparency'), anchored('use_control'), anchored('value_mobility'), anchored('value_recognition'), anchored('collective_exercise'), anchored('individual_enforcement')])
 derived(delivers(F, G), [delivers('interpret_existing_law', 'value_transparency'), delivers('interpret_existing_law', 'use_control'), delivers('interpret_existing_law', 'value_mobility'), delivers('interpret_existing_law', 'value_recognition'), delivers('interpret_existing_law', 'collective_exercise'), delivers('interpret_existing_law', 'individual_enforcement')])

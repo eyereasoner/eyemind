@@ -303,8 +303,8 @@ step(le(1400, 2500), 'builtin', {}, [])
 step(is(2000, add(1400, mul(600, sub(2, 1)))), 'builtin', {}, [])
 step(lt(800, 2000), 'builtin', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 derived(better_map_option(B, C), [better_map_option('ada', 'lindholmen'), better_map_option('ada', 'haga'), better_map_option('bjorn', 'backa'), better_map_option('clara', 'centrum'), better_map_option('davi', 'haga')])
 derived(better_route_option(B, C), [better_route_option('ada', 'haga'), better_route_option('clara', 'centrum')])
 derived(route_score(B, C, D), [route_score('ada', 'lindholmen', 1800), route_score('ada', 'haga', 3400), route_score('bjorn', 'backa', 2600), route_score('clara', 'haga', 800), route_score('clara', 'centrum', 2000), route_score('davi', 'haga', 1600)])
@@ -399,7 +399,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 provisional('ada', 'centrum')
 provisional('bjorn', 'centrum')
 provisional('clara', 'haga')
@@ -419,8 +419,8 @@ audit_flag('ada', 'assignment_differs')
 audit_flag('bjorn', 'assignment_differs')
 audit_flag('davi', 'assignment_differs')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 42)
 condition('C2', 'well_founded', 'ok', 79)
 condition('C3', 'justification', 'ok', 79)
@@ -430,17 +430,38 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 97)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 11)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', provisional('ada', 'centrum'))
+obligation('call_fidelity', 'original_call', provisional('bjorn', 'centrum'))
+obligation('call_fidelity', 'original_call', provisional('clara', 'haga'))
+obligation('call_fidelity', 'original_call', provisional('davi', 'centrum'))
+obligation('call_fidelity', 'original_call', recommended('ada', 'lindholmen', 1800))
+obligation('call_fidelity', 'original_call', recommended('bjorn', 'backa', 2600))
+obligation('call_fidelity', 'original_call', recommended('clara', 'haga', 800))
+obligation('call_fidelity', 'original_call', recommended('davi', 'haga', 1600))
+obligation('call_fidelity', 'original_call', hidden_detour('ada', 3000))
+obligation('call_fidelity', 'original_call', hidden_detour('bjorn', 2000))
+obligation('call_fidelity', 'original_call', hidden_detour('clara', 150))
+obligation('call_fidelity', 'original_call', hidden_detour('davi', 1800))
+obligation('call_fidelity', 'original_call', audit_flag('ada', 'walking_limit_exceeded'))
+obligation('call_fidelity', 'original_call', audit_flag('bjorn', 'walking_limit_exceeded'))
+obligation('call_fidelity', 'original_call', audit_flag('davi', 'walking_limit_exceeded'))
+obligation('call_fidelity', 'original_call', audit_flag('ada', 'assignment_differs'))
+obligation('call_fidelity', 'original_call', audit_flag('bjorn', 'assignment_differs'))
+obligation('call_fidelity', 'original_call', audit_flag('davi', 'assignment_differs'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(79)
 verified(42)
 recomputed(26)
 composed(0)
-trusted(0)
+trusted(18)
 claims(18)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -472,7 +493,7 @@ at:
 
 The statistics: 79 steps, of which 42 were verified against the program, 26
 recomputed and 11 settled by the certificate; none was composed from parts
-and none trusted; 18 claims.
+and no boundary steps trusted; 18 claims.
 
 The 11 settled absences are, in plain words: *for each placed school no
 better map option exists*, *for each recommended school no better route
@@ -480,7 +501,7 @@ option exists*, and *Ada, Bjorn and Davi have no recommendation at
 Centrum*. Each is meant relative to this program: the absence is true if
 the program's rules cannot produce the missing conclusion.
 
-The verdict is **checked**: every claim follows from the program. The
+The verdict is **checked with obligations**: every claim follows from the program. The
 checker did not re-search for the absences; it verified the written record
 of the search. As the last comment says, the
 verdict also does not establish completeness: it does not say these are all
@@ -489,6 +510,12 @@ the conclusions the program has.
 This policy is illustrative. There are no school-capacity limits, sibling
 priorities or shared-seat allocation; each child's options are evaluated
 independently.
+
+C10 leaves 18 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

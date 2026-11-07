@@ -3,6 +3,7 @@ import { PRIMITIVE_KEYS, primitive } from './builtins.js';
 import { Reliance, Settler, Unsettled } from './closure.js';
 import { freshClause, matchHead, renaming, text, variant } from './common.js';
 import { goalTerm, subgoals } from './goals.js';
+import { callQuestions, positiveListings } from './fidelity.js';
 import { INSPECTION_KEYS } from './inspection.js';
 import { checkRendered, clauseDisplay, renderProof } from './proof.js';
 import { CONTROL_KEYS, Program } from './program.js';
@@ -925,7 +926,7 @@ export function skolemTerms(clause, head, unresolved, env, context = null) {
 // then checks each table again, and each boundary against what the run found.
 // A boundary the certificate cannot settle stays an obligation; one the run
 // and its certificate disagree on is an error, since a proof must not hide it.
-function certify(solver, boundaries) {
+function certify(solver, boundaries, operational = false) {
   const program = solver.program;
   const computed = new Map();
   const met = new Map();
@@ -933,14 +934,17 @@ function certify(solver, boundaries) {
   const listed = new Map();
   let budget = 0;
   let depth = 0;
+  let volume = 0;
+  const limit = operational ? Math.min(solver.maxInferences, 50000) : solver.maxInferences;
+  const callKeyOf = (call) => variant(call, operational);
   const settler = new Settler(program, {
     answers(call) {
-      const callKey = variant(call);
+      const callKey = callKeyOf(call);
       if (computed.has(callKey)) return computed.get(callKey);
       if (!met.has(callKey)) met.set(callKey, met.size);
       // A search that met its own call again would not have finished, and
       // one that keeps meeting new calls is cut off.
-      if (open.has(callKey) || ++budget > solver.maxInferences) throw new Unsettled();
+      if (open.has(callKey) || ++budget > limit) throw new Unsettled();
       // Deep searches are taken up again from an explicit stack.
       if (depth >= CERTIFY_DEPTH) throw new Missing(call);
       depth++;
@@ -950,9 +954,11 @@ function certify(solver, boundaries) {
         const env = new Env();
         const answers = [];
         for (const _ of settler.expand(term, env, new Reliance())) { // eslint-disable-line no-unused-vars
-          if (++budget > solver.maxInferences) throw new Unsettled();
+          if (++budget > limit) throw new Unsettled();
           // Each answer is written with variables of its own.
-          answers.push(freshTerm(copyResolved(term, env), `answer${++settler.serial}`));
+          const answer = freshTerm(copyResolved(term, env), `answer${++settler.serial}`);
+          if (operational && (volume += text(answer).length) > 8 * 1024 * 1024) throw new Unsettled();
+          answers.push(answer);
         }
         computed.set(callKey, answers);
         return answers;
@@ -967,25 +973,26 @@ function certify(solver, boundaries) {
       }
     },
     facts(goalKey) {
+      if (operational && !positiveListings(program, [goalKey])) throw new Unsettled();
       const nodes = solver.facts.get(goalKey) || NO_NODES;
       if (nodes.some((node) => node.generic)) throw new Unsettled();
       listed.set(goalKey, nodes);
       return nodes.map((node) => node.goal);
     },
     supported: () => true,
-  });
+  }, operational);
   // Answer a call too deep to reach directly, and the deeper calls it needs.
   function ensure(start) {
     const pending = [start];
-    const waiting = new Set([variant(start)]);
+    const waiting = new Set([callKeyOf(start)]);
     while (pending.length) {
       const call = pending[pending.length - 1];
       try {
         settler.source.answers(call);
-        waiting.delete(variant(pending.pop()));
+        waiting.delete(callKeyOf(pending.pop()));
       } catch (error) {
         if (!(error instanceof Missing)) throw error;
-        const deeper = variant(error.call);
+        const deeper = callKeyOf(error.call);
         if (waiting.has(deeper)) throw new Unsettled();
         waiting.add(deeper);
         pending.push(error.call);
@@ -997,9 +1004,10 @@ function certify(solver, boundaries) {
   for (const boundary of boundaries) {
     let outcome = null;
     budget = 0;
+    volume = 0;
     while (outcome === null) {
       try {
-        outcome = settler.settle(boundary);
+        outcome = operational ? settler.answers(boundary) : settler.settle(boundary);
       } catch (error) {
         if (!(error instanceof Missing)) throw error;
         try {
@@ -1010,7 +1018,7 @@ function certify(solver, boundaries) {
         }
       }
     }
-    if (outcome.status === 'settled') {
+    if (outcome.status === 'settled' && (!operational || positiveListings(program, outcome.listings))) {
       for (const item of outcome.tables) tables.add(item);
       for (const item of outcome.listings) listings.add(item);
     } else if (outcome.status === 'failed') {
@@ -1142,7 +1150,11 @@ function reason(program, goalInputs, options) {
     return out;
   });
   const rendered = options.proof
-    ? renderProof(program, claims, roots, true, heading, (boundaries) => certify(solver, boundaries)) : null;
+    ? renderProof(program, claims, roots, true, heading, (boundaries) => {
+      const ordinary = certify(solver, boundaries);
+      const calls = certify(solver, callQuestions(program, goalInputs, claims), true);
+      return { ...ordinary, calls: calls.tables, listings: [...new Map([...ordinary.listings, ...calls.listings])] };
+    }) : null;
   const document = rendered !== null ? rendered[0] : null;
   // A rule that reports a claim is used by it, though a proof records only
   // the claim's support.

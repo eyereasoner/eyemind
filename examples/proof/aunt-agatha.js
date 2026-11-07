@@ -85,8 +85,8 @@ step(findall(A, model('charles', A), []), 'collected', {}, [])
 step(entailed(killed('agatha', 'agatha')), clause(33), {N: 4}, [models('agatha', 4), gt(4, 0), models('butler', 0), models('charles', 0)])
 step(gt(4, 0), 'builtin', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(model('agatha', B), [model('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no'))), model('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))), model('agatha', world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no'))), model('agatha', world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')))])
 searched(label(['no', 'yes', 'yes', 'yes', 'no', 'yes', 'yes', C, 'yes', 'no', D, 'no']), [label(['no', 'yes', 'yes', 'yes', 'no', 'yes', 'yes', 'yes', 'yes', 'no', 'yes', 'no']), label(['no', 'yes', 'yes', 'yes', 'no', 'yes', 'yes', 'yes', 'yes', 'no', 'no', 'no']), label(['no', 'yes', 'yes', 'yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no']), label(['no', 'yes', 'yes', 'yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'])])
 searched(label(['yes', 'yes', 'yes', 'no', 'yes', 'yes', E, 'yes', 'no', F, 'no']), [label(['yes', 'yes', 'yes', 'no', 'yes', 'yes', 'yes', 'yes', 'no', 'yes', 'no']), label(['yes', 'yes', 'yes', 'no', 'yes', 'yes', 'yes', 'yes', 'no', 'no', 'no']), label(['yes', 'yes', 'yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no']), label(['yes', 'yes', 'yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'])])

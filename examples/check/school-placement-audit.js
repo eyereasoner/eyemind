@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 provisional('ada', 'centrum')
 provisional('bjorn', 'centrum')
 provisional('clara', 'haga')
@@ -18,8 +18,8 @@ audit_flag('ada', 'assignment_differs')
 audit_flag('bjorn', 'assignment_differs')
 audit_flag('davi', 'assignment_differs')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 42)
 condition('C2', 'well_founded', 'ok', 79)
 condition('C3', 'justification', 'ok', 79)
@@ -29,14 +29,35 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 97)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 11)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', provisional('ada', 'centrum'))
+obligation('call_fidelity', 'original_call', provisional('bjorn', 'centrum'))
+obligation('call_fidelity', 'original_call', provisional('clara', 'haga'))
+obligation('call_fidelity', 'original_call', provisional('davi', 'centrum'))
+obligation('call_fidelity', 'original_call', recommended('ada', 'lindholmen', 1800))
+obligation('call_fidelity', 'original_call', recommended('bjorn', 'backa', 2600))
+obligation('call_fidelity', 'original_call', recommended('clara', 'haga', 800))
+obligation('call_fidelity', 'original_call', recommended('davi', 'haga', 1600))
+obligation('call_fidelity', 'original_call', hidden_detour('ada', 3000))
+obligation('call_fidelity', 'original_call', hidden_detour('bjorn', 2000))
+obligation('call_fidelity', 'original_call', hidden_detour('clara', 150))
+obligation('call_fidelity', 'original_call', hidden_detour('davi', 1800))
+obligation('call_fidelity', 'original_call', audit_flag('ada', 'walking_limit_exceeded'))
+obligation('call_fidelity', 'original_call', audit_flag('bjorn', 'walking_limit_exceeded'))
+obligation('call_fidelity', 'original_call', audit_flag('davi', 'walking_limit_exceeded'))
+obligation('call_fidelity', 'original_call', audit_flag('ada', 'assignment_differs'))
+obligation('call_fidelity', 'original_call', audit_flag('bjorn', 'assignment_differs'))
+obligation('call_fidelity', 'original_call', audit_flag('davi', 'assignment_differs'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(79)
 verified(42)
 recomputed(26)
 composed(0)
-trusted(0)
+trusted(18)
 claims(18)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')

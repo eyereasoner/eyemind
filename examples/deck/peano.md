@@ -179,8 +179,8 @@ add(s('zero'), s(s('zero')), s(s(s('zero'))))
 add('zero', s(s(s('zero'))), s(s(s('zero'))))
 and(multiply(s('zero'), s(s('zero')), s(s('zero'))), add(s(s('zero')), s(s(s('zero'))), s(s(s(s(s('zero')))))), factorial(s(s(s(s(s('zero'))))), s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s('zero'))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 198)
 condition('C2', 'well_founded', 'ok', 198)
 condition('C3', 'justification', 'ok', 198)
@@ -190,6 +190,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 203)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 5)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(198)

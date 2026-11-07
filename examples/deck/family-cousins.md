@@ -224,6 +224,17 @@ step(cousin('heidi', 'judy'), clause(17), {X: 'heidi', N: 3, Y: 'judy', A: 'b', 
 step(cousin('ivan', 'judy'), clause(17), {X: 'ivan', N: 3, Y: 'judy', A: 'b', B: 'c'}, [generation('ivan', 3), generation('judy', 3), branch('ivan', 'b'), branch('judy', 'c'), not_unify('b', 'c')])
 step(cousin('judy', 'heidi'), clause(17), {X: 'judy', N: 3, Y: 'heidi', A: 'c', B: 'b'}, [generation('judy', 3), generation('heidi', 3), branch('judy', 'c'), branch('heidi', 'b'), not_unify('c', 'b')])
 step(cousin('judy', 'ivan'), clause(17), {X: 'judy', N: 3, Y: 'ivan', A: 'c', B: 'b'}, [generation('judy', 3), generation('ivan', 3), branch('judy', 'c'), branch('ivan', 'b'), not_unify('c', 'b')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(branch(A, B), [branch('heidi', 'b'), branch('ivan', 'b'), branch('judy', 'c')])
+called(branch(A, B), [branch('heidi', 'b'), branch('ivan', 'b'), branch('judy', 'c'), branch('dave', 'b'), branch('eve', 'b'), branch('frank', 'c'), branch('grace', 'c')])
+called(branch('adam', C), [])
+called(branch('bob', C), [])
+called(branch('carol', C), [])
+called(branch('dave', C), [branch('dave', 'b')])
+called(branch('eve', C), [branch('eve', 'b')])
+called(branch('frank', C), [branch('frank', 'c')])
 ```
 
 It has three parts:
@@ -298,7 +309,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 generation('bob', 1)
 generation('carol', 1)
 branch('heidi', 'b')
@@ -324,8 +335,8 @@ cousin('ivan', 'judy')
 cousin('judy', 'heidi')
 cousin('judy', 'ivan')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 38)
 condition('C2', 'well_founded', 'ok', 43)
 condition('C3', 'justification', 'ok', 43)
@@ -335,17 +346,41 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 67)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 3)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', generation('bob', 1))
+obligation('call_fidelity', 'original_call', generation('carol', 1))
+obligation('call_fidelity', 'original_call', generation('dave', 2))
+obligation('call_fidelity', 'original_call', generation('eve', 2))
+obligation('call_fidelity', 'original_call', generation('frank', 2))
+obligation('call_fidelity', 'original_call', generation('grace', 2))
+obligation('call_fidelity', 'original_call', cousin('dave', 'frank'))
+obligation('call_fidelity', 'original_call', cousin('dave', 'grace'))
+obligation('call_fidelity', 'original_call', cousin('eve', 'frank'))
+obligation('call_fidelity', 'original_call', cousin('eve', 'grace'))
+obligation('call_fidelity', 'original_call', cousin('frank', 'dave'))
+obligation('call_fidelity', 'original_call', cousin('frank', 'eve'))
+obligation('call_fidelity', 'original_call', cousin('grace', 'dave'))
+obligation('call_fidelity', 'original_call', cousin('grace', 'eve'))
+obligation('call_fidelity', 'original_call', generation('heidi', 3))
+obligation('call_fidelity', 'original_call', generation('ivan', 3))
+obligation('call_fidelity', 'original_call', generation('judy', 3))
+obligation('call_fidelity', 'original_call', cousin('heidi', 'judy'))
+obligation('call_fidelity', 'original_call', cousin('ivan', 'judy'))
+obligation('call_fidelity', 'original_call', cousin('judy', 'heidi'))
+obligation('call_fidelity', 'original_call', cousin('judy', 'ivan'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(43)
 verified(38)
 recomputed(5)
 composed(0)
-trusted(0)
+trusted(21)
 claims(24)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 The report first repeats the 24 conclusions it confirmed. Each `condition`
@@ -373,9 +408,15 @@ line then names a check, says `'ok'`, and counts what it looked at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 43 steps, 38 verified against the program, 5
-recomputed, none taken on trust. The verdict is **checked**: all 24
+recomputed, no boundary steps taken on trust. The verdict is **checked with obligations**: all 24
 conclusions follow from the program. It confirms them; it does not say the
 program's definition of cousin is the right one.
+
+C10 leaves 21 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

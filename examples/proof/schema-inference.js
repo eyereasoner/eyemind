@@ -35,3 +35,18 @@ step(type('alice', 'person'), clause(11), {S: 'alice', P: 'parent_of', _0: 'bob'
 step(domain('parent_of', 'person'), clause(4), {}, [])
 step(type('bob', 'person'), clause(12), {_0: 'alice', P: 'parent_of', O: 'bob', Class: 'person'}, [triple('alice', 'parent_of', 'bob'), codomain('parent_of', 'person')])
 step(codomain('parent_of', 'person'), clause(5), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(subclass(A, B), [subclass('cat', 'animal')])
+derived(type(A, B), [type('koko', 'animal'), type('koko', 'mammal'), type('alice', 'person'), type('bob', 'person')])
+derived(triple(A, B, C), [triple('alice', 'related_to', 'bob')])
+called(subclass(A, B), [subclass('cat', 'animal'), subclass('cat', 'mammal'), subclass('mammal', 'animal')])
+called(subclass('animal', C), [])
+called(subclass('mammal', C), [subclass('mammal', 'animal')])
+called(type(D, E), [type('koko', 'animal'), type('koko', 'mammal'), type('alice', 'person'), type('bob', 'person'), type('koko', 'cat')])
+called(subclass('person', F), [])
+called(subclass('cat', F), [subclass('cat', 'animal'), subclass('cat', 'mammal')])
+called(triple(G, H, _8), [triple('alice', 'related_to', 'bob'), triple('alice', 'parent_of', 'bob')])
+called(triple(_9, K, L), [triple('alice', 'related_to', 'bob'), triple('alice', 'parent_of', 'bob')])
+called(triple(M, N, O), [triple('alice', 'related_to', 'bob'), triple('alice', 'parent_of', 'bob')])

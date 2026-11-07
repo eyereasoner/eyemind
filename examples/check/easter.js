@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 easter(2021, [4, 4])
 easter(2022, [4, 17])
 easter(2023, [4, 9])
@@ -30,8 +30,8 @@ easter(2048, [4, 5])
 easter(2049, [4, 18])
 easter(2050, [4, 10])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 525)
 condition('C2', 'well_founded', 'ok', 818)
 condition('C3', 'justification', 'ok', 818)
@@ -41,14 +41,47 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 848)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', easter(2021, [4, 4]))
+obligation('call_fidelity', 'original_call', easter(2022, [4, 17]))
+obligation('call_fidelity', 'original_call', easter(2023, [4, 9]))
+obligation('call_fidelity', 'original_call', easter(2024, [3, 31]))
+obligation('call_fidelity', 'original_call', easter(2025, [4, 20]))
+obligation('call_fidelity', 'original_call', easter(2026, [4, 5]))
+obligation('call_fidelity', 'original_call', easter(2027, [3, 28]))
+obligation('call_fidelity', 'original_call', easter(2028, [4, 16]))
+obligation('call_fidelity', 'original_call', easter(2029, [4, 1]))
+obligation('call_fidelity', 'original_call', easter(2030, [4, 21]))
+obligation('call_fidelity', 'original_call', easter(2031, [4, 13]))
+obligation('call_fidelity', 'original_call', easter(2032, [3, 28]))
+obligation('call_fidelity', 'original_call', easter(2033, [4, 17]))
+obligation('call_fidelity', 'original_call', easter(2034, [4, 9]))
+obligation('call_fidelity', 'original_call', easter(2035, [3, 25]))
+obligation('call_fidelity', 'original_call', easter(2036, [4, 13]))
+obligation('call_fidelity', 'original_call', easter(2037, [4, 5]))
+obligation('call_fidelity', 'original_call', easter(2038, [4, 25]))
+obligation('call_fidelity', 'original_call', easter(2039, [4, 10]))
+obligation('call_fidelity', 'original_call', easter(2040, [4, 1]))
+obligation('call_fidelity', 'original_call', easter(2041, [4, 21]))
+obligation('call_fidelity', 'original_call', easter(2042, [4, 6]))
+obligation('call_fidelity', 'original_call', easter(2043, [3, 29]))
+obligation('call_fidelity', 'original_call', easter(2044, [4, 17]))
+obligation('call_fidelity', 'original_call', easter(2045, [4, 9]))
+obligation('call_fidelity', 'original_call', easter(2046, [3, 25]))
+obligation('call_fidelity', 'original_call', easter(2047, [4, 14]))
+obligation('call_fidelity', 'original_call', easter(2048, [4, 5]))
+obligation('call_fidelity', 'original_call', easter(2049, [4, 18]))
+obligation('call_fidelity', 'original_call', easter(2050, [4, 10]))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(818)
 verified(525)
 recomputed(293)
 composed(0)
-trusted(0)
+trusted(30)
 claims(30)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')

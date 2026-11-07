@@ -19,7 +19,7 @@ export const tests = {
     assert.deepEqual(result.answers, ['test(a(A), c(A))']);
     assert.deepEqual(run(source).answers, result.answers);
     assert.match(result.proof, /step\(implies\(a\(A\), c\(A\)\), source\(2\), \{\}, \[\]\)/);
-    assert.equal(verdictText(result.proofReport), "verdict('checked')\n");
+    assert.equal(verdictText(result.proofReport), "verdict('checked_with_obligations')\n");
     assert.deepEqual(proven(SOURCE.replace("fact(a('b'))\n", '')).answers, result.answers);
   },
 

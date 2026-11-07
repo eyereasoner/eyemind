@@ -52,3 +52,11 @@ step(d(divide(sym('y'), sub(sym('x'), num(1))), 'x', divide(sub(mul(num(0), sub(
 step(d(sym('y'), 'x', num(0)), clause(7), {Y: 'y', X: 'x'}, [not_identical('x', 'y')])
 step(not_identical('x', 'y'), 'builtin', {}, [])
 step(d(sub(sym('x'), num(1)), 'x', sub(num(1), num(0))), clause(9), {U: sym('x'), V: num(1), X: 'x', Du: num(1), Dv: num(0)}, [d(sym('x'), 'x', num(1)), d(num(1), 'x', num(0))])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(d(divide(sym('y'), sub(sym('x'), num(1))), 'x', A), [d(divide(sym('y'), sub(sym('x'), num(1))), 'x', divide(sub(mul(num(0), sub(sym('x'), num(1))), mul(sym('y'), sub(num(1), num(0)))), pow(sub(sym('x'), num(1)), 2)))])
+called(d(sym('y'), 'x', B), [d(sym('y'), 'x', num(0))])
+called(d(sub(sym('x'), num(1)), 'x', C), [d(sub(sym('x'), num(1)), 'x', sub(num(1), num(0)))])
+called(d(sym('x'), 'x', D), [d(sym('x'), 'x', num(1))])
+called(d(num(1), 'x', E), [d(num(1), 'x', num(0))])

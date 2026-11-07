@@ -19,7 +19,7 @@ eyemind --check-proof examples/proof/socrates.js examples/socrates.js
 ```
 
 Each program has a matching conclusion file in `output/`, a certificate in
-`proof/`, and a C1-C9 verification report in `check/`, each written as JavaScript
+`proof/`, and a C1-C10 verification report in `check/`, each written as JavaScript
 expressions, one per line. The names match the source: `lists.js` has
 `output/lists.js`, `proof/lists.js` and `check/lists.js`.
 
@@ -151,9 +151,14 @@ stays an obligation in the check report, because the order in which derived
 facts arose cannot be checked this way; C6 (boundary consistency) confronts
 such obligations with the evidence at hand, and `--strict-proof` rejects
 them.
-Every check file includes `condition(...)` facts for C1-C9, verification counts and
+Every proof also attempts to certify the original questions with `called(Call, Answers)`
+tables. C10 checks their answers under the original bindings and control
+choices. Missing or unsupported evidence leaves an explicit call-fidelity
+obligation; deleting call tables cannot produce an unconditional verdict.
+
+Every check file includes `condition(...)` facts for C1-C10, verification counts and
 a `verdict(...)` fact. Reports with failures include `failure(...)`; reports with
-trusted boundaries include `obligation(...)`. Add `--json` to the check command
+unresolved absences, collections or call fidelity include `obligation(...)`. Add `--json` to the check command
 for JSON output instead.
 
 `fibonacci.js` answers F(0), F(1), F(10), F(100), F(1000) and F(10000), the
@@ -228,8 +233,8 @@ is -1, `i` to the power `i` is the real number 0.20787957635076193, and the
 inverse sine and cosine of 2 are complex. Logarithm, sine, cosine, tangent and
 arctangent follow, each applied to the answer of its own inverse so the
 round trip is visible: the sine of the arcsine of 2 comes back as 2. The example
-passes strict proof checking, so every component of every conclusion is
-recomputed by the checker:
+has each primitive calculation recomputed by the checker. Call fidelity for
+its forward conclusions remains an explicit obligation:
 
 ```sh
 eyemind --goal "complex_power(complex(1, 1), 16, Result)" examples/complex.js
@@ -313,8 +318,8 @@ the money comes back. Eight cancellations and two complaints are decided
 under both versions, with fees and refunds computed in euro. The revision
 makes a cancellation free when floods close the departure airport, gives
 accepted vouchers statutory guarantees, and sets complaint deadlines. Every
-condition of the terms is checked one by one, so the proof passes
-`--strict-proof` with no trusted steps.
+condition of the terms has its derivation checked. Its forward call fidelity
+remains an explicit obligation, so strict checking rejects the proof.
 
 `delfour.js` shares a conclusion instead of the data behind it, in the
 scenario of Ruben Verborgh's
@@ -339,7 +344,8 @@ did and, explicitly, what she did not do; a missed obligation is read only
 from an explicit `not_performed` fact, never from a missing observation.
 Notifying the data protection officer compensates the sharing, but the
 violation stays on record. Nothing compensates the missed consent, so alice's
-status is `requires_review`, and the proof needs no trusted obligations.
+status is `requires_review`. Its rule instances are checked, while call
+fidelity for the forward conclusions remains an explicit obligation.
 
 `nixon-diamond.js` sets two defaults against each other: Quakers are pacifists
 and Republicans are nonpacifists, and nixon is both. The pacifist default is

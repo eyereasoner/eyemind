@@ -218,8 +218,8 @@ step(findall(A, model('charles', A), []), 'collected', {}, [])
 step(entailed(killed('agatha', 'agatha')), clause(33), {N: 4}, [models('agatha', 4), gt(4, 0), models('butler', 0), models('charles', 0)])
 step(gt(4, 0), 'builtin', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 // … 46 lines for the search behind Agatha's list: model('agatha', B) and its label calls
 searched(model('butler', J1), [])
 // … 4 label calls
@@ -297,15 +297,15 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 witness('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')))
 models('agatha', 4)
 models('butler', 0)
 models('charles', 0)
 entailed(killed('agatha', 'agatha'))
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 40)
 condition('C2', 'well_founded', 'ok', 52)
 condition('C3', 'justification', 'ok', 52)
@@ -315,17 +315,25 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 57)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 3)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', witness('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no'))))
+obligation('call_fidelity', 'original_call', models('agatha', 4))
+obligation('call_fidelity', 'original_call', models('butler', 0))
+obligation('call_fidelity', 'original_call', models('charles', 0))
+obligation('call_fidelity', 'original_call', entailed(killed('agatha', 'agatha')))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(52)
 verified(40)
 recomputed(8)
 composed(1)
-trusted(0)
+trusted(5)
 claims(5)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -355,7 +363,7 @@ at:
   empty lists for the butler and Charles, were settled by the search
   certificate, as explained below.
 
-Nothing is taken on trust. That Agatha's list holds all her models, and
+The collections are settled by their search certificates. That Agatha's list holds all her models, and
 that the butler's and Charles's lists, both empty, are complete, is checked
 from the search certificate. The checker never searches: it expands each
 `searched` call one level against the program, as a search would, and
@@ -364,14 +372,20 @@ itself. For the butler, the clues leave no way to fill in the open answers,
 and the expansion agrees with `searched(model('butler', J1), [])`. "All"
 means all within this program. The statistics: 52 steps, 40 verified, 8
 recomputed, 1 composed and the 3 collections settled by the certificate,
-none trusted, for 5 claims.
+no boundary steps trusted, for 5 claims.
 
-The verdict is **checked**: every step follows from the program. That is the
+The verdict is **checked with obligations**: every step follows from the program. That is the
 heart of the argument: "no model has the butler as killer" is exactly what
 makes Agatha's guilt entailed, and the checker confirms it from the record
 of eyemind's exhaustive search. As the last comment says, the verdict
 confirms these claims; it does not establish that the program has no other
 conclusions.
+
+C10 leaves 5 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

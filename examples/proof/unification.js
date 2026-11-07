@@ -21,3 +21,9 @@ step(append(['b'], [], ['b']), clause(2), {X: 'b', Xs: [], Ys: [], Zs: []}, [app
 step(append([], [], []), clause(1), {Ys: []}, [])
 step(matching_pair(pair('same', 'same')), clause(3), {X: 'same'}, [])
 step(head_tail(['a', 'b', 'c'], 'a', ['b', 'c']), clause(4), {Head: 'a', Tail: ['b', 'c']}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(append(A, B, ['a', 'b']), [append([], ['a', 'b'], ['a', 'b']), append(['a'], ['b'], ['a', 'b']), append(['a', 'b'], [], ['a', 'b'])])
+called(append(C, D, ['b']), [append([], ['b'], ['b']), append(['b'], [], ['b'])])
+called(append(E, F, []), [append([], [], [])])

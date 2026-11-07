@@ -11,3 +11,8 @@ clause(3, implies([rdf(iri('https://example.org/sensorGraph'), iri('https://exam
 step(result_rdf(iri('https://example.org/sensor1'), iri('https://example.org/reportedBy'), iri('https://example.org/station7'), 'default_graph'), clause(3), {Station: iri('https://example.org/station7'), S: iri('https://example.org/sensor1'), _0: literal('21.5', datatype('http://www.w3.org/2001/XMLSchema#string'))}, [rdf(iri('https://example.org/sensorGraph'), iri('https://example.org/reportedBy'), iri('https://example.org/station7'), 'default_graph'), rdf(iri('https://example.org/sensor1'), iri('https://example.org/temperature'), literal('21.5', datatype('http://www.w3.org/2001/XMLSchema#string')), iri('https://example.org/sensorGraph'))])
 step(rdf(iri('https://example.org/sensorGraph'), iri('https://example.org/reportedBy'), iri('https://example.org/station7'), 'default_graph'), clause(1), {}, [])
 step(rdf(iri('https://example.org/sensor1'), iri('https://example.org/temperature'), literal('21.5', datatype('http://www.w3.org/2001/XMLSchema#string')), iri('https://example.org/sensorGraph')), clause(2), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(result_rdf(A, B, C, D), [result_rdf(iri('https://example.org/sensor1'), iri('https://example.org/reportedBy'), iri('https://example.org/station7'), 'default_graph')])
+called(result_rdf(A, B, C, D), [result_rdf(iri('https://example.org/sensor1'), iri('https://example.org/reportedBy'), iri('https://example.org/station7'), 'default_graph')])

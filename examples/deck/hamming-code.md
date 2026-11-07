@@ -263,13 +263,13 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 decoded('damaged', 5, [1, 0, 1, 1, 0, 1, 0], [1, 0, 1, 0])
 decoded('intact', 0, [1, 0, 1, 1, 0, 1, 0], [1, 0, 1, 0])
 decoded('last_bit', 7, [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 76)
 condition('C2', 'well_founded', 'ok', 115)
 condition('C3', 'justification', 'ok', 115)
@@ -279,17 +279,23 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 118)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', decoded('damaged', 5, [1, 0, 1, 1, 0, 1, 0], [1, 0, 1, 0]))
+obligation('call_fidelity', 'original_call', decoded('intact', 0, [1, 0, 1, 1, 0, 1, 0], [1, 0, 1, 0]))
+obligation('call_fidelity', 'original_call', decoded('last_bit', 7, [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0]))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(115)
 verified(76)
 recomputed(39)
 composed(0)
-trusted(0)
+trusted(3)
 claims(3)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -317,13 +323,19 @@ at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 115 steps, 76 verified against the program, 39
-recomputed, none taken on trust. The verdict is **checked**: the three
+recomputed, no boundary steps taken on trust. The verdict is **checked with obligations**: the three
 decodings follow from the program. It certifies the decoder's result,
 subject to the channel assumption above; as the last comment says, it does
 not say the program has no other answers.
 
 The example's regression test covers all 16 payloads with no error and with
 each of the seven possible single-bit errors: 128 cases.
+
+C10 leaves 3 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

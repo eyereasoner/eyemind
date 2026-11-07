@@ -17,3 +17,9 @@ step(atom_chars('café', ['c', 'a', 'f', 'é']), 'builtin', {}, [])
 step(atom_length('café', 4), 'builtin', {}, [])
 step(unicode_codes('😀', [128512]), clause(3), {Text: '😀', Codes: [128512]}, [atom_codes('😀', [128512])])
 step(atom_codes('😀', [128512]), 'builtin', {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(label('alice', A), [label('alice', 'hello_alice')])
+called(characters('café', B, C), [characters('café', ['c', 'a', 'f', 'é'], 4)])
+called(unicode_codes('😀', D), [unicode_codes('😀', [128512])])

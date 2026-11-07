@@ -311,7 +311,7 @@ the strata.
 
 ## Proofs, and what checking one means
 
-A proof holds the claims, the source clauses it cites, and one `step(...)` record per inference, each part introduced by a comment that says what it holds. The checker establishes nine conditions:
+A proof holds the claims, the source clauses it cites, and one `step(...)` record per inference, each part introduced by a comment that says what it holds. Every check applies C1–C10:
 
 | | Condition | What it establishes |
 | --- | --- | --- |
@@ -324,12 +324,17 @@ A proof holds the claims, the source clauses it cites, and one `step(...)` recor
 | **C7** | relevance | Every claim answers the question asked, and every step serves a claim |
 | **C8** | witness integrity | Every "something exists" conclusion uses the Skolem term of its own rule firing, not a value of the prover's choosing |
 | **C9** | search closure | Every absence and collection its search certificate settles holds: each table equals its call expanded one level, and each listing of derived facts is supported and closed |
+| **C10** | call fidelity | Each claimed answer is an actual answer of an original question, with bindings and control choices checked from the source |
 
 Two properties make this worth more than a log. **The checker follows the certificate:** it never calls the reasoner to fill a gap, so a missing step fails the check rather than being quietly re-derived. **The source is the authority:** the clauses a proof displays cannot override the program, so you cannot smuggle a rule into a proof, nor pad it with steps no claim needs. Every proof eyemind generates is checked before it is returned.
 
 C8 checks provenance as well as witness spelling. When a proposed witness context omits a value because it contains a witness of that firing, the checker replaces the proposed fresh symbols by variables and checks that the premise evidence still follows from the source. Literal input constants and already-derived ground facts remain fixed data, even when they look like Skolem terms. Generator captures remain fixed too. A more general negation or collection needs its own settling evidence; a specific obligation cannot justify it.
 
-The verdict applies to the recorded instances. It does not establish that an original open query would select them when calls depend on bindings or search order. For example, with `fact(p('a'), p('b'))` and `implied_by(q(X), once(p(X)))`, `q(X)` returns only `q('a')`, while a proof of the specialized call `q('b')` can pass C1–C9. Establishing fidelity to the original query would require checked call-time bindings and evidence of the first-solution choice. [SPEC Section 11.13](https://eyereasoner.github.io/eyemind/SPEC#1113-operational-query-fidelity) defines that additional property and distinguishes it from answer completeness.
+C10 checks the original question, including the bindings passed between premises and the first-answer choice of `once`. For example, with `fact(p('a'), p('b'))` and `implied_by(q(X), once(p(X)))`, `q(X)` returns only `q('a')`. The specialized derivation of `q('b')` can satisfy C1–C9, but C10 rejects it when the original call's complete certificate shows only `q('a')`. [SPEC Section 11.13](https://eyereasoner.github.io/eyemind/SPEC#1113-operational-query-fidelity) defines this property separately from answer completeness.
+
+Every proof attempts to supply `called(Call, Answers)` tables, and every check includes C10. No option or declaration enables it. As with other proofs, pass the original external goals with `--goal` when checking them. A proof cannot choose its own original question.
+
+C10 expands calls one level from the source, with each inner call answered by a checked table. Named and anonymous variables remain distinct. Missing, incomplete or unsupported evidence produces `obligation('call_fidelity', 'original_call', Claim)` and a conditional verdict; `--strict-proof` rejects it. A false certificate or an answer excluded by a complete certificate fails C10 directly. The format requires complete tables, so a later error or recursion may prevent checking a terminating `once`. Searches through templates or inspection, comparisons of unbound variable names, and forward listings outside the ground positive fragment remain unproved. Certificate production also has a work and size budget. [SPEC Section 11.14](https://eyereasoner.github.io/eyemind/SPEC#1114-c10-call-fidelity) gives the exact scope.
 
 The report is a document too, so one program's evidence is material another program can reason over:
 
@@ -338,8 +343,8 @@ The report is a document too, so one program's evidence is material another prog
 type('socrates', 'mortal')
 type('socrates', 'human')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 3)
 condition('C2', 'well_founded', 'ok', 3)
 condition('C3', 'justification', 'ok', 3)
@@ -349,6 +354,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 5)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(3)
@@ -415,7 +421,7 @@ A clause is listed when no conclusion's proof uses it. A negation or collection 
 
 ## Explore the examples
 
-The [example collection](https://eyereasoner.github.io/eyemind/examples/) is 94 complete programs, each with its conclusions, proof and C1–C9 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a card deck that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to practical planning (outage recovery, critical paths, battery dispatch), policy reasoning (research-portal, package-holiday), mathematical calculations (Bézout certificates, Pell equations, regression), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
+The [example collection](https://eyereasoner.github.io/eyemind/examples/) is 94 complete programs, each with its conclusions, proof and C1–C10 report saved beside it (`examples/output/`, `examples/proof/`, `examples/check/`), and a card deck that explains it for a wide audience. They range from classics (Ackermann, the zebra puzzle, Aunt Agatha) to practical planning (outage recovery, critical paths, battery dispatch), policy reasoning (research-portal, package-holiday), mathematical calculations (Bézout certificates, Pell equations, regression), RDF 1.2 data (the `rdf12-*` examples) and a hundred-thousand-level taxonomy. Change a fact, run it, and compare with the saved output to see exactly what your change did.
 
 ## Browser
 
@@ -437,7 +443,7 @@ eyemind [OPTION ...] [FILE ...]
 | `--check-proof FILE` | Check the saved proof in `FILE` (`-` for standard input) and print its answers with the report. |
 | `--json` | With either checking mode, print the report, including `answers`, as JSON. |
 | `--goal GOAL` | Ask `GOAL` after forward reasoning; may be repeated. With `--check-proof`, the goals the proof answers. |
-| `--strict-proof` | With either checking mode, reject proofs that rely on absence or collection. |
+| `--strict-proof` | With either checking mode, reject proofs with any unresolved obligation, including call fidelity. |
 | `--unused` | List the clauses that make no difference to the conclusions. |
 | `--stats` | Print reasoning statistics as JSON to standard error: `inferences`, the goals started, which `--max-inferences` bounds; `rounds`, the forward rounds run over all strata; and `derived`, the facts forward rules added, not counting a conclusion the program states as a fact, a query's answers or `'false'`. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000). Each bound must be a positive safe integer, at most 9007199254740991. |
@@ -475,7 +481,7 @@ console.log(result.bindings);
 console.log(checkProof(socrates, result.proof, { goals }).valid);
 ```
 
-`loadText(source, filename, io)` loads program text and `loadSources([[text, filename], ...], io)` several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `run()` returns a `Result` with `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`; its options are `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`, and exceeding a bound throws an `EyemindError` rather than return a partial result. `checkProof(program, document, { goals, allowTrusted })` checks a proof, `checkReport(report)` formats a report, and `readTerm`, `readTerms` and `write` read and write the canonical text. A program reaches the same functions as `eyemind.run`, `eyemind.build` and so on.
+`loadText(source, filename, io)` loads program text and `loadSources([[text, filename], ...], io)` several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `run()` returns a `Result` with `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`; its options are `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`, and exceeding a bound throws an `EyemindError` rather than return a partial result. `checkProof(program, document, { goals, allowTrusted })` always checks C1–C10; `allowTrusted: false` rejects every unresolved obligation. `checkReport(report)` formats a report, and `readTerm`, `readTerms` and `write` read and write the canonical text. A program reaches the same functions as `eyemind.run`, `eyemind.build` and so on.
 
 Omit a reasoning bound or pass `null` to use its default. A supplied `maxDepth`, `maxIterations` or `maxInferences` must be a positive safe integer; zero, fractions, strings and infinite values raise an `EyemindError`.
 
