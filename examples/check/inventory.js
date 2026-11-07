@@ -1,8 +1,8 @@
 // Answers checked subject to the obligations below.
 invoice(28)
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 5)
 condition('C2', 'well_founded', 'ok', 9)
 condition('C3', 'justification', 'ok', 9)
@@ -12,16 +12,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 10)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence and collection completeness are taken on trust.
+// Obligations: absence, collection or original-call evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, line_total(B, A), [6, 12, 10]))
+obligation('call_fidelity', 'original_call', invoice(28))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(9)
 verified(5)
 recomputed(3)
 composed(0)
-trusted(1)
+trusted(2)
 claims(1)
 
 // This verdict applies to the claims above; it does not establish completeness.

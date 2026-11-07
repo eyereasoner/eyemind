@@ -24,6 +24,11 @@ conformance("fact and rule steps, with bindings in the clause's variable order",
     "step(type('socrates', 'mortal'), clause(3), {S: 'socrates', A: 'human', B: 'mortal'}, [type('socrates', 'human'), subclass_of('human', 'mortal')])",
     "step(type('socrates', 'human'), clause(1), {}, [])",
     "step(subclass_of('human', 'mortal'), clause(2), {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "derived(type(A, B), [type('socrates', 'mortal')])",
+    "called(type(A, B), [type('socrates', 'mortal'), type('socrates', 'human')])",
   ]),
 ])
 
@@ -85,6 +90,10 @@ conformance('only the clauses a proof cites are displayed, by number', [
     'step(big(3), clause(3), {X: 3}, [n(3), gt(3, 2)])',
     'step(n(3), clause(2), {}, [])',
     "step(gt(3, 2), 'builtin', {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'called(big(A), [big(3)])',
   ]),
 ])
 
@@ -243,6 +252,13 @@ conformance('a goal used twice has one step', [
     "step('a', clause(2), {}, [p(1)])",
     'step(p(1), clause(1), {}, [])',
     "step('b', clause(3), {}, [p(1)])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "derived('a', ['a'])",
+    "derived('b', ['b'])",
+    "called('a', ['a'])",
+    "called('b', ['b'])",
   ]),
 ])
 
@@ -269,6 +285,13 @@ conformance('steps follow a depth-first walk from the claims', [
     'step(c(1), clause(3), {X: 1}, [b(1), a(1)])',
     'step(b(1), clause(2), {X: 1}, [a(1)])',
     'step(a(1), clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(c(A), [c(1)])',
+    'derived(b(A), [b(1)])',
+    'called(c(A), [c(1)])',
+    'called(b(B), [b(1)])',
   ]),
 ])
 
@@ -294,6 +317,12 @@ conformance('a derived fact used by a backward rule cites its forward rule', [
     'step(r(1), clause(3), {X: 1}, [q(1)])',
     'step(q(1), clause(2), {X: 1}, [p(1)])',
     'step(p(1), clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(q(A), [q(1)])',
+    'called(r(A), [r(1)])',
+    'called(q(B), [q(1)])',
   ]),
 ])
 
@@ -338,6 +367,10 @@ conformance('arithmetic in a step is the instance of the clause', [
     '// absence or a collection), the bindings and the goals it uses.',
     'step(double(4, 8), clause(1), {X: 4, Y: 8}, [is(8, mul(4, 2))])',
     "step(is(8, mul(4, 2)), 'builtin', {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'called(double(4, A), [double(4, 8)])',
   ]),
 ])
 
@@ -505,6 +538,10 @@ conformance('a goal shared by two claims has one step, under the first', [
     '// absence or a collection), the bindings and the goals it uses.',
     'step(q(1), clause(2), {X: 1}, [p(1)])',
     'step(p(1), clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'called(q(1), [q(1)])',
   ]),
 ])
 
@@ -600,6 +637,11 @@ conformance('a nested array body is displayed flattened', [
     'step(p(1), clause(1), {}, [])',
     'step(q(1), clause(2), {}, [])',
     'step(s(1), clause(3), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(r(A), [r(1)])',
+    'called(r(A), [r(1)])',
   ]),
 ])
 
@@ -642,6 +684,11 @@ conformance('only the first of two forward rules deriving a fact is cited', [
     '// absence or a collection), the bindings and the goals it uses.',
     'step(q(1), clause(3), {X: 1}, [p(1)])',
     'step(p(1), clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(q(A), [q(1)])',
+    'called(q(A), [q(1)])',
   ]),
 ])
 
@@ -665,10 +712,12 @@ conformance('only the first of two backward rules answering a goal is cited', [
     '// absence or a collection), the bindings and the goals it uses.',
     'step(q(1), clause(3), {X: 1}, [p(1)])',
     'step(p(1), clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'called(q(1), [q(1), q(1)])',
   ]),
 ])
-
-// Steps: bindings.
 
 conformance('a backward rule binds its variables in display order, the head first', [
   spec('10.3'),
@@ -694,6 +743,12 @@ conformance('a backward rule binds its variables in display order, the head firs
     "step(parent('a', 'b'), clause(1), {}, [])",
     "step(anc('b', 'c'), clause(3), {X: 'b', Y: 'c'}, [parent('b', 'c')])",
     "step(parent('b', 'c'), clause(2), {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "called(anc('a', 'c'), [anc('a', 'c')])",
+    "called(anc('b', 'c'), [anc('b', 'c')])",
+    "called(anc('c', 'c'), [])",
   ]),
 ])
 
@@ -716,6 +771,11 @@ conformance('a forward rule binds its variables in display order, the premise fi
     '// absence or a collection), the bindings and the goals it uses.',
     'step(p(1, 2), clause(2), {Y: 2, X: 1}, [q(2, 1)])',
     'step(q(2, 1), clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(p(A, B), [p(1, 2)])',
+    'called(p(A, B), [p(1, 2)])',
   ]),
 ])
 
@@ -736,6 +796,10 @@ conformance('a unification solved with an unbound variable is stepped as its fin
     '// absence or a collection), the bindings and the goals it uses.',
     'step(p(6), clause(1), {Y: 6}, [unify(6, 6)])',
     "step(unify(6, 6), 'builtin', {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'called(p(A), [p(6)])',
   ]),
 ])
 
@@ -758,6 +822,11 @@ conformance('a witness is the value of its head variable in the bindings', [
     '// absence or a collection), the bindings and the goals it uses.',
     "step(has('ann', skolem(2, 'T', ['ann'])), clause(2), {X: 'ann', T: skolem(2, 'T', ['ann'])}, [person('ann')])",
     "step(person('ann'), clause(1), {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "derived(has(A, B), [has('ann', skolem(2, 'T', ['ann']))])",
+    "called(has(A, B), [has('ann', skolem(2, 'T', ['ann']))])",
   ]),
 ])
 
@@ -782,6 +851,13 @@ conformance('heads sharing a witness have a step each with the same bindings', [
     "step(has('ann', skolem(2, 'T', ['ann'])), clause(2), {X: 'ann', T: skolem(2, 'T', ['ann'])}, [person('ann')])",
     "step(person('ann'), clause(1), {}, [])",
     "step(owns(skolem(2, 'T', ['ann']), 'ann'), clause(2), {X: 'ann', T: skolem(2, 'T', ['ann'])}, [person('ann')])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "derived(has(A, B), [has('ann', skolem(2, 'T', ['ann']))])",
+    "derived(owns(A, B), [owns(skolem(2, 'T', ['ann']), 'ann')])",
+    "called(has(A, B), [has('ann', skolem(2, 'T', ['ann']))])",
+    "called(owns(C, D), [owns(skolem(2, 'T', ['ann']), 'ann')])",
   ]),
 ])
 
@@ -804,6 +880,10 @@ conformance('a variable used as a goal is stepped as the goal it was bound to', 
     '// absence or a collection), the bindings and the goals it uses.',
     'step(run(p(1)), clause(2), {G: p(1)}, [p(1)])',
     'step(p(1), clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'called(run(p(A)), [run(p(1))])',
   ]),
 ])
 
@@ -829,6 +909,12 @@ conformance('a forward rule over a backward rule cites both', [
     'step(c(1), clause(3), {X: 1}, [b(1)])',
     'step(b(1), clause(2), {X: 1}, [a(1)])',
     'step(a(1), clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(c(A), [c(1)])',
+    'called(c(A), [c(1)])',
+    'called(b(B), [b(1)])',
   ]),
 ])
 
@@ -851,10 +937,13 @@ conformance('a goal answered by a derived fact cites the forward rule', [
     '// absence or a collection), the bindings and the goals it uses.',
     'step(q(1), clause(2), {X: 1}, [p(1)])',
     'step(p(1), clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(q(A), [q(1)])',
+    'called(q(A), [q(1)])',
   ]),
 ])
-
-// Steps: primitives.
 
 conformance('each primitive of a body is a builtin step of its own', [
   spec('10.3'),
@@ -875,6 +964,10 @@ conformance('each primitive of a body is a builtin step of its own', [
     "step(compare('<', 1, 2.0), 'builtin', {}, [])",
     "step(atom_length('abc', 3), 'builtin', {}, [])",
     "step(is_atom('abc'), 'builtin', {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "called(t(A, B), [t('<', 3)])",
   ]),
 ])
 
@@ -1026,10 +1119,13 @@ conformance('a disjunction in a rule body has a control step of its own', [
     'step(p(1), clause(1), {}, [])',
     "step(or(q(1), r(1)), 'control', {}, [r(1)])",
     'step(r(1), clause(2), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(s(A), [s(1)])',
+    'called(s(A), [s(1)])',
   ]),
 ])
-
-// Steps: absences and collections.
 
 conformance('a negation asked as a goal is an absent step', [
   spec('10.3'),
@@ -1127,6 +1223,10 @@ conformance("a findall in a backward rule binds the collection's variable to a f
     '// absence or a collection), the bindings and the goals it uses.',
     'step(all([1, 2]), clause(3), {L: [1, 2], X: A}, [findall(A, p(A), [1, 2])])',
     "step(findall(A, p(A), [1, 2]), 'collected', {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'called(all(A), [all([1, 2])])',
   ]),
 ])
 
@@ -1217,6 +1317,10 @@ conformance('a disjunction chain solved on its left has a step for each level', 
     'step(or(\'a\', \'b\', \'c\'), \'control\', {}, [or(\'a\', \'b\')])',
     'step(or(\'a\', \'b\'), \'control\', {}, [\'a\'])',
     'step(\'a\', clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "called('r', ['r'])",
   ]),
 ])
 
@@ -1241,6 +1345,10 @@ conformance('a disjunction chain solved on its right uses that side directly', [
     'step(\'r\', clause(2), {}, [or(\'a\', \'b\', \'c\')])',
     'step(or(\'a\', \'b\', \'c\'), \'control\', {}, [\'c\'])',
     'step(\'c\', clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "called('r', ['r'])",
   ]),
 ])
 
@@ -1267,6 +1375,10 @@ conformance('an and in a body is displayed flattened', [
     'step(\'r\', clause(3), {}, [\'a\', \'b\'])',
     'step(\'a\', clause(1), {}, [])',
     'step(\'b\', clause(2), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "called('r', ['r'])",
   ]),
 ])
 

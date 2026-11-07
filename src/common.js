@@ -1,5 +1,5 @@
 // Helpers shared by the engine and the proof checker.
-import { Struct, Var, deref, freshTerm, unify } from './terms.js';
+import { Struct, Var, deref, freshTerm, isAnonymous, unify } from './terms.js';
 import { write } from './writer.js';
 
 // The canonical spelling of a term, which also serves as its identity.
@@ -184,11 +184,11 @@ function build(term, values, fresh) {
 }
 
 // A key that preserves sharing while forgetting variable names.
-export function variant(term) {
+export function variant(term, anonymous = false) {
   const names = new Map();
   function visit(t) {
     if (t instanceof Var) {
-      if (!names.has(t.name)) names.set(t.name, new Var(`V${names.size}`));
+      if (!names.has(t.name)) names.set(t.name, new Var(`${anonymous && isAnonymous(t) ? '_' : 'V'}${names.size}`));
       return names.get(t.name);
     }
     if (t instanceof Struct) return new Struct(t.name, t.args.map(visit));

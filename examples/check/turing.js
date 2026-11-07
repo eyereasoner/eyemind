@@ -4,8 +4,8 @@ compute([1, 0, 1, 1, 1, 1], [1, 1, 0, 0, 0, 0, '#'])
 compute([1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 0, 0, '#'])
 compute([], [1, '#'])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 142)
 condition('C2', 'well_founded', 'ok', 144)
 condition('C3', 'justification', 'ok', 144)
@@ -15,6 +15,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 148)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 4)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(144)

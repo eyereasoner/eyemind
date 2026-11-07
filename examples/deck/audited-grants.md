@@ -137,7 +137,7 @@ the list of its assumptions, using `findall` (explained below), and three
 
 ```js
 // Answers: each instance of a query() that holds.
-verdict('checked')
+verdict('checked_with_obligations')
 at_risk(grant('cara'), income('cara', 1800))
 at_risk(grant('dan'), income('dan', 2400))
 at_risk(top_up('dan'), income('dan', 2400))
@@ -151,9 +151,10 @@ explanation(top_up('dan'), [household('dan', 3), applicant('dan'), income('dan',
 
 The comment line says what follows: every answer to the three queries.
 
-- **The policy's own proof was checked**, with nothing taken on trust. Its
+- **The policy's own proof was checked with obligations**. Its
   three "no earlier grant" assumptions, for Ann, Cara and Dan, were
-  confirmed by the checker from the `already_received` facts.
+  confirmed by the checker from the `already_received` facts. Its six
+  call-fidelity obligations remain unproved.
 - **Three decisions are at risk**, because they rest on incomes only the
   applicants themselves declared: Cara's grant, Dan's grant and Dan's
   top-up.
@@ -193,7 +194,7 @@ as `step_of` facts. This is the complete proof:
 
 ```js
 // Answers: each instance of a query() that holds.
-verdict('checked')
+verdict('checked_with_obligations')
 at_risk(grant('cara'), income('cara', 1800))
 at_risk(grant('dan'), income('dan', 2400))
 at_risk(top_up('dan'), income('dan', 2400))
@@ -205,75 +206,75 @@ explanation(top_up('ann'), [household('ann', 4), applicant('ann'), income('ann',
 explanation(top_up('dan'), [household('dan', 3), applicant('dan'), income('dan', 2400)], [not(already_received('dan'))])
 
 // Clauses: the program clauses the steps cite, by clause number.
-clause(21, fact(verdict('checked')))
-clause(22, fact(decision(refused('bob', 'income above 2500'))))
-clause(23, fact(decision(grant('ann'))))
-clause(24, fact(decision(grant('cara'))))
-clause(25, fact(decision(grant('dan'))))
-clause(26, fact(decision(top_up('ann'))))
-clause(27, fact(decision(top_up('dan'))))
-clause(37, fact(step_of(grant('cara'), clause(17), [applicant('cara'), income('cara', 1800), lt(1800, 2500), not(already_received('cara'))])))
-clause(39, fact(step_of(income('cara', 1800), clause(8), [])))
-clause(42, fact(step_of(grant('dan'), clause(17), [applicant('dan'), income('dan', 2400), lt(2400, 2500), not(already_received('dan'))])))
-clause(44, fact(step_of(income('dan', 2400), clause(11), [])))
-clause(50, fact(step_of(top_up('dan'), clause(18), [grant('dan'), household('dan', 3), ge(3, 3)])))
-clause(55, fact(evidence_of(income('cara', 1800), 'self_declared')))
-clause(56, fact(evidence_of(income('dan', 2400), 'self_declared')))
-clause(58, fact(member(X, [X, ..._0])))
-clause(59, implied_by(member(X, [_0, ...T]), member(X, T)))
-clause(60, implies([step_of(G, By, Uses), member(U, Uses)], depends(G, U)))
-clause(61, implies([depends(G, U), depends(U, W)], depends(G, W)))
-clause(62, implies([decision(D), depends(D, F), step_of(F, clause(_0), [])], rests_on(D, F)))
-clause(65, implies([rests_on(D, F), evidence_of(F, 'self_declared')], at_risk(D, F)))
-clause(67, implies([decision(D), findall(F, rests_on(D, F), Data), findall(A, assumes(D, A), Assumptions)], explanation(D, Data, Assumptions)))
+clause(29, fact(verdict('checked_with_obligations')))
+clause(30, fact(decision(refused('bob', 'income above 2500'))))
+clause(31, fact(decision(grant('ann'))))
+clause(32, fact(decision(grant('cara'))))
+clause(33, fact(decision(grant('dan'))))
+clause(34, fact(decision(top_up('ann'))))
+clause(35, fact(decision(top_up('dan'))))
+clause(45, fact(step_of(grant('cara'), clause(17), [applicant('cara'), income('cara', 1800), lt(1800, 2500), not(already_received('cara'))])))
+clause(47, fact(step_of(income('cara', 1800), clause(8), [])))
+clause(50, fact(step_of(grant('dan'), clause(17), [applicant('dan'), income('dan', 2400), lt(2400, 2500), not(already_received('dan'))])))
+clause(52, fact(step_of(income('dan', 2400), clause(11), [])))
+clause(58, fact(step_of(top_up('dan'), clause(18), [grant('dan'), household('dan', 3), ge(3, 3)])))
+clause(63, fact(evidence_of(income('cara', 1800), 'self_declared')))
+clause(64, fact(evidence_of(income('dan', 2400), 'self_declared')))
+clause(66, fact(member(X, [X, ..._0])))
+clause(67, implied_by(member(X, [_0, ...T]), member(X, T)))
+clause(68, implies([step_of(G, By, Uses), member(U, Uses)], depends(G, U)))
+clause(69, implies([depends(G, U), depends(U, W)], depends(G, W)))
+clause(70, implies([decision(D), depends(D, F), step_of(F, clause(_0), [])], rests_on(D, F)))
+clause(73, implies([rests_on(D, F), evidence_of(F, 'self_declared')], at_risk(D, F)))
+clause(75, implies([decision(D), findall(F, rests_on(D, F), Data), findall(A, assumes(D, A), Assumptions)], explanation(D, Data, Assumptions)))
 
 // Steps: each goal, what justifies it (a clause, a builtin, a control, an
 // absence or a collection), the bindings and the goals it uses.
-step(verdict('checked'), clause(21), {}, [])
-step(at_risk(grant('cara'), income('cara', 1800)), clause(65), {D: grant('cara'), F: income('cara', 1800)}, [rests_on(grant('cara'), income('cara', 1800)), evidence_of(income('cara', 1800), 'self_declared')])
-step(rests_on(grant('cara'), income('cara', 1800)), clause(62), {D: grant('cara'), F: income('cara', 1800), _0: 8}, [decision(grant('cara')), depends(grant('cara'), income('cara', 1800)), step_of(income('cara', 1800), clause(8), [])])
-step(decision(grant('cara')), clause(24), {}, [])
-step(depends(grant('cara'), income('cara', 1800)), clause(60), {G: grant('cara'), By: clause(17), Uses: [applicant('cara'), income('cara', 1800), lt(1800, 2500), not(already_received('cara'))], U: income('cara', 1800)}, [step_of(grant('cara'), clause(17), [applicant('cara'), income('cara', 1800), lt(1800, 2500), not(already_received('cara'))]), member(income('cara', 1800), [applicant('cara'), income('cara', 1800), lt(1800, 2500), not(already_received('cara'))])])
-step(step_of(grant('cara'), clause(17), [applicant('cara'), income('cara', 1800), lt(1800, 2500), not(already_received('cara'))]), clause(37), {}, [])
-step(member(income('cara', 1800), [applicant('cara'), income('cara', 1800), lt(1800, 2500), not(already_received('cara'))]), clause(59), {X: income('cara', 1800), _0: applicant('cara'), T: [income('cara', 1800), lt(1800, 2500), not(already_received('cara'))]}, [member(income('cara', 1800), [income('cara', 1800), lt(1800, 2500), not(already_received('cara'))])])
-step(member(income('cara', 1800), [income('cara', 1800), lt(1800, 2500), not(already_received('cara'))]), clause(58), {X: income('cara', 1800), _0: [lt(1800, 2500), not(already_received('cara'))]}, [])
-step(step_of(income('cara', 1800), clause(8), []), clause(39), {}, [])
-step(evidence_of(income('cara', 1800), 'self_declared'), clause(55), {}, [])
-step(at_risk(grant('dan'), income('dan', 2400)), clause(65), {D: grant('dan'), F: income('dan', 2400)}, [rests_on(grant('dan'), income('dan', 2400)), evidence_of(income('dan', 2400), 'self_declared')])
-step(rests_on(grant('dan'), income('dan', 2400)), clause(62), {D: grant('dan'), F: income('dan', 2400), _0: 11}, [decision(grant('dan')), depends(grant('dan'), income('dan', 2400)), step_of(income('dan', 2400), clause(11), [])])
-step(decision(grant('dan')), clause(25), {}, [])
-step(depends(grant('dan'), income('dan', 2400)), clause(60), {G: grant('dan'), By: clause(17), Uses: [applicant('dan'), income('dan', 2400), lt(2400, 2500), not(already_received('dan'))], U: income('dan', 2400)}, [step_of(grant('dan'), clause(17), [applicant('dan'), income('dan', 2400), lt(2400, 2500), not(already_received('dan'))]), member(income('dan', 2400), [applicant('dan'), income('dan', 2400), lt(2400, 2500), not(already_received('dan'))])])
-step(step_of(grant('dan'), clause(17), [applicant('dan'), income('dan', 2400), lt(2400, 2500), not(already_received('dan'))]), clause(42), {}, [])
-step(member(income('dan', 2400), [applicant('dan'), income('dan', 2400), lt(2400, 2500), not(already_received('dan'))]), clause(59), {X: income('dan', 2400), _0: applicant('dan'), T: [income('dan', 2400), lt(2400, 2500), not(already_received('dan'))]}, [member(income('dan', 2400), [income('dan', 2400), lt(2400, 2500), not(already_received('dan'))])])
-step(member(income('dan', 2400), [income('dan', 2400), lt(2400, 2500), not(already_received('dan'))]), clause(58), {X: income('dan', 2400), _0: [lt(2400, 2500), not(already_received('dan'))]}, [])
-step(step_of(income('dan', 2400), clause(11), []), clause(44), {}, [])
-step(evidence_of(income('dan', 2400), 'self_declared'), clause(56), {}, [])
-step(at_risk(top_up('dan'), income('dan', 2400)), clause(65), {D: top_up('dan'), F: income('dan', 2400)}, [rests_on(top_up('dan'), income('dan', 2400)), evidence_of(income('dan', 2400), 'self_declared')])
-step(rests_on(top_up('dan'), income('dan', 2400)), clause(62), {D: top_up('dan'), F: income('dan', 2400), _0: 11}, [decision(top_up('dan')), depends(top_up('dan'), income('dan', 2400)), step_of(income('dan', 2400), clause(11), [])])
-step(decision(top_up('dan')), clause(27), {}, [])
-step(depends(top_up('dan'), income('dan', 2400)), clause(61), {G: top_up('dan'), U: grant('dan'), W: income('dan', 2400)}, [depends(top_up('dan'), grant('dan')), depends(grant('dan'), income('dan', 2400))])
-step(depends(top_up('dan'), grant('dan')), clause(60), {G: top_up('dan'), By: clause(18), Uses: [grant('dan'), household('dan', 3), ge(3, 3)], U: grant('dan')}, [step_of(top_up('dan'), clause(18), [grant('dan'), household('dan', 3), ge(3, 3)]), member(grant('dan'), [grant('dan'), household('dan', 3), ge(3, 3)])])
-step(step_of(top_up('dan'), clause(18), [grant('dan'), household('dan', 3), ge(3, 3)]), clause(50), {}, [])
-step(member(grant('dan'), [grant('dan'), household('dan', 3), ge(3, 3)]), clause(58), {X: grant('dan'), _0: [household('dan', 3), ge(3, 3)]}, [])
-step(explanation(refused('bob', 'income above 2500'), [applicant('bob'), income('bob', 2900)], []), clause(67), {D: refused('bob', 'income above 2500'), F: A, Data: [applicant('bob'), income('bob', 2900)], A: B, Assumptions: []}, [decision(refused('bob', 'income above 2500')), findall(A, rests_on(refused('bob', 'income above 2500'), A), [applicant('bob'), income('bob', 2900)]), findall(B, assumes(refused('bob', 'income above 2500'), B), [])])
-step(decision(refused('bob', 'income above 2500')), clause(22), {}, [])
+step(verdict('checked_with_obligations'), clause(29), {}, [])
+step(at_risk(grant('cara'), income('cara', 1800)), clause(73), {D: grant('cara'), F: income('cara', 1800)}, [rests_on(grant('cara'), income('cara', 1800)), evidence_of(income('cara', 1800), 'self_declared')])
+step(rests_on(grant('cara'), income('cara', 1800)), clause(70), {D: grant('cara'), F: income('cara', 1800), _0: 8}, [decision(grant('cara')), depends(grant('cara'), income('cara', 1800)), step_of(income('cara', 1800), clause(8), [])])
+step(decision(grant('cara')), clause(32), {}, [])
+step(depends(grant('cara'), income('cara', 1800)), clause(68), {G: grant('cara'), By: clause(17), Uses: [applicant('cara'), income('cara', 1800), lt(1800, 2500), not(already_received('cara'))], U: income('cara', 1800)}, [step_of(grant('cara'), clause(17), [applicant('cara'), income('cara', 1800), lt(1800, 2500), not(already_received('cara'))]), member(income('cara', 1800), [applicant('cara'), income('cara', 1800), lt(1800, 2500), not(already_received('cara'))])])
+step(step_of(grant('cara'), clause(17), [applicant('cara'), income('cara', 1800), lt(1800, 2500), not(already_received('cara'))]), clause(45), {}, [])
+step(member(income('cara', 1800), [applicant('cara'), income('cara', 1800), lt(1800, 2500), not(already_received('cara'))]), clause(67), {X: income('cara', 1800), _0: applicant('cara'), T: [income('cara', 1800), lt(1800, 2500), not(already_received('cara'))]}, [member(income('cara', 1800), [income('cara', 1800), lt(1800, 2500), not(already_received('cara'))])])
+step(member(income('cara', 1800), [income('cara', 1800), lt(1800, 2500), not(already_received('cara'))]), clause(66), {X: income('cara', 1800), _0: [lt(1800, 2500), not(already_received('cara'))]}, [])
+step(step_of(income('cara', 1800), clause(8), []), clause(47), {}, [])
+step(evidence_of(income('cara', 1800), 'self_declared'), clause(63), {}, [])
+step(at_risk(grant('dan'), income('dan', 2400)), clause(73), {D: grant('dan'), F: income('dan', 2400)}, [rests_on(grant('dan'), income('dan', 2400)), evidence_of(income('dan', 2400), 'self_declared')])
+step(rests_on(grant('dan'), income('dan', 2400)), clause(70), {D: grant('dan'), F: income('dan', 2400), _0: 11}, [decision(grant('dan')), depends(grant('dan'), income('dan', 2400)), step_of(income('dan', 2400), clause(11), [])])
+step(decision(grant('dan')), clause(33), {}, [])
+step(depends(grant('dan'), income('dan', 2400)), clause(68), {G: grant('dan'), By: clause(17), Uses: [applicant('dan'), income('dan', 2400), lt(2400, 2500), not(already_received('dan'))], U: income('dan', 2400)}, [step_of(grant('dan'), clause(17), [applicant('dan'), income('dan', 2400), lt(2400, 2500), not(already_received('dan'))]), member(income('dan', 2400), [applicant('dan'), income('dan', 2400), lt(2400, 2500), not(already_received('dan'))])])
+step(step_of(grant('dan'), clause(17), [applicant('dan'), income('dan', 2400), lt(2400, 2500), not(already_received('dan'))]), clause(50), {}, [])
+step(member(income('dan', 2400), [applicant('dan'), income('dan', 2400), lt(2400, 2500), not(already_received('dan'))]), clause(67), {X: income('dan', 2400), _0: applicant('dan'), T: [income('dan', 2400), lt(2400, 2500), not(already_received('dan'))]}, [member(income('dan', 2400), [income('dan', 2400), lt(2400, 2500), not(already_received('dan'))])])
+step(member(income('dan', 2400), [income('dan', 2400), lt(2400, 2500), not(already_received('dan'))]), clause(66), {X: income('dan', 2400), _0: [lt(2400, 2500), not(already_received('dan'))]}, [])
+step(step_of(income('dan', 2400), clause(11), []), clause(52), {}, [])
+step(evidence_of(income('dan', 2400), 'self_declared'), clause(64), {}, [])
+step(at_risk(top_up('dan'), income('dan', 2400)), clause(73), {D: top_up('dan'), F: income('dan', 2400)}, [rests_on(top_up('dan'), income('dan', 2400)), evidence_of(income('dan', 2400), 'self_declared')])
+step(rests_on(top_up('dan'), income('dan', 2400)), clause(70), {D: top_up('dan'), F: income('dan', 2400), _0: 11}, [decision(top_up('dan')), depends(top_up('dan'), income('dan', 2400)), step_of(income('dan', 2400), clause(11), [])])
+step(decision(top_up('dan')), clause(35), {}, [])
+step(depends(top_up('dan'), income('dan', 2400)), clause(69), {G: top_up('dan'), U: grant('dan'), W: income('dan', 2400)}, [depends(top_up('dan'), grant('dan')), depends(grant('dan'), income('dan', 2400))])
+step(depends(top_up('dan'), grant('dan')), clause(68), {G: top_up('dan'), By: clause(18), Uses: [grant('dan'), household('dan', 3), ge(3, 3)], U: grant('dan')}, [step_of(top_up('dan'), clause(18), [grant('dan'), household('dan', 3), ge(3, 3)]), member(grant('dan'), [grant('dan'), household('dan', 3), ge(3, 3)])])
+step(step_of(top_up('dan'), clause(18), [grant('dan'), household('dan', 3), ge(3, 3)]), clause(58), {}, [])
+step(member(grant('dan'), [grant('dan'), household('dan', 3), ge(3, 3)]), clause(66), {X: grant('dan'), _0: [household('dan', 3), ge(3, 3)]}, [])
+step(explanation(refused('bob', 'income above 2500'), [applicant('bob'), income('bob', 2900)], []), clause(75), {D: refused('bob', 'income above 2500'), F: A, Data: [applicant('bob'), income('bob', 2900)], A: B, Assumptions: []}, [decision(refused('bob', 'income above 2500')), findall(A, rests_on(refused('bob', 'income above 2500'), A), [applicant('bob'), income('bob', 2900)]), findall(B, assumes(refused('bob', 'income above 2500'), B), [])])
+step(decision(refused('bob', 'income above 2500')), clause(30), {}, [])
 step(findall(A, rests_on(refused('bob', 'income above 2500'), A), [applicant('bob'), income('bob', 2900)]), 'collected', {}, [])
 step(findall(B, assumes(refused('bob', 'income above 2500'), B), []), 'collected', {}, [])
-step(explanation(grant('ann'), [applicant('ann'), income('ann', 2100)], [not(already_received('ann'))]), clause(67), {D: grant('ann'), F: A, Data: [applicant('ann'), income('ann', 2100)], A: B, Assumptions: [not(already_received('ann'))]}, [decision(grant('ann')), findall(A, rests_on(grant('ann'), A), [applicant('ann'), income('ann', 2100)]), findall(B, assumes(grant('ann'), B), [not(already_received('ann'))])])
-step(decision(grant('ann')), clause(23), {}, [])
+step(explanation(grant('ann'), [applicant('ann'), income('ann', 2100)], [not(already_received('ann'))]), clause(75), {D: grant('ann'), F: A, Data: [applicant('ann'), income('ann', 2100)], A: B, Assumptions: [not(already_received('ann'))]}, [decision(grant('ann')), findall(A, rests_on(grant('ann'), A), [applicant('ann'), income('ann', 2100)]), findall(B, assumes(grant('ann'), B), [not(already_received('ann'))])])
+step(decision(grant('ann')), clause(31), {}, [])
 step(findall(A, rests_on(grant('ann'), A), [applicant('ann'), income('ann', 2100)]), 'collected', {}, [])
 step(findall(B, assumes(grant('ann'), B), [not(already_received('ann'))]), 'collected', {}, [])
-step(explanation(grant('cara'), [applicant('cara'), income('cara', 1800)], [not(already_received('cara'))]), clause(67), {D: grant('cara'), F: A, Data: [applicant('cara'), income('cara', 1800)], A: B, Assumptions: [not(already_received('cara'))]}, [decision(grant('cara')), findall(A, rests_on(grant('cara'), A), [applicant('cara'), income('cara', 1800)]), findall(B, assumes(grant('cara'), B), [not(already_received('cara'))])])
+step(explanation(grant('cara'), [applicant('cara'), income('cara', 1800)], [not(already_received('cara'))]), clause(75), {D: grant('cara'), F: A, Data: [applicant('cara'), income('cara', 1800)], A: B, Assumptions: [not(already_received('cara'))]}, [decision(grant('cara')), findall(A, rests_on(grant('cara'), A), [applicant('cara'), income('cara', 1800)]), findall(B, assumes(grant('cara'), B), [not(already_received('cara'))])])
 step(findall(A, rests_on(grant('cara'), A), [applicant('cara'), income('cara', 1800)]), 'collected', {}, [])
 step(findall(B, assumes(grant('cara'), B), [not(already_received('cara'))]), 'collected', {}, [])
-step(explanation(grant('dan'), [applicant('dan'), income('dan', 2400)], [not(already_received('dan'))]), clause(67), {D: grant('dan'), F: A, Data: [applicant('dan'), income('dan', 2400)], A: B, Assumptions: [not(already_received('dan'))]}, [decision(grant('dan')), findall(A, rests_on(grant('dan'), A), [applicant('dan'), income('dan', 2400)]), findall(B, assumes(grant('dan'), B), [not(already_received('dan'))])])
+step(explanation(grant('dan'), [applicant('dan'), income('dan', 2400)], [not(already_received('dan'))]), clause(75), {D: grant('dan'), F: A, Data: [applicant('dan'), income('dan', 2400)], A: B, Assumptions: [not(already_received('dan'))]}, [decision(grant('dan')), findall(A, rests_on(grant('dan'), A), [applicant('dan'), income('dan', 2400)]), findall(B, assumes(grant('dan'), B), [not(already_received('dan'))])])
 step(findall(A, rests_on(grant('dan'), A), [applicant('dan'), income('dan', 2400)]), 'collected', {}, [])
 step(findall(B, assumes(grant('dan'), B), [not(already_received('dan'))]), 'collected', {}, [])
-step(explanation(top_up('ann'), [household('ann', 4), applicant('ann'), income('ann', 2100)], [not(already_received('ann'))]), clause(67), {D: top_up('ann'), F: A, Data: [household('ann', 4), applicant('ann'), income('ann', 2100)], A: B, Assumptions: [not(already_received('ann'))]}, [decision(top_up('ann')), findall(A, rests_on(top_up('ann'), A), [household('ann', 4), applicant('ann'), income('ann', 2100)]), findall(B, assumes(top_up('ann'), B), [not(already_received('ann'))])])
-step(decision(top_up('ann')), clause(26), {}, [])
+step(explanation(top_up('ann'), [household('ann', 4), applicant('ann'), income('ann', 2100)], [not(already_received('ann'))]), clause(75), {D: top_up('ann'), F: A, Data: [household('ann', 4), applicant('ann'), income('ann', 2100)], A: B, Assumptions: [not(already_received('ann'))]}, [decision(top_up('ann')), findall(A, rests_on(top_up('ann'), A), [household('ann', 4), applicant('ann'), income('ann', 2100)]), findall(B, assumes(top_up('ann'), B), [not(already_received('ann'))])])
+step(decision(top_up('ann')), clause(34), {}, [])
 step(findall(A, rests_on(top_up('ann'), A), [household('ann', 4), applicant('ann'), income('ann', 2100)]), 'collected', {}, [])
 step(findall(B, assumes(top_up('ann'), B), [not(already_received('ann'))]), 'collected', {}, [])
-step(explanation(top_up('dan'), [household('dan', 3), applicant('dan'), income('dan', 2400)], [not(already_received('dan'))]), clause(67), {D: top_up('dan'), F: A, Data: [household('dan', 3), applicant('dan'), income('dan', 2400)], A: B, Assumptions: [not(already_received('dan'))]}, [decision(top_up('dan')), findall(A, rests_on(top_up('dan'), A), [household('dan', 3), applicant('dan'), income('dan', 2400)]), findall(B, assumes(top_up('dan'), B), [not(already_received('dan'))])])
+step(explanation(top_up('dan'), [household('dan', 3), applicant('dan'), income('dan', 2400)], [not(already_received('dan'))]), clause(75), {D: top_up('dan'), F: A, Data: [household('dan', 3), applicant('dan'), income('dan', 2400)], A: B, Assumptions: [not(already_received('dan'))]}, [decision(top_up('dan')), findall(A, rests_on(top_up('dan'), A), [household('dan', 3), applicant('dan'), income('dan', 2400)]), findall(B, assumes(top_up('dan'), B), [not(already_received('dan'))])])
 step(findall(A, rests_on(top_up('dan'), A), [household('dan', 3), applicant('dan'), income('dan', 2400)]), 'collected', {}, [])
 step(findall(B, assumes(top_up('dan'), B), [not(already_received('dan'))]), 'collected', {}, [])
 ```
@@ -282,8 +283,8 @@ It has three parts:
 
 - **The claims**: the ten answers the proof is about.
 - **The clauses**: the clauses of the audit program the steps rely on, by
-  number. Clauses 1 to 21 are the policy's check report read in as facts
-  (clause 21 is its verdict line), clauses 22 to 27 are the six decisions,
+  number. Clauses 1 to 29 are the policy's check report read in as facts
+  (clause 29 is its verdict line), clauses 30 to 35 are the six decisions,
   and the `step_of` facts follow. Inside those facts, `clause(17)`,
   `clause(8)` and so on are clause numbers *of the policy*: its grant rule
   and Cara's income fact. The don't-care `_` gets a name, `_0`, so a step
@@ -302,24 +303,24 @@ Two kinds of justification occur:
 
 Read the first ten steps, the verdict and Cara's risk, as sentences:
 
-1. *The policy's proof was checked*: fact 21, the verdict
+1. *The policy's proof was checked with obligations*: fact 29, the verdict
    line of the report.
-2. *Cara's grant is at risk because of her income of 1800*: by rule 65,
+2. *Cara's grant is at risk because of her income of 1800*: by rule 73,
    because the grant rests on that income and the income is self-declared.
-3. *Cara's grant rests on her income*: by rule 62, with `_0` = 8, because
+3. *Cara's grant rests on her income*: by rule 70, with `_0` = 8, because
    it is a decision, it depends on her income, and her income was
    established by policy clause 8 using nothing (so it is data).
-4. *Cara's grant is a decision*: fact 24.
-5. *Cara's grant depends on her income*: by rule 60, because the policy
+4. *Cara's grant is a decision*: fact 32.
+5. *Cara's grant depends on her income*: by rule 68, because the policy
    step for her grant used it.
 6. *The policy proved Cara's grant by its clause 17, using her application,
-   her income, 1800 < 2500 and no earlier grant*: fact 37.
-7. *Her income is a member of that list of uses*: by rule 59, because it is
+   her income, 1800 < 2500 and no earlier grant*: fact 45.
+7. *Her income is a member of that list of uses*: by rule 67, because it is
    a member of the list's rest.
-8. *Her income is the first item of the rest*: fact 58.
+8. *Her income is the first item of the rest*: fact 66.
 9. *The policy established Cara's income by its clause 8, using nothing*:
-   fact 39.
-10. *Cara's income evidence is self-declared*: fact 55.
+   fact 47.
+10. *Cara's income evidence is self-declared*: fact 63.
 
 The rest follow the same pattern:
 
@@ -344,7 +345,7 @@ against the program. This is the complete report:
 
 ```js
 // Answers checked subject to the obligations below.
-verdict('checked')
+verdict('checked_with_obligations')
 at_risk(grant('cara'), income('cara', 1800))
 at_risk(grant('dan'), income('dan', 2400))
 at_risk(top_up('dan'), income('dan', 2400))
@@ -355,8 +356,8 @@ explanation(grant('dan'), [applicant('dan'), income('dan', 2400)], [not(already_
 explanation(top_up('ann'), [household('ann', 4), applicant('ann'), income('ann', 2100)], [not(already_received('ann'))])
 explanation(top_up('dan'), [household('dan', 3), applicant('dan'), income('dan', 2400)], [not(already_received('dan'))])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 35)
 condition('C2', 'well_founded', 'ok', 47)
 condition('C3', 'justification', 'ok', 47)
@@ -366,8 +367,9 @@ condition('C6', 'boundary_consistency', 'ok', 6)
 condition('C7', 'relevance', 'ok', 57)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 1)
 
-// Obligations: absence and collection completeness are taken on trust.
+// Obligations: absence, collection or original-call evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, rests_on(refused('bob', 'income above 2500'), A), [applicant('bob'), income('bob', 2900)]))
 obligation('collected', 'theory_scoped', findall(A, assumes(refused('bob', 'income above 2500'), A), []))
 obligation('collected', 'theory_scoped', findall(A, rests_on(grant('ann'), A), [applicant('ann'), income('ann', 2100)]))
@@ -380,22 +382,31 @@ obligation('collected', 'theory_scoped', findall(A, rests_on(top_up('ann'), A), 
 obligation('collected', 'theory_scoped', findall(A, assumes(top_up('ann'), A), [not(already_received('ann'))]))
 obligation('collected', 'theory_scoped', findall(A, rests_on(top_up('dan'), A), [household('dan', 3), applicant('dan'), income('dan', 2400)]))
 obligation('collected', 'theory_scoped', findall(A, assumes(top_up('dan'), A), [not(already_received('dan'))]))
+obligation('call_fidelity', 'original_call', at_risk(grant('cara'), income('cara', 1800)))
+obligation('call_fidelity', 'original_call', at_risk(grant('dan'), income('dan', 2400)))
+obligation('call_fidelity', 'original_call', at_risk(top_up('dan'), income('dan', 2400)))
+obligation('call_fidelity', 'original_call', explanation(refused('bob', 'income above 2500'), [applicant('bob'), income('bob', 2900)], []))
+obligation('call_fidelity', 'original_call', explanation(grant('ann'), [applicant('ann'), income('ann', 2100)], [not(already_received('ann'))]))
+obligation('call_fidelity', 'original_call', explanation(grant('cara'), [applicant('cara'), income('cara', 1800)], [not(already_received('cara'))]))
+obligation('call_fidelity', 'original_call', explanation(grant('dan'), [applicant('dan'), income('dan', 2400)], [not(already_received('dan'))]))
+obligation('call_fidelity', 'original_call', explanation(top_up('ann'), [household('ann', 4), applicant('ann'), income('ann', 2100)], [not(already_received('ann'))]))
+obligation('call_fidelity', 'original_call', explanation(top_up('dan'), [household('dan', 3), applicant('dan'), income('dan', 2400)], [not(already_received('dan'))]))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(47)
 verified(35)
 recomputed(0)
 composed(0)
-trusted(12)
+trusted(21)
 claims(10)
 
 // This verdict applies to the claims above; it does not establish completeness.
 verdict('checked_with_obligations')
 ```
 
-The report holds two verdicts, and they differ. The first line after the
+The report holds two verdicts about different proofs. The first line after the
 heading is one of the audit's answers: the *policy's* verdict, read in as a
-fact, is **checked**. The last line is the verdict on the *audit's* own
+fact, is **checked with obligations**. The last line is the verdict on the *audit's* own
 proof, which comes with obligations.
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -428,24 +439,29 @@ at:
 - **C9 search closure (0)**: the proof carries no search certificate for
   the 12 collections, so none is settled as complete.
 
-The twelve `obligation` lines are the twelve `findall` lists, two per
+The twelve collection `obligation` lines are the twelve `findall` lists, two per
 decision. In plain words, each says: *it is taken on trust that this is the
 complete list of the data this decision rests on* (or *of the assumptions
 it makes*). `'theory_scoped'` means the claim is about what this program
 says, not about the world.
 
-The statistics repeat this: 47 steps, 35 verified against the program, 12
-trusted. The verdict is **checked with obligations**: the audit's answers
+The statistics repeat this: 47 steps, 35 verified against the program, 12 collection obligations and
+9 call-fidelity obligations. The verdict is **checked with obligations**: the audit's answers
 follow from the program, provided the twelve collected lists are complete.
 It does not establish that eyemind found every answer, and the completeness
 of those lists was taken on trust rather than proved.
 
-So the two verdicts differ for a reason. The policy's proof is
-`verdict('checked')`: its only boundaries were the three absences, which
-the checker settled. The audit's own proof is checked with obligations: its
-twelve lists gather derived facts. So the auditor gets an answer about the
-reasoning that is itself reasoned, and checked, and told exactly what it
-takes on trust.
+Both verdicts are `checked_with_obligations`. The policy's three absences
+are settled, but its six forward decisions have unresolved call fidelity.
+The audit's own proof also has twelve collection obligations and nine
+call-fidelity obligations. Reading the report as data preserves these
+qualifications for the auditor.
+
+C10 leaves 9 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 
@@ -459,10 +475,10 @@ eyemind --goal 'trusted(N)' examples/audited-grants.js          # what the polic
 
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=audited-grants).
 The last command asks the audit program how many steps the *policy's*
-report, read in as facts, took on trust: `trusted(0)`. Its three absences,
+report, read in as facts, left as obligations: `trusted(6)`. Its three absences,
 `not(already_received('ann'))`, `not(already_received('cara'))` and
-`not(already_received('dan'))`, were all confirmed, so the report lists no
-`obligation` lines.
+`not(already_received('dan'))`, were all confirmed. The six obligations concern the original calls for
+its forward policy decisions.
 
 Change Cara's evidence to `'payslip'` and run again: her grant is no longer
 at risk, and only Dan's two decisions are. Lower the threshold in the grant

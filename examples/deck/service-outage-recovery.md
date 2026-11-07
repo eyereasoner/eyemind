@@ -234,8 +234,8 @@ step(not(cheaper_repair(3)), 'absent', {}, [])
 // … 2 steps left out
 // … 425 more steps derive every other plan and what operates under it
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 // … four derived(...) listings: every operating, hardware_ready, repair_plan
 // and feasible_repair fact the rules derived
 searched(operating([], 'web_store'), [])
@@ -309,15 +309,15 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 affected_function('place_order')
 affected_function('mobile_checkout')
 best_repair(['catalog_replica', 'bank_backup'], 3)
 restored_function('place_order')
 restored_function('mobile_checkout')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 476)
 condition('C2', 'well_founded', 'ok', 494)
 condition('C3', 'justification', 'ok', 494)
@@ -327,17 +327,25 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 499)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 3)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', affected_function('place_order'))
+obligation('call_fidelity', 'original_call', affected_function('mobile_checkout'))
+obligation('call_fidelity', 'original_call', best_repair(['catalog_replica', 'bank_backup'], 3))
+obligation('call_fidelity', 'original_call', restored_function('place_order'))
+obligation('call_fidelity', 'original_call', restored_function('mobile_checkout'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(494)
 verified(476)
 recomputed(15)
 composed(0)
-trusted(0)
+trusted(5)
 claims(5)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -376,10 +384,16 @@ its own steps and no rule derives a fact they leave out. The statistics:
 494 steps, 476 verified, 15 recomputed and the 3 absences settled, none
 trusted, for 5 claims.
 
-The verdict is **checked**. The plan works and costs 3, and that it is the
+The verdict is **checked with obligations**. The plan works and costs 3, and that it is the
 *cheapest* is checked too. The result also assumes the supplied hardware
 states and dependency model, and, as the last comment says, it does not
 establish completeness.
+
+C10 leaves 5 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

@@ -22,3 +22,10 @@ step(classified_as('joe', 'cobbler'), clause(4), {Person: 'joe', _0: 'good', Tra
 step(classified_as('jane', 'carpenter'), clause(4), {Person: 'jane', _0: 'good', Trade: 'carpenter'}, [description('jane', ['good', 'carpenter'])])
 step(classified_as('sam', 'cobbler'), clause(4), {Person: 'sam', _0: 'novice', Trade: 'cobbler'}, [description('sam', ['novice', 'cobbler'])])
 step(description('sam', ['novice', 'cobbler']), clause(3), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(good_at(A, B), [good_at('joe', 'cobbler'), good_at('jane', 'carpenter')])
+derived(classified_as(A, B), [classified_as('joe', 'cobbler'), classified_as('jane', 'carpenter'), classified_as('sam', 'cobbler')])
+called(good_at(A, B), [good_at('joe', 'cobbler'), good_at('jane', 'carpenter')])
+called(classified_as(C, D), [classified_as('joe', 'cobbler'), classified_as('jane', 'carpenter'), classified_as('sam', 'cobbler')])

@@ -138,8 +138,8 @@ step(is(10, add(2, 8)), 'builtin', {}, [])
 step(path('c', 'd', 4), clause(7), {X: 'c', Y: 'b', Before: 1, Z: 'd', Weight: 3, Cost: 4}, [path('c', 'b', 1), edge('b', 'd', 3), is(4, add(1, 3))])
 step(is(4, add(1, 3)), 'builtin', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 derived(path(A, B, C), [path('a', 'b', 4), path('a', 'c', 2), path('c', 'b', 1), path('b', 'd', 3), path('c', 'd', 8), path('a', 'd', 7), path('a', 'b', 3), path('a', 'd', 10), path('c', 'd', 4), path('a', 'd', 6)])
 searched(cheaper('a', 'd', 6), [])
 searched(path('a', 'd', D), [path('a', 'd', 7), path('a', 'd', 10), path('a', 'd', 6)])
@@ -206,11 +206,11 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 shortest('a', 'd', 6)
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 16)
 condition('C2', 'well_founded', 'ok', 22)
 condition('C3', 'justification', 'ok', 22)
@@ -220,17 +220,21 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 23)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', shortest('a', 'd', 6))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(22)
 verified(16)
 recomputed(5)
 composed(0)
-trusted(0)
+trusted(1)
 claims(1)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -267,8 +271,7 @@ that hid a cheaper route, would disagree with this expansion and fail the
 check.
 
 The statistics: 22 steps, 16 verified against the program, 5 recomputed,
-and the absence settled by the certificate, so none is taken on trust and
-there are no obligations. The verdict is **checked**: the route of cost 6
+and the absence settled by the certificate, so no boundary steps are taken on trust. The verdict is **checked with obligations**: the route of cost 6
 exists, and no route from a to d is cheaper. This holds relative to this
 program: true of this map, not necessarily of the real roads. The verdict
 also does not establish that there are no other answers.
@@ -284,10 +287,16 @@ eyemind --proof examples/shortest-path.js > /tmp/sp-proof.js
 eyemind --strict-proof --check-proof /tmp/sp-proof.js examples/shortest-path.js
 ```
 
-The strict check accepts this proof, with verdict `checked` and exit code
-0: the absence is settled by the search certificate, so nothing rests on
-trust. A proof whose absence the certificate could not settle would fail
-here with `failure('C5', ..., 'trusted boundary forbidden: absent')`.
+The strict check rejects this proof with exit code 2. The absence is settled
+by its search certificate, but C10 cannot establish the original call from
+this forward listing, so the report includes a C10 failure for its unresolved
+call-fidelity obligation.
+
+C10 leaves 1 original-call claim unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

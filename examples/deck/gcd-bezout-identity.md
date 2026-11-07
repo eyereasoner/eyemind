@@ -264,7 +264,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 certificate('common_factor', 6, -1, 3)
 certificate('coprime', 1, 215, -47)
 certificate('zero_left', 5, 0, 1)
@@ -280,8 +280,8 @@ identity_holds('larger')
 identity_holds('negative')
 identity_holds('large')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 73)
 condition('C2', 'well_founded', 'ok', 236)
 condition('C3', 'justification', 'ok', 236)
@@ -291,17 +291,34 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 250)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', certificate('common_factor', 6, -1, 3))
+obligation('call_fidelity', 'original_call', certificate('coprime', 1, 215, -47))
+obligation('call_fidelity', 'original_call', certificate('zero_left', 5, 0, 1))
+obligation('call_fidelity', 'original_call', certificate('zero_right', 5, 1, 0))
+obligation('call_fidelity', 'original_call', certificate('larger', 6, 5, -7))
+obligation('call_fidelity', 'original_call', certificate('negative', 9, 1, 1))
+obligation('call_fidelity', 'original_call', certificate('large', 6, -649, 10155))
+obligation('call_fidelity', 'original_call', identity_holds('common_factor'))
+obligation('call_fidelity', 'original_call', identity_holds('coprime'))
+obligation('call_fidelity', 'original_call', identity_holds('zero_left'))
+obligation('call_fidelity', 'original_call', identity_holds('zero_right'))
+obligation('call_fidelity', 'original_call', identity_holds('larger'))
+obligation('call_fidelity', 'original_call', identity_holds('negative'))
+obligation('call_fidelity', 'original_call', identity_holds('large'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(236)
 verified(73)
 recomputed(163)
 composed(0)
-trusted(0)
+trusted(14)
 claims(14)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -330,12 +347,18 @@ at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 236 steps, 73 verified against the program, 163
-recomputed, none taken on trust. The verdict is **checked**: all seven
+recomputed, no boundary steps taken on trust. The verdict is **checked with obligations**: all seven
 certificates and identities follow from the program. As the last comment
 says, it does not say the program has no other answers.
 
 The certificate establishes these particular identities. It is not a
 general induction proof of the extended Euclidean algorithm.
+
+C10 leaves 14 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

@@ -952,8 +952,8 @@ step(gt(33554371, 3), 'builtin', {}, [])
 step(eq(1, mod(33554371, 2)), 'builtin', {}, [])
 step(not(has_factor(33554371, 3)), 'absent', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(has_factor(5, 3), [])
 searched(has_factor(13, 3), [])
 searched(has_factor(13, 5), [])

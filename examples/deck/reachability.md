@@ -137,6 +137,11 @@ step(reachable('a', 'a'), clause(6), {X: 'a', Y: 'c', Z: 'a'}, [reachable('a', '
 step(reachable('a', 'd'), clause(6), {X: 'a', Y: 'c', Z: 'd'}, [reachable('a', 'c'), edge('c', 'd')])
 step(reachable('b', 'b'), clause(6), {X: 'b', Y: 'a', Z: 'b'}, [reachable('b', 'a'), edge('a', 'b')])
 step(reachable('c', 'c'), clause(6), {X: 'c', Y: 'b', Z: 'c'}, [reachable('c', 'b'), edge('b', 'c')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(reachable(A, B), [reachable('a', 'b'), reachable('b', 'c'), reachable('c', 'a'), reachable('c', 'd'), reachable('a', 'c'), reachable('b', 'a'), reachable('b', 'd'), reachable('c', 'b'), reachable('a', 'a'), reachable('a', 'd'), reachable('b', 'b'), reachable('c', 'c')])
+called(reachable(A, B), [reachable('a', 'b'), reachable('b', 'c'), reachable('c', 'a'), reachable('c', 'd'), reachable('a', 'c'), reachable('b', 'a'), reachable('b', 'd'), reachable('c', 'b'), reachable('a', 'a'), reachable('a', 'd'), reachable('b', 'b'), reachable('c', 'c')])
 ```
 
 It has three parts:
@@ -201,8 +206,8 @@ reachable('a', 'd')
 reachable('b', 'b')
 reachable('c', 'c')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 16)
 condition('C2', 'well_founded', 'ok', 16)
 condition('C3', 'justification', 'ok', 16)
@@ -212,6 +217,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 28)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 12)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(16)

@@ -36,8 +36,8 @@ step(is(10, add(2, 8)), 'builtin', {}, [])
 step(path('c', 'd', 4), clause(7), {X: 'c', Y: 'b', Before: 1, Z: 'd', Weight: 3, Cost: 4}, [path('c', 'b', 1), edge('b', 'd', 3), is(4, add(1, 3))])
 step(is(4, add(1, 3)), 'builtin', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 derived(path(A, B, C), [path('a', 'b', 4), path('a', 'c', 2), path('c', 'b', 1), path('b', 'd', 3), path('c', 'd', 8), path('a', 'd', 7), path('a', 'b', 3), path('a', 'd', 10), path('c', 'd', 4), path('a', 'd', 6)])
 searched(cheaper('a', 'd', 6), [])
 searched(path('a', 'd', D), [path('a', 'd', 7), path('a', 'd', 10), path('a', 'd', 6)])

@@ -25,8 +25,10 @@ step(not(t('carol', 'blocked', 'true')), 'absent', {}, [])
 step(children('alice', ['bob', 'carol']), clause(7), {P: 'alice', _0: 'bob', C: A, Children: ['bob', 'carol']}, [base('alice', 'parent_of', 'bob'), findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol'])])
 step(findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']), 'collected', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 derived(t(B, C, D), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
 searched(t('carol', 'blocked', 'true'), [])
 searched(t(E, 'parent_of', F), [t('alice', 'parent_of', 'bob'), t('alice', 'parent_of', 'carol')])
+called(t(A, 'child_of', B), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
+called(t(C, 'parent_of', D), [t('alice', 'parent_of', 'bob'), t('alice', 'parent_of', 'carol')])

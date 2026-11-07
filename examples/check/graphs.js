@@ -4,8 +4,8 @@ t('carol', 'child_of', 'alice')
 allowed('carol')
 children('alice', ['bob', 'carol'])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 8)
 condition('C2', 'well_founded', 'ok', 10)
 condition('C3', 'justification', 'ok', 10)
@@ -15,16 +15,19 @@ condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 14)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
+condition('C10', 'call_fidelity', 'ok', 2)
 
-// Obligations: absence and collection completeness are taken on trust.
+// Obligations: absence, collection or original-call evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']))
+obligation('call_fidelity', 'original_call', allowed('carol'))
+obligation('call_fidelity', 'original_call', children('alice', ['bob', 'carol']))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(10)
 verified(8)
 recomputed(0)
 composed(0)
-trusted(1)
+trusted(3)
 claims(4)
 
 // This verdict applies to the claims above; it does not establish completeness.

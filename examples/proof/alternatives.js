@@ -18,3 +18,7 @@ step(route('paris', 'lille'), clause(4), {From: 'paris', To: 'lille'}, [bus('par
 step(bus('paris', 'lille'), clause(2), {}, [])
 step(or(train('paris', 'brussels'), bus('paris', 'lille')), 'control', {}, [train('paris', 'brussels')])
 step(once(route('paris', 'brussels')), 'control', {}, [route('paris', 'brussels')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(route('paris', A), [route('paris', 'brussels'), route('paris', 'lille')])

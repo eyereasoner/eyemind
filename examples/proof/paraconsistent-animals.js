@@ -154,10 +154,11 @@ step(migrates('batsy', 'true'), clause(31), {X: 'batsy'}, [flight_status('batsy'
 step(moves_by('opus', 'walking'), clause(32), {X: 'opus'}, [flight_status('opus', 'false_only')])
 step(migrates('opus', 'false'), clause(32), {X: 'opus'}, [flight_status('opus', 'false_only')])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 derived(flies(A, B), [flies('tweety', 'true'), flies('falco', 'true'), flies('mythic', 'true'), flies('tweety', 'false'), flies('opus', 'false'), flies('batsy', 'true'), flies('mythic', 'false')])
 derived(wings(A, B), [wings('tweety', 'true'), wings('falco', 'true'), wings('mythic', 'true'), wings('batsy', 'false'), wings('batsy', 'true'), wings('nemo', 'false')])
+derived(swims(A, B), [swims('nemo', 'true')])
 searched(flies('falco', 'false'), [])
 searched(flies('batsy', 'false'), [])
 searched(flies('opus', 'true'), [])
@@ -165,3 +166,9 @@ searched(wings('tweety', 'false'), [])
 searched(wings('falco', 'false'), [])
 searched(wings('mythic', 'false'), [])
 searched(wings('nemo', 'true'), [])
+called(flies(A, 'true'), [flies('tweety', 'true'), flies('falco', 'true'), flies('mythic', 'true'), flies('batsy', 'true')])
+called(wings(B, 'true'), [wings('tweety', 'true'), wings('falco', 'true'), wings('mythic', 'true'), wings('batsy', 'true')])
+called(flies(C, 'false'), [flies('tweety', 'false'), flies('opus', 'false'), flies('mythic', 'false')])
+called(wings(D, 'false'), [wings('batsy', 'false'), wings('nemo', 'false')])
+called(swims(E, 'true'), [swims('nemo', 'true')])
+called(flies(F, G), [flies('tweety', 'true'), flies('falco', 'true'), flies('mythic', 'true'), flies('tweety', 'false'), flies('opus', 'false'), flies('batsy', 'true'), flies('mythic', 'false')])

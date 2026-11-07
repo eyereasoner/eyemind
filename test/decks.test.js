@@ -367,8 +367,8 @@ for (const entry of MANIFEST) {
             const failures = report.filter((term) => term.name === 'failure');
             assert.equal(BigInt(failures.length), trusted);
             for (const failure of failures) {
-              assert.equal(failure.args[0], 'C5');
-              assert.match(failure.args[2], /^trusted boundary forbidden:/);
+              assert.ok(['C5', 'C10'].includes(failure.args[0]));
+              assert.match(failure.args[2], /^(?:trusted boundary forbidden:|call fidelity remains unproved:)/);
             }
           } else assert.equal(result.stdout, read(`check/${name}.js`));
         } else {

@@ -56,8 +56,8 @@ step(findall(A, received('plus', 2, A), ['false', 'true']), 'collected', {}, [])
 step(teleported('plus', 3, ['false', 'true']), clause(37), {S: 'plus', M: 3, Z: A, Received: ['false', 'true']}, [name('plus'), outcome(3), findall(A, received('plus', 3, A), ['false', 'true'])])
 step(findall(A, received('plus', 3, A), ['false', 'true']), 'collected', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(received('zero', 0, B), [received('zero', 0, 'false')])
 searched(path('zero', 0, 'false', C), [path('zero', 0, 'false', ['false', 'true', 'true'])])
 searched(alice(0, ['false', 'false']), [])

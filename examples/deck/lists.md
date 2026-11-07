@@ -126,6 +126,22 @@ step(is(4, add(4, 0)), 'builtin', {}, [])
 step(is(7, add(3, 4)), 'builtin', {}, [])
 step(is(9, add(2, 7)), 'builtin', {}, [])
 step(is(10, add(1, 9)), 'builtin', {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(append(['a', 'b'], ['c', 'd'], A), [append(['a', 'b'], ['c', 'd'], ['a', 'b', 'c', 'd'])])
+called(append(['b'], ['c', 'd'], B), [append(['b'], ['c', 'd'], ['b', 'c', 'd'])])
+called(append([], ['c', 'd'], C), [append([], ['c', 'd'], ['c', 'd'])])
+called(squares([1, 2, 3, 4], D), [squares([1, 2, 3, 4], [1, 4, 9, 16])])
+called(squares([2, 3, 4], E), [squares([2, 3, 4], [4, 9, 16])])
+called(squares([3, 4], F), [squares([3, 4], [9, 16])])
+called(squares([4], G), [squares([4], [16])])
+called(squares([], H), [squares([], [])])
+called(sum([1, 2, 3, 4], I), [sum([1, 2, 3, 4], 10)])
+called(sum([2, 3, 4], J), [sum([2, 3, 4], 9)])
+called(sum([3, 4], K), [sum([3, 4], 7)])
+called(sum([4], L), [sum([4], 4)])
+called(sum([], M), [sum([], 0)])
 ```
 
 It has three parts:
@@ -194,8 +210,8 @@ append(['a', 'b'], ['c', 'd'], ['a', 'b', 'c', 'd'])
 squares([1, 2, 3, 4], [1, 4, 9, 16])
 sum([1, 2, 3, 4], 10)
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 13)
 condition('C2', 'well_founded', 'ok', 21)
 condition('C3', 'justification', 'ok', 21)
@@ -205,6 +221,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 24)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(21)

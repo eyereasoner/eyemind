@@ -88,3 +88,14 @@ step(cousin('heidi', 'judy'), clause(17), {X: 'heidi', N: 3, Y: 'judy', A: 'b', 
 step(cousin('ivan', 'judy'), clause(17), {X: 'ivan', N: 3, Y: 'judy', A: 'b', B: 'c'}, [generation('ivan', 3), generation('judy', 3), branch('ivan', 'b'), branch('judy', 'c'), not_unify('b', 'c')])
 step(cousin('judy', 'heidi'), clause(17), {X: 'judy', N: 3, Y: 'heidi', A: 'c', B: 'b'}, [generation('judy', 3), generation('heidi', 3), branch('judy', 'c'), branch('heidi', 'b'), not_unify('c', 'b')])
 step(cousin('judy', 'ivan'), clause(17), {X: 'judy', N: 3, Y: 'ivan', A: 'c', B: 'b'}, [generation('judy', 3), generation('ivan', 3), branch('judy', 'c'), branch('ivan', 'b'), not_unify('c', 'b')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(branch(A, B), [branch('heidi', 'b'), branch('ivan', 'b'), branch('judy', 'c')])
+called(branch(A, B), [branch('heidi', 'b'), branch('ivan', 'b'), branch('judy', 'c'), branch('dave', 'b'), branch('eve', 'b'), branch('frank', 'c'), branch('grace', 'c')])
+called(branch('adam', C), [])
+called(branch('bob', C), [])
+called(branch('carol', C), [])
+called(branch('dave', C), [branch('dave', 'b')])
+called(branch('eve', C), [branch('eve', 'b')])
+called(branch('frank', C), [branch('frank', 'c')])

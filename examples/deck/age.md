@@ -196,6 +196,27 @@ step(ne(0, mod(2024, 100)), 'builtin', {}, [])
 step(is(2023, sub(2024, 1)), 'builtin', {}, [])
 step(is(739119, add(add(add(add(sub(add(mul(365, 2023), floordiv(2023, 4)), floordiv(2023, 100)), floordiv(2023, 400)), 212), 1), 21)), 'builtin', {}, [])
 step(gt(739890, 739119), 'builtin', {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(age_above(A, years(80)), [age_above('pat_h', years(80))])
+called(age_above(B, years(80), date(2026, 10, 1)), [age_above('pat_h', years(80), date(2026, 10, 1))])
+called(date_day(date(1944, 8, 21), C), [date_day(date(1944, 8, 21), 709899)])
+called(month_days(1944, 8, D), [month_days(1944, 8, 31)])
+called(leap_extra(1944, 8, E), [leap_extra(1944, 8, 1)])
+called(leap_year(1944), [leap_year(1944)])
+called(common_year(1944), [])
+called(date_day(date(2026, 10, 1), F), [date_day(date(2026, 10, 1), 739890)])
+called(month_days(2026, 10, G), [month_days(2026, 10, 31)])
+called(leap_extra(2026, 10, H), [leap_extra(2026, 10, 0)])
+called(leap_year(2026), [])
+called(common_year(2026), [common_year(2026)])
+called(anniversary(date(1944, 8, 21), 80, I), [anniversary(date(1944, 8, 21), 80, date(2024, 8, 21))])
+called(month_days(2024, 8, J), [month_days(2024, 8, 31)])
+called(date_day(date(2024, 8, 21), K), [date_day(date(2024, 8, 21), 739119)])
+called(leap_extra(2024, 8, L), [leap_extra(2024, 8, 1)])
+called(leap_year(2024), [leap_year(2024)])
+called(common_year(2024), [])
 ```
 
 It has three parts:
@@ -260,8 +281,8 @@ against the program. This is the complete report:
 // Checked answers: these follow from the input program.
 age_above('pat_h', years(80))
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 21)
 condition('C2', 'well_founded', 'ok', 54)
 condition('C3', 'justification', 'ok', 54)
@@ -271,6 +292,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 55)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 1)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(54)

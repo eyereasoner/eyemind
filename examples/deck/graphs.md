@@ -131,11 +131,13 @@ step(not(t('carol', 'blocked', 'true')), 'absent', {}, [])
 step(children('alice', ['bob', 'carol']), clause(7), {P: 'alice', _0: 'bob', C: A, Children: ['bob', 'carol']}, [base('alice', 'parent_of', 'bob'), findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol'])])
 step(findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']), 'collected', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 derived(t(B, C, D), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
 searched(t('carol', 'blocked', 'true'), [])
 searched(t(E, 'parent_of', F), [t('alice', 'parent_of', 'bob'), t('alice', 'parent_of', 'carol')])
+called(t(A, 'child_of', B), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
+called(t(C, 'parent_of', D), [t('alice', 'parent_of', 'bob'), t('alice', 'parent_of', 'carol')])
 ```
 
 It has four parts:
@@ -201,8 +203,8 @@ t('carol', 'child_of', 'alice')
 allowed('carol')
 children('alice', ['bob', 'carol'])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 8)
 condition('C2', 'well_founded', 'ok', 10)
 condition('C3', 'justification', 'ok', 10)
@@ -212,16 +214,19 @@ condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 14)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
+condition('C10', 'call_fidelity', 'ok', 2)
 
-// Obligations: absence and collection completeness are taken on trust.
+// Obligations: absence, collection or original-call evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']))
+obligation('call_fidelity', 'original_call', allowed('carol'))
+obligation('call_fidelity', 'original_call', children('alice', ['bob', 'carol']))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(10)
 verified(8)
 recomputed(0)
 composed(0)
-trusted(1)
+trusted(3)
 claims(4)
 
 // This verdict applies to the claims above; it does not establish completeness.
@@ -270,6 +275,12 @@ way. `'theory_scoped'` means "with respect to this program": a new fact
 could change it. The verdict is **checked with obligations**: the four
 conclusions follow from the program, provided that collection is right. The
 verdict does not say the program has no other conclusions.
+
+C10 leaves 2 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

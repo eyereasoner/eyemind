@@ -9,11 +9,11 @@ export const HELP = `Usage: eyemind [OPTION ...] [FILE ...]
 Programs are JavaScript; forward rules run to a fixpoint.
   -p, --proof             Print the claims with clause(...) and step(...) records
   -c, --prove-and-check   Generate a proof and check it against the input program
-      --check-proof FILE  Print checked answers and a C1-C9 report (- for stdin)
+      --check-proof FILE  Print checked answers and a proof check report (- for stdin)
       --json              Print the check report as JSON instead
       --goal GOAL         Ask a backward goal after forward reasoning; with
                           --check-proof, the goal the proof answers
-      --strict-proof      Reject proofs relying on absence or collection
+      --strict-proof      Reject proofs with unresolved obligations
       --unused            List the clauses that make no difference to the conclusions
       --stats             Print reasoning statistics to stderr
       --max-depth N       Bound backward recursion (default 1000000)

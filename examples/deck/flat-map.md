@@ -113,6 +113,23 @@ step(findall(D, t('missing', 'p1', D), []), 'collected', {}, [])
 step(flat_map(['s1'], 'p2', []), clause(8), {S: 's1', Subjects: [], P: 'p2', Objects: [], O: E, Here: [], Rest: []}, [findall(E, t('s1', 'p2', E), []), flat_map([], 'p2', []), append([], [], [])])
 step(findall(E, t('s1', 'p2', E), []), 'collected', {}, [])
 step(flat_map([], 'p2', []), clause(7), {_0: 'p2'}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+called(flat_map(['s1', 's2', 's3'], 'p1', A), [flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4'])])
+called(flat_map(['s2', 's3'], 'p1', B), [flat_map(['s2', 's3'], 'p1', ['o2', 'o3', 'o4'])])
+called(flat_map(['s3'], 'p1', C), [flat_map(['s3'], 'p1', ['o3', 'o4'])])
+called(flat_map([], 'p1', D), [flat_map([], 'p1', [])])
+called(append(['o3', 'o4'], [], E), [append(['o3', 'o4'], [], ['o3', 'o4'])])
+called(append(['o4'], [], F), [append(['o4'], [], ['o4'])])
+called(append([], [], G), [append([], [], [])])
+called(append(['o2'], ['o3', 'o4'], H), [append(['o2'], ['o3', 'o4'], ['o2', 'o3', 'o4'])])
+called(append([], ['o3', 'o4'], I), [append([], ['o3', 'o4'], ['o3', 'o4'])])
+called(append(['o1'], ['o2', 'o3', 'o4'], J), [append(['o1'], ['o2', 'o3', 'o4'], ['o1', 'o2', 'o3', 'o4'])])
+called(append([], ['o2', 'o3', 'o4'], K), [append([], ['o2', 'o3', 'o4'], ['o2', 'o3', 'o4'])])
+called(flat_map(['missing'], 'p1', L), [flat_map(['missing'], 'p1', [])])
+called(flat_map(['s1'], 'p2', M), [flat_map(['s1'], 'p2', [])])
+called(flat_map([], 'p2', N), [flat_map([], 'p2', [])])
 ```
 
 It has three parts:
@@ -179,8 +196,8 @@ flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4'])
 flat_map(['missing'], 'p1', [])
 flat_map(['s1'], 'p2', [])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 14)
 condition('C2', 'well_founded', 'ok', 19)
 condition('C3', 'justification', 'ok', 19)
@@ -190,6 +207,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 22)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 5)
+condition('C10', 'call_fidelity', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(19)

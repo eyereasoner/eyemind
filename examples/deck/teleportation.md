@@ -182,8 +182,8 @@ step(findall(A, received('plus', 2, A), ['false', 'true']), 'collected', {}, [])
 step(teleported('plus', 3, ['false', 'true']), clause(37), {S: 'plus', M: 3, Z: A, Received: ['false', 'true']}, [name('plus'), outcome(3), findall(A, received('plus', 3, A), ['false', 'true'])])
 step(findall(A, received('plus', 3, A), ['false', 'true']), 'collected', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(received('zero', 0, B), [received('zero', 0, 'false')])
 searched(path('zero', 0, 'false', C), [path('zero', 0, 'false', ['false', 'true', 'true'])])
 searched(alice(0, ['false', 'false']), [])
@@ -248,7 +248,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 teleported('zero', 0, ['false'])
 teleported('zero', 1, ['false'])
 teleported('zero', 2, ['false'])
@@ -262,8 +262,8 @@ teleported('plus', 1, ['false', 'true'])
 teleported('plus', 2, ['false', 'true'])
 teleported('plus', 3, ['false', 'true'])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 19)
 condition('C2', 'well_founded', 'ok', 31)
 condition('C3', 'justification', 'ok', 31)
@@ -273,17 +273,32 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 43)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 12)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', teleported('zero', 0, ['false']))
+obligation('call_fidelity', 'original_call', teleported('zero', 1, ['false']))
+obligation('call_fidelity', 'original_call', teleported('zero', 2, ['false']))
+obligation('call_fidelity', 'original_call', teleported('zero', 3, ['false']))
+obligation('call_fidelity', 'original_call', teleported('one', 0, ['true']))
+obligation('call_fidelity', 'original_call', teleported('one', 1, ['true']))
+obligation('call_fidelity', 'original_call', teleported('one', 2, ['true']))
+obligation('call_fidelity', 'original_call', teleported('one', 3, ['true']))
+obligation('call_fidelity', 'original_call', teleported('plus', 0, ['false', 'true']))
+obligation('call_fidelity', 'original_call', teleported('plus', 1, ['false', 'true']))
+obligation('call_fidelity', 'original_call', teleported('plus', 2, ['false', 'true']))
+obligation('call_fidelity', 'original_call', teleported('plus', 3, ['false', 'true']))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(31)
 verified(19)
 recomputed(0)
 composed(0)
-trusted(0)
+trusted(12)
 claims(12)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -318,9 +333,15 @@ check. So the path counting is checked too, not taken on trust. "Every
 value" means every value within this program's rules.
 
 The statistics: 31 steps, 19 verified against the program and the 12
-collections settled by the certificate, none taken on trust. The verdict is
-**checked**: each answer follows from the program. The verdict does not establish
+collections settled by the certificate, no boundary steps taken on trust. The verdict is
+**checked with obligations**: each answer follows from the program. The verdict does not establish
 that there are no other answers.
+
+C10 leaves 12 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

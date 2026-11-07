@@ -100,6 +100,13 @@ step(maps('source_name', 'name'), clause(3), {}, [])
 step(t('alice', 'age', 30), clause(5), {S: 'alice', Source: 'source_age', O: 30, Target: 'age'}, [t('alice', 'source_age', 30), maps('source_age', 'age')])
 step(t('alice', 'source_age', 30), clause(2), {}, [])
 step(maps('source_age', 'age'), clause(4), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(t(A, B, C), [t('alice', 'name', 'Alice'), t('alice', 'age', 30)])
+called(t('alice', 'name', A), [t('alice', 'name', 'Alice')])
+called(t(B, C, D), [t('alice', 'name', 'Alice'), t('alice', 'age', 30), t('alice', 'source_name', 'Alice'), t('alice', 'source_age', 30)])
+called(t('alice', 'age', E), [t('alice', 'age', 30)])
 ```
 
 It has three parts:
@@ -139,8 +146,8 @@ against the program. This is the complete report:
 t('alice', 'name', 'Alice')
 t('alice', 'age', 30)
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 6)
 condition('C2', 'well_founded', 'ok', 6)
 condition('C3', 'justification', 'ok', 6)
@@ -150,6 +157,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 8)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(6)

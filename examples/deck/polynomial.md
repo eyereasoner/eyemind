@@ -129,8 +129,8 @@ step(findall(A, racine([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], A), [[4.0
 step(roots([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]]), clause(1), {P: [[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], L: [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]], Z: B}, [findall(B, racine([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], B), [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]])])
 step(findall(B, racine([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], B), [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]]), 'collected', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 // … searched(racine(...), [...]) with the four roots of the first polynomial
 searched(est(D, floordiv([-10, 0], fois([-4, 0], [1, 0]))), [est([2.5, -0.0], floordiv([-10, 0], fois([-4, 0], [1, 0])))])
 searched(est(E, [-10, 0]), [est([-10, 0], [-10, 0])])
@@ -186,8 +186,8 @@ against the program. This is the complete report:
 roots([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]])
 roots([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 2)
 condition('C2', 'well_founded', 'ok', 4)
 condition('C3', 'justification', 'ok', 4)
@@ -197,6 +197,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 6)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 2)
+condition('C10', 'call_fidelity', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(4)

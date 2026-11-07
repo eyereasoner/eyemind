@@ -7,7 +7,7 @@
 // ...T for an open tail. A conjunction or disjunction built left to right,
 // and(and(A, B), C), is written and(A, B, C). A compound whose name is not a
 // plain identifier is written struct('name', Arg, ...).
-import { Struct, Var, deref } from './terms.js';
+import { Struct, Var, deref, isAnonymous } from './terms.js';
 
 // Words a document cannot use as a plain name: JavaScript's reserved words,
 // and the names of its values that are not terms (Section 9.1).
@@ -138,14 +138,15 @@ export function letterName(n) {
 // Names for write(): each variable met is named A, B, ..., Z, A1, ... in the
 // order the writing meets it, across every write sharing the lettering.
 export class Lettering {
-  constructor() {
+  constructor(anonymous = false) {
     this.names = new Map();
+    this.anonymous = anonymous;
   }
 
   get(name) {
     let letter = this.names.get(name);
     if (letter === undefined) {
-      letter = letterName(this.names.size);
+      letter = this.anonymous && isAnonymous(new Var(name)) ? `_${this.names.size}` : letterName(this.names.size);
       this.names.set(name, letter);
     }
     return letter;

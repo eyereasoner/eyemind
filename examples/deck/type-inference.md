@@ -265,8 +265,8 @@ type_answer('first_of_pair', 'bool')
 type_reason('compose', 'application unifies f with t1 -> t2 and g with t0 -> t1')
 type_reason('apply_id', 'the identity function\'s parameter type is unified with int')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 49)
 condition('C2', 'well_founded', 'ok', 53)
 condition('C3', 'justification', 'ok', 53)
@@ -276,6 +276,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 61)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 8)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(53)

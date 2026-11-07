@@ -87,6 +87,6 @@ step(ge(97, 80), 'builtin', {}, [])
 step(findall(A, higher(97, A), [100]), 'collected', {}, [])
 step(count([100], 1), clause(27), {_0: 100, Rest: [], N: 1, Before: 0}, [count([], 0), is(1, add(0, 1))])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(has_notice('c1'), [])

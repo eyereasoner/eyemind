@@ -3,8 +3,8 @@ flat_map(['s1', 's2', 's3'], 'p1', ['o1', 'o2', 'o3', 'o4'])
 flat_map(['missing'], 'p1', [])
 flat_map(['s1'], 'p2', [])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 14)
 condition('C2', 'well_founded', 'ok', 19)
 condition('C3', 'justification', 'ok', 19)
@@ -14,6 +14,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 22)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 5)
+condition('C10', 'call_fidelity', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(19)

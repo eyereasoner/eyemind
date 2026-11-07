@@ -218,8 +218,8 @@ step(solution(['e', 'e', 'e', 'e'], []), clause(1), {}, [])
 // … 17 more steps, 72 in total, prove the two shortest_crossing answers.
 // They reuse the steps above, so only the second plan needs new ones.
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched('shorter_solution', [])
 // … 71 more searched lines: the lengths 0 to 6, and every plan tried
 ```
@@ -293,8 +293,8 @@ wolf_goat_cabbage_verified(7)
 shortest_crossing(['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])
 shortest_crossing(['goat', 'nothing', 'cabbage', 'goat', 'wolf', 'nothing', 'goat'])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 56)
 condition('C2', 'well_founded', 'ok', 72)
 condition('C3', 'justification', 'ok', 72)
@@ -304,6 +304,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 75)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
+condition('C10', 'call_fidelity', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(72)

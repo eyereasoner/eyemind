@@ -31,8 +31,8 @@ step(message(3), clause(32), {}, [])
 step(findall(A, path(3, 3, A), [['false', 'false', 'false']]), 'collected', {}, [])
 step(odd([['false', 'false', 'false']]), clause(33), {_0: ['false', 'false', 'false']}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(path(0, 0, B), [path(0, 0, ['true', 'true', 'true'])])
 searched(alice(0, ['false', C]), [alice(0, ['false', 'false'])])
 searched(bob(['false', 'false'], 0), [])

@@ -30,7 +30,7 @@ step(classification('ada', 'pacifist'), clause(8), {Person: 'ada'}, [pacifist('a
 step(pacifist('ada'), clause(4), {Person: 'ada'}, [quaker('ada'), not(nonpacifist('ada'))])
 step(not(nonpacifist('ada')), 'absent', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 derived(nonpacifist(A), [nonpacifist('nixon')])
 searched(nonpacifist('ada'), [])

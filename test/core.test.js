@@ -197,7 +197,7 @@ implies([node(X), not(edge(X, _))], isolated(X))
     // Its search certificate settles the absence; the collection of derived
     // facts stays an obligation, since their order cannot be checked.
     const report = checkProof(graphs, result.proof);
-    assert.deepEqual(report.trusted.map((item) => item.kind), ['collected']);
+    assert.deepEqual(report.trusted.map((item) => item.kind), ['collected', 'call_fidelity', 'call_fidelity']);
     assert.ok(!checkProof(graphs, result.proof, { allowTrusted: false }).valid);
   },
 

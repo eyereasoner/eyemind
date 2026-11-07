@@ -56,8 +56,8 @@ step(sensor_priority('handheld', 1), clause(3), {}, [])
 step(sensor_priority('calibrated_logger', 2), clause(4), {}, [])
 step(gt(2, 1), 'builtin', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 derived(superseded(A), [superseded('handheld_a')])
 derived(current_reading(A, B, C, D, E), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
 searched(superseded('logger_a'), [])

@@ -204,7 +204,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 sum(complex(4, 6))
 product(complex(-5, 10))
 quotient(complex(3.0, 4.0))
@@ -229,8 +229,8 @@ cosine(complex(1.9999999999999998, 0.0))
 arctangent(complex(1.3389725222944935, 0.402359478108525))
 tangent(complex(1.0, 1.9999999999999996))
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 93)
 condition('C2', 'well_founded', 'ok', 215)
 condition('C3', 'justification', 'ok', 215)
@@ -240,17 +240,43 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 238)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', sum(complex(4, 6)))
+obligation('call_fidelity', 'original_call', product(complex(-5, 10)))
+obligation('call_fidelity', 'original_call', quotient(complex(3.0, 4.0)))
+obligation('call_fidelity', 'original_call', ratio(complex(2.2, -0.4)))
+obligation('call_fidelity', 'original_call', unit_square(complex(-1, 0)))
+obligation('call_fidelity', 'original_call', conjugate_product('z', complex(25, 0)))
+obligation('call_fidelity', 'original_call', conjugate_product('w', complex(5, 0)))
+obligation('call_fidelity', 'original_call', norm_multiplicative(25, 5, 125))
+obligation('call_fidelity', 'original_call', integer_power(8, complex(16, 0)))
+obligation('call_fidelity', 'original_call', modulus('z', 5.0))
+obligation('call_fidelity', 'original_call', modulus('w', 2.23606797749979))
+obligation('call_fidelity', 'original_call', power('root', complex(6.123233995736766e-17, 1.0)))
+obligation('call_fidelity', 'original_call', power('euler', complex(-1.0, 1.2246467991473532e-16)))
+obligation('call_fidelity', 'original_call', power('self_power', complex(0.20787957635076193, 0.0)))
+obligation('call_fidelity', 'original_call', power('real_power', complex(0.20787957635177984, 0.0)))
+obligation('call_fidelity', 'original_call', arcsine(complex(2, 0), complex(1.5707963267948966, 1.3169578969248166)))
+obligation('call_fidelity', 'original_call', arccosine(complex(2, 0), complex(0.0, -1.3169578969248166)))
+obligation('call_fidelity', 'original_call', logarithm('natural', complex(0.0, 3.141592653589793)))
+obligation('call_fidelity', 'original_call', logarithm('imaginary', complex(1.0, 0.0)))
+obligation('call_fidelity', 'original_call', sine(complex(1.9999999999999998, 1.0605752387249067e-16)))
+obligation('call_fidelity', 'original_call', cosine(complex(1.9999999999999998, 0.0)))
+obligation('call_fidelity', 'original_call', arctangent(complex(1.3389725222944935, 0.402359478108525)))
+obligation('call_fidelity', 'original_call', tangent(complex(1.0, 1.9999999999999996)))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(215)
 verified(93)
 recomputed(122)
 composed(0)
-trusted(0)
+trusted(23)
 claims(23)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 The report first repeats the 23 conclusions it confirmed. Each `condition`
@@ -278,10 +304,16 @@ line then names a check, says `'ok'`, and counts what it looked at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 215 steps, 93 verified against the program, 122
-recomputed, none taken on trust. The verdict is **checked**: all 23
+recomputed, no boundary steps taken on trust. The verdict is **checked with obligations**: all 23
 conclusions follow from the program. It confirms those conclusions; it does
 not say the program has no others, nor that the decimals are free of
 rounding.
+
+C10 leaves 23 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

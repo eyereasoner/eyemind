@@ -1,4 +1,4 @@
-// Proof documents: rendering, and checking C1-C9 against the source program.
+// Proof documents: rendering and checking C1-C10 against the source program.
 //
 // A proof document is JavaScript source, one expression per line: first the
 // claims, then clause(N, Display) for every source clause the proof cites,
@@ -13,6 +13,7 @@ import { PRIMITIVE_KEYS, primitive } from './builtins.js';
 import { Settler } from './closure.js';
 import { freshClause, text, variant } from './common.js';
 import { goalTerm } from './goals.js';
+import { checkCalls } from './fidelity.js';
 import { INSPECTION_KEYS, isInspection } from './inspection.js';
 import { CONTROL_KEYS, Program } from './program.js';
 import { readTerms } from './reader.js';
@@ -207,7 +208,7 @@ export function renderProof(program, claims, roots, checkable = false, heading =
   walk(roots);
   const boundaries = [...steps.values()].filter((node) => node.by === 'absent' || node.by === 'collected')
     .map((node) => node.goal);
-  const certificate = certify !== null && boundaries.length ? certify(boundaries) : { tables: [], listings: [] };
+  const certificate = certify !== null ? certify(boundaries) : { tables: [], listings: [] };
   // A listed derived fact is shown by its own steps, after the claims' steps.
   walk(certificate.listings.flatMap(([, nodes]) => nodes));
   // Variables are named A, B, ... in the order the document first shows
@@ -230,10 +231,10 @@ export function renderProof(program, claims, roots, checkable = false, heading =
     lines.push(`step(${spellings.lettered(node.goal, lettering)}, ${text(node.by)}, ` +
                `${bindingsText(node.bindings, lettering)}, ${uses})`);
   }
-  const read = { tables: new Map(), listings: new Map(), order: [] };
-  if (certificate.tables.length || certificate.listings.length) {
-    lines.push('', '// Search certificate: every fact derived for each relation the searches behind',
-      '// negations and collections consult, and every answer of each call they made, in order.');
+  const read = { tables: new Map(), calls: new Map(), listings: new Map(), order: [] };
+  if (certificate.tables.length || certificate.listings.length || certificate.calls?.length) {
+    lines.push('', '// Search certificate: derived facts and complete answers used to check',
+      '// negations, collections and the original questions.');
   }
   for (const [goalKey, nodes] of certificate.listings) {
     const facts = nodes.map((node) => node.goal);
@@ -246,6 +247,14 @@ export function renderProof(program, claims, roots, checkable = false, heading =
     lines.push(spellings.lettered(new Struct('searched', [call, listFromItems(answers)]), lettering));
     read.tables.set(variant(call), answers);
     read.order.push(['table', variant(call), call]);
+  }
+  // C10 must retain the distinction between named and anonymous variables
+  // because a named unbound variable makes a negation an error.
+  const callNames = new Lettering(true);
+  for (const [call, answers] of certificate.calls || []) {
+    lines.push(spellings.lettered(new Struct('called', [call, listFromItems(answers)]), callNames));
+    read.calls.set(variant(call, true), answers);
+    read.order.push(['call', variant(call, true), call]);
   }
   const document = `${lines.join('\n')}\n`;
   if (!checkable) return document;
@@ -281,7 +290,7 @@ class Failures {
 
 // Check a proof document against the program that produced it. goals names
 // the goals the proof answers when they were asked from outside the program.
-// allowTrusted false rejects any trusted boundary.
+// allowTrusted false rejects every unresolved obligation.
 export function checkProof(program, document, { goals = null, allowTrusted = true } = {}) {
   if (!(program instanceof Program)) throw new EyemindError('checkProof() needs a Program; load one first');
   const fail = new Failures();
@@ -330,6 +339,8 @@ function check(program, claims, steps, certificate, goals, allowTrusted, fail, s
   const provenance = new WitnessProvenance(program, steps, certificate, settlement.outcomes, spellings);
   const tally = checkSteps(program, steps, allowTrusted, fail, spellings, name, settlement.outcomes, provenance);
   const [confronted, closed] = checkBoundaries(program, steps, tally.boundaries, fail, settlement.outcomes, spellings);
+  settlement.calls = checkCalls(program, claims, goals, certificate, steps, spellings, fail, allowTrusted, name);
+  tally.trusted.push(...settlement.calls.unresolved);
   checkRelevance(program, claims, steps, goals || [], fail, spellings, settlement, certificate);
   checkWellFounded(steps, fail, spellings);
   let uses = 0;
@@ -345,6 +356,7 @@ function check(program, claims, steps, certificate, goals, allowTrusted, fail, s
     { id: 'C7', name: 'relevance', covered: claims.length + steps.size, failed: failed('C7') },
     { id: 'C8', name: 'witness_integrity', covered: tally.witnessed, failed: failed('C8') },
     { id: 'C9', name: 'search_closure', covered: closed, failed: failed('C9') },
+    { id: 'C10', name: 'call_fidelity', covered: settlement.calls.covered, failed: failed('C10') },
   ];
   return {
     valid: !fail.items.length,
@@ -365,16 +377,18 @@ function check(program, claims, steps, certificate, goals, allowTrusted, fail, s
 }
 
 // The verdict allowTrusted false would give, from a report without it.
-// Without failures, a strict check differs only in failing C5 once for each
-// trusted boundary, in step order, so it needs no second reading of the
-// document. A report with failures returns null: check again instead.
+// Without failures, strict checking adds C5 failures for trusted boundaries
+// and C10 failures for unresolved original calls, in obligation order. It
+// needs no second reading. A report with failures returns null: check again.
 export function strict(report) {
   if (report.failures.length) return null;
   const failures = report.trusted.map((record) => ({
-    condition: 'C5', detail: `trusted boundary forbidden: ${record.kind}`, conclusion: record.conclusion,
+    condition: record.kind === 'call_fidelity' ? 'C10' : 'C5',
+    detail: record.kind === 'call_fidelity' ? `call fidelity remains unproved: ${record.conclusion}` : `trusted boundary forbidden: ${record.kind}`,
+    conclusion: record.conclusion,
   }));
   const conditions = report.conditions.map((condition) => (
-    condition.id === 'C5' ? { ...condition, failed: failures.length } : { ...condition }));
+    ['C5', 'C10'].includes(condition.id) ? { ...condition, failed: failures.filter((failure) => failure.condition === condition.id).length } : { ...condition }));
   return { ...report, valid: !failures.length, failures, conditions, failureTerms: [...report.trustedTerms] };
 }
 
@@ -384,11 +398,11 @@ export function strict(report) {
 function readDocument(program, document, fail, spellings) {
   const claims = [];
   const steps = new Map();
-  const certificate = { tables: new Map(), listings: new Map(), order: [] };
+  const certificate = { tables: new Map(), calls: new Map(), listings: new Map(), order: [] };
   const empty = new Env();
   try {
     for (const [term] of readTerms(document)) {
-      if (isTerm(term, 'searched', 2) || isTerm(term, 'derived', 2)) {
+      if (isTerm(term, 'searched', 2) || isTerm(term, 'derived', 2) || isTerm(term, 'called', 2)) {
         readCertificate(term, certificate, fail, empty);
         continue;
       }
@@ -425,29 +439,30 @@ function readDocument(program, document, fail, spellings) {
   return [claims, steps, certificate];
 }
 
-// A search certificate statement: searched(Call, Answers), a table of every
-// answer of a call, or derived(Pattern, Facts), every fact forward rules
-// derived for the relation of Pattern.
+// A search certificate statement: searched/2 for C9 or called/2 for C10,
+// each listing every answer of its call; or derived/2, listing every fact
+// forward rules derived for the relation of its pattern.
 function readCertificate(term, certificate, fail, empty) {
   const [subject, list] = term.args;
   const items = properListItems(list, empty);
-  const table = term.name === 'searched';
+  const calling = term.name === 'called';
+  const table = term.name === 'searched' || calling;
   // A listing names its relation by the name applied to distinct variables.
   const pattern = table || typeof subject === 'string' || (subject instanceof Struct &&
     subject.args.every((arg, i) => arg instanceof Var && subject.args.findIndex((other) => other instanceof Var && other.name === arg.name) === i));
   if (!isCallable(subject) || items === null || !pattern) {
-    fail.add('C3', table ? 'a search table must be searched(Goal, Answers) with an array of answers'
+    fail.add('C3', table ? `a ${calling ? 'call' : 'search'} table must be ${calling ? 'called' : 'searched'}(Goal, Answers) with an array of answers`
       : 'a listing must be derived(Pattern, Facts) with an array of facts', subject);
     return;
   }
-  const entryKey = table ? variant(subject) : key(subject);
-  const entries = table ? certificate.tables : certificate.listings;
+  const entryKey = table ? variant(subject, calling) : key(subject);
+  const entries = calling ? certificate.calls : table ? certificate.tables : certificate.listings;
   if (entries.has(entryKey)) {
-    fail.add('C3', `duplicate ${table ? 'search table' : 'listing'} for ${table ? text(subject) : entryKey}`, subject);
+    fail.add('C3', `duplicate ${calling ? 'call table' : table ? 'search table' : 'listing'} for ${table ? text(subject) : entryKey}`, subject);
     return;
   }
   entries.set(entryKey, items);
-  certificate.order.push([table ? 'table' : 'listing', entryKey, subject]);
+  certificate.order.push([calling ? 'call' : table ? 'table' : 'listing', entryKey, subject]);
 }
 
 function clauseNamed(program, id) {
@@ -970,6 +985,9 @@ function checkRelevance(program, claims, steps, goals, fail, spellings, settleme
   const reached = new Set();
   const reach = [];
   for (const claim of claims) for (const part of flattenConjunction(claim)) reach.push(spellings.spell(part));
+  for (const entry of settlement.calls.settler.listings.values()) {
+    for (const fact of entry.facts) reach.push(spellings.spell(fact));
+  }
   while (reach.length) {
     const stepId = reach.pop();
     if (reached.has(stepId) || !steps.has(stepId)) continue;
@@ -989,8 +1007,10 @@ function checkRelevance(program, claims, steps, goals, fail, spellings, settleme
     if (!reached.has(stepId)) fail.add('C7', `step serves no claim: ${stepId}`, step.goal);
   }
   for (const [kind, entryKey, subject] of certificate.order) {
-    const used = kind === 'table' ? settlement.settler.tables : settlement.settler.listings;
-    if (!used.has(entryKey)) fail.add('C7', `search certificate serves no boundary: ${text(subject)}`, subject);
+    const used = kind === 'call' ? settlement.calls?.settler.tables
+      : kind === 'table' ? settlement.settler.tables : settlement.settler.listings;
+    const callListing = kind === 'listing' && settlement.calls?.settler.listings.has(entryKey);
+    if (!used?.has(entryKey) && !callListing) fail.add('C7', `search certificate serves no boundary or original call: ${text(subject)}`, subject);
   }
 }
 
@@ -1079,15 +1099,15 @@ export function checkReport(report) {
     : report.trusted.length ? '// Answers checked subject to the obligations below.'
     : '// Checked answers: these follow from the input program.';
   const lines = [heading, ...report.answers, '',
-    '// C1-C9: resolution, acyclicity, justification, coverage, re-decision,',
-    '// boundary consistency, relevance, witness integrity and search closure.'];
+    '// C1-C10: resolution, acyclicity, justification, coverage, re-decision,',
+    '// boundary consistency, relevance, witness integrity, search closure and call fidelity.'];
   let previous = null;
   for (const fact of facts) {
     if (fact.name === 'failure' && previous !== 'failure') {
       lines.push('', '// Failures: the claims above have not passed every check.');
     }
     if (fact.name === 'obligation' && previous !== 'obligation') {
-      lines.push('', '// Obligations: absence and collection completeness are taken on trust.');
+      lines.push('', '// Obligations: absence, collection or original-call evidence remains unproved.');
     }
     if (fact.name === 'steps') lines.push('', '// Proof statistics: recorded steps and how they were checked.');
     if (fact.name === 'verdict') lines.push('', '// This verdict applies to the claims above; it does not establish completeness.');

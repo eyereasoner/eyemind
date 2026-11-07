@@ -173,13 +173,13 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 dog_count('alice', 5)
 dog_count('bob', 2)
 requires('alice', 'dog_license')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 13)
 condition('C2', 'well_founded', 'ok', 21)
 condition('C3', 'justification', 'ok', 21)
@@ -189,17 +189,23 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 24)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 2)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', dog_count('alice', 5))
+obligation('call_fidelity', 'original_call', dog_count('bob', 2))
+obligation('call_fidelity', 'original_call', requires('alice', 'dog_license'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(21)
 verified(13)
 recomputed(6)
 composed(0)
-trusted(0)
+trusted(3)
 claims(3)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -226,15 +232,21 @@ at:
   Bob is missing.
 
 The statistics: 21 steps, 13 verified against the program, 6 recomputed and
-the 2 collections settled from the facts, none trusted, 3 claims.
+the 2 collections settled from the facts, no boundary steps trusted, 3 claims.
 
 Neither collection is taken on trust. Because only facts define `owns`, the
 proof needs no search certificate: the checker reads the facts and confirms
 that Alice's dogs are exactly `dog1` to `dog5`, and Bob's exactly `dog6` and
 `dog7`. "Complete" means complete with respect to this program: add a dog
-and the list changes. The verdict is **checked**: the conclusions follow
+and the list changes. The verdict is **checked with obligations**: the conclusions follow
 from the program. The verdict does not say the program has no other
 conclusions.
+
+C10 leaves 3 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 
@@ -245,8 +257,8 @@ eyemind examples/dog-license.js
 eyemind --strict-proof --check-proof examples/proof/dog-license.js examples/dog-license.js
 ```
 
-The second command refuses any proof that leans on trust. This one takes
-nothing on trust, so it reports `verdict('checked')`.
+The second command rejects this proof with exit code 2 because its three
+call-fidelity obligations remain unproved. Its collections are settled.
 
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=dog-license).
 Add `fact(owns('bob', 'dog8'))`, `fact(owns('bob', 'dog9'))` and

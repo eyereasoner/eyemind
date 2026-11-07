@@ -145,6 +145,11 @@ step(quoted(graph([triple(iri('https://example.org/s'), iri('https://example.org
 step(includes(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))), clause(4), {Triples: [triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))], Triple: triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))}, [member_of(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))), [triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])])
 step(member_of(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))), [triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), clause(2), {X: triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))), _0: []}, [])
 step(witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])])), clause(6), {X: graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), W: skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])])}, [quoted(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]))])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(witness(A, B), [witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])]))])
+called(witness(A, B), [witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])]))])
 ```
 
 The lines are long because the whole triple is written out each time. It has
@@ -183,12 +188,12 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))
 witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])]))
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 5)
 condition('C2', 'well_founded', 'ok', 5)
 condition('C3', 'justification', 'ok', 5)
@@ -198,17 +203,21 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 7)
 condition('C8', 'witness_integrity', 'ok', 1)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 1)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(5)
 verified(5)
 recomputed(0)
 composed(0)
-trusted(0)
+trusted(1)
 claims(2)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -234,9 +243,15 @@ at:
   settle, so no search certificate to check.
 
 The statistics: 5 steps, all 5 verified against the program, none taken on
-trust, 2 claims. The verdict is **checked**: both conclusions follow from the
+trust, 2 claims. The verdict is **checked with obligations**: both conclusions follow from the
 program. As the last comment says, this confirms the claims; it does not say
 the program has no other conclusions.
+
+C10 leaves 1 original-call claim unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

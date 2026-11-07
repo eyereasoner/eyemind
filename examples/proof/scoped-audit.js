@@ -24,8 +24,8 @@ step(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'role', 'e
 step(member(triple('bob', 'role', 'editor'), [triple('bob', 'role', 'editor')]), clause(3), {X: triple('bob', 'role', 'editor'), _0: []}, [])
 step(not(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes'))), 'absent', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes')), [])
 searched(member(triple('bob', 'consent', 'yes'), [triple('bob', 'role', 'editor')]), [])
 searched(member(triple('bob', 'consent', 'yes'), []), [])

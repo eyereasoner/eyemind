@@ -153,13 +153,13 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 allowed('alice', 'read')
 allowed('alice', 'write')
 allowed('bob', 'read')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 11)
 condition('C2', 'well_founded', 'ok', 13)
 condition('C3', 'justification', 'ok', 13)
@@ -169,17 +169,23 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 16)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 2)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', allowed('alice', 'read'))
+obligation('call_fidelity', 'original_call', allowed('alice', 'write'))
+obligation('call_fidelity', 'original_call', allowed('bob', 'read'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(13)
 verified(11)
 recomputed(0)
 composed(0)
-trusted(0)
+trusted(3)
 claims(3)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -208,16 +214,22 @@ at:
 Neither absence is taken on trust. Because no rule concludes `suspended`,
 the checker settles "Alice is not suspended" and "Bob is not suspended" by
 scanning the program's facts directly, so the proof needs no search
-certificate and the report lists no obligations. The absence holds *within
+certificate and there are no absence obligations. The absence holds *within
 this program*: these are the facts we gave, and nobody outside it was asked.
 
 The statistics: 13 steps, 11 verified against the program and the 2 absences
-settled from the facts, none trusted, for 3 claims. The verdict is
-**checked**: the three answers follow from the program. If Bob were in fact
+settled from the facts, no boundary steps trusted, for 3 claims. The verdict is
+**checked with obligations**: the three answers follow from the program. If Bob were in fact
 suspended somewhere the program does not know about, the answer for Bob
 would be wrong, but that is a question about the data, not about the
 proof. And as the last comment says, the verdict confirms these
 answers; it does not say they are the only ones.
+
+C10 leaves 3 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

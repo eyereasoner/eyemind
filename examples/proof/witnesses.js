@@ -17,3 +17,10 @@ step(record_owner(record('person_rule', 'alice'), 'alice'), clause(3), {Name: 'a
 step(has_record('bob', record('person_rule', 'bob')), clause(3), {Name: 'bob'}, [person('bob')])
 step(person('bob'), clause(2), {}, [])
 step(record_owner(record('person_rule', 'bob'), 'bob'), clause(3), {Name: 'bob'}, [person('bob')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(has_record(A, B), [has_record('alice', record('person_rule', 'alice')), has_record('bob', record('person_rule', 'bob'))])
+derived(record_owner(A, B), [record_owner(record('person_rule', 'alice'), 'alice'), record_owner(record('person_rule', 'bob'), 'bob')])
+called(has_record(A, record('person_rule', A)), [has_record('alice', record('person_rule', 'alice')), has_record('bob', record('person_rule', 'bob'))])
+called(record_owner(record('person_rule', B), B), [record_owner(record('person_rule', 'alice'), 'alice'), record_owner(record('person_rule', 'bob'), 'bob')])

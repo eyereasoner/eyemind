@@ -78,6 +78,11 @@ clause(3, implies([type(S, A), subclass_of(A, B)], type(S, B)))
 step(type('socrates', 'mortal'), clause(3), {S: 'socrates', A: 'human', B: 'mortal'}, [type('socrates', 'human'), subclass_of('human', 'mortal')])
 step(type('socrates', 'human'), clause(1), {}, [])
 step(subclass_of('human', 'mortal'), clause(2), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(type(A, B), [type('socrates', 'mortal')])
+called(type(A, B), [type('socrates', 'mortal'), type('socrates', 'human')])
 ```
 
 It has three parts:
@@ -114,8 +119,8 @@ against the program. This is the complete report:
 type('socrates', 'mortal')
 type('socrates', 'human')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 3)
 condition('C2', 'well_founded', 'ok', 3)
 condition('C3', 'justification', 'ok', 3)
@@ -125,6 +130,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 5)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(3)

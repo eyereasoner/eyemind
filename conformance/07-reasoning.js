@@ -1909,6 +1909,11 @@ conformance('a proof records the first derivation, from a derived fact', [
     '// absence or a collection), the bindings and the goals it uses.',
     "step(p(1), clause(2), {}, ['s'])",
     "step('s', clause(1), {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(p(A), [p(1)])',
+    'called(p(A), [p(1), p(1)])',
   ]),
 ])
 
@@ -1949,6 +1954,12 @@ conformance('a proof follows a forward rule into the backward rule it calls', [
     'step(s(1), clause(3), {X: 1}, [r(1)])',
     'step(r(1), clause(2), {X: 1}, [e(1)])',
     'step(e(1), clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(s(A), [s(1)])',
+    'called(s(A), [s(1)])',
+    'called(r(B), [r(1)])',
   ]),
 ])
 
@@ -1971,10 +1982,13 @@ conformance('a proof binds a head-only variable to its Skolem term', [
     '// absence or a collection), the bindings and the goals it uses.',
     "step(has('ann', skolem(2, 'T', ['ann'])), clause(2), {X: 'ann', T: skolem(2, 'T', ['ann'])}, [person('ann')])",
     "step(person('ann'), clause(1), {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "derived(has(A, B), [has('ann', skolem(2, 'T', ['ann']))])",
+    "called(has(A, B), [has('ann', skolem(2, 'T', ['ann']))])",
   ]),
 ])
-
-// Behaviors the specification settles explicitly (resolved gaps).
 
 conformance('a rule publishes its conclusions solution by solution, heads in order', [
   spec('8.2'),

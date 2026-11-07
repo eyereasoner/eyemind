@@ -283,8 +283,8 @@ step(session('ex:r1', 'own_audience_measurement', 'first_visit'), clause(84), {}
 step(consent('omnibus_proposal', 'own_audience_measurement', 'not_needed', 'GDPR Art. 88a(3)(c)'), clause(102), {}, [])
 // … 88 more steps, 273 in total
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(t('ex:policy', 'odrl:conflict', H1), [t('ex:policy', 'odrl:conflict', 'odrl:prohibit')])
 // …
 searched(unmet('ex:r1', 'ex:research', X4), [])
@@ -379,7 +379,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 breach_plan('in_force', 'b1', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
 breach_plan('in_force', 'b2', notify(authority(within_hours(72)), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
 breach_plan('in_force', 'b3', notify(authority(within_hours(72)), people('without_undue_delay')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
@@ -418,8 +418,8 @@ changed(session('ex:r1'), from(await_device_consent('ex:research')), to(permit('
 changed(session('ex:r7'), from(await_device_consent('ex:research')), to(deny_device('refused_by_signal')))
 changed(session('ex:r8'), from(await_device_consent('ex:research')), to(deny_device('do_not_ask_again')))
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 225)
 condition('C2', 'well_founded', 'ok', 273)
 condition('C3', 'justification', 'ok', 273)
@@ -429,17 +429,57 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 310)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 33)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', breach_plan('in_force', 'b1', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
+obligation('call_fidelity', 'original_call', breach_plan('in_force', 'b2', notify(authority(within_hours(72)), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
+obligation('call_fidelity', 'original_call', breach_plan('in_force', 'b3', notify(authority(within_hours(72)), people('without_undue_delay')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
+obligation('call_fidelity', 'original_call', breach_plan('omnibus_proposal', 'b1', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1) as amended', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
+obligation('call_fidelity', 'original_call', breach_plan('omnibus_proposal', 'b2', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1) as amended', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
+obligation('call_fidelity', 'original_call', breach_plan('omnibus_proposal', 'b3', notify(authority(within_hours_via_single_entry_point(96)), people('without_undue_delay')), 'document_breach', basis(['GDPR Art. 33(1) as amended', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
+obligation('call_fidelity', 'original_call', changed(breach('b2'), from(notify(authority(within_hours(72)), people('none'))), to(notify(authority('none'), people('none')))))
+obligation('call_fidelity', 'original_call', changed(breach('b3'), from(notify(authority(within_hours(72)), people('without_undue_delay'))), to(notify(authority(within_hours_via_single_entry_point(96)), people('without_undue_delay')))))
+obligation('call_fidelity', 'original_call', policy_conflict('ex:r6', resolved_by('odrl:prohibit', 'ex:noTransferUS', overrides('ex:research'))))
+obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r2', deny_policy(not_permitted([unmet('ex:forResearch', 'odrl:purpose', 'dpv:PersonalisedAdvertising', 'odrl:isA', 'dpv:ResearchAndDevelopment'), unmet('ex:underConsent', 'ex:legalBasis', 'dpv:LegitimateInterest', 'odrl:eq', 'dpv:Consent'), unmet('ex:consentGiven', 'ex:consentStatus', 'dpv:ConsentUnknown', 'odrl:eq', 'dpv:ConsentGiven')])), basis(['ex:policy'])))
+obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r3', deny_policy(prohibited_by('ex:noMarketing')), basis(['ex:policy'])))
+obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r4', deny_policy(not_permitted([unmet('ex:consentGiven', 'ex:consentStatus', 'dpv:ConsentWithdrawn', 'odrl:eq', 'dpv:ConsentGiven')])), basis(['ex:policy'])))
+obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r5', deny_policy(not_permitted([unmet('ex:pseudonymised', 'ex:technicalMeasure', 'dpv:Encryption', 'odrl:eq', 'dpv:Pseudonymisation'), unmet('ex:before2027', 'odrl:dateTime', 20270301, 'odrl:lt', 20270101)])), basis(['ex:policy'])))
+obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r6', deny_policy(prohibited_by('ex:noTransferUS')), basis(['ex:policy'])))
+obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r11', deny_policy('no_matching_permission'), basis(['ex:policy'])))
+obligation('call_fidelity', 'original_call', assessment('omnibus_proposal', 'ex:r2', deny_policy(not_permitted([unmet('ex:forResearch', 'odrl:purpose', 'dpv:PersonalisedAdvertising', 'odrl:isA', 'dpv:ResearchAndDevelopment'), unmet('ex:underConsent', 'ex:legalBasis', 'dpv:LegitimateInterest', 'odrl:eq', 'dpv:Consent'), unmet('ex:consentGiven', 'ex:consentStatus', 'dpv:ConsentUnknown', 'odrl:eq', 'dpv:ConsentGiven')])), basis(['ex:policy'])))
+obligation('call_fidelity', 'original_call', assessment('omnibus_proposal', 'ex:r3', deny_policy(prohibited_by('ex:noMarketing')), basis(['ex:policy'])))
+obligation('call_fidelity', 'original_call', assessment('omnibus_proposal', 'ex:r4', deny_policy(not_permitted([unmet('ex:consentGiven', 'ex:consentStatus', 'dpv:ConsentWithdrawn', 'odrl:eq', 'dpv:ConsentGiven')])), basis(['ex:policy'])))
+obligation('call_fidelity', 'original_call', assessment('omnibus_proposal', 'ex:r5', deny_policy(not_permitted([unmet('ex:pseudonymised', 'ex:technicalMeasure', 'dpv:Encryption', 'odrl:eq', 'dpv:Pseudonymisation'), unmet('ex:before2027', 'odrl:dateTime', 20270301, 'odrl:lt', 20270101)])), basis(['ex:policy'])))
+obligation('call_fidelity', 'original_call', assessment('omnibus_proposal', 'ex:r6', deny_policy(prohibited_by('ex:noTransferUS')), basis(['ex:policy'])))
+obligation('call_fidelity', 'original_call', assessment('omnibus_proposal', 'ex:r11', deny_policy('no_matching_permission'), basis(['ex:policy'])))
+obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r10', permit('ex:research'), basis(['ex:policy', 'ePrivacy Art. 5(3)'])))
+obligation('call_fidelity', 'original_call', assessment('omnibus_proposal', 'ex:r1', permit('ex:research'), basis(['ex:policy', 'GDPR Art. 88a(3)(c)'])))
+obligation('call_fidelity', 'original_call', assessment('omnibus_proposal', 'ex:r10', permit('ex:research'), basis(['ex:policy', 'GDPR Art. 88a(3)(b)'])))
+obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r1', await_device_consent('ex:research'), basis(['ex:policy', 'ePrivacy Art. 5(3)'])))
+obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r7', await_device_consent('ex:research'), basis(['ex:policy', 'ePrivacy Art. 5(3)'])))
+obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r8', await_device_consent('ex:research'), basis(['ex:policy', 'ePrivacy Art. 5(3)'])))
+obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r9', await_device_consent('ex:research'), basis(['ex:policy', 'ePrivacy Art. 5(3)'])))
+obligation('call_fidelity', 'original_call', assessment('omnibus_proposal', 'ex:r9', await_device_consent('ex:research'), basis(['ex:policy', 'GDPR Art. 88a(1)', 'GDPR Art. 88a(4)(c)'])))
+obligation('call_fidelity', 'original_call', assessment('omnibus_proposal', 'ex:r7', deny_device('refused_by_signal'), basis(['ex:policy', 'GDPR Art. 88a(1)', 'GDPR Art. 88b(1)-(2)'])))
+obligation('call_fidelity', 'original_call', assessment('omnibus_proposal', 'ex:r8', deny_device('do_not_ask_again'), basis(['ex:policy', 'GDPR Art. 88a(1)', 'GDPR Art. 88a(4)(c)'])))
+obligation('call_fidelity', 'original_call', planned_duty('in_force', 'ex:r10', 'odrl:delete', within_days(90)))
+obligation('call_fidelity', 'original_call', planned_duty('omnibus_proposal', 'ex:r1', 'odrl:delete', within_days(90)))
+obligation('call_fidelity', 'original_call', planned_duty('omnibus_proposal', 'ex:r10', 'odrl:delete', within_days(90)))
+obligation('call_fidelity', 'original_call', changed(session('ex:r1'), from(await_device_consent('ex:research')), to(permit('ex:research'))))
+obligation('call_fidelity', 'original_call', changed(session('ex:r7'), from(await_device_consent('ex:research')), to(deny_device('refused_by_signal'))))
+obligation('call_fidelity', 'original_call', changed(session('ex:r8'), from(await_device_consent('ex:research')), to(deny_device('do_not_ask_again'))))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(273)
 verified(225)
 recomputed(15)
 composed(0)
-trusted(0)
+trusted(37)
 claims(37)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 The report first repeats the 37 conclusions, now checked answers. Each `condition` line then names a check, says `'ok'`,
@@ -483,13 +523,19 @@ relation, so no line vouches for itself. Each list holds relative to this
 program, not necessarily to the world.
 
 The statistics: 273 steps, 225 verified against the program, 15 recomputed
-and the 33 collections settled by the certificate, none taken on trust. The
-verdict is **checked**: every conclusion follows from the program.
+and the 33 collections settled by the certificate, no boundary steps taken on trust. The
+verdict is **checked with obligations**: every conclusion follows from the program.
 
 What the checked proof does **not** show: that the program has no other
 conclusions, that the rules are legally correct, that consent was really
 given, or that the data was really deleted. It shows that the conclusions
 follow from these rules and these facts.
+
+C10 leaves 37 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

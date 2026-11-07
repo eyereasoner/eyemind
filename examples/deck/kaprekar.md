@@ -149,8 +149,8 @@ clause(19, implied_by(kaprekar_verified(6174, 7), not('counterexample')))
 step(kaprekar_verified(6174, 7), clause(19), {}, [not('counterexample')])
 step(not('counterexample'), 'absent', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched('counterexample', [])
 // … 13554 more searched lines: the 705 multisets, and every Kaprekar step they take
 ```
@@ -191,8 +191,8 @@ only confirms each step against the program. This is the complete report:
 // Checked answers: these follow from the input program.
 kaprekar_verified(6174, 7)
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 1)
 condition('C2', 'well_founded', 'ok', 2)
 condition('C3', 'justification', 'ok', 2)
@@ -202,6 +202,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 3)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
+condition('C10', 'call_fidelity', 'ok', 1)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(2)

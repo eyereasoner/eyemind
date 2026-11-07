@@ -412,8 +412,8 @@ step(not_identical(await_device_consent('ex:research'), deny_device('refused_by_
 step(changed(session('ex:r8'), from(await_device_consent('ex:research')), to(deny_device('do_not_ask_again'))), clause(129), {P: 'ex:r8', Old: await_device_consent('ex:research'), _0: basis(['ex:policy', 'ePrivacy Art. 5(3)']), New: deny_device('do_not_ask_again'), _1: basis(['ex:policy', 'GDPR Art. 88a(1)', 'GDPR Art. 88a(4)(c)'])}, [assessment('in_force', 'ex:r8', await_device_consent('ex:research'), basis(['ex:policy', 'ePrivacy Art. 5(3)'])), assessment('omnibus_proposal', 'ex:r8', deny_device('do_not_ask_again'), basis(['ex:policy', 'GDPR Art. 88a(1)', 'GDPR Art. 88a(4)(c)'])), not_identical(await_device_consent('ex:research'), deny_device('do_not_ask_again'))])
 step(not_identical(await_device_consent('ex:research'), deny_device('do_not_ask_again')), 'builtin', {}, [])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(t('ex:policy', 'odrl:conflict', H1), [t('ex:policy', 'odrl:conflict', 'odrl:prohibit')])
 searched(unmet('ex:r6', 'ex:research', I1), [])
 searched(addresses('ex:r6', 'ex:research'), [addresses('ex:r6', 'ex:research')])

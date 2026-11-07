@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 goldbach(4, [2, 2])
 goldbach(8, [3, 5])
 goldbach(16, [3, 13])
@@ -24,8 +24,8 @@ goldbach(8388608, [37, 8388571])
 goldbach(16777216, [3, 16777213])
 goldbach(33554432, [61, 33554371])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 506)
 condition('C2', 'well_founded', 'ok', 913)
 condition('C3', 'justification', 'ok', 913)
@@ -35,14 +35,41 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 937)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 35)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', goldbach(4, [2, 2]))
+obligation('call_fidelity', 'original_call', goldbach(8, [3, 5]))
+obligation('call_fidelity', 'original_call', goldbach(16, [3, 13]))
+obligation('call_fidelity', 'original_call', goldbach(32, [3, 29]))
+obligation('call_fidelity', 'original_call', goldbach(64, [3, 61]))
+obligation('call_fidelity', 'original_call', goldbach(128, [19, 109]))
+obligation('call_fidelity', 'original_call', goldbach(256, [5, 251]))
+obligation('call_fidelity', 'original_call', goldbach(512, [3, 509]))
+obligation('call_fidelity', 'original_call', goldbach(1024, [3, 1021]))
+obligation('call_fidelity', 'original_call', goldbach(2048, [19, 2029]))
+obligation('call_fidelity', 'original_call', goldbach(4096, [3, 4093]))
+obligation('call_fidelity', 'original_call', goldbach(8192, [13, 8179]))
+obligation('call_fidelity', 'original_call', goldbach(16384, [3, 16381]))
+obligation('call_fidelity', 'original_call', goldbach(32768, [19, 32749]))
+obligation('call_fidelity', 'original_call', goldbach(65536, [17, 65519]))
+obligation('call_fidelity', 'original_call', goldbach(131072, [13, 131059]))
+obligation('call_fidelity', 'original_call', goldbach(262144, [5, 262139]))
+obligation('call_fidelity', 'original_call', goldbach(524288, [19, 524269]))
+obligation('call_fidelity', 'original_call', goldbach(1048576, [3, 1048573]))
+obligation('call_fidelity', 'original_call', goldbach(2097152, [19, 2097133]))
+obligation('call_fidelity', 'original_call', goldbach(4194304, [3, 4194301]))
+obligation('call_fidelity', 'original_call', goldbach(8388608, [37, 8388571]))
+obligation('call_fidelity', 'original_call', goldbach(16777216, [3, 16777213]))
+obligation('call_fidelity', 'original_call', goldbach(33554432, [61, 33554371]))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(913)
 verified(506)
 recomputed(333)
 composed(39)
-trusted(0)
+trusted(24)
 claims(24)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')

@@ -221,7 +221,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 relation('a', 'before', 'i')
 relation('a', 'before', 'j')
 relation('a', 'before', 'b')
@@ -323,8 +323,8 @@ relation('h', 'finished_by', 'j')
 relation('a', 'finished_by', 'g')
 relation('e', 'finished_by', 'g')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 178)
 condition('C2', 'well_founded', 'ok', 214)
 condition('C3', 'justification', 'ok', 214)
@@ -334,17 +334,120 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 314)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', relation('a', 'before', 'i'))
+obligation('call_fidelity', 'original_call', relation('a', 'before', 'j'))
+obligation('call_fidelity', 'original_call', relation('a', 'before', 'b'))
+obligation('call_fidelity', 'original_call', relation('b', 'before', 'i'))
+obligation('call_fidelity', 'original_call', relation('c', 'before', 'i'))
+obligation('call_fidelity', 'original_call', relation('c', 'before', 'j'))
+obligation('call_fidelity', 'original_call', relation('d', 'before', 'i'))
+obligation('call_fidelity', 'original_call', relation('d', 'before', 'j'))
+obligation('call_fidelity', 'original_call', relation('e', 'before', 'i'))
+obligation('call_fidelity', 'original_call', relation('e', 'before', 'j'))
+obligation('call_fidelity', 'original_call', relation('e', 'before', 'b'))
+obligation('call_fidelity', 'original_call', relation('f', 'before', 'i'))
+obligation('call_fidelity', 'original_call', relation('f', 'before', 'j'))
+obligation('call_fidelity', 'original_call', relation('f', 'before', 'b'))
+obligation('call_fidelity', 'original_call', relation('f', 'before', 'c'))
+obligation('call_fidelity', 'original_call', relation('g', 'before', 'i'))
+obligation('call_fidelity', 'original_call', relation('g', 'before', 'j'))
+obligation('call_fidelity', 'original_call', relation('g', 'before', 'b'))
+obligation('call_fidelity', 'original_call', relation('j', 'meets', 'i'))
+obligation('call_fidelity', 'original_call', relation('a', 'meets', 'c'))
+obligation('call_fidelity', 'original_call', relation('b', 'meets', 'j'))
+obligation('call_fidelity', 'original_call', relation('d', 'meets', 'b'))
+obligation('call_fidelity', 'original_call', relation('e', 'meets', 'c'))
+obligation('call_fidelity', 'original_call', relation('f', 'meets', 'd'))
+obligation('call_fidelity', 'original_call', relation('f', 'meets', 'g'))
+obligation('call_fidelity', 'original_call', relation('g', 'meets', 'c'))
+obligation('call_fidelity', 'original_call', relation('h', 'meets', 'i'))
+obligation('call_fidelity', 'original_call', relation('a', 'overlaps', 'd'))
+obligation('call_fidelity', 'original_call', relation('c', 'overlaps', 'b'))
+obligation('call_fidelity', 'original_call', relation('d', 'overlaps', 'c'))
+obligation('call_fidelity', 'original_call', relation('e', 'overlaps', 'd'))
+obligation('call_fidelity', 'original_call', relation('f', 'starts', 'a'))
+obligation('call_fidelity', 'original_call', relation('f', 'starts', 'e'))
+obligation('call_fidelity', 'original_call', relation('g', 'starts', 'd'))
+obligation('call_fidelity', 'original_call', relation('a', 'during', 'h'))
+obligation('call_fidelity', 'original_call', relation('b', 'during', 'h'))
+obligation('call_fidelity', 'original_call', relation('c', 'during', 'h'))
+obligation('call_fidelity', 'original_call', relation('d', 'during', 'h'))
+obligation('call_fidelity', 'original_call', relation('e', 'during', 'h'))
+obligation('call_fidelity', 'original_call', relation('f', 'during', 'h'))
+obligation('call_fidelity', 'original_call', relation('g', 'during', 'h'))
+obligation('call_fidelity', 'original_call', relation('j', 'finishes', 'h'))
+obligation('call_fidelity', 'original_call', relation('g', 'finishes', 'a'))
+obligation('call_fidelity', 'original_call', relation('g', 'finishes', 'e'))
+obligation('call_fidelity', 'original_call', relation('i', 'equals', 'i'))
+obligation('call_fidelity', 'original_call', relation('j', 'equals', 'j'))
+obligation('call_fidelity', 'original_call', relation('a', 'equals', 'a'))
+obligation('call_fidelity', 'original_call', relation('a', 'equals', 'e'))
+obligation('call_fidelity', 'original_call', relation('b', 'equals', 'b'))
+obligation('call_fidelity', 'original_call', relation('c', 'equals', 'c'))
+obligation('call_fidelity', 'original_call', relation('d', 'equals', 'd'))
+obligation('call_fidelity', 'original_call', relation('e', 'equals', 'a'))
+obligation('call_fidelity', 'original_call', relation('e', 'equals', 'e'))
+obligation('call_fidelity', 'original_call', relation('f', 'equals', 'f'))
+obligation('call_fidelity', 'original_call', relation('g', 'equals', 'g'))
+obligation('call_fidelity', 'original_call', relation('h', 'equals', 'h'))
+obligation('call_fidelity', 'original_call', relation('i', 'after', 'a'))
+obligation('call_fidelity', 'original_call', relation('j', 'after', 'a'))
+obligation('call_fidelity', 'original_call', relation('b', 'after', 'a'))
+obligation('call_fidelity', 'original_call', relation('i', 'after', 'b'))
+obligation('call_fidelity', 'original_call', relation('i', 'after', 'c'))
+obligation('call_fidelity', 'original_call', relation('j', 'after', 'c'))
+obligation('call_fidelity', 'original_call', relation('i', 'after', 'd'))
+obligation('call_fidelity', 'original_call', relation('j', 'after', 'd'))
+obligation('call_fidelity', 'original_call', relation('i', 'after', 'e'))
+obligation('call_fidelity', 'original_call', relation('j', 'after', 'e'))
+obligation('call_fidelity', 'original_call', relation('b', 'after', 'e'))
+obligation('call_fidelity', 'original_call', relation('i', 'after', 'f'))
+obligation('call_fidelity', 'original_call', relation('j', 'after', 'f'))
+obligation('call_fidelity', 'original_call', relation('b', 'after', 'f'))
+obligation('call_fidelity', 'original_call', relation('c', 'after', 'f'))
+obligation('call_fidelity', 'original_call', relation('i', 'after', 'g'))
+obligation('call_fidelity', 'original_call', relation('j', 'after', 'g'))
+obligation('call_fidelity', 'original_call', relation('b', 'after', 'g'))
+obligation('call_fidelity', 'original_call', relation('i', 'met_by', 'j'))
+obligation('call_fidelity', 'original_call', relation('c', 'met_by', 'a'))
+obligation('call_fidelity', 'original_call', relation('j', 'met_by', 'b'))
+obligation('call_fidelity', 'original_call', relation('b', 'met_by', 'd'))
+obligation('call_fidelity', 'original_call', relation('c', 'met_by', 'e'))
+obligation('call_fidelity', 'original_call', relation('d', 'met_by', 'f'))
+obligation('call_fidelity', 'original_call', relation('g', 'met_by', 'f'))
+obligation('call_fidelity', 'original_call', relation('c', 'met_by', 'g'))
+obligation('call_fidelity', 'original_call', relation('i', 'met_by', 'h'))
+obligation('call_fidelity', 'original_call', relation('d', 'overlapped_by', 'a'))
+obligation('call_fidelity', 'original_call', relation('b', 'overlapped_by', 'c'))
+obligation('call_fidelity', 'original_call', relation('c', 'overlapped_by', 'd'))
+obligation('call_fidelity', 'original_call', relation('d', 'overlapped_by', 'e'))
+obligation('call_fidelity', 'original_call', relation('a', 'started_by', 'f'))
+obligation('call_fidelity', 'original_call', relation('e', 'started_by', 'f'))
+obligation('call_fidelity', 'original_call', relation('d', 'started_by', 'g'))
+obligation('call_fidelity', 'original_call', relation('h', 'contains', 'a'))
+obligation('call_fidelity', 'original_call', relation('h', 'contains', 'b'))
+obligation('call_fidelity', 'original_call', relation('h', 'contains', 'c'))
+obligation('call_fidelity', 'original_call', relation('h', 'contains', 'd'))
+obligation('call_fidelity', 'original_call', relation('h', 'contains', 'e'))
+obligation('call_fidelity', 'original_call', relation('h', 'contains', 'f'))
+obligation('call_fidelity', 'original_call', relation('h', 'contains', 'g'))
+obligation('call_fidelity', 'original_call', relation('h', 'finished_by', 'j'))
+obligation('call_fidelity', 'original_call', relation('a', 'finished_by', 'g'))
+obligation('call_fidelity', 'original_call', relation('e', 'finished_by', 'g'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(214)
 verified(178)
 recomputed(36)
 composed(0)
-trusted(0)
+trusted(100)
 claims(100)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -371,9 +474,15 @@ at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 214 steps, 178 verified against the program, 36
-recomputed, none taken on trust. The verdict is **checked**: all 100
+recomputed, no boundary steps taken on trust. The verdict is **checked with obligations**: all 100
 relations follow from the times given. It does not say the list of
 relations is complete.
+
+C10 leaves 100 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

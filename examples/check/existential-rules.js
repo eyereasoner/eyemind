@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 has_parent('ann', skolem(3, 'P', ['ann']))
 has_parent('bob', skolem(3, 'P', ['bob']))
 sibling('dan', 'fay')
@@ -11,8 +11,8 @@ meeting(skolem(13, 'M', ['ann', 'dora']))
 attends(skolem(13, 'M', ['ann', 'dora']), 'ann')
 attends(skolem(13, 'M', ['ann', 'dora']), 'dora')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 18)
 condition('C2', 'well_founded', 'ok', 20)
 condition('C3', 'justification', 'ok', 20)
@@ -22,14 +22,19 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 31)
 condition('C8', 'witness_integrity', 'ok', 7)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 9)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', sibling('dan', 'fay'))
+obligation('call_fidelity', 'original_call', sibling('fay', 'dan'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(20)
 verified(18)
 recomputed(2)
 composed(0)
-trusted(0)
+trusted(2)
 claims(11)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')

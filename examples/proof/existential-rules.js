@@ -47,3 +47,16 @@ step(meeting(skolem(13, 'M', ['ann', 'dora'])), clause(13), {X: 'ann', Y: 'dora'
 step(colleagues('ann', 'dora'), clause(12), {}, [])
 step(attends(skolem(13, 'M', ['ann', 'dora']), 'ann'), clause(13), {X: 'ann', Y: 'dora', M: skolem(13, 'M', ['ann', 'dora'])}, [colleagues('ann', 'dora')])
 step(attends(skolem(13, 'M', ['ann', 'dora']), 'dora'), clause(13), {X: 'ann', Y: 'dora', M: skolem(13, 'M', ['ann', 'dora'])}, [colleagues('ann', 'dora')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(has_parent(A, B), [has_parent('ann', skolem(3, 'P', ['ann'])), has_parent('bob', skolem(3, 'P', ['bob']))])
+derived(invoice_for(A, B), [invoice_for('carl', skolem(10, 'I', ['carl'])), invoice_for('dora', skolem(10, 'I', ['dora']))])
+derived(sent(A), [sent(skolem(10, 'I', ['carl'])), sent(skolem(10, 'I', ['dora']))])
+derived(meeting(A), [meeting(skolem(13, 'M', ['ann', 'dora']))])
+derived(attends(A, B), [attends(skolem(13, 'M', ['ann', 'dora']), 'ann'), attends(skolem(13, 'M', ['ann', 'dora']), 'dora')])
+called(has_parent(A, B), [has_parent('ann', skolem(3, 'P', ['ann'])), has_parent('bob', skolem(3, 'P', ['bob'])), has_parent('dan', 'eve'), has_parent('fay', 'eve')])
+called(invoice_for(C, D), [invoice_for('carl', skolem(10, 'I', ['carl'])), invoice_for('dora', skolem(10, 'I', ['dora']))])
+called(sent(E), [sent(skolem(10, 'I', ['carl'])), sent(skolem(10, 'I', ['dora']))])
+called(meeting(F), [meeting(skolem(13, 'M', ['ann', 'dora']))])
+called(attends(G, H), [attends(skolem(13, 'M', ['ann', 'dora']), 'ann'), attends(skolem(13, 'M', ['ann', 'dora']), 'dora')])

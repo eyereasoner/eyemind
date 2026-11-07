@@ -17,3 +17,10 @@ step(maps('source_name', 'name'), clause(3), {}, [])
 step(t('alice', 'age', 30), clause(5), {S: 'alice', Source: 'source_age', O: 30, Target: 'age'}, [t('alice', 'source_age', 30), maps('source_age', 'age')])
 step(t('alice', 'source_age', 30), clause(2), {}, [])
 step(maps('source_age', 'age'), clause(4), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(t(A, B, C), [t('alice', 'name', 'Alice'), t('alice', 'age', 30)])
+called(t('alice', 'name', A), [t('alice', 'name', 'Alice')])
+called(t(B, C, D), [t('alice', 'name', 'Alice'), t('alice', 'age', 30), t('alice', 'source_name', 'Alice'), t('alice', 'source_age', 30)])
+called(t('alice', 'age', E), [t('alice', 'age', 30)])

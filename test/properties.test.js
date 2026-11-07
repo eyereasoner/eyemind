@@ -216,7 +216,7 @@ const isRecord = (term, name, arity) => term instanceof Struct && term.name === 
 
 // Whether a statement of a proof document is a claim: not a step, a clause
 // display or a statement of its search certificate.
-const isClaim = (term) => !['step/4', 'clause/2', 'searched/2', 'derived/2']
+const isClaim = (term) => !['step/4', 'clause/2', 'searched/2', 'derived/2', 'called/2']
   .some((goalKey) => isRecord(term, goalKey.split('/')[0], Number(goalKey.split('/')[1])));
 
 // The obligations of a proof document: the goals of its steps justified as
@@ -289,7 +289,9 @@ function forgeExample(entry, text, count) {
     const unentailed = terms.filter((term) => isClaim(term) && !entailed(example, term));
     if (!unentailed.length) return;
     const forged = `a forged proof was accepted for ${write(unentailed[0])}, which does not hold`;
-    assert.ok([...obligations(terms)].some((goal) => !example.trusted.has(goal)),
+    assert.ok(report.trusted.some(({ kind, conclusion }) => kind === 'call_fidelity' &&
+      unentailed.some((claim) => write(claim) === conclusion)) ||
+      [...obligations(terms)].some((goal) => !example.trusted.has(goal)),
       `${forged}, with no forged obligation\n${document}`);
     assert.ok(!checkProof(example.program, document, { allowTrusted: false }).valid,
       `${forged}, even strictly\n${document}`);
@@ -517,6 +519,46 @@ function mutateText(r, text) {
 }
 
 export const tests = {
+  'C10 rejects locally valid answers that the original finite call never returns'() {
+    forSeeds(120, (r) => {
+      const values = [1, 2, 3];
+      for (let i = values.length - 1; i > 0; i--) {
+        const j = r.below(i + 1);
+        [values[i], values[j]] = [values[j], values[i]];
+      }
+      if (r.chance(0.5)) values.push(r.pick(values));
+      const early = r.chance(0.5);
+      const first = values[0];
+      const wrong = r.pick(values.filter((value) => value !== first));
+      const body = early ? `[not_unify(X, ${first}), p(X)]` : 'once(p(X))';
+      const source = `fact(${values.map((value) => `p(${value})`).join(', ')})\n` +
+        `implied_by(q(X), ${body})\nquery(q(X))`;
+      const loaded = program(source);
+      const result = run(loaded, { proof: true });
+      assert.deepEqual(result.answers, early ? [] : [`q(${first})`]);
+      assert.ok(checkBothWays(loaded, result.proof).valid);
+      const uses = early ? `not_unify(${wrong}, ${first}), p(${wrong})` : `once(p(${wrong}))`;
+      const support = early ? `step(not_unify(${wrong}, ${first}), 'builtin', {}, [])`
+        : `step(once(p(${wrong})), 'control', {}, [p(${wrong})])`;
+      const local = `q(${wrong})\nstep(q(${wrong}), clause(${values.length + 1}), {}, [${uses}])\n${support}\n`;
+      assert.ok(checkProof(loaded, local).valid, local);
+      const document = `${local}called(q(A), [${early ? '' : `q(${first})`}])\n`;
+      const report = checkBothWays(loaded, document);
+      assert.equal(report.valid, false, document);
+      assert.deepEqual(report.failures.map(({ condition }) => condition), ['C10']);
+      // A second original question may return the same claim. Missing its
+      // table leaves an obligation; the first question alone cannot refute it.
+      const overlapping = program(`${source}\nquery(q(${wrong}))`);
+      const incomplete = checkBothWays(overlapping, document);
+      assert.ok(incomplete.valid);
+      assert.equal(incomplete.trusted[0].kind, 'call_fidelity');
+      assert.equal(checkProof(overlapping, document, { allowTrusted: false }).valid, false);
+      const alternate = early ? values.filter((value) => value === wrong) : [wrong];
+      const completed = `${document}called(q(${wrong}), [${alternate.map((value) => `q(${value})`).join(', ')}])\n`;
+      assert.ok(checkProof(overlapping, completed, { allowTrusted: false }).valid, completed);
+    });
+  },
+
   'source-grounded witness contexts survive adversarial Skolem-shaped input data'() {
     forSeeds(150, (r) => {
       const hops = r.below(5);

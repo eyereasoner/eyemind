@@ -20,7 +20,7 @@ import { freshClause, text, variant } from './common.js';
 import { INSPECTION_KEYS } from './inspection.js';
 import {
   Env, EyemindError, Struct, Var, copyResolved, deref, flattenConjunction, freshTerm, identity, isCallable, isGround, isTerm, key,
-  listFromItems, unify, variables,
+  isGroundButAnonymous, listFromItems, unify, variables,
 } from './terms.js';
 
 // A search the certificate cannot vouch for: its boundary stays an obligation.
@@ -60,13 +60,21 @@ export function forwardKeys(program) {
 // supported(fact) whether the proof has a step for a listed fact. Tables and
 // listings are checked once, however many boundaries rest on them.
 export class Settler {
-  constructor(program, source) {
+  constructor(program, source, operational = false) {
     this.program = program;
     this.source = source;
     this.derivedKeys = forwardKeys(program);
     this.tables = new Map();
     this.listings = new Map();
     this.serial = 0;
+    this.operational = operational;
+    this.variant = (term) => variant(term, operational);
+  }
+
+  // All answers of an original call, rather than a final substituted step.
+  // This is the C10 root; inner calls still come only from the certificate.
+  answers(call) {
+    return this.settle(new Struct('answers', [call]));
   }
 
   // The outcome for one negation or collection: status 'settled',
@@ -75,6 +83,7 @@ export class Settler {
   // rests on.
   settle(boundary) {
     const collecting = isTerm(boundary, 'findall', 3);
+    const answering = isTerm(boundary, 'answers', 1);
     const goal = collecting ? boundary.args[1] : boundary.args[0];
     const root = new Reliance(collecting);
     const outcome = { status: 'settled', failures: [], boundaryOnly: false, tables: [], listings: [] };
@@ -82,10 +91,10 @@ export class Settler {
     try {
       const env = new Env();
       const copied = freshTerm(collecting ? new Struct('-', [boundary.args[0], goal]) : goal, `root${++this.serial}`);
-      const [template, searched] = collecting ? copied.args : [null, copied];
+      const [template, searched] = collecting ? copied.args : [answering ? copied : null, copied];
       for (const _ of this.solve(searched, env, root)) { // eslint-disable-line no-unused-vars
-        found.push(collecting ? freshTerm(copyResolved(template, env), `item${++this.serial}`) : null);
-        if (!collecting) break;
+        found.push(collecting || answering ? freshTerm(copyResolved(template, env), `item${++this.serial}`) : null);
+        if (!collecting && !answering) break;
       }
     } catch (error) {
       if (error instanceof Unsettled) return { ...outcome, status: 'unsettled' };
@@ -126,6 +135,7 @@ export class Settler {
     }
     if (outcome.failures.length || outcome.failed) return { ...outcome, status: 'failed' };
     if (unsettled || [...ordered].some((item) => !this.exact(item))) return { ...outcome, status: 'unsettled' };
+    if (answering) return { ...outcome, answers: found };
     if (!collecting && found.length) {
       outcome.failures.push([`absence contradicted by its search: ${text(boundary)}`, boundary]);
       return { ...outcome, status: 'failed', boundaryOnly: true };
@@ -157,6 +167,9 @@ export class Settler {
       // A negation's unbound variables stand for any value, as anonymous
       // ones do; a reasoner would not have run one with a named variable.
       const once = goalKey === 'once/1';
+      if (this.operational && !once && !isGroundButAnonymous(goal.args[0], env)) {
+        throw new EyemindError('call fidelity: negation has an unbound named variable');
+      }
       if (once) reliance.inner++;
       const inner = this.solve(goal.args[0], env, reliance);
       const first = inner.next();
@@ -175,6 +188,10 @@ export class Settler {
       env.undo(mark);
       if (unify(goal.args[2], listFromItems(items), env)) yield;
     } else if (PRIMITIVE_KEYS.has(goalKey)) {
+      // Relative names of unbound variables are not preserved by alpha
+      // renaming of a table. A name-dependent comparison needs more evidence.
+      if (this.operational && goalKey === 'compare/3' &&
+          (!isGround(goal.args[1], env) || !isGround(goal.args[2], env))) throw new Unsettled();
       for (const _ of primitive(goal, env)) { // eslint-disable-line no-unused-vars
         yield;
         env.undo(mark);
@@ -187,7 +204,7 @@ export class Settler {
       yield* this.expand(goal, env, reliance);
     } else {
       const call = copyResolved(goal, env);
-      const callKey = variant(call);
+      const callKey = this.variant(call);
       let entry = this.tables.get(callKey);
       if (entry === undefined) {
         const answers = this.source.answers(call);
@@ -219,7 +236,9 @@ export class Settler {
         env.undo(mark);
       }
     }
-    for (const clause of this.program.groups.get(goalKey) || []) {
+    const clauses = this.program.hasTemplates ? this.program.groups.get(goalKey) || []
+      : this.program.candidates(call, env, goalKey);
+    for (const clause of clauses) {
       // A derived rule instance answers only through the run that made it.
       if (clause.parentId !== null) throw new Unsettled();
       const [head, body] = freshClause(clause, `clause${++this.serial}`);
@@ -260,7 +279,7 @@ export class Settler {
       for (const _ of this.expand(call, env, entry.reliance)) found.push(copyResolved(call, env)); // eslint-disable-line no-unused-vars
       const listed = entry.answers;
       let i = 0;
-      while (i < found.length && i < listed.length && variant(found[i]) === variant(listed[i])) i++;
+      while (i < found.length && i < listed.length && this.variant(found[i]) === this.variant(listed[i])) i++;
       if (i < found.length && i < listed.length) {
         entry.failure = `the search of ${text(entry.call)} answers ${text(found[i])} where its table lists ${text(listed[i])}`;
       } else if (i < found.length) {

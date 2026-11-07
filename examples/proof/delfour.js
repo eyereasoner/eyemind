@@ -160,9 +160,10 @@ step(not(contains('createdat expiresat insight metric sugar_g_per_serving retail
 step(passed('delfour', 'lower_sugar'), clause(71), {Case: 'delfour', Most: 120, Product: 'prod_BIS_101', Sugar: 30}, [scanned_sugar('delfour', 120), alternative('delfour', 'prod_BIS_101'), sugar('prod_BIS_101', 30), lt(30, 120)])
 step(all_checks_pass('delfour'), clause(75), {Case: 'delfour'}, [passed('delfour', 'trusted_signature'), passed('delfour', 'matching_hash'), passed('delfour', 'minimal_payload'), passed('delfour', 'complete_scope'), passed('delfour', 'authorization'), passed('delfour', 'high_sugar'), passed('delfour', 'lower_sugar'), passed('delfour', 'duty_timing'), passed('delfour', 'marketing_prohibited'), passed('delfour', 'expected_file_count')])
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(beaten('delfour', 'prod_BIS_101'), [])
 searched(considers('delfour', A), [considers('delfour', 'prod_BIS_101')])
 searched(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'diabetes'), [])
 searched(contains('createdat expiresat insight metric sugar_g_per_serving retailer delfour scopedevice self-scanner scopeevent pick_up_scanner', 'medical'), [])
+called(scope('sugar_insight', A), [scope('sugar_insight', ['self-scanner', 'pick_up_scanner'])])

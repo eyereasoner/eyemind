@@ -275,7 +275,7 @@ implies('true', seed('c'))`;
     const result = proven(source, { goals: ["findall(X, selected(X), L)", "not(selected('b'))"] });
     assert.deepEqual(result.answers, ["findall(A, selected(A), ['a', 'c'])", "not(selected('b'))"]);
     assert.doesNotMatch(result.proof, /activated\(/);
-    assert.equal(result.proofReport.trusted.length, 2);
+    assert.equal(result.proofReport.trusted.length, 4);
   },
 
   'collections keep backward derivation multiplicity and suppress duplicate forward facts'() {

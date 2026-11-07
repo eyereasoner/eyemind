@@ -173,8 +173,8 @@ step(not(flies('falco', 'false')), 'absent', {}, [])
 step(flies_safely('falco', 'true'), clause(25), {X: 'falco'}, [flight_status('falco', 'true_only')])
 // … 12 more steps, 66 in total
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 derived(flies(A, B), [flies('tweety', 'true'), flies('falco', 'true'), flies('mythic', 'true'), flies('tweety', 'false'), flies('opus', 'false'), flies('batsy', 'true'), flies('mythic', 'false')])
 derived(wings(A, B), [wings('tweety', 'true'), wings('falco', 'true'), wings('mythic', 'true'), wings('batsy', 'false'), wings('batsy', 'true'), wings('nemo', 'false')])
 searched(flies('falco', 'false'), [])
@@ -229,7 +229,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 flies('tweety', 'true')
 flies('falco', 'true')
 flies('mythic', 'true')
@@ -281,8 +281,8 @@ migrates('batsy', 'true')
 moves_by('opus', 'walking')
 migrates('opus', 'false')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 59)
 condition('C2', 'well_founded', 'ok', 66)
 condition('C3', 'justification', 'ok', 66)
@@ -292,17 +292,56 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 116)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 7)
+condition('C10', 'call_fidelity', 'ok', 14)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', flight_status('tweety', 'both'))
+obligation('call_fidelity', 'original_call', flight_status('mythic', 'both'))
+obligation('call_fidelity', 'original_call', wing_status('batsy', 'both'))
+obligation('call_fidelity', 'original_call', inconsistent('tweety', 'flies'))
+obligation('call_fidelity', 'original_call', needs_review('tweety', 'flies'))
+obligation('call_fidelity', 'original_call', inconsistent('mythic', 'flies'))
+obligation('call_fidelity', 'original_call', needs_review('mythic', 'flies'))
+obligation('call_fidelity', 'original_call', inconsistent('batsy', 'wings'))
+obligation('call_fidelity', 'original_call', needs_review('batsy', 'wings'))
+obligation('call_fidelity', 'original_call', flies_safely('tweety', 'undecided'))
+obligation('call_fidelity', 'original_call', flies_safely('mythic', 'undecided'))
+obligation('call_fidelity', 'original_call', wings_safely('batsy', 'undecided'))
+obligation('call_fidelity', 'original_call', moves_by('tweety', 'unknown'))
+obligation('call_fidelity', 'original_call', migrates('tweety', 'undecided'))
+obligation('call_fidelity', 'original_call', moves_by('mythic', 'unknown'))
+obligation('call_fidelity', 'original_call', migrates('mythic', 'undecided'))
+obligation('call_fidelity', 'original_call', flight_status('falco', 'true_only'))
+obligation('call_fidelity', 'original_call', flight_status('batsy', 'true_only'))
+obligation('call_fidelity', 'original_call', flight_status('opus', 'false_only'))
+obligation('call_fidelity', 'original_call', wing_status('tweety', 'true_only'))
+obligation('call_fidelity', 'original_call', wing_status('falco', 'true_only'))
+obligation('call_fidelity', 'original_call', wing_status('mythic', 'true_only'))
+obligation('call_fidelity', 'original_call', wing_status('nemo', 'false_only'))
+obligation('call_fidelity', 'original_call', flies_safely('falco', 'true'))
+obligation('call_fidelity', 'original_call', flies_safely('batsy', 'true'))
+obligation('call_fidelity', 'original_call', flies_safely('opus', 'false'))
+obligation('call_fidelity', 'original_call', wings_safely('tweety', 'true'))
+obligation('call_fidelity', 'original_call', wings_safely('falco', 'true'))
+obligation('call_fidelity', 'original_call', wings_safely('mythic', 'true'))
+obligation('call_fidelity', 'original_call', wings_safely('nemo', 'false'))
+obligation('call_fidelity', 'original_call', moves_by('falco', 'flying'))
+obligation('call_fidelity', 'original_call', migrates('falco', 'true'))
+obligation('call_fidelity', 'original_call', moves_by('batsy', 'flying'))
+obligation('call_fidelity', 'original_call', migrates('batsy', 'true'))
+obligation('call_fidelity', 'original_call', moves_by('opus', 'walking'))
+obligation('call_fidelity', 'original_call', migrates('opus', 'false'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(66)
 verified(59)
 recomputed(0)
 composed(0)
-trusted(0)
+trusted(36)
 claims(50)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 The report first repeats the 50 conclusions, now checked answers. Each `condition` line then names a check, says `'ok'`,
@@ -341,9 +380,15 @@ real world.
 
 The statistics: 66 steps, 59 verified against the program and the 7
 absences settled by the certificate, so none is trusted and there are no
-obligations. The verdict is **checked**: every conclusion follows from the
+obligations. The verdict is **checked with obligations**: every conclusion follows from the
 program. It does not establish that the program has no other
 conclusions.
+
+C10 leaves 36 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

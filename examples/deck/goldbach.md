@@ -176,8 +176,8 @@ step(eq(1, mod(5, 2)), 'builtin', {}, [])
 step(not(has_factor(5, 3)), 'absent', {}, [])
 // … 891 steps left out
 
-// Search certificate: every fact derived for each relation the searches behind
-// negations and collections consult, and every answer of each call they made, in order.
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
 searched(has_factor(5, 3), [])
 searched(has_factor(13, 3), [])
 searched(has_factor(13, 5), [])
@@ -242,7 +242,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 goldbach(4, [2, 2])
 goldbach(8, [3, 5])
 goldbach(16, [3, 13])
@@ -268,8 +268,8 @@ goldbach(8388608, [37, 8388571])
 goldbach(16777216, [3, 16777213])
 goldbach(33554432, [61, 33554371])
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 506)
 condition('C2', 'well_founded', 'ok', 913)
 condition('C3', 'justification', 'ok', 913)
@@ -279,17 +279,44 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 937)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 35)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', goldbach(4, [2, 2]))
+obligation('call_fidelity', 'original_call', goldbach(8, [3, 5]))
+obligation('call_fidelity', 'original_call', goldbach(16, [3, 13]))
+obligation('call_fidelity', 'original_call', goldbach(32, [3, 29]))
+obligation('call_fidelity', 'original_call', goldbach(64, [3, 61]))
+obligation('call_fidelity', 'original_call', goldbach(128, [19, 109]))
+obligation('call_fidelity', 'original_call', goldbach(256, [5, 251]))
+obligation('call_fidelity', 'original_call', goldbach(512, [3, 509]))
+obligation('call_fidelity', 'original_call', goldbach(1024, [3, 1021]))
+obligation('call_fidelity', 'original_call', goldbach(2048, [19, 2029]))
+obligation('call_fidelity', 'original_call', goldbach(4096, [3, 4093]))
+obligation('call_fidelity', 'original_call', goldbach(8192, [13, 8179]))
+obligation('call_fidelity', 'original_call', goldbach(16384, [3, 16381]))
+obligation('call_fidelity', 'original_call', goldbach(32768, [19, 32749]))
+obligation('call_fidelity', 'original_call', goldbach(65536, [17, 65519]))
+obligation('call_fidelity', 'original_call', goldbach(131072, [13, 131059]))
+obligation('call_fidelity', 'original_call', goldbach(262144, [5, 262139]))
+obligation('call_fidelity', 'original_call', goldbach(524288, [19, 524269]))
+obligation('call_fidelity', 'original_call', goldbach(1048576, [3, 1048573]))
+obligation('call_fidelity', 'original_call', goldbach(2097152, [19, 2097133]))
+obligation('call_fidelity', 'original_call', goldbach(4194304, [3, 4194301]))
+obligation('call_fidelity', 'original_call', goldbach(8388608, [37, 8388571]))
+obligation('call_fidelity', 'original_call', goldbach(16777216, [3, 16777213]))
+obligation('call_fidelity', 'original_call', goldbach(33554432, [61, 33554371]))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(913)
 verified(506)
 recomputed(333)
 composed(39)
-trusted(0)
+trusted(24)
 claims(24)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -325,13 +352,18 @@ which it recomputes, and 3 × 3 < 13, so the rule moves on to
 turn: 13 mod 5 is not 0, and 5 × 5 is not below 13, so it has no answers.
 Every line agrees with its expansion, so a hidden factor would show up as a
 disagreement. The statistics: 913 steps, 506 verified, 333 recomputed, 39
-composed and the 35 absences settled by the certificate, none trusted, for
+composed and the 35 absences settled by the certificate, no boundary steps trusted, for
 24 claims.
 
-The verdict is **checked**: every split follows from the program. Even
-`--strict-proof`, which rejects any trusted step, accepts this proof. As
+The verdict is **checked with obligations**: every split follows from the program. Strict checking rejects its unresolved call-fidelity obligations. As
 the last comment says, the verdict does not establish completeness, and it certainly
 does not prove the conjecture.
+
+C10 leaves 24 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

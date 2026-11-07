@@ -121,11 +121,11 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 indeed_more_interesting(5, 3)
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 2)
 condition('C2', 'well_founded', 'ok', 3)
 condition('C3', 'justification', 'ok', 3)
@@ -135,17 +135,21 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 4)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', indeed_more_interesting(5, 3))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(3)
 verified(2)
 recomputed(1)
 composed(0)
-trusted(0)
+trusted(1)
 claims(1)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -172,9 +176,15 @@ at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 3 steps, 2 verified against the program, 1
-recomputed, none taken on trust. The verdict is **checked**: the conclusion
+recomputed, no boundary steps taken on trust. The verdict is **checked with obligations**: the conclusion
 follows from the program. It does not say the program has no other
 conclusions.
+
+C10 leaves 1 original-call claim unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 

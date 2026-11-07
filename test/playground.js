@@ -95,7 +95,8 @@ export const tests = [
       await p.select('mode', '--check-proof');
       await p.type('proof-input', proof);
       await p.run();
-      assert.match(await p.output(), /verdict\('checked'\)/);
+      assert.match(await p.output(), /verdict\('checked_with_obligations'\)/);
+      assert.match(await p.output(), /obligation\('call_fidelity', 'original_call',/);
     }
     await p.select('mode', '');
   }],
@@ -126,7 +127,8 @@ export const tests = [
     await p.select('mode', '--prove-and-check');
     await p.run();
     assert.match(await p.output(), /test\(a\(A\), c\(A\)\)/);
-    assert.match(await p.output(), /verdict\('checked'\)/);
+    assert.match(await p.output(), /verdict\('checked_with_obligations'\)/);
+    assert.match(await p.output(), /obligation\('call_fidelity', 'original_call',/);
     await p.select('mode', '');
   }],
 
@@ -173,6 +175,33 @@ query(or(q(X), r(X)))`);
     await p.run();
     assert.equal(await p.output(), "// Answers: each instance of a goal that holds.\ntype('socrates', 'mortal')\n");
     await p.select('goal', '');
+  }],
+
+  ['C10 call fidelity certifies original questions and rejects a later once answer', async (page, base) => {
+    const p = driver(page);
+    await p.open(`${base}#example=socrates`);
+    await p.select('mode', '--prove-and-check');
+    await p.run();
+    assert.match(await p.status(), /^Done · exit 0/);
+    assert.match(await p.output(), /condition\('C10', 'call_fidelity', 'ok', 2\)/);
+    await p.type('input', "fact(p('a'), p('b'))\nimplied_by(q(X), once(p(X)))\nquery(q(X))");
+    await p.type('proof-input', "q('b')\nstep(q('b'), clause(3), {}, [once(p('b'))])\n" +
+      "step(once(p('b')), 'control', {}, [p('b')])\ncalled(q(A), [q('a')])\n");
+    await p.select('mode', '--check-proof');
+    await p.run();
+    assert.match(await p.status(), /^Proof not valid · exit 2/);
+    assert.match(await p.output(), /failure\('C10'/);
+    await page.evaluate("(() => { const el = document.getElementById('strict-proof'); if (el.checked) el.click(); })()");
+    await p.type('proof-input', "q('b')\nstep(q('b'), clause(3), {}, [once(p('b'))])\n" +
+      "step(once(p('b')), 'control', {}, [p('b')])\n");
+    await p.run();
+    assert.match(await p.output(), /verdict\('checked_with_obligations'\)/);
+    assert.match(await page.evaluate("document.getElementById('strict-proof').parentElement.title"), /call fidelity/);
+    await page.evaluate("document.getElementById('strict-proof').click()");
+    await p.run();
+    assert.match(await p.output(), /failure\('C10'/);
+    await page.evaluate("document.getElementById('strict-proof').click()");
+    await p.select('mode', '');
   }],
 
   ['a syntax error marks its line in the input', async (page) => {

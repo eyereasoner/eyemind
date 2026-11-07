@@ -168,6 +168,19 @@ step(meeting(skolem(13, 'M', ['ann', 'dora'])), clause(13), {X: 'ann', Y: 'dora'
 step(colleagues('ann', 'dora'), clause(12), {}, [])
 step(attends(skolem(13, 'M', ['ann', 'dora']), 'ann'), clause(13), {X: 'ann', Y: 'dora', M: skolem(13, 'M', ['ann', 'dora'])}, [colleagues('ann', 'dora')])
 step(attends(skolem(13, 'M', ['ann', 'dora']), 'dora'), clause(13), {X: 'ann', Y: 'dora', M: skolem(13, 'M', ['ann', 'dora'])}, [colleagues('ann', 'dora')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(has_parent(A, B), [has_parent('ann', skolem(3, 'P', ['ann'])), has_parent('bob', skolem(3, 'P', ['bob']))])
+derived(invoice_for(A, B), [invoice_for('carl', skolem(10, 'I', ['carl'])), invoice_for('dora', skolem(10, 'I', ['dora']))])
+derived(sent(A), [sent(skolem(10, 'I', ['carl'])), sent(skolem(10, 'I', ['dora']))])
+derived(meeting(A), [meeting(skolem(13, 'M', ['ann', 'dora']))])
+derived(attends(A, B), [attends(skolem(13, 'M', ['ann', 'dora']), 'ann'), attends(skolem(13, 'M', ['ann', 'dora']), 'dora')])
+called(has_parent(A, B), [has_parent('ann', skolem(3, 'P', ['ann'])), has_parent('bob', skolem(3, 'P', ['bob'])), has_parent('dan', 'eve'), has_parent('fay', 'eve')])
+called(invoice_for(C, D), [invoice_for('carl', skolem(10, 'I', ['carl'])), invoice_for('dora', skolem(10, 'I', ['dora']))])
+called(sent(E), [sent(skolem(10, 'I', ['carl'])), sent(skolem(10, 'I', ['dora']))])
+called(meeting(F), [meeting(skolem(13, 'M', ['ann', 'dora']))])
+called(attends(G, H), [attends(skolem(13, 'M', ['ann', 'dora']), 'ann'), attends(skolem(13, 'M', ['ann', 'dora']), 'dora')])
 ```
 
 It has three parts:
@@ -227,7 +240,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 has_parent('ann', skolem(3, 'P', ['ann']))
 has_parent('bob', skolem(3, 'P', ['bob']))
 sibling('dan', 'fay')
@@ -240,8 +253,8 @@ meeting(skolem(13, 'M', ['ann', 'dora']))
 attends(skolem(13, 'M', ['ann', 'dora']), 'ann')
 attends(skolem(13, 'M', ['ann', 'dora']), 'dora')
 
-// C1-C9: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity and search closure.
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 18)
 condition('C2', 'well_founded', 'ok', 20)
 condition('C3', 'justification', 'ok', 20)
@@ -251,17 +264,22 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 31)
 condition('C8', 'witness_integrity', 'ok', 7)
 condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 9)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', sibling('dan', 'fay'))
+obligation('call_fidelity', 'original_call', sibling('fay', 'dan'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(20)
 verified(18)
 recomputed(2)
 composed(0)
-trusted(0)
+trusted(2)
 claims(11)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -290,9 +308,15 @@ at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 20 steps, 18 verified against the program, 2
-recomputed, none taken on trust. The verdict is **checked**: all 11
+recomputed, no boundary steps taken on trust. The verdict is **checked with obligations**: all 11
 conclusions follow from the program. As the last comment says, this confirms
 the claims; it does not say the program has no other conclusions.
+
+C10 leaves 2 original-call claims unproved by the available evidence. The
+verdict is **checked with obligations**: the recorded derivations are
+conditional on these call-fidelity obligations. `--strict-proof` rejects
+them. The report does not establish answer completeness.
+
 
 ---
 
