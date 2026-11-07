@@ -2,7 +2,7 @@
 
 Give eyemind a few facts and rules, ask a question, and follow the answer back to its evidence. This guide takes you from a first conclusion to checked proofs, browser experiments, and your own JavaScript application.
 
-eyemind is a **rule language written in JavaScript**. A program is a plain JavaScript script, its conclusions, proofs and check reports are JavaScript expressions, and the reasoner itself is a few thousand lines of dependency-free JavaScript. One language states the rules, computes with them, and holds every result. The [specification](SPEC.md) defines the language, what a run concludes, the proof format, and what proof checking establishes.
+eyemind is a **rule language written in JavaScript**. A program is a plain JavaScript script, its conclusions, proofs and check reports are JavaScript expressions, and the reasoner itself is a few thousand lines of dependency-free JavaScript. One language states the rules, computes with them, and holds every result. The [specification](https://eyereasoner.github.io/eyemind/SPEC) defines the language, what a run concludes, the proof format, and what proof checking establishes.
 
 **Start now:** [Try Socrates in the playground](https://eyereasoner.github.io/eyemind/playground/#example=socrates) · [Run locally](#install-and-run) · [Check a proof](#proofs-and-what-checking-one-means)
 
@@ -59,7 +59,7 @@ type('socrates', 'mortal')
 type('socrates', 'human')
 ```
 
-Open [socrates.js](examples/socrates.js) beside its [saved output](examples/output/socrates.js). The program says Socrates is human and every human is mortal; a rule carries class membership to a superclass, and the query reports every class membership.
+Open [socrates.js](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates.js) beside its [saved output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/socrates.js). The program says Socrates is human and every human is mortal; a rule carries class membership to a superclass, and the query reports every class membership.
 
 Now ask for the explanation, and check it:
 
@@ -171,10 +171,10 @@ the derived rule's witnesses and those of its enclosing generators.
 Negations and collections retain their explicit proof obligations; the
 checker never runs the reasoner to fill them in.
 
-See the decks for [derived forward rules](examples/deck/derived-rule),
-[derived backward rules](examples/deck/derived-backward-rule), and a
-[conjunction of backward templates](examples/deck/derived-backward-rule-2).
-[SPEC §6.2](SPEC.md#62-inline-rule-templates) defines the scope and lowering.
+See the decks for [derived forward rules](https://eyereasoner.github.io/eyemind/examples/deck/derived-rule),
+[derived backward rules](https://eyereasoner.github.io/eyemind/examples/deck/derived-backward-rule), and a
+[conjunction of backward templates](https://eyereasoner.github.io/eyemind/examples/deck/derived-backward-rule-2).
+[SPEC §6.2](https://eyereasoner.github.io/eyemind/SPEC#62-inline-rule-templates) defines the scope and lowering.
 
 ### Inspecting rules
 
@@ -206,8 +206,8 @@ available to refute inconsistent evidence. If a conclusion introduces an
 existential witness, bind its inspected pattern variables first: a generic
 pattern cannot share one witness across all its instances.
 
-See the [rule inspection deck](examples/deck/rule-inspection) and
-[SPEC §6.3](SPEC.md#63-source-rule-inspection).
+See the [rule inspection deck](https://eyereasoner.github.io/eyemind/examples/deck/rule-inspection) and
+[SPEC §6.3](https://eyereasoner.github.io/eyemind/SPEC#63-source-rule-inspection).
 
 ### Terms and names
 
@@ -229,11 +229,11 @@ Once stated, a clause is a term, and reasoning over it calls no code of yours.
 
 `unify`, `identical` and `compare` answer different questions. The floats `0.0` and `-0.0` unify and compare equal, but `identical` distinguishes their canonical texts, including inside lists and compounds. In a program, write them as `float(0)` and `float(-0)`.
 
-**Arithmetic is a term, not an operator.** `is(Y, add(X, 1))` binds `Y` to `X + 1`, and `gt(X, 1)` compares. Operators do not apply to terms: `X + 1` or `X > 1` in a program stops it with a message that says what to write instead. Operators on plain numbers are JavaScript's own and run before eyemind sees the result: `3 + 4` arrives as 7, and `2 ** 60 + 1` arrives already rounded, so compute with `is(Y, add(3, 4))` instead. `div` is true division, `floordiv` and `mod` floor toward negative infinity, and `round` rounds half to even. The primitives (`unify`, `is`, `eq`, `lt` and the other comparisons, type tests, `functor`, `univ`, `atom_concat` and the rest) are listed in [SPEC §4](SPEC.md#4-goals-and-primitives), and the arithmetic functions in [SPEC §5](SPEC.md#5-arithmetic). Everything else, such as membership, mapping or graph traversal, is written as ordinary clauses.
+**Arithmetic is a term, not an operator.** `is(Y, add(X, 1))` binds `Y` to `X + 1`, and `gt(X, 1)` compares. Operators do not apply to terms: `X + 1` or `X > 1` in a program stops it with a message that says what to write instead. Operators on plain numbers are JavaScript's own and run before eyemind sees the result: `3 + 4` arrives as 7, and `2 ** 60 + 1` arrives already rounded, so compute with `is(Y, add(3, 4))` instead. `div` is true division, `floordiv` and `mod` floor toward negative infinity, and `round` rounds half to even. The primitives (`unify`, `is`, `eq`, `lt` and the other comparisons, type tests, `functor`, `univ`, `atom_concat` and the rest) are listed in [SPEC §4](https://eyereasoner.github.io/eyemind/SPEC#4-goals-and-primitives), and the arithmetic functions in [SPEC §5](https://eyereasoner.github.io/eyemind/SPEC#5-arithmetic). Everything else, such as membership, mapping or graph traversal, is written as ordinary clauses.
 
 **Domains get representations, not syntax.** eyemind has no built-in notion of RDF or of anything else: IRIs, typed literals, triples and quoted graphs are just terms, such as `literal(V, lang(L))` or `triple(S, P, O)` (see [RDF 1.2](#rdf-12) below). A forward conclusion may contain variables its premise never binds, and then says that something exists. Each such unknown becomes a Skolem function of the firing: `implies(person(X), has_parent(X, P))` concludes `has_parent('ann', skolem(2, 'P', ['ann']))`, the `P` of rule 2 for Ann.
 
-**Data that is not a program.** Everything eyemind writes, conclusions, proofs and check reports, is a *document*: plain expressions, one per line. `facts_from` reads such a document as data and states each expression as a fact. It never executes the text, so it is also the safe way to take in data you do not trust; a data file written as a program would run as JavaScript. It is what lets one run reason over another, as [audited-grants](examples/audited-grants.js) reasons over its own proof and check report:
+**Data that is not a program.** Everything eyemind writes, conclusions, proofs and check reports, is a *document*: plain expressions, one per line. `facts_from` reads such a document as data and states each expression as a fact. It never executes the text, so it is also the safe way to take in data you do not trust; a data file written as a program would run as JavaScript. It is what lets one run reason over another, as [audited-grants](https://github.com/eyereasoner/eyemind/blob/main/examples/audited-grants.js) reasons over its own proof and check report:
 
 ```js
 facts_from('data.js')
@@ -305,8 +305,8 @@ values directly, instead of being renamed and then unified.
 
 When a proof is asked for, the first derivation of each conclusion is
 recorded, and the checker verifies that record against the program without
-calling the reasoner. [SPEC §8](SPEC.md#8-evaluation-and-conclusions) defines the search, the
-rounds, the Skolem terms and the bounds, and [SPEC §6.1](SPEC.md#61-dependencies-and-stratification)
+calling the reasoner. [SPEC §8](https://eyereasoner.github.io/eyemind/SPEC#8-evaluation-and-conclusions) defines the search, the
+rounds, the Skolem terms and the bounds, and [SPEC §6.1](https://eyereasoner.github.io/eyemind/SPEC#61-dependencies-and-stratification)
 the strata.
 
 ## Proofs, and what checking one means
@@ -493,9 +493,9 @@ node conformance/run.js --command "my-eyemind"
 
 The full suite and large examples need substantial memory. On this development machine, use the memory cap above with swap disabled and run one heavy job at a time. Focused tests can use `npm test -- unit -k NAME`.
 
-The unit tests include generated ones, which check properties on inputs a seeded generator makes. For each example, its saved proof is forged at random, consistently or not and often at a computed value or a witness, and the checker must accept no forgery that claims what the program does not entail (a proof checked with obligations may do so only through an obligation it changed or added, which a strict check rejects), with and without its fast path for flat clauses giving the same report; and leaving out any clause no derivation cites must not change what the example concludes. Circular proofs of atoms that only a cycle of rule instances supports must fail C2. Random stratified programs, forward and backward, must answer as a naive fixpoint does, with proofs that check, and must conclude the same with their statements in any order or without a clause no derivation cites. Random terms must read back from their canonical text as themselves, and mutated and hostile documents must give terms or an error without the reader running any of it. A failure names the seed that reproduces it, and `EYEMIND_PROPERTY_SCALE` multiplies the number of cases. The test sections are unit tests, the example corpus (each program must reproduce its saved output, proof and check report, with a separate named test for every check file that verifies its answers and one-command checking output; the artifact tests show where it spends time, and its saved proof must check from disk), the conformance suite, with every case run both in process and through the `eyemind` command as a process of its own; and the playground, run in a headless Chrome at desktop and phone widths, which marks the line an error names. The playground section needs Chrome (`CHROME` names it when it is not on the PATH) and a Node.js with `WebSocket`, and says so when either is missing. [conformance/README.md](conformance/README.md) describes the case format, and `node test/browser.mjs DIR` runs the playground tests alone and saves screenshots.
+The unit tests include generated ones, which check properties on inputs a seeded generator makes. For each example, its saved proof is forged at random, consistently or not and often at a computed value or a witness, and the checker must accept no forgery that claims what the program does not entail (a proof checked with obligations may do so only through an obligation it changed or added, which a strict check rejects), with and without its fast path for flat clauses giving the same report; and leaving out any clause no derivation cites must not change what the example concludes. Circular proofs of atoms that only a cycle of rule instances supports must fail C2. Random stratified programs, forward and backward, must answer as a naive fixpoint does, with proofs that check, and must conclude the same with their statements in any order or without a clause no derivation cites. Random terms must read back from their canonical text as themselves, and mutated and hostile documents must give terms or an error without the reader running any of it. A failure names the seed that reproduces it, and `EYEMIND_PROPERTY_SCALE` multiplies the number of cases. The test sections are unit tests, the example corpus (each program must reproduce its saved output, proof and check report, with a separate named test for every check file that verifies its answers and one-command checking output; the artifact tests show where it spends time, and its saved proof must check from disk), the conformance suite, with every case run both in process and through the `eyemind` command as a process of its own; and the playground, run in a headless Chrome at desktop and phone widths, which marks the line an error names. The playground section needs Chrome (`CHROME` names it when it is not on the PATH) and a Node.js with `WebSocket`, and says so when either is missing. [conformance/README.md](https://github.com/eyereasoner/eyemind/tree/main/conformance) describes the case format, and `node test/browser.mjs DIR` runs the playground tests alone and saves screenshots.
 
-Review artifact changes together with the source change that caused them. When adding an example, register its name, description, expected halt code (if any) and proof obligations in [examples/manifest.json](examples/manifest.json), write its deck in `examples/deck/`, then generate its artifacts.
+Review artifact changes together with the source change that caused them. When adding an example, register its name, description, expected halt code (if any) and proof obligations in [examples/manifest.json](https://github.com/eyereasoner/eyemind/blob/main/examples/manifest.json), write its deck in `examples/deck/`, then generate its artifacts.
 
 ### Releases
 

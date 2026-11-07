@@ -1,6 +1,6 @@
 # eyemind conformance suite
 
-These cases test an implementation against [SPEC.md](../SPEC.md). They are
+These cases test an implementation against [the specification](https://eyereasoner.github.io/eyemind/SPEC). They are
 black-box: each case creates some files, runs the implementation's command
 line (SPEC Section 13.1) and compares what it prints and its exit code with what
 the specification requires. Any implementation with that command line can be
@@ -43,7 +43,7 @@ cases show how far C5 accepts them.
 
 ## Case format
 
-[SPEC Section 14.1](../SPEC.md#141-conformance-test-suite) defines the
+[SPEC Section 14.1](https://eyereasoner.github.io/eyemind/SPEC#141-conformance-test-suite) defines the
 manifest, the case format and when a case passes; this section summarizes it.
 
 A case file is an eyemind document (SPEC Section 9.1), like the conclusions,

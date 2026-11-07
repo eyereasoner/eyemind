@@ -27,6 +27,16 @@ export const tests = {
     assert.match(document('README.md'), /https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/conformance/);
   },
 
+  'documents link the guide, the specification and the decks through GitHub Pages'() {
+    for (const path of ['README.md', 'GUIDE.md', 'SPEC.md', 'conformance/README.md', 'examples/README.md']) {
+      for (const [, target] of document(path).matchAll(/\]\(([^)#][^)]*)\)/g)) {
+        assert.doesNotMatch(target, /^(?!https?:)(?:.*\/)?(?:SPEC|GUIDE)(?:\.md)?(?:#|$)|^(?!https?:).*\bdeck\//,
+          `${path}: ${target} should be a https://eyereasoner.github.io/eyemind/ link`);
+        assert.doesNotMatch(target, /^https:\/\/github\.com\/eyereasoner\/eyemind\/blob\/main\/(?:SPEC|GUIDE)\.md/, `${path}: ${target}`);
+      }
+    }
+  },
+
   'the specification defines the conformance manifest and every setting the cases use'() {
     const section = document('SPEC.md').split('### 14.1 Conformance test suite\n')[1].split(/\n## /)[0];
     const defined = new Set([...section.matchAll(/^\| `([a-z_]+)\(/gm)].map((match) => match[1]));

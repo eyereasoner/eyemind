@@ -120,8 +120,8 @@ expressions, one per line. The names match the source: `lists.js` has
 | [wolf-goat-cabbage](https://eyereasoner.github.io/eyemind/examples/deck/wolf-goat-cabbage) | [wolf-goat-cabbage.js](https://github.com/eyereasoner/eyemind/blob/main/examples/wolf-goat-cabbage.js) | The river crossing, with seven crossings shown to be minimal |
 | [zebra](https://eyereasoner.github.io/eyemind/examples/deck/zebra) | [zebra.js](https://github.com/eyereasoner/eyemind/blob/main/examples/zebra.js) | The zebra puzzle solved by narrowing five partially known houses |
 
-The [derived forward rule](deck/derived-rule), [derived backward rule](deck/derived-backward-rule),
-and [conjunction of backward templates](deck/derived-backward-rule-2) show
+The [derived forward rule](https://eyereasoner.github.io/eyemind/examples/deck/derived-rule), [derived backward rule](https://eyereasoner.github.io/eyemind/examples/deck/derived-backward-rule),
+and [conjunction of backward templates](https://eyereasoner.github.io/eyemind/examples/deck/derived-backward-rule-2) show
 rules enabled by other rules. Inline `implies(Body, Head)` and
 `implied_by(Head, Body)` templates capture their generating context and keep
 their other variables local. Arrays can join templates or the goals within
