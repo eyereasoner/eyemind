@@ -502,6 +502,8 @@ npm test -- -k skolem
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties
 # npm test every conformance case through the command too, as CI does
 EYEMIND_CLI_ALL=1 npm test -- cli
+# npm test the unit and example tests in this process rather than in 4 workers
+EYEMIND_TEST_JOBS=1 npm test -- unit examples
 # regenerate example artifacts after an intended change
 node tools/update-examples.js
 # run the conformance suite of SPEC.md
@@ -510,7 +512,7 @@ node conformance/run.js
 node conformance/run.js --command "my-eyemind"
 ```
 
-The full suite and large examples need substantial memory. On this development machine, use the memory cap above with swap disabled and run one heavy job at a time. Focused tests can use `npm test -- unit -k NAME`.
+The full suite and large examples need substantial memory. On this development machine, use the memory cap above with swap disabled and run one heavy job at a time. The unit and example tests run in worker processes, 4 by default or the number of cores when fewer, `EYEMIND_TEST_JOBS` sets how many; all the tests of one example run in order in one worker, so a large example is never worked on in two at once, and the results are printed in the order one process would print them. With 4 workers they take about 2 GB together. Focused tests can use `npm test -- unit -k NAME`.
 
 The unit tests include generated ones, which check properties on inputs a seeded generator makes. For each example, its saved proof is forged at random, consistently or not and often at a computed value or a witness, and the checker must accept no forgery that claims what the program does not entail (a proof checked with obligations may do so only through an obligation it changed or added, which a strict check rejects), with and without its fast path for flat clauses giving the same report; and leaving out any clause no derivation cites must not change what the example concludes. Circular proofs of atoms that only a cycle of rule instances supports must fail C2. Random stratified programs, forward and backward, must answer as a naive fixpoint does, with proofs that check, and must conclude the same with their statements in any order or without a clause no derivation cites. Random terms must read back from their canonical text as themselves, and mutated and hostile documents must give terms or an error without the reader running any of it. A failure names the seed that reproduces it, and `EYEMIND_PROPERTY_SCALE` multiplies the number of cases. The test sections are unit tests, the example corpus (each program must reproduce its saved output, proof and check report, with a separate named test for every check file that verifies its answers and one-command checking output; the artifact tests show where it spends time, and its saved proof must check from disk), the conformance suite, with every case run both in process and through the `eyemind` command as a process of its own; and the playground, run in a headless Chrome at desktop and phone widths, which marks the line an error names. The playground section needs Chrome (`CHROME` names it when it is not on the PATH) and a Node.js with `WebSocket`, and says so when either is missing. The [conformance suite](https://eyereasoner.github.io/eyemind/conformance/) describes its case format, and `node test/browser.mjs DIR` runs the playground tests alone and saves screenshots.
 
