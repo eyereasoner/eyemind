@@ -35,8 +35,8 @@ goals, and keep error messages specific and user-facing text direct.
   shared links to the directory URL, preserving their query and fragment.
   `playground/conformance.html` and `conformance/worker.js` run the shared suite in a browser.
 - `_config.yml`, `_layouts/default.html`, `assets/docs.css`: GitHub Pages
-  renders the Markdown documents with one masthead (Guide, Playground,
-  Specification, Conformance, Repository), the same nav the playground shows.
+  renders the Markdown documents with one masthead (Playground,
+  Specification, Conformance, Repository; the logo links home), the same nav the playground shows.
 - `examples/*.js`: runnable programs, listed in `examples/manifest.json` with
   their description, halt code and proof obligations. `examples/output/`,
   `examples/proof/` and `examples/check/` hold each one's saved conclusions,
