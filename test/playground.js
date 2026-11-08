@@ -270,7 +270,7 @@ query(or(q(X), r(X)))`);
   ['the navigation opens conformance and every case passes in the browser', async (page, base) => {
     const p = driver(page);
     await p.open(`${base}#example=socrates`);
-    const labels = ['Guide', 'Playground', 'Specification', 'Conformance', 'Repository ↗'];
+    const labels = ['Playground', 'Specification', 'Conformance', 'Repository ↗'];
     assert.deepEqual(await page.evaluate("[...document.querySelectorAll('nav a')].map(a => a.textContent)"), labels);
     await page.evaluate("[...document.querySelectorAll('nav a')].find(a => a.textContent === 'Conformance').click()");
     const count = loadCases().length;

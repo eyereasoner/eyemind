@@ -20,7 +20,7 @@
       [hidden] { display: none !important; }
       .page { max-width: 1500px; margin: 0 auto; padding: calc(1.5rem + env(safe-area-inset-top)) calc(1rem + env(safe-area-inset-right)) calc(2rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left)); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "nav nav" "heading options" "actions options" "input output"; align-items: start; gap: 1rem; }
       header { grid-area: heading; display: flex; align-items: center; gap: 1rem; text-align: left; }
-      header .logo { display: block; flex: none; border-radius: 50%; }
+      header .home, header .logo { display: block; flex: none; border-radius: 50%; }
       header .header-copy { min-width: 0; }
       header h1 { margin: 0; font-size: 1.9rem; font-weight: 650; letter-spacing: -0.02em; }
       header p { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.92rem; line-height: 1.55; }
@@ -134,14 +134,13 @@
   <body>
     <main class="page">
       <nav class="site-nav" aria-label="Project">
-        <a href="../">Guide</a>
         <a href="./" aria-current="page">Playground</a>
         <a href="../SPEC">Specification</a>
         <a href="conformance">Conformance</a>
         <a href="https://github.com/eyereasoner/eyemind">Repository ↗</a>
       </nav>
       <header>
-        <img class="logo" src="../assets/eye.png" alt="" width="64" height="64">
+        <a class="home" href="../" aria-label="eyemind home"><img class="logo" src="../assets/eye.png" alt="" width="64" height="64"></a>
         <div class="header-copy">
           <h1>The eyemind Playground</h1>
           <p>Write rules in JavaScript or try an example with eyemind.</p>

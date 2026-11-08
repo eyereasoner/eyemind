@@ -21,16 +21,18 @@ export const tests = {
     for (const path of ['_layouts/default.html', 'playground/index.html', 'playground/conformance.html']) {
       const nav = document(path).match(/<nav\b[^>]*>([\s\S]*?)<\/nav>/)[1];
       assert.deepEqual([...nav.matchAll(/<a\b[^>]*>([^<]+)<\/a>/g)].map((m) => m[1]),
-        ['Guide', 'Playground', 'Specification', 'Conformance', 'Repository ↗'], path);
+        ['Playground', 'Specification', 'Conformance', 'Repository ↗'], path);
       assert.match(nav, /href="[^"]*conformance[^"]*"/, path);
     }
     assert.match(document('README.md'), /https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/conformance/);
   },
 
-  'the guide is the README at the site root'() {
+  'the guide is the README at the site root, which every logo links'() {
     assert.ok(!existsSync(join(ROOT, 'GUIDE.md')));
-    assert.match(document('_layouts/default.html'), /<a href="\{\{ '\/' \| relative_url \}\}"\{% if page.path == 'README.md' %\}[^>]*>Guide<\/a>/);
-    for (const path of ['playground/index.html', 'playground/conformance.html']) assert.match(document(path), /<a href="\.\.\/">Guide<\/a>/, path);
+    assert.match(document('_layouts/default.html'), /<a class="brand" href="\{\{ '\/' \| relative_url \}\}"><img /);
+    for (const path of ['playground/index.html', 'playground/conformance.html']) {
+      assert.match(document(path), /<a class="home" href="\.\.\/" aria-label="eyemind home"><img /, path);
+    }
   },
 
   'documents link the guide, the specification and the decks through GitHub Pages'() {
