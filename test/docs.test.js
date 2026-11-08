@@ -1,5 +1,5 @@
 // Runnable documentation stays tied to what eyemind does.
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { checkReport, loadText, run } from '../src/index.js';
 import { loadCases, parseCases } from '../conformance/run.js';
@@ -27,8 +27,14 @@ export const tests = {
     assert.match(document('README.md'), /https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/conformance/);
   },
 
+  'the guide is the README at the site root'() {
+    assert.ok(!existsSync(join(ROOT, 'GUIDE.md')));
+    assert.match(document('_layouts/default.html'), /<a href="\{\{ '\/' \| relative_url \}\}"\{% if page.path == 'README.md' %\}[^>]*>Guide<\/a>/);
+    for (const path of ['playground/index.html', 'playground/conformance.html']) assert.match(document(path), /<a href="\.\.\/">Guide<\/a>/, path);
+  },
+
   'documents link the guide, the specification and the decks through GitHub Pages'() {
-    for (const path of ['README.md', 'GUIDE.md', 'SPEC.md', 'conformance/README.md', 'examples/README.md']) {
+    for (const path of ['README.md', 'SPEC.md', 'conformance/README.md', 'examples/README.md']) {
       for (const [, target] of document(path).matchAll(/\]\(([^)#][^)]*)\)/g)) {
         assert.doesNotMatch(target, /^(?!https?:)(?:.*\/)?(?:SPEC|GUIDE)(?:\.md)?(?:#|$)|^(?!https?:).*\bdeck\//,
           `${path}: ${target} should be a https://eyereasoner.github.io/eyemind/ link`);
@@ -47,7 +53,7 @@ export const tests = {
   },
 
   'consecutive lines with inline comments align them in one column'() {
-    const sources = ['README.md', 'GUIDE.md', 'SPEC.md', 'AGENTS.md', 'conformance/README.md', 'examples/README.md',
+    const sources = ['README.md', 'SPEC.md', 'AGENTS.md', 'conformance/README.md', 'examples/README.md',
       ...['src', 'bin', 'tools', 'test', 'conformance'].flatMap((dir) => readdirSync(join(ROOT, dir))
         .filter((name) => /\.m?js$/.test(name)).map((name) => `${dir}/${name}`))];
     for (const path of sources) {
@@ -95,7 +101,7 @@ export const tests = {
   },
 
   'the guide contents list every section, and every link within the guide has a heading'() {
-    const guide = document('GUIDE.md');
+    const guide = document('README.md');
     const headings = [...guide.matchAll(/^(#{2,3}) (.+)$/gm)].filter((match) => match[2] !== 'Contents');
     const contents = guide.split('## Contents\n')[1].split(/\n## /)[0];
     const listed = [...contents.matchAll(/^( *)- \[(.+)\]\(#([^)]+)\)$/gm)];
@@ -127,37 +133,37 @@ export const tests = {
   },
 
   'the guide report is the socrates report'() {
-    const [report] = blocks('GUIDE.md', '## Proofs, and what checking one means');
+    const [report] = blocks('README.md', '## Proofs, and what checking one means');
     assert.equal(report, document('examples/check/socrates.js'));
   },
 
   'the guide first program concludes what it says'() {
-    const [source] = blocks('GUIDE.md', '## Your first program');
+    const [source] = blocks('README.md', '## Your first program');
     assert.deepEqual(run(loadText(source)).answers, ["related('alice', 'carol')"]);
   },
 
   'the guide unused clauses are what --unused lists'() {
-    const [source] = blocks('GUIDE.md', '## Checking the translation');
-    const [listing] = blocks('GUIDE.md', '## Checking the translation', 'text');
+    const [source] = blocks('README.md', '## Checking the translation');
+    const [listing] = blocks('README.md', '## Checking the translation', 'text');
     assert.equal(cli(['--unused'], source).stdout, listing.split('\n').slice(1).join('\n'));
   },
 
   'the guide derives conjunction templates with local variables'() {
-    const [source] = blocks('GUIDE.md', '### Deriving rules');
+    const [source] = blocks('README.md', '### Deriving rules');
     const result = run(loadText(source), { proof: true });
     assert.deepEqual(result.answers, ["and(known('demo', 'a'), available('demo', 'a'))"]);
     assert.ok(result.proofReport.valid);
   },
 
   'the guide inspects a rule and preserves its shared variable'() {
-    const [source] = blocks('GUIDE.md', '### Inspecting rules');
+    const [source] = blocks('README.md', '### Inspecting rules');
     const result = run(loadText(source), { proof: true });
     assert.deepEqual(result.answers, ['test(a(A), c(A))']);
     assert.ok(result.proofReport.valid);
   },
 
   async 'the guide library example runs with the documented results'() {
-    const [source] = blocks('GUIDE.md', '## JavaScript library');
+    const [source] = blocks('README.md', '## JavaScript library');
     const logged = [];
     const saved = console.log;
     console.log = (value) => logged.push(value);
@@ -173,7 +179,6 @@ export const tests = {
   'documented example and conformance counts match the manifests'() {
     const count = JSON.parse(document('examples/manifest.json')).length;
     assert.match(document('README.md'), new RegExp(`\\b${count} runnable programs`));
-    assert.match(document('GUIDE.md'), new RegExp(`is ${count} complete programs`));
     assert.match(document('README.md'), new RegExp(`\\b${loadCases().length} cases that test`));
   },
 
