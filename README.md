@@ -34,7 +34,7 @@ The playground runs programs in your browser; the specification defines the lang
 
 ## Why eyemind?
 
-Prolog, Datalog, N3 and SRL already exist, and eyemind adds no new logic: rules run to a least fixpoint, with stratified negation and aggregation. What it adds is that it does not stop at the answer. Every conclusion can come with a proof that a separate checker verifies against your program, without calling the reasoner.
+Prolog, Datalog, N3 and SRL already exist, and eyemind adds no new logic: rules run to a least fixpoint, with stratified negation and collection. What it adds is that it does not stop at the answer. Every conclusion can come with a proof that a separate checker verifies against your program, without calling the reasoner.
 
 1. **The proof covers everything that went into the answer.**
    - Most engines show an answer, or at best a trace you have to trust.
@@ -121,7 +121,7 @@ Now add `fact(parent('carol', 'dave'))`, or remove a rule, and watch which answe
 | `contradiction(...Body)` | Stop with exit code 65 when `Body` holds: an integrity constraint. |
 | `facts_from(path)`, `facts_from({text})` | State every expression of a document as a fact, without running it. |
 
-**An array is a conjunction:** `implies([p(X), q(X)], [r(X), s(X)])`. Disjunction is `or(A, B)` and negation `not(G)`, alongside `call`, `once` and `findall`.
+**An array is a conjunction:** `implies([p(X), q(X)], [r(X), s(X)])`. Disjunction is `or(A, B)`, negation is `not(G)`, and collection is `findall(T, G, L)`, alongside `call` and `once`.
 
 ### Terms and names
 
@@ -194,7 +194,7 @@ The statement chooses the direction:
 
 Forward rules suit closures and classifications: `implies([path(X, Y), edge(Y, Z)], path(X, Z))` terminates on a cyclic graph. Backward rules suit computations driven by their inputs, such as arithmetic recursion and list processing. Backward chaining keeps no table of answers, so a backward rule that calls itself with the same goal runs until a bound stops it; such recursion belongs in a forward rule.
 
-The two work together: a forward rule's premise can call a backward definition, and a backward goal sees the facts forward rules derived. Forward rules run stratum by stratum, so a negation or `findall` waits until everything it inspects is final. `--max-depth`, `--max-iterations` and `--max-inferences` bound a run, and exceeding one is an error, never a partial answer. [SPEC §8](https://eyereasoner.github.io/eyemind/SPEC#8-evaluation-and-conclusions) defines the details.
+The two work together: a forward rule's premise can call a backward definition, and a backward goal sees the facts forward rules derived. Forward rules run stratum by stratum, so a negation or collection waits until everything it inspects is final. `--max-depth`, `--max-iterations` and `--max-inferences` bound a run, and exceeding one is an error, never a partial answer. [SPEC §8](https://eyereasoner.github.io/eyemind/SPEC#8-evaluation-and-conclusions) defines the details.
 
 ## Proofs, and what checking one means
 
@@ -249,7 +249,7 @@ A failed check gives `failure(Condition, Conclusion, Detail)` facts, `verdict(fa
 
 ### Why negation and collection are safe
 
-`not(G)` concludes from what is *absent* and `findall(T, G, L)` from *everything* present, so both are only right once nothing more can be derived:
+A negation `not(G)` concludes from what is *absent* and a collection `findall(T, G, L)` from *everything* present, so both are only right once nothing more can be derived:
 
 - **Ask only once the answer is final.** Rules are ranked so that everything a negation or collection inspects reaches its fixpoint first; a program with no such ranking, such as `implies(not(q), p)` with `implies(p, q)`, is rejected.
 - **Negate only what is bound.** The variables of `not(G)` must be bound when it runs; write `not(q(X, _))` for "no value at all".
