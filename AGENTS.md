@@ -49,10 +49,10 @@ goals, and keep error messages specific and user-facing text direct.
   `chrome.js` starts; `browser.mjs` runs those alone and can take screenshots.
 - `tools/`: `update-examples.js` regenerates the example artifacts,
   `corpus.js` evaluates the corpus, `version.js` syncs the version.
-- `README.md` (short entry point), `GUIDE.md` (CLI, language, proofs,
-  playground, library, development), `SPEC.md` (RFC-style specification:
-  terms, programs, arithmetic, reasoning, canonical text, proof documents and
-  the C1–C10 checks).
+- `README.md` (the guide: why eyemind, running, writing programs, proofs,
+  playground, CLI, library, development), served by Pages as the site root;
+  `SPEC.md` (RFC-style specification: terms, programs, arithmetic,
+  reasoning, canonical text, proof documents and the C1–C10 checks).
 - `release`, `.github/workflows/`, `.zenodo.json`: releases, CI, Pages,
   GitHub releases, npm publishing and Zenodo archiving.
 
@@ -85,7 +85,7 @@ very large proofs; redirect them to a file and inspect focused parts.
 
 - Read the relevant section of `SPEC.md` before changing language behavior,
   and Sections 10–12 before changing proofs. Keep the implementation, SPEC,
-  GUIDE, examples, conformance cases and tests consistent.
+  README, examples, conformance cases and tests consistent.
 - Operators never build terms: `add(X, 1)`, `gt(X, 1)`, and an array for a
   conjunction. A term used with an operator must raise an error that says
   what to write instead.
@@ -186,4 +186,4 @@ the branch and tag atomically. A push to `main` runs CI and deploys GitHub
 Pages; a `v*` tag creates the GitHub release (which Zenodo archives) and
 publishes the npm package `eyemind` through
 `.github/workflows/publish-npm.yml`, only through npm trusted publishing. See
-the guide for existing-tag dispatch.
+the README for existing-tag dispatch.
