@@ -422,10 +422,62 @@ fact(p(float(0), 'positive_zero'), p(9007199254740993n, 'large'), p(f(1), 'struc
     assert.deepEqual(proven('implies(not(p(1)), p(float(1)))').answers, ['p(1.0)']);
   },
 
-  'proofs fail explicitly when mode tests lose their state'() {
+  'proofs record a state test as it was called'() {
+    const source = program("implied_by(p(X), [is_var(X), not_identical(X, 'b'), compare(O, X, 'b'), unify(X, 'a')])");
+    const result = run(source, { goal: 'p(X)', proof: true });
+    assert.deepEqual(result.answers, ["p('a')"]);
+    assert.match(result.proof, /step\(is_var\('a'\), called\(is_var\(A\)\), \{\}, \[\]\)/);
+    assert.match(result.proof, /step\(not_identical\('a', 'b'\), called\(not_identical\(B, 'b'\)\), \{\}, \[\]\)/);
+    assert.match(result.proof, /step\(compare\('<', 'a', 'b'\), called\(compare\('<', C, 'b'\)\), \{\}, \[\]\)/);
+    assert.equal(checkProof(source, result.proof, { goals: ['p(X)'] }).valid, true);
+    // A state test no later binding touched stays an ordinary builtin.
+    const plain = run(program("implied_by(q(X), [unify(X, 'a'), is_nonvar(X), not_identical(X, 'b')])"), { goal: 'q(X)', proof: true });
+    assert.match(plain.proof, /step\(not_identical\('a', 'b'\), 'builtin', \{\}, \[\]\)/);
+  },
+
+  'ground compound arguments are indexed without losing a match'() {
+    const source = program([
+      "fact(p(iri('a'), 1), p(X, 2), p(iri(Y), 3), p(iri('b'), 4), p(iri('a'), 5), p(g(float(-0)), 6), p(g(0), 7))",
+      "implies([p(iri('a'), N), p(iri('a'), M), lt(N, M)], pair(N, M))",
+    ].join('\n'));
+    assert.deepEqual(run(source, { goal: "p(iri('a'), N)" }).answers,
+      ["p(iri('a'), 1)", "p(iri('a'), 2)", "p(iri('a'), 3)", "p(iri('a'), 5)"]);
+    // Signed zeros unify, so they share a key; an integer and a float do not.
+    assert.deepEqual(run(source, { goal: 'p(g(0.0), N)' }).answers, ['p(g(0.0), 2)', 'p(g(0.0), 6)']);
+    assert.deepEqual(run(source, { goal: 'p(iri(Z), 4)' }).answers, ["p(iri('b'), 4)"]);
+    // Derived facts are indexed the same way.
+    const derived = program([
+      "fact(e(iri('a'), iri('b')), e(iri('b'), iri('c')), e(iri('c'), iri('a')))",
+      'implies(e(X, Y), path(X, Y))',
+      'implies([path(X, Y), e(Y, Z)], path(X, Z))',
+    ].join('\n'));
+    assert.deepEqual(run(derived, { goal: "path(iri('c'), Z)" }).answers,
+      ["path(iri('c'), iri('a'))", "path(iri('c'), iri('b'))", "path(iri('c'), iri('c'))"]);
+  },
+
+  'regular expressions match, find and replace by code point'() {
+    const source = program([
+      "fact(t('a1 b22 \\u{1F600}'))",
+      "implies([t(T), regex_match('\\\\d', T), findall(G, regex_find('([a-z])(\\\\d+)', T, G), L),",
+      "  regex_replace('\\\\d+', T, '<$&>', R), findall(C, regex_find('.', '\\u{1F600}', C), Cs)], r(L, R, Cs))",
+    ].join('\n'));
+    const result = run(source, { proof: true });
+    assert.deepEqual(result.answers, ["r([['a1', 'a', '1'], ['b22', 'b', '22']], 'a<1> b<22> \u{1F600}', [['\u{1F600}']])"]);
+    assert.equal(checkProof(source, result.proof).valid, true);
+    throwsMatching(() => run(program("query(regex_match('[', 'a'))")), /regex_match\/2 needs a valid regular expression/);
+    throwsMatching(() => run(program("query(regex_replace('a', 'a', R, X))")), /regex_replace\/4 needs an atom replacement/);
+  },
+
+  'a forged called justification fails the check'() {
     const source = program("implied_by(p(X), [is_var(X), unify(X, 'a')])");
-    assert.deepEqual(run(source, { goal: 'p(X)' }).answers, ["p('a')"]);
-    throwsMatching(() => run(source, { goal: 'p(X)', proof: true }), /cannot certify/);
+    const proof = run(source, { goal: 'p(X)', proof: true }).proof;
+    for (const [forged, condition] of [["called(is_var('b'))", 'C5'], ['called(is_nonvar(A))', 'C5'], ["'builtin'", 'C5']]) {
+      const report = checkProof(source, proof.replace('called(is_var(A))', forged), { goals: ['p(X)'] });
+      assert.equal(report.valid, false, forged);
+      assert.ok(report.failures.some((failure) => failure.condition === condition), forged);
+    }
+    const unify = proof.replace("step(unify('a', 'a'), 'builtin'", "step(unify('a', 'a'), called(unify(A, 'a'))");
+    assert.ok(checkProof(source, unify, { goals: ['p(X)'] }).failures.some((failure) => failure.condition === 'C3'));
   },
 
   'program from sources'() {

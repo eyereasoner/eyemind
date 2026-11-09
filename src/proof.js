@@ -9,7 +9,7 @@
 //
 // Verification follows recorded uses; it never asks the solver to find a
 // missing derivation. Only pure primitives are independently recomputed.
-import { PRIMITIVE_KEYS, primitive } from './builtins.js';
+import { PRIMITIVE_KEYS, STATE_TESTS, primitive } from './builtins.js';
 import { Settler } from './closure.js';
 import { freshClause, text, variant } from './common.js';
 import { goalTerm } from './goals.js';
@@ -197,7 +197,7 @@ export function renderProof(program, claims, roots, checkable = false, heading =
       const nodeId = spellings.spell(node.goal);
       if (steps.has(nodeId)) continue;
       steps.set(nodeId, node);
-      if (node.by instanceof Struct) {
+      if (isTerm(node.by, 'clause', 1) || isTerm(node.by, 'source', 1)) {
         const id = Number(node.by.args[0]);
         cited.add(id);
         for (const parent of program.byId.get(id)?.scopeIds || []) cited.add(parent);
@@ -228,7 +228,8 @@ export function renderProof(program, claims, roots, checkable = false, heading =
   }
   for (const node of steps.values()) {
     const uses = `[${node.children.map((child) => spellings.lettered(child.goal, lettering)).join(', ')}]`;
-    lines.push(`step(${spellings.lettered(node.goal, lettering)}, ${text(node.by)}, ` +
+    const by = isTerm(node.by, 'called', 1) ? spellings.lettered(node.by, lettering) : text(node.by);
+    lines.push(`step(${spellings.lettered(node.goal, lettering)}, ${by}, ` +
                `${bindingsText(node.bindings, lettering)}, ${uses})`);
   }
   const read = { tables: new Map(), calls: new Map(), listings: new Map(), order: [] };
@@ -510,6 +511,13 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcome
       const agrees = redecides(goal);
       if (!agrees) fail.add('C5', `primitive disagrees: ${text(goal)}`, goal);
       else tally.redecided++;
+    } else if (isTerm(by, 'called', 1)) {
+      if (bindings.length || uses.length || !isCallable(goal) || !STATE_TESTS.has(key(goal))) {
+        fail.add('C3', 'invalid called justification', goal);
+        continue;
+      }
+      if (!redecidesCalled(goal, by.args[0])) fail.add('C5', `primitive disagrees as called: ${text(by.args[0])}`, goal);
+      else tally.redecided++;
     } else if (by === CONTROL_BY) {
       let candidates = [];
       if (isTerm(goal, 'call', 1) || isTerm(goal, 'once', 1)) candidates = [goal.args[0]];
@@ -549,6 +557,25 @@ function redecides(goal) {
     if (!(error instanceof EyemindError)) throw error;
   }
   return nearHostMath(goal);
+}
+
+// A state test recorded as called: the called goal, renamed apart, holds as
+// a primitive without binding anything, and the step's goal is an instance
+// of it, the same primitive with only its variables since bound.
+function redecidesCalled(goal, called) {
+  if (!isCallable(called) || key(called) !== key(goal)) return false;
+  const renamed = freshTerm(called, 'calledCheck');
+  try {
+    let holds = false;
+    for (const env of primitive(renamed, new Env())) {
+      holds = resolvesTo(renamed, env, renamed);
+      break;
+    }
+    return holds && isInstance(goal, called, 'calledInstance');
+  } catch (error) {
+    if (!(error instanceof EyemindError)) throw error;
+    return false;
+  }
 }
 
 const isConstant = (term) => typeof term === 'string' || typeof term === 'bigint' || typeof term === 'number';
@@ -818,6 +845,9 @@ class WitnessProvenance {
       } else if (step.by === BUILTIN_BY) {
         if (step.bindings.length || step.uses.length || !isCallable(goal) ||
             !PRIMITIVE_KEYS.has(key(goal)) || !redecides(goal)) return false;
+      } else if (isTerm(step.by, 'called', 1)) {
+        if (step.bindings.length || step.uses.length || !isCallable(goal) ||
+            !STATE_TESTS.has(key(goal)) || !redecidesCalled(goal, step.by.args[0])) return false;
       } else if (step.by === CONTROL_BY) {
         const candidates = isTerm(goal, 'call', 1) || isTerm(goal, 'once', 1) ? [goal.args[0]]
           : isTerm(goal, 'or', 2) ? goal.args : [];

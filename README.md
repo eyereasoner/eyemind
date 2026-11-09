@@ -7,7 +7,7 @@ eyemind is a **JavaScript rule language** with forward and backward reasoning an
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 94 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1329 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 94 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1344 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -122,6 +122,8 @@ Now add `fact(parent('carol', 'dave'))`, or remove a rule, and watch which answe
 | `facts_from(path)`, `facts_from({text})` | State every expression of a document as a fact, without running it. |
 
 **An array is a conjunction:** `implies([p(X), q(X)], [r(X), s(X)])`. Disjunction is `or(A, B)`, negation is `not(G)`, and collection is `findall(T, G, L)`, alongside `call` and `once`.
+
+**Text is atoms:** `atom_chars`, `atom_concat` and `atom_length` take them apart, and `regex_match(P, T)`, `regex_find(P, T, Groups)` and `regex_replace(P, T, R, U)` search them with ECMAScript regular expressions.
 
 ### Terms and names
 

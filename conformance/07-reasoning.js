@@ -426,15 +426,29 @@ conformance('a run without a proof may use a mode test', [
   ]),
 ])
 
-conformance('a proof that cannot be recorded faithfully is refused', [
-  spec('8.7'),
-  args("--proof program.js --goal 'p(X)'"),
-  exit(1),
-  stderr('nonempty'),
+conformance('a state test is recorded as it was called', [
+  spec('8.7, 10.3'),
+  args("--proof --goal 'p(X)' program.js"),
   file('program.js', [
     "implied_by(p(X), [is_var(X), unify(X, 'a')])",
   ]),
-  stdout([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    "p('a')",
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    "clause(1, implied_by(p(X), [is_var(X), unify(X, 'a')]))",
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
+    '// absence or a collection), the bindings and the goals it uses.',
+    "step(p('a'), clause(1), {X: 'a'}, [is_var('a'), unify('a', 'a')])",
+    "step(is_var('a'), called(is_var(A)), {}, [])",
+    "step(unify('a', 'a'), 'builtin', {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "called(p(A), [p('a')])",
+  ]),
 ])
 
 conformance('generated witnesses distinguish captures omitted from the head', [

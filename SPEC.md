@@ -575,9 +575,24 @@ primitive called outside its patterns raises an error.
 | `atom_length` | `atom_length(+A, ?N)` | `N` is the number of characters of `A`. |
 | `number_chars` | `number_chars(?N, +L)`, `number_chars(+N, -L)` | A bound `L` is read as a number: an optional sign and decimal digits give an integer, and with a fraction or an exponent a float, as in `'007'`, `'-21.5'`, `'.5'`, `'1.'` and `'2E-2'`; other text fails, as does text whose value is too large for a finite float, such as `'1e400'`. Otherwise `L` spells `N` in its canonical text ([Section 9.2](#92-canonical-atoms-numbers-variables-and-lists)). |
 | `atom_concat` | `atom_concat(+A, +B, ?AB)`, `atom_concat(?A, ?B, +AB)` | `AB` is `A` followed by `B`; with `AB` given, every split, shortest `A` first. |
+| `regex_match` | `regex_match(+P, +T)` | Some part of the atom `T` matches the regular expression `P`. |
+| `regex_find` | `regex_find(+P, +T, ?G)` | One solution per match of `P` in `T`, from left to right: `G` is the list of the matched text followed by each capture group's text, `''` for a group that took no part in the match. |
+| `regex_replace` | `regex_replace(+P, +T, +R, ?U)` | `U` is `T` with every match of `P` replaced by `R`. |
 
-A character is a Unicode code point. Every primitive except `atom_concat` has
-at most one solution. Primitives MUST be pure: their solutions depend only on
+A character is a Unicode code point. Every primitive except `atom_concat`
+and `regex_find` has at most one solution.
+
+A regular expression `P` is an atom read as an ECMAScript pattern
+(ECMA-262, the `RegExp` pattern grammar and matching semantics) with only the
+`u` flag, so it matches by code point: `.` matches `'\u{1F600}'` as one
+character, `^` and `$` match only at the ends of the text, and matching is
+case-sensitive. A pattern that is not valid in that mode, such as `'('`,
+raises an error. `regex_find` and `regex_replace` take the matches as a
+global search does: after an empty match the search resumes one code point
+later, so `regex_find('a*', 'baa', G)` gives `['']`, `['aa']` and `['']`. In
+the replacement `R`, `$&` stands for the match, `$1` to `$99` and `$<Name>`
+for its groups, `` $` `` and `$'` for the text before and after it, and `$$`
+for `$`; any other `$` is itself. Primitives MUST be pure: their solutions depend only on
 their arguments. A primitive given an argument of the wrong kind for its
 patterns raises an error, as `atom_length(123, N)` does; one given arguments
 of the right kinds that has no solution fails, as `arg(5, f(1), A)` does.
@@ -1057,9 +1072,10 @@ and MUST fail with an error rather than return a proof that does not pass. A
 run without conclusions has a proof without claims, which is valid and
 certifies nothing.
 
-A goal such as `is_var(X)` followed by `unify(X, 'a')`
-cannot be recorded faithfully by its final substitution, so such a run
-cannot produce a proof.
+A **state test** is `is_var/1`, `not_identical/2` or `compare/3`: a test a
+later binding can make false. A goal such as `is_var(X)` followed by
+`unify(X, 'a')` holds when it runs, but its final instance `is_var('a')` does
+not, so the proof records it as it was called ([Section 10.3](#103-steps)).
 
 ## 9. Document Syntax and Canonical Text
 
@@ -1255,6 +1271,7 @@ order. `By` is one of:
 | `clause(N)` | `Goal` is an instance of a head of clause `N`, a fact or a rule, whose body instance is `Uses`. | the clause's variables | the body instance, empty for a fact |
 | `source(N)` | `Goal` is an instance of the inspectable source rule `N` as `implies(Body, Head)` or `implied_by(Head, Body)`. | empty | empty |
 | `'builtin'` | `Goal` is a primitive that holds. | empty | empty |
+| `called(Called)` | `Goal` is a state test ([Section 8.7](#87-proof-generation)) that held as `Called`, the goal when it ran, its then unbound variables written as variables. | empty | empty |
 | `'control'` | `Goal` is `call`, `once` or a disjunction, solved by `Uses`. | empty | the solved goals; for a disjunction, the side that was solved, so `or(or(A, B), C)` solved by `A` uses `or(A, B)`, which has a step of its own |
 | `'absent'` | `Goal` is a negation, settled by the search certificate or taken on trust. | empty | empty |
 | `'collected'` | `Goal` is a `findall`, settled by the search certificate or taken on trust. | empty | empty |
@@ -1268,8 +1285,17 @@ first shows them (for `implies`, the premise first);
 a checker MUST accept partial bindings when the goal and uses determine the
 omitted values needed by C1 and C8. Values needed only by an enclosing
 witness scope must be supplied when those terms do not determine them.
-A primitive has no variables of its own, so `'builtin'` steps have
-empty bindings. A derived clause's bindings also include variables of its
+A primitive has no variables of its own, so `'builtin'` and `called`
+steps have empty bindings. A reasoner writes `called(Called)` exactly for a
+state test whose goal, when it held, had a variable the solution later
+bound; `Called` is that goal after the test, so `compare(O, X, 'b')` run
+with `X` unbound is written `called(compare('<', A, 'b'))`. Every other
+primitive step, and a state test no later binding changed, is `'builtin'`:
+
+```js
+implied_by(p(X), [is_var(X), unify(X, 'a')])
+// step(is_var('a'), called(is_var(A)), {}, [])
+``` A derived clause's bindings also include variables of its
 enclosing generators' scope projections, so their witnesses can be checked.
 These variables are renamed together with the clause's head and full body.
 
@@ -1395,7 +1421,8 @@ failure, whose conclusion is the goal of that step.
 ### 11.4 C3 Justification
 
 `By` MUST be one of the forms of [Section 10.3](#103-steps). A `'builtin'` step MUST have
-no bindings and no uses and a goal that is a primitive; an `'absent'` or
+no bindings and no uses and a goal that is a primitive; a `called` step MUST
+have no bindings and no uses and a goal that is a state test; an `'absent'` or
 `'collected'` step MUST have no bindings and no uses and a goal that is a
 negation or a `findall`, respectively. A step that fails C3 is not a trusted
 boundary: it counts in neither `trusted`, C6 nor C9.
@@ -1411,7 +1438,13 @@ nothing.
 ### 11.6 C5 Re-decision
 
 A `'builtin'` step's goal, solved as a primitive with no prior bindings, MUST
-succeed without binding anything. A `'control'` step MUST have no bindings,
+succeed without binding anything. For a `called(Called)` step, `Called`
+MUST have the goal's name and arity; `Called`, renamed apart and solved as a
+primitive with no prior bindings, MUST succeed without binding anything; and
+the goal MUST be an instance of `Called`, so only the variables `Called`
+leaves unbound may differ. C5 does not establish that the test ran in that
+state: like the choice of a `once` step, the call state is operational
+([Section 11.13](#1113-operational-query-fidelity)), and C10 checks the original questions. A `'control'` step MUST have no bindings,
 and its uses MUST be identical, in order, to the conjuncts of the argument of
 `call` or `once`, or of one side of a disjunction. When trusted boundaries are
 forbidden ("strict"), each `'absent'` or `'collected'` step fails C5.
@@ -1620,7 +1653,7 @@ settled nor refuted with the evidence ([Section 11.7](#117-c6-boundary-consisten
 
 A check also counts the **steps** it read, the **claims**, the `clause` steps
 **verified** by C1, the `source` inspection steps also **verified** by C1,
-the `'builtin'` steps **recomputed** by C5, the
+the `'builtin'` and `called` steps **recomputed** by C5, the
 `'control'` steps **composed** by C5, and the `'absent'` and `'collected'`
 steps **trusted**, those C9 did not settle, plus each claim whose call
 fidelity remains unproved by C10.
@@ -1974,7 +2007,9 @@ Programs execute JavaScript and require the caller's trust. Documents,
 including proofs, reports, goals and `facts_from` input, MUST be read as data
 without executing code. A deployment accepting untrusted documents SHOULD
 bound their size, nesting depth, processing time and memory, in addition to
-the reasoning bounds of [Section 8.3](#83-resource-bounds). A valid proof establishes only the
+the reasoning bounds of [Section 8.3](#83-resource-bounds). A regular expression can take time exponential in
+the length of the text it searches ([Section 4.3](#43-primitives)), and no reasoning bound counts
+that time, so a deployment running untrusted programs SHOULD also bound it. A valid proof establishes only the
 claims and assumptions described in [Section 11.12](#1112-scope-of-a-valid-proof).
 
 ## Appendix A. Document Grammar
