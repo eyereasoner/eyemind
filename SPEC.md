@@ -575,6 +575,9 @@ primitive called outside its patterns raises an error.
 | `atom_length` | `atom_length(+A, ?N)` | `N` is the number of characters of `A`. |
 | `number_chars` | `number_chars(?N, +L)`, `number_chars(+N, -L)` | A bound `L` is read as a number: an optional sign and decimal digits give an integer, and with a fraction or an exponent a float, as in `'007'`, `'-21.5'`, `'.5'`, `'1.'` and `'2E-2'`; other text fails, as does text whose value is too large for a finite float, such as `'1e400'`. Otherwise `L` spells `N` in its canonical text ([Section 9.2](#92-canonical-atoms-numbers-variables-and-lists)). |
 | `atom_concat` | `atom_concat(+A, +B, ?AB)`, `atom_concat(?A, ?B, +AB)` | `AB` is `A` followed by `B`; with `AB` given, every split, shortest `A` first. |
+| `atom_lower`, `atom_upper` | `atom_lower(+A, ?L)`, `atom_upper(+A, ?U)` | `L` is `A` in lower case, `U` in upper case, by Unicode default case conversion: the full mappings, independent of locale, with the final sigma of a word lowered to `'ς'`, so `atom_upper('straße', 'STRASSE')` holds. |
+| `digest` | `digest(+H, +A, ?D)` | `D` is the digest of the UTF-8 encoding of the atom `A` by the hash function `H`, one of `'md5'`, `'sha1'`, `'sha256'` and `'sha512'`, as lowercase hexadecimal. A lone surrogate is encoded as U+FFFD. Another `H` raises an error. |
+| `term_text` | `term_text(+T, ?A)` | `A` is the canonical text of `T` ([Section 9.2](#92-canonical-atoms-numbers-variables-and-lists)), which MUST be ground: `term_text(f('a', [1, 2.0]), "f('a', [1, 2.0])")` holds. |
 | `regex_match` | `regex_match(+P, +T)` | Some part of the atom `T` matches the regular expression `P`. |
 | `regex_find` | `regex_find(+P, +T, ?G)` | One solution per match of `P` in `T`, from left to right: `G` is the list of the matched text followed by each capture group's text, `''` for a group that took no part in the match. |
 | `regex_replace` | `regex_replace(+P, +T, +R, ?U)` | `U` is `T` with every match of `P` replaced by `R`. |
@@ -1066,7 +1069,10 @@ when supported. Each negation and collection of a proof gets the search certific
 that settles it (Sections [10.4](#104-search-certificates) and [11.10](#1110-c9-search-closure)) whenever [Section 11.10](#1110-c9-search-closure) allows one. A
 table holds every answer of its call, so it can search beyond where the run
 stopped, as under `once`; a boundary whose tables would meet an error, or
-exceed `max_inferences` calls and answers ([Section 8.3](#83-resource-bounds)), stays trusted. A
+exceed `max_inferences` calls and answers ([Section 8.3](#83-resource-bounds)), stays trusted. So does a
+boundary of a halted run ([Section 8.5](#85-contradictions)) whose listings a rule of a later stratum
+would extend: the run stopped before its fixpoint, so its derived facts need
+not be closed under the rules. A
 reasoner MUST check every proof it generates ([Section 11](#11-proof-checking)) before returning it,
 and MUST fail with an error rather than return a proof that does not pass. A
 run without conclusions has a proof without claims, which is valid and

@@ -2246,3 +2246,101 @@ conformance('regex_find needs a bound pattern', [
   stderr('nonempty'),
   stdout([]),
 ])
+
+conformance('atom_lower and atom_upper convert case by Unicode default mappings', [
+  spec('4.3'),
+  file('program.js', [
+    "query(atom_lower('ÉLAN Σ ΟΔΟΣ', L))",
+    "query(atom_upper('straße', U))",
+    "query(atom_upper('abc', 'ABC'))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "atom_lower('ÉLAN Σ ΟΔΟΣ', 'élan σ οδος')",
+    "atom_upper('straße', 'STRASSE')",
+    "atom_upper('abc', 'ABC')",
+  ]),
+])
+
+conformance('digest hashes the UTF-8 bytes of an atom', [
+  spec('4.3'),
+  file('program.js', [
+    "query(digest('md5', '', D))",
+    "query(digest('sha1', 'abc', D))",
+    "query(digest('sha256', 'abc', D))",
+    "query(digest('sha512', 'abc', D))",
+    "query(digest('sha256', 'é', D))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "digest('md5', '', 'd41d8cd98f00b204e9800998ecf8427e')",
+    "digest('sha1', 'abc', 'a9993e364706816aba3e25717850c26c9cd0d89d')",
+    "digest('sha256', 'abc', 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad')",
+    "digest('sha512', 'abc', 'ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f')",
+    "digest('sha256', 'é', '4a99557e4033c3539de2eb65472017cad5f9557f7a0625a09f1c3f6e2ba69c4c')",
+  ]),
+])
+
+conformance('digest checks a bound digest', [
+  spec('4.3'),
+  file('program.js', [
+    "fact(t('abc'))",
+    "implies([t(A), digest('sha1', A, 'a9993e364706816aba3e25717850c26c9cd0d89d')], sha1_ok(A))",
+    "implies([t(A), digest('sha1', A, '0000')], sha1_wrong(A))",
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "sha1_ok('abc')",
+  ]),
+])
+
+conformance('term_text writes the canonical text of a ground term', [
+  spec('4.3, 9.2'),
+  file('program.js', [
+    "query(term_text(f('a b', [1, float(2)], float(-0), struct('x y', 'it\\'s')), A))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "term_text(f('a b', [1, 2.0], -0.0, struct('x y', 'it\\'s')), 'f(\\'a b\\', [1, 2.0], -0.0, struct(\\'x y\\', \\'it\\\\\\'s\\'))')",
+  ]),
+])
+
+conformance('digest needs a known hash function', [
+  spec('4.3'),
+  exit(1),
+  file('program.js', [
+    "query(digest('sha3', 'abc', D))",
+  ]),
+  stderr('nonempty'),
+  stdout([]),
+])
+
+conformance('digest needs an atom', [
+  spec('4.3'),
+  exit(1),
+  file('program.js', [
+    "query(digest('md5', 42, D))",
+  ]),
+  stderr('nonempty'),
+  stdout([]),
+])
+
+conformance('atom_upper needs an atom', [
+  spec('4.3'),
+  exit(1),
+  file('program.js', [
+    'query(atom_upper(X, U))',
+  ]),
+  stderr('nonempty'),
+  stdout([]),
+])
+
+conformance('term_text needs a ground term', [
+  spec('4.3'),
+  exit(1),
+  file('program.js', [
+    'query(term_text(f(X), A))',
+  ]),
+  stderr('nonempty'),
+  stdout([]),
+])

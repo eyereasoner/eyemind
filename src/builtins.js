@@ -15,7 +15,8 @@ import {
   EyemindError, Struct, Var, codePoints, compareTerms, copyResolved, deref, identical, isGround, key,
   listFromItems, properListItems, unify,
 } from './terms.js';
-import { floatText } from './writer.js';
+import { DIGESTS, utf8 } from './digest.js';
+import { floatText, write } from './writer.js';
 
 function comparison(holds) {
   return (args, resolved, env) => holds(arith.compare(args[0], args[1], env));
@@ -191,6 +192,26 @@ function regexReplace(args, resolved, env, bind) {
   return bind(args[3], source.replace(compiled, replacement));
 }
 
+// atom_lower(+A, ?L), atom_upper(+A, ?U): Unicode default case conversion,
+// with its full mappings, so 'ß' becomes 'SS', and no locale.
+function caseConversion(name, convert) {
+  return (args, resolved, env, bind) => bind(args[1], convert(text(name, resolved[0], 'atom')));
+}
+
+// digest(+Algorithm, +A, ?Hex): the lowercase hexadecimal digest of A's UTF-8
+// bytes, by md5, sha1, sha256 or sha512.
+function digest(args, resolved, env, bind) {
+  const algorithm = DIGESTS.get(resolved[0]);
+  if (algorithm === undefined) throw new EyemindError(`digest/3 needs md5, sha1, sha256 or sha512, not ${write(resolved[0])}`);
+  return bind(args[2], algorithm(utf8(text('digest/3', resolved[1], 'atom'))));
+}
+
+// term_text(+T, ?A): A is the canonical text of the ground term T.
+function termText(args, resolved, env, bind) {
+  if (!isGround(args[0], env)) throw new EyemindError('term_text/2 needs a ground term');
+  return bind(args[1], write(copyResolved(args[0], env)));
+}
+
 const isNumberValue = (term) => typeof term === 'bigint' || typeof term === 'number';
 
 export const TESTS = new Map([
@@ -224,6 +245,10 @@ export const TESTS = new Map([
   ['atom_length/2', atomLength],
   ['number_chars/2', numberChars],
   ['compare/3', compare],
+  ['atom_lower/2', caseConversion('atom_lower/2', (a) => a.toLowerCase())],
+  ['atom_upper/2', caseConversion('atom_upper/2', (a) => a.toUpperCase())],
+  ['digest/3', digest],
+  ['term_text/2', termText],
   ['regex_match/2', regexMatch],
   ['regex_replace/4', regexReplace],
 ]);

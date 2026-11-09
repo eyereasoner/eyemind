@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Program, Struct, checkProof, loadText, readTerm, run } from '../src/index.js';
@@ -466,6 +467,46 @@ fact(p(float(0), 'positive_zero'), p(9007199254740993n, 'large'), p(f(1), 'struc
     assert.equal(checkProof(source, result.proof).valid, true);
     throwsMatching(() => run(program("query(regex_match('[', 'a'))")), /regex_match\/2 needs a valid regular expression/);
     throwsMatching(() => run(program("query(regex_replace('a', 'a', R, X))")), /regex_replace\/4 needs an atom replacement/);
+  },
+
+  'digest agrees with Node on every algorithm and block boundary'() {
+    const texts = ['', 'abc', 'é 😀', '\uD800', ...[55, 56, 63, 64, 111, 112, 127, 128, 1000].map((n) => 'a'.repeat(n))];
+    for (const algorithm of ['md5', 'sha1', 'sha256', 'sha512']) {
+      for (const text of texts) {
+        // A lone surrogate is hashed as U+FFFD, as TextEncoder encodes it.
+        const want = createHash(algorithm).update(Buffer.from(new TextEncoder().encode(text))).digest('hex');
+        const goal = new Struct('digest', [algorithm, text, new Var('D')]);
+        assert.deepEqual(run(program(''), { goal }).answers, [write(new Struct('digest', [algorithm, text, want]))],
+          `${algorithm} of ${JSON.stringify(text)}`);
+      }
+    }
+  },
+
+  'case conversion and term text'() {
+    const source = program([
+      "implies(atom_upper('straße', U), up(U))",
+      "implies(atom_lower('ΟΔΟΣ', L), low(L))",
+      "implies(term_text(f('a', [1, float(2)]), T), text(T))",
+    ].join('\n'));
+    assert.deepEqual(run(source).answers, ["up('STRASSE')", "low('οδος')", "text('f(\\'a\\', [1, 2.0])')"]);
+    throwsMatching(() => run(program("query(term_text(f(X), A))")), /term_text\/2 needs a ground term/);
+    throwsMatching(() => run(program("query(digest('sha3', 'a', D))")), /digest\/3 needs md5, sha1, sha256 or sha512/);
+  },
+
+  'a halted run keeps a boundary its unfinished listings cannot settle trusted'() {
+    // The contradiction halts before the later stratum that would add
+    // r(1, n([1])), so the listing of r/2 cannot settle not(r(1, 'b')).
+    const source = program([
+      'fact(p(1))',
+      "implies([p(X), not(r(X, 'b'))], t(X))",
+      'implies([p(X), findall(Y, t(Y), L)], r(X, n(L)))',
+      'contradiction(t(1))',
+    ].join('\n'));
+    const result = run(source, { proof: true });
+    assert.equal(result.haltCode, 65);
+    const report = checkProof(source, result.proof);
+    assert.equal(report.valid, true);
+    assert.deepEqual(report.trusted.map((record) => record.conclusion), ["not(r(1, 'b'))"]);
   },
 
   'a forged called justification fails the check'() {
