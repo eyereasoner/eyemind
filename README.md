@@ -19,6 +19,7 @@ The playground runs programs in your browser; the specification defines the lang
   - [Deriving rules](#deriving-rules)
   - [Inspecting rules](#inspecting-rules)
   - [RDF 1.2](#rdf-12)
+  - [Notation3](#notation3)
 - [How eyemind reasons](#how-eyemind-reasons)
 - [Proofs, and what checking one means](#proofs-and-what-checking-one-means)
   - [Why negation and collection are safe](#why-negation-and-collection-are-safe)
@@ -58,7 +59,7 @@ Prolog, Datalog, N3 and SRL already exist, and eyemind adds no new logic: rules 
 When eyemind is not the right tool:
 
 - If you do not need proofs, use the mature tools: SWI-Prolog and XSB have tabling, and Soufflé is fast at scale.
-- N3 and SRL are designed around RDF and Web data. eyemind does not compete there: RDF comes in as data (see [RDF 1.2](#rdf-12)).
+- N3 and SRL are designed around RDF and Web data. eyemind does not compete there: RDF comes in as data (see [RDF 1.2](#rdf-12)), and N3 programs compile to eyemind (see [Notation3](#notation3)).
 - eyemind is for cases where someone else has to be able to check why a conclusion holds: audits, compliance, and decisions between parties that do not trust each other.
 
 ## Install and run
@@ -184,6 +185,18 @@ eyemind has no built-in RDF; RDF arrives as data through [rdf-interchange](https
 | Default graph, named graph | `'default_graph'`, `iri(Name)` |
 
 A Skolem term becomes a blank node, the same one for the same rule firing. The `rdf12-*` examples show triple terms, annotations, directional strings, typed numbers and named graphs.
+
+### Notation3
+
+N3 programs run on eyemind through [n3-interchange](https://github.com/eyereasoner/n3-interchange). `n3-to-eyemind` compiles N3 facts and rules into an eyemind program, with the N3 built-ins it uses written as eyemind rules, and `eyemind-to-n3` writes the conclusions back as N3; `eyemind-n3` does both around a run:
+
+```sh
+npm install -g n3-interchange
+eyemind-n3 socrates.n3                    # the derived triples, as N3
+n3-to-eyemind socrates.n3 -o socrates.js  # or the program, to run, prove and check
+```
+
+Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above and N3 numbers as eyemind numbers. `=>` becomes `implies`, `<=` becomes `implied_by`, and scoped negation and collection become `not` and `findall`, so an N3 run has a proof that eyemind checks like any other. Built-ins that need what eyemind leaves out, such as hashing or file access, stop the compiler with a message naming them; the n3-interchange README lists them and how much of the N3 test suite passes.
 
 ## How eyemind reasons
 
