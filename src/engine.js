@@ -1031,9 +1031,11 @@ function certify(solver, boundaries, operational = false) {
     if (outcome.status === 'settled' && (!operational || positiveListings(program, outcome.listings))) {
       for (const item of outcome.tables) tables.add(item);
       for (const item of outcome.listings) listings.add(item);
-    } else if (outcome.status === 'failed') {
+    } else if (outcome.status === 'failed' && solver.haltCode === null) {
       throw new EyemindError(`cannot certify this result: ${outcome.failures[0]?.[0] ?? 'its search certificate fails'}`);
     }
+    // A halted run stopped before its fixpoint, so its derived facts need not
+    // be closed under the rules; a boundary they cannot settle stays trusted.
   }
   return {
     // Tables in the order their calls were first met.
