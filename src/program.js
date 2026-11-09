@@ -4,7 +4,7 @@ import { containsTemplate, expandTemplates } from './templates.js';
 import { subgoals } from './goals.js';
 import { hasInspection, inspectionTerm } from './inspection.js';
 import {
-  EMPTY, Env, EyemindError, Struct, Var, deref, flattenConjunction, freshTerm, identity, isCallable,
+  EMPTY, Env, EyemindError, Struct, Var, deref, flattenConjunction, freshTerm, identity, indexKey, isCallable,
   isGround, isTerm, key, keyArity, unify, variables,
 } from './terms.js';
 import { write } from './writer.js';
@@ -14,7 +14,6 @@ export const RESERVED_KEYS = new Set(['step/4', 'clause/2', 'searched/2', 'deriv
 
 // The statements that state a forward rule, and how an error names them.
 const FORWARD_KINDS = { forward: 'a forward rule', query: 'query()', contradiction: 'contradiction()' };
-const isIndexable = (value) => typeof value === 'string' || typeof value === 'bigint' || typeof value === 'number';
 
 export class Clause {
   constructor(id, head, heads, body, forward, line, captures = null) {
@@ -228,9 +227,8 @@ export class Program {
     for (let position = 0; position < positions.length; position++) {
       const index = positions[position];
       if (index === null) continue;
-      let argument = args[position];
-      if (argument instanceof Var) argument = deref(argument, env);
-      if (!isIndexable(argument)) continue;
+      const argument = indexKey(args[position], env);
+      if (argument === undefined) continue;
       const bucket = bucketEntries(index[0].get(argument));
       const size = bucket.length + index[1].length;
       if (size < count) {
@@ -256,11 +254,11 @@ export class Program {
   }
 }
 
-// An index per argument position where enough entries carry an atom or
-// number. Each index is [constants, other]: a map from value to the entries
-// with that value there, and the entries with anything else there. Map keys
-// keep integers and floats distinct while equating signed zeros, just as
-// unification does. A value with one entry maps to the entry itself, and one
+// An index per argument position where enough entries carry an index key:
+// an atom, a number or a small ground compound (indexKey). Each index is
+// [keyed, other]: a map from key to the entries with that key there, and the
+// entries with anything else there. Map keys keep integers and floats
+// distinct while equating signed zeros, just as unification does. A value with one entry maps to the entry itself, and one
 // with more to a Bucket of them: most values of a large program head a single
 // clause, and an array for each would only be more for memory to keep.
 export function positionIndexes(entries, headOf, arity) {
@@ -268,7 +266,7 @@ export function positionIndexes(entries, headOf, arity) {
   if (arity) {
     for (let i = 0; i < entries.length; i++) {
       const args = headOf(entries[i]).args;
-      for (let position = 0; position < arity; position++) if (isIndexable(args[position])) counts[position]++;
+      for (let position = 0; position < arity; position++) if (indexKey(args[position]) !== undefined) counts[position]++;
     }
   }
   const positions = counts.map((count) => (count * 2 < entries.length ? null : [new Map(), []]));
@@ -278,8 +276,8 @@ export function positionIndexes(entries, headOf, arity) {
     for (let position = 0; position < arity; position++) {
       const index = positions[position];
       if (index === null) continue;
-      const argument = args[position];
-      if (!isIndexable(argument)) {
+      const argument = indexKey(args[position]);
+      if (argument === undefined) {
         index[1].push(entry);
         continue;
       }
@@ -346,8 +344,9 @@ function headCandidates(entry, goal) {
   if (entry === undefined) return [];
   let chosen = entry.pairs;
   entry.positions.forEach((bucket, position) => {
-    if (bucket === null || !(goal instanceof Struct) || !isIndexable(goal.args[position])) return;
-    const matched = bucketEntries(bucket[0].get(goal.args[position]));
+    const argument = goal instanceof Struct ? indexKey(goal.args[position]) : undefined;
+    if (bucket === null || argument === undefined) return;
+    const matched = bucketEntries(bucket[0].get(argument));
     if (matched.length + bucket[1].length < chosen.length) chosen = [...matched, ...bucket[1]];
   });
   return chosen;

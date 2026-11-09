@@ -1281,16 +1281,31 @@ conformance('inspecting a backward rule cites it as a source step', [
 
 // Proof generation that must be refused.
 
-conformance('a proof is refused when a later clause binds a variable a mode test saw unbound', [
-  spec('8.7'),
+conformance('a mode test a later clause binds is recorded as it was called', [
+  spec('8.7, 10.3'),
   args("--proof --goal 'p(X)' program.js"),
-  exit(1),
-  stderr(prefix('eyemind:')),
   file('program.js', [
     'fact(q(1))',
     'implied_by(p(X), [is_var(X), q(X)])',
   ]),
-  stdout([]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(1)',
+    '',
+    '// Clauses: the program clauses the steps cite, by clause number.',
+    'clause(1, fact(q(1)))',
+    'clause(2, implied_by(p(X), [is_var(X), q(X)]))',
+    '',
+    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
+    '// absence or a collection), the bindings and the goals it uses.',
+    'step(p(1), clause(2), {X: 1}, [is_var(1), q(1)])',
+    'step(is_var(1), called(is_var(A)), {}, [])',
+    'step(q(1), clause(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'called(p(A), [p(1)])',
+  ]),
 ])
 
 // Behaviors the specification settles explicitly (resolved gaps).

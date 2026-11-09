@@ -1,5 +1,5 @@
 // Backward resolution, forward fixpoints and proof recording.
-import { PRIMITIVE_KEYS, primitive } from './builtins.js';
+import { PRIMITIVE_KEYS, STATE_TESTS, primitive } from './builtins.js';
 import { Reliance, Settler, Unsettled } from './closure.js';
 import { freshClause, matchHead, renaming, text, variant } from './common.js';
 import { goalTerm, subgoals } from './goals.js';
@@ -9,7 +9,7 @@ import { checkRendered, clauseDisplay, renderProof } from './proof.js';
 import { CONTROL_KEYS, Program } from './program.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
-  identity, isAnonymous, isCallable, isGround, isGroundButAnonymous, isTerm, key, keyArity, listFromItems,
+  identity, indexKey, isAnonymous, isCallable, isGround, isGroundButAnonymous, isTerm, key, keyArity, listFromItems,
   unify, variables,
 } from './terms.js';
 import { Lettering, SourceNaming, write } from './writer.js';
@@ -107,7 +107,10 @@ const QUIET = new Pending(null, null, NO_NODES, null);
 const SPLICE = 'splice';
 
 function resolveOne(node, env) {
-  return new Node(copyResolved(node.goal, env), node.by,
+  const goal = copyResolved(node.goal, env);
+  // A state test whose goal no later binding changed is an ordinary builtin.
+  const by = isTerm(node.by, 'called', 1) && variant(goal) === variant(node.by.args[0]) ? BUILTIN : node.by;
+  return new Node(goal, by,
     node.bindings.map(([name, value]) => [name, copyResolved(value, env)]),
     new Array(node.children.length).fill(null), node.collectedUses, false,
     node.scoped.map((term) => copyResolved(term, env)));
@@ -197,7 +200,7 @@ export function clausesUsed(nodes, used = new Set()) {
     const node = pending.pop();
     if (seen.has(node)) continue;
     seen.add(node);
-    if (node.by instanceof Struct) used.add(Number(node.by.args[0]));
+    if (isTerm(node.by, 'clause', 1) || isTerm(node.by, 'source', 1)) used.add(Number(node.by.args[0]));
     if (node.collectedUses) for (const id of node.collectedUses) used.add(id);
     for (const child of node.children) pending.push(child);
   }
@@ -267,8 +270,6 @@ function compareChosen(a, b) {
   }
   return a.length - b.length;
 }
-
-const isIndexable = (value) => typeof value === 'string' || typeof value === 'bigint' || typeof value === 'number';
 
 export class Solver {
   constructor(program, options) {
@@ -541,9 +542,10 @@ export class Solver {
         this.factIndex.set(goalKey, positions);
       }
       node.goal.args.forEach((arg, position) => {
-        if (isIndexable(arg)) {
-          const bucket = positions[position].get(arg);
-          if (bucket === undefined) positions[position].set(arg, [number]);
+        const argument = indexKey(arg);
+        if (argument !== undefined) {
+          const bucket = positions[position].get(argument);
+          if (bucket === undefined) positions[position].set(argument, [number]);
           else bucket.push(number);
         }
       });
@@ -559,9 +561,8 @@ export class Solver {
     let best = null;
     let size = this.facts.get(goalKey).length;
     for (let position = 0; position < goal.args.length; position++) {
-      let arg = goal.args[position];
-      if (arg instanceof Var && env !== null) arg = deref(arg, env);
-      if (isIndexable(arg)) {
+      const arg = indexKey(goal.args[position], env);
+      if (arg !== undefined) {
         const bucket = positions[position].get(arg) || NO_NODES;
         if (bucket.length < size) {
           best = bucket;
@@ -571,6 +572,15 @@ export class Solver {
       }
     }
     return best;
+  }
+
+  // How a solved primitive is justified: a state test whose goal still has a
+  // variable keeps its instance as called, renamed apart from later bindings.
+  primitiveBy(goal, env) {
+    if (!STATE_TESTS.has(key(goal))) return BUILTIN;
+    const called = copyResolved(goal, env);
+    if (isGround(called)) return BUILTIN;
+    return new Struct('called', [freshTerm(called, `called${++this.serial}`, new Map(), true)]);
   }
 
   // Take the next untried alternative of a choice point, or null. The caller
@@ -584,7 +594,7 @@ export class Solver {
         this.chosen[point.frame.index] = [0, point.position];
         point.position++;
       }
-      return this.advance(point.frame, recording ? new Node(point.goal, BUILTIN) : null);
+      return this.advance(point.frame, recording ? new Node(point.goal, this.primitiveBy(point.goal, env)) : null);
     }
     const count = point.count();
     while (point.position < count) {

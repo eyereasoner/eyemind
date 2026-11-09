@@ -2138,3 +2138,111 @@ conformance('number_chars reads a trailing point and a signed exponent', [
     'number_chars(0.02, [\'2\', \'E\', \'-\', \'2\'])',
   ]),
 ])
+
+conformance('regex_match finds a match anywhere in the text', [
+  spec('4.3'),
+  file('program.js', [
+    "fact(t('order 42 shipped'))",
+    "implies([t(T), regex_match('[0-9]+', T)], digits(T))",
+    "implies([t(T), regex_match('^[0-9]', T)], starts_with_digit(T))",
+    "implies([t(T), regex_match('^ORDER', T)], upper(T))",
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "digits('order 42 shipped')",
+  ]),
+])
+
+conformance('regex_find gives every match with its groups, from left to right', [
+  spec('4.3'),
+  file('program.js', [
+    "query(regex_find('([a-z])([0-9])(x)?', 'a1 b2x c3', G))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "regex_find('([a-z])([0-9])(x)?', 'a1 b2x c3', ['a1', 'a', '1', ''])",
+    "regex_find('([a-z])([0-9])(x)?', 'a1 b2x c3', ['b2x', 'b', '2', 'x'])",
+    "regex_find('([a-z])([0-9])(x)?', 'a1 b2x c3', ['c3', 'c', '3', ''])",
+  ]),
+])
+
+conformance('regex_find steps past an empty match', [
+  spec('4.3'),
+  file('program.js', [
+    "query(findall(G, regex_find('a*', 'baa', G), L))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "findall(A, regex_find('a*', 'baa', A), [[''], ['aa'], ['']])",
+  ]),
+])
+
+conformance('regex_find reads the text by code point', [
+  spec('4.3'),
+  file('program.js', [
+    "query(regex_find('.', '\\u{1F600}a', G))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "regex_find('.', '😀a', ['😀'])",
+    "regex_find('.', '😀a', ['a'])",
+  ]),
+])
+
+conformance('regex_replace replaces every match, with groups in the replacement', [
+  spec('4.3'),
+  file('program.js', [
+    "query(regex_replace('([0-9]{4})-([0-9]{2})', 'from 2026-11 to 2027-01', '$2/$1', R))",
+    "query(regex_replace('o', 'foo', '[$&]$$', R))",
+    "query(regex_replace('x', 'foo', 'y', R))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "regex_replace('([0-9]{4})-([0-9]{2})', 'from 2026-11 to 2027-01', '$2/$1', 'from 11/2026 to 01/2027')",
+    "regex_replace('o', 'foo', '[$&]$$', 'f[o]$[o]$')",
+    "regex_replace('x', 'foo', 'y', 'foo')",
+  ]),
+])
+
+conformance('regex_replace checks a bound result', [
+  spec('4.3'),
+  file('program.js', [
+    "fact(t('a-b'))",
+    "implies([t(T), regex_replace('-', T, '+', 'a+b')], plus(T))",
+    "implies([t(T), regex_replace('-', T, '+', 'a-b')], same(T))",
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "plus('a-b')",
+  ]),
+])
+
+conformance('an invalid regular expression is an error', [
+  spec('4.3'),
+  exit(1),
+  file('program.js', [
+    "query(regex_match('(', 'a'))",
+  ]),
+  stderr('nonempty'),
+  stdout([]),
+])
+
+conformance('a regular expression needs atoms', [
+  spec('4.3'),
+  exit(1),
+  file('program.js', [
+    "query(regex_match('1', 1))",
+  ]),
+  stderr('nonempty'),
+  stdout([]),
+])
+
+conformance('regex_find needs a bound pattern', [
+  spec('4.3'),
+  exit(1),
+  file('program.js', [
+    "query(regex_find(P, 'a', G))",
+  ]),
+  stderr('nonempty'),
+  stdout([]),
+])

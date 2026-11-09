@@ -482,6 +482,46 @@ export function identity(term) {
   return out.join('\u0001');
 }
 
+// The key an argument index files a term under: an atom or a number is its
+// own key, and a small ground compound, such as iri('http://e/a'), the text
+// of its structure. Signed zeros share a key, as they unify. A variable, a
+// compound holding one, or one of more than INDEX_NODES nodes has none and
+// constrains nothing. A key is only a filter, so an atom whose text happens
+// to equal a compound's key could at most add candidates, never lose one.
+const INDEX_NODES = 64;
+
+export function indexKey(term, env = null) {
+  if (term instanceof Var) {
+    if (env === null) return undefined;
+    term = deref(term, env);
+    if (term instanceof Var) return undefined;
+  }
+  if (!(term instanceof Struct)) return term;
+  const out = ['\u0000k'];
+  const pending = [term];
+  let nodes = 0;
+  while (pending.length) {
+    let item = pending.pop();
+    if (item instanceof Var) {
+      if (env === null) return undefined;
+      item = deref(item, env);
+      if (item instanceof Var) return undefined;
+    }
+    if (++nodes > INDEX_NODES) return undefined;
+    if (item instanceof Struct) {
+      out.push('c', String(item.name.length), item.name, String(item.args.length));
+      for (let i = item.args.length - 1; i >= 0; i--) pending.push(item.args[i]);
+    } else if (typeof item === 'string') {
+      out.push('a', String(item.length), item);
+    } else if (typeof item === 'bigint') {
+      out.push('i', String(item));
+    } else {
+      out.push('f', String(item));
+    }
+  }
+  return out.join('\u0001');
+}
+
 // The variables of a term by name, in order of first appearance.
 export function variables(term, result = new Map()) {
   const pending = [term];

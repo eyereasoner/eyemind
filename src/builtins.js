@@ -149,6 +149,48 @@ function is(args, resolved, env, bind) {
   return bind(args[0], arith.evaluate(args[1], env));
 }
 
+// Regular expressions use ECMAScript's syntax and matching (ECMA-262), always
+// in its Unicode mode, so a pattern means the same on every host. A pattern
+// compiles once.
+const patterns = new Map();
+
+function pattern(name, term, global) {
+  if (typeof term !== 'string') throw new EyemindError(`${name} needs an atom pattern`);
+  const cacheKey = `${global ? 'g' : '-'}${term}`;
+  let compiled = patterns.get(cacheKey);
+  if (compiled === undefined) {
+    try {
+      compiled = new RegExp(term, global ? 'gu' : 'u');
+    } catch (error) {
+      throw new EyemindError(`${name} needs a valid regular expression: ${error.message}`);
+    }
+    if (patterns.size > 1000) patterns.clear();
+    patterns.set(cacheKey, compiled);
+  }
+  compiled.lastIndex = 0;
+  return compiled;
+}
+
+function text(name, term, what = 'text') {
+  if (typeof term !== 'string') throw new EyemindError(`${name} needs an atom ${what}`);
+  return term;
+}
+
+// regex_match(+P, +T): some part of T matches P.
+function regexMatch(args, resolved) {
+  return pattern('regex_match/2', resolved[0], false).test(text('regex_match/2', resolved[1]));
+}
+
+// regex_replace(+P, +T, +R, ?Out): Out is T with every match of P replaced
+// by R, where $& is the match, $1 ... $99 and $<name> its groups, $` and $'
+// the text before and after it, and $$ a dollar sign.
+function regexReplace(args, resolved, env, bind) {
+  const compiled = pattern('regex_replace/4', resolved[0], true);
+  const source = text('regex_replace/4', resolved[1]);
+  const replacement = text('regex_replace/4', resolved[2], 'replacement');
+  return bind(args[3], source.replace(compiled, replacement));
+}
+
 const isNumberValue = (term) => typeof term === 'bigint' || typeof term === 'number';
 
 export const TESTS = new Map([
@@ -182,6 +224,8 @@ export const TESTS = new Map([
   ['atom_length/2', atomLength],
   ['number_chars/2', numberChars],
   ['compare/3', compare],
+  ['regex_match/2', regexMatch],
+  ['regex_replace/4', regexReplace],
 ]);
 
 function* atomConcat(args, resolved, env, mark) {
@@ -199,7 +243,25 @@ function* atomConcat(args, resolved, env, mark) {
   }
 }
 
-export const RELATIONS = new Map([['atom_concat/3', atomConcat]]);
+// regex_find(+P, +T, ?Groups): one solution per match of P in T, from left
+// to right without overlaps; Groups is the match followed by its groups, a
+// group that took no part in the match being ''.
+function* regexFind(args, resolved, env, mark) {
+  const compiled = pattern('regex_find/3', resolved[0], true);
+  const source = text('regex_find/3', resolved[1]);
+  for (const match of source.matchAll(compiled)) {
+    if (unify(args[2], listFromItems(Array.from(match, (group) => group ?? '')), env)) yield env;
+    env.undo(mark);
+  }
+}
+
+export const RELATIONS = new Map([['atom_concat/3', atomConcat], ['regex_find/3', regexFind]]);
+
+// Tests that a later binding can make false: is_var(X) holds while X is
+// unbound, not_identical(X, a) until X is a, and compare orders a variable
+// before every other term. A proof records such a step by the goal as it
+// was called, called(Goal), since its final instance need not hold.
+export const STATE_TESTS = new Set(['is_var/1', 'not_identical/2', 'compare/3']);
 export const PRIMITIVE_KEYS = new Set([...TESTS.keys(), ...RELATIONS.keys()]);
 
 // Solve a primitive goal: a generator yielding env once per solution.
