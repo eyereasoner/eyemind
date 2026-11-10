@@ -46,6 +46,7 @@ export function compileN3Document(doc, { source = 'input', documents = new Map()
   const rules = [];
   const needed = new Set();
   let queries = 0;
+  const values = [...SCOPED_OBJECT].some((p) => usesPredicate(doc.triples, p)) ? statedValues(doc.triples) : [];
   // Only a document that mentions rdf:first, rdf:rest or rdf:nil can write a
   // list out as triples, so only its built-ins read lists that way.
   const views = ['first', 'rest', 'nil'].some((name) => mentions(doc.triples, `${RDF_NS}${name}`));
@@ -60,16 +61,28 @@ export function compileN3Document(doc, { source = 'input', documents = new Map()
     // a rule predicate or a variable predicate can find.
     if (rulesAsTriples && RULE_PREDICATES.has(p) && isFormulaLike(triple.s) && isFormulaLike(triple.o)) facts.push(`fact(${new Context(false).rdf(triple)})`);
     if (p === `${LOG}implies` && isFormulaLike(triple.s) && isFormulaLike(triple.o)) {
-      rules.push(compileRule(triple.s, triple.o, 'forward', needed, views));
+      rules.push(compileRule(triple.s, triple.o, 'forward', needed, views, values));
     } else if (p === `${LOG}impliedBy` && isFormulaLike(triple.s) && isFormulaLike(triple.o)) {
-      rules.push(compileRule(triple.o, triple.s, 'backward', needed, views));
+      rules.push(compileRule(triple.o, triple.s, 'backward', needed, views, values));
     } else if (p === `${LOG}query` && isFormulaLike(triple.s) && isFormulaLike(triple.o)) {
       queries++;
-      rules.push(compileRule(triple.s, triple.o, 'query', needed, views));
+      rules.push(compileRule(triple.s, triple.o, 'query', needed, views, values));
     } else {
       const ctx = new Context(false);
       facts.push(`fact(${ctx.rdf(triple)})`);
     }
+  }
+  if (views) rules.push([
+    `implied_by(rdf([H, ..._], iri('${RDF_NS}first'), H), 'true')`,
+    `implied_by(rdf([_, ...T], iri('${RDF_NS}rest'), R), n3_list_rest(T, R))`,
+    `fact(n3_list_rest([], iri('${RDF_NS}nil')))`,
+    `implied_by(n3_list_rest([H, ...T], [H, ...T]), 'true')`,
+  ]);
+  // Patterns read from data need the same Unicode adaptation as patterns
+  // written directly in a premise. Keep the data itself unchanged.
+  for (const literal of [...REGEX_PATTERN.keys()].some((p) => needed.has(p)) ? allStrings(doc.triples) : []) {
+    const pattern = unicodePattern(literal.v);
+    if (pattern !== literal.v) facts.push(`fact(n3_pattern(${q(literal.v)}, ${q(pattern)}))`);
   }
   // The documents log:semantics and log:content read, fetched beforehand.
   let documentNumber = 0;
@@ -215,6 +228,42 @@ function statedStrings(triples) {
   };
   for (const x of triples) [x.s, x.o].forEach(visit);
   return [...found.values()];
+}
+
+function allStrings(triples) {
+  const found = statedStrings(triples);
+  for (const x of triples) for (const t of [x.s, x.o]) {
+    if (t.t === 'graph') found.push(...allStrings(t.triples));
+  }
+  return found;
+}
+
+// Values stated as data, including RDF collections. Specializing a scoped
+// call to these formulas keeps its calls visible to dependency analysis.
+function statedValues(triples) {
+  const values = [];
+  const expand = (t, seen = new Set()) => {
+    if (t.t === 'list') return { ...t, items: t.items.map((x) => expand(x, seen)) };
+    if (t.t === 'iri' && t.v === `${RDF_NS}nil`) return { t: 'list', items: [] };
+    if (t.t !== 'bnode') return t;
+    const key = bnodeKey(t);
+    if (seen.has(key)) return t;
+    const same = (x) => x.s.t === 'bnode' && bnodeKey(x.s) === key && x.p.t === 'iri';
+    const first = triples.find((x) => same(x) && x.p.v === `${RDF_NS}first`);
+    const rest = triples.find((x) => same(x) && x.p.v === `${RDF_NS}rest`);
+    if (!first || !rest) return t;
+    const next = new Set([...seen, key]);
+    const tail = expand(rest.o, next);
+    return tail.t === 'list' ? { t: 'list', items: [expand(first.o, next), ...tail.items] } : t;
+  };
+  for (const x of triples) {
+    if (x.p.t === 'iri' && RULE_PREDICATES.has(x.p.v)) continue;
+    for (const t of [x.s, x.o]) {
+      const value = expand(t);
+      if (value.t === 'list') values.push({ term: t, value });
+    }
+  }
+  return values;
 }
 
 // The formulas the document's own facts state, each once, outermost first.
@@ -405,14 +454,14 @@ function takesList(p, position) {
 }
 const SCOPED_OBJECT = new Set([`${LOG}collectAllIn`, `${LOG}forAllIn`]);
 
-function compileRule(body, head, kind, needed, views = true) {
+function compileRule(body, head, kind, needed, views = true, values = []) {
   const ctx = new Context(true);
   if (!isFormulaLike(body)) throw new N3CompileError('a rule premise must be a formula');
   const bodyTriples = triplesOf(body);
   const headKeys = keysOf(head);
   // A ?variable or blank node that stands only as the scope of a scoped
   // built-in means the whole store, as in ?SCOPE log:notIncludes { ... }.
-  const scopes = scopeTerms(bodyTriples, headKeys);
+  const scopes = scopeTerms(bodyTriples, kind === 'backward' ? headKeys : new Set());
   const outside = (skip) => {
     const keys = new Set(headKeys);
     for (const x of bodyTriples) if (x !== skip) keysOfTriple(x, keys);
@@ -465,9 +514,21 @@ function compileRule(body, head, kind, needed, views = true) {
       return [`${neg ? 'n3_not_includes' : 'n3_includes'}(${ctx.term(x.s)}, graph([${x.o.triples.map((y) => ctx.rdf(y)).join(', ')}]))`];
     }
     if (SCOPED_OBJECT.has(p)) {
-      // The formulas must be written in the rule: eyemind cannot call a
-      // formula only known when the rule runs, so such a goal fails.
+      // A call supplied as data is specialized to the stated values. Its
+      // formulas then compile like formulas written directly in the rule.
       const count = p === `${LOG}forAllIn` ? 2 : 3;
+      if (x.s.t === 'var' || x.s.t === 'bnode') {
+        const call = ++listViews;
+        const branches = values.filter(({ value }) => value.items.length === count).map(({ term, value }, i) => {
+          // A quoted formula's blank nodes are local pattern variables.
+          const own = (t) => t.t === 'bnode' ? { ...t, scope: `call${call}.${i}.${t.scope}` }
+            : t.t === 'var' ? { ...t, v: `call${call}.${i}.${t.v}` }
+            : t.t === 'list' ? { ...t, items: t.items.map(own) }
+              : t.t === 'graph' ? { ...t, triples: t.triples.map((y) => ({ s: own(y.s), p: own(y.p), o: own(y.o) })) } : t;
+          return conj([`unify(${ctx.term(x.s)}, ${new Context(false).term(term)})`, ...goal({ ...x, s: own(value) }, negated)]);
+        });
+        return branches.length ? [`or(${branches.join(', ')})`] : ["'fail'"];
+      }
       if (x.s.t !== 'list' || x.s.items.length !== count || x.s.items[count === 2 ? 0 : 1].t !== 'graph' ||
           x.s.items[1].t !== 'graph') return ["'fail'"];
       closed++;
@@ -577,20 +638,26 @@ function compileRule(body, head, kind, needed, views = true) {
   // state rules in turn.
   function headTerm(h, k, captured = null) {
     const p = h.p.t === 'iri' ? h.p.v : null;
-    if (k === 'forward' && (p === `${LOG}implies` || p === `${LOG}impliedBy`) && isFormulaLike(h.s) && isFormulaLike(h.o)) {
+    if (k === 'forward' && (p === `${LOG}implies` || p === `${LOG}impliedBy`) && isFormulaLike(h.s) &&
+        (isFormulaLike(h.o) || (p === `${LOG}implies` && h.o.t === 'var'))) {
       const [b, c] = p === `${LOG}implies` ? [h.s, h.o] : [h.o, h.s];
       const inner = conj(goals(triplesOf(b), false));
       const cs = triplesOf(c);
-      if (cs.length === 0) throw new N3CompileError('a derived rule needs a conclusion');
       if (captured === null) {
         captured = new Set();
         for (const x of bodyTriples) if (!(BUILTINS.has(x.p.v) && unconstrained(x))) keysOfTriple(x, captured);
+        for (const key of scopes) captured.delete(key);
       }
       // The firing also concludes the rule as a triple, its own variables
       // quoted as qvar(Name) and qbnode(Label), as N3 reasoners report derived rules.
       ctx.quoted = new Set([...keysOfTriple(h)].filter((key) => !captured.has(key)));
       const asTriple = ctx.rdf(h);
       ctx.quoted = null;
+      if (p === `${LOG}implies` && (isFalse(c) || c.t === 'var')) {
+        needed.add('n3_fuse');
+        return [`implies(${inner}, n3_fuse(${ctx.term(c)}))`, asTriple];
+      }
+      if (cs.length === 0) return [asTriple];
       if (p === `${LOG}impliedBy`) return [...cs.map((y) => `implied_by(${ctx.rdf(y)}, ${inner})`), asTriple];
       const within = new Set(captured);
       keysOf(b, within);
@@ -697,9 +764,9 @@ function reorder(triples, outside, given) {
   return [...order, ...pending];
 }
 
-function scopeTerms(triples, headKeys) {
+function scopeTerms(triples, given) {
   const candidates = new Map();
-  const elsewhere = new Set(headKeys);
+  const elsewhere = new Set(given);
   for (const x of triples) {
     const p = x.p.t === 'iri' ? x.p.v : null;
     let scope = null;
@@ -746,9 +813,9 @@ export function readSources(sources, { base = '', baseOf = () => '' } = {}) {
 
 // A document's program: { program, documents }; readFile reads the
 // documents it names for log:semantics and log:content.
-export function compileSources(sources, { base = '', baseOf, readFile = null, source } = {}) {
+export function compileSources(sources, { base = '', baseOf, readFile = null, readDocument = null, source } = {}) {
   const doc = readSources(sources, { base, baseOf });
-  const documents = readDocuments(documentIris(doc.triples), readFile);
+  const documents = readDocuments(documentIris(doc.triples), readFile, readDocument);
   const { program } = compileN3Document(doc, { source: source ?? sourceNames(sources), documents });
   return { doc, program };
 }
@@ -772,8 +839,8 @@ export const N3_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferenc
 // Reason over N3 sources. Returns { n3, triples, contradiction, program,
 // result }; with proof, result.proof is eyemind's checked proof of the
 // compiled program.
-export function reasonN3(sources, { base = '', mode = 'new', strings = 'auto', limits = {}, proof = false, goals = [], readFile = null } = {}) {
-  const { doc, program } = compileSources(sources, { base, readFile });
+export function reasonN3(sources, { base = '', mode = 'new', strings = 'auto', limits = {}, proof = false, goals = [], readFile = null, readDocument = null } = {}) {
+  const { doc, program } = compileSources(sources, { base, readFile, readDocument });
   const result = run(loadText(program, 'compiled.js'), { ...N3_LIMITS, ...limits, proof, goals });
   return { ...answersToN3(doc, result.answers, { mode, strings }), program, result };
 }

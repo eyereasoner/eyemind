@@ -31,12 +31,12 @@ goals, and keep error messages specific and user-facing text direct.
     library API. `version.js`: the version, synced from `package.json`.
   - `formats.js`: inputs by extension and output with `--to`. `rdf.js`:
     RDF 1.2 (Turtle, TriG, N-Triples, N-Quads) to and from eyemind terms,
-    read by eyeling's parser (`rdf-lexer.js`, `rdf-parser.js`,
+    read by the RDF parser (`rdf-lexer.js`, `rdf-parser.js`,
     `rdf-prelude.js`, `rdf-rules.js`) after the strict token pass of
     `rdf-syntax.js`. `n3.js`, `n3-parser.js`, `n3-builtins.js`,
     `n3-writer.js`, `n3-documents.js`: Notation3 compiled to a program.
     `srl.js`, `srl-functions.js`: SPARQL 1.2 RL compiled to a program, read
-    by eyeleng's tokenizer, parser and analysis (`srl-tokenizer.js`,
+    by the SRL tokenizer, parser and analysis (`srl-tokenizer.js`,
     `srl-parser.js`, `srl-term.js`, `srl-assignments.js`, `srl-analyze.js`,
     `srl-builtin-names.js`).
 - `bin/eyemind.js`: the `eyemind` command.
@@ -125,15 +125,11 @@ very large proofs; redirect them to a file and inspect focused parts.
 
 RDF data, N3 and SPARQL 1.2 RL are inputs of the command line, compiled to
 ordinary programs; they are outside the specification's conformance (SPEC
-Section 13.1). The RDF parser is eyeling's (`lib/lexer.js`, `parser.js`,
-`prelude.js`, `rules.js` at eyeling commit `830e0b0`), the SRL parser and
-analysis eyeleng's (`src/tokenizer.js`, `parser.js`, `term.js`,
-`assignments.js`, `analyze.js` and the names of `builtins.js` at eyeleng
-commit `885ad7f`), converted to ES modules. Every change to them is marked
-`eyemind:` in the source; keep it so, so a later revision can be compared and
-fixes offered back. The W3C suites decide what is correct: all RDF tests of
-`test/w3c/rdf-tests` and all SPARQL 1.2 RL tests of `test/w3c/sparql-rl` pass,
-and must keep passing.
+Section 13.1). The RDF lexer and parser, and the SRL tokenizer, parser and
+analysis, are maintained in `src/` as ES modules. Preserve the `eyemind:`
+comments that explain adaptations in these modules. The W3C suites decide
+what is correct: all RDF tests of `test/w3c/rdf-tests` and all SPARQL 1.2 RL
+tests of `test/w3c/sparql-rl` pass, and must keep passing.
 
 ## Implementation and verification
 
@@ -173,8 +169,7 @@ specification, keep the suite free of anything only eyemind can run, and put
 what another implementer needs in SPEC.md rather than only in eyemind's code.
 Floats from a host's math library (`exp`, `log`, trigonometry, `pow`) may
 differ in the last place between implementations; SPEC Section 14 allows it,
-and C5 accepts such a result within 4 units (Section 11.8). eyeron, eyeling
-and eyepl are related projects of the same family.
+and C5 accepts such a result within 4 units (Section 11.8).
 
 Run focused tests while working, then the full suite before finishing code
 changes. Add a regression test for each behavior change, in the style of the

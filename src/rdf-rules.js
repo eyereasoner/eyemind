@@ -1,5 +1,5 @@
 /**
- * Eyeling Reasoner — rules
+ * eyemind: RDF rule helpers
  *
  * Built-in rule helpers and utilities used by the engine. This is not the
  * inference engine itself, but shared rule-related machinery.

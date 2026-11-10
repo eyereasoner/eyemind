@@ -445,19 +445,21 @@ export function parseN3(src, { base = '' } = {}) {
 
 function numberTerm(text) {
   if (/^[+-]?[0-9]+$/.test(text)) return { t: 'int', v: BigInt(text) };
+  if (/[eE]/.test(text)) return { t: 'literal', v: String(Number(text)), dt: `${XSD}double` };
   return { t: 'float', v: Number(text) };
 }
 
 const INTEGER_TYPES = new Set(['integer']);
-const FLOAT_TYPES = new Set(['decimal', 'double', 'float']);
+const FLOAT_TYPES = new Set(['decimal']);
 
-// A typed literal; xsd:integer, xsd:decimal and xsd:double with a valid
-// lexical form become numbers, as the N3 shorthands 1, 1.5 and 1.5e0 do.
+// Native numbers represent integer and decimal. Float and double retain
+// their datatype so triple matching and log:equalTo distinguish them.
 export function typedLiteral(text, dt) {
   if (dt.startsWith(XSD)) {
     const local = dt.slice(XSD.length);
     if (INTEGER_TYPES.has(local) && /^[+-]?[0-9]+$/.test(text)) return { t: 'int', v: BigInt(text) };
     if (FLOAT_TYPES.has(local) && /^[+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?$/.test(text)) return { t: 'float', v: Number(text) };
+    if ((local === 'double' || local === 'float') && Number.isFinite(Number(text)) && /^[+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?$/.test(text)) return { t: 'literal', v: String(Number(text)), dt };
   }
   return { t: 'literal', v: text, dt };
 }

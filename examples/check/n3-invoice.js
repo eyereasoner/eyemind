@@ -6,13 +6,13 @@ rdf(iri('https://example.org/invoice#invoice1'), iri('http://www.w3.org/1999/02/
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 36)
-condition('C2', 'well_founded', 'ok', 66)
-condition('C3', 'justification', 'ok', 66)
-condition('C4', 'coverage', 'ok', 70)
-condition('C5', 're_decision', 'ok', 27)
+condition('C1', 'resolution', 'ok', 61)
+condition('C2', 'well_founded', 'ok', 137)
+condition('C3', 'justification', 'ok', 137)
+condition('C4', 'coverage', 'ok', 171)
+condition('C5', 're_decision', 'ok', 73)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 70)
+condition('C7', 'relevance', 'ok', 141)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
@@ -27,10 +27,10 @@ obligation('call_fidelity', 'original_call', rdf(iri('https://example.org/invoic
 obligation('call_fidelity', 'original_call', rdf(iri('https://example.org/invoice#invoice1'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('https://example.org/invoice#LargeInvoice')))
 
 // Proof statistics: recorded steps and how they were checked.
-steps(66)
-verified(36)
-recomputed(27)
-composed(0)
+steps(137)
+verified(61)
+recomputed(61)
+composed(12)
 trusted(7)
 claims(4)
 

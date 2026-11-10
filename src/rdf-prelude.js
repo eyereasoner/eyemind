@@ -1,5 +1,5 @@
 /**
- * Eyeling Reasoner — prelude
+ * eyemind: RDF terms and shared utilities
  *
  * Core data model and shared utilities: Term/Triple/Formula types, namespaces,
  * and prefix environment helpers used throughout the project.
@@ -73,8 +73,8 @@ function removeLastPathSegment(path) {
 }
 
 function removeDotSegments(path) {
-  // RFC 3986 section 5.2.4.  This deliberately avoids WHATWG URL parsing so
-  // Eyeling preserves IRI spelling (for example, it does not add a trailing
+  // eyemind: use RFC 3986 section 5.2.4 instead of WHATWG URL parsing to
+  // preserve IRI spelling (for example, do not add a trailing
   // slash to `http://example.org`) while still normalizing `.` and `..` path
   // segments as required by section 5.2.2.
   let input = String(path || '');
@@ -400,7 +400,7 @@ class Blank extends Term {
   constructor(label, blankNodeKind = 'labeled') {
     super();
     this.label = label; // _:b1, etc.
-    // EYE's log:rawType distinguishes source-labeled blank nodes (_:name)
+    // eyemind: log:rawType distinguishes source-labeled blank nodes (_:name)
     // from unlabeled blank nodes introduced by N3 syntax such as [] / [...].
     this.blankNodeKind = blankNodeKind === 'unlabeled' ? 'unlabeled' : 'labeled';
     Object.defineProperty(this, '__tid', {

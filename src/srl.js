@@ -1,6 +1,6 @@
 // SPARQL 1.2 RL rule sets compiled to eyemind programs.
 //
-// Rule sets are read by eyeleng's tokenizer, parser and analysis (the
+// Rule sets are read by the SRL tokenizer, parser and analysis (the
 // srl-*.js files): parsing gives the rule set's data blocks and rules, and the
 // analysis checks sequential variable scope and stratification by the
 // specification's open and closed dependencies.

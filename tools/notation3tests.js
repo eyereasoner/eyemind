@@ -2,18 +2,20 @@
 // Score eyemind on the Notation3 test suite
 // (https://codeberg.org/phochste/notation3tests), given its tests directory.
 //
-//   node tools/notation3tests.js [--timeout SECONDS] [--json] [-v] DIR
+//   node tools/notation3tests.js [--timeout SECONDS] [--json] [-v]
+//                              [--documents FILE | --live] [DIR]
 //
 // Each test file runs through the eyemind command, which compiles it from
 // N3. A test file states :test :contains :NAME and, when it passes,
 // :result :has :NAME or :test :is true. A success-* test passes when its
 // result appears, a fail-* test when none does, and a crash-* test when the
-// run stops with an error or no output. --json prints the tally and the time
-// taken as JSON instead.
+// run stops with an error, an inference fuse or no output. --json prints the
+// tally and the time taken as JSON instead. The default is the repository's
+// mirror, using its saved document fixtures without network access.
 import { spawn } from 'node:child_process';
-import { readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { cpus } from 'node:os';
-import { join, relative } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseN3 } from '../src/n3-parser.js';
 
@@ -21,17 +23,27 @@ const args = process.argv.slice(2);
 let timeout = 10;
 let verbose = false;
 let json = false;
+let documents = null;
+let live = false;
 const rest = [];
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--timeout') timeout = Number(args[++i]);
   else if (args[i] === '-v') verbose = true;
   else if (args[i] === '--json') json = true;
+  else if (args[i] === '--documents') documents = args[++i];
+  else if (args[i] === '--live') live = true;
   else rest.push(args[i]);
 }
-const [dir] = rest;
-if (!dir) {
-  process.stderr.write('usage: node tools/notation3tests.js [--timeout SECONDS] [--json] [-v] DIR\n');
+const dir = resolve(rest[0] ?? fileURLToPath(new URL('../test/notation3tests/tests', import.meta.url)));
+if (rest.length > 1 || !Number.isFinite(timeout) || timeout <= 0 || (live && documents)) {
+  process.stderr.write('usage: node tools/notation3tests.js [--timeout SECONDS] [--json] [-v] [--documents FILE | --live] [DIR]\n');
   process.exit(2);
+}
+const env = { ...process.env };
+if (live) delete env.EYEMIND_N3_DOCUMENTS;
+else {
+  const saved = documents ?? join(dir, '..', 'documents.json');
+  if (documents || existsSync(saved)) env.EYEMIND_N3_DOCUMENTS = resolve(saved);
 }
 const bin = fileURLToPath(new URL('../bin/eyemind.js', import.meta.url));
 const EX = 'http://example.org/';
@@ -48,7 +60,7 @@ const collect = (d, out = []) => {
 function runOne(file) {
   return new Promise((resolve) => {
     // Each run has a bounded heap, so a runaway test fails alone.
-    const child = spawn(process.execPath, ['--max-old-space-size=512', bin, relative(dir, file)], { cwd: dir });
+    const child = spawn(process.execPath, ['--max-old-space-size=512', bin, relative(dir, file)], { cwd: dir, env });
     let out = '';
     let err = '';
     child.stdout.on('data', (d) => { out += d; });
@@ -64,6 +76,7 @@ function runOne(file) {
 function score(file, { out, err, code, signal }) {
   const crash = file.split('/').pop().startsWith('crash');
   if (signal) return [crash ? 'ok' : 'timeout', 'timeout'];
+  if (crash && code === 65) return ['ok', 'inference fuse'];
   let triples;
   try {
     // 65: an inference fuse fired, and the derived triples are still written.

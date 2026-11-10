@@ -174,7 +174,7 @@ The answer is `test(a(A), c(A))`, with the shared variable preserved. Inspection
 
 ### RDF 1.2
 
-eyemind reads RDF 1.2 itself, with no dependency: a file ending in `.ttl`, `.trig`, `.nt` or `.nq` is Turtle, TriG, N-Triples or N-Quads, read by [eyeling](https://github.com/eyereasoner/eyeling)'s parser with the formats' own grammars, and given with a program its quads become `rdf(Subject, Predicate, Object, Graph)` facts, read as data through `facts_from` and never run. `--to turtle`, `trig`, `n-triples` or `n-quads` writes a run's `rdf` and `result_rdf` conclusions back as RDF:
+eyemind reads RDF 1.2 itself, with no dependency: a file ending in `.ttl`, `.trig`, `.nt` or `.nq` is Turtle, TriG, N-Triples or N-Quads, read with the formats' own grammars, and given with a program its quads become `rdf(Subject, Predicate, Object, Graph)` facts, read as data through `facts_from` and never run. `--to turtle`, `trig`, `n-triples` or `n-quads` writes a run's `rdf` and `result_rdf` conclusions back as RDF:
 
 ```sh
 eyemind rules.js data.ttl                 # rdf/4 facts for the rules
@@ -203,7 +203,11 @@ eyemind --program examples/n3-family.n3 > /tmp/family.js  # the compiled program
 eyemind -c examples/n3-family.n3                          # a proof of it, checked
 ```
 
-Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above and N3 numbers as eyemind numbers. `=>` becomes `implies`, `<=` becomes `implied_by`, `{ ... } => false` becomes `contradiction`, and scoped negation and collection become `not` and `findall`, so an N3 run has a proof that eyemind checks like any other. The documents `log:semantics` and `log:content` name are read before compiling, from local files only.
+Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above. N3 integers and decimals become eyemind numbers; float and double literals retain their RDF datatype, including numbers written with an exponent. Decimals use binary64 storage; `math:sum` adds their canonical decimal values before rounding its result. `=>` becomes `implies`, `<=` becomes `implied_by`, `{ ... } => false` becomes `contradiction`, and scoped negation and collection become `not` and `findall`, so an N3 run has a proof that eyemind checks like any other. Derived rules can trigger inference fuses too.
+
+Scoped calls can use formulas supplied by the document's stated lists, including RDF collections written with `rdf:first` and `rdf:rest`. These calls are specialized before reasoning so their dependencies remain available for stratification and proof checking; formulas constructed only during reasoning are not supported by this compilation.
+
+The documents `log:semantics`, `log:semanticsOrError` and `log:content` name are read before compiling. The command reads local files and HTTP(S) documents, with a ten-second fetch timeout and a 16 MiB response limit. The library uses the host callbacks `readFile(path)` and `readDocument(iri)`; without them it does not read external documents. Their contents become facts of the compiled program, which can be saved with `--program` for later proof checking.
 
 Five examples pair the original N3 with a compiled JavaScript program:
 [family queries](https://eyereasoner.github.io/eyemind/examples/deck/n3-family),
@@ -217,7 +221,7 @@ any remaining obligations.
 
 ### SPARQL 1.2 RL
 
-A file ending in `.srl` is a [SPARQL 1.2 RL](https://www.w3.org/TR/sparql12-rl/) rule set, read with [eyeleng](https://github.com/eyereasoner/eyeleng)'s parser and analysis: eyemind compiles it into a program, with the SPARQL functions and aggregates it uses written as eyemind rules, and RDF data files given with it are its base graph. The result is the inference graph, as Turtle:
+A file ending in `.srl` is a [SPARQL 1.2 RL](https://www.w3.org/TR/sparql12-rl/) rule set: eyemind parses and analyzes it, then compiles it into a program, with the SPARQL functions and aggregates it uses written as eyemind rules, and RDF data files given with it are its base graph. The result is the inference graph, as Turtle:
 
 ```sh
 eyemind rules.srl facts.ttl               # the inference graph as Turtle
@@ -397,10 +401,14 @@ npm test -- -k skolem                                 # only tests whose line co
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node tools/update-examples.js                         # regenerate example artifacts after an intended change
 node tools/report.js                                  # the table npm test ends with, into REPORT.md
+node tools/notation3tests.js                          # the saved Notation3 suite, without network access
+node tools/sync-notation3tests.js                     # refresh its tests and document fixtures from upstream
 node conformance/run.js --command "my-eyemind"        # run the conformance suite against another implementation
 ```
 
 The full suite needs a few GB of memory; on a small machine run it under a cap, such as `systemd-run --user --scope -q -p MemoryMax=3G -p MemorySwapMax=0 -- npm test`. Generated tests forge saved proofs at random and require the checker to reject every forgery that claims more than the program entails. The playground tests need Chrome (`CHROME` names it). When adding an example, register it in [examples/manifest.json](https://github.com/eyereasoner/eyemind/blob/main/examples/manifest.json), write its deck in `examples/deck/`, and generate its artifacts.
+
+The [Notation3 mirror](test/notation3tests/README.md) pins the upstream tests and their remote document inputs. Ordinary runs use those fixtures, with no network fallback. The sync command refreshes them for review; the scorer's `--live` option checks the current remote resources instead.
 
 ### Releases
 
@@ -408,6 +416,6 @@ The full suite needs a few GB of memory; on a small machine run it under a cap, 
 
 ## The name
 
-**eyemind** joins *eye*, after the [EYE](https://github.com/eyereasoner/eye) family of reasoners, to *mind*: facts and rules lead to conclusions whose reasoning can be inspected and checked.
+**eyemind** joins *eye* and *mind*: facts and rules lead to conclusions whose reasoning can be inspected and checked.
 
 MIT licensed; see [LICENSE.md](LICENSE.md).

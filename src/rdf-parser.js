@@ -1,5 +1,5 @@
 /**
- * Eyeling Reasoner — parser
+ * eyemind: RDF parser
  *
  * Parser for the supported N3 syntax. Turns tokens into the internal term and
  * formula representation used by the engine.
@@ -219,7 +219,7 @@ class Parser {
             backwardRules.push(this.annotateSourceOffset(this.makeRule(tr.s, tr.o, false), statementOffset));
           } else if (isLogQuery(tr.p) && tr.s instanceof GraphTerm && tr.o instanceof GraphTerm) {
             // Output-selection directive: { premise } log:query { conclusion }.
-            // When present at top-level, eyeling prints only the instantiated conclusion
+            // eyemind: select only the instantiated conclusion
             // triples (unique) instead of all newly derived facts.
             logQueries.push(this.annotateSourceOffset(this.makeRule(tr.s, tr.o, true), statementOffset));
           } else {
@@ -772,7 +772,7 @@ class Parser {
     }
 
     // In standard N3, the right-hand side of a rule is a formula term.
-    // Eyeling primarily supports an explicit quoted formula `{ ... }` (GraphTerm)
+    // eyemind: a conclusion can be an explicit quoted formula `{ ... }` (GraphTerm)
     // or the special literals true/false.
     //
     // However, some programs use a *variable* in rule head position to mean:

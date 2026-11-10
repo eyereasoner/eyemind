@@ -1,5 +1,5 @@
 
-// The SPARQL 1.2 RL BuiltInCall names and arities, from eyeleng's src/builtins.js.
+// eyemind: the SPARQL 1.2 RL BuiltInCall names and arities.
 // This table is intentionally shaped by the SPARQL 1.2 RL grammar production BuiltInCall.
 // Keys are the canonical spellings used by the draft; lookup is case-insensitive so examples
 // may use SPARQL-style uppercase or lowercase spellings while still being checked against the

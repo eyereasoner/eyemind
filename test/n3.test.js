@@ -1,12 +1,16 @@
 // Notation3 compiled to eyemind: the parser, the compiler and its built-ins,
 // the writer, and the documents and examples of test/n3.
 import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { checkProof, loadText } from '../src/index.js';
 import { compileN3, reasonN3 } from '../src/n3.js';
 import { parseN3 } from '../src/n3-parser.js';
+import { readDocuments } from '../src/n3-documents.js';
+import { loadInputs } from '../src/formats.js';
+import { nodeIO } from '../src/node.js';
 import { eyemindToN3 } from '../src/n3-writer.js';
 import { ROOT, assert, command } from './helpers.js';
 
@@ -184,7 +188,7 @@ test('numbers keep their kind: integers stay exact', () => {
 test('list:append compares bound numeric elements by value and preserves generated terms', () => {
   const out = checkedReason(`${P}{ ((6.0) (42e0)) list:append (6 42e0).
       ((6.0) (42e0)) list:append ?values } => { :r :is ?values }.`);
-  assert.match(out, /:r :is \(6\.0 42\.0\) \./);
+  assert.match(out, /:r :is \(6\.0 42\.0e0\) \./);
   assert.equal(reason(`${P}{ ((6.0) (42e0)) list:append (6 43) } => { :r :is :wrong }.`), '');
   assert.equal(reason(`${P}{ (("6") (42)) list:append (6 42) } => { :r :is :wrong }.`), '');
 });
@@ -204,6 +208,8 @@ test('list:length requires an integer result, including for an empty list', () =
   const out = checkedReason(`${P}{ () list:length 0. (42 1) list:length "2"^^xsd:integer.
       (42 1) list:length "2"^^xsd:int } => { :r :is :ok }.
     { (42 1) list:length "2"^^xsd:decimal } => { :r :is :wrong }.
+    { (42 1) list:length "2"^^xsd:double } => { :r :is :wrong }.
+    { (42 1) list:length "2"^^xsd:float } => { :r :is :wrong }.
     { () list:length 0.0 } => { :r :is :wrong }.`);
   assert.match(out, /:r :is :ok \./);
   assert.doesNotMatch(out, /:wrong/);
@@ -292,6 +298,150 @@ test('log:outputString writes strings in subject order', () => {
 });
 test('an inference fuse reports a contradiction', () => {
   assert.equal(reasonN3(`${P}:a :p :b. { :a :p :b } => false.`).contradiction, true);
+});
+test('numeric datatypes stay distinct in triple matching and log equality', () => {
+  const out = checkedReason(`${P}:decimal :value 42.0. :double :value 42e0. :float :value "42"^^xsd:float.
+    { :decimal :value "42"^^xsd:double } => { :r :is :wrong }.
+    { :decimal :value "42"^^xsd:float } => { :r :is :wrong }.
+    { :double :value "42"^^xsd:float } => { :r :is :wrong }.
+    { 1e0 log:equalTo "1"^^xsd:float } => { :r :is :wrong }.
+    { :double :value "42.0"^^xsd:double. 1e0 log:notEqualTo "1"^^xsd:float.
+      "42"^^xsd:float math:equalTo 42.0 } => { :r :is :ok }.
+    { :double :value ?d. :float :value ?f } => { :r :values (?d ?f) }.`);
+  assert.match(out, /:r :is :ok \./);
+  assert.match(out, /:r :values \(42\.0e0 "42"\^\^<http:\/\/www.w3.org\/2001\/XMLSchema#float>\) \./);
+  assert.doesNotMatch(out, /:wrong/);
+});
+test('decimal sums add coefficients before rounding the result', () => {
+  const out = checkedReason(`${P}{ (0.1 0.2) math:sum ?sum. ?sum log:equalTo 0.3.
+      (0.1 -0.1 0.2) math:sum 0.2. (1 2 3) math:sum 6.
+      (0.00000001 0.00000002) math:sum 0.00000003.
+      (0.1e0 0.2e0) math:sum ?binary. ?binary math:greaterThan 0.3 }
+    => { :r :is ?sum }.`);
+  assert.match(out, /:r :is 0\.3 \./);
+});
+test('RDF list patterns match a collection and its tail', () => {
+  const out = checkedReason(`${P}(1 2) :p :o.
+    { ?l rdf:first 1; rdf:rest ?tail; :p :o.
+      ?tail rdf:first 2; rdf:rest rdf:nil } => { :r :is :ok }.
+    { ?l rdf:first 1; rdf:rest rdf:nil; :p :o } => { :r :is :wrong }.`);
+  assert.match(out, /:r :is :ok \./);
+  assert.doesNotMatch(out, /:wrong/);
+});
+test('scoped calls accept formulas supplied as data and RDF collections', () => {
+  const out = checkedReason(`${P}:a :p 1. :b :p 2. :a :q 1. :b :q 2.
+    :collect :value (_:value { ?x :p _:value } _:all).
+    :every :value [ rdf:first { ?x :p ?n }; rdf:rest [ rdf:first { ?x :q ?n }; rdf:rest rdf:nil ] ].
+    :bad :value ({ ?x :p ?n } { ?x :missing ?n }).
+    { :collect :value ?call. ?call log:collectAllIn ?scope } => { :r :collected true }.
+    { :every :value ?call. ?call log:forAllIn ?scope } => { :r :every true }.
+    { :bad :value ?call. ?call log:forAllIn ?scope } => { :r :is :wrong }.`);
+  assert.match(out, /:r :collected true \./);
+  assert.match(out, /:r :every true \./);
+  assert.doesNotMatch(out, /:wrong/);
+});
+test('an unbound scope remains universal in a derived rule', () => {
+  for (const premise of ['?scope log:notIncludes { :missing :p :o }',
+    '(_:value { :missing :p _:value } _:all) log:collectAllIn ?scope',
+    '({ :missing :p :o } { :missing :q :o }) log:forAllIn ?scope']) {
+    const out = checkedReason(`${P}{ ${premise} } => {
+      :data :value { :a :p :b }.
+      { :data :value ?scope } => { :r :is :ok } }.`);
+    assert.match(out, /:r :is :ok \./);
+    assert.match(out, /:data :value \?scope/);
+  }
+});
+test('a backward scoped call keeps the formula supplied by its caller', () => {
+  const out = checkedReason(`${P}{ :check :scope ?scope } <= { ?scope log:notIncludes { :a :p :b } }.
+    { :check :scope { :a :q :b } } => { :r :is :ok }.
+    { :check :scope { :a :p :b } } => { :r :is :wrong }.`);
+  assert.match(out, /:r :is :ok \./);
+  assert.doesNotMatch(out, /:wrong/);
+});
+test('patterns read from RDF lists accept literal braces', () => {
+  const out = checkedReason(`${P}:data :value [ rdf:first "{{tar{{target}}get}}";
+      rdf:rest [ rdf:first "{{target}}"; rdf:rest [ rdf:first "{over}"; rdf:rest rdf:nil ] ] ].
+    { :data :value ?args. ?args string:replace ?value } => { :r :is ?value }.`);
+  assert.match(out, /:r :is "\{\{tar\{over\}get\}\}" \./);
+});
+test('a derived fuse fires only when its premise holds and its head is false', () => {
+  for (const [value, sum, expected] of [['false', 2, true], ['true', 2, false], ['false', 3, false]]) {
+    const r = reasonN3(`${P}:data :value ${value}.
+      { :data :value ?value } => { { (1 1) math:sum ${sum} } => ?value }.`, { proof: true });
+    assert.equal(r.contradiction, expected);
+    assert.equal(checkProof(loadText(r.program, 'compiled.js'), r.result.proof).valid, true);
+  }
+  assert.equal(reasonN3(`${P}{} => { {} => false }.`, { proof: true }).contradiction, true);
+});
+test('HTTP documents are read before reasoning and fragment reads share a fetch', () => {
+  const calls = [];
+  const readDocument = (iri) => { calls.push(iri); return `${P}:a :p :b.`; };
+  const r = reasonN3(`${P}:doc :source <https://example.org/data#one>.
+    { :doc :source ?url. ?url log:semantics ?f. ?f log:includes { :a :p :b }.
+      <https://example.org/data#two> log:content ?text } => { :r :is :ok }.`, { readDocument, proof: true });
+  assert.match(r.n3, /:r :is :ok \./);
+  assert.deepEqual(calls, ['https://example.org/data']);
+  assert.equal(checkProof(loadText(r.program, 'compiled.js'), r.result.proof).valid, true);
+  const docs = readDocuments(['https://example.org/missing'], null, () => { throw new Error('HTTP 404'); });
+  assert.match(docs.get('https://example.org/missing').error, /HTTP 404/);
+});
+test('the input loader passes its HTTP reader to the N3 compiler', () => {
+  const calls = [];
+  const loaded = loadInputs([[`${P}{ <https://example.org/text> log:content ?text } => { :r :is ?text }.`, 'input.n3']], {
+    readDocument: (iri) => { calls.push(iri); return 'Hello, world!\n'; },
+  });
+  assert.deepEqual(calls, ['https://example.org/text']);
+  assert.match(loaded.text, /fact\(n3_content\(iri\("https:\/\/example.org\/text"\), "Hello, world!\\n"\)\)/);
+});
+test('saved document fixtures supply text and errors without a network fallback', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'eyemind-n3-documents-'));
+  const fixture = join(tmp, 'documents.json');
+  writeFileSync(fixture, JSON.stringify({
+    'https://example.org/text': { text: 'cached text' },
+    'https://example.org/missing': { error: 'HTTP 404' },
+  }));
+  const previous = process.env.EYEMIND_N3_DOCUMENTS;
+  process.env.EYEMIND_N3_DOCUMENTS = fixture;
+  try {
+    assert.equal(nodeIO.readDocument('https://example.org/text#part'), 'cached text');
+    assert.throws(() => nodeIO.readDocument('https://example.org/missing'), /HTTP 404/);
+    assert.throws(() => nodeIO.readDocument('https://example.org/unsaved'), /no saved N3 document/);
+  } finally {
+    if (previous === undefined) delete process.env.EYEMIND_N3_DOCUMENTS;
+    else process.env.EYEMIND_N3_DOCUMENTS = previous;
+  }
+  writeFileSync(join(tmp, 'success-cached.n3'), `@prefix : <http://example.org/>.
+    { <https://example.org/text> log:content "cached text" } => { :result :has :success-cached }.
+    {} => { :test :contains :success-cached }.`);
+  const scored = spawnSync(process.execPath, ['tools/notation3tests.js', '--json', '--documents', fixture, tmp], { cwd: ROOT, encoding: 'utf8' });
+  assert.ifError(scored.error);
+  assert.equal(scored.status, 0, scored.stderr);
+  assert.deepEqual(JSON.parse(scored.stdout).tally, { ok: 1 });
+});
+test('log:dtlit constructs and checks floating datatypes without losing their kind', () => {
+  const out = checkedReason(`${P}{ ("1.0" xsd:double) log:dtlit 1e0.
+      ("2.0" xsd:float) log:dtlit "2"^^xsd:float.
+      ("3" xsd:decimal) log:dtlit 3.0.
+      ("4" xsd:double) log:dtlit ?number } => { :r :is :ok; :number ?number }.
+    { ("2.0" xsd:double) log:dtlit "2"^^xsd:float } => { :r :is :wrong }.`);
+  assert.match(out, /:r :is :ok \./);
+  assert.match(out, /:r :number 4\.0e0 \./);
+  assert.doesNotMatch(out, /:wrong/);
+});
+test('the Notation3 scorer recognizes an inference fuse after partial output', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'eyemind-n3-score-'));
+  const document = '@prefix : <http://example.org/>. {} => { :test :contains :crash-late. {} => false }.';
+  writeFileSync(join(tmp, 'crash-late.n3'), document);
+  writeFileSync(join(tmp, 'success-late.n3'), document.replaceAll('crash-late', 'success-late'));
+  const halted = command([join(tmp, 'crash-late.n3')]);
+  assert.equal(halted.code, 65, halted.stderr);
+  assert.match(halted.stdout, /:test :contains :crash-late/);
+  const scored = spawnSync(process.execPath, ['tools/notation3tests.js', '--json', tmp], { cwd: ROOT, encoding: 'utf8' });
+  assert.ifError(scored.error);
+  assert.equal(scored.status, 0, scored.stderr);
+  const result = JSON.parse(scored.stdout);
+  assert.deepEqual(result.tally, { ok: 1, incomplete: 1 });
+  assert.match(result.failures[0], /success-late/);
 });
 test('every compiled run has a checking proof', () => {
   const r = reasonN3(`${P}:a :p 2. { ?x :p ?n. (?n 3) math:sum ?m. ?m math:negation ?k. ?j math:negation ?k.

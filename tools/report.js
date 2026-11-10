@@ -6,7 +6,7 @@
 //   node tools/report.js
 //
 // EYEMIND_NOTATION3TESTS names the notation3tests tests directory, by default
-// eyeling's mirror beside this repository. Run it under a memory cap on a
+// the mirror in this repository. Run it under a memory cap on a
 // small machine, as npm test.
 import { spawnSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';

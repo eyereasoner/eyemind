@@ -4,7 +4,7 @@
 // a program names are read before compiling: every IRI written as the
 // subject of one of those built-ins. The compiled program states each one's
 // text, formula or error as facts, and reasoning stays a function of them.
-// Only local files are read, through the host's readFile.
+// The host supplies file access and, optionally, HTTP document access.
 import { LOG } from './n3-parser.js';
 
 export const DOCUMENT_PREDICATES = new Set([`${LOG}semantics`, `${LOG}semanticsOrError`, `${LOG}content`]);
@@ -49,18 +49,27 @@ function named(triples, found) {
 }
 
 // Read the documents: a Map from IRI to { text } or { error }. readFile
-// reads a local path; without it, or for another IRI, the document is an
-// error, and the built-ins find nothing.
-export function readDocuments(iris, readFile = null) {
+// reads a local path, readDocument an HTTP(S) IRI; a missing reader or a
+// failed read becomes a dereference error for log:semanticsOrError.
+export function readDocuments(iris, readFile = null, readDocument = null) {
   const documents = new Map();
+  const locations = new Map();
   for (const iri of iris) {
     const location = iri.replace(/#.*$/, '');
+    if (locations.has(location)) {
+      documents.set(iri, locations.get(location));
+      continue;
+    }
     try {
-      if (!location.startsWith('file:') || !readFile) throw new Error('only local files are read');
-      documents.set(iri, { text: readFile(decodeURIComponent(new URL(location).pathname)) });
+      let text;
+      if (location.startsWith('file:') && readFile) text = readFile(decodeURIComponent(new URL(location).pathname));
+      else if (/^https?:/.test(location) && readDocument) text = readDocument(location);
+      else throw new Error('no reader for this document');
+      documents.set(iri, { text });
     } catch (error) {
       documents.set(iri, { error: `${location}: ${error.message}` });
     }
+    locations.set(location, documents.get(iri));
   }
   return documents;
 }

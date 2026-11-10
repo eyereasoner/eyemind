@@ -1,9 +1,9 @@
 // RDF 1.2 in and out of eyemind: Turtle, TriG, N-Triples and N-Quads.
 //
-// Documents are read by eyeling's lexer and parser (rdf-lexer.js,
-// rdf-parser.js, rdf-prelude.js and rdf-rules.js) in its RDF mode, with the
-// surface checks eyeling applies for RDF 1.2 below. Each quad becomes the
-// eyemind term rdf(Subject, Predicate, Object, Graph):
+// Documents are read by the RDF lexer and parser (rdf-lexer.js,
+// rdf-parser.js, rdf-prelude.js and rdf-rules.js), with the RDF 1.2
+// surface checks below. Each quad becomes an eyemind term
+// rdf(Subject, Predicate, Object, Graph):
 //
 //   IRI                          iri('https://example.org/a')
 //   blank node                   bnode(Scope, Label), Scope naming the document
@@ -126,7 +126,7 @@ function convert(term, position, graph, state, list = true) {
   throw new SyntaxError(`${term?.constructor?.name ?? typeof term} is no RDF term`);
 }
 
-// A literal of eyeling's parser: its raw form is a quoted lexical form with a
+// A parsed literal: its raw form is a quoted lexical form with a
 // language tag or datatype, or a bare number or boolean.
 function literalTerm(raw) {
   const text = String(raw);
@@ -169,7 +169,7 @@ export function rdfDocument(quads, name = 'rdf') {
   return quads.map(([s, p, o, g]) => write(st(name, s, p, o, g))).join('\n');
 }
 
-// eyeling's RDF 1.2 surface checks, which its parser leaves to a separate
+// RDF 1.2 surface checks, which the parser leaves to a separate
 // pass: escaped surrogates, triple terms as subjects, and the stricter line
 // syntax of N-Triples and N-Quads.
 function assertRdf12SurfaceSyntax(text, format) {
