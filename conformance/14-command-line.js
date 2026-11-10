@@ -103,7 +103,7 @@ conformance('an invalid proof exits with 2 and prints its report', [
 ])
 
 conformance('a run without conclusions has a proof without claims', [
-  spec('8.6, 8.7, 10.1, 11.5, 13.1'),
+  spec('8.6, 8.7, 10.1, 11.7, 13.1'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -414,7 +414,7 @@ conformance('--prove-and-check generates answers for an external goal', [
 ])
 
 conformance('--prove-and-check can reject its generated proof under strict checking', [
-  spec('11.6, 12, 13.1'),
+  spec('11.8, 12, 13.1'),
   args('--prove-and-check --strict-proof program.js'),
   file('program.js', ['fact(a(1))', 'implies(a(X), b(X))', 'implies(findall(X, b(X), L), all(L))']),
   exit(2),
@@ -753,7 +753,7 @@ conformance("-c combines with --strict-proof and --json", [
 ])
 
 conformance("--strict-proof accepts a proof without trusted boundaries", [
-  spec("11.6, 13.1"),
+  spec("11.8, 13.1"),
   args("--strict-proof --check-proof proof.js program.js"),
   file('program.js', [
     "fact(p(1))",

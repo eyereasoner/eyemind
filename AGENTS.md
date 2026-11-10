@@ -145,7 +145,7 @@ specification, keep the suite free of anything only eyemind can run, and put
 what another implementer needs in SPEC.md rather than only in eyemind's code.
 Floats from a host's math library (`exp`, `log`, trigonometry, `pow`) may
 differ in the last place between implementations; SPEC Section 14 allows it,
-and C5 accepts such a result within 4 units (Section 11.6). eyeron, eyeling
+and C5 accepts such a result within 4 units (Section 11.8). eyeron, eyeling
 and eyepl are related projects of the same family.
 
 Run focused tests while working, then the full suite before finishing code

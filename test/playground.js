@@ -82,6 +82,22 @@ export const tests = [
     }
   }],
 
+  ['compiled N3 examples run and their saved proofs check in the playground', async (page, base) => {
+    const p = driver(page);
+    for (const name of ['n3-family', 'n3-scoped-negation', 'n3-invoice', 'n3-french-cities', 'n3-witnesses']) {
+      await p.open(`${base}#example=${name}`);
+      await p.run();
+      assert.match(await p.status(), /^Done · exit 0/, name);
+      assert.equal(await p.output(), readFileSync(new URL(`../examples/output/${name}.js`, import.meta.url), 'utf8'), name);
+      await p.select('mode', '--check-proof');
+      await p.type('proof-input', readFileSync(new URL(`../examples/proof/${name}.js`, import.meta.url), 'utf8'));
+      await p.run();
+      assert.match(await p.status(), /^Done · exit 0/, name);
+      assert.equal(await p.output(), readFileSync(new URL(`../examples/check/${name}.js`, import.meta.url), 'utf8'), name);
+      await p.select('mode', '');
+    }
+  }],
+
   ['derived rule examples run, prove and check in the playground', async (page, base) => {
     const p = driver(page);
     for (const name of ['derived-rule', 'derived-backward-rule', 'derived-backward-rule-2']) {

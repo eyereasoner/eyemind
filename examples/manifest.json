@@ -430,6 +430,36 @@
     "trusted": []
   },
   {
+    "name": "n3-family",
+    "description": "Notation3 backward ancestry and log:query compiled through n3-interchange",
+    "trusted": []
+  },
+  {
+    "name": "n3-scoped-negation",
+    "description": "Notation3 scoped negation waits for a derived order hold",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "n3-invoice",
+    "description": "Notation3 collection totals invoices, including an empty invoice",
+    "trusted": [
+      "call_fidelity",
+      "collected"
+    ]
+  },
+  {
+    "name": "n3-french-cities",
+    "description": "French cities that can reach Nantes through one-way links and explicit schema rules",
+    "trusted": []
+  },
+  {
+    "name": "n3-witnesses",
+    "description": "Notation3 conclusion blank nodes become shared witnesses for each order",
+    "trusted": []
+  },
+  {
     "name": "dijkstra",
     "description": "Dijkstra's shortest route over a cost-ordered queue, with every step checked",
     "trusted": []

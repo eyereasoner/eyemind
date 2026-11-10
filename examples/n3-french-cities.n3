@@ -1,0 +1,34 @@
+# Ten one-way links connect French cities in a small directed network.
+# Subproperty and transitivity rules find paths to Nantes: Angers, Le Mans,
+# Chartres and Paris can reach it. Five integrity fuses guard other cities.
+# The rules explicitly use the RDFS subPropertyOf and OWL TransitiveProperty
+# vocabulary; the graph and these rules supply the reasoning in this example.
+@prefix : <https://example.org/french-cities#> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+:paris :oneway :orleans, :chartres, :amiens .
+:orleans :oneway :blois, :bourges .
+:blois :oneway :tours .
+:chartres :oneway :lemans .
+:lemans :oneway :angers, :tours .
+:angers :oneway :nantes .
+
+:oneway rdfs:subPropertyOf :path .
+:path a owl:TransitiveProperty .
+
+{ ?property rdfs:subPropertyOf ?super . ?from ?property ?to }
+  => { ?from ?super ?to } .
+{ ?property rdfs:subPropertyOf ?middle . ?middle rdfs:subPropertyOf ?super }
+  => { ?property rdfs:subPropertyOf ?super } .
+{ ?property a owl:TransitiveProperty . ?from ?property ?via . ?via ?property ?to }
+  => { ?from ?property ?to } .
+
+{ ?city :path :nantes } log:query { ?city :canReach :nantes } .
+
+{ :orleans :path :nantes } => false .
+{ :amiens :path :nantes } => false .
+{ :bourges :path :nantes } => false .
+{ :blois :path :nantes } => false .
+{ :tours :path :nantes } => false .

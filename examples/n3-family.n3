@@ -1,0 +1,16 @@
+# Ann is Bob's parent, and Bob is Cara's parent. Recursive backward rules
+# answer who Ann's descendants are: Bob and Cara. log:query selects those
+# answers, illustrating N3 rules compiled to ordinary eyemind clauses.
+@prefix : <https://example.org/family#> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+
+:ann :parent :bob .
+:bob :parent :cara .
+
+{ ?person :ancestor ?descendant } <= { ?person :parent ?descendant } .
+{ ?person :ancestor ?descendant } <= {
+  ?person :parent ?child .
+  ?child :ancestor ?descendant .
+} .
+
+{ :ann :ancestor ?who } log:query { :ann :ancestor ?who } .

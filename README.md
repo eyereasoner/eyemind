@@ -7,7 +7,7 @@ eyemind is a **JavaScript rule language** with forward and backward reasoning an
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 94 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1353 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 99 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1353 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -192,11 +192,23 @@ N3 programs run on eyemind through [n3-interchange](https://github.com/eyereason
 
 ```sh
 npm install -g n3-interchange
-eyemind-n3 socrates.n3                    # the derived triples, as N3
-n3-to-eyemind socrates.n3 -o socrates.js  # or the program, to run, prove and check
+eyemind-n3 examples/n3-family.n3                          # answers as N3
+n3-to-eyemind examples/n3-family.n3 -o /tmp/n3-family.js  # compile a program to inspect
+node bin/eyemind.js /tmp/n3-family.js                     # run it with eyemind
 ```
 
-Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above and N3 numbers as eyemind numbers. `=>` becomes `implies`, `<=` becomes `implied_by`, and scoped negation and collection become `not` and `findall`, so an N3 run has a proof that eyemind checks like any other. Built-ins that need what eyemind leaves out, such as hashing or file access, stop the compiler with a message naming them; the n3-interchange README lists them and how much of the N3 test suite passes.
+Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above and N3 numbers as eyemind numbers. `=>` becomes `implies`, `<=` becomes `implied_by`, and scoped negation and collection become `not` and `findall`, so an N3 run has a proof that eyemind checks like any other. The n3-interchange README lists its measured coverage and current limits.
+
+Five examples pair the original N3 with a compiled JavaScript program:
+[family queries](https://eyereasoner.github.io/eyemind/examples/deck/n3-family),
+[scoped negation](https://eyereasoner.github.io/eyemind/examples/deck/n3-scoped-negation),
+[invoice collection](https://eyereasoner.github.io/eyemind/examples/deck/n3-invoice),
+[French cities](https://eyereasoner.github.io/eyemind/examples/deck/n3-french-cities), and
+[existential witnesses](https://eyereasoner.github.io/eyemind/examples/deck/n3-witnesses).
+The saved `.js` programs run directly in the playground and with eyemind;
+compiling the `.n3` sources or writing answers back as N3 uses n3-interchange.
+Each deck shows the N3 result and what its saved proof establishes, including
+any remaining obligations.
 
 ## How eyemind reasons
 

@@ -1,0 +1,12 @@
+# Each paid order gets a delivery record. The same new record is linked to
+# the order and marked ready; two orders get different records. A blank node
+# in an N3 conclusion becomes a Skolem witness that C8 checks per firing.
+@prefix : <https://example.org/delivery#> .
+
+:order1 :status :paid .
+:order2 :status :paid .
+
+{ ?order :status :paid } => {
+  ?order :delivery _:delivery .
+  _:delivery :status :ready .
+} .
