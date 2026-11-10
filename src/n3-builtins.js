@@ -20,11 +20,17 @@ const NUMERIC_TYPES = ['integer', 'decimal', 'double', 'float', 'int', 'long', '
 
 // Helpers shared by the built-ins.
 export const HELPERS = {
+  n3_fuse: {
+    text: `contradiction(n3_fuse(literal('false', datatype('${XSD}boolean'))))`,
+  },
   n3_num: {
     text: `
 // n3_num(T, N): N is the numeric value of the term T.
 implied_by(n3_num(T, N), [is_number(T), unify(N, T)])
-implied_by(n3_num(T, N), [is_compound(T), unify(T, literal(L, datatype(D))), n3_numeric_type(D), atom_chars(L, Cs), number_chars(N, Cs)])
+implied_by(n3_num(T, N), [is_compound(T), unify(T, literal(L, datatype(D))), n3_numeric_type(D), atom_chars(L, Cs), number_chars(V, Cs), n3_numeric_value(D, V, N)])
+implied_by(n3_numeric_value(D, V, N), [n3_floating_type(D), is(N, float(V))])
+implied_by(n3_numeric_value(D, V, V), not(n3_floating_type(D)))
+fact(n3_floating_type('${XSD}decimal'), n3_floating_type('${XSD}double'), n3_floating_type('${XSD}float'))
 ${NUMERIC_TYPES.map((t) => `fact(n3_numeric_type('${XSD}${t}'))`).join('\n')}`,
   },
   n3_nums: {
@@ -34,6 +40,15 @@ ${NUMERIC_TYPES.map((t) => `fact(n3_numeric_type('${XSD}${t}'))`).join('\n')}`,
 implied_by(n3_nums(L, Ns), [is_nonvar(L), n3_nums_(L, Ns)])
 fact(n3_nums_([], []))
 implied_by(n3_nums_([T, ...R], [N, ...Ns]), [n3_num(T, N), n3_nums_(R, Ns)])`,
+  },
+  n3_decimal: {
+    text: `
+// A decimal's canonical text as an integer coefficient and a power of ten.
+implied_by(n3_decimal(N, I, E), [number_chars(N, Cs), atom_chars(A, Cs), regex_find('^([+-]?)([0-9]+)(?:[.]([0-9]+))?(?:e([+-]?[0-9]+))?$', A, [_, Sign, Whole, Frac, Exp]), atom_concat(Sign, Whole, W), atom_concat(W, Frac, Digits), atom_chars(Digits, Ds), number_chars(I, Ds), atom_length(Frac, D), n3_decimal_exp(Exp, X), is(E, sub(X, D))])
+fact(n3_decimal_exp('', 0))
+implied_by(n3_decimal_exp(A, E), [not_identical(A, ''), atom_chars(A, Cs), number_chars(E, Cs)])
+implied_by(n3_decimal_add(I, E, J, F, K, G), [is(G, min(E, F)), is(K, add(mul(I, pow(10, sub(E, G))), mul(J, pow(10, sub(F, G)))))])
+implied_by(n3_decimal_value(I, E, N), [number_chars(I, Cs), atom_chars(A, Cs), number_chars(E, Es), atom_chars(B, Es), atom_concat(A, 'e', P), atom_concat(P, B, T), atom_chars(T, Ts), number_chars(N, Ts)])`,
   },
   n3_result: {
     needs: ['n3_num'],
@@ -72,6 +87,10 @@ implied_by(n3_float_text('no', T, A), [number_chars(T, Cs), atom_chars(A, Cs)])`
 implied_by(n3_strs(L, As), [is_nonvar(L), n3_strs_(L, As)])
 fact(n3_strs_([], []))
 implied_by(n3_strs_([T, ...R], [A, ...As]), [n3_str(T, A), n3_strs_(R, As)])`,
+  },
+  n3_pattern: {
+    text: `
+implied_by(n3_regex_pattern(A, P), once(or(n3_pattern(A, P), unify(A, P))))`,
   },
   n3_str_result: {
     needs: ['n3_str'],
@@ -283,19 +302,27 @@ BUILTINS.get(`${MATH}exponentiation`).text = BUILTINS.get(`${MATH}exponentiation
   '[n3_num(A, X), n3_num(B, Y)', '[is_nonvar(B), n3_num(A, X), n3_num(B, Y)');
 
 def(`${MATH}sum`, 'n3_math_sum', `
-implied_by(n3_math_sum(L, O), [n3_nums(L, Ns), n3_sum(Ns, 0, V), n3_result(V, O)])
-// From the left, so floats round as they do written out: ((a + b) + c).
+implied_by(n3_math_sum(L, O), [n3_nums(L, Ns), n3_sum_kind(L, K), n3_sum_value(K, Ns, V), n3_result(V, O)])
+// Decimal inputs add integer coefficients; float and double use binary64.
+implied_by(n3_sum_kind(L, K), once(or(and(n3_member(literal(_, datatype(D)), L), or(unify(D, '${XSD}float'), unify(D, '${XSD}double')), unify(K, 'binary')), unify(K, 'decimal'))))
+implied_by(n3_sum_value('binary', Ns, V), n3_sum(Ns, 0, V))
+implied_by(n3_sum_value('decimal', Ns, V), [n3_decimal_sum(Ns, 0, 0, I, E), n3_sum_result(Ns, I, E, V)])
+fact(n3_decimal_sum([], I, E, I, E))
+implied_by(n3_decimal_sum([N, ...Ns], I, E, J, F), [n3_decimal(N, K, G), n3_decimal_add(I, E, K, G, A, B), n3_decimal_sum(Ns, A, B, J, F)])
+implied_by(n3_sum_result(Ns, I, E, V), [once(or(and(n3_member(N, Ns), is_float(N), unify(K, 'float')), unify(K, 'int'))), n3_sum_number(K, I, E, V)])
+implied_by(n3_sum_number('int', I, E, V), is(V, mul(I, pow(10, E))))
+implied_by(n3_sum_number('float', I, E, V), n3_decimal_value(I, E, V))
 fact(n3_sum([], V, V))
 implied_by(n3_sum([N], 0, N), 'true')
 implied_by(n3_sum([N, M, ...R], 0, V), [is(A, add(N, M)), n3_sum(R, A, V)])
-implied_by(n3_sum([N, ...R], A, V), [not_identical(A, 0), is(B, add(A, N)), n3_sum(R, B, V)])`, ['n3_nums', 'n3_result']);
+implied_by(n3_sum([N, ...R], A, V), [not_identical(A, 0), is(B, add(A, N)), n3_sum(R, B, V)])`, ['n3_nums', 'n3_result', 'n3_member', 'n3_decimal']);
 def(`${MATH}product`, 'n3_math_product', `
 implied_by(n3_math_product(L, O), [n3_nums(L, [N, ...Ns]), n3_product(Ns, N, V), n3_result(V, O)])
 implied_by(n3_math_product([], O), n3_result(1, O))
 fact(n3_product([], V, V))
 implied_by(n3_product([N, ...R], A, V), [is(B, mul(A, N)), n3_product(R, B, V)])`, ['n3_nums', 'n3_result']);
 def(`${MATH}quotient`, 'n3_math_quotient', `
-// Integers that divide exactly give an integer, as in EYE.
+// Integers that divide exactly give an integer.
 implied_by(n3_math_quotient([A, B], O), [n3_num(A, X), n3_num(B, Y), ne(Y, 0), n3_quotient(X, Y, V), n3_result(V, O)])
 implied_by(n3_quotient(X, Y, V), [is_int(X), is_int(Y), eq(mod(X, Y), 0), is(V, floordiv(X, Y))])
 implied_by(n3_quotient(X, Y, V), [not(and(is_int(X), is_int(Y), eq(mod(X, Y), 0))), is(V, div(X, Y))])`, ['n3_num', 'n3_result']);
@@ -359,13 +386,13 @@ def(`${STRING}notMatches`, 'n3_string_notMatches', `
 implied_by(n3_string_notMatches(S, O), [n3_str(S, A), n3_str(O, P), not(regex_match(P, A))])`, ['n3_str']);
 def(`${STRING}replace`, 'n3_string_replace', `
 // (Text Pattern Replacement) string:replace Result, every match replaced.
-implied_by(n3_string_replace([S, P0, R0], O), [n3_str(S, A), n3_str(P0, P), n3_str(R0, R), atom_chars(R, Cs), n3_replacement(Cs, Ds), atom_chars(D, Ds), regex_replace(P, A, D, B), n3_str_result(B, O)])
+implied_by(n3_string_replace([S, P0, R0], O), [n3_str(S, A), n3_str(P0, Raw), n3_regex_pattern(Raw, P), n3_str(R0, R), atom_chars(R, Cs), n3_replacement(Cs, Ds), atom_chars(D, Ds), regex_replace(P, A, D, B), n3_str_result(B, O)])
 // A backslash escapes a dollar sign or backslash in N3 replacements;
 // ECMAScript spells a literal dollar sign as $$.
 fact(n3_replacement([], []))
 implied_by(n3_replacement([${JSON.stringify('\\')}, '$', ...R], ['$', '$', ...U]), n3_replacement(R, U))
 implied_by(n3_replacement([${JSON.stringify('\\')}, ${JSON.stringify('\\')}, ...R], [${JSON.stringify('\\')}, ...U]), n3_replacement(R, U))
-implied_by(n3_replacement([C, ...R], [C, ...U]), [not_unify([C, ...R], [${JSON.stringify('\\')}, '$', ..._]), not_unify([C, ...R], [${JSON.stringify('\\')}, ${JSON.stringify('\\')}, ..._]), n3_replacement(R, U)])`, ['n3_str', 'n3_str_result']);
+implied_by(n3_replacement([C, ...R], [C, ...U]), [not_unify([C, ...R], [${JSON.stringify('\\')}, '$', ..._]), not_unify([C, ...R], [${JSON.stringify('\\')}, ${JSON.stringify('\\')}, ..._]), n3_replacement(R, U)])`, ['n3_str', 'n3_str_result', 'n3_pattern']);
 def(`${STRING}scrape`, 'n3_string_scrape', `
 // (Text Pattern) string:scrape Group: the first group of the first match.
 implied_by(n3_string_scrape([S, P0], O), [n3_str(S, A), n3_str(P0, P), once(regex_find(P, A, [_, G, ..._])), n3_str_result(G, O)])`, ['n3_str', 'n3_str_result']);
@@ -568,16 +595,21 @@ implied_by(n3_log_dtlit([S, iri(D)], O), [is_nonvar(S), n3_str(S, A), n3_typed(A
 implied_by(n3_log_dtlit([L, D], O), [is_nonvar(O), n3_lit_parts(O, A, U), unify(L, literal(A, datatype('${XSD}string'))), unify(D, iri(U))])
 // xsd:integer, xsd:decimal and xsd:double with a valid lexical form are
 // numbers, as when they are read.
-implied_by(n3_typed(A, D, N), [n3_number_type(D, K), atom_chars(A, Cs), number_chars(N, Cs), n3_number_kind(N, K)])
+implied_by(n3_typed(A, D, O), [n3_number_type(D, K), atom_chars(A, Cs), number_chars(N, Cs), n3_number_kind(N, K), n3_typed_number(K, A, D, N, O)])
 implied_by(n3_typed(A, D, literal(A, datatype(D))), not(and(n3_number_type(D, _1), atom_chars(A, _2), number_chars(_3, _2), n3_number_kind(_3, _1))))
-fact(n3_number_type('${XSD}integer', 'int'), n3_number_type('${XSD}decimal', 'float'), n3_number_type('${XSD}double', 'float'))
+fact(n3_number_type('${XSD}integer', 'int'), n3_number_type('${XSD}decimal', 'float'), n3_number_type('${XSD}double', 'typed'), n3_number_type('${XSD}float', 'typed'))
 implied_by(n3_number_kind(N, 'int'), is_int(N))
 implied_by(n3_number_kind(N, 'float'), is_number(N))
+implied_by(n3_number_kind(N, 'typed'), is_number(N))
+implied_by(n3_typed_number('int', _, _, N, O), unify(N, O))
+implied_by(n3_typed_number('float', _, _, N, O), [is(V, float(N)), unify(V, O)])
+implied_by(n3_typed_number('typed', A, D, _, O), [is_var(O), unify(O, literal(A, datatype(D)))])
+implied_by(n3_typed_number('typed', _, D, N, O), [is_nonvar(O), unify(O, literal(_, datatype(D))), n3_num(O, V), eq(N, V)])
 implied_by(n3_lit_parts(literal(A, datatype(U)), A, U), 'true')
 implied_by(n3_lit_parts(literal(A, lang(_)), A, '${RDF}langString'), 'true')
 implied_by(n3_lit_parts(literal(A, lang(_, _)), A, '${RDF}dirLangString'), 'true')
 implied_by(n3_lit_parts(N, A, '${XSD}integer'), [is_int(N), number_chars(N, Cs), atom_chars(A, Cs)])
-implied_by(n3_lit_parts(N, A, '${XSD}decimal'), [is_float(N), number_chars(N, Cs), atom_chars(A, Cs)])`, ['n3_str']);
+implied_by(n3_lit_parts(N, A, '${XSD}decimal'), [is_float(N), number_chars(N, Cs), atom_chars(A, Cs)])`, ['n3_str', 'n3_num']);
 def(`${LOG}langlit`, 'n3_log_langlit', `
 // (Lexical Language) log:langlit Literal.
 implied_by(n3_log_langlit([S, T], O), [is_nonvar(S), n3_str(S, A), n3_str(T, L), unify(O, literal(A, lang(L)))])

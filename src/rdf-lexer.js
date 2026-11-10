@@ -1,8 +1,8 @@
 /**
- * Eyeling Reasoner — lexer
+ * eyemind: RDF lexer
  *
  * Tokenizer for the supported N3/Turtle-like syntax. Produces a token stream
- * consumed by lib/parser.js.
+ * consumed by rdf-parser.js.
  */
 
 
@@ -359,8 +359,7 @@ function stripQuotes(lex) {
 }
 
 
-// RDF/TriG compatibility is an opt-in syntax-normalization layer, not a new
-// reasoning model. Eyeling remains strict N3 by default and N3 internally:
+// eyemind: RDF/TriG syntax is normalized to the parser's N3 representation:
 //   - RDF 1.2 triple terms <<( s p o )>> become singleton graph terms { s p o }.
 //   - TriG named graph blocks g { ... } become g log:nameOf { ... } .
 //   - A top-level default graph block { ... } is unwrapped into ordinary triples.
@@ -389,7 +388,7 @@ const EYMSG = Object.freeze({
 function normalizeRdfCompatibility(inputText, { trig = false } = {}) {
   let text = String(inputText ?? '');
 
-  // Fast path: most Eyeling inputs are ordinary N3 and do not need RDF/TriG
+  // eyemind: ordinary N3 input does not need RDF/TriG
   // surface-syntax normalization. Avoid scanning large files character-by-character
   // unless they actually contain RDF 1.2 triple terms, VERSION directives, or a
   // plausible top-level TriG named graph block.

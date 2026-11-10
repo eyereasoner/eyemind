@@ -27,7 +27,10 @@ implies([rdf(Invoice, iri("https://example.org/invoice#total"), Total), n3_math_
 // N3 built-ins.
 // n3_num(T, N): N is the numeric value of the term T.
 implied_by(n3_num(T, N), [is_number(T), unify(N, T)])
-implied_by(n3_num(T, N), [is_compound(T), unify(T, literal(L, datatype(D))), n3_numeric_type(D), atom_chars(L, Cs), number_chars(N, Cs)])
+implied_by(n3_num(T, N), [is_compound(T), unify(T, literal(L, datatype(D))), n3_numeric_type(D), atom_chars(L, Cs), number_chars(V, Cs), n3_numeric_value(D, V, N)])
+implied_by(n3_numeric_value(D, V, N), [n3_floating_type(D), is(N, float(V))])
+implied_by(n3_numeric_value(D, V, V), not(n3_floating_type(D)))
+fact(n3_floating_type('http://www.w3.org/2001/XMLSchema#decimal'), n3_floating_type('http://www.w3.org/2001/XMLSchema#double'), n3_floating_type('http://www.w3.org/2001/XMLSchema#float'))
 fact(n3_numeric_type('http://www.w3.org/2001/XMLSchema#integer'))
 fact(n3_numeric_type('http://www.w3.org/2001/XMLSchema#decimal'))
 fact(n3_numeric_type('http://www.w3.org/2001/XMLSchema#double'))
@@ -61,8 +64,24 @@ implied_by(n3_nums_([T, ...R], [N, ...Ns]), [n3_num(T, N), n3_nums_(R, Ns)])
 // in value, so 2 and 2.0 agree.
 implied_by(n3_result(V, O), [is_var(O), unify(O, V)])
 implied_by(n3_result(V, O), [is_nonvar(O), n3_num(O, N), eq(V, N)])
-implied_by(n3_math_sum(L, O), [n3_nums(L, Ns), n3_sum(Ns, 0, V), n3_result(V, O)])
-// From the left, so floats round as they do written out: ((a + b) + c).
+implied_by(n3_member(X, [X, ..._]), 'true')
+implied_by(n3_member(X, [_, ...T]), n3_member(X, T))
+// A decimal's canonical text as an integer coefficient and a power of ten.
+implied_by(n3_decimal(N, I, E), [number_chars(N, Cs), atom_chars(A, Cs), regex_find('^([+-]?)([0-9]+)(?:[.]([0-9]+))?(?:e([+-]?[0-9]+))?$', A, [_, Sign, Whole, Frac, Exp]), atom_concat(Sign, Whole, W), atom_concat(W, Frac, Digits), atom_chars(Digits, Ds), number_chars(I, Ds), atom_length(Frac, D), n3_decimal_exp(Exp, X), is(E, sub(X, D))])
+fact(n3_decimal_exp('', 0))
+implied_by(n3_decimal_exp(A, E), [not_identical(A, ''), atom_chars(A, Cs), number_chars(E, Cs)])
+implied_by(n3_decimal_add(I, E, J, F, K, G), [is(G, min(E, F)), is(K, add(mul(I, pow(10, sub(E, G))), mul(J, pow(10, sub(F, G)))))])
+implied_by(n3_decimal_value(I, E, N), [number_chars(I, Cs), atom_chars(A, Cs), number_chars(E, Es), atom_chars(B, Es), atom_concat(A, 'e', P), atom_concat(P, B, T), atom_chars(T, Ts), number_chars(N, Ts)])
+implied_by(n3_math_sum(L, O), [n3_nums(L, Ns), n3_sum_kind(L, K), n3_sum_value(K, Ns, V), n3_result(V, O)])
+// Decimal inputs add integer coefficients; float and double use binary64.
+implied_by(n3_sum_kind(L, K), once(or(and(n3_member(literal(_, datatype(D)), L), or(unify(D, 'http://www.w3.org/2001/XMLSchema#float'), unify(D, 'http://www.w3.org/2001/XMLSchema#double')), unify(K, 'binary')), unify(K, 'decimal'))))
+implied_by(n3_sum_value('binary', Ns, V), n3_sum(Ns, 0, V))
+implied_by(n3_sum_value('decimal', Ns, V), [n3_decimal_sum(Ns, 0, 0, I, E), n3_sum_result(Ns, I, E, V)])
+fact(n3_decimal_sum([], I, E, I, E))
+implied_by(n3_decimal_sum([N, ...Ns], I, E, J, F), [n3_decimal(N, K, G), n3_decimal_add(I, E, K, G, A, B), n3_decimal_sum(Ns, A, B, J, F)])
+implied_by(n3_sum_result(Ns, I, E, V), [once(or(and(n3_member(N, Ns), is_float(N), unify(K, 'float')), unify(K, 'int'))), n3_sum_number(K, I, E, V)])
+implied_by(n3_sum_number('int', I, E, V), is(V, mul(I, pow(10, E))))
+implied_by(n3_sum_number('float', I, E, V), n3_decimal_value(I, E, V))
 fact(n3_sum([], V, V))
 implied_by(n3_sum([N], 0, N), 'true')
 implied_by(n3_sum([N, M, ...R], 0, V), [is(A, add(N, M)), n3_sum(R, A, V)])

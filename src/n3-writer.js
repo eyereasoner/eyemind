@@ -167,6 +167,10 @@ class Writer {
       const dt = annotation.args[0];
       if (dt === `${XSD}string`) return lex;
       if (dt === `${XSD}boolean` && (text === 'true' || text === 'false')) return text;
+      if (dt === `${XSD}double` && /^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$/.test(text) && Number.isFinite(Number(text))) {
+        const number = floatText(Number(text));
+        return /e/.test(number) ? number : `${number}e0`;
+      }
       return `${lex}^^${this.iri(dt)}`;
     }
     throw new N3WriteError('a literal needs datatype(IRI) or lang(Tag)');

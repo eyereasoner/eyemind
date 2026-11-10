@@ -64,7 +64,7 @@ function load(inputs, io, { base = null }) {
   if (kinds.includes('n3')) {
     if (kinds.includes('js')) throw new EyemindError('an N3 run takes .n3 documents and RDF data, not JavaScript programs');
     const sources = inputs.map(([t, n], k) => (kinds[k] === 'rdf' ? rdf(t, n, k) : [t, n]));
-    const compiled = compileSources(sources, { base: base ?? '', baseOf: (n) => baseOf(n) ?? '', readFile: io?.readFile ?? null,
+    const compiled = compileSources(sources, { base: base ?? '', baseOf: (n) => baseOf(n) ?? '', readFile: io?.readFile ?? null, readDocument: io?.readDocument ?? null,
       source: inputs.map(([, n]) => n).join(', ') });
     return { kind: 'n3', program: loadSources([[compiled.program, inputs[kinds.indexOf('n3')][1]]], io), text: compiled.program, prefixes: compiled.doc.prefixes, compiled };
   }

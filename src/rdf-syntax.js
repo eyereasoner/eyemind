@@ -1,7 +1,7 @@
 // The RDF 1.2 grammars of Turtle, TriG, N-Triples and N-Quads, checked token
-// by token before eyeling's parser reads a document.
+// by token before the parser reads a document.
 //
-// eyeling's parser reads N3, a superset of these formats, so on its own it
+// The parser also reads N3, a superset of these formats, so on its own it
 // would accept what they forbid: N3 operators and formulas, ?variables,
 // keywords, unknown escapes, malformed names. This pass reads the document
 // with the formats' own token rules and the statement shapes the parser

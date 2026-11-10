@@ -337,10 +337,10 @@ function w3cRows() {
 }
 
 // The Notation3 test suite through the eyemind command, from
-// EYEMIND_NOTATION3TESTS or eyeling's mirror beside this repository. It
+// EYEMIND_NOTATION3TESTS or the mirror in this repository. It
 // reports on N3 support; its results leave the exit code alone.
 function notation3Rows() {
-  const dir = process.env.EYEMIND_NOTATION3TESTS ?? join(ROOT, '..', 'eyeling', 'test', 'notation3tests', 'tests');
+  const dir = process.env.EYEMIND_NOTATION3TESTS ?? join(ROOT, 'test', 'notation3tests', 'tests');
   if (!existsSync(dir)) {
     console.log(paint('2', `notation3tests not run: ${dir} is missing`));
     return [];
