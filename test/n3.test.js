@@ -436,10 +436,11 @@ test('the Notation3 scorer recognizes an inference fuse after partial output', (
   const halted = command([join(tmp, 'crash-late.n3')]);
   assert.equal(halted.code, 65, halted.stderr);
   assert.match(halted.stdout, /:test :contains :crash-late/);
-  const scored = spawnSync(process.execPath, ['tools/notation3tests.js', '--json', tmp], { cwd: ROOT, encoding: 'utf8' });
+  const scored = spawnSync(process.execPath, ['tools/notation3tests.js', '--json', '--progress', tmp], { cwd: ROOT, encoding: 'utf8' });
   assert.ifError(scored.error);
   assert.equal(scored.status, 0, scored.stderr);
   const result = JSON.parse(scored.stdout);
+  assert.equal(scored.stderr, 'Running 2 Notation3 cases through the eyemind command.\n');
   assert.deepEqual(result.tally, { ok: 1, incomplete: 1 });
   assert.match(result.failures[0], /success-late/);
 });
