@@ -12,9 +12,8 @@
 // section needs Chrome (CHROME names it when it is not on the PATH); without
 // one it says so and runs nothing. Each test prints OK or FAIL, its
 // number, what it tests and how long it took; each section and the whole run
-// end with a total. A whole run then prints the table of REPORT.md: every
-// section, the W3C suites case by case and the Notation3 test suite, with
-// their totals. The exit code is 1 when a test failed.
+// end with a total. A whole run then reports progress through the W3C and
+// Notation3 format suites and prints the combined table of REPORT.md.
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import { cpus } from 'node:os';
@@ -102,12 +101,12 @@ class Reporter {
     }
   }
 
-  finish() {
+  finish(title = 'Total') {
     if (this.total === 0) {
       console.log(`${paint('31', 'FAIL')} no test matches`);
       return 1;
     }
-    console.log(`\n${paint('33', '== Total')}`);
+    console.log(`\n${paint('33', `== ${title}`)}`);
     this.summary(this.passed, this.total, 'tests', performance.now() - this.started);
     for (const [number, label] of this.failures) console.log(`${paint('31', 'FAIL')} ${number} ${label}`);
     return this.passed === this.total ? 0 : 1;
@@ -306,10 +305,16 @@ async function main(argv) {
     else await runTests(reporter, tests.filter(([name]) => name === section));
     reporter.endSection(section);
   }
-  const code = reporter.finish();
-  // A whole run ends with the table of REPORT.md: every section, the W3C
-  // suites case by case, and the Notation3 test suite when it is at hand.
-  if (!sections.length && pattern === null) printReport([...reporter.rows, ...w3cRows(), ...notation3Rows()]);
+  const full = !sections.length && pattern === null;
+  const code = reporter.finish(full ? 'Main test total' : 'Total');
+  if (full) {
+    console.log(`\n${paint('33', '== W3C RDF and SPARQL 1.2 RL suites')}`);
+    const started = performance.now();
+    const w3c = w3cRows();
+    reporter.summary(w3c.reduce((sum, row) => sum + row.passed, 0),
+      w3c.reduce((sum, row) => sum + row.cases, 0), 'W3C format cases', performance.now() - started);
+    printReport([...reporter.rows, ...w3c, ...notation3Rows(reporter)]);
+  }
   return code;
 }
 
@@ -339,15 +344,20 @@ function w3cRows() {
 // The Notation3 test suite through the eyemind command, from
 // EYEMIND_NOTATION3TESTS or the mirror in this repository. It
 // reports on N3 support; its results leave the exit code alone.
-function notation3Rows() {
+function notation3Rows(reporter) {
+  console.log(`\n${paint('33', '== Notation3 test suite')}`);
   const dir = process.env.EYEMIND_NOTATION3TESTS ?? join(ROOT, 'test', 'notation3tests', 'tests');
   if (!existsSync(dir)) {
     console.log(paint('2', `notation3tests not run: ${dir} is missing`));
     return [];
   }
-  const run = spawnSync(process.execPath, [join(ROOT, 'tools/notation3tests.js'), '--json', '--timeout', '20', dir], { encoding: 'utf8', maxBuffer: 1 << 28 });
+  // Send the child's progress to this report and capture its JSON separately.
+  const args = [join(ROOT, 'tools/notation3tests.js'), '--json', '--progress', '--timeout', '20', dir];
+  const run = spawnSync(process.execPath, args, { encoding: 'utf8', maxBuffer: 1 << 28, stdio: ['ignore', 'pipe', 1] });
   const n3 = JSON.parse(run.stdout);
-  return [{ suite: 'notation3tests', cases: n3.total, passed: n3.tally.ok ?? 0, seconds: n3.seconds }];
+  const passed = n3.tally.ok ?? 0;
+  reporter.summary(passed, n3.total, 'Notation3 cases', n3.seconds * 1000);
+  return [{ suite: 'notation3tests', cases: n3.total, passed, seconds: n3.seconds }];
 }
 
 // The rows as a Markdown table with a total, as REPORT.md has it.

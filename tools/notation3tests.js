@@ -2,7 +2,7 @@
 // Score eyemind on the Notation3 test suite
 // (https://codeberg.org/phochste/notation3tests), given its tests directory.
 //
-//   node tools/notation3tests.js [--timeout SECONDS] [--json] [-v]
+//   node tools/notation3tests.js [--timeout SECONDS] [--json] [--progress] [-v]
 //                              [--documents FILE | --live] [DIR]
 //
 // Each test file runs through the eyemind command, which compiles it from
@@ -10,7 +10,8 @@
 // :result :has :NAME or :test :is true. A success-* test passes when its
 // result appears, a fail-* test when none does, and a crash-* test when the
 // run stops with an error, an inference fuse or no output. --json prints the
-// tally and the time taken as JSON instead. The default is the repository's
+// tally and the time taken as JSON instead. --progress writes case counts
+// to stderr as the tests finish. The default is the repository's
 // mirror, using its saved document fixtures without network access.
 import { spawn } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
@@ -23,6 +24,7 @@ const args = process.argv.slice(2);
 let timeout = 10;
 let verbose = false;
 let json = false;
+let progress = false;
 let documents = null;
 let live = false;
 const rest = [];
@@ -30,13 +32,14 @@ for (let i = 0; i < args.length; i++) {
   if (args[i] === '--timeout') timeout = Number(args[++i]);
   else if (args[i] === '-v') verbose = true;
   else if (args[i] === '--json') json = true;
+  else if (args[i] === '--progress') progress = true;
   else if (args[i] === '--documents') documents = args[++i];
   else if (args[i] === '--live') live = true;
   else rest.push(args[i]);
 }
 const dir = resolve(rest[0] ?? fileURLToPath(new URL('../test/notation3tests/tests', import.meta.url)));
 if (rest.length > 1 || !Number.isFinite(timeout) || timeout <= 0 || (live && documents)) {
-  process.stderr.write('usage: node tools/notation3tests.js [--timeout SECONDS] [--json] [-v] [--documents FILE | --live] [DIR]\n');
+  process.stderr.write('usage: node tools/notation3tests.js [--timeout SECONDS] [--json] [--progress] [-v] [--documents FILE | --live] [DIR]\n');
   process.exit(2);
 }
 const env = { ...process.env };
@@ -103,15 +106,21 @@ function score(file, { out, err, code, signal }) {
 
 const started = performance.now();
 const files = collect(dir).sort();
+if (progress) process.stderr.write(`Running ${files.length} Notation3 cases through the eyemind command.\n`);
 const tally = {};
 const lines = new Array(files.length);
 let next = 0;
+let finished = 0;
 async function worker() {
   while (next < files.length) {
     const k = next++;
     const [verdict, detail] = score(files[k], await runOne(files[k]));
     tally[verdict] = (tally[verdict] ?? 0) + 1;
     lines[k] = `${verdict.padEnd(11)} ${relative(dir, files[k])}${verdict !== 'ok' && detail ? `  ${detail.slice(0, 140)}` : ''}`;
+    finished++;
+    if (progress && finished % 200 === 0 && finished < files.length) {
+      process.stderr.write(`${finished}/${files.length} Notation3 cases completed.\n`);
+    }
   }
 }
 await Promise.all(Array.from({ length: Math.min(3, cpus().length) }, worker));
