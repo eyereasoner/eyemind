@@ -84,7 +84,7 @@ conformance('in goal text, _ in a negation stands for any value', [
 ])
 
 conformance('a negation with anonymous variables is an absent step that checks', [
-  spec('4.2, 10.3, 11.7'),
+  spec('4.2, 10.3, 11.9'),
   args('--proof'),
   stdin([
     "fact(p('a'), p('b'), q('a', 1))",

@@ -1,0 +1,25 @@
+# Three invoices have line amounts totalling 245, 25 and 0. Collection finds
+# every amount for each invoice, including an empty list for invoice 3;
+# arithmetic sums them and a second rule flags invoice 1 as large.
+@prefix : <https://example.org/invoice#> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+
+:invoice1 a :Invoice ; :line :line1, :line2, :line3 .
+:invoice2 a :Invoice ; :line :line4, :line5 .
+:invoice3 a :Invoice .
+:line1 :amount 120 .
+:line2 :amount 80 .
+:line3 :amount 45 .
+:line4 :amount 10 .
+:line5 :amount 15 .
+
+{
+  ?invoice a :Invoice .
+  (?amount { ?invoice :line ?line . ?line :amount ?amount } ?amounts)
+    log:collectAllIn [] .
+  ?amounts math:sum ?total .
+} => { ?invoice :total ?total } .
+
+{ ?invoice :total ?total . ?total math:greaterThan 200 }
+  => { ?invoice a :LargeInvoice } .

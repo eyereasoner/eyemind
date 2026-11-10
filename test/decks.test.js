@@ -323,11 +323,37 @@ for (const entry of MANIFEST) {
     const commands = blocks(text, 'sh').flatMap((block) => block.trim().split('\n'));
     assert.ok(commands.length, 'no runnable commands');
     const files = new Map();
+    const programs = new Set([`examples/${name}.js`]);
     for (const line of commands) {
       const clean = line.replace(/[ \t]+#.*$/, '').replace(/; echo "exit code: \$\?"$/, '').trim();
       if (!clean || clean.startsWith('#')) continue;
       for (const part of clean.split(' && ')) {
-        const [command, ...args] = shellSplit(part);
+        let [command, ...args] = shellSplit(part);
+        if (command === 'node') {
+          assert.equal(args.shift(), 'bin/eyemind.js');
+          command = 'eyemind';
+        }
+        if (['eyemind-n3', 'n3-to-eyemind', 'eyemind-to-n3'].includes(command)) {
+          // The optional N3 tools are not dependencies of this suite. Check
+          // their paths and handoffs; use the saved compilation for commands
+          // that run eyemind. The N3 source accompanies that compilation.
+          const original = `examples/${name}.n3`;
+          assert.ok(read(`${name}.n3`).startsWith('# '), original);
+          if (command === 'eyemind-n3') {
+            assert.deepEqual(args, [original]);
+          } else if (command === 'n3-to-eyemind') {
+            assert.deepEqual(args, [original, '-o', `/tmp/${name}.js`]);
+            files.set(args[2], read(`${name}.js`));
+            programs.add(args[2]);
+          } else {
+            assert.equal(args.length, 3);
+            assert.deepEqual(args.slice(0, 2), ['--prefixes', original]);
+            assert.ok(files.has(args[2]), 'converter input was not produced');
+            const triples = terms(files.get(args[2]));
+            assert.ok(triples.length && triples.every((term) => ['rdf', 'result'].includes(term.name) && term.args.length === 3));
+          }
+          continue;
+        }
         if (command === 'eyemind-to-rdf') {
           // The converter belongs to rdf-interchange. Check its documented
           // input here without making this dependency-free suite require it.
@@ -347,7 +373,7 @@ for (const entry of MANIFEST) {
           assert.ok(target);
           args.splice(redirect);
         }
-        assert.ok(args.includes(`examples/${name}.js`));
+        assert.ok(args.some((arg) => programs.has(arg)), 'command must use this example or its compiled N3 source');
         const result = deckCommand(args, files);
         if (target) files.set(target, result.stdout);
         const goals = args.flatMap((arg, i) => arg === '--goal' ? [args[i + 1]] : []);

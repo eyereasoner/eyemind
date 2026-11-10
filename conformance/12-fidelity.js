@@ -1,8 +1,8 @@
-// SPEC 10.5 and 11.14: every check includes C10 for original calls.
+// SPEC 10.5 and 11.13: every check includes C10 for original calls.
 // Expected reports follow the specification; failure details are free text.
 
 conformance('C10 certifies the first answer of the original open question', [
-  spec('10.5, 11.14, 12'),
+  spec('10.5, 11.13, 12'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'fact(p(\'a\'), p(\'b\'))',
@@ -46,7 +46,7 @@ conformance('C10 certifies the first answer of the original open question', [
 ])
 
 conformance('C10 rejects a later once answer whose logical steps pass C1-C9', [
-  spec('10.5, 11.14, 12'),
+  spec('10.5, 11.13, 12'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -94,7 +94,7 @@ conformance('C10 rejects a later once answer whose logical steps pass C1-C9', [
 ])
 
 conformance('C10 rejects a forged original-call answer table', [
-  spec('10.5, 11.14, 12'),
+  spec('10.5, 11.13, 12'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -142,7 +142,7 @@ conformance('C10 rejects a forged original-call answer table', [
 ])
 
 conformance('C10 refuses a missing complete original-call certificate', [
-  spec('10.5, 11.14, 12'),
+  spec('10.5, 11.13, 12'),
   args('--strict-proof --check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -192,7 +192,7 @@ conformance('C10 refuses a missing complete original-call certificate', [
 ])
 
 conformance('C10 rechecks binding-sensitive primitives before later instantiation', [
-  spec('10.5, 11.14, 12'),
+  spec('10.5, 11.13, 12'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -240,7 +240,7 @@ conformance('C10 rechecks binding-sensitive primitives before later instantiatio
 ])
 
 conformance('C10 call tables cannot disguise named variables as anonymous', [
-  spec('10.5, 11.14, 12'),
+  spec('10.5, 11.13, 12'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -291,7 +291,7 @@ conformance('C10 call tables cannot disguise named variables as anonymous', [
 ])
 
 conformance('C10 permits source-grounded positive forward closure', [
-  spec('10.5, 11.14, 12'),
+  spec('10.5, 11.13, 12'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'fact(p(\'a\'))',
@@ -335,7 +335,7 @@ conformance('C10 permits source-grounded positive forward closure', [
 ])
 
 conformance('C10 refuses unsupported forward publication evidence', [
-  spec('10.5, 11.14, 12'),
+  spec('10.5, 11.13, 12'),
   args('--strict-proof --check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -411,7 +411,7 @@ conformance('called/2 is reserved for C10 call certificates', [
 ])
 
 conformance('C10 always reports missing original-call evidence as an obligation', [
-  spec('10.5, 11.14, 12'),
+  spec('10.5, 11.13, 12'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'fact(p(\'a\'))',
@@ -457,7 +457,7 @@ conformance('C10 always reports missing original-call evidence as an obligation'
 ])
 
 conformance('--prove-and-check always generates C10 evidence', [
-  spec('8.7, 10.5, 11.14, 13.1'),
+  spec('8.7, 10.5, 11.13, 13.1'),
   args('--prove-and-check program.js'),
   file('program.js', [
     'fact(p(\'a\'), p(\'b\'))',
@@ -495,7 +495,7 @@ conformance('--prove-and-check always generates C10 evidence', [
 ])
 
 conformance('C10 cannot refute an answer while another original question remains unproved', [
-  spec('10.5, 11.14, 12'),
+  spec('10.5, 11.13, 12'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'fact(p(\'a\'), p(\'b\'))',
@@ -543,7 +543,7 @@ conformance('C10 cannot refute an answer while another original question remains
 ])
 
 conformance("C10: a claim more specific than the actual answer fails", [
-  spec("11.14, 12"),
+  spec("11.13, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -590,7 +590,7 @@ conformance("C10: a claim more specific than the actual answer fails", [
 ])
 
 conformance("C10: comparing unbound variables leaves call fidelity unproved", [
-  spec("11.14, 12"),
+  spec("11.13, 12"),
   args("--check-proof proof.js program.js"),
   file("program.js", [
     "implied_by(r(O), [p(X), p(Y), compare(O, X, Y)])",
@@ -641,7 +641,7 @@ conformance("C10: comparing unbound variables leaves call fidelity unproved", [
 ])
 
 conformance("C3: two call tables for one call fail justification", [
-  spec("10.5, 11.1, 12"),
+  spec("10.5, 11.3, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -690,7 +690,7 @@ conformance("C3: two call tables for one call fail justification", [
 ])
 
 conformance("C3: a call table whose answers are not an array is set aside", [
-  spec("10.5, 11.1, 11.14, 12"),
+  spec("10.5, 11.3, 11.13, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -741,7 +741,7 @@ conformance("C3: a call table whose answers are not an array is set aside", [
 ])
 
 conformance("C7: a call table no original question consults fails relevance", [
-  spec("11.8, 11.14, 12"),
+  spec("11.10, 11.13, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -790,7 +790,7 @@ conformance("C7: a call table no original question consults fails relevance", [
 ])
 
 conformance("C10: a named variable unbound at a negation fails an honest call certificate", [
-  spec("4.2, 11.14, 12"),
+  spec("4.2, 11.13, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -841,7 +841,7 @@ conformance("C10: a named variable unbound at a negation fails an honest call ce
 ])
 
 conformance("C10: a given goal is the original question", [
-  spec("11.8, 11.14, 12"),
+  spec("11.10, 11.13, 12"),
   args("--check-proof proof.js --goal 'q(X)' program.js"),
   file("program.js", [
     "fact(p('a'), p('b'))",
@@ -884,7 +884,7 @@ conformance("C10: a given goal is the original question", [
 ])
 
 conformance("C10: a given ground goal is asked as given, not as an open question", [
-  spec("11.14, 12"),
+  spec("11.13, 12"),
   args("--check-proof proof.js --goal \"q('b')\" program.js"),
   file("program.js", [
     "fact(p('a'), p('b'))",
@@ -927,7 +927,7 @@ conformance("C10: a given ground goal is asked as given, not as an open question
 ])
 
 conformance("C10: without a query, the forward heads are the original questions", [
-  spec("11.14, 12"),
+  spec("11.13, 12"),
   args("--check-proof proof.js program.js"),
   file("program.js", [
     "fact(p('a'))",
@@ -970,7 +970,7 @@ conformance("C10: without a query, the forward heads are the original questions"
 ])
 
 conformance("C10: a collection in an original call collects the actual answers", [
-  spec("4.2, 11.14, 12"),
+  spec("4.2, 11.13, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -1021,7 +1021,7 @@ conformance("C10: a collection in an original call collects the actual answers",
 ])
 
 conformance("C10: a search table does not certify an original call", [
-  spec("10.5, 11.8, 11.14, 12"),
+  spec("10.5, 11.10, 11.13, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -1072,7 +1072,7 @@ conformance("C10: a search table does not certify an original call", [
 ])
 
 conformance("C10: a call table that depends on itself fails", [
-  spec("11.10, 11.14, 12"),
+  spec("11.12, 11.13, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -1120,7 +1120,7 @@ conformance("C10: a call table that depends on itself fails", [
 ])
 
 conformance("C10: a forward listing over a fact with variables leaves call fidelity unproved", [
-  spec("11.14, 12"),
+  spec("11.13, 12"),
   args("--check-proof proof.js program.js"),
   file("program.js", [
     "fact(p('a'))",
@@ -1168,7 +1168,7 @@ conformance("C10: a forward listing over a fact with variables leaves call fidel
 ])
 
 conformance("C10: a forward listing may rest on a backward rule and a disjunction that grounds its variable", [
-  spec("11.14, 12"),
+  spec("11.13, 12"),
   args("--check-proof proof.js program.js"),
   file("program.js", [
     "fact(p('a'), s('b'))",
@@ -1222,7 +1222,7 @@ conformance("C10: a forward listing may rest on a backward rule and a disjunctio
 ])
 
 conformance("C10: a named and an anonymous call have tables of their own", [
-  spec("10.5, 11.14, 12"),
+  spec("10.5, 11.13, 12"),
   args("--check-proof proof.js program.js"),
   file("program.js", [
     "implied_by(p(Y), 'true')",
@@ -1270,7 +1270,7 @@ conformance("C10: a named and an anonymous call have tables of their own", [
 ])
 
 conformance("C10 does not discharge an absence obligation", [
-  spec("11.14, 12"),
+  spec("11.13, 12"),
   args("--check-proof proof.js program.js"),
   file("program.js", [
     "fact(s('a'))",

@@ -2,7 +2,7 @@
 // a program and expects the exact report. Failure details are free text.
 
 conformance('C8: a captured witness cannot become a fresh parameter of its caller', [
-  spec('6.2, 11.9'),
+  spec('6.2, 11.11'),
   args('--strict-proof --check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -55,7 +55,7 @@ conformance('C8: a captured witness cannot become a fresh parameter of its calle
 ])
 
 conformance('C8: a settled specific absence cannot authorize an untrue generalization', [
-  spec('11.9, 11.10'),
+  spec('11.11, 11.12'),
   args('--strict-proof --check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -105,7 +105,7 @@ conformance('C8: a settled specific absence cannot authorize an untrue generaliz
 ])
 
 conformance('C1-C9 certify a displayed instance without operational open-query fidelity', [
-  spec('11.6, 11.8, 11.13'),
+  spec('11.8, 11.10, 11.2'),
   args("--strict-proof --check-proof proof.js --goal 'q(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -154,7 +154,7 @@ conformance('C1-C9 certify a displayed instance without operational open-query f
 ])
 
 conformance('C8: a literal Skolem-shaped context cannot be claimed as a fresh parameter', [
-  spec('8.2, 11.9'),
+  spec('8.2, 11.11'),
   args('--strict-proof --check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -203,7 +203,7 @@ conformance('C8: a literal Skolem-shaped context cannot be claimed as a fresh pa
 ])
 
 conformance('C8: source premise parameters establish fresh witness provenance', [
-  spec('8.2, 11.9'),
+  spec('8.2, 11.11'),
   args('--strict-proof --check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -251,7 +251,7 @@ conformance('C8: source premise parameters establish fresh witness provenance', 
 ])
 
 conformance('C3: an invalid collection is not a strict-proof obligation', [
-  spec('11.4, 11.6, 12'),
+  spec('11.6, 11.8, 12'),
   args('--strict-proof --check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -301,7 +301,7 @@ conformance('C3: an invalid collection is not a strict-proof obligation', [
 ])
 
 conformance('C9: shared table dependencies preserve every collection ordering obligation', [
-  spec('11.10, 12'),
+  spec('11.12, 12'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'fact(seed(1), seed(2))',
@@ -475,7 +475,7 @@ conformance('the proof can come from standard input', [
 ])
 
 conformance('C1: a clause display that differs from the program fails', [
-  spec('11.1, 11.2'),
+  spec('11.3, 11.4'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -527,7 +527,7 @@ conformance('C1: a clause display that differs from the program fails', [
 ])
 
 conformance('C1: the program, not the display, is the authority', [
-  spec('11.2'),
+  spec('11.4'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -580,7 +580,7 @@ conformance('C1: the program, not the display, is the authority', [
 ])
 
 conformance('C1: a binding that disagrees with the goal fails', [
-  spec('11.2'),
+  spec('11.4'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -630,7 +630,7 @@ conformance('C1: a binding that disagrees with the goal fails', [
 ])
 
 conformance("C1: a use that is not the rule's body fails", [
-  spec('11.2'),
+  spec('11.4'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -680,7 +680,7 @@ conformance("C1: a use that is not the rule's body fails", [
 ])
 
 conformance('C1: an unknown clause number fails', [
-  spec('11.2'),
+  spec('11.4'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -730,7 +730,7 @@ conformance('C1: an unknown clause number fails', [
 ])
 
 conformance('C1: variable sharing in a source clause cannot be forged', [
-  spec('11.2'),
+  spec('11.4'),
   args("--check-proof proof.js --goal 'same(A, B)' program.js"),
   exit(2),
   file('program.js', [
@@ -776,7 +776,7 @@ conformance('C1: variable sharing in a source clause cannot be forged', [
 ])
 
 conformance('C2: a step that depends on itself fails', [
-  spec('11.3'),
+  spec('11.5'),
   args('--check-proof proof.js --goal \'\'"\'"\'p\'"\'"\'\' program.js'),
   exit(2),
   file('program.js', [
@@ -824,7 +824,7 @@ conformance('C2: a step that depends on itself fails', [
 ])
 
 conformance('C3: an unknown justification fails', [
-  spec('11.4'),
+  spec('11.6'),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -869,7 +869,7 @@ conformance('C3: an unknown justification fails', [
 ])
 
 conformance('C3: two steps for one goal fail', [
-  spec('11.1'),
+  spec('11.3'),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -915,7 +915,7 @@ conformance('C3: two steps for one goal fail', [
 ])
 
 conformance('C3: bindings that are not a dictionary fail', [
-  spec('11.1'),
+  spec('11.3'),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -961,7 +961,7 @@ conformance('C3: bindings that are not a dictionary fail', [
 ])
 
 conformance('C3: a builtin step has no uses', [
-  spec('11.4'),
+  spec('11.6'),
   args("--check-proof proof.js --goal 'lt(1, 2)' program.js"),
   exit(2),
   file('program.js', [
@@ -1006,7 +1006,7 @@ conformance('C3: a builtin step has no uses', [
 ])
 
 conformance('C3: a builtin step must name a primitive', [
-  spec('11.4'),
+  spec('11.6'),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -1051,7 +1051,7 @@ conformance('C3: a builtin step must name a primitive', [
 ])
 
 conformance('C3: a document that does not read fails', [
-  spec('9.1, 11.1'),
+  spec('9.1, 11.3'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -1093,7 +1093,7 @@ conformance('C3: a document that does not read fails', [
 ])
 
 conformance('C3: a document is never executed', [
-  spec('9.1, 11.1, 15'),
+  spec('9.1, 11.3, 15'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -1135,7 +1135,7 @@ conformance('C3: a document is never executed', [
 ])
 
 conformance('C3: a document with a nonfinite number does not read', [
-  spec('2, 9.1, 11.1, 12'),
+  spec('2, 9.1, 11.3, 12'),
   args('--check-proof proof.js program.js'),
   exit(2),
   stderr('empty'),
@@ -1178,7 +1178,7 @@ conformance('C3: a document with a nonfinite number does not read', [
 ])
 
 conformance('C4: an empty document claims nothing, and so checks', [
-  spec('11.5'),
+  spec('11.7'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     "fact(p('a'))",
@@ -1215,7 +1215,7 @@ conformance('C4: an empty document claims nothing, and so checks', [
 ])
 
 conformance('C4: a claim and a use without a step fail', [
-  spec('11.5'),
+  spec('11.7'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -1271,7 +1271,7 @@ conformance('C4: a claim and a use without a step fail', [
 ])
 
 conformance('C4: a use may be a fact of the program without a step', [
-  spec('11.5'),
+  spec('11.7'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     "fact(p('a'))",
@@ -1316,7 +1316,7 @@ conformance('C4: a use may be a fact of the program without a step', [
 ])
 
 conformance('C4: a use may be an instance of a fact with variables', [
-  spec('11.5'),
+  spec('11.7'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'fact(same(X, X), item(1))',
@@ -1361,7 +1361,7 @@ conformance('C4: a use may be an instance of a fact with variables', [
 ])
 
 conformance('C4 and C7: an unrelated claim fails', [
-  spec('11.5, 11.8'),
+  spec('11.7, 11.10'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -1415,7 +1415,7 @@ conformance('C4 and C7: an unrelated claim fails', [
 ])
 
 conformance('C5: a primitive is recomputed', [
-  spec('11.6'),
+  spec('11.8'),
   args("--check-proof proof.js --goal 'is(5, add(2, 3))' program.js"),
   file('program.js', [
   ]),
@@ -1455,7 +1455,7 @@ conformance('C5: a primitive is recomputed', [
 ])
 
 conformance('C5: a primitive that does not hold fails', [
-  spec('11.6'),
+  spec('11.8'),
   args("--check-proof proof.js --goal 'is(7, add(2, 3))' program.js"),
   exit(2),
   file('program.js', [
@@ -1500,7 +1500,7 @@ conformance('C5: a primitive that does not hold fails', [
 ])
 
 conformance('C5: a primitive that would need to bind something fails', [
-  spec('11.6'),
+  spec('11.8'),
   args("--check-proof proof.js --goal 'is(X, add(2, 3))' program.js"),
   exit(2),
   file('program.js', [
@@ -1545,7 +1545,7 @@ conformance('C5: a primitive that would need to bind something fails', [
 ])
 
 conformance('C5: a control step is composed of its uses', [
-  spec('11.6'),
+  spec('11.8'),
   args("--check-proof proof.js --goal 'call(p(X))' program.js"),
   file('program.js', [
     "fact(p('a'))",
@@ -1587,7 +1587,7 @@ conformance('C5: a control step is composed of its uses', [
 ])
 
 conformance('C5: a control step must follow from its uses', [
-  spec('11.6'),
+  spec('11.8'),
   args("--check-proof proof.js --goal 'call(p(X))' program.js"),
   exit(2),
   file('program.js', [
@@ -1633,7 +1633,7 @@ conformance('C5: a control step must follow from its uses', [
 ])
 
 conformance('C5: either side of a disjunction composes it', [
-  spec('11.6'),
+  spec('11.8'),
   args("--check-proof proof.js --goal 'or(p(X), q(X))' program.js"),
   file('program.js', [
     "fact(q('a'))",
@@ -1675,7 +1675,7 @@ conformance('C5: either side of a disjunction composes it', [
 ])
 
 conformance('obligations are listed and make the verdict conditional', [
-  spec('11.7, 12'),
+  spec('11.9, 12'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'fact(p(1), p(2))',
@@ -1739,7 +1739,7 @@ conformance('obligations are listed and make the verdict conditional', [
 ])
 
 conformance('strict checking forbids trusted boundaries', [
-  spec('11.6, 13.1'),
+  spec('11.8, 13.1'),
   args('--strict-proof --check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -1793,7 +1793,7 @@ conformance('strict checking forbids trusted boundaries', [
 ])
 
 conformance('C3: a trusted boundary has no bindings or uses', [
-  spec('11.4'),
+  spec('11.6'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -1844,7 +1844,7 @@ conformance('C3: a trusted boundary has no bindings or uses', [
 ])
 
 conformance('C6: an absence contradicted by a program fact fails', [
-  spec('11.7'),
+  spec('11.9'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -1895,7 +1895,7 @@ conformance('C6: an absence contradicted by a program fact fails', [
 ])
 
 conformance('C6: an absence contradicted by a primitive fails', [
-  spec('11.7'),
+  spec('11.9'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -1945,7 +1945,7 @@ conformance('C6: an absence contradicted by a primitive fails', [
 ])
 
 conformance('C6: an absence contradicted by a step of the proof fails', [
-  spec('11.7'),
+  spec('11.9'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -2002,7 +2002,7 @@ conformance('C6: an absence contradicted by a step of the proof fails', [
 ])
 
 conformance('C6: a collection missing a solution fails', [
-  spec('11.7'),
+  spec('11.9'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -2053,7 +2053,7 @@ conformance('C6: a collection missing a solution fails', [
 ])
 
 conformance('C6: an absence over a conjunction with shared variables stays undecided', [
-  spec('11.7'),
+  spec('11.9'),
   args("--check-proof proof.js --goal 'ok(X)' program.js"),
   file('program.js', [
     'fact(p(1), q(2))',
@@ -2102,7 +2102,7 @@ conformance('C6: an absence over a conjunction with shared variables stays undec
 ])
 
 conformance('C7: a claim must answer the question asked', [
-  spec('11.8'),
+  spec('11.10'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -2150,7 +2150,7 @@ conformance('C7: a claim must answer the question asked', [
 ])
 
 conformance('C7: goals asked from outside are the questions', [
-  spec('11.8'),
+  spec('11.10'),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   file('program.js', [
     "fact(p('a'))",
@@ -2191,7 +2191,7 @@ conformance('C7: goals asked from outside are the questions', [
 ])
 
 conformance('C7: a claim must be an instance of the question, not more general', [
-  spec('11.8'),
+  spec('11.10'),
   args('--check-proof proof.js --goal \'p(\'"\'"\'a\'"\'"\')\' program.js'),
   exit(2),
   file('program.js', [
@@ -2239,7 +2239,7 @@ conformance('C7: a claim must be an instance of the question, not more general',
 ])
 
 conformance('C7: a step that serves no claim fails', [
-  spec('11.8'),
+  spec('11.10'),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -2285,7 +2285,7 @@ conformance('C7: a step that serves no claim fails', [
 ])
 
 conformance("C7: a query's body is a question", [
-  spec('11.8'),
+  spec('11.10'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'fact(p(1), q(1))',
@@ -2328,7 +2328,7 @@ conformance("C7: a query's body is a question", [
 ])
 
 conformance('a halted proof is checked against the forward heads', [
-  spec('11.8'),
+  spec('11.10'),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   file('program.js', [
     "fact(account('bob', -5))",
@@ -2608,7 +2608,7 @@ conformance('a failing report as JSON', [
 ])
 
 conformance('a host math result within four units in the last place re-decides', [
-  spec('11.6, 14'),
+  spec('11.8, 14'),
   args("--json --check-proof proof.js --goal 'is(2.718281828459047, exp(1))' program.js"),
   exit(2),
   file('program.js', [
@@ -2705,7 +2705,7 @@ conformance('a host math result within four units in the last place re-decides',
 ])
 
 conformance('a host math result five units in the last place away fails re-decision', [
-  spec('11.6, 14'),
+  spec('11.8, 14'),
   args("--json --check-proof proof.js --goal 'is(2.7182818284590473, exp(1))' program.js"),
   exit(2),
   file('program.js', [
@@ -2807,7 +2807,7 @@ conformance('a host math result five units in the last place away fails re-decis
 ])
 
 conformance('an exact operation allows no unit in the last place', [
-  spec('11.6'),
+  spec('11.8'),
   args("--json --check-proof proof.js --goal 'is(2.5000000000000004, add(1.5, 1.0))' program.js"),
   exit(2),
   file('program.js', [
@@ -2959,7 +2959,7 @@ conformance('a generated proof checks', [
 ])
 
 conformance('C8: each witness is the skolem term of its own firing', [
-  spec('11.9'),
+  spec('11.11'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     "fact(person('ann'), person('bob'))",
@@ -3014,7 +3014,7 @@ conformance('C8: each witness is the skolem term of its own firing', [
 ])
 
 conformance('C8: a witness replaced by a value fails', [
-  spec('11.9'),
+  spec('11.11'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -3073,7 +3073,7 @@ conformance('C8: a witness replaced by a value fails', [
 ])
 
 conformance("C8: another firing's witness fails", [
-  spec('11.9'),
+  spec('11.11'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -3132,7 +3132,7 @@ conformance("C8: another firing's witness fails", [
 ])
 
 conformance('C1 rejects an inspection that separates a source rule variable', [
-  spec('6.3, 11.2'),
+  spec('6.3, 11.4'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'implies(a(X), c(X))',
@@ -3147,7 +3147,7 @@ conformance('C1 rejects an inspection that separates a source rule variable', [
 ])
 
 conformance('C8 rejects an open inspection pattern with one shared existential witness', [
-  spec('6.3, 11.9'),
+  spec('6.3, 11.11'),
   args('--check-proof proof.js program.js'),
   file('program.js', [
     'implies(a(X), c(X))',
@@ -3165,7 +3165,7 @@ conformance('C8 rejects an open inspection pattern with one shared existential w
 // Additional boundary and specification-coverage cases.
 
 conformance("a valid certificate may prove a proper subset of the answers", [
-  spec("7.6, 11.11, 11.12, 12.1"),
+  spec("7.6, 11.14, 11.1, 12.1"),
   args("--check-proof proof.js --json --goal 'p(X)' program.js"),
   stderr('empty'),
   file('program.js', [
@@ -3256,7 +3256,7 @@ conformance("a valid certificate may prove a proper subset of the answers", [
 ])
 
 conformance("an empty certificate has zero counts and certifies no completeness claim", [
-  spec("11.11, 11.12, 12.1"),
+  spec("11.14, 11.1, 12.1"),
   args("--check-proof proof.js --json program.js"),
   stderr('empty'),
   file('program.js', [
@@ -3343,7 +3343,7 @@ conformance("an empty certificate has zero counts and certifies no completeness 
 ])
 
 conformance("C1 rejects repeated source variable binding names", [
-  spec("11.2"),
+  spec("11.4"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   stderr('empty'),
@@ -3389,7 +3389,7 @@ conformance("C1 rejects repeated source variable binding names", [
 ])
 
 conformance("C1 rejects unknown source variable binding names", [
-  spec("11.2"),
+  spec("11.4"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   stderr('empty'),
@@ -3435,7 +3435,7 @@ conformance("C1 rejects unknown source variable binding names", [
 ])
 
 conformance("C1 cannot instantiate a certificate variable to fit a ground source fact", [
-  spec("11.2"),
+  spec("11.4"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   stderr('empty'),
@@ -3481,7 +3481,7 @@ conformance("C1 cannot instantiate a certificate variable to fit a ground source
 ])
 
 conformance("C2 rejects an indirect two-step dependency cycle", [
-  spec("11.3"),
+  spec("11.5"),
   args("--check-proof proof.js --goal 'a()' program.js"),
   exit(2),
   stderr('empty'),
@@ -3531,7 +3531,7 @@ conformance("C2 rejects an indirect two-step dependency cycle", [
 ])
 
 conformance("C4 checks every conjunct of a conjunction-valued use", [
-  spec("11.5"),
+  spec("11.7"),
   args("--check-proof proof.js --goal 'q(G)' program.js"),
   exit(2),
   stderr('empty'),
@@ -3580,7 +3580,7 @@ conformance("C4 checks every conjunct of a conjunction-valued use", [
 ])
 
 conformance("C3 rejects bindings on a builtin step", [
-  spec("11.4"),
+  spec("11.6"),
   args("--check-proof proof.js --goal 'unify(1, 1)' program.js"),
   exit(2),
   stderr('empty'),
@@ -3624,7 +3624,7 @@ conformance("C3 rejects bindings on a builtin step", [
 ])
 
 conformance("C5 rejects bindings on a control step", [
-  spec("11.6"),
+  spec("11.8"),
   args("--check-proof proof.js --goal 'once(p(1))' program.js"),
   exit(2),
   stderr('empty'),
@@ -3669,7 +3669,7 @@ conformance("C5 rejects bindings on a control step", [
 ])
 
 conformance("C8 rejects a witness with the wrong head variable name", [
-  spec("11.9"),
+  spec("11.11"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   stderr('empty'),
@@ -3718,7 +3718,7 @@ conformance("C8 rejects a witness with the wrong head variable name", [
 ])
 
 conformance("C8 rejects a witness with the wrong rule number", [
-  spec("11.9"),
+  spec("11.11"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   stderr('empty'),
@@ -3767,7 +3767,7 @@ conformance("C8 rejects a witness with the wrong rule number", [
 ])
 
 conformance("C8 rejects a witness with spurious firing arguments", [
-  spec("11.9"),
+  spec("11.11"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   stderr('empty'),
@@ -3816,7 +3816,7 @@ conformance("C8 rejects a witness with spurious firing arguments", [
 ])
 
 conformance("a backward rule certificate checks its enclosing generators witness without enabling steps", [
-  spec("6.2, 10.2, 11.9, 11.11"),
+  spec("6.2, 10.2, 11.11, 11.14"),
   args("--check-proof proof.js --json --goal 'owner(W, X)' program.js"),
   stderr('empty'),
   file('program.js', [
@@ -3916,7 +3916,7 @@ conformance("a backward rule certificate checks its enclosing generators witness
 ])
 
 conformance("C8 rejects a forged outer witness value in a backward derived rule", [
-  spec("6.2, 11.9"),
+  spec("6.2, 11.11"),
   args("--check-proof proof.js --goal 'owner(W, X)' program.js"),
   exit(2),
   stderr('empty'),
@@ -3967,7 +3967,7 @@ conformance("C8 rejects a forged outer witness value in a backward derived rule"
 ])
 
 conformance("C8 rejects a forged outer witness context in a backward derived rule", [
-  spec("6.2, 11.9"),
+  spec("6.2, 11.11"),
   args("--check-proof proof.js --goal 'owner(W, X)' program.js"),
   exit(2),
   stderr('empty'),
@@ -4018,7 +4018,7 @@ conformance("C8 rejects a forged outer witness context in a backward derived rul
 ])
 
 conformance("C8 rejects a forged outer witness rule in a backward derived rule", [
-  spec("6.2, 11.9"),
+  spec("6.2, 11.11"),
   args("--check-proof proof.js --goal 'owner(W, X)' program.js"),
   exit(2),
   stderr('empty'),
@@ -4069,7 +4069,7 @@ conformance("C8 rejects a forged outer witness rule in a backward derived rule",
 ])
 
 conformance("C8 rejects a forged outer witness name in a backward derived rule", [
-  spec("6.2, 11.9"),
+  spec("6.2, 11.11"),
   args("--check-proof proof.js --goal 'owner(W, X)' program.js"),
   exit(2),
   stderr('empty'),
@@ -4120,7 +4120,7 @@ conformance("C8 rejects a forged outer witness name in a backward derived rule",
 ])
 
 conformance("a derived rule certificate cannot omit evidence of its generating premise", [
-  spec("6.2, 11.5"),
+  spec("6.2, 11.7"),
   args("--check-proof proof.js --goal 'q(X)' program.js"),
   exit(2),
   stderr('empty'),
@@ -4171,7 +4171,7 @@ conformance("a derived rule certificate cannot omit evidence of its generating p
 ])
 
 conformance("a collection over derived backward rules cannot omit a certified answer", [
-  spec("6.2, 11.7"),
+  spec("6.2, 11.9"),
   args("--check-proof proof.js --goal 'item(X)' --goal 'findall(X, item(X), L)' program.js"),
   exit(2),
   stderr('empty'),
@@ -4227,7 +4227,7 @@ conformance("a collection over derived backward rules cannot omit a certified an
 ])
 
 conformance("bindings may be written as a list of = pairs", [
-  spec("10.3, 11.1"),
+  spec("10.3, 11.3"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(p('a'))",
@@ -4273,7 +4273,7 @@ conformance("bindings may be written as a list of = pairs", [
 ])
 
 conformance("uses that are not a list set the step aside", [
-  spec("11.1"),
+  spec("11.3"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -4319,7 +4319,7 @@ conformance("uses that are not a list set the step aside", [
 ])
 
 conformance("bindings listing terms other than = pairs set the step aside", [
-  spec("11.1"),
+  spec("11.3"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -4365,7 +4365,7 @@ conformance("bindings listing terms other than = pairs set the step aside", [
 ])
 
 conformance("a clause display for a clause number the program lacks fails C1", [
-  spec("11.1"),
+  spec("11.3"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -4417,7 +4417,7 @@ conformance("a clause display for a clause number the program lacks fails C1", [
 ])
 
 conformance("clause displays may follow the steps", [
-  spec("10.1, 11.1"),
+  spec("10.1, 11.3"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(p('a'))",
@@ -4466,7 +4466,7 @@ conformance("clause displays may follow the steps", [
 ])
 
 conformance("a claim written after the steps is still a claim", [
-  spec("10.1, 11.1"),
+  spec("10.1, 11.3"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(p('a'), p('b'))",
@@ -4564,7 +4564,7 @@ conformance("comments in a proof document are ignored, even when they look like 
 ])
 
 conformance("a step with three arguments is a claim", [
-  spec("10.1, 11.1"),
+  spec("10.1, 11.3"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -4615,7 +4615,7 @@ conformance("a step with three arguments is a claim", [
 ])
 
 conformance("C1: a fact cannot justify a goal with uses", [
-  spec("11.2"),
+  spec("11.4"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -4661,7 +4661,7 @@ conformance("C1: a fact cannot justify a goal with uses", [
 ])
 
 conformance("C1: a rule step with fewer uses than body goals fails", [
-  spec("11.2"),
+  spec("11.4"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -4712,7 +4712,7 @@ conformance("C1: a rule step with fewer uses than body goals fails", [
 ])
 
 conformance("C1: a rule cannot justify a goal of another predicate", [
-  spec("11.2"),
+  spec("11.4"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -4763,7 +4763,7 @@ conformance("C1: a rule cannot justify a goal of another predicate", [
 ])
 
 conformance("C1: bindings the goal and uses determine may be omitted", [
-  spec("10.3, 11.2"),
+  spec("10.3, 11.4"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(p('a', 'b'))",
@@ -4809,7 +4809,7 @@ conformance("C1: bindings the goal and uses determine may be omitted", [
 ])
 
 conformance("C1: one forward rule justifies each conjunct of its head", [
-  spec("11.2"),
+  spec("11.4"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(p('a'))",
@@ -4859,7 +4859,7 @@ conformance("C1: one forward rule justifies each conjunct of its head", [
 ])
 
 conformance("C1: a source inspection step is verified", [
-  spec("6.3, 11.2"),
+  spec("6.3, 11.4"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "implies(a(X), c(X))",
@@ -4904,7 +4904,7 @@ conformance("C1: a source inspection step is verified", [
 ])
 
 conformance("C1: a source inspection step with bindings fails", [
-  spec("6.3, 11.2"),
+  spec("6.3, 11.4"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -4953,7 +4953,7 @@ conformance("C1: a source inspection step with bindings fails", [
 ])
 
 conformance("C1: a source inspection step cannot cite a fact", [
-  spec("6.3, 11.2"),
+  spec("6.3, 11.4"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -5003,7 +5003,7 @@ conformance("C1: a source inspection step cannot cite a fact", [
 ])
 
 conformance("C1: a source inspection step must keep the direction of the rule", [
-  spec("6.3, 11.2"),
+  spec("6.3, 11.4"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -5052,7 +5052,7 @@ conformance("C1: a source inspection step must keep the direction of the rule", 
 ])
 
 conformance("C1: a source inspection step for a backward rule is verified", [
-  spec("6.3, 11.2"),
+  spec("6.3, 11.4"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "implied_by(c(X), a(X))",
@@ -5097,7 +5097,7 @@ conformance("C1: a source inspection step for a backward rule is verified", [
 ])
 
 conformance("C2: a goal used by two steps is shared, not cyclic", [
-  spec("10.3, 11.3"),
+  spec("10.3, 11.5"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(s(1))",
@@ -5147,7 +5147,7 @@ conformance("C2: a goal used by two steps is shared, not cyclic", [
 ])
 
 conformance("C2: each step that depends on itself is a failure", [
-  spec("11.3"),
+  spec("11.5"),
   args("--check-proof proof.js --goal 'p()' --goal 'q()' program.js"),
   exit(2),
   file('program.js', [
@@ -5201,7 +5201,7 @@ conformance("C2: each step that depends on itself is a failure", [
 ])
 
 conformance("C2: a step that uses its own goal fails even when the goal is a program fact", [
-  spec("11.3"),
+  spec("11.5"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -5250,7 +5250,7 @@ conformance("C2: a step that uses its own goal fails even when the goal is a pro
 ])
 
 conformance("C3: a builtin step cannot justify a control", [
-  spec("11.4"),
+  spec("11.6"),
   args("--check-proof proof.js --goal 'call(p(X))' program.js"),
   exit(2),
   file('program.js', [
@@ -5295,7 +5295,7 @@ conformance("C3: a builtin step cannot justify a control", [
 ])
 
 conformance("C3: a builtin step cannot justify a source inspection", [
-  spec("6.3, 11.4"),
+  spec("6.3, 11.6"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -5344,7 +5344,7 @@ conformance("C3: a builtin step cannot justify a source inspection", [
 ])
 
 conformance("C3: a clause justification takes exactly one argument", [
-  spec("10.3, 11.4"),
+  spec("10.3, 11.6"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -5389,7 +5389,7 @@ conformance("C3: a clause justification takes exactly one argument", [
 ])
 
 conformance("C4: a claim needs a step even when it is a program fact", [
-  spec("11.5"),
+  spec("11.7"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -5432,7 +5432,7 @@ conformance("C4: a claim needs a step even when it is a program fact", [
 ])
 
 conformance("C4: a use more general than a fact needs a step", [
-  spec("11.5"),
+  spec("11.7"),
   args("--check-proof proof.js --goal 'q()' program.js"),
   exit(2),
   file('program.js', [
@@ -5481,7 +5481,7 @@ conformance("C4: a use more general than a fact needs a step", [
 ])
 
 conformance("C4: a conjunction-valued use whose conjuncts are facts needs no step", [
-  spec("11.5"),
+  spec("11.7"),
   args("--check-proof proof.js --goal 'q(G)' program.js"),
   file('program.js', [
     "fact(p(1), r(1))",
@@ -5526,7 +5526,7 @@ conformance("C4: a conjunction-valued use whose conjuncts are facts needs no ste
 ])
 
 conformance("C5: once is composed of its argument", [
-  spec("11.6"),
+  spec("11.8"),
   args("--check-proof proof.js --goal 'q(X)' program.js"),
   file('program.js', [
     "fact(p(1))",
@@ -5573,7 +5573,7 @@ conformance("C5: once is composed of its argument", [
 ])
 
 conformance("C5: call of a conjunction is composed of its conjuncts in order", [
-  spec("11.6"),
+  spec("11.8"),
   args("--check-proof proof.js --goal 'q(X)' program.js"),
   file('program.js', [
     "fact(p(1), r(1))",
@@ -5621,7 +5621,7 @@ conformance("C5: call of a conjunction is composed of its conjuncts in order", [
 ])
 
 conformance("C5: a control step with its uses out of order fails", [
-  spec("11.6"),
+  spec("11.8"),
   args("--check-proof proof.js --goal 'q(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -5673,7 +5673,7 @@ conformance("C5: a control step with its uses out of order fails", [
 ])
 
 conformance("C5: a disjunction step cannot take its uses from both sides", [
-  spec("11.6"),
+  spec("11.8"),
   args("--check-proof proof.js --goal 'q(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -5725,7 +5725,7 @@ conformance("C5: a disjunction step cannot take its uses from both sides", [
 ])
 
 conformance("C5: a negation cannot be composed as a control", [
-  spec("11.6"),
+  spec("11.8"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -5776,7 +5776,7 @@ conformance("C5: a negation cannot be composed as a control", [
 ])
 
 conformance("C5: a collection cannot be composed as a control", [
-  spec("11.6"),
+  spec("11.8"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -5827,7 +5827,7 @@ conformance("C5: a collection cannot be composed as a control", [
 ])
 
 conformance("C5: a control step whose goal is not a control fails", [
-  spec("10.3, 11.6"),
+  spec("10.3, 11.8"),
   args("--check-proof proof.js --goal 'q(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -5877,7 +5877,7 @@ conformance("C5: a control step whose goal is not a control fails", [
 ])
 
 conformance("C5: a variable test re-decides on a variable", [
-  spec("11.6"),
+  spec("11.8"),
   args("--check-proof proof.js --goal 'is_var(X)' program.js"),
   file('program.js', [
   ]),
@@ -5917,7 +5917,7 @@ conformance("C5: a variable test re-decides on a variable", [
 ])
 
 conformance("C5: a primitive that raises an error fails re-decision", [
-  spec("4.3, 11.6"),
+  spec("4.3, 11.8"),
   args("--check-proof proof.js --goal 'lt(X, 1)' program.js"),
   exit(2),
   file('program.js', [
@@ -5962,7 +5962,7 @@ conformance("C5: a primitive that raises an error fails re-decision", [
 ])
 
 conformance("C5: an integer result does not re-decide a float", [
-  spec("5.3, 11.6"),
+  spec("5.3, 11.8"),
   args("--check-proof proof.js --goal 'is(3.0, add(1, 2))' program.js"),
   exit(2),
   file('program.js', [
@@ -6007,7 +6007,7 @@ conformance("C5: an integer result does not re-decide a float", [
 ])
 
 conformance("C5: a primitive with several solutions re-decides its stated one", [
-  spec("4.3, 11.6"),
+  spec("4.3, 11.8"),
   args('--check-proof proof.js --goal "atom_concat(\'a\', \'bc\', \'abc\')" program.js'),
   file('program.js', [
   ]),
@@ -6047,7 +6047,7 @@ conformance("C5: a primitive with several solutions re-decides its stated one", 
 ])
 
 conformance("C5: host math tolerance covers a trigonometric function", [
-  spec("11.6, 14"),
+  spec("11.8, 14"),
   args("--check-proof proof.js --goal 'is(0.8414709848078961, sin(1))' program.js"),
   exit(2),
   file('program.js', [
@@ -6091,7 +6091,7 @@ conformance("C5: host math tolerance covers a trigonometric function", [
 ])
 
 conformance("C5: host math tolerance covers pow with floats", [
-  spec("11.6, 14"),
+  spec("11.8, 14"),
   args("--check-proof proof.js --goal 'is(1.4142135623730954, pow(2.0, 0.5))' program.js"),
   exit(2),
   file('program.js', [
@@ -6135,7 +6135,7 @@ conformance("C5: host math tolerance covers pow with floats", [
 ])
 
 conformance("C5: a square root has no host math tolerance", [
-  spec("11.6"),
+  spec("11.8"),
   args("--check-proof proof.js --goal 'is(1.4142135623730954, sqrt(2))' program.js"),
   exit(2),
   file('program.js', [
@@ -6180,7 +6180,7 @@ conformance("C5: a square root has no host math tolerance", [
 ])
 
 conformance("C5: host math tolerance applies only to is", [
-  spec("11.6"),
+  spec("11.8"),
   args("--check-proof proof.js --goal 'eq(2.7182818284590455, exp(1))' program.js"),
   exit(2),
   file('program.js', [
@@ -6225,7 +6225,7 @@ conformance("C5: host math tolerance applies only to is", [
 ])
 
 conformance("C6: an absence whose evidence does not match is consistent", [
-  spec("11.7"),
+  spec("11.9"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(s(1))",
@@ -6275,7 +6275,7 @@ conformance("C6: an absence whose evidence does not match is consistent", [
 ])
 
 conformance("C6: an anonymous variable of an absence matches any evidence", [
-  spec("4.2, 11.7"),
+  spec("4.2, 11.9"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -6328,7 +6328,7 @@ conformance("C6: an anonymous variable of an absence matches any evidence", [
 ])
 
 conformance("C6: an absence of a ground conjunction with evidence for every goal fails", [
-  spec("11.7"),
+  spec("11.9"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -6382,7 +6382,7 @@ conformance("C6: an absence of a ground conjunction with evidence for every goal
 ])
 
 conformance("C6: an absence of a ground conjunction is consistent when one goal has no matching evidence", [
-  spec("11.7"),
+  spec("11.9"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(s(1))",
@@ -6433,7 +6433,7 @@ conformance("C6: an absence of a ground conjunction is consistent when one goal 
 ])
 
 conformance("C6: an absence of a ground conjunction with a goal lacking evidence is undecided", [
-  spec("11.7"),
+  spec("11.9"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(s(1))",
@@ -6483,7 +6483,7 @@ conformance("C6: an absence of a ground conjunction with a goal lacking evidence
 ])
 
 conformance("C6: without a search table, an absence of a control is left undecided, even when its goal holds", [
-  spec("11.7"),
+  spec("11.9"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(s(1))",
@@ -6533,7 +6533,7 @@ conformance("C6: without a search table, an absence of a control is left undecid
 ])
 
 conformance("C9: an absence of a control whose goal holds is contradicted by its search", [
-  spec("11.10"),
+  spec("11.12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -6586,7 +6586,7 @@ conformance("C9: an absence of a control whose goal holds is contradicted by its
 ])
 
 conformance("C9: an absence of a primitive that fails is settled by recomputing it", [
-  spec("11.10"),
+  spec("11.12"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(s(1))",
@@ -6633,7 +6633,7 @@ conformance("C9: an absence of a primitive that fails is settled by recomputing 
 ])
 
 conformance("C6: evidence of another arity leaves an absence undecided", [
-  spec("11.7"),
+  spec("11.9"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(s(1))",
@@ -6683,7 +6683,7 @@ conformance("C6: evidence of another arity leaves an absence undecided", [
 ])
 
 conformance("C6: a collection whose result is not a list fails", [
-  spec("11.7"),
+  spec("11.9"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -6734,7 +6734,7 @@ conformance("C6: a collection whose result is not a list fails", [
 ])
 
 conformance("C6: a collection over a goal without evidence is left undecided", [
-  spec("11.7"),
+  spec("11.9"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "implies(findall(X, z(X), L), all_of(L))",
@@ -6781,7 +6781,7 @@ conformance("C6: a collection over a goal without evidence is left undecided", [
 ])
 
 conformance("C9: a search certificate settles an absence over a backward rule", [
-  spec("11.10, 10.4"),
+  spec("11.12, 10.4"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(s('a'))",
@@ -6834,7 +6834,7 @@ conformance("C9: a search certificate settles an absence over a backward rule", 
 ])
 
 conformance("C9: a search table listing an answer its expansion does not give fails", [
-  spec("11.10, 10.4"),
+  spec("11.12, 10.4"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -6892,7 +6892,7 @@ conformance("C9: a search table listing an answer its expansion does not give fa
 ])
 
 conformance("C9: a search table leaving out an answer of its expansion fails", [
-  spec("11.10, 10.4"),
+  spec("11.12, 10.4"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -6948,7 +6948,7 @@ conformance("C9: a search table leaving out an answer of its expansion fails", [
 ])
 
 conformance("C9: an absence whose certificate lacks a table stays an obligation", [
-  spec("11.7, 11.10, 12"),
+  spec("11.9, 11.12, 12"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(s('a'))",
@@ -7001,7 +7001,7 @@ conformance("C9: an absence whose certificate lacks a table stays an obligation"
 ])
 
 conformance("C9: a listing of derived facts settles an absence over a forward rule", [
-  spec("11.10, 10.4"),
+  spec("11.12, 10.4"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(quaker('nixon'), republican('nixon'), quaker('ada'))",
@@ -7057,7 +7057,7 @@ conformance("C9: a listing of derived facts settles an absence over a forward ru
 ])
 
 conformance("C9: a listing that leaves out a fact a forward rule derives is not closed", [
-  spec("11.10"),
+  spec("11.12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -7118,7 +7118,7 @@ conformance("C9: a listing that leaves out a fact a forward rule derives is not 
 ])
 
 conformance("C9: a listed derived fact without a step fails", [
-  spec("11.10"),
+  spec("11.12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -7179,7 +7179,7 @@ conformance("C9: a listed derived fact without a step fails", [
 ])
 
 conformance("C9: search tables that depend on themselves fail", [
-  spec("11.10"),
+  spec("11.12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -7234,7 +7234,7 @@ conformance("C9: search tables that depend on themselves fail", [
 ])
 
 conformance("C9: a collection over a backward rule is settled by its table", [
-  spec("11.10, 10.4"),
+  spec("11.12, 10.4"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(n(1), n(2))",
@@ -7283,7 +7283,7 @@ conformance("C9: a collection over a backward rule is settled by its table", [
 ])
 
 conformance("C9: a collection whose answers rest on derived facts stays an obligation", [
-  spec("11.7, 11.10, 12"),
+  spec("11.9, 11.12, 12"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(a(1), a(2))",
@@ -7344,7 +7344,7 @@ conformance("C9: a collection whose answers rest on derived facts stays an oblig
 ])
 
 conformance("C7: a search table no boundary consults fails relevance", [
-  spec("11.8"),
+  spec("11.10"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -7405,7 +7405,7 @@ conformance("C7: a search table no boundary consults fails relevance", [
 ])
 
 conformance("C3: two search tables for one call fail justification", [
-  spec("11.1"),
+  spec("11.3"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -7466,7 +7466,7 @@ conformance("C3: two search tables for one call fail justification", [
 ])
 
 conformance("C6: a collection listing more than its evidence is not refuted", [
-  spec("11.7"),
+  spec("11.9"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(p(1), p(2))",
@@ -7513,7 +7513,7 @@ conformance("C6: a collection listing more than its evidence is not refuted", [
 ])
 
 conformance("C6: a collection is refuted by a step of the proof", [
-  spec("11.7"),
+  spec("11.9"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -7571,7 +7571,7 @@ conformance("C6: a collection is refuted by a step of the proof", [
 ])
 
 conformance("C7: a backward rule head is not a question", [
-  spec("11.8"),
+  spec("11.10"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -7621,7 +7621,7 @@ conformance("C7: a backward rule head is not a question", [
 ])
 
 conformance("C7: a derived head is a question even when the program has a query", [
-  spec("11.8"),
+  spec("11.10"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(p(1))",
@@ -7668,7 +7668,7 @@ conformance("C7: a derived head is a question even when the program has a query"
 ])
 
 conformance("C7: with goals given, a claim of another predicate fails", [
-  spec("11.8"),
+  spec("11.10"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -7716,7 +7716,7 @@ conformance("C7: with goals given, a claim of another predicate fails", [
 ])
 
 conformance("C7: every goal given is a question", [
-  spec("11.8"),
+  spec("11.10"),
   args("--check-proof proof.js --goal 'p(X)' --goal 'q(X)' program.js"),
   file('program.js', [
     "fact(p(1), q(2))",
@@ -7760,7 +7760,7 @@ conformance("C7: every goal given is a question", [
 ])
 
 conformance("C7: each step no claim reaches is a failure", [
-  spec("11.8"),
+  spec("11.10"),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -7810,7 +7810,7 @@ conformance("C7: each step no claim reaches is a failure", [
 ])
 
 conformance("C7: a step reached through a conjunct of a use is relevant", [
-  spec("11.8"),
+  spec("11.10"),
   args("--check-proof proof.js --goal 'q(G)' program.js"),
   file('program.js', [
     "fact(p(1))",
@@ -7858,7 +7858,7 @@ conformance("C7: a step reached through a conjunct of a use is relevant", [
 ])
 
 conformance("C8: the witnesses of one firing share their arguments", [
-  spec("8.2, 11.9"),
+  spec("8.2, 11.11"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(person('ann'))",
@@ -7904,7 +7904,7 @@ conformance("C8: the witnesses of one firing share their arguments", [
 ])
 
 conformance("C8: swapped witnesses fail", [
-  spec("11.9"),
+  spec("11.11"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -7954,7 +7954,7 @@ conformance("C8: swapped witnesses fail", [
 ])
 
 conformance("C8: a witness of a rule with no other head variable has no arguments", [
-  spec("8.2, 11.9"),
+  spec("8.2, 11.11"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(s)",
@@ -8000,7 +8000,7 @@ conformance("C8: a witness of a rule with no other head variable has no argument
 ])
 
 conformance("C8: every conjunct of a head shares the witness of the firing", [
-  spec("8.2, 11.9"),
+  spec("8.2, 11.11"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(p('a'))",
@@ -8050,7 +8050,7 @@ conformance("C8: every conjunct of a head shares the witness of the firing", [
 ])
 
 conformance("C8: a witness step must make the full head ground", [
-  spec("11.9"),
+  spec("11.11"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -8100,7 +8100,7 @@ conformance("C8: a witness step must make the full head ground", [
 ])
 
 conformance("C8: an appended forward rule puts its captures first in the witness arguments", [
-  spec("6.2, 8.2, 11.9"),
+  spec("6.2, 8.2, 11.11"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(enabled('x'))",
@@ -8148,7 +8148,7 @@ conformance("C8: an appended forward rule puts its captures first in the witness
 ])
 
 conformance("C8: an appended forward rule witness without its captures fails", [
-  spec("6.2, 11.9"),
+  spec("6.2, 11.11"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [
@@ -8200,7 +8200,7 @@ conformance("C8: an appended forward rule witness without its captures fails", [
 ])
 
 conformance("C8: a head variable shared with the body is not checked, even when the body leaves it open", [
-  spec("11.9"),
+  spec("11.11"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(r(1, Z))",
@@ -8245,7 +8245,7 @@ conformance("C8: a head variable shared with the body is not checked, even when 
 ])
 
 conformance("each kind of step is counted in its own statistic", [
-  spec("11.11, 12"),
+  spec("11.14, 12"),
   args("--check-proof proof.js --goal 'q(X)' program.js"),
   file('program.js', [
     "fact(p(1))",
@@ -8301,7 +8301,7 @@ conformance("each kind of step is counted in its own statistic", [
 ])
 
 conformance("C8 covers only the steps with witnesses", [
-  spec("11.11"),
+  spec("11.14"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(person('ann'))",
@@ -8349,7 +8349,7 @@ conformance("C8 covers only the steps with witnesses", [
 ])
 
 conformance("C6 counts the decided boundaries while every boundary is trusted", [
-  spec("11.11"),
+  spec("11.14"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(p(1))",
@@ -8402,7 +8402,7 @@ conformance("C6 counts the decided boundaries while every boundary is trusted", 
 ])
 
 conformance("the JSON report counts uses and lists each trusted boundary", [
-  spec("11.11, 12.1, 13.1"),
+  spec("11.14, 12.1, 13.1"),
   args("--json --check-proof proof.js --goal 'q(X)' program.js"),
   file('program.js', [
     "fact(p(1))",
@@ -8515,7 +8515,7 @@ conformance("the JSON report counts uses and lists each trusted boundary", [
 ])
 
 conformance("a valid proof may leave out conclusions of the program", [
-  spec("11.12"),
+  spec("11.1"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(p(1), p(2))",
@@ -8561,7 +8561,7 @@ conformance("a valid proof may leave out conclusions of the program", [
 ])
 
 conformance("a valid proof does not establish that the program derives no false", [
-  spec("11.12"),
+  spec("11.1"),
   args("--check-proof proof.js program.js"),
   file('program.js', [
     "fact(p(1))",
@@ -8608,7 +8608,7 @@ conformance("a valid proof does not establish that the program derives no false"
 ])
 
 conformance("a run's own checked proof claims exactly its conclusions", [
-  spec("8.7, 11.12"),
+  spec("8.7, 11.1"),
   args("--prove-and-check program.js"),
   file('program.js', [
     "fact(p(1), p(2))",
@@ -8959,7 +8959,7 @@ conformance("the JSON answers keep the proof's variable names", [
 ])
 
 conformance('C2: each use leading back on the search path is one failure', [
-  spec('11.3'),
+  spec('11.5'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -9019,7 +9019,7 @@ conformance('C2: each use leading back on the search path is one failure', [
 ])
 
 conformance('C4: a use without a step fails at the goal of the step using it', [
-  spec('11.5'),
+  spec('11.7'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -9067,7 +9067,7 @@ conformance('C4: a use without a step fails at the goal of the step using it', [
 ])
 
 conformance('C3: a collected step whose goal is no findall is not trusted', [
-  spec('11.4'),
+  spec('11.6'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -9112,7 +9112,7 @@ conformance('C3: a collected step whose goal is no findall is not trusted', [
 ])
 
 conformance('C3: an absent step whose goal is no negation is not trusted', [
-  spec('11.4'),
+  spec('11.6'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -9157,7 +9157,7 @@ conformance('C3: an absent step whose goal is no negation is not trusted', [
 ])
 
 conformance('C1: clause(\'x\') names no clause', [
-  spec('11.2'),
+  spec('11.4'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -9202,7 +9202,7 @@ conformance('C1: clause(\'x\') names no clause', [
 ])
 
 conformance('C1: a float clause number names no clause', [
-  spec('11.2'),
+  spec('11.4'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -9247,7 +9247,7 @@ conformance('C1: a float clause number names no clause', [
 ])
 
 conformance('C1: a display that renames the variables differs', [
-  spec('11.1'),
+  spec('11.3'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -9295,7 +9295,7 @@ conformance('C1: a display that renames the variables differs', [
 ])
 
 conformance('C1: a fact of positive zero does not justify negative zero', [
-  spec('11.2'),
+  spec('11.4'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -9341,7 +9341,7 @@ conformance('C1: a fact of positive zero does not justify negative zero', [
 ])
 
 conformance('C8: a head-only variable left unbound fails witness integrity', [
-  spec('11.9'),
+  spec('11.11'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -9493,7 +9493,7 @@ conformance('JSON conclusions keep the variable names of the document', [
 ])
 
 conformance("C9: a search that raises an error fails", [
-  spec("11.10, 12"),
+  spec("11.12, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -9545,7 +9545,7 @@ conformance("C9: a search that raises an error fails", [
 ])
 
 conformance("C9: a listed fact of another relation fails", [
-  spec("10.4, 11.10, 12"),
+  spec("10.4, 11.12, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -9604,7 +9604,7 @@ conformance("C9: a listed fact of another relation fails", [
 ])
 
 conformance("C9: a listed fact with variables leaves the boundary unsettled", [
-  spec("10.4, 11.10, 12"),
+  spec("10.4, 11.12, 12"),
   args("--check-proof proof.js program.js"),
   file("program.js", [
     "fact(quaker('nixon'), republican('nixon'), quaker('ada'))",
@@ -9659,7 +9659,7 @@ conformance("C9: a listed fact with variables leaves the boundary unsettled", [
 ])
 
 conformance("C3: two listings for one relation fail justification", [
-  spec("11.1, 12"),
+  spec("11.3, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -9718,7 +9718,7 @@ conformance("C3: two listings for one relation fail justification", [
 ])
 
 conformance("C3: a listing whose facts are not an array is set aside", [
-  spec("11.1, 12"),
+  spec("11.3, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -9777,7 +9777,7 @@ conformance("C3: a listing whose facts are not an array is set aside", [
 ])
 
 conformance("C7: a listing no boundary consults fails relevance", [
-  spec("11.8, 12"),
+  spec("11.10, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -9836,7 +9836,7 @@ conformance("C7: a listing no boundary consults fails relevance", [
 ])
 
 conformance("C9: a wrong table is reported once, for the first boundary resting on it", [
-  spec("11.10, 12"),
+  spec("11.12, 12"),
   args("--check-proof proof.js program.js"),
   exit(2),
   file("program.js", [
@@ -9899,7 +9899,7 @@ conformance("C9: a wrong table is reported once, for the first boundary resting 
 ])
 
 conformance("C9: once over derived facts stays an obligation", [
-  spec("11.10, 12"),
+  spec("11.12, 12"),
   args("--check-proof proof.js program.js"),
   file("program.js", [
     "fact(a(1), a(2), c(3))",
@@ -9959,7 +9959,7 @@ conformance("C9: once over derived facts stays an obligation", [
 ])
 
 conformance("C9: a negation inside a search treats its unbound variables as anonymous", [
-  spec("11.10, 12"),
+  spec("11.12, 12"),
   args("--check-proof proof.js program.js"),
   file("program.js", [
     "fact(s('a'), t('a'))",
@@ -10009,7 +10009,7 @@ conformance("C9: a negation inside a search treats its unbound variables as anon
 ])
 
 conformance('C5: a state test re-decides as it was called', [
-  spec('10.3, 11.6'),
+  spec('10.3, 11.8'),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   file('program.js', [
     "implied_by(p(X), [is_var(X), unify(X, 'a')])",
@@ -10054,7 +10054,7 @@ conformance('C5: a state test re-decides as it was called', [
 ])
 
 conformance('C5: a state test cannot be called in a state where it fails', [
-  spec('11.6'),
+  spec('11.8'),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -10103,7 +10103,7 @@ conformance('C5: a state test cannot be called in a state where it fails', [
 ])
 
 conformance('C5: a state test whose goal no longer holds fails as a builtin', [
-  spec('11.6'),
+  spec('11.8'),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -10152,7 +10152,7 @@ conformance('C5: a state test whose goal no longer holds fails as a builtin', [
 ])
 
 conformance('C5: a called goal must be the same test as the step', [
-  spec('11.6'),
+  spec('11.8'),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -10201,7 +10201,7 @@ conformance('C5: a called goal must be the same test as the step', [
 ])
 
 conformance('C3: only a state test may be justified as called', [
-  spec('11.4'),
+  spec('11.6'),
   args("--check-proof proof.js --goal 'p(X)' program.js"),
   exit(2),
   file('program.js', [
@@ -10250,7 +10250,7 @@ conformance('C3: only a state test may be justified as called', [
 ])
 
 conformance('C5: a regular-expression step that does not match fails', [
-  spec('11.6'),
+  spec('11.8'),
   args("--check-proof proof.js program.js"),
   exit(2),
   file('program.js', [

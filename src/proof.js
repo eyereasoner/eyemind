@@ -57,7 +57,7 @@ function sameValue(a, b) {
 // Whether term, read through env, is exactly target, variables included.
 // The functions whose float results may differ between hosts' math libraries
 // (SPEC Section 14), and how far apart, in units in the last place, a claimed
-// result of one of them may be from the recomputed one (Section 11.6).
+// result of one of them may be from the recomputed one (Section 11.8).
 const HOST_MATH = new Set(['exp', 'log', 'log2', 'log10', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'atan2',
   'sinh', 'cosh', 'tanh', 'pow']);
 const HOST_MATH_ULPS = 4n;

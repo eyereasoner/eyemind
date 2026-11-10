@@ -46,7 +46,7 @@
   },
   {
     "file": "12-fidelity.js",
-    "spec": "10.5, 11.14, 13.1",
+    "spec": "10.5, 11.13, 13.1",
     "topic": "C10 call fidelity: original bindings, ordered answers, closed call certificates and unsupported evidence"
   },
   {

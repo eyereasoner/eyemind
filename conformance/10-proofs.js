@@ -388,7 +388,7 @@ conformance('a run with no conclusions has a proof of its comment and two empty 
 ])
 
 conformance('inspection evidence cites the source rule without solving its premise', [
-  spec('6.3, 10.3, 11.2'),
+  spec('6.3, 10.3, 11.4'),
   args('--proof program.js'),
   file('program.js', [
     "fact(a('b'))",
