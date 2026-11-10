@@ -47,8 +47,10 @@ goals, and keep error messages specific and user-facing text direct.
 - `_config.yml`, `_layouts/default.html`, `assets/docs.css`: GitHub Pages
   renders the Markdown documents with one masthead (Playground,
   Specification, Conformance, Repository; the logo links home), the same nav the playground shows.
-- `examples/*.js`: runnable programs, listed in `examples/manifest.json` with
-  their description, halt code and proof obligations. `examples/output/`,
+- `examples/`: runnable examples, listed in `examples/manifest.json` with
+  their description, halt code and proof obligations. An entry can list its
+  source files in order. RDF examples pair Turtle or TriG data with a
+  companion rule script in `examples/rules/`. `examples/output/`,
   `examples/proof/` and `examples/check/` hold each one's saved conclusions,
   proof and check report; `examples/deck/` a card deck per example.
 - `conformance/`: the black-box suite of SPEC.md. Each case file is an
@@ -107,7 +109,7 @@ very large proofs; redirect them to a file and inspect focused parts.
   integers are BigInts and exact. Do not coerce between integers and floats.
 - Documents are data: the reader accepts only the forms of SPEC Section 9
   and must never execute text.
-- Every example starts with `//` header comments for a wide audience saying
+- Every example starts with header comments in its source format saying
   what situation it models, what it concludes, and which feature it shows.
   Describe the example as it is. Keep credits to external sources (authors,
   papers, puzzles, standards) in the program and its deck, but never

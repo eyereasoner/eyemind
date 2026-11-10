@@ -2,7 +2,7 @@
 
 *Who said it, and when.*
 
-[rdf12-annotation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-annotation.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-annotation.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-annotation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-annotation.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-annotation)
+[rdf12-annotation.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-annotation.ttl) · [rules/rdf12-annotation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rules/rdf12-annotation.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-annotation.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-annotation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-annotation.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-annotation)
 
 ---
 
@@ -25,22 +25,23 @@ the statement itself is asserted?**
 
 ## What we tell eyemind
 
+The data file contains the RDF statements.
+
+```turtle
+@prefix : <https://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:alice :name "Alice" ~ :claim1 .
+:claim1 :statedBy :carol ;
+  :recorded "2025-01-15"^^xsd:date .
+```
+
+The companion rule script uses the facts read from that file.
+
 ```js
 const ex = 'https://example.org/'
 const reifies = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'
-const xsd = 'http://www.w3.org/2001/XMLSchema#'
 
-fact(
-  rdf(iri(ex + 'alice'), iri(ex + 'name'), literal('Alice', datatype(xsd + 'string')), 'default_graph'),
-  rdf(
-    iri(ex + 'claim1'),
-    iri(reifies),
-    triple(iri(ex + 'alice'), iri(ex + 'name'), literal('Alice', datatype(xsd + 'string'))),
-    'default_graph',
-  ),
-  rdf(iri(ex + 'claim1'), iri(ex + 'statedBy'), iri(ex + 'carol'), 'default_graph'),
-  rdf(iri(ex + 'claim1'), iri(ex + 'recorded'), literal('2025-01-15', datatype(xsd + 'date')), 'default_graph'),
-)
 
 implies(
   [
@@ -68,14 +69,14 @@ The program is JavaScript, so `ex + 'alice'` simply builds the text
 
 - `iri(Text)` for an IRI;
 - `literal(Text, datatype(IRI))` for a value with its type: the date stays
-  `literal('2025-01-15', datatype(xsd + 'date'))`, so its text and its type
+  `literal('2025-01-15', datatype('http://www.w3.org/2001/XMLSchema#date'))`, so its text and its type
   travel together and it returns to RDF unchanged;
 - `triple(S, P, O)` for a triple *mentioned* but not asserted;
 - `rdf(S, P, O, Graph)` for an asserted triple in a graph (a named
   collection of data; `'default_graph'` is the unnamed main one). A triple
   with its graph is called a **quad**.
 
-The `fact` gives four quads, which are clauses 1 to 4 of the program (a
+The Turtle file gives four quads, which are clauses 1 to 4 of the program (a
 **clause** is one fact or one rule). The two `implies` lines, clauses 5 and
 6, are **forward rules**: whenever everything in the premise holds, eyemind
 adds the conclusion. Capitalized names (`S`, `P`, `O`, `Reifier`, …) are
@@ -251,17 +252,17 @@ the claims; it does not say the program has no other answers.
 ## Try it
 
 ```sh
-eyemind examples/rdf12-annotation.js                        # the results as quads
-eyemind --proof examples/rdf12-annotation.js                # with their proof
-eyemind --to turtle examples/rdf12-annotation.js > out.ttl
+eyemind examples/rdf12-annotation.ttl examples/rules/rdf12-annotation.js          # the results as quads
+eyemind --proof examples/rdf12-annotation.ttl examples/rules/rdf12-annotation.js  # with their proof
+eyemind --to turtle examples/rdf12-annotation.ttl examples/rules/rdf12-annotation.js > out.ttl
 ```
 
 `--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
 `.nt` and `.nq` files as quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-annotation).
 
-Remove the asserted name triple (the first quad of the `fact`) and run
-again: the reifier alone is not enough, and nothing follows; eyemind
+Replace the annotated name triple with `:claim1 rdf:reifies <<( :alice :name "Alice" )>> .`
+and declare the `rdf:` prefix. Run again: the reifier alone is not enough, and nothing follows; eyemind
 reports `// No answers: no query() instance holds.` Add a second `recorded`
 date for `claim1` instead: rule 5 fires once per date, and a fifth result
 quad appears with the new date.

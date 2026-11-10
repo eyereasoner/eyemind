@@ -2,7 +2,7 @@
 
 *Settle every possible hold before deciding which orders can ship.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/n3-scoped-negation.n3) · [compiled JavaScript](https://github.com/eyereasoner/eyemind/blob/main/examples/n3-scoped-negation.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/n3-scoped-negation.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/n3-scoped-negation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/n3-scoped-negation.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=n3-scoped-negation)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/n3-scoped-negation.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/n3-scoped-negation.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/n3-scoped-negation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/n3-scoped-negation.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=n3-scoped-negation)
 
 ---
 
@@ -100,8 +100,8 @@ the remaining call-fidelity obligations.
 
 ```sh
 node bin/eyemind.js examples/n3-scoped-negation.n3
-node bin/eyemind.js examples/n3-scoped-negation.js
-node bin/eyemind.js --check-proof examples/proof/n3-scoped-negation.js examples/n3-scoped-negation.js
+node bin/eyemind.js --to eyemind examples/n3-scoped-negation.n3
+node bin/eyemind.js --check-proof examples/proof/n3-scoped-negation.js examples/n3-scoped-negation.n3
 ```
 
 To inspect a fresh compilation:

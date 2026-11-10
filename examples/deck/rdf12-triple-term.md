@@ -2,7 +2,7 @@
 
 *Talking about a statement without making it.*
 
-[rdf12-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-triple-term)
+[rdf12-triple-term.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-triple-term.ttl) · [rules/rdf12-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rules/rdf12-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-triple-term)
 
 ---
 
@@ -24,11 +24,19 @@ quoted sentence is, but not asserted.
 
 ## What we tell eyemind
 
+The data file contains the RDF statements.
+
+```turtle
+@prefix : <https://example.org/> .
+
+:alice :claims <<( :bob :knows :carol )>> .
+```
+
+The companion rule script uses the facts read from that file.
+
 ```js
 const ex = 'https://example.org/'
 
-fact(rdf(iri(ex + 'alice'), iri(ex + 'claims'),
-         triple(iri(ex + 'bob'), iri(ex + 'knows'), iri(ex + 'carol')), 'default_graph'))
 
 implies(rdf(_, iri(ex + 'claims'), triple(S, iri(ex + 'knows'), O), G),
         result_rdf(S, iri(ex + 'knows'), O, G))
@@ -45,7 +53,7 @@ The program is JavaScript, so `ex + 'alice'` simply builds the text
   (the named collection of data) it belongs to; `'default_graph'` is the
   unnamed main one. A triple with its graph is called a **quad**.
 
-The `fact` says: *Alice claims the triple "Bob knows Carol"*. The `implies`
+The Turtle statement says: *Alice claims the triple "Bob knows Carol"*. The `implies`
 line is a **forward rule**: whenever its first part (the premise) holds,
 eyemind concludes its second part. Capitalized names (`S`, `O`, `G`) are
 **variables** that stand for whatever fits; `_` is a variable we do not care
@@ -184,9 +192,9 @@ confirms the claim; it does not say the program has no other answers.
 ## Try it
 
 ```sh
-eyemind examples/rdf12-triple-term.js                       # the results as quads
-eyemind --proof examples/rdf12-triple-term.js               # with their proof
-eyemind --to turtle examples/rdf12-triple-term.js > out.ttl
+eyemind examples/rdf12-triple-term.ttl examples/rules/rdf12-triple-term.js          # the results as quads
+eyemind --proof examples/rdf12-triple-term.ttl examples/rules/rdf12-triple-term.js  # with their proof
+eyemind --to turtle examples/rdf12-triple-term.ttl examples/rules/rdf12-triple-term.js > out.ttl
 ```
 
 `--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,

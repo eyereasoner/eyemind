@@ -2,7 +2,7 @@
 
 *Write ancestry in Notation3, run it in eyemind, and write the answers back as N3.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/n3-family.n3) · [compiled JavaScript](https://github.com/eyereasoner/eyemind/blob/main/examples/n3-family.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/n3-family.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/n3-family.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/n3-family.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=n3-family)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/n3-family.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/n3-family.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/n3-family.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/n3-family.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=n3-family)
 
 ---
 
@@ -11,9 +11,9 @@
 Ann is Bob's parent, and Bob is Cara's parent. Who descends from Ann?
 The answer needs both a direct connection and a chain of connections.
 
-eyemind compiles the N3 document into the saved JavaScript program,
-`eyemind --program examples/n3-family.n3`. The compiled program runs
-directly in eyemind and the playground. No compiler is needed to run it.
+The playground and command line run the N3 file directly. Use
+`eyemind --program examples/n3-family.n3` to inspect the eyemind rules
+it compiles.
 
 ---
 
@@ -101,11 +101,10 @@ node bin/eyemind.js --program examples/n3-family.n3 > /tmp/n3-family.js
 node bin/eyemind.js /tmp/n3-family.js
 ```
 
-The saved program and proof also work with eyemind alone:
+Check the saved proof against the N3 source:
 
 ```sh
-node bin/eyemind.js examples/n3-family.js
-node bin/eyemind.js --strict-proof --check-proof examples/proof/n3-family.js examples/n3-family.js
+node bin/eyemind.js --strict-proof --check-proof examples/proof/n3-family.js examples/n3-family.n3
 ```
 
 Add `:cara :parent :dan .` to a copy of the N3 source, then compile and run

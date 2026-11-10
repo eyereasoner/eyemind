@@ -388,21 +388,25 @@
   },
   {
     "name": "rdf12-triple-term",
+    "files": ["rdf12-triple-term.ttl", "rules/rdf12-triple-term.js"],
     "description": "An RDF 1.2 triple term: a claim names a triple without asserting it, and accepting the claim asserts it",
     "trusted": []
   },
   {
     "name": "rdf12-nested-triple-term",
+    "files": ["rdf12-nested-triple-term.ttl", "rules/rdf12-nested-triple-term.js"],
     "description": "Nested RDF 1.2 triple terms: one pattern reaches the triple inside a claim inside a review",
     "trusted": []
   },
   {
     "name": "rdf12-annotation",
+    "files": ["rdf12-annotation.ttl", "rules/rdf12-annotation.js"],
     "description": "An RDF 1.2 annotation: an asserted triple recovered with the reifier that records who stated it and when",
     "trusted": []
   },
   {
     "name": "rdf12-annotated-claims",
+    "files": ["rdf12-annotated-claims.ttl", "rules/rdf12-annotated-claims.js"],
     "description": "Conflicting RDF 1.2 annotated claims ranked by confidence and trust, with typed literals read as numbers",
     "trusted": [
       "call_fidelity",
@@ -411,31 +415,37 @@
   },
   {
     "name": "rdf12-directional-language",
+    "files": ["rdf12-directional-language.ttl", "rules/rdf12-directional-language.js"],
     "description": "RDF 1.2 directional language strings keep their base direction through a display rule",
     "trusted": []
   },
   {
     "name": "rdf12-trig-named-graph",
+    "files": ["rdf12-trig-named-graph.trig", "rules/rdf12-trig-named-graph.js"],
     "description": "Ancestors derived within a TriG named graph, each conclusion kept in its graph",
     "trusted": []
   },
   {
     "name": "rdf12-trig-triple-term",
+    "files": ["rdf12-trig-triple-term.trig", "rules/rdf12-trig-triple-term.js"],
     "description": "A triple term inside a named graph, asserted in the graph that holds the claim",
     "trusted": []
   },
   {
     "name": "rdf12-trig-graph-join",
+    "files": ["rdf12-trig-graph-join.trig", "rules/rdf12-trig-graph-join.js"],
     "description": "Data about a named graph in the default graph joined with data inside that graph",
     "trusted": []
   },
   {
     "name": "n3-family",
+    "files": ["n3-family.n3"],
     "description": "Notation3 backward ancestry and log:query compiled to eyemind",
     "trusted": []
   },
   {
     "name": "n3-scoped-negation",
+    "files": ["n3-scoped-negation.n3"],
     "description": "Notation3 scoped negation waits for a derived order hold",
     "trusted": [
       "call_fidelity"
@@ -443,6 +453,7 @@
   },
   {
     "name": "n3-invoice",
+    "files": ["n3-invoice.n3"],
     "description": "Notation3 collection totals invoices, including an empty invoice",
     "trusted": [
       "call_fidelity",
@@ -451,11 +462,13 @@
   },
   {
     "name": "n3-french-cities",
+    "files": ["n3-french-cities.n3"],
     "description": "French cities that can reach Nantes through one-way links and explicit schema rules",
     "trusted": []
   },
   {
     "name": "n3-witnesses",
+    "files": ["n3-witnesses.n3"],
     "description": "Notation3 conclusion blank nodes become shared witnesses for each order",
     "trusted": []
   },

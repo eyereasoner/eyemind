@@ -11,13 +11,6 @@
 
 const ex = 'https://example.org/'
 
-fact(rdf(
-  iri(ex + 'alice'),
-  iri(ex + 'claims'),
-  triple(iri(ex + 'bob'), iri(ex + 'knows'), iri(ex + 'carol')),
-  iri(ex + 'claimsGraph'),
-))
-
 // A claim about who knows whom is asserted in the graph that holds it.
 implies(rdf(_, iri(ex + 'claims'), triple(S, iri(ex + 'knows'), O), G), result_rdf(S, iri(ex + 'knows'), O, G))
 query(result_rdf(S, P, O, G))

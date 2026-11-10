@@ -27,7 +27,7 @@ import { EyemindError, Program, Struct, Var, checkProof, publicReport, readGoal,
 import { shortcuts } from '../src/proof.js';
 import { apply } from '../src/arith.js';
 import { compareText, identity } from '../src/terms.js';
-import { artifactPath, loadExample, readManifest } from '../tools/corpus.js';
+import { artifactPath, loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
 import { assert, program } from './helpers.js';
 
 const SCALE = Math.max(1, Number(process.env.EYEMIND_PROPERTY_SCALE) || 1);
@@ -832,11 +832,11 @@ for (const entry of readManifest()) {
   const text = readFileSync(artifactPath('proof', entry), 'utf8');
   if (text.length <= 100000) {
     const count = text.length <= 12000 ? 30 : text.length <= 40000 ? 15 : 8;
-    tests[`a forged proof of examples/${entry.name}.js never certifies what the program does not entail`] =
+    tests[`a forged proof of examples/${sourceFiles(entry)[0]} never certifies what the program does not entail`] =
       () => forgeExample(entry, text, count);
   }
   if (text.length <= 1000000) {
-    tests[`examples/${entry.name}.js concludes the same without any clause no derivation cites`] =
+    tests[`examples/${sourceFiles(entry)[0]} concludes the same without any clause no derivation cites`] =
       () => leaveOutUncited(loadExample(entry));
   }
 }

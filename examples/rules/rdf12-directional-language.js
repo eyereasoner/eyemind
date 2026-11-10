@@ -11,11 +11,6 @@
 
 const ex = 'https://example.org/'
 
-fact(
-  rdf(iri(ex + 'welcome'), iri(ex + 'label'), literal('مرحبا', lang('ar', 'rtl')), 'default_graph'),
-  rdf(iri(ex + 'welcome'), iri(ex + 'label'), literal('Welcome', lang('en', 'ltr')), 'default_graph'),
-)
-
 // Every label is also a display label, with its language and direction.
 implies(rdf(S, iri(ex + 'label'), Label, G), result_rdf(S, iri(ex + 'displayLabel'), Label, G))
 query(result_rdf(S, P, O, G))

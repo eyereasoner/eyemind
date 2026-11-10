@@ -2,7 +2,7 @@
 
 *Data about a graph meets data in the graph.*
 
-[rdf12-trig-graph-join.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-graph-join.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-graph-join.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-graph-join.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-graph-join.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-graph-join)
+[rdf12-trig-graph-join.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-graph-join.trig) · [rules/rdf12-trig-graph-join.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rules/rdf12-trig-graph-join.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-graph-join.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-graph-join.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-graph-join.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-graph-join)
 
 ---
 
@@ -24,14 +24,22 @@ first fact is *about* a graph; the second is *in* that graph.
 
 ## What we tell eyemind
 
+The data file contains the RDF statements.
+
+```trig
+@prefix : <https://example.org/> .
+
+:sensorGraph :reportedBy :station7 .
+:sensorGraph {
+  :sensor1 :temperature "21.5" .
+}
+```
+
+The companion rule script uses the facts read from that file.
+
 ```js
 const ex = 'https://example.org/'
-const xsd = 'http://www.w3.org/2001/XMLSchema#'
 
-fact(
-  rdf(iri(ex + 'sensorGraph'), iri(ex + 'reportedBy'), iri(ex + 'station7'), 'default_graph'),
-  rdf(iri(ex + 'sensor1'), iri(ex + 'temperature'), literal('21.5', datatype(xsd + 'string')), iri(ex + 'sensorGraph')),
-)
 
 // Whoever reported a graph reported every sensor that has a reading in it.
 implies(
@@ -44,13 +52,13 @@ implies(
 query(result_rdf(S, P, O, G))
 ```
 
-The program is a JavaScript script, so `ex + 'sensor1'` simply glues two
+The program is a JavaScript script, so `ex + 'sensorGraph'` simply glues two
 pieces of text into one web address. Each RDF fact is written
 `rdf(Subject, Property, Value, Graph)`, where the graph is
 `'default_graph'` or `iri(Name)`. `iri(Text)` marks a web address, and
 `literal(Text, datatype(IRI))` a plain value together with its type.
 
-`fact(...)` states the two facts. `implies(premise, conclusion)` is a
+The TriG file supplies both facts. `implies(premise, conclusion)` is a
 forward rule: whenever the premise holds, eyemind concludes the conclusion.
 The premise here is an array, a list of conditions that must *all* hold.
 Capitalized names such as `Station` and `S` are variables, placeholders for
@@ -195,9 +203,9 @@ follows from the two graphs. It does not say there are no other answers.
 ## Try it
 
 ```sh
-eyemind examples/rdf12-trig-graph-join.js                   # the results as quads
-eyemind --proof examples/rdf12-trig-graph-join.js           # with their proof
-eyemind --to trig examples/rdf12-trig-graph-join.js > out.trig
+eyemind examples/rdf12-trig-graph-join.trig examples/rules/rdf12-trig-graph-join.js          # the results as quads
+eyemind --proof examples/rdf12-trig-graph-join.trig examples/rules/rdf12-trig-graph-join.js  # with their proof
+eyemind --to trig examples/rdf12-trig-graph-join.trig examples/rules/rdf12-trig-graph-join.js > out.trig
 ```
 
 `--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
@@ -205,7 +213,7 @@ eyemind --to trig examples/rdf12-trig-graph-join.js > out.trig
 
 Add a reading for a second sensor, `sensor2`, in the sensor graph: a second
 answer appears, saying station 7 reported sensor 2 too. Move sensor 1's
-reading to `'default_graph'` instead: there is no answer, because the rule
+reading outside the graph block instead: there is no answer, because the rule
 only joins readings that are *in* the sensor graph.
 
 ---

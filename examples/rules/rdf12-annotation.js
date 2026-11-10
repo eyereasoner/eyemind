@@ -13,19 +13,6 @@
 
 const ex = 'https://example.org/'
 const reifies = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'
-const xsd = 'http://www.w3.org/2001/XMLSchema#'
-
-fact(
-  rdf(iri(ex + 'alice'), iri(ex + 'name'), literal('Alice', datatype(xsd + 'string')), 'default_graph'),
-  rdf(
-    iri(ex + 'claim1'),
-    iri(reifies),
-    triple(iri(ex + 'alice'), iri(ex + 'name'), literal('Alice', datatype(xsd + 'string'))),
-    'default_graph',
-  ),
-  rdf(iri(ex + 'claim1'), iri(ex + 'statedBy'), iri(ex + 'carol'), 'default_graph'),
-  rdf(iri(ex + 'claim1'), iri(ex + 'recorded'), literal('2025-01-15', datatype(xsd + 'date')), 'default_graph'),
-)
 
 // An asserted triple, a reifier for it, and the reifier's source and date.
 implies(

@@ -5,6 +5,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { loadCases } from '../conformance/run.js';
+import { cli } from './helpers.js';
+import { readManifest, sourceFiles } from '../tools/corpus.js';
 
 const expected = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 const socrates = readFileSync(new URL('../examples/output/socrates.js', import.meta.url), 'utf8');
@@ -82,15 +84,27 @@ export const tests = [
     }
   }],
 
-  ['compiled N3 examples run and their saved proofs check in the playground', async (page, base) => {
+  ['native N3 and RDF examples run and their saved proofs check in the playground', async (page, base) => {
     const p = driver(page);
-    for (const name of ['n3-family', 'n3-scoped-negation', 'n3-invoice', 'n3-french-cities', 'n3-witnesses']) {
-      await p.open(`${base}#example=${name}`);
+    const entries = readManifest().filter(({ name }) => name.startsWith('n3-') ||
+      ['rdf12-annotation', 'rdf12-trig-named-graph'].includes(name));
+    for (const entry of entries) {
+      const { name } = entry;
+      const files = sourceFiles(entry).map((file) => `examples/${file}`);
+      const mobile = name === 'rdf12-trig-named-graph';
+      await p.open(`${base}#example=${name}`, mobile ? 390 : 1280, mobile);
+      assert.equal(await page.evaluate("document.getElementById('input-source').textContent"), files.join(' + '), name);
       await p.run();
       assert.match(await p.status(), /^Done · exit 0/, name);
-      assert.equal(await p.output(), readFileSync(new URL(`../examples/output/${name}.js`, import.meta.url), 'utf8'), name);
+      assert.equal(await p.output(), cli(files).stdout, name);
       await p.select('mode', '--check-proof');
       await p.type('proof-input', readFileSync(new URL(`../examples/proof/${name}.js`, import.meta.url), 'utf8'));
+      if (mobile) {
+        await page.evaluate("document.getElementById('share-link').click()");
+        await p.until("document.getElementById('share-url').value.includes('#state=')", 'the shared proof and inputs');
+        const shared = await page.evaluate("document.getElementById('share-url').value");
+        await p.open(shared, 390, true);
+      }
       await p.run();
       assert.match(await p.status(), /^Done · exit 0/, name);
       assert.equal(await p.output(), readFileSync(new URL(`../examples/check/${name}.js`, import.meta.url), 'utf8'), name);

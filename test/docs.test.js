@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { checkReport, loadText, run } from '../src/index.js';
 import { loadCases, parseCases } from '../conformance/run.js';
+import { sourceFiles } from '../tools/corpus.js';
 import { ROOT, assert, cli } from './helpers.js';
 
 const document = (path) => readFileSync(join(ROOT, path), 'utf8');
@@ -188,10 +189,10 @@ export const tests = {
     const manifest = JSON.parse(document('examples/manifest.json'));
     const rows = document('examples/README.md').split('\n').filter((line) => line.startsWith('| ['))
       .map((line) => line.split('|').slice(1, -1).map((cell) => cell.trim()));
-    assert.deepEqual(rows, manifest.sort((a, b) => a.name.localeCompare(b.name, 'en')).map(({ name, description }) => [
-      `[${name}](https://eyereasoner.github.io/eyemind/examples/deck/${name})`,
-      `[${name}.js](https://github.com/eyereasoner/eyemind/blob/main/examples/${name}.js)`,
-      description,
+    assert.deepEqual(rows, manifest.sort((a, b) => a.name.localeCompare(b.name, 'en')).map((entry) => [
+      `[${entry.name}](https://eyereasoner.github.io/eyemind/examples/deck/${entry.name})`,
+      sourceFiles(entry).map((file) => `[${file}](https://github.com/eyereasoner/eyemind/blob/main/examples/${file})`).join(' · '),
+      entry.description,
     ]));
     assert.ok(document('README.md').includes('[Examples](https://eyereasoner.github.io/eyemind/examples/)'));
   },

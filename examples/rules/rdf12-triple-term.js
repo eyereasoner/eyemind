@@ -11,8 +11,6 @@
 
 const ex = 'https://example.org/'
 
-fact(rdf(iri(ex + 'alice'), iri(ex + 'claims'), triple(iri(ex + 'bob'), iri(ex + 'knows'), iri(ex + 'carol')), 'default_graph'))
-
 // Whatever someone claims about who knows whom becomes an asserted triple.
 implies(rdf(_, iri(ex + 'claims'), triple(S, iri(ex + 'knows'), O), G), result_rdf(S, iri(ex + 'knows'), O, G))
 // The results as quads, which eyemind --to turtle writes back as RDF.

@@ -2,7 +2,7 @@
 
 *One new delivery record per order, shared by the triples of its rule firing.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/n3-witnesses.n3) · [compiled JavaScript](https://github.com/eyereasoner/eyemind/blob/main/examples/n3-witnesses.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/n3-witnesses.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/n3-witnesses.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/n3-witnesses.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=n3-witnesses)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/n3-witnesses.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/n3-witnesses.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/n3-witnesses.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/n3-witnesses.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=n3-witnesses)
 
 ---
 
@@ -102,8 +102,8 @@ conversion from the N3 source is a separate step that can be inspected.
 
 ```sh
 node bin/eyemind.js examples/n3-witnesses.n3
-node bin/eyemind.js examples/n3-witnesses.js
-node bin/eyemind.js --strict-proof --check-proof examples/proof/n3-witnesses.js examples/n3-witnesses.js
+node bin/eyemind.js --to eyemind examples/n3-witnesses.n3
+node bin/eyemind.js --strict-proof --check-proof examples/proof/n3-witnesses.js examples/n3-witnesses.n3
 ```
 
 Recompile the original N3 and inspect its witness terms:

@@ -10,13 +10,6 @@
 
 const ex = 'https://example.org/'
 
-fact(rdf(
-  iri(ex + 'auditor'),
-  iri(ex + 'reviews'),
-  triple(iri(ex + 'alice'), iri(ex + 'claims'), triple(iri(ex + 'bob'), iri(ex + 'knows'), iri(ex + 'carol'))),
-  'default_graph',
-))
-
 // A reviewed claim about who knows whom yields the relationship itself.
 implies(
   rdf(_, iri(ex + 'reviews'), triple(_, iri(ex + 'claims'), triple(S, iri(ex + 'knows'), O)), G),

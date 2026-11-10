@@ -11,12 +11,6 @@
 // graph and data in that graph meet in one rule.
 
 const ex = 'https://example.org/'
-const xsd = 'http://www.w3.org/2001/XMLSchema#'
-
-fact(
-  rdf(iri(ex + 'sensorGraph'), iri(ex + 'reportedBy'), iri(ex + 'station7'), 'default_graph'),
-  rdf(iri(ex + 'sensor1'), iri(ex + 'temperature'), literal('21.5', datatype(xsd + 'string')), iri(ex + 'sensorGraph')),
-)
 
 // Whoever reported a graph reported every sensor that has a reading in it.
 implies(

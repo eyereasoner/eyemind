@@ -2,7 +2,7 @@
 
 *A claim, kept in the graph that holds it.*
 
-[rdf12-trig-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-triple-term)
+[rdf12-trig-triple-term.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-triple-term.trig) · [rules/rdf12-trig-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rules/rdf12-trig-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-triple-term)
 
 ---
 
@@ -28,15 +28,21 @@ does it go?**
 
 ## What we tell eyemind
 
+The data file contains the RDF statements.
+
+```trig
+@prefix : <https://example.org/> .
+
+:claimsGraph {
+  :alice :claims <<( :bob :knows :carol )>> .
+}
+```
+
+The companion rule script uses the facts read from that file.
+
 ```js
 const ex = 'https://example.org/'
 
-fact(rdf(
-  iri(ex + 'alice'),
-  iri(ex + 'claims'),
-  triple(iri(ex + 'bob'), iri(ex + 'knows'), iri(ex + 'carol')),
-  iri(ex + 'claimsGraph'),
-))
 
 // A claim about who knows whom is asserted in the graph that holds it.
 implies(rdf(_, iri(ex + 'claims'), triple(S, iri(ex + 'knows'), O), G), result_rdf(S, iri(ex + 'knows'), O, G))
@@ -52,7 +58,7 @@ filed in a graph, either `'default_graph'` or `iri(Name)`. (Text values are
 written `literal(Text, datatype(IRI))` or `literal(Text, lang(Tag))`; this
 example needs none.)
 
-- The **fact** states one triple, in the claims graph: Alice claims the
+- The TriG file supplies one fact in the claims graph: Alice claims the
   triple term *Bob knows Carol*.
 - The **rule**, `implies(condition, conclusion)`, says: whenever someone
   claims that `S` knows `O` in graph `G`, conclude that `S` knows `O` in that
@@ -191,22 +197,21 @@ not say there are no others.
 ## Try it
 
 ```sh
-eyemind examples/rdf12-trig-triple-term.js                  # the results as quads
-eyemind --proof examples/rdf12-trig-triple-term.js          # with their proof
-eyemind -c examples/rdf12-trig-triple-term.js
-eyemind --check-proof examples/proof/rdf12-trig-triple-term.js examples/rdf12-trig-triple-term.js
-eyemind --to trig examples/rdf12-trig-triple-term.js > out.trig
+eyemind examples/rdf12-trig-triple-term.trig examples/rules/rdf12-trig-triple-term.js          # the results as quads
+eyemind --proof examples/rdf12-trig-triple-term.trig examples/rules/rdf12-trig-triple-term.js  # with their proof
+eyemind -c examples/rdf12-trig-triple-term.trig examples/rules/rdf12-trig-triple-term.js
+eyemind --check-proof examples/proof/rdf12-trig-triple-term.js examples/rdf12-trig-triple-term.trig examples/rules/rdf12-trig-triple-term.js
+eyemind --to trig examples/rdf12-trig-triple-term.trig examples/rules/rdf12-trig-triple-term.js > out.trig
 ```
 
 `--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
 `.nt` and `.nq` files as quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-triple-term).
 
-Move the claim to the default graph: replace `iri(ex + 'claimsGraph')` in
-the fact with `'default_graph'`. The conclusion moves with it and now ends in
+Move the claim outside the `:claimsGraph` block to put it in the default graph. The conclusion moves with it and now ends in
 `'default_graph'`.
 
-Or change Alice's `iri(ex + 'claims')` to `iri(ex + 'doubts')`. The rule only
+Or change Alice's `:claims` to `:doubts`. The rule only
 accepts claims, so there are no answers.
 
 ---

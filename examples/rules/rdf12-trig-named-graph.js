@@ -12,11 +12,6 @@
 
 const ex = 'https://example.org/'
 
-fact(
-  rdf(iri(ex + 'alice'), iri(ex + 'parent'), iri(ex + 'bob'), iri(ex + 'family')),
-  rdf(iri(ex + 'bob'), iri(ex + 'parent'), iri(ex + 'carol'), iri(ex + 'family')),
-)
-
 // A parent is an ancestor, and so is a parent's parent in the same graph.
 implies(rdf(S, iri(ex + 'parent'), O, G), result_rdf(S, iri(ex + 'ancestor'), O, G))
 implies(
