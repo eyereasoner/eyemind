@@ -1,0 +1,816 @@
+
+import { tokenize, SyntaxErrorWithLocation } from './srl-tokenizer.js';
+import { isBuiltinName } from './srl-builtin-names.js';
+import { ruleNeedsRunOnce } from './srl-assignments.js';
+import {
+  iri,
+  variable,
+  blankNode,
+  literal,
+  tripleTerm,
+  RDF_TYPE,
+  RDF_FIRST,
+  RDF_REST,
+  RDF_NIL,
+  RDF_REIFIES,
+  XSD_STRING,
+  XSD_BOOLEAN,
+  XSD_INTEGER,
+  XSD_DECIMAL,
+  XSD_DOUBLE,
+} from './srl-term.js';
+
+class Parser {
+  constructor(source, options = {}) {
+    this.tokens = Array.isArray(source) ? source : tokenize(source, options);
+    this.pos = 0;
+    this.options = options;
+    this.baseIRI = options.baseIRI || null;
+    this.version = null;
+    this.imports = [];
+    this.bnodeCounter = 0;
+    this.bodyBnodeLabels = null;
+    // Body blank nodes must become variables not used anywhere in the rule,
+    // including in the head or in expressions that occur later in the body.
+    this.usedVariableNames = new Set(this.tokens.filter((token) => token.type === 'variable').map((token) => token.value));
+    this.prefixes = {
+      rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+      srl: 'http://www.w3.org/ns/sparql-rl#',
+      xsd: 'http://www.w3.org/2001/XMLSchema#',
+      ...options.prefixes,
+    };
+  }
+
+  parseProgram() {
+    const data = [];
+    const rules = [];
+    while (!this.is('eof')) {
+      if (this.matchWord('PREFIX')) {
+        this.parsePrefix(false);
+      } else if (this.matchWord('BASE')) {
+        this.parseBase(false);
+      } else if (this.matchWord('VERSION')) {
+        this.parseVersion();
+      } else if (this.matchWord('IMPORTS')) {
+        this.parseImports();
+      } else if (this.matchWord('DATA')) {
+        this.expectValue('{');
+        data.push(...this.parseTriplesBlock({ allowPath: false, context: 'data' }));
+      } else if (this.matchWord('RULE')) {
+        rules.push(this.parseRule());
+      } else {
+        throw this.error(`Expected PREFIX, BASE, VERSION, IMPORTS, DATA, or RULE; got ${this.peek().value}`);
+      }
+    }
+    return {
+      baseIRI: this.baseIRI,
+      version: this.version,
+      imports: this.imports.slice(),
+      prefixes: { ...this.prefixes },
+      data,
+      rules,
+    };
+  }
+
+  parseBase(wasAtBase = false) {
+    const iriToken = this.expectType('iri');
+    this.baseIRI = iriToken.value;
+    if (wasAtBase) this.consumeOptionalDot();
+  }
+
+  parsePrefix(wasAtPrefix = false) {
+    const nameToken = this.advance();
+    if (nameToken.type !== 'word') throw this.error('Expected prefix name', nameToken);
+    let name = nameToken.value;
+    if (!name.endsWith(':')) throw this.error('Prefix name must end with :', nameToken);
+    name = name.slice(0, -1);
+    if (this.strictGrammar() && !isValidPNPrefix(name)) throw this.error(`Invalid prefix name ${nameToken.value}`, nameToken);
+    const iriToken = this.expectType('iri');
+    this.prefixes[name] = this.resolveIRI(iriToken.value, iriToken);
+    if (wasAtPrefix) this.consumeOptionalDot();
+  }
+
+  parseVersion() {
+    const token = this.expectType('string');
+    if (this.strictGrammar()) {
+      if (token.long) throw this.error('VERSION must use a short string literal', token);
+      if (token.value !== '1.2') throw this.error('VERSION must be the SPARQL-RL version label \"1.2\"', token);
+    }
+    this.version = token.value;
+  }
+
+  parseImports() {
+    const target = this.parseIRIValue();
+    this.imports.push(target.value);
+    this.consumeOptionalDot();
+  }
+
+  parseRule() {
+    let name = null;
+    if (!this.checkValue('{')) name = this.parseIRIValue().value;
+    this.expectValue('{');
+    const head = this.parseTriplesBlock({ allowPath: false, context: 'head' });
+    this.expectWord('WHERE');
+    const groundData = this.matchWord('DATA');
+    this.expectValue('{');
+    const body = this.parseRuleBodyWithBlankNodeScope();
+    return { name, head, body, groundData, runOnce: ruleNeedsRunOnce(head, body, this.options) };
+  }
+
+  parseRuleBodyWithBlankNodeScope() {
+    const previous = this.bodyBnodeLabels;
+    this.bodyBnodeLabels = new Map();
+    try {
+      return this.parseBodyBlockAlreadyOpen();
+    } finally {
+      this.bodyBnodeLabels = previous;
+    }
+  }
+
+  bodyBlankNodeVariable(label) {
+    if (!this.bodyBnodeLabels) this.bodyBnodeLabels = new Map();
+    if (!this.bodyBnodeLabels.has(label)) {
+      this.bodyBnodeLabels.set(label, this.freshGraphNode({ context: 'body' }));
+    }
+    return this.bodyBnodeLabels.get(label);
+  }
+
+  parseIRIValue() {
+    const token = this.advance();
+    if (token.type === 'iri') return { value: this.resolveIRI(token.value, token), lexical: `<${token.value}>` };
+    if (token.type === 'word') {
+      if (token.value === 'a') return { value: RDF_TYPE, lexical: 'a' };
+      if (!token.value.includes(':')) throw this.error(`Expected IRI or prefixed name, got ${token.value}`, token);
+      return { value: this.expandPrefixedName(token.value, token), lexical: token.value };
+    }
+    throw this.error(`Expected IRI or prefixed name, got ${token.value}`, token);
+  }
+
+  parseTriplesBlock(options = {}) {
+    const triples = [];
+    while (!this.matchValue('}')) {
+      triples.push(...this.parseTripleStatement(options));
+      this.consumeOptionalDot();
+    }
+    return triples;
+  }
+
+  parseTripleStatement(options = {}) {
+    const subjectNode = this.parseGraphNode({ ...options, position: 'subject' });
+    const triples = [...subjectNode.triples];
+    triples.push(...this.parsePropertyListForSubject(subjectNode.term, options));
+    return triples;
+  }
+
+  parsePropertyListForSubject(subject, options = {}, terminators = ['}', '|}', ']']) {
+    const triples = [];
+    let keepParsingPredicates = true;
+
+    while (keepParsingPredicates) {
+      if (terminators.some((value) => this.checkValue(value)) || this.checkValue('.')) break;
+      const predicate = options.allowPath ? this.parseVerbPathOrSimple(options) : this.parseVerbTerm(options);
+      do {
+        const objectNode = this.parseGraphNode({ ...options, position: 'object' });
+        triples.push(...objectNode.triples);
+        const baseTriple = { s: subject, p: predicate, o: objectNode.term };
+        triples.push(baseTriple);
+        triples.push(...this.parseAnnotationsForTriple(baseTriple, options));
+      } while (this.matchValue(','));
+
+      if (this.matchValue(';')) {
+        keepParsingPredicates = !(this.checkValue('.') || terminators.some((value) => this.checkValue(value)));
+      } else {
+        keepParsingPredicates = false;
+      }
+    }
+
+    return triples;
+  }
+
+  parseGraphNode(options = {}) {
+    if (this.checkValue('[')) return this.parseBlankNodePropertyList(options);
+    if (this.checkValue('(')) return this.parseCollection(options);
+    if (this.checkValue('<<')) return this.parseReifiedTripleNode(options);
+    return { term: this.parseTerm(options), triples: [] };
+  }
+
+  parseBlankNodePropertyList(options = {}) {
+    this.expectValue('[');
+    const node = this.freshGraphNode(options);
+    if (this.matchValue(']')) return { term: node, triples: [] };
+    const triples = this.parsePropertyListForSubject(node, options, [']']);
+    this.expectValue(']');
+    return { term: node, triples };
+  }
+
+  parseCollection(options = {}) {
+    this.expectValue('(');
+    if (this.matchValue(')')) return { term: iri(RDF_NIL), triples: [] };
+
+    const head = this.freshGraphNode(options);
+    let current = head;
+    const triples = [];
+    while (true) {
+      const item = this.parseGraphNode(options);
+      triples.push(...item.triples);
+      triples.push({ s: current, p: iri(RDF_FIRST), o: item.term });
+      if (this.matchValue(')')) {
+        triples.push({ s: current, p: iri(RDF_REST), o: iri(RDF_NIL) });
+        break;
+      }
+      const rest = this.freshGraphNode(options);
+      triples.push({ s: current, p: iri(RDF_REST), o: rest });
+      current = rest;
+    }
+    return { term: head, triples };
+  }
+
+  freshGraphNode(options = {}) {
+    do {
+      this.bnodeCounter += 1;
+    } while (options.context === 'body' && this.usedVariableNames.has(`__b${this.bnodeCounter}`));
+    const id = `b${this.bnodeCounter}`;
+    if (options.context !== 'body') return blankNode(id);
+    this.usedVariableNames.add(`__${id}`);
+    return variable(`__${id}`);
+  }
+
+  parseAnnotationsForTriple(baseTriple, options = {}) {
+    const triples = [];
+    const reified = tripleTerm(baseTriple.s, baseTriple.p, baseTriple.o);
+    let currentReifier = null;
+
+    while (this.checkValue('~') || this.checkValue('{|')) {
+      if (this.matchValue('~')) {
+        currentReifier = this.parseOptionalReifier(options);
+        triples.push({ s: currentReifier, p: iri(RDF_REIFIES), o: reified });
+      } else if (this.matchValue('{|')) {
+        if (this.checkValue('|}')) throw this.error('Annotation blocks may not be empty');
+        const annotationSubject = currentReifier || this.freshGraphNode(options);
+        triples.push({ s: annotationSubject, p: iri(RDF_REIFIES), o: reified });
+        triples.push(...this.parsePropertyListForSubject(annotationSubject, options, ['|}']));
+        this.expectValue('|}');
+      }
+    }
+    return triples;
+  }
+
+  parseOptionalReifier(options = {}) {
+    if (this.checkValue('{|') || this.checkValue('.') || this.checkValue(';') || this.checkValue(',') || this.checkValue('}') || this.checkValue('|}') || this.checkValue('>>')) {
+      return this.freshGraphNode(options);
+    }
+    return this.parseVarOrReifierId(options);
+  }
+
+  parseVarOrReifierId(options = {}) {
+    const token = this.peek();
+    if (token.type === 'variable') return this.parseTerm(options);
+    if (token.type === 'iri') return this.parseTerm(options);
+    if (token.type === 'word' && (token.value.startsWith('_:') || token.value.includes(':'))) return this.parseTerm(options);
+    throw this.error(`Expected variable, IRI, or blank node after ~; got ${token.value}`, token);
+  }
+
+  parseReifiedTripleNode(options = {}) {
+    this.expectValue('<<');
+    const subjectNode = this.parseReifiedTripleComponent(options);
+    const p = this.parseVerbTerm(options);
+    const objectNode = this.parseReifiedTripleComponent(options);
+    let reifier = null;
+    if (this.matchValue('~')) reifier = this.parseOptionalReifier(options);
+    this.expectValue('>>');
+    reifier = reifier || this.freshGraphNode(options);
+    return {
+      term: reifier,
+      triples: [
+        ...subjectNode.triples,
+        ...objectNode.triples,
+        { s: reifier, p: iri(RDF_REIFIES), o: tripleTerm(subjectNode.term, p, objectNode.term) },
+      ],
+    };
+  }
+
+  parseReifiedTripleComponent(options = {}) {
+    if (this.checkValue('<<')) return this.parseReifiedTripleNode(options);
+    return { term: this.parseTerm(options), triples: [] };
+  }
+
+  parseVerbTerm(options = {}) {
+    const term = this.parseTerm({ ...options, position: 'predicate' });
+    if (term.type !== 'iri' && term.type !== 'var') throw this.error('Expected IRI or variable as predicate');
+    return term;
+  }
+
+  parseVerbPathOrSimple(options = {}) {
+    if (this.checkType('variable')) return this.parseTerm(options);
+    return this.parsePathSequence();
+  }
+
+  parsePathSequence() {
+    const parts = [this.parsePathEltOrInverse()];
+    while (this.matchValue('/')) parts.push(this.parsePathEltOrInverse());
+    return parts.length === 1 ? parts[0] : { type: 'path', kind: 'sequence', parts };
+  }
+
+  parsePathEltOrInverse() {
+    if (this.matchValue('^')) return { type: 'path', kind: 'inverse', path: this.parsePathPrimary() };
+    return this.parsePathPrimary();
+  }
+
+  parsePathPrimary() {
+    if (this.matchValue('(')) {
+      const path = this.parsePathSequence();
+      this.expectValue(')');
+      return path;
+    }
+    const token = this.peek();
+    if (token.type === 'iri' || token.type === 'word') {
+      const value = this.parseIRIValue();
+      return iri(value.value);
+    }
+    throw this.error(`Expected path IRI, a, ^, or (, got ${token.value}`, token);
+  }
+
+  parseFilterClause() {
+    // SRL FILTER accepts a bracketted expression, a built-in call, or an IRI-named function call.
+    // The bracketted-expression form is the familiar FILTER(?x > 10).
+    const expr = this.parseExpression();
+    return { type: 'filter', expr };
+  }
+
+  parseSetClause() {
+    this.expectValue('(');
+    const variableToken = this.expectType('variable');
+    this.expectValue(':=');
+    const expr = this.parseExpression();
+    this.expectValue(')');
+    return { type: 'set', variable: variableToken.value, expr };
+  }
+
+  parseBindClause() {
+    this.expectValue('(');
+    const expr = this.parseExpression();
+    this.expectWord('AS');
+    const variableToken = this.expectType('variable');
+    this.expectValue(')');
+    return { type: 'bind', variable: variableToken.value, expr };
+  }
+
+  parseBodyBlockAlreadyOpen() {
+    const clauses = [];
+    while (!this.matchValue('}')) {
+      if (this.matchWord('FILTER')) {
+        clauses.push(this.parseFilterClause());
+      } else if (this.matchWord('SET')) {
+        clauses.push(this.parseSetClause());
+      } else if (this.matchWord('GROUP')) {
+        clauses.push(this.parseGroupClause());
+      } else if (this.matchWord('BIND')) {
+        throw this.error('BIND is not part of the SPARQL 1.2 RL grammar; use SET');
+      } else if (this.matchWord('NOT')) {
+        const groundData = this.matchWord('DATA');
+        this.expectValue('{');
+        const body = this.parseBodyBasicAlreadyOpen();
+        clauses.push({ type: 'not', body, groundData });
+      } else {
+        for (const triple of this.parseTripleStatement({ allowPath: true, context: 'body' })) {
+          if (triple.p && triple.p.type === 'path') clauses.push({ type: 'path', triple });
+          else clauses.push({ type: 'triple', triple });
+        }
+      }
+      this.consumeOptionalDot();
+    }
+    return clauses;
+  }
+
+  parseGroupClause() {
+    const keys = [];
+    if (this.matchWord('BY')) {
+      keys.push(this.expectType('variable').value);
+      while (this.is('variable')) keys.push(this.advance().value);
+    }
+    this.expectValue('{');
+    const pattern = this.parseBodyBasicAlreadyOpen('GROUP');
+    this.expectValue('[');
+    const aggregations = [];
+    if (!this.matchValue(']')) {
+      do {
+        const variable = this.expectType('variable').value;
+        this.expectValue(':=');
+        const name = this.expectType('word').value.toUpperCase();
+        if (!['COUNT', 'MIN', 'MAX', 'SUM'].includes(name)) throw this.error(`Unsupported aggregation function ${name}`);
+        this.expectValue('(');
+        const distinct = name === 'COUNT' && this.matchWord('DISTINCT');
+        const argument = name === 'COUNT' && this.matchValue('*') ? '*' : this.expectType('variable').value;
+        this.expectValue(')');
+        aggregations.push({ variable, function: { name, argument, distinct } });
+      } while (this.matchValue(','));
+      this.expectValue(']');
+    }
+    return { type: 'group', keys: [...new Set(keys)], pattern, aggregations };
+  }
+
+  parseBodyBasicAlreadyOpen(context = 'NOT') {
+    const clauses = [];
+    while (!this.matchValue('}')) {
+      if (this.matchWord('FILTER')) {
+        clauses.push(this.parseFilterClause());
+      } else if (this.matchWord('SET')) {
+        if (context !== 'GROUP') throw this.error('SET is not allowed inside NOT blocks by the SRL grammar');
+        clauses.push(this.parseSetClause());
+      } else if (this.matchWord('BIND')) {
+        throw this.error(`BIND is not allowed inside ${context} blocks by the SRL grammar`);
+      } else if (this.matchWord('NOT')) {
+        throw this.error(`NOT is not allowed inside ${context} blocks by the SRL grammar`);
+      } else if (this.matchWord('GROUP')) {
+        throw this.error(`GROUP is not allowed inside ${context} blocks by the SRL grammar`);
+      } else {
+        for (const triple of this.parseTripleStatement({ allowPath: true, context: 'body' })) {
+          if (triple.p && triple.p.type === 'path') clauses.push({ type: 'path', triple });
+          else clauses.push({ type: 'triple', triple });
+        }
+      }
+      this.consumeOptionalDot();
+    }
+    return clauses;
+  }
+
+  parseTerm(options = {}) {
+    const token = this.advance();
+    if (token.type === 'operator' && (token.value === '+' || token.value === '-') && this.peek().type === 'number') {
+      const numberToken = this.advance();
+      return numericLiteral(token.value === '-' ? -numberToken.value : numberToken.value, token.value === '-' ? `-${numberToken.lexical}` : numberToken.lexical); // eyemind: the sign is part of the lexical form
+    }
+    if (token.type === 'variable') {
+      if (options.context === 'data') throw this.error('DATA blocks may not contain variables', token);
+      return variable(token.value);
+    }
+    if (token.type === 'iri') return iri(this.resolveIRI(token.value, token));
+    if (token.type === 'string') return this.parseLiteralAfterToken(token);
+    if (token.type === 'number') return numericLiteral(token.value, token.lexical);
+    if (token.value === '<<(') return this.parseTripleTermAfterOpen(options);
+    if (token.value === '<<') throw this.error('Use << s p o >> as a graph node reifier; use <<( s p o )>> for a triple term', token);
+    if (token.type === 'word') {
+      if (token.value === 'a') {
+        if (options.position !== 'predicate') throw this.error('a is only allowed as a predicate', token);
+        return iri(RDF_TYPE);
+      }
+      if (token.value === 'true') return literal(true, XSD_BOOLEAN);
+      if (token.value === 'false') return literal(false, XSD_BOOLEAN);
+      if (token.value.startsWith('_:')) {
+        const label = token.value.slice(2);
+        return options.context === 'body' ? this.bodyBlankNodeVariable(label) : blankNode(label);
+      }
+      return iri(this.expandPrefixedName(token.value, token));
+    }
+    throw this.error(`Expected term, got ${token.value}`, token);
+  }
+
+  parseTripleTermAfterOpen(options = {}) {
+    const s = this.parseTerm(options);
+    const p = this.parseVerbTerm(options);
+    const o = this.parseTerm(options);
+    this.expectValue(')>>');
+    return tripleTerm(s, p, o);
+  }
+
+  parseReifiedTripleAfterOpen(options = {}) {
+    const s = this.parseTerm(options);
+    const p = this.parseVerbTerm(options);
+    const o = this.parseTerm(options);
+    if (this.matchValue('~')) {
+      if (!this.checkValue('>>')) this.parseVarOrReifierId(options);
+    }
+    this.expectValue('>>');
+    return tripleTerm(s, p, o);
+  }
+
+  parseLiteralAfterToken(token) {
+    if (this.matchValue('^^')) {
+      const datatype = this.parseDatatypeIRI();
+      // eyemind: a typed literal keeps its lexical form.
+      return { ...literal(coerceLexicalLiteral(token.value, datatype), datatype, null), lexical: token.value };
+    }
+    if (this.checkType('word') && /^@[A-Za-z]+(?:-[A-Za-z0-9]+)*(?:--[A-Za-z]+)?$/.test(this.peek().value)) {
+      const tagToken = this.advance();
+      const rawTag = tagToken.value.slice(1);
+      const direction = rawTag.includes('--') ? rawTag.slice(rawTag.lastIndexOf('--') + 2) : null;
+      if (direction && direction !== 'ltr' && direction !== 'rtl') {
+        throw this.error(`Invalid base direction --${direction}; expected --ltr or --rtl`, tagToken);
+      }
+      const tag = rawTag.toLowerCase();
+      const [lang, langDir = null] = tag.split('--');
+      return literal(token.value, null, lang, langDir);
+    }
+    return literal(token.value);
+  }
+
+  parseDatatypeIRI() {
+    const token = this.advance();
+    if (token.type === 'iri') return this.resolveIRI(token.value, token);
+    if (token.type === 'word') return this.expandPrefixedName(token.value, token);
+    throw this.error(`Expected datatype IRI, got ${token.value}`, token);
+  }
+
+  expandPrefixedName(value, token) {
+    const colon = value.indexOf(':');
+    if (colon < 0) throw this.error(`Expected IRI, prefixed name, literal, blank node, or variable; got ${value}`, token);
+    const prefix = value.slice(0, colon);
+    const local = value.slice(colon + 1);
+    if (this.strictGrammar()) validatePrefixedName(prefix, local, value, token, (message, errToken) => this.error(message, errToken));
+    if (!(prefix in this.prefixes)) throw this.error(`Unknown prefix ${prefix}:`, token);
+    return this.prefixes[prefix] + decodePNLocalEscapes(local);
+  }
+
+  resolveIRI(value, token = null) {
+    if (!this.baseIRI || /^[A-Za-z][A-Za-z0-9+.-]*:/.test(value)) return value;
+    try {
+      return new URL(value, this.baseIRI).href;
+    } catch (_) {
+      if (token) throw this.error(`Could not resolve IRI ${value} against BASE ${this.baseIRI}`, token);
+      return value;
+    }
+  }
+
+  parseExpression(minPrec = 0) {
+    let left = this.parseUnaryExpression();
+    while (true) {
+      const info = this.peekBinaryOperator();
+      if (!info || info.prec < minPrec) break;
+      this.consumeBinaryOperator(info.op);
+      if (info.op === 'IN' || info.op === 'NOT IN') {
+        const items = this.parseExpressionListItems();
+        left = { type: 'binary', op: info.op, left, right: { type: 'list', items } };
+      } else {
+        const right = this.parseExpression(info.prec + 1);
+        left = { type: 'binary', op: info.op, left, right };
+      }
+    }
+    return left;
+  }
+
+  parseExpressionListItems() {
+    this.expectValue('(');
+    const items = [];
+    if (!this.checkValue(')')) {
+      do { items.push(this.parseExpression()); }
+      while (this.matchValue(','));
+    }
+    this.expectValue(')');
+    return items;
+  }
+
+  peekBinaryOperator() {
+    const token = this.peek();
+    if (token.type === 'operator') {
+      const prec = binaryPrecedence(token.value);
+      return prec >= 0 ? { op: token.value, prec } : null;
+    }
+    if (token.type === 'word' && token.value.toUpperCase() === 'IN') return { op: 'IN', prec: 3 };
+    if (token.type === 'word' && token.value.toUpperCase() === 'NOT' && this.peekN(1).type === 'word' && this.peekN(1).value.toUpperCase() === 'IN') return { op: 'NOT IN', prec: 3 };
+    return null;
+  }
+
+  consumeBinaryOperator(op) {
+    if (op === 'NOT IN') { this.expectWord('NOT'); this.expectWord('IN'); return; }
+    if (op === 'IN') { this.expectWord('IN'); return; }
+    this.expectValue(op);
+  }
+
+  parseUnaryExpression() {
+    if (this.peek().type === 'operator' && (this.peek().value === '!' || this.peek().value === '-' || this.peek().value === '+')) {
+      const op = this.advance().value;
+      return { type: 'unary', op, expr: this.parseUnaryExpression() };
+    }
+    return this.parsePrimaryExpression();
+  }
+
+  parsePrimaryExpression() {
+    const token = this.advance();
+    if (token.type === 'variable') return { type: 'var', name: token.value };
+    if (token.type === 'string') return this.parseLiteralExpressionAfterToken(token);
+    // eyemind: a number keeps its datatype and lexical form.
+    if (token.type === 'number') return { type: 'literal', value: token.value, term: numericLiteral(token.value, token.lexical) };
+    if (token.type === 'iri') {
+      const name = this.resolveIRI(token.value, token);
+      if (this.checkValue('(')) return this.parseFunctionCallAfterName(name);
+      return { type: 'term', value: iri(name) };
+    }
+    if (token.value === '<<(') return { type: 'term', value: this.parseTripleTermAfterOpen() };
+    if (token.value === '<<') throw this.error('Use <<( s p o )>> for triple terms inside expressions', token);
+    if (token.type === 'word') {
+      if (token.value === 'true') return { type: 'literal', value: true };
+      if (token.value === 'false') return { type: 'literal', value: false };
+      if (token.value.startsWith('_:')) return { type: 'term', value: blankNode(token.value.slice(2)) };
+      if (this.checkValue('(')) {
+        if (token.value.includes(':') && token.value !== 'a') {
+          const name = this.expandPrefixedName(token.value, token);
+          return this.parseFunctionCallAfterName(name);
+        }
+        if (isBuiltinName(token.value)) return this.parseFunctionCallAfterName(token.value);
+        throw this.error(`Unknown built-in or unprefixed function call ${token.value}; use an IRI such as :${token.value} for custom functions`, token);
+      }
+      if (token.value.includes(':') || token.value === 'a') {
+        const value = token.value === 'a' ? RDF_TYPE : this.expandPrefixedName(token.value, token);
+        return { type: 'term', value: iri(value) };
+      }
+    }
+    if (token.value === '(') {
+      const expr = this.parseExpression();
+      this.expectValue(')');
+      return expr;
+    }
+    throw this.error(`Expected expression, got ${token.value}`, token);
+  }
+
+  parseFunctionCallAfterName(name) {
+    this.expectValue('(');
+    const args = [];
+    if (!this.checkValue(')')) {
+      do { args.push(this.parseExpression()); }
+      while (this.matchValue(','));
+    }
+    this.expectValue(')');
+    return { type: 'call', name, args };
+  }
+
+  parseLiteralExpressionAfterToken(token) {
+    const term = this.parseLiteralAfterToken(token);
+    if (term.datatype || term.lang) return { type: 'term', value: term };
+    return { type: 'literal', value: term.value };
+  }
+
+  consumeOptionalDot() { this.matchValue('.'); }
+
+  checkWord(value) {
+    return this.checkType('word') && this.peek().value.toUpperCase() === value.toUpperCase();
+  }
+
+  matchWord(value) {
+    if (this.checkType('word') && this.peek().value.toUpperCase() === value.toUpperCase()) {
+      this.advance();
+      return true;
+    }
+    return false;
+  }
+
+  expectWord(value) {
+    if (this.matchWord(value)) return this.previous();
+    throw this.error(`Expected ${value}, got ${this.peek().value}`);
+  }
+
+  matchValue(value) {
+    const token = this.peek();
+    if ((token.type === 'punct' || token.type === 'operator') && token.value === value) { this.advance(); return true; }
+    return false;
+  }
+
+  expectValue(value) {
+    if (this.matchValue(value)) return this.previous();
+    throw this.error(`Expected ${value}, got ${this.peek().value}`);
+  }
+
+  checkValue(value) { const token = this.peek(); return (token.type === 'punct' || token.type === 'operator') && token.value === value; }
+  checkType(type) { return this.peek().type === type; }
+  is(type) { return this.peek().type === type; }
+
+  expectType(type) {
+    if (this.peek().type === type) return this.advance();
+    throw this.error(`Expected ${type}, got ${this.peek().value}`);
+  }
+
+  advance() { if (!this.is('eof')) this.pos += 1; return this.previous(); }
+  peek() { return this.tokens[this.pos]; }
+  peekN(n) { return this.tokens[this.pos + n] || this.tokens[this.tokens.length - 1]; }
+  previous() { return this.tokens[this.pos - 1]; }
+  strictGrammar() { return this.options.strictGrammar !== false; }
+  error(message, token = this.peek()) { return new SyntaxErrorWithLocation(message, token && token.filename ? token : { ...token, filename: this.options.filename || '<input>' }); }
+}
+
+
+function isPnCharsBase(ch) {
+  if (!ch) return false;
+  return /[A-Za-z]/.test(ch) || ch.codePointAt(0) >= 0x00C0;
+}
+
+function isPnCharsU(ch) {
+  return isPnCharsBase(ch) || ch === '_';
+}
+
+function isPnChars(ch) {
+  return isPnCharsU(ch) || /[0-9-]/.test(ch) || ch === '\u00B7' || /[\u0300-\u036F\u203F-\u2040]/u.test(ch);
+}
+
+function isValidPNPrefix(prefix) {
+  if (prefix === '') return true;
+  const chars = Array.from(prefix);
+  if (!isPnCharsBase(chars[0])) return false;
+  if (chars.length > 1 && chars.at(-1) === '.') return false;
+  return chars.slice(1).every((ch) => isPnChars(ch) || ch === '.');
+}
+
+function plxLength(text, index) {
+  const ch = text[index];
+  if (ch === '%' && /[0-9A-Fa-f]/.test(text[index + 1] || '') && /[0-9A-Fa-f]/.test(text[index + 2] || '')) return 3;
+  if (ch === '\\' && /[_~.!$&'()*+,;=/?#@%-]/.test(text[index + 1] || '')) return 2;
+  return 0;
+}
+
+function isPNLocalStartAt(text, index) {
+  const ch = text[index];
+  return isPnCharsU(ch) || /[0-9:]/.test(ch || '') || plxLength(text, index) > 0;
+}
+
+function isPNLocalBodyAt(text, index) {
+  const ch = text[index];
+  return isPnChars(ch) || ch === '.' || ch === ':' || plxLength(text, index) > 0;
+}
+
+function isPNLocalEndAt(text, index) {
+  const ch = text[index];
+  return isPnChars(ch) || ch === ':' || plxLength(text, index) > 0;
+}
+
+function validatePNLocal(local) {
+  if (local === '') return true;
+  if (!isPNLocalStartAt(local, 0)) return false;
+  let lastStart = 0;
+  for (let i = 0; i < local.length;) {
+    const len = plxLength(local, i) || 1;
+    if (i > 0 && !isPNLocalBodyAt(local, i)) return false;
+    lastStart = i;
+    i += len;
+  }
+  return isPNLocalEndAt(local, lastStart);
+}
+
+function validatePrefixedName(prefix, local, value, token, makeError) {
+  if (!isValidPNPrefix(prefix)) throw makeError(`Invalid prefixed name ${value}: invalid prefix`, token);
+  if (!validatePNLocal(local)) throw makeError(`Invalid prefixed name ${value}: invalid local name`, token);
+}
+
+function decodePNLocalEscapes(local) {
+  return String(local).replace(/\\([_~.!$&'()*+,;=/?#@%-])/g, '$1');
+}
+
+// [95]-[97]: an INTEGER has neither `.` nor exponent, a DECIMAL has a `.`,
+// a DOUBLE has an exponent. The datatype follows the way the number was
+// written, not its value — `72.0` is an xsd:decimal and `7.2e1` an
+// xsd:double even though both are numerically the integer 72.
+function numericLiteral(value, lexical) {
+  const text = lexical === undefined ? String(value) : String(lexical);
+  // eyemind: a number keeps its lexical form.
+  if (/[eE]/.test(text)) return { ...literal(value, XSD_DOUBLE), lexical: text };
+  if (text.includes('.')) return { ...literal(value, XSD_DECIMAL), lexical: text };
+  return { ...literal(value, XSD_INTEGER), lexical: text };
+}
+
+function parseIntegerLiteral(value) {
+  const text = String(value);
+  const asNumber = Number.parseInt(text, 10);
+  return Number.isSafeInteger(asNumber) && String(asNumber) === text.replace(/^\+/, '') ? asNumber : BigInt(text);
+}
+
+function coerceLexicalLiteral(value, datatype) {
+  if (datatype === XSD_INTEGER) return parseIntegerLiteral(value);
+  if (datatype === XSD_DECIMAL || datatype === XSD_DOUBLE) return Number.parseFloat(value);
+  if (datatype === XSD_BOOLEAN) return value === 'true' || value === '1';
+  return value;
+}
+
+function binaryPrecedence(op) {
+  return {
+    '||': 1,
+    '&&': 2,
+    '=': 3,
+    '!=': 3,
+    'IN': 3,
+    'NOT IN': 3,
+    '<': 4,
+    '<=': 4,
+    '>': 4,
+    '>=': 4,
+    '+': 5,
+    '-': 5,
+    '*': 6,
+    '/': 6,
+  }[op] ?? -1;
+}
+
+function parse(source, options = {}) {
+  return new Parser(source, options).parseProgram();
+}
+
+function parseQuery(source, options = {}) {
+  if (/^\s*(QUERY|SELECT)\b/i.test(source)) {
+    throw new Error('QUERY/SELECT concrete syntax is not part of the SPARQL-RL rule-set grammar; pass a raw body pattern instead');
+  }
+  const trimmed = String(source).trim();
+  const text = trimmed.startsWith('{') ? `RULE { } WHERE ${trimmed}` : `RULE { } WHERE { ${source} }`;
+  const program = new Parser(text, options).parseProgram();
+  if (program.rules.length !== 1 || program.data.length !== 0) {
+    throw new Error('Expected exactly one raw body pattern');
+  }
+  return { select: null, body: program.rules[0].body, prefixes: program.prefixes, baseIRI: program.baseIRI };
+}
+
+export { Parser, parse, parseQuery };

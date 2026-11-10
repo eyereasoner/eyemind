@@ -397,12 +397,11 @@ them. The report does not establish answer completeness.
 ```sh
 eyemind examples/rdf12-annotated-claims.js                  # the results as quads
 eyemind --proof examples/rdf12-annotated-claims.js          # with their proof
-eyemind examples/rdf12-annotated-claims.js > out.js && eyemind-to-rdf out.js -o out.ttl
+eyemind --to turtle examples/rdf12-annotated-claims.js > out.ttl
 ```
 
-`eyemind-to-rdf` and `rdf-to-eyemind` come with
-[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
-they turn eyemind's quads into RDF and RDF into quads.
+`--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
+`.nt` and `.nq` files as quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-annotated-claims).
 
 Lower the authority's confidence from `'98'` to `'80'` and run again: its

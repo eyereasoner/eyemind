@@ -197,12 +197,11 @@ follows from the two graphs. It does not say there are no other answers.
 ```sh
 eyemind examples/rdf12-trig-graph-join.js                   # the results as quads
 eyemind --proof examples/rdf12-trig-graph-join.js           # with their proof
-eyemind examples/rdf12-trig-graph-join.js > out.js && eyemind-to-rdf out.js -o out.trig
+eyemind --to trig examples/rdf12-trig-graph-join.js > out.trig
 ```
 
-`eyemind-to-rdf` and `rdf-to-eyemind` come with
-[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
-they turn eyemind's quads into RDF and RDF into quads.
+`--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
+`.nt` and `.nq` files as quads.
 
 Add a reading for a second sensor, `sensor2`, in the sensor graph: a second
 answer appears, saying station 7 reported sensor 2 too. Move sensor 1's

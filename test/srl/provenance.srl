@@ -1,0 +1,14 @@
+# Statements carry their source as RDF 1.2 annotations: who said that a link
+# exists and how strong it is. Only strong links connect places, and
+# connection is transitive. Shows reifiers, annotation syntax and triple terms.
+PREFIX : <http://example.org/links#>
+
+DATA {
+  :a :link :b ~:l1 {| :weight 9 ; :source :survey |} .
+  :b :link :c ~:l2 {| :weight 2 ; :source :rumour |} .
+  :b :link :d ~:l3 {| :weight 7 ; :source :survey |} .
+}
+
+RULE { ?x :connected ?y } WHERE { ?x :link ?y ~?r {| :weight ?w |} FILTER(?w > 5) }
+RULE { ?x :connected ?z } WHERE { ?x :connected ?y . ?y :connected ?z }
+RULE { ?s :reported <<( ?x :link ?y )>> } WHERE { ?r rdf:reifies <<( ?x :link ?y )>> ; :source ?s }

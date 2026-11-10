@@ -1,0 +1,22 @@
+PREFIX : <http://example.org/inventory#>
+
+:bolt a :Product .
+:nut a :Product .
+:gear a :Product .
+:s1 :product :bolt .
+:s1 :location :ghent .
+:s1 :quantity 120 .
+:s2 :product :bolt .
+:s2 :location :lyon .
+:s2 :quantity 80 .
+:s3 :product :nut .
+:s3 :location :ghent .
+:s3 :quantity 500 .
+:bolt :locations 2 .
+:bolt :total 200 .
+:bolt :smallest 80 .
+:bolt :largest 120 .
+:nut :locations 1 .
+:nut :total 500 .
+:nut :smallest 500 .
+:nut :largest 500 .

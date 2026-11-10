@@ -197,12 +197,11 @@ program. It confirms that result; it does not say there are no others.
 ```sh
 eyemind examples/rdf12-nested-triple-term.js                # the results as quads
 eyemind --proof examples/rdf12-nested-triple-term.js        # with their proof
-eyemind examples/rdf12-nested-triple-term.js > out.js && eyemind-to-rdf out.js -o out.ttl
+eyemind --to turtle examples/rdf12-nested-triple-term.js > out.ttl
 ```
 
-`eyemind-to-rdf` and `rdf-to-eyemind` come with
-[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
-they turn eyemind's quads into RDF and RDF into quads.
+`--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
+`.nt` and `.nq` files as quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-nested-triple-term).
 
 Change `'carol'` to `'dave'` in the fact: the answer follows the change and

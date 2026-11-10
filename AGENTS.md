@@ -29,6 +29,16 @@ goals, and keep error messages specific and user-facing text direct.
   - `cli.js`: the command line, with no Node imports so the playground's
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
     library API. `version.js`: the version, synced from `package.json`.
+  - `formats.js`: inputs by extension and output with `--to`. `rdf.js`:
+    RDF 1.2 (Turtle, TriG, N-Triples, N-Quads) to and from eyemind terms,
+    read by eyeling's parser (`rdf-lexer.js`, `rdf-parser.js`,
+    `rdf-prelude.js`, `rdf-rules.js`) after the strict token pass of
+    `rdf-syntax.js`. `n3.js`, `n3-parser.js`, `n3-builtins.js`,
+    `n3-writer.js`, `n3-documents.js`: Notation3 compiled to a program.
+    `srl.js`, `srl-functions.js`: SPARQL 1.2 RL compiled to a program, read
+    by eyeleng's tokenizer, parser and analysis (`srl-tokenizer.js`,
+    `srl-parser.js`, `srl-term.js`, `srl-assignments.js`, `srl-analyze.js`,
+    `srl-builtin-names.js`).
 - `bin/eyemind.js`: the `eyemind` command.
 - `playground/index.html`: hand-written browser playground; it runs `src/`
   in a module worker, with no build step. `playground.html` redirects older
@@ -47,8 +57,12 @@ goals, and keep error messages specific and user-facing text direct.
 - `test/`: `run.js` runs every `*.test.js` module, the conformance suite and
   the playground tests of `playground.js` in a headless Chrome that
   `chrome.js` starts; `browser.mjs` runs those alone and can take screenshots.
+  `w3c.js` runs the W3C RDF and SPARQL 1.2 RL suites mirrored in `test/w3c/`;
+  `test/n3/` and `test/srl/` hold N3 and SRL inputs with saved outputs.
 - `tools/`: `update-examples.js` regenerates the example artifacts,
-  `corpus.js` evaluates the corpus, `version.js` syncs the version.
+  `corpus.js` evaluates the corpus, `version.js` syncs the version,
+  `notation3tests.js` scores the Notation3 test suite, and `report.js`
+  writes `REPORT.md`, the table a whole `npm test` run ends with.
 - `README.md` (the guide: why eyemind, running, writing programs, proofs,
   playground, CLI, library, development), served by Pages as the site root;
   `SPEC.md` (RFC-style specification: terms, programs, arithmetic,
@@ -106,6 +120,20 @@ very large proofs; redirect them to a file and inspect focused parts.
   artifact should change unless intended.
 - Expected conformance outputs come from the specification, not from running
   eyemind. When a case and eyemind disagree, SPEC.md decides which is wrong.
+
+## Other formats
+
+RDF data, N3 and SPARQL 1.2 RL are inputs of the command line, compiled to
+ordinary programs; they are outside the specification's conformance (SPEC
+Section 13.1). The RDF parser is eyeling's (`lib/lexer.js`, `parser.js`,
+`prelude.js`, `rules.js` at eyeling commit `830e0b0`), the SRL parser and
+analysis eyeleng's (`src/tokenizer.js`, `parser.js`, `term.js`,
+`assignments.js`, `analyze.js` and the names of `builtins.js` at eyeleng
+commit `885ad7f`), converted to ES modules. Every change to them is marked
+`eyemind:` in the source; keep it so, so a later revision can be compared and
+fixes offered back. The W3C suites decide what is correct: all RDF tests of
+`test/w3c/rdf-tests` and all SPARQL 1.2 RL tests of `test/w3c/sparql-rl` pass,
+and must keep passing.
 
 ## Implementation and verification
 

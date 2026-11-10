@@ -195,12 +195,11 @@ eyemind examples/rdf12-trig-triple-term.js                  # the results as qua
 eyemind --proof examples/rdf12-trig-triple-term.js          # with their proof
 eyemind -c examples/rdf12-trig-triple-term.js
 eyemind --check-proof examples/proof/rdf12-trig-triple-term.js examples/rdf12-trig-triple-term.js
-eyemind examples/rdf12-trig-triple-term.js > out.js && eyemind-to-rdf out.js -o out.trig
+eyemind --to trig examples/rdf12-trig-triple-term.js > out.trig
 ```
 
-`eyemind-to-rdf` and `rdf-to-eyemind` come with
-[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
-they turn eyemind's quads into RDF and RDF into quads.
+`--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
+`.nt` and `.nq` files as quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-triple-term).
 
 Move the claim to the default graph: replace `iri(ex + 'claimsGraph')` in

@@ -11,8 +11,8 @@
 Ann is Bob's parent, and Bob is Cara's parent. Who descends from Ann?
 The answer needs both a direct connection and a chain of connections.
 
-[n3-interchange](https://github.com/eyereasoner/n3-interchange) compiles the
-N3 document into the saved JavaScript program. The compiled program runs
+eyemind compiles the N3 document into the saved JavaScript program,
+`eyemind --program examples/n3-family.n3`. The compiled program runs
 directly in eyemind and the playground. No compiler is needed to run it.
 
 ---
@@ -93,13 +93,12 @@ arbitrary proof has listed every answer.
 
 ## Try it
 
-From the repository root, with n3-interchange installed:
+From the repository root:
 
 ```sh
-eyemind-n3 examples/n3-family.n3
-n3-to-eyemind examples/n3-family.n3 -o /tmp/n3-family.js
-node bin/eyemind.js /tmp/n3-family.js > /tmp/n3-family-answers.js
-eyemind-to-n3 --prefixes examples/n3-family.n3 /tmp/n3-family-answers.js
+node bin/eyemind.js examples/n3-family.n3
+node bin/eyemind.js --program examples/n3-family.n3 > /tmp/n3-family.js
+node bin/eyemind.js /tmp/n3-family.js
 ```
 
 The saved program and proof also work with eyemind alone:

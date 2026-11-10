@@ -36,7 +36,7 @@ creates another delivery.
 
 ## What gets compiled
 
-[n3-interchange](https://github.com/eyereasoner/n3-interchange) translates
+eyemind translates
 the two conclusion triples into one conjunctive forward head, sharing the
 variable `Bdelivery`. That variable is absent from the premise, so eyemind
 assigns a Skolem witness to it.
@@ -77,7 +77,7 @@ _:b0 :status :ready .
 _:b1 :status :ready .
 ```
 
-`eyemind-to-n3` assigns blank-node labels to the witnesses while writing
+eyemind assigns blank-node labels to the witnesses while writing
 the document. Within this output, `_:b0` consistently denotes order 1's
 delivery and `_:b1` order 2's. These labels are local identifiers in the
 output document.
@@ -101,7 +101,7 @@ conversion from the N3 source is a separate step that can be inspected.
 ## Try it
 
 ```sh
-eyemind-n3 examples/n3-witnesses.n3
+node bin/eyemind.js examples/n3-witnesses.n3
 node bin/eyemind.js examples/n3-witnesses.js
 node bin/eyemind.js --strict-proof --check-proof examples/proof/n3-witnesses.js examples/n3-witnesses.js
 ```
@@ -109,7 +109,7 @@ node bin/eyemind.js --strict-proof --check-proof examples/proof/n3-witnesses.js 
 Recompile the original N3 and inspect its witness terms:
 
 ```sh
-n3-to-eyemind examples/n3-witnesses.n3 -o /tmp/n3-witnesses.js
+node bin/eyemind.js --program examples/n3-witnesses.n3 > /tmp/n3-witnesses.js
 node bin/eyemind.js --proof /tmp/n3-witnesses.js
 ```
 

@@ -1,0 +1,19 @@
+PREFIX : <http://example.org/deployment#>
+
+:shop a :Component .
+:shop :callsService :payments .
+:payments a :Component .
+:payments :queriesDatabase :ledger .
+:ledger a :Component .
+:ledger :hasVulnerability :cve1 .
+:logger a :Component .
+:cve1 :severity 9.8 .
+:shop :dependsOn :payments .
+:payments :dependsOn :ledger .
+:ledger :exposedTo :cve1 .
+:payments :exposedTo :cve1 .
+:ledger :status :critical .
+:payments :status :critical .
+:shop :exposedTo :cve1 .
+:shop :status :critical .
+:logger :status :safeToDeploy .

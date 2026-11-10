@@ -1,0 +1,12 @@
+PREFIX : <http://example.org/orders#>
+
+:o1 :customer :alice .
+:o1 :amount 25 .
+:o2 :customer :alice .
+:o2 :amount 25 .
+_:b0 :billedTo :alice .
+_:b0 :total 25 .
+:o1 :invoice _:b0 .
+_:b1 :billedTo :alice .
+_:b1 :total 25 .
+:o2 :invoice _:b1 .

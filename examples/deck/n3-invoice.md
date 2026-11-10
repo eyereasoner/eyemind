@@ -41,7 +41,7 @@ through the copied result list; `?line` does not become an output.
 
 ## What gets compiled
 
-[n3-interchange](https://github.com/eyereasoner/n3-interchange) compiles
+eyemind compiles
 `log:collectAllIn` to `findall(Template, Goal, List)`. `math:sum` and
 `math:greaterThan` become backward definitions included in the generated
 program, using eyemind primitives for arithmetic and comparison.
@@ -109,7 +109,7 @@ while the saved proof remains conditional on its listed obligations.
 ## Try it
 
 ```sh
-eyemind-n3 examples/n3-invoice.n3
+node bin/eyemind.js examples/n3-invoice.n3
 node bin/eyemind.js examples/n3-invoice.js
 node bin/eyemind.js --check-proof examples/proof/n3-invoice.js examples/n3-invoice.js
 ```
@@ -117,7 +117,7 @@ node bin/eyemind.js --check-proof examples/proof/n3-invoice.js examples/n3-invoi
 Compile and inspect the included built-in definitions:
 
 ```sh
-n3-to-eyemind examples/n3-invoice.n3 -o /tmp/n3-invoice.js
+node bin/eyemind.js --program examples/n3-invoice.n3 > /tmp/n3-invoice.js
 node bin/eyemind.js --proof /tmp/n3-invoice.js
 ```
 

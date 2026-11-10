@@ -2139,6 +2139,16 @@ an invalid check returns 2, otherwise the run's halt code is retained
 text that has a line starting with `step(` or `called(` is a proof document; given one as
 a program, the command line MUST say how to check it instead.
 
+Files are programs ([Section 3](#3-program-syntax)) unless an
+implementation reads other formats. eyemind reads files by their extension:
+`.ttl`, `.trig`, `.nt` and `.nq` as RDF 1.2 data, joining a program as
+`rdf(S, P, O, G)` facts, `.n3` as Notation3 and `.srl` as a SPARQL 1.2 RL rule
+set, both compiled to a program, with the options `--to FORMAT` (the output
+format of the conclusions), `--all`, `--program` and `--base IRI`; its README
+describes the mappings. Such formats are outside conformance: a conforming
+implementation need not read them, and the suite does not test them. The
+proofs and checks of a compiled program are those of any program.
+
 | Exit code | Meaning |
 | --- | --- |
 | 0 | Success, including a check that found the proof valid. |

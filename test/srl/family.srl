@@ -1,0 +1,13 @@
+# A family tree: parents, and ancestors as parents of parents, to any depth.
+# The recursive rule runs until nothing new follows, so Ann is found to be an
+# ancestor of Dee three generations down. Shows recursion.
+PREFIX : <http://example.org/family#>
+
+DATA {
+  :ann :parentOf :bob .
+  :bob :parentOf :cid .
+  :cid :parentOf :dee .
+}
+
+RULE { ?x :ancestorOf ?y } WHERE { ?x :parentOf ?y }
+RULE { ?x :ancestorOf ?z } WHERE { ?x :parentOf ?y . ?y :ancestorOf ?z }

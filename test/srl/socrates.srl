@@ -1,0 +1,12 @@
+# Socrates is a human, and every human is mortal: a rule that follows the
+# class hierarchy concludes that Socrates is mortal. Shows a DATA block and a
+# forward rule; the result is the inference graph, the data included.
+PREFIX : <http://example.org/socrates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+DATA {
+  :Socrates a :Human .
+  :Human rdfs:subClassOf :Mortal .
+}
+
+RULE { ?x a ?super } WHERE { ?x a ?class . ?class rdfs:subClassOf ?super }

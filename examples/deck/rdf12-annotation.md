@@ -253,12 +253,11 @@ the claims; it does not say the program has no other answers.
 ```sh
 eyemind examples/rdf12-annotation.js                        # the results as quads
 eyemind --proof examples/rdf12-annotation.js                # with their proof
-eyemind examples/rdf12-annotation.js > out.js && eyemind-to-rdf out.js -o out.ttl
+eyemind --to turtle examples/rdf12-annotation.js > out.ttl
 ```
 
-`eyemind-to-rdf` and `rdf-to-eyemind` come with
-[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
-they turn eyemind's quads into RDF and RDF into quads.
+`--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
+`.nt` and `.nq` files as quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-annotation).
 
 Remove the asserted name triple (the first quad of the `fact`) and run

@@ -12,14 +12,17 @@
 // section needs Chrome (CHROME names it when it is not on the PATH); without
 // one it says so and runs nothing. Each test prints OK or FAIL, its
 // number, what it tests and how long it took; each section and the whole run
-// end with a total. The exit code is 1 when a test failed.
-import { spawn } from 'node:child_process';
-import { readdirSync } from 'node:fs';
+// end with a total. A whole run then prints the table of REPORT.md: every
+// section, the W3C suites case by case and the Notation3 test suite, with
+// their totals. The exit code is 1 when a test failed.
+import { spawn, spawnSync } from 'node:child_process';
+import { existsSync, readdirSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { VERSION } from '../src/index.js';
 import { check, execute, loadCases, shellSplit } from '../conformance/run.js';
+import { RDF_MANIFESTS, W3C_BASE, manifestCases, runCase, runSparqlRlCase, sparqlRlCases } from './w3c.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = dirname(HERE);
@@ -41,6 +44,7 @@ class Reporter {
     this.passed = 0;
     this.total = 0;
     this.failures = [];
+    this.rows = [];
     this.started = performance.now();
     this.heading = null;
   }
@@ -60,6 +64,7 @@ class Reporter {
     const [started, passed, total] = this.sectionStart;
     if (this.total === total) return;
     this.summary(this.passed - passed, this.total - total, COUNTED[name], performance.now() - started);
+    this.rows.push({ suite: `npm test: ${COUNTED[name]}`, cases: this.total - total, passed: this.passed - passed, seconds: (performance.now() - started) / 1000 });
   }
 
   summary(passed, total, what, ms) {
@@ -301,7 +306,63 @@ async function main(argv) {
     else await runTests(reporter, tests.filter(([name]) => name === section));
     reporter.endSection(section);
   }
-  return reporter.finish();
+  const code = reporter.finish();
+  // A whole run ends with the table of REPORT.md: every section, the W3C
+  // suites case by case, and the Notation3 test suite when it is at hand.
+  if (!sections.length && pattern === null) printReport([...reporter.rows, ...w3cRows(), ...notation3Rows()]);
+  return code;
+}
+
+// The W3C suites, case by case, timed per manifest or section.
+function w3cRows() {
+  const rows = [];
+  const timed = (suite, cases, run) => {
+    const started = performance.now();
+    let passed = 0;
+    for (const c of cases) {
+      try {
+        run(c);
+        passed += 1;
+      } catch {
+        // Counted as failed; the unit tests show why.
+      }
+    }
+    rows.push({ suite, cases: cases.length, passed, seconds: (performance.now() - started) / 1000 });
+  };
+  for (const manifest of RDF_MANIFESTS) timed(`W3C RDF ${manifest.slice(W3C_BASE.length).replace(/\/manifest\.ttl$/, '')}`, manifestCases(manifest), runCase);
+  const sections = new Map();
+  for (const c of sparqlRlCases()) sections.set(c.section, [...(sections.get(c.section) ?? []), c]);
+  for (const [section, cases] of sections) timed(`W3C SPARQL 1.2 RL ${section}`, cases, runSparqlRlCase);
+  return rows;
+}
+
+// The Notation3 test suite through the eyemind command, from
+// EYEMIND_NOTATION3TESTS or eyeling's mirror beside this repository. It
+// reports on N3 support; its results leave the exit code alone.
+function notation3Rows() {
+  const dir = process.env.EYEMIND_NOTATION3TESTS ?? join(ROOT, '..', 'eyeling', 'test', 'notation3tests', 'tests');
+  if (!existsSync(dir)) {
+    console.log(paint('2', `notation3tests not run: ${dir} is missing`));
+    return [];
+  }
+  const run = spawnSync(process.execPath, [join(ROOT, 'tools/notation3tests.js'), '--json', '--timeout', '20', dir], { encoding: 'utf8', maxBuffer: 1 << 28 });
+  const n3 = JSON.parse(run.stdout);
+  return [{ suite: 'notation3tests', cases: n3.total, passed: n3.tally.ok ?? 0, seconds: n3.seconds }];
+}
+
+// The rows as a Markdown table with a total, as REPORT.md has it.
+function printReport(rows) {
+  const time = (seconds) => `${seconds.toFixed(2)} s`;
+  const sum = (key) => rows.reduce((n, row) => n + row[key], 0);
+  const total = { cases: sum('cases'), passed: sum('passed'), seconds: sum('seconds') };
+  console.log(`\n${paint('33', '== Report')}`);
+  console.log('| Suite | Cases | Passed | Result | Time |');
+  console.log('| --- | ---: | ---: | --- | ---: |');
+  for (const row of rows) {
+    const result = row.passed === row.cases ? '✅ ok' : `❌ ${row.cases - row.passed} failed`;
+    console.log(`| ${row.suite} | ${row.cases} | ${row.passed} | ${result} | ${time(row.seconds)} |`);
+  }
+  console.log(`| **Total** | **${total.cases}** | **${total.passed}** | **${(100 * total.passed / total.cases).toFixed(1)}% ok** | **${time(total.seconds)}** |`);
 }
 
 process.exitCode = await main(process.argv.slice(2));
