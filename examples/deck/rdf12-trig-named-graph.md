@@ -200,12 +200,11 @@ confirms the claims; it does not say the program has no other conclusions.
 ```sh
 eyemind examples/rdf12-trig-named-graph.js                  # the results as quads
 eyemind --proof examples/rdf12-trig-named-graph.js          # with their proof
-eyemind examples/rdf12-trig-named-graph.js > out.js && eyemind-to-rdf out.js -o out.trig
+eyemind --to trig examples/rdf12-trig-named-graph.js > out.trig
 ```
 
-`eyemind-to-rdf` and `rdf-to-eyemind` come with
-[rdf-interchange](https://github.com/eyereasoner/rdf-interchange);
-they turn eyemind's quads into RDF and RDF into quads.
+`--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
+`.nt` and `.nq` files as quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-named-graph).
 
 Put Bob's parent link in another graph, say `iri(ex + 'school')`, and run

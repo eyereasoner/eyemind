@@ -1,0 +1,18 @@
+# A warehouse lists stock per product and location. For each product the
+# rule counts its locations and sums and bounds its stock; a product with no
+# stock records gets no total. Shows GROUP BY with COUNT, SUM, MIN and MAX.
+PREFIX : <http://example.org/inventory#>
+
+DATA {
+  :bolt a :Product . :nut a :Product . :gear a :Product .
+  :s1 :product :bolt ; :location :ghent ; :quantity 120 .
+  :s2 :product :bolt ; :location :lyon ; :quantity 80 .
+  :s3 :product :nut ; :location :ghent ; :quantity 500 .
+}
+
+RULE { ?p :locations ?n ; :total ?sum ; :smallest ?min ; :largest ?max }
+WHERE {
+  ?p a :Product
+  GROUP BY ?p { ?s :product ?p ; :location ?l ; :quantity ?q }
+    [ ?n := COUNT(DISTINCT ?l), ?sum := SUM(?q), ?min := MIN(?q), ?max := MAX(?q) ]
+}

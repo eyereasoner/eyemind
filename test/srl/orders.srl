@@ -1,0 +1,11 @@
+# Each order gets a fresh invoice, a blank node made per order, which states
+# the amount and the customer. Two orders give two invoices, even for the same
+# customer and amount. Shows blank nodes in a rule head.
+PREFIX : <http://example.org/orders#>
+
+DATA {
+  :o1 :customer :alice ; :amount 25 .
+  :o2 :customer :alice ; :amount 25 .
+}
+
+RULE { ?o :invoice [ :billedTo ?c ; :total ?a ] } WHERE { ?o :customer ?c ; :amount ?a }

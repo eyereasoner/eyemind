@@ -41,7 +41,7 @@ hold of any kind for this order.
 
 ## Why rule order does not ship order 2
 
-[n3-interchange](https://github.com/eyereasoner/n3-interchange) compiles
+eyemind compiles
 the absence test to `not(...)`, with the local reason variable anonymous.
 eyemind assigns the rule deriving holds a lower stratum than the shipping
 rule. It finishes deriving holds before it tests their absence, even
@@ -99,7 +99,7 @@ the remaining call-fidelity obligations.
 ## Try it
 
 ```sh
-eyemind-n3 examples/n3-scoped-negation.n3
+node bin/eyemind.js examples/n3-scoped-negation.n3
 node bin/eyemind.js examples/n3-scoped-negation.js
 node bin/eyemind.js --check-proof examples/proof/n3-scoped-negation.js examples/n3-scoped-negation.js
 ```
@@ -107,7 +107,7 @@ node bin/eyemind.js --check-proof examples/proof/n3-scoped-negation.js examples/
 To inspect a fresh compilation:
 
 ```sh
-n3-to-eyemind examples/n3-scoped-negation.n3 -o /tmp/n3-scoped-negation.js
+node bin/eyemind.js --program examples/n3-scoped-negation.n3 > /tmp/n3-scoped-negation.js
 node bin/eyemind.js --proof /tmp/n3-scoped-negation.js
 ```
 

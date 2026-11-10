@@ -20,6 +20,7 @@ The playground runs programs in your browser; the specification defines the lang
   - [Inspecting rules](#inspecting-rules)
   - [RDF 1.2](#rdf-12)
   - [Notation3](#notation3)
+  - [SPARQL 1.2 RL](#sparql-12-rl)
 - [How eyemind reasons](#how-eyemind-reasons)
 - [Proofs, and what checking one means](#proofs-and-what-checking-one-means)
   - [Why negation and collection are safe](#why-negation-and-collection-are-safe)
@@ -59,7 +60,7 @@ Prolog, Datalog, N3 and SRL already exist, and eyemind adds no new logic: rules 
 When eyemind is not the right tool:
 
 - If you do not need proofs, use the mature tools: SWI-Prolog and XSB have tabling, and Soufflé is fast at scale.
-- N3 and SRL are designed around RDF and Web data. eyemind does not compete there: RDF comes in as data (see [RDF 1.2](#rdf-12)), and N3 programs compile to eyemind (see [Notation3](#notation3)).
+- N3 and SRL are designed around RDF and Web data. eyemind does not compete there: RDF is read as data (see [RDF 1.2](#rdf-12)), and N3 programs and SRL rule sets compile to eyemind (see [Notation3](#notation3) and [SPARQL 1.2 RL](#sparql-12-rl)).
 - eyemind is for cases where someone else has to be able to check why a conclusion holds: audits, compliance, and decisions between parties that do not trust each other.
 
 ## Install and run
@@ -173,31 +174,36 @@ The answer is `test(a(A), c(A))`, with the shared variable preserved. Inspection
 
 ### RDF 1.2
 
-eyemind has no built-in RDF; RDF arrives as data through [rdf-interchange](https://github.com/eyereasoner/rdf-interchange). `rdf-to-eyemind` turns Turtle, TriG, N-Triples or N-Quads into `rdf(Subject, Predicate, Object, Graph)` facts for `facts_from`, and `eyemind-to-rdf` turns a run's `rdf` or `result_rdf` conclusions back into RDF:
+eyemind reads RDF 1.2 itself, with no dependency: a file ending in `.ttl`, `.trig`, `.nt` or `.nq` is Turtle, TriG, N-Triples or N-Quads, read by [eyeling](https://github.com/eyereasoner/eyeling)'s parser with the formats' own grammars, and given with a program its quads become `rdf(Subject, Predicate, Object, Graph)` facts, read as data through `facts_from` and never run. `--to turtle`, `trig`, `n-triples` or `n-quads` writes a run's `rdf` and `result_rdf` conclusions back as RDF:
+
+```sh
+eyemind rules.js data.ttl                 # rdf/4 facts for the rules
+eyemind --to trig rules.js data.trig      # the conclusions as TriG
+```
 
 | RDF 1.2 | eyemind term |
 | --- | --- |
 | IRI | `iri('https://example.org/bob')` |
-| Blank node | `bnode(Scope, Label)` |
-| Typed literal | `literal('42', datatype('http://www.w3.org/2001/XMLSchema#integer'))` |
+| Blank node | `bnode(Scope, Label)`, the scope naming the file |
+| `xsd:integer` with a canonical lexical form | an integer, `42`, exact at any size |
+| Other typed literal | `literal('1.50', datatype('http://www.w3.org/2001/XMLSchema#decimal'))`, its lexical form kept |
 | Language string | `literal('chat', lang('fr'))`, or `lang('ar', 'rtl')` with a direction |
 | Triple term | `triple(S, P, O)`, which may nest |
 | Default graph, named graph | `'default_graph'`, `iri(Name)` |
 
-A Skolem term becomes a blank node, the same one for the same rule firing. The `rdf12-*` examples show triple terms, annotations, directional strings, typed numbers and named graphs.
+A reified triple `<< s p o >>` and an annotation `{| ... |}` become their reifier and its `rdf:reifies` triple, as RDF 1.2 defines. A Skolem term is written as a blank node, the same one for the same rule firing. The `rdf12-*` examples show triple terms, annotations, directional strings, typed numbers and named graphs. The W3C RDF test suites run in `npm test` from the mirror in `test/w3c/rdf-tests`: all 1055 tests of N-Triples, N-Quads, Turtle and TriG, in RDF 1.1 and 1.2, pass.
 
 ### Notation3
 
-N3 programs run on eyemind through [n3-interchange](https://github.com/eyereasoner/n3-interchange). `n3-to-eyemind` compiles N3 facts and rules into an eyemind program, with the N3 built-ins it uses written as eyemind rules, and `eyemind-to-n3` writes the conclusions back as N3; `eyemind-n3` does both around a run:
+A file ending in `.n3` is Notation3: eyemind compiles its facts and rules into a program, with the N3 built-ins it uses written as eyemind rules, and writes the conclusions back as N3. RDF data files join the N3 document as triples:
 
 ```sh
-npm install -g n3-interchange
-eyemind-n3 examples/n3-family.n3                          # answers as N3
-n3-to-eyemind examples/n3-family.n3 -o /tmp/n3-family.js  # compile a program to inspect
-node bin/eyemind.js /tmp/n3-family.js                     # run it with eyemind
+eyemind examples/n3-family.n3                             # the derived triples as N3
+eyemind --program examples/n3-family.n3 > /tmp/family.js  # the compiled program, to inspect
+eyemind -c examples/n3-family.n3                          # a proof of it, checked
 ```
 
-Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above and N3 numbers as eyemind numbers. `=>` becomes `implies`, `<=` becomes `implied_by`, and scoped negation and collection become `not` and `findall`, so an N3 run has a proof that eyemind checks like any other. The n3-interchange README lists its measured coverage and current limits.
+Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above and N3 numbers as eyemind numbers. `=>` becomes `implies`, `<=` becomes `implied_by`, `{ ... } => false` becomes `contradiction`, and scoped negation and collection become `not` and `findall`, so an N3 run has a proof that eyemind checks like any other. The documents `log:semantics` and `log:content` name are read before compiling, from local files only.
 
 Five examples pair the original N3 with a compiled JavaScript program:
 [family queries](https://eyereasoner.github.io/eyemind/examples/deck/n3-family),
@@ -205,10 +211,21 @@ Five examples pair the original N3 with a compiled JavaScript program:
 [invoice collection](https://eyereasoner.github.io/eyemind/examples/deck/n3-invoice),
 [French cities](https://eyereasoner.github.io/eyemind/examples/deck/n3-french-cities), and
 [existential witnesses](https://eyereasoner.github.io/eyemind/examples/deck/n3-witnesses).
-The saved `.js` programs run directly in the playground and with eyemind;
-compiling the `.n3` sources or writing answers back as N3 uses n3-interchange.
+The saved `.js` programs run directly in the playground and with eyemind.
 Each deck shows the N3 result and what its saved proof establishes, including
 any remaining obligations.
+
+### SPARQL 1.2 RL
+
+A file ending in `.srl` is a [SPARQL 1.2 RL](https://www.w3.org/TR/sparql12-rl/) rule set, read with [eyeleng](https://github.com/eyereasoner/eyeleng)'s parser and analysis: eyemind compiles it into a program, with the SPARQL functions and aggregates it uses written as eyemind rules, and RDF data files given with it are its base graph. The result is the inference graph, as Turtle:
+
+```sh
+eyemind rules.srl facts.ttl               # the inference graph as Turtle
+eyemind --all rules.srl facts.ttl         # the base graph too
+eyemind -c rules.srl facts.ttl            # a proof of it, checked
+```
+
+Triples are `rdf(Subject, Predicate, Object)`, with `base/3` marking the base graph and `inf/3` the inference graph. A rule becomes `implies`, `NOT` becomes `not` of a helper, `GROUP` becomes `findall`, a blank node in a rule head becomes the Skolem term of its firing, and a SPARQL error is a goal that fails, so `FILTER` rejects the solution and `SET` drops it. The W3C SPARQL 1.2 RL test suite runs in `npm test` from the mirror in `test/w3c/sparql-rl`: all 241 tests pass. `NOW`, `UUID` and `STRUUID` are not supported, as eyemind has no clock or randomness; decimals and doubles are computed as binary64 floats.
 
 ## How eyemind reasons
 
@@ -318,7 +335,7 @@ eyemind [OPTION ...] [FILE ...]
 
 | Option | Meaning |
 | --- | --- |
-| (none) | Load the files, or standard input, as one program and print its conclusions. |
+| (none) | Load the files, or standard input, as one program and print its conclusions. `.ttl`, `.trig`, `.nt` and `.nq` files are RDF data, `.n3` Notation3 and `.srl` a SPARQL 1.2 RL rule set. |
 | `-p`, `--proof` | Print the proof instead. |
 | `-c`, `--prove-and-check` | Generate a proof, check it, and print the checked answers with the report. |
 | `--check-proof FILE` | Check a saved proof (`-` for standard input) against the program. |
@@ -327,7 +344,11 @@ eyemind [OPTION ...] [FILE ...]
 | `--strict-proof` | With a checking mode, reject proofs with any obligation. |
 | `--unused` | List the clauses that make no difference to the conclusions. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
-| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000). |
+| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3 or SRL program has 1000000, 100000 and 1000000000. |
+| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3` or `eyemind`; by default N3 for N3, Turtle for SRL, eyemind otherwise. |
+| `--all` | With RDF or N3 output, write the given data too. |
+| `--program` | Print the program the inputs compile to. |
+| `--base IRI` | Resolve relative IRIs of the inputs against `IRI` instead of each file's location. |
 | `-v`, `--version`, `-h`, `--help` | Print the version or the usage. |
 
 Exit codes: 0 success, 1 error, 2 a proof that is not valid, 65 a contradiction.
@@ -375,6 +396,7 @@ npm test -- unit examples                             # only these sections
 npm test -- -k skolem                                 # only tests whose line contains "skolem"
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node tools/update-examples.js                         # regenerate example artifacts after an intended change
+node tools/report.js                                  # the table npm test ends with, into REPORT.md
 node conformance/run.js --command "my-eyemind"        # run the conformance suite against another implementation
 ```
 

@@ -48,7 +48,7 @@ The first rule makes every one-way link a path. The second propagates
 subproperty declarations. The third chains paths because the data declares
 `:path` transitive. The query reports only paths ending at Nantes.
 
-[n3-interchange](https://github.com/eyereasoner/n3-interchange) compiles
+eyemind compiles
 the schema rules to `implies` clauses. Their property variables become
 variables in the predicate position of `rdf(Subject, Predicate, Object)`.
 The program implements these stated schema rules.
@@ -113,7 +113,7 @@ about the other cities, nor establish answer completeness.
 ## Try it
 
 ```sh
-eyemind-n3 examples/n3-french-cities.n3
+node bin/eyemind.js examples/n3-french-cities.n3
 node bin/eyemind.js examples/n3-french-cities.js
 node bin/eyemind.js --strict-proof --check-proof examples/proof/n3-french-cities.js examples/n3-french-cities.js
 ```
@@ -121,7 +121,7 @@ node bin/eyemind.js --strict-proof --check-proof examples/proof/n3-french-cities
 To inspect the compilation:
 
 ```sh
-n3-to-eyemind examples/n3-french-cities.n3 -o /tmp/n3-french-cities.js
+node bin/eyemind.js --program examples/n3-french-cities.n3 > /tmp/n3-french-cities.js
 node bin/eyemind.js --proof /tmp/n3-french-cities.js
 ```
 

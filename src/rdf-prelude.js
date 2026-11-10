@@ -1,0 +1,808 @@
+/**
+ * Eyeling Reasoner — prelude
+ *
+ * Core data model and shared utilities: Term/Triple/Formula types, namespaces,
+ * and prefix environment helpers used throughout the project.
+ */
+
+
+// ===========================================================================
+// Namespace constants
+// ===========================================================================
+
+const RDF_NS = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+const RDFS_NS = 'http://www.w3.org/2000/01/rdf-schema#';
+const OWL_NS = 'http://www.w3.org/2002/07/owl#';
+const XSD_NS = 'http://www.w3.org/2001/XMLSchema#';
+const CRYPTO_NS = 'http://www.w3.org/2000/10/swap/crypto#';
+const MATH_NS = 'http://www.w3.org/2000/10/swap/math#';
+const TIME_NS = 'http://www.w3.org/2000/10/swap/time#';
+const LIST_NS = 'http://www.w3.org/2000/10/swap/list#';
+const LOG_NS = 'http://www.w3.org/2000/10/swap/log#';
+const STRING_NS = 'http://www.w3.org/2000/10/swap/string#';
+const DT_NS = 'https://eyereasoner.github.io/eyeling/datatype#';
+const SKOLEM_NS = 'https://eyereasoner.github.io/.well-known/genid/';
+const RDF_JSON_DT = RDF_NS + 'JSON';
+
+// Private rule-lifting variable prefix used for blank nodes that appear in
+// rule-body patterns.  The prefix is intentionally not spellable in N3 input,
+// but public extension APIs should present these variables with stable,
+// ordinary names and translate them back internally.
+const INTERNAL_BLANK_VAR_PREFIX = '\uE000eyeling_b';
+
+function isInternalBlankVarName(name) {
+  return typeof name === 'string' && name.startsWith(INTERNAL_BLANK_VAR_PREFIX);
+}
+
+function internalBlankVarSuffix(name) {
+  if (!isInternalBlankVarName(name)) return '';
+  return name.slice(INTERNAL_BLANK_VAR_PREFIX.length);
+}
+
+function parseUriReferenceForResolution(uri) {
+  // RFC 3986 Appendix B-style component parser, with the scheme tightened to
+  // the RFC scheme grammar. Capturing delimiter presence matters: `?` with an
+  // empty query is defined, while no `?` means undefined.
+  const m = /^(([A-Za-z][A-Za-z0-9+.-]*):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?$/u.exec(String(uri));
+  if (!m) return null;
+  return {
+    scheme: m[2] !== undefined ? m[2] : undefined,
+    authority: m[4] !== undefined ? m[4] : undefined,
+    path: m[5] || '',
+    query: m[6] !== undefined ? (m[7] || '') : undefined,
+    fragment: m[8] !== undefined ? (m[9] || '') : undefined,
+  };
+}
+
+function recomposeUriReference(parts) {
+  let out = '';
+  if (parts.scheme !== undefined) out += `${parts.scheme}:`;
+  if (parts.authority !== undefined) out += `//${parts.authority}`;
+  out += parts.path || '';
+  if (parts.query !== undefined) out += `?${parts.query}`;
+  if (parts.fragment !== undefined) out += `#${parts.fragment}`;
+  return out;
+}
+
+function removeLastPathSegment(path) {
+  if (!path) return '';
+  const i = path.lastIndexOf('/');
+  if (i < 0) return '';
+  if (i === 0) return '';
+  return path.slice(0, i);
+}
+
+function removeDotSegments(path) {
+  // RFC 3986 section 5.2.4.  This deliberately avoids WHATWG URL parsing so
+  // Eyeling preserves IRI spelling (for example, it does not add a trailing
+  // slash to `http://example.org`) while still normalizing `.` and `..` path
+  // segments as required by section 5.2.2.
+  let input = String(path || '');
+  let output = '';
+
+  while (input.length > 0) {
+    if (input.startsWith('../')) {
+      input = input.slice(3);
+    } else if (input.startsWith('./')) {
+      input = input.slice(2);
+    } else if (input.startsWith('/./')) {
+      input = `/${input.slice(3)}`;
+    } else if (input === '/.') {
+      input = '/';
+    } else if (input.startsWith('/../')) {
+      input = `/${input.slice(4)}`;
+      output = removeLastPathSegment(output);
+    } else if (input === '/..') {
+      input = '/';
+      output = removeLastPathSegment(output);
+    } else if (input === '.' || input === '..') {
+      input = '';
+    } else {
+      let segmentEnd;
+      if (input[0] === '/') {
+        segmentEnd = input.indexOf('/', 1);
+      } else {
+        segmentEnd = input.indexOf('/');
+      }
+
+      if (segmentEnd < 0) {
+        output += input;
+        input = '';
+      } else {
+        output += input.slice(0, segmentEnd);
+        input = input.slice(segmentEnd);
+      }
+    }
+  }
+
+  return output;
+}
+
+function mergePaths(base, refPath) {
+  if (base.authority !== undefined && base.path === '') {
+    return `/${refPath}`;
+  }
+  const i = base.path.lastIndexOf('/');
+  if (i < 0) return refPath;
+  return `${base.path.slice(0, i + 1)}${refPath}`;
+}
+
+function resolveIriRef(ref, base) {
+  const r = parseUriReferenceForResolution(ref);
+  if (!r) return ref;
+
+  const baseParts = base ? parseUriReferenceForResolution(base) : null;
+
+  // Absolute references do not need a base, but RFC 3986 section 5.2.2 still
+  // applies remove_dot_segments(R.path) when R.scheme is defined.
+  if (r.scheme !== undefined) {
+    return recomposeUriReference({
+      scheme: r.scheme,
+      authority: r.authority,
+      path: removeDotSegments(r.path),
+      query: r.query,
+      fragment: r.fragment,
+    });
+  }
+
+  // Without a usable base, preserve relative references as written.
+  if (!baseParts || baseParts.scheme === undefined) return ref;
+
+  const t = {
+    scheme: baseParts.scheme,
+    authority: undefined,
+    path: '',
+    query: undefined,
+    fragment: r.fragment,
+  };
+
+  if (r.authority !== undefined) {
+    t.authority = r.authority;
+    t.path = removeDotSegments(r.path);
+    t.query = r.query;
+  } else if (r.path === '') {
+    t.authority = baseParts.authority;
+    t.path = baseParts.path;
+    t.query = r.query !== undefined ? r.query : baseParts.query;
+  } else {
+    t.authority = baseParts.authority;
+    if (r.path.startsWith('/')) {
+      t.path = removeDotSegments(r.path);
+    } else {
+      t.path = removeDotSegments(mergePaths(baseParts, r.path));
+    }
+    t.query = r.query;
+  }
+
+  return recomposeUriReference(t);
+}
+
+// -----------------------------------------------------------------------------
+// Literal helpers
+// -----------------------------------------------------------------------------
+
+// Hot cache used by literalParts().
+const MAX_LITERAL_PARTS_CACHE_LEN = 1024;
+
+const __literalPartsCache = new Map(); // lit string -> [lex, dt]
+
+function quotedLiteralEndIndex(str) {
+  if (typeof str !== 'string' || str.length < 2) return -1;
+
+  const quote = str[0];
+  if (quote !== '"' && quote !== "'") return -1;
+
+  const delimLen = str.startsWith(quote.repeat(3)) ? 3 : 1;
+  const delim = quote.repeat(delimLen);
+
+  let i = delimLen;
+  while (i < str.length) {
+    // Stored literals may contain escaped quotes, e.g. \"...\"^^xsd:dateTime
+    // inside a plain string. Those must not terminate the outer lexical form.
+    if (str[i] === '\\') {
+      i += 2;
+      continue;
+    }
+
+    if (delimLen === 1) {
+      if (str[i] === quote) return i + 1;
+      i += 1;
+      continue;
+    }
+
+    if (str.startsWith(delim, i)) return i + delimLen;
+    i += 1;
+  }
+
+  return -1;
+}
+
+function literalParts(lit) {
+  // Avoid caching extremely large literals (notably huge numeric intermediates)
+  // to prevent unbounded memory growth.
+  const useCache = typeof lit === 'string' && lit.length <= MAX_LITERAL_PARTS_CACHE_LEN;
+
+  if (useCache) {
+    const cached = __literalPartsCache.get(lit);
+    if (cached) return cached;
+  }
+
+  // Split a literal into lexical form and datatype IRI (if any).
+  // Also strip an optional language tag from the lexical form:
+  //   "\"hello\"@en"  -> "\"hello\""
+  //   "\"hello\"@en^^<...>" is rejected earlier in the parser.
+  let lex = lit;
+  let dt = null;
+
+  const lexEnd = quotedLiteralEndIndex(lit);
+  if (lexEnd > 0 && lit.startsWith('^^', lexEnd)) {
+    lex = lit.slice(0, lexEnd);
+    dt = lit.slice(lexEnd + 2);
+    if (dt.startsWith('<') && dt.endsWith('>')) {
+      dt = dt.slice(1, -1);
+    }
+  }
+
+  // Strip LANGTAG from the lexical form when present.
+  const langLexEnd = quotedLiteralEndIndex(lex);
+  if (langLexEnd > 0 && lex[0] === '"' && langLexEnd < lex.length && lex[langLexEnd] === '@') {
+    const lang = lex.slice(langLexEnd + 1);
+    if (/^[A-Za-z]+(?:-[A-Za-z0-9]+)*$/.test(lang)) {
+      lex = lex.slice(0, langLexEnd);
+    }
+  }
+
+  const res = [lex, dt];
+  if (useCache) __literalPartsCache.set(lit, res);
+  return res;
+}
+
+// -----------------------------------------------------------------------------
+// Global stable term IDs (performance)
+// -----------------------------------------------------------------------------
+// A small integer ID is assigned per *value-based* key, and stored on each term
+// as non-enumerable property `__tid`. This enables cheaper indexing and
+// equality fast-paths than repeated string key construction.
+
+let __nextTid = 1;
+const __tidIntern = new Map();         // legacy generic key -> number
+const __iriTidIntern = new Map();      // IRI value -> number
+const __blankTidIntern = new Map();    // blank label -> number
+const __literalTidIntern = new Map();  // normalized literal lexical form -> number
+
+// Avoid storing extremely large literal keys in the global term-id intern map.
+// For huge literals we still assign a unique __tid, but we do not intern the key.
+const MAX_LITERAL_TID_LEN = 1024;
+
+function __getTidFromMap(map, key) {
+  let id = map.get(key);
+  if (!id) {
+    id = __nextTid++;
+    map.set(key, id);
+  }
+  return id;
+}
+
+function __getTid(key) {
+  return __getTidFromMap(__tidIntern, key);
+}
+
+function __getIriTid(value) {
+  return __getTidFromMap(__iriTidIntern, value);
+}
+
+function __getBlankTid(label) {
+  return __getTidFromMap(__blankTidIntern, label);
+}
+
+function __getLiteralTid(norm) {
+  return __getTidFromMap(__literalTidIntern, norm);
+}
+
+function __isQuotedLexical(lit) {
+  if (typeof lit !== 'string') return false;
+  if (lit.length >= 6) {
+    if (lit.startsWith('"""') && lit.endsWith('"""')) return true;
+    if (lit.startsWith("'''") && lit.endsWith("'''")) return true;
+  }
+  if (lit.length >= 2) {
+    const a = lit[0];
+    const b = lit[lit.length - 1];
+    if ((a === '"' && b === '"') || (a === "'" && b === "'")) return true;
+  }
+  return false;
+}
+
+function __literalHasLangTag(lit) {
+  if (typeof lit !== 'string' || !__isQuotedLexical(lit)) return false;
+  let end = -1;
+  let qlen = 1;
+  if (lit.startsWith('"""')) {
+    end = lit.lastIndexOf('"""');
+    qlen = 3;
+  } else if (lit.startsWith("'''")) {
+    end = lit.lastIndexOf("'''");
+    qlen = 3;
+  } else {
+    end = lit.lastIndexOf(lit[0]);
+    qlen = 1;
+  }
+  if (end < 0) return false;
+  const after = lit.slice(end + qlen);
+  if (!after.startsWith('@')) return false;
+  const lang = after.slice(1);
+  return /^[A-Za-z]+(?:-[A-Za-z0-9]+)*$/.test(lang);
+}
+
+function __isPlainStringLiteralValue(lit) {
+  if (typeof lit !== 'string') return false;
+  if (lit.indexOf('^^') >= 0) return false;
+  if (!__isQuotedLexical(lit)) return false;
+  return !__literalHasLangTag(lit);
+}
+
+function normalizeLiteralForTid(lit) {
+  // Canonicalize so that plain string and explicit xsd:string share the same id.
+  if (typeof lit !== 'string') return lit;
+
+  // Fast path for the overwhelmingly common lexer output for plain string
+  // literals: a canonical JSON-style quoted lexical form with no suffix.
+  // This avoids literalParts()/language-tag parsing for large fact tables.
+  if (lit.length >= 2 && lit.charCodeAt(0) === 34 && lit.charCodeAt(lit.length - 1) === 34 && lit.indexOf('^^') < 0) {
+    return `${lit}^^<${XSD_NS}string>`;
+  }
+
+  const [lex, dt] = literalParts(lit);
+  if (dt === XSD_NS + 'string') return `${lex}^^<${XSD_NS}string>`;
+  if (dt === null && __isPlainStringLiteralValue(lit)) return `${lex}^^<${XSD_NS}string>`;
+  return lit;
+}
+
+// ===========================================================================
+// AST (Abstract Syntax Tree)
+// ===========================================================================
+
+class Term {}
+
+class Iri extends Term {
+  constructor(value) {
+    super();
+    this.value = value;
+    Object.defineProperty(this, '__tid', {
+      value: __getIriTid(value),
+      enumerable: false,
+    });
+  }
+}
+
+class Literal extends Term {
+  constructor(value) {
+    super();
+    this.value = value; // raw lexical form, e.g. "foo", 12, true, or "\"1944-08-21\"^^..."
+    const norm = normalizeLiteralForTid(value);
+    const useIntern = typeof norm === 'string' && norm.length <= MAX_LITERAL_TID_LEN;
+    const tid = useIntern ? __getLiteralTid(norm) : __nextTid++;
+    Object.defineProperty(this, '__tid', {
+      value: tid,
+      enumerable: false,
+    });
+  }
+}
+
+class Var extends Term {
+  constructor(name) {
+    super();
+    this.name = name; // without leading '?'
+  }
+}
+
+class Blank extends Term {
+  constructor(label, blankNodeKind = 'labeled') {
+    super();
+    this.label = label; // _:b1, etc.
+    // EYE's log:rawType distinguishes source-labeled blank nodes (_:name)
+    // from unlabeled blank nodes introduced by N3 syntax such as [] / [...].
+    this.blankNodeKind = blankNodeKind === 'unlabeled' ? 'unlabeled' : 'labeled';
+    Object.defineProperty(this, '__tid', {
+      value: __getBlankTid(label),
+      enumerable: false,
+    });
+  }
+}
+
+class ListTerm extends Term {
+  constructor(elems) {
+    super();
+    this.elems = elems; // Term[]
+  }
+}
+
+class OpenListTerm extends Term {
+  constructor(prefix, tailVar) {
+    super();
+    this.prefix = prefix;    // Term[]
+    this.tailVar = tailVar;  // string
+  }
+}
+
+class GraphTerm extends Term {
+  constructor(triples) {
+    super();
+    this.triples = triples; // Triple[]
+  }
+}
+
+class Triple {
+  constructor(s, p, o) {
+    this.s = s;
+    this.p = p;
+    this.o = o;
+  }
+}
+
+class Rule {
+  constructor(premise, conclusion, isForward, isFuse, headBlankLabels) {
+    this.premise = premise;        // Triple[]
+    this.conclusion = conclusion;  // Triple[]
+    this.isForward = isForward;    // boolean
+    this.isFuse = isFuse;          // boolean
+    // Set<string> of blank-node labels that occur explicitly in the rule head
+    this.headBlankLabels = headBlankLabels || new Set();
+  }
+}
+
+class DerivedFact {
+  constructor(fact, rule, premises, subst) {
+    this.fact = fact;          // Triple
+    this.rule = rule;          // Rule
+    this.premises = premises;  // Triple[]
+    this.subst = subst;        // { varName: Term }
+  }
+}
+
+// ===========================================================================
+// Term interning
+// ===========================================================================
+
+// Intern IRIs and literals by their raw lexical string.
+// This reduces allocations when the same terms repeat and can improve performance.
+//
+// NOTE: Terms are treated as immutable. Do NOT mutate .value on interned objects.
+const __iriIntern = new Map();
+const __literalIntern = new Map();
+
+// Do not intern extremely large literal strings (e.g., huge numeric intermediates).
+// Interning them creates global strong references that prevent GC.
+const MAX_LITERAL_INTERN_LEN = 1024;
+
+/** @param {string} value */
+function internIri(value) {
+  let t = __iriIntern.get(value);
+  if (!t) {
+    t = new Iri(value);
+    __iriIntern.set(value, t);
+  }
+  return t;
+}
+
+/** @param {string} value */
+function internLiteral(value) {
+  if (typeof value === 'string' && value.length > MAX_LITERAL_INTERN_LEN) {
+    // Skip global interning for huge literals to avoid retaining them forever.
+    return new Literal(value);
+  }
+  let t = __literalIntern.get(value);
+  if (!t) {
+    t = new Literal(value);
+    __literalIntern.set(value, t);
+  }
+  return t;
+}
+
+// ===========================================================================
+// Special predicate helpers (kept here because PrefixEnv needs them)
+// ===========================================================================
+
+function isRdfTypePred(p) {
+  return p instanceof Iri && p.value === RDF_NS + 'type';
+}
+
+function isOwlSameAsPred(p) {
+  return p instanceof Iri && p.value === OWL_NS + 'sameAs';
+}
+
+function isLogImplies(p) {
+  return p instanceof Iri && p.value === LOG_NS + 'implies';
+}
+
+function isLogImpliedBy(p) {
+  return p instanceof Iri && p.value === LOG_NS + 'impliedBy';
+}
+
+function isLogQuery(p) {
+  return p instanceof Iri && p.value === LOG_NS + 'query';
+}
+
+// ===========================================================================
+// PREFIX ENVIRONMENT
+// ===========================================================================
+
+// Conservative check for whether a candidate local part can be safely serialized as a prefixed name.
+// If false, we fall back to <IRI> to guarantee syntactically valid N3/Turtle output.
+function isValidQNameLocal(local) {
+  if (typeof local !== 'string' || local.length === 0) return false;
+  // Disallow characters that would break PN_LOCAL unless escaped (we keep this conservative).
+  if (/[#:/?\s]/.test(local)) return false;
+  // Allow a safe ASCII subset.
+  if (/[^A-Za-z0-9._-]/.test(local)) return false;
+  // Avoid edge cases that typically require escaping.
+  if (local.endsWith('.')) return false;
+  if (/^[.-]/.test(local)) return false;
+  return true;
+}
+
+class PrefixEnv {
+  constructor(map, baseIri) {
+    this.map = map || {};          // prefix -> IRI (including "" for @prefix :)
+    this.baseIri = baseIri || '';  // base IRI for resolving <relative>
+  }
+
+  static newDefault() {
+    const m = {};
+    m['rdf'] = RDF_NS;
+    m['rdfs'] = RDFS_NS;
+    m['xsd'] = XSD_NS;
+    m['log'] = LOG_NS;
+    m['math'] = MATH_NS;
+    m['string'] = STRING_NS;
+    m['list'] = LIST_NS;
+    m['time'] = TIME_NS;
+    m['dt'] = DT_NS;
+    m['genid'] = SKOLEM_NS;
+    m[''] = '';                   // empty prefix default namespace
+    return new PrefixEnv(m, '');  // base IRI starts empty
+  }
+
+  // shrinkIri and prefixesUsedForOutput run once per IRI of output, and both used
+  // to rebuild Object.entries(this.map) on every call. These caches hold the
+  // entry list and the per-IRI answer instead; every write to the map goes
+  // through set(), so invalidating there is enough.
+  __invalidatePrefixCaches() {
+    this.__entries = null;
+    this.__shrinkCache = null;
+  }
+
+  __nonEmptyEntries() {
+    if (!this.__entries) this.__entries = Object.entries(this.map).filter(([, base]) => !!base);
+    return this.__entries;
+  }
+
+  set(pref, base) {
+    this.map[pref] = base;
+    this.__invalidatePrefixCaches();
+  }
+
+  setBase(baseIri) {
+    this.baseIri = baseIri || '';
+  }
+
+  expandQName(q) {
+    const sep = typeof q === 'string' ? q.indexOf(':') : -1;
+    if (sep >= 0) {
+      const p = q.slice(0, sep);
+      const local = q.slice(sep + 1);
+      const base = this.map[p] || '';
+      if (base) return base + local;
+      return q;
+    }
+    return q;
+  }
+
+  shrinkIri(iri) {
+    if (!this.__shrinkCache) this.__shrinkCache = new Map();
+    const cached = this.__shrinkCache.get(iri);
+    if (cached !== undefined) return cached;
+    const out = this.__shrinkIriUncached(iri);
+    this.__shrinkCache.set(iri, out);
+    return out;
+  }
+
+  __shrinkIriUncached(iri) {
+    let best = null; // [prefix, local]
+    for (const [p, base] of this.__nonEmptyEntries()) {
+      if (iri.startsWith(base)) {
+        const local = iri.slice(base.length);
+        if (!local) continue;
+        // Only emit a QName when the local part is safe to serialize without escaping.
+        if (!isValidQNameLocal(local)) continue;
+        const cand = [p, local];
+        if (best === null || cand[1].length < best[1].length) best = cand;
+      }
+    }
+    if (best === null) return null;
+    const [p, local] = best;
+    if (p === '') return `:${local}`;
+    return `${p}:${local}`;
+  }
+
+  prefixesUsedForOutput(triples) {
+    const used = new Set();
+    const entries = this.__nonEmptyEntries();
+    // One accumulator reused across every term, and stop the moment every prefix
+    // is accounted for: the answer cannot grow after that.
+    const iris = [];
+    for (const t of triples) {
+      if (used.size === entries.length) break;
+      iris.length = 0;
+      collectIrisInTerm(t.s, iris);
+      if (!isRdfTypePred(t.p)) {
+        collectIrisInTerm(t.p, iris);
+      }
+      collectIrisInTerm(t.o, iris);
+      for (const iri of iris) {
+        for (const [p, base] of entries) {
+          if (iri.startsWith(base)) used.add(p);
+        }
+      }
+    }
+    const v = [];
+    for (const p of used) {
+      if (Object.prototype.hasOwnProperty.call(this.map, p)) v.push([p, this.map[p]]);
+    }
+    v.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+    return v;
+  }
+}
+
+// out is optional so the old "returns a fresh array" contract still holds, but
+// callers in a loop can pass one accumulator instead of allocating per term.
+function collectIrisInTerm(t, out = []) {
+  if (t instanceof Iri) {
+    out.push(t.value);
+  } else if (t instanceof Literal) {
+    const [, dt] = literalParts(t.value);
+    if (dt) out.push(dt); // so rdf/xsd prefixes are emitted when only used in ^^...
+  } else if (t instanceof ListTerm) {
+    for (const x of t.elems) collectIrisInTerm(x, out);
+  } else if (t instanceof OpenListTerm) {
+    for (const x of t.prefix) collectIrisInTerm(x, out);
+  } else if (t instanceof GraphTerm) {
+    for (const tr of t.triples) {
+      collectIrisInTerm(tr.s, out);
+      collectIrisInTerm(tr.p, out);
+      collectIrisInTerm(tr.o, out);
+    }
+  }
+  return out;
+}
+
+function collectVarsInTerm(t, acc) {
+  if (t instanceof Var) {
+    acc.add(t.name);
+  } else if (t instanceof ListTerm) {
+    for (const x of t.elems) collectVarsInTerm(x, acc);
+  } else if (t instanceof OpenListTerm) {
+    for (const x of t.prefix) collectVarsInTerm(x, acc);
+    acc.add(t.tailVar);
+  } else if (t instanceof GraphTerm) {
+    for (const tr of t.triples) {
+      collectVarsInTerm(tr.s, acc);
+      collectVarsInTerm(tr.p, acc);
+      collectVarsInTerm(tr.o, acc);
+    }
+  }
+}
+
+function varsInRule(rule) {
+  const acc = new Set();
+  for (const tr of rule.premise) {
+    collectVarsInTerm(tr.s, acc);
+    collectVarsInTerm(tr.p, acc);
+    collectVarsInTerm(tr.o, acc);
+  }
+  for (const tr of rule.conclusion) {
+    collectVarsInTerm(tr.s, acc);
+    collectVarsInTerm(tr.p, acc);
+    collectVarsInTerm(tr.o, acc);
+  }
+  return acc;
+}
+
+function collectBlankLabelsInTerm(t, acc) {
+  if (t instanceof Blank) {
+    acc.add(t.label);
+  } else if (t instanceof ListTerm) {
+    for (const x of t.elems) collectBlankLabelsInTerm(x, acc);
+  } else if (t instanceof OpenListTerm) {
+    for (const x of t.prefix) collectBlankLabelsInTerm(x, acc);
+  } else if (t instanceof GraphTerm) {
+    for (const tr of t.triples) {
+      collectBlankLabelsInTerm(tr.s, acc);
+      collectBlankLabelsInTerm(tr.p, acc);
+      collectBlankLabelsInTerm(tr.o, acc);
+    }
+  }
+}
+
+function collectBlankLabelsInTriples(triples) {
+  const acc = new Set();
+  for (const tr of triples) {
+    collectBlankLabelsInTerm(tr.s, acc);
+    collectBlankLabelsInTerm(tr.p, acc);
+    collectBlankLabelsInTerm(tr.o, acc);
+  }
+  return acc;
+}
+
+function annotateQuotedGraphTerm(graph) {
+  if (!(graph instanceof GraphTerm)) return graph;
+  const labels = collectBlankLabelsInTriples(graph.triples);
+  Object.defineProperty(graph, '__quotedLocalBlankLabels', {
+    value: labels,
+    enumerable: false,
+    writable: true,
+    configurable: true,
+  });
+  return graph;
+}
+
+function copyQuotedGraphMetadata(src, dst) {
+  if (!(src instanceof GraphTerm) || !(dst instanceof GraphTerm)) return dst;
+  if (!Object.prototype.hasOwnProperty.call(src, '__quotedLocalBlankLabels')) return dst;
+
+  const labels = src.__quotedLocalBlankLabels;
+  Object.defineProperty(dst, '__quotedLocalBlankLabels', {
+    value: labels instanceof Set ? new Set(labels) : labels,
+    enumerable: false,
+    writable: true,
+    configurable: true,
+  });
+  return dst;
+}
+
+export {
+  RDF_NS,
+  RDFS_NS,
+  OWL_NS,
+  XSD_NS,
+  CRYPTO_NS,
+  MATH_NS,
+  TIME_NS,
+  LIST_NS,
+  LOG_NS,
+  STRING_NS,
+  DT_NS,
+  SKOLEM_NS,
+  RDF_JSON_DT,
+  INTERNAL_BLANK_VAR_PREFIX,
+  isInternalBlankVarName,
+  internalBlankVarSuffix,
+  resolveIriRef,
+  literalParts,
+  normalizeLiteralForTid,
+  MAX_LITERAL_TID_LEN,
+  Term,
+  Iri,
+  Literal,
+  Var,
+  Blank,
+  ListTerm,
+  OpenListTerm,
+  GraphTerm,
+  Triple,
+  Rule,
+  DerivedFact,
+  internIri,
+  internLiteral,
+  isRdfTypePred,
+  isOwlSameAsPred,
+  isLogImplies,
+  isLogImpliedBy,
+  isLogQuery,
+  PrefixEnv,
+  collectIrisInTerm,
+  varsInRule,
+  collectBlankLabelsInTriples,
+  annotateQuotedGraphTerm,
+  copyQuotedGraphMetadata,
+};

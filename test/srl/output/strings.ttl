@@ -1,0 +1,13 @@
+PREFIX : <http://example.org/people#>
+
+:p1 :given "Ada" .
+:p1 :family "Lovelace" .
+:p2 :given "Alan" .
+:p2 :family "Turing" .
+:p3 :name "Ἀριστοτέλης"@grc .
+:p1 :listing "LOVELACE, Ada" .
+:p1 :initial "A" .
+:p2 :listing "TURING, Alan" .
+:p2 :initial "A" .
+:p3 :script "grc" .
+:p3 :length 11 .

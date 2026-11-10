@@ -1,0 +1,21 @@
+PREFIX : <http://example.org/links#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+:a :link :b .
+:l1 rdf:reifies <<( :a :link :b )>> .
+:l1 :weight 9 .
+:l1 :source :survey .
+:b :link :c .
+:l2 rdf:reifies <<( :b :link :c )>> .
+:l2 :weight 2 .
+:l2 :source :rumour .
+:b :link :d .
+:l3 rdf:reifies <<( :b :link :d )>> .
+:l3 :weight 7 .
+:l3 :source :survey .
+:a :connected :b .
+:b :connected :d .
+:a :connected :d .
+:survey :reported <<( :a :link :b )>> .
+:rumour :reported <<( :b :link :c )>> .
+:survey :reported <<( :b :link :d )>> .

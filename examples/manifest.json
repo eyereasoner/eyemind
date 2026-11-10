@@ -431,7 +431,7 @@
   },
   {
     "name": "n3-family",
-    "description": "Notation3 backward ancestry and log:query compiled through n3-interchange",
+    "description": "Notation3 backward ancestry and log:query compiled to eyemind",
     "trusted": []
   },
   {

@@ -1,0 +1,18 @@
+# Names are tidied for a directory listing: an upper-case surname, initials,
+# and a sort key; names in other scripts keep their language tag. Shows
+# string functions, CONCAT, and the language of a literal.
+PREFIX : <http://example.org/people#>
+
+DATA {
+  :p1 :given "Ada" ; :family "Lovelace" .
+  :p2 :given "Alan" ; :family "Turing" .
+  :p3 :name "Ἀριστοτέλης"@grc .
+}
+
+RULE { ?p :listing ?listing ; :initial ?i }
+WHERE {
+  ?p :given ?g ; :family ?f
+  SET(?i := SUBSTR(?g, 1, 1))
+  SET(?listing := CONCAT(UCASE(?f), ", ", ?g))
+}
+RULE { ?p :script ?lang ; :length ?n } WHERE { ?p :name ?name SET(?lang := LANG(?name)) SET(?n := STRLEN(?name)) }

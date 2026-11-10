@@ -1,0 +1,4 @@
+PREFIX : <http://example.org/routes#>
+
+:ghent-bruges :distanceKm 48 .
+:ghent-brussels :distanceKm 56 .

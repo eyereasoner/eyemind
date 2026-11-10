@@ -1,0 +1,20 @@
+# Software components depend on services and databases, and inherit their
+# vulnerabilities. A component exposed to a severe vulnerability is critical;
+# every other component is safe to deploy. Shows FILTER and NOT, which waits
+# until everything it inspects is known (stratified negation).
+PREFIX : <http://example.org/deployment#>
+
+DATA {
+  :shop a :Component ; :callsService :payments .
+  :payments a :Component ; :queriesDatabase :ledger .
+  :ledger a :Component ; :hasVulnerability :cve1 .
+  :logger a :Component .
+  :cve1 :severity 9.8 .
+}
+
+RULE { ?x :dependsOn ?y } WHERE { ?x :callsService ?y }
+RULE { ?x :dependsOn ?y } WHERE { ?x :queriesDatabase ?y }
+RULE { ?x :exposedTo ?v } WHERE { ?x :hasVulnerability ?v }
+RULE { ?x :exposedTo ?v } WHERE { ?x :dependsOn ?y . ?y :exposedTo ?v }
+RULE { ?x :status :critical } WHERE { ?x :exposedTo ?v . ?v :severity ?s FILTER(?s >= 9.0) }
+RULE { ?x :status :safeToDeploy } WHERE { ?x a :Component NOT { ?x :status :critical } }

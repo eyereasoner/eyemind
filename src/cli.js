@@ -1,12 +1,14 @@
 // The eyemind command line.
 import { run, unusedClauses } from './engine.js';
-import { loadSources } from './lang.js';
+import { OUTPUT_FORMATS, defaultFormat, loadInputs, writeConclusions } from './formats.js';
 import { checkProof, checkReport, publicReport } from './proof.js';
 import { EyemindError } from './terms.js';
 import { VERSION } from './version.js';
 
 export const HELP = `Usage: eyemind [OPTION ...] [FILE ...]
-Programs are JavaScript; forward rules run to a fixpoint.
+Programs are JavaScript; forward rules run to a fixpoint. Other files are read
+by their extension: .ttl, .trig, .nt and .nq as RDF 1.2 data, .n3 as Notation3
+and .srl as a SPARQL 1.2 RL rule set, both compiled to an eyemind program.
   -p, --proof             Print the claims with clause(...) and step(...) records
   -c, --prove-and-check   Generate a proof and check it against the input program
       --check-proof FILE  Print checked answers and a proof check report (- for stdin)
@@ -19,6 +21,12 @@ Programs are JavaScript; forward rules run to a fixpoint.
       --max-depth N       Bound backward recursion (default 1000000)
       --max-iterations N  Bound forward rounds per stratum (default 1000)
       --max-inferences N  Bound reasoning work (default 1000000)
+      --to FORMAT         Write the conclusions as turtle, trig, n-triples,
+                          n-quads, n3 or eyemind (default: n3 for N3, turtle
+                          for a rule set, eyemind otherwise)
+      --all               With RDF output, write the given data too
+      --program           Print the program the inputs compile to
+      --base IRI          Resolve relative IRIs of the inputs against IRI
   -v, --version           Print the version
   -h, --help              Print this help
 Source defaults to stdin; multiple files form one program.
@@ -26,6 +34,8 @@ Exit codes: 0 success, 1 error, 2 invalid proof, 65 contradiction.
 `;
 
 const LIMITS = { '--max-depth': 'maxDepth', '--max-iterations': 'maxIterations', '--max-inferences': 'maxInferences' };
+// N3 and SPARQL 1.2 RL programs run longer than eyemind's defaults allow.
+const COMPILED_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferences: 1000000000 };
 
 class UsageError extends Error {}
 
@@ -48,6 +58,10 @@ export function main(argv, io) {
     let asJson = false;
     let unused = false;
     let proveAndCheck = false;
+    let format = null;
+    let all = false;
+    let printProgram = false;
+    let base = null;
     for (let i = 0; i < argv.length; i++) {
       const arg = argv[i];
       if (arg === '--help' || arg === '-h') {
@@ -70,7 +84,11 @@ export function main(argv, io) {
         asJson = true;
       } else if (arg === '--unused') {
         unused = true;
-      } else if (arg === '--check-proof' || arg === '--goal' || Object.hasOwn(LIMITS, arg)) {
+      } else if (arg === '--all') {
+        all = true;
+      } else if (arg === '--program') {
+        printProgram = true;
+      } else if (arg === '--check-proof' || arg === '--goal' || arg === '--to' || arg === '--base' || Object.hasOwn(LIMITS, arg)) {
         i++;
         if (i >= argv.length) throw new UsageError(`${arg} needs a value`);
         const value = argv[i];
@@ -82,6 +100,11 @@ export function main(argv, io) {
         }
         if (arg === '--check-proof') {
           proofFile = value;
+        } else if (arg === '--to') {
+          if (!OUTPUT_FORMATS.includes(value)) throw new UsageError(`--to takes one of ${OUTPUT_FORMATS.join(', ')}, not ${value}`);
+          format = value;
+        } else if (arg === '--base') {
+          base = value;
         } else if (arg === '--goal') {
           goals.push(value);
         } else {
@@ -109,7 +132,14 @@ export function main(argv, io) {
     }
     if (!files.length) files.push('-');
     if (files.filter((file) => file === '-').length > 1) throw new UsageError('stdin can only be read once');
-    const program = loadSources(files.map((file) => [readSource(file, io), file === '-' ? '<stdin>' : file]), io);
+    const loaded = loadInputs(files.map((file) => [readSource(file, io), file === '-' ? '<stdin>' : file]), io, { base });
+    const program = loaded.program;
+    if (printProgram) {
+      stdout(loaded.text);
+      return 0;
+    }
+    // A compiled program has the larger bounds, unless they are given.
+    if (loaded.kind !== 'js') for (const [name, value] of Object.entries(COMPILED_LIMITS)) options[name] ??= value;
     if (proofFile !== null) {
       const document = readSource(proofFile, io);
       const report = checkProof(program, document, { goals, allowTrusted: !strictProof });
@@ -130,7 +160,9 @@ export function main(argv, io) {
       if (stats) stderr(`${JSON.stringify(result.stats)}\n`);
       return report.valid ? result.haltCode || 0 : 2;
     }
-    stdout(result.stdout);
+    // Answers to goals are eyemind terms unless an output format is asked.
+    const written = options.proof ? null : writeConclusions(loaded, result, { format: format ?? (goals.length ? 'eyemind' : defaultFormat(loaded.kind)), all });
+    stdout(written ?? result.stdout);
     if (stats) stderr(`${JSON.stringify(result.stats)}\n`);
     return result.haltCode || 0;
   } catch (error) {

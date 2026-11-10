@@ -1,0 +1,11 @@
+PREFIX : <http://example.org/family#>
+
+:ann :parentOf :bob .
+:bob :parentOf :cid .
+:cid :parentOf :dee .
+:ann :ancestorOf :bob .
+:bob :ancestorOf :cid .
+:cid :ancestorOf :dee .
+:ann :ancestorOf :cid .
+:bob :ancestorOf :dee .
+:ann :ancestorOf :dee .
