@@ -2,7 +2,7 @@
 
 *Two sources disagree. Which one do we follow, and why?*
 
-[rdf12-annotated-claims.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-annotated-claims.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-annotated-claims.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-annotated-claims.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-annotated-claims.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-annotated-claims)
+[rdf12-annotated-claims.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-annotated-claims.ttl) · [rules/rdf12-annotated-claims.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rules/rdf12-annotated-claims.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-annotated-claims.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-annotated-claims.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-annotated-claims.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-annotated-claims)
 
 ---
 
@@ -24,35 +24,27 @@ the bridge by hand.
 
 ## What we tell eyemind
 
-The reports are written in **RDF**, the web's format for data. In RDF every
-statement is a *triple*: a subject, a property and a value, such as *bridge —
-status — closed*. Things are named by web addresses (IRIs, written
-`iri('https://example.org/bridge')`), and plain values such as numbers are
-*literals*: text with a type, such as `literal('98', datatype(integer))`.
-eyemind writes each statement as `rdf(Subject, Property, Value, Graph)`;
-`'default_graph'` just means "the main collection of statements".
+The Turtle file contains both reports and the sources' trust scores.
+Each `~` names a reifier for the status triple. The reifier records who
+made the report and how confident they were.
 
-To say *who* claims something and *how sure* they are, RDF 1.2 lets a node
-stand for a statement. Such a node is a **reifier**: `authorityClaim`
-*reifies* the triple *bridge — status — closed*, and then carries its own
-properties: who asserted it and with what confidence. The triple it is about
-is written `triple(S, P, O)`. Here is the authority's report:
+```turtle
+@prefix : <https://example.org/> .
 
-```js
-fact(
-  rdf(iri(ex + 'bridge'), iri(ex + 'status'), iri(ex + 'closed'), 'default_graph'),
-  rdf(iri(ex + 'authorityClaim'), iri(reifies), bridgeStatus('closed'), 'default_graph'),
-  rdf(iri(ex + 'authorityClaim'), iri(ex + 'assertedBy'), iri(ex + 'transportAuthority'), 'default_graph'),
-  rdf(iri(ex + 'authorityClaim'), iri(ex + 'confidence'), literal('98', datatype(integer)), 'default_graph'),
-  // … the same four statements for the anonymous post's 'open', confidence 35
-  rdf(iri(ex + 'transportAuthority'), iri(ex + 'trustScore'), literal('95', datatype(integer)), 'default_graph'),
-  rdf(iri(ex + 'anonymousPost'), iri(ex + 'trustScore'), literal('20', datatype(integer)), 'default_graph'),
-)
+:bridge :status :closed ~ :authorityClaim .
+:authorityClaim :assertedBy :transportAuthority ;
+  :confidence 98 .
+
+:bridge :status :open ~ :socialClaim .
+:socialClaim :assertedBy :anonymousPost ;
+  :confidence 35 .
+
+:transportAuthority :trustScore 95 .
+:anonymousPost :trustScore 20 .
 ```
 
-`ex`, `reifies` and `integer` are abbreviations for long web addresses,
-defined at the top of the file. `bridgeStatus('closed')` is shorthand for the
-triple term *bridge — status — closed*.
+eyemind reads the statements as `rdf(Subject, Property, Value, Graph)`
+facts and reads the canonical integer literals as exact integers.
 
 Then the rules. `implies(conditions, conclusion)` is a forward rule: when
 every condition holds, the conclusion holds. `implied_by(conclusion,
@@ -61,12 +53,11 @@ uses only when it needs that conclusion. Capitalized names are variables:
 placeholders each use of a rule fills in; `_` means "any value".
 
 ```js
-// The value of an integer literal, and an integer written as a literal.
-implied_by(integer_value(literal(Text, datatype(integer)), N), [atom_chars(Text, Chars), number_chars(N, Chars)])
+// Write a computed integer as a typed RDF literal.
 implied_by(integer_literal(N, literal(Text, datatype(integer))), [number_chars(N, Chars), atom_chars(Text, Chars)])
 
 // A claim: an asserted status, a reifier of it with its source, and a score.
-implies([ /* status, reifier, source, confidence C, trust T */ …, is(Score, mul(C, T))],
+implies([ /* status, reifier, source, confidence and trust */ …, is(Score, mul(Confidence, Trust))],
   claim(Status, Source, Score))
 
 // A claim's rank is one more than the number of claims that score higher.
@@ -91,11 +82,9 @@ implies(
 
 In plain words:
 
-- **Reading numbers.** RDF stores 98 as the text `'98'`. `atom_chars` splits
-  text into characters (`'98'` into `['9', '8']`) and `number_chars` reads
-  characters as a number, so `integer_value` turns `'98'` into the number
-  98. `integer_literal` does the reverse, to write a computed score back
-  as RDF text.
+- **Reading numbers.** The Turtle input gives confidence and trust as
+  integers. `integer_literal` writes a computed integer as an RDF literal
+  for the result.
 - **Scoring.** A claim's score is confidence × trust (`mul` multiplies).
 - **Ranking.** `findall(Other, higher(Score, Other), Higher)` *collects* into
   the list `Higher` every score that beats this one. Counting that list and
@@ -157,10 +146,8 @@ simply stays on trust.
 
 ## The proof, line by line
 
-`eyemind --proof` writes down how it reached each conclusion. The proof has
-60 steps and is too long to show whole ([full file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-annotated-claims.js)).
-Below are its claims, all its clauses, and the complete chain of 26 steps for
-the first claim, the decision; the last comment line marks what is left out:
+The proof has 52 steps. The excerpt shows the nine claims, the cited clauses
+and the 22 steps that justify the decision.
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -178,122 +165,67 @@ result_rdf(iri('https://example.org/open'), iri('https://example.org/score'), li
 clause(1, fact(rdf(iri('https://example.org/bridge'), iri('https://example.org/status'), iri('https://example.org/closed'), 'default_graph')))
 clause(2, fact(rdf(iri('https://example.org/authorityClaim'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'), triple(iri('https://example.org/bridge'), iri('https://example.org/status'), iri('https://example.org/closed')), 'default_graph')))
 clause(3, fact(rdf(iri('https://example.org/authorityClaim'), iri('https://example.org/assertedBy'), iri('https://example.org/transportAuthority'), 'default_graph')))
-clause(4, fact(rdf(iri('https://example.org/authorityClaim'), iri('https://example.org/confidence'), literal('98', datatype('http://www.w3.org/2001/XMLSchema#integer')), 'default_graph')))
+clause(4, fact(rdf(iri('https://example.org/authorityClaim'), iri('https://example.org/confidence'), 98, 'default_graph')))
 clause(5, fact(rdf(iri('https://example.org/bridge'), iri('https://example.org/status'), iri('https://example.org/open'), 'default_graph')))
 clause(6, fact(rdf(iri('https://example.org/socialClaim'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'), triple(iri('https://example.org/bridge'), iri('https://example.org/status'), iri('https://example.org/open')), 'default_graph')))
 clause(7, fact(rdf(iri('https://example.org/socialClaim'), iri('https://example.org/assertedBy'), iri('https://example.org/anonymousPost'), 'default_graph')))
-clause(8, fact(rdf(iri('https://example.org/socialClaim'), iri('https://example.org/confidence'), literal('35', datatype('http://www.w3.org/2001/XMLSchema#integer')), 'default_graph')))
-clause(9, fact(rdf(iri('https://example.org/transportAuthority'), iri('https://example.org/trustScore'), literal('95', datatype('http://www.w3.org/2001/XMLSchema#integer')), 'default_graph')))
-clause(10, fact(rdf(iri('https://example.org/anonymousPost'), iri('https://example.org/trustScore'), literal('20', datatype('http://www.w3.org/2001/XMLSchema#integer')), 'default_graph')))
-clause(11, implied_by(integer_value(literal(Text, datatype('http://www.w3.org/2001/XMLSchema#integer')), N), [atom_chars(Text, Chars), number_chars(N, Chars)]))
-clause(12, implied_by(integer_literal(N, literal(Text, datatype('http://www.w3.org/2001/XMLSchema#integer'))), [number_chars(N, Chars), atom_chars(Text, Chars)]))
-clause(13, implies([rdf(iri('https://example.org/bridge'), iri('https://example.org/status'), Status, 'default_graph'), rdf(Reifier, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'), triple(iri('https://example.org/bridge'), iri('https://example.org/status'), Status), 'default_graph'), rdf(Reifier, iri('https://example.org/assertedBy'), Source, 'default_graph'), rdf(Reifier, iri('https://example.org/confidence'), Confidence, 'default_graph'), integer_value(Confidence, C), rdf(Source, iri('https://example.org/trustScore'), Trust, 'default_graph'), integer_value(Trust, T), is(Score, mul(C, T))], claim(Status, Source, Score)))
-clause(15, fact(count([], 0)))
-clause(16, implied_by(count([_0, ...Rest], N), [count(Rest, Before), is(N, add(Before, 1))]))
-clause(17, implies([claim(Status, Source, Score), findall(Other, higher(Score, Other), Higher), count(Higher, Count), is(Rank, add(Count, 1))], ranked(Rank, Status, Source, Score)))
-clause(18, fact(threshold(8000)))
-clause(19, fact(status_action(iri('https://example.org/closed'), 'avoid_bridge')))
-clause(21, implies([ranked(1, Status, Source, Score), threshold(Limit), ge(Score, Limit), status_action(Status, Action)], decision(Action, Source, Score)))
-clause(23, implies([decision(Action, Source, Score), atom_concat('https://example.org/', Action, ActionIri), integer_literal(Score, ScoreText)], [result_rdf(iri('https://example.org/bridge'), iri('https://example.org/decision'), iri(ActionIri), 'default_graph'), result_rdf(iri('https://example.org/bridge'), iri('https://example.org/trustedSource'), Source, 'default_graph'), result_rdf(iri('https://example.org/bridge'), iri('https://example.org/score'), ScoreText, 'default_graph')]))
-clause(24, implies([ranked(Rank, Status, Source, Score), integer_literal(Rank, RankText), integer_literal(Score, ScoreText)], [result_rdf(Status, iri('https://example.org/rank'), RankText, 'default_graph'), result_rdf(Status, iri('https://example.org/assertedBy'), Source, 'default_graph'), result_rdf(Status, iri('https://example.org/score'), ScoreText, 'default_graph')]))
+clause(8, fact(rdf(iri('https://example.org/socialClaim'), iri('https://example.org/confidence'), 35, 'default_graph')))
+clause(9, fact(rdf(iri('https://example.org/transportAuthority'), iri('https://example.org/trustScore'), 95, 'default_graph')))
+clause(10, fact(rdf(iri('https://example.org/anonymousPost'), iri('https://example.org/trustScore'), 20, 'default_graph')))
+clause(11, implied_by(integer_literal(N, literal(Text, datatype('http://www.w3.org/2001/XMLSchema#integer'))), [number_chars(N, Chars), atom_chars(Text, Chars)]))
+clause(12, implies([rdf(iri('https://example.org/bridge'), iri('https://example.org/status'), Status, 'default_graph'), rdf(Reifier, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'), triple(iri('https://example.org/bridge'), iri('https://example.org/status'), Status), 'default_graph'), rdf(Reifier, iri('https://example.org/assertedBy'), Source, 'default_graph'), rdf(Reifier, iri('https://example.org/confidence'), Confidence, 'default_graph'), is_int(Confidence), rdf(Source, iri('https://example.org/trustScore'), Trust, 'default_graph'), is_int(Trust), is(Score, mul(Confidence, Trust))], claim(Status, Source, Score)))
+clause(14, fact(count([], 0)))
+clause(15, implied_by(count([_0, ...Rest], N), [count(Rest, Before), is(N, add(Before, 1))]))
+clause(16, implies([claim(Status, Source, Score), findall(Other, higher(Score, Other), Higher), count(Higher, Count), is(Rank, add(Count, 1))], ranked(Rank, Status, Source, Score)))
+clause(17, fact(threshold(8000)))
+clause(18, fact(status_action(iri('https://example.org/closed'), 'avoid_bridge')))
+clause(20, implies([ranked(1, Status, Source, Score), threshold(Limit), ge(Score, Limit), status_action(Status, Action)], decision(Action, Source, Score)))
+clause(22, implies([decision(Action, Source, Score), atom_concat('https://example.org/', Action, ActionIri), integer_literal(Score, ScoreText)], [result_rdf(iri('https://example.org/bridge'), iri('https://example.org/decision'), iri(ActionIri), 'default_graph'), result_rdf(iri('https://example.org/bridge'), iri('https://example.org/trustedSource'), Source, 'default_graph'), result_rdf(iri('https://example.org/bridge'), iri('https://example.org/score'), ScoreText, 'default_graph')]))
+clause(23, implies([ranked(Rank, Status, Source, Score), integer_literal(Rank, RankText), integer_literal(Score, ScoreText)], [result_rdf(Status, iri('https://example.org/rank'), RankText, 'default_graph'), result_rdf(Status, iri('https://example.org/assertedBy'), Source, 'default_graph'), result_rdf(Status, iri('https://example.org/score'), ScoreText, 'default_graph')]))
 
 // Steps: each goal, what justifies it (a clause, a builtin, a control, an
 // absence or a collection), the bindings and the goals it uses.
-step(result_rdf(iri('https://example.org/bridge'), iri('https://example.org/decision'), iri('https://example.org/avoid_bridge'), 'default_graph'), clause(23), {Action: 'avoid_bridge', Source: iri('https://example.org/transportAuthority'), Score: 9310, ActionIri: 'https://example.org/avoid_bridge', ScoreText: literal('9310', datatype('http://www.w3.org/2001/XMLSchema#integer'))}, [decision('avoid_bridge', iri('https://example.org/transportAuthority'), 9310), atom_concat('https://example.org/', 'avoid_bridge', 'https://example.org/avoid_bridge'), integer_literal(9310, literal('9310', datatype('http://www.w3.org/2001/XMLSchema#integer')))])
-step(decision('avoid_bridge', iri('https://example.org/transportAuthority'), 9310), clause(21), {Status: iri('https://example.org/closed'), Source: iri('https://example.org/transportAuthority'), Score: 9310, Limit: 8000, Action: 'avoid_bridge'}, [ranked(1, iri('https://example.org/closed'), iri('https://example.org/transportAuthority'), 9310), threshold(8000), ge(9310, 8000), status_action(iri('https://example.org/closed'), 'avoid_bridge')])
-step(ranked(1, iri('https://example.org/closed'), iri('https://example.org/transportAuthority'), 9310), clause(17), {Status: iri('https://example.org/closed'), Source: iri('https://example.org/transportAuthority'), Score: 9310, Other: A, Higher: [], Count: 0, Rank: 1}, [claim(iri('https://example.org/closed'), iri('https://example.org/transportAuthority'), 9310), findall(A, higher(9310, A), []), count([], 0), is(1, add(0, 1))])
-step(claim(iri('https://example.org/closed'), iri('https://example.org/transportAuthority'), 9310), clause(13), {Status: iri('https://example.org/closed'), Reifier: iri('https://example.org/authorityClaim'), Source: iri('https://example.org/transportAuthority'), Confidence: literal('98', datatype('http://www.w3.org/2001/XMLSchema#integer')), C: 98, Trust: literal('95', datatype('http://www.w3.org/2001/XMLSchema#integer')), T: 95, Score: 9310}, [rdf(iri('https://example.org/bridge'), iri('https://example.org/status'), iri('https://example.org/closed'), 'default_graph'), rdf(iri('https://example.org/authorityClaim'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'), triple(iri('https://example.org/bridge'), iri('https://example.org/status'), iri('https://example.org/closed')), 'default_graph'), rdf(iri('https://example.org/authorityClaim'), iri('https://example.org/assertedBy'), iri('https://example.org/transportAuthority'), 'default_graph'), rdf(iri('https://example.org/authorityClaim'), iri('https://example.org/confidence'), literal('98', datatype('http://www.w3.org/2001/XMLSchema#integer')), 'default_graph'), integer_value(literal('98', datatype('http://www.w3.org/2001/XMLSchema#integer')), 98), rdf(iri('https://example.org/transportAuthority'), iri('https://example.org/trustScore'), literal('95', datatype('http://www.w3.org/2001/XMLSchema#integer')), 'default_graph'), integer_value(literal('95', datatype('http://www.w3.org/2001/XMLSchema#integer')), 95), is(9310, mul(98, 95))])
+step(result_rdf(iri('https://example.org/bridge'), iri('https://example.org/decision'), iri('https://example.org/avoid_bridge'), 'default_graph'), clause(22), {Action: 'avoid_bridge', Source: iri('https://example.org/transportAuthority'), Score: 9310, ActionIri: 'https://example.org/avoid_bridge', ScoreText: literal('9310', datatype('http://www.w3.org/2001/XMLSchema#integer'))}, [decision('avoid_bridge', iri('https://example.org/transportAuthority'), 9310), atom_concat('https://example.org/', 'avoid_bridge', 'https://example.org/avoid_bridge'), integer_literal(9310, literal('9310', datatype('http://www.w3.org/2001/XMLSchema#integer')))])
+step(decision('avoid_bridge', iri('https://example.org/transportAuthority'), 9310), clause(20), {Status: iri('https://example.org/closed'), Source: iri('https://example.org/transportAuthority'), Score: 9310, Limit: 8000, Action: 'avoid_bridge'}, [ranked(1, iri('https://example.org/closed'), iri('https://example.org/transportAuthority'), 9310), threshold(8000), ge(9310, 8000), status_action(iri('https://example.org/closed'), 'avoid_bridge')])
+step(ranked(1, iri('https://example.org/closed'), iri('https://example.org/transportAuthority'), 9310), clause(16), {Status: iri('https://example.org/closed'), Source: iri('https://example.org/transportAuthority'), Score: 9310, Other: A, Higher: [], Count: 0, Rank: 1}, [claim(iri('https://example.org/closed'), iri('https://example.org/transportAuthority'), 9310), findall(A, higher(9310, A), []), count([], 0), is(1, add(0, 1))])
+step(claim(iri('https://example.org/closed'), iri('https://example.org/transportAuthority'), 9310), clause(12), {Status: iri('https://example.org/closed'), Reifier: iri('https://example.org/authorityClaim'), Source: iri('https://example.org/transportAuthority'), Confidence: 98, Trust: 95, Score: 9310}, [rdf(iri('https://example.org/bridge'), iri('https://example.org/status'), iri('https://example.org/closed'), 'default_graph'), rdf(iri('https://example.org/authorityClaim'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'), triple(iri('https://example.org/bridge'), iri('https://example.org/status'), iri('https://example.org/closed')), 'default_graph'), rdf(iri('https://example.org/authorityClaim'), iri('https://example.org/assertedBy'), iri('https://example.org/transportAuthority'), 'default_graph'), rdf(iri('https://example.org/authorityClaim'), iri('https://example.org/confidence'), 98, 'default_graph'), is_int(98), rdf(iri('https://example.org/transportAuthority'), iri('https://example.org/trustScore'), 95, 'default_graph'), is_int(95), is(9310, mul(98, 95))])
 step(rdf(iri('https://example.org/bridge'), iri('https://example.org/status'), iri('https://example.org/closed'), 'default_graph'), clause(1), {}, [])
 step(rdf(iri('https://example.org/authorityClaim'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'), triple(iri('https://example.org/bridge'), iri('https://example.org/status'), iri('https://example.org/closed')), 'default_graph'), clause(2), {}, [])
 step(rdf(iri('https://example.org/authorityClaim'), iri('https://example.org/assertedBy'), iri('https://example.org/transportAuthority'), 'default_graph'), clause(3), {}, [])
-step(rdf(iri('https://example.org/authorityClaim'), iri('https://example.org/confidence'), literal('98', datatype('http://www.w3.org/2001/XMLSchema#integer')), 'default_graph'), clause(4), {}, [])
-step(integer_value(literal('98', datatype('http://www.w3.org/2001/XMLSchema#integer')), 98), clause(11), {Text: '98', N: 98, Chars: ['9', '8']}, [atom_chars('98', ['9', '8']), number_chars(98, ['9', '8'])])
-step(atom_chars('98', ['9', '8']), 'builtin', {}, [])
-step(number_chars(98, ['9', '8']), 'builtin', {}, [])
-step(rdf(iri('https://example.org/transportAuthority'), iri('https://example.org/trustScore'), literal('95', datatype('http://www.w3.org/2001/XMLSchema#integer')), 'default_graph'), clause(9), {}, [])
-step(integer_value(literal('95', datatype('http://www.w3.org/2001/XMLSchema#integer')), 95), clause(11), {Text: '95', N: 95, Chars: ['9', '5']}, [atom_chars('95', ['9', '5']), number_chars(95, ['9', '5'])])
-step(atom_chars('95', ['9', '5']), 'builtin', {}, [])
-step(number_chars(95, ['9', '5']), 'builtin', {}, [])
+step(rdf(iri('https://example.org/authorityClaim'), iri('https://example.org/confidence'), 98, 'default_graph'), clause(4), {}, [])
+step(is_int(98), 'builtin', {}, [])
+step(rdf(iri('https://example.org/transportAuthority'), iri('https://example.org/trustScore'), 95, 'default_graph'), clause(9), {}, [])
+step(is_int(95), 'builtin', {}, [])
 step(is(9310, mul(98, 95)), 'builtin', {}, [])
 step(findall(A, higher(9310, A), []), 'collected', {}, [])
-step(count([], 0), clause(15), {}, [])
+step(count([], 0), clause(14), {}, [])
 step(is(1, add(0, 1)), 'builtin', {}, [])
-step(threshold(8000), clause(18), {}, [])
+step(threshold(8000), clause(17), {}, [])
 step(ge(9310, 8000), 'builtin', {}, [])
-step(status_action(iri('https://example.org/closed'), 'avoid_bridge'), clause(19), {}, [])
+step(status_action(iri('https://example.org/closed'), 'avoid_bridge'), clause(18), {}, [])
 step(atom_concat('https://example.org/', 'avoid_bridge', 'https://example.org/avoid_bridge'), 'builtin', {}, [])
-step(integer_literal(9310, literal('9310', datatype('http://www.w3.org/2001/XMLSchema#integer'))), clause(12), {N: 9310, Text: '9310', Chars: ['9', '3', '1', '0']}, [number_chars(9310, ['9', '3', '1', '0']), atom_chars('9310', ['9', '3', '1', '0'])])
+step(integer_literal(9310, literal('9310', datatype('http://www.w3.org/2001/XMLSchema#integer'))), clause(11), {N: 9310, Text: '9310', Chars: ['9', '3', '1', '0']}, [number_chars(9310, ['9', '3', '1', '0']), atom_chars('9310', ['9', '3', '1', '0'])])
 step(number_chars(9310, ['9', '3', '1', '0']), 'builtin', {}, [])
 step(atom_chars('9310', ['9', '3', '1', '0']), 'builtin', {}, [])
-// … 34 more steps (60 in total) establish the other eight results: the
-// remaining decision triples, and the rank, source and score of each claim.
+// … the remaining steps and search certificate are in the saved proof.
 ```
 
-It has three parts:
+The decision quad cites rule 22, which uses the decision from rule 20.
+Rule 16 ranks the closed claim first because its list of higher scores is
+empty. Rule 12 uses the asserted status, the reifier, the source, and its
+integer confidence and trust scores to compute 98 × 95 = 9310. The checker
+recomputes the multiplication, the rank sum and the threshold comparison.
+The empty list remains an obligation.
 
-- **The claims**: the 9 results the proof is about.
-- **The clauses**: the program facts and rules the steps cite, numbered by
-  position in the program, with the abbreviations spelled out. Numbers are
-  skipped where nothing cites a clause: the `higher` rule (14) is only used
-  inside the collected search, and the `'open'` action (20) and the
-  manual-check rule (22) play no part in these results. In displays a lone
-  `_` becomes a named placeholder such as `_0`.
-- **The steps**: one per thing established. A step reads
-  `step(what, justified by, with which values, using what)`.
-
-Three kinds of justification occur:
-
-- `clause(N)`: an instance of program clause N, with the values in `{...}`.
-  A fact cites itself and uses nothing.
-- `'builtin'`: a calculation or comparison, such as `is(9310, mul(98, 95))`,
-  `ge(9310, 8000)` or `number_chars(98, ['9', '8'])`. The checker recomputes
-  it.
-- `'collected'`: a list gathered by searching, as explained above. `A` in
-  `findall(A, higher(9310, A), [])` stands for "any score".
-
-Read the chain for the decision as sentences:
-
-1. *The bridge's decision is avoid_bridge* — by rule 23, because the decision
-   is `avoid_bridge` from the authority with score 9310, and the web address
-   for that action and the text `'9310'` are built from it.
-2. *The decision is avoid_bridge, from the authority, score 9310* — by rule
-   21: the closed claim ranks first, the threshold is 8000, 9310 ≥ 8000, and a
-   closed bridge means avoid it.
-3. *The closed claim ranks first* — by rule 17: the claim scores 9310, the
-   collected list of higher scores is empty, its count is 0 (fact 15), and
-   0 + 1 = 1.
-4. *The authority claims closed, with score 9310* — by rule 13: the bridge's
-   status is closed (fact 1), `authorityClaim` reifies that triple (fact 2),
-   was asserted by the authority (fact 3) with confidence `'98'` (fact 4),
-   which reads as 98; the authority's trust is `'95'` (fact 9), which reads
-   as 95; and 98 × 95 = 9310.
-5. Facts 1 to 4 each stand on their own.
-6. *`'98'` is the number 98* — by rule 11: `'98'` splits into `['9', '8']`,
-   and those characters read as 98 (both recomputed). The same goes for
-   `'95'`, after fact 9.
-7. *98 × 95 = 9310* — recomputed.
-8. *No score is higher than 9310* — collected: `[]`, taken on trust.
-9. *An empty list has 0 items* — fact 15; *0 + 1 = 1* — recomputed.
-10. *The threshold is 8000* — fact 18; *9310 ≥ 8000* — recomputed;
-    *closed means avoid_bridge* — fact 19.
-11. *The action's web address is `https://example.org/avoid_bridge`* — the
-    two texts joined (`atom_concat`), recomputed.
-12. *9310 is written `'9310'`* — by rule 12, with its two character
-    conversions recomputed.
-
-Each step leans only on steps listed below it. The 34 steps left out work the
-same way for the other results; among them is the second collected list,
-`findall(A, higher(700, A), [9310])`: one score, 9310, beats 700, so the open
-claim ranks 1 + 1 = 2.
+The second collected list, `findall(A, higher(700, A), [9310])`, gives the
+open claim rank 2. [Full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-annotated-claims.js)
 
 ---
 
 ## Checked: what the report says
 
-A proof is only worth something if someone else can check it. `eyemind -c`
-generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+`eyemind -c` generates and checks the proof. `--check-proof` checks
+the saved proof against the Turtle file and rule script.
 
 ```js
 // Answers checked subject to the obligations below.
@@ -309,13 +241,13 @@ result_rdf(iri('https://example.org/open'), iri('https://example.org/score'), li
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 36)
-condition('C2', 'well_founded', 'ok', 60)
-condition('C3', 'justification', 'ok', 60)
-condition('C4', 'coverage', 'ok', 82)
-condition('C5', 're_decision', 'ok', 22)
+condition('C1', 'resolution', 'ok', 32)
+condition('C2', 'well_founded', 'ok', 52)
+condition('C3', 'justification', 'ok', 52)
+condition('C4', 'coverage', 'ok', 74)
+condition('C5', 're_decision', 'ok', 18)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 69)
+condition('C7', 'relevance', 'ok', 61)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
@@ -334,9 +266,9 @@ obligation('call_fidelity', 'original_call', result_rdf(iri('https://example.org
 obligation('call_fidelity', 'original_call', result_rdf(iri('https://example.org/open'), iri('https://example.org/score'), literal('700', datatype('http://www.w3.org/2001/XMLSchema#integer')), 'default_graph'))
 
 // Proof statistics: recorded steps and how they were checked.
-steps(60)
-verified(36)
-recomputed(22)
+steps(52)
+verified(32)
+recomputed(18)
 composed(0)
 trusted(11)
 claims(9)
@@ -345,70 +277,30 @@ claims(9)
 verdict('checked_with_obligations')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (36)**: the 36 steps that cite a clause really are
-  instances of it with the values shown; for example, the claim step is rule
-  13 with `C` = 98, `T` = 95 and `Score` = 9310.
-- **C2 well-founded (60)**: none of the 60 steps depends on itself, even
-  indirectly.
-- **C3 justification (60)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (82)**: the 9 claims and the 73 things the steps use are each
-  backed by a step: nothing is taken for granted silently.
-- **C5 re-decision (22)**: the 22 calculations were recomputed and agree: the
-  two multiplications, the rank sums, the `ge` comparison, the joined web
-  address, and the character conversions between numbers and text.
-- **C6 boundary consistency (0)**: the checker had nothing to confront the
-  2 collected lists with. `higher` is only a rule, and neither the program's
-  facts nor the proof's steps contain a `higher` statement, so nothing
-  could show a missing score. Both lists are left undecided and stay
-  obligations taken on trust.
-- **C7 relevance (69)**: the 9 claims each answer the program's query, and all
-  60 steps serve a claim.
-- **C8 witness integrity (0)**: no rule invents a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: the proof carries no search certificate for
-  the 2 collected lists, so neither is settled as complete.
-
-The statistics: 60 steps, of which 36 were verified against the program, 22
-recomputed and 2 trusted; none composed from parts; 9 claims.
-
-The two `obligation` lines say, in plain words: *no claim scores higher than
-9310*, and *the only score higher than 700 is 9310*. Both are complete only
-on trust; `'theory_scoped'` means they are meant relative to this program.
-
-The verdict is **checked with obligations**: the decision follows from the
-program, provided those two lists are complete. As the last comment says, the
-verdict also does not establish completeness of the results: it does not say
-these are all the conclusions the program has.
-
-C10 leaves 9 original-call claims unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
-
+The verdict is **checked with obligations**. The report leaves two
+collections and nine original calls as obligations. The collections say
+that no score beats 9310 and that 9310 is the only score that beats 700.
+`--strict-proof` rejects proofs with these obligations.
 
 ---
 
 ## Try it
 
 ```sh
-eyemind examples/rdf12-annotated-claims.js                  # the results as quads
-eyemind --proof examples/rdf12-annotated-claims.js          # with their proof
-eyemind --to turtle examples/rdf12-annotated-claims.js > out.ttl
+eyemind examples/rdf12-annotated-claims.ttl examples/rules/rdf12-annotated-claims.js          # the results as quads
+eyemind --proof examples/rdf12-annotated-claims.ttl examples/rules/rdf12-annotated-claims.js  # with their proof
+eyemind --to turtle examples/rdf12-annotated-claims.ttl examples/rules/rdf12-annotated-claims.js > out.ttl
 ```
 
 `--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
 `.nt` and `.nq` files as quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-annotated-claims).
 
-Lower the authority's confidence from `'98'` to `'80'` and run again: its
+Lower the authority's confidence from `98` to `80` and run again: its
 score becomes 80 × 95 = 7600, still the best but below the threshold, so the
 decision becomes `verify_manually` with `noTrustedSource`.
 
-Raise the anonymous post's trust score from `'20'` to `'290'`: it now scores
+Raise the anonymous post's trust score from `20` to `290`: it now scores
 35 × 290 = 10150, beats the authority, and the decision becomes
 `cross_bridge` on the post's word. The rule follows the numbers, so the
 numbers you give it matter.

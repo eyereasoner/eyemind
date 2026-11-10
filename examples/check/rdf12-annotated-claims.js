@@ -11,13 +11,13 @@ result_rdf(iri('https://example.org/open'), iri('https://example.org/score'), li
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 36)
-condition('C2', 'well_founded', 'ok', 60)
-condition('C3', 'justification', 'ok', 60)
-condition('C4', 'coverage', 'ok', 82)
-condition('C5', 're_decision', 'ok', 22)
+condition('C1', 'resolution', 'ok', 32)
+condition('C2', 'well_founded', 'ok', 52)
+condition('C3', 'justification', 'ok', 52)
+condition('C4', 'coverage', 'ok', 74)
+condition('C5', 're_decision', 'ok', 18)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 69)
+condition('C7', 'relevance', 'ok', 61)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
@@ -36,9 +36,9 @@ obligation('call_fidelity', 'original_call', result_rdf(iri('https://example.org
 obligation('call_fidelity', 'original_call', result_rdf(iri('https://example.org/open'), iri('https://example.org/score'), literal('700', datatype('http://www.w3.org/2001/XMLSchema#integer')), 'default_graph'))
 
 // Proof statistics: recorded steps and how they were checked.
-steps(60)
-verified(36)
-recomputed(22)
+steps(52)
+verified(32)
+recomputed(18)
 composed(0)
 trusted(11)
 claims(9)

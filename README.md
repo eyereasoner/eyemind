@@ -191,7 +191,7 @@ eyemind --to trig rules.js data.trig      # the conclusions as TriG
 | Triple term | `triple(S, P, O)`, which may nest |
 | Default graph, named graph | `'default_graph'`, `iri(Name)` |
 
-A reified triple `<< s p o >>` and an annotation `{| ... |}` become their reifier and its `rdf:reifies` triple, as RDF 1.2 defines. A Skolem term is written as a blank node, the same one for the same rule firing. The `rdf12-*` examples show triple terms, annotations, directional strings, typed numbers and named graphs. The W3C RDF test suites run in `npm test` from the mirror in `test/w3c/rdf-tests`: all 1055 tests of N-Triples, N-Quads, Turtle and TriG, in RDF 1.1 and 1.2, pass.
+A reified triple `<< s p o >>` and an annotation `{| ... |}` become their reifier and its `rdf:reifies` triple, as RDF 1.2 defines. A Skolem term is written as a blank node, the same one for the same rule firing. The `rdf12-*` examples load Turtle or TriG data alongside eyemind rule scripts. They show triple terms, annotations, directional strings, typed numbers and named graphs. The W3C RDF test suites run in `npm test` from the mirror in `test/w3c/rdf-tests`: all 1055 tests of N-Triples, N-Quads, Turtle and TriG, in RDF 1.1 and 1.2, pass.
 
 ### Notation3
 
@@ -209,13 +209,12 @@ Scoped calls can use formulas supplied by the document's stated lists, including
 
 The documents `log:semantics`, `log:semanticsOrError` and `log:content` name are read before compiling. The command reads local files and HTTP(S) documents, with a ten-second fetch timeout and a 16 MiB response limit. The library uses the host callbacks `readFile(path)` and `readDocument(iri)`; without them it does not read external documents. Their contents become facts of the compiled program, which can be saved with `--program` for later proof checking.
 
-Five examples pair the original N3 with a compiled JavaScript program:
+Five examples run directly from their N3 source in the playground and on the command line.
 [family queries](https://eyereasoner.github.io/eyemind/examples/deck/n3-family),
 [scoped negation](https://eyereasoner.github.io/eyemind/examples/deck/n3-scoped-negation),
 [invoice collection](https://eyereasoner.github.io/eyemind/examples/deck/n3-invoice),
 [French cities](https://eyereasoner.github.io/eyemind/examples/deck/n3-french-cities), and
 [existential witnesses](https://eyereasoner.github.io/eyemind/examples/deck/n3-witnesses).
-The saved `.js` programs run directly in the playground and with eyemind.
 Each deck shows the N3 result and what its saved proof establishes, including
 any remaining obligations.
 

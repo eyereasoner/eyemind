@@ -391,7 +391,7 @@
         const wasRestoring = restoring;
         restoring = true;
         input.setValue(source.text);
-        byId('input-source').textContent = source.name;
+        byId('input-source').textContent = [source.name, ...(source.companions ?? []).map((file) => file.name)].join(' + ');
         byId('input-source').hidden = source.name === '-';
         const entry = exampleNamed(byId('examples').value);
         byId('example-description').textContent = entry ? entry.description : '';
@@ -418,7 +418,7 @@
           const value = byId(id).value;
           if (value !== '' && mode !== '--check-proof') args.push('--' + id, value);
         }
-        return args.concat(source.name.trim() || '-');
+        return args.concat(source.name.trim() || '-', (source.companions ?? []).map((file) => file.name));
       }
 
       function quoteArgument(value) {
@@ -475,6 +475,11 @@
         if (!raw.source || typeof raw.source.name !== 'string' || typeof raw.source.text !== 'string') {
           throw new Error('Playground state must contain a named program.');
         }
+        const companions = raw.source.companions;
+        if (companions !== undefined && (!Array.isArray(companions) ||
+          companions.some((file) => !file || typeof file.name !== 'string' || typeof file.text !== 'string'))) {
+          throw new Error('Invalid shared companion files.');
+        }
         const mode = raw.mode ?? '';
         if (!modes.includes(mode)) throw new Error('Unknown shared output mode.');
         for (const key of ['strictProof', 'json', 'stats']) {
@@ -484,7 +489,9 @@
           if (raw[key] !== undefined && typeof raw[key] !== 'string') throw new Error(`Invalid shared option: ${key}.`);
         }
         if (raw.proof !== undefined && (!raw.proof || typeof raw.proof.name !== 'string' || typeof raw.proof.text !== 'string')) throw new Error('Invalid shared proof.');
-        return { v: 1, source: { name: raw.source.name, text: raw.source.text }, mode, goal: raw.goal ?? '',
+        const source = { name: raw.source.name, text: raw.source.text };
+        if (companions?.length) source.companions = companions.map(({ name, text }) => ({ name, text }));
+        return { v: 1, source, mode, goal: raw.goal ?? '',
           strictProof: raw.strictProof ?? false, json: raw.json ?? false, stats: raw.stats ?? false,
           maxDepth: raw.maxDepth ?? '', maxInferences: raw.maxInferences ?? '',
           proof: raw.proof ?? { name: 'proof.js', text: '' }, example: exampleNamed(raw.example) ? raw.example : '' };
@@ -556,7 +563,7 @@
               try { originalExample = { name: snapshot.example, source: await readExampleSource(snapshot.example, controller.signal) }; }
               finally { clearTimeout(timeout); }
             }
-            if (snapshot.source.name === originalExample.source.name && snapshot.source.text === originalExample.source.text) {
+            if (JSON.stringify(snapshot.source) === JSON.stringify(originalExample.source)) {
               url.search = '';
               url.hash = 'example=' + encodeURIComponent(snapshot.example);
               return url.href;
@@ -735,7 +742,7 @@
         try {
           await ensureWorker();
           const name = source.name.trim() || '-';
-          const files = [[name, source.text], [proofName, proof.getValue()]];
+          const files = [[name, source.text], ...(source.companions ?? []).map((file) => [file.name, file.text]), [proofName, proof.getValue()]];
           const report = await new Promise((resolve, reject) => { finishRun = resolve; failRun = reject; worker.postMessage({ args, files }); });
           byId('messages').textContent = report.stderr;
           byId('messages').hidden = !report.stderr;
@@ -770,8 +777,13 @@
       }
 
       async function readExampleSource(name, signal) {
-        if (!exampleNamed(name)) throw new Error('Unknown bundled example.');
-        return fetchSource(`../examples/${name}.js`, `examples/${name}.js`, signal);
+        const entry = exampleNamed(name);
+        if (!entry) throw new Error('Unknown bundled example.');
+        const files = entry.files ?? [`${name}.js`];
+        const [primary, ...companions] = await Promise.all(files.map((file) =>
+          fetchSource(`../examples/${file}`, `examples/${file}`, signal)));
+        if (companions.length) primary.companions = companions;
+        return primary;
       }
 
       async function loadExample(name, signal) {
@@ -801,7 +813,7 @@
               else if (stateUrl !== null) applyState(normalizeState(JSON.parse((await fetchSource(stateUrl, '', signal)).text)));
               else {
                 applyState(normalizeState({ source: { name: '-', text: defaultProgram } }));
-                await loadExample(example.replace(/\.js$/, ''), signal);
+                await loadExample(example.replace(/\.(?:js|n3|ttl|trig)$/, ''), signal);
               }
               sharedLoaded = true;
               setShareStatus('Opened shared playground. Changes save locally.');

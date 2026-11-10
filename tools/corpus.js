@@ -3,7 +3,8 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkReport, loadSources, run } from '../src/index.js';
+import { checkReport, run } from '../src/index.js';
+import { loadInputs } from '../src/formats.js';
 import { nodeIO } from '../src/node.js';
 
 export const ROOT = join(dirname(dirname(fileURLToPath(import.meta.url))), 'examples');
@@ -23,12 +24,15 @@ export function readManifest() {
   return manifest;
 }
 
-export const sourcePath = (entry) => join(ROOT, `${entry.name}.js`);
+export const sourceFiles = (entry) => entry.files ?? [`${entry.name}.js`];
 export const artifactPath = (kind, entry) => join(ROOT, kind, `${entry.name}.js`);
 
 export function loadExample(entry) {
-  const path = sourcePath(entry);
-  return loadSources([[readFileSync(path, 'utf8'), path]], nodeIO);
+  const inputs = sourceFiles(entry).map((file) => {
+    const path = join(ROOT, file);
+    return [readFileSync(path, 'utf8'), path];
+  });
+  return loadInputs(inputs, nodeIO).program;
 }
 
 // A certified run holds a valid nonempty proof, agrees with the plain run,

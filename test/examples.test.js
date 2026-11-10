@@ -3,12 +3,13 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { checkProof, checkReport, publicReport, readTerms, run, strict, write } from '../src/index.js';
-import { KINDS, artifactPath, certify, loadExample, readManifest, sourcePath } from '../tools/corpus.js';
+import { KINDS, artifactPath, certify, loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
 import { ROOT, assert, cli } from './helpers.js';
 
 export const section = 'examples';
 
 const MANIFEST = readManifest();
+const inputs = (entry) => sourceFiles(entry).map((file) => `examples/${file}`);
 const CHANGED = (kind) => `${kind} changed; review it, then run node tools/update-examples.js`;
 const read = (path) => readFileSync(path, 'utf8');
 // A saved proof this large is not reasoned over again for what the library
@@ -75,7 +76,9 @@ export const tests = {
   'the manifest covers every source, artifact and deck'() {
     const names = MANIFEST.map((entry) => `${entry.name}.js`).sort();
     const examples = join(ROOT, 'examples');
-    assert.deepEqual(readdirSync(examples).filter((name) => name.endsWith('.js')).sort(), names);
+    const sources = readdirSync(examples).filter((name) => /\.(js|n3|ttl|trig)$/.test(name));
+    sources.push(...readdirSync(join(examples, 'rules')).map((name) => `rules/${name}`));
+    assert.deepEqual(sources.sort(), MANIFEST.flatMap(sourceFiles).sort());
     for (const kind of KINDS) assert.deepEqual(readdirSync(join(examples, kind)).sort(), names);
     const decks = MANIFEST.map((entry) => `${entry.name}.md`).sort();
     assert.deepEqual(readdirSync(join(examples, 'deck')).filter((name) => name.endsWith('.md')).sort(), decks);
@@ -84,12 +87,12 @@ export const tests = {
   'the command line on examples'() {
     for (const name of ['socrates', 'graphs', 'integrity']) {
       const entry = MANIFEST.find((item) => item.name === name);
-      const source = relative(ROOT, sourcePath(entry));
-      const ran = cli([source]);
+      const sources = inputs(entry);
+      const ran = cli(sources);
       assert.equal(ran.code, entry.halt_code ?? 0, ran.stderr);
       assert.equal(ran.stdout, read(artifactPath('output', entry)));
-      assert.equal(cli(['--proof', source]).stdout, read(artifactPath('proof', entry)));
-      const checked = cli(['--check-proof', relative(ROOT, artifactPath('proof', entry)), source]);
+      assert.equal(cli(['--proof', ...sources]).stdout, read(artifactPath('proof', entry)));
+      const checked = cli(['--check-proof', relative(ROOT, artifactPath('proof', entry)), ...sources]);
       assert.equal(checked.code, 0, checked.stderr);
       assert.equal(checked.stdout, read(artifactPath('check', entry)));
     }
@@ -99,16 +102,17 @@ export const tests = {
 // Three tests per example, so a run shows each as it goes and a failure names
 // the example and what of it changed.
 for (const entry of MANIFEST) {
-  tests[`examples/${entry.name}.js output: ${entry.description}`] = () => checkOutput(entry);
-  tests[`examples/${entry.name}.js proof`] = () => checkProofOf(entry);
-  tests[`examples/${entry.name}.js check`] = () => checkCheck(entry);
+  const [source] = inputs(entry);
+  tests[`${source} output: ${entry.description}`] = () => checkOutput(entry);
+  tests[`${source} proof`] = () => checkProofOf(entry);
+  tests[`${source} check`] = () => checkCheck(entry);
   tests[`examples/check/${entry.name}.js checked answers and prove-and-check output`] = () => {
     const saved = read(artifactPath('check', entry));
     const answers = saved.split('\n// C1-C10:')[0];
     assert.deepEqual(readTerms(answers).map(([term]) => write(term)),
       readTerms(read(artifactPath('output', entry))).map(([term]) => write(term)));
     if (large(entry)) return;
-    const result = cli(['--prove-and-check', relative(ROOT, sourcePath(entry))]);
+    const result = cli(['--prove-and-check', ...inputs(entry)]);
     assert.equal(result.code, entry.halt_code ?? 0, result.stderr);
     assert.equal(result.stdout, saved);
   };

@@ -2,7 +2,7 @@
 
 *Keeping conclusions where they belong.*
 
-[rdf12-trig-named-graph.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-named-graph.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-named-graph.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-named-graph.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-named-graph.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-named-graph)
+[rdf12-trig-named-graph.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-trig-named-graph.trig) · [rules/rdf12-trig-named-graph.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rules/rdf12-trig-named-graph.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-trig-named-graph.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-trig-named-graph.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-trig-named-graph.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-named-graph)
 
 ---
 
@@ -23,13 +23,22 @@ from the family folder should stay in the family folder.
 
 ## What we tell eyemind
 
+The data file contains the RDF statements.
+
+```trig
+@prefix : <https://example.org/> .
+
+:family {
+  :alice :parent :bob .
+  :bob :parent :carol .
+}
+```
+
+The companion rule script uses the facts read from that file.
+
 ```js
 const ex = 'https://example.org/'
 
-fact(
-  rdf(iri(ex + 'alice'), iri(ex + 'parent'), iri(ex + 'bob'), iri(ex + 'family')),
-  rdf(iri(ex + 'bob'), iri(ex + 'parent'), iri(ex + 'carol'), iri(ex + 'family')),
-)
 
 // A parent is an ancestor, and so is a parent's parent in the same graph.
 implies(rdf(S, iri(ex + 'parent'), O, G), result_rdf(S, iri(ex + 'ancestor'), O, G))
@@ -45,8 +54,7 @@ query(result_rdf(S, P, O, G))
 - RDF values are ordinary terms: `iri(Text)` is a web address used as a
   name, and `rdf(S, P, O, Graph)` is a triple together with the graph it
   belongs to (a *quad*). The graph is `iri(Name)` for a named graph, or
-  `'default_graph'` for the unnamed one. One `fact(...)` can state several
-  facts; here it states two.
+  `'default_graph'` for the unnamed one. The TriG file supplies two facts.
 - Capitalized names such as `S`, `M`, `O` and `G` are variables, placeholders
   for any value.
 - `implies(premise, conclusion)` is a forward rule: whenever the premise
@@ -198,16 +206,16 @@ confirms the claims; it does not say the program has no other conclusions.
 ## Try it
 
 ```sh
-eyemind examples/rdf12-trig-named-graph.js                  # the results as quads
-eyemind --proof examples/rdf12-trig-named-graph.js          # with their proof
-eyemind --to trig examples/rdf12-trig-named-graph.js > out.trig
+eyemind examples/rdf12-trig-named-graph.trig examples/rules/rdf12-trig-named-graph.js          # the results as quads
+eyemind --proof examples/rdf12-trig-named-graph.trig examples/rules/rdf12-trig-named-graph.js  # with their proof
+eyemind --to trig examples/rdf12-trig-named-graph.trig examples/rules/rdf12-trig-named-graph.js > out.trig
 ```
 
 `--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
 `.nt` and `.nq` files as quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-trig-named-graph).
 
-Put Bob's parent link in another graph, say `iri(ex + 'school')`, and run
+Put Bob's parent link in another graph, say `:school`, and run
 again: Bob is still Carol's ancestor, now in the school graph, but Alice is
 no longer Carol's ancestor, because the rule joins two links only within one
 graph.

@@ -1,32 +1,32 @@
 // Compiled N3 examples keep their domain constraints and checkable witnesses.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { checkProof, loadText, run } from '../src/index.js';
+import { checkProof, run } from '../src/index.js';
+import { loadInputs } from '../src/formats.js';
 import { ROOT, assert } from './helpers.js';
 
-const source = (name) => readFileSync(join(ROOT, 'examples', `${name}.js`), 'utf8');
+function programFrom(name, extra = '') {
+  const path = join(ROOT, 'examples', `${name}.n3`);
+  return loadInputs([[`${readFileSync(path, 'utf8')}\n${extra}`, path]]).program;
+}
 
 export const tests = {
   'an additional hold blocks the remaining paid order'() {
-    const program = loadText(`${source('n3-scoped-negation')}
-fact(rdf(iri('https://example.org/orders#order1'), iri('https://example.org/orders#hold'), iri('https://example.org/orders#review')))
-`);
+    const program = programFrom('n3-scoped-negation', ':order1 :hold :review .');
     assert.deepEqual(run(program).answers, [
       "rdf(iri('https://example.org/orders#order2'), iri('https://example.org/orders#hold'), iri('https://example.org/orders#addressCheck'))",
     ]);
   },
 
   'a new route to Nantes fires a French cities integrity fuse'() {
-    const program = loadText(`${source('n3-french-cities')}
-fact(rdf(iri('https://example.org/french-cities#tours'), iri('https://example.org/french-cities#oneway'), iri('https://example.org/french-cities#nantes')))
-`);
+    const program = programFrom('n3-french-cities', ':tours :oneway :nantes .');
     const result = run(program);
     assert.equal(result.haltCode, 65);
     assert.ok(result.answers.includes("'false'"));
   },
 
   'a forged delivery witness is rejected by C8'() {
-    const program = loadText(source('n3-witnesses'));
+    const program = programFrom('n3-witnesses');
     const saved = readFileSync(join(ROOT, 'examples/proof/n3-witnesses.js'), 'utf8');
     const forged = saved.replaceAll("'Bdelivery'", "'invented'");
     const report = checkProof(program, forged);

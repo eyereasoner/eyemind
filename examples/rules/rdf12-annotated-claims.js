@@ -10,31 +10,14 @@
 // The claims are ranked by confidence times trust, and the top claim decides,
 // but only when its score reaches 8000: the authority's 9310 does, against
 // the post's 700, so the decision, written back as RDF, is to avoid the
-// bridge. Numbers in RDF are typed literals whose value is text; number_chars
-// reads '98' as the integer 98, and spells a computed score back as text. It
-// shows forward rules over RDF data, ranking with findall, and conversion
-// between text and numbers.
+// bridge. The Turtle input supplies integer confidence and trust scores.
+// The rules rank the claims with findall and write the decision as RDF.
 
 const ex = 'https://example.org/'
 const reifies = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'
 const integer = 'http://www.w3.org/2001/XMLSchema#integer'
-const bridgeStatus = (status) => triple(iri(ex + 'bridge'), iri(ex + 'status'), iri(ex + status))
 
-fact(
-  rdf(iri(ex + 'bridge'), iri(ex + 'status'), iri(ex + 'closed'), 'default_graph'),
-  rdf(iri(ex + 'authorityClaim'), iri(reifies), bridgeStatus('closed'), 'default_graph'),
-  rdf(iri(ex + 'authorityClaim'), iri(ex + 'assertedBy'), iri(ex + 'transportAuthority'), 'default_graph'),
-  rdf(iri(ex + 'authorityClaim'), iri(ex + 'confidence'), literal('98', datatype(integer)), 'default_graph'),
-  rdf(iri(ex + 'bridge'), iri(ex + 'status'), iri(ex + 'open'), 'default_graph'),
-  rdf(iri(ex + 'socialClaim'), iri(reifies), bridgeStatus('open'), 'default_graph'),
-  rdf(iri(ex + 'socialClaim'), iri(ex + 'assertedBy'), iri(ex + 'anonymousPost'), 'default_graph'),
-  rdf(iri(ex + 'socialClaim'), iri(ex + 'confidence'), literal('35', datatype(integer)), 'default_graph'),
-  rdf(iri(ex + 'transportAuthority'), iri(ex + 'trustScore'), literal('95', datatype(integer)), 'default_graph'),
-  rdf(iri(ex + 'anonymousPost'), iri(ex + 'trustScore'), literal('20', datatype(integer)), 'default_graph'),
-)
-
-// The value of an integer literal, and an integer written as a literal.
-implied_by(integer_value(literal(Text, datatype(integer)), N), [atom_chars(Text, Chars), number_chars(N, Chars)])
+// Write a computed integer as a typed RDF literal.
 implied_by(integer_literal(N, literal(Text, datatype(integer))), [number_chars(N, Chars), atom_chars(Text, Chars)])
 
 // A claim: an asserted status, a reifier of it with its source, and a score.
@@ -44,10 +27,10 @@ implies(
     rdf(Reifier, iri(reifies), triple(iri(ex + 'bridge'), iri(ex + 'status'), Status), 'default_graph'),
     rdf(Reifier, iri(ex + 'assertedBy'), Source, 'default_graph'),
     rdf(Reifier, iri(ex + 'confidence'), Confidence, 'default_graph'),
-    integer_value(Confidence, C),
+    is_int(Confidence),
     rdf(Source, iri(ex + 'trustScore'), Trust, 'default_graph'),
-    integer_value(Trust, T),
-    is(Score, mul(C, T)),
+    is_int(Trust),
+    is(Score, mul(Confidence, Trust)),
   ],
   claim(Status, Source, Score),
 )

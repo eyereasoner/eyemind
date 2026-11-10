@@ -2,7 +2,7 @@
 
 *Arabic runs right to left. The data should say so.*
 
-[rdf12-directional-language.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-directional-language.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-directional-language.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-directional-language.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-directional-language.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-directional-language)
+[rdf12-directional-language.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-directional-language.ttl) · [rules/rdf12-directional-language.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rules/rdf12-directional-language.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-directional-language.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-directional-language.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-directional-language.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-directional-language)
 
 ---
 
@@ -25,13 +25,19 @@ direction survive?**
 
 ## What we tell eyemind
 
+The data file contains the RDF statements.
+
+```turtle
+@prefix : <https://example.org/> .
+
+:welcome :label "مرحبا"@ar--rtl, "Welcome"@en--ltr .
+```
+
+The companion rule script uses the facts read from that file.
+
 ```js
 const ex = 'https://example.org/'
 
-fact(
-  rdf(iri(ex + 'welcome'), iri(ex + 'label'), literal('مرحبا', lang('ar', 'rtl')), 'default_graph'),
-  rdf(iri(ex + 'welcome'), iri(ex + 'label'), literal('Welcome', lang('en', 'ltr')), 'default_graph'),
-)
 
 // Every label is also a display label, with its language and direction.
 implies(rdf(S, iri(ex + 'label'), Label, G), result_rdf(S, iri(ex + 'displayLabel'), Label, G))
@@ -42,7 +48,7 @@ An eyemind program is JavaScript, so `const ex = ...` simply names a piece of
 text, and `ex + 'welcome'` glues two pieces together into
 `https://example.org/welcome`.
 
-The data is written as ordinary terms:
+eyemind reads the data as ordinary terms:
 
 - `rdf(Subject, Property, Value, Graph)` is one RDF statement. The graph says
   which collection of statements it belongs to; here the main one,
@@ -52,7 +58,7 @@ The data is written as ordinary terms:
   Arabic, `'en'` for English) and its direction (`'rtl'` right to left,
   `'ltr'` left to right).
 
-One `fact(...)` holds two statements here, so they become facts 1 and 2: the
+The two Turtle statements become facts 1 and 2: the
 Arabic label and the English label.
 
 The `implies(premise, conclusion)` line is a **rule**, number 3: whenever the
@@ -201,17 +207,16 @@ confirms these answers; it does not say there are no others.
 ## Try it
 
 ```sh
-eyemind examples/rdf12-directional-language.js              # the results as quads
-eyemind --proof examples/rdf12-directional-language.js      # with their proof
-eyemind --to turtle examples/rdf12-directional-language.js > out.ttl
+eyemind examples/rdf12-directional-language.ttl examples/rules/rdf12-directional-language.js          # the results as quads
+eyemind --proof examples/rdf12-directional-language.ttl examples/rules/rdf12-directional-language.js  # with their proof
+eyemind --to turtle examples/rdf12-directional-language.ttl examples/rules/rdf12-directional-language.js > out.ttl
 ```
 
 `--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
 `.nt` and `.nq` files as quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-directional-language).
 
-Add a Hebrew label to the facts,
-`rdf(iri(ex + 'welcome'), iri(ex + 'label'), literal('ברוכים הבאים', lang('he', 'rtl')), 'default_graph')`,
+Add `:welcome :label "ברוכים הבאים"@he--rtl .` to the Turtle file
 and run again: a third display label appears, still marked `'he'`, `'rtl'`.
 
 ---

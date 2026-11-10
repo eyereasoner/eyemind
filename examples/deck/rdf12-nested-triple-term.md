@@ -2,7 +2,7 @@
 
 *A claim inside a review, and the fact inside the claim.*
 
-[rdf12-nested-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-nested-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-nested-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-nested-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-nested-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-nested-triple-term)
+[rdf12-nested-triple-term.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/rdf12-nested-triple-term.ttl) · [rules/rdf12-nested-triple-term.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rules/rdf12-nested-triple-term.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/rdf12-nested-triple-term.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/rdf12-nested-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/rdf12-nested-triple-term.js) · [try it in the playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-nested-triple-term)
 
 ---
 
@@ -27,15 +27,19 @@ result?**
 
 ## What we tell eyemind
 
+The data file contains the RDF statements.
+
+```turtle
+@prefix : <https://example.org/> .
+
+:auditor :reviews <<( :alice :claims <<( :bob :knows :carol )>> )>> .
+```
+
+The companion rule script uses the facts read from that file.
+
 ```js
 const ex = 'https://example.org/'
 
-fact(rdf(
-  iri(ex + 'auditor'),
-  iri(ex + 'reviews'),
-  triple(iri(ex + 'alice'), iri(ex + 'claims'), triple(iri(ex + 'bob'), iri(ex + 'knows'), iri(ex + 'carol'))),
-  'default_graph',
-))
 
 // A reviewed claim about who knows whom yields the relationship itself.
 implies(
@@ -54,7 +58,7 @@ RDF values are ordinary terms in eyemind:
   (a *graph*); `'default_graph'` is the unnamed one. Together these four
   parts are called a *quad*.
 
-`fact(…)` states the one piece of data: *the auditor reviews (Alice claims
+The Turtle file states one fact: *the auditor reviews (Alice claims
 (Bob knows Carol))*. `implies(pattern, conclusion)` is a **forward rule**:
 whenever data matches the pattern, eyemind adds the conclusion.
 Capitalized `S`, `O` and `G` are variables, placeholders that take whatever
@@ -195,17 +199,17 @@ program. It confirms that result; it does not say there are no others.
 ## Try it
 
 ```sh
-eyemind examples/rdf12-nested-triple-term.js                # the results as quads
-eyemind --proof examples/rdf12-nested-triple-term.js        # with their proof
-eyemind --to turtle examples/rdf12-nested-triple-term.js > out.ttl
+eyemind examples/rdf12-nested-triple-term.ttl examples/rules/rdf12-nested-triple-term.js          # the results as quads
+eyemind --proof examples/rdf12-nested-triple-term.ttl examples/rules/rdf12-nested-triple-term.js  # with their proof
+eyemind --to turtle examples/rdf12-nested-triple-term.ttl examples/rules/rdf12-nested-triple-term.js > out.ttl
 ```
 
 `--to` writes eyemind's quads as RDF, and eyemind reads `.ttl`, `.trig`,
 `.nt` and `.nq` files as quads.
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=rdf12-nested-triple-term).
 
-Change `'carol'` to `'dave'` in the fact: the answer follows the change and
-says Bob knows Dave. Change Alice's `'claims'` to `'denies'` instead: the
+Change `:carol` to `:dave` in the Turtle file: the answer follows the change and
+says Bob knows Dave. Change Alice's `:claims` to `:denies` instead: the
 pattern no longer matches, and eyemind reports `// No answers: no query()
 instance holds.`
 

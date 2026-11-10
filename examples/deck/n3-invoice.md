@@ -2,7 +2,7 @@
 
 *Collect each invoice's amounts, sum them exactly, and include an empty invoice.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/n3-invoice.n3) · [compiled JavaScript](https://github.com/eyereasoner/eyemind/blob/main/examples/n3-invoice.js) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/n3-invoice.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/n3-invoice.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/n3-invoice.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=n3-invoice)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/n3-invoice.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/n3-invoice.js) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/n3-invoice.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/n3-invoice.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=n3-invoice)
 
 ---
 
@@ -110,8 +110,8 @@ while the saved proof remains conditional on its listed obligations.
 
 ```sh
 node bin/eyemind.js examples/n3-invoice.n3
-node bin/eyemind.js examples/n3-invoice.js
-node bin/eyemind.js --check-proof examples/proof/n3-invoice.js examples/n3-invoice.js
+node bin/eyemind.js --to eyemind examples/n3-invoice.n3
+node bin/eyemind.js --check-proof examples/proof/n3-invoice.js examples/n3-invoice.n3
 ```
 
 Compile and inspect the included built-in definitions:
