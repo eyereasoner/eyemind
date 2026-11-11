@@ -192,7 +192,7 @@ eyemind --to trig rules.js data.trig      # the conclusions as TriG
 | Triple term | `triple(S, P, O)`, which may nest |
 | Default graph, named graph | `'default_graph'`, `iri(Name)` |
 
-A reified triple `<< s p o >>` and an annotation `{| ... |}` become their reifier and its `rdf:reifies` triple, as RDF 1.2 defines. A Skolem term is written as a blank node, the same one for the same rule firing. The RDF examples load Turtle or TriG files from `examples/data/` alongside companion rules in `examples/`. They show triple terms, annotations, directional strings, typed numbers and named graphs. The W3C RDF test suites run in `npm test` from the mirror in `test/w3c/rdf-tests`: all 1065 tests of N-Triples, N-Quads, Turtle and TriG, in RDF 1.1 and 1.2, pass.
+A reified triple `<< s p o >>` and an annotation `{| ... |}` become their reifier and its `rdf:reifies` triple, as RDF 1.2 defines. A Skolem term is written as a blank node, the same one for the same rule firing. The RDF examples load Turtle or TriG files from `examples/data/` alongside companion rules in `examples/`. They show triple terms, annotations, directional strings, typed numbers and named graphs. The W3C RDF test suites run in `npm test` from `.cache/w3c/rdf-tests`: all 1065 tests of N-Triples, N-Quads, Turtle and TriG, in RDF 1.1 and 1.2, pass.
 
 ### Notation3
 
@@ -309,7 +309,7 @@ eyemind --all rules.srl facts.ttl         # the base graph too
 eyemind -c rules.srl facts.ttl            # a proof of it, checked
 ```
 
-Triples are `rdf(Subject, Predicate, Object)`, with `base/3` marking the base graph and `inf/3` the inference graph. A rule becomes `implies`, `NOT` becomes `not` of a helper, `GROUP` becomes `findall`, a blank node in a rule head becomes the Skolem term of its firing, and a SPARQL error is a goal that fails, so `FILTER` rejects the solution and `SET` drops it. The W3C SPARQL 1.2 RL test suite runs in `npm test` from the mirror in `test/w3c/sparql-rl`: all 241 tests pass. `NOW`, `UUID` and `STRUUID` are not supported, as eyemind has no clock or randomness; decimals and doubles are computed as binary64 floats.
+Triples are `rdf(Subject, Predicate, Object)`, with `base/3` marking the base graph and `inf/3` the inference graph. A rule becomes `implies`, `NOT` becomes `not` of a helper, `GROUP` becomes `findall`, a blank node in a rule head becomes the Skolem term of its firing, and a SPARQL error is a goal that fails, so `FILTER` rejects the solution and `SET` drops it. The W3C SPARQL 1.2 RL test suite runs in `npm test` from `.cache/w3c/sparql-rl`: all 241 tests pass. `NOW`, `UUID` and `STRUUID` are not supported, as eyemind has no clock or randomness; decimals and doubles are computed as binary64 floats.
 
 The [example catalog](https://eyereasoner.github.io/eyemind/examples/) includes
 SRL programs for deployment dependencies, route distances, ancestry, inventory,
@@ -519,14 +519,14 @@ npm test -- -k skolem                                 # only tests whose line co
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node tools/update-examples.js                         # regenerate example artifacts after an intended change
 node tools/report.js                                  # the table npm test ends with, into REPORT.md
-node tools/notation3tests.js                          # the saved Notation3 suite, without network access
+node tools/notation3tests.js                          # the cached Notation3 suite
 npm run sync                                          # refresh all three upstream test suites
 node conformance/run.js --command "my-eyemind"        # run the conformance suite against another implementation
 ```
 
 The full suite needs a few GB of memory; on a small machine run it under a cap, such as `systemd-run --user --scope -q -p MemoryMax=3G -p MemorySwapMax=0 -- npm test`. Generated tests forge saved proofs at random and require the checker to reject every forgery that claims more than the program entails. The playground tests need Chrome (`CHROME` names it). When adding an example, register it in [examples/manifest.json](https://github.com/eyereasoner/eyemind/blob/main/examples/manifest.json), write its deck in `examples/deck/`, and generate its artifacts.
 
-Every `npm test` invocation, including a filtered run, also runs both mirrored
+Every `npm test` invocation, including a filtered run, also runs both cached
 W3C format suites and rewrites [reports/w3c-rdf-earl.ttl](reports/w3c-rdf-earl.ttl)
 and [reports/w3c-sparql-rl-earl.ttl](reports/w3c-sparql-rl-earl.ttl).
 These [EARL](https://www.w3.org/TR/EARL10-Schema/) reports contain one
@@ -534,13 +534,15 @@ assertion per manifest case, its actual outcome and diagnostic, the eyemind
 version and the run date. A W3C failure makes the command fail. A negative
 syntax test passes when the parser rejects its input as required.
 
-`npm run sync` refreshes the [Notation3 mirror](test/notation3tests/README.md),
-the [W3C RDF mirror and SPARQL RL mirror](test/w3c/README.md), and the
-Notation3 document fixtures. It needs Git and network access. Each mirror
-records its upstream revision in `upstream.json` and keeps upstream licensing
-and documentation. Downloads and manifest resource checks finish before the
-three generated mirrors are replaced; a failed refresh retains the old set.
-Review the changes, then run `npm test` to verify the suites and refresh EARL.
+The [upstream suites](test/UPSTREAM.md) live in Git-ignored `.cache/`.
+`npm test` reuses them without fetching. If the cache is missing or incomplete,
+it downloads the suites first; that first run needs Git and network access.
+`npm run sync` explicitly refreshes all three suites and the Notation3 document
+fixtures. Downloads and manifest resource checks finish before the cached
+suites are replaced; a failed refresh retains the old set. Upstream licensing
+and documentation stay with the cached files. The small tracked
+[test/upstream.json](test/upstream.json) records their revisions and case counts.
+Run `npm test` after a sync to verify the suites and refresh EARL.
 
 Local Git checkouts can supply any of the sources:
 
@@ -549,7 +551,7 @@ npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-
 ```
 
 `node tools/sync-notation3tests.js [UPSTREAM_CHECKOUT]` still refreshes only
-Notation3. Ordinary test runs use saved documents with no network fallback;
+Notation3 in `.cache/`. Once cached, tests use saved documents with no network fallback;
 the scorer's `--live` option checks the current remote resources instead.
 
 ### Releases

@@ -1,11 +1,12 @@
 // Sync tests use small local Git repositories, never the network or the
-// checked-in mirrors. Upstream bytes and failures are both significant.
+// main test cache. Upstream bytes and failures are both significant.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { checkout, syncTestSuites } from '../tools/sync.js';
+import { checkout, ensureTestCache, syncTestSuites } from '../tools/sync.js';
+import { readCachedSuites } from '../tools/test-cache.js';
 import { syncNotation3Tests } from '../tools/sync-notation3tests.js';
 import { RDF_MANIFESTS, W3C_BASE } from './w3c.js';
 import { ROOT, assert } from './helpers.js';
@@ -58,13 +59,55 @@ function fixture() {
     git(path, '-c', 'user.name=Sync fixture', '-c', 'user.email=sync@example.org', 'commit', '-qm', 'Test suite fixture');
     revisions[name] = git(path, 'rev-parse', 'HEAD');
   }
-  for (const path of ['test/notation3tests', 'test/w3c/rdf-tests', 'test/w3c/sparql-rl']) put(join(root, path, 'stale'), 'old mirror');
-  put(join(root, 'test/notation3tests/README.md'), 'maintained mirror guide\n');
+  for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl']) put(join(root, path, 'stale'), 'old mirror');
   put(join(root, 'unrelated.txt'), 'keep me');
   return { temporary, root, checkouts, revisions };
 }
 
 export const tests = {
+  async 'a missing test cache is created once and warm tests reuse it without upstream access'() {
+    const f = fixture();
+    try {
+      assert.equal(readCachedSuites(f.root), null);
+      const info = await ensureTestCache({ root: f.root, checkouts: f.checkouts, log() {} });
+      assert.deepEqual(readCachedSuites(f.root), info);
+      assert.deepEqual(JSON.parse(text(join(f.root, 'test/upstream.json'))), info);
+      for (const path of Object.values(f.checkouts)) rmSync(path, { recursive: true });
+      const logs = [];
+      assert.deepEqual(await ensureTestCache({ root: f.root, checkouts: f.checkouts, log: (line) => logs.push(line) }), info);
+      assert.deepEqual(logs, []);
+    } finally { rmSync(f.temporary, { recursive: true, force: true }); }
+  },
+
+  async 'an incomplete cache is rebuilt instead of silently losing a test'() {
+    const f = fixture();
+    try {
+      await syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} });
+      const input = join(f.root, '.cache/w3c/rdf-tests/rdf/rdf11/rdf-turtle/input.ttl');
+      rmSync(input);
+      assert.equal(readCachedSuites(f.root), null);
+      await ensureTestCache({ root: f.root, checkouts: f.checkouts, log() {} });
+      assert.equal(text(input), 'invalid syntax is copied verbatim\r\n');
+      assert.ok(readCachedSuites(f.root));
+    } finally { rmSync(f.temporary, { recursive: true, force: true }); }
+  },
+
+  async 'explicit sync refreshes a valid cache and records the new upstream revision'() {
+    const f = fixture();
+    try {
+      const original = await syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} });
+      const source = f.checkouts.notation3tests;
+      put(join(source, 'tests/added.n3'), '@prefix : <urn:test:>. :s :p :o.');
+      git(source, 'add', '-A');
+      git(source, '-c', 'user.name=Sync fixture', '-c', 'user.email=sync@example.org', 'commit', '-qm', 'Add a test');
+      assert.deepEqual(await ensureTestCache({ root: f.root, checkouts: f.checkouts, log() {} }), original);
+      const updated = await syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} });
+      assert.equal(updated.notation3tests.cases, 4);
+      assert.notEqual(updated.notation3tests.revision, original.notation3tests.revision);
+      assert.deepEqual(JSON.parse(text(join(f.root, 'test/upstream.json'))), updated);
+    } finally { rmSync(f.temporary, { recursive: true, force: true }); }
+  },
+
   'sparse upstream clones include root licensing and documentation beside the selected tests'() {
     const f = fixture();
     try {
@@ -87,24 +130,23 @@ export const tests = {
       assert.equal(info.notation3tests.cases, 3);
       assert.equal(info.rdf.cases, RDF_MANIFESTS.length);
       assert.equal(info.srl.cases, 1);
-      for (const [name, path] of [['notation3tests', 'test/notation3tests'], ['w3c-rdf', 'test/w3c/rdf-tests'], ['w3c-sparql-rl', 'test/w3c/sparql-rl']]) {
+      for (const [name, path] of [['notation3tests', '.cache/notation3tests'], ['w3c-rdf', '.cache/w3c/rdf-tests'], ['w3c-sparql-rl', '.cache/w3c/sparql-rl']]) {
         assert.ok(!existsSync(join(f.root, path, 'stale')));
         assert.equal(JSON.parse(text(join(f.root, path, 'upstream.json'))).revision, f.revisions[name]);
       }
-      assert.equal(text(join(f.root, 'test/notation3tests/tests/content.n3')), text(join(f.checkouts.notation3tests, 'tests/content.n3')));
-      assert.equal(text(join(f.root, 'test/notation3tests/README.md')), 'maintained mirror guide\n');
-      assert.equal(text(join(f.root, 'test/notation3tests/UPSTREAM.md')), 'upstream N3 readme\n');
-      const documents = JSON.parse(text(join(f.root, 'test/notation3tests/documents.json')));
+      assert.equal(text(join(f.root, '.cache/notation3tests/tests/content.n3')), text(join(f.checkouts.notation3tests, 'tests/content.n3')));
+      assert.equal(text(join(f.root, '.cache/notation3tests/UPSTREAM.md')), 'upstream N3 readme\n');
+      const documents = JSON.parse(text(join(f.root, '.cache/notation3tests/documents.json')));
       assert.equal(documents[`${raw}HELLO.txt`].text, 'raw upstream bytes\r\n');
       assert.match(documents[`${raw}absent.n3`].error, new RegExp(f.revisions.notation3tests));
       const input = 'rdf/rdf11/rdf-turtle/input.ttl';
-      assert.equal(text(join(f.root, 'test/w3c/rdf-tests', input)), text(join(f.checkouts['w3c-rdf'], input)));
-      assert.equal(text(join(f.root, 'test/w3c/rdf-tests/LICENSE.md')), 'RDF license\n');
-      assert.ok(!existsSync(join(f.root, 'test/w3c/rdf-tests/rdf/rdf11/rdf-turtle/reports')));
-      assert.ok(!existsSync(join(f.root, 'test/w3c/rdf-tests/rdf/rdf11/rdf-turtle/TESTS.zip')));
-      assert.equal(text(join(f.root, 'test/w3c/sparql-rl/LICENSE.md')), 'SRL license\n');
+      assert.equal(text(join(f.root, '.cache/w3c/rdf-tests', input)), text(join(f.checkouts['w3c-rdf'], input)));
+      assert.equal(text(join(f.root, '.cache/w3c/rdf-tests/LICENSE.md')), 'RDF license\n');
+      assert.ok(!existsSync(join(f.root, '.cache/w3c/rdf-tests/rdf/rdf11/rdf-turtle/reports')));
+      assert.ok(!existsSync(join(f.root, '.cache/w3c/rdf-tests/rdf/rdf11/rdf-turtle/TESTS.zip')));
+      assert.equal(text(join(f.root, '.cache/w3c/sparql-rl/LICENSE.md')), 'SRL license\n');
       assert.equal(text(join(f.root, 'unrelated.txt')), 'keep me');
-      assert.ok(readdirSync(join(f.root, 'test')).every((name) => !name.startsWith('.sync-')));
+      assert.ok(readdirSync(join(f.root, '.cache')).every((name) => !name.startsWith('.sync-')));
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
@@ -113,11 +155,11 @@ export const tests = {
     try {
       rmSync(join(f.checkouts['w3c-sparql-rl'], SRL_PATH, 'syntax/input.srl'));
       await assert.rejects(syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} }), /input\.srl/);
-      for (const path of ['test/notation3tests', 'test/w3c/rdf-tests', 'test/w3c/sparql-rl']) {
+      for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl']) {
         assert.equal(text(join(f.root, path, 'stale')), 'old mirror');
         assert.ok(!existsSync(join(f.root, path, 'upstream.json')));
       }
-      assert.ok(readdirSync(join(f.root, 'test')).every((name) => !name.startsWith('.sync-')));
+      assert.ok(readdirSync(join(f.root, '.cache')).every((name) => !name.startsWith('.sync-')));
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
@@ -126,7 +168,7 @@ export const tests = {
     try {
       rmSync(join(f.checkouts['w3c-rdf'], 'rdf/rdf11/rdf-turtle/input.ttl'));
       await assert.rejects(syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} }), /input\.ttl/);
-      assert.equal(text(join(f.root, 'test/w3c/rdf-tests/stale')), 'old mirror');
+      assert.equal(text(join(f.root, '.cache/w3c/rdf-tests/stale')), 'old mirror');
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
@@ -134,7 +176,7 @@ export const tests = {
     const f = fixture();
     try {
       put(join(f.checkouts.notation3tests, 'tests/network.n3'), '<https://missing.example/doc> <http://www.w3.org/2000/10/swap/log#content> ?text.');
-      const destination = join(f.root, 'test/notation3tests');
+      const destination = join(f.root, '.cache/notation3tests');
       await assert.rejects(syncNotation3Tests({ checkout: f.checkouts.notation3tests, destination, log() {},
         fetchDocument: async () => { throw new TypeError('temporary lookup failure', { cause: { code: 'EAI_AGAIN' } }); },
       }), /temporary lookup failure/);

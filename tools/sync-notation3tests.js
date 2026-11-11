@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 // Refresh the upstream tests and their remote document fixtures. Normal
-// test runs read this mirror without fetching anything.
+// test runs reuse this cache without fetching anything.
 //
 //   node tools/sync-notation3tests.js [UPSTREAM_CHECKOUT]
 import { execFileSync } from 'node:child_process';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { documentIris } from '../src/n3-documents.js';
 import { parseN3 } from '../src/n3-parser.js';
+import { cachePaths, writeInventory } from './test-cache.js';
 
 const upstream = 'https://codeberg.org/phochste/notation3tests';
-const mirror = fileURLToPath(new URL('../test/notation3tests', import.meta.url));
+const mirror = cachePaths().notation3tests;
 
 export async function syncNotation3Tests({ checkout = null, destination = mirror, log = console.log, fetchDocument = fetch } = {}) {
   const temporary = mkdtempSync(join(tmpdir(), 'eyemind-notation3-sync-'));
@@ -66,6 +67,7 @@ export async function syncNotation3Tests({ checkout = null, destination = mirror
     cpSync(join(checkout, 'README.md'), join(destination, 'UPSTREAM.md'));
     writeFileSync(join(destination, 'documents.json'), `${JSON.stringify(documents, null, 2)}\n`);
     writeFileSync(join(destination, 'upstream.json'), `${JSON.stringify({ source: upstream, revision, cases }, null, 2)}\n`);
+    writeInventory(destination);
     log(`notation3tests: synced ${cases} tests at ${revision}`);
     return { source: upstream, revision, cases };
   } finally {

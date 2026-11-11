@@ -75,15 +75,19 @@ goals, and keep error messages specific and user-facing text direct.
 - `test/`: `run.js` runs every `*.test.js` module, the conformance suite and
   the playground tests of `playground.js` in a headless Chrome that
   `chrome.js` starts; `browser.mjs` runs those alone and can take screenshots.
-  `w3c.js` runs the W3C RDF and SPARQL 1.2 RL suites mirrored in `test/w3c/`;
+  `w3c.js` runs the W3C RDF and SPARQL 1.2 RL suites cached in `.cache/w3c/`;
+  `UPSTREAM.md` describes the cache and `upstream.json` records its provenance.
   N3 and SRL examples and their saved artifacts live in `examples/`.
 - `tools/`: `update-examples.js` regenerates the example artifacts,
   `corpus.js` evaluates the corpus, `version.js` syncs the version,
   `notation3tests.js` scores the Notation3 test suite, and `report.js`
   writes `REPORT.md`, the table a whole `npm test` run ends with.
   `sync.js`, run with `npm run sync`, stages and refreshes all three upstream
-  test mirrors and records their revisions; `sync-notation3tests.js` also
-  refreshes Notation3's remote document fixtures.
+  test caches and records their revisions; `sync-notation3tests.js` also
+  refreshes Notation3's remote document fixtures. `test-cache.js` checks the
+  cache inventory. `npm test` reuses `.cache/` or creates it when incomplete;
+  creating or refreshing it needs Git and network access. Never vendor the
+  upstream suites into Git.
 - `README.md` (the guide: why eyemind, running, writing programs, proofs,
   playground, CLI, library, development), served by Pages as the site root;
   `SPEC.md` (RFC-style specification: terms, programs, arithmetic,
@@ -91,7 +95,7 @@ goals, and keep error messages specific and user-facing text direct.
 - `release`, `.github/workflows/`, `.zenodo.json`: releases, CI, Pages,
   GitHub releases, npm publishing and Zenodo archiving.
 - `reports/`: RDF and SPARQL RL EARL reports, refreshed from the complete
-  mirrored W3C suites on every `npm test` invocation, including filtered runs.
+  cached W3C suites on every `npm test` invocation, including filtered runs.
 
 ## Commands
 
@@ -152,8 +156,8 @@ ordinary programs; they are outside the specification's conformance (SPEC
 Section 13.1). The RDF lexer and parser, and the SRL tokenizer, parser and
 analysis, are maintained in `src/` as ES modules. Preserve the `eyemind:`
 comments that explain adaptations in these modules. The W3C suites decide
-what is correct: all RDF tests of `test/w3c/rdf-tests` and all SPARQL 1.2 RL
-tests of `test/w3c/sparql-rl` pass, and must keep passing.
+what is correct: all RDF tests of `.cache/w3c/rdf-tests` and all SPARQL 1.2 RL
+tests of `.cache/w3c/sparql-rl` pass, and must keep passing.
 
 ## Implementation and verification
 

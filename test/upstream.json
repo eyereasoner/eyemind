@@ -1,0 +1,30 @@
+{
+  "notation3tests": {
+    "source": "https://codeberg.org/phochste/notation3tests",
+    "revision": "dad2734bf017fa778f071e0e776ec61dea5c6d29",
+    "cases": 1163
+  },
+  "rdf": {
+    "source": "https://github.com/w3c/rdf-tests",
+    "revision": "4158bca195a29fe1fd90f92698170bc7cc385273",
+    "manifests": [
+      "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-triples/manifest.ttl",
+      "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-n-triples/syntax/manifest.ttl",
+      "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-quads/manifest.ttl",
+      "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-n-quads/syntax/manifest.ttl",
+      "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-turtle/manifest.ttl",
+      "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-turtle/eval/manifest.ttl",
+      "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-turtle/syntax/manifest.ttl",
+      "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/manifest.ttl",
+      "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-trig/eval/manifest.ttl",
+      "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-trig/syntax/manifest.ttl"
+    ],
+    "cases": 1065
+  },
+  "srl": {
+    "source": "https://github.com/w3c/data-shapes",
+    "revision": "47c6e078bcf946ece9487d731f0b1ca2e31d0c80",
+    "path": "shacl12-test-suite/tests/sparql-rl",
+    "cases": 241
+  }
+}
