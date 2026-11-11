@@ -9,6 +9,7 @@ import { artifactPath, readManifest, sourceFiles } from '../tools/corpus.js';
 
 const expected = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 const socrates = readFileSync(new URL('../examples/output/socrates.js', import.meta.url), 'utf8');
+const manifest = readManifest();
 
 // What the tests do with the page.
 export function driver(page) {
@@ -56,7 +57,7 @@ export function driver(page) {
 }
 
 export const tests = [
-  ['the socrates example loads and runs', async (page, base) => {
+  ['the catalog loads and socrates runs, answers a goal and checks its proof', async (page, base) => {
     const p = driver(page);
     await p.open(`${base}#example=socrates`);
     assert.equal(await page.evaluate('document.title'), 'The eyemind Playground');
@@ -64,17 +65,32 @@ export const tests = [
     assert.equal(await page.evaluate("document.querySelector('a[href=\"https://github.com/eyereasoner/eyemind\"]').textContent"), 'Repository ↗');
     assert.equal(await page.evaluate("document.getElementById('version').textContent"), expected);
     assert.equal(await page.evaluate("document.getElementById('examples').value"), 'socrates');
+    assert.deepEqual(await page.evaluate("[...document.getElementById('examples').options].map(option => option.value).filter(Boolean).sort()"),
+      manifest.map((entry) => entry.name).sort());
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
     assert.equal(await p.output(), socrates);
+    await p.select('goal', "type(X, 'mortal')");
+    await p.run();
+    assert.equal(await p.output(), "// Answers: each instance of a goal that holds.\ntype('socrates', 'mortal')\n");
+    await p.select('goal', '');
+    await p.select('mode', '--proof');
+    await p.run();
+    const proof = await p.output();
+    assert.match(proof, /^step\(/m);
+    await p.select('mode', '--check-proof');
+    await p.type('proof-input', proof);
+    await p.run();
+    assert.match(await p.output(), /verdict\('checked'\)/);
+    assert.match(await page.evaluate("document.getElementById('command').textContent"), /^eyemind --check-proof proof\.js examples\/socrates\.js$/);
+    await p.select('mode', '');
   }],
 
   ['practical and mathematical examples load from the manifest and run', async (page, base) => {
     const p = driver(page);
-    for (const name of [
-      'service-outage-recovery', 'critical-path-schedule', 'battery-dispatch', 'cold-chain-recall', 'school-placement-audit',
-      'gcd-bezout-identity', 'pell-equation', 'binomial-vandermonde', 'least-squares-regression', 'hamming-code',
-    ]) {
+    // The corpus checks every example. Here exercise representative browser
+    // loads for planning, exact arithmetic and list-valued answers.
+    for (const name of ['battery-dispatch', 'pell-equation', 'hamming-code']) {
       await p.open(`${base}#example=${name}`);
       assert.equal(await page.evaluate("document.getElementById('examples').value"), name);
       await p.run();
@@ -83,10 +99,13 @@ export const tests = [
     }
   }],
 
-  ['native N3, RDF and SRL examples run and their saved proofs check in the playground', async (page, base) => {
+  ['native input combinations run and their saved proofs check in the playground', async (page, base) => {
     const p = driver(page);
-    const entries = readManifest().filter((entry) => sourceFiles(entry).some((file) => /\.(n3|srl)$/.test(file)));
-    for (const entry of entries) {
+    // Cover each loading path, including a contradiction and message replay.
+    // The example corpus checks the remaining programs outside the browser.
+    for (const example of ['family', 'triple-term', 'trig-named-graph', 'distances', 'fuse', 'message-boundaries']) {
+      const entry = manifest.find(({ name }) => name === example);
+      assert.ok(entry, `missing browser example: ${example}`);
       const { name } = entry;
       const files = sourceFiles(entry).map((file) => `examples/${file}`);
       const mobile = name === 'trig-named-graph';
@@ -139,7 +158,7 @@ export const tests = [
   ['native proof generation, downloads and checking preserve N3 and SRL formats', async (page, base) => {
     const p = driver(page);
     for (const [name, extension, width] of [['socrates-n3', 'n3', 1280], ['socrates-srl', 'srl', 390]]) {
-      const entry = readManifest().find((entry) => entry.name === name);
+      const entry = manifest.find((entry) => entry.name === name);
       await p.open(`${base}#example=${name}`, width, width === 390);
       await p.select('mode', '--proof');
       await p.run();
@@ -176,21 +195,6 @@ export const tests = [
       assert.match(await p.output(), /verdict\('checked_with_obligations'\)/);
       assert.match(await p.output(), /obligation\('call_fidelity', 'original_call',/);
     }
-    await p.select('mode', '');
-  }],
-
-  ['a proof made in the playground checks there', async (page, base) => {
-    const p = driver(page);
-    await p.open(`${base}#example=socrates`);
-    await p.select('mode', '--proof');
-    await p.run();
-    const proof = await p.output();
-    assert.match(proof, /^step\(/m);
-    await p.select('mode', '--check-proof');
-    await p.type('proof-input', proof);
-    await p.run();
-    assert.match(await p.output(), /verdict\('checked'\)/);
-    assert.match(await page.evaluate("document.getElementById('command').textContent"), /^eyemind --check-proof proof\.js examples\/socrates\.js$/);
     await p.select('mode', '');
   }],
 
@@ -246,15 +250,6 @@ query(or(q(X), r(X)))`);
     await p.select('mode', '');
   }],
 
-  ['a goal asks the program a question', async (page, base) => {
-    const p = driver(page);
-    await p.open(`${base}#example=socrates`);
-    await p.select('goal', "type(X, 'mortal')");
-    await p.run();
-    assert.equal(await p.output(), "// Answers: each instance of a goal that holds.\ntype('socrates', 'mortal')\n");
-    await p.select('goal', '');
-  }],
-
   ['C10 call fidelity certifies original questions and rejects a later once answer', async (page, base) => {
     const p = driver(page);
     await p.open(`${base}#example=socrates`);
@@ -282,8 +277,9 @@ query(or(q(X), r(X)))`);
     await p.select('mode', '');
   }],
 
-  ['a syntax error marks its line in the input', async (page) => {
+  ['syntax and execution errors mark their lines and editing clears them', async (page, base) => {
     const p = driver(page);
+    await p.open(`${base}#example=socrates`);
     await p.type('input', "fact(p(1))\nfact(q(2)\nquery(p(X))\n");
     await p.run();
     assert.match(await p.status(), /^Failed · exit 1/);
@@ -295,10 +291,6 @@ query(or(q(X), r(X)))`);
     await p.run();
     assert.equal(await p.output(), '// Answers: each instance of a query() that holds.\np(1)\n');
     assert.equal(await p.marked(), null);
-  }],
-
-  ['an error found while running marks its line too', async (page) => {
-    const p = driver(page);
     await p.type('input', "fact(p(1))\n\nfcat(q(2))\n");
     await p.run();
     assert.match(await p.messages(), /^eyemind: line 3: fcat\(\.\.\.\) on its own states nothing/);
@@ -310,8 +302,9 @@ query(or(q(X), r(X)))`);
     assert.equal(await p.marked(), ')');
   }],
 
-  ['a run that would not end can be stopped', async (page) => {
+  ['a run that would not end can be stopped', async (page, base) => {
     const p = driver(page);
+    await p.open(`${base}#example=socrates`);
     // Bounds high enough that no machine reaches them before Stop is pressed.
     await p.type('input', 'implied_by(p(X), p(s(X)))\nquery(p(z))\n');
     await p.select('max-depth', '100000000');

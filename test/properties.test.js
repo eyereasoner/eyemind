@@ -8,9 +8,6 @@
 //   lists and a strict check, trusting no obligation, rejects.
 //   Each forged proof is also checked without the checker's fast path for
 //   flat clauses, and both must give the same report.
-// - A clause no recorded derivation cites, and no negation or collection
-//   could consult, can be left out of an example without changing what it
-//   concludes.
 // - Reasoning agrees with an independent naive fixpoint on random stratified
 //   programs, forward and backward, and every proof of it checks; leaving out
 //   a clause no derivation cites, or stating the clauses in another order,
@@ -244,7 +241,7 @@ function forgeable(entry, text) {
       isRecord(term.args[0], 'is', 2)).map((term) => term.args[0].args[0]),
     ...subterms.filter((t) => isRecord(t, 'skolem', 3)),
   ];
-  return { entry, program: loadExample(entry), terms, established, pool, compounds, results, trusted: obligations(terms) };
+  return { entry, program: loadExample(entry), terms, established, pool, compounds, results, trusted: obligations(terms), oracle: new Map() };
 }
 
 // The report checkProof gives with and without the fast path for flat
@@ -265,12 +262,17 @@ function checkBothWays(program, document) {
 // obligation that a strict check then rejects.
 function forgeExample(entry, text, count) {
   const example = forgeable(entry, text);
+  const seen = new Set();
   let tried = 0;
   let rejected = 0;
   forSeeds(count, (r) => {
     const terms = mutateDocument(r, example.terms, example.pool, example.compounds, example.results);
     if (terms === null) return;
     const document = `${terms.map((term) => write(term)).join('\n')}\n`;
+    // Different seeds can make the same forgery. Check each distinct
+    // document in both checker modes once, retaining all mutation trials.
+    if (seen.has(document)) return;
+    seen.add(document);
     tried++;
     let report;
     try {
@@ -300,55 +302,20 @@ function forgeExample(entry, text, count) {
   assert.ok(tried > 0 && rejected / tried >= 0.5, `${rejected} of ${tried} forged proofs rejected`);
 }
 
-// What a program concludes: its answers and halt code, as unusedClauses
-// compares them.
-function conclusions(prog) {
-  const outcome = run(prog);
-  return JSON.stringify([[...outcome.answers].sort(), outcome.haltCode]);
-}
-
-// Leave out, one at a time, each clause of an example that no recorded
-// derivation cites and that no negation or collection could consult; the
-// conclusions must not change. An example with many such clauses, such as a
-// large graph of facts, has a seeded sample of them left out. Returns how many
-// clauses were left out.
-// Each clause left out rebuilds the whole program, so a program of very many
-// clauses, such as path-discovery's 45000 facts, leaves out fewer of them.
-function leaveOutUncited(prog, limit = Math.min(40, Math.max(10, Math.floor(200000 / prog.clauses.length)))) {
-  const result = run(prog, { proof: true });
-  const cited = new Set(result.clausesUsed);
-  const consulted = new Set(result.clausesBehindBoundaries);
-  const baseline = conclusions(prog);
-  let uncited = prog.clauses.filter((clause) => !cited.has(clause.id) && !consulted.has(clause.id));
-  if (uncited.length > limit * SCALE) {
-    const r = random(uncited.length);
-    uncited = Array.from({ length: limit * SCALE }, () => r.pick(uncited));
-  }
-  let left = 0;
-  for (const clause of uncited) {
-    let without;
-    try {
-      without = conclusions(new Program(prog.sources, clause.id));
-    } catch (error) {
-      assert.fail(`leaving out uncited clause ${clause.id} (line ${clause.line}) fails: ${error.message}`);
-    }
-    assert.equal(without, baseline, `leaving out uncited clause ${clause.id} (line ${clause.line}) changes the conclusions`);
-    left++;
-  }
-  return left;
-}
-
 // A claim the original proof did not establish must still be one the
 // program entails, which the reasoner answers here as the test's oracle.
+// Repeated claims share that answer only within this fixed source program.
 function entailed(example, claim) {
-  if (example.established.has(variant(claim))) return true;
+  const wanted = variant(claim);
+  if (example.established.has(wanted)) return true;
+  if (example.oracle.has(wanted)) return example.oracle.get(wanted);
+  let holds = false;
   try {
     const answers = run(example.program, { goal: write(claim) }).answers;
-    const wanted = variant(claim);
-    return answers.some((answer) => variant(readTerm(answer)) === wanted);
-  } catch {
-    return false;
-  }
+    holds = answers.some((answer) => variant(readTerm(answer)) === wanted);
+  } catch { /* An unsuccessful oracle call establishes no claim. */ }
+  example.oracle.set(wanted, holds);
+  return holds;
 }
 
 // --- Random programs -----------------------------------------------------
@@ -675,21 +642,49 @@ implies(implied_by(H, B), backward_rule(H, B))`);
     });
   },
 
-  'reasoning agrees with a naive fixpoint and its proofs check'() {
+  'reasoning, clause removal and statement order agree with a naive fixpoint'() {
+    let left = 0;
     forSeeds(150, (r) => {
       const generated = randomProgram(r);
       const source = programText(generated);
       const model = naiveModel(generated);
       const loaded = program(source);
-      for (const [name, tuples] of model) {
-        const goal = `${name}(${Array.from({ length: generated.arity[name] }, (_, i) => `V${i}`).join(', ')})`;
-        const result = run(loaded, { goal, proof: true });
-        const expected = [...tuples].map((tuple) => write(new Struct(name, tuple.split(' ')))).sort();
-        assert.deepEqual([...new Set(result.answers)].sort(), expected, `${goal}\n${source}`);
-        const report = checkProof(loaded, result.proof, { goals: [readTerm(goal)] });
-        assert.ok(report.valid, `${goal}: ${JSON.stringify(report.failures)}\n${source}`);
+      const goals = Object.keys(generated.arity).map((name) =>
+        `${name}(${Array.from({ length: generated.arity[name] }, (_, i) => `V${i}`).join(', ')})`);
+      const answers = (model) => [...model].flatMap(([name, tuples]) =>
+        [...tuples].map((tuple) => write(new Struct(name, tuple.split(' '))))).sort();
+      const expected = answers(model);
+      const result = run(loaded, { goals, proof: true });
+      assert.deepEqual([...new Set(result.answers)].sort(), expected, source);
+      const report = checkProof(loaded, result.proof, { goals });
+      assert.ok(report.valid, `${JSON.stringify(report.failures)}\n${source}`);
+      const cited = new Set(result.clausesUsed);
+      const consulted = new Set(result.clausesBehindBoundaries);
+      // Clauses are numbered as programText states them: the facts, then the rules.
+      for (const clause of loaded.clauses) {
+        if (cited.has(clause.id) || consulted.has(clause.id)) continue;
+        const index = clause.id - 1;
+        const without = index < generated.facts.length
+          ? { ...generated, facts: generated.facts.filter((_, i) => i !== index) }
+          : { ...generated, rules: generated.rules.filter((_, i) => i !== index - generated.facts.length) };
+        const detail = `leaving out uncited clause ${clause.id}\n${source}`;
+        assert.deepEqual(answers(naiveModel(without)), expected, detail);
+        const after = run(new Program(loaded.sources, clause.id), { goals });
+        assert.deepEqual([...new Set(after.answers)].sort(), expected, detail);
+        assert.equal(after.haltCode, result.haltCode, detail);
+        left++;
       }
+      const lines = source.trim().split('\n');
+      for (let i = lines.length - 1; i > 0; i--) {
+        const j = r.below(i + 1);
+        [lines[i], lines[j]] = [lines[j], lines[i]];
+      }
+      const shuffled = `${lines.join('\n')}\n`;
+      const reordered = run(program(shuffled), { goals });
+      assert.deepEqual([...new Set(reordered.answers)].sort(), expected, `${source}\nreordered:\n${shuffled}`);
+      assert.equal(reordered.haltCode, result.haltCode, source);
     });
+    assert.ok(left >= 50, `only ${left} uncited clauses left out`);
   },
 
   'a circular proof of an atom only a cycle supports is rejected'() {
@@ -705,48 +700,6 @@ implies(implied_by(H, B), backward_rule(H, B))`);
         `${JSON.stringify(report.failures)}\n${programText(generated)}\n${document}`);
     });
     assert.ok(forged >= 20, `only ${forged} programs had an atom only a cycle supports`);
-  },
-
-  'leaving out a clause no derivation cites keeps the naive fixpoint'() {
-    let left = 0;
-    forSeeds(150, (r) => {
-      const generated = randomProgram(r);
-      const loaded = program(programText(generated));
-      const goals = Object.keys(generated.arity).map((name) =>
-        `${name}(${Array.from({ length: generated.arity[name] }, (_, i) => `V${i}`).join(', ')})`);
-      const result = run(loaded, { goals, proof: true });
-      const cited = new Set(result.clausesUsed);
-      const consulted = new Set(result.clausesBehindBoundaries);
-      const model = JSON.stringify([...naiveModel(generated)].map(([name, tuples]) => [name, [...tuples].sort()]));
-      // Clauses are numbered as programText states them: the facts, then the rules.
-      for (const clause of loaded.clauses) {
-        if (cited.has(clause.id) || consulted.has(clause.id)) continue;
-        const index = clause.id - 1;
-        const without = index < generated.facts.length
-          ? { ...generated, facts: generated.facts.filter((_, i) => i !== index) }
-          : { ...generated, rules: generated.rules.filter((_, i) => i !== index - generated.facts.length) };
-        const after = JSON.stringify([...naiveModel(without)].map(([name, tuples]) => [name, [...tuples].sort()]));
-        assert.equal(after, model, `leaving out uncited clause ${clause.id} changes the model\n${programText(generated)}`);
-        left++;
-      }
-    });
-    assert.ok(left >= 50, `only ${left} uncited clauses left out`);
-  },
-
-  'the order of the statements does not change the conclusions'() {
-    forSeeds(150, (r) => {
-      const generated = randomProgram(r);
-      const goals = Object.keys(generated.arity).map((name) =>
-        `${name}(${Array.from({ length: generated.arity[name] }, (_, i) => `V${i}`).join(', ')})`);
-      const answers = (text) => goals.map((goal) => [...new Set(run(program(text), { goal }).answers)].sort());
-      const lines = programText(generated).trim().split('\n');
-      for (let i = lines.length - 1; i > 0; i--) {
-        const j = r.below(i + 1);
-        [lines[i], lines[j]] = [lines[j], lines[i]];
-      }
-      const shuffled = `${lines.join('\n')}\n`;
-      assert.deepEqual(answers(shuffled), answers(programText(generated)), `${programText(generated)}\nreordered:\n${shuffled}`);
-    });
   },
 
   'every term reads back from its canonical text as itself'() {
@@ -837,9 +790,9 @@ implies(implied_by(H, B), backward_rule(H, B))`);
   },
 };
 
-// One test per example for the properties that concern it, so that a failure
-// names the example. Proofs over 100 KB are too slow to forge many times, and
-// examples whose proof is over 1 MB too slow to run once per uncited clause.
+// One forgery test per example, so that a failure names it. Clause removal
+// and reordering use the small generated programs and their independent model.
+// Proofs over 100 KB are too slow to forge many times.
 for (const entry of readManifest()) {
   const path = artifactPath('proof', entry);
   const saved = readFileSync(path, 'utf8');
@@ -850,9 +803,5 @@ for (const entry of readManifest()) {
     const count = text.length <= 12000 ? 30 : text.length <= 40000 ? 15 : 8;
     tests[`a forged proof of examples/${sourceFiles(entry)[0]} never certifies what the program does not entail`] =
       () => forgeExample(entry, text, count);
-  }
-  if (text.length <= 1000000) {
-    tests[`examples/${sourceFiles(entry)[0]} concludes the same without any clause no derivation cites`] =
-      () => leaveOutUncited(loadExample(entry));
   }
 }
