@@ -5,7 +5,8 @@
 //
 //   .js and standard input   an eyemind program
 //   .ttl .trig .nt .nq       RDF 1.2 data: with a program, rdf(S, P, O, G)
-//                            facts; with an N3 document, its triples; with a
+//                            facts; with an N3 document, default triples and
+//                            graph:content formulas for named graphs; with a
 //                            rule set, its base graph
 //   .n3                      Notation3, compiled to an eyemind program
 //   .srl                     a SPARQL 1.2 RL rule set, compiled to one

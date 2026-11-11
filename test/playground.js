@@ -5,8 +5,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { loadCases } from '../conformance/run.js';
-import { cli } from './helpers.js';
-import { readManifest, sourceFiles } from '../tools/corpus.js';
+import { artifactPath, readManifest, sourceFiles } from '../tools/corpus.js';
 
 const expected = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 const socrates = readFileSync(new URL('../examples/output/socrates.js', import.meta.url), 'utf8');
@@ -84,19 +83,19 @@ export const tests = [
     }
   }],
 
-  ['native N3 and RDF examples run and their saved proofs check in the playground', async (page, base) => {
+  ['native N3, RDF and SRL examples run and their saved proofs check in the playground', async (page, base) => {
     const p = driver(page);
-    const entries = readManifest().filter(({ name }) => name.startsWith('n3-') ||
-      ['rdf12-annotation', 'rdf12-trig-named-graph'].includes(name));
+    const entries = readManifest().filter((entry) => sourceFiles(entry).some((file) => /\.(n3|srl)$/.test(file)));
     for (const entry of entries) {
       const { name } = entry;
       const files = sourceFiles(entry).map((file) => `examples/${file}`);
-      const mobile = name === 'rdf12-trig-named-graph';
+      const mobile = name === 'trig-named-graph';
       await p.open(`${base}#example=${name}`, mobile ? 390 : 1280, mobile);
       assert.equal(await page.evaluate("document.getElementById('input-source').textContent"), files.join(' + '), name);
       await p.run();
-      assert.match(await p.status(), /^Done · exit 0/, name);
-      assert.equal(await p.output(), cli(files).stdout, name);
+      const status = entry.halt_code === 65 ? 'Contradiction' : 'Done';
+      assert.match(await p.status(), new RegExp(`^${status} · exit ${entry.halt_code ?? 0}`), name);
+      assert.equal(await p.output(), readFileSync(artifactPath('output', entry), 'utf8'), name);
       await p.select('mode', '--check-proof');
       await p.type('proof-input', readFileSync(new URL(`../examples/proof/${name}.js`, import.meta.url), 'utf8'));
       if (mobile) {

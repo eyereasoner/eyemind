@@ -1,0 +1,6 @@
+@prefix : <https://example.org/delivery#> .
+
+:order1 :delivery _:b0 .
+_:b0 :status :ready .
+:order2 :delivery _:b1 .
+_:b1 :status :ready .

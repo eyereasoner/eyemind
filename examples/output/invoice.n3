@@ -1,0 +1,6 @@
+@prefix : <https://example.org/invoice#> .
+
+:invoice1 :total 245 .
+:invoice2 :total 25 .
+:invoice3 :total 0 .
+:invoice1 a :LargeInvoice .

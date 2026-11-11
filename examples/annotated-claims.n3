@@ -1,0 +1,53 @@
+# Conflicting reports say a bridge is closed or open. Confidence times source
+# trust ranks each claim; the top claim decides only at a score of at least
+# 8000. The authority's 9310 beats the anonymous post's 700, so the result is
+# avoid_bridge, with both ranks and sources. Collection counts higher scores.
+@prefix : <https://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+@prefix math: <http://www.w3.org/2000/10/swap/math#> .
+@prefix list: <http://www.w3.org/2000/10/swap/list#> .
+
+{
+  :bridge :status ?status .
+  ?reifier rdf:reifies <<( :bridge :status ?status )>> ;
+    :assertedBy ?source ; :confidence ?confidence .
+  ?source :trustScore ?trust .
+  (?confidence ?trust) math:product ?score .
+} => { (?status ?source ?score) a :Claim } .
+
+{ (?score ?other) a :HigherScore } <= {
+  (?status ?source ?other) a :Claim .
+  ?other math:greaterThan ?score .
+} .
+
+{
+  (?status ?source ?score) a :Claim .
+  (?other { (?score ?other) a :HigherScore } ?higher) log:collectAllIn ?SCOPE .
+  ?higher list:length ?count .
+  (?count 1) math:sum ?rank .
+} => { (?rank ?status ?source ?score) a :RankedClaim } .
+
+:policy :threshold 8000 .
+:closed :action :avoid_bridge .
+:open :action :cross_bridge .
+
+{
+  (1 ?status ?source ?score) a :RankedClaim .
+  :policy :threshold ?limit .
+  ?score math:notLessThan ?limit .
+  ?status :action ?action .
+} => { (?action ?source ?score) a :Decision } .
+
+{
+  (1 ?status ?source ?score) a :RankedClaim .
+  :policy :threshold ?limit .
+  ?score math:lessThan ?limit .
+} => { (:verify_manually :noTrustedSource ?score) a :Decision } .
+
+{ (?action ?source ?score) a :Decision } log:query {
+  :bridge :decision ?action ; :trustedSource ?source ; :score ?score .
+} .
+{ (?rank ?status ?source ?score) a :RankedClaim } log:query {
+  ?status :rank ?rank ; :assertedBy ?source ; :score ?score .
+} .

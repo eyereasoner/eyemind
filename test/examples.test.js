@@ -1,9 +1,9 @@
 // The example corpus: every program reproduces its saved output, proof and
 // check report, its saved proof checks from disk, and a tampered one does not.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { basename, join, relative } from 'node:path';
 import { checkProof, checkReport, publicReport, readTerms, run, strict, write } from '../src/index.js';
-import { KINDS, artifactPath, certify, loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
+import { KINDS, artifactPath, certify, loadExampleInputs, outputText, readManifest, sourceFiles } from '../tools/corpus.js';
 import { ROOT, assert, cli } from './helpers.js';
 
 export const section = 'examples';
@@ -28,7 +28,8 @@ const states = new Map();
 function stateOf(entry) {
   let state = states.get(entry.name);
   if (state === undefined) states.set(entry.name, state = {});
-  state.program ??= loadExample(entry);
+  state.loaded ??= loadExampleInputs(entry);
+  state.program ??= state.loaded.program;
   return state;
 }
 
@@ -45,7 +46,7 @@ function provedOf(entry) {
 }
 
 function checkOutput(entry) {
-  assert.equal(outputOf(entry).stdout, read(artifactPath('output', entry)), CHANGED('output'));
+  assert.equal(outputText(stateOf(entry).loaded, outputOf(entry)), read(artifactPath('output', entry)), CHANGED('output'));
 }
 
 function checkProofOf(entry) {
@@ -74,18 +75,21 @@ function checkCheck(entry) {
 
 export const tests = {
   'the manifest covers every source, artifact and deck'() {
-    const names = MANIFEST.map((entry) => `${entry.name}.js`).sort();
     const examples = join(ROOT, 'examples');
-    const sources = readdirSync(examples).filter((name) => /\.(js|n3|ttl|trig)$/.test(name));
-    sources.push(...readdirSync(join(examples, 'rules')).map((name) => `rules/${name}`));
+    const sources = readdirSync(examples).filter((name) => /\.(js|n3|srl|ttl|trig)$/.test(name));
+    assert.ok(sources.every((file) => !/-(n3|srl)\.\1$/.test(file)), 'source extensions already identify their format');
+    assert.ok(sources.every((file) => !/^(n3-|rdf12-)/.test(file)));
+    sources.push(...readdirSync(join(examples, 'data')).map((name) => `data/${name}`));
     assert.deepEqual(sources.sort(), MANIFEST.flatMap(sourceFiles).sort());
-    for (const kind of KINDS) assert.deepEqual(readdirSync(join(examples, kind)).sort(), names);
+    for (const kind of KINDS) {
+      assert.deepEqual(readdirSync(join(examples, kind)).sort(), MANIFEST.map((entry) => basename(artifactPath(kind, entry))).sort());
+    }
     const decks = MANIFEST.map((entry) => `${entry.name}.md`).sort();
     assert.deepEqual(readdirSync(join(examples, 'deck')).filter((name) => name.endsWith('.md')).sort(), decks);
   },
 
   'the command line on examples'() {
-    for (const name of ['socrates', 'graphs', 'integrity']) {
+    for (const name of ['socrates', 'graphs', 'integrity', 'annotation', 'distances', 'report', 'fuse']) {
       const entry = MANIFEST.find((item) => item.name === name);
       const sources = inputs(entry);
       const ran = cli(sources);
@@ -109,8 +113,15 @@ for (const entry of MANIFEST) {
   tests[`examples/check/${entry.name}.js checked answers and prove-and-check output`] = () => {
     const saved = read(artifactPath('check', entry));
     const answers = saved.split('\n// C1-C10:')[0];
-    assert.deepEqual(readTerms(answers).map(([term]) => write(term)),
-      readTerms(read(artifactPath('output', entry))).map(([term]) => write(term)));
+    const claims = read(artifactPath('proof', entry)).split('\n// Clauses:')[0];
+    assert.deepEqual(readTerms(answers).map(([term]) => write(term)), readTerms(claims).map(([term]) => write(term)));
+    const output = read(artifactPath('output', entry));
+    if (artifactPath('output', entry).endsWith('.js')) {
+      assert.deepEqual(readTerms(answers).map(([term]) => write(term)), readTerms(output).map(([term]) => write(term)));
+    } else {
+      const loaded = loadExampleInputs(entry);
+      assert.equal(outputText(loaded, { answers: readTerms(answers).map(([term]) => write(term)) }), output);
+    }
     if (large(entry)) return;
     const result = cli(['--prove-and-check', ...inputs(entry)]);
     assert.equal(result.code, entry.halt_code ?? 0, result.stderr);

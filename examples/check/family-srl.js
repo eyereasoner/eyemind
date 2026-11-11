@@ -1,0 +1,34 @@
+// Checked answers: these follow from the input program.
+inf(iri('http://example.org/family#ann'), iri('http://example.org/family#ancestorOf'), iri('http://example.org/family#bob'))
+inf(iri('http://example.org/family#bob'), iri('http://example.org/family#ancestorOf'), iri('http://example.org/family#cid'))
+inf(iri('http://example.org/family#cid'), iri('http://example.org/family#ancestorOf'), iri('http://example.org/family#dee'))
+inf(iri('http://example.org/family#ann'), iri('http://example.org/family#ancestorOf'), iri('http://example.org/family#cid'))
+inf(iri('http://example.org/family#bob'), iri('http://example.org/family#ancestorOf'), iri('http://example.org/family#dee'))
+inf(iri('http://example.org/family#ann'), iri('http://example.org/family#parentOf'), iri('http://example.org/family#bob'))
+inf(iri('http://example.org/family#bob'), iri('http://example.org/family#parentOf'), iri('http://example.org/family#cid'))
+inf(iri('http://example.org/family#cid'), iri('http://example.org/family#parentOf'), iri('http://example.org/family#dee'))
+inf(iri('http://example.org/family#ann'), iri('http://example.org/family#ancestorOf'), iri('http://example.org/family#dee'))
+
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
+condition('C1', 'resolution', 'ok', 18)
+condition('C2', 'well_founded', 'ok', 18)
+condition('C3', 'justification', 'ok', 18)
+condition('C4', 'coverage', 'ok', 27)
+condition('C5', 're_decision', 'ok', 0)
+condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C7', 'relevance', 'ok', 27)
+condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 9)
+
+// Proof statistics: recorded steps and how they were checked.
+steps(18)
+verified(18)
+recomputed(0)
+composed(0)
+trusted(0)
+claims(9)
+
+// This verdict applies to the claims above; it does not establish completeness.
+verdict('checked')

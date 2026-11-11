@@ -1,0 +1,4 @@
+@prefix : <https://example.org/> .
+@prefix graph: <https://eyereasoner.github.io/eyemind/graph#> .
+
+:claimsGraph graph:content { :bob :knows :carol } .

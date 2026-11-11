@@ -1,0 +1,6 @@
+@prefix : <https://example.org/> .
+@prefix graph: <https://eyereasoner.github.io/eyemind/graph#> .
+
+:family graph:content { :alice :ancestor :bob } .
+:family graph:content { :bob :ancestor :carol } .
+:family graph:content { :alice :ancestor :carol } .

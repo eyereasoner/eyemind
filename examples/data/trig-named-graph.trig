@@ -1,0 +1,10 @@
+# Alice is Bob's parent and Bob is Carol's in the family named graph.
+# The loader represents its contents as a quoted graph:content formula.
+# Two rules conclude the three ancestor links in formulas with the same name;
+# none of those links is asserted in the default graph.
+@prefix : <https://example.org/> .
+
+:family {
+  :alice :parent :bob .
+  :bob :parent :carol .
+}

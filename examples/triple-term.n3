@@ -1,0 +1,5 @@
+# Alice claims that Bob knows Carol without asserting it. Accepting the
+# claim concludes the relationship; a triple-term pattern reaches inside it.
+@prefix : <https://example.org/> .
+
+{ ?claimant :claims <<( ?s :knows ?o )>> } => { ?s :knows ?o } .

@@ -1,0 +1,9 @@
+# The claims named graph records Alice's claim that Bob knows Carol.
+# The loader quotes that graph in a graph:content formula. Accepting its
+# claim concludes the relationship in another formula with the same graph
+# name, preserving its separation from default-graph assertions.
+@prefix : <https://example.org/> .
+
+:claimsGraph {
+  :alice :claims <<( :bob :knows :carol )>> .
+}

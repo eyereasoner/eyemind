@@ -1,0 +1,4 @@
+@prefix : <https://example.org/> .
+
+:welcome :displayLabel "مرحبا"@ar--rtl .
+:welcome :displayLabel "Welcome"@en--ltr .

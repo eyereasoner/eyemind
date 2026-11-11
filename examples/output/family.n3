@@ -1,0 +1,4 @@
+@prefix : <https://example.org/family#> .
+
+:ann :ancestor :bob .
+:ann :ancestor :cara .

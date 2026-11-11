@@ -1,0 +1,5 @@
+# An auditor reviews a claim about who knows whom. A nested triple-term
+# pattern concludes the innermost relationship without asserting the claim.
+@prefix : <https://example.org/> .
+
+:auditor :reviews <<( :alice :claims <<( :bob :knows :carol )>> )>> .

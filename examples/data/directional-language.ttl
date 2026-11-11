@@ -1,0 +1,5 @@
+# Arabic and English welcome labels carry a language and writing direction.
+# The display rule concludes new labels while preserving both annotations.
+@prefix : <https://example.org/> .
+
+:welcome :label "مرحبا"@ar--rtl, "Welcome"@en--ltr .

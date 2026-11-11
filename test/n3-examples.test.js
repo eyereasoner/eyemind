@@ -12,22 +12,22 @@ function programFrom(name, extra = '') {
 
 export const tests = {
   'an additional hold blocks the remaining paid order'() {
-    const program = programFrom('n3-scoped-negation', ':order1 :hold :review .');
+    const program = programFrom('scoped-negation', ':order1 :hold :review .');
     assert.deepEqual(run(program).answers, [
       "rdf(iri('https://example.org/orders#order2'), iri('https://example.org/orders#hold'), iri('https://example.org/orders#addressCheck'))",
     ]);
   },
 
   'a new route to Nantes fires a French cities integrity fuse'() {
-    const program = programFrom('n3-french-cities', ':tours :oneway :nantes .');
+    const program = programFrom('french-cities', ':tours :oneway :nantes .');
     const result = run(program);
     assert.equal(result.haltCode, 65);
     assert.ok(result.answers.includes("'false'"));
   },
 
   'a forged delivery witness is rejected by C8'() {
-    const program = programFrom('n3-witnesses');
-    const saved = readFileSync(join(ROOT, 'examples/proof/n3-witnesses.js'), 'utf8');
+    const program = programFrom('witnesses');
+    const saved = readFileSync(join(ROOT, 'examples/proof/witnesses-n3.js'), 'utf8');
     const forged = saved.replaceAll("'Bdelivery'", "'invented'");
     const report = checkProof(program, forged);
     assert.ok(!report.valid);
