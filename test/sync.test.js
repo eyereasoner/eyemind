@@ -172,6 +172,19 @@ export const tests = {
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
+  async 'notation3 sync stores unqualified test hosts without depending on machine DNS'() {
+    const f = fixture();
+    try {
+      put(join(f.checkouts.notation3tests, 'tests/unqualified.n3'), '<https://unqualified> <http://www.w3.org/2000/10/swap/log#content> ?text.');
+      const destination = join(f.root, '.cache/notation3tests');
+      await syncNotation3Tests({ checkout: f.checkouts.notation3tests, destination, log() {},
+        fetchDocument: async () => { assert.fail('unqualified hosts must not reach the resolver'); },
+      });
+      const documents = JSON.parse(text(join(destination, 'documents.json')));
+      assert.equal(documents['https://unqualified'].error, 'unqualified test document host');
+    } finally { rmSync(f.temporary, { recursive: true, force: true }); }
+  },
+
   async 'notation3 sync records permanent dereference failures but stops on temporary network failures'() {
     const f = fixture();
     try {
