@@ -10,6 +10,7 @@ export { readGoal } from './goals.js';
 export { FloatLiteral, build, loadSources, loadText, toTerm } from './lang.js';
 export { Program } from './program.js';
 export { checkProof, checkReport, publicReport, strict, verdictText } from './proof.js';
+export { readNativeProof, readProofTerms, writeNativeProof } from './native-proof.js';
 export { readTerm, readTerms } from './reader.js';
 export { EyemindError, Struct, Var } from './terms.js';
 export { write } from './writer.js';

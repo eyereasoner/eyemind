@@ -2,7 +2,7 @@
 
 *Each order gets its own invoice with a customer and total.*
 
-[orders.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/orders.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/orders.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/orders.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/orders.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=orders)
+[orders.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/orders.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/orders.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/orders.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/orders.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=orders)
 
 ---
 
@@ -91,5 +91,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/orders.srl
 node bin/eyemind.js --proof examples/orders.srl
-node bin/eyemind.js --check-proof examples/proof/orders.js examples/orders.srl
+node bin/eyemind.js --check-proof examples/proof/orders.srl examples/orders.srl
 ```

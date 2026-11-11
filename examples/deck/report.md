@@ -2,7 +2,7 @@
 
 *A formatted text report of fruit quantities, prices and costs.*
 
-[report.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/report.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/report.txt) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/report.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/report.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=report)
+[report.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/report.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/report.txt) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/report.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/report.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=report)
 
 ---
 
@@ -78,5 +78,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/report.n3
 node bin/eyemind.js --proof examples/report.n3
-node bin/eyemind.js --check-proof examples/proof/report.js examples/report.n3
+node bin/eyemind.js --check-proof examples/proof/report.n3 examples/report.n3
 ```

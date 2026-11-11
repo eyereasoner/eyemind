@@ -1,0 +1,70 @@
+# SRL proof: DATA only; claims, steps and the complete C1–C10 certificate.
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX : <http://example.org/socrates#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX pe: <https://eyereasoner.github.io/pe#>
+PREFIX em: <https://eyereasoner.github.io/eyemind/proof#>
+PREFIX proof: <urn:eyemind:proof#>
+
+DATA {
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "srl" .
+<urn:eyemind:proof> pe:claims (<<( :Socrates a :Mortal )>> <<( :Socrates a :Human )>> <<( :Human rdfs:subClassOf :Mortal )>>) .
+proof:record9 pe:conclusion <<( :Socrates a :Mortal )>> .
+proof:record9 pe:rule 5 .
+proof:record9 pe:binding (("X" :Socrates) ("Class" :Human) ("Super" :Mortal)) .
+proof:record9 pe:uses (<<( :Socrates a :Human )>> <<( :Human rdfs:subClassOf :Mortal )>>) .
+proof:record10 pe:conclusion <<( :Socrates a :Human )>> .
+proof:record10 pe:rule 1 .
+proof:record10 pe:binding () .
+proof:record10 pe:uses () .
+proof:record11 pe:conclusion <<( :Human rdfs:subClassOf :Mortal )>> .
+proof:record11 pe:rule 3 .
+proof:record11 pe:binding () .
+proof:record11 pe:uses () .
+proof:record12 pe:conclusion <<( :Socrates a :Human )>> .
+proof:record12 pe:rule 2 .
+proof:record12 pe:binding () .
+proof:record12 pe:uses () .
+proof:record13 pe:conclusion <<( :Human rdfs:subClassOf :Mortal )>> .
+proof:record13 pe:rule 4 .
+proof:record13 pe:binding () .
+proof:record13 pe:uses () .
+proof:record14 pe:conclusion <<( :Socrates a :Mortal )>> .
+proof:record14 pe:rule 5 .
+proof:record14 pe:binding (("X" :Socrates) ("Class" :Human) ("Super" :Mortal)) .
+proof:record14 pe:uses (<<( :Socrates a :Human )>> <<( :Human rdfs:subClassOf :Mortal )>>) .
+proof:record15 pe:derived (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record15 pe:answers (<<( :Socrates a :Mortal )>>) .
+proof:record16 pe:derived (em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record16 pe:answers (<<( :Socrates a :Mortal )>>) .
+proof:record17 pe:called (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record17 pe:answers (<<( :Socrates a :Mortal )>> <<( :Socrates a :Human )>> <<( :Human rdfs:subClassOf :Mortal )>>) .
+proof:record18 pe:called (em:compound "rdf" ((em:variable "D") (em:iri rdf:type) (em:variable "E"))) .
+proof:record18 pe:answers (<<( :Socrates a :Mortal )>> <<( :Socrates a :Human )>>) .
+proof:record19 pe:called (em:compound "rdf" ((em:iri :Mortal) (em:iri rdfs:subClassOf) (em:variable "F"))) .
+proof:record19 pe:answers () .
+proof:record20 pe:called (em:compound "rdf" ((em:iri :Human) (em:iri rdfs:subClassOf) (em:variable "F"))) .
+proof:record20 pe:answers (<<( :Human rdfs:subClassOf :Mortal )>>) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20) .
+proof:record1 em:term (em:compound "inf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Mortal))) .
+proof:record2 em:term (em:compound "inf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Human))) .
+proof:record3 em:term (em:compound "inf" ((em:iri :Human) (em:iri rdfs:subClassOf) (em:iri :Mortal))) .
+proof:record4 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Human))))))) .
+proof:record5 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "inf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Human))))))) .
+proof:record6 em:term (em:compound "clause" ((em:integer "3") (em:compound "fact" ((em:compound "rdf" ((em:iri :Human) (em:iri rdfs:subClassOf) (em:iri :Mortal))))))) .
+proof:record7 em:term (em:compound "clause" ((em:integer "4") (em:compound "fact" ((em:compound "inf" ((em:iri :Human) (em:iri rdfs:subClassOf) (em:iri :Mortal))))))) .
+proof:record8 em:term (em:compound "clause" ((em:integer "5") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "X") (em:iri rdf:type) (em:variable "Class"))) (em:compound "rdf" ((em:variable "Class") (em:iri rdfs:subClassOf) (em:variable "Super"))))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri rdf:type) (em:variable "Super"))) (em:compound "inf" ((em:variable "X") (em:iri rdf:type) (em:variable "Super"))))))))) .
+proof:record9 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Mortal))) (em:compound "clause" ((em:integer "5"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Socrates))) (em:compound "=" ((em:atom "Class") (em:iri :Human))) (em:compound "=" ((em:atom "Super") (em:iri :Mortal))))) (em:list ((em:compound "rdf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Human))) (em:compound "rdf" ((em:iri :Human) (em:iri rdfs:subClassOf) (em:iri :Mortal))))))) .
+proof:record10 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Human))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record11 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Human) (em:iri rdfs:subClassOf) (em:iri :Mortal))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record12 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Human))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record13 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Human) (em:iri rdfs:subClassOf) (em:iri :Mortal))) (em:compound "clause" ((em:integer "4"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record14 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Mortal))) (em:compound "clause" ((em:integer "5"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Socrates))) (em:compound "=" ((em:atom "Class") (em:iri :Human))) (em:compound "=" ((em:atom "Super") (em:iri :Mortal))))) (em:list ((em:compound "rdf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Human))) (em:compound "rdf" ((em:iri :Human) (em:iri rdfs:subClassOf) (em:iri :Mortal))))))) .
+proof:record15 em:term (em:compound "derived" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Mortal))))))) .
+proof:record16 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Mortal))))))) .
+proof:record17 em:term (em:compound "called" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Mortal))) (em:compound "inf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Human))) (em:compound "inf" ((em:iri :Human) (em:iri rdfs:subClassOf) (em:iri :Mortal))))))) .
+proof:record18 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "D") (em:iri rdf:type) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Mortal))) (em:compound "rdf" ((em:iri :Socrates) (em:iri rdf:type) (em:iri :Human))))))) .
+proof:record19 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Mortal) (em:iri rdfs:subClassOf) (em:variable "F"))) (em:atom "[]"))) .
+proof:record20 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Human) (em:iri rdfs:subClassOf) (em:variable "F"))) (em:list ((em:compound "rdf" ((em:iri :Human) (em:iri rdfs:subClassOf) (em:iri :Mortal))))))) .
+}

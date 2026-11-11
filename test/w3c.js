@@ -39,8 +39,9 @@ const local = (url) => join(MIRROR, ...url.slice(W3C_BASE.length).replace(/#.*$/
 const read = (url) => readFileSync(local(url), 'utf8');
 
 // The cases of a manifest, in its entry order.
-export function manifestCases(manifest) {
-  const { quads } = parseRdf(read(manifest), { format: 'turtle', base: manifest });
+export function manifestCases(manifest, { mirror = MIRROR } = {}) {
+  const path = join(mirror, ...manifest.slice(W3C_BASE.length).replace(/#.*$/, '').split('/'));
+  const { quads } = parseRdf(readFileSync(path, 'utf8'), { format: 'turtle', base: manifest });
   const index = new Map();
   for (const [s, p, o] of quads) {
     const k = `${write(s)} ${p.args[0]}`;
@@ -175,10 +176,11 @@ const SRL_MIRROR = join(HERE, 'w3c', 'sparql-rl');
 const SRLT = 'http://www.w3.org/ns/sparql-rl-tests#';
 const srlRead = (url) => readFileSync(join(SRL_MIRROR, ...url.slice(SRL_BASE.length).replace(/#.*$/, '').split('/')), 'utf8');
 
-export function sparqlRlCases() {
+export function sparqlRlCases({ mirror = SRL_MIRROR } = {}) {
   const root = `${SRL_BASE}manifest-sparql-rl.ttl`;
   const graph = (url) => {
-    const { quads } = parseRdf(srlRead(url), { format: 'turtle', base: url });
+    const path = join(mirror, ...url.slice(SRL_BASE.length).replace(/#.*$/, '').split('/'));
+    const { quads } = parseRdf(readFileSync(path, 'utf8'), { format: 'turtle', base: url });
     const index = new Map();
     for (const [s, p, o] of quads) {
       const k = `${write(s)} ${p.args[0]}`;
@@ -206,7 +208,7 @@ export function sparqlRlCases() {
       const type = g.objects(entry, `${RDF}type`).map((t) => t.args[0]).find((t) => t.startsWith(SRLT));
       if (!type) continue;
       const action = g.objects(entry, `${MF}action`)[0];
-      const c = { section, id: entry.args[0], name: g.objects(entry, `${MF}name`)[0]?.args[0] ?? entry.args[0], type: type.slice(SRLT.length) };
+      const c = { section, manifest, id: entry.args[0], name: g.objects(entry, `${MF}name`)[0]?.args[0] ?? entry.args[0], type: type.slice(SRLT.length) };
       if (c.type === 'RulesEvalTest') {
         c.ruleset = g.objects(action, `${SRLT}ruleset`)[0].args[0];
         c.data = g.objects(action, `${SRLT}data`).map((t) => t.args[0]);

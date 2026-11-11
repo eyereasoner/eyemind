@@ -1,0 +1,40 @@
+# N3 proof: claims, steps and the complete C1–C10 certificate.
+@prefix : <http://example.org/orders#> .
+@prefix pe: <https://eyereasoner.github.io/pe#> .
+@prefix em: <https://eyereasoner.github.io/eyemind/proof#> .
+@prefix proof: <urn:eyemind:proof#> .
+
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "n3" .
+<urn:eyemind:proof> pe:claims ({ :o1 :action :ship }) .
+proof:record4 pe:conclusion { :o1 :action :ship } .
+proof:record4 pe:rule 5 .
+proof:record4 pe:binding (("O" :o1) ("_1" ?A)) .
+proof:record4 pe:uses ({ :o1 :status :paid } (em:compound "not" ((em:compound "rdf" ((em:iri :o1) (em:iri :hold) (em:variable "A")))))) .
+proof:record5 pe:conclusion { :o1 :status :paid } .
+proof:record5 pe:rule 1 .
+proof:record5 pe:binding () .
+proof:record5 pe:uses () .
+proof:record6 pe:conclusion (em:compound "not" ((em:compound "rdf" ((em:iri :o1) (em:iri :hold) (em:variable "A"))))) .
+proof:record6 pe:justification (em:atom "absent") .
+proof:record6 pe:binding () .
+proof:record6 pe:uses () .
+proof:record7 pe:derived { ?B ?C ?D } .
+proof:record7 pe:answers ({ :o1 :action :ship }) .
+proof:record8 pe:searched { :o1 :hold ?E } .
+proof:record8 pe:answers () .
+proof:record9 pe:searched { ?F :status :paid } .
+proof:record9 pe:answers ({ :o1 :status :paid } { :o2 :status :paid }) .
+proof:record10 pe:searched { :o2 :hold ?G } .
+proof:record10 pe:answers ({ :o2 :hold :addressCheck }) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10) .
+proof:record1 em:term (em:compound "rdf" ((em:iri :o1) (em:iri :action) (em:iri :ship))) .
+proof:record2 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :o1) (em:iri :status) (em:iri :paid))))))) .
+proof:record3 em:term (em:compound "clause" ((em:integer "5") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "O") (em:iri :status) (em:iri :paid))) (em:compound "not" ((em:compound "rdf" ((em:variable "O") (em:iri :hold) (em:variable "_1"))))))) (em:compound "rdf" ((em:variable "O") (em:iri :action) (em:iri :ship))))))) .
+proof:record4 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :o1) (em:iri :action) (em:iri :ship))) (em:compound "clause" ((em:integer "5"))) (em:list ((em:compound "=" ((em:atom "O") (em:iri :o1))) (em:compound "=" ((em:atom "_1") (em:variable "A"))))) (em:list ((em:compound "rdf" ((em:iri :o1) (em:iri :status) (em:iri :paid))) (em:compound "not" ((em:compound "rdf" ((em:iri :o1) (em:iri :hold) (em:variable "A"))))))))) .
+proof:record5 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :o1) (em:iri :status) (em:iri :paid))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record6 em:term (em:compound "step" ((em:compound "not" ((em:compound "rdf" ((em:iri :o1) (em:iri :hold) (em:variable "A"))))) (em:atom "absent") (em:atom "[]") (em:atom "[]"))) .
+proof:record7 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "B") (em:variable "C") (em:variable "D"))) (em:list ((em:compound "rdf" ((em:iri :o1) (em:iri :action) (em:iri :ship))))))) .
+proof:record8 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :o1) (em:iri :hold) (em:variable "E"))) (em:atom "[]"))) .
+proof:record9 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "F") (em:iri :status) (em:iri :paid))) (em:list ((em:compound "rdf" ((em:iri :o1) (em:iri :status) (em:iri :paid))) (em:compound "rdf" ((em:iri :o2) (em:iri :status) (em:iri :paid))))))) .
+proof:record10 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :o2) (em:iri :hold) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:iri :o2) (em:iri :hold) (em:iri :addressCheck))))))) .

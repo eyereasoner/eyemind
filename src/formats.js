@@ -22,6 +22,8 @@ import { answersToN3, compileSources } from './n3.js';
 import { compileSrl, srlQuads } from './srl.js';
 import { write } from './writer.js';
 import { isRdfMessageLog, parseRdfMessages } from './messages.js';
+import { writeNativeProof } from './native-proof.js';
+import { checkProof } from './proof.js';
 
 export const OUTPUT_FORMATS = ['eyemind', 'turtle', 'trig', 'n-triples', 'n-quads', 'n3'];
 
@@ -119,6 +121,16 @@ function importResolver(io) {
 // The default output format of a run: N3 for N3, Turtle for SRL, and
 // eyemind's own text for a program.
 export const defaultFormat = (kind) => ({ n3: 'n3', srl: 'turtle' })[kind] ?? 'eyemind';
+
+// The core certificate keeps its specified JavaScript form. Native inputs
+// expose the same evidence as N3 or SRL data at the format boundary.
+export function writeProof(loaded, result, { goals = null } = {}) {
+  if (loaded.kind === 'js') return result.proof;
+  const document = writeNativeProof(result.proof, { format: loaded.kind, prefixes: loaded.prefixes });
+  const report = checkProof(loaded.program, document, { goals });
+  if (!report.valid) throw new EyemindError(`generated ${loaded.kind} proof failed verification: ${report.failures[0].detail}`);
+  return document;
+}
 
 // The conclusions of a run in an output format; null for eyemind's own text.
 // all also writes the given data. Throws when a conclusion is no triple.

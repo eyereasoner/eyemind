@@ -5,15 +5,16 @@
 //                                    a selection of its cases through the command
 //                                    (EYEMIND_CLI_ALL=1: all of them, as in CI),
 //                                    and the playground in a headless Chrome
-//     npm test -- unit examples      only these sections
+//     npm test -- unit examples      these sections, plus the W3C format suites
 //     npm test -- -k skolem          only tests whose line contains "skolem"
 //
 // Sections: unit, examples, conformance, cli, playground. The playground
 // section needs Chrome (CHROME names it when it is not on the PATH); without
 // one it says so and runs nothing. Each test prints OK or FAIL, its
 // number, what it tests and how long it took; each section and the whole run
-// end with a total. A whole run then reports progress through the W3C and
-// Notation3 format suites and prints the combined table of REPORT.md.
+// end with a total. Every invocation runs the W3C format suites and writes
+// their EARL reports. A whole run also reports Notation3 progress and prints
+// the combined table of REPORT.md.
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import { cpus } from 'node:os';
@@ -22,6 +23,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { VERSION } from '../src/index.js';
 import { check, execute, loadCases, shellSplit } from '../conformance/run.js';
 import { RDF_MANIFESTS, W3C_BASE, manifestCases, runCase, runSparqlRlCase, sparqlRlCases } from './w3c.js';
+import { writeEarlReports } from '../tools/earl.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = dirname(HERE);
@@ -307,38 +309,46 @@ async function main(argv) {
   }
   const full = !sections.length && pattern === null;
   const code = reporter.finish(full ? 'Main test total' : 'Total');
-  if (full) {
-    console.log(`\n${paint('33', '== W3C RDF and SPARQL 1.2 RL suites')}`);
-    const started = performance.now();
-    const w3c = w3cRows();
-    reporter.summary(w3c.reduce((sum, row) => sum + row.passed, 0),
-      w3c.reduce((sum, row) => sum + row.cases, 0), 'W3C format cases', performance.now() - started);
-    printReport([...reporter.rows, ...w3c, ...notation3Rows(reporter)]);
-  }
-  return code;
+  // Even a filtered run refreshes both reports from complete W3C runs. A
+  // report never presents a skipped case or an old result as a fresh pass.
+  console.log(`\n${paint('33', '== W3C RDF and SPARQL 1.2 RL suites')}`);
+  const started = performance.now();
+  const w3c = w3cRows();
+  writeEarlReports(join(ROOT, 'reports'), w3c.rdf, w3c.srl);
+  const passed = w3c.rows.reduce((sum, row) => sum + row.passed, 0);
+  const total = w3c.rows.reduce((sum, row) => sum + row.cases, 0);
+  reporter.summary(passed, total, 'W3C format cases', performance.now() - started);
+  console.log('Wrote reports/w3c-rdf-earl.ttl and reports/w3c-sparql-rl-earl.ttl.');
+  if (full) printReport([...reporter.rows, ...w3c.rows, ...notation3Rows(reporter)]);
+  return code || (passed === total ? 0 : 1);
 }
 
 // The W3C suites, case by case, timed per manifest or section.
 function w3cRows() {
   const rows = [];
-  const timed = (suite, cases, run) => {
+  const rdf = [];
+  const srl = [];
+  const timed = (suite, cases, run, results) => {
     const started = performance.now();
     let passed = 0;
     for (const c of cases) {
       try {
         run(c);
         passed += 1;
-      } catch {
-        // Counted as failed; the unit tests show why.
+        results.push({ case: c, ok: true, message: 'passed' });
+      } catch (error) {
+        const message = error?.message ?? String(error);
+        results.push({ case: c, ok: false, message });
+        console.error(`${c.id}: ${message}`);
       }
     }
     rows.push({ suite, cases: cases.length, passed, seconds: (performance.now() - started) / 1000 });
   };
-  for (const manifest of RDF_MANIFESTS) timed(`W3C RDF ${manifest.slice(W3C_BASE.length).replace(/\/manifest\.ttl$/, '')}`, manifestCases(manifest), runCase);
+  for (const manifest of RDF_MANIFESTS) timed(`W3C RDF ${manifest.slice(W3C_BASE.length).replace(/\/manifest\.ttl$/, '')}`, manifestCases(manifest), runCase, rdf);
   const sections = new Map();
   for (const c of sparqlRlCases()) sections.set(c.section, [...(sections.get(c.section) ?? []), c]);
-  for (const [section, cases] of sections) timed(`W3C SPARQL 1.2 RL ${section}`, cases, runSparqlRlCase);
-  return rows;
+  for (const [section, cases] of sections) timed(`W3C SPARQL 1.2 RL ${section}`, cases, runSparqlRlCase, srl);
+  return { rows, rdf, srl };
 }
 
 // The Notation3 test suite through the eyemind command, from

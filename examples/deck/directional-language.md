@@ -2,7 +2,7 @@
 
 *RDF 1.2 directional language strings keep their base direction through a display rule.*
 
-[data/directional-language.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/directional-language.ttl) · [directional-language.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/directional-language.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/directional-language.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/directional-language.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/directional-language.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=directional-language)
+[data/directional-language.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/directional-language.ttl) · [directional-language.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/directional-language.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/directional-language.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/directional-language.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/directional-language.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=directional-language)
 
 ---
 
@@ -79,5 +79,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/data/directional-language.ttl examples/directional-language.n3
 node bin/eyemind.js --proof examples/data/directional-language.ttl examples/directional-language.n3
-node bin/eyemind.js --check-proof examples/proof/directional-language.js examples/data/directional-language.ttl examples/directional-language.n3
+node bin/eyemind.js --check-proof examples/proof/directional-language.n3 examples/data/directional-language.ttl examples/directional-language.n3
 ```

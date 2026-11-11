@@ -2,7 +2,7 @@
 
 *Class membership follows the subclass hierarchy in SPARQL 1.2 RL.*
 
-[socrates.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/socrates.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/socrates-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/socrates-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=socrates-srl)
+[socrates.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/socrates.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/socrates.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/socrates-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=socrates-srl)
 
 ---
 
@@ -79,5 +79,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/socrates.srl
 node bin/eyemind.js --proof examples/socrates.srl
-node bin/eyemind.js --check-proof examples/proof/socrates-srl.js examples/socrates.srl
+node bin/eyemind.js --check-proof examples/proof/socrates.srl examples/socrates.srl
 ```

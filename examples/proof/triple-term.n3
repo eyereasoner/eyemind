@@ -1,0 +1,32 @@
+# N3 proof: claims, steps and the complete C1–C10 certificate.
+@prefix : <https://example.org/> .
+@prefix pe: <https://eyereasoner.github.io/pe#> .
+@prefix em: <https://eyereasoner.github.io/eyemind/proof#> .
+@prefix proof: <urn:eyemind:proof#> .
+
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "n3" .
+<urn:eyemind:proof> pe:claims ({ :bob :knows :carol }) .
+proof:record4 pe:conclusion { :bob :knows :carol } .
+proof:record4 pe:rule 2 .
+proof:record4 pe:binding (("Claimant" :alice) ("S" :bob) ("O" :carol)) .
+proof:record4 pe:uses ({ :alice :claims <<( :bob :knows :carol )>> }) .
+proof:record5 pe:conclusion { :alice :claims <<( :bob :knows :carol )>> } .
+proof:record5 pe:rule 1 .
+proof:record5 pe:binding () .
+proof:record5 pe:uses () .
+proof:record6 pe:derived { ?A ?B ?C } .
+proof:record6 pe:answers ({ :bob :knows :carol }) .
+proof:record7 pe:called { ?A :knows ?B } .
+proof:record7 pe:answers ({ :bob :knows :carol }) .
+proof:record8 pe:called { ?C :claims <<( ?D :knows ?E )>> } .
+proof:record8 pe:answers ({ :alice :claims <<( :bob :knows :carol )>> }) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8) .
+proof:record1 em:term (em:compound "rdf" ((em:iri :bob) (em:iri :knows) (em:iri :carol))) .
+proof:record2 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :alice) (em:iri :claims) (em:compound "triple" ((em:iri :bob) (em:iri :knows) (em:iri :carol))))))))) .
+proof:record3 em:term (em:compound "clause" ((em:integer "2") (em:compound "implies" ((em:compound "rdf" ((em:variable "Claimant") (em:iri :claims) (em:compound "triple" ((em:variable "S") (em:iri :knows) (em:variable "O"))))) (em:compound "rdf" ((em:variable "S") (em:iri :knows) (em:variable "O"))))))) .
+proof:record4 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :knows) (em:iri :carol))) (em:compound "clause" ((em:integer "2"))) (em:list ((em:compound "=" ((em:atom "Claimant") (em:iri :alice))) (em:compound "=" ((em:atom "S") (em:iri :bob))) (em:compound "=" ((em:atom "O") (em:iri :carol))))) (em:list ((em:compound "rdf" ((em:iri :alice) (em:iri :claims) (em:compound "triple" ((em:iri :bob) (em:iri :knows) (em:iri :carol))))))))) .
+proof:record5 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :alice) (em:iri :claims) (em:compound "triple" ((em:iri :bob) (em:iri :knows) (em:iri :carol))))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record6 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :knows) (em:iri :carol))))))) .
+proof:record7 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "A") (em:iri :knows) (em:variable "B"))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :knows) (em:iri :carol))))))) .
+proof:record8 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "C") (em:iri :claims) (em:compound "triple" ((em:variable "D") (em:iri :knows) (em:variable "E"))))) (em:list ((em:compound "rdf" ((em:iri :alice) (em:iri :claims) (em:compound "triple" ((em:iri :bob) (em:iri :knows) (em:iri :carol))))))))) .

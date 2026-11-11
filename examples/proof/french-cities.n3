@@ -1,0 +1,270 @@
+# N3 proof: claims, steps and the complete C1–C10 certificate.
+@prefix : <https://example.org/french-cities#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix pe: <https://eyereasoner.github.io/pe#> .
+@prefix em: <https://eyereasoner.github.io/eyemind/proof#> .
+@prefix proof: <urn:eyemind:proof#> .
+
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "n3" .
+<urn:eyemind:proof> pe:claims ({ :angers :canReach :nantes } { :lemans :canReach :nantes } { :chartres :canReach :nantes } { :paris :canReach :nantes }) .
+proof:record20 pe:conclusion { :angers :canReach :nantes } .
+proof:record20 pe:rule 24 .
+proof:record20 pe:binding (("City" :angers)) .
+proof:record20 pe:uses ({ :angers :path :nantes }) .
+proof:record21 pe:conclusion { :angers :path :nantes } .
+proof:record21 pe:rule 21 .
+proof:record21 pe:binding (("Property" :oneway) ("Super" :path) ("From" :angers) ("To" :nantes)) .
+proof:record21 pe:uses ({ :oneway rdfs:subPropertyOf :path } { :angers :oneway :nantes }) .
+proof:record22 pe:conclusion { :oneway rdfs:subPropertyOf :path } .
+proof:record22 pe:rule 11 .
+proof:record22 pe:binding () .
+proof:record22 pe:uses () .
+proof:record23 pe:conclusion { :angers :oneway :nantes } .
+proof:record23 pe:rule 10 .
+proof:record23 pe:binding () .
+proof:record23 pe:uses () .
+proof:record24 pe:conclusion { :lemans :canReach :nantes } .
+proof:record24 pe:rule 24 .
+proof:record24 pe:binding (("City" :lemans)) .
+proof:record24 pe:uses ({ :lemans :path :nantes }) .
+proof:record25 pe:conclusion { :lemans :path :nantes } .
+proof:record25 pe:rule 23 .
+proof:record25 pe:binding (("Property" :path) ("From" :lemans) ("Via" :angers) ("To" :nantes)) .
+proof:record25 pe:uses ({ :path a owl:TransitiveProperty } { :lemans :path :angers } { :angers :path :nantes }) .
+proof:record26 pe:conclusion { :path a owl:TransitiveProperty } .
+proof:record26 pe:rule 12 .
+proof:record26 pe:binding () .
+proof:record26 pe:uses () .
+proof:record27 pe:conclusion { :lemans :path :angers } .
+proof:record27 pe:rule 21 .
+proof:record27 pe:binding (("Property" :oneway) ("Super" :path) ("From" :lemans) ("To" :angers)) .
+proof:record27 pe:uses ({ :oneway rdfs:subPropertyOf :path } { :lemans :oneway :angers }) .
+proof:record28 pe:conclusion { :lemans :oneway :angers } .
+proof:record28 pe:rule 8 .
+proof:record28 pe:binding () .
+proof:record28 pe:uses () .
+proof:record29 pe:conclusion { :chartres :canReach :nantes } .
+proof:record29 pe:rule 24 .
+proof:record29 pe:binding (("City" :chartres)) .
+proof:record29 pe:uses ({ :chartres :path :nantes }) .
+proof:record30 pe:conclusion { :chartres :path :nantes } .
+proof:record30 pe:rule 23 .
+proof:record30 pe:binding (("Property" :path) ("From" :chartres) ("Via" :lemans) ("To" :nantes)) .
+proof:record30 pe:uses ({ :path a owl:TransitiveProperty } { :chartres :path :lemans } { :lemans :path :nantes }) .
+proof:record31 pe:conclusion { :chartres :path :lemans } .
+proof:record31 pe:rule 21 .
+proof:record31 pe:binding (("Property" :oneway) ("Super" :path) ("From" :chartres) ("To" :lemans)) .
+proof:record31 pe:uses ({ :oneway rdfs:subPropertyOf :path } { :chartres :oneway :lemans }) .
+proof:record32 pe:conclusion { :chartres :oneway :lemans } .
+proof:record32 pe:rule 7 .
+proof:record32 pe:binding () .
+proof:record32 pe:uses () .
+proof:record33 pe:conclusion { :paris :canReach :nantes } .
+proof:record33 pe:rule 24 .
+proof:record33 pe:binding (("City" :paris)) .
+proof:record33 pe:uses ({ :paris :path :nantes }) .
+proof:record34 pe:conclusion { :paris :path :nantes } .
+proof:record34 pe:rule 23 .
+proof:record34 pe:binding (("Property" :path) ("From" :paris) ("Via" :lemans) ("To" :nantes)) .
+proof:record34 pe:uses ({ :path a owl:TransitiveProperty } { :paris :path :lemans } { :lemans :path :nantes }) .
+proof:record35 pe:conclusion { :paris :path :lemans } .
+proof:record35 pe:rule 23 .
+proof:record35 pe:binding (("Property" :path) ("From" :paris) ("Via" :chartres) ("To" :lemans)) .
+proof:record35 pe:uses ({ :path a owl:TransitiveProperty } { :paris :path :chartres } { :chartres :path :lemans }) .
+proof:record36 pe:conclusion { :paris :path :chartres } .
+proof:record36 pe:rule 21 .
+proof:record36 pe:binding (("Property" :oneway) ("Super" :path) ("From" :paris) ("To" :chartres)) .
+proof:record36 pe:uses ({ :oneway rdfs:subPropertyOf :path } { :paris :oneway :chartres }) .
+proof:record37 pe:conclusion { :paris :oneway :chartres } .
+proof:record37 pe:rule 2 .
+proof:record37 pe:binding () .
+proof:record37 pe:uses () .
+proof:record38 pe:conclusion { :paris :path :orleans } .
+proof:record38 pe:rule 21 .
+proof:record38 pe:binding (("Property" :oneway) ("Super" :path) ("From" :paris) ("To" :orleans)) .
+proof:record38 pe:uses ({ :oneway rdfs:subPropertyOf :path } { :paris :oneway :orleans }) .
+proof:record39 pe:conclusion { :paris :oneway :orleans } .
+proof:record39 pe:rule 1 .
+proof:record39 pe:binding () .
+proof:record39 pe:uses () .
+proof:record40 pe:conclusion { :paris :path :amiens } .
+proof:record40 pe:rule 21 .
+proof:record40 pe:binding (("Property" :oneway) ("Super" :path) ("From" :paris) ("To" :amiens)) .
+proof:record40 pe:uses ({ :oneway rdfs:subPropertyOf :path } { :paris :oneway :amiens }) .
+proof:record41 pe:conclusion { :paris :oneway :amiens } .
+proof:record41 pe:rule 3 .
+proof:record41 pe:binding () .
+proof:record41 pe:uses () .
+proof:record42 pe:conclusion { :orleans :path :blois } .
+proof:record42 pe:rule 21 .
+proof:record42 pe:binding (("Property" :oneway) ("Super" :path) ("From" :orleans) ("To" :blois)) .
+proof:record42 pe:uses ({ :oneway rdfs:subPropertyOf :path } { :orleans :oneway :blois }) .
+proof:record43 pe:conclusion { :orleans :oneway :blois } .
+proof:record43 pe:rule 4 .
+proof:record43 pe:binding () .
+proof:record43 pe:uses () .
+proof:record44 pe:conclusion { :orleans :path :bourges } .
+proof:record44 pe:rule 21 .
+proof:record44 pe:binding (("Property" :oneway) ("Super" :path) ("From" :orleans) ("To" :bourges)) .
+proof:record44 pe:uses ({ :oneway rdfs:subPropertyOf :path } { :orleans :oneway :bourges }) .
+proof:record45 pe:conclusion { :orleans :oneway :bourges } .
+proof:record45 pe:rule 5 .
+proof:record45 pe:binding () .
+proof:record45 pe:uses () .
+proof:record46 pe:conclusion { :blois :path :tours } .
+proof:record46 pe:rule 21 .
+proof:record46 pe:binding (("Property" :oneway) ("Super" :path) ("From" :blois) ("To" :tours)) .
+proof:record46 pe:uses ({ :oneway rdfs:subPropertyOf :path } { :blois :oneway :tours }) .
+proof:record47 pe:conclusion { :blois :oneway :tours } .
+proof:record47 pe:rule 6 .
+proof:record47 pe:binding () .
+proof:record47 pe:uses () .
+proof:record48 pe:conclusion { :lemans :path :tours } .
+proof:record48 pe:rule 21 .
+proof:record48 pe:binding (("Property" :oneway) ("Super" :path) ("From" :lemans) ("To" :tours)) .
+proof:record48 pe:uses ({ :oneway rdfs:subPropertyOf :path } { :lemans :oneway :tours }) .
+proof:record49 pe:conclusion { :lemans :oneway :tours } .
+proof:record49 pe:rule 9 .
+proof:record49 pe:binding () .
+proof:record49 pe:uses () .
+proof:record50 pe:conclusion { :paris :path :blois } .
+proof:record50 pe:rule 23 .
+proof:record50 pe:binding (("Property" :path) ("From" :paris) ("Via" :orleans) ("To" :blois)) .
+proof:record50 pe:uses ({ :path a owl:TransitiveProperty } { :paris :path :orleans } { :orleans :path :blois }) .
+proof:record51 pe:conclusion { :paris :path :bourges } .
+proof:record51 pe:rule 23 .
+proof:record51 pe:binding (("Property" :path) ("From" :paris) ("Via" :orleans) ("To" :bourges)) .
+proof:record51 pe:uses ({ :path a owl:TransitiveProperty } { :paris :path :orleans } { :orleans :path :bourges }) .
+proof:record52 pe:conclusion { :orleans :path :tours } .
+proof:record52 pe:rule 23 .
+proof:record52 pe:binding (("Property" :path) ("From" :orleans) ("Via" :blois) ("To" :tours)) .
+proof:record52 pe:uses ({ :path a owl:TransitiveProperty } { :orleans :path :blois } { :blois :path :tours }) .
+proof:record53 pe:conclusion { :chartres :path :angers } .
+proof:record53 pe:rule 23 .
+proof:record53 pe:binding (("Property" :path) ("From" :chartres) ("Via" :lemans) ("To" :angers)) .
+proof:record53 pe:uses ({ :path a owl:TransitiveProperty } { :chartres :path :lemans } { :lemans :path :angers }) .
+proof:record54 pe:conclusion { :chartres :path :tours } .
+proof:record54 pe:rule 23 .
+proof:record54 pe:binding (("Property" :path) ("From" :chartres) ("Via" :lemans) ("To" :tours)) .
+proof:record54 pe:uses ({ :path a owl:TransitiveProperty } { :chartres :path :lemans } { :lemans :path :tours }) .
+proof:record55 pe:conclusion { :paris :path :tours } .
+proof:record55 pe:rule 23 .
+proof:record55 pe:binding (("Property" :path) ("From" :paris) ("Via" :orleans) ("To" :tours)) .
+proof:record55 pe:uses ({ :path a owl:TransitiveProperty } { :paris :path :orleans } { :orleans :path :tours }) .
+proof:record56 pe:conclusion { :paris :path :angers } .
+proof:record56 pe:rule 23 .
+proof:record56 pe:binding (("Property" :path) ("From" :paris) ("Via" :chartres) ("To" :angers)) .
+proof:record56 pe:uses ({ :path a owl:TransitiveProperty } { :paris :path :chartres } { :chartres :path :angers }) .
+proof:record57 pe:derived { ?A ?B ?C } .
+proof:record57 pe:answers ({ :angers :canReach :nantes } { :lemans :canReach :nantes } { :chartres :canReach :nantes } { :paris :canReach :nantes }) .
+proof:record58 pe:derived { ?A ?B ?C } .
+proof:record58 pe:answers ({ :paris :path :orleans } { :paris :path :chartres } { :paris :path :amiens } { :orleans :path :blois } { :orleans :path :bourges } { :blois :path :tours } { :chartres :path :lemans } { :lemans :path :angers } { :lemans :path :tours } { :angers :path :nantes } { :paris :path :blois } { :paris :path :bourges } { :paris :path :lemans } { :orleans :path :tours } { :chartres :path :angers } { :chartres :path :tours } { :lemans :path :nantes } { :paris :path :tours } { :paris :path :angers } { :chartres :path :nantes } { :paris :path :nantes }) .
+proof:record59 pe:called { ?A ?B ?C } .
+proof:record59 pe:answers ({ :angers :canReach :nantes } { :lemans :canReach :nantes } { :chartres :canReach :nantes } { :paris :canReach :nantes }) .
+proof:record60 pe:called { ?D :path :nantes } .
+proof:record60 pe:answers ({ :angers :path :nantes } { :lemans :path :nantes } { :chartres :path :nantes } { :paris :path :nantes }) .
+proof:record61 pe:called { ?E rdfs:subPropertyOf ?F } .
+proof:record61 pe:answers ({ :oneway rdfs:subPropertyOf :path }) .
+proof:record62 pe:called { ?G :oneway ?H } .
+proof:record62 pe:answers ({ :paris :oneway :orleans } { :paris :oneway :chartres } { :paris :oneway :amiens } { :orleans :oneway :blois } { :orleans :oneway :bourges } { :blois :oneway :tours } { :chartres :oneway :lemans } { :lemans :oneway :angers } { :lemans :oneway :tours } { :angers :oneway :nantes }) .
+proof:record63 pe:called { :path rdfs:subPropertyOf ?I } .
+proof:record63 pe:answers () .
+proof:record64 pe:called { ?J a owl:TransitiveProperty } .
+proof:record64 pe:answers ({ :path a owl:TransitiveProperty }) .
+proof:record65 pe:called { ?K :path ?L } .
+proof:record65 pe:answers ({ :paris :path :orleans } { :paris :path :chartres } { :paris :path :amiens } { :orleans :path :blois } { :orleans :path :bourges } { :blois :path :tours } { :chartres :path :lemans } { :lemans :path :angers } { :lemans :path :tours } { :angers :path :nantes } { :paris :path :blois } { :paris :path :bourges } { :paris :path :lemans } { :orleans :path :tours } { :chartres :path :angers } { :chartres :path :tours } { :lemans :path :nantes } { :paris :path :tours } { :paris :path :angers } { :chartres :path :nantes } { :paris :path :nantes }) .
+proof:record66 pe:called { :orleans :path ?M } .
+proof:record66 pe:answers ({ :orleans :path :blois } { :orleans :path :bourges } { :orleans :path :tours }) .
+proof:record67 pe:called { :chartres :path ?M } .
+proof:record67 pe:answers ({ :chartres :path :lemans } { :chartres :path :angers } { :chartres :path :tours } { :chartres :path :nantes }) .
+proof:record68 pe:called { :amiens :path ?M } .
+proof:record68 pe:answers () .
+proof:record69 pe:called { :blois :path ?M } .
+proof:record69 pe:answers ({ :blois :path :tours }) .
+proof:record70 pe:called { :bourges :path ?M } .
+proof:record70 pe:answers () .
+proof:record71 pe:called { :tours :path ?M } .
+proof:record71 pe:answers () .
+proof:record72 pe:called { :lemans :path ?M } .
+proof:record72 pe:answers ({ :lemans :path :angers } { :lemans :path :tours } { :lemans :path :nantes }) .
+proof:record73 pe:called { :angers :path ?M } .
+proof:record73 pe:answers ({ :angers :path :nantes }) .
+proof:record74 pe:called { :nantes :path ?M } .
+proof:record74 pe:answers () .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41 proof:record42 proof:record43 proof:record44 proof:record45 proof:record46 proof:record47 proof:record48 proof:record49 proof:record50 proof:record51 proof:record52 proof:record53 proof:record54 proof:record55 proof:record56 proof:record57 proof:record58 proof:record59 proof:record60 proof:record61 proof:record62 proof:record63 proof:record64 proof:record65 proof:record66 proof:record67 proof:record68 proof:record69 proof:record70 proof:record71 proof:record72 proof:record73 proof:record74) .
+proof:record1 em:term (em:compound "result" ((em:iri :angers) (em:iri :canReach) (em:iri :nantes))) .
+proof:record2 em:term (em:compound "result" ((em:iri :lemans) (em:iri :canReach) (em:iri :nantes))) .
+proof:record3 em:term (em:compound "result" ((em:iri :chartres) (em:iri :canReach) (em:iri :nantes))) .
+proof:record4 em:term (em:compound "result" ((em:iri :paris) (em:iri :canReach) (em:iri :nantes))) .
+proof:record5 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :paris) (em:iri :oneway) (em:iri :orleans))))))) .
+proof:record6 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "rdf" ((em:iri :paris) (em:iri :oneway) (em:iri :chartres))))))) .
+proof:record7 em:term (em:compound "clause" ((em:integer "3") (em:compound "fact" ((em:compound "rdf" ((em:iri :paris) (em:iri :oneway) (em:iri :amiens))))))) .
+proof:record8 em:term (em:compound "clause" ((em:integer "4") (em:compound "fact" ((em:compound "rdf" ((em:iri :orleans) (em:iri :oneway) (em:iri :blois))))))) .
+proof:record9 em:term (em:compound "clause" ((em:integer "5") (em:compound "fact" ((em:compound "rdf" ((em:iri :orleans) (em:iri :oneway) (em:iri :bourges))))))) .
+proof:record10 em:term (em:compound "clause" ((em:integer "6") (em:compound "fact" ((em:compound "rdf" ((em:iri :blois) (em:iri :oneway) (em:iri :tours))))))) .
+proof:record11 em:term (em:compound "clause" ((em:integer "7") (em:compound "fact" ((em:compound "rdf" ((em:iri :chartres) (em:iri :oneway) (em:iri :lemans))))))) .
+proof:record12 em:term (em:compound "clause" ((em:integer "8") (em:compound "fact" ((em:compound "rdf" ((em:iri :lemans) (em:iri :oneway) (em:iri :angers))))))) .
+proof:record13 em:term (em:compound "clause" ((em:integer "9") (em:compound "fact" ((em:compound "rdf" ((em:iri :lemans) (em:iri :oneway) (em:iri :tours))))))) .
+proof:record14 em:term (em:compound "clause" ((em:integer "10") (em:compound "fact" ((em:compound "rdf" ((em:iri :angers) (em:iri :oneway) (em:iri :nantes))))))) .
+proof:record15 em:term (em:compound "clause" ((em:integer "11") (em:compound "fact" ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))))))) .
+proof:record16 em:term (em:compound "clause" ((em:integer "12") (em:compound "fact" ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))))))) .
+proof:record17 em:term (em:compound "clause" ((em:integer "21") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "Property") (em:iri rdfs:subPropertyOf) (em:variable "Super"))) (em:compound "rdf" ((em:variable "From") (em:variable "Property") (em:variable "To"))))) (em:compound "rdf" ((em:variable "From") (em:variable "Super") (em:variable "To"))))))) .
+proof:record18 em:term (em:compound "clause" ((em:integer "23") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "Property") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "rdf" ((em:variable "From") (em:variable "Property") (em:variable "Via"))) (em:compound "rdf" ((em:variable "Via") (em:variable "Property") (em:variable "To"))))) (em:compound "rdf" ((em:variable "From") (em:variable "Property") (em:variable "To"))))))) .
+proof:record19 em:term (em:compound "clause" ((em:integer "24") (em:compound "implies" ((em:compound "rdf" ((em:variable "City") (em:iri :path) (em:iri :nantes))) (em:compound "result" ((em:variable "City") (em:iri :canReach) (em:iri :nantes))))))) .
+proof:record20 em:term (em:compound "step" ((em:compound "result" ((em:iri :angers) (em:iri :canReach) (em:iri :nantes))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "City") (em:iri :angers))))) (em:list ((em:compound "rdf" ((em:iri :angers) (em:iri :path) (em:iri :nantes))))))) .
+proof:record21 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :angers) (em:iri :path) (em:iri :nantes))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :oneway))) (em:compound "=" ((em:atom "Super") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :angers))) (em:compound "=" ((em:atom "To") (em:iri :nantes))))) (em:list ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))) (em:compound "rdf" ((em:iri :angers) (em:iri :oneway) (em:iri :nantes))))))) .
+proof:record22 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))) (em:compound "clause" ((em:integer "11"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record23 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :angers) (em:iri :oneway) (em:iri :nantes))) (em:compound "clause" ((em:integer "10"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record24 em:term (em:compound "step" ((em:compound "result" ((em:iri :lemans) (em:iri :canReach) (em:iri :nantes))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "City") (em:iri :lemans))))) (em:list ((em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :nantes))))))) .
+proof:record25 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :nantes))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :lemans))) (em:compound "=" ((em:atom "Via") (em:iri :angers))) (em:compound "=" ((em:atom "To") (em:iri :nantes))))) (em:list ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :angers))) (em:compound "rdf" ((em:iri :angers) (em:iri :path) (em:iri :nantes))))))) .
+proof:record26 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "clause" ((em:integer "12"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record27 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :angers))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :oneway))) (em:compound "=" ((em:atom "Super") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :lemans))) (em:compound "=" ((em:atom "To") (em:iri :angers))))) (em:list ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))) (em:compound "rdf" ((em:iri :lemans) (em:iri :oneway) (em:iri :angers))))))) .
+proof:record28 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :lemans) (em:iri :oneway) (em:iri :angers))) (em:compound "clause" ((em:integer "8"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record29 em:term (em:compound "step" ((em:compound "result" ((em:iri :chartres) (em:iri :canReach) (em:iri :nantes))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "City") (em:iri :chartres))))) (em:list ((em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :nantes))))))) .
+proof:record30 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :nantes))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :chartres))) (em:compound "=" ((em:atom "Via") (em:iri :lemans))) (em:compound "=" ((em:atom "To") (em:iri :nantes))))) (em:list ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :lemans))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :nantes))))))) .
+proof:record31 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :lemans))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :oneway))) (em:compound "=" ((em:atom "Super") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :chartres))) (em:compound "=" ((em:atom "To") (em:iri :lemans))))) (em:list ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))) (em:compound "rdf" ((em:iri :chartres) (em:iri :oneway) (em:iri :lemans))))))) .
+proof:record32 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :chartres) (em:iri :oneway) (em:iri :lemans))) (em:compound "clause" ((em:integer "7"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record33 em:term (em:compound "step" ((em:compound "result" ((em:iri :paris) (em:iri :canReach) (em:iri :nantes))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "City") (em:iri :paris))))) (em:list ((em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :nantes))))))) .
+proof:record34 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :nantes))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :paris))) (em:compound "=" ((em:atom "Via") (em:iri :lemans))) (em:compound "=" ((em:atom "To") (em:iri :nantes))))) (em:list ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :lemans))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :nantes))))))) .
+proof:record35 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :lemans))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :paris))) (em:compound "=" ((em:atom "Via") (em:iri :chartres))) (em:compound "=" ((em:atom "To") (em:iri :lemans))))) (em:list ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :chartres))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :lemans))))))) .
+proof:record36 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :chartres))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :oneway))) (em:compound "=" ((em:atom "Super") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :paris))) (em:compound "=" ((em:atom "To") (em:iri :chartres))))) (em:list ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))) (em:compound "rdf" ((em:iri :paris) (em:iri :oneway) (em:iri :chartres))))))) .
+proof:record37 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :paris) (em:iri :oneway) (em:iri :chartres))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record38 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :orleans))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :oneway))) (em:compound "=" ((em:atom "Super") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :paris))) (em:compound "=" ((em:atom "To") (em:iri :orleans))))) (em:list ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))) (em:compound "rdf" ((em:iri :paris) (em:iri :oneway) (em:iri :orleans))))))) .
+proof:record39 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :paris) (em:iri :oneway) (em:iri :orleans))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record40 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :amiens))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :oneway))) (em:compound "=" ((em:atom "Super") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :paris))) (em:compound "=" ((em:atom "To") (em:iri :amiens))))) (em:list ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))) (em:compound "rdf" ((em:iri :paris) (em:iri :oneway) (em:iri :amiens))))))) .
+proof:record41 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :paris) (em:iri :oneway) (em:iri :amiens))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record42 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :blois))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :oneway))) (em:compound "=" ((em:atom "Super") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :orleans))) (em:compound "=" ((em:atom "To") (em:iri :blois))))) (em:list ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))) (em:compound "rdf" ((em:iri :orleans) (em:iri :oneway) (em:iri :blois))))))) .
+proof:record43 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :orleans) (em:iri :oneway) (em:iri :blois))) (em:compound "clause" ((em:integer "4"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record44 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :bourges))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :oneway))) (em:compound "=" ((em:atom "Super") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :orleans))) (em:compound "=" ((em:atom "To") (em:iri :bourges))))) (em:list ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))) (em:compound "rdf" ((em:iri :orleans) (em:iri :oneway) (em:iri :bourges))))))) .
+proof:record45 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :orleans) (em:iri :oneway) (em:iri :bourges))) (em:compound "clause" ((em:integer "5"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record46 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :blois) (em:iri :path) (em:iri :tours))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :oneway))) (em:compound "=" ((em:atom "Super") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :blois))) (em:compound "=" ((em:atom "To") (em:iri :tours))))) (em:list ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))) (em:compound "rdf" ((em:iri :blois) (em:iri :oneway) (em:iri :tours))))))) .
+proof:record47 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :blois) (em:iri :oneway) (em:iri :tours))) (em:compound "clause" ((em:integer "6"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record48 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :tours))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :oneway))) (em:compound "=" ((em:atom "Super") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :lemans))) (em:compound "=" ((em:atom "To") (em:iri :tours))))) (em:list ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))) (em:compound "rdf" ((em:iri :lemans) (em:iri :oneway) (em:iri :tours))))))) .
+proof:record49 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :lemans) (em:iri :oneway) (em:iri :tours))) (em:compound "clause" ((em:integer "9"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record50 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :blois))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :paris))) (em:compound "=" ((em:atom "Via") (em:iri :orleans))) (em:compound "=" ((em:atom "To") (em:iri :blois))))) (em:list ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :orleans))) (em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :blois))))))) .
+proof:record51 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :bourges))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :paris))) (em:compound "=" ((em:atom "Via") (em:iri :orleans))) (em:compound "=" ((em:atom "To") (em:iri :bourges))))) (em:list ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :orleans))) (em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :bourges))))))) .
+proof:record52 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :tours))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :orleans))) (em:compound "=" ((em:atom "Via") (em:iri :blois))) (em:compound "=" ((em:atom "To") (em:iri :tours))))) (em:list ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :blois))) (em:compound "rdf" ((em:iri :blois) (em:iri :path) (em:iri :tours))))))) .
+proof:record53 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :angers))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :chartres))) (em:compound "=" ((em:atom "Via") (em:iri :lemans))) (em:compound "=" ((em:atom "To") (em:iri :angers))))) (em:list ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :lemans))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :angers))))))) .
+proof:record54 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :tours))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :chartres))) (em:compound "=" ((em:atom "Via") (em:iri :lemans))) (em:compound "=" ((em:atom "To") (em:iri :tours))))) (em:list ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :lemans))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :tours))))))) .
+proof:record55 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :tours))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :paris))) (em:compound "=" ((em:atom "Via") (em:iri :orleans))) (em:compound "=" ((em:atom "To") (em:iri :tours))))) (em:list ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :orleans))) (em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :tours))))))) .
+proof:record56 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :angers))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "Property") (em:iri :path))) (em:compound "=" ((em:atom "From") (em:iri :paris))) (em:compound "=" ((em:atom "Via") (em:iri :chartres))) (em:compound "=" ((em:atom "To") (em:iri :angers))))) (em:list ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :chartres))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :angers))))))) .
+proof:record57 em:term (em:compound "derived" ((em:compound "result" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "result" ((em:iri :angers) (em:iri :canReach) (em:iri :nantes))) (em:compound "result" ((em:iri :lemans) (em:iri :canReach) (em:iri :nantes))) (em:compound "result" ((em:iri :chartres) (em:iri :canReach) (em:iri :nantes))) (em:compound "result" ((em:iri :paris) (em:iri :canReach) (em:iri :nantes))))))) .
+proof:record58 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :orleans))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :chartres))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :amiens))) (em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :blois))) (em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :bourges))) (em:compound "rdf" ((em:iri :blois) (em:iri :path) (em:iri :tours))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :lemans))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :angers))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :tours))) (em:compound "rdf" ((em:iri :angers) (em:iri :path) (em:iri :nantes))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :blois))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :bourges))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :lemans))) (em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :tours))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :angers))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :tours))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :nantes))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :tours))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :angers))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :nantes))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :nantes))))))) .
+proof:record59 em:term (em:compound "called" ((em:compound "result" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "result" ((em:iri :angers) (em:iri :canReach) (em:iri :nantes))) (em:compound "result" ((em:iri :lemans) (em:iri :canReach) (em:iri :nantes))) (em:compound "result" ((em:iri :chartres) (em:iri :canReach) (em:iri :nantes))) (em:compound "result" ((em:iri :paris) (em:iri :canReach) (em:iri :nantes))))))) .
+proof:record60 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "D") (em:iri :path) (em:iri :nantes))) (em:list ((em:compound "rdf" ((em:iri :angers) (em:iri :path) (em:iri :nantes))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :nantes))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :nantes))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :nantes))))))) .
+proof:record61 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "E") (em:iri rdfs:subPropertyOf) (em:variable "F"))) (em:list ((em:compound "rdf" ((em:iri :oneway) (em:iri rdfs:subPropertyOf) (em:iri :path))))))) .
+proof:record62 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "G") (em:iri :oneway) (em:variable "H"))) (em:list ((em:compound "rdf" ((em:iri :paris) (em:iri :oneway) (em:iri :orleans))) (em:compound "rdf" ((em:iri :paris) (em:iri :oneway) (em:iri :chartres))) (em:compound "rdf" ((em:iri :paris) (em:iri :oneway) (em:iri :amiens))) (em:compound "rdf" ((em:iri :orleans) (em:iri :oneway) (em:iri :blois))) (em:compound "rdf" ((em:iri :orleans) (em:iri :oneway) (em:iri :bourges))) (em:compound "rdf" ((em:iri :blois) (em:iri :oneway) (em:iri :tours))) (em:compound "rdf" ((em:iri :chartres) (em:iri :oneway) (em:iri :lemans))) (em:compound "rdf" ((em:iri :lemans) (em:iri :oneway) (em:iri :angers))) (em:compound "rdf" ((em:iri :lemans) (em:iri :oneway) (em:iri :tours))) (em:compound "rdf" ((em:iri :angers) (em:iri :oneway) (em:iri :nantes))))))) .
+proof:record63 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :path) (em:iri rdfs:subPropertyOf) (em:variable "I"))) (em:atom "[]"))) .
+proof:record64 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "J") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))) (em:list ((em:compound "rdf" ((em:iri :path) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri owl:TransitiveProperty))))))) .
+proof:record65 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "K") (em:iri :path) (em:variable "L"))) (em:list ((em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :orleans))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :chartres))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :amiens))) (em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :blois))) (em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :bourges))) (em:compound "rdf" ((em:iri :blois) (em:iri :path) (em:iri :tours))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :lemans))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :angers))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :tours))) (em:compound "rdf" ((em:iri :angers) (em:iri :path) (em:iri :nantes))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :blois))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :bourges))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :lemans))) (em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :tours))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :angers))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :tours))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :nantes))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :tours))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :angers))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :nantes))) (em:compound "rdf" ((em:iri :paris) (em:iri :path) (em:iri :nantes))))))) .
+proof:record66 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:variable "M"))) (em:list ((em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :blois))) (em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :bourges))) (em:compound "rdf" ((em:iri :orleans) (em:iri :path) (em:iri :tours))))))) .
+proof:record67 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:variable "M"))) (em:list ((em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :lemans))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :angers))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :tours))) (em:compound "rdf" ((em:iri :chartres) (em:iri :path) (em:iri :nantes))))))) .
+proof:record68 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :amiens) (em:iri :path) (em:variable "M"))) (em:atom "[]"))) .
+proof:record69 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :blois) (em:iri :path) (em:variable "M"))) (em:list ((em:compound "rdf" ((em:iri :blois) (em:iri :path) (em:iri :tours))))))) .
+proof:record70 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :bourges) (em:iri :path) (em:variable "M"))) (em:atom "[]"))) .
+proof:record71 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :tours) (em:iri :path) (em:variable "M"))) (em:atom "[]"))) .
+proof:record72 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:variable "M"))) (em:list ((em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :angers))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :tours))) (em:compound "rdf" ((em:iri :lemans) (em:iri :path) (em:iri :nantes))))))) .
+proof:record73 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :angers) (em:iri :path) (em:variable "M"))) (em:list ((em:compound "rdf" ((em:iri :angers) (em:iri :path) (em:iri :nantes))))))) .
+proof:record74 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :nantes) (em:iri :path) (em:variable "M"))) (em:atom "[]"))) .

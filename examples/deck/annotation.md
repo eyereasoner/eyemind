@@ -2,7 +2,7 @@
 
 *An RDF 1.2 annotation: an asserted triple recovered with the reifier that records who stated it and when.*
 
-[data/annotation.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/annotation.ttl) · [annotation.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/annotation.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/annotation.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/annotation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/annotation.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=annotation)
+[data/annotation.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/annotation.ttl) · [annotation.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/annotation.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/annotation.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/annotation.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/annotation.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=annotation)
 
 ---
 
@@ -98,5 +98,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/data/annotation.ttl examples/annotation.n3
 node bin/eyemind.js --proof examples/data/annotation.ttl examples/annotation.n3
-node bin/eyemind.js --check-proof examples/proof/annotation.js examples/data/annotation.ttl examples/annotation.n3
+node bin/eyemind.js --check-proof examples/proof/annotation.n3 examples/data/annotation.ttl examples/annotation.n3
 ```

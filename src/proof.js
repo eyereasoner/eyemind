@@ -6,6 +6,8 @@
 // implied_by(...)), then one step(Goal, By, Bindings, Uses) per inference,
 // then the search certificate that settles its negations and collections. The
 // document reader parses it as data; it never executes it.
+// Native N3 and SRL documents decode to these same records and validate their
+// displayed evidence before the unchanged C1–C10 checks consume it.
 //
 // Verification follows recorded uses; it never asks the solver to find a
 // missing derivation. Only pure primitives are independently recomputed.
@@ -16,7 +18,7 @@ import { goalTerm } from './goals.js';
 import { checkCalls } from './fidelity.js';
 import { INSPECTION_KEYS, isInspection } from './inspection.js';
 import { CONTROL_KEYS, Program } from './program.js';
-import { readTerms } from './reader.js';
+import { readProofTerms } from './native-proof.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
   isCallable, isFloat, isGround, isTerm, key, keyArity, keyName, listFromItems, properListItems, unify, variables,
@@ -402,7 +404,7 @@ function readDocument(program, document, fail, spellings) {
   const certificate = { tables: new Map(), calls: new Map(), listings: new Map(), order: [] };
   const empty = new Env();
   try {
-    for (const [term] of readTerms(document)) {
+    for (const [term] of readProofTerms(document)) {
       if (isTerm(term, 'searched', 2) || isTerm(term, 'derived', 2) || isTerm(term, 'called', 2)) {
         readCertificate(term, certificate, fail, empty);
         continue;

@@ -97,7 +97,7 @@ export const tests = [
       assert.match(await p.status(), new RegExp(`^${status} · exit ${entry.halt_code ?? 0}`), name);
       assert.equal(await p.output(), readFileSync(artifactPath('output', entry), 'utf8'), name);
       await p.select('mode', '--check-proof');
-      await p.type('proof-input', readFileSync(new URL(`../examples/proof/${name}.js`, import.meta.url), 'utf8'));
+      await p.type('proof-input', readFileSync(artifactPath('proof', entry), 'utf8'));
       if (mobile) {
         await page.evaluate("document.getElementById('share-link').click()");
         await p.until("document.getElementById('share-url').value.includes('#state=')", 'the shared proof and inputs');
@@ -129,10 +129,34 @@ export const tests = [
     await p.run();
     assert.equal(await p.output(), output);
     await p.select('mode', '--check-proof');
-    await p.type('proof-input', readFileSync(new URL('../examples/proof/message-alerts.js', import.meta.url), 'utf8'));
+    await p.type('proof-input', readFileSync(new URL('../examples/proof/message-alerts.n3', import.meta.url), 'utf8'));
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
     assert.equal(await p.output(), readFileSync(new URL('../examples/check/message-alerts.js', import.meta.url), 'utf8'));
+    await p.select('mode', '');
+  }],
+
+  ['native proof generation, downloads and checking preserve N3 and SRL formats', async (page, base) => {
+    const p = driver(page);
+    for (const [name, extension, width] of [['socrates-n3', 'n3', 1280], ['socrates-srl', 'srl', 390]]) {
+      const entry = readManifest().find((entry) => entry.name === name);
+      await p.open(`${base}#example=${name}`, width, width === 390);
+      await p.select('mode', '--proof');
+      await p.run();
+      const document = await p.output();
+      assert.equal(document, readFileSync(artifactPath('proof', entry), 'utf8'));
+      await page.evaluate(`(() => {
+        HTMLAnchorElement.prototype.click = function () { window.savedFilename = this.download; };
+        document.getElementById('save-output').click();
+      })()`);
+      assert.equal(await page.evaluate('window.savedFilename'), `proof.${extension}`);
+      await p.select('mode', '--check-proof');
+      assert.match(await page.evaluate("document.getElementById('command').textContent"), new RegExp(`--check-proof proof\\.${extension} `));
+      await p.type('proof-input', document);
+      await p.run();
+      assert.match(await p.status(), /^Done · exit 0/);
+      assert.equal(await p.output(), readFileSync(artifactPath('check', entry), 'utf8'));
+    }
     await p.select('mode', '');
   }],
 

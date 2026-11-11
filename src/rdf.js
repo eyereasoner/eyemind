@@ -135,9 +135,13 @@ function literalTerm(raw) {
   const tagged = /^(".*")@([A-Za-z]+(?:-[A-Za-z0-9]+)*)(?:--(ltr|rtl))?$/s.exec(text);
   if (tagged) {
     const lang = tagged[2].toLowerCase();
+    if (!/^[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*$/.test(lang)) throw new SyntaxError(`invalid RDF 1.2 language tag @${tagged[2]}`);
     return st('literal', unquote(tagged[1]), tagged[3] ? st('lang', lang, tagged[3]) : st('lang', lang));
   }
   const [lexical, datatype] = literalParts(text);
+  if (datatype === `${RDF_NS}langString` || datatype === `${RDF_NS}dirLangString`) {
+    throw new SyntaxError(`RDF datatype ${datatype} requires a language tag`);
+  }
   const quoted = typeof lexical === 'string' && lexical.length >= 2 && lexical[0] === '"' && lexical.at(-1) === '"';
   const value = quoted ? unquote(lexical) : lexical;
   return literalOf(value, datatype ?? (quoted ? `${XSD}string` : bareDatatype(value)));

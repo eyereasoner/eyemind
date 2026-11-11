@@ -2,7 +2,7 @@
 
 *An active policy derives and reports a membership rule.*
 
-[derived-rule.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/derived-rule.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/derived-rule.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/derived-rule-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/derived-rule-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=derived-rule-n3)
+[derived-rule.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/derived-rule.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/derived-rule.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/derived-rule.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/derived-rule-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=derived-rule-n3)
 
 ---
 
@@ -72,5 +72,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/derived-rule.n3
 node bin/eyemind.js --proof examples/derived-rule.n3
-node bin/eyemind.js --check-proof examples/proof/derived-rule-n3.js examples/derived-rule.n3
+node bin/eyemind.js --check-proof examples/proof/derived-rule.n3 examples/derived-rule.n3
 ```

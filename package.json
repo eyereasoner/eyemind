@@ -20,7 +20,8 @@
     "LICENSE.md"
   ],
   "scripts": {
-    "test": "node test/run.js"
+    "test": "node test/run.js",
+    "sync": "node tools/sync.js"
   },
   "engines": {
     "node": ">=18"

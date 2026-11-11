@@ -1,0 +1,109 @@
+# N3 proof: claims, steps and the complete C1–C10 certificate.
+@prefix : <http://example.org/family#> .
+@prefix pe: <https://eyereasoner.github.io/pe#> .
+@prefix em: <https://eyereasoner.github.io/eyemind/proof#> .
+@prefix proof: <urn:eyemind:proof#> .
+
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "n3" .
+<urn:eyemind:proof> pe:claims ({ :ann :ancestor :bob } { :ann :ancestor :cat } { :ann :ancestor :dan }) .
+proof:record10 pe:conclusion { :ann :ancestor :bob } .
+proof:record10 pe:rule 6 .
+proof:record10 pe:binding (("Who" :bob)) .
+proof:record10 pe:uses ({ :ann :ancestor :bob }) .
+proof:record11 pe:conclusion { :ann :ancestor :bob } .
+proof:record11 pe:rule 4 .
+proof:record11 pe:binding (("X" :ann) ("Y" :bob)) .
+proof:record11 pe:uses ({ :ann :parent :bob }) .
+proof:record12 pe:conclusion { :ann :parent :bob } .
+proof:record12 pe:rule 1 .
+proof:record12 pe:binding () .
+proof:record12 pe:uses () .
+proof:record13 pe:conclusion { :ann :ancestor :cat } .
+proof:record13 pe:rule 6 .
+proof:record13 pe:binding (("Who" :cat)) .
+proof:record13 pe:uses ({ :ann :ancestor :cat }) .
+proof:record14 pe:conclusion { :ann :ancestor :cat } .
+proof:record14 pe:rule 5 .
+proof:record14 pe:binding (("X" :ann) ("Z" :cat) ("Y" :bob)) .
+proof:record14 pe:uses ({ :ann :parent :bob } { :bob :ancestor :cat }) .
+proof:record15 pe:conclusion { :bob :ancestor :cat } .
+proof:record15 pe:rule 4 .
+proof:record15 pe:binding (("X" :bob) ("Y" :cat)) .
+proof:record15 pe:uses ({ :bob :parent :cat }) .
+proof:record16 pe:conclusion { :bob :parent :cat } .
+proof:record16 pe:rule 2 .
+proof:record16 pe:binding () .
+proof:record16 pe:uses () .
+proof:record17 pe:conclusion { :ann :ancestor :dan } .
+proof:record17 pe:rule 6 .
+proof:record17 pe:binding (("Who" :dan)) .
+proof:record17 pe:uses ({ :ann :ancestor :dan }) .
+proof:record18 pe:conclusion { :ann :ancestor :dan } .
+proof:record18 pe:rule 5 .
+proof:record18 pe:binding (("X" :ann) ("Z" :dan) ("Y" :bob)) .
+proof:record18 pe:uses ({ :ann :parent :bob } { :bob :ancestor :dan }) .
+proof:record19 pe:conclusion { :bob :ancestor :dan } .
+proof:record19 pe:rule 5 .
+proof:record19 pe:binding (("X" :bob) ("Z" :dan) ("Y" :cat)) .
+proof:record19 pe:uses ({ :bob :parent :cat } { :cat :ancestor :dan }) .
+proof:record20 pe:conclusion { :cat :ancestor :dan } .
+proof:record20 pe:rule 4 .
+proof:record20 pe:binding (("X" :cat) ("Y" :dan)) .
+proof:record20 pe:uses ({ :cat :parent :dan }) .
+proof:record21 pe:conclusion { :cat :parent :dan } .
+proof:record21 pe:rule 3 .
+proof:record21 pe:binding () .
+proof:record21 pe:uses () .
+proof:record22 pe:derived { ?A ?B ?C } .
+proof:record22 pe:answers ({ :ann :ancestor :bob } { :ann :ancestor :cat } { :ann :ancestor :dan }) .
+proof:record23 pe:called { ?A ?B ?C } .
+proof:record23 pe:answers ({ :ann :ancestor :bob } { :ann :ancestor :cat } { :ann :ancestor :dan }) .
+proof:record24 pe:called { :ann :ancestor ?D } .
+proof:record24 pe:answers ({ :ann :ancestor :bob } { :ann :ancestor :cat } { :ann :ancestor :dan }) .
+proof:record25 pe:called { :ann :parent ?E } .
+proof:record25 pe:answers ({ :ann :parent :bob }) .
+proof:record26 pe:called { :bob :ancestor ?F } .
+proof:record26 pe:answers ({ :bob :ancestor :cat } { :bob :ancestor :dan }) .
+proof:record27 pe:called { :bob :parent ?G } .
+proof:record27 pe:answers ({ :bob :parent :cat }) .
+proof:record28 pe:called { :cat :ancestor ?H } .
+proof:record28 pe:answers ({ :cat :ancestor :dan }) .
+proof:record29 pe:called { :cat :parent ?I } .
+proof:record29 pe:answers ({ :cat :parent :dan }) .
+proof:record30 pe:called { :dan :ancestor ?J } .
+proof:record30 pe:answers () .
+proof:record31 pe:called { :dan :parent ?K } .
+proof:record31 pe:answers () .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31) .
+proof:record1 em:term (em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:iri :bob))) .
+proof:record2 em:term (em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:iri :cat))) .
+proof:record3 em:term (em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:iri :dan))) .
+proof:record4 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :ann) (em:iri :parent) (em:iri :bob))))))) .
+proof:record5 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "rdf" ((em:iri :bob) (em:iri :parent) (em:iri :cat))))))) .
+proof:record6 em:term (em:compound "clause" ((em:integer "3") (em:compound "fact" ((em:compound "rdf" ((em:iri :cat) (em:iri :parent) (em:iri :dan))))))) .
+proof:record7 em:term (em:compound "clause" ((em:integer "4") (em:compound "implied_by" ((em:compound "rdf" ((em:variable "X") (em:iri :ancestor) (em:variable "Y"))) (em:compound "rdf" ((em:variable "X") (em:iri :parent) (em:variable "Y"))))))) .
+proof:record8 em:term (em:compound "clause" ((em:integer "5") (em:compound "implied_by" ((em:compound "rdf" ((em:variable "X") (em:iri :ancestor) (em:variable "Z"))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri :parent) (em:variable "Y"))) (em:compound "rdf" ((em:variable "Y") (em:iri :ancestor) (em:variable "Z"))))))))) .
+proof:record9 em:term (em:compound "clause" ((em:integer "6") (em:compound "implies" ((em:compound "rdf" ((em:iri :ann) (em:iri :ancestor) (em:variable "Who"))) (em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:variable "Who"))))))) .
+proof:record10 em:term (em:compound "step" ((em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:iri :bob))) (em:compound "clause" ((em:integer "6"))) (em:list ((em:compound "=" ((em:atom "Who") (em:iri :bob))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :ancestor) (em:iri :bob))))))) .
+proof:record11 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ann) (em:iri :ancestor) (em:iri :bob))) (em:compound "clause" ((em:integer "4"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :ann))) (em:compound "=" ((em:atom "Y") (em:iri :bob))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :parent) (em:iri :bob))))))) .
+proof:record12 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ann) (em:iri :parent) (em:iri :bob))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record13 em:term (em:compound "step" ((em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:iri :cat))) (em:compound "clause" ((em:integer "6"))) (em:list ((em:compound "=" ((em:atom "Who") (em:iri :cat))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :ancestor) (em:iri :cat))))))) .
+proof:record14 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ann) (em:iri :ancestor) (em:iri :cat))) (em:compound "clause" ((em:integer "5"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :ann))) (em:compound "=" ((em:atom "Z") (em:iri :cat))) (em:compound "=" ((em:atom "Y") (em:iri :bob))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :parent) (em:iri :bob))) (em:compound "rdf" ((em:iri :bob) (em:iri :ancestor) (em:iri :cat))))))) .
+proof:record15 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :ancestor) (em:iri :cat))) (em:compound "clause" ((em:integer "4"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :bob))) (em:compound "=" ((em:atom "Y") (em:iri :cat))))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :parent) (em:iri :cat))))))) .
+proof:record16 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :parent) (em:iri :cat))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record17 em:term (em:compound "step" ((em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:iri :dan))) (em:compound "clause" ((em:integer "6"))) (em:list ((em:compound "=" ((em:atom "Who") (em:iri :dan))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :ancestor) (em:iri :dan))))))) .
+proof:record18 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ann) (em:iri :ancestor) (em:iri :dan))) (em:compound "clause" ((em:integer "5"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :ann))) (em:compound "=" ((em:atom "Z") (em:iri :dan))) (em:compound "=" ((em:atom "Y") (em:iri :bob))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :parent) (em:iri :bob))) (em:compound "rdf" ((em:iri :bob) (em:iri :ancestor) (em:iri :dan))))))) .
+proof:record19 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :ancestor) (em:iri :dan))) (em:compound "clause" ((em:integer "5"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :bob))) (em:compound "=" ((em:atom "Z") (em:iri :dan))) (em:compound "=" ((em:atom "Y") (em:iri :cat))))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :parent) (em:iri :cat))) (em:compound "rdf" ((em:iri :cat) (em:iri :ancestor) (em:iri :dan))))))) .
+proof:record20 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :cat) (em:iri :ancestor) (em:iri :dan))) (em:compound "clause" ((em:integer "4"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :cat))) (em:compound "=" ((em:atom "Y") (em:iri :dan))))) (em:list ((em:compound "rdf" ((em:iri :cat) (em:iri :parent) (em:iri :dan))))))) .
+proof:record21 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :cat) (em:iri :parent) (em:iri :dan))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record22 em:term (em:compound "derived" ((em:compound "result" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:iri :bob))) (em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:iri :cat))) (em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:iri :dan))))))) .
+proof:record23 em:term (em:compound "called" ((em:compound "result" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:iri :bob))) (em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:iri :cat))) (em:compound "result" ((em:iri :ann) (em:iri :ancestor) (em:iri :dan))))))) .
+proof:record24 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :ann) (em:iri :ancestor) (em:variable "D"))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :ancestor) (em:iri :bob))) (em:compound "rdf" ((em:iri :ann) (em:iri :ancestor) (em:iri :cat))) (em:compound "rdf" ((em:iri :ann) (em:iri :ancestor) (em:iri :dan))))))) .
+proof:record25 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :ann) (em:iri :parent) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :parent) (em:iri :bob))))))) .
+proof:record26 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :bob) (em:iri :ancestor) (em:variable "F"))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :ancestor) (em:iri :cat))) (em:compound "rdf" ((em:iri :bob) (em:iri :ancestor) (em:iri :dan))))))) .
+proof:record27 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :bob) (em:iri :parent) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :parent) (em:iri :cat))))))) .
+proof:record28 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :cat) (em:iri :ancestor) (em:variable "H"))) (em:list ((em:compound "rdf" ((em:iri :cat) (em:iri :ancestor) (em:iri :dan))))))) .
+proof:record29 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :cat) (em:iri :parent) (em:variable "I"))) (em:list ((em:compound "rdf" ((em:iri :cat) (em:iri :parent) (em:iri :dan))))))) .
+proof:record30 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :dan) (em:iri :ancestor) (em:variable "J"))) (em:atom "[]"))) .
+proof:record31 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :dan) (em:iri :parent) (em:variable "K"))) (em:atom "[]"))) .

@@ -2,7 +2,7 @@
 
 *Nested RDF 1.2 triple terms: one pattern reaches the triple inside a claim inside a review.*
 
-[data/nested-triple-term.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/nested-triple-term.ttl) · [nested-triple-term.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/nested-triple-term.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/nested-triple-term.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/nested-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/nested-triple-term.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=nested-triple-term)
+[data/nested-triple-term.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/nested-triple-term.ttl) · [nested-triple-term.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/nested-triple-term.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/nested-triple-term.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/nested-triple-term.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/nested-triple-term.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=nested-triple-term)
 
 ---
 
@@ -78,5 +78,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/data/nested-triple-term.ttl examples/nested-triple-term.n3
 node bin/eyemind.js --proof examples/data/nested-triple-term.ttl examples/nested-triple-term.n3
-node bin/eyemind.js --check-proof examples/proof/nested-triple-term.js examples/data/nested-triple-term.ttl examples/nested-triple-term.n3
+node bin/eyemind.js --check-proof examples/proof/nested-triple-term.n3 examples/data/nested-triple-term.ttl examples/nested-triple-term.n3
 ```

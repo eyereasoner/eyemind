@@ -2,7 +2,7 @@
 
 *Which cities can reach Nantes through a small network of one-way links?*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/french-cities.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/french-cities.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/french-cities.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/french-cities.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=french-cities)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/french-cities.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/french-cities.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/french-cities.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/french-cities.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=french-cities)
 
 ---
 
@@ -57,7 +57,7 @@ The program implements these stated schema rules.
 
 ## What eyemind concludes
 
-The proof records these answers as terms:
+The check report records these answers as terms:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -115,7 +115,7 @@ about the other cities, nor establish answer completeness.
 ```sh
 node bin/eyemind.js examples/french-cities.n3
 node bin/eyemind.js --to eyemind examples/french-cities.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/french-cities.js examples/french-cities.n3
+node bin/eyemind.js --strict-proof --check-proof examples/proof/french-cities.n3 examples/french-cities.n3
 ```
 
 To inspect the compilation:

@@ -1,0 +1,476 @@
+# SRL proof: DATA only; claims, steps and the complete C1–C10 certificate.
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX : <http://example.org/deployment#>
+PREFIX pe: <https://eyereasoner.github.io/pe#>
+PREFIX em: <https://eyereasoner.github.io/eyemind/proof#>
+PREFIX proof: <urn:eyemind:proof#>
+
+DATA {
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "srl" .
+<urn:eyemind:proof> pe:claims (<<( :shop :dependsOn :payments )>> <<( :payments :dependsOn :ledger )>> <<( :ledger :exposedTo :cve1 )>> <<( :payments :exposedTo :cve1 )>> <<( :ledger :status :critical )>> <<( :payments :status :critical )>> <<( :shop :exposedTo :cve1 )>> <<( :shop :status :critical )>> <<( :logger :status :safeToDeploy )>> <<( :shop a :Component )>> <<( :shop :callsService :payments )>> <<( :payments a :Component )>> <<( :payments :queriesDatabase :ledger )>> <<( :ledger a :Component )>> <<( :ledger :hasVulnerability :cve1 )>> <<( :logger a :Component )>> <<( :cve1 :severity "9.8"^^xsd:decimal )>>) .
+proof:record52 pe:conclusion <<( :shop :dependsOn :payments )>> .
+proof:record52 pe:rule 17 .
+proof:record52 pe:binding (("X" :shop) ("Y" :payments)) .
+proof:record52 pe:uses (<<( :shop :callsService :payments )>>) .
+proof:record53 pe:conclusion <<( :shop :callsService :payments )>> .
+proof:record53 pe:rule 3 .
+proof:record53 pe:binding () .
+proof:record53 pe:uses () .
+proof:record54 pe:conclusion <<( :payments :dependsOn :ledger )>> .
+proof:record54 pe:rule 18 .
+proof:record54 pe:binding (("X" :payments) ("Y" :ledger)) .
+proof:record54 pe:uses (<<( :payments :queriesDatabase :ledger )>>) .
+proof:record55 pe:conclusion <<( :payments :queriesDatabase :ledger )>> .
+proof:record55 pe:rule 7 .
+proof:record55 pe:binding () .
+proof:record55 pe:uses () .
+proof:record56 pe:conclusion <<( :ledger :exposedTo :cve1 )>> .
+proof:record56 pe:rule 19 .
+proof:record56 pe:binding (("X" :ledger) ("V" :cve1)) .
+proof:record56 pe:uses (<<( :ledger :hasVulnerability :cve1 )>>) .
+proof:record57 pe:conclusion <<( :ledger :hasVulnerability :cve1 )>> .
+proof:record57 pe:rule 11 .
+proof:record57 pe:binding () .
+proof:record57 pe:uses () .
+proof:record58 pe:conclusion <<( :payments :exposedTo :cve1 )>> .
+proof:record58 pe:rule 20 .
+proof:record58 pe:binding (("X" :payments) ("Y" :ledger) ("V" :cve1)) .
+proof:record58 pe:uses (<<( :payments :dependsOn :ledger )>> <<( :ledger :exposedTo :cve1 )>>) .
+proof:record59 pe:conclusion <<( :payments :dependsOn :ledger )>> .
+proof:record59 pe:rule 18 .
+proof:record59 pe:binding (("X" :payments) ("Y" :ledger)) .
+proof:record59 pe:uses (<<( :payments :queriesDatabase :ledger )>>) .
+proof:record60 pe:conclusion <<( :ledger :exposedTo :cve1 )>> .
+proof:record60 pe:rule 19 .
+proof:record60 pe:binding (("X" :ledger) ("V" :cve1)) .
+proof:record60 pe:uses (<<( :ledger :hasVulnerability :cve1 )>>) .
+proof:record61 pe:conclusion <<( :ledger :status :critical )>> .
+proof:record61 pe:rule 21 .
+proof:record61 pe:binding (("X" :ledger) ("V" :cve1) ("S" "9.8"^^xsd:decimal) ("R" true)) .
+proof:record61 pe:uses (<<( :ledger :exposedTo :cve1 )>> <<( :cve1 :severity "9.8"^^xsd:decimal )>> (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record62 pe:conclusion <<( :cve1 :severity "9.8"^^xsd:decimal )>> .
+proof:record62 pe:rule 15 .
+proof:record62 pe:binding () .
+proof:record62 pe:uses () .
+proof:record63 pe:conclusion (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
+proof:record63 pe:rule 120 .
+proof:record63 pe:binding (("A" "9.8"^^xsd:decimal) ("B" "9.0"^^xsd:decimal) ("R" true) ("O" (em:atom ">")) ("T" (em:atom "true"))) .
+proof:record63 pe:uses ((em:compound "srl_order" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">"))) (em:compound "srl_ge_" ((em:atom ">") (em:atom "true"))) (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record64 pe:conclusion (em:compound "srl_order" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">"))) .
+proof:record64 pe:rule 98 .
+proof:record64 pe:binding (("A" "9.8"^^xsd:decimal) ("B" "9.0"^^xsd:decimal) ("O" (em:atom ">"))) .
+proof:record64 pe:uses ((em:compound "once" ((em:compound "srl_order_" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">")))))) .
+proof:record65 pe:conclusion (em:compound "once" ((em:compound "srl_order_" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">"))))) .
+proof:record65 pe:justification (em:atom "control") .
+proof:record65 pe:binding () .
+proof:record65 pe:uses ((em:compound "srl_order_" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">")))) .
+proof:record66 pe:conclusion (em:compound "srl_order_" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">"))) .
+proof:record66 pe:rule 99 .
+proof:record66 pe:binding (("A" "9.8"^^xsd:decimal) ("B" "9.0"^^xsd:decimal) ("O" (em:atom ">")) ("_0" (em:atom "decimal")) ("X" 9.8) ("_1" (em:atom "decimal")) ("Y" 9.0)) .
+proof:record66 pe:uses ((em:compound "srl_num" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom "decimal") (em:float "9.8"))) (em:compound "srl_num" ((em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom "decimal") (em:float "9"))) (em:compound "srl_compare" ((em:float "9.8") (em:float "9") (em:atom ">")))) .
+proof:record67 pe:conclusion (em:compound "srl_num" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom "decimal") (em:float "9.8"))) .
+proof:record67 pe:rule 26 .
+proof:record67 pe:binding (("L" (em:atom "9.8")) ("D" (em:atom "http://www.w3.org/2001/XMLSchema#decimal")) ("K" (em:atom "decimal")) ("V" 9.8) ("Cs" (em:list ((em:atom "9") (em:atom ".") (em:atom "8")))) ("N" 9.8)) .
+proof:record67 pe:uses ((em:compound "srl_numeric_type" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal") (em:atom "decimal"))) (em:compound "atom_chars" ((em:atom "9.8") (em:list ((em:atom "9") (em:atom ".") (em:atom "8"))))) (em:compound "number_chars" ((em:float "9.8") (em:list ((em:atom "9") (em:atom ".") (em:atom "8"))))) (em:compound "srl_num_value" ((em:atom "decimal") (em:float "9.8") (em:float "9.8")))) .
+proof:record68 pe:conclusion (em:compound "srl_numeric_type" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal") (em:atom "decimal"))) .
+proof:record68 pe:rule 40 .
+proof:record68 pe:binding () .
+proof:record68 pe:uses () .
+proof:record69 pe:conclusion (em:compound "atom_chars" ((em:atom "9.8") (em:list ((em:atom "9") (em:atom ".") (em:atom "8"))))) .
+proof:record69 pe:justification (em:atom "builtin") .
+proof:record69 pe:binding () .
+proof:record69 pe:uses () .
+proof:record70 pe:conclusion (em:compound "number_chars" ((em:float "9.8") (em:list ((em:atom "9") (em:atom ".") (em:atom "8"))))) .
+proof:record70 pe:justification (em:atom "builtin") .
+proof:record70 pe:binding () .
+proof:record70 pe:uses () .
+proof:record71 pe:conclusion (em:compound "srl_num_value" ((em:atom "decimal") (em:float "9.8") (em:float "9.8"))) .
+proof:record71 pe:rule 44 .
+proof:record71 pe:binding (("K" (em:atom "decimal")) ("N" 9.8) ("V" 9.8)) .
+proof:record71 pe:uses ((em:compound "srl_float_kind" ((em:atom "decimal"))) (em:compound "is" ((em:float "9.8") (em:compound "float" ((em:float "9.8")))))) .
+proof:record72 pe:conclusion (em:compound "srl_float_kind" ((em:atom "decimal"))) .
+proof:record72 pe:rule 45 .
+proof:record72 pe:binding () .
+proof:record72 pe:uses () .
+proof:record73 pe:conclusion (em:compound "is" ((em:float "9.8") (em:compound "float" ((em:float "9.8"))))) .
+proof:record73 pe:justification (em:atom "builtin") .
+proof:record73 pe:binding () .
+proof:record73 pe:uses () .
+proof:record74 pe:conclusion (em:compound "srl_num" ((em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom "decimal") (em:float "9"))) .
+proof:record74 pe:rule 26 .
+proof:record74 pe:binding (("L" (em:atom "9.0")) ("D" (em:atom "http://www.w3.org/2001/XMLSchema#decimal")) ("K" (em:atom "decimal")) ("V" 9.0) ("Cs" (em:list ((em:atom "9") (em:atom ".") (em:atom "0")))) ("N" 9.0)) .
+proof:record74 pe:uses ((em:compound "srl_numeric_type" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal") (em:atom "decimal"))) (em:compound "atom_chars" ((em:atom "9.0") (em:list ((em:atom "9") (em:atom ".") (em:atom "0"))))) (em:compound "number_chars" ((em:float "9") (em:list ((em:atom "9") (em:atom ".") (em:atom "0"))))) (em:compound "srl_num_value" ((em:atom "decimal") (em:float "9") (em:float "9")))) .
+proof:record75 pe:conclusion (em:compound "atom_chars" ((em:atom "9.0") (em:list ((em:atom "9") (em:atom ".") (em:atom "0"))))) .
+proof:record75 pe:justification (em:atom "builtin") .
+proof:record75 pe:binding () .
+proof:record75 pe:uses () .
+proof:record76 pe:conclusion (em:compound "number_chars" ((em:float "9") (em:list ((em:atom "9") (em:atom ".") (em:atom "0"))))) .
+proof:record76 pe:justification (em:atom "builtin") .
+proof:record76 pe:binding () .
+proof:record76 pe:uses () .
+proof:record77 pe:conclusion (em:compound "srl_num_value" ((em:atom "decimal") (em:float "9") (em:float "9"))) .
+proof:record77 pe:rule 44 .
+proof:record77 pe:binding (("K" (em:atom "decimal")) ("N" 9.0) ("V" 9.0)) .
+proof:record77 pe:uses ((em:compound "srl_float_kind" ((em:atom "decimal"))) (em:compound "is" ((em:float "9") (em:compound "float" ((em:float "9")))))) .
+proof:record78 pe:conclusion (em:compound "is" ((em:float "9") (em:compound "float" ((em:float "9"))))) .
+proof:record78 pe:justification (em:atom "builtin") .
+proof:record78 pe:binding () .
+proof:record78 pe:uses () .
+proof:record79 pe:conclusion (em:compound "srl_compare" ((em:float "9.8") (em:float "9") (em:atom ">"))) .
+proof:record79 pe:rule 103 .
+proof:record79 pe:binding (("X" 9.8) ("Y" 9.0) ("O" (em:atom ">"))) .
+proof:record79 pe:uses ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom ">")))))))) .
+proof:record80 pe:conclusion (em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) .
+proof:record80 pe:justification (em:atom "control") .
+proof:record80 pe:binding () .
+proof:record80 pe:uses ((em:compound "gt" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom ">")))) .
+proof:record81 pe:conclusion (em:compound "gt" ((em:float "9.8") (em:float "9"))) .
+proof:record81 pe:justification (em:atom "builtin") .
+proof:record81 pe:binding () .
+proof:record81 pe:uses () .
+proof:record82 pe:conclusion (em:compound "unify" ((em:atom ">") (em:atom ">"))) .
+proof:record82 pe:justification (em:atom "builtin") .
+proof:record82 pe:binding () .
+proof:record82 pe:uses () .
+proof:record83 pe:conclusion (em:compound "srl_ge_" ((em:atom ">") (em:atom "true"))) .
+proof:record83 pe:rule 115 .
+proof:record83 pe:binding () .
+proof:record83 pe:uses () .
+proof:record84 pe:conclusion (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
+proof:record84 pe:rule 116 .
+proof:record84 pe:binding () .
+proof:record84 pe:uses () .
+proof:record85 pe:conclusion (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
+proof:record85 pe:rule 65 .
+proof:record85 pe:binding (("T" true)) .
+proof:record85 pe:uses ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))) .
+proof:record86 pe:conclusion (em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) .
+proof:record86 pe:rule 53 .
+proof:record86 pe:binding (("T" true) ("B" (em:atom "true"))) .
+proof:record86 pe:uses ((em:compound "once" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))))) .
+proof:record87 pe:conclusion (em:compound "once" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))) .
+proof:record87 pe:justification (em:atom "control") .
+proof:record87 pe:binding () .
+proof:record87 pe:uses ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))) .
+proof:record88 pe:conclusion (em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) .
+proof:record88 pe:rule 54 .
+proof:record88 pe:binding (("L" (em:atom "true")) ("B" (em:atom "true"))) .
+proof:record88 pe:uses ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true")))) .
+proof:record89 pe:conclusion (em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))) .
+proof:record89 pe:rule 60 .
+proof:record89 pe:binding (("L" (em:atom "true")) ("B" (em:atom "true"))) .
+proof:record89 pe:uses ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false")))))))) .
+proof:record90 pe:conclusion (em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))))) .
+proof:record90 pe:justification (em:atom "control") .
+proof:record90 pe:binding () .
+proof:record90 pe:uses ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false")))))) .
+proof:record91 pe:conclusion (em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))) .
+proof:record91 pe:justification (em:atom "control") .
+proof:record91 pe:binding () .
+proof:record91 pe:uses ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true")))) .
+proof:record92 pe:conclusion (em:compound "srl_true_text" ((em:atom "true"))) .
+proof:record92 pe:rule 61 .
+proof:record92 pe:binding () .
+proof:record92 pe:uses () .
+proof:record93 pe:conclusion (em:compound "unify" ((em:atom "true") (em:atom "true"))) .
+proof:record93 pe:justification (em:atom "builtin") .
+proof:record93 pe:binding () .
+proof:record93 pe:uses () .
+proof:record94 pe:conclusion <<( :payments :status :critical )>> .
+proof:record94 pe:rule 21 .
+proof:record94 pe:binding (("X" :payments) ("V" :cve1) ("S" "9.8"^^xsd:decimal) ("R" true)) .
+proof:record94 pe:uses (<<( :payments :exposedTo :cve1 )>> <<( :cve1 :severity "9.8"^^xsd:decimal )>> (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record95 pe:conclusion <<( :payments :exposedTo :cve1 )>> .
+proof:record95 pe:rule 20 .
+proof:record95 pe:binding (("X" :payments) ("Y" :ledger) ("V" :cve1)) .
+proof:record95 pe:uses (<<( :payments :dependsOn :ledger )>> <<( :ledger :exposedTo :cve1 )>>) .
+proof:record96 pe:conclusion <<( :shop :exposedTo :cve1 )>> .
+proof:record96 pe:rule 20 .
+proof:record96 pe:binding (("X" :shop) ("Y" :payments) ("V" :cve1)) .
+proof:record96 pe:uses (<<( :shop :dependsOn :payments )>> <<( :payments :exposedTo :cve1 )>>) .
+proof:record97 pe:conclusion <<( :shop :dependsOn :payments )>> .
+proof:record97 pe:rule 17 .
+proof:record97 pe:binding (("X" :shop) ("Y" :payments)) .
+proof:record97 pe:uses (<<( :shop :callsService :payments )>>) .
+proof:record98 pe:conclusion <<( :shop :status :critical )>> .
+proof:record98 pe:rule 21 .
+proof:record98 pe:binding (("X" :shop) ("V" :cve1) ("S" "9.8"^^xsd:decimal) ("R" true)) .
+proof:record98 pe:uses (<<( :shop :exposedTo :cve1 )>> <<( :cve1 :severity "9.8"^^xsd:decimal )>> (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record99 pe:conclusion <<( :shop :exposedTo :cve1 )>> .
+proof:record99 pe:rule 20 .
+proof:record99 pe:binding (("X" :shop) ("Y" :payments) ("V" :cve1)) .
+proof:record99 pe:uses (<<( :shop :dependsOn :payments )>> <<( :payments :exposedTo :cve1 )>>) .
+proof:record100 pe:conclusion <<( :logger :status :safeToDeploy )>> .
+proof:record100 pe:rule 23 .
+proof:record100 pe:binding (("X" :logger)) .
+proof:record100 pe:uses (<<( :logger a :Component )>> (em:compound "not" ((em:compound "srl_not_6_1" ((em:iri :logger)))))) .
+proof:record101 pe:conclusion <<( :logger a :Component )>> .
+proof:record101 pe:rule 13 .
+proof:record101 pe:binding () .
+proof:record101 pe:uses () .
+proof:record102 pe:conclusion (em:compound "not" ((em:compound "srl_not_6_1" ((em:iri :logger))))) .
+proof:record102 pe:justification (em:atom "absent") .
+proof:record102 pe:binding () .
+proof:record102 pe:uses () .
+proof:record103 pe:conclusion <<( :shop a :Component )>> .
+proof:record103 pe:rule 2 .
+proof:record103 pe:binding () .
+proof:record103 pe:uses () .
+proof:record104 pe:conclusion <<( :shop :callsService :payments )>> .
+proof:record104 pe:rule 4 .
+proof:record104 pe:binding () .
+proof:record104 pe:uses () .
+proof:record105 pe:conclusion <<( :payments a :Component )>> .
+proof:record105 pe:rule 6 .
+proof:record105 pe:binding () .
+proof:record105 pe:uses () .
+proof:record106 pe:conclusion <<( :payments :queriesDatabase :ledger )>> .
+proof:record106 pe:rule 8 .
+proof:record106 pe:binding () .
+proof:record106 pe:uses () .
+proof:record107 pe:conclusion <<( :ledger a :Component )>> .
+proof:record107 pe:rule 10 .
+proof:record107 pe:binding () .
+proof:record107 pe:uses () .
+proof:record108 pe:conclusion <<( :ledger :hasVulnerability :cve1 )>> .
+proof:record108 pe:rule 12 .
+proof:record108 pe:binding () .
+proof:record108 pe:uses () .
+proof:record109 pe:conclusion <<( :logger a :Component )>> .
+proof:record109 pe:rule 14 .
+proof:record109 pe:binding () .
+proof:record109 pe:uses () .
+proof:record110 pe:conclusion <<( :cve1 :severity "9.8"^^xsd:decimal )>> .
+proof:record110 pe:rule 16 .
+proof:record110 pe:binding () .
+proof:record110 pe:uses () .
+proof:record111 pe:conclusion <<( :ledger :status :critical )>> .
+proof:record111 pe:rule 21 .
+proof:record111 pe:binding (("X" :ledger) ("V" :cve1) ("S" "9.8"^^xsd:decimal) ("R" true)) .
+proof:record111 pe:uses (<<( :ledger :exposedTo :cve1 )>> <<( :cve1 :severity "9.8"^^xsd:decimal )>> (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record112 pe:conclusion <<( :payments :status :critical )>> .
+proof:record112 pe:rule 21 .
+proof:record112 pe:binding (("X" :payments) ("V" :cve1) ("S" "9.8"^^xsd:decimal) ("R" true)) .
+proof:record112 pe:uses (<<( :payments :exposedTo :cve1 )>> <<( :cve1 :severity "9.8"^^xsd:decimal )>> (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record113 pe:conclusion <<( :shop :status :critical )>> .
+proof:record113 pe:rule 21 .
+proof:record113 pe:binding (("X" :shop) ("V" :cve1) ("S" "9.8"^^xsd:decimal) ("R" true)) .
+proof:record113 pe:uses (<<( :shop :exposedTo :cve1 )>> <<( :cve1 :severity "9.8"^^xsd:decimal )>> (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record114 pe:conclusion <<( :logger :status :safeToDeploy )>> .
+proof:record114 pe:rule 23 .
+proof:record114 pe:binding (("X" :logger)) .
+proof:record114 pe:uses (<<( :logger a :Component )>> (em:compound "not" ((em:compound "srl_not_6_1" ((em:iri :logger)))))) .
+proof:record115 pe:derived (em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record115 pe:answers (<<( :shop :dependsOn :payments )>> <<( :payments :dependsOn :ledger )>> <<( :ledger :exposedTo :cve1 )>> <<( :payments :exposedTo :cve1 )>> <<( :ledger :status :critical )>> <<( :payments :status :critical )>> <<( :shop :exposedTo :cve1 )>> <<( :shop :status :critical )>> <<( :logger :status :safeToDeploy )>>) .
+proof:record116 pe:searched (em:compound "srl_not_6_1" ((em:iri :logger))) .
+proof:record116 pe:answers () .
+proof:record117 pe:searched <<( :logger :status :critical )>> .
+proof:record117 pe:answers () .
+proof:record118 pe:searched (em:compound "rdf" ((em:variable "D") (em:iri :callsService) (em:variable "E"))) .
+proof:record118 pe:answers (<<( :shop :callsService :payments )>>) .
+proof:record119 pe:searched (em:compound "rdf" ((em:variable "F") (em:iri :queriesDatabase) (em:variable "G"))) .
+proof:record119 pe:answers (<<( :payments :queriesDatabase :ledger )>>) .
+proof:record120 pe:searched (em:compound "rdf" ((em:variable "H") (em:iri :hasVulnerability) (em:variable "I"))) .
+proof:record120 pe:answers (<<( :ledger :hasVulnerability :cve1 )>>) .
+proof:record121 pe:searched (em:compound "rdf" ((em:variable "J") (em:iri :dependsOn) (em:variable "K"))) .
+proof:record121 pe:answers (<<( :shop :dependsOn :payments )>> <<( :payments :dependsOn :ledger )>>) .
+proof:record122 pe:searched (em:compound "rdf" ((em:iri :payments) (em:iri :exposedTo) (em:variable "L"))) .
+proof:record122 pe:answers (<<( :payments :exposedTo :cve1 )>>) .
+proof:record123 pe:searched (em:compound "rdf" ((em:iri :ledger) (em:iri :exposedTo) (em:variable "L"))) .
+proof:record123 pe:answers (<<( :ledger :exposedTo :cve1 )>>) .
+proof:record124 pe:searched (em:compound "rdf" ((em:variable "M") (em:iri :exposedTo) (em:variable "N"))) .
+proof:record124 pe:answers (<<( :ledger :exposedTo :cve1 )>> <<( :payments :exposedTo :cve1 )>> <<( :shop :exposedTo :cve1 )>>) .
+proof:record125 pe:searched (em:compound "rdf" ((em:iri :cve1) (em:iri :severity) (em:variable "O"))) .
+proof:record125 pe:answers (<<( :cve1 :severity "9.8"^^xsd:decimal )>>) .
+proof:record126 pe:searched (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "P"))) .
+proof:record126 pe:answers ((em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record127 pe:searched (em:compound "srl_order" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "Q"))) .
+proof:record127 pe:answers ((em:compound "srl_order" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">")))) .
+proof:record128 pe:searched (em:compound "srl_order_" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "R"))) .
+proof:record128 pe:answers ((em:compound "srl_order_" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">")))) .
+proof:record129 pe:searched (em:compound "srl_num" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "S") (em:variable "T"))) .
+proof:record129 pe:answers ((em:compound "srl_num" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom "decimal") (em:float "9.8")))) .
+proof:record130 pe:searched (em:compound "srl_num_value" ((em:atom "decimal") (em:float "9.8") (em:variable "U"))) .
+proof:record130 pe:answers ((em:compound "srl_num_value" ((em:atom "decimal") (em:float "9.8") (em:float "9.8")))) .
+proof:record131 pe:searched (em:compound "srl_num" ((em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "V") (em:variable "W"))) .
+proof:record131 pe:answers ((em:compound "srl_num" ((em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom "decimal") (em:float "9")))) .
+proof:record132 pe:searched (em:compound "srl_num_value" ((em:atom "decimal") (em:float "9") (em:variable "X"))) .
+proof:record132 pe:answers ((em:compound "srl_num_value" ((em:atom "decimal") (em:float "9") (em:float "9")))) .
+proof:record133 pe:searched (em:compound "srl_compare" ((em:float "9.8") (em:float "9") (em:variable "Y"))) .
+proof:record133 pe:answers ((em:compound "srl_compare" ((em:float "9.8") (em:float "9") (em:atom ">")))) .
+proof:record134 pe:searched (em:compound "srl_boolean" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "Z"))) .
+proof:record134 pe:answers () .
+proof:record135 pe:searched (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
+proof:record135 pe:answers ((em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record136 pe:searched (em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) .
+proof:record136 pe:answers ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))) .
+proof:record137 pe:searched (em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) .
+proof:record137 pe:answers ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))) .
+proof:record138 pe:searched (em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))) .
+proof:record138 pe:answers ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true")))) .
+proof:record139 pe:searched (em:compound "srl_num" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:variable "A1") (em:variable "B1"))) .
+proof:record139 pe:answers () .
+proof:record140 pe:searched (em:compound "rdf" ((em:variable "C1") (em:iri rdf:type) (em:iri :Component))) .
+proof:record140 pe:answers (<<( :shop a :Component )>> <<( :payments a :Component )>> <<( :ledger a :Component )>> <<( :logger a :Component )>>) .
+proof:record141 pe:searched (em:compound "srl_not_6_1" ((em:iri :shop))) .
+proof:record141 pe:answers ((em:compound "srl_not_6_1" ((em:iri :shop)))) .
+proof:record142 pe:searched <<( :shop :status :critical )>> .
+proof:record142 pe:answers (<<( :shop :status :critical )>>) .
+proof:record143 pe:searched (em:compound "srl_not_6_1" ((em:iri :payments))) .
+proof:record143 pe:answers ((em:compound "srl_not_6_1" ((em:iri :payments)))) .
+proof:record144 pe:searched <<( :payments :status :critical )>> .
+proof:record144 pe:answers (<<( :payments :status :critical )>>) .
+proof:record145 pe:searched (em:compound "srl_not_6_1" ((em:iri :ledger))) .
+proof:record145 pe:answers ((em:compound "srl_not_6_1" ((em:iri :ledger)))) .
+proof:record146 pe:searched <<( :ledger :status :critical )>> .
+proof:record146 pe:answers (<<( :ledger :status :critical )>>) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41 proof:record42 proof:record43 proof:record44 proof:record45 proof:record46 proof:record47 proof:record48 proof:record49 proof:record50 proof:record51 proof:record52 proof:record53 proof:record54 proof:record55 proof:record56 proof:record57 proof:record58 proof:record59 proof:record60 proof:record61 proof:record62 proof:record63 proof:record64 proof:record65 proof:record66 proof:record67 proof:record68 proof:record69 proof:record70 proof:record71 proof:record72 proof:record73 proof:record74 proof:record75 proof:record76 proof:record77 proof:record78 proof:record79 proof:record80 proof:record81 proof:record82 proof:record83 proof:record84 proof:record85 proof:record86 proof:record87 proof:record88 proof:record89 proof:record90 proof:record91 proof:record92 proof:record93 proof:record94 proof:record95 proof:record96 proof:record97 proof:record98 proof:record99 proof:record100 proof:record101 proof:record102 proof:record103 proof:record104 proof:record105 proof:record106 proof:record107 proof:record108 proof:record109 proof:record110 proof:record111 proof:record112 proof:record113 proof:record114 proof:record115 proof:record116 proof:record117 proof:record118 proof:record119 proof:record120 proof:record121 proof:record122 proof:record123 proof:record124 proof:record125 proof:record126 proof:record127 proof:record128 proof:record129 proof:record130 proof:record131 proof:record132 proof:record133 proof:record134 proof:record135 proof:record136 proof:record137 proof:record138 proof:record139 proof:record140 proof:record141 proof:record142 proof:record143 proof:record144 proof:record145 proof:record146) .
+proof:record1 em:term (em:compound "inf" ((em:iri :shop) (em:iri :dependsOn) (em:iri :payments))) .
+proof:record2 em:term (em:compound "inf" ((em:iri :payments) (em:iri :dependsOn) (em:iri :ledger))) .
+proof:record3 em:term (em:compound "inf" ((em:iri :ledger) (em:iri :exposedTo) (em:iri :cve1))) .
+proof:record4 em:term (em:compound "inf" ((em:iri :payments) (em:iri :exposedTo) (em:iri :cve1))) .
+proof:record5 em:term (em:compound "inf" ((em:iri :ledger) (em:iri :status) (em:iri :critical))) .
+proof:record6 em:term (em:compound "inf" ((em:iri :payments) (em:iri :status) (em:iri :critical))) .
+proof:record7 em:term (em:compound "inf" ((em:iri :shop) (em:iri :exposedTo) (em:iri :cve1))) .
+proof:record8 em:term (em:compound "inf" ((em:iri :shop) (em:iri :status) (em:iri :critical))) .
+proof:record9 em:term (em:compound "inf" ((em:iri :logger) (em:iri :status) (em:iri :safeToDeploy))) .
+proof:record10 em:term (em:compound "inf" ((em:iri :shop) (em:iri rdf:type) (em:iri :Component))) .
+proof:record11 em:term (em:compound "inf" ((em:iri :shop) (em:iri :callsService) (em:iri :payments))) .
+proof:record12 em:term (em:compound "inf" ((em:iri :payments) (em:iri rdf:type) (em:iri :Component))) .
+proof:record13 em:term (em:compound "inf" ((em:iri :payments) (em:iri :queriesDatabase) (em:iri :ledger))) .
+proof:record14 em:term (em:compound "inf" ((em:iri :ledger) (em:iri rdf:type) (em:iri :Component))) .
+proof:record15 em:term (em:compound "inf" ((em:iri :ledger) (em:iri :hasVulnerability) (em:iri :cve1))) .
+proof:record16 em:term (em:compound "inf" ((em:iri :logger) (em:iri rdf:type) (em:iri :Component))) .
+proof:record17 em:term (em:compound "inf" ((em:iri :cve1) (em:iri :severity) (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) .
+proof:record18 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "inf" ((em:iri :shop) (em:iri rdf:type) (em:iri :Component))))))) .
+proof:record19 em:term (em:compound "clause" ((em:integer "3") (em:compound "fact" ((em:compound "rdf" ((em:iri :shop) (em:iri :callsService) (em:iri :payments))))))) .
+proof:record20 em:term (em:compound "clause" ((em:integer "4") (em:compound "fact" ((em:compound "inf" ((em:iri :shop) (em:iri :callsService) (em:iri :payments))))))) .
+proof:record21 em:term (em:compound "clause" ((em:integer "6") (em:compound "fact" ((em:compound "inf" ((em:iri :payments) (em:iri rdf:type) (em:iri :Component))))))) .
+proof:record22 em:term (em:compound "clause" ((em:integer "7") (em:compound "fact" ((em:compound "rdf" ((em:iri :payments) (em:iri :queriesDatabase) (em:iri :ledger))))))) .
+proof:record23 em:term (em:compound "clause" ((em:integer "8") (em:compound "fact" ((em:compound "inf" ((em:iri :payments) (em:iri :queriesDatabase) (em:iri :ledger))))))) .
+proof:record24 em:term (em:compound "clause" ((em:integer "10") (em:compound "fact" ((em:compound "inf" ((em:iri :ledger) (em:iri rdf:type) (em:iri :Component))))))) .
+proof:record25 em:term (em:compound "clause" ((em:integer "11") (em:compound "fact" ((em:compound "rdf" ((em:iri :ledger) (em:iri :hasVulnerability) (em:iri :cve1))))))) .
+proof:record26 em:term (em:compound "clause" ((em:integer "12") (em:compound "fact" ((em:compound "inf" ((em:iri :ledger) (em:iri :hasVulnerability) (em:iri :cve1))))))) .
+proof:record27 em:term (em:compound "clause" ((em:integer "13") (em:compound "fact" ((em:compound "rdf" ((em:iri :logger) (em:iri rdf:type) (em:iri :Component))))))) .
+proof:record28 em:term (em:compound "clause" ((em:integer "14") (em:compound "fact" ((em:compound "inf" ((em:iri :logger) (em:iri rdf:type) (em:iri :Component))))))) .
+proof:record29 em:term (em:compound "clause" ((em:integer "15") (em:compound "fact" ((em:compound "rdf" ((em:iri :cve1) (em:iri :severity) (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))))))) .
+proof:record30 em:term (em:compound "clause" ((em:integer "16") (em:compound "fact" ((em:compound "inf" ((em:iri :cve1) (em:iri :severity) (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))))))) .
+proof:record31 em:term (em:compound "clause" ((em:integer "17") (em:compound "implies" ((em:compound "rdf" ((em:variable "X") (em:iri :callsService) (em:variable "Y"))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri :dependsOn) (em:variable "Y"))) (em:compound "inf" ((em:variable "X") (em:iri :dependsOn) (em:variable "Y"))))))))) .
+proof:record32 em:term (em:compound "clause" ((em:integer "18") (em:compound "implies" ((em:compound "rdf" ((em:variable "X") (em:iri :queriesDatabase) (em:variable "Y"))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri :dependsOn) (em:variable "Y"))) (em:compound "inf" ((em:variable "X") (em:iri :dependsOn) (em:variable "Y"))))))))) .
+proof:record33 em:term (em:compound "clause" ((em:integer "19") (em:compound "implies" ((em:compound "rdf" ((em:variable "X") (em:iri :hasVulnerability) (em:variable "V"))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri :exposedTo) (em:variable "V"))) (em:compound "inf" ((em:variable "X") (em:iri :exposedTo) (em:variable "V"))))))))) .
+proof:record34 em:term (em:compound "clause" ((em:integer "20") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "X") (em:iri :dependsOn) (em:variable "Y"))) (em:compound "rdf" ((em:variable "Y") (em:iri :exposedTo) (em:variable "V"))))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri :exposedTo) (em:variable "V"))) (em:compound "inf" ((em:variable "X") (em:iri :exposedTo) (em:variable "V"))))))))) .
+proof:record35 em:term (em:compound "clause" ((em:integer "21") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "X") (em:iri :exposedTo) (em:variable "V"))) (em:compound "rdf" ((em:variable "V") (em:iri :severity) (em:variable "S"))) (em:compound "srl_ge" ((em:variable "S") (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "R"))) (em:compound "srl_true" ((em:variable "R"))))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri :status) (em:iri :critical))) (em:compound "inf" ((em:variable "X") (em:iri :status) (em:iri :critical))))))))) .
+proof:record36 em:term (em:compound "clause" ((em:integer "23") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "X") (em:iri rdf:type) (em:iri :Component))) (em:compound "not" ((em:compound "srl_not_6_1" ((em:variable "X"))))))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri :status) (em:iri :safeToDeploy))) (em:compound "inf" ((em:variable "X") (em:iri :status) (em:iri :safeToDeploy))))))))) .
+proof:record37 em:term (em:compound "clause" ((em:integer "26") (em:compound "implied_by" ((em:compound "srl_num" ((em:compound "literal" ((em:variable "L") (em:compound "datatype" ((em:variable "D"))))) (em:variable "K") (em:variable "V"))) (em:list ((em:compound "srl_numeric_type" ((em:variable "D") (em:variable "K"))) (em:compound "atom_chars" ((em:variable "L") (em:variable "Cs"))) (em:compound "number_chars" ((em:variable "N") (em:variable "Cs"))) (em:compound "srl_num_value" ((em:variable "K") (em:variable "N") (em:variable "V"))))))))) .
+proof:record38 em:term (em:compound "clause" ((em:integer "40") (em:compound "fact" ((em:compound "srl_numeric_type" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal") (em:atom "decimal"))))))) .
+proof:record39 em:term (em:compound "clause" ((em:integer "44") (em:compound "implied_by" ((em:compound "srl_num_value" ((em:variable "K") (em:variable "N") (em:variable "V"))) (em:list ((em:compound "srl_float_kind" ((em:variable "K"))) (em:compound "is" ((em:variable "V") (em:compound "float" ((em:variable "N"))))))))))) .
+proof:record40 em:term (em:compound "clause" ((em:integer "45") (em:compound "fact" ((em:compound "srl_float_kind" ((em:atom "decimal"))))))) .
+proof:record41 em:term (em:compound "clause" ((em:integer "53") (em:compound "implied_by" ((em:compound "srl_ebv" ((em:variable "T") (em:variable "B"))) (em:compound "once" ((em:compound "srl_ebv_" ((em:variable "T") (em:variable "B"))))))))) .
+proof:record42 em:term (em:compound "clause" ((em:integer "54") (em:compound "implied_by" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:variable "L") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:variable "B"))) (em:compound "srl_boolean_text" ((em:variable "L") (em:variable "B"))))))) .
+proof:record43 em:term (em:compound "clause" ((em:integer "60") (em:compound "implied_by" ((em:compound "srl_boolean_text" ((em:variable "L") (em:variable "B"))) (em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:variable "L"))) (em:compound "unify" ((em:variable "B") (em:atom "true"))))) (em:compound "unify" ((em:variable "B") (em:atom "false"))))))))))) .
+proof:record44 em:term (em:compound "clause" ((em:integer "61") (em:compound "fact" ((em:compound "srl_true_text" ((em:atom "true"))))))) .
+proof:record45 em:term (em:compound "clause" ((em:integer "65") (em:compound "implied_by" ((em:compound "srl_true" ((em:variable "T"))) (em:compound "srl_ebv" ((em:variable "T") (em:atom "true"))))))) .
+proof:record46 em:term (em:compound "clause" ((em:integer "98") (em:compound "implied_by" ((em:compound "srl_order" ((em:variable "A") (em:variable "B") (em:variable "O"))) (em:compound "once" ((em:compound "srl_order_" ((em:variable "A") (em:variable "B") (em:variable "O"))))))))) .
+proof:record47 em:term (em:compound "clause" ((em:integer "99") (em:compound "implied_by" ((em:compound "srl_order_" ((em:variable "A") (em:variable "B") (em:variable "O"))) (em:list ((em:compound "srl_num" ((em:variable "A") (em:variable "_0") (em:variable "X"))) (em:compound "srl_num" ((em:variable "B") (em:variable "_1") (em:variable "Y"))) (em:compound "srl_compare" ((em:variable "X") (em:variable "Y") (em:variable "O"))))))))) .
+proof:record48 em:term (em:compound "clause" ((em:integer "103") (em:compound "implied_by" ((em:compound "srl_compare" ((em:variable "X") (em:variable "Y") (em:variable "O"))) (em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:variable "X") (em:variable "Y"))) (em:compound "unify" ((em:variable "O") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:variable "X") (em:variable "Y"))) (em:compound "unify" ((em:variable "O") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:variable "X") (em:variable "Y"))) (em:compound "unify" ((em:variable "O") (em:atom ">"))))))))))) .
+proof:record49 em:term (em:compound "clause" ((em:integer "115") (em:compound "fact" ((em:compound "srl_ge_" ((em:atom ">") (em:atom "true"))))))) .
+proof:record50 em:term (em:compound "clause" ((em:integer "116") (em:compound "fact" ((em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record51 em:term (em:compound "clause" ((em:integer "120") (em:compound "implied_by" ((em:compound "srl_ge" ((em:variable "A") (em:variable "B") (em:variable "R"))) (em:list ((em:compound "srl_order" ((em:variable "A") (em:variable "B") (em:variable "O"))) (em:compound "srl_ge_" ((em:variable "O") (em:variable "T"))) (em:compound "srl_bool" ((em:variable "T") (em:variable "R"))))))))) .
+proof:record52 em:term (em:compound "step" ((em:compound "inf" ((em:iri :shop) (em:iri :dependsOn) (em:iri :payments))) (em:compound "clause" ((em:integer "17"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :shop))) (em:compound "=" ((em:atom "Y") (em:iri :payments))))) (em:list ((em:compound "rdf" ((em:iri :shop) (em:iri :callsService) (em:iri :payments))))))) .
+proof:record53 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :shop) (em:iri :callsService) (em:iri :payments))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record54 em:term (em:compound "step" ((em:compound "inf" ((em:iri :payments) (em:iri :dependsOn) (em:iri :ledger))) (em:compound "clause" ((em:integer "18"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :payments))) (em:compound "=" ((em:atom "Y") (em:iri :ledger))))) (em:list ((em:compound "rdf" ((em:iri :payments) (em:iri :queriesDatabase) (em:iri :ledger))))))) .
+proof:record55 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :payments) (em:iri :queriesDatabase) (em:iri :ledger))) (em:compound "clause" ((em:integer "7"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record56 em:term (em:compound "step" ((em:compound "inf" ((em:iri :ledger) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "clause" ((em:integer "19"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :ledger))) (em:compound "=" ((em:atom "V") (em:iri :cve1))))) (em:list ((em:compound "rdf" ((em:iri :ledger) (em:iri :hasVulnerability) (em:iri :cve1))))))) .
+proof:record57 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ledger) (em:iri :hasVulnerability) (em:iri :cve1))) (em:compound "clause" ((em:integer "11"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record58 em:term (em:compound "step" ((em:compound "inf" ((em:iri :payments) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :payments))) (em:compound "=" ((em:atom "Y") (em:iri :ledger))) (em:compound "=" ((em:atom "V") (em:iri :cve1))))) (em:list ((em:compound "rdf" ((em:iri :payments) (em:iri :dependsOn) (em:iri :ledger))) (em:compound "rdf" ((em:iri :ledger) (em:iri :exposedTo) (em:iri :cve1))))))) .
+proof:record59 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :payments) (em:iri :dependsOn) (em:iri :ledger))) (em:compound "clause" ((em:integer "18"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :payments))) (em:compound "=" ((em:atom "Y") (em:iri :ledger))))) (em:list ((em:compound "rdf" ((em:iri :payments) (em:iri :queriesDatabase) (em:iri :ledger))))))) .
+proof:record60 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ledger) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "clause" ((em:integer "19"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :ledger))) (em:compound "=" ((em:atom "V") (em:iri :cve1))))) (em:list ((em:compound "rdf" ((em:iri :ledger) (em:iri :hasVulnerability) (em:iri :cve1))))))) .
+proof:record61 em:term (em:compound "step" ((em:compound "inf" ((em:iri :ledger) (em:iri :status) (em:iri :critical))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :ledger))) (em:compound "=" ((em:atom "V") (em:iri :cve1))) (em:compound "=" ((em:atom "S") (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "=" ((em:atom "R") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :ledger) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "rdf" ((em:iri :cve1) (em:iri :severity) (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record62 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :cve1) (em:iri :severity) (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "clause" ((em:integer "15"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record63 em:term (em:compound "step" ((em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "120"))) (em:list ((em:compound "=" ((em:atom "A") (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "=" ((em:atom "B") (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "=" ((em:atom "R") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "=" ((em:atom "O") (em:atom ">"))) (em:compound "=" ((em:atom "T") (em:atom "true"))))) (em:list ((em:compound "srl_order" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">"))) (em:compound "srl_ge_" ((em:atom ">") (em:atom "true"))) (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record64 em:term (em:compound "step" ((em:compound "srl_order" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">"))) (em:compound "clause" ((em:integer "98"))) (em:list ((em:compound "=" ((em:atom "A") (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "=" ((em:atom "B") (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "=" ((em:atom "O") (em:atom ">"))))) (em:list ((em:compound "once" ((em:compound "srl_order_" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">"))))))))) .
+proof:record65 em:term (em:compound "step" ((em:compound "once" ((em:compound "srl_order_" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "srl_order_" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">"))))))) .
+proof:record66 em:term (em:compound "step" ((em:compound "srl_order_" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">"))) (em:compound "clause" ((em:integer "99"))) (em:list ((em:compound "=" ((em:atom "A") (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "=" ((em:atom "B") (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "=" ((em:atom "O") (em:atom ">"))) (em:compound "=" ((em:atom "_0") (em:atom "decimal"))) (em:compound "=" ((em:atom "X") (em:float "9.8"))) (em:compound "=" ((em:atom "_1") (em:atom "decimal"))) (em:compound "=" ((em:atom "Y") (em:float "9"))))) (em:list ((em:compound "srl_num" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom "decimal") (em:float "9.8"))) (em:compound "srl_num" ((em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom "decimal") (em:float "9"))) (em:compound "srl_compare" ((em:float "9.8") (em:float "9") (em:atom ">"))))))) .
+proof:record67 em:term (em:compound "step" ((em:compound "srl_num" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom "decimal") (em:float "9.8"))) (em:compound "clause" ((em:integer "26"))) (em:list ((em:compound "=" ((em:atom "L") (em:atom "9.8"))) (em:compound "=" ((em:atom "D") (em:atom "http://www.w3.org/2001/XMLSchema#decimal"))) (em:compound "=" ((em:atom "K") (em:atom "decimal"))) (em:compound "=" ((em:atom "V") (em:float "9.8"))) (em:compound "=" ((em:atom "Cs") (em:list ((em:atom "9") (em:atom ".") (em:atom "8"))))) (em:compound "=" ((em:atom "N") (em:float "9.8"))))) (em:list ((em:compound "srl_numeric_type" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal") (em:atom "decimal"))) (em:compound "atom_chars" ((em:atom "9.8") (em:list ((em:atom "9") (em:atom ".") (em:atom "8"))))) (em:compound "number_chars" ((em:float "9.8") (em:list ((em:atom "9") (em:atom ".") (em:atom "8"))))) (em:compound "srl_num_value" ((em:atom "decimal") (em:float "9.8") (em:float "9.8"))))))) .
+proof:record68 em:term (em:compound "step" ((em:compound "srl_numeric_type" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal") (em:atom "decimal"))) (em:compound "clause" ((em:integer "40"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record69 em:term (em:compound "step" ((em:compound "atom_chars" ((em:atom "9.8") (em:list ((em:atom "9") (em:atom ".") (em:atom "8"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record70 em:term (em:compound "step" ((em:compound "number_chars" ((em:float "9.8") (em:list ((em:atom "9") (em:atom ".") (em:atom "8"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record71 em:term (em:compound "step" ((em:compound "srl_num_value" ((em:atom "decimal") (em:float "9.8") (em:float "9.8"))) (em:compound "clause" ((em:integer "44"))) (em:list ((em:compound "=" ((em:atom "K") (em:atom "decimal"))) (em:compound "=" ((em:atom "N") (em:float "9.8"))) (em:compound "=" ((em:atom "V") (em:float "9.8"))))) (em:list ((em:compound "srl_float_kind" ((em:atom "decimal"))) (em:compound "is" ((em:float "9.8") (em:compound "float" ((em:float "9.8"))))))))) .
+proof:record72 em:term (em:compound "step" ((em:compound "srl_float_kind" ((em:atom "decimal"))) (em:compound "clause" ((em:integer "45"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record73 em:term (em:compound "step" ((em:compound "is" ((em:float "9.8") (em:compound "float" ((em:float "9.8"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record74 em:term (em:compound "step" ((em:compound "srl_num" ((em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom "decimal") (em:float "9"))) (em:compound "clause" ((em:integer "26"))) (em:list ((em:compound "=" ((em:atom "L") (em:atom "9.0"))) (em:compound "=" ((em:atom "D") (em:atom "http://www.w3.org/2001/XMLSchema#decimal"))) (em:compound "=" ((em:atom "K") (em:atom "decimal"))) (em:compound "=" ((em:atom "V") (em:float "9"))) (em:compound "=" ((em:atom "Cs") (em:list ((em:atom "9") (em:atom ".") (em:atom "0"))))) (em:compound "=" ((em:atom "N") (em:float "9"))))) (em:list ((em:compound "srl_numeric_type" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal") (em:atom "decimal"))) (em:compound "atom_chars" ((em:atom "9.0") (em:list ((em:atom "9") (em:atom ".") (em:atom "0"))))) (em:compound "number_chars" ((em:float "9") (em:list ((em:atom "9") (em:atom ".") (em:atom "0"))))) (em:compound "srl_num_value" ((em:atom "decimal") (em:float "9") (em:float "9"))))))) .
+proof:record75 em:term (em:compound "step" ((em:compound "atom_chars" ((em:atom "9.0") (em:list ((em:atom "9") (em:atom ".") (em:atom "0"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record76 em:term (em:compound "step" ((em:compound "number_chars" ((em:float "9") (em:list ((em:atom "9") (em:atom ".") (em:atom "0"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record77 em:term (em:compound "step" ((em:compound "srl_num_value" ((em:atom "decimal") (em:float "9") (em:float "9"))) (em:compound "clause" ((em:integer "44"))) (em:list ((em:compound "=" ((em:atom "K") (em:atom "decimal"))) (em:compound "=" ((em:atom "N") (em:float "9"))) (em:compound "=" ((em:atom "V") (em:float "9"))))) (em:list ((em:compound "srl_float_kind" ((em:atom "decimal"))) (em:compound "is" ((em:float "9") (em:compound "float" ((em:float "9"))))))))) .
+proof:record78 em:term (em:compound "step" ((em:compound "is" ((em:float "9") (em:compound "float" ((em:float "9"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record79 em:term (em:compound "step" ((em:compound "srl_compare" ((em:float "9.8") (em:float "9") (em:atom ">"))) (em:compound "clause" ((em:integer "103"))) (em:list ((em:compound "=" ((em:atom "X") (em:float "9.8"))) (em:compound "=" ((em:atom "Y") (em:float "9"))) (em:compound "=" ((em:atom "O") (em:atom ">"))))) (em:list ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))))))) .
+proof:record80 em:term (em:compound "step" ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "gt" ((em:float "9.8") (em:float "9"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) .
+proof:record81 em:term (em:compound "step" ((em:compound "gt" ((em:float "9.8") (em:float "9"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record82 em:term (em:compound "step" ((em:compound "unify" ((em:atom ">") (em:atom ">"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record83 em:term (em:compound "step" ((em:compound "srl_ge_" ((em:atom ">") (em:atom "true"))) (em:compound "clause" ((em:integer "115"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record84 em:term (em:compound "step" ((em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "116"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record85 em:term (em:compound "step" ((em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "65"))) (em:list ((em:compound "=" ((em:atom "T") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))) .
+proof:record86 em:term (em:compound "step" ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) (em:compound "clause" ((em:integer "53"))) (em:list ((em:compound "=" ((em:atom "T") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "=" ((em:atom "B") (em:atom "true"))))) (em:list ((em:compound "once" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))))) .
+proof:record87 em:term (em:compound "step" ((em:compound "once" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))) .
+proof:record88 em:term (em:compound "step" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) (em:compound "clause" ((em:integer "54"))) (em:list ((em:compound "=" ((em:atom "L") (em:atom "true"))) (em:compound "=" ((em:atom "B") (em:atom "true"))))) (em:list ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))))))) .
+proof:record89 em:term (em:compound "step" ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))) (em:compound "clause" ((em:integer "60"))) (em:list ((em:compound "=" ((em:atom "L") (em:atom "true"))) (em:compound "=" ((em:atom "B") (em:atom "true"))))) (em:list ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))))))))) .
+proof:record90 em:term (em:compound "step" ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))))))) .
+proof:record91 em:term (em:compound "step" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))))) .
+proof:record92 em:term (em:compound "step" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "clause" ((em:integer "61"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record93 em:term (em:compound "step" ((em:compound "unify" ((em:atom "true") (em:atom "true"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record94 em:term (em:compound "step" ((em:compound "inf" ((em:iri :payments) (em:iri :status) (em:iri :critical))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :payments))) (em:compound "=" ((em:atom "V") (em:iri :cve1))) (em:compound "=" ((em:atom "S") (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "=" ((em:atom "R") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :payments) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "rdf" ((em:iri :cve1) (em:iri :severity) (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record95 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :payments) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :payments))) (em:compound "=" ((em:atom "Y") (em:iri :ledger))) (em:compound "=" ((em:atom "V") (em:iri :cve1))))) (em:list ((em:compound "rdf" ((em:iri :payments) (em:iri :dependsOn) (em:iri :ledger))) (em:compound "rdf" ((em:iri :ledger) (em:iri :exposedTo) (em:iri :cve1))))))) .
+proof:record96 em:term (em:compound "step" ((em:compound "inf" ((em:iri :shop) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :shop))) (em:compound "=" ((em:atom "Y") (em:iri :payments))) (em:compound "=" ((em:atom "V") (em:iri :cve1))))) (em:list ((em:compound "rdf" ((em:iri :shop) (em:iri :dependsOn) (em:iri :payments))) (em:compound "rdf" ((em:iri :payments) (em:iri :exposedTo) (em:iri :cve1))))))) .
+proof:record97 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :shop) (em:iri :dependsOn) (em:iri :payments))) (em:compound "clause" ((em:integer "17"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :shop))) (em:compound "=" ((em:atom "Y") (em:iri :payments))))) (em:list ((em:compound "rdf" ((em:iri :shop) (em:iri :callsService) (em:iri :payments))))))) .
+proof:record98 em:term (em:compound "step" ((em:compound "inf" ((em:iri :shop) (em:iri :status) (em:iri :critical))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :shop))) (em:compound "=" ((em:atom "V") (em:iri :cve1))) (em:compound "=" ((em:atom "S") (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "=" ((em:atom "R") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :shop) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "rdf" ((em:iri :cve1) (em:iri :severity) (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record99 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :shop) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :shop))) (em:compound "=" ((em:atom "Y") (em:iri :payments))) (em:compound "=" ((em:atom "V") (em:iri :cve1))))) (em:list ((em:compound "rdf" ((em:iri :shop) (em:iri :dependsOn) (em:iri :payments))) (em:compound "rdf" ((em:iri :payments) (em:iri :exposedTo) (em:iri :cve1))))))) .
+proof:record100 em:term (em:compound "step" ((em:compound "inf" ((em:iri :logger) (em:iri :status) (em:iri :safeToDeploy))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :logger))))) (em:list ((em:compound "rdf" ((em:iri :logger) (em:iri rdf:type) (em:iri :Component))) (em:compound "not" ((em:compound "srl_not_6_1" ((em:iri :logger))))))))) .
+proof:record101 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :logger) (em:iri rdf:type) (em:iri :Component))) (em:compound "clause" ((em:integer "13"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record102 em:term (em:compound "step" ((em:compound "not" ((em:compound "srl_not_6_1" ((em:iri :logger))))) (em:atom "absent") (em:atom "[]") (em:atom "[]"))) .
+proof:record103 em:term (em:compound "step" ((em:compound "inf" ((em:iri :shop) (em:iri rdf:type) (em:iri :Component))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record104 em:term (em:compound "step" ((em:compound "inf" ((em:iri :shop) (em:iri :callsService) (em:iri :payments))) (em:compound "clause" ((em:integer "4"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record105 em:term (em:compound "step" ((em:compound "inf" ((em:iri :payments) (em:iri rdf:type) (em:iri :Component))) (em:compound "clause" ((em:integer "6"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record106 em:term (em:compound "step" ((em:compound "inf" ((em:iri :payments) (em:iri :queriesDatabase) (em:iri :ledger))) (em:compound "clause" ((em:integer "8"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record107 em:term (em:compound "step" ((em:compound "inf" ((em:iri :ledger) (em:iri rdf:type) (em:iri :Component))) (em:compound "clause" ((em:integer "10"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record108 em:term (em:compound "step" ((em:compound "inf" ((em:iri :ledger) (em:iri :hasVulnerability) (em:iri :cve1))) (em:compound "clause" ((em:integer "12"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record109 em:term (em:compound "step" ((em:compound "inf" ((em:iri :logger) (em:iri rdf:type) (em:iri :Component))) (em:compound "clause" ((em:integer "14"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record110 em:term (em:compound "step" ((em:compound "inf" ((em:iri :cve1) (em:iri :severity) (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "clause" ((em:integer "16"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record111 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ledger) (em:iri :status) (em:iri :critical))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :ledger))) (em:compound "=" ((em:atom "V") (em:iri :cve1))) (em:compound "=" ((em:atom "S") (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "=" ((em:atom "R") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :ledger) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "rdf" ((em:iri :cve1) (em:iri :severity) (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record112 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :payments) (em:iri :status) (em:iri :critical))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :payments))) (em:compound "=" ((em:atom "V") (em:iri :cve1))) (em:compound "=" ((em:atom "S") (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "=" ((em:atom "R") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :payments) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "rdf" ((em:iri :cve1) (em:iri :severity) (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record113 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :shop) (em:iri :status) (em:iri :critical))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :shop))) (em:compound "=" ((em:atom "V") (em:iri :cve1))) (em:compound "=" ((em:atom "S") (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "=" ((em:atom "R") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :shop) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "rdf" ((em:iri :cve1) (em:iri :severity) (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))) (em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record114 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :logger) (em:iri :status) (em:iri :safeToDeploy))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :logger))))) (em:list ((em:compound "rdf" ((em:iri :logger) (em:iri rdf:type) (em:iri :Component))) (em:compound "not" ((em:compound "srl_not_6_1" ((em:iri :logger))))))))) .
+proof:record115 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :shop) (em:iri :dependsOn) (em:iri :payments))) (em:compound "rdf" ((em:iri :payments) (em:iri :dependsOn) (em:iri :ledger))) (em:compound "rdf" ((em:iri :ledger) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "rdf" ((em:iri :payments) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "rdf" ((em:iri :ledger) (em:iri :status) (em:iri :critical))) (em:compound "rdf" ((em:iri :payments) (em:iri :status) (em:iri :critical))) (em:compound "rdf" ((em:iri :shop) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "rdf" ((em:iri :shop) (em:iri :status) (em:iri :critical))) (em:compound "rdf" ((em:iri :logger) (em:iri :status) (em:iri :safeToDeploy))))))) .
+proof:record116 em:term (em:compound "searched" ((em:compound "srl_not_6_1" ((em:iri :logger))) (em:atom "[]"))) .
+proof:record117 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :logger) (em:iri :status) (em:iri :critical))) (em:atom "[]"))) .
+proof:record118 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "D") (em:iri :callsService) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :shop) (em:iri :callsService) (em:iri :payments))))))) .
+proof:record119 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "F") (em:iri :queriesDatabase) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:iri :payments) (em:iri :queriesDatabase) (em:iri :ledger))))))) .
+proof:record120 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "H") (em:iri :hasVulnerability) (em:variable "I"))) (em:list ((em:compound "rdf" ((em:iri :ledger) (em:iri :hasVulnerability) (em:iri :cve1))))))) .
+proof:record121 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "J") (em:iri :dependsOn) (em:variable "K"))) (em:list ((em:compound "rdf" ((em:iri :shop) (em:iri :dependsOn) (em:iri :payments))) (em:compound "rdf" ((em:iri :payments) (em:iri :dependsOn) (em:iri :ledger))))))) .
+proof:record122 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :payments) (em:iri :exposedTo) (em:variable "L"))) (em:list ((em:compound "rdf" ((em:iri :payments) (em:iri :exposedTo) (em:iri :cve1))))))) .
+proof:record123 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :ledger) (em:iri :exposedTo) (em:variable "L"))) (em:list ((em:compound "rdf" ((em:iri :ledger) (em:iri :exposedTo) (em:iri :cve1))))))) .
+proof:record124 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "M") (em:iri :exposedTo) (em:variable "N"))) (em:list ((em:compound "rdf" ((em:iri :ledger) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "rdf" ((em:iri :payments) (em:iri :exposedTo) (em:iri :cve1))) (em:compound "rdf" ((em:iri :shop) (em:iri :exposedTo) (em:iri :cve1))))))) .
+proof:record125 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :cve1) (em:iri :severity) (em:variable "O"))) (em:list ((em:compound "rdf" ((em:iri :cve1) (em:iri :severity) (em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))))))))) .
+proof:record126 em:term (em:compound "searched" ((em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "P"))) (em:list ((em:compound "srl_ge" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record127 em:term (em:compound "searched" ((em:compound "srl_order" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "Q"))) (em:list ((em:compound "srl_order" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">"))))))) .
+proof:record128 em:term (em:compound "searched" ((em:compound "srl_order_" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "R"))) (em:list ((em:compound "srl_order_" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom ">"))))))) .
+proof:record129 em:term (em:compound "searched" ((em:compound "srl_num" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "S") (em:variable "T"))) (em:list ((em:compound "srl_num" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom "decimal") (em:float "9.8"))))))) .
+proof:record130 em:term (em:compound "searched" ((em:compound "srl_num_value" ((em:atom "decimal") (em:float "9.8") (em:variable "U"))) (em:list ((em:compound "srl_num_value" ((em:atom "decimal") (em:float "9.8") (em:float "9.8"))))))) .
+proof:record131 em:term (em:compound "searched" ((em:compound "srl_num" ((em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "V") (em:variable "W"))) (em:list ((em:compound "srl_num" ((em:compound "literal" ((em:atom "9.0") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:atom "decimal") (em:float "9"))))))) .
+proof:record132 em:term (em:compound "searched" ((em:compound "srl_num_value" ((em:atom "decimal") (em:float "9") (em:variable "X"))) (em:list ((em:compound "srl_num_value" ((em:atom "decimal") (em:float "9") (em:float "9"))))))) .
+proof:record133 em:term (em:compound "searched" ((em:compound "srl_compare" ((em:float "9.8") (em:float "9") (em:variable "Y"))) (em:list ((em:compound "srl_compare" ((em:float "9.8") (em:float "9") (em:atom ">"))))))) .
+proof:record134 em:term (em:compound "searched" ((em:compound "srl_boolean" ((em:compound "literal" ((em:atom "9.8") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#decimal"))))) (em:variable "Z"))) (em:atom "[]"))) .
+proof:record135 em:term (em:compound "searched" ((em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:list ((em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record136 em:term (em:compound "searched" ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) (em:list ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))) .
+proof:record137 em:term (em:compound "searched" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) (em:list ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))) .
+proof:record138 em:term (em:compound "searched" ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))) (em:list ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))))))) .
+proof:record139 em:term (em:compound "searched" ((em:compound "srl_num" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:variable "A1") (em:variable "B1"))) (em:atom "[]"))) .
+proof:record140 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "C1") (em:iri rdf:type) (em:iri :Component))) (em:list ((em:compound "rdf" ((em:iri :shop) (em:iri rdf:type) (em:iri :Component))) (em:compound "rdf" ((em:iri :payments) (em:iri rdf:type) (em:iri :Component))) (em:compound "rdf" ((em:iri :ledger) (em:iri rdf:type) (em:iri :Component))) (em:compound "rdf" ((em:iri :logger) (em:iri rdf:type) (em:iri :Component))))))) .
+proof:record141 em:term (em:compound "searched" ((em:compound "srl_not_6_1" ((em:iri :shop))) (em:list ((em:compound "srl_not_6_1" ((em:iri :shop))))))) .
+proof:record142 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :shop) (em:iri :status) (em:iri :critical))) (em:list ((em:compound "rdf" ((em:iri :shop) (em:iri :status) (em:iri :critical))))))) .
+proof:record143 em:term (em:compound "searched" ((em:compound "srl_not_6_1" ((em:iri :payments))) (em:list ((em:compound "srl_not_6_1" ((em:iri :payments))))))) .
+proof:record144 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :payments) (em:iri :status) (em:iri :critical))) (em:list ((em:compound "rdf" ((em:iri :payments) (em:iri :status) (em:iri :critical))))))) .
+proof:record145 em:term (em:compound "searched" ((em:compound "srl_not_6_1" ((em:iri :ledger))) (em:list ((em:compound "srl_not_6_1" ((em:iri :ledger))))))) .
+proof:record146 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :ledger) (em:iri :status) (em:iri :critical))) (em:list ((em:compound "rdf" ((em:iri :ledger) (em:iri :status) (em:iri :critical))))))) .
+}

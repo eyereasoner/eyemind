@@ -2,7 +2,7 @@
 
 *Grouped stock records yield location counts, totals, minimums and maximums.*
 
-[inventory.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/inventory.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/inventory.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/inventory-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/inventory-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=inventory-srl)
+[inventory.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/inventory.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/inventory.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/inventory.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/inventory-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=inventory-srl)
 
 ---
 
@@ -118,5 +118,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/inventory.srl
 node bin/eyemind.js --proof examples/inventory.srl
-node bin/eyemind.js --check-proof examples/proof/inventory-srl.js examples/inventory.srl
+node bin/eyemind.js --check-proof examples/proof/inventory.srl examples/inventory.srl
 ```

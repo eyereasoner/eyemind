@@ -1,6 +1,6 @@
 // Invalid release messages must stop before any git operation or publication.
 import { spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 import { ROOT, assert } from './helpers.js';
@@ -18,6 +18,32 @@ function attempt(args) {
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
+}
+
+// Run a copy with command stubs: no real Git operation or publication can
+// happen, but the release ordering and failure handling are exercised.
+function simulatedRelease(failEarl = false) {
+  const directory = mkdtempSync(join(tmpdir(), 'eyemind-release-flow-'));
+  const trace = join(directory, 'trace');
+  try {
+    cpSync(join(ROOT, 'release'), join(directory, 'release'));
+    for (const [name, body] of Object.entries({
+      git: 'exit 0\n',
+      npm: 'if [ "$1" = version ]; then printf "v9.9.9\\n"; fi\n' +
+        'if [ "$*" = "test -- unit -k earl" ] && [ "$RELEASE_TEST_FAIL_EARL" = 1 ]; then exit 23; fi\n',
+      node: 'exit 0\n',
+      'systemd-run': 'exit 1\n',
+    })) {
+      const path = join(directory, name);
+      writeFileSync(path, `#!/bin/sh\nprintf '%s\\n' "${name} $*" >> "$RELEASE_TEST_TRACE"\n${body}`);
+      chmodSync(path, 0o755);
+    }
+    const result = spawnSync('bash', [join(directory, 'release'), 'patch', 'Add native proofs and test-suite reports'], {
+      encoding: 'utf8', env: { ...process.env, PATH: directory + delimiter + process.env.PATH,
+        RELEASE_TEST_TRACE: trace, RELEASE_TEST_FAIL_EARL: failEarl ? '1' : '0' },
+    });
+    return { ...result, calls: readFileSync(trace, 'utf8').trim().split('\n') };
+  } finally { rmSync(directory, { recursive: true, force: true }); }
 }
 
 export const tests = {
@@ -44,5 +70,23 @@ export const tests = {
       assert.doesNotMatch(result.stderr, /supply a descriptive release message/);
       assert.notEqual(result.status, 0);
     }
+  },
+  'release refreshes EARL after the version bump and before committing and publishing'() {
+    const result = simulatedRelease();
+    assert.equal(result.status, 0, result.stderr);
+    const calls = result.calls;
+    const full = calls.indexOf('npm test');
+    const bump = calls.indexOf('npm version patch --no-git-tag-version');
+    const synced = calls.indexOf('node tools/version.js --check');
+    const earl = calls.indexOf('npm test -- unit -k earl');
+    const commit = calls.findIndex((line) => line.startsWith('git commit '));
+    const push = calls.indexOf('git push --atomic origin main v9.9.9');
+    assert.ok(full >= 0 && bump > full && synced > bump && earl > synced && commit > earl && push > commit);
+  },
+  'a failed release EARL check prevents the release commit, tag and push'() {
+    const result = simulatedRelease(true);
+    assert.equal(result.status, 23, result.stderr);
+    assert.ok(result.calls.includes('npm test -- unit -k earl'));
+    assert.ok(!result.calls.some((line) => /^git (commit|tag|push) /.test(line)));
   },
 };

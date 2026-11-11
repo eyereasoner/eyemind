@@ -2,7 +2,7 @@
 
 *Collected line amounts produce invoice totals and a large-invoice classification.*
 
-[invoice-totals.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/invoice-totals.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/invoice-totals.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/invoice-totals.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/invoice-totals.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=invoice-totals)
+[invoice-totals.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/invoice-totals.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/invoice-totals.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/invoice-totals.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/invoice-totals.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=invoice-totals)
 
 ---
 
@@ -80,5 +80,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/invoice-totals.n3
 node bin/eyemind.js --proof examples/invoice-totals.n3
-node bin/eyemind.js --check-proof examples/proof/invoice-totals.js examples/invoice-totals.n3
+node bin/eyemind.js --check-proof examples/proof/invoice-totals.n3 examples/invoice-totals.n3
 ```

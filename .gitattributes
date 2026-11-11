@@ -1,0 +1,6 @@
+# Upstream test fixtures preserve intentional whitespace and byte boundaries.
+test/notation3tests/tests/** -whitespace
+test/w3c/rdf-tests/rdf/** -whitespace
+test/w3c/sparql-rl/** -whitespace
+# The upstream license uses seven '=' characters as a heading underline.
+test/w3c/rdf-tests/rdf/rdf11/*/LICENSE conflict-marker-size=32

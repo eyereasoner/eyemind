@@ -2,7 +2,7 @@
 
 *Settle every possible hold before deciding which orders can ship.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/scoped-negation.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/scoped-negation.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/scoped-negation.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/scoped-negation.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=scoped-negation)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/scoped-negation.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/scoped-negation.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/scoped-negation.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/scoped-negation.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=scoped-negation)
 
 ---
 
@@ -55,7 +55,7 @@ different ranks. A dependency cycle through negation would be rejected.
 
 ## What eyemind concludes
 
-The proof records these answers as terms:
+The check report records these answers as terms:
 
 ```js
 // Conclusions: the facts the program derives, in the order derived.
@@ -101,7 +101,7 @@ the remaining call-fidelity obligations.
 ```sh
 node bin/eyemind.js examples/scoped-negation.n3
 node bin/eyemind.js --to eyemind examples/scoped-negation.n3
-node bin/eyemind.js --check-proof examples/proof/scoped-negation.js examples/scoped-negation.n3
+node bin/eyemind.js --check-proof examples/proof/scoped-negation.n3 examples/scoped-negation.n3
 ```
 
 To inspect a fresh compilation:

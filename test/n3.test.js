@@ -532,13 +532,13 @@ test('the eyemind options act on the compiled N3 program', () => {
   const socrates = 'examples/socrates.n3';
   const proof = command(['--proof', socrates]);
   assert.equal(proof.code, 0, proof.stderr);
-  assert.match(proof.stdout, /^step\(rdf\(iri\('http:\/\/example.org\/socrates#Socrates'\)/m);
-  writeFileSync(join(tmp, 'proof.js'), proof.stdout);
-  const checked = command(['--check-proof', join(tmp, 'proof.js'), socrates]);
+  assert.match(proof.stdout, /pe:conclusion \{ :Socrates a :Mortal \}/);
+  writeFileSync(join(tmp, 'proof.n3'), proof.stdout);
+  const checked = command(['--check-proof', join(tmp, 'proof.n3'), socrates]);
   assert.equal(checked.code, 0, checked.stderr);
   assert.match(checked.stdout, /^verdict\('checked'\)$/m);
-  writeFileSync(join(tmp, 'forged.js'), proof.stdout.replace(/clause\(1\), \{/, 'clause(2), {'));
-  assert.equal(command(['--check-proof', join(tmp, 'forged.js'), socrates]).code, 2);
+  writeFileSync(join(tmp, 'forged.n3'), proof.stdout.replace('pe:rule 3', 'pe:rule 1'));
+  assert.equal(command(['--check-proof', join(tmp, 'forged.n3'), socrates]).code, 2);
   assert.equal(JSON.parse(command(['-c', '--json', socrates]).stdout).valid, true);
   // Answers to a goal are eyemind terms, or N3 with --to n3.
   const goal = ['--goal', "rdf(S, iri('http://example.org/family#ancestor'), O)", 'examples/family-recursion.n3'];

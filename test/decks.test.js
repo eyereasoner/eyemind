@@ -2,7 +2,7 @@
 // independently reproduce those artifacts and check their proofs.
 import { readFileSync } from 'node:fs';
 import { basename, isAbsolute, join } from 'node:path';
-import { checkProof, loadText, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
+import { checkProof, loadText, readGoal, readProofTerms, readTerm, readTerms, run, write } from '../src/index.js';
 import { main } from '../src/cli.js';
 import { nodeIO } from '../src/node.js';
 import { Env, properListItems, unify } from '../src/terms.js';
@@ -170,7 +170,7 @@ export const tests = {
     for (const entry of readManifest()) {
       const { name } = entry;
       const links = new Set([...deck(name).matchAll(/\[[^\]]*\]\(([^)]+)\)/g)].map((match) => match[1]));
-      for (const file of [...sourceFiles(entry), `output/${basename(artifactPath('output', entry))}`, `proof/${name}.js`, `check/${name}.js`]) {
+      for (const file of [...sourceFiles(entry), ...['output', 'proof', 'check'].map((kind) => `${kind}/${basename(artifactPath(kind, entry))}`)]) {
         assert.ok(links.has(`https://github.com/eyereasoner/eyemind/blob/main/examples/${file}`), `${name}: ${file}`);
       }
       assert.ok(links.has(`https://eyereasoner.github.io/eyemind/playground/#example=${name}`), name);
@@ -402,7 +402,13 @@ for (const entry of MANIFEST) {
                 assert.equal(result.stdout, `// Answers: each instance of a goal that holds.\n${answer}\n`);
               }
             }
-          } else if (proof) assert.equal(result.stdout, read(`proof/${name}.js`));
+          } else if (proof) {
+            const saved = readFileSync(artifactPath('proof', entry), 'utf8');
+            if (args.some((arg) => compiled.has(arg))) {
+              const records = (text) => readProofTerms(text).map(([term]) => write(term));
+              assert.deepEqual(records(result.stdout), records(saved));
+            } else assert.equal(result.stdout, saved);
+          }
           else assert.deepEqual(terms(result.stdout).map((term) => write(term)), answers(name));
         }
       }

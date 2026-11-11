@@ -8,6 +8,22 @@ import { RDF_MANIFESTS, W3C_BASE, manifestCases, runCase, isomorphic } from './w
 const terms = (text, format = 'turtle') => parseRdf(text, { format, scope: 'd' }).quads.map((q) => q.map((t) => (t === DEFAULT_GRAPH ? t : write(t))));
 
 export const tests = {
+  'language tags and language datatypes are validated in default and named RDF graphs'() {
+    const body = (object) => `<http://e/s> <http://e/p> ${object} .`;
+    const objects = ['"Hello"@cantbethislong', '"Hello"@en-123456789',
+      '"Hello"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#langString>',
+      '"Hello"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#dirLangString>'];
+    for (const format of ['turtle', 'trig', 'n-triples', 'n-quads']) {
+      for (const object of objects) assert.throws(() => parseRdf(body(object), { format }), /language tag/);
+      assert.equal(parseRdf(body('"Hello"@en-GB'), { format }).quads.length, 1);
+      assert.equal(parseRdf(body('"Hello"@ar--rtl'), { format }).quads.length, 1);
+    }
+    for (const object of objects) assert.throws(() => parseRdf(`<http://e/g> { ${body(object)} }`, { format: 'trig' }), /language tag/);
+    assert.throws(() => parseRdf('PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n' +
+      body('"Hello"^^rdf:langString')), /requires a language tag/);
+    assert.equal(parseRdf(body('"Hello"^^<urn:datatype>')).quads.length, 1);
+  },
+
   'turtle maps to iri, bnode, literal and integer terms'() {
     const quads = terms('PREFIX : <http://e/>\n:s :p 42, 007, 1.50, "x"@en-GB, "y"@ar--rtl, true, _:b .');
     assert.deepEqual(quads.map((q) => q[2]), [
