@@ -1,15 +1,13 @@
 // Deck claims are checked against the saved artifacts; the corpus tests
 // independently reproduce those artifacts and check their proofs.
 import { readFileSync } from 'node:fs';
-import { isAbsolute, join } from 'node:path';
+import { basename, isAbsolute, join } from 'node:path';
 import { checkProof, loadText, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
 import { main } from '../src/cli.js';
 import { nodeIO } from '../src/node.js';
 import { Env, properListItems, unify } from '../src/terms.js';
 import { shellSplit } from '../conformance/run.js';
-import { parseN3 } from '../src/n3-parser.js';
-import { parseRdf } from '../src/rdf.js';
-import { loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
+import { artifactPath, loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
 import { ROOT, assert } from './helpers.js';
 
 const MANIFEST = readManifest();
@@ -17,7 +15,7 @@ const PROSE_GOALS = new Set(['gcd-bezout-identity', 'pell-equation', 'binomial-v
 const read = (path) => readFileSync(join(ROOT, 'examples', path), 'utf8');
 const deck = (name) => read(`deck/${name}.md`);
 const terms = (text) => readTerms(text).map(([term]) => term);
-const output = (name) => terms(read(`output/${name}.js`));
+const output = (name) => terms(read(`check/${name}.js`).split('\n// C1-C10:')[0]);
 const answers = (name) => output(name).map((term) => write(term));
 
 function section(text, heading) {
@@ -170,7 +168,7 @@ export const tests = {
     for (const entry of readManifest()) {
       const { name } = entry;
       const links = new Set([...deck(name).matchAll(/\[[^\]]*\]\(([^)]+)\)/g)].map((match) => match[1]));
-      for (const file of [...sourceFiles(entry), `output/${name}.js`, `proof/${name}.js`, `check/${name}.js`]) {
+      for (const file of [...sourceFiles(entry), `output/${basename(artifactPath('output', entry))}`, `proof/${name}.js`, `check/${name}.js`]) {
         assert.ok(links.has(`https://github.com/eyereasoner/eyemind/blob/main/examples/${file}`), `${name}: ${file}`);
       }
       assert.ok(links.has(`https://eyereasoner.github.io/eyemind/playground/#example=${name}`), name);
@@ -356,13 +354,11 @@ for (const entry of MANIFEST) {
           continue;
         }
         const proofMode = args.some((arg) => ['--proof', '-p', '--check-proof', '--prove-and-check', '-c', '--unused'].includes(arg));
-        const to = args.includes('--to') ? args[args.indexOf('--to') + 1] : args.some((arg) => arg.endsWith('.n3')) ? 'n3' : null;
-        if (!proofMode && to && to !== 'eyemind') {
-          // RDF or N3 output holds the saved conclusions, one triple each.
+        const explicitFormat = args.includes('--to') ? args[args.indexOf('--to') + 1] : null;
+        const native = args.some((arg) => /\.(n3|srl)$/.test(arg));
+        if (!proofMode && (native || explicitFormat) && explicitFormat !== 'eyemind') {
           assert.equal(result.code, entry.halt_code ?? 0, result.stderr);
-          const triples = to === 'n3' ? parseN3(result.stdout).triples : parseRdf(result.stdout, { format: to }).quads;
-          const saved = terms(read(`output/${name}.js`)).filter((term) => term !== 'false');
-          assert.equal(triples.length, saved.length, result.stdout);
+          assert.equal(result.stdout, readFileSync(artifactPath('output', entry), 'utf8'));
           continue;
         }
         const goals = args.flatMap((arg, i) => arg === '--goal' ? [args[i + 1]] : []);
@@ -400,7 +396,8 @@ for (const entry of MANIFEST) {
                 assert.equal(result.stdout, `// Answers: each instance of a goal that holds.\n${answer}\n`);
               }
             }
-          } else assert.equal(result.stdout, read(`${proof ? 'proof' : 'output'}/${name}.js`));
+          } else if (proof) assert.equal(result.stdout, read(`proof/${name}.js`));
+          else assert.deepEqual(terms(result.stdout).map((term) => write(term)), answers(name));
         }
       }
     }

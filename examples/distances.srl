@@ -1,0 +1,13 @@
+# A route planner has distances in miles, some already converted. Kilometres
+# are computed only for routes whose base data has none, so a given value is
+# never overwritten. Shows SET with arithmetic, an xsd:integer cast, and
+# NOT DATA, which looks only at the base graph supplied with the rule set.
+PREFIX : <http://example.org/routes#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+RULE { ?route :distanceKm ?km }
+WHERE {
+  ?route :distanceMiles ?miles
+  NOT DATA { ?route :distanceKm ?given }
+  SET(?km := xsd:integer(?miles * 1.609344))
+}

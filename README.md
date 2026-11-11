@@ -7,7 +7,7 @@ eyemind is a **JavaScript rule language** with forward and backward reasoning an
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 99 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1353 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 115 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1353 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -191,30 +191,48 @@ eyemind --to trig rules.js data.trig      # the conclusions as TriG
 | Triple term | `triple(S, P, O)`, which may nest |
 | Default graph, named graph | `'default_graph'`, `iri(Name)` |
 
-A reified triple `<< s p o >>` and an annotation `{| ... |}` become their reifier and its `rdf:reifies` triple, as RDF 1.2 defines. A Skolem term is written as a blank node, the same one for the same rule firing. The `rdf12-*` examples load Turtle or TriG data alongside eyemind rule scripts. They show triple terms, annotations, directional strings, typed numbers and named graphs. The W3C RDF test suites run in `npm test` from the mirror in `test/w3c/rdf-tests`: all 1055 tests of N-Triples, N-Quads, Turtle and TriG, in RDF 1.1 and 1.2, pass.
+A reified triple `<< s p o >>` and an annotation `{| ... |}` become their reifier and its `rdf:reifies` triple, as RDF 1.2 defines. A Skolem term is written as a blank node, the same one for the same rule firing. The RDF examples load Turtle or TriG files from `examples/data/` alongside companion rules in `examples/`. They show triple terms, annotations, directional strings, typed numbers and named graphs. The W3C RDF test suites run in `npm test` from the mirror in `test/w3c/rdf-tests`: all 1055 tests of N-Triples, N-Quads, Turtle and TriG, in RDF 1.1 and 1.2, pass.
 
 ### Notation3
 
-A file ending in `.n3` is Notation3: eyemind compiles its facts and rules into a program, with the N3 built-ins it uses written as eyemind rules, and writes the conclusions back as N3. RDF data files join the N3 document as triples:
+A file ending in `.n3` is Notation3: eyemind compiles its facts and rules into a program, with the N3 built-ins it uses written as eyemind rules, and writes the conclusions back as N3. RDF default-graph data joins the N3 document as triples:
 
 ```sh
-eyemind examples/n3-family.n3                             # the derived triples as N3
-eyemind --program examples/n3-family.n3 > /tmp/family.js  # the compiled program, to inspect
-eyemind -c examples/n3-family.n3                          # a proof of it, checked
+eyemind examples/family.n3                               # the derived triples as N3
+eyemind --program examples/family.n3 > /tmp/family.js    # the compiled program, to inspect
+eyemind -c examples/family.n3                            # a proof of it, checked
 ```
 
 Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above. N3 integers and decimals become eyemind numbers; float and double literals retain their RDF datatype, including numbers written with an exponent. Decimals use binary64 storage; `math:sum` adds their canonical decimal values before rounding its result. `=>` becomes `implies`, `<=` becomes `implied_by`, `{ ... } => false` becomes `contradiction`, and scoped negation and collection become `not` and `findall`, so an N3 run has a proof that eyemind checks like any other. Derived rules can trigger inference fuses too.
 
-Scoped calls can use formulas supplied by the document's stated lists, including RDF collections written with `rdf:first` and `rdf:rest`. These calls are specialized before reasoning so their dependencies remain available for stratification and proof checking; formulas constructed only during reasoning are not supported by this compilation.
+N3 has no named-graph syntax. When RDF data joins an N3 run, eyemind represents
+each named graph as a quoted formula through `graph:content`, where `graph:`
+is `https://eyereasoner.github.io/eyemind/graph#`:
+
+```n3
+@prefix : <https://example.org/> .
+@prefix graph: <https://eyereasoner.github.io/eyemind/graph#> .
+
+:family graph:content { :alice :parent :bob . :bob :parent :carol } .
+```
+
+Default-graph triples remain ordinary assertions. Named-graph triples stay
+inside their formulas; `?g graph:content ?data` and
+`?data log:includes { ... }` inspect them. Contents with the same graph name
+from several RDF inputs are combined, while blank nodes keep their source
+scopes. Conclusions can attach further formulas to that name; the output
+writes these as N3 formulas. See the [named graph example](https://eyereasoner.github.io/eyemind/examples/deck/trig-named-graph).
+
+Scoped calls can use formulas supplied by the document's stated lists, including RDF collections written with `rdf:first` and `rdf:rest`, and the named-graph formulas loaded from RDF. These calls are specialized before reasoning so their dependencies remain available for stratification and proof checking; formulas constructed only during reasoning are not supported by this compilation.
 
 The documents `log:semantics`, `log:semanticsOrError` and `log:content` name are read before compiling. The command reads local files and HTTP(S) documents, with a ten-second fetch timeout and a 16 MiB response limit. The library uses the host callbacks `readFile(path)` and `readDocument(iri)`; without them it does not read external documents. Their contents become facts of the compiled program, which can be saved with `--program` for later proof checking.
 
-Five examples run directly from their N3 source in the playground and on the command line.
-[family queries](https://eyereasoner.github.io/eyemind/examples/deck/n3-family),
-[scoped negation](https://eyereasoner.github.io/eyemind/examples/deck/n3-scoped-negation),
-[invoice collection](https://eyereasoner.github.io/eyemind/examples/deck/n3-invoice),
-[French cities](https://eyereasoner.github.io/eyemind/examples/deck/n3-french-cities), and
-[existential witnesses](https://eyereasoner.github.io/eyemind/examples/deck/n3-witnesses).
+Examples run directly from their N3 source in the playground and on the command line:
+[family queries](https://eyereasoner.github.io/eyemind/examples/deck/family),
+[scoped negation](https://eyereasoner.github.io/eyemind/examples/deck/scoped-negation),
+[invoice collection](https://eyereasoner.github.io/eyemind/examples/deck/invoice),
+[French cities](https://eyereasoner.github.io/eyemind/examples/deck/french-cities), and
+[existential witnesses](https://eyereasoner.github.io/eyemind/examples/deck/witnesses-n3).
 Each deck shows the N3 result and what its saved proof establishes, including
 any remaining obligations.
 
@@ -229,6 +247,11 @@ eyemind -c rules.srl facts.ttl            # a proof of it, checked
 ```
 
 Triples are `rdf(Subject, Predicate, Object)`, with `base/3` marking the base graph and `inf/3` the inference graph. A rule becomes `implies`, `NOT` becomes `not` of a helper, `GROUP` becomes `findall`, a blank node in a rule head becomes the Skolem term of its firing, and a SPARQL error is a goal that fails, so `FILTER` rejects the solution and `SET` drops it. The W3C SPARQL 1.2 RL test suite runs in `npm test` from the mirror in `test/w3c/sparql-rl`: all 241 tests pass. `NOW`, `UUID` and `STRUUID` are not supported, as eyemind has no clock or randomness; decimals and doubles are computed as binary64 floats.
+
+The [example catalog](https://eyereasoner.github.io/eyemind/examples/) includes
+SRL programs for deployment dependencies, route distances, ancestry, inventory,
+invoices, provenance and Unicode strings. Each has saved Turtle output, a
+proof, a check report and a deck, and runs in the playground.
 
 ## How eyemind reasons
 

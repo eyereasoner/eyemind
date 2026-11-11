@@ -1,0 +1,6 @@
+@prefix : <https://example.org/french-cities#> .
+
+:angers :canReach :nantes .
+:lemans :canReach :nantes .
+:chartres :canReach :nantes .
+:paris :canReach :nantes .

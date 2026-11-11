@@ -387,26 +387,38 @@
     ]
   },
   {
-    "name": "rdf12-triple-term",
-    "files": ["rdf12-triple-term.ttl", "rules/rdf12-triple-term.js"],
+    "name": "triple-term",
+    "files": [
+      "data/triple-term.ttl",
+      "triple-term.n3"
+    ],
     "description": "An RDF 1.2 triple term: a claim names a triple without asserting it, and accepting the claim asserts it",
     "trusted": []
   },
   {
-    "name": "rdf12-nested-triple-term",
-    "files": ["rdf12-nested-triple-term.ttl", "rules/rdf12-nested-triple-term.js"],
+    "name": "nested-triple-term",
+    "files": [
+      "data/nested-triple-term.ttl",
+      "nested-triple-term.n3"
+    ],
     "description": "Nested RDF 1.2 triple terms: one pattern reaches the triple inside a claim inside a review",
     "trusted": []
   },
   {
-    "name": "rdf12-annotation",
-    "files": ["rdf12-annotation.ttl", "rules/rdf12-annotation.js"],
+    "name": "annotation",
+    "files": [
+      "data/annotation.ttl",
+      "annotation.n3"
+    ],
     "description": "An RDF 1.2 annotation: an asserted triple recovered with the reifier that records who stated it and when",
     "trusted": []
   },
   {
-    "name": "rdf12-annotated-claims",
-    "files": ["rdf12-annotated-claims.ttl", "rules/rdf12-annotated-claims.js"],
+    "name": "annotated-claims",
+    "files": [
+      "data/annotated-claims.ttl",
+      "annotated-claims.n3"
+    ],
     "description": "Conflicting RDF 1.2 annotated claims ranked by confidence and trust, with typed literals read as numbers",
     "trusted": [
       "call_fidelity",
@@ -414,46 +426,70 @@
     ]
   },
   {
-    "name": "rdf12-directional-language",
-    "files": ["rdf12-directional-language.ttl", "rules/rdf12-directional-language.js"],
+    "name": "directional-language",
+    "files": [
+      "data/directional-language.ttl",
+      "directional-language.n3"
+    ],
     "description": "RDF 1.2 directional language strings keep their base direction through a display rule",
     "trusted": []
   },
   {
-    "name": "rdf12-trig-named-graph",
-    "files": ["rdf12-trig-named-graph.trig", "rules/rdf12-trig-named-graph.js"],
-    "description": "Ancestors derived within a TriG named graph, each conclusion kept in its graph",
-    "trusted": []
+    "name": "trig-named-graph",
+    "files": [
+      "data/trig-named-graph.trig",
+      "trig-named-graph.n3"
+    ],
+    "description": "Ancestors derived within a TriG named graph, each conclusion kept in its named-graph formula",
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
-    "name": "rdf12-trig-triple-term",
-    "files": ["rdf12-trig-triple-term.trig", "rules/rdf12-trig-triple-term.js"],
-    "description": "A triple term inside a named graph, asserted in the graph that holds the claim",
-    "trusted": []
+    "name": "trig-triple-term",
+    "files": [
+      "data/trig-triple-term.trig",
+      "trig-triple-term.n3"
+    ],
+    "description": "A triple term inside a named graph, asserted in a formula named for the graph that holds the claim",
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
-    "name": "rdf12-trig-graph-join",
-    "files": ["rdf12-trig-graph-join.trig", "rules/rdf12-trig-graph-join.js"],
+    "name": "trig-graph-join",
+    "files": [
+      "data/trig-graph-join.trig",
+      "trig-graph-join.n3"
+    ],
     "description": "Data about a named graph in the default graph joined with data inside that graph",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
-    "name": "n3-family",
-    "files": ["n3-family.n3"],
+    "name": "family",
+    "files": [
+      "family.n3"
+    ],
     "description": "Notation3 backward ancestry and log:query compiled to eyemind",
     "trusted": []
   },
   {
-    "name": "n3-scoped-negation",
-    "files": ["n3-scoped-negation.n3"],
+    "name": "scoped-negation",
+    "files": [
+      "scoped-negation.n3"
+    ],
     "description": "Notation3 scoped negation waits for a derived order hold",
     "trusted": [
       "call_fidelity"
     ]
   },
   {
-    "name": "n3-invoice",
-    "files": ["n3-invoice.n3"],
+    "name": "invoice",
+    "files": [
+      "invoice.n3"
+    ],
     "description": "Notation3 collection totals invoices, including an empty invoice",
     "trusted": [
       "call_fidelity",
@@ -461,14 +497,18 @@
     ]
   },
   {
-    "name": "n3-french-cities",
-    "files": ["n3-french-cities.n3"],
+    "name": "french-cities",
+    "files": [
+      "french-cities.n3"
+    ],
     "description": "French cities that can reach Nantes through one-way links and explicit schema rules",
     "trusted": []
   },
   {
-    "name": "n3-witnesses",
-    "files": ["n3-witnesses.n3"],
+    "name": "witnesses-n3",
+    "files": [
+      "witnesses.n3"
+    ],
     "description": "Notation3 conclusion blank nodes become shared witnesses for each order",
     "trusted": []
   },
@@ -617,6 +657,157 @@
   {
     "name": "rule-inspection",
     "description": "Inspecting a source rule as data while preserving its shared variable",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "closed-world",
+    "files": [
+      "closed-world.n3"
+    ],
+    "description": "Paid orders ship when no hold is on record",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "derived-rule-n3",
+    "files": [
+      "derived-rule.n3"
+    ],
+    "description": "An active policy derives and reports a membership rule",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "existential",
+    "files": [
+      "existential.n3"
+    ],
+    "description": "Each person gets a distinct mother and a reciprocal child relation",
+    "trusted": []
+  },
+  {
+    "name": "family-recursion",
+    "files": [
+      "family-recursion.n3"
+    ],
+    "description": "Recursive backward ancestry selected by a query",
+    "trusted": []
+  },
+  {
+    "name": "fuse",
+    "files": [
+      "fuse.n3"
+    ],
+    "description": "A locked and open door triggers an integrity violation",
+    "trusted": [],
+    "halt_code": 65
+  },
+  {
+    "name": "invoice-totals",
+    "files": [
+      "invoice-totals.n3"
+    ],
+    "description": "Collected line amounts produce invoice totals and a large-invoice classification",
+    "trusted": [
+      "call_fidelity",
+      "collected"
+    ]
+  },
+  {
+    "name": "report",
+    "files": [
+      "report.n3"
+    ],
+    "description": "A formatted text report of fruit quantities, prices and costs",
+    "trusted": [
+      "call_fidelity"
+    ],
+    "output": "txt"
+  },
+  {
+    "name": "socrates-n3",
+    "files": [
+      "socrates.n3"
+    ],
+    "description": "Class membership follows the subclass hierarchy in Notation3",
+    "trusted": []
+  },
+  {
+    "name": "deployment",
+    "files": [
+      "deployment.srl"
+    ],
+    "description": "Service dependencies propagate severe vulnerabilities and safe deployment decisions",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "distances",
+    "files": [
+      "distances.srl",
+      "data/distances.ttl"
+    ],
+    "description": "Missing kilometre distances are converted from miles without replacing base data",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "family-srl",
+    "files": [
+      "family.srl"
+    ],
+    "description": "Recursive forward ancestry over a three-generation family tree",
+    "trusted": []
+  },
+  {
+    "name": "inventory-srl",
+    "files": [
+      "inventory.srl"
+    ],
+    "description": "Grouped stock records yield location counts, totals, minimums and maximums",
+    "trusted": [
+      "call_fidelity",
+      "collected"
+    ]
+  },
+  {
+    "name": "orders",
+    "files": [
+      "orders.srl"
+    ],
+    "description": "Each order gets its own invoice with a customer and total",
+    "trusted": []
+  },
+  {
+    "name": "provenance",
+    "files": [
+      "provenance.srl"
+    ],
+    "description": "Strong annotated links yield connections and source-attributed triple terms",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "socrates-srl",
+    "files": [
+      "socrates.srl"
+    ],
+    "description": "Class membership follows the subclass hierarchy in SPARQL 1.2 RL",
+    "trusted": []
+  },
+  {
+    "name": "strings-srl",
+    "files": [
+      "strings.srl"
+    ],
+    "description": "Directory listings, initials and language information from Unicode names",
     "trusted": [
       "call_fidelity"
     ]

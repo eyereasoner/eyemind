@@ -49,10 +49,16 @@ goals, and keep error messages specific and user-facing text direct.
   Specification, Conformance, Repository; the logo links home), the same nav the playground shows.
 - `examples/`: runnable examples, listed in `examples/manifest.json` with
   their description, halt code and proof obligations. An entry can list its
-  source files in order. RDF examples pair Turtle or TriG data with a
-  companion rule script in `examples/rules/`. `examples/output/`,
+  source files in order. RDF examples pair Turtle or TriG data in
+  `examples/data/` with companion N3 rules directly in `examples/`.
+  `examples/output/`,
   `examples/proof/` and `examples/check/` hold each one's saved conclusions,
-  proof and check report; `examples/deck/` a card deck per example.
+  proof and check report; `examples/deck/` a card deck per example. Outputs
+  use the input format’s default (`.js`, `.n3` or `.ttl`; `.txt` for the text
+  report); proofs and check reports remain `.js`. Source files can share a
+  basename across formats (`socrates.js`, `socrates.n3`, `socrates.srl`).
+  Manifest names distinguish their proofs, check reports and decks. TriG
+  joins N3 as quoted `graph:content` formulas.
 - `conformance/`: the black-box suite of SPEC.md. Each case file is an
   eyemind document of `conformance(Name, [Setting, ...])` terms, read by
   `conformance/run.js`; `conformance/README.md` describes the format.
@@ -60,7 +66,7 @@ goals, and keep error messages specific and user-facing text direct.
   the playground tests of `playground.js` in a headless Chrome that
   `chrome.js` starts; `browser.mjs` runs those alone and can take screenshots.
   `w3c.js` runs the W3C RDF and SPARQL 1.2 RL suites mirrored in `test/w3c/`;
-  `test/n3/` and `test/srl/` hold N3 and SRL inputs with saved outputs.
+  N3 and SRL examples and their saved artifacts live in `examples/`.
 - `tools/`: `update-examples.js` regenerates the example artifacts,
   `corpus.js` evaluates the corpus, `version.js` syncs the version,
   `notation3tests.js` scores the Notation3 test suite, and `report.js`

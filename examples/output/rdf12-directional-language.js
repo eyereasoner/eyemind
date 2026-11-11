@@ -1,3 +1,0 @@
-// Answers: each instance of a query() that holds.
-result_rdf(iri('https://example.org/welcome'), iri('https://example.org/displayLabel'), literal('مرحبا', lang('ar', 'rtl')), 'default_graph')
-result_rdf(iri('https://example.org/welcome'), iri('https://example.org/displayLabel'), literal('Welcome', lang('en', 'ltr')), 'default_graph')

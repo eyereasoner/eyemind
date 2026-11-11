@@ -17,6 +17,15 @@ Run the mirror without network access:
 node tools/notation3tests.js
 ```
 
+The scorer reuses up to three worker processes, each calling the same CLI
+entry point with a fresh program and output buffers for each case. Each
+worker has a 512 MiB JavaScript heap limit; a case that exceeds its timeout
+loses its worker, and later cases get a replacement. Workers share a Node
+module compile cache. A caller's `NODE_COMPILE_CACHE` directory is retained;
+otherwise the scorer creates a temporary cache and removes it after the run.
+The cache holds compiled JavaScript modules, not test answers: every case
+is evaluated on every run.
+
 A whole `npm test` run also includes it in the report. To refresh the mirror
 and its document fixtures from upstream:
 

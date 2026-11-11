@@ -1,0 +1,9 @@
+# Alice's asserted name has a reifier recording who stated it and when.
+# A query returns the triple and its annotations only when they occur together,
+# showing RDF 1.2 reification and preserving the date's datatype.
+@prefix : <https://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:alice :name "Alice" ~ :claim1 .
+:claim1 :statedBy :carol ;
+  :recorded "2025-01-15"^^xsd:date .

@@ -13,9 +13,9 @@
 // tally and the time taken as JSON instead. --progress writes case counts
 // to stderr as the tests finish. The default is the repository's
 // mirror, using its saved document fixtures without network access.
-import { spawn } from 'node:child_process';
-import { existsSync, readdirSync } from 'node:fs';
-import { cpus } from 'node:os';
+import { fork } from 'node:child_process';
+import { existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { cpus, tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseN3 } from '../src/n3-parser.js';
@@ -48,7 +48,7 @@ else {
   const saved = documents ?? join(dir, '..', 'documents.json');
   if (documents || existsSync(saved)) env.EYEMIND_N3_DOCUMENTS = resolve(saved);
 }
-const bin = fileURLToPath(new URL('../bin/eyemind.js', import.meta.url));
+const workerFile = new URL('./notation3-worker.js', import.meta.url);
 const EX = 'http://example.org/';
 
 const collect = (d, out = []) => {
@@ -60,19 +60,34 @@ const collect = (d, out = []) => {
   return out;
 };
 
-function runOne(file) {
+function runOne(child, file) {
   return new Promise((resolve) => {
-    // Each run has a bounded heap, so a runaway test fails alone.
-    const child = spawn(process.execPath, ['--max-old-space-size=512', bin, relative(dir, file)], { cwd: dir, env });
     let out = '';
     let err = '';
-    child.stdout.on('data', (d) => { out += d; });
-    child.stderr.on('data', (d) => { err += d; });
-    const timer = setTimeout(() => child.kill('SIGKILL'), timeout * 1000);
-    child.on('close', (code, signal) => {
+    let settled = false;
+    const stdout = (data) => { out += data; };
+    const stderr = (data) => { err += data; };
+    const finish = (result) => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timer);
-      resolve({ out, err, code, signal });
-    });
+      child.stdout.off('data', stdout);
+      child.stderr.off('data', stderr);
+      child.off('message', message);
+      child.off('exit', closed);
+      child.off('error', failed);
+      resolve({ ...result, out: out + (result.out ?? ''), err: err + (result.err ?? '') });
+    };
+    const message = (result) => finish(result);
+    const closed = (code, signal) => finish({ code, signal, exited: true });
+    const failed = (error) => finish({ code: 1, signal: null, err: error.message, exited: true });
+    child.stdout.on('data', stdout);
+    child.stderr.on('data', stderr);
+    child.once('message', message);
+    child.once('exit', closed);
+    child.once('error', failed);
+    const timer = setTimeout(() => child.kill('SIGKILL'), timeout * 1000);
+    child.send(relative(dir, file), (error) => { if (error) failed(error); });
   });
 }
 
@@ -111,19 +126,41 @@ const tally = {};
 const lines = new Array(files.length);
 let next = 0;
 let finished = 0;
+// Reuse loaded modules, while each case gets a fresh CLI run. Replacement
+// workers share compiled modules too; a caller's cache remains theirs.
+const cache = env.NODE_COMPILE_CACHE ? null : mkdtempSync(join(tmpdir(), 'eyemind-n3-cache-'));
+if (cache) env.NODE_COMPILE_CACHE = cache;
 async function worker() {
-  while (next < files.length) {
-    const k = next++;
-    const [verdict, detail] = score(files[k], await runOne(files[k]));
-    tally[verdict] = (tally[verdict] ?? 0) + 1;
-    lines[k] = `${verdict.padEnd(11)} ${relative(dir, files[k])}${verdict !== 'ok' && detail ? `  ${detail.slice(0, 140)}` : ''}`;
-    finished++;
-    if (progress && finished % 200 === 0 && finished < files.length) {
-      process.stderr.write(`${finished}/${files.length} Notation3 cases completed.\n`);
+  let child = null;
+  try {
+    while (next < files.length) {
+      const k = next++;
+      // A timeout or heap failure costs one worker, not the rest of the suite.
+      child ??= fork(workerFile, { cwd: dir, env, execArgv: ['--max-old-space-size=512'], silent: true });
+      const result = await runOne(child, files[k]);
+      if (result.exited) child = null;
+      const [verdict, detail] = score(files[k], result);
+      tally[verdict] = (tally[verdict] ?? 0) + 1;
+      lines[k] = `${verdict.padEnd(11)} ${relative(dir, files[k])}${verdict !== 'ok' && detail ? `  ${detail.slice(0, 140)}` : ''}`;
+      finished++;
+      if (progress && finished % 200 === 0 && finished < files.length) {
+        process.stderr.write(`${finished}/${files.length} Notation3 cases completed.\n`);
+      }
+    }
+  } finally {
+    if (child) {
+      await new Promise((resolve) => {
+        child.once('exit', resolve);
+        child.disconnect();
+      });
     }
   }
 }
-await Promise.all(Array.from({ length: Math.min(3, cpus().length) }, worker));
+try {
+  await Promise.all(Array.from({ length: Math.min(3, cpus().length) }, worker));
+} finally {
+  if (cache) rmSync(cache, { recursive: true, force: true });
+}
 const seconds = (performance.now() - started) / 1000;
 if (json) {
   process.stdout.write(`${JSON.stringify({ total: files.length, tally, seconds, failures: lines.filter((l) => !l.startsWith('ok')) })}\n`);

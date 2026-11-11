@@ -1,0 +1,4 @@
+@prefix : <https://example.org/orders#> .
+
+:order2 :hold :addressCheck .
+:order1 :action :ship .

@@ -1,0 +1,11 @@
+@prefix : <https://example.org/> .
+
+:bridge :decision :avoid_bridge .
+:bridge :trustedSource :transportAuthority .
+:bridge :score 9310 .
+:closed :rank 1 .
+:closed :assertedBy :transportAuthority .
+:closed :score 9310 .
+:open :rank 2 .
+:open :assertedBy :anonymousPost .
+:open :score 700 .

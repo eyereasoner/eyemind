@@ -1,0 +1,5 @@
+# Arabic and English welcome labels carry a language and writing direction.
+# The display rule concludes new labels while preserving both annotations.
+@prefix : <https://example.org/> .
+
+{ ?s :label ?label } => { ?s :displayLabel ?label } .

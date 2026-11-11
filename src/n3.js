@@ -23,6 +23,7 @@ import { documentIris, readDocuments } from './n3-documents.js';
 const MATH = 'http://www.w3.org/2000/10/swap/math#';
 const STRING = 'http://www.w3.org/2000/10/swap/string#';
 const LIST = 'http://www.w3.org/2000/10/swap/list#';
+const GRAPH_CONTENT = 'https://eyereasoner.github.io/eyemind/graph#content';
 import { BUILTINS, HELPERS, UNSUPPORTED } from './n3-builtins.js';
 
 export class N3CompileError extends Error {}
@@ -797,15 +798,29 @@ function shortName(iri) {
 
 // N3 sources, given as [text, name] pairs, read as one document: { triples,
 // prefixes }. base resolves relative IRIs; blank-node labels are local to
-// each source. RDF sources, given as { quads, prefixes }, join as triples.
+// each source. RDF sources, given as { quads, prefixes }, join as triples;
+// named graphs become graph:content formulas, keeping their contents quoted.
 export function readSources(sources, { base = '', baseOf = () => '' } = {}) {
   if (typeof sources === 'string') sources = [[sources, 'input']];
   const docs = sources.map((source) => (Array.isArray(source)
     ? parseN3(source[0], { base: base || baseOf(source[1]) })
-    : { triples: source.quads.map(rdfQuadToN3), prefixes: new Map(Object.entries(source.prefixes ?? {})) }));
+    : { triples: rdfQuadsToN3(source.quads), prefixes: new Map(Object.entries(source.prefixes ?? {})) }));
   const doc = { triples: [], prefixes: new Map() };
+  const graphs = new Map();
   docs.forEach((d, k) => {
-    doc.triples.push(...(docs.length > 1 ? relabel(d.triples, `s${k}.`) : d.triples));
+    for (const triple of docs.length > 1 ? relabel(d.triples, `s${k}.`) : d.triples) {
+      // The same graph can be supplied by several RDF files. Merge after
+      // relabelling so their blank nodes keep their own source scopes.
+      if (!Array.isArray(sources[k]) && triple.p.v === GRAPH_CONTENT && triple.o.t === 'graph') {
+        const key = `${triple.s.t}:${triple.s.v}`;
+        if (graphs.has(key)) {
+          graphs.get(key).triples.push(...triple.o.triples);
+          continue;
+        }
+        graphs.set(key, triple.o);
+      }
+      doc.triples.push(triple);
+    }
     for (const [name, ns] of d.prefixes) if (!doc.prefixes.has(name)) doc.prefixes.set(name, ns);
   });
   return doc;
@@ -861,21 +876,37 @@ function relabel(triples, prefix) {
   return triples.map(triple);
 }
 
-// An RDF quad, read by rdf.js, as an N3 triple; N3 has no named graphs.
-function rdfQuadToN3([s, p, o, g]) {
-  if (g !== 'default_graph') throw new N3CompileError('N3 has no named graphs; give the data as Turtle or N-Triples');
-  const term = (t) => {
-    if (typeof t === 'bigint') return { t: 'int', v: t };
-    const [a, b, c] = t.args;
-    switch (t.name) {
-      case 'iri': return { t: 'iri', v: a };
-      case 'bnode': return { t: 'bnode', v: `${a}.${b}`, scope: 0 };
-      case 'triple': return { t: 'triple', s: term(a), p: term(b), o: term(c) };
-      case 'literal':
-        if (b.name === 'lang') return { t: 'literal', v: a, lang: b.args[0], dir: b.args[1] ?? null, dt: `${RDF_NS}langString` };
-        return typedLiteral(a, b.args[0]);
-      default: throw new N3CompileError(`${write(t)} is no RDF term`);
+// N3 has no dataset syntax. A named graph's name points to its formula;
+// the formula's triples remain separate from default-graph assertions.
+function rdfQuadsToN3(quads) {
+  const triples = [];
+  const graphs = new Map();
+  for (const [s, p, o, g] of quads) {
+    const triple = { s: rdfTermToN3(s), p: rdfTermToN3(p), o: rdfTermToN3(o) };
+    if (g === 'default_graph') triples.push(triple);
+    else {
+      const key = write(g);
+      if (!graphs.has(key)) {
+        const formula = { t: 'graph', triples: [], scope: 0 };
+        graphs.set(key, formula);
+        triples.push({ s: rdfTermToN3(g), p: { t: 'iri', v: GRAPH_CONTENT }, o: formula });
+      }
+      graphs.get(key).triples.push(triple);
     }
-  };
-  return { s: term(s), p: term(p), o: term(o) };
+  }
+  return triples;
+}
+
+function rdfTermToN3(t) {
+  if (typeof t === 'bigint') return { t: 'int', v: t };
+  const [a, b, c] = t.args;
+  switch (t.name) {
+    case 'iri': return { t: 'iri', v: a };
+    case 'bnode': return { t: 'bnode', v: `${a}.${b}`, scope: 0 };
+    case 'triple': return { t: 'triple', s: rdfTermToN3(a), p: rdfTermToN3(b), o: rdfTermToN3(c) };
+    case 'literal':
+      if (b.name === 'lang') return { t: 'literal', v: a, lang: b.args[0], dir: b.args[1] ?? null, dt: `${RDF_NS}langString` };
+      return typedLiteral(a, b.args[0]);
+    default: throw new N3CompileError(`${write(t)} is no RDF term`);
+  }
 }

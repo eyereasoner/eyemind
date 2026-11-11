@@ -1,0 +1,14 @@
+# Alice's asserted name has a reifier recording who stated it and when.
+# A query returns the triple and its annotations only when they occur together,
+# showing RDF 1.2 reification and preserving the date's datatype.
+@prefix : <https://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+
+{
+  ?s ?p ?o .
+  ?reifier rdf:reifies <<( ?s ?p ?o )>> ; :statedBy ?source ; :recorded ?date .
+} log:query {
+  ?s ?p ?o .
+  ?reifier rdf:reifies <<( ?s ?p ?o )>> ; :statedBy ?source ; :recorded ?date .
+} .

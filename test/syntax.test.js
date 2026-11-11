@@ -16,12 +16,12 @@ const CASES = [
   'var_name(VAR_VAR__X)', "struct('if', 1)",
 ];
 
-// One line of each kind from the saved documents of the examples.
+// One line of each kind from the examples' canonical term documents.
 function savedLines() {
   const lines = new Map();
   for (const kind of ['output', 'proof', 'check']) {
     const directory = join(ROOT, 'examples', kind);
-    for (const file of readdirSync(directory).sort()) {
+    for (const file of readdirSync(directory).filter((name) => name.endsWith('.js')).sort()) {
       for (const line of readFileSync(join(directory, file), 'utf8').split('\n')) {
         if (!line || line.startsWith('//')) continue;
         const shape = line.replace(/'[^'\\\n]*'/g, "'a'").replace(/\d+/g, (n) => '0'.repeat(Math.ceil(Math.log2(n.length + 1))));

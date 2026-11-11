@@ -1,10 +1,10 @@
 // The example corpus: the manifest, and evaluating an example into the
 // output, proof and check report saved beside it.
 import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { basename, dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkReport, run } from '../src/index.js';
-import { loadInputs } from '../src/formats.js';
+import { defaultFormat, loadInputs, writeConclusions } from '../src/formats.js';
 import { nodeIO } from '../src/node.js';
 
 export const ROOT = join(dirname(dirname(fileURLToPath(import.meta.url))), 'examples');
@@ -25,15 +25,25 @@ export function readManifest() {
 }
 
 export const sourceFiles = (entry) => entry.files ?? [`${entry.name}.js`];
-export const artifactPath = (kind, entry) => join(ROOT, kind, `${entry.name}.js`);
+export const outputExtension = (entry) => entry.output ??
+  (sourceFiles(entry).some((file) => file.endsWith('.n3')) ? 'n3' :
+    sourceFiles(entry).some((file) => file.endsWith('.srl')) ? 'ttl' : 'js');
+export function artifactPath(kind, entry) {
+  const source = sourceFiles(entry).find((file) => /\.(n3|srl)$/.test(file));
+  const name = kind === 'output' && source ? basename(source, extname(source)) : entry.name;
+  return join(ROOT, kind, `${name}.${kind === 'output' ? outputExtension(entry) : 'js'}`);
+}
 
-export function loadExample(entry) {
+export function loadExampleInputs(entry) {
   const inputs = sourceFiles(entry).map((file) => {
     const path = join(ROOT, file);
     return [readFileSync(path, 'utf8'), path];
   });
-  return loadInputs(inputs, nodeIO).program;
+  return loadInputs(inputs, nodeIO);
 }
+
+export const loadExample = (entry) => loadExampleInputs(entry).program;
+export const outputText = (loaded, result) => writeConclusions(loaded, result, { format: defaultFormat(loaded.kind) }) ?? result.stdout;
 
 // A certified run holds a valid nonempty proof, agrees with the plain run,
 // and relies on exactly the trusted boundaries the manifest declares.
@@ -54,8 +64,9 @@ export function certify(entry, program, output) {
 }
 
 export function evaluate(entry) {
-  const program = loadExample(entry);
+  const loaded = loadExampleInputs(entry);
+  const { program } = loaded;
   const output = run(program);
   const proved = certify(entry, program, output);
-  return { output: output.stdout, proof: proved.proof, check: checkReport(proved.proofReport) };
+  return { output: outputText(loaded, output), proof: proved.proof, check: checkReport(proved.proofReport) };
 }

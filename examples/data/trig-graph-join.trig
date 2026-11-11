@@ -1,0 +1,10 @@
+# The default graph names the station that reported the sensor graph.
+# The sensor graph holds a temperature reading, quoted by graph:content.
+# Joining these two contexts concludes who reported the sensor, in the
+# default graph; log:includes inspects the quoted reading without asserting it.
+@prefix : <https://example.org/> .
+
+:sensorGraph :reportedBy :station7 .
+:sensorGraph {
+  :sensor1 :temperature "21.5" .
+}

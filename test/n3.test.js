@@ -1,15 +1,15 @@
 // Notation3 compiled to eyemind: the parser, the compiler and its built-ins,
-// the writer, and the documents and examples of test/n3.
-import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+// the writer, and the N3 documents in examples/.
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { tmpdir } from 'node:os';
-import { basename, join } from 'node:path';
+import { cpus, tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { checkProof, loadText } from '../src/index.js';
+import { checkProof, loadText, run } from '../src/index.js';
 import { compileN3, reasonN3 } from '../src/n3.js';
 import { parseN3 } from '../src/n3-parser.js';
 import { readDocuments } from '../src/n3-documents.js';
-import { loadInputs } from '../src/formats.js';
+import { loadInputs, writeConclusions } from '../src/formats.js';
 import { nodeIO } from '../src/node.js';
 import { eyemindToN3 } from '../src/n3-writer.js';
 import { ROOT, assert, command } from './helpers.js';
@@ -25,6 +25,29 @@ const checkedReason = (text) => {
   return r.n3;
 };
 const P = '@prefix : <http://example.org/#>.\n';
+
+test('TriG joins N3 as named graph formulas without leaking triples or blank nodes', () => {
+  const loaded = loadInputs([
+    [`${P}:outside :p :z . :one { :a :p :b . _:x :left :a } :two { :b :p :c }`, 'first.trig'],
+    [`${P}:one { :b :p :d . _:x :right :b }`, 'second.trig'],
+    [`${P}@prefix graph: <https://eyereasoner.github.io/eyemind/graph#> .
+      { ?g graph:content ?data . ?data log:includes { ?s :p ?m . ?m :p ?o } }
+        => { ?g graph:content { ?s :q ?o } } .
+      { ?s :p ?o } => { ?s :defaultCopy ?o } .
+      { ?g graph:content ?data . ?data log:includes { ?x :left :a ; :right :b } }
+        => { :result :is :leaked } .`, 'rules.n3'],
+  ]);
+  const result = run(loaded.program, { proof: true });
+  assert.equal(result.answers.length, 2);
+  const text = writeConclusions(loaded, result, { format: 'n3' });
+  assert.match(text, /:one graph:content \{ :a :q :d \} \./);
+  assert.match(text, /:outside :defaultCopy :z \./);
+  assert.doesNotMatch(text, /:leaked|:q :c|:a :defaultCopy/);
+  assert.ok(checkProof(loaded.program, result.proof).valid);
+  const forged = result.proof.replaceAll("iri('http://example.org/#one')", "iri('http://example.org/#two')");
+  assert.notEqual(forged, result.proof);
+  assert.ok(!checkProof(loaded.program, forged).valid);
+});
 
 // Parsing.
 test('parser: prefixes, a, literals, numbers and lists', () => {
@@ -444,6 +467,58 @@ test('the Notation3 scorer recognizes an inference fuse after partial output', (
   assert.deepEqual(result.tally, { ok: 1, incomplete: 1 });
   assert.match(result.failures[0], /success-late/);
 });
+test('the Notation3 scorer reuses processes and a compile cache without sharing case facts', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'eyemind-n3-workers-'));
+  const log = join(tmp, 'workers.jsonl');
+  const preload = join(tmp, 'record.cjs');
+  writeFileSync(preload, `const fs = require('node:fs');
+    if (['eyemind.js', 'notation3-worker.js'].includes(require('node:path').basename(process.argv[1]))) {
+      fs.appendFileSync(${JSON.stringify(log)}, JSON.stringify({ pid: process.pid,
+        cache: process.env.NODE_COMPILE_CACHE, present: fs.existsSync(process.env.NODE_COMPILE_CACHE) }) + '\\n');
+    }`);
+  for (let i = 0; i < 3; i++) {
+    writeFileSync(join(tmp, `a-success-${i}.n3`), `@prefix : <http://example.org/>.
+      {} => { :test :contains :success-seed. :result :has :success-seed, :fail-clean }.`);
+    writeFileSync(join(tmp, `b-fail-${i}.n3`), '@prefix : <http://example.org/>. {} => { :test :contains :fail-clean }.');
+  }
+  const env = { ...process.env, NODE_OPTIONS: [process.env.NODE_OPTIONS, `--require=${JSON.stringify(preload)}`].filter(Boolean).join(' ') };
+  delete env.NODE_COMPILE_CACHE;
+  const score = () => {
+    writeFileSync(log, '');
+    const result = spawnSync(process.execPath, ['tools/notation3tests.js', '--json', tmp], { cwd: ROOT, env, encoding: 'utf8' });
+    assert.ifError(result.error);
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(JSON.parse(result.stdout).tally, { ok: 6 });
+    return readFileSync(log, 'utf8').trim().split('\n').map((line) => JSON.parse(line));
+  };
+  const workers = score();
+  assert.equal(new Set(workers.map((w) => w.pid)).size, Math.min(3, cpus().length));
+  assert.equal(new Set(workers.map((w) => w.cache)).size, 1);
+  assert.ok(workers.every((w) => w.cache && w.present));
+  assert.ok(!existsSync(workers[0].cache), 'the scorer must remove its temporary cache');
+  const cache = join(tmp, 'caller-cache');
+  mkdirSync(cache);
+  env.NODE_COMPILE_CACHE = cache;
+  assert.ok(score().every((w) => w.cache === cache));
+  assert.ok(existsSync(cache), 'a cache supplied by the caller must remain');
+});
+test('the Notation3 scorer replaces timed-out workers and finishes later cases', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'eyemind-n3-timeout-'));
+  for (let i = 0; i < 3; i++) {
+    writeFileSync(join(tmp, `crash-loop-${i}.n3`), `@prefix : <http://example.org/>.
+      :a :value 0. { :a :value ?n. (?n 1) math:sum ?next } => { :a :value ?next }.`);
+    writeFileSync(join(tmp, `success-after-${i}.n3`), `@prefix : <http://example.org/>.
+      {} => { :test :contains :success-after. :result :has :success-after }.`);
+  }
+  const result = spawnSync(process.execPath, ['tools/notation3tests.js', '--json', '--timeout', '1', tmp], {
+    cwd: ROOT, encoding: 'utf8', timeout: 15000,
+  });
+  assert.ifError(result.error);
+  assert.equal(result.status, 0, result.stderr);
+  const scored = JSON.parse(result.stdout);
+  assert.equal(scored.total, 6);
+  assert.deepEqual(scored.tally, { ok: 6 });
+});
 test('every compiled run has a checking proof', () => {
   const r = reasonN3(`${P}:a :p 2. { ?x :p ?n. (?n 3) math:sum ?m. ?m math:negation ?k. ?j math:negation ?k.
     ("%s" ?m) string:format ?s. ?S log:notIncludes { ?x :q ?m } } => { ?x :r (?m ?s ?j) }.`, { proof: true });
@@ -452,23 +527,9 @@ test('every compiled run has a checking proof', () => {
   assert.equal(report.valid, true);
 });
 
-// The examples of test/n3 through the eyemind command, against their
-// saved outputs.
-const dir = join(ROOT, 'test/n3');
-for (const file of readdirSync(dir).filter((f) => f.endsWith('.n3')).sort()) {
-  const name = basename(file, '.n3');
-  test(`example ${name}`, () => {
-    const outputs = readdirSync(join(dir, 'output')).filter((f) => f.startsWith(`${name}.`));
-    assert.equal(outputs.length, 1, `test/n3/output needs one saved output for ${name}`);
-    const r = command([`test/n3/${file}`]);
-    assert.equal(r.stdout, readFileSync(join(dir, 'output', outputs[0]), 'utf8'));
-    assert.equal(r.code, name === 'fuse' ? 65 : 0, r.stderr);
-  });
-}
-
 test('the eyemind options act on the compiled N3 program', () => {
   const tmp = mkdtempSync(join(tmpdir(), 'eyemind-n3-'));
-  const socrates = 'test/n3/socrates.n3';
+  const socrates = 'examples/socrates.n3';
   const proof = command(['--proof', socrates]);
   assert.equal(proof.code, 0, proof.stderr);
   assert.match(proof.stdout, /^step\(rdf\(iri\('http:\/\/example.org\/socrates#Socrates'\)/m);
@@ -480,9 +541,9 @@ test('the eyemind options act on the compiled N3 program', () => {
   assert.equal(command(['--check-proof', join(tmp, 'forged.js'), socrates]).code, 2);
   assert.equal(JSON.parse(command(['-c', '--json', socrates]).stdout).valid, true);
   // Answers to a goal are eyemind terms, or N3 with --to n3.
-  const goal = ['--goal', "rdf(S, iri('http://example.org/family#ancestor'), O)", 'test/n3/family.n3'];
+  const goal = ['--goal', "rdf(S, iri('http://example.org/family#ancestor'), O)", 'examples/family-recursion.n3'];
   assert.match(command(goal).stdout, /^rdf\(iri\('http:\/\/example.org\/family#bob'\)/m);
   assert.match(command(['--to', 'n3', ...goal]).stdout, /:bob :ancestor :dan \./);
-  assert.match(command(['--program', socrates]).stdout, /^\/\/ Generated by eyemind from test\/n3\/socrates.n3, Notation3\./);
+  assert.match(command(['--program', socrates]).stdout, /^\/\/ Generated by eyemind from examples\/socrates.n3, Notation3\./);
   assert.match(command(['--to', 'turtle', socrates]).stdout, /:Socrates a :Mortal \./);
 });
