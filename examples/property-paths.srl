@@ -1,0 +1,15 @@
+# A three-generation family gets grandparent and inverse parent links.
+# Sequential and inverse property paths match two hops or reverse one edge.
+
+PREFIX : <http://example.org/property-paths#>
+
+DATA {
+  :alice :parentOf :bob .
+  :bob :parentOf :carol .
+}
+
+RULE { ?x :grandparentOf ?z }
+WHERE { ?x :parentOf/:parentOf ?z }
+
+RULE { ?child :hasParent ?parent }
+WHERE { ?child ^:parentOf ?parent }

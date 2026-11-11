@@ -1,0 +1,10 @@
+PREFIX : <http://example.org/good-cobbler#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+_:b0 rdf:first :good .
+_:b0 rdf:rest _:b1 .
+_:b1 rdf:first :Cobbler .
+_:b1 rdf:rest rdf:nil .
+:joe :is _:b0 .
+:test :goodAt :Cobbler .
+:joe :classifiedAs :Cobbler .

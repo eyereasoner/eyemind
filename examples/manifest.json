@@ -813,6 +813,74 @@
     ]
   },
   {
+    "name": "property-paths",
+    "files": [
+      "property-paths.srl"
+    ],
+    "description": "Sequential and inverse property paths derive grandparent and child-to-parent links",
+    "trusted": []
+  },
+  {
+    "name": "collection-nesting",
+    "files": [
+      "collection-nesting.srl"
+    ],
+    "description": "Property paths read nested RDF lists and a blank node property",
+    "trusted": []
+  },
+  {
+    "name": "annotation-evidence",
+    "files": [
+      "annotation-evidence.srl"
+    ],
+    "description": "A named reifier links an asserted statement to its author and recording date",
+    "trusted": []
+  },
+  {
+    "name": "cat-koko",
+    "files": [
+      "cat-koko.srl"
+    ],
+    "description": "Separate head blank nodes create distinct witnesses that pass an identity filter",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "good-cobbler-srl",
+    "files": [
+      "good-cobbler.srl"
+    ],
+    "description": "RDF list patterns extract a trade from a structured description",
+    "trusted": []
+  },
+  {
+    "name": "graph-term-emulation",
+    "files": [
+      "graph-term-emulation.srl"
+    ],
+    "description": "Closed lists of quoted triples yield graph metadata through recursive list traversal",
+    "trusted": []
+  },
+  {
+    "name": "family-cousins-srl",
+    "files": [
+      "family-cousins.srl"
+    ],
+    "description": "Bounded generations and inherited branch labels identify cousins across a family tree",
+    "trusted": []
+  },
+  {
+    "name": "dijkstra-srl",
+    "files": [
+      "dijkstra.srl"
+    ],
+    "description": "Listed candidate routes receive total costs and the cheapest alternatives survive stratified negation",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
     "name": "message-boundaries",
     "files": [
       "message-boundaries.n3",

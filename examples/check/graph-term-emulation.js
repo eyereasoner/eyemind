@@ -1,0 +1,47 @@
+// Checked answers: these follow from the input program.
+inf(iri('http://example.org/graph-term-list#g1'), iri('http://example.org/graph-term-list#listCell'), bnode('srl', 'b1'))
+inf(iri('http://example.org/graph-term-list#g2'), iri('http://example.org/graph-term-list#listCell'), bnode('srl', 'b3'))
+inf(iri('http://example.org/graph-term-list#g1'), iri('http://example.org/graph-term-list#listCell'), bnode('srl', 'b2'))
+inf(iri('http://example.org/graph-term-list#g2'), iri('http://example.org/graph-term-list#listCell'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'))
+inf(iri('http://example.org/graph-term-list#g1'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/graph-term-list#SocialGraphTerm'))
+inf(iri('http://example.org/graph-term-list#g1'), iri('http://example.org/graph-term-list#mentions'), iri('http://example.org/graph-term-list#alice'))
+inf(iri('http://example.org/graph-term-list#g1'), iri('http://example.org/graph-term-list#mentions'), iri('http://example.org/graph-term-list#bob'))
+inf(iri('http://example.org/graph-term-list#g2'), iri('http://example.org/graph-term-list#mentions'), iri('http://example.org/graph-term-list#alice'))
+inf(iri('http://example.org/graph-term-list#g1'), iri('http://example.org/graph-term-list#mentions'), iri('http://example.org/graph-term-list#carol'))
+inf(iri('http://example.org/graph-term-list#g2'), iri('http://example.org/graph-term-list#mentions'), iri('http://example.org/graph-term-list#tea'))
+inf(iri('http://example.org/graph-term-list#g1'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/graph-term-list#GraphTerm'))
+inf(bnode('srl', 'b1'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'), triple(iri('http://example.org/graph-term-list#alice'), iri('http://example.org/graph-term-list#knows'), iri('http://example.org/graph-term-list#bob')))
+inf(bnode('srl', 'b1'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'), bnode('srl', 'b2'))
+inf(bnode('srl', 'b2'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'), triple(iri('http://example.org/graph-term-list#bob'), iri('http://example.org/graph-term-list#knows'), iri('http://example.org/graph-term-list#carol')))
+inf(bnode('srl', 'b2'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'))
+inf(iri('http://example.org/graph-term-list#g1'), iri('http://example.org/graph-term-list#quotedTriples'), bnode('srl', 'b1'))
+inf(iri('http://example.org/graph-term-list#g2'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/graph-term-list#GraphTerm'))
+inf(bnode('srl', 'b3'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'), triple(iri('http://example.org/graph-term-list#alice'), iri('http://example.org/graph-term-list#likes'), iri('http://example.org/graph-term-list#tea')))
+inf(bnode('srl', 'b3'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'))
+inf(iri('http://example.org/graph-term-list#g2'), iri('http://example.org/graph-term-list#quotedTriples'), bnode('srl', 'b3'))
+inf(iri('http://example.org/graph-term-list#note1'), iri('http://example.org/graph-term-list#aboutGraphTerm'), iri('http://example.org/graph-term-list#g1'))
+inf(iri('http://example.org/graph-term-list#g1'), iri('http://example.org/graph-term-list#listCell'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'))
+
+// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
+// boundary consistency, relevance, witness integrity, search closure and call fidelity.
+condition('C1', 'resolution', 'ok', 43)
+condition('C2', 'well_founded', 'ok', 43)
+condition('C3', 'justification', 'ok', 43)
+condition('C4', 'coverage', 'ok', 74)
+condition('C5', 're_decision', 'ok', 0)
+condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C7', 'relevance', 'ok', 65)
+condition('C8', 'witness_integrity', 'ok', 0)
+condition('C9', 'search_closure', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 22)
+
+// Proof statistics: recorded steps and how they were checked.
+steps(43)
+verified(43)
+recomputed(0)
+composed(0)
+trusted(0)
+claims(22)
+
+// This verdict applies to the claims above; it does not establish completeness.
+verdict('checked')

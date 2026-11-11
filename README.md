@@ -7,7 +7,7 @@ eyemind is a **JavaScript rule language** with forward and backward reasoning an
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 118 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1353 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 126 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1353 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 

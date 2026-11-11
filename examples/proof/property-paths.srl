@@ -1,0 +1,91 @@
+# SRL proof: DATA only; claims, steps and the complete C1–C10 certificate.
+PREFIX : <http://example.org/property-paths#>
+PREFIX pe: <https://eyereasoner.github.io/pe#>
+PREFIX em: <https://eyereasoner.github.io/eyemind/proof#>
+PREFIX proof: <urn:eyemind:proof#>
+
+DATA {
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "srl" .
+<urn:eyemind:proof> pe:claims (<<( :alice :grandparentOf :carol )>> <<( :bob :hasParent :alice )>> <<( :carol :hasParent :bob )>> <<( :alice :parentOf :bob )>> <<( :bob :parentOf :carol )>>) .
+proof:record12 pe:conclusion <<( :alice :grandparentOf :carol )>> .
+proof:record12 pe:rule 5 .
+proof:record12 pe:binding (("X" :alice) ("V__path0" :bob) ("Z" :carol)) .
+proof:record12 pe:uses (<<( :alice :parentOf :bob )>> <<( :bob :parentOf :carol )>>) .
+proof:record13 pe:conclusion <<( :alice :parentOf :bob )>> .
+proof:record13 pe:rule 1 .
+proof:record13 pe:binding () .
+proof:record13 pe:uses () .
+proof:record14 pe:conclusion <<( :bob :parentOf :carol )>> .
+proof:record14 pe:rule 3 .
+proof:record14 pe:binding () .
+proof:record14 pe:uses () .
+proof:record15 pe:conclusion <<( :bob :hasParent :alice )>> .
+proof:record15 pe:rule 6 .
+proof:record15 pe:binding (("Parent" :alice) ("Child" :bob)) .
+proof:record15 pe:uses (<<( :alice :parentOf :bob )>>) .
+proof:record16 pe:conclusion <<( :carol :hasParent :bob )>> .
+proof:record16 pe:rule 6 .
+proof:record16 pe:binding (("Parent" :bob) ("Child" :carol)) .
+proof:record16 pe:uses (<<( :bob :parentOf :carol )>>) .
+proof:record17 pe:conclusion <<( :alice :parentOf :bob )>> .
+proof:record17 pe:rule 2 .
+proof:record17 pe:binding () .
+proof:record17 pe:uses () .
+proof:record18 pe:conclusion <<( :bob :parentOf :carol )>> .
+proof:record18 pe:rule 4 .
+proof:record18 pe:binding () .
+proof:record18 pe:uses () .
+proof:record19 pe:conclusion <<( :alice :grandparentOf :carol )>> .
+proof:record19 pe:rule 5 .
+proof:record19 pe:binding (("X" :alice) ("V__path0" :bob) ("Z" :carol)) .
+proof:record19 pe:uses (<<( :alice :parentOf :bob )>> <<( :bob :parentOf :carol )>>) .
+proof:record20 pe:conclusion <<( :bob :hasParent :alice )>> .
+proof:record20 pe:rule 6 .
+proof:record20 pe:binding (("Parent" :alice) ("Child" :bob)) .
+proof:record20 pe:uses (<<( :alice :parentOf :bob )>>) .
+proof:record21 pe:conclusion <<( :carol :hasParent :bob )>> .
+proof:record21 pe:rule 6 .
+proof:record21 pe:binding (("Parent" :bob) ("Child" :carol)) .
+proof:record21 pe:uses (<<( :bob :parentOf :carol )>>) .
+proof:record22 pe:derived (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record22 pe:answers (<<( :alice :grandparentOf :carol )>> <<( :bob :hasParent :alice )>> <<( :carol :hasParent :bob )>>) .
+proof:record23 pe:derived (em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record23 pe:answers (<<( :alice :grandparentOf :carol )>> <<( :bob :hasParent :alice )>> <<( :carol :hasParent :bob )>>) .
+proof:record24 pe:called (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record24 pe:answers (<<( :alice :grandparentOf :carol )>> <<( :bob :hasParent :alice )>> <<( :carol :hasParent :bob )>> <<( :alice :parentOf :bob )>> <<( :bob :parentOf :carol )>>) .
+proof:record25 pe:called (em:compound "rdf" ((em:variable "D") (em:iri :parentOf) (em:variable "E"))) .
+proof:record25 pe:answers (<<( :alice :parentOf :bob )>> <<( :bob :parentOf :carol )>>) .
+proof:record26 pe:called (em:compound "rdf" ((em:iri :bob) (em:iri :parentOf) (em:variable "F"))) .
+proof:record26 pe:answers (<<( :bob :parentOf :carol )>>) .
+proof:record27 pe:called (em:compound "rdf" ((em:iri :carol) (em:iri :parentOf) (em:variable "F"))) .
+proof:record27 pe:answers () .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27) .
+proof:record1 em:term (em:compound "inf" ((em:iri :alice) (em:iri :grandparentOf) (em:iri :carol))) .
+proof:record2 em:term (em:compound "inf" ((em:iri :bob) (em:iri :hasParent) (em:iri :alice))) .
+proof:record3 em:term (em:compound "inf" ((em:iri :carol) (em:iri :hasParent) (em:iri :bob))) .
+proof:record4 em:term (em:compound "inf" ((em:iri :alice) (em:iri :parentOf) (em:iri :bob))) .
+proof:record5 em:term (em:compound "inf" ((em:iri :bob) (em:iri :parentOf) (em:iri :carol))) .
+proof:record6 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :alice) (em:iri :parentOf) (em:iri :bob))))))) .
+proof:record7 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "inf" ((em:iri :alice) (em:iri :parentOf) (em:iri :bob))))))) .
+proof:record8 em:term (em:compound "clause" ((em:integer "3") (em:compound "fact" ((em:compound "rdf" ((em:iri :bob) (em:iri :parentOf) (em:iri :carol))))))) .
+proof:record9 em:term (em:compound "clause" ((em:integer "4") (em:compound "fact" ((em:compound "inf" ((em:iri :bob) (em:iri :parentOf) (em:iri :carol))))))) .
+proof:record10 em:term (em:compound "clause" ((em:integer "5") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "X") (em:iri :parentOf) (em:variable "V__path0"))) (em:compound "rdf" ((em:variable "V__path0") (em:iri :parentOf) (em:variable "Z"))))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri :grandparentOf) (em:variable "Z"))) (em:compound "inf" ((em:variable "X") (em:iri :grandparentOf) (em:variable "Z"))))))))) .
+proof:record11 em:term (em:compound "clause" ((em:integer "6") (em:compound "implies" ((em:compound "rdf" ((em:variable "Parent") (em:iri :parentOf) (em:variable "Child"))) (em:list ((em:compound "rdf" ((em:variable "Child") (em:iri :hasParent) (em:variable "Parent"))) (em:compound "inf" ((em:variable "Child") (em:iri :hasParent) (em:variable "Parent"))))))))) .
+proof:record12 em:term (em:compound "step" ((em:compound "inf" ((em:iri :alice) (em:iri :grandparentOf) (em:iri :carol))) (em:compound "clause" ((em:integer "5"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :alice))) (em:compound "=" ((em:atom "V__path0") (em:iri :bob))) (em:compound "=" ((em:atom "Z") (em:iri :carol))))) (em:list ((em:compound "rdf" ((em:iri :alice) (em:iri :parentOf) (em:iri :bob))) (em:compound "rdf" ((em:iri :bob) (em:iri :parentOf) (em:iri :carol))))))) .
+proof:record13 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :alice) (em:iri :parentOf) (em:iri :bob))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record14 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :parentOf) (em:iri :carol))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record15 em:term (em:compound "step" ((em:compound "inf" ((em:iri :bob) (em:iri :hasParent) (em:iri :alice))) (em:compound "clause" ((em:integer "6"))) (em:list ((em:compound "=" ((em:atom "Parent") (em:iri :alice))) (em:compound "=" ((em:atom "Child") (em:iri :bob))))) (em:list ((em:compound "rdf" ((em:iri :alice) (em:iri :parentOf) (em:iri :bob))))))) .
+proof:record16 em:term (em:compound "step" ((em:compound "inf" ((em:iri :carol) (em:iri :hasParent) (em:iri :bob))) (em:compound "clause" ((em:integer "6"))) (em:list ((em:compound "=" ((em:atom "Parent") (em:iri :bob))) (em:compound "=" ((em:atom "Child") (em:iri :carol))))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :parentOf) (em:iri :carol))))))) .
+proof:record17 em:term (em:compound "step" ((em:compound "inf" ((em:iri :alice) (em:iri :parentOf) (em:iri :bob))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record18 em:term (em:compound "step" ((em:compound "inf" ((em:iri :bob) (em:iri :parentOf) (em:iri :carol))) (em:compound "clause" ((em:integer "4"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record19 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :alice) (em:iri :grandparentOf) (em:iri :carol))) (em:compound "clause" ((em:integer "5"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :alice))) (em:compound "=" ((em:atom "V__path0") (em:iri :bob))) (em:compound "=" ((em:atom "Z") (em:iri :carol))))) (em:list ((em:compound "rdf" ((em:iri :alice) (em:iri :parentOf) (em:iri :bob))) (em:compound "rdf" ((em:iri :bob) (em:iri :parentOf) (em:iri :carol))))))) .
+proof:record20 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :hasParent) (em:iri :alice))) (em:compound "clause" ((em:integer "6"))) (em:list ((em:compound "=" ((em:atom "Parent") (em:iri :alice))) (em:compound "=" ((em:atom "Child") (em:iri :bob))))) (em:list ((em:compound "rdf" ((em:iri :alice) (em:iri :parentOf) (em:iri :bob))))))) .
+proof:record21 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :carol) (em:iri :hasParent) (em:iri :bob))) (em:compound "clause" ((em:integer "6"))) (em:list ((em:compound "=" ((em:atom "Parent") (em:iri :bob))) (em:compound "=" ((em:atom "Child") (em:iri :carol))))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :parentOf) (em:iri :carol))))))) .
+proof:record22 em:term (em:compound "derived" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :alice) (em:iri :grandparentOf) (em:iri :carol))) (em:compound "inf" ((em:iri :bob) (em:iri :hasParent) (em:iri :alice))) (em:compound "inf" ((em:iri :carol) (em:iri :hasParent) (em:iri :bob))))))) .
+proof:record23 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :alice) (em:iri :grandparentOf) (em:iri :carol))) (em:compound "rdf" ((em:iri :bob) (em:iri :hasParent) (em:iri :alice))) (em:compound "rdf" ((em:iri :carol) (em:iri :hasParent) (em:iri :bob))))))) .
+proof:record24 em:term (em:compound "called" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :alice) (em:iri :grandparentOf) (em:iri :carol))) (em:compound "inf" ((em:iri :bob) (em:iri :hasParent) (em:iri :alice))) (em:compound "inf" ((em:iri :carol) (em:iri :hasParent) (em:iri :bob))) (em:compound "inf" ((em:iri :alice) (em:iri :parentOf) (em:iri :bob))) (em:compound "inf" ((em:iri :bob) (em:iri :parentOf) (em:iri :carol))))))) .
+proof:record25 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "D") (em:iri :parentOf) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :alice) (em:iri :parentOf) (em:iri :bob))) (em:compound "rdf" ((em:iri :bob) (em:iri :parentOf) (em:iri :carol))))))) .
+proof:record26 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :bob) (em:iri :parentOf) (em:variable "F"))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :parentOf) (em:iri :carol))))))) .
+proof:record27 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :carol) (em:iri :parentOf) (em:variable "F"))) (em:atom "[]"))) .
+}

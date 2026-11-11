@@ -1,0 +1,135 @@
+# SRL proof: DATA only; claims, steps and the complete C1–C10 certificate.
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX : <http://example.org/annotation-evidence#>
+PREFIX pe: <https://eyereasoner.github.io/pe#>
+PREFIX em: <https://eyereasoner.github.io/eyemind/proof#>
+PREFIX proof: <urn:eyemind:proof#>
+
+DATA {
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "srl" .
+<urn:eyemind:proof> pe:claims (<<( :test :hasStatement true )>> <<( :test :hasNamedStatement :t )>> <<( :test :statementAuthor :bob )>> <<( :test :statementDate "2021-07-07"^^xsd:date )>> <<( :a :name "Alice" )>> <<( :t rdf:reifies <<( :a :name "Alice" )>> )>> <<( :t :statedBy :bob )>> <<( :t :recorded "2021-07-07"^^xsd:date )>>) .
+proof:record21 pe:conclusion <<( :test :hasStatement true )>> .
+proof:record21 pe:rule 11 .
+proof:record21 pe:binding () .
+proof:record21 pe:uses (<<( :a :name "Alice" )>>) .
+proof:record22 pe:conclusion <<( :a :name "Alice" )>> .
+proof:record22 pe:rule 1 .
+proof:record22 pe:binding () .
+proof:record22 pe:uses () .
+proof:record23 pe:conclusion <<( :test :hasNamedStatement :t )>> .
+proof:record23 pe:rule 12 .
+proof:record23 pe:binding (("Statement" :t)) .
+proof:record23 pe:uses (<<( :t rdf:reifies <<( :a :name "Alice" )>> )>>) .
+proof:record24 pe:conclusion <<( :t rdf:reifies <<( :a :name "Alice" )>> )>> .
+proof:record24 pe:rule 3 .
+proof:record24 pe:binding () .
+proof:record24 pe:uses () .
+proof:record25 pe:conclusion <<( :test :statementAuthor :bob )>> .
+proof:record25 pe:rule 13 .
+proof:record25 pe:binding (("Statement" :t) ("Who" :bob)) .
+proof:record25 pe:uses (<<( :t rdf:reifies <<( :a :name "Alice" )>> )>> <<( :t :statedBy :bob )>>) .
+proof:record26 pe:conclusion <<( :t :statedBy :bob )>> .
+proof:record26 pe:rule 7 .
+proof:record26 pe:binding () .
+proof:record26 pe:uses () .
+proof:record27 pe:conclusion <<( :test :statementDate "2021-07-07"^^xsd:date )>> .
+proof:record27 pe:rule 14 .
+proof:record27 pe:binding (("Statement" :t) ("VDate" "2021-07-07"^^xsd:date)) .
+proof:record27 pe:uses (<<( :t rdf:reifies <<( :a :name "Alice" )>> )>> <<( :t :recorded "2021-07-07"^^xsd:date )>>) .
+proof:record28 pe:conclusion <<( :t :recorded "2021-07-07"^^xsd:date )>> .
+proof:record28 pe:rule 9 .
+proof:record28 pe:binding () .
+proof:record28 pe:uses () .
+proof:record29 pe:conclusion <<( :a :name "Alice" )>> .
+proof:record29 pe:rule 2 .
+proof:record29 pe:binding () .
+proof:record29 pe:uses () .
+proof:record30 pe:conclusion <<( :t rdf:reifies <<( :a :name "Alice" )>> )>> .
+proof:record30 pe:rule 4 .
+proof:record30 pe:binding () .
+proof:record30 pe:uses () .
+proof:record31 pe:conclusion <<( :t :statedBy :bob )>> .
+proof:record31 pe:rule 8 .
+proof:record31 pe:binding () .
+proof:record31 pe:uses () .
+proof:record32 pe:conclusion <<( :t :recorded "2021-07-07"^^xsd:date )>> .
+proof:record32 pe:rule 10 .
+proof:record32 pe:binding () .
+proof:record32 pe:uses () .
+proof:record33 pe:conclusion <<( :test :hasStatement true )>> .
+proof:record33 pe:rule 11 .
+proof:record33 pe:binding () .
+proof:record33 pe:uses (<<( :a :name "Alice" )>>) .
+proof:record34 pe:conclusion <<( :test :hasNamedStatement :t )>> .
+proof:record34 pe:rule 12 .
+proof:record34 pe:binding (("Statement" :t)) .
+proof:record34 pe:uses (<<( :t rdf:reifies <<( :a :name "Alice" )>> )>>) .
+proof:record35 pe:conclusion <<( :test :statementAuthor :bob )>> .
+proof:record35 pe:rule 13 .
+proof:record35 pe:binding (("Statement" :t) ("Who" :bob)) .
+proof:record35 pe:uses (<<( :t rdf:reifies <<( :a :name "Alice" )>> )>> <<( :t :statedBy :bob )>>) .
+proof:record36 pe:conclusion <<( :test :statementDate "2021-07-07"^^xsd:date )>> .
+proof:record36 pe:rule 14 .
+proof:record36 pe:binding (("Statement" :t) ("VDate" "2021-07-07"^^xsd:date)) .
+proof:record36 pe:uses (<<( :t rdf:reifies <<( :a :name "Alice" )>> )>> <<( :t :recorded "2021-07-07"^^xsd:date )>>) .
+proof:record37 pe:derived (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record37 pe:answers (<<( :test :hasStatement true )>> <<( :test :hasNamedStatement :t )>> <<( :test :statementAuthor :bob )>> <<( :test :statementDate "2021-07-07"^^xsd:date )>>) .
+proof:record38 pe:derived (em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record38 pe:answers (<<( :test :hasStatement true )>> <<( :test :hasNamedStatement :t )>> <<( :test :statementAuthor :bob )>> <<( :test :statementDate "2021-07-07"^^xsd:date )>>) .
+proof:record39 pe:called (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record39 pe:answers (<<( :test :hasStatement true )>> <<( :test :hasNamedStatement :t )>> <<( :test :statementAuthor :bob )>> <<( :test :statementDate "2021-07-07"^^xsd:date )>> <<( :a :name "Alice" )>> <<( :t rdf:reifies <<( :a :name "Alice" )>> )>> <<( :t rdf:reifies <<( :a :name "Alice" )>> )>> <<( :t :statedBy :bob )>> <<( :t :recorded "2021-07-07"^^xsd:date )>>) .
+proof:record40 pe:called <<( :a :name "Alice" )>> .
+proof:record40 pe:answers (<<( :a :name "Alice" )>>) .
+proof:record41 pe:called (em:compound "rdf" ((em:variable "D") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) .
+proof:record41 pe:answers (<<( :t rdf:reifies <<( :a :name "Alice" )>> )>> <<( :t rdf:reifies <<( :a :name "Alice" )>> )>>) .
+proof:record42 pe:called (em:compound "rdf" ((em:iri :t) (em:iri :statedBy) (em:variable "E"))) .
+proof:record42 pe:answers (<<( :t :statedBy :bob )>>) .
+proof:record43 pe:called (em:compound "rdf" ((em:iri :t) (em:iri :recorded) (em:variable "F"))) .
+proof:record43 pe:answers (<<( :t :recorded "2021-07-07"^^xsd:date )>>) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41 proof:record42 proof:record43) .
+proof:record1 em:term (em:compound "inf" ((em:iri :test) (em:iri :hasStatement) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
+proof:record2 em:term (em:compound "inf" ((em:iri :test) (em:iri :hasNamedStatement) (em:iri :t))) .
+proof:record3 em:term (em:compound "inf" ((em:iri :test) (em:iri :statementAuthor) (em:iri :bob))) .
+proof:record4 em:term (em:compound "inf" ((em:iri :test) (em:iri :statementDate) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))) .
+proof:record5 em:term (em:compound "inf" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))) .
+proof:record6 em:term (em:compound "inf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) .
+proof:record7 em:term (em:compound "inf" ((em:iri :t) (em:iri :statedBy) (em:iri :bob))) .
+proof:record8 em:term (em:compound "inf" ((em:iri :t) (em:iri :recorded) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))) .
+proof:record9 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))))) .
+proof:record10 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "inf" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))))) .
+proof:record11 em:term (em:compound "clause" ((em:integer "3") (em:compound "fact" ((em:compound "rdf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))))))) .
+proof:record12 em:term (em:compound "clause" ((em:integer "4") (em:compound "fact" ((em:compound "inf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))))))) .
+proof:record13 em:term (em:compound "clause" ((em:integer "7") (em:compound "fact" ((em:compound "rdf" ((em:iri :t) (em:iri :statedBy) (em:iri :bob))))))) .
+proof:record14 em:term (em:compound "clause" ((em:integer "8") (em:compound "fact" ((em:compound "inf" ((em:iri :t) (em:iri :statedBy) (em:iri :bob))))))) .
+proof:record15 em:term (em:compound "clause" ((em:integer "9") (em:compound "fact" ((em:compound "rdf" ((em:iri :t) (em:iri :recorded) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))))))) .
+proof:record16 em:term (em:compound "clause" ((em:integer "10") (em:compound "fact" ((em:compound "inf" ((em:iri :t) (em:iri :recorded) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))))))) .
+proof:record17 em:term (em:compound "clause" ((em:integer "11") (em:compound "implies" ((em:compound "rdf" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))) (em:list ((em:compound "rdf" ((em:iri :test) (em:iri :hasStatement) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "inf" ((em:iri :test) (em:iri :hasStatement) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))))) .
+proof:record18 em:term (em:compound "clause" ((em:integer "12") (em:compound "implies" ((em:compound "rdf" ((em:variable "Statement") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:list ((em:compound "rdf" ((em:iri :test) (em:iri :hasNamedStatement) (em:variable "Statement"))) (em:compound "inf" ((em:iri :test) (em:iri :hasNamedStatement) (em:variable "Statement"))))))))) .
+proof:record19 em:term (em:compound "clause" ((em:integer "13") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "Statement") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:compound "rdf" ((em:variable "Statement") (em:iri :statedBy) (em:variable "Who"))))) (em:list ((em:compound "rdf" ((em:iri :test) (em:iri :statementAuthor) (em:variable "Who"))) (em:compound "inf" ((em:iri :test) (em:iri :statementAuthor) (em:variable "Who"))))))))) .
+proof:record20 em:term (em:compound "clause" ((em:integer "14") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "Statement") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:compound "rdf" ((em:variable "Statement") (em:iri :recorded) (em:variable "VDate"))))) (em:list ((em:compound "rdf" ((em:iri :test) (em:iri :statementDate) (em:variable "VDate"))) (em:compound "inf" ((em:iri :test) (em:iri :statementDate) (em:variable "VDate"))))))))) .
+proof:record21 em:term (em:compound "step" ((em:compound "inf" ((em:iri :test) (em:iri :hasStatement) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "11"))) (em:atom "[]") (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))))) .
+proof:record22 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record23 em:term (em:compound "step" ((em:compound "inf" ((em:iri :test) (em:iri :hasNamedStatement) (em:iri :t))) (em:compound "clause" ((em:integer "12"))) (em:list ((em:compound "=" ((em:atom "Statement") (em:iri :t))))) (em:list ((em:compound "rdf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))))))) .
+proof:record24 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record25 em:term (em:compound "step" ((em:compound "inf" ((em:iri :test) (em:iri :statementAuthor) (em:iri :bob))) (em:compound "clause" ((em:integer "13"))) (em:list ((em:compound "=" ((em:atom "Statement") (em:iri :t))) (em:compound "=" ((em:atom "Who") (em:iri :bob))))) (em:list ((em:compound "rdf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:compound "rdf" ((em:iri :t) (em:iri :statedBy) (em:iri :bob))))))) .
+proof:record26 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :t) (em:iri :statedBy) (em:iri :bob))) (em:compound "clause" ((em:integer "7"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record27 em:term (em:compound "step" ((em:compound "inf" ((em:iri :test) (em:iri :statementDate) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))) (em:compound "clause" ((em:integer "14"))) (em:list ((em:compound "=" ((em:atom "Statement") (em:iri :t))) (em:compound "=" ((em:atom "VDate") (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))))) (em:list ((em:compound "rdf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:compound "rdf" ((em:iri :t) (em:iri :recorded) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))))))) .
+proof:record28 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :t) (em:iri :recorded) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))) (em:compound "clause" ((em:integer "9"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record29 em:term (em:compound "step" ((em:compound "inf" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record30 em:term (em:compound "step" ((em:compound "inf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:compound "clause" ((em:integer "4"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record31 em:term (em:compound "step" ((em:compound "inf" ((em:iri :t) (em:iri :statedBy) (em:iri :bob))) (em:compound "clause" ((em:integer "8"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record32 em:term (em:compound "step" ((em:compound "inf" ((em:iri :t) (em:iri :recorded) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))) (em:compound "clause" ((em:integer "10"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record33 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :test) (em:iri :hasStatement) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "11"))) (em:atom "[]") (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))))) .
+proof:record34 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :test) (em:iri :hasNamedStatement) (em:iri :t))) (em:compound "clause" ((em:integer "12"))) (em:list ((em:compound "=" ((em:atom "Statement") (em:iri :t))))) (em:list ((em:compound "rdf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))))))) .
+proof:record35 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :test) (em:iri :statementAuthor) (em:iri :bob))) (em:compound "clause" ((em:integer "13"))) (em:list ((em:compound "=" ((em:atom "Statement") (em:iri :t))) (em:compound "=" ((em:atom "Who") (em:iri :bob))))) (em:list ((em:compound "rdf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:compound "rdf" ((em:iri :t) (em:iri :statedBy) (em:iri :bob))))))) .
+proof:record36 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :test) (em:iri :statementDate) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))) (em:compound "clause" ((em:integer "14"))) (em:list ((em:compound "=" ((em:atom "Statement") (em:iri :t))) (em:compound "=" ((em:atom "VDate") (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))))) (em:list ((em:compound "rdf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:compound "rdf" ((em:iri :t) (em:iri :recorded) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))))))) .
+proof:record37 em:term (em:compound "derived" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :test) (em:iri :hasStatement) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "inf" ((em:iri :test) (em:iri :hasNamedStatement) (em:iri :t))) (em:compound "inf" ((em:iri :test) (em:iri :statementAuthor) (em:iri :bob))) (em:compound "inf" ((em:iri :test) (em:iri :statementDate) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))))))) .
+proof:record38 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :test) (em:iri :hasStatement) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "rdf" ((em:iri :test) (em:iri :hasNamedStatement) (em:iri :t))) (em:compound "rdf" ((em:iri :test) (em:iri :statementAuthor) (em:iri :bob))) (em:compound "rdf" ((em:iri :test) (em:iri :statementDate) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))))))) .
+proof:record39 em:term (em:compound "called" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :test) (em:iri :hasStatement) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "inf" ((em:iri :test) (em:iri :hasNamedStatement) (em:iri :t))) (em:compound "inf" ((em:iri :test) (em:iri :statementAuthor) (em:iri :bob))) (em:compound "inf" ((em:iri :test) (em:iri :statementDate) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))) (em:compound "inf" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))) (em:compound "inf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:compound "inf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:compound "inf" ((em:iri :t) (em:iri :statedBy) (em:iri :bob))) (em:compound "inf" ((em:iri :t) (em:iri :recorded) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))))))) .
+proof:record40 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))) (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))))) .
+proof:record41 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "D") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:list ((em:compound "rdf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))) (em:compound "rdf" ((em:iri :t) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :name) (em:compound "literal" ((em:atom "Alice") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#string"))))))))))))) .
+proof:record42 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :t) (em:iri :statedBy) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :t) (em:iri :statedBy) (em:iri :bob))))))) .
+proof:record43 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :t) (em:iri :recorded) (em:variable "F"))) (em:list ((em:compound "rdf" ((em:iri :t) (em:iri :recorded) (em:compound "literal" ((em:atom "2021-07-07") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#date"))))))))))) .
+}

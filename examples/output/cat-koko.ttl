@@ -1,0 +1,6 @@
+PREFIX : <https://eyereasoner.github.io/ns#>
+
+:Koko a :Animal .
+_:b0 a :Cat .
+_:b1 a :BritishShortHair .
+:test :is true .

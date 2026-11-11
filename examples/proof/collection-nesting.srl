@@ -1,0 +1,212 @@
+# SRL proof: DATA only; claims, steps and the complete C1–C10 certificate.
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX : <http://example.org/collection-nesting#>
+PREFIX pe: <https://eyereasoner.github.io/pe#>
+PREFIX em: <https://eyereasoner.github.io/eyemind/proof#>
+PREFIX proof: <urn:eyemind:proof#>
+
+DATA {
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "srl" .
+<urn:eyemind:proof> pe:claims (<<( :test :first 1 )>> <<( :test :second _:b0 )>> <<( :test :secondProperty :q )>> <<( :test :thirdFirst 2 )>> <<( _:b1 rdf:first 1 )>> <<( _:b1 rdf:rest _:b2 )>> <<( _:b0 :p :q )>> <<( _:b2 rdf:first _:b0 )>> <<( _:b2 rdf:rest _:b3 )>> <<( _:b4 rdf:first 2 )>> <<( _:b4 rdf:rest rdf:nil )>> <<( _:b3 rdf:first _:b4 )>> <<( _:b3 rdf:rest rdf:nil )>> <<( :root :nested _:b1 )>>) .
+proof:record37 pe:conclusion <<( :test :first 1 )>> .
+proof:record37 pe:rule 21 .
+proof:record37 pe:binding (("V__path0" _:b1) ("First" 1)) .
+proof:record37 pe:uses (<<( :root :nested _:b1 )>> <<( _:b1 rdf:first 1 )>>) .
+proof:record38 pe:conclusion <<( :root :nested _:b1 )>> .
+proof:record38 pe:rule 19 .
+proof:record38 pe:binding () .
+proof:record38 pe:uses () .
+proof:record39 pe:conclusion <<( _:b1 rdf:first 1 )>> .
+proof:record39 pe:rule 1 .
+proof:record39 pe:binding () .
+proof:record39 pe:uses () .
+proof:record40 pe:conclusion <<( :test :second _:b0 )>> .
+proof:record40 pe:rule 22 .
+proof:record40 pe:binding (("V__path0" _:b1) ("V__path1" _:b2) ("Second" _:b0)) .
+proof:record40 pe:uses (<<( :root :nested _:b1 )>> <<( _:b1 rdf:rest _:b2 )>> <<( _:b2 rdf:first _:b0 )>>) .
+proof:record41 pe:conclusion <<( _:b1 rdf:rest _:b2 )>> .
+proof:record41 pe:rule 3 .
+proof:record41 pe:binding () .
+proof:record41 pe:uses () .
+proof:record42 pe:conclusion <<( _:b2 rdf:first _:b0 )>> .
+proof:record42 pe:rule 7 .
+proof:record42 pe:binding () .
+proof:record42 pe:uses () .
+proof:record43 pe:conclusion <<( :test :secondProperty :q )>> .
+proof:record43 pe:rule 23 .
+proof:record43 pe:binding (("V__path0" _:b1) ("V__path1" _:b2) ("V__path2" _:b0) ("VObject" :q)) .
+proof:record43 pe:uses (<<( :root :nested _:b1 )>> <<( _:b1 rdf:rest _:b2 )>> <<( _:b2 rdf:first _:b0 )>> <<( _:b0 :p :q )>>) .
+proof:record44 pe:conclusion <<( _:b0 :p :q )>> .
+proof:record44 pe:rule 5 .
+proof:record44 pe:binding () .
+proof:record44 pe:uses () .
+proof:record45 pe:conclusion <<( :test :thirdFirst 2 )>> .
+proof:record45 pe:rule 24 .
+proof:record45 pe:binding (("V__path0" _:b1) ("V__path1" _:b2) ("V__path2" _:b3) ("V__path3" _:b4) ("Item" 2)) .
+proof:record45 pe:uses (<<( :root :nested _:b1 )>> <<( _:b1 rdf:rest _:b2 )>> <<( _:b2 rdf:rest _:b3 )>> <<( _:b3 rdf:first _:b4 )>> <<( _:b4 rdf:first 2 )>>) .
+proof:record46 pe:conclusion <<( _:b2 rdf:rest _:b3 )>> .
+proof:record46 pe:rule 9 .
+proof:record46 pe:binding () .
+proof:record46 pe:uses () .
+proof:record47 pe:conclusion <<( _:b3 rdf:first _:b4 )>> .
+proof:record47 pe:rule 15 .
+proof:record47 pe:binding () .
+proof:record47 pe:uses () .
+proof:record48 pe:conclusion <<( _:b4 rdf:first 2 )>> .
+proof:record48 pe:rule 11 .
+proof:record48 pe:binding () .
+proof:record48 pe:uses () .
+proof:record49 pe:conclusion <<( _:b1 rdf:first 1 )>> .
+proof:record49 pe:rule 2 .
+proof:record49 pe:binding () .
+proof:record49 pe:uses () .
+proof:record50 pe:conclusion <<( _:b1 rdf:rest _:b2 )>> .
+proof:record50 pe:rule 4 .
+proof:record50 pe:binding () .
+proof:record50 pe:uses () .
+proof:record51 pe:conclusion <<( _:b0 :p :q )>> .
+proof:record51 pe:rule 6 .
+proof:record51 pe:binding () .
+proof:record51 pe:uses () .
+proof:record52 pe:conclusion <<( _:b2 rdf:first _:b0 )>> .
+proof:record52 pe:rule 8 .
+proof:record52 pe:binding () .
+proof:record52 pe:uses () .
+proof:record53 pe:conclusion <<( _:b2 rdf:rest _:b3 )>> .
+proof:record53 pe:rule 10 .
+proof:record53 pe:binding () .
+proof:record53 pe:uses () .
+proof:record54 pe:conclusion <<( _:b4 rdf:first 2 )>> .
+proof:record54 pe:rule 12 .
+proof:record54 pe:binding () .
+proof:record54 pe:uses () .
+proof:record55 pe:conclusion <<( _:b4 rdf:rest rdf:nil )>> .
+proof:record55 pe:rule 14 .
+proof:record55 pe:binding () .
+proof:record55 pe:uses () .
+proof:record56 pe:conclusion <<( _:b3 rdf:first _:b4 )>> .
+proof:record56 pe:rule 16 .
+proof:record56 pe:binding () .
+proof:record56 pe:uses () .
+proof:record57 pe:conclusion <<( _:b3 rdf:rest rdf:nil )>> .
+proof:record57 pe:rule 18 .
+proof:record57 pe:binding () .
+proof:record57 pe:uses () .
+proof:record58 pe:conclusion <<( :root :nested _:b1 )>> .
+proof:record58 pe:rule 20 .
+proof:record58 pe:binding () .
+proof:record58 pe:uses () .
+proof:record59 pe:conclusion <<( :test :first 1 )>> .
+proof:record59 pe:rule 21 .
+proof:record59 pe:binding (("V__path0" _:b1) ("First" 1)) .
+proof:record59 pe:uses (<<( :root :nested _:b1 )>> <<( _:b1 rdf:first 1 )>>) .
+proof:record60 pe:conclusion <<( :test :second _:b0 )>> .
+proof:record60 pe:rule 22 .
+proof:record60 pe:binding (("V__path0" _:b1) ("V__path1" _:b2) ("Second" _:b0)) .
+proof:record60 pe:uses (<<( :root :nested _:b1 )>> <<( _:b1 rdf:rest _:b2 )>> <<( _:b2 rdf:first _:b0 )>>) .
+proof:record61 pe:conclusion <<( :test :secondProperty :q )>> .
+proof:record61 pe:rule 23 .
+proof:record61 pe:binding (("V__path0" _:b1) ("V__path1" _:b2) ("V__path2" _:b0) ("VObject" :q)) .
+proof:record61 pe:uses (<<( :root :nested _:b1 )>> <<( _:b1 rdf:rest _:b2 )>> <<( _:b2 rdf:first _:b0 )>> <<( _:b0 :p :q )>>) .
+proof:record62 pe:conclusion <<( :test :thirdFirst 2 )>> .
+proof:record62 pe:rule 24 .
+proof:record62 pe:binding (("V__path0" _:b1) ("V__path1" _:b2) ("V__path2" _:b3) ("V__path3" _:b4) ("Item" 2)) .
+proof:record62 pe:uses (<<( :root :nested _:b1 )>> <<( _:b1 rdf:rest _:b2 )>> <<( _:b2 rdf:rest _:b3 )>> <<( _:b3 rdf:first _:b4 )>> <<( _:b4 rdf:first 2 )>>) .
+proof:record63 pe:derived (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record63 pe:answers (<<( :test :first 1 )>> <<( :test :second _:b0 )>> <<( :test :secondProperty :q )>> <<( :test :thirdFirst 2 )>>) .
+proof:record64 pe:derived (em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record64 pe:answers (<<( :test :first 1 )>> <<( :test :second _:b0 )>> <<( :test :secondProperty :q )>> <<( :test :thirdFirst 2 )>>) .
+proof:record65 pe:called (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record65 pe:answers (<<( :test :first 1 )>> <<( :test :second _:b0 )>> <<( :test :secondProperty :q )>> <<( :test :thirdFirst 2 )>> <<( _:b1 rdf:first 1 )>> <<( _:b1 rdf:rest _:b2 )>> <<( _:b0 :p :q )>> <<( _:b2 rdf:first _:b0 )>> <<( _:b2 rdf:rest _:b3 )>> <<( _:b4 rdf:first 2 )>> <<( _:b4 rdf:rest rdf:nil )>> <<( _:b3 rdf:first _:b4 )>> <<( _:b3 rdf:rest rdf:nil )>> <<( :root :nested _:b1 )>>) .
+proof:record66 pe:called (em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:variable "D"))) .
+proof:record66 pe:answers (<<( :root :nested _:b1 )>>) .
+proof:record67 pe:called (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:variable "E"))) .
+proof:record67 pe:answers (<<( _:b1 rdf:first 1 )>>) .
+proof:record68 pe:called (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:variable "F"))) .
+proof:record68 pe:answers (<<( _:b1 rdf:rest _:b2 )>>) .
+proof:record69 pe:called (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:variable "G"))) .
+proof:record69 pe:answers (<<( _:b2 rdf:first _:b0 )>>) .
+proof:record70 pe:called (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b3"))) (em:iri :p) (em:variable "H"))) .
+proof:record70 pe:answers (<<( _:b0 :p :q )>>) .
+proof:record71 pe:called (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:variable "I"))) .
+proof:record71 pe:answers (<<( _:b2 rdf:rest _:b3 )>>) .
+proof:record72 pe:called (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:first) (em:variable "J"))) .
+proof:record72 pe:answers (<<( _:b3 rdf:first _:b4 )>>) .
+proof:record73 pe:called (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:first) (em:variable "K"))) .
+proof:record73 pe:answers (<<( _:b4 rdf:first 2 )>>) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41 proof:record42 proof:record43 proof:record44 proof:record45 proof:record46 proof:record47 proof:record48 proof:record49 proof:record50 proof:record51 proof:record52 proof:record53 proof:record54 proof:record55 proof:record56 proof:record57 proof:record58 proof:record59 proof:record60 proof:record61 proof:record62 proof:record63 proof:record64 proof:record65 proof:record66 proof:record67 proof:record68 proof:record69 proof:record70 proof:record71 proof:record72 proof:record73) .
+proof:record1 em:term (em:compound "inf" ((em:iri :test) (em:iri :first) (em:integer "1"))) .
+proof:record2 em:term (em:compound "inf" ((em:iri :test) (em:iri :second) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) .
+proof:record3 em:term (em:compound "inf" ((em:iri :test) (em:iri :secondProperty) (em:iri :q))) .
+proof:record4 em:term (em:compound "inf" ((em:iri :test) (em:iri :thirdFirst) (em:integer "2"))) .
+proof:record5 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:integer "1"))) .
+proof:record6 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) .
+proof:record7 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b3"))) (em:iri :p) (em:iri :q))) .
+proof:record8 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) .
+proof:record9 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b4"))))) .
+proof:record10 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:first) (em:integer "2"))) .
+proof:record11 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:rest) (em:iri rdf:nil))) .
+proof:record12 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b5"))))) .
+proof:record13 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:rest) (em:iri rdf:nil))) .
+proof:record14 em:term (em:compound "inf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) .
+proof:record15 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:integer "1"))))))) .
+proof:record16 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:integer "1"))))))) .
+proof:record17 em:term (em:compound "clause" ((em:integer "3") (em:compound "fact" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))))))) .
+proof:record18 em:term (em:compound "clause" ((em:integer "4") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))))))) .
+proof:record19 em:term (em:compound "clause" ((em:integer "5") (em:compound "fact" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b3"))) (em:iri :p) (em:iri :q))))))) .
+proof:record20 em:term (em:compound "clause" ((em:integer "6") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b3"))) (em:iri :p) (em:iri :q))))))) .
+proof:record21 em:term (em:compound "clause" ((em:integer "7") (em:compound "fact" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))))))) .
+proof:record22 em:term (em:compound "clause" ((em:integer "8") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))))))) .
+proof:record23 em:term (em:compound "clause" ((em:integer "9") (em:compound "fact" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b4"))))))))) .
+proof:record24 em:term (em:compound "clause" ((em:integer "10") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b4"))))))))) .
+proof:record25 em:term (em:compound "clause" ((em:integer "11") (em:compound "fact" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:first) (em:integer "2"))))))) .
+proof:record26 em:term (em:compound "clause" ((em:integer "12") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:first) (em:integer "2"))))))) .
+proof:record27 em:term (em:compound "clause" ((em:integer "14") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:rest) (em:iri rdf:nil))))))) .
+proof:record28 em:term (em:compound "clause" ((em:integer "15") (em:compound "fact" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b5"))))))))) .
+proof:record29 em:term (em:compound "clause" ((em:integer "16") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b5"))))))))) .
+proof:record30 em:term (em:compound "clause" ((em:integer "18") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:rest) (em:iri rdf:nil))))))) .
+proof:record31 em:term (em:compound "clause" ((em:integer "19") (em:compound "fact" ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))))))) .
+proof:record32 em:term (em:compound "clause" ((em:integer "20") (em:compound "fact" ((em:compound "inf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))))))) .
+proof:record33 em:term (em:compound "clause" ((em:integer "21") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:variable "V__path0"))) (em:compound "rdf" ((em:variable "V__path0") (em:iri rdf:first) (em:variable "First"))))) (em:list ((em:compound "rdf" ((em:iri :test) (em:iri :first) (em:variable "First"))) (em:compound "inf" ((em:iri :test) (em:iri :first) (em:variable "First"))))))))) .
+proof:record34 em:term (em:compound "clause" ((em:integer "22") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:variable "V__path0"))) (em:compound "rdf" ((em:variable "V__path0") (em:iri rdf:rest) (em:variable "V__path1"))) (em:compound "rdf" ((em:variable "V__path1") (em:iri rdf:first) (em:variable "Second"))))) (em:list ((em:compound "rdf" ((em:iri :test) (em:iri :second) (em:variable "Second"))) (em:compound "inf" ((em:iri :test) (em:iri :second) (em:variable "Second"))))))))) .
+proof:record35 em:term (em:compound "clause" ((em:integer "23") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:variable "V__path0"))) (em:compound "rdf" ((em:variable "V__path0") (em:iri rdf:rest) (em:variable "V__path1"))) (em:compound "rdf" ((em:variable "V__path1") (em:iri rdf:first) (em:variable "V__path2"))) (em:compound "rdf" ((em:variable "V__path2") (em:iri :p) (em:variable "VObject"))))) (em:list ((em:compound "rdf" ((em:iri :test) (em:iri :secondProperty) (em:variable "VObject"))) (em:compound "inf" ((em:iri :test) (em:iri :secondProperty) (em:variable "VObject"))))))))) .
+proof:record36 em:term (em:compound "clause" ((em:integer "24") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:variable "V__path0"))) (em:compound "rdf" ((em:variable "V__path0") (em:iri rdf:rest) (em:variable "V__path1"))) (em:compound "rdf" ((em:variable "V__path1") (em:iri rdf:rest) (em:variable "V__path2"))) (em:compound "rdf" ((em:variable "V__path2") (em:iri rdf:first) (em:variable "V__path3"))) (em:compound "rdf" ((em:variable "V__path3") (em:iri rdf:first) (em:variable "Item"))))) (em:list ((em:compound "rdf" ((em:iri :test) (em:iri :thirdFirst) (em:variable "Item"))) (em:compound "inf" ((em:iri :test) (em:iri :thirdFirst) (em:variable "Item"))))))))) .
+proof:record37 em:term (em:compound "step" ((em:compound "inf" ((em:iri :test) (em:iri :first) (em:integer "1"))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "=" ((em:atom "First") (em:integer "1"))))) (em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:integer "1"))))))) .
+proof:record38 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "clause" ((em:integer "19"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record39 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:integer "1"))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record40 em:term (em:compound "step" ((em:compound "inf" ((em:iri :test) (em:iri :second) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) (em:compound "clause" ((em:integer "22"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "=" ((em:atom "V__path1") (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "=" ((em:atom "Second") (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))))) (em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))))))) .
+proof:record41 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record42 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) (em:compound "clause" ((em:integer "7"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record43 em:term (em:compound "step" ((em:compound "inf" ((em:iri :test) (em:iri :secondProperty) (em:iri :q))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "=" ((em:atom "V__path1") (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "=" ((em:atom "V__path2") (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) (em:compound "=" ((em:atom "VObject") (em:iri :q))))) (em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b3"))) (em:iri :p) (em:iri :q))))))) .
+proof:record44 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b3"))) (em:iri :p) (em:iri :q))) (em:compound "clause" ((em:integer "5"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record45 em:term (em:compound "step" ((em:compound "inf" ((em:iri :test) (em:iri :thirdFirst) (em:integer "2"))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "=" ((em:atom "V__path1") (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "=" ((em:atom "V__path2") (em:compound "bnode" ((em:atom "srl") (em:atom "b4"))))) (em:compound "=" ((em:atom "V__path3") (em:compound "bnode" ((em:atom "srl") (em:atom "b5"))))) (em:compound "=" ((em:atom "Item") (em:integer "2"))))) (em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b4"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b5"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:first) (em:integer "2"))))))) .
+proof:record46 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b4"))))) (em:compound "clause" ((em:integer "9"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record47 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b5"))))) (em:compound "clause" ((em:integer "15"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record48 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:first) (em:integer "2"))) (em:compound "clause" ((em:integer "11"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record49 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:integer "1"))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record50 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "clause" ((em:integer "4"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record51 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b3"))) (em:iri :p) (em:iri :q))) (em:compound "clause" ((em:integer "6"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record52 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) (em:compound "clause" ((em:integer "8"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record53 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b4"))))) (em:compound "clause" ((em:integer "10"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record54 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:first) (em:integer "2"))) (em:compound "clause" ((em:integer "12"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record55 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "clause" ((em:integer "14"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record56 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b5"))))) (em:compound "clause" ((em:integer "16"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record57 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "clause" ((em:integer "18"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record58 em:term (em:compound "step" ((em:compound "inf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "clause" ((em:integer "20"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record59 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :test) (em:iri :first) (em:integer "1"))) (em:compound "clause" ((em:integer "21"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "=" ((em:atom "First") (em:integer "1"))))) (em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:integer "1"))))))) .
+proof:record60 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :test) (em:iri :second) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) (em:compound "clause" ((em:integer "22"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "=" ((em:atom "V__path1") (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "=" ((em:atom "Second") (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))))) (em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))))))) .
+proof:record61 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :test) (em:iri :secondProperty) (em:iri :q))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "=" ((em:atom "V__path1") (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "=" ((em:atom "V__path2") (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) (em:compound "=" ((em:atom "VObject") (em:iri :q))))) (em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b3"))) (em:iri :p) (em:iri :q))))))) .
+proof:record62 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :test) (em:iri :thirdFirst) (em:integer "2"))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "=" ((em:atom "V__path1") (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "=" ((em:atom "V__path2") (em:compound "bnode" ((em:atom "srl") (em:atom "b4"))))) (em:compound "=" ((em:atom "V__path3") (em:compound "bnode" ((em:atom "srl") (em:atom "b5"))))) (em:compound "=" ((em:atom "Item") (em:integer "2"))))) (em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b4"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b5"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:first) (em:integer "2"))))))) .
+proof:record63 em:term (em:compound "derived" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :test) (em:iri :first) (em:integer "1"))) (em:compound "inf" ((em:iri :test) (em:iri :second) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) (em:compound "inf" ((em:iri :test) (em:iri :secondProperty) (em:iri :q))) (em:compound "inf" ((em:iri :test) (em:iri :thirdFirst) (em:integer "2"))))))) .
+proof:record64 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :test) (em:iri :first) (em:integer "1"))) (em:compound "rdf" ((em:iri :test) (em:iri :second) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) (em:compound "rdf" ((em:iri :test) (em:iri :secondProperty) (em:iri :q))) (em:compound "rdf" ((em:iri :test) (em:iri :thirdFirst) (em:integer "2"))))))) .
+proof:record65 em:term (em:compound "called" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :test) (em:iri :first) (em:integer "1"))) (em:compound "inf" ((em:iri :test) (em:iri :second) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) (em:compound "inf" ((em:iri :test) (em:iri :secondProperty) (em:iri :q))) (em:compound "inf" ((em:iri :test) (em:iri :thirdFirst) (em:integer "2"))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:integer "1"))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b3"))) (em:iri :p) (em:iri :q))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b4"))))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:first) (em:integer "2"))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b5"))))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "inf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))))))) .
+proof:record66 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:variable "D"))) (em:list ((em:compound "rdf" ((em:iri :root) (em:iri :nested) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))))))) .
+proof:record67 em:term (em:compound "called" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:integer "1"))))))) .
+proof:record68 em:term (em:compound "called" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:variable "F"))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))))))) .
+proof:record69 em:term (em:compound "called" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b3"))))))))) .
+proof:record70 em:term (em:compound "called" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b3"))) (em:iri :p) (em:variable "H"))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b3"))) (em:iri :p) (em:iri :q))))))) .
+proof:record71 em:term (em:compound "called" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:variable "I"))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b4"))))))))) .
+proof:record72 em:term (em:compound "called" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:first) (em:variable "J"))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b4"))) (em:iri rdf:first) (em:compound "bnode" ((em:atom "srl") (em:atom "b5"))))))))) .
+proof:record73 em:term (em:compound "called" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:first) (em:variable "K"))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b5"))) (em:iri rdf:first) (em:integer "2"))))))) .
+}
