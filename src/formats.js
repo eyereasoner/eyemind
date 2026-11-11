@@ -21,6 +21,7 @@ import { DEFAULT_GRAPH, parseRdf, rdfDocument, rdfFormat, writeRdf } from './rdf
 import { answersToN3, compileSources } from './n3.js';
 import { compileSrl, srlQuads } from './srl.js';
 import { write } from './writer.js';
+import { isRdfMessageLog, parseRdfMessages } from './messages.js';
 
 export const OUTPUT_FORMATS = ['eyemind', 'turtle', 'trig', 'n-triples', 'n-quads', 'n3'];
 
@@ -30,6 +31,11 @@ export function inputKind(name) {
   if (/\.n3$/i.test(name)) return 'n3';
   if (/\.srl$/i.test(name)) return 'srl';
   return 'js';
+}
+
+export function rdfMessageFormat(name) {
+  const path = /^https?:/.test(name) ? new URL(name).pathname : name;
+  return rdfFormat(path) ?? 'trig';
 }
 
 // Load inputs, given as [text, name] pairs, as one program. io may supply
@@ -47,17 +53,26 @@ export function loadInputs(inputs, io = null, options = {}) {
   }
 }
 
-function load(inputs, io, { base = null }) {
-  const kinds = inputs.map(([, name]) => inputKind(name));
+function load(inputs, io, { base = null, messageInputs = null }) {
+  const kinds = inputs.map(([text, name]) => messageInputs?.has(name) ||
+    (inputKind(name) === 'n3' && isRdfMessageLog(text)) ? 'rdf' : inputKind(name));
   const baseOf = (name) => base ?? io?.fileIri?.(name) ?? null;
-  const rdf = (text, name, k) => parseRdf(text, { format: rdfFormat(name), base: baseOf(name), scope: scopeOf(inputs, name, k) });
+  const rdf = (text, name, k) => messageInputs?.get(name) ??
+    (isRdfMessageLog(text) ? parseRdfMessages : parseRdf)(text, {
+      format: rdfFormat(name) ?? 'trig', base: baseOf(name), scope: scopeOf(inputs, name, k),
+    });
   if (kinds.includes('srl')) {
     const others = kinds.filter((k) => k !== 'srl' && k !== 'rdf');
     if (kinds.filter((k) => k === 'srl').length > 1 || others.length) {
       throw new EyemindError('a SPARQL 1.2 RL run takes one .srl rule set, and RDF data for its base graph');
     }
     const [text, name] = inputs[kinds.indexOf('srl')];
-    const data = inputs.flatMap(([t, n], k) => (kinds[k] === 'rdf' ? rdf(t, n, k).quads : []));
+    const data = inputs.flatMap(([t, n], k) => {
+      if (kinds[k] !== 'rdf') return [];
+      const parsed = rdf(t, n, k);
+      if (parsed.triples) throw new EyemindError('RDF Message Log replay needs N3 or JavaScript rules; a SPARQL rule set takes an RDF base graph');
+      return parsed.quads;
+    });
     const compiled = compileSrl(text, { base: baseOf(name), filename: name, resolve: importResolver(io), data });
     for (const warning of compiled.warnings) io?.stderr?.(`eyemind: warning: ${warning}\n`);
     return { kind: 'srl', program: loadSources([[compiled.program, name]], io), text: compiled.program, prefixes: compiled.prefixes, compiled };
@@ -82,7 +97,7 @@ function load(inputs, io, { base = null }) {
 }
 
 // A blank-node scope per data file: its name, numbered when names repeat.
-function scopeOf(inputs, name, k) {
+export function scopeOf(inputs, name, k) {
   const base = String(name).replace(/^.*[\\/]/, '');
   const same = inputs.filter(([, n]) => String(n).replace(/^.*[\\/]/, '') === base);
   return same.length > 1 ? `${base}#${inputs.slice(0, k).filter(([, n]) => String(n).replace(/^.*[\\/]/, '') === base).length + 1}` : base;
@@ -107,17 +122,17 @@ export const defaultFormat = (kind) => ({ n3: 'n3', srl: 'turtle' })[kind] ?? 'e
 
 // The conclusions of a run in an output format; null for eyemind's own text.
 // all also writes the given data. Throws when a conclusion is no triple.
-export function writeConclusions(loaded, result, { format, all = false } = {}) {
+export function writeConclusions(loaded, result, { format, all = false, blankNodePrefix = '' } = {}) {
   if (format === 'eyemind') return null;
   const answers = result.answers;
   if (format === 'n3') {
     if (loaded.kind !== 'n3') throw new EyemindError('--to n3 writes the conclusions of an N3 run');
-    return answersToN3(loaded.compiled.doc, answers, { mode: all ? 'all' : 'new' }).n3;
+    return answersToN3(loaded.compiled.doc, answers, { mode: all ? 'all' : 'new', blankNodePrefix }).n3;
   }
   let quads;
   if (loaded.kind === 'srl') quads = srlQuads(loaded.text, answers, { all });
   else quads = conclusionQuads(answers, all ? loaded.text : null);
-  return writeRdf(quads, { format, prefixes: loaded.kind === 'n3' ? Object.fromEntries(loaded.prefixes) : loaded.prefixes });
+  return writeRdf(quads, { format, prefixes: loaded.kind === 'n3' ? Object.fromEntries(loaded.prefixes) : loaded.prefixes, blankNodePrefix });
 }
 
 // Conclusions that are triples, rdf/3 or result/3, or quads, rdf/4 or

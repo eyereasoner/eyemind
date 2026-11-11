@@ -192,6 +192,7 @@ export function checkRdfSyntax(text, format) {
       case 'VERSION':
         between();
         if (next?.k !== 'string' || next.v.startsWith(next.v[0].repeat(3))) fail(`${t.v} takes a short string`);
+        if (/-messages["']$/.test(next.v)) fail('RDF Message Logs need parseRdfMessages, which preserves message boundaries');
         if ((ts[k + 2]?.k === '.') !== (t.k === '@version')) fail(t.k === '@version' ? '@version ends with a dot' : 'VERSION has no dot');
         directive = t.k === '@version' ? 2 : 1;
         continue;

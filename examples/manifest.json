@@ -811,5 +811,38 @@
     "trusted": [
       "call_fidelity"
     ]
+  },
+  {
+    "name": "message-boundaries",
+    "files": [
+      "message-boundaries.n3",
+      "data/message-boundaries.trig"
+    ],
+    "description": "Ordered RDF Messages preserve an empty heartbeat and distinguish reused blank-node labels",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "message-alerts",
+    "files": [
+      "message-alerts.n3",
+      "data/message-alerts.nt"
+    ],
+    "description": "Independent sensor messages raise an alert only for the observation above the temperature threshold",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "message-provenance",
+    "files": [
+      "message-provenance.n3",
+      "data/message-provenance.trig"
+    ],
+    "description": "Reporters and named-graph readings join within each message without crossing its boundary",
+    "trusted": [
+      "call_fidelity"
+    ]
   }
 ]

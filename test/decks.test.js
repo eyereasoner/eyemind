@@ -7,6 +7,8 @@ import { main } from '../src/cli.js';
 import { nodeIO } from '../src/node.js';
 import { Env, properListItems, unify } from '../src/terms.js';
 import { shellSplit } from '../conformance/run.js';
+import { parseN3 } from '../src/n3-parser.js';
+import { tripleToEyemind } from '../src/n3-writer.js';
 import { artifactPath, loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
 import { ROOT, assert } from './helpers.js';
 
@@ -358,7 +360,11 @@ for (const entry of MANIFEST) {
         const native = args.some((arg) => /\.(n3|srl)$/.test(arg));
         if (!proofMode && (native || explicitFormat) && explicitFormat !== 'eyemind') {
           assert.equal(result.code, entry.halt_code ?? 0, result.stderr);
-          assert.equal(result.stdout, readFileSync(artifactPath('output', entry), 'utf8'));
+          const saved = readFileSync(artifactPath('output', entry), 'utf8');
+          if (args.includes('--stream-messages')) {
+            const triples = (text) => parseN3(text).triples.map((t) => tripleToEyemind(t).map((term) => write(term)));
+            assert.deepEqual(triples(result.stdout), triples(saved));
+          } else assert.equal(result.stdout, saved);
           continue;
         }
         const goals = args.flatMap((arg, i) => arg === '--goal' ? [args[i + 1]] : []);

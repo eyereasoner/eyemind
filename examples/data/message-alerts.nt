@@ -1,0 +1,13 @@
+# Three observations of one sensor. The companion rules alert only on 29,
+# showing that the last, cooler message does not inherit the previous alert.
+# See https://w3c-cg.github.io/rsp/spec/messages
+VERSION "1.2-messages"
+_:reading <https://example.org/alerts#sensor> <https://example.org/alerts#sensorA> .
+_:reading <https://example.org/alerts#temperature> "21"^^<http://www.w3.org/2001/XMLSchema#integer> .
+MESSAGE
+_:reading <https://example.org/alerts#sensor> <https://example.org/alerts#sensorA> .
+_:reading <https://example.org/alerts#temperature> "29"^^<http://www.w3.org/2001/XMLSchema#integer> .
+MESSAGE
+_:reading <https://example.org/alerts#sensor> <https://example.org/alerts#sensorA> .
+_:reading <https://example.org/alerts#temperature> "22"^^<http://www.w3.org/2001/XMLSchema#integer> .
+MESSAGE

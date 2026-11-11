@@ -38,8 +38,8 @@ function tripleTerm(term) {
 // N3 text for triples given as [S, P, O] eyemind terms. With strings
 // 'auto', a result that has log:outputString triples is written as their
 // strings, ordered by subject, as N3 reasoners do.
-export function writeN3(triples, { prefixes = new Map(), strings = 'auto' } = {}) {
-  const w = new Writer(prefixes);
+export function writeN3(triples, { prefixes = new Map(), strings = 'auto', blankNodePrefix = '' } = {}) {
+  const w = new Writer(prefixes, blankNodePrefix);
   const outputs = triples.filter(([, p]) => isIri(p, `${LOG}outputString`));
   if (strings === true || (strings === 'auto' && outputs.length > 0)) {
     const keyed = outputs.map(([s, , o], i) => ({ s, o, i }));
@@ -99,10 +99,11 @@ function compareKeys(a, b) {
 const PN_LOCAL = /^(?:[A-Za-z_0-9À-�]|:)(?:[A-Za-z_0-9·À-�.:-]*[A-Za-z_0-9·À-�:-])?$/u;
 
 class Writer {
-  constructor(prefixes) {
+  constructor(prefixes, blankNodePrefix) {
     this.prefixes = [...prefixes].sort((a, b) => b[1].length - a[1].length);
     this.used = new Set();
     this.bnodes = new Map();
+    this.blankNodePrefix = blankNodePrefix;
   }
 
   iri(v) {
@@ -126,7 +127,7 @@ class Writer {
   }
 
   bnode(key) {
-    if (!this.bnodes.has(key)) this.bnodes.set(key, `_:b${this.bnodes.size}`);
+    if (!this.bnodes.has(key)) this.bnodes.set(key, `_:${this.blankNodePrefix}b${this.bnodes.size}`);
     return this.bnodes.get(key);
   }
 

@@ -111,6 +111,31 @@ export const tests = [
     }
   }],
 
+  ['RDF Messages stream independently and preserve their mode in shared links', async (page, base) => {
+    const p = driver(page);
+    const output = readFileSync(new URL('../examples/output/message-alerts.n3', import.meta.url), 'utf8');
+    await p.open(`${base}#example=message-alerts`, 390, true);
+    await p.select('mode', '--stream-messages');
+    assert.match(await page.evaluate("document.getElementById('command').textContent"), /^eyemind --stream-messages /);
+    assert.ok(await page.evaluate("document.getElementById('strict-proof').disabled"));
+    await p.run();
+    assert.match(await p.status(), /^Done · exit 0/);
+    assert.equal(await p.output(), output);
+    await page.evaluate("document.getElementById('share-link').click()");
+    await p.until("document.getElementById('share-url').value.includes('#state=')", 'the shared streaming mode');
+    const url = await page.evaluate("document.getElementById('share-url').value");
+    await p.open(url, 390, true);
+    assert.equal(await page.evaluate("document.getElementById('mode').value"), '--stream-messages');
+    await p.run();
+    assert.equal(await p.output(), output);
+    await p.select('mode', '--check-proof');
+    await p.type('proof-input', readFileSync(new URL('../examples/proof/message-alerts.js', import.meta.url), 'utf8'));
+    await p.run();
+    assert.match(await p.status(), /^Done · exit 0/);
+    assert.equal(await p.output(), readFileSync(new URL('../examples/check/message-alerts.js', import.meta.url), 'utf8'));
+    await p.select('mode', '');
+  }],
+
   ['derived rule examples run, prove and check in the playground', async (page, base) => {
     const p = driver(page);
     for (const name of ['derived-rule', 'derived-backward-rule', 'derived-backward-rule-2']) {

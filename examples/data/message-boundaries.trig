@@ -1,0 +1,13 @@
+# Two temperature messages reuse _:reading around an empty heartbeat. Their
+# boundaries and blank-node scopes remain visible in the companion's output.
+# The final delimiter closes the last observation without adding a heartbeat.
+# See https://w3c-cg.github.io/rsp/spec/messages
+VERSION "1.2-messages"
+PREFIX : <https://example.org/messages#>
+
+_:reading :temperature 22 .
+MESSAGE
+# Empty heartbeat.
+MESSAGE
+_:reading :temperature 23 .
+MESSAGE

@@ -190,6 +190,7 @@
                 <option value="--prove-and-check">--prove-and-check · Checked answers</option>
                 <option value="--check-proof">--check-proof FILE · Check a saved proof</option>
                 <option value="--unused">--unused · Clauses that make no difference</option>
+                <option value="--stream-messages">--stream-messages · Independent RDF Messages</option>
               </select>
             </label>
             <label class="field wide" for="goal"><span>--goal GOAL</span><input id="goal" type="text" placeholder="Ask a goal, such as type(X, 'mortal')" spellcheck="false" autocapitalize="off" /></label>
@@ -354,7 +355,7 @@
       const defaultProgram = "// Socrates is human, and every human is mortal.\nfact(type('socrates', 'human'))\nfact(subclass_of('human', 'mortal'))\n\nimplies([type(S, A), subclass_of(A, B)], type(S, B))\n\nquery(type(X, Y))\n";
       const stateKey = 'eyemind.playground.cli.v1';
       const gistTokenKey = 'eyemind.playground.github.gistToken.v1';
-      const modes = ['', '--proof', '--prove-and-check', '--check-proof', '--unused'];
+      const modes = ['', '--proof', '--prove-and-check', '--check-proof', '--unused', '--stream-messages'];
       let examples = [];
       let source = { name: '-', text: defaultProgram };
       let originalExample = null;

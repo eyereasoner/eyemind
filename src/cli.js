@@ -1,6 +1,7 @@
 // The eyemind command line.
 import { run, unusedClauses } from './engine.js';
-import { OUTPUT_FORMATS, defaultFormat, loadInputs, writeConclusions } from './formats.js';
+import { OUTPUT_FORMATS, defaultFormat, loadInputs, rdfMessageFormat, scopeOf, writeConclusions } from './formats.js';
+import { isRdfMessageLog, replayMessages, RdfMessageReader } from './messages.js';
 import { checkProof, checkReport, publicReport } from './proof.js';
 import { EyemindError } from './terms.js';
 import { VERSION } from './version.js';
@@ -27,6 +28,7 @@ and .srl as a SPARQL 1.2 RL rule set, both compiled to an eyemind program.
       --all               With RDF output, write the given data too
       --program           Print the program the inputs compile to
       --base IRI          Resolve relative IRIs of the inputs against IRI
+      --stream-messages   Run the rules independently for each RDF Message
   -v, --version           Print the version
   -h, --help              Print this help
 Source defaults to stdin; multiple files form one program.
@@ -62,6 +64,8 @@ export function main(argv, io) {
     let all = false;
     let printProgram = false;
     let base = null;
+    let streamMessages = false;
+    const filePositions = new Set();
     for (let i = 0; i < argv.length; i++) {
       const arg = argv[i];
       if (arg === '--help' || arg === '-h') {
@@ -88,6 +92,8 @@ export function main(argv, io) {
         all = true;
       } else if (arg === '--program') {
         printProgram = true;
+      } else if (arg === '--stream-messages') {
+        streamMessages = true;
       } else if (arg === '--check-proof' || arg === '--goal' || arg === '--to' || arg === '--base' || Object.hasOwn(LIMITS, arg)) {
         i++;
         if (i >= argv.length) throw new UsageError(`${arg} needs a value`);
@@ -116,6 +122,7 @@ export function main(argv, io) {
         throw new UsageError(`unknown option ${arg}`);
       } else {
         files.push(arg);
+        filePositions.add(i);
       }
     }
     if (asJson && proofFile === null && !proveAndCheck) throw new UsageError('--json requires --check-proof or --prove-and-check');
@@ -132,7 +139,46 @@ export function main(argv, io) {
     }
     if (!files.length) files.push('-');
     if (files.filter((file) => file === '-').length > 1) throw new UsageError('stdin can only be read once');
-    const loaded = loadInputs(files.map((file) => [readSource(file, io), file === '-' ? '<stdin>' : file]), io, { base });
+    if (streamMessages) {
+      if (proofFile !== null || options.proof || proveAndCheck || printProgram || unused) {
+        throw new UsageError('--stream-messages cannot be combined with --proof, --check-proof, --prove-and-check, --program or --unused; replay the whole log to prove its conclusions');
+      }
+      const args = argv.filter((arg, i) => arg !== '--stream-messages' && !filePositions.has(i));
+      let messageNumber = 0;
+      const request = {
+        files, base,
+        scope: (name, index = files.indexOf(name)) => scopeOf(files.map((f) => ['', f]), name, index),
+        run: (inputs, name, replay) => main([...args, ...inputs.map(([path]) => path), name], {
+          ...io,
+          // Each result is serialized separately; keep its blank labels
+          // distinct without retaining nodes from previous messages.
+          blankNodePrefix: `m${++messageNumber}_`,
+          messageInputs: new Map([[name === '-' ? '<stdin>' : name, replay]]),
+          readFile: (path) => path === name ? '' : inputs.find(([p]) => p === path)?.[1] ?? io.readFile(path),
+          stdin: () => name === '-' ? '' : io.stdin(),
+        }),
+      };
+      if (io.streamMessages) return io.streamMessages(request, io);
+      // Hosts such as the playground already hold their inputs as text.
+      // Node supplies the incremental file/HTTP implementation instead.
+      const sources = files.map((name, index) => ({ name, index, text: readSource(name, io) }));
+      const logs = sources.filter(({ text }) => isRdfMessageLog(text));
+      if (!logs.length) throw new UsageError('--stream-messages needs an RDF Message Log with VERSION "*-messages"');
+      const inputs = sources.filter((source) => !logs.includes(source)).map(({ name, text }) => [name, text]);
+      for (const { name, text, index } of logs) {
+        let code = 0;
+        const scope = request.scope(name, index);
+        const reader = new RdfMessageReader({ format: rdfMessageFormat(name), base: base ?? io.fileIri?.(name), scope, onMessage: (message) => {
+          code = request.run(inputs, name, replayMessages([message], { scope }));
+          return code === 0;
+        } });
+        reader.write(text);
+        reader.finish();
+        if (code) return code;
+      }
+      return 0;
+    }
+    const loaded = loadInputs(files.map((file) => [readSource(file, io), file === '-' ? '<stdin>' : file]), io, { base, messageInputs: io.messageInputs });
     const program = loaded.program;
     if (printProgram) {
       stdout(loaded.text);
@@ -161,7 +207,9 @@ export function main(argv, io) {
       return report.valid ? result.haltCode || 0 : 2;
     }
     // Answers to goals are eyemind terms unless an output format is asked.
-    const written = options.proof ? null : writeConclusions(loaded, result, { format: format ?? (goals.length ? 'eyemind' : defaultFormat(loaded.kind)), all });
+    const written = options.proof ? null : writeConclusions(loaded, result, {
+      format: format ?? (goals.length ? 'eyemind' : defaultFormat(loaded.kind)), all, blankNodePrefix: io.blankNodePrefix,
+    });
     stdout(written ?? result.stdout);
     if (stats) stderr(`${JSON.stringify(result.stats)}\n`);
     return result.haltCode || 0;
