@@ -47,6 +47,10 @@ export async function syncNotation3Tests({ checkout = null, destination = mirror
           const file = resolve(checkout, decodeURIComponent(iri.slice(raw.length)));
           if (!file.startsWith(`${checkout}${sep}`)) throw new Error('document path is outside the upstream checkout');
           documents[iri] = { text: readFileSync(file, 'utf8') };
+        } else if (!new URL(iri).hostname.includes('.') && !new URL(iri).hostname.includes(':')) {
+          // A single-label test host depends on the machine's DNS search
+          // domains. Save its failure without asking a local resolver.
+          documents[iri] = { error: 'unqualified test document host' };
         } else {
           const response = await fetchDocument(iri, { signal: AbortSignal.timeout(10000) });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);

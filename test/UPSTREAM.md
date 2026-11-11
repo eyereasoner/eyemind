@@ -25,6 +25,8 @@ the inputs to `log:content`, `log:semantics` and `log:semanticsOrError`,
 including expected retrieval failures. Resources owned by the upstream
 repository come from the same checkout as its tests. Missing document
 fixtures fail the read without falling back to a network request.
+Single-label document hosts are stored as errors without a DNS lookup,
+so a negative test's outcome does not depend on local DNS search domains.
 
 Each cached suite keeps its upstream license, documentation and
 `upstream.json`. The tracked [upstream.json](upstream.json) records the
