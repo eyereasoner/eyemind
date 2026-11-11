@@ -2,7 +2,7 @@
 
 *An RDF 1.2 triple term: a claim names a triple without asserting it, and accepting the claim asserts it.*
 
-[data/triple-term.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/triple-term.ttl) · [triple-term.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/triple-term.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/triple-term.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/triple-term.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=triple-term)
+[data/triple-term.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/triple-term.ttl) · [triple-term.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/triple-term.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/triple-term.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/triple-term.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/triple-term.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=triple-term)
 
 ---
 
@@ -77,5 +77,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/data/triple-term.ttl examples/triple-term.n3
 node bin/eyemind.js --proof examples/data/triple-term.ttl examples/triple-term.n3
-node bin/eyemind.js --check-proof examples/proof/triple-term.js examples/data/triple-term.ttl examples/triple-term.n3
+node bin/eyemind.js --check-proof examples/proof/triple-term.n3 examples/data/triple-term.ttl examples/triple-term.n3
 ```

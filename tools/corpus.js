@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { basename, dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkReport, run } from '../src/index.js';
-import { defaultFormat, loadInputs, writeConclusions } from '../src/formats.js';
+import { defaultFormat, loadInputs, writeConclusions, writeProof } from '../src/formats.js';
 import { nodeIO } from '../src/node.js';
 
 export const ROOT = join(dirname(dirname(fileURLToPath(import.meta.url))), 'examples');
@@ -30,8 +30,9 @@ export const outputExtension = (entry) => entry.output ??
     sourceFiles(entry).some((file) => file.endsWith('.srl')) ? 'ttl' : 'js');
 export function artifactPath(kind, entry) {
   const source = sourceFiles(entry).find((file) => /\.(n3|srl)$/.test(file));
-  const name = kind === 'output' && source ? basename(source, extname(source)) : entry.name;
-  return join(ROOT, kind, `${name}.${kind === 'output' ? outputExtension(entry) : 'js'}`);
+  const name = kind !== 'check' && source ? basename(source, extname(source)) : entry.name;
+  const extension = kind === 'output' ? outputExtension(entry) : kind === 'proof' && source ? extname(source).slice(1) : 'js';
+  return join(ROOT, kind, `${name}.${extension}`);
 }
 
 export function loadExampleInputs(entry) {
@@ -68,5 +69,5 @@ export function evaluate(entry) {
   const { program } = loaded;
   const output = run(program);
   const proved = certify(entry, program, output);
-  return { output: outputText(loaded, output), proof: proved.proof, check: checkReport(proved.proofReport) };
+  return { output: outputText(loaded, output), proof: writeProof(loaded, proved), check: checkReport(proved.proofReport) };
 }

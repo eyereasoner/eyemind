@@ -26,15 +26,22 @@ otherwise the scorer creates a temporary cache and removes it after the run.
 The cache holds compiled JavaScript modules, not test answers: every case
 is evaluated on every run.
 
-A whole `npm test` run also includes it in the report. To refresh the mirror
-and its document fixtures from upstream:
+A whole `npm test` run also includes it in the report. Refresh this mirror,
+its document fixtures, and both W3C format suites together:
+
+```sh
+npm run sync
+```
+
+To refresh only Notation3:
 
 ```sh
 node tools/sync-notation3tests.js
 ```
 
-The sync command needs Git and network access. It also accepts a local
-upstream Git checkout as its argument. Review the changed tests, revision
+The sync commands need Git and network access. The Notation3 command also
+accepts a local upstream Git checkout as its argument; `npm run sync -- --help`
+lists the local checkout options for all three sources. Review the changed tests, revision
 and documents, then rerun the suite. `--live` bypasses the saved documents
 for a run against the current remote resources; `--documents FILE` supplies
 another fixture map. `EYEMIND_NOTATION3TESTS` selects another test directory

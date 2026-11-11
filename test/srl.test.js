@@ -36,6 +36,17 @@ const checked = (text, options) => {
 };
 
 // Reading rule sets and data.
+test('parser: collection nodes never capture explicit blank-node labels, even later ones', () => {
+  const rs = parseRuleSet(`${P}DATA { :s :items (_:b1 _:b2) . _:b1 :p :first . _:b2 :p :second . }`);
+  const head = rs.data.find((t) => t.p.value === 'http://example/items').o;
+  assert.notEqual(head.value, 'b1');
+  assert.notEqual(head.value, 'b2');
+  const first = rs.data.filter((t) => t.p.value === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#first');
+  assert.equal(first.length, 2);
+  assert.deepEqual(first.map((t) => t.o.value), ['b1', 'b2']);
+  assert.ok(first.every((t) => !['b1', 'b2'].includes(t.s.value)));
+});
+
 test('parser: data blocks, rules and prefixes', () => {
   const rs = parseRuleSet(`${P}DATA { :a :b 1.50 } RULE { ?x :q ?y } WHERE { ?x :p ?y }`);
   assert.equal(rs.data.length, 1);
@@ -255,7 +266,7 @@ test('proofs: a forged conclusion is not checked', () => {
 
 test('the eyemind options act on the compiled rule set', () => {
   const tmp = mkdtempSync(join(tmpdir(), 'eyemind-srl-'));
-  const proof = join(tmp, 'proof.js');
+  const proof = join(tmp, 'proof.srl');
   writeFileSync(proof, command(['--proof', 'examples/family.srl']).stdout);
   const check = command(['--check-proof', proof, 'examples/family.srl']);
   assert.equal(check.code, 0);

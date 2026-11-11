@@ -2,7 +2,7 @@
 
 *Directory listings, initials and language information from Unicode names.*
 
-[strings.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/strings.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/strings.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/strings-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/strings-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=strings-srl)
+[strings.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/strings.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/strings.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/strings.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/strings-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=strings-srl)
 
 ---
 
@@ -100,5 +100,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/strings.srl
 node bin/eyemind.js --proof examples/strings.srl
-node bin/eyemind.js --check-proof examples/proof/strings-srl.js examples/strings.srl
+node bin/eyemind.js --check-proof examples/proof/strings.srl examples/strings.srl
 ```

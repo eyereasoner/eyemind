@@ -1,0 +1,29 @@
+# N3 proof: claims, steps and the complete C1–C10 certificate.
+@prefix : <http://example.org/door#> .
+@prefix pe: <https://eyereasoner.github.io/pe#> .
+@prefix em: <https://eyereasoner.github.io/eyemind/proof#> .
+@prefix proof: <urn:eyemind:proof#> .
+
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "n3" .
+<urn:eyemind:proof> pe:claims ((em:atom "false")) .
+proof:record5 pe:conclusion (em:atom "false") .
+proof:record5 pe:rule 3 .
+proof:record5 pe:binding (("D" :door)) .
+proof:record5 pe:uses ({ :door :state :locked } { :door :state :open }) .
+proof:record6 pe:conclusion { :door :state :locked } .
+proof:record6 pe:rule 1 .
+proof:record6 pe:binding () .
+proof:record6 pe:uses () .
+proof:record7 pe:conclusion { :door :state :open } .
+proof:record7 pe:rule 2 .
+proof:record7 pe:binding () .
+proof:record7 pe:uses () .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7) .
+proof:record1 em:term (em:atom "false") .
+proof:record2 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :door) (em:iri :state) (em:iri :locked))))))) .
+proof:record3 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "rdf" ((em:iri :door) (em:iri :state) (em:iri :open))))))) .
+proof:record4 em:term (em:compound "clause" ((em:integer "3") (em:compound "contradiction" ((em:compound "rdf" ((em:variable "D") (em:iri :state) (em:iri :locked))) (em:compound "rdf" ((em:variable "D") (em:iri :state) (em:iri :open))))))) .
+proof:record5 em:term (em:compound "step" ((em:atom "false") (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "D") (em:iri :door))))) (em:list ((em:compound "rdf" ((em:iri :door) (em:iri :state) (em:iri :locked))) (em:compound "rdf" ((em:iri :door) (em:iri :state) (em:iri :open))))))) .
+proof:record6 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :door) (em:iri :state) (em:iri :locked))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record7 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :door) (em:iri :state) (em:iri :open))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .

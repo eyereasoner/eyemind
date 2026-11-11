@@ -2149,6 +2149,58 @@ describes the mappings. Such formats are outside conformance: a conforming
 implementation need not read them, and the suite does not test them. The
 proofs and checks of a compiled program are those of any program.
 
+For N3 and SRL inputs, `--proof` writes native proof data, `.n3` and `.srl`
+respectively. This is an additional representation of the complete proof of
+[Section 10](#10-proof-documents), outside conformance. JavaScript programs and the core library
+continue to write the canonical representation. `--check-proof` recognizes
+all three representations from their contents, regardless of filename;
+check reports retain the representation of [Section 12](#12-check-reports).
+
+The native proof resource is `<urn:eyemind:proof>`, of type `pe:Proof`, where
+`pe:` is `https://eyereasoner.github.io/pe#` and `em:` is
+`https://eyereasoner.github.io/eyemind/proof#`. It has `em:format` equal to
+`"n3"` or `"srl"`, `pe:claims` as an ordered collection of claim displays,
+and `em:records` as an ordered collection of record IRIs. Record `N`, counted
+from 1, is `<urn:eyemind:proof#recordN>` and has one `em:term` containing its
+[Section 10](#10-proof-documents) statement, encoded as a tagged collection:
+
+| Term | Collection |
+| --- | --- |
+| Atom | `(em:atom "text")` |
+| Integer | `(em:integer "digits")`, with a minus for a negative integer |
+| Float | `(em:float "number")`, preserving signed zero as `"-0"` |
+| Variable | `(em:variable "name")`, including anonymous-variable status |
+| `iri(I)` with an RDF-compatible IRI | `(em:iri <I>)` |
+| Nonempty proper list | `(em:list (EncodedItem ...))` |
+| Compound | `(em:compound "name" (EncodedArgument ...))` |
+
+The empty list is the atom `"[]"`. Other compounds, including open lists,
+quoted graphs and Skolem terms, use the compound encoding. A string field
+containing a character RDF cannot represent uses an `em:utf16` typed literal
+whose lexical form is four lowercase hexadecimal digits per UTF-16 code
+unit. This retains every atom and variable name accepted by
+[Section 9.2](#92-canonical-atoms-numbers-variables-and-lists).
+
+A triple goal's display is an N3 quoted formula, or an SRL RDF triple term.
+Other goals use their tagged encoding. A step record also displays
+`pe:conclusion`, `pe:rule` for a `clause(N)` justification, `pe:source` for
+`source(N)`, or `pe:justification` for another justification. `pe:binding`
+is an ordered collection of `(VariableName Value)` pairs, and `pe:uses` an
+ordered collection of premise displays. Non-native binding values retain
+their tagged encoding. Search records display `pe:derived`, `pe:searched`
+or `pe:called` and an ordered `pe:answers` collection. Clause numbers name
+the compiled program's clauses, whose authority is still the source input.
+SRL proofs contain only `DATA` and declarations, never rules or imports.
+
+The reader decodes every record, verifies all displays and properties against
+those records, and applies the unchanged checks of
+[Section 11](#11-proof-checking) to the decoded
+certificate. A missing, extra, duplicate or inconsistent property fails C3.
+Prefix aliases and reordering top-level properties are accepted, as is
+consistent blank-node renaming; the order of collections and formula triples
+is retained. Displayed claims cannot replace encoded claims, and neither
+representation can change the source authority or supply missing evidence.
+
 eyemind also reads RDF Message Logs in these four RDF syntaxes, announced by
 a `*-messages` version. Replay supplies ordered envelopes and quoted payloads
 to N3 or JavaScript rules; `--stream-messages` evaluates each message

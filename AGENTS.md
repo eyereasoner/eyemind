@@ -3,7 +3,9 @@
 eyemind is a dependency-free JavaScript rule language with forward and
 backward reasoning and checkable proofs. Programs are JavaScript scripts;
 conclusions, proofs and check reports are JavaScript expressions that a
-reader turns back into terms without running them. It runs as a command-line
+reader turns back into terms without running them. N3 and SRL inputs also
+write native proof data preserving the complete compiled certificate.
+It runs as a command-line
 program, a JavaScript library, and a browser application. Describe what it
 implements as it currently is, distinguish demonstrated behavior from design
 goals, and keep error messages specific and user-facing text direct.
@@ -26,6 +28,8 @@ goals, and keep error messages specific and user-facing text direct.
     the engine. `closure.js`: settling negations and collections by their
     search certificate, one call expanded one level at a time. `fidelity.js`:
     C10 original questions, call tables and supported forward dependencies.
+    `native-proof.js`: N3 and SRL proof data, lossless term records and
+    validated displays of claims, steps and search certificates.
   - `cli.js`: the command line, with no Node imports so the playground's
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
     library API. `version.js`: the version, synced from `package.json`.
@@ -57,9 +61,10 @@ goals, and keep error messages specific and user-facing text direct.
   `examples/proof/` and `examples/check/` hold each one's saved conclusions,
   proof and check report; `examples/deck/` a card deck per example. Outputs
   use the input format’s default (`.js`, `.n3` or `.ttl`; `.txt` for the text
-  report); proofs and check reports remain `.js`. Source files can share a
+  report); proofs match their source (`.js`, `.n3`, `.srl`) and check reports
+  remain `.js`. Source files can share a
   basename across formats (`socrates.js`, `socrates.n3`, `socrates.srl`).
-  Manifest names distinguish their proofs, check reports and decks. TriG
+  Manifest names distinguish check reports and decks. TriG
   joins N3 as quoted `graph:content` formulas.
   RDF Message examples keep their logs in `examples/data/`; payloads are
   quoted `log:nameOf` formulas. Replay has proofs and check reports;
@@ -76,12 +81,17 @@ goals, and keep error messages specific and user-facing text direct.
   `corpus.js` evaluates the corpus, `version.js` syncs the version,
   `notation3tests.js` scores the Notation3 test suite, and `report.js`
   writes `REPORT.md`, the table a whole `npm test` run ends with.
+  `sync.js`, run with `npm run sync`, stages and refreshes all three upstream
+  test mirrors and records their revisions; `sync-notation3tests.js` also
+  refreshes Notation3's remote document fixtures.
 - `README.md` (the guide: why eyemind, running, writing programs, proofs,
   playground, CLI, library, development), served by Pages as the site root;
   `SPEC.md` (RFC-style specification: terms, programs, arithmetic,
   reasoning, canonical text, proof documents and the C1–C10 checks).
 - `release`, `.github/workflows/`, `.zenodo.json`: releases, CI, Pages,
   GitHub releases, npm publishing and Zenodo archiving.
+- `reports/`: RDF and SPARQL RL EARL reports, refreshed from the complete
+  mirrored W3C suites on every `npm test` invocation, including filtered runs.
 
 ## Commands
 
@@ -91,13 +101,14 @@ node bin/eyemind.js --proof examples/socrates.js > /tmp/proof.js
 node bin/eyemind.js --check-proof /tmp/proof.js examples/socrates.js
 node bin/eyemind.js --unused examples/graphs.js
 npm test                                              # unit, examples, conformance, command line, playground
-npm test -- unit conformance                          # only these sections
+npm test -- unit conformance                          # these sections, plus W3C EARL
 npm test -- -k skolem                                 # only tests whose line contains "skolem"
 npm test -- playground                                # the playground in a headless Chrome
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 EYEMIND_CLI_ALL=1 npm test -- cli                     # every case through the command, as CI runs it
 node conformance/run.js 11-checking.js -v
 node tools/update-examples.js [NAME ...]
+npm run sync
 git diff --check
 ```
 
@@ -223,3 +234,7 @@ Pages; a `v*` tag creates the GitHub release (which Zenodo archives) and
 publishes the npm package `eyemind` through
 `.github/workflows/publish-npm.yml`, only through npm trusted publishing. See
 the README for existing-tag dispatch.
+
+After the bump and version sync, the script runs the filtered EARL tests,
+which rerun both complete W3C suites, so the committed reports identify the
+release version. A failure stops before the release commit, tag and push.

@@ -23,7 +23,7 @@
 // and a failure names the seed that reproduces it. EYEMIND_PROPERTY_SCALE
 // multiplies the number of cases for a deeper search.
 import { readFileSync } from 'node:fs';
-import { EyemindError, Program, Struct, Var, checkProof, publicReport, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
+import { EyemindError, Program, Struct, Var, checkProof, publicReport, readGoal, readNativeProof, readProofTerms, readTerm, readTerms, run, write, writeNativeProof } from '../src/index.js';
 import { shortcuts } from '../src/proof.js';
 import { apply } from '../src/arith.js';
 import { compareText, identity } from '../src/terms.js';
@@ -228,7 +228,7 @@ const obligations = (terms) => new Set(terms.filter((term) => isRecord(term, 'st
 // establishes (its claims and the goals of its steps), and the values to
 // forge with.
 function forgeable(entry, text) {
-  const terms = readTerms(text).map(([term]) => term);
+  const terms = readProofTerms(text).map(([term]) => term);
   const established = new Set();
   for (const term of terms) {
     if (isRecord(term, 'step', 4)) established.add(variant(term.args[0]));
@@ -764,6 +764,18 @@ implies(implied_by(H, B), backward_rule(H, B))`);
     });
   },
 
+  'native proof records preserve generated terms in both N3 and SRL'() {
+    forSeeds(250, (r) => {
+      const term = randomTerm(r);
+      const text = write(term);
+      for (const format of ['n3', 'srl']) {
+        const back = readNativeProof(writeNativeProof(text, { format }));
+        assert.equal(back.length, 1);
+        assert.ok(same(back[0], readTerm(text)), `${format}: ${text}`);
+      }
+    });
+  },
+
   'text order agrees with a code point array comparison'() {
     forSeeds(1500, (r) => {
       const left = Array.from({ length: r.below(5) }, () => r.pick(ATOMS)).join('');
@@ -829,7 +841,11 @@ implies(implied_by(H, B), backward_rule(H, B))`);
 // names the example. Proofs over 100 KB are too slow to forge many times, and
 // examples whose proof is over 1 MB too slow to run once per uncited clause.
 for (const entry of readManifest()) {
-  const text = readFileSync(artifactPath('proof', entry), 'utf8');
+  const path = artifactPath('proof', entry);
+  const saved = readFileSync(path, 'utf8');
+  // Choose the workload by certificate size, independently of its encoding.
+  // Native RDF displays must not reduce the forgery coverage of an example.
+  const text = /\.(n3|srl)$/.test(path) ? readProofTerms(saved).map(([term]) => write(term)).join('\n') : saved;
   if (text.length <= 100000) {
     const count = text.length <= 12000 ? 30 : text.length <= 40000 ? 15 : 8;
     tests[`a forged proof of examples/${sourceFiles(entry)[0]} never certifies what the program does not entail`] =

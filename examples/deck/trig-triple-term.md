@@ -2,7 +2,7 @@
 
 *A triple term inside a named graph, asserted in a formula named for the graph that holds the claim.*
 
-[data/trig-triple-term.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/trig-triple-term.trig) · [trig-triple-term.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/trig-triple-term.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/trig-triple-term.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/trig-triple-term.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/trig-triple-term.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=trig-triple-term)
+[data/trig-triple-term.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/trig-triple-term.trig) · [trig-triple-term.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/trig-triple-term.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/trig-triple-term.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/trig-triple-term.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/trig-triple-term.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=trig-triple-term)
 
 ---
 
@@ -89,5 +89,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/data/trig-triple-term.trig examples/trig-triple-term.n3
 node bin/eyemind.js --proof examples/data/trig-triple-term.trig examples/trig-triple-term.n3
-node bin/eyemind.js --check-proof examples/proof/trig-triple-term.js examples/data/trig-triple-term.trig examples/trig-triple-term.n3
+node bin/eyemind.js --check-proof examples/proof/trig-triple-term.n3 examples/data/trig-triple-term.trig examples/trig-triple-term.n3
 ```

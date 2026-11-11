@@ -143,7 +143,7 @@ for (let level = 1; level <= 10; level++) {
 - **Arithmetic is a term, not an operator.** `is(Y, add(X, 1))` computes and `gt(X, 1)` compares. `X + 1` or `X > 1` stops the program with a message saying what to write instead, and operators on plain numbers are JavaScript's own (`2 ** 60 + 1` arrives already rounded). The primitives are listed in [SPEC §4](https://eyereasoner.github.io/eyemind/SPEC#4-goals-and-primitives) and the arithmetic functions in [SPEC §5](https://eyereasoner.github.io/eyemind/SPEC#5-arithmetic).
 - **Numbers are exact.** An integral number is an integer, `2` and `2.0` alike, and `float(2)` is a float; write integers beyond 2^53 as a `BigInt`, `9007199254740993n`. `1` and `float(1)` do not unify, yet compare equal.
 - **Something exists.** A variable only a forward rule's conclusion mentions becomes a Skolem term of that firing: `implies(person(X), has_parent(X, P))` concludes `has_parent('ann', skolem(2, 'P', ['ann']))`.
-- **Data is not a program.** Everything eyemind writes is a *document* of plain expressions. `facts_from` reads one as facts and never executes it, so it is the safe way to take in data you do not trust, and lets one run reason over another's proof, as [audited-grants](https://github.com/eyereasoner/eyemind/blob/main/examples/audited-grants.js) does.
+- **Data is not a program.** eyemind's term documents are plain expressions. `facts_from` reads one as facts and never executes it, so it is the safe way to take in data you do not trust, and lets one run reason over another's proof, as [audited-grants](https://github.com/eyereasoner/eyemind/blob/main/examples/audited-grants.js) does. Native N3 and SRL proofs are RDF data too.
 
 ### Deriving rules
 
@@ -192,7 +192,7 @@ eyemind --to trig rules.js data.trig      # the conclusions as TriG
 | Triple term | `triple(S, P, O)`, which may nest |
 | Default graph, named graph | `'default_graph'`, `iri(Name)` |
 
-A reified triple `<< s p o >>` and an annotation `{| ... |}` become their reifier and its `rdf:reifies` triple, as RDF 1.2 defines. A Skolem term is written as a blank node, the same one for the same rule firing. The RDF examples load Turtle or TriG files from `examples/data/` alongside companion rules in `examples/`. They show triple terms, annotations, directional strings, typed numbers and named graphs. The W3C RDF test suites run in `npm test` from the mirror in `test/w3c/rdf-tests`: all 1055 tests of N-Triples, N-Quads, Turtle and TriG, in RDF 1.1 and 1.2, pass.
+A reified triple `<< s p o >>` and an annotation `{| ... |}` become their reifier and its `rdf:reifies` triple, as RDF 1.2 defines. A Skolem term is written as a blank node, the same one for the same rule firing. The RDF examples load Turtle or TriG files from `examples/data/` alongside companion rules in `examples/`. They show triple terms, annotations, directional strings, typed numbers and named graphs. The W3C RDF test suites run in `npm test` from the mirror in `test/w3c/rdf-tests`: all 1065 tests of N-Triples, N-Quads, Turtle and TriG, in RDF 1.1 and 1.2, pass.
 
 ### Notation3
 
@@ -251,7 +251,7 @@ Whole-log replay gives N3 or JavaScript rules an ordered view of the messages:
 ```sh
 eyemind examples/message-boundaries.n3 examples/data/message-boundaries.trig
 eyemind --proof examples/message-boundaries.n3 examples/data/message-boundaries.trig
-eyemind --check-proof examples/proof/message-boundaries.js examples/message-boundaries.n3 examples/data/message-boundaries.trig
+eyemind --check-proof examples/proof/message-boundaries.n3 examples/message-boundaries.n3 examples/data/message-boundaries.trig
 ```
 
 The replay vocabulary is `eymsg:`, with namespace
@@ -331,7 +331,32 @@ The two work together: a forward rule's premise can call a backward definition, 
 
 ## Proofs, and what checking one means
 
-A proof holds the claims, the source clauses it cites, and one `step(...)` per inference. Checking applies ten conditions:
+A proof holds the claims, the source clauses it cites, and each recorded
+inference. JavaScript programs write `step(...)` records. N3 inputs write
+N3 proofs, and SRL inputs write SRL `DATA` proofs:
+
+```sh
+eyemind --proof examples/socrates.n3 > /tmp/socrates-proof.n3
+eyemind --check-proof /tmp/socrates-proof.n3 examples/socrates.n3
+eyemind --proof examples/socrates.srl > /tmp/socrates-proof.srl
+eyemind --check-proof /tmp/socrates-proof.srl examples/socrates.srl
+```
+
+Native proofs use `pe:`, `https://eyereasoner.github.io/pe#`, for the claims,
+conclusions, rule numbers, bindings and ordered uses. N3 displays statements
+as quoted formulas; SRL displays them as RDF triple terms. Rule numbers name
+clauses of the compiled eyemind program. The `em:` vocabulary,
+`https://eyereasoner.github.io/eyemind/proof#`, keeps the exact terms and
+ordered records, including all C9 search and C10 call tables. The checker
+validates the displays against those records, then checks the certificate
+against the source program. Altered displays, duplicate properties and extra
+assertions fail checking. Proofs can be read as data by other N3 or SRL rules.
+
+`--check-proof` recognizes the content, independently of the filename, and
+continues to accept JavaScript certificates for native inputs. Check reports
+remain JavaScript term documents, or JSON with `--json`.
+
+Checking applies ten conditions:
 
 | | Condition | What it establishes |
 | --- | --- | --- |
@@ -474,6 +499,13 @@ console.log(checkProof(socrates, result.proof, { goals }).valid);
 
 `run()` returns `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals, allowTrusted })` checks C1–C10, and `allowTrusted: false` rejects every obligation. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text.
 
+The core library's `result.proof` is the JavaScript certificate.
+`writeNativeProof(result.proof, { format: 'n3', prefixes })` writes its N3
+representation; use `format: 'srl'` for SRL. `readNativeProof(document)`
+returns the decoded terms, and `readProofTerms(document)` reads any supported
+proof as `[term, line]` pairs. Native records have line 0. `checkProof`
+accepts all three representations and never evaluates proof text.
+
 ## What is deliberately absent
 
 Cut, conditional commitment, mutable databases, attributed variables, constraint libraries, tabling, and filesystem or network built-ins. Without cut and a mutable database, a derivation is a function of the program and its input, which is what makes a certificate meaningful. Undefined predicates fail.
@@ -482,23 +514,47 @@ Cut, conditional commitment, mutable databases, attributed variables, constraint
 
 ```sh
 npm test                                              # unit, examples, conformance, command line, playground
-npm test -- unit examples                             # only these sections
+npm test -- unit examples                             # these sections, plus W3C EARL
 npm test -- -k skolem                                 # only tests whose line contains "skolem"
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node tools/update-examples.js                         # regenerate example artifacts after an intended change
 node tools/report.js                                  # the table npm test ends with, into REPORT.md
 node tools/notation3tests.js                          # the saved Notation3 suite, without network access
-node tools/sync-notation3tests.js                     # refresh its tests and document fixtures from upstream
+npm run sync                                          # refresh all three upstream test suites
 node conformance/run.js --command "my-eyemind"        # run the conformance suite against another implementation
 ```
 
 The full suite needs a few GB of memory; on a small machine run it under a cap, such as `systemd-run --user --scope -q -p MemoryMax=3G -p MemorySwapMax=0 -- npm test`. Generated tests forge saved proofs at random and require the checker to reject every forgery that claims more than the program entails. The playground tests need Chrome (`CHROME` names it). When adding an example, register it in [examples/manifest.json](https://github.com/eyereasoner/eyemind/blob/main/examples/manifest.json), write its deck in `examples/deck/`, and generate its artifacts.
 
-The [Notation3 mirror](test/notation3tests/README.md) pins the upstream tests and their remote document inputs. Ordinary runs use those fixtures, with no network fallback. The sync command refreshes them for review; the scorer's `--live` option checks the current remote resources instead.
+Every `npm test` invocation, including a filtered run, also runs both mirrored
+W3C format suites and rewrites [reports/w3c-rdf-earl.ttl](reports/w3c-rdf-earl.ttl)
+and [reports/w3c-sparql-rl-earl.ttl](reports/w3c-sparql-rl-earl.ttl).
+These [EARL](https://www.w3.org/TR/EARL10-Schema/) reports contain one
+assertion per manifest case, its actual outcome and diagnostic, the eyemind
+version and the run date. A W3C failure makes the command fail. A negative
+syntax test passes when the parser rejects its input as required.
+
+`npm run sync` refreshes the [Notation3 mirror](test/notation3tests/README.md),
+the [W3C RDF mirror and SPARQL RL mirror](test/w3c/README.md), and the
+Notation3 document fixtures. It needs Git and network access. Each mirror
+records its upstream revision in `upstream.json` and keeps upstream licensing
+and documentation. Downloads and manifest resource checks finish before the
+three generated mirrors are replaced; a failed refresh retains the old set.
+Review the changes, then run `npm test` to verify the suites and refresh EARL.
+
+Local Git checkouts can supply any of the sources:
+
+```sh
+npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes
+```
+
+`node tools/sync-notation3tests.js [UPSTREAM_CHECKOUT]` still refreshes only
+Notation3. Ordinary test runs use saved documents with no network fallback;
+the scorer's `--live` option checks the current remote resources instead.
 
 ### Releases
 
-`./release patch "Describe the changes"` (or `minor`, `major`) requires a clean tree, pulls `main`, runs the tests, bumps the version, and pushes `main` with an annotated tag. The tag creates the GitHub release, which Zenodo archives, and publishes to npm through trusted publishing, with no stored token. To publish an existing tag again, use **Actions → Publish to npm → Run workflow**.
+`./release patch "Describe the changes"` (or `minor`, `major`) requires a clean tree, pulls `main`, runs the tests, bumps the version, refreshes and checks EARL with that version, and pushes `main` with an annotated tag. The tag creates the GitHub release, which Zenodo archives, and publishes to npm through trusted publishing, with no stored token. To publish an existing tag again, use **Actions → Publish to npm → Run workflow**.
 
 ## The name
 

@@ -2,7 +2,7 @@
 
 *Ordered RDF Messages preserve an empty heartbeat and distinguish reused blank-node labels.*
 
-[message-boundaries.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/message-boundaries.n3) · [data/message-boundaries.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/message-boundaries.trig) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/message-boundaries.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/message-boundaries.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/message-boundaries.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=message-boundaries)
+[message-boundaries.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/message-boundaries.n3) · [data/message-boundaries.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/message-boundaries.trig) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/message-boundaries.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/message-boundaries.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/message-boundaries.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=message-boundaries)
 
 ---
 
@@ -137,5 +137,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/message-boundaries.n3 examples/data/message-boundaries.trig
 node bin/eyemind.js --proof examples/message-boundaries.n3 examples/data/message-boundaries.trig
-node bin/eyemind.js --check-proof examples/proof/message-boundaries.js examples/message-boundaries.n3 examples/data/message-boundaries.trig
+node bin/eyemind.js --check-proof examples/proof/message-boundaries.n3 examples/message-boundaries.n3 examples/data/message-boundaries.trig
 ```

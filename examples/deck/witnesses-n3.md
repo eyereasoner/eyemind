@@ -2,7 +2,7 @@
 
 *One new delivery record per order, shared by the triples of its rule firing.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/witnesses.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/witnesses.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/witnesses-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/witnesses-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=witnesses-n3)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/witnesses.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/witnesses.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/witnesses.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/witnesses-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=witnesses-n3)
 
 ---
 
@@ -56,7 +56,7 @@ use the same witness for their firing.
 
 ## What eyemind concludes
 
-The proof records these answers as terms:
+The check report records these answers as terms:
 
 ```js
 // Conclusions: the facts the program derives, in the order derived.
@@ -103,7 +103,7 @@ conversion from the N3 source is a separate step that can be inspected.
 ```sh
 node bin/eyemind.js examples/witnesses.n3
 node bin/eyemind.js --to eyemind examples/witnesses.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/witnesses-n3.js examples/witnesses.n3
+node bin/eyemind.js --strict-proof --check-proof examples/proof/witnesses.n3 examples/witnesses.n3
 ```
 
 Recompile the original N3 and inspect its witness terms:

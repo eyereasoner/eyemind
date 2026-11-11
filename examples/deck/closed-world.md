@@ -2,7 +2,7 @@
 
 *Paid orders ship when no hold is on record.*
 
-[closed-world.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/closed-world.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/closed-world.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/closed-world.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/closed-world.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=closed-world)
+[closed-world.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/closed-world.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/closed-world.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/closed-world.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/closed-world.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=closed-world)
 
 ---
 
@@ -72,5 +72,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/closed-world.n3
 node bin/eyemind.js --proof examples/closed-world.n3
-node bin/eyemind.js --check-proof examples/proof/closed-world.js examples/closed-world.n3
+node bin/eyemind.js --check-proof examples/proof/closed-world.n3 examples/closed-world.n3
 ```

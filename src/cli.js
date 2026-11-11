@@ -1,6 +1,6 @@
 // The eyemind command line.
 import { run, unusedClauses } from './engine.js';
-import { OUTPUT_FORMATS, defaultFormat, loadInputs, rdfMessageFormat, scopeOf, writeConclusions } from './formats.js';
+import { OUTPUT_FORMATS, defaultFormat, loadInputs, rdfMessageFormat, scopeOf, writeConclusions, writeProof } from './formats.js';
 import { isRdfMessageLog, replayMessages, RdfMessageReader } from './messages.js';
 import { checkProof, checkReport, publicReport } from './proof.js';
 import { EyemindError } from './terms.js';
@@ -10,7 +10,7 @@ export const HELP = `Usage: eyemind [OPTION ...] [FILE ...]
 Programs are JavaScript; forward rules run to a fixpoint. Other files are read
 by their extension: .ttl, .trig, .nt and .nq as RDF 1.2 data, .n3 as Notation3
 and .srl as a SPARQL 1.2 RL rule set, both compiled to an eyemind program.
-  -p, --proof             Print the claims with clause(...) and step(...) records
+  -p, --proof             Print a proof in the input's format (JavaScript, N3, SRL)
   -c, --prove-and-check   Generate a proof and check it against the input program
       --check-proof FILE  Print checked answers and a proof check report (- for stdin)
       --json              Print the check report as JSON instead
@@ -207,7 +207,7 @@ export function main(argv, io) {
       return report.valid ? result.haltCode || 0 : 2;
     }
     // Answers to goals are eyemind terms unless an output format is asked.
-    const written = options.proof ? null : writeConclusions(loaded, result, {
+    const written = options.proof ? writeProof(loaded, result, { goals }) : writeConclusions(loaded, result, {
       format: format ?? (goals.length ? 'eyemind' : defaultFormat(loaded.kind)), all, blankNodePrefix: io.blankNodePrefix,
     });
     stdout(written ?? result.stdout);

@@ -2,7 +2,7 @@
 
 *Each person gets a distinct mother and a reciprocal child relation.*
 
-[existential.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/existential.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/existential.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/existential.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/existential.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=existential)
+[existential.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/existential.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/existential.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/existential.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/existential.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=existential)
 
 ---
 
@@ -82,5 +82,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/existential.n3
 node bin/eyemind.js --proof examples/existential.n3
-node bin/eyemind.js --check-proof examples/proof/existential.js examples/existential.n3
+node bin/eyemind.js --check-proof examples/proof/existential.n3 examples/existential.n3
 ```

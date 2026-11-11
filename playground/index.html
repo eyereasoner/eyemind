@@ -176,7 +176,7 @@
           <p class="hint">Edit the program above, choose an example, or load a URL. Loading replaces the input.</p>
           <section id="proof-panel" class="proof-input" aria-labelledby="proof-heading" hidden>
             <h2 id="proof-heading">Proof to check</h2>
-            <form id="proof-url-form" class="row url-row"><input id="proof-url" type="url" placeholder="https://example.org/proof.js" aria-label="Proof URL" autocapitalize="off" spellcheck="false" required /><button id="load-proof-url" class="secondary" type="submit">Load URL</button></form>
+            <form id="proof-url-form" class="row url-row"><input id="proof-url" type="url" placeholder="https://example.org/proof.n3" aria-label="Proof URL" autocapitalize="off" spellcheck="false" required /><button id="load-proof-url" class="secondary" type="submit">Load URL</button></form>
             <textarea id="proof-input" spellcheck="false" aria-label="Saved proof"></textarea>
           </section>
         </div>
@@ -360,6 +360,7 @@
       let source = { name: '-', text: defaultProgram };
       let originalExample = null;
       let proofName = 'proof.js';
+      let outputName = 'output.js';
       let restoring = false;
       let busy = false;
       let sharing = false;
@@ -388,12 +389,18 @@
         return examples.find((entry) => entry.name === name) ?? null;
       }
 
+      function proofExtension() {
+        const names = [source.name, ...(source.companions ?? []).map((file) => file.name)];
+        return names.some((name) => /\.n3$/i.test(name)) ? 'n3' : names.some((name) => /\.srl$/i.test(name)) ? 'srl' : 'js';
+      }
+
       function showSource() {
         const wasRestoring = restoring;
         restoring = true;
         input.setValue(source.text);
         byId('input-source').textContent = [source.name, ...(source.companions ?? []).map((file) => file.name)].join(' + ');
         byId('input-source').hidden = source.name === '-';
+        if (!proof.getValue() && /^proof\.(js|n3|srl)$/.test(proofName)) proofName = `proof.${proofExtension()}`;
         const entry = exampleNamed(byId('examples').value);
         byId('example-description').textContent = entry ? entry.description : '';
         byId('example-description').hidden = !entry;
@@ -733,6 +740,7 @@
           if (!byId(id).checkValidity()) { byId(id).reportValidity(); return; }
         }
         setBusy(true);
+        outputName = args.includes('--proof') || args.includes('-p') ? `proof.${proofExtension()}` : 'output.js';
         output.setValue('');
         input.markLine(null);
         output.setOption('colored', !byId('json').checked || !['--check-proof', '--prove-and-check'].includes(byId('mode').value));
@@ -877,7 +885,7 @@
       byId('share-url').addEventListener('click', () => byId('share-url').select());
       byId('save-output').addEventListener('click', () => {
         const url = URL.createObjectURL(new Blob([output.getValue()], { type: 'text/plain;charset=utf-8' }));
-        const link = document.createElement('a'); link.href = url; link.download = byId('mode').value === '--proof' ? 'proof.js' : 'output.js';
+        const link = document.createElement('a'); link.href = url; link.download = outputName;
         link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
       });
       document.addEventListener('keydown', (event) => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter' && !busy) { event.preventDefault(); run(); } });

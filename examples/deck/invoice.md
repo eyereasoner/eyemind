@@ -2,7 +2,7 @@
 
 *Collect each invoice's amounts, sum them exactly, and include an empty invoice.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/invoice.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/invoice.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/invoice.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/invoice.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=invoice)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/invoice.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/invoice.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/invoice.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/invoice.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=invoice)
 
 ---
 
@@ -60,7 +60,7 @@ The rule does not depend on its own total through collection.
 
 ## What eyemind concludes
 
-The proof records these answers as terms:
+The check report records these answers as terms:
 
 ```js
 // Conclusions: the facts the program derives, in the order derived.
@@ -111,7 +111,7 @@ while the saved proof remains conditional on its listed obligations.
 ```sh
 node bin/eyemind.js examples/invoice.n3
 node bin/eyemind.js --to eyemind examples/invoice.n3
-node bin/eyemind.js --check-proof examples/proof/invoice.js examples/invoice.n3
+node bin/eyemind.js --check-proof examples/proof/invoice.n3 examples/invoice.n3
 ```
 
 Compile and inspect the included built-in definitions:

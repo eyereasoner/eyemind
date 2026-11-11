@@ -29,6 +29,10 @@ class Parser {
     this.version = null;
     this.imports = [];
     this.bnodeCounter = 0;
+    // eyemind: collection/property-list nodes must not capture an explicit
+    // blank-node label, including a label appearing later in the document.
+    this.usedBlankNodeLabels = new Set(this.tokens.filter((token) => token.type === 'word' && token.value.startsWith('_:'))
+      .map((token) => token.value.slice(2)));
     this.bodyBnodeLabels = null;
     // Body blank nodes must become variables not used anywhere in the rule,
     // including in the head or in expressions that occur later in the body.
@@ -228,7 +232,8 @@ class Parser {
   freshGraphNode(options = {}) {
     do {
       this.bnodeCounter += 1;
-    } while (options.context === 'body' && this.usedVariableNames.has(`__b${this.bnodeCounter}`));
+    } while (this.usedBlankNodeLabels.has(`b${this.bnodeCounter}`) ||
+      (options.context === 'body' && this.usedVariableNames.has(`__b${this.bnodeCounter}`)));
     const id = `b${this.bnodeCounter}`;
     if (options.context !== 'body') return blankNode(id);
     this.usedVariableNames.add(`__${id}`);

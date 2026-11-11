@@ -2,7 +2,8 @@
 // check report, its saved proof checks from disk, and a tampered one does not.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, join, relative } from 'node:path';
-import { checkProof, checkReport, publicReport, readTerms, run, strict, write } from '../src/index.js';
+import { checkProof, checkReport, publicReport, readProofTerms, readTerms, run, strict, write } from '../src/index.js';
+import { writeProof } from '../src/formats.js';
 import { KINDS, artifactPath, certify, loadExampleInputs, outputText, readManifest, sourceFiles } from '../tools/corpus.js';
 import { ROOT, assert, cli } from './helpers.js';
 
@@ -50,7 +51,7 @@ function checkOutput(entry) {
 }
 
 function checkProofOf(entry) {
-  assert.equal(provedOf(entry).proof, read(artifactPath('proof', entry)), CHANGED('proof'));
+  assert.equal(writeProof(stateOf(entry).loaded, provedOf(entry)), read(artifactPath('proof', entry)), CHANGED('proof'));
 }
 
 function checkCheck(entry) {
@@ -113,8 +114,9 @@ for (const entry of MANIFEST) {
   tests[`examples/check/${entry.name}.js checked answers and prove-and-check output`] = () => {
     const saved = read(artifactPath('check', entry));
     const answers = saved.split('\n// C1-C10:')[0];
-    const claims = read(artifactPath('proof', entry)).split('\n// Clauses:')[0];
-    assert.deepEqual(readTerms(answers).map(([term]) => write(term)), readTerms(claims).map(([term]) => write(term)));
+    const claims = readProofTerms(read(artifactPath('proof', entry))).map(([term]) => term)
+      .filter((term) => !['clause', 'step', 'derived', 'searched', 'called'].includes(term.name));
+    assert.deepEqual(readTerms(answers).map(([term]) => write(term)), claims.map((term) => write(term)));
     const output = read(artifactPath('output', entry));
     if (artifactPath('output', entry).endsWith('.js')) {
       assert.deepEqual(readTerms(answers).map(([term]) => write(term)), readTerms(output).map(([term]) => write(term)));

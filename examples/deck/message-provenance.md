@@ -2,7 +2,7 @@
 
 *Reporters and named-graph readings join within each message without crossing its boundary.*
 
-[message-provenance.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/message-provenance.n3) · [data/message-provenance.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/message-provenance.trig) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/message-provenance.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/message-provenance.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/message-provenance.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=message-provenance)
+[message-provenance.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/message-provenance.n3) · [data/message-provenance.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/message-provenance.trig) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/message-provenance.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/message-provenance.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/message-provenance.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=message-provenance)
 
 ---
 
@@ -119,7 +119,7 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/message-provenance.n3 examples/data/message-provenance.trig
 node bin/eyemind.js --proof examples/message-provenance.n3 examples/data/message-provenance.trig
-node bin/eyemind.js --check-proof examples/proof/message-provenance.js examples/message-provenance.n3 examples/data/message-provenance.trig
+node bin/eyemind.js --check-proof examples/proof/message-provenance.n3 examples/message-provenance.n3 examples/data/message-provenance.trig
 ```
 
 Process each message independently:

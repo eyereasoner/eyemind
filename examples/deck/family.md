@@ -2,7 +2,7 @@
 
 *Write ancestry in Notation3, run it in eyemind, and write the answers back as N3.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/family.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/family.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family)
 
 ---
 
@@ -56,7 +56,7 @@ from the ancestry relation being searched.
 
 ## What eyemind concludes
 
-The proof records these answers as terms:
+The check report records these answers as terms:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -104,7 +104,7 @@ node bin/eyemind.js /tmp/family.js
 Check the saved proof against the N3 source:
 
 ```sh
-node bin/eyemind.js --strict-proof --check-proof examples/proof/family.js examples/family.n3
+node bin/eyemind.js --strict-proof --check-proof examples/proof/family.n3 examples/family.n3
 ```
 
 Add `:cara :parent :dan .` to a copy of the N3 source, then compile and run

@@ -38,16 +38,23 @@ git switch main
 git pull --ff-only
 
 # Test before anything changes, within a memory cap where systemd allows one.
-if command -v systemd-run >/dev/null 2>&1 && systemd-run --user --scope -q true 2>/dev/null; then
-  systemd-run --user --scope -q -p MemoryMax="${EYEMIND_TEST_MEMORY:-3G}" -p MemorySwapMax=0 -- npm test
-else
-  npm test
-fi
+test_release() {
+  if command -v systemd-run >/dev/null 2>&1 && systemd-run --user --scope -q true 2>/dev/null; then
+    systemd-run --user --scope -q -p MemoryMax="${EYEMIND_TEST_MEMORY:-3G}" -p MemorySwapMax=0 -- npm test "$@"
+  else
+    npm test "$@"
+  fi
+}
+test_release
 
 # Bump package.json, then write the version everywhere else it appears.
 VERSION="v$(npm version "$RELEASE_TYPE" --no-git-tag-version | sed 's/^v//')"
 node tools/version.js
 node tools/version.js --check
+
+# Refresh and verify the EARL reports with the version being released. The
+# filtered test run still executes both complete W3C format suites.
+test_release -- unit -k earl
 
 git add -A
 git commit -m "$MESSAGE"

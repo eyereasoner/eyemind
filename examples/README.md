@@ -35,12 +35,15 @@ eyemind --check-proof examples/proof/socrates.js examples/socrates.js
 Each program has a matching conclusion file in `output/`, a certificate in
 `proof/`, and a C1-C10 verification report in `check/`. JavaScript examples
 save term documents as `.js`; N3 examples save `.n3` output, SRL examples
-save Turtle as `.ttl`, and the text report saves `.txt`. Proofs and check
-reports remain JavaScript expressions read as data. Source extensions distinguish
+save Turtle as `.ttl`, and the text report saves `.txt`. Proofs use `.js`,
+`.n3` or `.srl` to match their source; check reports remain JavaScript
+expressions read as data. Source extensions distinguish
 `socrates.js`, `socrates.n3` and `socrates.srl`; their outputs are
 `output/socrates.js`, `output/socrates.n3` and `output/socrates.ttl`.
-Manifest names such as `socrates-n3` and `socrates-srl` distinguish their
-proofs, check reports and decks, which share the same extensions.
+Their proofs are `proof/socrates.js`, `proof/socrates.n3` and
+`proof/socrates.srl`. Manifest names such as `socrates-n3` and `socrates-srl`
+distinguish check reports and decks. The same command checks each proof
+against its original inputs.
 
 | Example (deck) | Source | Demonstrates |
 | --- | --- | --- |

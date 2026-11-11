@@ -1,0 +1,800 @@
+# N3 proof: claims, steps and the complete C1–C10 certificate.
+@prefix : <https://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix pe: <https://eyereasoner.github.io/pe#> .
+@prefix em: <https://eyereasoner.github.io/eyemind/proof#> .
+@prefix proof: <urn:eyemind:proof#> .
+
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "n3" .
+<urn:eyemind:proof> pe:claims ({ :bridge :decision :avoid_bridge } { :bridge :trustedSource :transportAuthority } { :bridge :score 9310 } { :closed :rank 1 } { :closed :assertedBy :transportAuthority } { :closed :score 9310 } { :open :rank 2 } { :open :assertedBy :anonymousPost } { :open :score 700 }) .
+proof:record50 pe:conclusion { :bridge :decision :avoid_bridge } .
+proof:record50 pe:rule 19 .
+proof:record50 pe:binding (("Action" :avoid_bridge) ("Source" :transportAuthority) ("Score" 9310)) .
+proof:record50 pe:uses ({ (:avoid_bridge :transportAuthority 9310) a :Decision }) .
+proof:record51 pe:conclusion { (:avoid_bridge :transportAuthority 9310) a :Decision } .
+proof:record51 pe:rule 17 .
+proof:record51 pe:binding (("Status" :closed) ("Source" :transportAuthority) ("Score" 9310) ("Limit" 8000) ("Action" :avoid_bridge)) .
+proof:record51 pe:uses ({ (1 :closed :transportAuthority 9310) a :RankedClaim } { :policy :threshold 8000 } (em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000"))) { :closed :action :avoid_bridge }) .
+proof:record52 pe:conclusion { (1 :closed :transportAuthority 9310) a :RankedClaim } .
+proof:record52 pe:rule 16 .
+proof:record52 pe:binding (("Status" :closed) ("Source" :transportAuthority) ("Score" 9310) ("Other" ?A) ("Higher" ()) ("Count" 0) ("Rank" 1)) .
+proof:record52 pe:uses ({ (:closed :transportAuthority 9310) a :Claim } (em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) (em:compound "n3_list_length" ((em:atom "[]") (em:integer "0"))) (em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1")))) .
+proof:record53 pe:conclusion { (:closed :transportAuthority 9310) a :Claim } .
+proof:record53 pe:rule 14 .
+proof:record53 pe:binding (("Status" :closed) ("Reifier" :authorityClaim) ("Source" :transportAuthority) ("Confidence" 98) ("Trust" 95) ("Score" 9310)) .
+proof:record53 pe:uses ({ :bridge :status :closed } { :authorityClaim rdf:reifies <<( :bridge :status :closed )>> } { :authorityClaim :assertedBy :transportAuthority } { :authorityClaim :confidence 98 } { :transportAuthority :trustScore 95 } (em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:integer "9310")))) .
+proof:record54 pe:conclusion { :bridge :status :closed } .
+proof:record54 pe:rule 1 .
+proof:record54 pe:binding () .
+proof:record54 pe:uses () .
+proof:record55 pe:conclusion { :authorityClaim rdf:reifies <<( :bridge :status :closed )>> } .
+proof:record55 pe:rule 2 .
+proof:record55 pe:binding () .
+proof:record55 pe:uses () .
+proof:record56 pe:conclusion { :authorityClaim :assertedBy :transportAuthority } .
+proof:record56 pe:rule 3 .
+proof:record56 pe:binding () .
+proof:record56 pe:uses () .
+proof:record57 pe:conclusion { :authorityClaim :confidence 98 } .
+proof:record57 pe:rule 4 .
+proof:record57 pe:binding () .
+proof:record57 pe:uses () .
+proof:record58 pe:conclusion { :transportAuthority :trustScore 95 } .
+proof:record58 pe:rule 9 .
+proof:record58 pe:binding () .
+proof:record58 pe:uses () .
+proof:record59 pe:conclusion (em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:integer "9310"))) .
+proof:record59 pe:rule 70 .
+proof:record59 pe:binding (("L" (98 95)) ("O" 9310) ("N" 98) ("Ns" (95)) ("V" 9310)) .
+proof:record59 pe:uses ((em:compound "n3_nums" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95"))))) (em:compound "n3_product" ((em:list ((em:integer "95"))) (em:integer "98") (em:integer "9310"))) (em:compound "n3_result" ((em:integer "9310") (em:integer "9310")))) .
+proof:record60 pe:conclusion (em:compound "n3_nums" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95"))))) .
+proof:record60 pe:rule 65 .
+proof:record60 pe:binding (("L" (98 95)) ("Ns" (98 95))) .
+proof:record60 pe:uses ((em:compound "is_nonvar" ((em:list ((em:integer "98") (em:integer "95"))))) (em:compound "n3_nums_" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95")))))) .
+proof:record61 pe:conclusion (em:compound "is_nonvar" ((em:list ((em:integer "98") (em:integer "95"))))) .
+proof:record61 pe:justification (em:atom "builtin") .
+proof:record61 pe:binding () .
+proof:record61 pe:uses () .
+proof:record62 pe:conclusion (em:compound "n3_nums_" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95"))))) .
+proof:record62 pe:rule 67 .
+proof:record62 pe:binding (("T" 98) ("R" (95)) ("N" 98) ("Ns" (95))) .
+proof:record62 pe:uses ((em:compound "n3_num" ((em:integer "98") (em:integer "98"))) (em:compound "n3_nums_" ((em:list ((em:integer "95"))) (em:list ((em:integer "95")))))) .
+proof:record63 pe:conclusion (em:compound "n3_num" ((em:integer "98") (em:integer "98"))) .
+proof:record63 pe:rule 24 .
+proof:record63 pe:binding (("T" 98) ("N" 98)) .
+proof:record63 pe:uses ((em:compound "is_number" ((em:integer "98"))) (em:compound "unify" ((em:integer "98") (em:integer "98")))) .
+proof:record64 pe:conclusion (em:compound "is_number" ((em:integer "98"))) .
+proof:record64 pe:justification (em:atom "builtin") .
+proof:record64 pe:binding () .
+proof:record64 pe:uses () .
+proof:record65 pe:conclusion (em:compound "unify" ((em:integer "98") (em:integer "98"))) .
+proof:record65 pe:justification (em:atom "builtin") .
+proof:record65 pe:binding () .
+proof:record65 pe:uses () .
+proof:record66 pe:conclusion (em:compound "n3_nums_" ((em:list ((em:integer "95"))) (em:list ((em:integer "95"))))) .
+proof:record66 pe:rule 67 .
+proof:record66 pe:binding (("T" 95) ("R" ()) ("N" 95) ("Ns" ())) .
+proof:record66 pe:uses ((em:compound "n3_num" ((em:integer "95") (em:integer "95"))) (em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]")))) .
+proof:record67 pe:conclusion (em:compound "n3_num" ((em:integer "95") (em:integer "95"))) .
+proof:record67 pe:rule 24 .
+proof:record67 pe:binding (("T" 95) ("N" 95)) .
+proof:record67 pe:uses ((em:compound "is_number" ((em:integer "95"))) (em:compound "unify" ((em:integer "95") (em:integer "95")))) .
+proof:record68 pe:conclusion (em:compound "is_number" ((em:integer "95"))) .
+proof:record68 pe:justification (em:atom "builtin") .
+proof:record68 pe:binding () .
+proof:record68 pe:uses () .
+proof:record69 pe:conclusion (em:compound "unify" ((em:integer "95") (em:integer "95"))) .
+proof:record69 pe:justification (em:atom "builtin") .
+proof:record69 pe:binding () .
+proof:record69 pe:uses () .
+proof:record70 pe:conclusion (em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]"))) .
+proof:record70 pe:rule 66 .
+proof:record70 pe:binding () .
+proof:record70 pe:uses () .
+proof:record71 pe:conclusion (em:compound "n3_product" ((em:list ((em:integer "95"))) (em:integer "98") (em:integer "9310"))) .
+proof:record71 pe:rule 73 .
+proof:record71 pe:binding (("N" 95) ("R" ()) ("A" 98) ("V" 9310) ("B" 9310)) .
+proof:record71 pe:uses ((em:compound "is" ((em:integer "9310") (em:compound "mul" ((em:integer "98") (em:integer "95"))))) (em:compound "n3_product" ((em:atom "[]") (em:integer "9310") (em:integer "9310")))) .
+proof:record72 pe:conclusion (em:compound "is" ((em:integer "9310") (em:compound "mul" ((em:integer "98") (em:integer "95"))))) .
+proof:record72 pe:justification (em:atom "builtin") .
+proof:record72 pe:binding () .
+proof:record72 pe:uses () .
+proof:record73 pe:conclusion (em:compound "n3_product" ((em:atom "[]") (em:integer "9310") (em:integer "9310"))) .
+proof:record73 pe:rule 72 .
+proof:record73 pe:binding (("V" 9310)) .
+proof:record73 pe:uses () .
+proof:record74 pe:conclusion (em:compound "n3_result" ((em:integer "9310") (em:integer "9310"))) .
+proof:record74 pe:rule 68 .
+proof:record74 pe:binding (("V" 9310) ("O" 9310)) .
+proof:record74 pe:uses ((em:compound "is_var" ((em:integer "9310"))) (em:compound "unify" ((em:integer "9310") (em:integer "9310")))) .
+proof:record75 pe:conclusion (em:compound "is_var" ((em:integer "9310"))) .
+proof:record75 pe:justification (em:compound "called" ((em:compound "is_var" ((em:variable "B"))))) .
+proof:record75 pe:binding () .
+proof:record75 pe:uses () .
+proof:record76 pe:conclusion (em:compound "unify" ((em:integer "9310") (em:integer "9310"))) .
+proof:record76 pe:justification (em:atom "builtin") .
+proof:record76 pe:binding () .
+proof:record76 pe:uses () .
+proof:record77 pe:conclusion (em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) .
+proof:record77 pe:justification (em:atom "collected") .
+proof:record77 pe:binding () .
+proof:record77 pe:uses () .
+proof:record78 pe:conclusion (em:compound "n3_list_length" ((em:atom "[]") (em:integer "0"))) .
+proof:record78 pe:rule 47 .
+proof:record78 pe:binding (("L" ()) ("O" 0) ("N" 0)) .
+proof:record78 pe:uses ((em:compound "is_nonvar" ((em:atom "[]"))) (em:compound "n3_length" ((em:atom "[]") (em:integer "0"))) (em:compound "n3_integer_result" ((em:integer "0") (em:integer "0")))) .
+proof:record79 pe:conclusion (em:compound "is_nonvar" ((em:atom "[]"))) .
+proof:record79 pe:justification (em:atom "builtin") .
+proof:record79 pe:binding () .
+proof:record79 pe:uses () .
+proof:record80 pe:conclusion (em:compound "n3_length" ((em:atom "[]") (em:integer "0"))) .
+proof:record80 pe:rule 22 .
+proof:record80 pe:binding () .
+proof:record80 pe:uses () .
+proof:record81 pe:conclusion (em:compound "n3_integer_result" ((em:integer "0") (em:integer "0"))) .
+proof:record81 pe:rule 48 .
+proof:record81 pe:binding (("N" 0) ("O" 0)) .
+proof:record81 pe:uses ((em:compound "is_var" ((em:integer "0"))) (em:compound "unify" ((em:integer "0") (em:integer "0")))) .
+proof:record82 pe:conclusion (em:compound "is_var" ((em:integer "0"))) .
+proof:record82 pe:justification (em:compound "called" ((em:compound "is_var" ((em:variable "C"))))) .
+proof:record82 pe:binding () .
+proof:record82 pe:uses () .
+proof:record83 pe:conclusion (em:compound "unify" ((em:integer "0") (em:integer "0"))) .
+proof:record83 pe:justification (em:atom "builtin") .
+proof:record83 pe:binding () .
+proof:record83 pe:uses () .
+proof:record84 pe:conclusion (em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))) .
+proof:record84 pe:rule 81 .
+proof:record84 pe:binding (("L" (0 1)) ("O" 1) ("Ns" (0 1)) ("K" (em:atom "decimal")) ("V" 1)) .
+proof:record84 pe:uses ((em:compound "n3_nums" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "n3_sum_kind" ((em:list ((em:integer "0") (em:integer "1"))) (em:atom "decimal"))) (em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))) (em:compound "n3_result" ((em:integer "1") (em:integer "1")))) .
+proof:record85 pe:conclusion (em:compound "n3_nums" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1"))))) .
+proof:record85 pe:rule 65 .
+proof:record85 pe:binding (("L" (0 1)) ("Ns" (0 1))) .
+proof:record85 pe:uses ((em:compound "is_nonvar" ((em:list ((em:integer "0") (em:integer "1"))))) (em:compound "n3_nums_" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1")))))) .
+proof:record86 pe:conclusion (em:compound "is_nonvar" ((em:list ((em:integer "0") (em:integer "1"))))) .
+proof:record86 pe:justification (em:atom "builtin") .
+proof:record86 pe:binding () .
+proof:record86 pe:uses () .
+proof:record87 pe:conclusion (em:compound "n3_nums_" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1"))))) .
+proof:record87 pe:rule 67 .
+proof:record87 pe:binding (("T" 0) ("R" (1)) ("N" 0) ("Ns" (1))) .
+proof:record87 pe:uses ((em:compound "n3_num" ((em:integer "0") (em:integer "0"))) (em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:list ((em:integer "1")))))) .
+proof:record88 pe:conclusion (em:compound "n3_num" ((em:integer "0") (em:integer "0"))) .
+proof:record88 pe:rule 24 .
+proof:record88 pe:binding (("T" 0) ("N" 0)) .
+proof:record88 pe:uses ((em:compound "is_number" ((em:integer "0"))) (em:compound "unify" ((em:integer "0") (em:integer "0")))) .
+proof:record89 pe:conclusion (em:compound "is_number" ((em:integer "0"))) .
+proof:record89 pe:justification (em:atom "builtin") .
+proof:record89 pe:binding () .
+proof:record89 pe:uses () .
+proof:record90 pe:conclusion (em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:list ((em:integer "1"))))) .
+proof:record90 pe:rule 67 .
+proof:record90 pe:binding (("T" 1) ("R" ()) ("N" 1) ("Ns" ())) .
+proof:record90 pe:uses ((em:compound "n3_num" ((em:integer "1") (em:integer "1"))) (em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]")))) .
+proof:record91 pe:conclusion (em:compound "n3_num" ((em:integer "1") (em:integer "1"))) .
+proof:record91 pe:rule 24 .
+proof:record91 pe:binding (("T" 1) ("N" 1)) .
+proof:record91 pe:uses ((em:compound "is_number" ((em:integer "1"))) (em:compound "unify" ((em:integer "1") (em:integer "1")))) .
+proof:record92 pe:conclusion (em:compound "is_number" ((em:integer "1"))) .
+proof:record92 pe:justification (em:atom "builtin") .
+proof:record92 pe:binding () .
+proof:record92 pe:uses () .
+proof:record93 pe:conclusion (em:compound "unify" ((em:integer "1") (em:integer "1"))) .
+proof:record93 pe:justification (em:atom "builtin") .
+proof:record93 pe:binding () .
+proof:record93 pe:uses () .
+proof:record94 pe:conclusion (em:compound "n3_sum_kind" ((em:list ((em:integer "0") (em:integer "1"))) (em:atom "decimal"))) .
+proof:record94 pe:rule 82 .
+proof:record94 pe:binding (("L" (0 1)) ("K" (em:atom "decimal")) ("_0" ?D) ("D" ?E)) .
+proof:record94 pe:uses ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "D") (em:compound "datatype" ((em:variable "E"))))) (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal")))))))) .
+proof:record95 pe:conclusion (em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "D") (em:compound "datatype" ((em:variable "E"))))) (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))))) .
+proof:record95 pe:justification (em:atom "control") .
+proof:record95 pe:binding () .
+proof:record95 pe:uses ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "D") (em:compound "datatype" ((em:variable "E"))))) (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal")))))) .
+proof:record96 pe:conclusion (em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "D") (em:compound "datatype" ((em:variable "E"))))) (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))) .
+proof:record96 pe:justification (em:atom "control") .
+proof:record96 pe:binding () .
+proof:record96 pe:uses ((em:compound "unify" ((em:atom "decimal") (em:atom "decimal")))) .
+proof:record97 pe:conclusion (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))) .
+proof:record97 pe:justification (em:atom "builtin") .
+proof:record97 pe:binding () .
+proof:record97 pe:uses () .
+proof:record98 pe:conclusion (em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))) .
+proof:record98 pe:rule 84 .
+proof:record98 pe:binding (("Ns" (0 1)) ("V" 1) ("I" 1) ("E" 0)) .
+proof:record98 pe:uses ((em:compound "n3_decimal_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0"))) (em:compound "n3_sum_result" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "1")))) .
+proof:record99 pe:conclusion (em:compound "n3_decimal_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0"))) .
+proof:record99 pe:rule 86 .
+proof:record99 pe:binding (("N" 0) ("Ns" (1)) ("I" 0) ("E" 0) ("J" 1) ("F" 0) ("K" 0) ("G" 0) ("A" 0) ("B" 0)) .
+proof:record99 pe:uses ((em:compound "n3_decimal" ((em:integer "0") (em:integer "0") (em:integer "0"))) (em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0"))) (em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0")))) .
+proof:record100 pe:conclusion (em:compound "n3_decimal" ((em:integer "0") (em:integer "0") (em:integer "0"))) .
+proof:record100 pe:rule 76 .
+proof:record100 pe:binding (("N" 0) ("I" 0) ("E" 0) ("Cs" (em:list ((em:atom "0")))) ("A" (em:atom "0")) ("_0" (em:atom "0")) ("Sign" (em:atom "")) ("Whole" (em:atom "0")) ("Frac" (em:atom "")) ("Exp" (em:atom "")) ("W" (em:atom "0")) ("Digits" (em:atom "0")) ("Ds" (em:list ((em:atom "0")))) ("D" 0) ("X" 0)) .
+proof:record100 pe:uses ((em:compound "number_chars" ((em:integer "0") (em:list ((em:atom "0"))))) (em:compound "atom_chars" ((em:atom "0") (em:list ((em:atom "0"))))) (em:compound "regex_find" ((em:atom "^([+-]?)([0-9]+)(?:[.]([0-9]+))?(?:e([+-]?[0-9]+))?$") (em:atom "0") (em:list ((em:atom "0") (em:atom "") (em:atom "0") (em:atom "") (em:atom ""))))) (em:compound "atom_concat" ((em:atom "") (em:atom "0") (em:atom "0"))) (em:compound "atom_concat" ((em:atom "0") (em:atom "") (em:atom "0"))) (em:compound "atom_chars" ((em:atom "0") (em:list ((em:atom "0"))))) (em:compound "number_chars" ((em:integer "0") (em:list ((em:atom "0"))))) (em:compound "atom_length" ((em:atom "") (em:integer "0"))) (em:compound "n3_decimal_exp" ((em:atom "") (em:integer "0"))) (em:compound "is" ((em:integer "0") (em:compound "sub" ((em:integer "0") (em:integer "0")))))) .
+proof:record101 pe:conclusion (em:compound "number_chars" ((em:integer "0") (em:list ((em:atom "0"))))) .
+proof:record101 pe:justification (em:atom "builtin") .
+proof:record101 pe:binding () .
+proof:record101 pe:uses () .
+proof:record102 pe:conclusion (em:compound "atom_chars" ((em:atom "0") (em:list ((em:atom "0"))))) .
+proof:record102 pe:justification (em:atom "builtin") .
+proof:record102 pe:binding () .
+proof:record102 pe:uses () .
+proof:record103 pe:conclusion (em:compound "regex_find" ((em:atom "^([+-]?)([0-9]+)(?:[.]([0-9]+))?(?:e([+-]?[0-9]+))?$") (em:atom "0") (em:list ((em:atom "0") (em:atom "") (em:atom "0") (em:atom "") (em:atom ""))))) .
+proof:record103 pe:justification (em:atom "builtin") .
+proof:record103 pe:binding () .
+proof:record103 pe:uses () .
+proof:record104 pe:conclusion (em:compound "atom_concat" ((em:atom "") (em:atom "0") (em:atom "0"))) .
+proof:record104 pe:justification (em:atom "builtin") .
+proof:record104 pe:binding () .
+proof:record104 pe:uses () .
+proof:record105 pe:conclusion (em:compound "atom_concat" ((em:atom "0") (em:atom "") (em:atom "0"))) .
+proof:record105 pe:justification (em:atom "builtin") .
+proof:record105 pe:binding () .
+proof:record105 pe:uses () .
+proof:record106 pe:conclusion (em:compound "atom_length" ((em:atom "") (em:integer "0"))) .
+proof:record106 pe:justification (em:atom "builtin") .
+proof:record106 pe:binding () .
+proof:record106 pe:uses () .
+proof:record107 pe:conclusion (em:compound "n3_decimal_exp" ((em:atom "") (em:integer "0"))) .
+proof:record107 pe:rule 77 .
+proof:record107 pe:binding () .
+proof:record107 pe:uses () .
+proof:record108 pe:conclusion (em:compound "is" ((em:integer "0") (em:compound "sub" ((em:integer "0") (em:integer "0"))))) .
+proof:record108 pe:justification (em:atom "builtin") .
+proof:record108 pe:binding () .
+proof:record108 pe:uses () .
+proof:record109 pe:conclusion (em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0"))) .
+proof:record109 pe:rule 79 .
+proof:record109 pe:binding (("I" 0) ("E" 0) ("J" 0) ("F" 0) ("K" 0) ("G" 0)) .
+proof:record109 pe:uses ((em:compound "is" ((em:integer "0") (em:compound "min" ((em:integer "0") (em:integer "0"))))) (em:compound "is" ((em:integer "0") (em:compound "add" ((em:compound "mul" ((em:integer "0") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))) (em:compound "mul" ((em:integer "0") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0")))))))))))) .
+proof:record110 pe:conclusion (em:compound "is" ((em:integer "0") (em:compound "min" ((em:integer "0") (em:integer "0"))))) .
+proof:record110 pe:justification (em:atom "builtin") .
+proof:record110 pe:binding () .
+proof:record110 pe:uses () .
+proof:record111 pe:conclusion (em:compound "is" ((em:integer "0") (em:compound "add" ((em:compound "mul" ((em:integer "0") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))) (em:compound "mul" ((em:integer "0") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))))))) .
+proof:record111 pe:justification (em:atom "builtin") .
+proof:record111 pe:binding () .
+proof:record111 pe:uses () .
+proof:record112 pe:conclusion (em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0"))) .
+proof:record112 pe:rule 86 .
+proof:record112 pe:binding (("N" 1) ("Ns" ()) ("I" 0) ("E" 0) ("J" 1) ("F" 0) ("K" 1) ("G" 0) ("A" 1) ("B" 0)) .
+proof:record112 pe:uses ((em:compound "n3_decimal" ((em:integer "1") (em:integer "1") (em:integer "0"))) (em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))) (em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0")))) .
+proof:record113 pe:conclusion (em:compound "n3_decimal" ((em:integer "1") (em:integer "1") (em:integer "0"))) .
+proof:record113 pe:rule 76 .
+proof:record113 pe:binding (("N" 1) ("I" 1) ("E" 0) ("Cs" (em:list ((em:atom "1")))) ("A" (em:atom "1")) ("_0" (em:atom "1")) ("Sign" (em:atom "")) ("Whole" (em:atom "1")) ("Frac" (em:atom "")) ("Exp" (em:atom "")) ("W" (em:atom "1")) ("Digits" (em:atom "1")) ("Ds" (em:list ((em:atom "1")))) ("D" 0) ("X" 0)) .
+proof:record113 pe:uses ((em:compound "number_chars" ((em:integer "1") (em:list ((em:atom "1"))))) (em:compound "atom_chars" ((em:atom "1") (em:list ((em:atom "1"))))) (em:compound "regex_find" ((em:atom "^([+-]?)([0-9]+)(?:[.]([0-9]+))?(?:e([+-]?[0-9]+))?$") (em:atom "1") (em:list ((em:atom "1") (em:atom "") (em:atom "1") (em:atom "") (em:atom ""))))) (em:compound "atom_concat" ((em:atom "") (em:atom "1") (em:atom "1"))) (em:compound "atom_concat" ((em:atom "1") (em:atom "") (em:atom "1"))) (em:compound "atom_chars" ((em:atom "1") (em:list ((em:atom "1"))))) (em:compound "number_chars" ((em:integer "1") (em:list ((em:atom "1"))))) (em:compound "atom_length" ((em:atom "") (em:integer "0"))) (em:compound "n3_decimal_exp" ((em:atom "") (em:integer "0"))) (em:compound "is" ((em:integer "0") (em:compound "sub" ((em:integer "0") (em:integer "0")))))) .
+proof:record114 pe:conclusion (em:compound "number_chars" ((em:integer "1") (em:list ((em:atom "1"))))) .
+proof:record114 pe:justification (em:atom "builtin") .
+proof:record114 pe:binding () .
+proof:record114 pe:uses () .
+proof:record115 pe:conclusion (em:compound "atom_chars" ((em:atom "1") (em:list ((em:atom "1"))))) .
+proof:record115 pe:justification (em:atom "builtin") .
+proof:record115 pe:binding () .
+proof:record115 pe:uses () .
+proof:record116 pe:conclusion (em:compound "regex_find" ((em:atom "^([+-]?)([0-9]+)(?:[.]([0-9]+))?(?:e([+-]?[0-9]+))?$") (em:atom "1") (em:list ((em:atom "1") (em:atom "") (em:atom "1") (em:atom "") (em:atom ""))))) .
+proof:record116 pe:justification (em:atom "builtin") .
+proof:record116 pe:binding () .
+proof:record116 pe:uses () .
+proof:record117 pe:conclusion (em:compound "atom_concat" ((em:atom "") (em:atom "1") (em:atom "1"))) .
+proof:record117 pe:justification (em:atom "builtin") .
+proof:record117 pe:binding () .
+proof:record117 pe:uses () .
+proof:record118 pe:conclusion (em:compound "atom_concat" ((em:atom "1") (em:atom "") (em:atom "1"))) .
+proof:record118 pe:justification (em:atom "builtin") .
+proof:record118 pe:binding () .
+proof:record118 pe:uses () .
+proof:record119 pe:conclusion (em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))) .
+proof:record119 pe:rule 79 .
+proof:record119 pe:binding (("I" 0) ("E" 0) ("J" 1) ("F" 0) ("K" 1) ("G" 0)) .
+proof:record119 pe:uses ((em:compound "is" ((em:integer "0") (em:compound "min" ((em:integer "0") (em:integer "0"))))) (em:compound "is" ((em:integer "1") (em:compound "add" ((em:compound "mul" ((em:integer "0") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))) (em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0")))))))))))) .
+proof:record120 pe:conclusion (em:compound "is" ((em:integer "1") (em:compound "add" ((em:compound "mul" ((em:integer "0") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))) (em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))))))) .
+proof:record120 pe:justification (em:atom "builtin") .
+proof:record120 pe:binding () .
+proof:record120 pe:uses () .
+proof:record121 pe:conclusion (em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))) .
+proof:record121 pe:rule 85 .
+proof:record121 pe:binding (("I" 1) ("E" 0)) .
+proof:record121 pe:uses () .
+proof:record122 pe:conclusion (em:compound "n3_sum_result" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "1"))) .
+proof:record122 pe:rule 87 .
+proof:record122 pe:binding (("Ns" (0 1)) ("I" 1) ("E" 0) ("V" 1) ("N" ?F) ("K" (em:atom "int"))) .
+proof:record122 pe:uses ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "F") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "is_float" ((em:variable "F"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))))) (em:compound "n3_sum_number" ((em:atom "int") (em:integer "1") (em:integer "0") (em:integer "1")))) .
+proof:record123 pe:conclusion (em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "F") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "is_float" ((em:variable "F"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))))) .
+proof:record123 pe:justification (em:atom "control") .
+proof:record123 pe:binding () .
+proof:record123 pe:uses ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "F") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "is_float" ((em:variable "F"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int")))))) .
+proof:record124 pe:conclusion (em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "F") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "is_float" ((em:variable "F"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))) .
+proof:record124 pe:justification (em:atom "control") .
+proof:record124 pe:binding () .
+proof:record124 pe:uses ((em:compound "unify" ((em:atom "int") (em:atom "int")))) .
+proof:record125 pe:conclusion (em:compound "unify" ((em:atom "int") (em:atom "int"))) .
+proof:record125 pe:justification (em:atom "builtin") .
+proof:record125 pe:binding () .
+proof:record125 pe:uses () .
+proof:record126 pe:conclusion (em:compound "n3_sum_number" ((em:atom "int") (em:integer "1") (em:integer "0") (em:integer "1"))) .
+proof:record126 pe:rule 88 .
+proof:record126 pe:binding (("I" 1) ("E" 0) ("V" 1)) .
+proof:record126 pe:uses ((em:compound "is" ((em:integer "1") (em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:integer "0")))))))) .
+proof:record127 pe:conclusion (em:compound "is" ((em:integer "1") (em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:integer "0"))))))) .
+proof:record127 pe:justification (em:atom "builtin") .
+proof:record127 pe:binding () .
+proof:record127 pe:uses () .
+proof:record128 pe:conclusion (em:compound "n3_result" ((em:integer "1") (em:integer "1"))) .
+proof:record128 pe:rule 68 .
+proof:record128 pe:binding (("V" 1) ("O" 1)) .
+proof:record128 pe:uses ((em:compound "is_var" ((em:integer "1"))) (em:compound "unify" ((em:integer "1") (em:integer "1")))) .
+proof:record129 pe:conclusion (em:compound "is_var" ((em:integer "1"))) .
+proof:record129 pe:justification (em:compound "called" ((em:compound "is_var" ((em:variable "G"))))) .
+proof:record129 pe:binding () .
+proof:record129 pe:uses () .
+proof:record130 pe:conclusion { :policy :threshold 8000 } .
+proof:record130 pe:rule 11 .
+proof:record130 pe:binding () .
+proof:record130 pe:uses () .
+proof:record131 pe:conclusion (em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000"))) .
+proof:record131 pe:rule 62 .
+proof:record131 pe:binding (("S" 9310) ("O" 8000) ("X" 9310) ("Y" 8000)) .
+proof:record131 pe:uses ((em:compound "n3_num" ((em:integer "9310") (em:integer "9310"))) (em:compound "n3_num" ((em:integer "8000") (em:integer "8000"))) (em:compound "ge" ((em:integer "9310") (em:integer "8000")))) .
+proof:record132 pe:conclusion (em:compound "n3_num" ((em:integer "9310") (em:integer "9310"))) .
+proof:record132 pe:rule 24 .
+proof:record132 pe:binding (("T" 9310) ("N" 9310)) .
+proof:record132 pe:uses ((em:compound "is_number" ((em:integer "9310"))) (em:compound "unify" ((em:integer "9310") (em:integer "9310")))) .
+proof:record133 pe:conclusion (em:compound "is_number" ((em:integer "9310"))) .
+proof:record133 pe:justification (em:atom "builtin") .
+proof:record133 pe:binding () .
+proof:record133 pe:uses () .
+proof:record134 pe:conclusion (em:compound "n3_num" ((em:integer "8000") (em:integer "8000"))) .
+proof:record134 pe:rule 24 .
+proof:record134 pe:binding (("T" 8000) ("N" 8000)) .
+proof:record134 pe:uses ((em:compound "is_number" ((em:integer "8000"))) (em:compound "unify" ((em:integer "8000") (em:integer "8000")))) .
+proof:record135 pe:conclusion (em:compound "is_number" ((em:integer "8000"))) .
+proof:record135 pe:justification (em:atom "builtin") .
+proof:record135 pe:binding () .
+proof:record135 pe:uses () .
+proof:record136 pe:conclusion (em:compound "unify" ((em:integer "8000") (em:integer "8000"))) .
+proof:record136 pe:justification (em:atom "builtin") .
+proof:record136 pe:binding () .
+proof:record136 pe:uses () .
+proof:record137 pe:conclusion (em:compound "ge" ((em:integer "9310") (em:integer "8000"))) .
+proof:record137 pe:justification (em:atom "builtin") .
+proof:record137 pe:binding () .
+proof:record137 pe:uses () .
+proof:record138 pe:conclusion { :closed :action :avoid_bridge } .
+proof:record138 pe:rule 12 .
+proof:record138 pe:binding () .
+proof:record138 pe:uses () .
+proof:record139 pe:conclusion { :bridge :trustedSource :transportAuthority } .
+proof:record139 pe:rule 19 .
+proof:record139 pe:binding (("Action" :avoid_bridge) ("Source" :transportAuthority) ("Score" 9310)) .
+proof:record139 pe:uses ({ (:avoid_bridge :transportAuthority 9310) a :Decision }) .
+proof:record140 pe:conclusion { :bridge :score 9310 } .
+proof:record140 pe:rule 19 .
+proof:record140 pe:binding (("Action" :avoid_bridge) ("Source" :transportAuthority) ("Score" 9310)) .
+proof:record140 pe:uses ({ (:avoid_bridge :transportAuthority 9310) a :Decision }) .
+proof:record141 pe:conclusion { :closed :rank 1 } .
+proof:record141 pe:rule 20 .
+proof:record141 pe:binding (("Rank" 1) ("Status" :closed) ("Source" :transportAuthority) ("Score" 9310)) .
+proof:record141 pe:uses ({ (1 :closed :transportAuthority 9310) a :RankedClaim }) .
+proof:record142 pe:conclusion { :closed :assertedBy :transportAuthority } .
+proof:record142 pe:rule 20 .
+proof:record142 pe:binding (("Rank" 1) ("Status" :closed) ("Source" :transportAuthority) ("Score" 9310)) .
+proof:record142 pe:uses ({ (1 :closed :transportAuthority 9310) a :RankedClaim }) .
+proof:record143 pe:conclusion { :closed :score 9310 } .
+proof:record143 pe:rule 20 .
+proof:record143 pe:binding (("Rank" 1) ("Status" :closed) ("Source" :transportAuthority) ("Score" 9310)) .
+proof:record143 pe:uses ({ (1 :closed :transportAuthority 9310) a :RankedClaim }) .
+proof:record144 pe:conclusion { :open :rank 2 } .
+proof:record144 pe:rule 20 .
+proof:record144 pe:binding (("Rank" 2) ("Status" :open) ("Source" :anonymousPost) ("Score" 700)) .
+proof:record144 pe:uses ({ (2 :open :anonymousPost 700) a :RankedClaim }) .
+proof:record145 pe:conclusion { (2 :open :anonymousPost 700) a :RankedClaim } .
+proof:record145 pe:rule 16 .
+proof:record145 pe:binding (("Status" :open) ("Source" :anonymousPost) ("Score" 700) ("Other" ?A) ("Higher" (9310)) ("Count" 1) ("Rank" 2)) .
+proof:record145 pe:uses ({ (:open :anonymousPost 700) a :Claim } (em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "700") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:integer "9310"))))) (em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2")))) .
+proof:record146 pe:conclusion { (:open :anonymousPost 700) a :Claim } .
+proof:record146 pe:rule 14 .
+proof:record146 pe:binding (("Status" :open) ("Reifier" :socialClaim) ("Source" :anonymousPost) ("Confidence" 35) ("Trust" 20) ("Score" 700)) .
+proof:record146 pe:uses ({ :bridge :status :open } { :socialClaim rdf:reifies <<( :bridge :status :open )>> } { :socialClaim :assertedBy :anonymousPost } { :socialClaim :confidence 35 } { :anonymousPost :trustScore 20 } (em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:integer "700")))) .
+proof:record147 pe:conclusion { :bridge :status :open } .
+proof:record147 pe:rule 5 .
+proof:record147 pe:binding () .
+proof:record147 pe:uses () .
+proof:record148 pe:conclusion { :socialClaim rdf:reifies <<( :bridge :status :open )>> } .
+proof:record148 pe:rule 6 .
+proof:record148 pe:binding () .
+proof:record148 pe:uses () .
+proof:record149 pe:conclusion { :socialClaim :assertedBy :anonymousPost } .
+proof:record149 pe:rule 7 .
+proof:record149 pe:binding () .
+proof:record149 pe:uses () .
+proof:record150 pe:conclusion { :socialClaim :confidence 35 } .
+proof:record150 pe:rule 8 .
+proof:record150 pe:binding () .
+proof:record150 pe:uses () .
+proof:record151 pe:conclusion { :anonymousPost :trustScore 20 } .
+proof:record151 pe:rule 10 .
+proof:record151 pe:binding () .
+proof:record151 pe:uses () .
+proof:record152 pe:conclusion (em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:integer "700"))) .
+proof:record152 pe:rule 70 .
+proof:record152 pe:binding (("L" (35 20)) ("O" 700) ("N" 35) ("Ns" (20)) ("V" 700)) .
+proof:record152 pe:uses ((em:compound "n3_nums" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20"))))) (em:compound "n3_product" ((em:list ((em:integer "20"))) (em:integer "35") (em:integer "700"))) (em:compound "n3_result" ((em:integer "700") (em:integer "700")))) .
+proof:record153 pe:conclusion (em:compound "n3_nums" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20"))))) .
+proof:record153 pe:rule 65 .
+proof:record153 pe:binding (("L" (35 20)) ("Ns" (35 20))) .
+proof:record153 pe:uses ((em:compound "is_nonvar" ((em:list ((em:integer "35") (em:integer "20"))))) (em:compound "n3_nums_" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20")))))) .
+proof:record154 pe:conclusion (em:compound "is_nonvar" ((em:list ((em:integer "35") (em:integer "20"))))) .
+proof:record154 pe:justification (em:atom "builtin") .
+proof:record154 pe:binding () .
+proof:record154 pe:uses () .
+proof:record155 pe:conclusion (em:compound "n3_nums_" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20"))))) .
+proof:record155 pe:rule 67 .
+proof:record155 pe:binding (("T" 35) ("R" (20)) ("N" 35) ("Ns" (20))) .
+proof:record155 pe:uses ((em:compound "n3_num" ((em:integer "35") (em:integer "35"))) (em:compound "n3_nums_" ((em:list ((em:integer "20"))) (em:list ((em:integer "20")))))) .
+proof:record156 pe:conclusion (em:compound "n3_num" ((em:integer "35") (em:integer "35"))) .
+proof:record156 pe:rule 24 .
+proof:record156 pe:binding (("T" 35) ("N" 35)) .
+proof:record156 pe:uses ((em:compound "is_number" ((em:integer "35"))) (em:compound "unify" ((em:integer "35") (em:integer "35")))) .
+proof:record157 pe:conclusion (em:compound "is_number" ((em:integer "35"))) .
+proof:record157 pe:justification (em:atom "builtin") .
+proof:record157 pe:binding () .
+proof:record157 pe:uses () .
+proof:record158 pe:conclusion (em:compound "unify" ((em:integer "35") (em:integer "35"))) .
+proof:record158 pe:justification (em:atom "builtin") .
+proof:record158 pe:binding () .
+proof:record158 pe:uses () .
+proof:record159 pe:conclusion (em:compound "n3_nums_" ((em:list ((em:integer "20"))) (em:list ((em:integer "20"))))) .
+proof:record159 pe:rule 67 .
+proof:record159 pe:binding (("T" 20) ("R" ()) ("N" 20) ("Ns" ())) .
+proof:record159 pe:uses ((em:compound "n3_num" ((em:integer "20") (em:integer "20"))) (em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]")))) .
+proof:record160 pe:conclusion (em:compound "n3_num" ((em:integer "20") (em:integer "20"))) .
+proof:record160 pe:rule 24 .
+proof:record160 pe:binding (("T" 20) ("N" 20)) .
+proof:record160 pe:uses ((em:compound "is_number" ((em:integer "20"))) (em:compound "unify" ((em:integer "20") (em:integer "20")))) .
+proof:record161 pe:conclusion (em:compound "is_number" ((em:integer "20"))) .
+proof:record161 pe:justification (em:atom "builtin") .
+proof:record161 pe:binding () .
+proof:record161 pe:uses () .
+proof:record162 pe:conclusion (em:compound "unify" ((em:integer "20") (em:integer "20"))) .
+proof:record162 pe:justification (em:atom "builtin") .
+proof:record162 pe:binding () .
+proof:record162 pe:uses () .
+proof:record163 pe:conclusion (em:compound "n3_product" ((em:list ((em:integer "20"))) (em:integer "35") (em:integer "700"))) .
+proof:record163 pe:rule 73 .
+proof:record163 pe:binding (("N" 20) ("R" ()) ("A" 35) ("V" 700) ("B" 700)) .
+proof:record163 pe:uses ((em:compound "is" ((em:integer "700") (em:compound "mul" ((em:integer "35") (em:integer "20"))))) (em:compound "n3_product" ((em:atom "[]") (em:integer "700") (em:integer "700")))) .
+proof:record164 pe:conclusion (em:compound "is" ((em:integer "700") (em:compound "mul" ((em:integer "35") (em:integer "20"))))) .
+proof:record164 pe:justification (em:atom "builtin") .
+proof:record164 pe:binding () .
+proof:record164 pe:uses () .
+proof:record165 pe:conclusion (em:compound "n3_product" ((em:atom "[]") (em:integer "700") (em:integer "700"))) .
+proof:record165 pe:rule 72 .
+proof:record165 pe:binding (("V" 700)) .
+proof:record165 pe:uses () .
+proof:record166 pe:conclusion (em:compound "n3_result" ((em:integer "700") (em:integer "700"))) .
+proof:record166 pe:rule 68 .
+proof:record166 pe:binding (("V" 700) ("O" 700)) .
+proof:record166 pe:uses ((em:compound "is_var" ((em:integer "700"))) (em:compound "unify" ((em:integer "700") (em:integer "700")))) .
+proof:record167 pe:conclusion (em:compound "is_var" ((em:integer "700"))) .
+proof:record167 pe:justification (em:compound "called" ((em:compound "is_var" ((em:variable "H"))))) .
+proof:record167 pe:binding () .
+proof:record167 pe:uses () .
+proof:record168 pe:conclusion (em:compound "unify" ((em:integer "700") (em:integer "700"))) .
+proof:record168 pe:justification (em:atom "builtin") .
+proof:record168 pe:binding () .
+proof:record168 pe:uses () .
+proof:record169 pe:conclusion (em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "700") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:integer "9310"))))) .
+proof:record169 pe:justification (em:atom "collected") .
+proof:record169 pe:binding () .
+proof:record169 pe:uses () .
+proof:record170 pe:conclusion (em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) .
+proof:record170 pe:rule 47 .
+proof:record170 pe:binding (("L" (9310)) ("O" 1) ("N" 1)) .
+proof:record170 pe:uses ((em:compound "is_nonvar" ((em:list ((em:integer "9310"))))) (em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "n3_integer_result" ((em:integer "1") (em:integer "1")))) .
+proof:record171 pe:conclusion (em:compound "is_nonvar" ((em:list ((em:integer "9310"))))) .
+proof:record171 pe:justification (em:atom "builtin") .
+proof:record171 pe:binding () .
+proof:record171 pe:uses () .
+proof:record172 pe:conclusion (em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) .
+proof:record172 pe:rule 23 .
+proof:record172 pe:binding (("_0" 9310) ("T" ()) ("N" 1) ("M" 0)) .
+proof:record172 pe:uses ((em:compound "n3_length" ((em:atom "[]") (em:integer "0"))) (em:compound "is" ((em:integer "1") (em:compound "add" ((em:integer "0") (em:integer "1")))))) .
+proof:record173 pe:conclusion (em:compound "is" ((em:integer "1") (em:compound "add" ((em:integer "0") (em:integer "1"))))) .
+proof:record173 pe:justification (em:atom "builtin") .
+proof:record173 pe:binding () .
+proof:record173 pe:uses () .
+proof:record174 pe:conclusion (em:compound "n3_integer_result" ((em:integer "1") (em:integer "1"))) .
+proof:record174 pe:rule 48 .
+proof:record174 pe:binding (("N" 1) ("O" 1)) .
+proof:record174 pe:uses ((em:compound "is_var" ((em:integer "1"))) (em:compound "unify" ((em:integer "1") (em:integer "1")))) .
+proof:record175 pe:conclusion (em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))) .
+proof:record175 pe:rule 81 .
+proof:record175 pe:binding (("L" (1 1)) ("O" 2) ("Ns" (1 1)) ("K" (em:atom "decimal")) ("V" 2)) .
+proof:record175 pe:uses ((em:compound "n3_nums" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "n3_sum_kind" ((em:list ((em:integer "1") (em:integer "1"))) (em:atom "decimal"))) (em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))) (em:compound "n3_result" ((em:integer "2") (em:integer "2")))) .
+proof:record176 pe:conclusion (em:compound "n3_nums" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1"))))) .
+proof:record176 pe:rule 65 .
+proof:record176 pe:binding (("L" (1 1)) ("Ns" (1 1))) .
+proof:record176 pe:uses ((em:compound "is_nonvar" ((em:list ((em:integer "1") (em:integer "1"))))) (em:compound "n3_nums_" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1")))))) .
+proof:record177 pe:conclusion (em:compound "is_nonvar" ((em:list ((em:integer "1") (em:integer "1"))))) .
+proof:record177 pe:justification (em:atom "builtin") .
+proof:record177 pe:binding () .
+proof:record177 pe:uses () .
+proof:record178 pe:conclusion (em:compound "n3_nums_" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1"))))) .
+proof:record178 pe:rule 67 .
+proof:record178 pe:binding (("T" 1) ("R" (1)) ("N" 1) ("Ns" (1))) .
+proof:record178 pe:uses ((em:compound "n3_num" ((em:integer "1") (em:integer "1"))) (em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:list ((em:integer "1")))))) .
+proof:record179 pe:conclusion (em:compound "n3_sum_kind" ((em:list ((em:integer "1") (em:integer "1"))) (em:atom "decimal"))) .
+proof:record179 pe:rule 82 .
+proof:record179 pe:binding (("L" (1 1)) ("K" (em:atom "decimal")) ("_0" ?I) ("D" ?J)) .
+proof:record179 pe:uses ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "I") (em:compound "datatype" ((em:variable "J"))))) (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal")))))))) .
+proof:record180 pe:conclusion (em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "I") (em:compound "datatype" ((em:variable "J"))))) (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))))) .
+proof:record180 pe:justification (em:atom "control") .
+proof:record180 pe:binding () .
+proof:record180 pe:uses ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "I") (em:compound "datatype" ((em:variable "J"))))) (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal")))))) .
+proof:record181 pe:conclusion (em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "I") (em:compound "datatype" ((em:variable "J"))))) (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))) .
+proof:record181 pe:justification (em:atom "control") .
+proof:record181 pe:binding () .
+proof:record181 pe:uses ((em:compound "unify" ((em:atom "decimal") (em:atom "decimal")))) .
+proof:record182 pe:conclusion (em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))) .
+proof:record182 pe:rule 84 .
+proof:record182 pe:binding (("Ns" (1 1)) ("V" 2) ("I" 2) ("E" 0)) .
+proof:record182 pe:uses ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "2") (em:integer "0"))) (em:compound "n3_sum_result" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2") (em:integer "0") (em:integer "2")))) .
+proof:record183 pe:conclusion (em:compound "n3_decimal_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "2") (em:integer "0"))) .
+proof:record183 pe:rule 86 .
+proof:record183 pe:binding (("N" 1) ("Ns" (1)) ("I" 0) ("E" 0) ("J" 2) ("F" 0) ("K" 1) ("G" 0) ("A" 1) ("B" 0)) .
+proof:record183 pe:uses ((em:compound "n3_decimal" ((em:integer "1") (em:integer "1") (em:integer "0"))) (em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))) (em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0")))) .
+proof:record184 pe:conclusion (em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0"))) .
+proof:record184 pe:rule 86 .
+proof:record184 pe:binding (("N" 1) ("Ns" ()) ("I" 1) ("E" 0) ("J" 2) ("F" 0) ("K" 1) ("G" 0) ("A" 2) ("B" 0)) .
+proof:record184 pe:uses ((em:compound "n3_decimal" ((em:integer "1") (em:integer "1") (em:integer "0"))) (em:compound "n3_decimal_add" ((em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0"))) (em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "2") (em:integer "0") (em:integer "2") (em:integer "0")))) .
+proof:record185 pe:conclusion (em:compound "n3_decimal_add" ((em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0"))) .
+proof:record185 pe:rule 79 .
+proof:record185 pe:binding (("I" 1) ("E" 0) ("J" 1) ("F" 0) ("K" 2) ("G" 0)) .
+proof:record185 pe:uses ((em:compound "is" ((em:integer "0") (em:compound "min" ((em:integer "0") (em:integer "0"))))) (em:compound "is" ((em:integer "2") (em:compound "add" ((em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))) (em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0")))))))))))) .
+proof:record186 pe:conclusion (em:compound "is" ((em:integer "2") (em:compound "add" ((em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))) (em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))))))) .
+proof:record186 pe:justification (em:atom "builtin") .
+proof:record186 pe:binding () .
+proof:record186 pe:uses () .
+proof:record187 pe:conclusion (em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "2") (em:integer "0") (em:integer "2") (em:integer "0"))) .
+proof:record187 pe:rule 85 .
+proof:record187 pe:binding (("I" 2) ("E" 0)) .
+proof:record187 pe:uses () .
+proof:record188 pe:conclusion (em:compound "n3_sum_result" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2") (em:integer "0") (em:integer "2"))) .
+proof:record188 pe:rule 87 .
+proof:record188 pe:binding (("Ns" (1 1)) ("I" 2) ("E" 0) ("V" 2) ("N" ?K) ("K" (em:atom "int"))) .
+proof:record188 pe:uses ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "K") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "is_float" ((em:variable "K"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))))) (em:compound "n3_sum_number" ((em:atom "int") (em:integer "2") (em:integer "0") (em:integer "2")))) .
+proof:record189 pe:conclusion (em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "K") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "is_float" ((em:variable "K"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))))) .
+proof:record189 pe:justification (em:atom "control") .
+proof:record189 pe:binding () .
+proof:record189 pe:uses ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "K") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "is_float" ((em:variable "K"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int")))))) .
+proof:record190 pe:conclusion (em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "K") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "is_float" ((em:variable "K"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))) .
+proof:record190 pe:justification (em:atom "control") .
+proof:record190 pe:binding () .
+proof:record190 pe:uses ((em:compound "unify" ((em:atom "int") (em:atom "int")))) .
+proof:record191 pe:conclusion (em:compound "n3_sum_number" ((em:atom "int") (em:integer "2") (em:integer "0") (em:integer "2"))) .
+proof:record191 pe:rule 88 .
+proof:record191 pe:binding (("I" 2) ("E" 0) ("V" 2)) .
+proof:record191 pe:uses ((em:compound "is" ((em:integer "2") (em:compound "mul" ((em:integer "2") (em:compound "pow" ((em:integer "10") (em:integer "0")))))))) .
+proof:record192 pe:conclusion (em:compound "is" ((em:integer "2") (em:compound "mul" ((em:integer "2") (em:compound "pow" ((em:integer "10") (em:integer "0"))))))) .
+proof:record192 pe:justification (em:atom "builtin") .
+proof:record192 pe:binding () .
+proof:record192 pe:uses () .
+proof:record193 pe:conclusion (em:compound "n3_result" ((em:integer "2") (em:integer "2"))) .
+proof:record193 pe:rule 68 .
+proof:record193 pe:binding (("V" 2) ("O" 2)) .
+proof:record193 pe:uses ((em:compound "is_var" ((em:integer "2"))) (em:compound "unify" ((em:integer "2") (em:integer "2")))) .
+proof:record194 pe:conclusion (em:compound "is_var" ((em:integer "2"))) .
+proof:record194 pe:justification (em:compound "called" ((em:compound "is_var" ((em:variable "L"))))) .
+proof:record194 pe:binding () .
+proof:record194 pe:uses () .
+proof:record195 pe:conclusion (em:compound "unify" ((em:integer "2") (em:integer "2"))) .
+proof:record195 pe:justification (em:atom "builtin") .
+proof:record195 pe:binding () .
+proof:record195 pe:uses () .
+proof:record196 pe:conclusion { :open :assertedBy :anonymousPost } .
+proof:record196 pe:rule 20 .
+proof:record196 pe:binding (("Rank" 2) ("Status" :open) ("Source" :anonymousPost) ("Score" 700)) .
+proof:record196 pe:uses ({ (2 :open :anonymousPost 700) a :RankedClaim }) .
+proof:record197 pe:conclusion { :open :score 700 } .
+proof:record197 pe:rule 20 .
+proof:record197 pe:binding (("Rank" 2) ("Status" :open) ("Source" :anonymousPost) ("Score" 700)) .
+proof:record197 pe:uses ({ (2 :open :anonymousPost 700) a :RankedClaim }) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41 proof:record42 proof:record43 proof:record44 proof:record45 proof:record46 proof:record47 proof:record48 proof:record49 proof:record50 proof:record51 proof:record52 proof:record53 proof:record54 proof:record55 proof:record56 proof:record57 proof:record58 proof:record59 proof:record60 proof:record61 proof:record62 proof:record63 proof:record64 proof:record65 proof:record66 proof:record67 proof:record68 proof:record69 proof:record70 proof:record71 proof:record72 proof:record73 proof:record74 proof:record75 proof:record76 proof:record77 proof:record78 proof:record79 proof:record80 proof:record81 proof:record82 proof:record83 proof:record84 proof:record85 proof:record86 proof:record87 proof:record88 proof:record89 proof:record90 proof:record91 proof:record92 proof:record93 proof:record94 proof:record95 proof:record96 proof:record97 proof:record98 proof:record99 proof:record100 proof:record101 proof:record102 proof:record103 proof:record104 proof:record105 proof:record106 proof:record107 proof:record108 proof:record109 proof:record110 proof:record111 proof:record112 proof:record113 proof:record114 proof:record115 proof:record116 proof:record117 proof:record118 proof:record119 proof:record120 proof:record121 proof:record122 proof:record123 proof:record124 proof:record125 proof:record126 proof:record127 proof:record128 proof:record129 proof:record130 proof:record131 proof:record132 proof:record133 proof:record134 proof:record135 proof:record136 proof:record137 proof:record138 proof:record139 proof:record140 proof:record141 proof:record142 proof:record143 proof:record144 proof:record145 proof:record146 proof:record147 proof:record148 proof:record149 proof:record150 proof:record151 proof:record152 proof:record153 proof:record154 proof:record155 proof:record156 proof:record157 proof:record158 proof:record159 proof:record160 proof:record161 proof:record162 proof:record163 proof:record164 proof:record165 proof:record166 proof:record167 proof:record168 proof:record169 proof:record170 proof:record171 proof:record172 proof:record173 proof:record174 proof:record175 proof:record176 proof:record177 proof:record178 proof:record179 proof:record180 proof:record181 proof:record182 proof:record183 proof:record184 proof:record185 proof:record186 proof:record187 proof:record188 proof:record189 proof:record190 proof:record191 proof:record192 proof:record193 proof:record194 proof:record195 proof:record196 proof:record197) .
+proof:record1 em:term (em:compound "result" ((em:iri :bridge) (em:iri :decision) (em:iri :avoid_bridge))) .
+proof:record2 em:term (em:compound "result" ((em:iri :bridge) (em:iri :trustedSource) (em:iri :transportAuthority))) .
+proof:record3 em:term (em:compound "result" ((em:iri :bridge) (em:iri :score) (em:integer "9310"))) .
+proof:record4 em:term (em:compound "result" ((em:iri :closed) (em:iri :rank) (em:integer "1"))) .
+proof:record5 em:term (em:compound "result" ((em:iri :closed) (em:iri :assertedBy) (em:iri :transportAuthority))) .
+proof:record6 em:term (em:compound "result" ((em:iri :closed) (em:iri :score) (em:integer "9310"))) .
+proof:record7 em:term (em:compound "result" ((em:iri :open) (em:iri :rank) (em:integer "2"))) .
+proof:record8 em:term (em:compound "result" ((em:iri :open) (em:iri :assertedBy) (em:iri :anonymousPost))) .
+proof:record9 em:term (em:compound "result" ((em:iri :open) (em:iri :score) (em:integer "700"))) .
+proof:record10 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :closed))))))) .
+proof:record11 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :closed))))))))) .
+proof:record12 em:term (em:compound "clause" ((em:integer "3") (em:compound "fact" ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri :assertedBy) (em:iri :transportAuthority))))))) .
+proof:record13 em:term (em:compound "clause" ((em:integer "4") (em:compound "fact" ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri :confidence) (em:integer "98"))))))) .
+proof:record14 em:term (em:compound "clause" ((em:integer "5") (em:compound "fact" ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :open))))))) .
+proof:record15 em:term (em:compound "clause" ((em:integer "6") (em:compound "fact" ((em:compound "rdf" ((em:iri :socialClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :open))))))))) .
+proof:record16 em:term (em:compound "clause" ((em:integer "7") (em:compound "fact" ((em:compound "rdf" ((em:iri :socialClaim) (em:iri :assertedBy) (em:iri :anonymousPost))))))) .
+proof:record17 em:term (em:compound "clause" ((em:integer "8") (em:compound "fact" ((em:compound "rdf" ((em:iri :socialClaim) (em:iri :confidence) (em:integer "35"))))))) .
+proof:record18 em:term (em:compound "clause" ((em:integer "9") (em:compound "fact" ((em:compound "rdf" ((em:iri :transportAuthority) (em:iri :trustScore) (em:integer "95"))))))) .
+proof:record19 em:term (em:compound "clause" ((em:integer "10") (em:compound "fact" ((em:compound "rdf" ((em:iri :anonymousPost) (em:iri :trustScore) (em:integer "20"))))))) .
+proof:record20 em:term (em:compound "clause" ((em:integer "11") (em:compound "fact" ((em:compound "rdf" ((em:iri :policy) (em:iri :threshold) (em:integer "8000"))))))) .
+proof:record21 em:term (em:compound "clause" ((em:integer "12") (em:compound "fact" ((em:compound "rdf" ((em:iri :closed) (em:iri :action) (em:iri :avoid_bridge))))))) .
+proof:record22 em:term (em:compound "clause" ((em:integer "14") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:variable "Status"))) (em:compound "rdf" ((em:variable "Reifier") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:variable "Status"))))) (em:compound "rdf" ((em:variable "Reifier") (em:iri :assertedBy) (em:variable "Source"))) (em:compound "rdf" ((em:variable "Reifier") (em:iri :confidence) (em:variable "Confidence"))) (em:compound "rdf" ((em:variable "Source") (em:iri :trustScore) (em:variable "Trust"))) (em:compound "n3_math_product" ((em:list ((em:variable "Confidence") (em:variable "Trust"))) (em:variable "Score"))))) (em:compound "rdf" ((em:list ((em:variable "Status") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :Claim))))))) .
+proof:record23 em:term (em:compound "clause" ((em:integer "16") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:list ((em:variable "Status") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "findall" ((em:variable "Other") (em:compound "rdf" ((em:list ((em:variable "Score") (em:variable "Other"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:variable "Higher"))) (em:compound "n3_list_length" ((em:variable "Higher") (em:variable "Count"))) (em:compound "n3_math_sum" ((em:list ((em:variable "Count") (em:integer "1"))) (em:variable "Rank"))))) (em:compound "rdf" ((em:list ((em:variable "Rank") (em:variable "Status") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
+proof:record24 em:term (em:compound "clause" ((em:integer "17") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:list ((em:integer "1") (em:variable "Status") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "rdf" ((em:iri :policy) (em:iri :threshold) (em:variable "Limit"))) (em:compound "n3_math_notLessThan" ((em:variable "Score") (em:variable "Limit"))) (em:compound "rdf" ((em:variable "Status") (em:iri :action) (em:variable "Action"))))) (em:compound "rdf" ((em:list ((em:variable "Action") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :Decision))))))) .
+proof:record25 em:term (em:compound "clause" ((em:integer "19") (em:compound "implies" ((em:compound "rdf" ((em:list ((em:variable "Action") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :Decision))) (em:list ((em:compound "result" ((em:iri :bridge) (em:iri :decision) (em:variable "Action"))) (em:compound "result" ((em:iri :bridge) (em:iri :trustedSource) (em:variable "Source"))) (em:compound "result" ((em:iri :bridge) (em:iri :score) (em:variable "Score"))))))))) .
+proof:record26 em:term (em:compound "clause" ((em:integer "20") (em:compound "implies" ((em:compound "rdf" ((em:list ((em:variable "Rank") (em:variable "Status") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:list ((em:compound "result" ((em:variable "Status") (em:iri :rank) (em:variable "Rank"))) (em:compound "result" ((em:variable "Status") (em:iri :assertedBy) (em:variable "Source"))) (em:compound "result" ((em:variable "Status") (em:iri :score) (em:variable "Score"))))))))) .
+proof:record27 em:term (em:compound "clause" ((em:integer "22") (em:compound "fact" ((em:compound "n3_length" ((em:atom "[]") (em:integer "0"))))))) .
+proof:record28 em:term (em:compound "clause" ((em:integer "23") (em:compound "implied_by" ((em:compound "n3_length" ((em:compound "." ((em:variable "_0") (em:variable "T"))) (em:variable "N"))) (em:list ((em:compound "n3_length" ((em:variable "T") (em:variable "M"))) (em:compound "is" ((em:variable "N") (em:compound "add" ((em:variable "M") (em:integer "1"))))))))))) .
+proof:record29 em:term (em:compound "clause" ((em:integer "24") (em:compound "implied_by" ((em:compound "n3_num" ((em:variable "T") (em:variable "N"))) (em:list ((em:compound "is_number" ((em:variable "T"))) (em:compound "unify" ((em:variable "N") (em:variable "T"))))))))) .
+proof:record30 em:term (em:compound "clause" ((em:integer "47") (em:compound "implied_by" ((em:compound "n3_list_length" ((em:variable "L") (em:variable "O"))) (em:list ((em:compound "is_nonvar" ((em:variable "L"))) (em:compound "n3_length" ((em:variable "L") (em:variable "N"))) (em:compound "n3_integer_result" ((em:variable "N") (em:variable "O"))))))))) .
+proof:record31 em:term (em:compound "clause" ((em:integer "48") (em:compound "implied_by" ((em:compound "n3_integer_result" ((em:variable "N") (em:variable "O"))) (em:list ((em:compound "is_var" ((em:variable "O"))) (em:compound "unify" ((em:variable "O") (em:variable "N"))))))))) .
+proof:record32 em:term (em:compound "clause" ((em:integer "62") (em:compound "implied_by" ((em:compound "n3_math_notLessThan" ((em:variable "S") (em:variable "O"))) (em:list ((em:compound "n3_num" ((em:variable "S") (em:variable "X"))) (em:compound "n3_num" ((em:variable "O") (em:variable "Y"))) (em:compound "ge" ((em:variable "X") (em:variable "Y"))))))))) .
+proof:record33 em:term (em:compound "clause" ((em:integer "65") (em:compound "implied_by" ((em:compound "n3_nums" ((em:variable "L") (em:variable "Ns"))) (em:list ((em:compound "is_nonvar" ((em:variable "L"))) (em:compound "n3_nums_" ((em:variable "L") (em:variable "Ns"))))))))) .
+proof:record34 em:term (em:compound "clause" ((em:integer "66") (em:compound "fact" ((em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]"))))))) .
+proof:record35 em:term (em:compound "clause" ((em:integer "67") (em:compound "implied_by" ((em:compound "n3_nums_" ((em:compound "." ((em:variable "T") (em:variable "R"))) (em:compound "." ((em:variable "N") (em:variable "Ns"))))) (em:list ((em:compound "n3_num" ((em:variable "T") (em:variable "N"))) (em:compound "n3_nums_" ((em:variable "R") (em:variable "Ns"))))))))) .
+proof:record36 em:term (em:compound "clause" ((em:integer "68") (em:compound "implied_by" ((em:compound "n3_result" ((em:variable "V") (em:variable "O"))) (em:list ((em:compound "is_var" ((em:variable "O"))) (em:compound "unify" ((em:variable "O") (em:variable "V"))))))))) .
+proof:record37 em:term (em:compound "clause" ((em:integer "70") (em:compound "implied_by" ((em:compound "n3_math_product" ((em:variable "L") (em:variable "O"))) (em:list ((em:compound "n3_nums" ((em:variable "L") (em:compound "." ((em:variable "N") (em:variable "Ns"))))) (em:compound "n3_product" ((em:variable "Ns") (em:variable "N") (em:variable "V"))) (em:compound "n3_result" ((em:variable "V") (em:variable "O"))))))))) .
+proof:record38 em:term (em:compound "clause" ((em:integer "72") (em:compound "fact" ((em:compound "n3_product" ((em:atom "[]") (em:variable "V") (em:variable "V"))))))) .
+proof:record39 em:term (em:compound "clause" ((em:integer "73") (em:compound "implied_by" ((em:compound "n3_product" ((em:compound "." ((em:variable "N") (em:variable "R"))) (em:variable "A") (em:variable "V"))) (em:list ((em:compound "is" ((em:variable "B") (em:compound "mul" ((em:variable "A") (em:variable "N"))))) (em:compound "n3_product" ((em:variable "R") (em:variable "B") (em:variable "V"))))))))) .
+proof:record40 em:term (em:compound "clause" ((em:integer "76") (em:compound "implied_by" ((em:compound "n3_decimal" ((em:variable "N") (em:variable "I") (em:variable "E"))) (em:list ((em:compound "number_chars" ((em:variable "N") (em:variable "Cs"))) (em:compound "atom_chars" ((em:variable "A") (em:variable "Cs"))) (em:compound "regex_find" ((em:atom "^([+-]?)([0-9]+)(?:[.]([0-9]+))?(?:e([+-]?[0-9]+))?$") (em:variable "A") (em:list ((em:variable "_0") (em:variable "Sign") (em:variable "Whole") (em:variable "Frac") (em:variable "Exp"))))) (em:compound "atom_concat" ((em:variable "Sign") (em:variable "Whole") (em:variable "W"))) (em:compound "atom_concat" ((em:variable "W") (em:variable "Frac") (em:variable "Digits"))) (em:compound "atom_chars" ((em:variable "Digits") (em:variable "Ds"))) (em:compound "number_chars" ((em:variable "I") (em:variable "Ds"))) (em:compound "atom_length" ((em:variable "Frac") (em:variable "D"))) (em:compound "n3_decimal_exp" ((em:variable "Exp") (em:variable "X"))) (em:compound "is" ((em:variable "E") (em:compound "sub" ((em:variable "X") (em:variable "D"))))))))))) .
+proof:record41 em:term (em:compound "clause" ((em:integer "77") (em:compound "fact" ((em:compound "n3_decimal_exp" ((em:atom "") (em:integer "0"))))))) .
+proof:record42 em:term (em:compound "clause" ((em:integer "79") (em:compound "implied_by" ((em:compound "n3_decimal_add" ((em:variable "I") (em:variable "E") (em:variable "J") (em:variable "F") (em:variable "K") (em:variable "G"))) (em:list ((em:compound "is" ((em:variable "G") (em:compound "min" ((em:variable "E") (em:variable "F"))))) (em:compound "is" ((em:variable "K") (em:compound "add" ((em:compound "mul" ((em:variable "I") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:variable "E") (em:variable "G"))))))) (em:compound "mul" ((em:variable "J") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:variable "F") (em:variable "G"))))))))))))))))) .
+proof:record43 em:term (em:compound "clause" ((em:integer "81") (em:compound "implied_by" ((em:compound "n3_math_sum" ((em:variable "L") (em:variable "O"))) (em:list ((em:compound "n3_nums" ((em:variable "L") (em:variable "Ns"))) (em:compound "n3_sum_kind" ((em:variable "L") (em:variable "K"))) (em:compound "n3_sum_value" ((em:variable "K") (em:variable "Ns") (em:variable "V"))) (em:compound "n3_result" ((em:variable "V") (em:variable "O"))))))))) .
+proof:record44 em:term (em:compound "clause" ((em:integer "82") (em:compound "implied_by" ((em:compound "n3_sum_kind" ((em:variable "L") (em:variable "K"))) (em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "_0") (em:compound "datatype" ((em:variable "D"))))) (em:variable "L"))) (em:compound "or" ((em:compound "unify" ((em:variable "D") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "D") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:variable "K") (em:atom "binary"))))) (em:compound "unify" ((em:variable "K") (em:atom "decimal"))))))))))) .
+proof:record45 em:term (em:compound "clause" ((em:integer "84") (em:compound "implied_by" ((em:compound "n3_sum_value" ((em:atom "decimal") (em:variable "Ns") (em:variable "V"))) (em:list ((em:compound "n3_decimal_sum" ((em:variable "Ns") (em:integer "0") (em:integer "0") (em:variable "I") (em:variable "E"))) (em:compound "n3_sum_result" ((em:variable "Ns") (em:variable "I") (em:variable "E") (em:variable "V"))))))))) .
+proof:record46 em:term (em:compound "clause" ((em:integer "85") (em:compound "fact" ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:variable "I") (em:variable "E") (em:variable "I") (em:variable "E"))))))) .
+proof:record47 em:term (em:compound "clause" ((em:integer "86") (em:compound "implied_by" ((em:compound "n3_decimal_sum" ((em:compound "." ((em:variable "N") (em:variable "Ns"))) (em:variable "I") (em:variable "E") (em:variable "J") (em:variable "F"))) (em:list ((em:compound "n3_decimal" ((em:variable "N") (em:variable "K") (em:variable "G"))) (em:compound "n3_decimal_add" ((em:variable "I") (em:variable "E") (em:variable "K") (em:variable "G") (em:variable "A") (em:variable "B"))) (em:compound "n3_decimal_sum" ((em:variable "Ns") (em:variable "A") (em:variable "B") (em:variable "J") (em:variable "F"))))))))) .
+proof:record48 em:term (em:compound "clause" ((em:integer "87") (em:compound "implied_by" ((em:compound "n3_sum_result" ((em:variable "Ns") (em:variable "I") (em:variable "E") (em:variable "V"))) (em:list ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "N") (em:variable "Ns"))) (em:compound "is_float" ((em:variable "N"))))) (em:compound "unify" ((em:variable "K") (em:atom "float"))))) (em:compound "unify" ((em:variable "K") (em:atom "int"))))))) (em:compound "n3_sum_number" ((em:variable "K") (em:variable "I") (em:variable "E") (em:variable "V"))))))))) .
+proof:record49 em:term (em:compound "clause" ((em:integer "88") (em:compound "implied_by" ((em:compound "n3_sum_number" ((em:atom "int") (em:variable "I") (em:variable "E") (em:variable "V"))) (em:compound "is" ((em:variable "V") (em:compound "mul" ((em:variable "I") (em:compound "pow" ((em:integer "10") (em:variable "E"))))))))))) .
+proof:record50 em:term (em:compound "step" ((em:compound "result" ((em:iri :bridge) (em:iri :decision) (em:iri :avoid_bridge))) (em:compound "clause" ((em:integer "19"))) (em:list ((em:compound "=" ((em:atom "Action") (em:iri :avoid_bridge))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))))) (em:list ((em:compound "rdf" ((em:list ((em:iri :avoid_bridge) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Decision))))))) .
+proof:record51 em:term (em:compound "step" ((em:compound "rdf" ((em:list ((em:iri :avoid_bridge) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Decision))) (em:compound "clause" ((em:integer "17"))) (em:list ((em:compound "=" ((em:atom "Status") (em:iri :closed))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))) (em:compound "=" ((em:atom "Limit") (em:integer "8000"))) (em:compound "=" ((em:atom "Action") (em:iri :avoid_bridge))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "rdf" ((em:iri :policy) (em:iri :threshold) (em:integer "8000"))) (em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000"))) (em:compound "rdf" ((em:iri :closed) (em:iri :action) (em:iri :avoid_bridge))))))) .
+proof:record52 em:term (em:compound "step" ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "clause" ((em:integer "16"))) (em:list ((em:compound "=" ((em:atom "Status") (em:iri :closed))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))) (em:compound "=" ((em:atom "Other") (em:variable "A"))) (em:compound "=" ((em:atom "Higher") (em:atom "[]"))) (em:compound "=" ((em:atom "Count") (em:integer "0"))) (em:compound "=" ((em:atom "Rank") (em:integer "1"))))) (em:list ((em:compound "rdf" ((em:list ((em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) (em:compound "n3_list_length" ((em:atom "[]") (em:integer "0"))) (em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))))))) .
+proof:record53 em:term (em:compound "step" ((em:compound "rdf" ((em:list ((em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "clause" ((em:integer "14"))) (em:list ((em:compound "=" ((em:atom "Status") (em:iri :closed))) (em:compound "=" ((em:atom "Reifier") (em:iri :authorityClaim))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Confidence") (em:integer "98"))) (em:compound "=" ((em:atom "Trust") (em:integer "95"))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))))) (em:list ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :closed))) (em:compound "rdf" ((em:iri :authorityClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :closed))))) (em:compound "rdf" ((em:iri :authorityClaim) (em:iri :assertedBy) (em:iri :transportAuthority))) (em:compound "rdf" ((em:iri :authorityClaim) (em:iri :confidence) (em:integer "98"))) (em:compound "rdf" ((em:iri :transportAuthority) (em:iri :trustScore) (em:integer "95"))) (em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:integer "9310"))))))) .
+proof:record54 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :closed))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record55 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :closed))))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record56 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri :assertedBy) (em:iri :transportAuthority))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record57 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri :confidence) (em:integer "98"))) (em:compound "clause" ((em:integer "4"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record58 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :transportAuthority) (em:iri :trustScore) (em:integer "95"))) (em:compound "clause" ((em:integer "9"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record59 em:term (em:compound "step" ((em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:integer "9310"))) (em:compound "clause" ((em:integer "70"))) (em:list ((em:compound "=" ((em:atom "L") (em:list ((em:integer "98") (em:integer "95"))))) (em:compound "=" ((em:atom "O") (em:integer "9310"))) (em:compound "=" ((em:atom "N") (em:integer "98"))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "95"))))) (em:compound "=" ((em:atom "V") (em:integer "9310"))))) (em:list ((em:compound "n3_nums" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95"))))) (em:compound "n3_product" ((em:list ((em:integer "95"))) (em:integer "98") (em:integer "9310"))) (em:compound "n3_result" ((em:integer "9310") (em:integer "9310"))))))) .
+proof:record60 em:term (em:compound "step" ((em:compound "n3_nums" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95"))))) (em:compound "clause" ((em:integer "65"))) (em:list ((em:compound "=" ((em:atom "L") (em:list ((em:integer "98") (em:integer "95"))))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "98") (em:integer "95"))))))) (em:list ((em:compound "is_nonvar" ((em:list ((em:integer "98") (em:integer "95"))))) (em:compound "n3_nums_" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95"))))))))) .
+proof:record61 em:term (em:compound "step" ((em:compound "is_nonvar" ((em:list ((em:integer "98") (em:integer "95"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record62 em:term (em:compound "step" ((em:compound "n3_nums_" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95"))))) (em:compound "clause" ((em:integer "67"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "98"))) (em:compound "=" ((em:atom "R") (em:list ((em:integer "95"))))) (em:compound "=" ((em:atom "N") (em:integer "98"))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "95"))))))) (em:list ((em:compound "n3_num" ((em:integer "98") (em:integer "98"))) (em:compound "n3_nums_" ((em:list ((em:integer "95"))) (em:list ((em:integer "95"))))))))) .
+proof:record63 em:term (em:compound "step" ((em:compound "n3_num" ((em:integer "98") (em:integer "98"))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "98"))) (em:compound "=" ((em:atom "N") (em:integer "98"))))) (em:list ((em:compound "is_number" ((em:integer "98"))) (em:compound "unify" ((em:integer "98") (em:integer "98"))))))) .
+proof:record64 em:term (em:compound "step" ((em:compound "is_number" ((em:integer "98"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record65 em:term (em:compound "step" ((em:compound "unify" ((em:integer "98") (em:integer "98"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record66 em:term (em:compound "step" ((em:compound "n3_nums_" ((em:list ((em:integer "95"))) (em:list ((em:integer "95"))))) (em:compound "clause" ((em:integer "67"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "95"))) (em:compound "=" ((em:atom "R") (em:atom "[]"))) (em:compound "=" ((em:atom "N") (em:integer "95"))) (em:compound "=" ((em:atom "Ns") (em:atom "[]"))))) (em:list ((em:compound "n3_num" ((em:integer "95") (em:integer "95"))) (em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]"))))))) .
+proof:record67 em:term (em:compound "step" ((em:compound "n3_num" ((em:integer "95") (em:integer "95"))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "95"))) (em:compound "=" ((em:atom "N") (em:integer "95"))))) (em:list ((em:compound "is_number" ((em:integer "95"))) (em:compound "unify" ((em:integer "95") (em:integer "95"))))))) .
+proof:record68 em:term (em:compound "step" ((em:compound "is_number" ((em:integer "95"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record69 em:term (em:compound "step" ((em:compound "unify" ((em:integer "95") (em:integer "95"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record70 em:term (em:compound "step" ((em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]"))) (em:compound "clause" ((em:integer "66"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record71 em:term (em:compound "step" ((em:compound "n3_product" ((em:list ((em:integer "95"))) (em:integer "98") (em:integer "9310"))) (em:compound "clause" ((em:integer "73"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "95"))) (em:compound "=" ((em:atom "R") (em:atom "[]"))) (em:compound "=" ((em:atom "A") (em:integer "98"))) (em:compound "=" ((em:atom "V") (em:integer "9310"))) (em:compound "=" ((em:atom "B") (em:integer "9310"))))) (em:list ((em:compound "is" ((em:integer "9310") (em:compound "mul" ((em:integer "98") (em:integer "95"))))) (em:compound "n3_product" ((em:atom "[]") (em:integer "9310") (em:integer "9310"))))))) .
+proof:record72 em:term (em:compound "step" ((em:compound "is" ((em:integer "9310") (em:compound "mul" ((em:integer "98") (em:integer "95"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record73 em:term (em:compound "step" ((em:compound "n3_product" ((em:atom "[]") (em:integer "9310") (em:integer "9310"))) (em:compound "clause" ((em:integer "72"))) (em:list ((em:compound "=" ((em:atom "V") (em:integer "9310"))))) (em:atom "[]"))) .
+proof:record74 em:term (em:compound "step" ((em:compound "n3_result" ((em:integer "9310") (em:integer "9310"))) (em:compound "clause" ((em:integer "68"))) (em:list ((em:compound "=" ((em:atom "V") (em:integer "9310"))) (em:compound "=" ((em:atom "O") (em:integer "9310"))))) (em:list ((em:compound "is_var" ((em:integer "9310"))) (em:compound "unify" ((em:integer "9310") (em:integer "9310"))))))) .
+proof:record75 em:term (em:compound "step" ((em:compound "is_var" ((em:integer "9310"))) (em:compound "called" ((em:compound "is_var" ((em:variable "B"))))) (em:atom "[]") (em:atom "[]"))) .
+proof:record76 em:term (em:compound "step" ((em:compound "unify" ((em:integer "9310") (em:integer "9310"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record77 em:term (em:compound "step" ((em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) (em:atom "collected") (em:atom "[]") (em:atom "[]"))) .
+proof:record78 em:term (em:compound "step" ((em:compound "n3_list_length" ((em:atom "[]") (em:integer "0"))) (em:compound "clause" ((em:integer "47"))) (em:list ((em:compound "=" ((em:atom "L") (em:atom "[]"))) (em:compound "=" ((em:atom "O") (em:integer "0"))) (em:compound "=" ((em:atom "N") (em:integer "0"))))) (em:list ((em:compound "is_nonvar" ((em:atom "[]"))) (em:compound "n3_length" ((em:atom "[]") (em:integer "0"))) (em:compound "n3_integer_result" ((em:integer "0") (em:integer "0"))))))) .
+proof:record79 em:term (em:compound "step" ((em:compound "is_nonvar" ((em:atom "[]"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record80 em:term (em:compound "step" ((em:compound "n3_length" ((em:atom "[]") (em:integer "0"))) (em:compound "clause" ((em:integer "22"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record81 em:term (em:compound "step" ((em:compound "n3_integer_result" ((em:integer "0") (em:integer "0"))) (em:compound "clause" ((em:integer "48"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "0"))) (em:compound "=" ((em:atom "O") (em:integer "0"))))) (em:list ((em:compound "is_var" ((em:integer "0"))) (em:compound "unify" ((em:integer "0") (em:integer "0"))))))) .
+proof:record82 em:term (em:compound "step" ((em:compound "is_var" ((em:integer "0"))) (em:compound "called" ((em:compound "is_var" ((em:variable "C"))))) (em:atom "[]") (em:atom "[]"))) .
+proof:record83 em:term (em:compound "step" ((em:compound "unify" ((em:integer "0") (em:integer "0"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record84 em:term (em:compound "step" ((em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))) (em:compound "clause" ((em:integer "81"))) (em:list ((em:compound "=" ((em:atom "L") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "=" ((em:atom "O") (em:integer "1"))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "=" ((em:atom "K") (em:atom "decimal"))) (em:compound "=" ((em:atom "V") (em:integer "1"))))) (em:list ((em:compound "n3_nums" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "n3_sum_kind" ((em:list ((em:integer "0") (em:integer "1"))) (em:atom "decimal"))) (em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))) (em:compound "n3_result" ((em:integer "1") (em:integer "1"))))))) .
+proof:record85 em:term (em:compound "step" ((em:compound "n3_nums" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "clause" ((em:integer "65"))) (em:list ((em:compound "=" ((em:atom "L") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "0") (em:integer "1"))))))) (em:list ((em:compound "is_nonvar" ((em:list ((em:integer "0") (em:integer "1"))))) (em:compound "n3_nums_" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1"))))))))) .
+proof:record86 em:term (em:compound "step" ((em:compound "is_nonvar" ((em:list ((em:integer "0") (em:integer "1"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record87 em:term (em:compound "step" ((em:compound "n3_nums_" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "clause" ((em:integer "67"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "0"))) (em:compound "=" ((em:atom "R") (em:list ((em:integer "1"))))) (em:compound "=" ((em:atom "N") (em:integer "0"))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "1"))))))) (em:list ((em:compound "n3_num" ((em:integer "0") (em:integer "0"))) (em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:list ((em:integer "1"))))))))) .
+proof:record88 em:term (em:compound "step" ((em:compound "n3_num" ((em:integer "0") (em:integer "0"))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "0"))) (em:compound "=" ((em:atom "N") (em:integer "0"))))) (em:list ((em:compound "is_number" ((em:integer "0"))) (em:compound "unify" ((em:integer "0") (em:integer "0"))))))) .
+proof:record89 em:term (em:compound "step" ((em:compound "is_number" ((em:integer "0"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record90 em:term (em:compound "step" ((em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:list ((em:integer "1"))))) (em:compound "clause" ((em:integer "67"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "1"))) (em:compound "=" ((em:atom "R") (em:atom "[]"))) (em:compound "=" ((em:atom "N") (em:integer "1"))) (em:compound "=" ((em:atom "Ns") (em:atom "[]"))))) (em:list ((em:compound "n3_num" ((em:integer "1") (em:integer "1"))) (em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]"))))))) .
+proof:record91 em:term (em:compound "step" ((em:compound "n3_num" ((em:integer "1") (em:integer "1"))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "1"))) (em:compound "=" ((em:atom "N") (em:integer "1"))))) (em:list ((em:compound "is_number" ((em:integer "1"))) (em:compound "unify" ((em:integer "1") (em:integer "1"))))))) .
+proof:record92 em:term (em:compound "step" ((em:compound "is_number" ((em:integer "1"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record93 em:term (em:compound "step" ((em:compound "unify" ((em:integer "1") (em:integer "1"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record94 em:term (em:compound "step" ((em:compound "n3_sum_kind" ((em:list ((em:integer "0") (em:integer "1"))) (em:atom "decimal"))) (em:compound "clause" ((em:integer "82"))) (em:list ((em:compound "=" ((em:atom "L") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "=" ((em:atom "K") (em:atom "decimal"))) (em:compound "=" ((em:atom "_0") (em:variable "D"))) (em:compound "=" ((em:atom "D") (em:variable "E"))))) (em:list ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "D") (em:compound "datatype" ((em:variable "E"))))) (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))))))))) .
+proof:record95 em:term (em:compound "step" ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "D") (em:compound "datatype" ((em:variable "E"))))) (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "D") (em:compound "datatype" ((em:variable "E"))))) (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))))))) .
+proof:record96 em:term (em:compound "step" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "D") (em:compound "datatype" ((em:variable "E"))))) (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "E") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))))) .
+proof:record97 em:term (em:compound "step" ((em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record98 em:term (em:compound "step" ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))) (em:compound "clause" ((em:integer "84"))) (em:list ((em:compound "=" ((em:atom "Ns") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "=" ((em:atom "V") (em:integer "1"))) (em:compound "=" ((em:atom "I") (em:integer "1"))) (em:compound "=" ((em:atom "E") (em:integer "0"))))) (em:list ((em:compound "n3_decimal_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0"))) (em:compound "n3_sum_result" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "1"))))))) .
+proof:record99 em:term (em:compound "step" ((em:compound "n3_decimal_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0"))) (em:compound "clause" ((em:integer "86"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "0"))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "1"))))) (em:compound "=" ((em:atom "I") (em:integer "0"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "J") (em:integer "1"))) (em:compound "=" ((em:atom "F") (em:integer "0"))) (em:compound "=" ((em:atom "K") (em:integer "0"))) (em:compound "=" ((em:atom "G") (em:integer "0"))) (em:compound "=" ((em:atom "A") (em:integer "0"))) (em:compound "=" ((em:atom "B") (em:integer "0"))))) (em:list ((em:compound "n3_decimal" ((em:integer "0") (em:integer "0") (em:integer "0"))) (em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0"))) (em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0"))))))) .
+proof:record100 em:term (em:compound "step" ((em:compound "n3_decimal" ((em:integer "0") (em:integer "0") (em:integer "0"))) (em:compound "clause" ((em:integer "76"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "0"))) (em:compound "=" ((em:atom "I") (em:integer "0"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "Cs") (em:list ((em:atom "0"))))) (em:compound "=" ((em:atom "A") (em:atom "0"))) (em:compound "=" ((em:atom "_0") (em:atom "0"))) (em:compound "=" ((em:atom "Sign") (em:atom ""))) (em:compound "=" ((em:atom "Whole") (em:atom "0"))) (em:compound "=" ((em:atom "Frac") (em:atom ""))) (em:compound "=" ((em:atom "Exp") (em:atom ""))) (em:compound "=" ((em:atom "W") (em:atom "0"))) (em:compound "=" ((em:atom "Digits") (em:atom "0"))) (em:compound "=" ((em:atom "Ds") (em:list ((em:atom "0"))))) (em:compound "=" ((em:atom "D") (em:integer "0"))) (em:compound "=" ((em:atom "X") (em:integer "0"))))) (em:list ((em:compound "number_chars" ((em:integer "0") (em:list ((em:atom "0"))))) (em:compound "atom_chars" ((em:atom "0") (em:list ((em:atom "0"))))) (em:compound "regex_find" ((em:atom "^([+-]?)([0-9]+)(?:[.]([0-9]+))?(?:e([+-]?[0-9]+))?$") (em:atom "0") (em:list ((em:atom "0") (em:atom "") (em:atom "0") (em:atom "") (em:atom ""))))) (em:compound "atom_concat" ((em:atom "") (em:atom "0") (em:atom "0"))) (em:compound "atom_concat" ((em:atom "0") (em:atom "") (em:atom "0"))) (em:compound "atom_chars" ((em:atom "0") (em:list ((em:atom "0"))))) (em:compound "number_chars" ((em:integer "0") (em:list ((em:atom "0"))))) (em:compound "atom_length" ((em:atom "") (em:integer "0"))) (em:compound "n3_decimal_exp" ((em:atom "") (em:integer "0"))) (em:compound "is" ((em:integer "0") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))))) .
+proof:record101 em:term (em:compound "step" ((em:compound "number_chars" ((em:integer "0") (em:list ((em:atom "0"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record102 em:term (em:compound "step" ((em:compound "atom_chars" ((em:atom "0") (em:list ((em:atom "0"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record103 em:term (em:compound "step" ((em:compound "regex_find" ((em:atom "^([+-]?)([0-9]+)(?:[.]([0-9]+))?(?:e([+-]?[0-9]+))?$") (em:atom "0") (em:list ((em:atom "0") (em:atom "") (em:atom "0") (em:atom "") (em:atom ""))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record104 em:term (em:compound "step" ((em:compound "atom_concat" ((em:atom "") (em:atom "0") (em:atom "0"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record105 em:term (em:compound "step" ((em:compound "atom_concat" ((em:atom "0") (em:atom "") (em:atom "0"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record106 em:term (em:compound "step" ((em:compound "atom_length" ((em:atom "") (em:integer "0"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record107 em:term (em:compound "step" ((em:compound "n3_decimal_exp" ((em:atom "") (em:integer "0"))) (em:compound "clause" ((em:integer "77"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record108 em:term (em:compound "step" ((em:compound "is" ((em:integer "0") (em:compound "sub" ((em:integer "0") (em:integer "0"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record109 em:term (em:compound "step" ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0"))) (em:compound "clause" ((em:integer "79"))) (em:list ((em:compound "=" ((em:atom "I") (em:integer "0"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "J") (em:integer "0"))) (em:compound "=" ((em:atom "F") (em:integer "0"))) (em:compound "=" ((em:atom "K") (em:integer "0"))) (em:compound "=" ((em:atom "G") (em:integer "0"))))) (em:list ((em:compound "is" ((em:integer "0") (em:compound "min" ((em:integer "0") (em:integer "0"))))) (em:compound "is" ((em:integer "0") (em:compound "add" ((em:compound "mul" ((em:integer "0") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))) (em:compound "mul" ((em:integer "0") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))))))))))) .
+proof:record110 em:term (em:compound "step" ((em:compound "is" ((em:integer "0") (em:compound "min" ((em:integer "0") (em:integer "0"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record111 em:term (em:compound "step" ((em:compound "is" ((em:integer "0") (em:compound "add" ((em:compound "mul" ((em:integer "0") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))) (em:compound "mul" ((em:integer "0") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record112 em:term (em:compound "step" ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0"))) (em:compound "clause" ((em:integer "86"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "1"))) (em:compound "=" ((em:atom "Ns") (em:atom "[]"))) (em:compound "=" ((em:atom "I") (em:integer "0"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "J") (em:integer "1"))) (em:compound "=" ((em:atom "F") (em:integer "0"))) (em:compound "=" ((em:atom "K") (em:integer "1"))) (em:compound "=" ((em:atom "G") (em:integer "0"))) (em:compound "=" ((em:atom "A") (em:integer "1"))) (em:compound "=" ((em:atom "B") (em:integer "0"))))) (em:list ((em:compound "n3_decimal" ((em:integer "1") (em:integer "1") (em:integer "0"))) (em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))) (em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))))))) .
+proof:record113 em:term (em:compound "step" ((em:compound "n3_decimal" ((em:integer "1") (em:integer "1") (em:integer "0"))) (em:compound "clause" ((em:integer "76"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "1"))) (em:compound "=" ((em:atom "I") (em:integer "1"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "Cs") (em:list ((em:atom "1"))))) (em:compound "=" ((em:atom "A") (em:atom "1"))) (em:compound "=" ((em:atom "_0") (em:atom "1"))) (em:compound "=" ((em:atom "Sign") (em:atom ""))) (em:compound "=" ((em:atom "Whole") (em:atom "1"))) (em:compound "=" ((em:atom "Frac") (em:atom ""))) (em:compound "=" ((em:atom "Exp") (em:atom ""))) (em:compound "=" ((em:atom "W") (em:atom "1"))) (em:compound "=" ((em:atom "Digits") (em:atom "1"))) (em:compound "=" ((em:atom "Ds") (em:list ((em:atom "1"))))) (em:compound "=" ((em:atom "D") (em:integer "0"))) (em:compound "=" ((em:atom "X") (em:integer "0"))))) (em:list ((em:compound "number_chars" ((em:integer "1") (em:list ((em:atom "1"))))) (em:compound "atom_chars" ((em:atom "1") (em:list ((em:atom "1"))))) (em:compound "regex_find" ((em:atom "^([+-]?)([0-9]+)(?:[.]([0-9]+))?(?:e([+-]?[0-9]+))?$") (em:atom "1") (em:list ((em:atom "1") (em:atom "") (em:atom "1") (em:atom "") (em:atom ""))))) (em:compound "atom_concat" ((em:atom "") (em:atom "1") (em:atom "1"))) (em:compound "atom_concat" ((em:atom "1") (em:atom "") (em:atom "1"))) (em:compound "atom_chars" ((em:atom "1") (em:list ((em:atom "1"))))) (em:compound "number_chars" ((em:integer "1") (em:list ((em:atom "1"))))) (em:compound "atom_length" ((em:atom "") (em:integer "0"))) (em:compound "n3_decimal_exp" ((em:atom "") (em:integer "0"))) (em:compound "is" ((em:integer "0") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))))) .
+proof:record114 em:term (em:compound "step" ((em:compound "number_chars" ((em:integer "1") (em:list ((em:atom "1"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record115 em:term (em:compound "step" ((em:compound "atom_chars" ((em:atom "1") (em:list ((em:atom "1"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record116 em:term (em:compound "step" ((em:compound "regex_find" ((em:atom "^([+-]?)([0-9]+)(?:[.]([0-9]+))?(?:e([+-]?[0-9]+))?$") (em:atom "1") (em:list ((em:atom "1") (em:atom "") (em:atom "1") (em:atom "") (em:atom ""))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record117 em:term (em:compound "step" ((em:compound "atom_concat" ((em:atom "") (em:atom "1") (em:atom "1"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record118 em:term (em:compound "step" ((em:compound "atom_concat" ((em:atom "1") (em:atom "") (em:atom "1"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record119 em:term (em:compound "step" ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))) (em:compound "clause" ((em:integer "79"))) (em:list ((em:compound "=" ((em:atom "I") (em:integer "0"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "J") (em:integer "1"))) (em:compound "=" ((em:atom "F") (em:integer "0"))) (em:compound "=" ((em:atom "K") (em:integer "1"))) (em:compound "=" ((em:atom "G") (em:integer "0"))))) (em:list ((em:compound "is" ((em:integer "0") (em:compound "min" ((em:integer "0") (em:integer "0"))))) (em:compound "is" ((em:integer "1") (em:compound "add" ((em:compound "mul" ((em:integer "0") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))) (em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))))))))))) .
+proof:record120 em:term (em:compound "step" ((em:compound "is" ((em:integer "1") (em:compound "add" ((em:compound "mul" ((em:integer "0") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))) (em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record121 em:term (em:compound "step" ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))) (em:compound "clause" ((em:integer "85"))) (em:list ((em:compound "=" ((em:atom "I") (em:integer "1"))) (em:compound "=" ((em:atom "E") (em:integer "0"))))) (em:atom "[]"))) .
+proof:record122 em:term (em:compound "step" ((em:compound "n3_sum_result" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "1"))) (em:compound "clause" ((em:integer "87"))) (em:list ((em:compound "=" ((em:atom "Ns") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "=" ((em:atom "I") (em:integer "1"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "V") (em:integer "1"))) (em:compound "=" ((em:atom "N") (em:variable "F"))) (em:compound "=" ((em:atom "K") (em:atom "int"))))) (em:list ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "F") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "is_float" ((em:variable "F"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))))) (em:compound "n3_sum_number" ((em:atom "int") (em:integer "1") (em:integer "0") (em:integer "1"))))))) .
+proof:record123 em:term (em:compound "step" ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "F") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "is_float" ((em:variable "F"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "F") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "is_float" ((em:variable "F"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))))))) .
+proof:record124 em:term (em:compound "step" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "F") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "is_float" ((em:variable "F"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "unify" ((em:atom "int") (em:atom "int"))))))) .
+proof:record125 em:term (em:compound "step" ((em:compound "unify" ((em:atom "int") (em:atom "int"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record126 em:term (em:compound "step" ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "1") (em:integer "0") (em:integer "1"))) (em:compound "clause" ((em:integer "88"))) (em:list ((em:compound "=" ((em:atom "I") (em:integer "1"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "V") (em:integer "1"))))) (em:list ((em:compound "is" ((em:integer "1") (em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:integer "0"))))))))))) .
+proof:record127 em:term (em:compound "step" ((em:compound "is" ((em:integer "1") (em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:integer "0"))))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record128 em:term (em:compound "step" ((em:compound "n3_result" ((em:integer "1") (em:integer "1"))) (em:compound "clause" ((em:integer "68"))) (em:list ((em:compound "=" ((em:atom "V") (em:integer "1"))) (em:compound "=" ((em:atom "O") (em:integer "1"))))) (em:list ((em:compound "is_var" ((em:integer "1"))) (em:compound "unify" ((em:integer "1") (em:integer "1"))))))) .
+proof:record129 em:term (em:compound "step" ((em:compound "is_var" ((em:integer "1"))) (em:compound "called" ((em:compound "is_var" ((em:variable "G"))))) (em:atom "[]") (em:atom "[]"))) .
+proof:record130 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :policy) (em:iri :threshold) (em:integer "8000"))) (em:compound "clause" ((em:integer "11"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record131 em:term (em:compound "step" ((em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000"))) (em:compound "clause" ((em:integer "62"))) (em:list ((em:compound "=" ((em:atom "S") (em:integer "9310"))) (em:compound "=" ((em:atom "O") (em:integer "8000"))) (em:compound "=" ((em:atom "X") (em:integer "9310"))) (em:compound "=" ((em:atom "Y") (em:integer "8000"))))) (em:list ((em:compound "n3_num" ((em:integer "9310") (em:integer "9310"))) (em:compound "n3_num" ((em:integer "8000") (em:integer "8000"))) (em:compound "ge" ((em:integer "9310") (em:integer "8000"))))))) .
+proof:record132 em:term (em:compound "step" ((em:compound "n3_num" ((em:integer "9310") (em:integer "9310"))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "9310"))) (em:compound "=" ((em:atom "N") (em:integer "9310"))))) (em:list ((em:compound "is_number" ((em:integer "9310"))) (em:compound "unify" ((em:integer "9310") (em:integer "9310"))))))) .
+proof:record133 em:term (em:compound "step" ((em:compound "is_number" ((em:integer "9310"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record134 em:term (em:compound "step" ((em:compound "n3_num" ((em:integer "8000") (em:integer "8000"))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "8000"))) (em:compound "=" ((em:atom "N") (em:integer "8000"))))) (em:list ((em:compound "is_number" ((em:integer "8000"))) (em:compound "unify" ((em:integer "8000") (em:integer "8000"))))))) .
+proof:record135 em:term (em:compound "step" ((em:compound "is_number" ((em:integer "8000"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record136 em:term (em:compound "step" ((em:compound "unify" ((em:integer "8000") (em:integer "8000"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record137 em:term (em:compound "step" ((em:compound "ge" ((em:integer "9310") (em:integer "8000"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record138 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :closed) (em:iri :action) (em:iri :avoid_bridge))) (em:compound "clause" ((em:integer "12"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record139 em:term (em:compound "step" ((em:compound "result" ((em:iri :bridge) (em:iri :trustedSource) (em:iri :transportAuthority))) (em:compound "clause" ((em:integer "19"))) (em:list ((em:compound "=" ((em:atom "Action") (em:iri :avoid_bridge))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))))) (em:list ((em:compound "rdf" ((em:list ((em:iri :avoid_bridge) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Decision))))))) .
+proof:record140 em:term (em:compound "step" ((em:compound "result" ((em:iri :bridge) (em:iri :score) (em:integer "9310"))) (em:compound "clause" ((em:integer "19"))) (em:list ((em:compound "=" ((em:atom "Action") (em:iri :avoid_bridge))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))))) (em:list ((em:compound "rdf" ((em:list ((em:iri :avoid_bridge) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Decision))))))) .
+proof:record141 em:term (em:compound "step" ((em:compound "result" ((em:iri :closed) (em:iri :rank) (em:integer "1"))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "Rank") (em:integer "1"))) (em:compound "=" ((em:atom "Status") (em:iri :closed))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
+proof:record142 em:term (em:compound "step" ((em:compound "result" ((em:iri :closed) (em:iri :assertedBy) (em:iri :transportAuthority))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "Rank") (em:integer "1"))) (em:compound "=" ((em:atom "Status") (em:iri :closed))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
+proof:record143 em:term (em:compound "step" ((em:compound "result" ((em:iri :closed) (em:iri :score) (em:integer "9310"))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "Rank") (em:integer "1"))) (em:compound "=" ((em:atom "Status") (em:iri :closed))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
+proof:record144 em:term (em:compound "step" ((em:compound "result" ((em:iri :open) (em:iri :rank) (em:integer "2"))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "Rank") (em:integer "2"))) (em:compound "=" ((em:atom "Status") (em:iri :open))) (em:compound "=" ((em:atom "Source") (em:iri :anonymousPost))) (em:compound "=" ((em:atom "Score") (em:integer "700"))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "2") (em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
+proof:record145 em:term (em:compound "step" ((em:compound "rdf" ((em:list ((em:integer "2") (em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "clause" ((em:integer "16"))) (em:list ((em:compound "=" ((em:atom "Status") (em:iri :open))) (em:compound "=" ((em:atom "Source") (em:iri :anonymousPost))) (em:compound "=" ((em:atom "Score") (em:integer "700"))) (em:compound "=" ((em:atom "Other") (em:variable "A"))) (em:compound "=" ((em:atom "Higher") (em:list ((em:integer "9310"))))) (em:compound "=" ((em:atom "Count") (em:integer "1"))) (em:compound "=" ((em:atom "Rank") (em:integer "2"))))) (em:list ((em:compound "rdf" ((em:list ((em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "700") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:integer "9310"))))) (em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))))))) .
+proof:record146 em:term (em:compound "step" ((em:compound "rdf" ((em:list ((em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "clause" ((em:integer "14"))) (em:list ((em:compound "=" ((em:atom "Status") (em:iri :open))) (em:compound "=" ((em:atom "Reifier") (em:iri :socialClaim))) (em:compound "=" ((em:atom "Source") (em:iri :anonymousPost))) (em:compound "=" ((em:atom "Confidence") (em:integer "35"))) (em:compound "=" ((em:atom "Trust") (em:integer "20"))) (em:compound "=" ((em:atom "Score") (em:integer "700"))))) (em:list ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :open))) (em:compound "rdf" ((em:iri :socialClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :open))))) (em:compound "rdf" ((em:iri :socialClaim) (em:iri :assertedBy) (em:iri :anonymousPost))) (em:compound "rdf" ((em:iri :socialClaim) (em:iri :confidence) (em:integer "35"))) (em:compound "rdf" ((em:iri :anonymousPost) (em:iri :trustScore) (em:integer "20"))) (em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:integer "700"))))))) .
+proof:record147 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :open))) (em:compound "clause" ((em:integer "5"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record148 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :socialClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :open))))) (em:compound "clause" ((em:integer "6"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record149 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :socialClaim) (em:iri :assertedBy) (em:iri :anonymousPost))) (em:compound "clause" ((em:integer "7"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record150 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :socialClaim) (em:iri :confidence) (em:integer "35"))) (em:compound "clause" ((em:integer "8"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record151 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :anonymousPost) (em:iri :trustScore) (em:integer "20"))) (em:compound "clause" ((em:integer "10"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record152 em:term (em:compound "step" ((em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:integer "700"))) (em:compound "clause" ((em:integer "70"))) (em:list ((em:compound "=" ((em:atom "L") (em:list ((em:integer "35") (em:integer "20"))))) (em:compound "=" ((em:atom "O") (em:integer "700"))) (em:compound "=" ((em:atom "N") (em:integer "35"))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "20"))))) (em:compound "=" ((em:atom "V") (em:integer "700"))))) (em:list ((em:compound "n3_nums" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20"))))) (em:compound "n3_product" ((em:list ((em:integer "20"))) (em:integer "35") (em:integer "700"))) (em:compound "n3_result" ((em:integer "700") (em:integer "700"))))))) .
+proof:record153 em:term (em:compound "step" ((em:compound "n3_nums" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20"))))) (em:compound "clause" ((em:integer "65"))) (em:list ((em:compound "=" ((em:atom "L") (em:list ((em:integer "35") (em:integer "20"))))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "35") (em:integer "20"))))))) (em:list ((em:compound "is_nonvar" ((em:list ((em:integer "35") (em:integer "20"))))) (em:compound "n3_nums_" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20"))))))))) .
+proof:record154 em:term (em:compound "step" ((em:compound "is_nonvar" ((em:list ((em:integer "35") (em:integer "20"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record155 em:term (em:compound "step" ((em:compound "n3_nums_" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20"))))) (em:compound "clause" ((em:integer "67"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "35"))) (em:compound "=" ((em:atom "R") (em:list ((em:integer "20"))))) (em:compound "=" ((em:atom "N") (em:integer "35"))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "20"))))))) (em:list ((em:compound "n3_num" ((em:integer "35") (em:integer "35"))) (em:compound "n3_nums_" ((em:list ((em:integer "20"))) (em:list ((em:integer "20"))))))))) .
+proof:record156 em:term (em:compound "step" ((em:compound "n3_num" ((em:integer "35") (em:integer "35"))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "35"))) (em:compound "=" ((em:atom "N") (em:integer "35"))))) (em:list ((em:compound "is_number" ((em:integer "35"))) (em:compound "unify" ((em:integer "35") (em:integer "35"))))))) .
+proof:record157 em:term (em:compound "step" ((em:compound "is_number" ((em:integer "35"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record158 em:term (em:compound "step" ((em:compound "unify" ((em:integer "35") (em:integer "35"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record159 em:term (em:compound "step" ((em:compound "n3_nums_" ((em:list ((em:integer "20"))) (em:list ((em:integer "20"))))) (em:compound "clause" ((em:integer "67"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "20"))) (em:compound "=" ((em:atom "R") (em:atom "[]"))) (em:compound "=" ((em:atom "N") (em:integer "20"))) (em:compound "=" ((em:atom "Ns") (em:atom "[]"))))) (em:list ((em:compound "n3_num" ((em:integer "20") (em:integer "20"))) (em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]"))))))) .
+proof:record160 em:term (em:compound "step" ((em:compound "n3_num" ((em:integer "20") (em:integer "20"))) (em:compound "clause" ((em:integer "24"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "20"))) (em:compound "=" ((em:atom "N") (em:integer "20"))))) (em:list ((em:compound "is_number" ((em:integer "20"))) (em:compound "unify" ((em:integer "20") (em:integer "20"))))))) .
+proof:record161 em:term (em:compound "step" ((em:compound "is_number" ((em:integer "20"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record162 em:term (em:compound "step" ((em:compound "unify" ((em:integer "20") (em:integer "20"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record163 em:term (em:compound "step" ((em:compound "n3_product" ((em:list ((em:integer "20"))) (em:integer "35") (em:integer "700"))) (em:compound "clause" ((em:integer "73"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "20"))) (em:compound "=" ((em:atom "R") (em:atom "[]"))) (em:compound "=" ((em:atom "A") (em:integer "35"))) (em:compound "=" ((em:atom "V") (em:integer "700"))) (em:compound "=" ((em:atom "B") (em:integer "700"))))) (em:list ((em:compound "is" ((em:integer "700") (em:compound "mul" ((em:integer "35") (em:integer "20"))))) (em:compound "n3_product" ((em:atom "[]") (em:integer "700") (em:integer "700"))))))) .
+proof:record164 em:term (em:compound "step" ((em:compound "is" ((em:integer "700") (em:compound "mul" ((em:integer "35") (em:integer "20"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record165 em:term (em:compound "step" ((em:compound "n3_product" ((em:atom "[]") (em:integer "700") (em:integer "700"))) (em:compound "clause" ((em:integer "72"))) (em:list ((em:compound "=" ((em:atom "V") (em:integer "700"))))) (em:atom "[]"))) .
+proof:record166 em:term (em:compound "step" ((em:compound "n3_result" ((em:integer "700") (em:integer "700"))) (em:compound "clause" ((em:integer "68"))) (em:list ((em:compound "=" ((em:atom "V") (em:integer "700"))) (em:compound "=" ((em:atom "O") (em:integer "700"))))) (em:list ((em:compound "is_var" ((em:integer "700"))) (em:compound "unify" ((em:integer "700") (em:integer "700"))))))) .
+proof:record167 em:term (em:compound "step" ((em:compound "is_var" ((em:integer "700"))) (em:compound "called" ((em:compound "is_var" ((em:variable "H"))))) (em:atom "[]") (em:atom "[]"))) .
+proof:record168 em:term (em:compound "step" ((em:compound "unify" ((em:integer "700") (em:integer "700"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record169 em:term (em:compound "step" ((em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "700") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:integer "9310"))))) (em:atom "collected") (em:atom "[]") (em:atom "[]"))) .
+proof:record170 em:term (em:compound "step" ((em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "clause" ((em:integer "47"))) (em:list ((em:compound "=" ((em:atom "L") (em:list ((em:integer "9310"))))) (em:compound "=" ((em:atom "O") (em:integer "1"))) (em:compound "=" ((em:atom "N") (em:integer "1"))))) (em:list ((em:compound "is_nonvar" ((em:list ((em:integer "9310"))))) (em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "n3_integer_result" ((em:integer "1") (em:integer "1"))))))) .
+proof:record171 em:term (em:compound "step" ((em:compound "is_nonvar" ((em:list ((em:integer "9310"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record172 em:term (em:compound "step" ((em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "_0") (em:integer "9310"))) (em:compound "=" ((em:atom "T") (em:atom "[]"))) (em:compound "=" ((em:atom "N") (em:integer "1"))) (em:compound "=" ((em:atom "M") (em:integer "0"))))) (em:list ((em:compound "n3_length" ((em:atom "[]") (em:integer "0"))) (em:compound "is" ((em:integer "1") (em:compound "add" ((em:integer "0") (em:integer "1"))))))))) .
+proof:record173 em:term (em:compound "step" ((em:compound "is" ((em:integer "1") (em:compound "add" ((em:integer "0") (em:integer "1"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record174 em:term (em:compound "step" ((em:compound "n3_integer_result" ((em:integer "1") (em:integer "1"))) (em:compound "clause" ((em:integer "48"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "1"))) (em:compound "=" ((em:atom "O") (em:integer "1"))))) (em:list ((em:compound "is_var" ((em:integer "1"))) (em:compound "unify" ((em:integer "1") (em:integer "1"))))))) .
+proof:record175 em:term (em:compound "step" ((em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))) (em:compound "clause" ((em:integer "81"))) (em:list ((em:compound "=" ((em:atom "L") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "=" ((em:atom "O") (em:integer "2"))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "=" ((em:atom "K") (em:atom "decimal"))) (em:compound "=" ((em:atom "V") (em:integer "2"))))) (em:list ((em:compound "n3_nums" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "n3_sum_kind" ((em:list ((em:integer "1") (em:integer "1"))) (em:atom "decimal"))) (em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))) (em:compound "n3_result" ((em:integer "2") (em:integer "2"))))))) .
+proof:record176 em:term (em:compound "step" ((em:compound "n3_nums" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "clause" ((em:integer "65"))) (em:list ((em:compound "=" ((em:atom "L") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "1") (em:integer "1"))))))) (em:list ((em:compound "is_nonvar" ((em:list ((em:integer "1") (em:integer "1"))))) (em:compound "n3_nums_" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1"))))))))) .
+proof:record177 em:term (em:compound "step" ((em:compound "is_nonvar" ((em:list ((em:integer "1") (em:integer "1"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record178 em:term (em:compound "step" ((em:compound "n3_nums_" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "clause" ((em:integer "67"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "1"))) (em:compound "=" ((em:atom "R") (em:list ((em:integer "1"))))) (em:compound "=" ((em:atom "N") (em:integer "1"))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "1"))))))) (em:list ((em:compound "n3_num" ((em:integer "1") (em:integer "1"))) (em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:list ((em:integer "1"))))))))) .
+proof:record179 em:term (em:compound "step" ((em:compound "n3_sum_kind" ((em:list ((em:integer "1") (em:integer "1"))) (em:atom "decimal"))) (em:compound "clause" ((em:integer "82"))) (em:list ((em:compound "=" ((em:atom "L") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "=" ((em:atom "K") (em:atom "decimal"))) (em:compound "=" ((em:atom "_0") (em:variable "I"))) (em:compound "=" ((em:atom "D") (em:variable "J"))))) (em:list ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "I") (em:compound "datatype" ((em:variable "J"))))) (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))))))))) .
+proof:record180 em:term (em:compound "step" ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "I") (em:compound "datatype" ((em:variable "J"))))) (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "I") (em:compound "datatype" ((em:variable "J"))))) (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))))))) .
+proof:record181 em:term (em:compound "step" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "I") (em:compound "datatype" ((em:variable "J"))))) (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "or" ((em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#float"))) (em:compound "unify" ((em:variable "J") (em:atom "http://www.w3.org/2001/XMLSchema#double"))))))) (em:compound "unify" ((em:atom "decimal") (em:atom "binary"))))) (em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "unify" ((em:atom "decimal") (em:atom "decimal"))))))) .
+proof:record182 em:term (em:compound "step" ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))) (em:compound "clause" ((em:integer "84"))) (em:list ((em:compound "=" ((em:atom "Ns") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "=" ((em:atom "V") (em:integer "2"))) (em:compound "=" ((em:atom "I") (em:integer "2"))) (em:compound "=" ((em:atom "E") (em:integer "0"))))) (em:list ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "2") (em:integer "0"))) (em:compound "n3_sum_result" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2") (em:integer "0") (em:integer "2"))))))) .
+proof:record183 em:term (em:compound "step" ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "2") (em:integer "0"))) (em:compound "clause" ((em:integer "86"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "1"))) (em:compound "=" ((em:atom "Ns") (em:list ((em:integer "1"))))) (em:compound "=" ((em:atom "I") (em:integer "0"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "J") (em:integer "2"))) (em:compound "=" ((em:atom "F") (em:integer "0"))) (em:compound "=" ((em:atom "K") (em:integer "1"))) (em:compound "=" ((em:atom "G") (em:integer "0"))) (em:compound "=" ((em:atom "A") (em:integer "1"))) (em:compound "=" ((em:atom "B") (em:integer "0"))))) (em:list ((em:compound "n3_decimal" ((em:integer "1") (em:integer "1") (em:integer "0"))) (em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))) (em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0"))))))) .
+proof:record184 em:term (em:compound "step" ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0"))) (em:compound "clause" ((em:integer "86"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "1"))) (em:compound "=" ((em:atom "Ns") (em:atom "[]"))) (em:compound "=" ((em:atom "I") (em:integer "1"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "J") (em:integer "2"))) (em:compound "=" ((em:atom "F") (em:integer "0"))) (em:compound "=" ((em:atom "K") (em:integer "1"))) (em:compound "=" ((em:atom "G") (em:integer "0"))) (em:compound "=" ((em:atom "A") (em:integer "2"))) (em:compound "=" ((em:atom "B") (em:integer "0"))))) (em:list ((em:compound "n3_decimal" ((em:integer "1") (em:integer "1") (em:integer "0"))) (em:compound "n3_decimal_add" ((em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0"))) (em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "2") (em:integer "0") (em:integer "2") (em:integer "0"))))))) .
+proof:record185 em:term (em:compound "step" ((em:compound "n3_decimal_add" ((em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0"))) (em:compound "clause" ((em:integer "79"))) (em:list ((em:compound "=" ((em:atom "I") (em:integer "1"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "J") (em:integer "1"))) (em:compound "=" ((em:atom "F") (em:integer "0"))) (em:compound "=" ((em:atom "K") (em:integer "2"))) (em:compound "=" ((em:atom "G") (em:integer "0"))))) (em:list ((em:compound "is" ((em:integer "0") (em:compound "min" ((em:integer "0") (em:integer "0"))))) (em:compound "is" ((em:integer "2") (em:compound "add" ((em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))) (em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))))))))))) .
+proof:record186 em:term (em:compound "step" ((em:compound "is" ((em:integer "2") (em:compound "add" ((em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))) (em:compound "mul" ((em:integer "1") (em:compound "pow" ((em:integer "10") (em:compound "sub" ((em:integer "0") (em:integer "0"))))))))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record187 em:term (em:compound "step" ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "2") (em:integer "0") (em:integer "2") (em:integer "0"))) (em:compound "clause" ((em:integer "85"))) (em:list ((em:compound "=" ((em:atom "I") (em:integer "2"))) (em:compound "=" ((em:atom "E") (em:integer "0"))))) (em:atom "[]"))) .
+proof:record188 em:term (em:compound "step" ((em:compound "n3_sum_result" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2") (em:integer "0") (em:integer "2"))) (em:compound "clause" ((em:integer "87"))) (em:list ((em:compound "=" ((em:atom "Ns") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "=" ((em:atom "I") (em:integer "2"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "V") (em:integer "2"))) (em:compound "=" ((em:atom "N") (em:variable "K"))) (em:compound "=" ((em:atom "K") (em:atom "int"))))) (em:list ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "K") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "is_float" ((em:variable "K"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))))) (em:compound "n3_sum_number" ((em:atom "int") (em:integer "2") (em:integer "0") (em:integer "2"))))))) .
+proof:record189 em:term (em:compound "step" ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "K") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "is_float" ((em:variable "K"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "K") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "is_float" ((em:variable "K"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))))))) .
+proof:record190 em:term (em:compound "step" ((em:compound "or" ((em:compound "and" ((em:compound "and" ((em:compound "n3_member" ((em:variable "K") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "is_float" ((em:variable "K"))))) (em:compound "unify" ((em:atom "int") (em:atom "float"))))) (em:compound "unify" ((em:atom "int") (em:atom "int"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "unify" ((em:atom "int") (em:atom "int"))))))) .
+proof:record191 em:term (em:compound "step" ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "2") (em:integer "0") (em:integer "2"))) (em:compound "clause" ((em:integer "88"))) (em:list ((em:compound "=" ((em:atom "I") (em:integer "2"))) (em:compound "=" ((em:atom "E") (em:integer "0"))) (em:compound "=" ((em:atom "V") (em:integer "2"))))) (em:list ((em:compound "is" ((em:integer "2") (em:compound "mul" ((em:integer "2") (em:compound "pow" ((em:integer "10") (em:integer "0"))))))))))) .
+proof:record192 em:term (em:compound "step" ((em:compound "is" ((em:integer "2") (em:compound "mul" ((em:integer "2") (em:compound "pow" ((em:integer "10") (em:integer "0"))))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record193 em:term (em:compound "step" ((em:compound "n3_result" ((em:integer "2") (em:integer "2"))) (em:compound "clause" ((em:integer "68"))) (em:list ((em:compound "=" ((em:atom "V") (em:integer "2"))) (em:compound "=" ((em:atom "O") (em:integer "2"))))) (em:list ((em:compound "is_var" ((em:integer "2"))) (em:compound "unify" ((em:integer "2") (em:integer "2"))))))) .
+proof:record194 em:term (em:compound "step" ((em:compound "is_var" ((em:integer "2"))) (em:compound "called" ((em:compound "is_var" ((em:variable "L"))))) (em:atom "[]") (em:atom "[]"))) .
+proof:record195 em:term (em:compound "step" ((em:compound "unify" ((em:integer "2") (em:integer "2"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record196 em:term (em:compound "step" ((em:compound "result" ((em:iri :open) (em:iri :assertedBy) (em:iri :anonymousPost))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "Rank") (em:integer "2"))) (em:compound "=" ((em:atom "Status") (em:iri :open))) (em:compound "=" ((em:atom "Source") (em:iri :anonymousPost))) (em:compound "=" ((em:atom "Score") (em:integer "700"))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "2") (em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
+proof:record197 em:term (em:compound "step" ((em:compound "result" ((em:iri :open) (em:iri :score) (em:integer "700"))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "Rank") (em:integer "2"))) (em:compound "=" ((em:atom "Status") (em:iri :open))) (em:compound "=" ((em:atom "Source") (em:iri :anonymousPost))) (em:compound "=" ((em:atom "Score") (em:integer "700"))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "2") (em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
