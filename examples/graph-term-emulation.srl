@@ -1,0 +1,54 @@
+# Two graph descriptions store their quoted triples in closed RDF lists.
+# Recursive list traversal finds social graphs and the resources each graph
+# mentions. Conclusions describe the graph descriptions while their quoted
+# triple lists retain their original contents.
+
+PREFIX : <http://example.org/graph-term-list#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+DATA {
+  :g1 a :GraphTerm ;
+      :quotedTriples (
+        <<(:alice :knows :bob)>>
+        <<(:bob :knows :carol)>>
+      ) .
+
+  :g2 a :GraphTerm ;
+      :quotedTriples (
+        <<(:alice :likes :tea)>>
+      ) .
+
+  :note1 :aboutGraphTerm :g1 .
+}
+
+RULE { ?g :listCell ?cell }
+WHERE {
+  ?g :quotedTriples ?cell .
+}
+
+RULE { ?g :listCell ?rest }
+WHERE {
+  ?g :listCell ?cell .
+  ?cell rdf:rest ?rest .
+}
+
+RULE { ?g a :SocialGraphTerm }
+WHERE {
+  ?g a :GraphTerm ;
+     :listCell ?cell .
+  ?cell rdf:first <<(?s :knows ?o)>> .
+}
+
+RULE { ?g :mentions ?s }
+WHERE {
+  ?g a :GraphTerm ;
+     :listCell ?cell .
+  ?cell rdf:first <<(?s ?p ?o)>> .
+}
+
+RULE { ?g :mentions ?o }
+WHERE {
+  ?g a :GraphTerm ;
+     :listCell ?cell .
+  ?cell rdf:first <<(?s ?p ?o)>> .
+}

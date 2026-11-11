@@ -1,0 +1,26 @@
+# Koko's Animal fact enables separate Cat and BritishShortHair witnesses.
+# A final rule confirms they are different, showing per-rule head blank
+# nodes and a FILTER comparison.
+
+PREFIX : <https://eyereasoner.github.io/ns#>
+
+DATA {
+  :Koko a :Animal .
+}
+
+RULE { _:cat a :Cat }
+WHERE {
+  :Koko a :Animal .
+}
+
+RULE { _:bsh a :BritishShortHair }
+WHERE {
+  :Koko a :Animal .
+}
+
+RULE { :test :is true }
+WHERE {
+  ?X a :Cat .
+  ?Y a :BritishShortHair .
+  FILTER(?X != ?Y)
+}

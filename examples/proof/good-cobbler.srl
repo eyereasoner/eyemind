@@ -1,0 +1,126 @@
+# SRL proof: DATA only; claims, steps and the complete C1–C10 certificate.
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX : <http://example.org/good-cobbler#>
+PREFIX pe: <https://eyereasoner.github.io/pe#>
+PREFIX em: <https://eyereasoner.github.io/eyemind/proof#>
+PREFIX proof: <urn:eyemind:proof#>
+
+DATA {
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "srl" .
+<urn:eyemind:proof> pe:claims (<<( :test :goodAt :Cobbler )>> <<( :joe :classifiedAs :Cobbler )>> <<( _:b0 rdf:first :good )>> <<( _:b0 rdf:rest _:b1 )>> <<( _:b1 rdf:first :Cobbler )>> <<( _:b1 rdf:rest rdf:nil )>> <<( :joe :is _:b0 )>>) .
+proof:record20 pe:conclusion <<( :test :goodAt :Cobbler )>> .
+proof:record20 pe:rule 11 .
+proof:record20 pe:binding (("B3" _:b0) ("B4" _:b1) ("Trade" :Cobbler) ("Person" :joe)) .
+proof:record20 pe:uses (<<( _:b0 rdf:first :good )>> <<( _:b0 rdf:rest _:b1 )>> <<( _:b1 rdf:first :Cobbler )>> <<( _:b1 rdf:rest rdf:nil )>> <<( :joe :is _:b0 )>>) .
+proof:record21 pe:conclusion <<( _:b0 rdf:first :good )>> .
+proof:record21 pe:rule 1 .
+proof:record21 pe:binding () .
+proof:record21 pe:uses () .
+proof:record22 pe:conclusion <<( _:b0 rdf:rest _:b1 )>> .
+proof:record22 pe:rule 3 .
+proof:record22 pe:binding () .
+proof:record22 pe:uses () .
+proof:record23 pe:conclusion <<( _:b1 rdf:first :Cobbler )>> .
+proof:record23 pe:rule 5 .
+proof:record23 pe:binding () .
+proof:record23 pe:uses () .
+proof:record24 pe:conclusion <<( _:b1 rdf:rest rdf:nil )>> .
+proof:record24 pe:rule 7 .
+proof:record24 pe:binding () .
+proof:record24 pe:uses () .
+proof:record25 pe:conclusion <<( :joe :is _:b0 )>> .
+proof:record25 pe:rule 9 .
+proof:record25 pe:binding () .
+proof:record25 pe:uses () .
+proof:record26 pe:conclusion <<( :joe :classifiedAs :Cobbler )>> .
+proof:record26 pe:rule 12 .
+proof:record26 pe:binding (("B5" _:b0) ("B6" _:b1) ("Trade" :Cobbler) ("Person" :joe)) .
+proof:record26 pe:uses (<<( _:b0 rdf:first :good )>> <<( _:b0 rdf:rest _:b1 )>> <<( _:b1 rdf:first :Cobbler )>> <<( _:b1 rdf:rest rdf:nil )>> <<( :joe :is _:b0 )>>) .
+proof:record27 pe:conclusion <<( _:b0 rdf:first :good )>> .
+proof:record27 pe:rule 2 .
+proof:record27 pe:binding () .
+proof:record27 pe:uses () .
+proof:record28 pe:conclusion <<( _:b0 rdf:rest _:b1 )>> .
+proof:record28 pe:rule 4 .
+proof:record28 pe:binding () .
+proof:record28 pe:uses () .
+proof:record29 pe:conclusion <<( _:b1 rdf:first :Cobbler )>> .
+proof:record29 pe:rule 6 .
+proof:record29 pe:binding () .
+proof:record29 pe:uses () .
+proof:record30 pe:conclusion <<( _:b1 rdf:rest rdf:nil )>> .
+proof:record30 pe:rule 8 .
+proof:record30 pe:binding () .
+proof:record30 pe:uses () .
+proof:record31 pe:conclusion <<( :joe :is _:b0 )>> .
+proof:record31 pe:rule 10 .
+proof:record31 pe:binding () .
+proof:record31 pe:uses () .
+proof:record32 pe:conclusion <<( :test :goodAt :Cobbler )>> .
+proof:record32 pe:rule 11 .
+proof:record32 pe:binding (("B3" _:b0) ("B4" _:b1) ("Trade" :Cobbler) ("Person" :joe)) .
+proof:record32 pe:uses (<<( _:b0 rdf:first :good )>> <<( _:b0 rdf:rest _:b1 )>> <<( _:b1 rdf:first :Cobbler )>> <<( _:b1 rdf:rest rdf:nil )>> <<( :joe :is _:b0 )>>) .
+proof:record33 pe:conclusion <<( :joe :classifiedAs :Cobbler )>> .
+proof:record33 pe:rule 12 .
+proof:record33 pe:binding (("B5" _:b0) ("B6" _:b1) ("Trade" :Cobbler) ("Person" :joe)) .
+proof:record33 pe:uses (<<( _:b0 rdf:first :good )>> <<( _:b0 rdf:rest _:b1 )>> <<( _:b1 rdf:first :Cobbler )>> <<( _:b1 rdf:rest rdf:nil )>> <<( :joe :is _:b0 )>>) .
+proof:record34 pe:derived (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record34 pe:answers (<<( :test :goodAt :Cobbler )>> <<( :joe :classifiedAs :Cobbler )>>) .
+proof:record35 pe:derived (em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record35 pe:answers (<<( :test :goodAt :Cobbler )>> <<( :joe :classifiedAs :Cobbler )>>) .
+proof:record36 pe:called (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record36 pe:answers (<<( :test :goodAt :Cobbler )>> <<( :joe :classifiedAs :Cobbler )>> <<( _:b0 rdf:first :good )>> <<( _:b0 rdf:rest _:b1 )>> <<( _:b1 rdf:first :Cobbler )>> <<( _:b1 rdf:rest rdf:nil )>> <<( :joe :is _:b0 )>>) .
+proof:record37 pe:called (em:compound "rdf" ((em:variable "D") (em:iri rdf:first) (em:iri :good))) .
+proof:record37 pe:answers (<<( _:b0 rdf:first :good )>>) .
+proof:record38 pe:called (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:variable "E"))) .
+proof:record38 pe:answers (<<( _:b0 rdf:rest _:b1 )>>) .
+proof:record39 pe:called (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:variable "F"))) .
+proof:record39 pe:answers (<<( _:b1 rdf:first :Cobbler )>>) .
+proof:record40 pe:called <<( _:b1 rdf:rest rdf:nil )>> .
+proof:record40 pe:answers (<<( _:b1 rdf:rest rdf:nil )>>) .
+proof:record41 pe:called (em:compound "rdf" ((em:variable "G") (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) .
+proof:record41 pe:answers (<<( :joe :is _:b0 )>>) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41) .
+proof:record1 em:term (em:compound "inf" ((em:iri :test) (em:iri :goodAt) (em:iri :Cobbler))) .
+proof:record2 em:term (em:compound "inf" ((em:iri :joe) (em:iri :classifiedAs) (em:iri :Cobbler))) .
+proof:record3 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:iri :good))) .
+proof:record4 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) .
+proof:record5 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:iri :Cobbler))) .
+proof:record6 em:term (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:iri rdf:nil))) .
+proof:record7 em:term (em:compound "inf" ((em:iri :joe) (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) .
+proof:record8 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:iri :good))))))) .
+proof:record9 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:iri :good))))))) .
+proof:record10 em:term (em:compound "clause" ((em:integer "3") (em:compound "fact" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))))))) .
+proof:record11 em:term (em:compound "clause" ((em:integer "4") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))))))) .
+proof:record12 em:term (em:compound "clause" ((em:integer "5") (em:compound "fact" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:iri :Cobbler))))))) .
+proof:record13 em:term (em:compound "clause" ((em:integer "6") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:iri :Cobbler))))))) .
+proof:record14 em:term (em:compound "clause" ((em:integer "7") (em:compound "fact" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:iri rdf:nil))))))) .
+proof:record15 em:term (em:compound "clause" ((em:integer "8") (em:compound "fact" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:iri rdf:nil))))))) .
+proof:record16 em:term (em:compound "clause" ((em:integer "9") (em:compound "fact" ((em:compound "rdf" ((em:iri :joe) (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))))))) .
+proof:record17 em:term (em:compound "clause" ((em:integer "10") (em:compound "fact" ((em:compound "inf" ((em:iri :joe) (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))))))) .
+proof:record18 em:term (em:compound "clause" ((em:integer "11") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "B3") (em:iri rdf:first) (em:iri :good))) (em:compound "rdf" ((em:variable "B3") (em:iri rdf:rest) (em:variable "B4"))) (em:compound "rdf" ((em:variable "B4") (em:iri rdf:first) (em:variable "Trade"))) (em:compound "rdf" ((em:variable "B4") (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "rdf" ((em:variable "Person") (em:iri :is) (em:variable "B3"))))) (em:list ((em:compound "rdf" ((em:iri :test) (em:iri :goodAt) (em:variable "Trade"))) (em:compound "inf" ((em:iri :test) (em:iri :goodAt) (em:variable "Trade"))))))))) .
+proof:record19 em:term (em:compound "clause" ((em:integer "12") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "B5") (em:iri rdf:first) (em:iri :good))) (em:compound "rdf" ((em:variable "B5") (em:iri rdf:rest) (em:variable "B6"))) (em:compound "rdf" ((em:variable "B6") (em:iri rdf:first) (em:variable "Trade"))) (em:compound "rdf" ((em:variable "B6") (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "rdf" ((em:variable "Person") (em:iri :is) (em:variable "B5"))))) (em:list ((em:compound "rdf" ((em:variable "Person") (em:iri :classifiedAs) (em:variable "Trade"))) (em:compound "inf" ((em:variable "Person") (em:iri :classifiedAs) (em:variable "Trade"))))))))) .
+proof:record20 em:term (em:compound "step" ((em:compound "inf" ((em:iri :test) (em:iri :goodAt) (em:iri :Cobbler))) (em:compound "clause" ((em:integer "11"))) (em:list ((em:compound "=" ((em:atom "B3") (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "=" ((em:atom "B4") (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "=" ((em:atom "Trade") (em:iri :Cobbler))) (em:compound "=" ((em:atom "Person") (em:iri :joe))))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:iri :good))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:iri :Cobbler))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "rdf" ((em:iri :joe) (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))))))) .
+proof:record21 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:iri :good))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record22 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record23 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:iri :Cobbler))) (em:compound "clause" ((em:integer "5"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record24 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "clause" ((em:integer "7"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record25 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :joe) (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "clause" ((em:integer "9"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record26 em:term (em:compound "step" ((em:compound "inf" ((em:iri :joe) (em:iri :classifiedAs) (em:iri :Cobbler))) (em:compound "clause" ((em:integer "12"))) (em:list ((em:compound "=" ((em:atom "B5") (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "=" ((em:atom "B6") (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "=" ((em:atom "Trade") (em:iri :Cobbler))) (em:compound "=" ((em:atom "Person") (em:iri :joe))))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:iri :good))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:iri :Cobbler))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "rdf" ((em:iri :joe) (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))))))) .
+proof:record27 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:iri :good))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record28 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "clause" ((em:integer "4"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record29 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:iri :Cobbler))) (em:compound "clause" ((em:integer "6"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record30 em:term (em:compound "step" ((em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "clause" ((em:integer "8"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record31 em:term (em:compound "step" ((em:compound "inf" ((em:iri :joe) (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "clause" ((em:integer "10"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record32 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :test) (em:iri :goodAt) (em:iri :Cobbler))) (em:compound "clause" ((em:integer "11"))) (em:list ((em:compound "=" ((em:atom "B3") (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "=" ((em:atom "B4") (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "=" ((em:atom "Trade") (em:iri :Cobbler))) (em:compound "=" ((em:atom "Person") (em:iri :joe))))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:iri :good))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:iri :Cobbler))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "rdf" ((em:iri :joe) (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))))))) .
+proof:record33 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :joe) (em:iri :classifiedAs) (em:iri :Cobbler))) (em:compound "clause" ((em:integer "12"))) (em:list ((em:compound "=" ((em:atom "B5") (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:compound "=" ((em:atom "B6") (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "=" ((em:atom "Trade") (em:iri :Cobbler))) (em:compound "=" ((em:atom "Person") (em:iri :joe))))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:iri :good))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:iri :Cobbler))) (em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "rdf" ((em:iri :joe) (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))))))) .
+proof:record34 em:term (em:compound "derived" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :test) (em:iri :goodAt) (em:iri :Cobbler))) (em:compound "inf" ((em:iri :joe) (em:iri :classifiedAs) (em:iri :Cobbler))))))) .
+proof:record35 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :test) (em:iri :goodAt) (em:iri :Cobbler))) (em:compound "rdf" ((em:iri :joe) (em:iri :classifiedAs) (em:iri :Cobbler))))))) .
+proof:record36 em:term (em:compound "called" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :test) (em:iri :goodAt) (em:iri :Cobbler))) (em:compound "inf" ((em:iri :joe) (em:iri :classifiedAs) (em:iri :Cobbler))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:iri :good))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:iri :Cobbler))) (em:compound "inf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:iri rdf:nil))) (em:compound "inf" ((em:iri :joe) (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))))))) .
+proof:record37 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "D") (em:iri rdf:first) (em:iri :good))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:first) (em:iri :good))))))) .
+proof:record38 em:term (em:compound "called" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b1"))) (em:iri rdf:rest) (em:compound "bnode" ((em:atom "srl") (em:atom "b2"))))))))) .
+proof:record39 em:term (em:compound "called" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:variable "F"))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:first) (em:iri :Cobbler))))))) .
+proof:record40 em:term (em:compound "called" ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:iri rdf:nil))) (em:list ((em:compound "rdf" ((em:compound "bnode" ((em:atom "srl") (em:atom "b2"))) (em:iri rdf:rest) (em:iri rdf:nil))))))) .
+proof:record41 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "G") (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))) (em:list ((em:compound "rdf" ((em:iri :joe) (em:iri :is) (em:compound "bnode" ((em:atom "srl") (em:atom "b1"))))))))) .
+}

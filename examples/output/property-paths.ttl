@@ -1,0 +1,7 @@
+PREFIX : <http://example.org/property-paths#>
+
+:alice :parentOf :bob .
+:bob :parentOf :carol .
+:alice :grandparentOf :carol .
+:bob :hasParent :alice .
+:carol :hasParent :bob .

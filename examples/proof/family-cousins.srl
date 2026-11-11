@@ -1,0 +1,583 @@
+# SRL proof: DATA only; claims, steps and the complete C1–C10 certificate.
+PREFIX : <http://example.org/family-cousins#>
+PREFIX pe: <https://eyereasoner.github.io/pe#>
+PREFIX em: <https://eyereasoner.github.io/eyemind/proof#>
+PREFIX proof: <urn:eyemind:proof#>
+
+DATA {
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "srl" .
+<urn:eyemind:proof> pe:claims (<<( :Adam :generation 0 )>> <<( :Bob :generation 1 )>> <<( :Carol :generation 1 )>> <<( :Dave :generation 2 )>> <<( :Eve :generation 2 )>> <<( :Frank :generation 2 )>> <<( :Grace :generation 2 )>> <<( :Heidi :generation 3 )>> <<( :Ivan :generation 3 )>> <<( :Judy :generation 3 )>> <<( :Heidi :branch :b )>> <<( :Ivan :branch :b )>> <<( :Judy :branch :c )>> <<( :Dave :cousin :Frank )>> <<( :Dave :cousin :Grace )>> <<( :Eve :cousin :Frank )>> <<( :Eve :cousin :Grace )>> <<( :Frank :cousin :Dave )>> <<( :Frank :cousin :Eve )>> <<( :Grace :cousin :Dave )>> <<( :Grace :cousin :Eve )>> <<( :Heidi :cousin :Judy )>> <<( :Ivan :cousin :Judy )>> <<( :Judy :cousin :Heidi )>> <<( :Judy :cousin :Ivan )>> <<( :Adam :parentOf :Bob )>> <<( :Adam :parentOf :Carol )>> <<( :Bob :parentOf :Dave )>> <<( :Bob :parentOf :Eve )>> <<( :Carol :parentOf :Frank )>> <<( :Carol :parentOf :Grace )>> <<( :Dave :parentOf :Heidi )>> <<( :Eve :parentOf :Ivan )>> <<( :Frank :parentOf :Judy )>> <<( :Dave :branch :b )>> <<( :Eve :branch :b )>> <<( :Frank :branch :c )>> <<( :Grace :branch :c )>> <<( :b :differentFrom :c )>> <<( :c :differentFrom :b )>>) .
+proof:record77 pe:conclusion <<( :Adam :generation 0 )>> .
+proof:record77 pe:rule 31 .
+proof:record77 pe:binding () .
+proof:record77 pe:uses ((em:atom "true")) .
+proof:record78 pe:conclusion (em:atom "true") .
+proof:record78 pe:justification (em:atom "builtin") .
+proof:record78 pe:binding () .
+proof:record78 pe:uses () .
+proof:record79 pe:conclusion <<( :Bob :generation 1 )>> .
+proof:record79 pe:rule 32 .
+proof:record79 pe:binding (("Child" :Bob)) .
+proof:record79 pe:uses (<<( :Adam :parentOf :Bob )>>) .
+proof:record80 pe:conclusion <<( :Adam :parentOf :Bob )>> .
+proof:record80 pe:rule 1 .
+proof:record80 pe:binding () .
+proof:record80 pe:uses () .
+proof:record81 pe:conclusion <<( :Carol :generation 1 )>> .
+proof:record81 pe:rule 32 .
+proof:record81 pe:binding (("Child" :Carol)) .
+proof:record81 pe:uses (<<( :Adam :parentOf :Carol )>>) .
+proof:record82 pe:conclusion <<( :Adam :parentOf :Carol )>> .
+proof:record82 pe:rule 3 .
+proof:record82 pe:binding () .
+proof:record82 pe:uses () .
+proof:record83 pe:conclusion <<( :Dave :generation 2 )>> .
+proof:record83 pe:rule 33 .
+proof:record83 pe:binding (("V__path0" :Bob) ("Grandchild" :Dave)) .
+proof:record83 pe:uses (<<( :Adam :parentOf :Bob )>> <<( :Bob :parentOf :Dave )>>) .
+proof:record84 pe:conclusion <<( :Bob :parentOf :Dave )>> .
+proof:record84 pe:rule 5 .
+proof:record84 pe:binding () .
+proof:record84 pe:uses () .
+proof:record85 pe:conclusion <<( :Eve :generation 2 )>> .
+proof:record85 pe:rule 33 .
+proof:record85 pe:binding (("V__path0" :Bob) ("Grandchild" :Eve)) .
+proof:record85 pe:uses (<<( :Adam :parentOf :Bob )>> <<( :Bob :parentOf :Eve )>>) .
+proof:record86 pe:conclusion <<( :Bob :parentOf :Eve )>> .
+proof:record86 pe:rule 7 .
+proof:record86 pe:binding () .
+proof:record86 pe:uses () .
+proof:record87 pe:conclusion <<( :Frank :generation 2 )>> .
+proof:record87 pe:rule 33 .
+proof:record87 pe:binding (("V__path0" :Carol) ("Grandchild" :Frank)) .
+proof:record87 pe:uses (<<( :Adam :parentOf :Carol )>> <<( :Carol :parentOf :Frank )>>) .
+proof:record88 pe:conclusion <<( :Carol :parentOf :Frank )>> .
+proof:record88 pe:rule 9 .
+proof:record88 pe:binding () .
+proof:record88 pe:uses () .
+proof:record89 pe:conclusion <<( :Grace :generation 2 )>> .
+proof:record89 pe:rule 33 .
+proof:record89 pe:binding (("V__path0" :Carol) ("Grandchild" :Grace)) .
+proof:record89 pe:uses (<<( :Adam :parentOf :Carol )>> <<( :Carol :parentOf :Grace )>>) .
+proof:record90 pe:conclusion <<( :Carol :parentOf :Grace )>> .
+proof:record90 pe:rule 11 .
+proof:record90 pe:binding () .
+proof:record90 pe:uses () .
+proof:record91 pe:conclusion <<( :Heidi :generation 3 )>> .
+proof:record91 pe:rule 34 .
+proof:record91 pe:binding (("V__path0" :Bob) ("V__path1" :Dave) ("GreatGrandchild" :Heidi)) .
+proof:record91 pe:uses (<<( :Adam :parentOf :Bob )>> <<( :Bob :parentOf :Dave )>> <<( :Dave :parentOf :Heidi )>>) .
+proof:record92 pe:conclusion <<( :Dave :parentOf :Heidi )>> .
+proof:record92 pe:rule 13 .
+proof:record92 pe:binding () .
+proof:record92 pe:uses () .
+proof:record93 pe:conclusion <<( :Ivan :generation 3 )>> .
+proof:record93 pe:rule 34 .
+proof:record93 pe:binding (("V__path0" :Bob) ("V__path1" :Eve) ("GreatGrandchild" :Ivan)) .
+proof:record93 pe:uses (<<( :Adam :parentOf :Bob )>> <<( :Bob :parentOf :Eve )>> <<( :Eve :parentOf :Ivan )>>) .
+proof:record94 pe:conclusion <<( :Eve :parentOf :Ivan )>> .
+proof:record94 pe:rule 15 .
+proof:record94 pe:binding () .
+proof:record94 pe:uses () .
+proof:record95 pe:conclusion <<( :Judy :generation 3 )>> .
+proof:record95 pe:rule 34 .
+proof:record95 pe:binding (("V__path0" :Carol) ("V__path1" :Frank) ("GreatGrandchild" :Judy)) .
+proof:record95 pe:uses (<<( :Adam :parentOf :Carol )>> <<( :Carol :parentOf :Frank )>> <<( :Frank :parentOf :Judy )>>) .
+proof:record96 pe:conclusion <<( :Frank :parentOf :Judy )>> .
+proof:record96 pe:rule 17 .
+proof:record96 pe:binding () .
+proof:record96 pe:uses () .
+proof:record97 pe:conclusion <<( :Heidi :branch :b )>> .
+proof:record97 pe:rule 35 .
+proof:record97 pe:binding (("Parent" :Dave) ("Child" :Heidi) ("Branch" :b)) .
+proof:record97 pe:uses (<<( :Dave :parentOf :Heidi )>> <<( :Dave :branch :b )>>) .
+proof:record98 pe:conclusion <<( :Dave :branch :b )>> .
+proof:record98 pe:rule 19 .
+proof:record98 pe:binding () .
+proof:record98 pe:uses () .
+proof:record99 pe:conclusion <<( :Ivan :branch :b )>> .
+proof:record99 pe:rule 35 .
+proof:record99 pe:binding (("Parent" :Eve) ("Child" :Ivan) ("Branch" :b)) .
+proof:record99 pe:uses (<<( :Eve :parentOf :Ivan )>> <<( :Eve :branch :b )>>) .
+proof:record100 pe:conclusion <<( :Eve :branch :b )>> .
+proof:record100 pe:rule 21 .
+proof:record100 pe:binding () .
+proof:record100 pe:uses () .
+proof:record101 pe:conclusion <<( :Judy :branch :c )>> .
+proof:record101 pe:rule 35 .
+proof:record101 pe:binding (("Parent" :Frank) ("Child" :Judy) ("Branch" :c)) .
+proof:record101 pe:uses (<<( :Frank :parentOf :Judy )>> <<( :Frank :branch :c )>>) .
+proof:record102 pe:conclusion <<( :Frank :branch :c )>> .
+proof:record102 pe:rule 23 .
+proof:record102 pe:binding () .
+proof:record102 pe:uses () .
+proof:record103 pe:conclusion <<( :Dave :cousin :Frank )>> .
+proof:record103 pe:rule 36 .
+proof:record103 pe:binding (("X" :Dave) ("Generation" 2) ("Y" :Frank) ("BranchX" :b) ("BranchY" :c)) .
+proof:record103 pe:uses (<<( :Dave :generation 2 )>> <<( :Frank :generation 2 )>> <<( :Dave :branch :b )>> <<( :Frank :branch :c )>> <<( :b :differentFrom :c )>>) .
+proof:record104 pe:conclusion <<( :Dave :generation 2 )>> .
+proof:record104 pe:rule 33 .
+proof:record104 pe:binding (("V__path0" :Bob) ("Grandchild" :Dave)) .
+proof:record104 pe:uses (<<( :Adam :parentOf :Bob )>> <<( :Bob :parentOf :Dave )>>) .
+proof:record105 pe:conclusion <<( :Frank :generation 2 )>> .
+proof:record105 pe:rule 33 .
+proof:record105 pe:binding (("V__path0" :Carol) ("Grandchild" :Frank)) .
+proof:record105 pe:uses (<<( :Adam :parentOf :Carol )>> <<( :Carol :parentOf :Frank )>>) .
+proof:record106 pe:conclusion <<( :b :differentFrom :c )>> .
+proof:record106 pe:rule 27 .
+proof:record106 pe:binding () .
+proof:record106 pe:uses () .
+proof:record107 pe:conclusion <<( :Dave :cousin :Grace )>> .
+proof:record107 pe:rule 36 .
+proof:record107 pe:binding (("X" :Dave) ("Generation" 2) ("Y" :Grace) ("BranchX" :b) ("BranchY" :c)) .
+proof:record107 pe:uses (<<( :Dave :generation 2 )>> <<( :Grace :generation 2 )>> <<( :Dave :branch :b )>> <<( :Grace :branch :c )>> <<( :b :differentFrom :c )>>) .
+proof:record108 pe:conclusion <<( :Grace :generation 2 )>> .
+proof:record108 pe:rule 33 .
+proof:record108 pe:binding (("V__path0" :Carol) ("Grandchild" :Grace)) .
+proof:record108 pe:uses (<<( :Adam :parentOf :Carol )>> <<( :Carol :parentOf :Grace )>>) .
+proof:record109 pe:conclusion <<( :Grace :branch :c )>> .
+proof:record109 pe:rule 25 .
+proof:record109 pe:binding () .
+proof:record109 pe:uses () .
+proof:record110 pe:conclusion <<( :Eve :cousin :Frank )>> .
+proof:record110 pe:rule 36 .
+proof:record110 pe:binding (("X" :Eve) ("Generation" 2) ("Y" :Frank) ("BranchX" :b) ("BranchY" :c)) .
+proof:record110 pe:uses (<<( :Eve :generation 2 )>> <<( :Frank :generation 2 )>> <<( :Eve :branch :b )>> <<( :Frank :branch :c )>> <<( :b :differentFrom :c )>>) .
+proof:record111 pe:conclusion <<( :Eve :generation 2 )>> .
+proof:record111 pe:rule 33 .
+proof:record111 pe:binding (("V__path0" :Bob) ("Grandchild" :Eve)) .
+proof:record111 pe:uses (<<( :Adam :parentOf :Bob )>> <<( :Bob :parentOf :Eve )>>) .
+proof:record112 pe:conclusion <<( :Eve :cousin :Grace )>> .
+proof:record112 pe:rule 36 .
+proof:record112 pe:binding (("X" :Eve) ("Generation" 2) ("Y" :Grace) ("BranchX" :b) ("BranchY" :c)) .
+proof:record112 pe:uses (<<( :Eve :generation 2 )>> <<( :Grace :generation 2 )>> <<( :Eve :branch :b )>> <<( :Grace :branch :c )>> <<( :b :differentFrom :c )>>) .
+proof:record113 pe:conclusion <<( :Frank :cousin :Dave )>> .
+proof:record113 pe:rule 36 .
+proof:record113 pe:binding (("X" :Frank) ("Generation" 2) ("Y" :Dave) ("BranchX" :c) ("BranchY" :b)) .
+proof:record113 pe:uses (<<( :Frank :generation 2 )>> <<( :Dave :generation 2 )>> <<( :Frank :branch :c )>> <<( :Dave :branch :b )>> <<( :c :differentFrom :b )>>) .
+proof:record114 pe:conclusion <<( :c :differentFrom :b )>> .
+proof:record114 pe:rule 29 .
+proof:record114 pe:binding () .
+proof:record114 pe:uses () .
+proof:record115 pe:conclusion <<( :Frank :cousin :Eve )>> .
+proof:record115 pe:rule 36 .
+proof:record115 pe:binding (("X" :Frank) ("Generation" 2) ("Y" :Eve) ("BranchX" :c) ("BranchY" :b)) .
+proof:record115 pe:uses (<<( :Frank :generation 2 )>> <<( :Eve :generation 2 )>> <<( :Frank :branch :c )>> <<( :Eve :branch :b )>> <<( :c :differentFrom :b )>>) .
+proof:record116 pe:conclusion <<( :Grace :cousin :Dave )>> .
+proof:record116 pe:rule 36 .
+proof:record116 pe:binding (("X" :Grace) ("Generation" 2) ("Y" :Dave) ("BranchX" :c) ("BranchY" :b)) .
+proof:record116 pe:uses (<<( :Grace :generation 2 )>> <<( :Dave :generation 2 )>> <<( :Grace :branch :c )>> <<( :Dave :branch :b )>> <<( :c :differentFrom :b )>>) .
+proof:record117 pe:conclusion <<( :Grace :cousin :Eve )>> .
+proof:record117 pe:rule 36 .
+proof:record117 pe:binding (("X" :Grace) ("Generation" 2) ("Y" :Eve) ("BranchX" :c) ("BranchY" :b)) .
+proof:record117 pe:uses (<<( :Grace :generation 2 )>> <<( :Eve :generation 2 )>> <<( :Grace :branch :c )>> <<( :Eve :branch :b )>> <<( :c :differentFrom :b )>>) .
+proof:record118 pe:conclusion <<( :Heidi :cousin :Judy )>> .
+proof:record118 pe:rule 36 .
+proof:record118 pe:binding (("X" :Heidi) ("Generation" 3) ("Y" :Judy) ("BranchX" :b) ("BranchY" :c)) .
+proof:record118 pe:uses (<<( :Heidi :generation 3 )>> <<( :Judy :generation 3 )>> <<( :Heidi :branch :b )>> <<( :Judy :branch :c )>> <<( :b :differentFrom :c )>>) .
+proof:record119 pe:conclusion <<( :Heidi :generation 3 )>> .
+proof:record119 pe:rule 34 .
+proof:record119 pe:binding (("V__path0" :Bob) ("V__path1" :Dave) ("GreatGrandchild" :Heidi)) .
+proof:record119 pe:uses (<<( :Adam :parentOf :Bob )>> <<( :Bob :parentOf :Dave )>> <<( :Dave :parentOf :Heidi )>>) .
+proof:record120 pe:conclusion <<( :Judy :generation 3 )>> .
+proof:record120 pe:rule 34 .
+proof:record120 pe:binding (("V__path0" :Carol) ("V__path1" :Frank) ("GreatGrandchild" :Judy)) .
+proof:record120 pe:uses (<<( :Adam :parentOf :Carol )>> <<( :Carol :parentOf :Frank )>> <<( :Frank :parentOf :Judy )>>) .
+proof:record121 pe:conclusion <<( :Heidi :branch :b )>> .
+proof:record121 pe:rule 35 .
+proof:record121 pe:binding (("Parent" :Dave) ("Child" :Heidi) ("Branch" :b)) .
+proof:record121 pe:uses (<<( :Dave :parentOf :Heidi )>> <<( :Dave :branch :b )>>) .
+proof:record122 pe:conclusion <<( :Judy :branch :c )>> .
+proof:record122 pe:rule 35 .
+proof:record122 pe:binding (("Parent" :Frank) ("Child" :Judy) ("Branch" :c)) .
+proof:record122 pe:uses (<<( :Frank :parentOf :Judy )>> <<( :Frank :branch :c )>>) .
+proof:record123 pe:conclusion <<( :Ivan :cousin :Judy )>> .
+proof:record123 pe:rule 36 .
+proof:record123 pe:binding (("X" :Ivan) ("Generation" 3) ("Y" :Judy) ("BranchX" :b) ("BranchY" :c)) .
+proof:record123 pe:uses (<<( :Ivan :generation 3 )>> <<( :Judy :generation 3 )>> <<( :Ivan :branch :b )>> <<( :Judy :branch :c )>> <<( :b :differentFrom :c )>>) .
+proof:record124 pe:conclusion <<( :Ivan :generation 3 )>> .
+proof:record124 pe:rule 34 .
+proof:record124 pe:binding (("V__path0" :Bob) ("V__path1" :Eve) ("GreatGrandchild" :Ivan)) .
+proof:record124 pe:uses (<<( :Adam :parentOf :Bob )>> <<( :Bob :parentOf :Eve )>> <<( :Eve :parentOf :Ivan )>>) .
+proof:record125 pe:conclusion <<( :Ivan :branch :b )>> .
+proof:record125 pe:rule 35 .
+proof:record125 pe:binding (("Parent" :Eve) ("Child" :Ivan) ("Branch" :b)) .
+proof:record125 pe:uses (<<( :Eve :parentOf :Ivan )>> <<( :Eve :branch :b )>>) .
+proof:record126 pe:conclusion <<( :Judy :cousin :Heidi )>> .
+proof:record126 pe:rule 36 .
+proof:record126 pe:binding (("X" :Judy) ("Generation" 3) ("Y" :Heidi) ("BranchX" :c) ("BranchY" :b)) .
+proof:record126 pe:uses (<<( :Judy :generation 3 )>> <<( :Heidi :generation 3 )>> <<( :Judy :branch :c )>> <<( :Heidi :branch :b )>> <<( :c :differentFrom :b )>>) .
+proof:record127 pe:conclusion <<( :Judy :cousin :Ivan )>> .
+proof:record127 pe:rule 36 .
+proof:record127 pe:binding (("X" :Judy) ("Generation" 3) ("Y" :Ivan) ("BranchX" :c) ("BranchY" :b)) .
+proof:record127 pe:uses (<<( :Judy :generation 3 )>> <<( :Ivan :generation 3 )>> <<( :Judy :branch :c )>> <<( :Ivan :branch :b )>> <<( :c :differentFrom :b )>>) .
+proof:record128 pe:conclusion <<( :Adam :parentOf :Bob )>> .
+proof:record128 pe:rule 2 .
+proof:record128 pe:binding () .
+proof:record128 pe:uses () .
+proof:record129 pe:conclusion <<( :Adam :parentOf :Carol )>> .
+proof:record129 pe:rule 4 .
+proof:record129 pe:binding () .
+proof:record129 pe:uses () .
+proof:record130 pe:conclusion <<( :Bob :parentOf :Dave )>> .
+proof:record130 pe:rule 6 .
+proof:record130 pe:binding () .
+proof:record130 pe:uses () .
+proof:record131 pe:conclusion <<( :Bob :parentOf :Eve )>> .
+proof:record131 pe:rule 8 .
+proof:record131 pe:binding () .
+proof:record131 pe:uses () .
+proof:record132 pe:conclusion <<( :Carol :parentOf :Frank )>> .
+proof:record132 pe:rule 10 .
+proof:record132 pe:binding () .
+proof:record132 pe:uses () .
+proof:record133 pe:conclusion <<( :Carol :parentOf :Grace )>> .
+proof:record133 pe:rule 12 .
+proof:record133 pe:binding () .
+proof:record133 pe:uses () .
+proof:record134 pe:conclusion <<( :Dave :parentOf :Heidi )>> .
+proof:record134 pe:rule 14 .
+proof:record134 pe:binding () .
+proof:record134 pe:uses () .
+proof:record135 pe:conclusion <<( :Eve :parentOf :Ivan )>> .
+proof:record135 pe:rule 16 .
+proof:record135 pe:binding () .
+proof:record135 pe:uses () .
+proof:record136 pe:conclusion <<( :Frank :parentOf :Judy )>> .
+proof:record136 pe:rule 18 .
+proof:record136 pe:binding () .
+proof:record136 pe:uses () .
+proof:record137 pe:conclusion <<( :Dave :branch :b )>> .
+proof:record137 pe:rule 20 .
+proof:record137 pe:binding () .
+proof:record137 pe:uses () .
+proof:record138 pe:conclusion <<( :Eve :branch :b )>> .
+proof:record138 pe:rule 22 .
+proof:record138 pe:binding () .
+proof:record138 pe:uses () .
+proof:record139 pe:conclusion <<( :Frank :branch :c )>> .
+proof:record139 pe:rule 24 .
+proof:record139 pe:binding () .
+proof:record139 pe:uses () .
+proof:record140 pe:conclusion <<( :Grace :branch :c )>> .
+proof:record140 pe:rule 26 .
+proof:record140 pe:binding () .
+proof:record140 pe:uses () .
+proof:record141 pe:conclusion <<( :b :differentFrom :c )>> .
+proof:record141 pe:rule 28 .
+proof:record141 pe:binding () .
+proof:record141 pe:uses () .
+proof:record142 pe:conclusion <<( :c :differentFrom :b )>> .
+proof:record142 pe:rule 30 .
+proof:record142 pe:binding () .
+proof:record142 pe:uses () .
+proof:record143 pe:conclusion <<( :Adam :generation 0 )>> .
+proof:record143 pe:rule 31 .
+proof:record143 pe:binding () .
+proof:record143 pe:uses ((em:atom "true")) .
+proof:record144 pe:conclusion <<( :Bob :generation 1 )>> .
+proof:record144 pe:rule 32 .
+proof:record144 pe:binding (("Child" :Bob)) .
+proof:record144 pe:uses (<<( :Adam :parentOf :Bob )>>) .
+proof:record145 pe:conclusion <<( :Carol :generation 1 )>> .
+proof:record145 pe:rule 32 .
+proof:record145 pe:binding (("Child" :Carol)) .
+proof:record145 pe:uses (<<( :Adam :parentOf :Carol )>>) .
+proof:record146 pe:conclusion <<( :Dave :cousin :Frank )>> .
+proof:record146 pe:rule 36 .
+proof:record146 pe:binding (("X" :Dave) ("Generation" 2) ("Y" :Frank) ("BranchX" :b) ("BranchY" :c)) .
+proof:record146 pe:uses (<<( :Dave :generation 2 )>> <<( :Frank :generation 2 )>> <<( :Dave :branch :b )>> <<( :Frank :branch :c )>> <<( :b :differentFrom :c )>>) .
+proof:record147 pe:conclusion <<( :Dave :cousin :Grace )>> .
+proof:record147 pe:rule 36 .
+proof:record147 pe:binding (("X" :Dave) ("Generation" 2) ("Y" :Grace) ("BranchX" :b) ("BranchY" :c)) .
+proof:record147 pe:uses (<<( :Dave :generation 2 )>> <<( :Grace :generation 2 )>> <<( :Dave :branch :b )>> <<( :Grace :branch :c )>> <<( :b :differentFrom :c )>>) .
+proof:record148 pe:conclusion <<( :Eve :cousin :Frank )>> .
+proof:record148 pe:rule 36 .
+proof:record148 pe:binding (("X" :Eve) ("Generation" 2) ("Y" :Frank) ("BranchX" :b) ("BranchY" :c)) .
+proof:record148 pe:uses (<<( :Eve :generation 2 )>> <<( :Frank :generation 2 )>> <<( :Eve :branch :b )>> <<( :Frank :branch :c )>> <<( :b :differentFrom :c )>>) .
+proof:record149 pe:conclusion <<( :Eve :cousin :Grace )>> .
+proof:record149 pe:rule 36 .
+proof:record149 pe:binding (("X" :Eve) ("Generation" 2) ("Y" :Grace) ("BranchX" :b) ("BranchY" :c)) .
+proof:record149 pe:uses (<<( :Eve :generation 2 )>> <<( :Grace :generation 2 )>> <<( :Eve :branch :b )>> <<( :Grace :branch :c )>> <<( :b :differentFrom :c )>>) .
+proof:record150 pe:conclusion <<( :Frank :cousin :Dave )>> .
+proof:record150 pe:rule 36 .
+proof:record150 pe:binding (("X" :Frank) ("Generation" 2) ("Y" :Dave) ("BranchX" :c) ("BranchY" :b)) .
+proof:record150 pe:uses (<<( :Frank :generation 2 )>> <<( :Dave :generation 2 )>> <<( :Frank :branch :c )>> <<( :Dave :branch :b )>> <<( :c :differentFrom :b )>>) .
+proof:record151 pe:conclusion <<( :Frank :cousin :Eve )>> .
+proof:record151 pe:rule 36 .
+proof:record151 pe:binding (("X" :Frank) ("Generation" 2) ("Y" :Eve) ("BranchX" :c) ("BranchY" :b)) .
+proof:record151 pe:uses (<<( :Frank :generation 2 )>> <<( :Eve :generation 2 )>> <<( :Frank :branch :c )>> <<( :Eve :branch :b )>> <<( :c :differentFrom :b )>>) .
+proof:record152 pe:conclusion <<( :Grace :cousin :Dave )>> .
+proof:record152 pe:rule 36 .
+proof:record152 pe:binding (("X" :Grace) ("Generation" 2) ("Y" :Dave) ("BranchX" :c) ("BranchY" :b)) .
+proof:record152 pe:uses (<<( :Grace :generation 2 )>> <<( :Dave :generation 2 )>> <<( :Grace :branch :c )>> <<( :Dave :branch :b )>> <<( :c :differentFrom :b )>>) .
+proof:record153 pe:conclusion <<( :Grace :cousin :Eve )>> .
+proof:record153 pe:rule 36 .
+proof:record153 pe:binding (("X" :Grace) ("Generation" 2) ("Y" :Eve) ("BranchX" :c) ("BranchY" :b)) .
+proof:record153 pe:uses (<<( :Grace :generation 2 )>> <<( :Eve :generation 2 )>> <<( :Grace :branch :c )>> <<( :Eve :branch :b )>> <<( :c :differentFrom :b )>>) .
+proof:record154 pe:conclusion <<( :Heidi :cousin :Judy )>> .
+proof:record154 pe:rule 36 .
+proof:record154 pe:binding (("X" :Heidi) ("Generation" 3) ("Y" :Judy) ("BranchX" :b) ("BranchY" :c)) .
+proof:record154 pe:uses (<<( :Heidi :generation 3 )>> <<( :Judy :generation 3 )>> <<( :Heidi :branch :b )>> <<( :Judy :branch :c )>> <<( :b :differentFrom :c )>>) .
+proof:record155 pe:conclusion <<( :Ivan :cousin :Judy )>> .
+proof:record155 pe:rule 36 .
+proof:record155 pe:binding (("X" :Ivan) ("Generation" 3) ("Y" :Judy) ("BranchX" :b) ("BranchY" :c)) .
+proof:record155 pe:uses (<<( :Ivan :generation 3 )>> <<( :Judy :generation 3 )>> <<( :Ivan :branch :b )>> <<( :Judy :branch :c )>> <<( :b :differentFrom :c )>>) .
+proof:record156 pe:conclusion <<( :Judy :cousin :Heidi )>> .
+proof:record156 pe:rule 36 .
+proof:record156 pe:binding (("X" :Judy) ("Generation" 3) ("Y" :Heidi) ("BranchX" :c) ("BranchY" :b)) .
+proof:record156 pe:uses (<<( :Judy :generation 3 )>> <<( :Heidi :generation 3 )>> <<( :Judy :branch :c )>> <<( :Heidi :branch :b )>> <<( :c :differentFrom :b )>>) .
+proof:record157 pe:conclusion <<( :Judy :cousin :Ivan )>> .
+proof:record157 pe:rule 36 .
+proof:record157 pe:binding (("X" :Judy) ("Generation" 3) ("Y" :Ivan) ("BranchX" :c) ("BranchY" :b)) .
+proof:record157 pe:uses (<<( :Judy :generation 3 )>> <<( :Ivan :generation 3 )>> <<( :Judy :branch :c )>> <<( :Ivan :branch :b )>> <<( :c :differentFrom :b )>>) .
+proof:record158 pe:derived (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record158 pe:answers (<<( :Adam :generation 0 )>> <<( :Bob :generation 1 )>> <<( :Carol :generation 1 )>> <<( :Dave :generation 2 )>> <<( :Eve :generation 2 )>> <<( :Frank :generation 2 )>> <<( :Grace :generation 2 )>> <<( :Heidi :generation 3 )>> <<( :Ivan :generation 3 )>> <<( :Judy :generation 3 )>> <<( :Heidi :branch :b )>> <<( :Ivan :branch :b )>> <<( :Judy :branch :c )>> <<( :Dave :cousin :Frank )>> <<( :Dave :cousin :Grace )>> <<( :Eve :cousin :Frank )>> <<( :Eve :cousin :Grace )>> <<( :Frank :cousin :Dave )>> <<( :Frank :cousin :Eve )>> <<( :Grace :cousin :Dave )>> <<( :Grace :cousin :Eve )>> <<( :Heidi :cousin :Judy )>> <<( :Ivan :cousin :Judy )>> <<( :Judy :cousin :Heidi )>> <<( :Judy :cousin :Ivan )>>) .
+proof:record159 pe:derived (em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record159 pe:answers (<<( :Adam :generation 0 )>> <<( :Bob :generation 1 )>> <<( :Carol :generation 1 )>> <<( :Dave :generation 2 )>> <<( :Eve :generation 2 )>> <<( :Frank :generation 2 )>> <<( :Grace :generation 2 )>> <<( :Heidi :generation 3 )>> <<( :Ivan :generation 3 )>> <<( :Judy :generation 3 )>> <<( :Heidi :branch :b )>> <<( :Ivan :branch :b )>> <<( :Judy :branch :c )>> <<( :Dave :cousin :Frank )>> <<( :Dave :cousin :Grace )>> <<( :Eve :cousin :Frank )>> <<( :Eve :cousin :Grace )>> <<( :Frank :cousin :Dave )>> <<( :Frank :cousin :Eve )>> <<( :Grace :cousin :Dave )>> <<( :Grace :cousin :Eve )>> <<( :Heidi :cousin :Judy )>> <<( :Ivan :cousin :Judy )>> <<( :Judy :cousin :Heidi )>> <<( :Judy :cousin :Ivan )>>) .
+proof:record160 pe:called (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record160 pe:answers (<<( :Adam :generation 0 )>> <<( :Bob :generation 1 )>> <<( :Carol :generation 1 )>> <<( :Dave :generation 2 )>> <<( :Eve :generation 2 )>> <<( :Frank :generation 2 )>> <<( :Grace :generation 2 )>> <<( :Heidi :generation 3 )>> <<( :Ivan :generation 3 )>> <<( :Judy :generation 3 )>> <<( :Heidi :branch :b )>> <<( :Ivan :branch :b )>> <<( :Judy :branch :c )>> <<( :Dave :cousin :Frank )>> <<( :Dave :cousin :Grace )>> <<( :Eve :cousin :Frank )>> <<( :Eve :cousin :Grace )>> <<( :Frank :cousin :Dave )>> <<( :Frank :cousin :Eve )>> <<( :Grace :cousin :Dave )>> <<( :Grace :cousin :Eve )>> <<( :Heidi :cousin :Judy )>> <<( :Ivan :cousin :Judy )>> <<( :Judy :cousin :Heidi )>> <<( :Judy :cousin :Ivan )>> <<( :Adam :parentOf :Bob )>> <<( :Adam :parentOf :Carol )>> <<( :Bob :parentOf :Dave )>> <<( :Bob :parentOf :Eve )>> <<( :Carol :parentOf :Frank )>> <<( :Carol :parentOf :Grace )>> <<( :Dave :parentOf :Heidi )>> <<( :Eve :parentOf :Ivan )>> <<( :Frank :parentOf :Judy )>> <<( :Dave :branch :b )>> <<( :Eve :branch :b )>> <<( :Frank :branch :c )>> <<( :Grace :branch :c )>> <<( :b :differentFrom :c )>> <<( :c :differentFrom :b )>>) .
+proof:record161 pe:called (em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:variable "D"))) .
+proof:record161 pe:answers (<<( :Adam :parentOf :Bob )>> <<( :Adam :parentOf :Carol )>>) .
+proof:record162 pe:called (em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:variable "E"))) .
+proof:record162 pe:answers (<<( :Bob :parentOf :Dave )>> <<( :Bob :parentOf :Eve )>>) .
+proof:record163 pe:called (em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:variable "E"))) .
+proof:record163 pe:answers (<<( :Carol :parentOf :Frank )>> <<( :Carol :parentOf :Grace )>>) .
+proof:record164 pe:called (em:compound "rdf" ((em:iri :Dave) (em:iri :parentOf) (em:variable "F"))) .
+proof:record164 pe:answers (<<( :Dave :parentOf :Heidi )>>) .
+proof:record165 pe:called (em:compound "rdf" ((em:iri :Eve) (em:iri :parentOf) (em:variable "F"))) .
+proof:record165 pe:answers (<<( :Eve :parentOf :Ivan )>>) .
+proof:record166 pe:called (em:compound "rdf" ((em:iri :Frank) (em:iri :parentOf) (em:variable "F"))) .
+proof:record166 pe:answers (<<( :Frank :parentOf :Judy )>>) .
+proof:record167 pe:called (em:compound "rdf" ((em:iri :Grace) (em:iri :parentOf) (em:variable "F"))) .
+proof:record167 pe:answers () .
+proof:record168 pe:called (em:compound "rdf" ((em:variable "G") (em:iri :parentOf) (em:variable "H"))) .
+proof:record168 pe:answers (<<( :Adam :parentOf :Bob )>> <<( :Adam :parentOf :Carol )>> <<( :Bob :parentOf :Dave )>> <<( :Bob :parentOf :Eve )>> <<( :Carol :parentOf :Frank )>> <<( :Carol :parentOf :Grace )>> <<( :Dave :parentOf :Heidi )>> <<( :Eve :parentOf :Ivan )>> <<( :Frank :parentOf :Judy )>>) .
+proof:record169 pe:called (em:compound "rdf" ((em:iri :Adam) (em:iri :branch) (em:variable "I"))) .
+proof:record169 pe:answers () .
+proof:record170 pe:called (em:compound "rdf" ((em:iri :Bob) (em:iri :branch) (em:variable "I"))) .
+proof:record170 pe:answers () .
+proof:record171 pe:called (em:compound "rdf" ((em:iri :Carol) (em:iri :branch) (em:variable "I"))) .
+proof:record171 pe:answers () .
+proof:record172 pe:called (em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:variable "I"))) .
+proof:record172 pe:answers (<<( :Dave :branch :b )>>) .
+proof:record173 pe:called (em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:variable "I"))) .
+proof:record173 pe:answers (<<( :Eve :branch :b )>>) .
+proof:record174 pe:called (em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:variable "I"))) .
+proof:record174 pe:answers (<<( :Frank :branch :c )>>) .
+proof:record175 pe:called (em:compound "rdf" ((em:variable "J") (em:iri :generation) (em:variable "K"))) .
+proof:record175 pe:answers (<<( :Adam :generation 0 )>> <<( :Bob :generation 1 )>> <<( :Carol :generation 1 )>> <<( :Dave :generation 2 )>> <<( :Eve :generation 2 )>> <<( :Frank :generation 2 )>> <<( :Grace :generation 2 )>> <<( :Heidi :generation 3 )>> <<( :Ivan :generation 3 )>> <<( :Judy :generation 3 )>>) .
+proof:record176 pe:called (em:compound "rdf" ((em:variable "L") (em:iri :generation) (em:integer "0"))) .
+proof:record176 pe:answers (<<( :Adam :generation 0 )>>) .
+proof:record177 pe:called (em:compound "rdf" ((em:variable "L") (em:iri :generation) (em:integer "1"))) .
+proof:record177 pe:answers (<<( :Bob :generation 1 )>> <<( :Carol :generation 1 )>>) .
+proof:record178 pe:called (em:compound "rdf" ((em:variable "L") (em:iri :generation) (em:integer "2"))) .
+proof:record178 pe:answers (<<( :Dave :generation 2 )>> <<( :Eve :generation 2 )>> <<( :Frank :generation 2 )>> <<( :Grace :generation 2 )>>) .
+proof:record179 pe:called <<( :b :differentFrom :b )>> .
+proof:record179 pe:answers () .
+proof:record180 pe:called <<( :b :differentFrom :c )>> .
+proof:record180 pe:answers (<<( :b :differentFrom :c )>>) .
+proof:record181 pe:called (em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:variable "M"))) .
+proof:record181 pe:answers (<<( :Grace :branch :c )>>) .
+proof:record182 pe:called <<( :c :differentFrom :b )>> .
+proof:record182 pe:answers (<<( :c :differentFrom :b )>>) .
+proof:record183 pe:called <<( :c :differentFrom :c )>> .
+proof:record183 pe:answers () .
+proof:record184 pe:called (em:compound "rdf" ((em:variable "L") (em:iri :generation) (em:integer "3"))) .
+proof:record184 pe:answers (<<( :Heidi :generation 3 )>> <<( :Ivan :generation 3 )>> <<( :Judy :generation 3 )>>) .
+proof:record185 pe:called (em:compound "rdf" ((em:iri :Heidi) (em:iri :branch) (em:variable "N"))) .
+proof:record185 pe:answers (<<( :Heidi :branch :b )>>) .
+proof:record186 pe:called (em:compound "rdf" ((em:iri :Ivan) (em:iri :branch) (em:variable "M"))) .
+proof:record186 pe:answers (<<( :Ivan :branch :b )>>) .
+proof:record187 pe:called (em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:variable "M"))) .
+proof:record187 pe:answers (<<( :Judy :branch :c )>>) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41 proof:record42 proof:record43 proof:record44 proof:record45 proof:record46 proof:record47 proof:record48 proof:record49 proof:record50 proof:record51 proof:record52 proof:record53 proof:record54 proof:record55 proof:record56 proof:record57 proof:record58 proof:record59 proof:record60 proof:record61 proof:record62 proof:record63 proof:record64 proof:record65 proof:record66 proof:record67 proof:record68 proof:record69 proof:record70 proof:record71 proof:record72 proof:record73 proof:record74 proof:record75 proof:record76 proof:record77 proof:record78 proof:record79 proof:record80 proof:record81 proof:record82 proof:record83 proof:record84 proof:record85 proof:record86 proof:record87 proof:record88 proof:record89 proof:record90 proof:record91 proof:record92 proof:record93 proof:record94 proof:record95 proof:record96 proof:record97 proof:record98 proof:record99 proof:record100 proof:record101 proof:record102 proof:record103 proof:record104 proof:record105 proof:record106 proof:record107 proof:record108 proof:record109 proof:record110 proof:record111 proof:record112 proof:record113 proof:record114 proof:record115 proof:record116 proof:record117 proof:record118 proof:record119 proof:record120 proof:record121 proof:record122 proof:record123 proof:record124 proof:record125 proof:record126 proof:record127 proof:record128 proof:record129 proof:record130 proof:record131 proof:record132 proof:record133 proof:record134 proof:record135 proof:record136 proof:record137 proof:record138 proof:record139 proof:record140 proof:record141 proof:record142 proof:record143 proof:record144 proof:record145 proof:record146 proof:record147 proof:record148 proof:record149 proof:record150 proof:record151 proof:record152 proof:record153 proof:record154 proof:record155 proof:record156 proof:record157 proof:record158 proof:record159 proof:record160 proof:record161 proof:record162 proof:record163 proof:record164 proof:record165 proof:record166 proof:record167 proof:record168 proof:record169 proof:record170 proof:record171 proof:record172 proof:record173 proof:record174 proof:record175 proof:record176 proof:record177 proof:record178 proof:record179 proof:record180 proof:record181 proof:record182 proof:record183 proof:record184 proof:record185 proof:record186 proof:record187) .
+proof:record1 em:term (em:compound "inf" ((em:iri :Adam) (em:iri :generation) (em:integer "0"))) .
+proof:record2 em:term (em:compound "inf" ((em:iri :Bob) (em:iri :generation) (em:integer "1"))) .
+proof:record3 em:term (em:compound "inf" ((em:iri :Carol) (em:iri :generation) (em:integer "1"))) .
+proof:record4 em:term (em:compound "inf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) .
+proof:record5 em:term (em:compound "inf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) .
+proof:record6 em:term (em:compound "inf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) .
+proof:record7 em:term (em:compound "inf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) .
+proof:record8 em:term (em:compound "inf" ((em:iri :Heidi) (em:iri :generation) (em:integer "3"))) .
+proof:record9 em:term (em:compound "inf" ((em:iri :Ivan) (em:iri :generation) (em:integer "3"))) .
+proof:record10 em:term (em:compound "inf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) .
+proof:record11 em:term (em:compound "inf" ((em:iri :Heidi) (em:iri :branch) (em:iri :b))) .
+proof:record12 em:term (em:compound "inf" ((em:iri :Ivan) (em:iri :branch) (em:iri :b))) .
+proof:record13 em:term (em:compound "inf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) .
+proof:record14 em:term (em:compound "inf" ((em:iri :Dave) (em:iri :cousin) (em:iri :Frank))) .
+proof:record15 em:term (em:compound "inf" ((em:iri :Dave) (em:iri :cousin) (em:iri :Grace))) .
+proof:record16 em:term (em:compound "inf" ((em:iri :Eve) (em:iri :cousin) (em:iri :Frank))) .
+proof:record17 em:term (em:compound "inf" ((em:iri :Eve) (em:iri :cousin) (em:iri :Grace))) .
+proof:record18 em:term (em:compound "inf" ((em:iri :Frank) (em:iri :cousin) (em:iri :Dave))) .
+proof:record19 em:term (em:compound "inf" ((em:iri :Frank) (em:iri :cousin) (em:iri :Eve))) .
+proof:record20 em:term (em:compound "inf" ((em:iri :Grace) (em:iri :cousin) (em:iri :Dave))) .
+proof:record21 em:term (em:compound "inf" ((em:iri :Grace) (em:iri :cousin) (em:iri :Eve))) .
+proof:record22 em:term (em:compound "inf" ((em:iri :Heidi) (em:iri :cousin) (em:iri :Judy))) .
+proof:record23 em:term (em:compound "inf" ((em:iri :Ivan) (em:iri :cousin) (em:iri :Judy))) .
+proof:record24 em:term (em:compound "inf" ((em:iri :Judy) (em:iri :cousin) (em:iri :Heidi))) .
+proof:record25 em:term (em:compound "inf" ((em:iri :Judy) (em:iri :cousin) (em:iri :Ivan))) .
+proof:record26 em:term (em:compound "inf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) .
+proof:record27 em:term (em:compound "inf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))) .
+proof:record28 em:term (em:compound "inf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Dave))) .
+proof:record29 em:term (em:compound "inf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Eve))) .
+proof:record30 em:term (em:compound "inf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Frank))) .
+proof:record31 em:term (em:compound "inf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Grace))) .
+proof:record32 em:term (em:compound "inf" ((em:iri :Dave) (em:iri :parentOf) (em:iri :Heidi))) .
+proof:record33 em:term (em:compound "inf" ((em:iri :Eve) (em:iri :parentOf) (em:iri :Ivan))) .
+proof:record34 em:term (em:compound "inf" ((em:iri :Frank) (em:iri :parentOf) (em:iri :Judy))) .
+proof:record35 em:term (em:compound "inf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))) .
+proof:record36 em:term (em:compound "inf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))) .
+proof:record37 em:term (em:compound "inf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))) .
+proof:record38 em:term (em:compound "inf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))) .
+proof:record39 em:term (em:compound "inf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))) .
+proof:record40 em:term (em:compound "inf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))) .
+proof:record41 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))))))) .
+proof:record42 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "inf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))))))) .
+proof:record43 em:term (em:compound "clause" ((em:integer "3") (em:compound "fact" ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))))))) .
+proof:record44 em:term (em:compound "clause" ((em:integer "4") (em:compound "fact" ((em:compound "inf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))))))) .
+proof:record45 em:term (em:compound "clause" ((em:integer "5") (em:compound "fact" ((em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Dave))))))) .
+proof:record46 em:term (em:compound "clause" ((em:integer "6") (em:compound "fact" ((em:compound "inf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Dave))))))) .
+proof:record47 em:term (em:compound "clause" ((em:integer "7") (em:compound "fact" ((em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Eve))))))) .
+proof:record48 em:term (em:compound "clause" ((em:integer "8") (em:compound "fact" ((em:compound "inf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Eve))))))) .
+proof:record49 em:term (em:compound "clause" ((em:integer "9") (em:compound "fact" ((em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Frank))))))) .
+proof:record50 em:term (em:compound "clause" ((em:integer "10") (em:compound "fact" ((em:compound "inf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Frank))))))) .
+proof:record51 em:term (em:compound "clause" ((em:integer "11") (em:compound "fact" ((em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Grace))))))) .
+proof:record52 em:term (em:compound "clause" ((em:integer "12") (em:compound "fact" ((em:compound "inf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Grace))))))) .
+proof:record53 em:term (em:compound "clause" ((em:integer "13") (em:compound "fact" ((em:compound "rdf" ((em:iri :Dave) (em:iri :parentOf) (em:iri :Heidi))))))) .
+proof:record54 em:term (em:compound "clause" ((em:integer "14") (em:compound "fact" ((em:compound "inf" ((em:iri :Dave) (em:iri :parentOf) (em:iri :Heidi))))))) .
+proof:record55 em:term (em:compound "clause" ((em:integer "15") (em:compound "fact" ((em:compound "rdf" ((em:iri :Eve) (em:iri :parentOf) (em:iri :Ivan))))))) .
+proof:record56 em:term (em:compound "clause" ((em:integer "16") (em:compound "fact" ((em:compound "inf" ((em:iri :Eve) (em:iri :parentOf) (em:iri :Ivan))))))) .
+proof:record57 em:term (em:compound "clause" ((em:integer "17") (em:compound "fact" ((em:compound "rdf" ((em:iri :Frank) (em:iri :parentOf) (em:iri :Judy))))))) .
+proof:record58 em:term (em:compound "clause" ((em:integer "18") (em:compound "fact" ((em:compound "inf" ((em:iri :Frank) (em:iri :parentOf) (em:iri :Judy))))))) .
+proof:record59 em:term (em:compound "clause" ((em:integer "19") (em:compound "fact" ((em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))))))) .
+proof:record60 em:term (em:compound "clause" ((em:integer "20") (em:compound "fact" ((em:compound "inf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))))))) .
+proof:record61 em:term (em:compound "clause" ((em:integer "21") (em:compound "fact" ((em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))))))) .
+proof:record62 em:term (em:compound "clause" ((em:integer "22") (em:compound "fact" ((em:compound "inf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))))))) .
+proof:record63 em:term (em:compound "clause" ((em:integer "23") (em:compound "fact" ((em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))))))) .
+proof:record64 em:term (em:compound "clause" ((em:integer "24") (em:compound "fact" ((em:compound "inf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))))))) .
+proof:record65 em:term (em:compound "clause" ((em:integer "25") (em:compound "fact" ((em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))))))) .
+proof:record66 em:term (em:compound "clause" ((em:integer "26") (em:compound "fact" ((em:compound "inf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))))))) .
+proof:record67 em:term (em:compound "clause" ((em:integer "27") (em:compound "fact" ((em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record68 em:term (em:compound "clause" ((em:integer "28") (em:compound "fact" ((em:compound "inf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record69 em:term (em:compound "clause" ((em:integer "29") (em:compound "fact" ((em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record70 em:term (em:compound "clause" ((em:integer "30") (em:compound "fact" ((em:compound "inf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record71 em:term (em:compound "clause" ((em:integer "31") (em:compound "implies" ((em:atom "true") (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :generation) (em:integer "0"))) (em:compound "inf" ((em:iri :Adam) (em:iri :generation) (em:integer "0"))))))))) .
+proof:record72 em:term (em:compound "clause" ((em:integer "32") (em:compound "implies" ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:variable "Child"))) (em:list ((em:compound "rdf" ((em:variable "Child") (em:iri :generation) (em:integer "1"))) (em:compound "inf" ((em:variable "Child") (em:iri :generation) (em:integer "1"))))))))) .
+proof:record73 em:term (em:compound "clause" ((em:integer "33") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:variable "V__path0"))) (em:compound "rdf" ((em:variable "V__path0") (em:iri :parentOf) (em:variable "Grandchild"))))) (em:list ((em:compound "rdf" ((em:variable "Grandchild") (em:iri :generation) (em:integer "2"))) (em:compound "inf" ((em:variable "Grandchild") (em:iri :generation) (em:integer "2"))))))))) .
+proof:record74 em:term (em:compound "clause" ((em:integer "34") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:variable "V__path0"))) (em:compound "rdf" ((em:variable "V__path0") (em:iri :parentOf) (em:variable "V__path1"))) (em:compound "rdf" ((em:variable "V__path1") (em:iri :parentOf) (em:variable "GreatGrandchild"))))) (em:list ((em:compound "rdf" ((em:variable "GreatGrandchild") (em:iri :generation) (em:integer "3"))) (em:compound "inf" ((em:variable "GreatGrandchild") (em:iri :generation) (em:integer "3"))))))))) .
+proof:record75 em:term (em:compound "clause" ((em:integer "35") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "Parent") (em:iri :parentOf) (em:variable "Child"))) (em:compound "rdf" ((em:variable "Parent") (em:iri :branch) (em:variable "Branch"))))) (em:list ((em:compound "rdf" ((em:variable "Child") (em:iri :branch) (em:variable "Branch"))) (em:compound "inf" ((em:variable "Child") (em:iri :branch) (em:variable "Branch"))))))))) .
+proof:record76 em:term (em:compound "clause" ((em:integer "36") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "X") (em:iri :generation) (em:variable "Generation"))) (em:compound "rdf" ((em:variable "Y") (em:iri :generation) (em:variable "Generation"))) (em:compound "rdf" ((em:variable "X") (em:iri :branch) (em:variable "BranchX"))) (em:compound "rdf" ((em:variable "Y") (em:iri :branch) (em:variable "BranchY"))) (em:compound "rdf" ((em:variable "BranchX") (em:iri :differentFrom) (em:variable "BranchY"))))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri :cousin) (em:variable "Y"))) (em:compound "inf" ((em:variable "X") (em:iri :cousin) (em:variable "Y"))))))))) .
+proof:record77 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Adam) (em:iri :generation) (em:integer "0"))) (em:compound "clause" ((em:integer "31"))) (em:atom "[]") (em:list ((em:atom "true"))))) .
+proof:record78 em:term (em:compound "step" ((em:atom "true") (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record79 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Bob) (em:iri :generation) (em:integer "1"))) (em:compound "clause" ((em:integer "32"))) (em:list ((em:compound "=" ((em:atom "Child") (em:iri :Bob))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))))))) .
+proof:record80 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record81 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Carol) (em:iri :generation) (em:integer "1"))) (em:compound "clause" ((em:integer "32"))) (em:list ((em:compound "=" ((em:atom "Child") (em:iri :Carol))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))))))) .
+proof:record82 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record83 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Bob))) (em:compound "=" ((em:atom "Grandchild") (em:iri :Dave))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Dave))))))) .
+proof:record84 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Dave))) (em:compound "clause" ((em:integer "5"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record85 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Bob))) (em:compound "=" ((em:atom "Grandchild") (em:iri :Eve))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Eve))))))) .
+proof:record86 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Eve))) (em:compound "clause" ((em:integer "7"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record87 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Carol))) (em:compound "=" ((em:atom "Grandchild") (em:iri :Frank))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))) (em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Frank))))))) .
+proof:record88 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Frank))) (em:compound "clause" ((em:integer "9"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record89 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Carol))) (em:compound "=" ((em:atom "Grandchild") (em:iri :Grace))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))) (em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Grace))))))) .
+proof:record90 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Grace))) (em:compound "clause" ((em:integer "11"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record91 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Heidi) (em:iri :generation) (em:integer "3"))) (em:compound "clause" ((em:integer "34"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Bob))) (em:compound "=" ((em:atom "V__path1") (em:iri :Dave))) (em:compound "=" ((em:atom "GreatGrandchild") (em:iri :Heidi))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Dave))) (em:compound "rdf" ((em:iri :Dave) (em:iri :parentOf) (em:iri :Heidi))))))) .
+proof:record92 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Dave) (em:iri :parentOf) (em:iri :Heidi))) (em:compound "clause" ((em:integer "13"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record93 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Ivan) (em:iri :generation) (em:integer "3"))) (em:compound "clause" ((em:integer "34"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Bob))) (em:compound "=" ((em:atom "V__path1") (em:iri :Eve))) (em:compound "=" ((em:atom "GreatGrandchild") (em:iri :Ivan))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Eve))) (em:compound "rdf" ((em:iri :Eve) (em:iri :parentOf) (em:iri :Ivan))))))) .
+proof:record94 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Eve) (em:iri :parentOf) (em:iri :Ivan))) (em:compound "clause" ((em:integer "15"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record95 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "clause" ((em:integer "34"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Carol))) (em:compound "=" ((em:atom "V__path1") (em:iri :Frank))) (em:compound "=" ((em:atom "GreatGrandchild") (em:iri :Judy))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))) (em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Frank))) (em:compound "rdf" ((em:iri :Frank) (em:iri :parentOf) (em:iri :Judy))))))) .
+proof:record96 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Frank) (em:iri :parentOf) (em:iri :Judy))) (em:compound "clause" ((em:integer "17"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record97 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Heidi) (em:iri :branch) (em:iri :b))) (em:compound "clause" ((em:integer "35"))) (em:list ((em:compound "=" ((em:atom "Parent") (em:iri :Dave))) (em:compound "=" ((em:atom "Child") (em:iri :Heidi))) (em:compound "=" ((em:atom "Branch") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Dave) (em:iri :parentOf) (em:iri :Heidi))) (em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))))))) .
+proof:record98 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))) (em:compound "clause" ((em:integer "19"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record99 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Ivan) (em:iri :branch) (em:iri :b))) (em:compound "clause" ((em:integer "35"))) (em:list ((em:compound "=" ((em:atom "Parent") (em:iri :Eve))) (em:compound "=" ((em:atom "Child") (em:iri :Ivan))) (em:compound "=" ((em:atom "Branch") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Eve) (em:iri :parentOf) (em:iri :Ivan))) (em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))))))) .
+proof:record100 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))) (em:compound "clause" ((em:integer "21"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record101 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "clause" ((em:integer "35"))) (em:list ((em:compound "=" ((em:atom "Parent") (em:iri :Frank))) (em:compound "=" ((em:atom "Child") (em:iri :Judy))) (em:compound "=" ((em:atom "Branch") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Frank) (em:iri :parentOf) (em:iri :Judy))) (em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))))))) .
+proof:record102 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))) (em:compound "clause" ((em:integer "23"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record103 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Dave) (em:iri :cousin) (em:iri :Frank))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Dave))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Frank))) (em:compound "=" ((em:atom "BranchX") (em:iri :b))) (em:compound "=" ((em:atom "BranchY") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record104 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Bob))) (em:compound "=" ((em:atom "Grandchild") (em:iri :Dave))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Dave))))))) .
+proof:record105 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Carol))) (em:compound "=" ((em:atom "Grandchild") (em:iri :Frank))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))) (em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Frank))))))) .
+proof:record106 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))) (em:compound "clause" ((em:integer "27"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record107 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Dave) (em:iri :cousin) (em:iri :Grace))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Dave))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Grace))) (em:compound "=" ((em:atom "BranchX") (em:iri :b))) (em:compound "=" ((em:atom "BranchY") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record108 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Carol))) (em:compound "=" ((em:atom "Grandchild") (em:iri :Grace))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))) (em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Grace))))))) .
+proof:record109 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))) (em:compound "clause" ((em:integer "25"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record110 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Eve) (em:iri :cousin) (em:iri :Frank))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Eve))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Frank))) (em:compound "=" ((em:atom "BranchX") (em:iri :b))) (em:compound "=" ((em:atom "BranchY") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record111 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Bob))) (em:compound "=" ((em:atom "Grandchild") (em:iri :Eve))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Eve))))))) .
+proof:record112 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Eve) (em:iri :cousin) (em:iri :Grace))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Eve))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Grace))) (em:compound "=" ((em:atom "BranchX") (em:iri :b))) (em:compound "=" ((em:atom "BranchY") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record113 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Frank) (em:iri :cousin) (em:iri :Dave))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Frank))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Dave))) (em:compound "=" ((em:atom "BranchX") (em:iri :c))) (em:compound "=" ((em:atom "BranchY") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record114 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))) (em:compound "clause" ((em:integer "29"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record115 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Frank) (em:iri :cousin) (em:iri :Eve))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Frank))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Eve))) (em:compound "=" ((em:atom "BranchX") (em:iri :c))) (em:compound "=" ((em:atom "BranchY") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record116 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Grace) (em:iri :cousin) (em:iri :Dave))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Grace))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Dave))) (em:compound "=" ((em:atom "BranchX") (em:iri :c))) (em:compound "=" ((em:atom "BranchY") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record117 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Grace) (em:iri :cousin) (em:iri :Eve))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Grace))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Eve))) (em:compound "=" ((em:atom "BranchX") (em:iri :c))) (em:compound "=" ((em:atom "BranchY") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record118 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Heidi) (em:iri :cousin) (em:iri :Judy))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Heidi))) (em:compound "=" ((em:atom "Generation") (em:integer "3"))) (em:compound "=" ((em:atom "Y") (em:iri :Judy))) (em:compound "=" ((em:atom "BranchX") (em:iri :b))) (em:compound "=" ((em:atom "BranchY") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Heidi) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Heidi) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record119 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Heidi) (em:iri :generation) (em:integer "3"))) (em:compound "clause" ((em:integer "34"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Bob))) (em:compound "=" ((em:atom "V__path1") (em:iri :Dave))) (em:compound "=" ((em:atom "GreatGrandchild") (em:iri :Heidi))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Dave))) (em:compound "rdf" ((em:iri :Dave) (em:iri :parentOf) (em:iri :Heidi))))))) .
+proof:record120 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "clause" ((em:integer "34"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Carol))) (em:compound "=" ((em:atom "V__path1") (em:iri :Frank))) (em:compound "=" ((em:atom "GreatGrandchild") (em:iri :Judy))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))) (em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Frank))) (em:compound "rdf" ((em:iri :Frank) (em:iri :parentOf) (em:iri :Judy))))))) .
+proof:record121 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Heidi) (em:iri :branch) (em:iri :b))) (em:compound "clause" ((em:integer "35"))) (em:list ((em:compound "=" ((em:atom "Parent") (em:iri :Dave))) (em:compound "=" ((em:atom "Child") (em:iri :Heidi))) (em:compound "=" ((em:atom "Branch") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Dave) (em:iri :parentOf) (em:iri :Heidi))) (em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))))))) .
+proof:record122 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "clause" ((em:integer "35"))) (em:list ((em:compound "=" ((em:atom "Parent") (em:iri :Frank))) (em:compound "=" ((em:atom "Child") (em:iri :Judy))) (em:compound "=" ((em:atom "Branch") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Frank) (em:iri :parentOf) (em:iri :Judy))) (em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))))))) .
+proof:record123 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Ivan) (em:iri :cousin) (em:iri :Judy))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Ivan))) (em:compound "=" ((em:atom "Generation") (em:integer "3"))) (em:compound "=" ((em:atom "Y") (em:iri :Judy))) (em:compound "=" ((em:atom "BranchX") (em:iri :b))) (em:compound "=" ((em:atom "BranchY") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Ivan) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Ivan) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record124 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Ivan) (em:iri :generation) (em:integer "3"))) (em:compound "clause" ((em:integer "34"))) (em:list ((em:compound "=" ((em:atom "V__path0") (em:iri :Bob))) (em:compound "=" ((em:atom "V__path1") (em:iri :Eve))) (em:compound "=" ((em:atom "GreatGrandchild") (em:iri :Ivan))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Eve))) (em:compound "rdf" ((em:iri :Eve) (em:iri :parentOf) (em:iri :Ivan))))))) .
+proof:record125 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Ivan) (em:iri :branch) (em:iri :b))) (em:compound "clause" ((em:integer "35"))) (em:list ((em:compound "=" ((em:atom "Parent") (em:iri :Eve))) (em:compound "=" ((em:atom "Child") (em:iri :Ivan))) (em:compound "=" ((em:atom "Branch") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Eve) (em:iri :parentOf) (em:iri :Ivan))) (em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))))))) .
+proof:record126 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Judy) (em:iri :cousin) (em:iri :Heidi))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Judy))) (em:compound "=" ((em:atom "Generation") (em:integer "3"))) (em:compound "=" ((em:atom "Y") (em:iri :Heidi))) (em:compound "=" ((em:atom "BranchX") (em:iri :c))) (em:compound "=" ((em:atom "BranchY") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Heidi) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Heidi) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record127 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Judy) (em:iri :cousin) (em:iri :Ivan))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Judy))) (em:compound "=" ((em:atom "Generation") (em:integer "3"))) (em:compound "=" ((em:atom "Y") (em:iri :Ivan))) (em:compound "=" ((em:atom "BranchX") (em:iri :c))) (em:compound "=" ((em:atom "BranchY") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Ivan) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Ivan) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record128 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record129 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))) (em:compound "clause" ((em:integer "4"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record130 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Dave))) (em:compound "clause" ((em:integer "6"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record131 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Eve))) (em:compound "clause" ((em:integer "8"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record132 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Frank))) (em:compound "clause" ((em:integer "10"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record133 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Grace))) (em:compound "clause" ((em:integer "12"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record134 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Dave) (em:iri :parentOf) (em:iri :Heidi))) (em:compound "clause" ((em:integer "14"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record135 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Eve) (em:iri :parentOf) (em:iri :Ivan))) (em:compound "clause" ((em:integer "16"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record136 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Frank) (em:iri :parentOf) (em:iri :Judy))) (em:compound "clause" ((em:integer "18"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record137 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))) (em:compound "clause" ((em:integer "20"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record138 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))) (em:compound "clause" ((em:integer "22"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record139 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))) (em:compound "clause" ((em:integer "24"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record140 em:term (em:compound "step" ((em:compound "inf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))) (em:compound "clause" ((em:integer "26"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record141 em:term (em:compound "step" ((em:compound "inf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))) (em:compound "clause" ((em:integer "28"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record142 em:term (em:compound "step" ((em:compound "inf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))) (em:compound "clause" ((em:integer "30"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record143 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Adam) (em:iri :generation) (em:integer "0"))) (em:compound "clause" ((em:integer "31"))) (em:atom "[]") (em:list ((em:atom "true"))))) .
+proof:record144 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Bob) (em:iri :generation) (em:integer "1"))) (em:compound "clause" ((em:integer "32"))) (em:list ((em:compound "=" ((em:atom "Child") (em:iri :Bob))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))))))) .
+proof:record145 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Carol) (em:iri :generation) (em:integer "1"))) (em:compound "clause" ((em:integer "32"))) (em:list ((em:compound "=" ((em:atom "Child") (em:iri :Carol))))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))))))) .
+proof:record146 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Dave) (em:iri :cousin) (em:iri :Frank))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Dave))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Frank))) (em:compound "=" ((em:atom "BranchX") (em:iri :b))) (em:compound "=" ((em:atom "BranchY") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record147 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Dave) (em:iri :cousin) (em:iri :Grace))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Dave))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Grace))) (em:compound "=" ((em:atom "BranchX") (em:iri :b))) (em:compound "=" ((em:atom "BranchY") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record148 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Eve) (em:iri :cousin) (em:iri :Frank))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Eve))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Frank))) (em:compound "=" ((em:atom "BranchX") (em:iri :b))) (em:compound "=" ((em:atom "BranchY") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record149 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Eve) (em:iri :cousin) (em:iri :Grace))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Eve))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Grace))) (em:compound "=" ((em:atom "BranchX") (em:iri :b))) (em:compound "=" ((em:atom "BranchY") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record150 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Frank) (em:iri :cousin) (em:iri :Dave))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Frank))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Dave))) (em:compound "=" ((em:atom "BranchX") (em:iri :c))) (em:compound "=" ((em:atom "BranchY") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record151 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Frank) (em:iri :cousin) (em:iri :Eve))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Frank))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Eve))) (em:compound "=" ((em:atom "BranchX") (em:iri :c))) (em:compound "=" ((em:atom "BranchY") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record152 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Grace) (em:iri :cousin) (em:iri :Dave))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Grace))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Dave))) (em:compound "=" ((em:atom "BranchX") (em:iri :c))) (em:compound "=" ((em:atom "BranchY") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record153 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Grace) (em:iri :cousin) (em:iri :Eve))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Grace))) (em:compound "=" ((em:atom "Generation") (em:integer "2"))) (em:compound "=" ((em:atom "Y") (em:iri :Eve))) (em:compound "=" ((em:atom "BranchX") (em:iri :c))) (em:compound "=" ((em:atom "BranchY") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record154 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Heidi) (em:iri :cousin) (em:iri :Judy))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Heidi))) (em:compound "=" ((em:atom "Generation") (em:integer "3"))) (em:compound "=" ((em:atom "Y") (em:iri :Judy))) (em:compound "=" ((em:atom "BranchX") (em:iri :b))) (em:compound "=" ((em:atom "BranchY") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Heidi) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Heidi) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record155 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Ivan) (em:iri :cousin) (em:iri :Judy))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Ivan))) (em:compound "=" ((em:atom "Generation") (em:integer "3"))) (em:compound "=" ((em:atom "Y") (em:iri :Judy))) (em:compound "=" ((em:atom "BranchX") (em:iri :b))) (em:compound "=" ((em:atom "BranchY") (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :Ivan) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Ivan) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record156 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Judy) (em:iri :cousin) (em:iri :Heidi))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Judy))) (em:compound "=" ((em:atom "Generation") (em:integer "3"))) (em:compound "=" ((em:atom "Y") (em:iri :Heidi))) (em:compound "=" ((em:atom "BranchX") (em:iri :c))) (em:compound "=" ((em:atom "BranchY") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Heidi) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Heidi) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record157 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :Judy) (em:iri :cousin) (em:iri :Ivan))) (em:compound "clause" ((em:integer "36"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :Judy))) (em:compound "=" ((em:atom "Generation") (em:integer "3"))) (em:compound "=" ((em:atom "Y") (em:iri :Ivan))) (em:compound "=" ((em:atom "BranchX") (em:iri :c))) (em:compound "=" ((em:atom "BranchY") (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Ivan) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Ivan) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record158 em:term (em:compound "derived" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :Adam) (em:iri :generation) (em:integer "0"))) (em:compound "inf" ((em:iri :Bob) (em:iri :generation) (em:integer "1"))) (em:compound "inf" ((em:iri :Carol) (em:iri :generation) (em:integer "1"))) (em:compound "inf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "inf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "inf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "inf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "inf" ((em:iri :Heidi) (em:iri :generation) (em:integer "3"))) (em:compound "inf" ((em:iri :Ivan) (em:iri :generation) (em:integer "3"))) (em:compound "inf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "inf" ((em:iri :Heidi) (em:iri :branch) (em:iri :b))) (em:compound "inf" ((em:iri :Ivan) (em:iri :branch) (em:iri :b))) (em:compound "inf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "inf" ((em:iri :Dave) (em:iri :cousin) (em:iri :Frank))) (em:compound "inf" ((em:iri :Dave) (em:iri :cousin) (em:iri :Grace))) (em:compound "inf" ((em:iri :Eve) (em:iri :cousin) (em:iri :Frank))) (em:compound "inf" ((em:iri :Eve) (em:iri :cousin) (em:iri :Grace))) (em:compound "inf" ((em:iri :Frank) (em:iri :cousin) (em:iri :Dave))) (em:compound "inf" ((em:iri :Frank) (em:iri :cousin) (em:iri :Eve))) (em:compound "inf" ((em:iri :Grace) (em:iri :cousin) (em:iri :Dave))) (em:compound "inf" ((em:iri :Grace) (em:iri :cousin) (em:iri :Eve))) (em:compound "inf" ((em:iri :Heidi) (em:iri :cousin) (em:iri :Judy))) (em:compound "inf" ((em:iri :Ivan) (em:iri :cousin) (em:iri :Judy))) (em:compound "inf" ((em:iri :Judy) (em:iri :cousin) (em:iri :Heidi))) (em:compound "inf" ((em:iri :Judy) (em:iri :cousin) (em:iri :Ivan))))))) .
+proof:record159 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :generation) (em:integer "0"))) (em:compound "rdf" ((em:iri :Bob) (em:iri :generation) (em:integer "1"))) (em:compound "rdf" ((em:iri :Carol) (em:iri :generation) (em:integer "1"))) (em:compound "rdf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Heidi) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Ivan) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Heidi) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Ivan) (em:iri :branch) (em:iri :b))) (em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "rdf" ((em:iri :Dave) (em:iri :cousin) (em:iri :Frank))) (em:compound "rdf" ((em:iri :Dave) (em:iri :cousin) (em:iri :Grace))) (em:compound "rdf" ((em:iri :Eve) (em:iri :cousin) (em:iri :Frank))) (em:compound "rdf" ((em:iri :Eve) (em:iri :cousin) (em:iri :Grace))) (em:compound "rdf" ((em:iri :Frank) (em:iri :cousin) (em:iri :Dave))) (em:compound "rdf" ((em:iri :Frank) (em:iri :cousin) (em:iri :Eve))) (em:compound "rdf" ((em:iri :Grace) (em:iri :cousin) (em:iri :Dave))) (em:compound "rdf" ((em:iri :Grace) (em:iri :cousin) (em:iri :Eve))) (em:compound "rdf" ((em:iri :Heidi) (em:iri :cousin) (em:iri :Judy))) (em:compound "rdf" ((em:iri :Ivan) (em:iri :cousin) (em:iri :Judy))) (em:compound "rdf" ((em:iri :Judy) (em:iri :cousin) (em:iri :Heidi))) (em:compound "rdf" ((em:iri :Judy) (em:iri :cousin) (em:iri :Ivan))))))) .
+proof:record160 em:term (em:compound "called" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :Adam) (em:iri :generation) (em:integer "0"))) (em:compound "inf" ((em:iri :Bob) (em:iri :generation) (em:integer "1"))) (em:compound "inf" ((em:iri :Carol) (em:iri :generation) (em:integer "1"))) (em:compound "inf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "inf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "inf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "inf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "inf" ((em:iri :Heidi) (em:iri :generation) (em:integer "3"))) (em:compound "inf" ((em:iri :Ivan) (em:iri :generation) (em:integer "3"))) (em:compound "inf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))) (em:compound "inf" ((em:iri :Heidi) (em:iri :branch) (em:iri :b))) (em:compound "inf" ((em:iri :Ivan) (em:iri :branch) (em:iri :b))) (em:compound "inf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))) (em:compound "inf" ((em:iri :Dave) (em:iri :cousin) (em:iri :Frank))) (em:compound "inf" ((em:iri :Dave) (em:iri :cousin) (em:iri :Grace))) (em:compound "inf" ((em:iri :Eve) (em:iri :cousin) (em:iri :Frank))) (em:compound "inf" ((em:iri :Eve) (em:iri :cousin) (em:iri :Grace))) (em:compound "inf" ((em:iri :Frank) (em:iri :cousin) (em:iri :Dave))) (em:compound "inf" ((em:iri :Frank) (em:iri :cousin) (em:iri :Eve))) (em:compound "inf" ((em:iri :Grace) (em:iri :cousin) (em:iri :Dave))) (em:compound "inf" ((em:iri :Grace) (em:iri :cousin) (em:iri :Eve))) (em:compound "inf" ((em:iri :Heidi) (em:iri :cousin) (em:iri :Judy))) (em:compound "inf" ((em:iri :Ivan) (em:iri :cousin) (em:iri :Judy))) (em:compound "inf" ((em:iri :Judy) (em:iri :cousin) (em:iri :Heidi))) (em:compound "inf" ((em:iri :Judy) (em:iri :cousin) (em:iri :Ivan))) (em:compound "inf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "inf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))) (em:compound "inf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Dave))) (em:compound "inf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Eve))) (em:compound "inf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Frank))) (em:compound "inf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Grace))) (em:compound "inf" ((em:iri :Dave) (em:iri :parentOf) (em:iri :Heidi))) (em:compound "inf" ((em:iri :Eve) (em:iri :parentOf) (em:iri :Ivan))) (em:compound "inf" ((em:iri :Frank) (em:iri :parentOf) (em:iri :Judy))) (em:compound "inf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))) (em:compound "inf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))) (em:compound "inf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))) (em:compound "inf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))) (em:compound "inf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))) (em:compound "inf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record161 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:variable "D"))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))))))) .
+proof:record162 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Dave))) (em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Eve))))))) .
+proof:record163 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Frank))) (em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Grace))))))) .
+proof:record164 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Dave) (em:iri :parentOf) (em:variable "F"))) (em:list ((em:compound "rdf" ((em:iri :Dave) (em:iri :parentOf) (em:iri :Heidi))))))) .
+proof:record165 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Eve) (em:iri :parentOf) (em:variable "F"))) (em:list ((em:compound "rdf" ((em:iri :Eve) (em:iri :parentOf) (em:iri :Ivan))))))) .
+proof:record166 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Frank) (em:iri :parentOf) (em:variable "F"))) (em:list ((em:compound "rdf" ((em:iri :Frank) (em:iri :parentOf) (em:iri :Judy))))))) .
+proof:record167 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Grace) (em:iri :parentOf) (em:variable "F"))) (em:atom "[]"))) .
+proof:record168 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "G") (em:iri :parentOf) (em:variable "H"))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Bob))) (em:compound "rdf" ((em:iri :Adam) (em:iri :parentOf) (em:iri :Carol))) (em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Dave))) (em:compound "rdf" ((em:iri :Bob) (em:iri :parentOf) (em:iri :Eve))) (em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Frank))) (em:compound "rdf" ((em:iri :Carol) (em:iri :parentOf) (em:iri :Grace))) (em:compound "rdf" ((em:iri :Dave) (em:iri :parentOf) (em:iri :Heidi))) (em:compound "rdf" ((em:iri :Eve) (em:iri :parentOf) (em:iri :Ivan))) (em:compound "rdf" ((em:iri :Frank) (em:iri :parentOf) (em:iri :Judy))))))) .
+proof:record169 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Adam) (em:iri :branch) (em:variable "I"))) (em:atom "[]"))) .
+proof:record170 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Bob) (em:iri :branch) (em:variable "I"))) (em:atom "[]"))) .
+proof:record171 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Carol) (em:iri :branch) (em:variable "I"))) (em:atom "[]"))) .
+proof:record172 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:variable "I"))) (em:list ((em:compound "rdf" ((em:iri :Dave) (em:iri :branch) (em:iri :b))))))) .
+proof:record173 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:variable "I"))) (em:list ((em:compound "rdf" ((em:iri :Eve) (em:iri :branch) (em:iri :b))))))) .
+proof:record174 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:variable "I"))) (em:list ((em:compound "rdf" ((em:iri :Frank) (em:iri :branch) (em:iri :c))))))) .
+proof:record175 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "J") (em:iri :generation) (em:variable "K"))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :generation) (em:integer "0"))) (em:compound "rdf" ((em:iri :Bob) (em:iri :generation) (em:integer "1"))) (em:compound "rdf" ((em:iri :Carol) (em:iri :generation) (em:integer "1"))) (em:compound "rdf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Heidi) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Ivan) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))))))) .
+proof:record176 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "L") (em:iri :generation) (em:integer "0"))) (em:list ((em:compound "rdf" ((em:iri :Adam) (em:iri :generation) (em:integer "0"))))))) .
+proof:record177 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "L") (em:iri :generation) (em:integer "1"))) (em:list ((em:compound "rdf" ((em:iri :Bob) (em:iri :generation) (em:integer "1"))) (em:compound "rdf" ((em:iri :Carol) (em:iri :generation) (em:integer "1"))))))) .
+proof:record178 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "L") (em:iri :generation) (em:integer "2"))) (em:list ((em:compound "rdf" ((em:iri :Dave) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Eve) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Frank) (em:iri :generation) (em:integer "2"))) (em:compound "rdf" ((em:iri :Grace) (em:iri :generation) (em:integer "2"))))))) .
+proof:record179 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :b))) (em:atom "[]"))) .
+proof:record180 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))) (em:list ((em:compound "rdf" ((em:iri :b) (em:iri :differentFrom) (em:iri :c))))))) .
+proof:record181 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:variable "M"))) (em:list ((em:compound "rdf" ((em:iri :Grace) (em:iri :branch) (em:iri :c))))))) .
+proof:record182 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))) (em:list ((em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :b))))))) .
+proof:record183 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :c) (em:iri :differentFrom) (em:iri :c))) (em:atom "[]"))) .
+proof:record184 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "L") (em:iri :generation) (em:integer "3"))) (em:list ((em:compound "rdf" ((em:iri :Heidi) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Ivan) (em:iri :generation) (em:integer "3"))) (em:compound "rdf" ((em:iri :Judy) (em:iri :generation) (em:integer "3"))))))) .
+proof:record185 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Heidi) (em:iri :branch) (em:variable "N"))) (em:list ((em:compound "rdf" ((em:iri :Heidi) (em:iri :branch) (em:iri :b))))))) .
+proof:record186 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Ivan) (em:iri :branch) (em:variable "M"))) (em:list ((em:compound "rdf" ((em:iri :Ivan) (em:iri :branch) (em:iri :b))))))) .
+proof:record187 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:variable "M"))) (em:list ((em:compound "rdf" ((em:iri :Judy) (em:iri :branch) (em:iri :c))))))) .
+}

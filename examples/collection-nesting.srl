@@ -1,0 +1,21 @@
+# A nested RDF list holds a number, a described blank node and another list.
+# Property paths recover the first item, the blank node property and the
+# number in the inner list, showing list cells and nested collection syntax.
+
+PREFIX : <http://example.org/collection-nesting#>
+
+DATA {
+  :root :nested ( 1 [ :p :q ] ( 2 ) ) .
+}
+
+RULE { :test :first ?first }
+WHERE { :root :nested/rdf:first ?first }
+
+RULE { :test :second ?second }
+WHERE { :root :nested/rdf:rest/rdf:first ?second }
+
+RULE { :test :secondProperty ?object }
+WHERE { :root :nested/rdf:rest/rdf:first/:p ?object }
+
+RULE { :test :thirdFirst ?item }
+WHERE { :root :nested/rdf:rest/rdf:rest/rdf:first/rdf:first ?item }

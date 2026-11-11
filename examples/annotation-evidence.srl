@@ -1,0 +1,28 @@
+# A named statement records who supplied Alice's name and on which date.
+# Rules recover the reifier, its author and its date, showing RDF 1.2
+# annotations and triple-term patterns alongside the asserted statement.
+
+PREFIX : <http://example.org/annotation-evidence#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+DATA {
+  :a :name "Alice" ~ :t {| :statedBy :bob ; :recorded "2021-07-07"^^xsd:date |} .
+}
+
+RULE { :test :hasStatement true }
+WHERE { :a :name "Alice" }
+
+RULE { :test :hasNamedStatement ?statement }
+WHERE { ?statement rdf:reifies <<(:a :name "Alice")>> }
+
+RULE { :test :statementAuthor ?who }
+WHERE {
+  ?statement rdf:reifies <<(:a :name "Alice")>> .
+  ?statement :statedBy ?who .
+}
+
+RULE { :test :statementDate ?date }
+WHERE {
+  ?statement rdf:reifies <<(:a :name "Alice")>> .
+  ?statement :recorded ?date .
+}
