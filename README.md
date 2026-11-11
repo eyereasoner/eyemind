@@ -7,7 +7,7 @@ eyemind is a **JavaScript rule language** with forward and backward reasoning an
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 115 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1353 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 118 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1353 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -20,6 +20,7 @@ The playground runs programs in your browser; the specification defines the lang
   - [Inspecting rules](#inspecting-rules)
   - [RDF 1.2](#rdf-12)
   - [Notation3](#notation3)
+  - [RDF Messages](#rdf-messages)
   - [SPARQL 1.2 RL](#sparql-12-rl)
 - [How eyemind reasons](#how-eyemind-reasons)
 - [Proofs, and what checking one means](#proofs-and-what-checking-one-means)
@@ -236,6 +237,68 @@ Examples run directly from their N3 source in the playground and on the command 
 Each deck shows the N3 result and what its saved proof establishes, including
 any remaining obligations.
 
+### RDF Messages
+
+eyemind reads the [RDF Messages living draft](https://w3c-cg.github.io/rsp/spec/messages)
+in Turtle, TriG, N-Triples and N-Quads. A version such as
+`VERSION "1.2-messages"` enables `MESSAGE` boundaries; Turtle and TriG also
+accept `@version "1.2-messages" .` and `@message .`. Empty messages are
+preserved, a final delimiter adds no extra message, and blank nodes belong
+to their message. Prefix and base changes apply to subsequent data.
+
+Whole-log replay gives N3 or JavaScript rules an ordered view of the messages:
+
+```sh
+eyemind examples/message-boundaries.n3 examples/data/message-boundaries.trig
+eyemind --proof examples/message-boundaries.n3 examples/data/message-boundaries.trig
+eyemind --check-proof examples/proof/message-boundaries.js examples/message-boundaries.n3 examples/data/message-boundaries.trig
+```
+
+The replay vocabulary is `eymsg:`, with namespace
+`https://eyereasoner.github.io/eyeling/vocab/message#`. A stream has
+`messageCount`, `orderedEnvelopes`, `firstEnvelope`, `lastEnvelope` and
+`envelope` links. Each envelope has a one-based `offset`, a `payloadKind`
+of `empty` or `nonEmpty`, and, when nonempty, a `payloadGraph` link.
+`nextEnvelope` preserves order. Stream and envelope IRIs are deterministic
+from the input's scope; they are application replay identifiers, not syntax
+from the draft.
+
+`?payload log:nameOf ?data` exposes a quoted payload formula, inspected with
+`?data log:includes { ... }`. A named graph inside a message is another
+`log:nameOf` formula inside that payload. Message triples stay inside their
+contexts; rules can deliberately join envelopes when replaying a whole log.
+JavaScript rules see the replay facts as `rdf(S, P, O, 'default_graph')`
+with `graph(...)` terms for payload formulas.
+
+For independent processing, run the rules once per message:
+
+```sh
+eyemind --stream-messages examples/message-alerts.n3 examples/data/message-alerts.nt
+```
+
+The Node command incrementally reads files, standard input (`-`) or HTTP(S)
+message logs and writes each result when its message closes. It reads static
+inputs once and discards each run's derived facts before the next message.
+Memory retains the current message, active prefix/base context and static
+inputs. An inference fuse stops the stream with exit code 65. Output uses
+the ordinary N3, RDF or term format selected for the run.
+
+The playground's **Independent RDF Messages** mode processes its loaded
+text with the same boundaries. Whole-log replay supports proofs;
+`--stream-messages` rejects proof, proof-checking, compiled-program and
+unused-clause modes. The [message-boundaries](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries),
+[message-alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts)
+and [message-provenance](https://eyereasoner.github.io/eyemind/examples/deck/message-provenance)
+decks show the outputs and remaining proof obligations.
+
+Library hosts can import `RdfMessageReader` and `parseRdfMessages` from
+`eyemind`. The former accepts text chunks through `write(text)` and
+`finish()`, calling `onMessage({ index, quads, prefixes, base })` for each
+dataset; returning `false` stops it. The latter reads a complete string and
+returns `messages` plus its replay representation. Both take `format`,
+`base` and `scope` options. `parseRdf` reads ordinary RDF documents; use
+`parseRdfMessages` to retain message boundaries.
+
 ### SPARQL 1.2 RL
 
 A file ending in `.srl` is a [SPARQL 1.2 RL](https://www.w3.org/TR/sparql12-rl/) rule set: eyemind parses and analyzes it, then compiles it into a program, with the SPARQL functions and aggregates it uses written as eyemind rules, and RDF data files given with it are its base graph. The result is the inference graph, as Turtle:
@@ -369,6 +432,7 @@ eyemind [OPTION ...] [FILE ...]
 | `--goal GOAL` | Ask `GOAL` after forward reasoning; may be repeated. |
 | `--strict-proof` | With a checking mode, reject proofs with any obligation. |
 | `--unused` | List the clauses that make no difference to the conclusions. |
+| `--stream-messages` | Read an RDF Message Log and run the rules independently per message; Node reads files, stdin and HTTP(S) incrementally. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3 or SRL program has 1000000, 100000 and 1000000000. |
 | `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3` or `eyemind`; by default N3 for N3, Turtle for SRL, eyemind otherwise. |

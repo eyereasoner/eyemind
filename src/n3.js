@@ -804,7 +804,7 @@ export function readSources(sources, { base = '', baseOf = () => '' } = {}) {
   if (typeof sources === 'string') sources = [[sources, 'input']];
   const docs = sources.map((source) => (Array.isArray(source)
     ? parseN3(source[0], { base: base || baseOf(source[1]) })
-    : { triples: rdfQuadsToN3(source.quads), prefixes: new Map(Object.entries(source.prefixes ?? {})) }));
+    : { triples: source.triples ?? rdfQuadsToN3(source.quads), prefixes: new Map(Object.entries(source.prefixes ?? {})) }));
   const doc = { triples: [], prefixes: new Map() };
   const graphs = new Map();
   docs.forEach((d, k) => {
@@ -840,12 +840,12 @@ const sourceNames = (sources) => (typeof sources === 'string' ? 'input' : source
 // The triples of eyemind answers as N3: the derived ones, every triple with
 // mode 'all', and the document's own log:outputString strings when the
 // result writes strings.
-export function answersToN3(doc, answers, { mode = 'new', strings = 'auto' } = {}) {
+export function answersToN3(doc, answers, { mode = 'new', strings = 'auto', blankNodePrefix = '' } = {}) {
   let { triples, contradiction } = triplesFromEyemind(answers.join('\n'));
   const given = doc.triples.filter((x) => !isRule(x)).map(tripleToEyemind);
   if (mode === 'all') triples = [...given, ...triples];
   else if (strings !== false && triples.some(isOutputString)) triples = [...given.filter(isOutputString), ...triples];
-  return { n3: writeN3(triples, { prefixes: doc.prefixes, strings }), triples, contradiction };
+  return { n3: writeN3(triples, { prefixes: doc.prefixes, strings, blankNodePrefix }), triples, contradiction };
 }
 
 // Generous bounds: N3 programs often run longer than eyemind's defaults.

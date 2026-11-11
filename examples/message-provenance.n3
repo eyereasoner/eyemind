@@ -1,0 +1,17 @@
+# Two stations report a named graph called readings, in separate messages.
+# Each message also names its reporter in its own default graph. The rules
+# join those two contexts within that message, concluding the correct station,
+# graph and temperature for each envelope without crossing message boundaries.
+# See https://w3c-cg.github.io/rsp/spec/messages
+@prefix : <https://example.org/provenance#> .
+@prefix eymsg: <https://eyereasoner.github.io/eyeling/vocab/message#> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+
+{
+  ?envelope eymsg:payloadGraph ?payload .
+  ?payload log:nameOf ?data .
+  ?data log:includes { :dataset :reportedBy ?station . ?graph log:nameOf ?contents } .
+  ?contents log:includes { ?reading :temperature ?temperature } .
+} => {
+  ?envelope :reportedBy ?station ; :graph ?graph ; :temperature ?temperature .
+} .

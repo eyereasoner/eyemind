@@ -35,6 +35,8 @@ goals, and keep error messages specific and user-facing text direct.
     `rdf-prelude.js`, `rdf-rules.js`) after the strict token pass of
     `rdf-syntax.js`. `n3.js`, `n3-parser.js`, `n3-builtins.js`,
     `n3-writer.js`, `n3-documents.js`: Notation3 compiled to a program.
+    `messages.js`: incremental RDF Message parsing and envelope replay;
+    `node-messages.js`: Node's incremental file, stdin and HTTP(S) input.
     `srl.js`, `srl-functions.js`: SPARQL 1.2 RL compiled to a program, read
     by the SRL tokenizer, parser and analysis (`srl-tokenizer.js`,
     `srl-parser.js`, `srl-term.js`, `srl-assignments.js`, `srl-analyze.js`,
@@ -59,6 +61,9 @@ goals, and keep error messages specific and user-facing text direct.
   basename across formats (`socrates.js`, `socrates.n3`, `socrates.srl`).
   Manifest names distinguish their proofs, check reports and decks. TriG
   joins N3 as quoted `graph:content` formulas.
+  RDF Message examples keep their logs in `examples/data/`; payloads are
+  quoted `log:nameOf` formulas. Replay has proofs and check reports;
+  `--stream-messages` runs each message independently.
 - `conformance/`: the black-box suite of SPEC.md. Each case file is an
   eyemind document of `conformance(Name, [Setting, ...])` terms, read by
   `conformance/run.js`; `conformance/README.md` describes the format.

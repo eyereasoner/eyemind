@@ -385,7 +385,7 @@ const EYMSG = Object.freeze({
   nonEmpty: `<${EYMSG_NS}nonEmpty>`,
 });
 
-function normalizeRdfCompatibility(inputText, { trig = false } = {}) {
+function normalizeRdfCompatibility(inputText, { trig = false, messages = true } = {}) {
   let text = String(inputText ?? '');
 
   // eyemind: ordinary N3 input does not need RDF/TriG
@@ -394,7 +394,7 @@ function normalizeRdfCompatibility(inputText, { trig = false } = {}) {
   // plausible top-level TriG named graph block.
   const hasTripleTerms = text.includes('<<');
   const hasVersionDirective = /^\s*(?:@version|VERSION)\s+(["'])(?:1\.1|1\.2|1\.2-basic)\1\s*\.?\s*(?:#.*)?$/im.test(text);
-  const hasMessageVersionDirective = /^\s*(?:@version|VERSION)\s+(["'])(?:1\.1|1\.2|1\.2-basic)-messages\1\s*\.?\s*(?:#.*)?$/im.test(text);
+  const hasMessageVersionDirective = messages && /^\s*(?:@version|VERSION)\s+(["'])(?:1\.1|1\.2|1\.2-basic)-messages\1\s*\.?\s*(?:#.*)?$/im.test(text);
   const hasNamedGraphCandidate = /(?:^|[.\r\n])\s*(?:GRAPH\s+)?(?:<[^>\r\n]*>|_:[A-Za-z][A-Za-z0-9_-]*|[A-Za-z][A-Za-z0-9_-]*:[^\s{};,.()[\]]*|:[^\s{};,.()[\]]+)\s*\{/m.test(text);
   const hasAnnotationSyntax = /(?:^|\s)~|\{\|/.test(text);
 
@@ -865,7 +865,38 @@ function normalizeRdfCompatibility(inputText, { trig = false } = {}) {
   }
 
   function stripVersionDirectives(s) {
-    return s.replace(/^\s*(?:@version|VERSION)\s+(["'])(?:1\.1|1\.2|1\.2-basic)(?:-messages)?\1\s*\.?\s*(?:#.*)?$/gim, '');
+    // eyemind: a line in a long literal can look exactly like a directive.
+    // Only strip tokens outside literals, IRIs and comments.
+    let out = '';
+    let i = 0;
+    while (i < s.length) {
+      if (s[i] === '"' || s[i] === "'") {
+        const token = readStringAt(s, i);
+        out += token.text;
+        i = token.end;
+      } else if (s[i] === '<' && !s.startsWith('<<', i)) {
+        const token = readIriAt(s, i);
+        out += token.text;
+        i = token.end;
+      } else if (s[i] === '#') {
+        const end = s.slice(i).search(/[\r\n]/);
+        const stop = end < 0 ? s.length : i + end + 1;
+        out += s.slice(i, stop);
+        i = stop;
+      } else {
+        const match = /^(?:@version|VERSION)\s+(["'])(?:1\.1|1\.2|1\.2-basic)(?:-messages)?\1/i.exec(s.slice(i));
+        if (match && (i === 0 || !isWordChar(s[i - 1]))) {
+          let end = i + match[0].length;
+          if (s.slice(i, i + 8).toLowerCase() === '@version') {
+            end = skipWsAndComments(s, end);
+            if (s[end] === '.') end++;
+          }
+          out += s.slice(i, end).replace(/[^\r\n]/g, ' ');
+          i = end;
+        } else out += s[i++];
+      }
+    }
+    return out;
   }
 
   function skipWsAndComments(s, at) {
@@ -1392,7 +1423,7 @@ function isNumericLikeIdentifier(word) {
 
 function lex(inputText, opts = {}) {
   const rdf = !!(opts && opts.rdf);
-  if (rdf) inputText = normalizeRdfCompatibility(inputText, { trig: !!opts.trig });
+  if (rdf) inputText = normalizeRdfCompatibility(inputText, { trig: !!opts.trig, messages: opts.messages !== false });
   // Avoid copying large ASCII/BMP inputs into an Array.  Array.from() is
   // only needed when the text contains surrogate pairs and we want the old
   // code-point iteration behavior for non-BMP characters.

@@ -19,6 +19,9 @@ examples use data in `data/` with companion N3 rules in this directory.
 TriG named graphs become quoted `graph:content` formulas, as described in
 the [guide](https://eyereasoner.github.io/eyemind/#notation3).
 The `.srl` programs run here too, with their Turtle output and proof artifacts.
+For RDF Messages, try [message boundaries and heartbeats](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries),
+[independent alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts),
+or [named-graph provenance](https://eyereasoner.github.io/eyemind/examples/deck/message-provenance).
 
 Run a source, generate its proof, or check its saved proof:
 
@@ -107,6 +110,9 @@ proofs, check reports and decks, which share the same extensions.
 | [least-squares-regression](https://eyereasoner.github.io/eyemind/examples/deck/least-squares-regression) | [least-squares-regression.js](https://github.com/eyereasoner/eyemind/blob/main/examples/least-squares-regression.js) | Straight-line fits from exact sufficient statistics, with explicit degenerate cases |
 | [lists](https://eyereasoner.github.io/eyemind/examples/deck/lists) | [lists.js](https://github.com/eyereasoner/eyemind/blob/main/examples/lists.js) | Concatenation, mapping and summation |
 | [lldm](https://eyereasoner.github.io/eyemind/examples/deck/lldm) | [lldm.js](https://github.com/eyereasoner/eyemind/blob/main/examples/lldm.js) | Leg length discrepancy measured from radiograph landmarks, with an alarm and its reason |
+| [message-alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts) | [message-alerts.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/message-alerts.n3) · [data/message-alerts.nt](https://github.com/eyereasoner/eyemind/blob/main/examples/data/message-alerts.nt) | Independent sensor messages raise an alert only for the observation above the temperature threshold |
+| [message-boundaries](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries) | [message-boundaries.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/message-boundaries.n3) · [data/message-boundaries.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/message-boundaries.trig) | Ordered RDF Messages preserve an empty heartbeat and distinguish reused blank-node labels |
+| [message-provenance](https://eyereasoner.github.io/eyemind/examples/deck/message-provenance) | [message-provenance.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/message-provenance.n3) · [data/message-provenance.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/message-provenance.trig) | Reporters and named-graph readings join within each message without crossing its boundary |
 | [monkey-bananas](https://eyereasoner.github.io/eyemind/examples/deck/monkey-bananas) | [monkey-bananas.js](https://github.com/eyereasoner/eyemind/blob/main/examples/monkey-bananas.js) | Every plan of up to five moves that gets the monkey the bananas |
 | [nested-triple-term](https://eyereasoner.github.io/eyemind/examples/deck/nested-triple-term) | [data/nested-triple-term.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/nested-triple-term.ttl) · [nested-triple-term.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/nested-triple-term.n3) | Nested RDF 1.2 triple terms: one pattern reaches the triple inside a claim inside a review |
 | [nixon-diamond](https://eyereasoner.github.io/eyemind/examples/deck/nixon-diamond) | [nixon-diamond.js](https://github.com/eyereasoner/eyemind/blob/main/examples/nixon-diamond.js) | A default guarded by negation, so a contrary rule takes priority |

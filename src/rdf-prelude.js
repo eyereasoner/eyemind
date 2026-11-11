@@ -471,6 +471,13 @@ class DerivedFact {
 const __iriIntern = new Map();
 const __literalIntern = new Map();
 
+// eyemind: conversion produces independent eyemind terms. Keeping parser
+// intern tables after that would retain every term in an unbounded log.
+function clearParserCaches() {
+  for (const cache of [__literalPartsCache, __tidIntern, __iriTidIntern, __blankTidIntern,
+    __literalTidIntern, __iriIntern, __literalIntern]) cache.clear();
+}
+
 // Do not intern extremely large literal strings (e.g., huge numeric intermediates).
 // Interning them creates global strong references that prevent GC.
 const MAX_LITERAL_INTERN_LEN = 1024;
@@ -794,6 +801,7 @@ export {
   DerivedFact,
   internIri,
   internLiteral,
+  clearParserCaches,
   isRdfTypePred,
   isOwlSameAsPred,
   isLogImplies,

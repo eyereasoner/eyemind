@@ -2149,6 +2149,14 @@ describes the mappings. Such formats are outside conformance: a conforming
 implementation need not read them, and the suite does not test them. The
 proofs and checks of a compiled program are those of any program.
 
+eyemind also reads RDF Message Logs in these four RDF syntaxes, announced by
+a `*-messages` version. Replay supplies ordered envelopes and quoted payloads
+to N3 or JavaScript rules; `--stream-messages` evaluates each message
+independently and supports incremental Node input. Replay can produce and
+check ordinary eyemind proofs. The streaming mode rejects proof generation,
+proof checking, `--program` and `--unused`. These mappings and this option
+are also outside conformance; the README describes their supported behavior.
+
 | Exit code | Meaning |
 | --- | --- |
 | 0 | Success, including a check that found the proof valid. |

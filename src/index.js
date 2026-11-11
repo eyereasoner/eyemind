@@ -13,3 +13,4 @@ export { checkProof, checkReport, publicReport, strict, verdictText } from './pr
 export { readTerm, readTerms } from './reader.js';
 export { EyemindError, Struct, Var } from './terms.js';
 export { write } from './writer.js';
+export { RdfMessageReader, parseRdfMessages } from './messages.js';

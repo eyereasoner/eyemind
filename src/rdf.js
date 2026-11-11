@@ -18,7 +18,7 @@
 import { lex } from './rdf-lexer.js';
 import { checkRdfSyntax } from './rdf-syntax.js';
 import { Parser } from './rdf-parser.js';
-import { Blank, GraphTerm, Iri, ListTerm, Literal, LOG_NS, RDF_NS, literalParts } from './rdf-prelude.js';
+import { Blank, GraphTerm, Iri, ListTerm, Literal, LOG_NS, RDF_NS, clearParserCaches, literalParts } from './rdf-prelude.js';
 import { EyemindError, Struct } from './terms.js';
 import { write } from './writer.js';
 
@@ -46,7 +46,7 @@ export function parseRdf(text, { format = 'turtle', base = null, scope = 'rdf' }
   try {
     checkRdfSyntax(text, format);
     assertRdf12SurfaceSyntax(text, format);
-    const parser = new Parser(lex(text, { rdf: true, trig: format === 'trig' }));
+    const parser = new Parser(lex(text, { rdf: true, trig: format === 'trig', messages: false }));
     // RDF declares every prefix it uses; N3's predeclared ones do not apply.
     parser.prefixes.map = {};
     if (base) parser.prefixes.setBase(base);
@@ -74,10 +74,12 @@ export function parseRdf(text, { format = 'turtle', base = null, scope = 'rdf' }
     if (format !== 'trig' && format !== 'n-quads' && state.out.some((q) => q[3] !== DEFAULT_GRAPH)) {
       throw new SyntaxError(`${format} has no named graphs`);
     }
-    return { quads: state.out, prefixes: prefixesOf(parser.prefixes) };
+    return { quads: state.out, prefixes: prefixesOf(parser.prefixes), base: parser.prefixes.baseIri || null };
   } catch (error) {
     if (error instanceof EyemindError) throw error;
     throw new EyemindError(`${format}: ${error.message}`);
+  } finally {
+    clearParserCaches();
   }
 }
 
@@ -335,9 +337,9 @@ function assertLineSyntax(text) {
 
 // Write quads, [S, P, O, G] eyemind terms, as Turtle (or TriG when a quad is
 // in a named graph) with the prefixes it uses, or as N-Triples or N-Quads.
-export function writeRdf(quads, { format = 'turtle', prefixes = {} } = {}) {
+export function writeRdf(quads, { format = 'turtle', prefixes = {}, blankNodePrefix = '' } = {}) {
   const line = format === 'n-triples' || format === 'n-quads';
-  const w = new RdfWriter(line ? {} : prefixes, line);
+  const w = new RdfWriter(line ? {} : prefixes, line, blankNodePrefix);
   const body = [];
   if (line) {
     for (const [s, p, o, g] of quads) {
@@ -365,12 +367,13 @@ export function writeRdf(quads, { format = 'turtle', prefixes = {} } = {}) {
 const PN_LOCAL = /^(?:[A-Za-z_0-9À-�]|:)(?:[A-Za-z_0-9·À-�.:-]*[A-Za-z_0-9·À-�:-])?$/u;
 
 class RdfWriter {
-  constructor(prefixes, line) {
+  constructor(prefixes, line, blankNodePrefix) {
     this.prefixes = new Map(Object.entries(prefixes));
     this.ordered = [...this.prefixes].sort((a, b) => b[1].length - a[1].length);
     this.line = line;
     this.used = new Set();
     this.bnodes = new Map();
+    this.blankNodePrefix = blankNodePrefix;
   }
 
   iri(v) {
@@ -399,7 +402,7 @@ class RdfWriter {
     if (t.name === 'iri' && t.args.length === 1 && typeof a === 'string') return this.iri(a);
     if ((t.name === 'bnode' && t.args.length === 2) || (t.name === 'skolem' && t.args.length === 3)) {
       const key = write(t);
-      if (!this.bnodes.has(key)) this.bnodes.set(key, `_:b${this.bnodes.size}`);
+      if (!this.bnodes.has(key)) this.bnodes.set(key, `_:${this.blankNodePrefix}b${this.bnodes.size}`);
       return this.bnodes.get(key);
     }
     if (t.name === 'literal' && t.args.length === 2) return this.literal(a, b);

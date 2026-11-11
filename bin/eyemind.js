@@ -3,6 +3,7 @@
 import { readFileSync, writeSync } from 'node:fs';
 import { main } from '../src/cli.js';
 import { nodeIO } from '../src/node.js';
+import { streamMessages } from '../src/node-messages.js';
 
 function write(fd, text) {
   // Written synchronously, so a large proof is complete before the exit.
@@ -19,8 +20,9 @@ function write(fd, text) {
   }
 }
 
-const code = main(process.argv.slice(2), {
+const code = await main(process.argv.slice(2), {
   ...nodeIO,
+  streamMessages,
   stdout: (text) => write(1, text),
   stderr: (text) => write(2, text),
   stdin: () => readFileSync(0, 'utf8'),

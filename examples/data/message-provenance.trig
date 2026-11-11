@@ -1,0 +1,14 @@
+# Station A reports 24 degrees; station B later reports 27. Both messages use
+# the graph name readings and the blank label _:reading. The companion keeps
+# the reporter and reading together inside each message, showing named-graph
+# provenance without mixing the observations.
+# See https://w3c-cg.github.io/rsp/spec/messages
+VERSION "1.2-messages"
+PREFIX : <https://example.org/provenance#>
+
+:dataset :reportedBy :stationA .
+:readings { _:reading :temperature 24 . }
+MESSAGE
+:dataset :reportedBy :stationB .
+:readings { _:reading :temperature 27 . }
+MESSAGE
