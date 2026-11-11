@@ -14,9 +14,9 @@
 // number, what it tests and how long it took; each section and the whole run
 // end with a total. Every invocation runs the W3C format suites and writes
 // their EARL reports. A whole run also reports Notation3 progress and prints
-// the combined table of REPORT.md.
+// the combined table and writes it to REPORT.md.
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, writeFileSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -378,14 +378,18 @@ function printReport(rows) {
   const time = (seconds) => `${seconds.toFixed(2)} s`;
   const sum = (key) => rows.reduce((n, row) => n + row[key], 0);
   const total = { cases: sum('cases'), passed: sum('passed'), seconds: sum('seconds') };
-  console.log(`\n${paint('33', '== Report')}`);
-  console.log('| Suite | Cases | Passed | Result | Time |');
-  console.log('| --- | ---: | ---: | --- | ---: |');
+  const lines = [
+    '| Suite | Cases | Passed | Result | Time |',
+    '| --- | ---: | ---: | --- | ---: |',
+  ];
   for (const row of rows) {
     const result = row.passed === row.cases ? '✅ ok' : `❌ ${row.cases - row.passed} failed`;
-    console.log(`| ${row.suite} | ${row.cases} | ${row.passed} | ${result} | ${time(row.seconds)} |`);
+    lines.push(`| ${row.suite} | ${row.cases} | ${row.passed} | ${result} | ${time(row.seconds)} |`);
   }
-  console.log(`| **Total** | **${total.cases}** | **${total.passed}** | **${(100 * total.passed / total.cases).toFixed(1)}% ok** | **${time(total.seconds)}** |`);
+  lines.push(`| **Total** | **${total.cases}** | **${total.passed}** | **${(100 * total.passed / total.cases).toFixed(1)}% ok** | **${time(total.seconds)}** |`);
+  const table = lines.join('\n');
+  console.log(`\n${paint('33', '== Report')}\n${table}`);
+  writeFileSync(join(ROOT, 'REPORT.md'), `# Test report\n\n${table}\n`);
 }
 
 process.exitCode = await main(process.argv.slice(2));

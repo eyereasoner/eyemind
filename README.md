@@ -526,6 +526,8 @@ node conformance/run.js --command "my-eyemind"        # run the conformance suit
 
 The full suite needs a few GB of memory; on a small machine run it under a cap, such as `systemd-run --user --scope -q -p MemoryMax=3G -p MemorySwapMax=0 -- npm test`. Generated tests forge saved proofs at random and require the checker to reject every forgery that claims more than the program entails. The playground tests need Chrome (`CHROME` names it). When adding an example, register it in [examples/manifest.json](https://github.com/eyereasoner/eyemind/blob/main/examples/manifest.json), write its deck in `examples/deck/`, and generate its artifacts.
 
+A full `npm test` writes `REPORT.md` from the summary table it prints.
+
 Every `npm test` invocation, including a filtered run, also runs both cached
 W3C format suites and rewrites [reports/w3c-rdf-earl.ttl](reports/w3c-rdf-earl.ttl)
 and [reports/w3c-sparql-rl-earl.ttl](reports/w3c-sparql-rl-earl.ttl).
