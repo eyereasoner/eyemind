@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Refresh all three test mirrors, with downloads staged before publication.
-// No test inputs are rewritten and ordinary test runs never fetch upstream.
+// Refresh all three cached test suites, staging downloads before replacement.
 import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { manifestCases, RDF_MANIFESTS, sparqlRlCases, SRL_BASE, W3C_BASE } from '../test/w3c.js';
 import { syncNotation3Tests } from './sync-notation3tests.js';
+import { cachePaths, readCachedSuites, recordUpstream, writeInventory } from './test-cache.js';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const RDF_SOURCE = 'https://github.com/w3c/rdf-tests';
@@ -88,15 +88,14 @@ function publish(items, temporary) {
 }
 
 export async function syncTestSuites({ root = ROOT, checkouts = {}, log = console.log } = {}) {
-  // Staging beside the mirrors lets publication use filesystem renames.
+  // Staging beside the cache lets publication use filesystem renames.
   mkdirSync(join(root, 'test'), { recursive: true });
-  const temporary = mkdtempSync(join(root, 'test', '.sync-'));
+  mkdirSync(join(root, '.cache'), { recursive: true });
+  const temporary = mkdtempSync(join(root, '.cache', '.sync-'));
   try {
     const n3 = join(temporary, 'notation3tests');
     log('Syncing notation3tests...');
     const notation3 = await syncNotation3Tests({ checkout: checkouts.notation3tests ?? null, destination: n3, log });
-    const readme = join(root, 'test/notation3tests/README.md');
-    if (existsSync(readme)) copy(readme, join(n3, 'README.md'));
 
     log('Syncing W3C RDF...');
     const rdf = join(temporary, 'rdf-tests');
@@ -124,15 +123,29 @@ export async function syncTestSuites({ root = ROOT, checkouts = {}, log = consol
     metadata(srl, srlInfo);
     log(`w3c-sparql-rl: staged ${srlCases.length} cases at ${srlInfo.revision}`);
 
-    publish([{ stage: n3, target: join(root, 'test/notation3tests') },
-      { stage: rdf, target: join(root, 'test/w3c/rdf-tests') },
-      { stage: srl, target: join(root, 'test/w3c/sparql-rl') }], temporary);
+    const targets = cachePaths(root);
+    for (const stage of [n3, rdf, srl]) writeInventory(stage);
+    const info = { notation3tests: notation3, rdf: rdfInfo, srl: srlInfo };
+    const provenance = join(temporary, 'upstream.json');
+    metadata(temporary, info);
+    publish([{ stage: n3, target: targets.notation3tests },
+      { stage: rdf, target: targets.rdf }, { stage: srl, target: targets.srl },
+      { stage: provenance, target: join(root, 'test/upstream.json') }], temporary);
     log(`Synced ${notation3.cases} Notation3, ${rdfCases.length} RDF and ${srlCases.length} SPARQL RL cases.`);
-    log('Run npm test to check the refreshed suites and update their EARL reports.');
-    return { notation3tests: notation3, rdf: rdfInfo, srl: srlInfo };
+    return info;
   } finally {
     rmSync(temporary, { recursive: true, force: true });
   }
+}
+
+export async function ensureTestCache({ root = ROOT, log = console.log, ...options } = {}) {
+  const info = readCachedSuites(root);
+  if (info) {
+    recordUpstream(root, info);
+    return info;
+  }
+  log('Preparing missing or incomplete upstream test cache...');
+  return syncTestSuites({ root, log, ...options });
 }
 
 export async function main(argv) {
@@ -145,6 +158,7 @@ export async function main(argv) {
     checkouts[option.slice(2)] = argv[++i];
   }
   await syncTestSuites({ checkouts });
+  console.log('Run npm test to check the refreshed suites and update their EARL reports.');
   return 0;
 }
 

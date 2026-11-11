@@ -1,22 +1,21 @@
 // The W3C test suites of the formats eyemind reads: RDF, and SPARQL 1.2 RL.
 //
 // The W3C RDF test suites eyemind reads RDF by: N-Triples, N-Quads, Turtle
-// and TriG, in RDF 1.1 and 1.2, from the mirror in test/w3c/rdf-tests.
+// and TriG, in RDF 1.1 and 1.2, from .cache/w3c/rdf-tests.
 //
 // A syntax test parses its action, which must succeed or, for a negative
 // test, fail; an evaluation test parses its action and its result, and the
 // two datasets must be the same up to the renaming of blank nodes.
 import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import assert from 'node:assert/strict';
 import { Struct, loadText, write } from '../src/index.js';
 import { DEFAULT_GRAPH, parseRdf, rdfFormat } from '../src/rdf.js';
 import { compileRuleSet, parseRuleSet, readRuleSet, reasonSrl } from '../src/srl.js';
+import { cachePaths } from '../tools/test-cache.js';
 
-const HERE = dirname(fileURLToPath(import.meta.url));
 export const W3C_BASE = 'https://w3c.github.io/rdf-tests/';
-export const MIRROR = join(HERE, 'w3c', 'rdf-tests');
+export const MIRROR = cachePaths().rdf;
 
 export const RDF_MANIFESTS = [
   'rdf/rdf11/rdf-n-triples/manifest.ttl',
@@ -165,14 +164,14 @@ export function runManifests(manifests = RDF_MANIFESTS) {
   return results;
 }
 
-// The W3C SPARQL 1.2 RL test suite, from the mirror in test/w3c/sparql-rl.
+// The W3C SPARQL 1.2 RL test suite, from .cache/w3c/sparql-rl.
 // Syntax tests parse a rule set; well-formedness and stratification tests
 // also analyze and compile it, and a stratification test loads the compiled
 // program, which eyemind stratifies itself; evaluation tests reason over a
 // rule set and its data and compare the inference graph with the expected
 // one, numeric literals by value.
 export const SRL_BASE = 'https://w3c.github.io/data-shapes/shacl12-test-suite/tests/sparql-rl/';
-const SRL_MIRROR = join(HERE, 'w3c', 'sparql-rl');
+const SRL_MIRROR = cachePaths().srl;
 const SRLT = 'http://www.w3.org/ns/sparql-rl-tests#';
 const srlRead = (url) => readFileSync(join(SRL_MIRROR, ...url.slice(SRL_BASE.length).replace(/#.*$/, '').split('/')), 'utf8');
 

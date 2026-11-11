@@ -11,14 +11,15 @@
 // result appears, a fail-* test when none does, and a crash-* test when the
 // run stops with an error, an inference fuse or no output. --json prints the
 // tally and the time taken as JSON instead. --progress writes case counts
-// to stderr as the tests finish. The default is the repository's
-// mirror, using its saved document fixtures without network access.
+// to stderr as the tests finish. The default is the local .cache/ suite,
+// created if missing, then reused with its saved document fixtures.
 import { fork } from 'node:child_process';
 import { existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { cpus, tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { parseN3 } from '../src/n3-parser.js';
+import { cachePaths } from './test-cache.js';
+import { ensureTestCache } from './sync.js';
 
 const args = process.argv.slice(2);
 let timeout = 10;
@@ -37,11 +38,12 @@ for (let i = 0; i < args.length; i++) {
   else if (args[i] === '--live') live = true;
   else rest.push(args[i]);
 }
-const dir = resolve(rest[0] ?? fileURLToPath(new URL('../test/notation3tests/tests', import.meta.url)));
+const dir = resolve(rest[0] ?? join(cachePaths().notation3tests, 'tests'));
 if (rest.length > 1 || !Number.isFinite(timeout) || timeout <= 0 || (live && documents)) {
   process.stderr.write('usage: node tools/notation3tests.js [--timeout SECONDS] [--json] [--progress] [-v] [--documents FILE | --live] [DIR]\n');
   process.exit(2);
 }
+if (!rest.length) await ensureTestCache({ log: (text) => process.stderr.write(`${text}\n`) });
 const env = { ...process.env };
 if (live) delete env.EYEMIND_N3_DOCUMENTS;
 else {

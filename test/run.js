@@ -24,6 +24,8 @@ import { VERSION } from '../src/index.js';
 import { check, execute, loadCases, shellSplit } from '../conformance/run.js';
 import { RDF_MANIFESTS, W3C_BASE, manifestCases, runCase, runSparqlRlCase, sparqlRlCases } from './w3c.js';
 import { writeEarlReports } from '../tools/earl.js';
+import { ensureTestCache } from '../tools/sync.js';
+import { cachePaths } from '../tools/test-cache.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = dirname(HERE);
@@ -297,6 +299,7 @@ async function main(argv) {
   }
   const reporter = new Reporter(pattern);
   console.log(paint('2', `eyemind ${VERSION} on Node.js ${process.versions.node}`));
+  await ensureTestCache();
   const tests = await moduleTests();
   for (const section of SECTIONS) {
     if (sections.length && !sections.includes(section)) continue;
@@ -352,11 +355,11 @@ function w3cRows() {
 }
 
 // The Notation3 test suite through the eyemind command, from
-// EYEMIND_NOTATION3TESTS or the mirror in this repository. It
+// EYEMIND_NOTATION3TESTS or the local .cache/ suite. It
 // reports on N3 support; its results leave the exit code alone.
 function notation3Rows(reporter) {
   console.log(`\n${paint('33', '== Notation3 test suite')}`);
-  const dir = process.env.EYEMIND_NOTATION3TESTS ?? join(ROOT, 'test', 'notation3tests', 'tests');
+  const dir = process.env.EYEMIND_NOTATION3TESTS ?? join(cachePaths().notation3tests, 'tests');
   if (!existsSync(dir)) {
     console.log(paint('2', `notation3tests not run: ${dir} is missing`));
     return [];
