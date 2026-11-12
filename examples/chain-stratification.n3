@@ -1,0 +1,34 @@
+# Examiners among teachers who are not students
+#
+# Participants of a course are students, and teachers who are not students
+# examine it. Subproperties carry their facts up, and three constraints rule
+# out the examiner relation being a subproperty of participation, of
+# subPropertyOf itself or of rdf:type. eyemind concludes that Ann is a
+# student, that both teachers are staff, and that Tim, not Ann, examines the
+# course. It shows chain stratification: the subproperty rule reaches every
+# negation, so the rules have no strata, but every chain of rule
+# applications that could make a teacher a student breaks a constraint. The
+# rules are L1-L7 of N. Küchenmeister, A. Ivliev, D. Arndt and M. Krötzsch,
+# "Stratified Negation in RDF Rules: A Correct Approach" (arXiv:2607.28778).
+
+@prefix : <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+:c1 :participant :ann .
+:c1 :teacher :ann, :tim .
+:teacher rdfs:subPropertyOf :staff .
+
+# L1: participants are students.
+{ ?c :participant ?p } => { ?p a :Student } .
+
+# L2: teachers who are not students are examiners.
+{ ?c :teacher ?p . [] log:notIncludes { ?p a :Student } } => { ?c :examiner ?p } .
+
+# L3 and L4: subproperties (RDFS rules rdfs5 and rdfs7).
+{ ?p rdfs:subPropertyOf ?q . ?q rdfs:subPropertyOf ?r } => { ?p rdfs:subPropertyOf ?r } .
+{ ?p rdfs:subPropertyOf ?q . ?x ?p ?y } => { ?x ?q ?y } .
+
+# L5-L7: constraints that rule out negative feedback.
+{ :examiner rdfs:subPropertyOf :participant } => false .
+{ :examiner rdfs:subPropertyOf rdfs:subPropertyOf } => false .
+{ :examiner rdfs:subPropertyOf rdf:type } => false .

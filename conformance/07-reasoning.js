@@ -2215,3 +2215,46 @@ conformance('a restricted rule cannot conclude true', [
     "restricted(p(X), 'true')",
   ]),
 ])
+
+conformance('chain strata run a higher rank only when every lower rank adds nothing', [
+  spec('6.4, 8.2'),
+  file('program.js', [
+    "fact(rdf('c1', 'participant', 'ann'), rdf('c1', 'teacher', 'ann'), rdf('c1', 'teacher', 'tim'), rdf('teacher', 'spo', 'staff'))",
+    "implies(rdf(C, 'participant', P), rdf(P, 'type', 'Student'))",
+    "implies([rdf(C, 'teacher', P), not(rdf(P, 'type', 'Student'))], rdf(C, 'examiner', P))",
+    "implies([rdf(P, 'spo', Q), rdf(Q, 'spo', R)], rdf(P, 'spo', R))",
+    "implies([rdf(P, 'spo', Q), rdf(X, P, Y)], rdf(X, Q, Y))",
+    "contradiction(rdf('examiner', 'spo', 'participant'))",
+    "contradiction(rdf('examiner', 'spo', 'spo'))",
+    "contradiction(rdf('examiner', 'spo', 'type'))",
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "rdf('ann', 'type', 'Student')",
+    "rdf('c1', 'staff', 'ann')",
+    "rdf('c1', 'staff', 'tim')",
+    "rdf('c1', 'examiner', 'tim')",
+  ]),
+])
+
+conformance('a contradiction a chain-stratified program relies on still halts it', [
+  spec('6.4, 8.5'),
+  exit(65),
+  file('program.js', [
+    "fact(rdf('c1', 'participant', 'ann'), rdf('c1', 'teacher', 'ann'), rdf('c1', 'teacher', 'tim'), rdf('teacher', 'spo', 'staff'), rdf('examiner', 'spo', 'participant'))",
+    "implies(rdf(C, 'participant', P), rdf(P, 'type', 'Student'))",
+    "implies([rdf(C, 'teacher', P), not(rdf(P, 'type', 'Student'))], rdf(C, 'examiner', P))",
+    "implies([rdf(P, 'spo', Q), rdf(Q, 'spo', R)], rdf(P, 'spo', R))",
+    "implies([rdf(P, 'spo', Q), rdf(X, P, Y)], rdf(X, Q, Y))",
+    "contradiction(rdf('examiner', 'spo', 'participant'))",
+    "contradiction(rdf('examiner', 'spo', 'spo'))",
+    "contradiction(rdf('examiner', 'spo', 'type'))",
+  ]),
+  stdout([
+    "// Halted: a contradiction() holds; the facts derived until then, ending with 'false'.",
+    "rdf('ann', 'type', 'Student')",
+    "rdf('c1', 'staff', 'ann')",
+    "rdf('c1', 'staff', 'tim')",
+    "'false'",
+  ]),
+])

@@ -1,0 +1,88 @@
+# N3 proof: claims, steps and the complete C1–C10 certificate.
+@prefix : <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix pe: <https://eyereasoner.github.io/pe#> .
+@prefix em: <https://eyereasoner.github.io/eyemind/proof#> .
+@prefix proof: <urn:eyemind:proof#> .
+
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "n3" .
+<urn:eyemind:proof> pe:claims ({ :ann a :Student } { :c1 :staff :ann } { :c1 :staff :tim } { :c1 :examiner :tim }) .
+proof:record12 pe:conclusion { :ann a :Student } .
+proof:record12 pe:rule 12 .
+proof:record12 pe:binding (("C" :c1) ("P" :ann)) .
+proof:record12 pe:uses ({ :c1 :participant :ann }) .
+proof:record13 pe:conclusion { :c1 :participant :ann } .
+proof:record13 pe:rule 1 .
+proof:record13 pe:binding () .
+proof:record13 pe:uses () .
+proof:record14 pe:conclusion { :c1 :staff :ann } .
+proof:record14 pe:rule 15 .
+proof:record14 pe:binding (("P" :teacher) ("Q" :staff) ("X" :c1) ("Y" :ann)) .
+proof:record14 pe:uses ({ :teacher rdfs:subPropertyOf :staff } { :c1 :teacher :ann }) .
+proof:record15 pe:conclusion { :teacher rdfs:subPropertyOf :staff } .
+proof:record15 pe:rule 4 .
+proof:record15 pe:binding () .
+proof:record15 pe:uses () .
+proof:record16 pe:conclusion { :c1 :teacher :ann } .
+proof:record16 pe:rule 2 .
+proof:record16 pe:binding () .
+proof:record16 pe:uses () .
+proof:record17 pe:conclusion { :c1 :staff :tim } .
+proof:record17 pe:rule 15 .
+proof:record17 pe:binding (("P" :teacher) ("Q" :staff) ("X" :c1) ("Y" :tim)) .
+proof:record17 pe:uses ({ :teacher rdfs:subPropertyOf :staff } { :c1 :teacher :tim }) .
+proof:record18 pe:conclusion { :c1 :teacher :tim } .
+proof:record18 pe:rule 3 .
+proof:record18 pe:binding () .
+proof:record18 pe:uses () .
+proof:record19 pe:conclusion { :c1 :examiner :tim } .
+proof:record19 pe:rule 13 .
+proof:record19 pe:binding (("C" :c1) ("P" :tim)) .
+proof:record19 pe:uses ({ :c1 :teacher :tim } (em:compound "not" ((em:compound "rdf" ((em:iri :tim) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Student)))))) .
+proof:record20 pe:conclusion (em:compound "not" ((em:compound "rdf" ((em:iri :tim) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Student))))) .
+proof:record20 pe:justification (em:atom "absent") .
+proof:record20 pe:binding () .
+proof:record20 pe:uses () .
+proof:record21 pe:derived { ?A ?B ?C } .
+proof:record21 pe:answers ({ :ann a :Student } { :c1 :staff :ann } { :c1 :staff :tim } { :c1 :examiner :tim }) .
+proof:record22 pe:searched { :tim a :Student } .
+proof:record22 pe:answers () .
+proof:record23 pe:searched { ?D :participant ?E } .
+proof:record23 pe:answers ({ :c1 :participant :ann }) .
+proof:record24 pe:searched { ?F :teacher ?G } .
+proof:record24 pe:answers ({ :c1 :teacher :ann } { :c1 :teacher :tim }) .
+proof:record25 pe:searched { :ann a :Student } .
+proof:record25 pe:answers ({ :ann a :Student }) .
+proof:record26 pe:searched { ?H rdfs:subPropertyOf ?I } .
+proof:record26 pe:answers ({ :teacher rdfs:subPropertyOf :staff }) .
+proof:record27 pe:searched { :staff rdfs:subPropertyOf ?J } .
+proof:record27 pe:answers () .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27) .
+proof:record1 em:term (em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Student))) .
+proof:record2 em:term (em:compound "rdf" ((em:iri :c1) (em:iri :staff) (em:iri :ann))) .
+proof:record3 em:term (em:compound "rdf" ((em:iri :c1) (em:iri :staff) (em:iri :tim))) .
+proof:record4 em:term (em:compound "rdf" ((em:iri :c1) (em:iri :examiner) (em:iri :tim))) .
+proof:record5 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :c1) (em:iri :participant) (em:iri :ann))))))) .
+proof:record6 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "rdf" ((em:iri :c1) (em:iri :teacher) (em:iri :ann))))))) .
+proof:record7 em:term (em:compound "clause" ((em:integer "3") (em:compound "fact" ((em:compound "rdf" ((em:iri :c1) (em:iri :teacher) (em:iri :tim))))))) .
+proof:record8 em:term (em:compound "clause" ((em:integer "4") (em:compound "fact" ((em:compound "rdf" ((em:iri :teacher) (em:iri rdfs:subPropertyOf) (em:iri :staff))))))) .
+proof:record9 em:term (em:compound "clause" ((em:integer "12") (em:compound "implies" ((em:compound "rdf" ((em:variable "C") (em:iri :participant) (em:variable "P"))) (em:compound "rdf" ((em:variable "P") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Student))))))) .
+proof:record10 em:term (em:compound "clause" ((em:integer "13") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "C") (em:iri :teacher) (em:variable "P"))) (em:compound "not" ((em:compound "rdf" ((em:variable "P") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Student))))))) (em:compound "rdf" ((em:variable "C") (em:iri :examiner) (em:variable "P"))))))) .
+proof:record11 em:term (em:compound "clause" ((em:integer "15") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "P") (em:iri rdfs:subPropertyOf) (em:variable "Q"))) (em:compound "rdf" ((em:variable "X") (em:variable "P") (em:variable "Y"))))) (em:compound "rdf" ((em:variable "X") (em:variable "Q") (em:variable "Y"))))))) .
+proof:record12 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Student))) (em:compound "clause" ((em:integer "12"))) (em:list ((em:compound "=" ((em:atom "C") (em:iri :c1))) (em:compound "=" ((em:atom "P") (em:iri :ann))))) (em:list ((em:compound "rdf" ((em:iri :c1) (em:iri :participant) (em:iri :ann))))))) .
+proof:record13 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :c1) (em:iri :participant) (em:iri :ann))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record14 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :c1) (em:iri :staff) (em:iri :ann))) (em:compound "clause" ((em:integer "15"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :teacher))) (em:compound "=" ((em:atom "Q") (em:iri :staff))) (em:compound "=" ((em:atom "X") (em:iri :c1))) (em:compound "=" ((em:atom "Y") (em:iri :ann))))) (em:list ((em:compound "rdf" ((em:iri :teacher) (em:iri rdfs:subPropertyOf) (em:iri :staff))) (em:compound "rdf" ((em:iri :c1) (em:iri :teacher) (em:iri :ann))))))) .
+proof:record15 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :teacher) (em:iri rdfs:subPropertyOf) (em:iri :staff))) (em:compound "clause" ((em:integer "4"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record16 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :c1) (em:iri :teacher) (em:iri :ann))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record17 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :c1) (em:iri :staff) (em:iri :tim))) (em:compound "clause" ((em:integer "15"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :teacher))) (em:compound "=" ((em:atom "Q") (em:iri :staff))) (em:compound "=" ((em:atom "X") (em:iri :c1))) (em:compound "=" ((em:atom "Y") (em:iri :tim))))) (em:list ((em:compound "rdf" ((em:iri :teacher) (em:iri rdfs:subPropertyOf) (em:iri :staff))) (em:compound "rdf" ((em:iri :c1) (em:iri :teacher) (em:iri :tim))))))) .
+proof:record18 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :c1) (em:iri :teacher) (em:iri :tim))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record19 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :c1) (em:iri :examiner) (em:iri :tim))) (em:compound "clause" ((em:integer "13"))) (em:list ((em:compound "=" ((em:atom "C") (em:iri :c1))) (em:compound "=" ((em:atom "P") (em:iri :tim))))) (em:list ((em:compound "rdf" ((em:iri :c1) (em:iri :teacher) (em:iri :tim))) (em:compound "not" ((em:compound "rdf" ((em:iri :tim) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Student))))))))) .
+proof:record20 em:term (em:compound "step" ((em:compound "not" ((em:compound "rdf" ((em:iri :tim) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Student))))) (em:atom "absent") (em:atom "[]") (em:atom "[]"))) .
+proof:record21 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Student))) (em:compound "rdf" ((em:iri :c1) (em:iri :staff) (em:iri :ann))) (em:compound "rdf" ((em:iri :c1) (em:iri :staff) (em:iri :tim))) (em:compound "rdf" ((em:iri :c1) (em:iri :examiner) (em:iri :tim))))))) .
+proof:record22 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :tim) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Student))) (em:atom "[]"))) .
+proof:record23 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "D") (em:iri :participant) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :c1) (em:iri :participant) (em:iri :ann))))))) .
+proof:record24 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "F") (em:iri :teacher) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:iri :c1) (em:iri :teacher) (em:iri :ann))) (em:compound "rdf" ((em:iri :c1) (em:iri :teacher) (em:iri :tim))))))) .
+proof:record25 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Student))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Student))))))) .
+proof:record26 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "H") (em:iri rdfs:subPropertyOf) (em:variable "I"))) (em:list ((em:compound "rdf" ((em:iri :teacher) (em:iri rdfs:subPropertyOf) (em:iri :staff))))))) .
+proof:record27 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :staff) (em:iri rdfs:subPropertyOf) (em:variable "J"))) (em:atom "[]"))) .
