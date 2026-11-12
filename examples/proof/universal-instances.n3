@@ -1,0 +1,48 @@
+# N3 proof: claims, steps and the complete C1–C10 certificate.
+@prefix : <http://example.org/> .
+@prefix pe: <https://eyereasoner.github.io/pe#> .
+@prefix em: <https://eyereasoner.github.io/eyemind/proof#> .
+@prefix proof: <urn:eyemind:proof#> .
+
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "n3" .
+<urn:eyemind:proof> pe:claims ({ :universalInstance :holds true } { :bob :mother _:b0 } { :liz :mother _:b1 }) .
+proof:record9 pe:conclusion { :universalInstance :holds true } .
+proof:record9 pe:rule 3 .
+proof:record9 pe:binding () .
+proof:record9 pe:uses ({ :s :p :o }) .
+proof:record10 pe:conclusion { :s :p :o } .
+proof:record10 pe:rule 1 .
+proof:record10 pe:binding (("X" :s)) .
+proof:record10 pe:uses () .
+proof:record11 pe:conclusion { :bob :mother _:b0 } .
+proof:record11 pe:rule 4 .
+proof:record11 pe:binding (("Mother" _:b0)) .
+proof:record11 pe:uses ({ :bob :hasMother _:b0 }) .
+proof:record12 pe:conclusion { :bob :hasMother _:b0 } .
+proof:record12 pe:rule 2 .
+proof:record12 pe:binding (("X" :bob)) .
+proof:record12 pe:uses () .
+proof:record13 pe:conclusion { :liz :mother _:b1 } .
+proof:record13 pe:rule 5 .
+proof:record13 pe:binding (("Mother" _:b1)) .
+proof:record13 pe:uses ({ :liz :hasMother _:b1 }) .
+proof:record14 pe:conclusion { :liz :hasMother _:b1 } .
+proof:record14 pe:rule 2 .
+proof:record14 pe:binding (("X" :liz)) .
+proof:record14 pe:uses () .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14) .
+proof:record1 em:term (em:compound "rdf" ((em:iri :universalInstance) (em:iri :holds) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
+proof:record2 em:term (em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:compound "bnode" ((em:atom "n3") (em:list ((em:atom "y") (em:iri :bob))))))) .
+proof:record3 em:term (em:compound "rdf" ((em:iri :liz) (em:iri :mother) (em:compound "bnode" ((em:atom "n3") (em:list ((em:atom "y") (em:iri :liz))))))) .
+proof:record4 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:variable "X") (em:iri :p) (em:iri :o))))))) .
+proof:record5 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "rdf" ((em:variable "X") (em:iri :hasMother) (em:compound "bnode" ((em:atom "n3") (em:list ((em:atom "y") (em:variable "X"))))))))))) .
+proof:record6 em:term (em:compound "clause" ((em:integer "3") (em:compound "implies" ((em:compound "rdf" ((em:iri :s) (em:iri :p) (em:iri :o))) (em:compound "rdf" ((em:iri :universalInstance) (em:iri :holds) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record7 em:term (em:compound "clause" ((em:integer "4") (em:compound "implies" ((em:compound "rdf" ((em:iri :bob) (em:iri :hasMother) (em:variable "Mother"))) (em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:variable "Mother"))))))) .
+proof:record8 em:term (em:compound "clause" ((em:integer "5") (em:compound "implies" ((em:compound "rdf" ((em:iri :liz) (em:iri :hasMother) (em:variable "Mother"))) (em:compound "rdf" ((em:iri :liz) (em:iri :mother) (em:variable "Mother"))))))) .
+proof:record9 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :universalInstance) (em:iri :holds) (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:list ((em:compound "rdf" ((em:iri :s) (em:iri :p) (em:iri :o))))))) .
+proof:record10 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :s) (em:iri :p) (em:iri :o))) (em:compound "clause" ((em:integer "1"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :s))))) (em:atom "[]"))) .
+proof:record11 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:compound "bnode" ((em:atom "n3") (em:list ((em:atom "y") (em:iri :bob))))))) (em:compound "clause" ((em:integer "4"))) (em:list ((em:compound "=" ((em:atom "Mother") (em:compound "bnode" ((em:atom "n3") (em:list ((em:atom "y") (em:iri :bob))))))))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :hasMother) (em:compound "bnode" ((em:atom "n3") (em:list ((em:atom "y") (em:iri :bob))))))))))) .
+proof:record12 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :hasMother) (em:compound "bnode" ((em:atom "n3") (em:list ((em:atom "y") (em:iri :bob))))))) (em:compound "clause" ((em:integer "2"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :bob))))) (em:atom "[]"))) .
+proof:record13 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :liz) (em:iri :mother) (em:compound "bnode" ((em:atom "n3") (em:list ((em:atom "y") (em:iri :liz))))))) (em:compound "clause" ((em:integer "5"))) (em:list ((em:compound "=" ((em:atom "Mother") (em:compound "bnode" ((em:atom "n3") (em:list ((em:atom "y") (em:iri :liz))))))))) (em:list ((em:compound "rdf" ((em:iri :liz) (em:iri :hasMother) (em:compound "bnode" ((em:atom "n3") (em:list ((em:atom "y") (em:iri :liz))))))))))) .
+proof:record14 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :liz) (em:iri :hasMother) (em:compound "bnode" ((em:atom "n3") (em:list ((em:atom "y") (em:iri :liz))))))) (em:compound "clause" ((em:integer "2"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :liz))))) (em:atom "[]"))) .

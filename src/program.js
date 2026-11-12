@@ -4,8 +4,8 @@ import { containsTemplate, expandTemplates } from './templates.js';
 import { subgoals } from './goals.js';
 import { hasInspection, inspectionTerm } from './inspection.js';
 import {
-  EMPTY, Env, EyemindError, Struct, Var, deref, flattenConjunction, freshTerm, identity, indexKey, isCallable,
-  isGround, isTerm, key, keyArity, unify, variables,
+  EMPTY, Env, EyemindError, Struct, Var, conjunction, deref, flattenConjunction, freshTerm, identity, indexKey, isCallable,
+  isGround, isTerm, key, keyArity, listFromItems, unify, variables,
 } from './terms.js';
 import { write } from './writer.js';
 
@@ -13,7 +13,7 @@ export const CONTROL_KEYS = new Set(['and/2', 'or/2', 'not/1', 'call/1', 'once/1
 export const RESERVED_KEYS = new Set(['step/4', 'clause/2', 'searched/2', 'derived/2', 'called/2', 'activated/2', 'implies/2', 'implied_by/2', 'forward/2', 'backward/2']);
 
 // The statements that state a forward rule, and how an error names them.
-const FORWARD_KINDS = { forward: 'a forward rule', query: 'query()', contradiction: 'contradiction()' };
+const FORWARD_KINDS = { forward: 'a forward rule', restricted: 'restricted()', query: 'query()', contradiction: 'contradiction()' };
 
 export class Clause {
   constructor(id, head, heads, body, forward, line, captures = null) {
@@ -26,6 +26,9 @@ export class Clause {
     this.line = line;
     this.captures = captures;
     this.parentId = null;
+    this.restricted = false;
+    this.guard = null;
+    this.statedBody = body;
     this.prefixLength = 0;
     this.localBody = body;
     this.templates = [];
@@ -50,7 +53,8 @@ export class Clause {
 }
 
 // One clause as a program states it, before validation. kind is 'fact',
-// 'backward', 'forward', 'query' or 'contradiction'; body is a list of goals.
+// 'backward', 'forward', 'restricted', 'query' or 'contradiction'; body is a
+// list of goals.
 export class Source {
   constructor(kind, head, body, line = null, file = null) {
     this.kind = kind;
@@ -116,9 +120,9 @@ export class Program {
       }
       if (source.kind === 'fact' && body.length) throw new EyemindError(`line ${source.line}: a fact has no body`);
       const heads = forward ? flattenConjunction(source.head) : [source.head];
-      if (source.kind === 'forward' && heads.some((item) => item === 'true' || item === 'false')) {
+      if ((source.kind === 'forward' || source.kind === 'restricted') && heads.some((item) => item === 'true' || item === 'false')) {
         // query() and contradiction() state these, and say so.
-        throw new EyemindError(`line ${source.line}: implies() cannot conclude 'true' or 'false'; ` +
+        throw new EyemindError(`line ${source.line}: ${source.kind === 'forward' ? 'implies' : 'restricted'}() cannot conclude 'true' or 'false'; ` +
                               'write query(Premise) or contradiction(Premise)');
       }
       for (const goal of body) {
@@ -148,8 +152,15 @@ export class Program {
         }
         allowed.add(itemKey);
       }
+      const stated = body.length;
+      const guard = source.kind === 'restricted' ? restriction(ordinal, source.head, heads, body) : null;
+      if (guard !== null) body.push(guard);
       const clause = new Clause(ordinal, source.head, forward ? heads : null, body, forward, source.line, source.captures ?? null);
+      clause.guard = guard;
+      clause.statedBody = guard === null ? body : body.slice(0, stated);
       clause.parentId = source.parentId ?? null;
+      // A restricted rule does not fire where its conclusion already holds.
+      clause.restricted = source.kind === 'restricted';
       clause.prefixLength = source.prefixLength ?? 0;
       clause.localBody = clause.prefixLength ? body.slice(clause.prefixLength) : body;
       clause.templates = source.templates || [];
@@ -316,6 +327,34 @@ function dependencies(goal, closed = false, out = []) {
   return out;
 }
 
+// The guard of a restricted rule with witnesses, or null:
+// not([Heads', not_unify(Witnesses', Skolems)]), where Heads' are its heads
+// with each witness an anonymous variable of the guard and Skolems the terms
+// a firing gives them (SPEC Section 8.2). It holds when nothing but the
+// firing's own witnesses satisfies the heads: before the firing, when no
+// known values do; after it, when the witnesses are needed.
+function restriction(ordinal, head, heads, body) {
+  const inBody = new Set();
+  for (const goal of body) for (const name of variables(goal).keys()) inBody.add(name);
+  const all = variables(head);
+  const witnesses = [...all.values()].filter((variable) => !inBody.has(variable.name));
+  if (!witnesses.length) return null;
+  const used = new Set(all.keys());
+  for (const name of inBody) used.add(name);
+  let next = 0;
+  const anonymous = new Map(witnesses.map((variable) => {
+    while (used.has(`_${next}`)) next++;
+    used.add(`_${next}`);
+    return [variable.name, new Var(`_${next}`)];
+  }));
+  const rename = (term) => (term instanceof Var ? anonymous.get(term.name) ?? term
+    : term instanceof Struct ? new Struct(term.name, term.args.map(rename)) : term);
+  const frontier = listFromItems([...all.values()].filter((variable) => !anonymous.has(variable.name)));
+  const skolems = witnesses.map((variable) => new Struct('skolem', [BigInt(ordinal), variable.name, frontier]));
+  const other = new Struct('not_unify', [listFromItems([...anonymous.values()]), listFromItems(skolems)]);
+  return new Struct('not', [conjunction([...heads.map(rename), other])]);
+}
+
 // Whether a goal could contribute a closed dependency or a dynamic call.
 function mayNeedStratifying(goal) {
   if (goal instanceof Var || isTerm(goal, 'not', 1) || isTerm(goal, 'findall', 3)) return true;
@@ -372,7 +411,10 @@ function stratify(clauses, stratifying) {
       outgoing.set(clause.id, [edge]);
     }
     for (const goal of clause.localBody) {
-      for (const [depGoal, closed] of dependencies(goal)) {
+      // A restricted rule's guard reads its heads once the rules deriving
+      // them have run: it depends on them as on a premise.
+      for (const [depGoal, inside] of dependencies(goal)) {
+        const closed = inside && goal !== clause.guard;
         const named = !(depGoal instanceof Var);
         if (!named) dynamic.add(clause.id);
         const candidates = named ? headCandidates(index.get(key(depGoal)), depGoal) : everyHead;

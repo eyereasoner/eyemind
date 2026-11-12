@@ -3,7 +3,8 @@
 // The parser accepts the N3 syntax used by rule programs: prefixes and base,
 // IRIs and prefixed names, literals with language or datatype, numbers and
 // booleans, blank nodes, collections, quoted formulas, universal variables,
-// the verbs a, =, =>, <=, has and is ... of, inverse <-, and the paths ! and ^.
+// the explicit quantifiers @forAll and @forSome, the verbs a, =, =>, <=, has
+// and is ... of, inverse <-, and the paths ! and ^.
 // It never evaluates anything; rules are triples whose predicate is
 // log:implies, log:impliedBy or log:query.
 //
@@ -12,7 +13,8 @@
 //   { t: 'bnode', v, scope }              a blank node, labelled within a formula scope
 //   { t: 'literal', v, dt, lang, dir }    a literal; dt is an IRI text
 //   { t: 'int', v } / { t: 'float', v }   numbers: a BigInt, a finite binary64
-//   { t: 'var', v }                       a universal variable, ?name
+//   { t: 'var', v, scope? }               a universal variable, ?name, or one
+//                                         @forAll declares in formula scope
 //   { t: 'list', items }                  a collection
 //   { t: 'graph', triples, scope }        a quoted formula
 //   { t: 'triple', s, p, o }              an RDF 1.2 triple term
@@ -244,7 +246,9 @@ export function parseN3(src, { base = '', preserveNumericLiterals = false } = {}
   const prefixes = new Map();
   let bnodeCount = 0;
   let scopeCount = 0;
-  const top = { id: 0, triples: [] };
+  const top = { id: 0, triples: [], parent: null, bound: new Map(), started: false, existential: false };
+  // Names for declared variables, apart from those the document writes.
+  const taken = new Set(toks.filter((t) => t.k === 'var' || t.k === 'bnode').map((t) => `${t.k}:${t.v}`));
   let scope = top;
   const peek = (k = 0) => toks[pos + k];
   const next = () => toks[pos++];
@@ -312,11 +316,46 @@ export function parseN3(src, { base = '', preserveNumericLiterals = false } = {}
     throw fail(`expected an IRI, found ${describe(tok)}`, tok);
   }
 
+  // @forAll and @forSome bind IRIs in their formula and the formulas it
+  // holds, unless an inner declaration binds the same IRI again. A universal
+  // is a variable, an existential a blank node of the declaring formula.
+  function quantifier() {
+    const tok = next();
+    const universal = tok.v === '@forAll';
+    if (scope.started) throw fail(`${tok.v} must precede the first statement of its formula`, tok);
+    if (universal && scope.existential) throw fail('@forAll must precede @forSome in the same formula', tok);
+    if (!universal) scope.existential = true;
+    for (;;) {
+      const t = peek();
+      const written = t.k === 'var' ? `'?${t.v}'` : t.k === 'bnode' ? `'_:${t.v}'` : describe(t);
+      if (t.k !== 'iri' && t.k !== 'pname') throw fail(`${tok.v} declares IRIs, as in ${tok.v} :x; found ${written}`, t);
+      const name = iriTerm().v;
+      if (scope.bound.has(name)) throw fail(`<${name}> is already quantified in this formula`, t);
+      const local = /[A-Za-z_][A-Za-z0-9_]*$/.exec(name.replace(/[#/]+$/, ''))?.[0] ?? 'q';
+      const kind = universal ? 'var' : 'bnode';
+      let v = local;
+      for (let k = 2; taken.has(`${kind}:${v}`); k++) v = `${local}_${k}`;
+      taken.add(`${kind}:${v}`);
+      scope.bound.set(name, { t: kind, v, scope: scope.id });
+      if (!isP(',')) break;
+      next();
+    }
+    if (scope === top) expectP('.');
+    else if (isP('.')) next();
+    else if (!isP('}')) throw fail(`expected '.' after ${tok.v}, found ${describe(peek())}`);
+  }
+
+  function quantified(t) {
+    for (let s = scope; s; s = s.parent) if (s.bound.has(t.v)) return s.bound.get(t.v);
+    return t;
+  }
+
   function term() {
     const tok = peek();
-    if (tok.k === 'iri' || tok.k === 'pname') return iriTerm();
+    if (tok.k === 'iri' || tok.k === 'pname') return quantified(iriTerm());
     next();
-    if (tok.k === 'var') return { t: 'var', v: tok.v };
+    // A ?variable belongs to the outermost formula (scope 0).
+    if (tok.k === 'var') return { t: 'var', v: tok.v, scope: 0 };
     if (tok.k === 'bnode') return { t: 'bnode', v: tok.v, scope: scope.id };
     if (tok.k === 'string') return literalTail(tok.v);
     if (tok.k === 'number') return numberTerm(tok.v, preserveNumericLiterals);
@@ -355,7 +394,7 @@ export function parseN3(src, { base = '', preserveNumericLiterals = false } = {}
     }
     if (isP('{', tok)) {
       const outer = scope;
-      scope = { id: ++scopeCount, triples: [] };
+      scope = { id: ++scopeCount, triples: [], parent: outer, bound: new Map(), started: false, existential: false };
       while (!isP('}')) {
         if (peek().k === 'eof') throw fail("unterminated formula; expected '}'");
         if (statement(true) === 'directive') continue;
@@ -426,7 +465,11 @@ export function parseN3(src, { base = '', preserveNumericLiterals = false } = {}
       directive();
       return 'directive';
     }
-    if (tok.k === 'word' && (tok.v === '@forAll' || tok.v === '@forSome')) throw fail(`${tok.v} is not supported; use ?variables and blank nodes`, tok);
+    if (tok.k === 'word' && (tok.v === '@forAll' || tok.v === '@forSome')) {
+      quantifier();
+      return 'directive';
+    }
+    scope.started = true;
     // { true } is the empty formula.
     if (inFormula && tok.k === 'word' && tok.v === 'true' && (isP('.', peek(1)) || isP('}', peek(1)))) { next(); return 'triples'; }
     const s = pathTerm();

@@ -510,7 +510,9 @@
       "witnesses.n3"
     ],
     "description": "Notation3 conclusion blank nodes become shared witnesses for each order",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "dijkstra",
@@ -687,7 +689,69 @@
       "existential.n3"
     ],
     "description": "Each person gets a distinct mother and a reciprocal child relation",
-    "trusted": []
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "universal-instances",
+    "files": [
+      "universal-instances.n3"
+    ],
+    "description": "@forAll statements hold of every individual, and @forSome inside them gives each its own witness",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "shared-existential",
+    "files": [
+      "shared-existential.n3"
+    ],
+    "description": "A top-level @forSome witness is the one individual a universal conclusion talks about",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "explicit-existential-rule",
+    "files": [
+      "explicit-existential-rule.n3"
+    ],
+    "description": "An @forAll rule whose @forSome conclusion gives each human a fresh mother",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "quantifier-scopes",
+    "files": [
+      "quantifier-scopes.n3"
+    ],
+    "description": "An @forSome of the document reaches into quoted formulas, and an inner declaration shadows it",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "restricted-chase",
+    "files": [
+      "restricted-chase.n3"
+    ],
+    "description": "A rule with a blank node in its conclusion makes a father only where no known one fits",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
+    "name": "graph-terms",
+    "files": [
+      "graph-terms.n3"
+    ],
+    "description": "Quoted formulas as opaque graph terms: unquoting, identity up to renaming, and universals inside quotes",
+    "trusted": [
+      "call_fidelity"
+    ]
   },
   {
     "name": "family-recursion",

@@ -9,47 +9,59 @@
 <urn:eyemind:proof> pe:claims ({ :ann :mother _:b0 } { _:b0 a :Woman } { :bob :mother _:b1 } { _:b1 a :Woman } { _:b0 :hasChild :ann } { _:b1 :hasChild :bob }) .
 proof:record11 pe:conclusion { :ann :mother _:b0 } .
 proof:record11 pe:rule 3 .
-proof:record11 pe:binding (("P" :ann) ("Bm" _:b0)) .
-proof:record11 pe:uses ({ :ann a :Person }) .
+proof:record11 pe:binding (("P" :ann) ("_0" ?A) ("Bm" _:b0)) .
+proof:record11 pe:uses ({ :ann a :Person } (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann)))))))))))))) .
 proof:record12 pe:conclusion { :ann a :Person } .
 proof:record12 pe:rule 1 .
 proof:record12 pe:binding () .
 proof:record12 pe:uses () .
-proof:record13 pe:conclusion { _:b0 a :Woman } .
-proof:record13 pe:rule 3 .
-proof:record13 pe:binding (("P" :ann) ("Bm" _:b0)) .
-proof:record13 pe:uses ({ :ann a :Person }) .
-proof:record14 pe:conclusion { :bob :mother _:b1 } .
+proof:record13 pe:conclusion (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))))))) .
+proof:record13 pe:justification (em:atom "absent") .
+proof:record13 pe:binding () .
+proof:record13 pe:uses () .
+proof:record14 pe:conclusion { _:b0 a :Woman } .
 proof:record14 pe:rule 3 .
-proof:record14 pe:binding (("P" :bob) ("Bm" _:b1)) .
-proof:record14 pe:uses ({ :bob a :Person }) .
-proof:record15 pe:conclusion { :bob a :Person } .
-proof:record15 pe:rule 2 .
-proof:record15 pe:binding () .
-proof:record15 pe:uses () .
-proof:record16 pe:conclusion { _:b1 a :Woman } .
-proof:record16 pe:rule 3 .
-proof:record16 pe:binding (("P" :bob) ("Bm" _:b1)) .
-proof:record16 pe:uses ({ :bob a :Person }) .
-proof:record17 pe:conclusion { _:b0 :hasChild :ann } .
-proof:record17 pe:rule 4 .
-proof:record17 pe:binding (("P" :ann) ("M" _:b0)) .
-proof:record17 pe:uses ({ :ann :mother _:b0 }) .
-proof:record18 pe:conclusion { _:b1 :hasChild :bob } .
-proof:record18 pe:rule 4 .
-proof:record18 pe:binding (("P" :bob) ("M" _:b1)) .
-proof:record18 pe:uses ({ :bob :mother _:b1 }) .
-proof:record19 pe:derived { ?A ?B ?C } .
-proof:record19 pe:answers ({ :ann :mother _:b0 } { _:b0 a :Woman } { :bob :mother _:b1 } { _:b1 a :Woman } { _:b0 :hasChild :ann } { _:b1 :hasChild :bob }) .
-proof:record20 pe:called { ?A :mother ?B } .
-proof:record20 pe:answers ({ :ann :mother _:b0 } { :bob :mother _:b1 }) .
-proof:record21 pe:called { ?C a :Person } .
-proof:record21 pe:answers ({ :ann a :Person } { :bob a :Person }) .
-proof:record22 pe:called { ?D a :Woman } .
-proof:record22 pe:answers ({ _:b0 a :Woman } { _:b1 a :Woman }) .
-proof:record23 pe:called { ?E :hasChild ?F } .
-proof:record23 pe:answers ({ _:b0 :hasChild :ann } { _:b1 :hasChild :bob }) .
-<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23) .
+proof:record14 pe:binding (("P" :ann) ("_0" ?A) ("Bm" _:b0)) .
+proof:record14 pe:uses ({ :ann a :Person } (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann)))))))))))))) .
+proof:record15 pe:conclusion { :bob :mother _:b1 } .
+proof:record15 pe:rule 3 .
+proof:record15 pe:binding (("P" :bob) ("_0" ?A) ("Bm" _:b1)) .
+proof:record15 pe:uses ({ :bob a :Person } (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob)))))))))))))) .
+proof:record16 pe:conclusion { :bob a :Person } .
+proof:record16 pe:rule 2 .
+proof:record16 pe:binding () .
+proof:record16 pe:uses () .
+proof:record17 pe:conclusion (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))))))) .
+proof:record17 pe:justification (em:atom "absent") .
+proof:record17 pe:binding () .
+proof:record17 pe:uses () .
+proof:record18 pe:conclusion { _:b1 a :Woman } .
+proof:record18 pe:rule 3 .
+proof:record18 pe:binding (("P" :bob) ("_0" ?A) ("Bm" _:b1)) .
+proof:record18 pe:uses ({ :bob a :Person } (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob)))))))))))))) .
+proof:record19 pe:conclusion { _:b0 :hasChild :ann } .
+proof:record19 pe:rule 4 .
+proof:record19 pe:binding (("P" :ann) ("M" _:b0)) .
+proof:record19 pe:uses ({ :ann :mother _:b0 }) .
+proof:record20 pe:conclusion { _:b1 :hasChild :bob } .
+proof:record20 pe:rule 4 .
+proof:record20 pe:binding (("P" :bob) ("M" _:b1)) .
+proof:record20 pe:uses ({ :bob :mother _:b1 }) .
+proof:record21 pe:derived { ?B ?C ?D } .
+proof:record21 pe:answers ({ :ann :mother _:b0 } { _:b0 a :Woman } { :bob :mother _:b1 } { _:b1 a :Woman } { _:b0 :hasChild :ann } { _:b1 :hasChild :bob }) .
+proof:record22 pe:searched { :ann :mother ?E } .
+proof:record22 pe:answers ({ :ann :mother _:b0 }) .
+proof:record23 pe:searched { _:b0 a :Woman } .
+proof:record23 pe:answers ({ _:b0 a :Woman }) .
+proof:record24 pe:searched { ?F a :Person } .
+proof:record24 pe:answers ({ :ann a :Person } { :bob a :Person }) .
+proof:record25 pe:searched { :bob :mother ?G } .
+proof:record25 pe:answers ({ :bob :mother _:b1 }) .
+proof:record26 pe:searched { _:b1 a :Woman } .
+proof:record26 pe:answers ({ _:b1 a :Woman }) .
+proof:record27 pe:searched { ?H :mother ?I } .
+proof:record27 pe:answers ({ :ann :mother _:b0 } { :bob :mother _:b1 }) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27) .
 proof:record1 em:term (em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))) .
 proof:record2 em:term (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) .
 proof:record3 em:term (em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))) .
@@ -58,18 +70,22 @@ proof:record5 em:term (em:compound "rdf" ((em:compound "skolem" ((em:integer "3"
 proof:record6 em:term (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri :hasChild) (em:iri :bob))) .
 proof:record7 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))))))) .
 proof:record8 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))))))) .
-proof:record9 em:term (em:compound "clause" ((em:integer "3") (em:compound "implies" ((em:compound "rdf" ((em:variable "P") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:list ((em:compound "rdf" ((em:variable "P") (em:iri :mother) (em:variable "Bm"))) (em:compound "rdf" ((em:variable "Bm") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))))))) .
+proof:record9 em:term (em:compound "clause" ((em:integer "3") (em:compound "restricted" ((em:compound "rdf" ((em:variable "P") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:list ((em:compound "rdf" ((em:variable "P") (em:iri :mother) (em:variable "Bm"))) (em:compound "rdf" ((em:variable "Bm") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))))))) .
 proof:record10 em:term (em:compound "clause" ((em:integer "4") (em:compound "implies" ((em:compound "rdf" ((em:variable "P") (em:iri :mother) (em:variable "M"))) (em:compound "rdf" ((em:variable "M") (em:iri :hasChild) (em:variable "P"))))))) .
-proof:record11 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :ann))) (em:compound "=" ((em:atom "Bm") (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))))))) .
+proof:record11 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :ann))) (em:compound "=" ((em:atom "_0") (em:variable "A"))) (em:compound "=" ((em:atom "Bm") (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))))))))))) .
 proof:record12 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record13 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :ann))) (em:compound "=" ((em:atom "Bm") (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))))))) .
-proof:record14 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :bob))) (em:compound "=" ((em:atom "Bm") (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))))))) .
-proof:record15 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record16 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :bob))) (em:compound "=" ((em:atom "Bm") (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))))))) .
-proof:record17 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri :hasChild) (em:iri :ann))) (em:compound "clause" ((em:integer "4"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :ann))) (em:compound "=" ((em:atom "M") (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))))) .
-proof:record18 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri :hasChild) (em:iri :bob))) (em:compound "clause" ((em:integer "4"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :bob))) (em:compound "=" ((em:atom "M") (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))))) .
-proof:record19 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) (em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri :hasChild) (em:iri :ann))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri :hasChild) (em:iri :bob))))))) .
-proof:record20 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "A") (em:iri :mother) (em:variable "B"))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))) (em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))))) .
-proof:record21 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "C") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))))))) .
-proof:record22 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "D") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) (em:list ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))))) .
-proof:record23 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "E") (em:iri :hasChild) (em:variable "F"))) (em:list ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri :hasChild) (em:iri :ann))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri :hasChild) (em:iri :bob))))))) .
+proof:record13 em:term (em:compound "step" ((em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))))))) (em:atom "absent") (em:atom "[]") (em:atom "[]"))) .
+proof:record14 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :ann))) (em:compound "=" ((em:atom "_0") (em:variable "A"))) (em:compound "=" ((em:atom "Bm") (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))))))))))) .
+proof:record15 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :bob))) (em:compound "=" ((em:atom "_0") (em:variable "A"))) (em:compound "=" ((em:atom "Bm") (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))))))))))) .
+proof:record16 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record17 em:term (em:compound "step" ((em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))))))) (em:atom "absent") (em:atom "[]") (em:atom "[]"))) .
+proof:record18 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :bob))) (em:compound "=" ((em:atom "_0") (em:variable "A"))) (em:compound "=" ((em:atom "Bm") (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))))))))))) .
+proof:record19 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri :hasChild) (em:iri :ann))) (em:compound "clause" ((em:integer "4"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :ann))) (em:compound "=" ((em:atom "M") (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))))) .
+proof:record20 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri :hasChild) (em:iri :bob))) (em:compound "clause" ((em:integer "4"))) (em:list ((em:compound "=" ((em:atom "P") (em:iri :bob))) (em:compound "=" ((em:atom "M") (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))))) .
+proof:record21 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "B") (em:variable "C") (em:variable "D"))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) (em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri :hasChild) (em:iri :ann))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri :hasChild) (em:iri :bob))))))) .
+proof:record22 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))))))) .
+proof:record23 em:term (em:compound "searched" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) (em:list ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))))) .
+proof:record24 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "F") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))) (em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Person))))))) .
+proof:record25 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))))) .
+proof:record26 em:term (em:compound "searched" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))) (em:list ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Woman))))))) .
+proof:record27 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "H") (em:iri :mother) (em:variable "I"))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :ann))))))) (em:compound "rdf" ((em:iri :bob) (em:iri :mother) (em:compound "skolem" ((em:integer "3") (em:atom "Bm") (em:list ((em:iri :bob))))))))))) .

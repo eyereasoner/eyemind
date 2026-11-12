@@ -1,0 +1,40 @@
+# N3 proof: claims, steps and the complete C1–C10 certificate.
+@prefix : <http://example.org/> .
+@prefix pe: <https://eyereasoner.github.io/pe#> .
+@prefix em: <https://eyereasoner.github.io/eyemind/proof#> .
+@prefix proof: <urn:eyemind:proof#> .
+
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "n3" .
+<urn:eyemind:proof> pe:claims ({ :bob :beloved _:b0 } { :liz :beloved _:b0 }) .
+proof:record6 pe:conclusion { :bob :beloved _:b0 } .
+proof:record6 pe:rule 2 .
+proof:record6 pe:binding (("Beloved" _:b0)) .
+proof:record6 pe:uses ({ :bob :loves _:b0 }) .
+proof:record7 pe:conclusion { :bob :loves _:b0 } .
+proof:record7 pe:rule 1 .
+proof:record7 pe:binding (("X" :bob)) .
+proof:record7 pe:uses ((em:atom "true")) .
+proof:record8 pe:conclusion (em:atom "true") .
+proof:record8 pe:justification (em:atom "builtin") .
+proof:record8 pe:binding () .
+proof:record8 pe:uses () .
+proof:record9 pe:conclusion { :liz :beloved _:b0 } .
+proof:record9 pe:rule 3 .
+proof:record9 pe:binding (("Beloved" _:b0)) .
+proof:record9 pe:uses ({ :liz :loves _:b0 }) .
+proof:record10 pe:conclusion { :liz :loves _:b0 } .
+proof:record10 pe:rule 1 .
+proof:record10 pe:binding (("X" :liz)) .
+proof:record10 pe:uses ((em:atom "true")) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10) .
+proof:record1 em:term (em:compound "rdf" ((em:iri :bob) (em:iri :beloved) (em:compound "bnode" ((em:atom "n3") (em:atom "y"))))) .
+proof:record2 em:term (em:compound "rdf" ((em:iri :liz) (em:iri :beloved) (em:compound "bnode" ((em:atom "n3") (em:atom "y"))))) .
+proof:record3 em:term (em:compound "clause" ((em:integer "1") (em:compound "implied_by" ((em:compound "rdf" ((em:variable "X") (em:iri :loves) (em:compound "bnode" ((em:atom "n3") (em:atom "y"))))) (em:atom "true"))))) .
+proof:record4 em:term (em:compound "clause" ((em:integer "2") (em:compound "implies" ((em:compound "rdf" ((em:iri :bob) (em:iri :loves) (em:variable "Beloved"))) (em:compound "rdf" ((em:iri :bob) (em:iri :beloved) (em:variable "Beloved"))))))) .
+proof:record5 em:term (em:compound "clause" ((em:integer "3") (em:compound "implies" ((em:compound "rdf" ((em:iri :liz) (em:iri :loves) (em:variable "Beloved"))) (em:compound "rdf" ((em:iri :liz) (em:iri :beloved) (em:variable "Beloved"))))))) .
+proof:record6 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :beloved) (em:compound "bnode" ((em:atom "n3") (em:atom "y"))))) (em:compound "clause" ((em:integer "2"))) (em:list ((em:compound "=" ((em:atom "Beloved") (em:compound "bnode" ((em:atom "n3") (em:atom "y"))))))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :loves) (em:compound "bnode" ((em:atom "n3") (em:atom "y"))))))))) .
+proof:record7 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :loves) (em:compound "bnode" ((em:atom "n3") (em:atom "y"))))) (em:compound "clause" ((em:integer "1"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :bob))))) (em:list ((em:atom "true"))))) .
+proof:record8 em:term (em:compound "step" ((em:atom "true") (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record9 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :liz) (em:iri :beloved) (em:compound "bnode" ((em:atom "n3") (em:atom "y"))))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "Beloved") (em:compound "bnode" ((em:atom "n3") (em:atom "y"))))))) (em:list ((em:compound "rdf" ((em:iri :liz) (em:iri :loves) (em:compound "bnode" ((em:atom "n3") (em:atom "y"))))))))) .
+proof:record10 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :liz) (em:iri :loves) (em:compound "bnode" ((em:atom "n3") (em:atom "y"))))) (em:compound "clause" ((em:integer "1"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :liz))))) (em:list ((em:atom "true"))))) .

@@ -1,0 +1,40 @@
+# Graph terms: quoting, unquoting and identity
+#
+# Bob says things about Alice, and everything Bob says is true; Lois Lane
+# knows that Superman can fly, and Superman is Clark Kent; a graph term
+# says that someone knows :p and that :p calls them a genius. eyemind
+# concludes what Alice likes, that Lois Lane's knowledge stays about
+# Superman, that renaming a graph term's own blank nodes keeps it the same
+# graph term, and that everyone says of themselves that they are wise. It
+# shows quoted formulas as opaque graph terms, matched as sets up to a
+# one-to-one renaming of their own variables. The statements are the
+# examples of D. Arndt and P.-A. Champin, "Notation3: Graph Terms for RDF"
+# (arXiv:2610.31266), Equations 2, 5, 8, 9 and 26 and Section 4.4.
+
+@prefix : <http://example.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Bob says that Alice likes pizza and pasta, and everything Bob says is true.
+:bob :says { :alice :likes :pizza, :pasta } .
+{ :bob :says ?x } => ?x .
+
+# Whoever likes pasta also likes spaghetti.
+{ ?x :likes :pasta } => { ?x :likes :spaghetti } .
+
+# Graph terms are opaque: Superman is Clark Kent, but what Lois Lane knows
+# is a statement about Superman.
+:superman owl:sameAs :clarkKent .
+:loisLane :knows { :superman :can :fly } .
+{ :loisLane :knows { :clarkKent :can :fly } } => { :loisLane :knowsAbout :clarkKent } .
+{ :loisLane :knows { :superman :can :fly } } => { :loisLane :knowsAbout :superman } .
+
+# G1 of Section 4.4. Its blank nodes are its own: G2 renames them, and G3
+# turns the constant :Genius into a blank node.
+:g1 :is { _:x :knows :p . :p :says { _:x a :Genius } } .
+{ :g1 :is { _:y :knows :p . :p :says { _:x a :Genius } } } => { :g1 :isomorphicTo :g2 } .
+{ :g1 :is { _:y :knows :p . :p :says { _:x a _:z } } } => { :g1 :isomorphicTo :g3 } .
+
+# Everyone says about themselves that they are wise: ?x belongs to the
+# whole document, inside the graph term too.
+?x :says { ?x :is :wise } .
+{ :tom :says ?g } => { :tom :said ?g } .

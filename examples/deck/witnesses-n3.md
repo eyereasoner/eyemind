@@ -37,9 +37,11 @@ creates another delivery.
 ## What gets compiled
 
 eyemind translates
-the two conclusion triples into one conjunctive forward head, sharing the
-variable `Bdelivery`. That variable is absent from the premise, so eyemind
-assigns a Skolem witness to it.
+the two conclusion triples into one conjunctive head of a restricted rule,
+sharing the variable `Bdelivery`. That variable is absent from the premise,
+so eyemind assigns a Skolem witness to it. A restricted rule fires only
+where no known delivery is already linked to the order and ready, so a
+delivery stated in the data would be reused instead of a new one.
 
 For order 1 the witness is:
 
@@ -86,15 +88,19 @@ output document.
 
 ## What the proof establishes
 
-The report ends with `verdict('checked')`, with four claims and no
-obligations. C8 covers all four derived steps and recomputes the correct
+The report ends with `verdict('checked_with_obligations')`, with four
+claims. C8 covers all four derived steps and recomputes the correct
 Skolem witnesses from the source rule and premise evidence. Renaming a
 witness's variable field or replacing it with an arbitrary record would
 fail C8 even if the triples still looked like a rule instance to C1.
 
-C10 also establishes that all four claims can be returned for the
-original questions. The proof concerns the compiled eyemind program; the
-conversion from the N3 source is a separate step that can be inspected.
+Each firing's restriction is a negation that the search certificate
+settles against the derived facts: no other delivery serves the order, so
+the new one is needed. Which firings a restricted rule makes can depend on
+the order of rule applications, so C10 leaves a `call_fidelity`
+obligation for each claim, which the manifest lists as trusted. The proof
+concerns the compiled eyemind program; the conversion from the N3 source
+is a separate step that can be inspected.
 
 ---
 

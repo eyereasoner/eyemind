@@ -4,13 +4,22 @@
 // own triples are facts, and a run concludes the triples its forward rules
 // derive that were not already facts. Rules become eyemind rules:
 //
-//   { B } => { H }.        implies(B, H)           forward
-//   { H } <= { B }.        implied_by(H, B)        backward, one per head triple
-//   { B } log:query { H }. implies(B, result(H))   selects the output
-//   { B } => false.        contradiction(B)        an inference fuse
+//   { B } => { H }.        implies(B, H)               forward; restricted(B, H)
+//                                                      when H has blank nodes
+//   { H } <= { B }.        implied_by(H, B)            backward, one per head triple
+//   { B } log:query { H }. implies(B, result(H))       selects the output
+//   { B } => false.        contradiction(B)            an inference fuse
+//   { B } => ?G.           implies(B, n3_unquote(G))   asserts the formula G
 //
 // A rule's ?variables and blank nodes are eyemind variables; a blank node
-// only the conclusion mentions is the Skolem term of that firing. Built-in
+// only the conclusion mentions is the Skolem term of that firing. A variable
+// @forAll declares for the document is a variable of each statement that
+// mentions it, so a fact stating it is universal; an existential of the
+// document is one individual, its witness a function of the universals it
+// stands in their scope with. A conclusion with universals of its own states
+// backward rules. A quoted formula is a graph term: its own blank nodes and
+// universals are qbnode(Label) and qvar(Name), and a rule's graph pattern
+// matches it as a set, up to a one-to-one renaming of those. Built-in
 // predicates of a body become goals defined in eyemind itself (builtins.mjs).
 import { run } from './engine.js';
 import { loadText } from './lang.js';
@@ -51,25 +60,26 @@ export function compileN3Document(doc, { source = 'input', documents = new Map()
   // Only a document that mentions rdf:first, rdf:rest or rdf:nil can write a
   // list out as triples, so only its built-ins read lists that way.
   const views = ['first', 'rest', 'nil'].some((name) => mentions(doc.triples, `${RDF_NS}${name}`));
+  const { triples, term: witnessed } = withWitnesses(doc.triples);
   const rulesAsTriples = doc.triples.some((x) => {
     if (x.p.t !== 'iri' || (!RULE_PREDICATES.has(x.p.v) && x.p.v !== `${LOG}query`) || !isFormulaLike(x.s) || !isFormulaLike(x.o)) return false;
     const body = triplesOf(x.p.v === `${LOG}impliedBy` ? x.o : x.s);
     return (x.p.v !== `${LOG}query` && variablePredicate(body)) || [...RULE_PREDICATES].some((p) => usesPredicate(body, p));
   });
-  for (const triple of doc.triples) {
+  for (const triple of triples) {
     const p = triple.p.t === 'iri' ? triple.p.v : null;
     // A rule is also a triple of the document, its variables quoted, which
     // a rule predicate or a variable predicate can find.
     if (rulesAsTriples && RULE_PREDICATES.has(p) && isFormulaLike(triple.s) && isFormulaLike(triple.o)) facts.push(`fact(${new Context(false).rdf(triple)})`);
-    if (p === `${LOG}implies` && isFormulaLike(triple.s) && isFormulaLike(triple.o)) {
-      rules.push(compileRule(triple.s, triple.o, 'forward', needed, views, values));
+    if (p === `${LOG}implies` && isFormulaLike(triple.s) && (isFormulaLike(triple.o) || triple.o.t === 'var')) {
+      rules.push(compileRule(triple.s, triple.o, 'forward', needed, views, values, witnessed));
     } else if (p === `${LOG}impliedBy` && isFormulaLike(triple.s) && isFormulaLike(triple.o)) {
-      rules.push(compileRule(triple.o, triple.s, 'backward', needed, views, values));
+      rules.push(compileRule(triple.o, triple.s, 'backward', needed, views, values, witnessed));
     } else if (p === `${LOG}query` && isFormulaLike(triple.s) && isFormulaLike(triple.o)) {
       queries++;
-      rules.push(compileRule(triple.s, triple.o, 'query', needed, views, values));
+      rules.push(compileRule(triple.s, triple.o, 'query', needed, views, values, witnessed));
     } else {
-      const ctx = new Context(false);
+      const ctx = new Context(false, true);
       facts.push(`fact(${ctx.rdf(triple)})`);
     }
   }
@@ -184,7 +194,7 @@ function fromEyemind(t) {
   const [a, b, c] = t.args;
   switch (`${t.name}/${t.args.length}`) {
     case 'iri/1': return { t: 'iri', v: a };
-    case 'bnode/2': return { t: 'bnode', v: b, scope: 0 };
+    case 'bnode/2': return { t: 'bnode', v: typeof b === 'string' ? b : write(t), scope: 0 };
     case 'skolem/3': return { t: 'bnode', v: write(t), scope: 0 };
     case 'qvar/1': return { t: 'var', v: a };
     case 'qbnode/1': return { t: 'bnode', v: a, scope: 0 };
@@ -308,10 +318,64 @@ function libraryText(needed) {
   return out.join('\n');
 }
 
+// The document's blank nodes, at any depth, as witness terms: { t: 'witness',
+// label, deps }, deps the universals @forAll declares for the document that
+// statements connected through such blank nodes mention, in order. Without
+// any, a witness is the blank node itself. Returns { triples, term }, term
+// rewriting any term of the document the same way.
+function withWitnesses(triples) {
+  const isOwn = (t) => (t.t === 'bnode' || t.t === 'var') && t.scope === 0;
+  const owns = triples.map((x) => {
+    const own = [];
+    const visit = (t) => {
+      if (isOwn(t)) own.push(t);
+      else if (t.t === 'list') t.items.forEach(visit);
+      else if (t.t === 'graph') t.triples.forEach((y) => [y.s, y.p, y.o].forEach(visit));
+      else if (t.t === 'triple') [t.s, t.p, t.o].forEach(visit);
+    };
+    [x.s, x.p, x.o].forEach(visit);
+    return own;
+  });
+  if (!owns.some((own) => own.length)) return { triples, term: (t) => t };
+  const parent = new Map();
+  const find = (k) => {
+    let root = k;
+    while (parent.get(root) !== root) root = parent.get(root);
+    for (let next; k !== root; k = next) { next = parent.get(k); parent.set(k, root); }
+    return root;
+  };
+  const universals = new Map();
+  // Only a document that declares universals connects its blank nodes.
+  const declared = owns.some((own) => own.some((t) => t.t === 'var'));
+  for (const own of declared ? owns : []) {
+    const blanks = own.filter((t) => t.t === 'bnode').map(bnodeKey);
+    for (const k of blanks) if (!parent.has(k)) { parent.set(k, k); universals.set(k, new Map()); }
+    for (const k of blanks.slice(1)) {
+      const [a, b] = [find(blanks[0]), find(k)];
+      if (a !== b) { parent.set(b, a); for (const [key, v] of universals.get(b)) universals.get(a).set(key, v); }
+    }
+    if (blanks.length) for (const t of own) if (t.t === 'var') universals.get(find(blanks[0])).set(t.v, t);
+  }
+  const term = (t) => {
+    if (t.t === 'bnode' && t.scope === 0) {
+      const deps = declared ? [...universals.get(find(bnodeKey(t))).values()] : [];
+      return { t: 'witness', label: bnodeLabel(t), deps };
+    }
+    if (t.t === 'list') return { ...t, items: t.items.map(term) };
+    if (t.t === 'graph') return { ...t, triples: t.triples.map(triple) };
+    if (t.t === 'triple') return triple(t);
+    return t;
+  };
+  const triple = (x) => ({ ...x, s: term(x.s), p: term(x.p), o: term(x.o) });
+  return { triples: triples.map((x, i) => (owns[i].length ? triple(x) : x)), term };
+}
+
 // Naming for one clause: variables for ?names and, in rules, blank nodes.
+// A fact's universals are the variables @forAll declares for the document.
 class Context {
-  constructor(inRule) {
+  constructor(inRule, universals = false) {
     this.inRule = inRule;
+    this.universals = universals;
     this.names = new Map();
     this.used = new Set();
     this.anonymous = new Set();
@@ -346,10 +410,15 @@ class Context {
     switch (t.t) {
       case 'iri': return `iri(${q(t.v)})`;
       // Outside rules a variable belongs to a quoted formula: a constant.
-      case 'var': return this.inRule ? this.name(`v:${t.v}`, t.v) : `qvar(${q(t.v)})`;
+      case 'var': return this.inRule || (this.universals && t.scope === 0) ? this.name(`v:${t.v}`, t.v) : `qvar(${q(t.v)})`;
+      case 'witness':
+        return t.deps.length ? `bnode('n3', [${[q(t.label), ...t.deps.map((x) => this.term(x))].join(', ')}])` : `bnode('n3', ${q(t.label)})`;
       case 'bnode':
         if (this.inRule) return this.name(bnodeKey(t), `B${t.v.replace(/^#/, '')}`);
-        return `bnode('n3', ${q(bnodeLabel(t))})`;
+        // A quoted formula's own blank node is a variable of that formula.
+        return t.scope === 0 ? `bnode('n3', ${q(bnodeLabel(t))})` : `qbnode(${q(bnodeLabel(t))})`;
+      case 'local': return `${t.kind}(${q(t.label)})`;
+      case 'compiled': return t.text;
       case 'int': return t.v >= -(2n ** 53n) && t.v <= 2n ** 53n ? String(t.v) : `${t.v}n`;
       case 'float': return `float(${Object.is(t.v, -0) ? '-0' : String(t.v)})`;
       case 'literal':
@@ -374,6 +443,7 @@ const bnodeLabel = (t) => (t.scope === 0 ? t.v : `${t.v}.${t.scope}`);
 function keysOf(t, out = new Set()) {
   if (t.t === 'var') out.add(`v:${t.v}`);
   else if (t.t === 'bnode') out.add(bnodeKey(t));
+  else if (t.t === 'witness') t.deps.forEach((x) => keysOf(x, out));
   else if (t.t === 'list') t.items.forEach((x) => keysOf(x, out));
   else if (t.t === 'graph') t.triples.forEach((x) => keysOfTriple(x, out));
   else if (t.t === 'triple') keysOfTriple(t, out);
@@ -455,7 +525,7 @@ function takesList(p, position) {
 }
 const SCOPED_OBJECT = new Set([`${LOG}collectAllIn`, `${LOG}forAllIn`]);
 
-function compileRule(body, head, kind, needed, views = true, values = []) {
+function compileRule(body, head, kind, needed, views = true, values = [], witnessed = (t) => t) {
   const ctx = new Context(true);
   if (!isFormulaLike(body)) throw new N3CompileError('a rule premise must be a formula');
   const bodyTriples = triplesOf(body);
@@ -493,7 +563,7 @@ function compileRule(body, head, kind, needed, views = true, values = []) {
 
   function goal(x, negated) {
     const p = x.p.t === 'iri' ? x.p.v : null;
-    if (p === null) return [ctx.rdf(x)];
+    if (p === null) return pattern(x, negated);
     if (UNSUPPORTED.has(p)) throw new N3CompileError(`${shortName(p)} is not supported: eyemind has no ${UNSUPPORTED.get(p)}`);
     if (SCOPED_SUBJECT.has(p)) {
       const neg = p === `${LOG}notIncludes`;
@@ -512,7 +582,14 @@ function compileRule(body, head, kind, needed, views = true, values = []) {
         return neg ? [`not(${conj(inner)})`] : inner;
       }
       needed.add('n3_includes');
-      return [`${neg ? 'n3_not_includes' : 'n3_includes'}(${ctx.term(x.s)}, graph([${x.o.triples.map((y) => ctx.rdf(y)).join(', ')}]))`];
+      // The subject's own variables stand for themselves: inclusion never
+      // instantiates them. The object's universals are the subject's.
+      const subject = x.s.t === 'graph' ? quotedLocals(x.s) : x.s;
+      const call = `${neg ? 'n3_not_includes' : 'n3_includes'}(${ctx.term(subject)}, graph([${x.o.triples.map((y) => ctx.rdf(y)).join(', ')}]))`;
+      const universals = graphLocals(x.o).filter((l) => l.kind === 'u');
+      if (neg || !universals.length) return [call];
+      needed.add('n3_graph_match');
+      return [call, `n3_locals([${universals.map((l) => `u(${ctx.term(l.term)})`).join(', ')}], [], _)`];
     }
     if (SCOPED_OBJECT.has(p)) {
       // A call supplied as data is specialized to the stated values. Its
@@ -526,7 +603,12 @@ function compileRule(body, head, kind, needed, views = true, values = []) {
             : t.t === 'var' ? { ...t, v: `call${call}.${i}.${t.v}` }
             : t.t === 'list' ? { ...t, items: t.items.map(own) }
               : t.t === 'graph' ? { ...t, triples: t.triples.map((y) => ({ s: own(y.s), p: own(y.p), o: own(y.o) })) } : t;
-          return conj([`unify(${ctx.term(x.s)}, ${new Context(false).term(term)})`, ...goal({ ...x, s: own(value) }, negated)]);
+          // The stated term as its fact states it, the document's universals
+          // as variables that only select this branch.
+          const stated = (t) => t.t === 'var' && t.scope === 0 ? { ...t, v: `stated${call}.${i}.${t.v}` } : t.t === 'witness' ? { ...t, deps: t.deps.map(stated) }
+            : t.t === 'list' ? { ...t, items: t.items.map(stated) }
+              : t.t === 'graph' ? { ...t, triples: t.triples.map((y) => ({ s: stated(y.s), p: stated(y.p), o: stated(y.o) })) } : t;
+          return conj([`unify(${ctx.term(x.s)}, ${ctx.term(stated(witnessed(term)))})`, ...goal({ ...x, s: own(value) }, negated)]);
         });
         return branches.length ? [`or(${branches.join(', ')})`] : ["'fail'"];
       }
@@ -619,20 +701,65 @@ function compileRule(body, head, kind, needed, views = true, values = []) {
       const o = arg(x.o);
       return [...viewGoals, `${builtin.goal}(${s}, ${o})`];
     }
-    return [ctx.rdf(x)];
+    return pattern(x, negated);
+  }
+
+  // An ordinary triple goal. A quoted formula in it matches a formula as a set
+  // of triples, up to a one-to-one renaming of the formula's own variables,
+  // each kind to its own kind; a rule variable never stands for one of them.
+  function pattern(x, negated) {
+    const extra = [];
+    const rewrite = (t) => {
+      if (t.t === 'list') return { ...t, items: t.items.map(rewrite) };
+      if (t.t !== 'graph') return t;
+      const locals = graphLocals(t);
+      const free = [...keysOf(t)].filter((key) => !locals.some((l) => l.key === key));
+      // One triple without variables matches by unification alone.
+      if (!locals.length && !free.length && t.triples.length <= 1) return t;
+      const key = `graph:${++listViews}`;
+      if (negated || closed) ctx.anonymous.add(key);
+      const name = ctx.name(key, 'G');
+      const triples = t.triples.map((y) => ctx.rdf(y)).join(', ');
+      const terms = [...locals.map((l) => `${l.kind}(${ctx.term(l.term)})`), ...free.map((k) => `f(${ctx.names.get(k)})`)];
+      needed.add('n3_graph_match');
+      extra.push(`n3_graph_match(${name}, graph([${triples}]), [${terms.join(', ')}])`);
+      return { t: 'compiled', text: name };
+    };
+    return [ctx.rdf({ s: rewrite(x.s), p: x.p, o: rewrite(x.o) }), ...extra];
   }
 
   // A backward rule's conclusion arrives bound from the goal that calls it.
   const premise = conj(goals(reorder(bodyTriples, outside, kind === 'backward' ? headKeys : new Set()), false));
 
   if (isFalse(head)) return [`contradiction(${premise})`];
+  // { B } => ?G. asserts the formula B binds ?G to: unquoting.
+  if (head.t === 'var') {
+    needed.add('n3_unquote');
+    return [`implies(${premise}, n3_unquote(${ctx.term(head)}))`];
+  }
   const headTriples = triplesOf(head);
   if (headTriples.length === 0) return [];
   if (kind === 'backward') {
     return headTriples.map((h) => `implied_by(${ctx.rdf(h)}, ${premise})`);
   }
+  // A conclusion's own universals hold of everything: the triples that
+  // mention them, or a blank node in their scope, are backward rules, whose
+  // blank nodes are witnesses of the universals and the premise's values.
+  const own = kind === 'forward' ? headUniversals(head) : new Set();
+  if (own.size) {
+    const triples = headWitnesses(head, keysOf(body));
+    const universal = (h) => !isRuleTriple(h) && [...keysOfTriple(h)].some((key) => own.has(key));
+    const backward = triples.filter(universal).map((h) => `implied_by(${ctx.rdf(h)}, ${premise})`);
+    const heads = triples.filter((h) => !universal(h)).flatMap((h) => headTerm(h, kind));
+    return heads.length ? [`implies(${premise}, ${heads.length === 1 ? heads[0] : `[${heads.join(', ')}]`})`, ...backward] : backward;
+  }
   const heads = headTriples.flatMap((h) => headTerm(h, kind));
-  return [`implies(${premise}, ${heads.length === 1 ? heads[0] : `[${heads.join(', ')}]`})`];
+  // A conclusion with blank nodes of its own is existential: the rule is
+  // restricted, firing only where no known values satisfy the conclusion.
+  const premiseKeys = keysOf(body);
+  const existential = kind === 'forward' && !headTriples.some(isRuleTriple) &&
+    headTriples.some((h) => [...keysOfTriple(quotedLocals(h))].some((key) => !premiseKeys.has(key)));
+  return [`${existential ? 'restricted' : 'implies'}(${premise}, ${heads.length === 1 ? heads[0] : `[${heads.join(', ')}]`})`];
 
   // A conclusion: a triple, or a rule the firing states. captured holds the
   // variables the enclosing premises bind; a derived rule's conclusion may
@@ -665,8 +792,93 @@ function compileRule(body, head, kind, needed, views = true, values = []) {
       const conclusions = cs.flatMap((y) => headTerm(y, k, within));
       return [`implies(${inner}, ${conclusions.length === 1 ? conclusions[0] : `[${conclusions.join(', ')}]`})`, asTriple];
     }
-    return [ctx.rdf(h, k === 'query' ? 'result' : 'rdf')];
+    return [ctx.rdf(quotedLocals(h), k === 'query' ? 'result' : 'rdf')];
   }
+}
+
+// The scopes of a quoted formula and the formulas inside it.
+function graphScopes(t, out = new Set()) {
+  if (t.t === 'graph') { out.add(t.scope); t.triples.forEach((y) => [y.s, y.p, y.o].forEach((z) => graphScopes(z, out))); }
+  else if (t.t === 'list') t.items.forEach((z) => graphScopes(z, out));
+  else if (t.t === 'triple') [t.s, t.p, t.o].forEach((z) => graphScopes(z, out));
+  return out;
+}
+
+// A quoted formula's own variables, each once: { kind: 'e' or 'u', key, term }.
+function graphLocals(g) {
+  const scopes = graphScopes(g);
+  const found = new Map();
+  const visit = (t) => {
+    if ((t.t === 'bnode' || t.t === 'var') && scopes.has(t.scope)) {
+      const key = t.t === 'var' ? `v:${t.v}` : bnodeKey(t);
+      if (!found.has(key)) found.set(key, { kind: t.t === 'var' ? 'u' : 'e', key, term: t });
+    } else if (t.t === 'list') t.items.forEach(visit);
+    else if (t.t === 'graph') t.triples.forEach((y) => [y.s, y.p, y.o].forEach(visit));
+    else if (t.t === 'triple') [t.s, t.p, t.o].forEach(visit);
+  };
+  visit(g);
+  return [...found.values()];
+}
+
+// The quoted formulas of a term with their own variables written as quoted
+// variables, qbnode(Label) and qvar(Name), as a fact states them.
+function quotedLocals(t) {
+  const local = (scopes) => (u) => {
+    if ((u.t === 'bnode' || u.t === 'var') && scopes.has(u.scope)) {
+      return { t: 'local', kind: u.t === 'var' ? 'qvar' : 'qbnode', label: u.t === 'var' ? u.v : bnodeLabel(u) };
+    }
+    if (u.t === 'list') return { ...u, items: u.items.map(local(scopes)) };
+    if (u.t === 'graph') return { ...u, triples: u.triples.map((y) => ({ ...y, s: local(scopes)(y.s), p: local(scopes)(y.p), o: local(scopes)(y.o) })) };
+    if (u.t === 'triple') return { ...u, s: local(scopes)(u.s), p: local(scopes)(u.p), o: local(scopes)(u.o) };
+    return u;
+  };
+  const top = (u) => (u.t === 'graph' ? local(graphScopes(u))(u) : u.t === 'list' ? { ...u, items: u.items.map(top) } : u);
+  return t.t === 'graph' ? top(t) : { ...t, s: top(t.s), p: top(t.p), o: top(t.o) };
+}
+
+const isRuleTriple = (h) => h.p.t === 'iri' && RULE_PREDICATES.has(h.p.v) && isFormulaLike(h.s);
+
+// The keys of the universals a conclusion's @forAll declares.
+function headUniversals(head) {
+  const out = new Set();
+  const visit = (t) => {
+    if (t.t === 'var' && t.scope === head.scope) out.add(`v:${t.v}`);
+    else if (t.t === 'list') t.items.forEach(visit);
+    else if (t.t === 'graph') t.triples.forEach((y) => [y.s, y.p, y.o].forEach(visit));
+    else if (t.t === 'triple') [t.s, t.p, t.o].forEach(visit);
+  };
+  for (const h of triplesOf(head)) if (!isRuleTriple(h)) [h.s, h.p, h.o].forEach(visit);
+  return out;
+}
+
+// A conclusion's triples with its own blank nodes as witnesses of the
+// variables that the triples connected through them mention, in order.
+function headWitnesses(head, premiseKeys) {
+  const isOwn = (t) => t.t === 'bnode' && t.scope === head.scope && !premiseKeys.has(bnodeKey(t));
+  const triples = triplesOf(head);
+  const parent = new Map();
+  const find = (k) => (parent.get(k) === k ? k : find(parent.get(k)));
+  const deps = new Map();
+  const variables = (t, out) => {
+    if (t.t === 'var') out.set(`v:${t.v}`, t);
+    else if (t.t === 'witness') t.deps.forEach((x) => variables(x, out));
+    else if (t.t === 'list') t.items.forEach((x) => variables(x, out));
+    else if (t.t === 'graph') t.triples.forEach((y) => [y.s, y.p, y.o].forEach((x) => variables(x, out)));
+    else if (t.t === 'triple') [t.s, t.p, t.o].forEach((x) => variables(x, out));
+    return out;
+  };
+  for (const h of triples) {
+    if (isRuleTriple(h)) continue;
+    const blanks = [h.s, h.p, h.o].filter(isOwn).map(bnodeKey);
+    for (const k of blanks) if (!parent.has(k)) { parent.set(k, k); deps.set(k, new Map()); }
+    for (const k of blanks.slice(1)) {
+      const [a, b] = [find(blanks[0]), find(k)];
+      if (a !== b) { parent.set(b, a); for (const [key, v] of deps.get(b)) deps.get(a).set(key, v); }
+    }
+    if (blanks.length) for (const [key, v] of [h.s, h.p, h.o].reduce((m, t) => variables(t, m), new Map())) deps.get(find(blanks[0])).set(key, v);
+  }
+  const term = (t) => (isOwn(t) && parent.has(bnodeKey(t)) ? { t: 'witness', label: bnodeLabel(t), deps: [...deps.get(find(bnodeKey(t))).values()] } : t);
+  return triples.map((h) => (isRuleTriple(h) ? h : { ...h, s: term(h.s), p: term(h.p), o: term(h.o) }));
 }
 
 // Built-ins that only test their arguments; the others compute their object

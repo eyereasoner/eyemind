@@ -1,0 +1,57 @@
+# N3 proof: claims, steps and the complete C1–C10 certificate.
+@prefix : <http://example.org/> .
+@prefix pe: <https://eyereasoner.github.io/pe#> .
+@prefix em: <https://eyereasoner.github.io/eyemind/proof#> .
+@prefix proof: <urn:eyemind:proof#> .
+
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "n3" .
+<urn:eyemind:proof> pe:claims ({ :tom :hasMother _:b0 } { :ann :hasMother _:b1 }) .
+proof:record6 pe:conclusion { :tom :hasMother _:b0 } .
+proof:record6 pe:rule 3 .
+proof:record6 pe:binding (("X" :tom) ("_0" ?A) ("By" _:b0)) .
+proof:record6 pe:uses ({ :tom a :Human } (em:compound "not" ((em:compound "and" ((em:compound "rdf" ((em:iri :tom) (em:iri :hasMother) (em:variable "A"))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :tom)))))))))))))) .
+proof:record7 pe:conclusion { :tom a :Human } .
+proof:record7 pe:rule 1 .
+proof:record7 pe:binding () .
+proof:record7 pe:uses () .
+proof:record8 pe:conclusion (em:compound "not" ((em:compound "and" ((em:compound "rdf" ((em:iri :tom) (em:iri :hasMother) (em:variable "A"))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :tom))))))))))))) .
+proof:record8 pe:justification (em:atom "absent") .
+proof:record8 pe:binding () .
+proof:record8 pe:uses () .
+proof:record9 pe:conclusion { :ann :hasMother _:b1 } .
+proof:record9 pe:rule 3 .
+proof:record9 pe:binding (("X" :ann) ("_0" ?A) ("By" _:b1)) .
+proof:record9 pe:uses ({ :ann a :Human } (em:compound "not" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :hasMother) (em:variable "A"))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :ann)))))))))))))) .
+proof:record10 pe:conclusion { :ann a :Human } .
+proof:record10 pe:rule 2 .
+proof:record10 pe:binding () .
+proof:record10 pe:uses () .
+proof:record11 pe:conclusion (em:compound "not" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :hasMother) (em:variable "A"))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :ann))))))))))))) .
+proof:record11 pe:justification (em:atom "absent") .
+proof:record11 pe:binding () .
+proof:record11 pe:uses () .
+proof:record12 pe:derived { ?B ?C ?D } .
+proof:record12 pe:answers ({ :tom :hasMother _:b0 } { :ann :hasMother _:b1 }) .
+proof:record13 pe:searched { :tom :hasMother ?E } .
+proof:record13 pe:answers ({ :tom :hasMother _:b0 }) .
+proof:record14 pe:searched { ?F a :Human } .
+proof:record14 pe:answers ({ :tom a :Human } { :ann a :Human }) .
+proof:record15 pe:searched { :ann :hasMother ?G } .
+proof:record15 pe:answers ({ :ann :hasMother _:b1 }) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15) .
+proof:record1 em:term (em:compound "rdf" ((em:iri :tom) (em:iri :hasMother) (em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :tom))))))) .
+proof:record2 em:term (em:compound "rdf" ((em:iri :ann) (em:iri :hasMother) (em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :ann))))))) .
+proof:record3 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :tom) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))))))) .
+proof:record4 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))))))) .
+proof:record5 em:term (em:compound "clause" ((em:integer "3") (em:compound "restricted" ((em:compound "rdf" ((em:variable "X") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:compound "rdf" ((em:variable "X") (em:iri :hasMother) (em:variable "By"))))))) .
+proof:record6 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :tom) (em:iri :hasMother) (em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :tom))))))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :tom))) (em:compound "=" ((em:atom "_0") (em:variable "A"))) (em:compound "=" ((em:atom "By") (em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :tom))))))))) (em:list ((em:compound "rdf" ((em:iri :tom) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:compound "not" ((em:compound "and" ((em:compound "rdf" ((em:iri :tom) (em:iri :hasMother) (em:variable "A"))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :tom))))))))))))))))) .
+proof:record7 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :tom) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record8 em:term (em:compound "step" ((em:compound "not" ((em:compound "and" ((em:compound "rdf" ((em:iri :tom) (em:iri :hasMother) (em:variable "A"))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :tom))))))))))))) (em:atom "absent") (em:atom "[]") (em:atom "[]"))) .
+proof:record9 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ann) (em:iri :hasMother) (em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :ann))))))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :ann))) (em:compound "=" ((em:atom "_0") (em:variable "A"))) (em:compound "=" ((em:atom "By") (em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :ann))))))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:compound "not" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :hasMother) (em:variable "A"))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :ann))))))))))))))))) .
+proof:record10 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record11 em:term (em:compound "step" ((em:compound "not" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :hasMother) (em:variable "A"))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :ann))))))))))))) (em:atom "absent") (em:atom "[]") (em:atom "[]"))) .
+proof:record12 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "B") (em:variable "C") (em:variable "D"))) (em:list ((em:compound "rdf" ((em:iri :tom) (em:iri :hasMother) (em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :tom))))))) (em:compound "rdf" ((em:iri :ann) (em:iri :hasMother) (em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :ann))))))))))) .
+proof:record13 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :tom) (em:iri :hasMother) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :tom) (em:iri :hasMother) (em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :tom))))))))))) .
+proof:record14 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "F") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:list ((em:compound "rdf" ((em:iri :tom) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))))))) .
+proof:record15 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :ann) (em:iri :hasMother) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :hasMother) (em:compound "skolem" ((em:integer "3") (em:atom "By") (em:list ((em:iri :ann))))))))))) .

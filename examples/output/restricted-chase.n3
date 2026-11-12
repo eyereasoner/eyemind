@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+
+:bob a :Man .
+:bob :eq :bob .
+:ann :father _:b0 .
+_:b0 a :Man .
+_:b0 :eq _:b0 .

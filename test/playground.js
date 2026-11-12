@@ -234,6 +234,18 @@ export const tests = [
     await p.select('mode', '');
   }],
 
+  ['a restricted rule runs and is colored as a statement in the playground', async (page, base) => {
+    const p = driver(page);
+    await p.open(`${base}#example=derived-rule`);
+    await p.type('input', `fact(human('jo'), father('jo', 'bob'), human('ann'))
+restricted(human(X), [father(X, F), man(F)])
+implies(father(X, Y), man(Y))
+`);
+    await p.run();
+    assert.equal(await p.output(), "// Conclusions: the facts the program derives, in the order derived.\nman('bob')\nfather('ann', skolem(4, 'F', ['ann']))\nman(skolem(4, 'F', ['ann']))\n");
+    assert.ok(await page.evaluate("[...document.querySelectorAll('.editor > .highlight .t-keyword')].some((node) => node.textContent === 'restricted')"));
+  }],
+
   ['nested rule calls in the playground require their generator', async (page, base) => {
     const p = driver(page);
     await p.open(`${base}#example=derived-rule`);

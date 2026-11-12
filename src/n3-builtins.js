@@ -182,6 +182,27 @@ implied_by(n3_includes_(graph(Ts), graph(Ps)), n3_all_members(Ps, Ts))
 fact(n3_all_members([], _))
 implied_by(n3_all_members([P, ...Ps], Ts), [n3_member(P, Ts), n3_all_members(Ps, Ts)])`,
   },
+  n3_unquote: {
+    needs: ['n3_member'],
+    text: `
+// n3_unquote(G): the triples of the formula G hold.
+implies([n3_unquote(graph(Ts)), n3_member(rdf(S, P, O), Ts)], rdf(S, P, O))`,
+  },
+  n3_graph_match: {
+    needs: ['n3_includes', 'n3_sort', 'n3_length'],
+    text: `
+// n3_graph_match(G, P, Ls): the formula G holds the triples of the pattern P,
+// as sets. Ls lists P's variables: e(V) its blank nodes and u(V) its
+// universals, matched one to one by the formula's own, and f(V) the rule's
+// variables, which no blank node of the formula can stand for. A rule's
+// variable can stand for a quoted universal, as rules stated as data quote
+// their variables.
+implied_by(n3_graph_match(graph(Ts), graph(Ps), Ls), [n3_all_members(Ps, Ts), n3_all_members(Ts, Ps), n3_locals(Ls, [], _)])
+implied_by(n3_locals([], Vs, Vs), [n3_sort(Vs, S), n3_length(Vs, N), n3_length(S, N)])
+implied_by(n3_locals([e(V), ...R], A, Vs), [is_nonvar(V), unify(V, qbnode(_)), n3_locals(R, [V, ...A], Vs)])
+implied_by(n3_locals([u(V), ...R], A, Vs), [is_nonvar(V), unify(V, qvar(_)), n3_locals(R, [V, ...A], Vs)])
+implied_by(n3_locals([f(V), ...R], A, Vs), [once(or(is_var(V), not_unify(V, qbnode(_)))), n3_locals(R, A, Vs)])`,
+  },
   n3_round: {
     text: `
 // n3_round(E, R): the value of E rounded to an integer, halves upward, so

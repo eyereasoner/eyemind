@@ -1,0 +1,3 @@
+@prefix : <http://example.org/> .
+
+:report :credibleObserver _:b0 .

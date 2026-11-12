@@ -413,12 +413,13 @@ The basic statement forms are:
 | `fact(T)` | State one fact with head `T` and no body. |
 | `implies(Body, Head)` | State a forward rule. `Body` is a goal or a non-empty array of goals; `Head` is one head or a non-empty array of heads. |
 | `implied_by(Head, Body)` | State a backward rule with one head. `Body` is a goal or a non-empty array of goals. |
+| `restricted(Body, Head)` | State a restricted forward rule: as `implies`, but a firing whose heads some known values already satisfy is not applied ([Section 7.2](#72-variables-and-witnesses)). |
 | `query(G)` | Report the successful instances of `G`. An array denotes one conjunction. |
 | `contradiction(G)` | Halt with conclusion `'false'` when `G` succeeds. An array denotes one conjunction. |
 | `facts_from(Path)` | Read a document from a path and state one fact per expression. |
 | `facts_from({text: Text})` | Read a document from a string and state one fact per expression. |
 
-`implies` and `implied_by` require exactly two arguments. The variadic forms
+`implies`, `implied_by` and `restricted` require exactly two arguments. The variadic forms
 of `fact`, `query` and `contradiction` are also defined:
 
 ```js
@@ -727,6 +728,11 @@ A program MUST be rejected when:
 Because dependencies compare whole terms, two relations sharing a predicate
 name MAY have different ranks.
 
+The guard of a restricted rule ([Section 7.2](#72-variables-and-witnesses)) is a body goal whose
+dependencies are open, though it is a negation: the rule ranks at least as
+high as every clause that derives its heads, itself included, without a
+closed dependency on itself.
+
 ### 6.2 Inline rule templates
 
 Nested `implies(Body, Head)` and `implied_by(Head, Body)` calls construct rule
@@ -876,6 +882,35 @@ unless it is a scoped inspection variable ([Section 6.3](#63-source-rule-inspect
 including captured template values. Body variables absent from that context
 do not distinguish witnesses; shared head variables share a witness.
 
+A restricted rule, `restricted(Body, Head)`, with head-only variables
+`W1, ..., Wk` has one more body goal after `Body`, its **guard**:
+
+```js
+not([H1', ..., Hm', not_unify([_A1, ..., _Ak], [S1, ..., Sk])])
+```
+
+`H1', ..., Hm'` are its heads with each `Wi` replaced by a distinct
+anonymous variable `_Ai`, numbered `_0`, `_1`, ... as the first such names
+the clause does not use; `Si` is `skolem(N, 'Wi', Frontier)`, the witness a
+firing of clause `N` gives `Wi` ([Section 8.2](#82-forward-evaluation-and-witnesses)), where `Frontier` is the list of
+the heads' other variables in order of first occurrence. The guard holds when
+nothing but the firing's own witnesses satisfies its heads. Before a
+firing, that is when no known values satisfy them, so a satisfied rule does
+not invent new values, as the restricted chase does; after it, that is when
+the firing's witnesses are needed, which the search certificate shows like
+any negation. A restricted rule without head-only variables has no guard and
+behaves as `implies`. For example:
+
+```js
+fact(human('jo'), father('jo', 'bob'))
+restricted(human(X), [father(X, F), man(F)])
+implies(father(X, Y), man(Y))
+```
+
+concludes `man('bob')` and invents no father for `'jo'`, since `'bob'`
+already satisfies the heads once the third rule has run. A restricted
+rule's display omits its guard ([Section 10.2](#102-clause-displays)).
+
 This gives the specified Skolemized reading of existential conclusions.
 The original existential rule need not have a least model over its original
 vocabulary. A witness is an ordinary compound in subsequent reasoning; it
@@ -1006,6 +1041,14 @@ and `p(2)` publishes `a(1)`, `b(1)`, `a(2)`, `b(2)`. For each head:
 
 When the run asks its own goals ([Section 8.4](#84-external-goals)), rules whose heads are all
 `'true'` are not run.
+
+A stratum with restricted rules alternates two kinds of round. Its other
+rules run in rounds as above; a round of its restricted rules, in clause
+order, follows only a round of the other rules that adds nothing, and is
+followed by rounds of the other rules again when it adds something. The
+stratum ends with a round of its restricted rules that adds nothing. The
+other rules of a stratum thus run before its restricted rules, whose guards
+see what they derive.
 
 For a generator, use its scope projection ([Section 6.2](#62-inline-rule-templates)) as its head when
 constructing witnesses. For an appended forward clause of [Section 6.2](#62-inline-rule-templates),
@@ -1259,8 +1302,9 @@ A checker MUST treat every statement that is neither `clause/2`, `step/4`,
 ### 10.2 Clause displays
 
 `Display` shows clause `N` in normalized statement form: `fact(Head)`,
-`implies(Body, Head)`, `implied_by(Head, Body)`, `query(G1, ...)` or
-`contradiction(G1, ...)`, where `Body` is the clause's one body goal, or the
+`implies(Body, Head)`, `restricted(Body, Head)`, `implied_by(Head, Body)`,
+`query(G1, ...)` or `contradiction(G1, ...)`, where `Body` is the clause's
+one body goal without a restricted rule's guard, or the
 array of its body goals when it has several, `Head` likewise the head or the
 array of heads, and `G1, ...` are the body goals themselves. Displays are not
 authority: a checker MUST compare each with the program it checks against.
@@ -1984,6 +2028,9 @@ in that closure. To use a listing for C10:
 - Every backward head variable MUST be grounded by its body.
 - Every forward head variable MUST either be grounded by its body or be a
   head-only witness checked by C8.
+- A restricted rule's guard is a negation, so a closure with a restricted
+  rule that has head-only variables is not supported: which firings a
+  restricted rule makes can depend on the order of rule applications.
 
 Supported facts and closed listings then establish the least ground
 positive closure. More general forward execution requires publication

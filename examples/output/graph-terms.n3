@@ -1,0 +1,9 @@
+@prefix : <http://example.org/> .
+
+:loisLane :knowsAbout :superman .
+:g1 :isomorphicTo :g2 .
+:tom :said { :tom :is :wise } .
+:alice :likes :pizza .
+:alice :likes :pasta .
+:bob :is :wise .
+:alice :likes :spaghetti .
