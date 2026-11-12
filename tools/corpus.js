@@ -40,7 +40,7 @@ export function loadExampleInputs(entry) {
     const path = join(ROOT, file);
     return [readFileSync(path, 'utf8'), path];
   });
-  return loadInputs(inputs, nodeIO);
+  return loadInputs(inputs, nodeIO, { srlContext: entry.srlContext ?? null });
 }
 
 export const loadExample = (entry) => loadExampleInputs(entry).program;

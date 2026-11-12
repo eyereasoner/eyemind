@@ -41,7 +41,8 @@ goals, and keep error messages specific and user-facing text direct.
     `n3-writer.js`, `n3-documents.js`: Notation3 compiled to a program.
     `messages.js`: incremental RDF Message parsing and envelope replay;
     `node-messages.js`: Node's incremental file, stdin and HTTP(S) input.
-    `srl.js`, `srl-functions.js`: SPARQL 1.2 RL compiled to a program, read
+    `srl.js`, `srl-functions.js`, `srl-decimal.js`: SPARQL 1.2 RL compiled to a program,
+    with exact decimal rules and a captured clock/seed for execution functions, read
     by the SRL tokenizer, parser and analysis (`srl-tokenizer.js`,
     `srl-parser.js`, `srl-term.js`, `srl-assignments.js`, `srl-analyze.js`,
     `srl-builtin-names.js`).

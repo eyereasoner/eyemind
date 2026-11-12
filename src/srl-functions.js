@@ -10,9 +10,11 @@
 //
 // Values are RDF terms as the compiler writes them: an xsd:integer with a
 // canonical lexical form is an eyemind integer, every other literal is
-// literal(Lexical, datatype(IRI)) or literal(Text, lang(Tag)). Decimals,
-// floats and doubles are computed as binary64 floats and written back with
-// their datatype.
+// literal(Lexical, datatype(IRI)) or literal(Text, lang(Tag)). Exact
+// decimals use integer coefficients and scales; floats and doubles
+// use binary64 values. Results retain their promoted datatype.
+
+import { decimalRules } from './srl-decimal.js';
 
 const XSD = 'http://www.w3.org/2001/XMLSchema#';
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
@@ -30,28 +32,38 @@ const tested = (name, args) => String.raw`
 implied_by(${name}_t(${args}, T), or([${name}_(${args}), unify(T, 'true')], [not(${name}_(${args})), unify(T, 'false')]))`;
 
 export const DEFINITIONS = {
+  srl_now: {
+    text: String.raw`
+implied_by(srl_now(literal(Now, datatype('${XSD}dateTime'))), srl_execution(Now, _))`,
+  },
+  srl_uuid: {
+    text: String.raw`
+// A random execution seed, a call site and its incoming solution identify
+// one UUID. Repeated reasoning rounds and certificate checks keep it fixed.
+implied_by(srl_uuid(Rule, Site, Solution, Id), [srl_execution(_, Seed), term_text([Seed, Rule, Site, Solution], Text), digest('sha256', Text, Hex), regex_find('^(.{8})(.{4}).(.{3})(.)(.{3})(.{12})', Hex, [_, A, B, C, V, D, E]), srl_uuid_variant(V, W), srl_atoms_concat([A, '-', B, '-4', C, '-', W, D, '-', E], Id)])
+${[...'0123456789abcdef'].map((c, i) => `fact(srl_uuid_variant('${c}', '${'89ab'[i % 4]}'))`).join('\n')}`,
+    needs: ['srl_atoms_concat'],
+  },
   // Numbers.
   srl_num: {
     text: String.raw`
 // srl_num(T, K, V): T is a number of kind K (integer, decimal, float or
-// double) with value V; decimals, floats and doubles have float values.
+// double) with value V; a decimal is decimal(Coefficient, Scale).
 implied_by(srl_num(T, 'integer', T), is_int(T))
-implied_by(srl_num(literal(L, datatype(D)), K, V), [srl_numeric_type(D, K), atom_chars(L, Cs), number_chars(N, Cs), srl_num_value(K, N, V)])
+implied_by(srl_num(literal(L, datatype(D)), K, V), [srl_numeric_type(D, K), srl_read_number(K, L, V)])
+implied_by(srl_read_number('decimal', L, V), srl_decimal_text(L, V))
+implied_by(srl_read_number('integer', L, V), [regex_find('^[ \\t\\n\\r]*([+-]?[0-9]+)[ \\t\\n\\r]*$', L, [_, I]), atom_chars(I, Cs), number_chars(V, Cs)])
+implied_by(srl_read_number(K, L, V), [srl_float_kind(K), float64('parse', L, 0, V)])
 ${INTEGER_TYPES.map((t) => `fact(srl_numeric_type('${XSD}${t}', 'integer'))`).join('\n')}
 fact(srl_numeric_type('${XSD}decimal', 'decimal'), srl_numeric_type('${XSD}float', 'float'), srl_numeric_type('${XSD}double', 'double'))
-implied_by(srl_num_value('integer', N, N), is_int(N))
-implied_by(srl_num_value(K, N, V), [srl_float_kind(K), is(V, float(N))])
-fact(srl_float_kind('decimal'), srl_float_kind('float'), srl_float_kind('double'))
+fact(srl_float_kind('float'), srl_float_kind('double'))
 // Numeric type promotion: integer, decimal, float, double.
 fact(srl_rank('integer', 0), srl_rank('decimal', 1), srl_rank('float', 2), srl_rank('double', 3))
 implied_by(srl_promote(A, B, K), [srl_rank(A, I), srl_rank(B, J), is(M, max(I, J)), srl_rank(K, M)])`,
+    needs: ['srl_decimal'],
   },
-  srl_make: {
-    text: String.raw`
-// srl_make(K, V, T): T is the term for the value V of kind K. A float is
-// written as its shortest text; a decimal never has an exponent.
-implied_by(srl_make('integer', V, V), is_int(V))
-implied_by(srl_make(K, V, literal(L, datatype(D))), [srl_float_kind(K), srl_numeric_type(D, K), lt(abs(V), float(1.7976931348623157e308)), is(F, float(V)), number_chars(F, Cs), atom_chars(A, Cs), srl_float_text(K, A, L)])
+  srl_decimal: {
+    text: decimalRules + String.raw`
 implied_by(srl_float_text('double', A, A), 'true')
 implied_by(srl_float_text('float', A, A), 'true')
 implied_by(srl_float_text('decimal', A, A), not(regex_match('e', A)))
@@ -61,36 +73,34 @@ implied_by(srl_point(Ds, N, P, B), [ge(P, N), is(Z, sub(P, N)), srl_zeros(Z, Zs)
 implied_by(srl_point(Ds, N, P, B), [le(P, 0), is(Z, neg(P)), srl_zeros(Z, Zs), atom_concat('0.', Zs, H), atom_concat(H, Ds, B)])
 implied_by(srl_point(Ds, N, P, B), [gt(P, 0), lt(P, N), once([atom_concat(H, T, Ds), atom_length(H, P)]), atom_concat(H, '.', H1), atom_concat(H1, T, B)])
 fact(srl_zeros(0, ''))
-implied_by(srl_zeros(N, Z), [gt(N, 0), is(M, sub(N, 1)), srl_zeros(M, Z0), atom_concat('0', Z0, Z)])`,
+implied_by(srl_zeros(N, Z), [gt(N, 0), is(M, sub(N, 1)), srl_zeros(M, Z0), atom_concat('0', Z0, Z)])
+implied_by(srl_compare(X, Y, O), or([lt(X, Y), unify(O, '<')], [eq(X, Y), unify(O, '=')], [gt(X, Y), unify(O, '>')]))`,
+    needs: ['srl_length'],
+  },
+  srl_make: {
+    text: String.raw`
+// srl_make(K, V, T): T is the term for the value V of kind K. A float is
+// written as its shortest text; a decimal never has an exponent.
+implied_by(srl_make('integer', V, V), is_int(V))
+implied_by(srl_make('decimal', V, literal(L, datatype('${XSD}decimal'))), [srl_decimal_value(V, D), srl_decimal_lexical(D, L)])
+implied_by(srl_make(K, V, literal(L, datatype(D))), [srl_float_kind(K), srl_numeric_type(D, K), srl_float_value(V, N), srl_float_lexical(N, L)])
+`,
     needs: ['srl_num'],
   },
-  srl_finite: {
-    text: String.raw`
-// srl_finite(Op, X, Y): Op on X and Y has a finite result, so computing it
-// raises no error; a float result that would overflow is a SPARQL error.
-implied_by(srl_finite(Op, X, Y), once(srl_finite_(Op, X, Y)))
-implied_by(srl_finite_(_, X, Y), [is_int(X), is_int(Y)])
-implied_by(srl_finite_('add', X, Y), [lt(abs(X), 8e307), lt(abs(Y), 8e307)])
-implied_by(srl_finite_('sub', X, Y), [lt(abs(X), 8e307), lt(abs(Y), 8e307)])
-implied_by(srl_finite_('mul', X, Y), or(eq(X, 0), eq(Y, 0)))
-implied_by(srl_finite_('mul', X, Y), [srl_magnitude(X, M), srl_magnitude(Y, N), lt(add(M, N), 308)])
-implied_by(srl_finite_('div', X, Y), eq(X, 0))
-implied_by(srl_finite_('div', X, Y), [srl_magnitude(X, M), srl_magnitude(Y, N), lt(sub(M, N), 308)])
-implied_by(srl_magnitude(X, M), [ne(X, 0), lt(abs(X), 1e308), is(M, log10(abs(X)))])`,
-  },
-  srl_add: { text: arith('srl_add', 'add'), needs: ['srl_make', 'srl_finite'] },
-  srl_sub: { text: arith('srl_sub', 'sub'), needs: ['srl_make', 'srl_finite'] },
-  srl_mul: { text: arith('srl_mul', 'mul'), needs: ['srl_make', 'srl_finite'] },
+  srl_add: { text: arith('srl_add', 'add'), needs: ['srl_make'] },
+  srl_sub: { text: arith('srl_sub', 'sub'), needs: ['srl_make'] },
+  srl_mul: { text: arith('srl_mul', 'mul'), needs: ['srl_make'] },
   srl_div: {
     text: String.raw`
-// Division by zero is an error; integers divide to a decimal.
-implied_by(srl_div(A, B, R), [srl_num(A, KA, X), srl_num(B, KB, Y), ne(Y, 0), srl_promote(KA, KB, K0), srl_div_kind(K0, K), srl_finite('div', X, Y), is(V, div(X, Y)), srl_make(K, V, R)])
+// Integers divide to a decimal. Decimal division by zero is an error;
+// floats and doubles retain their IEEE-754 exceptional results.
+implied_by(srl_div(A, B, R), [srl_pair(A, B, K0, X0, Y0), srl_div_kind(K0, K), srl_numeric_value(K, X0, X), srl_numeric_value(K, Y0, Y), srl_calculate('div', X, Y, V), srl_make(K, V, R)])
 fact(srl_div_kind('integer', 'decimal'), srl_div_kind('decimal', 'decimal'), srl_div_kind('float', 'float'), srl_div_kind('double', 'double'))`,
-    needs: ['srl_make', 'srl_finite'],
+    needs: ['srl_make'],
   },
   srl_neg: {
     text: String.raw`
-implied_by(srl_neg(A, R), [srl_num(A, K, X), is(V, neg(X)), srl_make(K, V, R)])`,
+implied_by(srl_neg(A, R), [srl_num(A, K, X), srl_unary('neg', X, V), srl_make(K, V, R)])`,
     needs: ['srl_make'],
   },
   srl_pos: {
@@ -112,7 +122,7 @@ fact(srl_flip('true', 'false'), srl_flip('false', 'true'))`,
 // a term without one, such as an IRI, has none.
 implied_by(srl_ebv(T, B), once(srl_ebv_(T, B)))
 implied_by(srl_ebv_(literal(L, datatype('${XSD}boolean')), B), srl_boolean_text(L, B))
-implied_by(srl_ebv_(T, B), [srl_num(T, _, V), or([eq(V, 0), unify(B, 'false')], [ne(V, 0), unify(B, 'true')])])
+implied_by(srl_ebv_(T, B), [srl_num(T, _, X), srl_value_zero(X, V), or([eq(V, 0), unify(B, 'false')], [ne(V, 0), unify(B, 'true')])])
 implied_by(srl_ebv_(literal(L, datatype('${XSD}string')), B), srl_nonempty(L, B))
 implied_by(srl_ebv_(literal(L, lang(_)), B), srl_nonempty(L, B))
 implied_by(srl_ebv_(literal(L, lang(_, _)), B), srl_nonempty(L, B))
@@ -151,7 +161,7 @@ fact(srl_or3('false', 'false', 'false'), srl_or3('true', _, 'true'), srl_or3('fa
 // srl_equal(A, B, T): T is 'true' when A and B are equal and 'false' when
 // they are not; literals that cannot be compared have no answer, an error.
 implied_by(srl_equal(A, B, T), once(srl_equal_(A, B, T)))
-implied_by(srl_equal_(A, B, T), [srl_num(A, _, X), srl_num(B, _, Y), or([eq(X, Y), unify(T, 'true')], [ne(X, Y), unify(T, 'false')])])
+implied_by(srl_equal_(A, B, T), [srl_pair(A, B, _, X, Y), srl_value_compare(X, Y, O), or([identical(O, '='), unify(T, 'true')], [not_identical(O, '='), unify(T, 'false')])])
 implied_by(srl_equal_(A, B, 'true'), identical(A, B))
 implied_by(srl_equal_(A, B, T), [srl_boolean(A, X), srl_boolean(B, Y), or([identical(X, Y), unify(T, 'true')], [not_identical(X, Y), unify(T, 'false')])])
 implied_by(srl_equal_(A, B, 'false'), [srl_text_kind(A, _), srl_text_kind(B, _)])
@@ -193,14 +203,18 @@ implied_by(srl_ne(A, B, R), [srl_equal(A, B, T), srl_flip(T, F), srl_bool(F, R)]
 // numbers by value, simple strings by code point, booleans with false
 // first, and date and time values of one datatype by their lexical forms.
 implied_by(srl_order(A, B, O), once(srl_order_(A, B, O)))
-implied_by(srl_order_(A, B, O), [srl_num(A, _, X), srl_num(B, _, Y), srl_compare(X, Y, O)])
+implied_by(srl_order_(A, B, O), [srl_pair(A, B, _, X, Y), srl_value_compare(X, Y, O)])
 implied_by(srl_order_(literal(X, datatype('${XSD}string')), literal(Y, datatype('${XSD}string')), O), compare(O, X, Y))
 implied_by(srl_order_(A, B, O), [srl_boolean(A, X), srl_boolean(B, Y), compare(O, X, Y)])
 implied_by(srl_order_(literal(X, datatype(D)), literal(Y, datatype(D)), O), [srl_ordered_type(D), compare(O, X, Y)])
 implied_by(srl_compare(X, Y, O), or([lt(X, Y), unify(O, '<')], [eq(X, Y), unify(O, '=')], [gt(X, Y), unify(O, '>')]))
+fact(srl_lt_('unordered', 'false'))
 fact(srl_lt_('<', 'true'), srl_lt_('=', 'false'), srl_lt_('>', 'false'))
+fact(srl_le_('unordered', 'false'))
 fact(srl_le_('<', 'true'), srl_le_('=', 'true'), srl_le_('>', 'false'))
+fact(srl_gt_('unordered', 'false'))
 fact(srl_gt_('<', 'false'), srl_gt_('=', 'false'), srl_gt_('>', 'true'))
+fact(srl_ge_('unordered', 'false'))
 fact(srl_ge_('<', 'false'), srl_ge_('=', 'true'), srl_ge_('>', 'true'))`,
     needs: ['srl_equal'],
   },
@@ -378,14 +392,14 @@ implied_by(srl_concat_kind(K, K), not_identical(K, 'none'))`,
   srl_substr: {
     text: String.raw`
 // SUBSTR counts characters from 1, rounding its numeric arguments.
-implied_by(srl_substr(T, S, literal(B, K)), [srl_string(T, A, K), srl_num(S, _, X), srl_round_half_up(X, I), atom_chars(A, Cs), atom_length(A, N), is(E, add(N, 1)), srl_slice(Cs, 1, I, E, Bs), atom_chars(B, Bs)])
-implied_by(srl_substr(T, S, L, literal(B, K)), [srl_string(T, A, K), srl_num(S, _, X), srl_num(L, _, Y), srl_round_half_up(X, I), srl_round_half_up(Y, J), is(E, add(I, J)), atom_chars(A, Cs), srl_slice(Cs, 1, I, E, Bs), atom_chars(B, Bs)])
+implied_by(srl_substr(T, S, literal(B, K)), [srl_string(T, A, K), srl_num(S, _, X), srl_unary('round', X, I), atom_chars(A, Cs), atom_length(A, N), is(E, add(N, 1)), srl_slice(Cs, 1, I, E, Bs), atom_chars(B, Bs)])
+implied_by(srl_substr(T, S, L, literal(B, K)), [srl_string(T, A, K), srl_num(S, _, X), srl_num(L, _, Y), srl_unary('round', X, I), srl_unary('round', Y, J), is(E, add(I, J)), atom_chars(A, Cs), srl_slice(Cs, 1, I, E, Bs), atom_chars(B, Bs)])
 // srl_slice(Cs, P, I, E, Bs): Bs are the characters of Cs, the first at
 // position P, whose positions are at least I and below E.
 fact(srl_slice([], _, _, _, []))
 implied_by(srl_slice([C, ...Cs], P, I, E, [C, ...Bs]), [ge(P, I), lt(P, E), is(Q, add(P, 1)), srl_slice(Cs, Q, I, E, Bs)])
 implied_by(srl_slice([_, ...Cs], P, I, E, Bs), [or(lt(P, I), ge(P, E)), is(Q, add(P, 1)), srl_slice(Cs, Q, I, E, Bs)])
-implied_by(srl_round_half_up(X, I), is(I, floor(add(X, float(0.5)))))`,
+`,
     needs: ['srl_string', 'srl_num'],
   },
   srl_replace: {
@@ -427,13 +441,12 @@ implied_by(srl_atoms_concat([A, ...As], C), [srl_atoms_concat(As, C0), atom_conc
   // Numeric functions.
   srl_abs: {
     text: String.raw`
-implied_by(srl_abs(T, R), [srl_num(T, K, X), is(V, abs(X)), srl_make(K, V, R)])
-implied_by(srl_ceil(T, R), [srl_num(T, K, X), is(V, ceil(X)), srl_make(K, V, R)])
-implied_by(srl_floor(T, R), [srl_num(T, K, X), is(V, floor(X)), srl_make(K, V, R)])
+implied_by(srl_abs(T, R), [srl_num(T, K, X), srl_unary('abs', X, V), srl_make(K, V, R)])
+implied_by(srl_ceil(T, R), [srl_num(T, K, X), srl_unary('ceil', X, V), srl_make(K, V, R)])
+implied_by(srl_floor(T, R), [srl_num(T, K, X), srl_unary('floor', X, V), srl_make(K, V, R)])
 // ROUND rounds halves up, toward positive infinity.
-implied_by(srl_round(T, R), [srl_num(T, K, X), srl_round_(K, X, V), srl_make(K, V, R)])
-implied_by(srl_round_('integer', X, X), 'true')
-implied_by(srl_round_(K, X, V), [srl_float_kind(K), is(V, floor(add(X, float(0.5))))])`,
+implied_by(srl_round(T, R), [srl_num(T, K, X), srl_unary('round', X, V), srl_make(K, V, R)])
+`,
     needs: ['srl_make'],
   },
 
@@ -474,15 +487,15 @@ implied_by(srl_cast_('${XSD}string', T, ${str('A')}), srl_cast_text(T, A))
 implied_by(srl_cast_text(iri(A), A), 'true')
 implied_by(srl_cast_text(literal(A, _), A), 'true')
 implied_by(srl_cast_text(T, A), [is_int(T), number_chars(T, Cs), atom_chars(A, Cs)])
-implied_by(srl_cast_('${XSD}integer', T, V), [srl_num(T, _, X), is(V, trunc(X))])
+implied_by(srl_cast_('${XSD}integer', T, V), [srl_num(T, _, X), srl_unary('trunc', X, V)])
 implied_by(srl_cast_('${XSD}integer', T, V), [srl_boolean(T, B), srl_bit(B, V)])
-implied_by(srl_cast_('${XSD}integer', literal(L, datatype('${XSD}string')), V), [regex_match('^[+-]?[0-9]+$', L), atom_chars(L, Cs), number_chars(V, Cs)])
+implied_by(srl_cast_('${XSD}integer', literal(L, datatype('${XSD}string')), V), [regex_find('^[ \\t\\n\\r]*([+-]?[0-9]+)[ \\t\\n\\r]*$', L, [_, I]), atom_chars(I, Cs), number_chars(V, Cs)])
 implied_by(srl_cast_(D, T, R), [srl_float_type(D, K), srl_num(T, _, X), srl_make(K, X, R)])
 implied_by(srl_cast_(D, T, R), [srl_float_type(D, K), srl_boolean(T, B), srl_bit(B, V), srl_make(K, V, R)])
-implied_by(srl_cast_('${XSD}decimal', literal(L, datatype('${XSD}string')), R), [regex_match('^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)$', L), atom_chars(L, Cs), number_chars(X, Cs), srl_make('decimal', X, R)])
-implied_by(srl_cast_(D, literal(L, datatype('${XSD}string')), R), [srl_float_type(D, K), srl_float_kind_double(K), regex_match('^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?$', L), atom_chars(L, Cs), number_chars(X, Cs), srl_make(K, X, R)])
+implied_by(srl_cast_('${XSD}decimal', literal(L, datatype('${XSD}string')), R), [srl_decimal_text(L, X), srl_make('decimal', X, R)])
+implied_by(srl_cast_(D, literal(L, datatype('${XSD}string')), R), [srl_float_type(D, K), srl_float_kind_double(K), float64('parse', L, 0, X), srl_make(K, X, R)])
 implied_by(srl_cast_('${XSD}boolean', T, R), [srl_boolean(T, B), srl_bool(B, R)])
-implied_by(srl_cast_('${XSD}boolean', T, R), [srl_num(T, _, X), or([eq(X, 0), unify(B, 'false')], [ne(X, 0), unify(B, 'true')]), srl_bool(B, R)])
+implied_by(srl_cast_('${XSD}boolean', T, R), [srl_num(T, _, V), srl_value_zero(V, X), or([eq(X, 0), unify(B, 'false')], [ne(X, 0), unify(B, 'true')]), srl_bool(B, R)])
 implied_by(srl_cast_('${XSD}boolean', literal(L, datatype('${XSD}string')), R), [or([srl_true_text(L), unify(B, 'true')], [srl_false_text(L), unify(B, 'false')]), srl_bool(B, R)])
 implied_by(srl_cast_('${XSD}dateTime', literal(L, datatype(D)), literal(L, datatype('${XSD}dateTime'))), [srl_text_or_datetime(D), regex_match('^-?\\d{4,}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(?:\\.\\d+)?(?:Z|[+-]\\d\\d:\\d\\d)?$', L)])
 implied_by(srl_cast_('${XSD}date', literal(L, datatype(D)), literal(L, datatype('${XSD}date'))), [srl_text_or_date(D), regex_match('^-?\\d{4,}-\\d\\d-\\d\\d(?:Z|[+-]\\d\\d:\\d\\d)?$', L)])
@@ -555,7 +568,7 @@ implied_by(srl_column([R, ...Rs], I, [V, ...Vs]), [srl_nth(I, R, V), srl_column(
 
 function arith(name, op) {
   return String.raw`
-implied_by(${name}(A, B, R), [srl_num(A, KA, X), srl_num(B, KB, Y), srl_promote(KA, KB, K), srl_finite('${op}', X, Y), is(V, ${op}(X, Y)), srl_make(K, V, R)])`;
+implied_by(${name}(A, B, R), [srl_pair(A, B, K, X, Y), srl_calculate('${op}', X, Y, V), srl_make(K, V, R)])`;
 }
 
 function compare(name) {

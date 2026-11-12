@@ -578,12 +578,32 @@ primitive called outside its patterns raises an error.
 | `atom_lower`, `atom_upper` | `atom_lower(+A, ?L)`, `atom_upper(+A, ?U)` | `L` is `A` in lower case, `U` in upper case, by Unicode default case conversion: the full mappings, independent of locale, with the final sigma of a word lowered to `'ς'`, so `atom_upper('straße', 'STRASSE')` holds. |
 | `digest` | `digest(+H, +A, ?D)` | `D` is the digest of the UTF-8 encoding of the atom `A` by the hash function `H`, one of `'md5'`, `'sha1'`, `'sha256'` and `'sha512'`, as lowercase hexadecimal. A lone surrogate is encoded as U+FFFD. Another `H` raises an error. |
 | `term_text` | `term_text(+T, ?A)` | `A` is the canonical text of `T` ([Section 9.2](#92-canonical-atoms-numbers-variables-and-lists)), which MUST be ground: `term_text(f('a', [1, 2.0]), "f('a', [1, 2.0])")` holds. |
+| `float64` | `float64(+Op, +A, +B, ?R)` | Explicit IEEE-754 binary64 computation, including exceptional values represented as atoms, as defined below. |
 | `regex_match` | `regex_match(+P, +T)` | Some part of the atom `T` matches the regular expression `P`. |
 | `regex_find` | `regex_find(+P, +T, ?G)` | One solution per match of `P` in `T`, from left to right: `G` is the list of the matched text followed by each capture group's text, `''` for a group that took no part in the match. |
 | `regex_replace` | `regex_replace(+P, +T, +R, ?U)` | `U` is `T` with every match of `P` replaced by `R`. |
 
 A character is a Unicode code point. Every primitive except `atom_concat`
 and `regex_find` has at most one solution.
+
+`float64/4` converts numeric operands explicitly to binary64, rounding an
+integer to nearest with ties to even. Exceptional values are the atoms
+`'INF'`, `'-INF'` and `'NaN'`; they are not additional core numbers.
+`Op` is `'add'`, `'sub'`, `'mul'` or `'div'`, with IEEE-754 results,
+including overflow, underflow and division by zero. Signed zero is retained.
+For `'compare'`, `R` is `'<'`, `'='`, `'>'`, or `'unordered'` if either
+operand is NaN. Operations `'convert'`, `'neg'`, `'abs'`, `'ceil'`, `'floor'`
+and `'round'` use only `A`; `'round'` rounds halves toward positive infinity
+and retains negative zero. `'trunc'` returns an exact integer for a finite
+converted `A` and fails otherwise. The unused `B` is still an input.
+
+For `'parse'`, `A` is an atom with an XSD float/double lexical form: an
+optionally signed decimal with an optional exponent, `'INF'`, `'+INF'`,
+`'-INF'` or `'NaN'`, optionally surrounded by XML whitespace. Parsing rounds
+once to binary64 and allows overflow and underflow. An invalid lexical
+form or operand fails; another `Op` raises an error. Finite numeric results
+are floats; exceptional results are the atoms above. C5 re-decides these
+operations, including signed zeros and exceptional results.
 
 A regular expression `P` is an atom read as an ECMAScript pattern
 (ECMA-262, the `RegExp` pattern grammar and matching semantics) with only the
@@ -2192,10 +2212,23 @@ or `pe:called` and an ordered `pe:answers` collection. Clause numbers name
 the compiled program's clauses, whose authority is still the source input.
 SRL proofs contain only `DATA` and declarations, never rules or imports.
 
+When an SRL rule set uses `NOW`, `UUID` or `STRUUID`, its compiled program
+includes one ground `srl_execution(Now, Seed)` fact. `Now` is an ISO UTC
+timestamp with milliseconds and `Seed` contains 64 lowercase hexadecimal
+digits. The compiler captures these external inputs once per compilation;
+they remain fixed throughout evaluation. To check a saved SRL proof, the
+format loader may recover this fact from its clause records, validate its
+two fields, and recompile the source with that execution context. All other
+clauses still come from the source, and all displays undergo C1–C10 as
+usual. This establishes consequences of the recorded context, without
+certifying a clock observation or the entropy of the seed.
+
 The reader decodes every record, verifies all displays and properties against
 those records, and applies the unchanged checks of
 [Section 11](#11-proof-checking) to the decoded
 certificate. A missing, extra, duplicate or inconsistent property fails C3.
+Numeric literal displays retain their decimal digits during this comparison;
+distinct decimal literals MUST NOT agree merely by rounding to binary64.
 Prefix aliases and reordering top-level properties are accepted, as is
 consistent blank-node renaming; the order of collections and formula triples
 is retained. Displayed claims cannot replace encoded claims, and neither

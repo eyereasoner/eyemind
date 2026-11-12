@@ -167,9 +167,11 @@ function srlData(document) {
     if (t.type === 'iri') return { t: 'iri', v: t.value };
     if (t.type === 'blank') return { t: 'bnode', v: t.value, scope: 0 };
     if (t.type === 'literal') {
-      const value = Object.is(t.value, -0) ? '-0' : String(t.value);
+      // A displayed decimal must not lose digits before its record is
+      // compared: adjacent exact values can round to the same binary64.
+      const value = t.lexical ?? (Object.is(t.value, -0) ? '-0' : String(t.value));
       return t.lang ? { t: 'literal', v: value, dt: `${RDF}langString`, lang: t.lang, dir: t.langDir }
-        : typedLiteral(value, t.datatype ?? `${XSD}string`);
+        : typedLiteral(value, t.datatype ?? `${XSD}string`, true);
     }
     if (t.type === 'triple') return { t: 'triple', s: term(t.s), p: term(t.p), o: term(t.o) };
     fail('an SRL proof must be ground RDF data');
@@ -246,7 +248,7 @@ function compare(actual, expected) {
 
 function readNative(document) {
   let parsed, format;
-  try { parsed = parseN3(document); format = 'n3'; }
+  try { parsed = parseN3(document, { preserveNumericLiterals: true }); format = 'n3'; }
   catch (n3Error) {
     try { parsed = srlData(document); format = 'srl'; }
     catch (error) { throw new EyemindError(`native proof: ${error.message}`); }
@@ -269,7 +271,7 @@ function readNative(document) {
     if (id.t !== 'iri' || id.v !== `${ROOT}#record${i + 1}`) fail('proof records must be numbered in document order');
     return decode(property(id.v, `${TERM_NS}term`));
   });
-  const expected = format === 'n3' ? parseN3(render(terms, format)) : srlData(render(terms, format));
+  const expected = format === 'n3' ? parseN3(render(terms, format), { preserveNumericLiterals: true }) : srlData(render(terms, format));
   compare(parsed.triples, expected.triples);
   return terms;
 }

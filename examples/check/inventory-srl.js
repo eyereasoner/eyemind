@@ -22,13 +22,13 @@ inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#qu
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 106)
-condition('C2', 'well_founded', 'ok', 151)
-condition('C3', 'justification', 'ok', 151)
-condition('C4', 'coverage', 'ok', 258)
-condition('C5', 're_decision', 'ok', 37)
+condition('C1', 'resolution', 'ok', 112)
+condition('C2', 'well_founded', 'ok', 154)
+condition('C3', 'justification', 'ok', 154)
+condition('C4', 'coverage', 'ok', 272)
+condition('C5', 're_decision', 'ok', 34)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 171)
+condition('C7', 'relevance', 'ok', 174)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 4)
 condition('C10', 'call_fidelity', 'ok', 0)
@@ -60,10 +60,10 @@ obligation('call_fidelity', 'original_call', inf(iri('http://example.org/invento
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#quantity'), 500))
 
 // Proof statistics: recorded steps and how they were checked.
-steps(151)
-verified(106)
+steps(154)
+verified(112)
 recomputed(23)
-composed(14)
+composed(11)
 trusted(24)
 claims(20)
 

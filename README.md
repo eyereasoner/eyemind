@@ -7,7 +7,7 @@ eyemind is a **JavaScript rule language** with forward and backward reasoning an
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 126 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1353 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 128 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1356 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -309,7 +309,36 @@ eyemind --all rules.srl facts.ttl         # the base graph too
 eyemind -c rules.srl facts.ttl            # a proof of it, checked
 ```
 
-Triples are `rdf(Subject, Predicate, Object)`, with `base/3` marking the base graph and `inf/3` the inference graph. A rule becomes `implies`, `NOT` becomes `not` of a helper, `GROUP` becomes `findall`, a blank node in a rule head becomes the Skolem term of its firing, and a SPARQL error is a goal that fails, so `FILTER` rejects the solution and `SET` drops it. The W3C SPARQL 1.2 RL test suite runs in `npm test` from `.cache/w3c/sparql-rl`: all 241 tests pass. `NOW`, `UUID` and `STRUUID` are not supported, as eyemind has no clock or randomness; decimals and doubles are computed as binary64 floats.
+Triples are `rdf(Subject, Predicate, Object)`, with `base/3` marking the base graph and `inf/3` the inference graph. A rule becomes `implies`, `NOT` becomes `not` of a helper, `GROUP` becomes `findall`, a blank node in a rule head becomes the Skolem term of its firing, and a SPARQL error is a goal that fails, so `FILTER` rejects the solution and `SET` drops it. The W3C SPARQL 1.2 RL test suite runs in `npm test` from `.cache/w3c/sparql-rl`: all 241 tests pass.
+
+SRL integers and decimals use exact integer arithmetic. Decimal addition,
+subtraction, multiplication, comparison, rounding and terminating division
+preserve decimal values, including values beyond the exact integer range of
+a double: `0.1 + 0.2` is `0.3`. Nonterminating division retains at least 34
+significant digits and rounds to nearest with ties to even. Floats and doubles
+use binary64 arithmetic: `0.1e0 + 0.2e0` is
+`"0.30000000000000004"^^xsd:double`. Floating-point overflow and division by
+zero follow IEEE-754, including `INF`, `-INF`, `NaN` and signed zero; decimal
+division by zero is an expression error. Mixed numeric expressions use
+SPARQL type promotion. The [exact decimals example](https://eyereasoner.github.io/eyemind/examples/deck/exact-decimals)
+shows both arithmetic models.
+
+`NOW()` returns one UTC `xsd:dateTime` throughout a rule set evaluation.
+`UUID()` produces a `urn:uuid:` IRI and `STRUUID()` a UUID string, distinct
+for each expression occurrence and incoming solution. Compilation captures
+the clock and a fresh random seed once; UUIDs are derived from that seed,
+the rule, the expression and the solution, so later reasoning rounds keep
+the same identifiers. A new compilation captures a new execution context.
+The compiled program states this context as one `srl_execution` fact.
+Saved proofs retain it, and `--check-proof` restores only that validated
+context before recompiling the source. Checking proves consequences of the
+recorded context; it does not attest the wall-clock time or the randomness
+of the seed. Library calls to `compileSrl` and `reasonSrl` accept
+`context: { now, seed }`, with an ISO UTC timestamp including milliseconds
+and 64 lowercase hexadecimal seed digits, to reproduce an execution.
+The [execution identifiers example](https://eyereasoner.github.io/eyemind/examples/deck/execution-identifiers)
+has a fixed context in the example manifest for its saved artifacts;
+ordinary command-line and playground runs capture fresh values.
 
 The [example catalog](https://eyereasoner.github.io/eyemind/examples/) includes
 SRL programs for deployment dependencies, route distances, ancestry, inventory,

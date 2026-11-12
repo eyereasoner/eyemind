@@ -99,6 +99,26 @@ export const tests = [
     }
   }],
 
+  ['SRL decimal arithmetic and execution functions work with saved proofs', async (page, base) => {
+    const p = driver(page);
+    await p.open(`${base}#example=exact-decimals`);
+    await p.run();
+    assert.match(await p.status(), /^Done · exit 0/);
+    assert.equal(await p.output(), readFileSync(artifactPath('output', manifest.find((e) => e.name === 'exact-decimals')), 'utf8'));
+    await p.open(`${base}#example=execution-identifiers`);
+    await p.select('mode', '--proof');
+    await p.run();
+    assert.match(await p.status(), /^Done · exit 0/);
+    const proof = await p.output();
+    assert.match(proof, /^# SRL proof/);
+    assert.match(proof, /urn:uuid:/);
+    await p.select('mode', '--check-proof');
+    await p.type('proof-input', proof);
+    await p.run();
+    assert.match(await p.status(), /^Done · exit 0/);
+    assert.match(await p.output(), /verdict\('checked_with_obligations'\)/);
+  }],
+
   ['native input combinations run and their saved proofs check in the playground', async (page, base) => {
     const p = driver(page);
     // Cover each loading path, including a contradiction and message replay.

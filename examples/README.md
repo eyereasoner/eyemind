@@ -21,7 +21,9 @@ the [guide](https://eyereasoner.github.io/eyemind/#notation3).
 For SPARQL 1.2 RL, try [property paths](https://eyereasoner.github.io/eyemind/examples/deck/property-paths),
 [nested collections](https://eyereasoner.github.io/eyemind/examples/deck/collection-nesting),
 [statement evidence](https://eyereasoner.github.io/eyemind/examples/deck/annotation-evidence),
-or [candidate routes](https://eyereasoner.github.io/eyemind/examples/deck/dijkstra-srl).
+[candidate routes](https://eyereasoner.github.io/eyemind/examples/deck/dijkstra-srl),
+[exact decimals and doubles](https://eyereasoner.github.io/eyemind/examples/deck/exact-decimals),
+or [execution times and UUIDs](https://eyereasoner.github.io/eyemind/examples/deck/execution-identifiers).
 These `.srl` programs write Turtle output and native SRL proofs.
 For RDF Messages, try [message boundaries and heartbeats](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries),
 [independent alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts),
@@ -90,6 +92,8 @@ against its original inputs.
 | [distances](https://eyereasoner.github.io/eyemind/examples/deck/distances) | [distances.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/distances.srl) · [data/distances.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/distances.ttl) | Missing kilometre distances are converted from miles without replacing base data |
 | [dog-license](https://eyereasoner.github.io/eyemind/examples/deck/dog-license) | [dog-license.js](https://github.com/eyereasoner/eyemind/blob/main/examples/dog-license.js) | A licensing threshold based on collected dog counts |
 | [easter](https://eyereasoner.github.io/eyemind/examples/deck/easter) | [easter.js](https://github.com/eyereasoner/eyemind/blob/main/examples/easter.js) | Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050 |
+| [exact-decimals](https://eyereasoner.github.io/eyemind/examples/deck/exact-decimals) | [exact-decimals.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/exact-decimals.srl) | Exact decimal invoice totals and division alongside binary64 double arithmetic |
+| [execution-identifiers](https://eyereasoner.github.io/eyemind/examples/deck/execution-identifiers) | [execution-identifiers.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/execution-identifiers.srl) | Orders share one execution time and receive distinct UUID IRIs and strings |
 | [existential](https://eyereasoner.github.io/eyemind/examples/deck/existential) | [existential.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/existential.n3) | Each person gets a distinct mother and a reciprocal child relation |
 | [existential-rules](https://eyereasoner.github.io/eyemind/examples/deck/existential-rules) | [existential-rules.js](https://github.com/eyereasoner/eyemind/blob/main/examples/existential-rules.js) | Existential rules: a fresh witness per activation, never a clash |
 | [expression-eval](https://eyereasoner.github.io/eyemind/examples/deck/expression-eval) | [expression-eval.js](https://github.com/eyereasoner/eyemind/blob/main/examples/expression-eval.js) | Recursive expression graphs used in forward inference |
