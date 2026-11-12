@@ -127,7 +127,7 @@ test('UUID and STRUUID have distinct values per solution, site, rule and executi
 test('UUID functions in GROUP see only its keys and local solution variables', () => {
   const text = 'DATA { :a :p 1 . :b :q 2, 3 } RULE { :r :count ?n } WHERE { :a :p ?outer GROUP { :b :q ?v FILTER(UUID() != UUID()) } [ ?n := COUNT(*) ] }';
   assert.ok(derived(text).includes(':r :count 2 .'));
-  const keyed = 'DATA { :a :p 1 . :b :q 2, 3 } RULE { ?v :count ?n } WHERE { :a :p ?outer GROUP BY ?v { :b :q ?v FILTER(STRUUID() != STRUUID()) } [ ?n := COUNT(*) ] }';
+  const keyed = 'DATA { :a :p 1 . :b :q :x, :y } RULE { ?v :count ?n } WHERE { :a :p ?outer GROUP BY ?v { :b :q ?v FILTER(STRUUID() != STRUUID()) } [ ?n := COUNT(*) ] }';
   assert.equal(derived(keyed).filter((line) => line.includes(':count 1')).length, 2);
 });
 test('saved SRL execution proofs replay their context and reject forged computations', () => {
