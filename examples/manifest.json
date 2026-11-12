@@ -734,6 +734,16 @@
     ]
   },
   {
+    "name": "chain-stratification",
+    "files": [
+      "chain-stratification.n3"
+    ],
+    "description": "Rules with no strata, whose negation every chain of rule applications reaching it breaks a constraint for",
+    "trusted": [
+      "call_fidelity"
+    ]
+  },
+  {
     "name": "restricted-chase",
     "files": [
       "restricted-chase.n3"

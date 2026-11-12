@@ -2015,3 +2015,64 @@ conformance('spreading a variable before the last item is an error', [
   stdout([
   ]),
 ])
+
+conformance('a program whose negation cycle every chain breaks is chain-stratified', [
+  spec('6.4'),
+  file('program.js', [
+    "implies(rdf(C, 'participant', P), rdf(P, 'type', 'Student'))",
+    "implies([rdf(C, 'teacher', P), not(rdf(P, 'type', 'Student'))], rdf(C, 'examiner', P))",
+    "implies([rdf(P, 'spo', Q), rdf(Q, 'spo', R)], rdf(P, 'spo', R))",
+    "implies([rdf(P, 'spo', Q), rdf(X, P, Y)], rdf(X, Q, Y))",
+    "contradiction(rdf('examiner', 'spo', 'participant'))",
+    "contradiction(rdf('examiner', 'spo', 'spo'))",
+    "contradiction(rdf('examiner', 'spo', 'type'))",
+  ]),
+  stdout([
+    '// No conclusions: the program derives no facts.',
+  ]),
+])
+
+conformance('without the contradiction on participant, a chain makes the negation fail', [
+  spec('6.4'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implies(rdf(C, 'participant', P), rdf(P, 'type', 'Student'))",
+    "implies([rdf(C, 'teacher', P), not(rdf(P, 'type', 'Student'))], rdf(C, 'examiner', P))",
+    "implies([rdf(P, 'spo', Q), rdf(Q, 'spo', R)], rdf(P, 'spo', R))",
+    "implies([rdf(P, 'spo', Q), rdf(X, P, Y)], rdf(X, Q, Y))",
+    "contradiction(rdf('examiner', 'spo', 'spo'))",
+    "contradiction(rdf('examiner', 'spo', 'type'))",
+  ]),
+  stdout([]),
+])
+
+conformance('without the contradiction on spo, a chain makes the negation fail', [
+  spec('6.4'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implies(rdf(C, 'participant', P), rdf(P, 'type', 'Student'))",
+    "implies([rdf(C, 'teacher', P), not(rdf(P, 'type', 'Student'))], rdf(C, 'examiner', P))",
+    "implies([rdf(P, 'spo', Q), rdf(Q, 'spo', R)], rdf(P, 'spo', R))",
+    "implies([rdf(P, 'spo', Q), rdf(X, P, Y)], rdf(X, Q, Y))",
+    "contradiction(rdf('examiner', 'spo', 'participant'))",
+    "contradiction(rdf('examiner', 'spo', 'type'))",
+  ]),
+  stdout([]),
+])
+
+conformance('without the contradiction on type, a chain makes the negation fail', [
+  spec('6.4'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "implies(rdf(C, 'participant', P), rdf(P, 'type', 'Student'))",
+    "implies([rdf(C, 'teacher', P), not(rdf(P, 'type', 'Student'))], rdf(C, 'examiner', P))",
+    "implies([rdf(P, 'spo', Q), rdf(Q, 'spo', R)], rdf(P, 'spo', R))",
+    "implies([rdf(P, 'spo', Q), rdf(X, P, Y)], rdf(X, Q, Y))",
+    "contradiction(rdf('examiner', 'spo', 'participant'))",
+    "contradiction(rdf('examiner', 'spo', 'spo'))",
+  ]),
+  stdout([]),
+])

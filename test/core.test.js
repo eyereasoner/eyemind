@@ -212,6 +212,32 @@ implies(seed(X), derived(X))
     assert.deepEqual(proven(source).answers, ["derived('a')"]);
   },
 
+  'a negation cycle that every chain breaks is chain-stratified, and ranked'() {
+    const rules = `
+implies(rdf(C, 'participant', P), rdf(P, 'type', 'Student'))
+implies([rdf(C, 'teacher', P), not(rdf(P, 'type', 'Student'))], rdf(C, 'examiner', P))
+implies([rdf(P, 'spo', Q), rdf(Q, 'spo', R)], rdf(P, 'spo', R))
+implies([rdf(P, 'spo', Q), rdf(X, P, Y)], rdf(X, Q, Y))`;
+    const constraints = ['participant', 'spo', 'type'].map((name) => `contradiction(rdf('examiner', 'spo', '${name}'))`);
+    const source = program(`fact(rdf('c1', 'participant', 'ann'), rdf('c1', 'teacher', 'ann'), rdf('c1', 'teacher', 'tim'))
+${rules}
+${constraints.join('\n')}`);
+    assert.equal(source.layered, true);
+    assert.deepEqual([4, 5, 6, 7].map((id) => source.strata.get(id)), [0, 1, 0, 0]);
+    const result = run(source, { proof: true });
+    assert.deepEqual(result.answers, ["rdf('ann', 'type', 'Student')", "rdf('c1', 'examiner', 'tim')"]);
+    assert.equal(checkProof(source, result.proof).valid, true);
+    // Ann is a student, so a proof that she examines fails.
+    const forged = result.proof.replaceAll("'tim'", "'ann'");
+    assert.notEqual(forged, result.proof);
+    assert.equal(checkProof(source, forged).valid, false);
+    // Each constraint is needed; without all of them, a chain makes a
+    // teacher a student.
+    for (const left of constraints) {
+      throwsMatching(() => program(`${rules}\n${constraints.filter((item) => item !== left).join('\n')}`), /unstratified/);
+    }
+  },
+
   'closed dependency cycles are rejected'() {
     throwsMatching(() => program('implies(not(q), p)\nimplies(p, q)'), /unstratified/);
     throwsMatching(() => program('implies(findall(Y, p(Y), X), p(X))'), /unstratified/);

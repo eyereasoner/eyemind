@@ -1,6 +1,7 @@
 // A program: its clauses, validated, indexed and stratified.
 import { PRIMITIVE_KEYS } from './builtins.js';
 import { containsTemplate, expandTemplates } from './templates.js';
+import { chainStrata } from './chains.js';
 import { subgoals } from './goals.js';
 import { hasInspection, inspectionTerm } from './inspection.js';
 import {
@@ -195,6 +196,8 @@ export class Program {
       if (!clause.forward && !clause.body.length && isGround(clause.head)) this.groundFactKeys.add(identity(clause.head));
     }
     this.strata = stratify(this.clauses, stratifying);
+    // Chain strata run layer by layer, a lower layer again after each change.
+    this.layered = this.strata.layered === true;
   }
 
   prepareInspections() {
@@ -449,5 +452,9 @@ function stratify(clauses, stratifying) {
     }
     if (!changed) return ranks;
   }
-  throw new EyemindError('unstratified negation or collection dependency');
+  // A program classic stratification rejects may still be chain-stratified.
+  const chained = chainStrata(clauses);
+  if (chained === null) throw new EyemindError('unstratified negation or collection dependency');
+  chained.layered = true;
+  return chained;
 }

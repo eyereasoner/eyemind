@@ -828,65 +828,88 @@ export class Solver {
       if (!layers.has(rank)) layers.set(rank, []);
       layers.get(rank).push(clause);
     }
+    const ranks = [...layers.keys()].sort((a, b) => a - b);
     const maxIterations = this.options.maxIterations || 1000;
-    for (const rank of [...layers.keys()].sort((a, b) => a - b)) {
+    let rounds = 0;
+    const round = (rules) => {
+      rounds++;
+      if (rounds > maxIterations) throw new EyemindError('forward reasoning exceeded max_iterations');
+      this.stats.rounds++;
+      return this.round(rules, reporting);
+    };
+    if (this.program.layered) {
+      // Chain strata (SPEC Section 6.4): a layer runs a round only when
+      // every lower layer's last round derived nothing, and after a round
+      // that derives something the lowest layer runs again.
+      for (let i = 0; i < ranks.length;) {
+        const changed = round(layers.get(ranks[i]));
+        if (changed === 'halt') return;
+        i = changed ? 0 : i + 1;
+      }
+      return;
+    }
+    for (const rank of ranks) {
+      rounds = 0;
       const all = layers.get(rank);
       const restricted = all.filter((clause) => clause.restricted);
       const ordinary = restricted.length ? all.filter((clause) => !clause.restricted) : all;
       let changed = true;
-      let rounds = 0;
       let lean = false;
       while (changed || (!lean && restricted.length)) {
         // After a round of the other rules that derives nothing, a round of
         // the restricted ones; after one of those that derives nothing, done.
         lean = !changed && restricted.length > 0;
-        const rules = lean ? restricted : ordinary;
-        rounds++;
-        if (rounds > maxIterations) throw new EyemindError('forward reasoning exceeded max_iterations');
-        this.stats.rounds++;
-        changed = false;
-        for (const original of rules) {
-          const instances = original.parentId === null ? [original] : this.rules.get(original.id) || NO_NODES;
-          const firings = [];
-          for (const clause of instances) {
-            if (!reporting && clause.heads.every((item) => item === 'true')) continue;
-            for (const firing of this.firings(clause)) firings.push([clause, firing]);
+        changed = round(lean ? restricted : ordinary);
+        if (changed === 'halt') return;
+      }
+    }
+  }
+
+  // One round of rules in clause order: true when it derived something,
+  // 'halt' when a contradiction stopped reasoning.
+  round(rules, reporting) {
+    let changed = false;
+    for (const original of rules) {
+      const instances = original.parentId === null ? [original] : this.rules.get(original.id) || NO_NODES;
+      const firings = [];
+      for (const clause of instances) {
+        if (!reporting && clause.heads.every((item) => item === 'true')) continue;
+        for (const firing of this.firings(clause)) firings.push([clause, firing]);
+      }
+      // All instances of this template see the same state. Publishing one
+      // instance's conclusions during another's search changes recursive
+      // bodies and their observable order.
+      for (const [clause, [conclusions, children, bindings, claim]] of firings) {
+        for (const [position, conclusion] of conclusions.entries()) {
+          const template = clause.templates.find((item) => item.position === position);
+          if (template) {
+            if (this.deriveRules(template, conclusion, bindings, children)) changed = true;
+            continue;
           }
-          // All instances of this template see the same state. Publishing one
-          // instance's conclusions during another's search changes recursive
-          // bodies and their observable order.
-          for (const [clause, [conclusions, children, bindings, claim]] of firings) {
-            for (const [position, conclusion] of conclusions.entries()) {
-              const template = clause.templates.find((item) => item.position === position);
-              if (template) {
-                if (this.deriveRules(template, conclusion, bindings, children)) changed = true;
-                continue;
-              }
-              if (conclusion === 'true') {
-                const claimId = this.program.inspectionEnabled ? variant(claim) : text(claim);
-                if (!this.reported.has(claimId)) this.reported.set(claimId, [claim, children, clause.id]);
-                continue;
-              }
-              const node = new Node(conclusion, new Struct('clause', [BigInt(clause.id)]), bindings, children, null, true);
-              if (conclusion === 'false') {
-                this.derived.push(node);
-                this.haltCode = 65;
-                return;
-              }
-              node.generic = this.program.inspectionEnabled && !isGround(conclusion);
-              const conclusionId = node.generic ? variant(conclusion) : identity(conclusion);
-              const factKeys = node.generic ? this.genericKeys : this.factKeys;
-              if (factKeys.has(conclusionId)) continue;
-              factKeys.add(conclusionId);
-              this.addFact(key(conclusion), node);
-              this.derived.push(node);
-              this.stats.derived++;
-              changed = true;
-            }
+          if (conclusion === 'true') {
+            const claimId = this.program.inspectionEnabled ? variant(claim) : text(claim);
+            if (!this.reported.has(claimId)) this.reported.set(claimId, [claim, children, clause.id]);
+            continue;
           }
+          const node = new Node(conclusion, new Struct('clause', [BigInt(clause.id)]), bindings, children, null, true);
+          if (conclusion === 'false') {
+            this.derived.push(node);
+            this.haltCode = 65;
+            return 'halt';
+          }
+          node.generic = this.program.inspectionEnabled && !isGround(conclusion);
+          const conclusionId = node.generic ? variant(conclusion) : identity(conclusion);
+          const factKeys = node.generic ? this.genericKeys : this.factKeys;
+          if (factKeys.has(conclusionId)) continue;
+          factKeys.add(conclusionId);
+          this.addFact(key(conclusion), node);
+          this.derived.push(node);
+          this.stats.derived++;
+          changed = true;
         }
       }
     }
+    return changed;
   }
 }
 

@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+
+:ann a :Student .
+:c1 :staff :ann .
+:c1 :staff :tim .
+:c1 :examiner :tim .

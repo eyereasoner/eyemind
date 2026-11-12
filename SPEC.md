@@ -39,6 +39,7 @@ proof.
   - [6.1 Dependencies and stratification](#61-dependencies-and-stratification)
   - [6.2 Inline rule templates](#62-inline-rule-templates)
   - [6.3 Source rule inspection](#63-source-rule-inspection)
+  - [6.4 Chain stratification](#64-chain-stratification)
 - [7. Semantics](#7-semantics)
   - [7.1 Herbrand interpretation](#71-herbrand-interpretation)
   - [7.2 Variables and witnesses](#72-variables-and-witnesses)
@@ -721,7 +722,8 @@ dependency. Forward rules run in order of rank ([Section 8.2](#82-forward-evalua
 
 A program MUST be rejected when:
 
-- no such assignment exists, because a closed dependency lies on a cycle;
+- no such assignment exists, because a closed dependency lies on a cycle,
+  and the program is not chain-stratified ([Section 6.4](#64-chain-stratification));
 - a forward rule can reach, through dependencies, a clause with a body goal
   that is a variable.
 
@@ -851,6 +853,98 @@ be bound first. [Section 11.11](#1111-c8-witness-integrity) rejects certificates
 Inspection uses a fixed source catalogue, so its own results do not depend on
 forward rounds. Other goals using derived patterns still participate in
 stratification. Negation and collection keep their own justifications ([Section 10.3](#103-steps)).
+
+### 6.4 Chain stratification
+
+A rule whose head has a variable in every argument, such as
+`implies([rdf(P, 'spo', Q), rdf(X, P, Y)], rdf(X, Q, Y))`, unifies with every
+negated goal of its relation, so a cycle through it and a negation defeats
+[Section 6.1](#61-dependencies-and-stratification)'s ranks. Many such programs still have one intended result:
+no sequence of rule applications that starts at a rule with a negation can
+make one of its negated goals true without also satisfying a
+contradiction's body. N. Küchenmeister, A. Ivliev, D. Arndt and
+M. Krötzsch, "Stratified Negation in RDF Rules: A Correct Approach"
+(arXiv:2607.28778), call such programs chain-stratified under constraints.
+This section defines the decision eyemind makes, which errs towards
+rejection: a program it accepts is chain-stratified in the paper's sense.
+It is made only for a program [Section 6.1](#61-dependencies-and-stratification) rejects for a closed cycle.
+
+**Rules.** The rules are the forward clauses and the backward clauses with a
+body. A program with templates or captures, a rule body goal `or`, `once`,
+`call` or a variable, or a backward rule with a negation or collection, is
+not chain-stratified. A rule has:
+
+- **positive goals**: its body goals other than primitives, negations,
+  collections and `'true'`, and other than a restricted rule's guard
+  ([Section 7.2](#72-variables-and-witnesses));
+- **negated groups**: for each `not(G)` and `findall(T, G, L)` body goal,
+  the goals of the conjunction `G` other than primitives; a group with a
+  control or a variable makes the program not chain-stratified, and an
+  empty group is left out;
+- **heads**: a forward rule's heads other than `'true'` and `'false'`, or a
+  backward rule's head.
+
+A rule is **Datalog** when it has no negation or collection and is not
+restricted; a Datalog rule without primitives is **pure**. A contradiction is
+a forward rule whose head is `'false'`.
+
+**Closure.** Chain facts are terms whose variables are treated as distinct
+constants. The closure of a set of chain facts adds, for each pure Datalog
+rule renamed apart and each way its positive goals unify with facts of the
+set, its heads that the unifier makes ground, repeatedly until nothing is
+added. The set is **contradictory** when a contradiction's positive goals
+match it.
+
+**States.** A chain state is formed from a rule `r`, its heads `H`,
+**conditions** `C` and **caused facts** `K`. Let `B` be the closure of `C`
+and `F` the closure of `C ∪ K ∪ H`; there is no state when either is
+contradictory. The state's facts are the facts of `F` whose variables all
+occur in `H`, each marked **caused** when it is not in `B`. Two states are
+the same when they have the same rule and, after renaming their variables
+to `V0`, `V1`, ... in order of first occurrence in `H`, the same heads and
+the same facts with the same marks.
+
+**Chains.** Each forward rule `s` that is not Datalog starts a search with
+the state of `s` with `C` its positive goals, `K` empty and `H` its heads,
+renamed apart. A state `S` is **extended** by a rule `r` with heads, renamed
+apart, for each positive goal `g` of `r` and each caused fact `c` of `S`
+whose most general unifier with `g` is `σ`. Let `D` be the facts of `S` and
+the positive goals of `r`, under `σ`. The extension is discarded when the
+closure of `D` is contradictory, when the heads of `r` under `σ` match facts
+of `D` with only their variables absent from `D` free, or when the goals of
+a negated group of `r` under `σ` match facts of `D` in the same way.
+Otherwise it gives the state of `r` with `H` its heads under `σ`, `K` the
+caused facts of `S` under `σ`, and `C` the other facts of `S` under `σ`
+together with the positive goals of `r` under `σ` that are not among `K`.
+Each search visits a state once.
+
+**Edges.** A rule `s` has an edge to a rule `t` with a negated group when a
+state of `s`'s search has a caused fact that unifies, by `τ`, with a goal of
+a negated group of `t` renamed apart, and the facts of the state under `τ`
+have a closure that is not contradictory. The program is
+**chain-stratified** when no rule reaches itself through edges. A search
+that visits more than 4096 states in total, or a closure of more than 2048
+facts, makes the program not chain-stratified.
+
+**Ranks.** A Datalog forward rule has rank 0. Another forward rule has rank 1,
+or one more than the greatest rank of a rule with an edge to it. Forward
+rules then run by these ranks as [Section 8.2](#82-forward-evaluation-and-witnesses) specifies for chain strata. For
+example, with constraints that the examiner relation is no subproperty of
+the participant relation, of `spo` or of the type relation:
+
+```js
+implies(rdf(C, 'participant', P), rdf(P, 'type', 'Student'))
+implies([rdf(C, 'teacher', P), not(rdf(P, 'type', 'Student'))], rdf(C, 'examiner', P))
+implies([rdf(P, 'spo', Q), rdf(Q, 'spo', R)], rdf(P, 'spo', R))
+implies([rdf(P, 'spo', Q), rdf(X, P, Y)], rdf(X, Q, Y))
+contradiction(rdf('examiner', 'spo', 'participant'))
+contradiction(rdf('examiner', 'spo', 'spo'))
+contradiction(rdf('examiner', 'spo', 'type'))
+```
+
+is chain-stratified: every chain from the second rule that could make
+`rdf(P, 'type', 'Student')` true satisfies a contradiction's body. Without
+any one of the three contradictions it is not.
 
 ## 7. Semantics
 
@@ -1041,6 +1135,15 @@ and `p(2)` publishes `a(1)`, `b(1)`, `a(2)`, `b(2)`. For each head:
 
 When the run asks its own goals ([Section 8.4](#84-external-goals)), rules whose heads are all
 `'true'` are not run.
+
+A program accepted by chain stratification ([Section 6.4](#64-chain-stratification)) runs its forward
+rules by chain strata instead of stratum by stratum. Rules of rank 0 run in
+rounds; a round of the rules of a rank `k > 0` runs only after a round of
+each lower rank, in increasing order, that added nothing; after a round of
+any rank that adds something, rank 0 runs again. Reasoning ends after a
+round of the highest rank that adds nothing, all lower ranks' latest rounds
+having added nothing. A rule thus never fires while a rule of a lower rank
+has a firing left.
 
 A stratum with restricted rules alternates two kinds of round. Its other
 rules run in rounds as above; a round of its restricted rules, in clause
