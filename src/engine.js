@@ -818,7 +818,9 @@ export class Solver {
 
   // Run the forward rules to a fixpoint, one stratum after another. A rule
   // whose heads are all 'true' only publishes output; when the caller asks its
-  // own question that output is discarded, so the rule is skipped.
+  // own question that output is discarded, so the rule is skipped. In a
+  // stratum, restricted rules run only in a round where the other rules
+  // derive nothing, so their guards see what those rules derive.
   forward(reporting = true) {
     const layers = new Map();
     for (const clause of this.program.forward) {
@@ -828,10 +830,17 @@ export class Solver {
     }
     const maxIterations = this.options.maxIterations || 1000;
     for (const rank of [...layers.keys()].sort((a, b) => a - b)) {
-      const rules = layers.get(rank);
+      const all = layers.get(rank);
+      const restricted = all.filter((clause) => clause.restricted);
+      const ordinary = restricted.length ? all.filter((clause) => !clause.restricted) : all;
       let changed = true;
       let rounds = 0;
-      while (changed) {
+      let lean = false;
+      while (changed || (!lean && restricted.length)) {
+        // After a round of the other rules that derives nothing, a round of
+        // the restricted ones; after one of those that derives nothing, done.
+        lean = !changed && restricted.length > 0;
+        const rules = lean ? restricted : ordinary;
         rounds++;
         if (rounds > maxIterations) throw new EyemindError('forward reasoning exceeded max_iterations');
         this.stats.rounds++;

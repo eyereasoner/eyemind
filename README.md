@@ -7,7 +7,7 @@ eyemind is a **JavaScript rule language** with forward and backward reasoning an
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 128 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1356 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 134 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1363 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -120,6 +120,7 @@ Now add `fact(parent('carol', 'dave'))`, or remove a rule, and watch which answe
 | `fact(...Heads)` | Each head holds. |
 | `implies(Premise, Conclusion)` | A forward rule: whenever `Premise` holds, conclude `Conclusion`. |
 | `implied_by(Conclusion, Premise)` | A backward rule: `Conclusion` holds when `Premise` does, decided when a goal asks. |
+| `restricted(Premise, Conclusion)` | A forward rule whose new values are made only where no known ones satisfy `Conclusion`. |
 | `query(...Body)` | Publish every instance of `Body` that holds. |
 | `contradiction(...Body)` | Stop with exit code 65 when `Body` holds: an integrity constraint. |
 | `facts_from(path)`, `facts_from({text})` | State every expression of a document as a fact, without running it. |
@@ -204,7 +205,44 @@ eyemind --program examples/family.n3 > /tmp/family.js    # the compiled program,
 eyemind -c examples/family.n3                            # a proof of it, checked
 ```
 
-Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above. N3 integers and decimals become eyemind numbers; float and double literals retain their RDF datatype, including numbers written with an exponent. Decimals use binary64 storage; `math:sum` adds their canonical decimal values before rounding its result. `=>` becomes `implies`, `<=` becomes `implied_by`, `{ ... } => false` becomes `contradiction`, and scoped negation and collection become `not` and `findall`, so an N3 run has a proof that eyemind checks like any other. Derived rules can trigger inference fuses too.
+Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above. N3 integers and decimals become eyemind numbers; float and double literals retain their RDF datatype, including numbers written with an exponent. Decimals use binary64 storage; `math:sum` adds their canonical decimal values before rounding its result. `=>` becomes `implies`, or `restricted` when the conclusion has blank nodes of its own, `<=` becomes `implied_by`, `{ ... } => false` becomes `contradiction`, and scoped negation and collection become `not` and `findall`, so an N3 run has a proof that eyemind checks like any other. Derived rules can trigger inference fuses too.
+
+Quoted formulas are graph terms, read as in D. Arndt and P.-A. Champin,
+["Notation3: Graph Terms for RDF"](https://arxiv.org/abs/2610.31266).
+`@forAll` and `@forSome` declare IRIs as universal and existential variables
+of the formula they open, before its first statement and with `@forAll`
+first. A declaration reaches the formulas inside it unless one declares the
+same IRI again. A `?x` belongs to the whole document, and a blank node to the
+innermost formula that holds it. So `@forAll :x . :x :p :o .` and
+`?x :says { ?x :is :wise } .` are facts about everything. A document
+existential is one individual, in rules and quoted formulas alike. Within the
+scope of universals it becomes a witness of them, so
+`?x :loves _:y .` gives each individual its own beloved. A rule whose
+conclusion has existentials is restricted: a firing makes Skolem witnesses
+only where no known individuals satisfy the conclusion. A
+conclusion that declares universals of its own becomes backward rules, which
+state it for every individual, and `{ ... } => ?g .` asserts the formula bound
+to `?g`.
+
+A graph term is opaque: `owl:sameAs` does not rewrite it. It is closed and
+compared as a set, up to a one-to-one renaming of its own variables, each
+kind to its own kind. A rule's graph pattern therefore matches only formulas
+with the same triples, and its own blank nodes match only the formula's own
+blank nodes. A rule variable never stands for one of them, but it can stand
+for a quoted universal, as rules stated as data quote their variables.
+`log:includes` never instantiates the universals of its subject. Matching in
+nested graph terms below the first level is by unification, so it depends on
+the order of their triples. See
+[universal instances](https://eyereasoner.github.io/eyemind/examples/deck/universal-instances),
+[a shared existential](https://eyereasoner.github.io/eyemind/examples/deck/shared-existential),
+[an existential rule](https://eyereasoner.github.io/eyemind/examples/deck/explicit-existential-rule),
+[quantifier scopes](https://eyereasoner.github.io/eyemind/examples/deck/quantifier-scopes) and
+[graph terms](https://eyereasoner.github.io/eyemind/examples/deck/graph-terms).
+
+The Notation3 test suite case `static/success-literal-22.n3` expects the
+pattern `{ _:X :B :C }` to match `{ :A :B :C }`. eyemind's scorer checks
+instead that the conclusion is absent, because a quoted blank node is the
+formula's own variable.
 
 N3 has no named-graph syntax. When RDF data joins an N3 run, eyemind represents
 each named graph as a quoted formula through `graph:content`, where `graph:`
@@ -351,10 +389,10 @@ The statement chooses the direction:
 
 | Strategy | Stated with | How it works |
 | --- | --- | --- |
-| **Forward** | `implies`, `query`, `contradiction` | From the facts, round after round, until a round adds nothing new. |
+| **Forward** | `implies`, `restricted`, `query`, `contradiction` | From the facts, round after round, until a round adds nothing new. |
 | **Backward** | `implied_by`, `fact` | When a goal asks: depth-first, left to right, in the order the clauses are written. |
 
-Forward rules suit closures and classifications: `implies([path(X, Y), edge(Y, Z)], path(X, Z))` terminates on a cyclic graph. Backward rules suit computations driven by their inputs, such as arithmetic recursion and list processing. Backward chaining keeps no table of answers, so a backward rule that calls itself with the same goal runs until a bound stops it; such recursion belongs in a forward rule.
+Forward rules suit closures and classifications: `implies([path(X, Y), edge(Y, Z)], path(X, Z))` terminates on a cyclic graph. A variable only a forward rule's conclusion mentions gets a fresh value, a Skolem term, for each firing. `restricted` makes one only where none is known: `restricted(human(X), [father(X, F), man(F)])` gives no new father to a human whose known father is a man. Its other rules run first in each stratum, and its proof shows each new value is needed, as the restricted chase of N. Küchenmeister, A. Ivliev, D. Arndt and M. Krötzsch, ["Stratified Negation in RDF Rules"](https://arxiv.org/abs/2607.28778), requires. Which firings it makes can depend on the order of rule applications, so call fidelity stays an obligation. Backward rules suit computations driven by their inputs, such as arithmetic recursion and list processing. Backward chaining keeps no table of answers, so a backward rule that calls itself with the same goal runs until a bound stops it; such recursion belongs in a forward rule.
 
 The two work together: a forward rule's premise can call a backward definition, and a backward goal sees the facts forward rules derived. Forward rules run stratum by stratum, so a negation or collection waits until everything it inspects is final. `--max-depth`, `--max-iterations` and `--max-inferences` bound a run, and exceeding one is an error, never a partial answer. [SPEC §8](https://eyereasoner.github.io/eyemind/SPEC#8-evaluation-and-conclusions) defines the details.
 

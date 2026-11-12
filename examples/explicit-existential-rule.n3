@@ -1,0 +1,22 @@
+# A universally quantified rule with fresh mothers
+#
+# A rule says that each human has some mother, and Tom and Ann are humans.
+# Explicit N3 quantifiers distinguish the universally bound person from a
+# fresh existential witness in the conclusion: eyemind concludes that Tom
+# and Ann each have a mother, two different unnamed individuals.
+
+@prefix : <http://example.org/> .
+
+# :x is declared universal, so the rule applies to every human. Inside the
+# conclusion, @forSome makes :y existential: each firing gets a fresh mother.
+@forAll :x .
+{
+    :x a :Human
+} => {
+    @forSome :y .
+    :x :hasMother :y
+} .
+
+# The humans.
+:tom a :Human .
+:ann a :Human .

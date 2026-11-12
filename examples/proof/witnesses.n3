@@ -9,51 +9,67 @@
 <urn:eyemind:proof> pe:claims ({ :order1 :delivery _:b0 } { _:b0 :status :ready } { :order2 :delivery _:b1 } { _:b1 :status :ready }) .
 proof:record8 pe:conclusion { :order1 :delivery _:b0 } .
 proof:record8 pe:rule 3 .
-proof:record8 pe:binding (("Order" :order1) ("Bdelivery" _:b0)) .
-proof:record8 pe:uses ({ :order1 :status :paid }) .
+proof:record8 pe:binding (("Order" :order1) ("_0" ?A) ("Bdelivery" _:b0)) .
+proof:record8 pe:uses ({ :order1 :status :paid } (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri :status) (em:iri :ready))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1)))))))))))))) .
 proof:record9 pe:conclusion { :order1 :status :paid } .
 proof:record9 pe:rule 1 .
 proof:record9 pe:binding () .
 proof:record9 pe:uses () .
-proof:record10 pe:conclusion { _:b0 :status :ready } .
-proof:record10 pe:rule 3 .
-proof:record10 pe:binding (("Order" :order1) ("Bdelivery" _:b0)) .
-proof:record10 pe:uses ({ :order1 :status :paid }) .
-proof:record11 pe:conclusion { :order2 :delivery _:b1 } .
+proof:record10 pe:conclusion (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri :status) (em:iri :ready))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))))))))) .
+proof:record10 pe:justification (em:atom "absent") .
+proof:record10 pe:binding () .
+proof:record10 pe:uses () .
+proof:record11 pe:conclusion { _:b0 :status :ready } .
 proof:record11 pe:rule 3 .
-proof:record11 pe:binding (("Order" :order2) ("Bdelivery" _:b1)) .
-proof:record11 pe:uses ({ :order2 :status :paid }) .
-proof:record12 pe:conclusion { :order2 :status :paid } .
-proof:record12 pe:rule 2 .
-proof:record12 pe:binding () .
-proof:record12 pe:uses () .
-proof:record13 pe:conclusion { _:b1 :status :ready } .
-proof:record13 pe:rule 3 .
-proof:record13 pe:binding (("Order" :order2) ("Bdelivery" _:b1)) .
-proof:record13 pe:uses ({ :order2 :status :paid }) .
-proof:record14 pe:derived { ?A ?B ?C } .
-proof:record14 pe:answers ({ :order1 :delivery _:b0 } { _:b0 :status :ready } { :order2 :delivery _:b1 } { _:b1 :status :ready }) .
-proof:record15 pe:called { ?A :delivery ?B } .
-proof:record15 pe:answers ({ :order1 :delivery _:b0 } { :order2 :delivery _:b1 }) .
-proof:record16 pe:called { ?C :status :paid } .
-proof:record16 pe:answers ({ :order1 :status :paid } { :order2 :status :paid }) .
-proof:record17 pe:called { ?D :status :ready } .
-proof:record17 pe:answers ({ _:b0 :status :ready } { _:b1 :status :ready }) .
-<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17) .
+proof:record11 pe:binding (("Order" :order1) ("_0" ?A) ("Bdelivery" _:b0)) .
+proof:record11 pe:uses ({ :order1 :status :paid } (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri :status) (em:iri :ready))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1)))))))))))))) .
+proof:record12 pe:conclusion { :order2 :delivery _:b1 } .
+proof:record12 pe:rule 3 .
+proof:record12 pe:binding (("Order" :order2) ("_0" ?A) ("Bdelivery" _:b1)) .
+proof:record12 pe:uses ({ :order2 :status :paid } (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri :status) (em:iri :ready))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2)))))))))))))) .
+proof:record13 pe:conclusion { :order2 :status :paid } .
+proof:record13 pe:rule 2 .
+proof:record13 pe:binding () .
+proof:record13 pe:uses () .
+proof:record14 pe:conclusion (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri :status) (em:iri :ready))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))))))))) .
+proof:record14 pe:justification (em:atom "absent") .
+proof:record14 pe:binding () .
+proof:record14 pe:uses () .
+proof:record15 pe:conclusion { _:b1 :status :ready } .
+proof:record15 pe:rule 3 .
+proof:record15 pe:binding (("Order" :order2) ("_0" ?A) ("Bdelivery" _:b1)) .
+proof:record15 pe:uses ({ :order2 :status :paid } (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri :status) (em:iri :ready))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2)))))))))))))) .
+proof:record16 pe:derived { ?B ?C ?D } .
+proof:record16 pe:answers ({ :order1 :delivery _:b0 } { _:b0 :status :ready } { :order2 :delivery _:b1 } { _:b1 :status :ready }) .
+proof:record17 pe:searched { :order1 :delivery ?E } .
+proof:record17 pe:answers ({ :order1 :delivery _:b0 }) .
+proof:record18 pe:searched { _:b0 :status :ready } .
+proof:record18 pe:answers ({ _:b0 :status :ready }) .
+proof:record19 pe:searched { ?F :status :paid } .
+proof:record19 pe:answers ({ :order1 :status :paid } { :order2 :status :paid }) .
+proof:record20 pe:searched { :order2 :delivery ?G } .
+proof:record20 pe:answers ({ :order2 :delivery _:b1 }) .
+proof:record21 pe:searched { _:b1 :status :ready } .
+proof:record21 pe:answers ({ _:b1 :status :ready }) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21) .
 proof:record1 em:term (em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))) .
 proof:record2 em:term (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))) (em:iri :status) (em:iri :ready))) .
 proof:record3 em:term (em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))) .
 proof:record4 em:term (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))) (em:iri :status) (em:iri :ready))) .
 proof:record5 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :order1) (em:iri :status) (em:iri :paid))))))) .
 proof:record6 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "rdf" ((em:iri :order2) (em:iri :status) (em:iri :paid))))))) .
-proof:record7 em:term (em:compound "clause" ((em:integer "3") (em:compound "implies" ((em:compound "rdf" ((em:variable "Order") (em:iri :status) (em:iri :paid))) (em:list ((em:compound "rdf" ((em:variable "Order") (em:iri :delivery) (em:variable "Bdelivery"))) (em:compound "rdf" ((em:variable "Bdelivery") (em:iri :status) (em:iri :ready))))))))) .
-proof:record8 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "Order") (em:iri :order1))) (em:compound "=" ((em:atom "Bdelivery") (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))))) (em:list ((em:compound "rdf" ((em:iri :order1) (em:iri :status) (em:iri :paid))))))) .
+proof:record7 em:term (em:compound "clause" ((em:integer "3") (em:compound "restricted" ((em:compound "rdf" ((em:variable "Order") (em:iri :status) (em:iri :paid))) (em:list ((em:compound "rdf" ((em:variable "Order") (em:iri :delivery) (em:variable "Bdelivery"))) (em:compound "rdf" ((em:variable "Bdelivery") (em:iri :status) (em:iri :ready))))))))) .
+proof:record8 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "Order") (em:iri :order1))) (em:compound "=" ((em:atom "_0") (em:variable "A"))) (em:compound "=" ((em:atom "Bdelivery") (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))))) (em:list ((em:compound "rdf" ((em:iri :order1) (em:iri :status) (em:iri :paid))) (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri :status) (em:iri :ready))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))))))))))))) .
 proof:record9 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :order1) (em:iri :status) (em:iri :paid))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record10 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))) (em:iri :status) (em:iri :ready))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "Order") (em:iri :order1))) (em:compound "=" ((em:atom "Bdelivery") (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))))) (em:list ((em:compound "rdf" ((em:iri :order1) (em:iri :status) (em:iri :paid))))))) .
-proof:record11 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "Order") (em:iri :order2))) (em:compound "=" ((em:atom "Bdelivery") (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))))) (em:list ((em:compound "rdf" ((em:iri :order2) (em:iri :status) (em:iri :paid))))))) .
-proof:record12 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :order2) (em:iri :status) (em:iri :paid))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record13 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))) (em:iri :status) (em:iri :ready))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "Order") (em:iri :order2))) (em:compound "=" ((em:atom "Bdelivery") (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))))) (em:list ((em:compound "rdf" ((em:iri :order2) (em:iri :status) (em:iri :paid))))))) .
-proof:record14 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))) (em:iri :status) (em:iri :ready))) (em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))) (em:iri :status) (em:iri :ready))))))) .
-proof:record15 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "A") (em:iri :delivery) (em:variable "B"))) (em:list ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))) (em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))))))) .
-proof:record16 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "C") (em:iri :status) (em:iri :paid))) (em:list ((em:compound "rdf" ((em:iri :order1) (em:iri :status) (em:iri :paid))) (em:compound "rdf" ((em:iri :order2) (em:iri :status) (em:iri :paid))))))) .
-proof:record17 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "D") (em:iri :status) (em:iri :ready))) (em:list ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))) (em:iri :status) (em:iri :ready))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))) (em:iri :status) (em:iri :ready))))))) .
+proof:record10 em:term (em:compound "step" ((em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri :status) (em:iri :ready))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))))))))) (em:atom "absent") (em:atom "[]") (em:atom "[]"))) .
+proof:record11 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))) (em:iri :status) (em:iri :ready))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "Order") (em:iri :order1))) (em:compound "=" ((em:atom "_0") (em:variable "A"))) (em:compound "=" ((em:atom "Bdelivery") (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))))) (em:list ((em:compound "rdf" ((em:iri :order1) (em:iri :status) (em:iri :paid))) (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri :status) (em:iri :ready))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))))))))))))) .
+proof:record12 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "Order") (em:iri :order2))) (em:compound "=" ((em:atom "_0") (em:variable "A"))) (em:compound "=" ((em:atom "Bdelivery") (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))))) (em:list ((em:compound "rdf" ((em:iri :order2) (em:iri :status) (em:iri :paid))) (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri :status) (em:iri :ready))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))))))))))))) .
+proof:record13 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :order2) (em:iri :status) (em:iri :paid))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record14 em:term (em:compound "step" ((em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri :status) (em:iri :ready))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))))))))) (em:atom "absent") (em:atom "[]") (em:atom "[]"))) .
+proof:record15 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))) (em:iri :status) (em:iri :ready))) (em:compound "clause" ((em:integer "3"))) (em:list ((em:compound "=" ((em:atom "Order") (em:iri :order2))) (em:compound "=" ((em:atom "_0") (em:variable "A"))) (em:compound "=" ((em:atom "Bdelivery") (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))))) (em:list ((em:compound "rdf" ((em:iri :order2) (em:iri :status) (em:iri :paid))) (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri :status) (em:iri :ready))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))))))))))))) .
+proof:record16 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "B") (em:variable "C") (em:variable "D"))) (em:list ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))) (em:iri :status) (em:iri :ready))) (em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))) (em:iri :status) (em:iri :ready))))))) .
+proof:record17 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :order1) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))))))))) .
+proof:record18 em:term (em:compound "searched" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))) (em:iri :status) (em:iri :ready))) (em:list ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order1))))) (em:iri :status) (em:iri :ready))))))) .
+proof:record19 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "F") (em:iri :status) (em:iri :paid))) (em:list ((em:compound "rdf" ((em:iri :order1) (em:iri :status) (em:iri :paid))) (em:compound "rdf" ((em:iri :order2) (em:iri :status) (em:iri :paid))))))) .
+proof:record20 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:iri :order2) (em:iri :delivery) (em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))))))))) .
+proof:record21 em:term (em:compound "searched" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))) (em:iri :status) (em:iri :ready))) (em:list ((em:compound "rdf" ((em:compound "skolem" ((em:integer "3") (em:atom "Bdelivery") (em:list ((em:iri :order2))))) (em:iri :status) (em:iri :ready))))))) .

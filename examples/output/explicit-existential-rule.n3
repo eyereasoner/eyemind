@@ -1,0 +1,4 @@
+@prefix : <http://example.org/> .
+
+:tom :hasMother _:b0 .
+:ann :hasMother _:b1 .

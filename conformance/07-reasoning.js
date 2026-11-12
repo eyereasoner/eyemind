@@ -2151,3 +2151,67 @@ conformance('separate goals share no variables', [
     'q(2)',
   ]),
 ])
+
+conformance('a restricted rule does not fire where known values satisfy its heads', [
+  spec('7.2, 8.2'),
+  file('program.js', [
+    "fact(human('jo'), father('jo', 'bob'))",
+    'restricted(human(X), [father(X, F), man(F)])',
+    'implies(father(X, Y), man(Y))',
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "man('bob')",
+  ]),
+])
+
+conformance('a restricted rule fires where nothing satisfies its heads', [
+  spec('7.2, 8.2'),
+  file('program.js', [
+    "fact(human('ann'))",
+    'restricted(human(X), [father(X, F), man(F)])',
+    'implies(father(X, Y), man(Y))',
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "father('ann', skolem(2, 'F', ['ann']))",
+    "man(skolem(2, 'F', ['ann']))",
+  ]),
+])
+
+conformance('a restricted rule runs after the other rules of its stratum', [
+  spec('6.1, 8.2'),
+  file('program.js', [
+    "fact(human('jo'), parent('jo', 'bob'))",
+    "restricted(human(X), [father(X, F), man(F)])",
+    "implies(parent(X, Y), father(X, Y))",
+    "implies(father(X, Y), man(Y))",
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "father('jo', 'bob')",
+    "man('bob')",
+  ]),
+])
+
+conformance('a restricted rule without head-only variables behaves as implies', [
+  spec('7.2'),
+  file('program.js', [
+    'fact(p(1))',
+    'restricted(p(X), q(X))',
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'q(1)',
+  ]),
+])
+
+conformance('a restricted rule cannot conclude true', [
+  spec('3.4'),
+  exit(1),
+  stderr('nonempty'),
+  file('program.js', [
+    'fact(p(1))',
+    "restricted(p(X), 'true')",
+  ]),
+])

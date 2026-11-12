@@ -74,6 +74,33 @@ test('parser: syntax errors name their line', () => {
   assert.throws(() => parseN3('nope:s :p :o.'), /undeclared prefix 'nope:'/);
 });
 
+test('parser: @forAll and @forSome bind IRIs in every position, nested formulas included', () => {
+  const { triples } = parseN3(`${P}@forAll :x, <http://example.org/#p>. @forSome :y. :x :p :y. :y :says { :x :p :y }. :a :says { @forSome :x. :x :p :b }.`);
+  assert.deepEqual([triples[0].s.t, triples[0].p.t, triples[0].o.t], ['var', 'var', 'bnode']);
+  const inner = triples[1].o.triples[0];
+  assert.deepEqual([inner.s, inner.o], [triples[0].s, triples[0].o]);
+  // The inner declaration shadows the outer universal.
+  const shadowed = triples[2].o.triples[0].s;
+  assert.equal(shadowed.t, 'bnode');
+  assert.equal(shadowed.scope, triples[2].o.scope);
+  // A declared name stays apart from the ?variables the document writes.
+  const named = parseN3(`${P}@forAll :x. :x :p ?x.`).triples[0];
+  assert.notEqual(named.s.v, named.o.v);
+});
+test('parser: quantifiers precede statements, @forAll before @forSome, each IRI once', () => {
+  for (const [bad, message] of [
+    ['@forSome :y. @forAll :x. :x :loves :y.', /@forAll must precede @forSome/],
+    [':a :p :b. @forAll :x.', /@forAll must precede the first statement/],
+    [':a :p { :a :p :b. @forSome :x. }.', /@forSome must precede the first statement/],
+    ['@forAll ?x.', /@forAll declares IRIs, as in @forAll :x; found '\?x'/],
+    ['@forSome _:x.', /found '_:x'/],
+    ['@forAll :x. @forSome :x.', /already quantified in this formula/],
+    ['@forAll :x. @forAll :x.', /already quantified/],
+    ['@forAll .', /found '\.'/],
+    ['@forAll :x', /expected '\.'/],
+  ]) assert.throws(() => parseN3(`${P}${bad}`), message, bad);
+});
+
 // Compiling.
 test('compiler: IRIs are iri(Text) and rules are eyemind rules', () => {
   const { program } = compileN3(`${P}:a :p :b. { ?x :p ?y } => { ?y :q ?x }.`);
@@ -101,6 +128,102 @@ test('forward rules report only what they derive', () => {
 });
 test('--all mode reports the given triples too', () => {
   assert.match(reason(`${P}:a :p :b. { ?x :p ?y } => { ?x :q ?y }.`, { mode: 'all' }), /:a :p :b \.\n:a :q :b \./);
+});
+test('@forAll facts hold of every individual, with a witness of each for @forSome', () => {
+  const text = `${P}@forAll :x. @forSome :y. :x :p :o. :x :hasMother :y. :y a :Mother.
+    { :s :p :o } => { :s :is :instance }.
+    { :bob :hasMother ?m. ?m a :Mother } => { :bob :mother ?m }.
+    { :liz :hasMother ?m } => { :liz :mother ?m }.`;
+  const out = checkedReason(text);
+  assert.match(out, /:s :is :instance \./);
+  assert.match(out, /:bob :mother _:b0 \.\n:liz :mother _:b1 \./);
+  // Liz's mother is no witness of Bob's.
+  const r = reasonN3(text, { proof: true });
+  const program = loadText(r.program, 'compiled.js');
+  const forged = r.result.proof.replaceAll("['y', iri('http://example.org/#liz')]", "['y', iri('http://example.org/#bob')]");
+  assert.notEqual(forged, r.result.proof);
+  assert.equal(checkProof(program, forged).valid, false);
+});
+test('a document @forSome is one individual, in rules and quoted formulas alike', () => {
+  const shared = checkedReason(`${P}@forSome :y. {} => { @forAll :x. :x :loves :y }.
+    { :bob :loves ?b } => { :bob :beloved ?b }. { :liz :loves ?b } => { :liz :beloved ?b }.`);
+  assert.match(shared, /:bob :beloved _:b0 \.\n:liz :beloved _:b0 \./);
+  const quoted = `{ :s :p { ?x :b :c }. ?x a :Unicorn } => { :x :y :z }.`;
+  assert.match(checkedReason(`${P}@forSome :w. :s :p { :w :b :c }. :w a :Unicorn. ${quoted}`), /:x :y :z/);
+  // A blank node label written inside the formula is local to it.
+  assert.doesNotMatch(reason(`${P}:s :p { _:w :b :c }. _:w a :Unicorn. ${quoted}`), /:x :y :z/);
+});
+test('an existential in the scope of @forAll rule variables is a witness of each firing', () => {
+  const out = checkedReason(`${P}@forAll :x. @forSome :y. { :x a :Human } => { :x :hasMother :y }. :a a :Human. :b a :Human.`);
+  assert.match(out, /:a :hasMother _:b0 \.\n:b :hasMother _:b1 \./);
+});
+test('a conclusion with its own @forAll states backward rules with witnesses of the firing', () => {
+  const text = `${P}:one :q :two.
+    { ?a :q ?b } => { @forAll :x. @forSome :z. :x :p :z. :z :from ?a. ?a :done true }.
+    { :k :p ?z. ?z :from ?a } => { :k :got (?z ?a) }. { :j :p ?z } => { :j :got ?z }.`;
+  assert.match(compileN3(text).program, /^implied_by\(rdf\(X, iri\("http:\/\/example.org\/#p"\), bnode\('n3', \["z\.\d+", X, A\]\)\), rdf\(A, /m);
+  const out = checkedReason(text);
+  assert.match(out, /:one :done true \./);
+  assert.match(out, /:k :got \(_:b0 :one\) \.\n:j :got _:b1 \./);
+});
+test('quoted formulas match as sets, up to a one-to-one renaming of their own variables', () => {
+  const out = checkedReason(`${P}:bob :says { :a :p :b. :c :d :e }.
+    :ann :says { _:x :p :a. _:y :p :a }. :cy :says { @forAll :x. :x :likes :pasta }. :dee :says { _:x :likes :pasta }.
+    { :bob :says { :c :d :e. :a :p :b } } => { :r :order :ok }.
+    { :bob :says { :a :p :b } } => { :r :subset :wrong }.
+    { :ann :says { _:u :p :a. _:v :p :a } } => { :r :renamed :ok }.
+    { :ann :says { _:z :p :a. _:z :p :a } } => { :r :collapsed :wrong }.
+    { :cy :says { @forAll :r. :r :likes :pasta } } => { :r :universal :ok }.
+    { :cy :says { @forSome :e. :e :likes :pasta } } => { :r :kind :wrong }.
+    { ?s :says { _:z :likes :pasta } } => { ?s :saysSomeoneLikesPasta true }.
+    { :dee :says { ?w :likes :pasta } } => { :r :leaked ?w }.
+    :g1 :is { _:x :knows :p. :p :says { _:x a :Genius } }.
+    { :g1 :is { _:y :knows :p. :p :says { _:x a :Genius } } } => { :r :isomorphic :ok }.
+    { :g1 :is { _:y :knows :p. :p :says { _:x a _:z } } } => { :r :g3 :wrong }.`);
+  for (const ok of ['order', 'renamed', 'universal', 'isomorphic']) assert.match(out, new RegExp(`:r :${ok} :ok \\.`));
+  assert.match(out, /:dee :saysSomeoneLikesPasta true \./);
+  assert.doesNotMatch(out, /:wrong|:leaked|:cy :saysSomeone|:bob :saysSomeone/);
+});
+test('log:includes never instantiates the universals of its subject', () => {
+  const out = checkedReason(`${P}{ { @forAll :x. :x :p :o } log:includes { :s :p :o } } => { :r :instantiated :wrong }.
+    { { @forAll :x. :x :p :o } log:includes { @forAll :y. :y :p :o } } => { :r :universal :ok }.
+    { { :s :p :o. :a :b :c } log:includes { :a :b :c } } => { :r :subgraph :ok }.`);
+  assert.match(out, /:r :universal :ok \.\n:r :subgraph :ok \./);
+  assert.doesNotMatch(out, /:wrong/);
+});
+test('a ?variable of a fact is a universal of the document, inside quoted formulas too', () => {
+  const out = checkedReason(`${P}?x :says { ?x :is :wise }. ?x :loves _:y.
+    { :tom :says ?g } => { :tom :said ?g }.
+    { :bob :loves ?b. :liz :loves ?c } => { :r :loved (?b ?c) }.`);
+  assert.match(out, /:tom :said \{ :tom :is :wise \} \./);
+  // Everybody loves somebody: a witness of each.
+  assert.match(out, /:r :loved \(_:b0 _:b1\) \./);
+});
+test('a rule whose conclusion is a variable asserts the formula its premise binds', () => {
+  const text = `${P}:bob :says { :alice :likes :pizza, :pasta }. { :bob :says ?x } => ?x.
+    { ?x :likes :pasta } => { ?x :likes :spaghetti }.`;
+  assert.match(checkedReason(text), /:alice :likes :pizza \.\n:alice :likes :pasta \.\n:alice :likes :spaghetti \./);
+  const r = reasonN3(text, { proof: true });
+  const forged = r.result.proof.replaceAll("iri('http://example.org/#pizza')", "iri('http://example.org/#pie')");
+  assert.notEqual(forged, r.result.proof);
+  assert.equal(checkProof(loadText(r.program, 'compiled.js'), forged).valid, false);
+});
+test('a rule with blank nodes in its conclusion makes values only where none are known', () => {
+  const text = `${P}:jo a :Human. :jo :father :bob. :ann a :Human.
+    { ?x a :Human } => { ?x :father _:1. _:1 a :Man }.
+    { ?x :father ?y } => { ?y a :Man }.
+    { ?x :father ?y } => { ?y :eq ?y }.
+    { ?x :father ?y1. ?x :father ?y2. [] log:notIncludes { ?y1 :eq ?y2 } } => { ?y1 :nef ?y2 }.`;
+  assert.match(compileN3(text).program, /^restricted\(rdf\(X, /m);
+  const out = checkedReason(text);
+  assert.match(out, /:ann :father _:b0 \./);
+  assert.doesNotMatch(out, /:jo :father|:nef/);
+  // A father invented for Jo is refuted by Bob.
+  const r = reasonN3(text, { proof: true });
+  const program = loadText(r.program, 'compiled.js');
+  const forged = r.result.proof.replaceAll("iri('http://example.org/#ann')", "iri('http://example.org/#jo')");
+  assert.notEqual(forged, r.result.proof);
+  assert.equal(checkProof(program, forged).valid, false);
 });
 test('backward rules answer forward premises', () => {
   const out = reason(`${P}:a :n 3. { ?x :double ?y } <= { ?x :n ?n. (?n 2) math:product ?y }. { :a :double ?d } => { :a :twice ?d }.`);

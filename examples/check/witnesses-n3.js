@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Answers checked subject to the obligations below.
 rdf(iri('https://example.org/delivery#order1'), iri('https://example.org/delivery#delivery'), skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order1')]))
 rdf(skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order1')]), iri('https://example.org/delivery#status'), iri('https://example.org/delivery#ready'))
 rdf(iri('https://example.org/delivery#order2'), iri('https://example.org/delivery#delivery'), skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order2')]))
@@ -7,23 +7,29 @@ rdf(skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order2')]), iri('h
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 6)
-condition('C2', 'well_founded', 'ok', 6)
-condition('C3', 'justification', 'ok', 6)
-condition('C4', 'coverage', 'ok', 8)
+condition('C2', 'well_founded', 'ok', 8)
+condition('C3', 'justification', 'ok', 8)
+condition('C4', 'coverage', 'ok', 12)
 condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 10)
+condition('C7', 'relevance', 'ok', 12)
 condition('C8', 'witness_integrity', 'ok', 4)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 4)
+condition('C9', 'search_closure', 'ok', 2)
+condition('C10', 'call_fidelity', 'ok', 0)
+
+// Obligations: absence, collection or original-call evidence remains unproved.
+obligation('call_fidelity', 'original_call', rdf(iri('https://example.org/delivery#order1'), iri('https://example.org/delivery#delivery'), skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order1')])))
+obligation('call_fidelity', 'original_call', rdf(skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order1')]), iri('https://example.org/delivery#status'), iri('https://example.org/delivery#ready')))
+obligation('call_fidelity', 'original_call', rdf(iri('https://example.org/delivery#order2'), iri('https://example.org/delivery#delivery'), skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order2')])))
+obligation('call_fidelity', 'original_call', rdf(skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order2')]), iri('https://example.org/delivery#status'), iri('https://example.org/delivery#ready')))
 
 // Proof statistics: recorded steps and how they were checked.
-steps(6)
+steps(8)
 verified(6)
 recomputed(0)
 composed(0)
-trusted(0)
+trusted(4)
 claims(4)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked')
+verdict('checked_with_obligations')

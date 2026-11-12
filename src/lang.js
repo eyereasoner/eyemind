@@ -193,13 +193,13 @@ class Builder {
 
   rule(name, args) {
     if (args.length !== 2) throw new EyemindError(`${name} takes 2 arguments, got ${args.length}`);
-    const forward = name === 'implies';
+    const forward = name === 'implies' || name === 'restricted';
     const head = forward ? goalOf(args[1]) : toTerm(args[0]);
     const premise = goalOf(args[forward ? 0 : 1]);
     // Keep the returned value's anonymous variables untouched: each enclosing
     // clause names its own occurrences, including those inside templates.
     const value = new Struct(name, forward ? [premise, head] : [normalizeGoal(head), premise]);
-    const source = this.add(forward ? 'forward' : 'backward', head, [premise]);
+    const source = this.add(name === 'restricted' ? 'restricted' : forward ? 'forward' : 'backward', head, [premise]);
     this.rules.set(value, source);
     return value;
   }
@@ -296,6 +296,7 @@ function exportsFor(io) {
     },
     implies: (...args) => active().rule('implies', args),
     implied_by: (...args) => active().rule('implied_by', args),
+    restricted: (...args) => active().rule('restricted', args),
     forward: (...args) => template('forward', args),
     backward: (...args) => template('backward', args),
     query: (...body) => builder.add('query', TRUE_ATOM, body.map(goalOf)),
@@ -462,7 +463,7 @@ function lineOffset() {
 
 const AT = '__eyemind_at__';
 const SCOPE = '__eyemind_scope__';
-const STATEMENT_NAMES = ['fact', 'implies', 'implied_by', 'query', 'contradiction', 'facts_from'];
+const STATEMENT_NAMES = ['fact', 'implies', 'implied_by', 'restricted', 'query', 'contradiction', 'facts_from'];
 const STATEMENT_SET = new Set(STATEMENT_NAMES);
 const IDENTIFIER = /[A-Za-z0-9_$]/;
 // Words after which a slash starts a regular expression rather than a division.

@@ -1,0 +1,5 @@
+@prefix : <http://example.org/> .
+
+:universalInstance :holds true .
+:bob :mother _:b0 .
+:liz :mother _:b1 .

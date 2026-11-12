@@ -64,11 +64,15 @@ rdf(skolem(3, 'Bm', [iri('http://example.org/people#bob')]), iri('http://example
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
+The saved report ends with `verdict('checked_with_obligations')`.
 C1 checks each inference against the compiled source clauses, C5 re-decides
-primitive computations, C8 checks any fresh witness, and C10 checks the
-original questions against the proof's call tables. The checker follows the
-certificate without calling the reasoning engine.
+primitive computations, and C8 checks each fresh witness. The rule with a
+blank node in its conclusion is restricted: each mother is created only
+where no known one fits, and the search certificate shows that each is
+needed. Which firings a restricted rule makes can depend on the order of
+rule applications, so C10 leaves `call_fidelity` obligations, trusted in the
+manifest. The checker follows the certificate without calling the reasoning
+engine.
 
 The verdict certifies the displayed claims; it does not assert that an
 arbitrary proof lists every possible answer.

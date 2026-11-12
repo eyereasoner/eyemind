@@ -1,0 +1,87 @@
+# N3 proof: claims, steps and the complete C1–C10 certificate.
+@prefix : <http://example.org/> .
+@prefix pe: <https://eyereasoner.github.io/pe#> .
+@prefix em: <https://eyereasoner.github.io/eyemind/proof#> .
+@prefix proof: <urn:eyemind:proof#> .
+
+<urn:eyemind:proof> a pe:Proof .
+<urn:eyemind:proof> em:format "n3" .
+<urn:eyemind:proof> pe:claims ({ :bob a :Man } { :bob :eq :bob } { :ann :father _:b0 } { _:b0 a :Man } { _:b0 :eq _:b0 }) .
+proof:record11 pe:conclusion { :bob a :Man } .
+proof:record11 pe:rule 5 .
+proof:record11 pe:binding (("X" :jo) ("Y" :bob)) .
+proof:record11 pe:uses ({ :jo :father :bob }) .
+proof:record12 pe:conclusion { :jo :father :bob } .
+proof:record12 pe:rule 2 .
+proof:record12 pe:binding () .
+proof:record12 pe:uses () .
+proof:record13 pe:conclusion { :bob :eq :bob } .
+proof:record13 pe:rule 6 .
+proof:record13 pe:binding (("X" :jo) ("Y" :bob)) .
+proof:record13 pe:uses ({ :jo :father :bob }) .
+proof:record14 pe:conclusion { :ann :father _:b0 } .
+proof:record14 pe:rule 4 .
+proof:record14 pe:binding (("X" :ann) ("_0" ?A) ("B1" _:b0)) .
+proof:record14 pe:uses ({ :ann a :Human } (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann)))))))))))))) .
+proof:record15 pe:conclusion { :ann a :Human } .
+proof:record15 pe:rule 3 .
+proof:record15 pe:binding () .
+proof:record15 pe:uses () .
+proof:record16 pe:conclusion (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))))))))) .
+proof:record16 pe:justification (em:atom "absent") .
+proof:record16 pe:binding () .
+proof:record16 pe:uses () .
+proof:record17 pe:conclusion { _:b0 a :Man } .
+proof:record17 pe:rule 4 .
+proof:record17 pe:binding (("X" :ann) ("_0" ?A) ("B1" _:b0)) .
+proof:record17 pe:uses ({ :ann a :Human } (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann)))))))))))))) .
+proof:record18 pe:conclusion { _:b0 :eq _:b0 } .
+proof:record18 pe:rule 6 .
+proof:record18 pe:binding (("X" :ann) ("Y" _:b0)) .
+proof:record18 pe:uses ({ :ann :father _:b0 }) .
+proof:record19 pe:derived { ?B ?C ?D } .
+proof:record19 pe:answers ({ :bob a :Man } { :bob :eq :bob } { :ann :father _:b0 } { _:b0 a :Man } { _:b0 :eq _:b0 }) .
+proof:record20 pe:searched { :ann :father ?E } .
+proof:record20 pe:answers ({ :ann :father _:b0 }) .
+proof:record21 pe:searched { _:b0 a :Man } .
+proof:record21 pe:answers ({ _:b0 a :Man }) .
+proof:record22 pe:searched { ?F a :Human } .
+proof:record22 pe:answers ({ :jo a :Human } { :ann a :Human }) .
+proof:record23 pe:searched { :jo :father ?G } .
+proof:record23 pe:answers ({ :jo :father :bob }) .
+proof:record24 pe:searched { :bob a :Man } .
+proof:record24 pe:answers ({ :bob a :Man }) .
+proof:record25 pe:searched { ?H :father ?I } .
+proof:record25 pe:answers ({ :ann :father _:b0 } { :jo :father :bob }) .
+proof:record26 pe:searched { _:b0 :eq _:b0 } .
+proof:record26 pe:answers ({ _:b0 :eq _:b0 }) .
+proof:record27 pe:searched { :bob :eq :bob } .
+proof:record27 pe:answers ({ :bob :eq :bob }) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27) .
+proof:record1 em:term (em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))) .
+proof:record2 em:term (em:compound "rdf" ((em:iri :bob) (em:iri :eq) (em:iri :bob))) .
+proof:record3 em:term (em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))) .
+proof:record4 em:term (em:compound "rdf" ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))) .
+proof:record5 em:term (em:compound "rdf" ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))) (em:iri :eq) (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))) .
+proof:record6 em:term (em:compound "clause" ((em:integer "2") (em:compound "fact" ((em:compound "rdf" ((em:iri :jo) (em:iri :father) (em:iri :bob))))))) .
+proof:record7 em:term (em:compound "clause" ((em:integer "3") (em:compound "fact" ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))))))) .
+proof:record8 em:term (em:compound "clause" ((em:integer "4") (em:compound "restricted" ((em:compound "rdf" ((em:variable "X") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri :father) (em:variable "B1"))) (em:compound "rdf" ((em:variable "B1") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))))))))) .
+proof:record9 em:term (em:compound "clause" ((em:integer "5") (em:compound "implies" ((em:compound "rdf" ((em:variable "X") (em:iri :father) (em:variable "Y"))) (em:compound "rdf" ((em:variable "Y") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))))))) .
+proof:record10 em:term (em:compound "clause" ((em:integer "6") (em:compound "implies" ((em:compound "rdf" ((em:variable "X") (em:iri :father) (em:variable "Y"))) (em:compound "rdf" ((em:variable "Y") (em:iri :eq) (em:variable "Y"))))))) .
+proof:record11 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))) (em:compound "clause" ((em:integer "5"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :jo))) (em:compound "=" ((em:atom "Y") (em:iri :bob))))) (em:list ((em:compound "rdf" ((em:iri :jo) (em:iri :father) (em:iri :bob))))))) .
+proof:record12 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :jo) (em:iri :father) (em:iri :bob))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record13 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bob) (em:iri :eq) (em:iri :bob))) (em:compound "clause" ((em:integer "6"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :jo))) (em:compound "=" ((em:atom "Y") (em:iri :bob))))) (em:list ((em:compound "rdf" ((em:iri :jo) (em:iri :father) (em:iri :bob))))))) .
+proof:record14 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))) (em:compound "clause" ((em:integer "4"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :ann))) (em:compound "=" ((em:atom "_0") (em:variable "A"))) (em:compound "=" ((em:atom "B1") (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))))))))))))) .
+proof:record15 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record16 em:term (em:compound "step" ((em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))))))))) (em:atom "absent") (em:atom "[]") (em:atom "[]"))) .
+proof:record17 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))) (em:compound "clause" ((em:integer "4"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :ann))) (em:compound "=" ((em:atom "_0") (em:variable "A"))) (em:compound "=" ((em:atom "B1") (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:compound "not" ((em:compound "and" ((em:compound "and" ((em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:variable "A"))) (em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))))) (em:compound "not_unify" ((em:list ((em:variable "A"))) (em:list ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))))))))))))) .
+proof:record18 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))) (em:iri :eq) (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))) (em:compound "clause" ((em:integer "6"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :ann))) (em:compound "=" ((em:atom "Y") (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))))))) .
+proof:record19 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "B") (em:variable "C") (em:variable "D"))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))) (em:compound "rdf" ((em:iri :bob) (em:iri :eq) (em:iri :bob))) (em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))) (em:compound "rdf" ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))) (em:iri :eq) (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))))))) .
+proof:record20 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))))))) .
+proof:record21 em:term (em:compound "searched" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))) (em:list ((em:compound "rdf" ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))))))) .
+proof:record22 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "F") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:list ((em:compound "rdf" ((em:iri :jo) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))) (em:compound "rdf" ((em:iri :ann) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Human))))))) .
+proof:record23 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :jo) (em:iri :father) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:iri :jo) (em:iri :father) (em:iri :bob))))))) .
+proof:record24 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Man))))))) .
+proof:record25 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "H") (em:iri :father) (em:variable "I"))) (em:list ((em:compound "rdf" ((em:iri :ann) (em:iri :father) (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))) (em:compound "rdf" ((em:iri :jo) (em:iri :father) (em:iri :bob))))))) .
+proof:record26 em:term (em:compound "searched" ((em:compound "rdf" ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))) (em:iri :eq) (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))) (em:list ((em:compound "rdf" ((em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))) (em:iri :eq) (em:compound "skolem" ((em:integer "4") (em:atom "B1") (em:list ((em:iri :ann))))))))))) .
+proof:record27 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :bob) (em:iri :eq) (em:iri :bob))) (em:list ((em:compound "rdf" ((em:iri :bob) (em:iri :eq) (em:iri :bob))))))) .

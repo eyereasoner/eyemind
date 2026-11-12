@@ -45,7 +45,7 @@ export function clauseDisplay(clause) {
     if (clause.head === 'true') return new Struct('query', clause.body);
     if (clause.head === 'false') return new Struct('contradiction', clause.body);
     const heads = flattenConjunction(clause.originalHead ?? clause.head);
-    return new Struct('implies', [goalsDisplay(clause.body), goalsDisplay(clause.templates.length ? heads.map(templateDisplay) : heads)]);
+    return new Struct(clause.restricted ? 'restricted' : 'implies', [goalsDisplay(clause.statedBody ?? clause.body), goalsDisplay(clause.templates.length ? heads.map(templateDisplay) : heads)]);
   }
   if (clause.body.length) return new Struct('implied_by', [clause.head, goalsDisplay(clause.body)]);
   return new Struct('fact', [clause.head]);

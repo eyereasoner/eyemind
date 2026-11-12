@@ -25,7 +25,9 @@ export const tests = {
     assert.ok(result.answers.includes("'false'"));
   },
 
-  'a forged delivery witness is rejected by C8'() {
+  // The restricted rule's guard names the witness too, so C1 rejects the
+  // renamed guard as C8 rejects the renamed witness.
+  'a forged delivery witness is rejected'() {
     const program = programFrom('witnesses');
     const saved = readFileSync(join(ROOT, 'examples/proof/witnesses.n3'), 'utf8');
     const certificate = readNativeProof(saved).map((term) => write(term)).join('\n');
@@ -34,6 +36,6 @@ export const tests = {
     const forged = writeNativeProof(altered);
     const report = checkProof(program, forged);
     assert.ok(!report.valid);
-    assert.ok(report.failures.some(({ condition }) => condition === 'C8'));
+    assert.ok(report.failures.some(({ condition }) => condition === 'C1' || condition === 'C8'));
   },
 };

@@ -1,0 +1,36 @@
+# Quantifier scopes across quoted formulas
+#
+# A report quotes what someone saw, and the document asserts that this
+# someone is an astronomer. A rumor quotes that someone waved, but declares
+# its own someone. eyemind concludes that the report has a credible observer
+# and finds no waving astronomer. It shows that an @forSome of the document
+# reaches into quoted formulas, and that an inner declaration shadows it.
+
+@prefix : <http://example.org/> .
+
+# One individual for the whole document, quoted and asserted alike.
+@forSome :someone .
+:report :says { :someone :saw :comet } .
+:someone a :Astronomer .
+
+# This formula declares :someone again: a local existential, unrelated to
+# the astronomer outside.
+:rumor :says {
+    @forSome :someone .
+    :someone :waved :hello
+} .
+
+# A source is credible when the one it quotes is a known astronomer.
+{
+    ?source :says { ?who :saw :comet } .
+    ?who a :Astronomer
+} => {
+    ?source :credibleObserver ?who
+} .
+
+{
+    ?source :says { ?who :waved :hello } .
+    ?who a :Astronomer
+} => {
+    ?source :wavingAstronomer ?who
+} .

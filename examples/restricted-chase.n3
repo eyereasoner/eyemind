@@ -1,0 +1,34 @@
+# Fathers made only where none is known
+#
+# Every human has some father who is a man. Jo's father Bob is known, Ann's
+# is not. A rule then flags two fathers of one child that are not known to
+# be equal. eyemind concludes that Bob is a man, gives Ann one new father,
+# invents none for Jo, and flags no one. It shows the restricted chase: a
+# rule with a blank node in its conclusion fires only where no known values
+# satisfy that conclusion, after the other rules have run. The rules are
+# L8-L11 of N. Küchenmeister, A. Ivliev, D. Arndt and M. Krötzsch,
+# "Stratified Negation in RDF Rules: A Correct Approach" (arXiv:2607.28778).
+
+@prefix : <http://example.org/> .
+
+:jo a :Human .
+:jo :father :bob .
+:ann a :Human .
+
+# L8: every human has some father who is a man.
+{ ?x a :Human } => { ?x :father _:1 . _:1 a :Man } .
+
+# L9: a father is a man.
+{ ?x :father ?y } => { ?y a :Man } .
+
+# L10: every father equals himself.
+{ ?x :father ?y } => { ?y :eq ?y } .
+
+# L11: two fathers of one child not known to be equal.
+{
+    ?x :father ?y1 .
+    ?x :father ?y2 .
+    [] log:notIncludes { ?y1 :eq ?y2 }
+} => {
+    ?y1 :nef ?y2
+} .
