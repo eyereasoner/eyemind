@@ -1,0 +1,11 @@
+PREFIX : <https://example.org/numbers/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+:invoice :total 0.3 .
+:invoice :largeTotal 9007199254740993.3 .
+:invoice :eighth 0.125 .
+:invoice :third 0.3333333333333333333333333333333333 .
+:measurement :doubleSum "0.30000000000000004"^^xsd:double .
+:measurement :overflow "INF"^^xsd:double .
+:measurement :invalid "NaN"^^xsd:double .
+:measurement :negativeInfinity "-INF"^^xsd:double .

@@ -1,0 +1,11 @@
+PREFIX : <https://example.org/orders/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+:alice :order :first .
+:alice :order :second .
+:first :recordedAt "2026-11-12T00:00:00.000Z"^^xsd:dateTime .
+:first :record <urn:uuid:567640d9-7825-4b1a-8670-72e7537e6d6d> .
+:first :reference "ed94111c-4eb9-43b6-a4ae-b143045578d2" .
+:second :recordedAt "2026-11-12T00:00:00.000Z"^^xsd:dateTime .
+:second :record <urn:uuid:7fdb5e72-d210-4a7a-a1e7-cc9de9ec2761> .
+:second :reference "a7fe6c89-42f0-465d-acf3-1e613fa697e1" .
