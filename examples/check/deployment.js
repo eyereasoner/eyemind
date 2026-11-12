@@ -19,13 +19,13 @@ inf(iri('http://example.org/deployment#cve1'), iri('http://example.org/deploymen
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 48)
-condition('C2', 'well_founded', 'ok', 63)
-condition('C3', 'justification', 'ok', 63)
-condition('C4', 'coverage', 'ok', 90)
-condition('C5', 're_decision', 'ok', 14)
+condition('C1', 'resolution', 'ok', 60)
+condition('C2', 'well_founded', 'ok', 86)
+condition('C3', 'justification', 'ok', 86)
+condition('C4', 'coverage', 'ok', 119)
+condition('C5', 're_decision', 'ok', 25)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 80)
+condition('C7', 'relevance', 'ok', 103)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
 condition('C10', 'call_fidelity', 'ok', 0)
@@ -50,9 +50,9 @@ obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deploym
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#cve1'), iri('http://example.org/deployment#severity'), literal('9.8', datatype('http://www.w3.org/2001/XMLSchema#decimal'))))
 
 // Proof statistics: recorded steps and how they were checked.
-steps(63)
-verified(48)
-recomputed(9)
+steps(86)
+verified(60)
+recomputed(20)
 composed(5)
 trusted(17)
 claims(17)

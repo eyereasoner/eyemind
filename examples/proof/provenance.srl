@@ -9,255 +9,295 @@ DATA {
 <urn:eyemind:proof> a pe:Proof .
 <urn:eyemind:proof> em:format "srl" .
 <urn:eyemind:proof> pe:claims (<<( :a :connected :b )>> <<( :b :connected :d )>> <<( :a :connected :d )>> <<( :survey :reported <<( :a :link :b )>> )>> <<( :rumour :reported <<( :b :link :c )>> )>> <<( :survey :reported <<( :b :link :d )>> )>> <<( :a :link :b )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 :weight 9 )>> <<( :l1 :source :survey )>> <<( :b :link :c )>> <<( :l2 rdf:reifies <<( :b :link :c )>> )>> <<( :l2 :weight 2 )>> <<( :l2 :source :rumour )>> <<( :b :link :d )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 :weight 7 )>> <<( :l3 :source :survey )>>) .
-proof:record56 pe:conclusion <<( :a :connected :b )>> .
-proof:record56 pe:rule 31 .
-proof:record56 pe:binding (("X" :a) ("Y" :b) ("R" :l1) ("W" 9) ("R_2" true)) .
-proof:record56 pe:uses (<<( :a :link :b )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 :weight 9 )>> (em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
-proof:record57 pe:conclusion <<( :a :link :b )>> .
-proof:record57 pe:rule 1 .
-proof:record57 pe:binding () .
-proof:record57 pe:uses () .
-proof:record58 pe:conclusion <<( :l1 rdf:reifies <<( :a :link :b )>> )>> .
-proof:record58 pe:rule 3 .
-proof:record58 pe:binding () .
-proof:record58 pe:uses () .
-proof:record59 pe:conclusion <<( :l1 :weight 9 )>> .
-proof:record59 pe:rule 7 .
-proof:record59 pe:binding () .
-proof:record59 pe:uses () .
-proof:record60 pe:conclusion (em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
-proof:record60 pe:rule 130 .
-proof:record60 pe:binding (("A" 9) ("B" 5) ("R" true) ("O" (em:atom ">")) ("T" (em:atom "true"))) .
-proof:record60 pe:uses ((em:compound "srl_order" ((em:integer "9") (em:integer "5") (em:atom ">"))) (em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))) (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
-proof:record61 pe:conclusion (em:compound "srl_order" ((em:integer "9") (em:integer "5") (em:atom ">"))) .
-proof:record61 pe:rule 108 .
-proof:record61 pe:binding (("A" 9) ("B" 5) ("O" (em:atom ">"))) .
-proof:record61 pe:uses ((em:compound "once" ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">")))))) .
-proof:record62 pe:conclusion (em:compound "once" ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))))) .
-proof:record62 pe:justification (em:atom "control") .
+proof:record61 pe:conclusion <<( :a :connected :b )>> .
+proof:record61 pe:rule 31 .
+proof:record61 pe:binding (("X" :a) ("Y" :b) ("R" :l1) ("W" 9) ("R_2" true)) .
+proof:record61 pe:uses (<<( :a :link :b )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 :weight 9 )>> (em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record62 pe:conclusion <<( :a :link :b )>> .
+proof:record62 pe:rule 1 .
 proof:record62 pe:binding () .
-proof:record62 pe:uses ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">")))) .
-proof:record63 pe:conclusion (em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))) .
-proof:record63 pe:rule 109 .
-proof:record63 pe:binding (("A" 9) ("B" 5) ("O" (em:atom ">")) ("_0" (em:atom "integer")) ("X" 9) ("_1" (em:atom "integer")) ("Y" 5)) .
-proof:record63 pe:uses ((em:compound "srl_num" ((em:integer "9") (em:atom "integer") (em:integer "9"))) (em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))) (em:compound "srl_compare" ((em:integer "9") (em:integer "5") (em:atom ">")))) .
-proof:record64 pe:conclusion (em:compound "srl_num" ((em:integer "9") (em:atom "integer") (em:integer "9"))) .
-proof:record64 pe:rule 35 .
-proof:record64 pe:binding (("T" 9)) .
-proof:record64 pe:uses ((em:compound "is_int" ((em:integer "9")))) .
-proof:record65 pe:conclusion (em:compound "is_int" ((em:integer "9"))) .
-proof:record65 pe:justification (em:atom "builtin") .
-proof:record65 pe:binding () .
-proof:record65 pe:uses () .
-proof:record66 pe:conclusion (em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))) .
-proof:record66 pe:rule 35 .
-proof:record66 pe:binding (("T" 5)) .
-proof:record66 pe:uses ((em:compound "is_int" ((em:integer "5")))) .
-proof:record67 pe:conclusion (em:compound "is_int" ((em:integer "5"))) .
-proof:record67 pe:justification (em:atom "builtin") .
+proof:record62 pe:uses () .
+proof:record63 pe:conclusion <<( :l1 rdf:reifies <<( :a :link :b )>> )>> .
+proof:record63 pe:rule 3 .
+proof:record63 pe:binding () .
+proof:record63 pe:uses () .
+proof:record64 pe:conclusion <<( :l1 :weight 9 )>> .
+proof:record64 pe:rule 7 .
+proof:record64 pe:binding () .
+proof:record64 pe:uses () .
+proof:record65 pe:conclusion (em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
+proof:record65 pe:rule 215 .
+proof:record65 pe:binding (("A" 9) ("B" 5) ("R" true) ("O" (em:atom ">")) ("T" (em:atom "true"))) .
+proof:record65 pe:uses ((em:compound "srl_order" ((em:integer "9") (em:integer "5") (em:atom ">"))) (em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))) (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record66 pe:conclusion (em:compound "srl_order" ((em:integer "9") (em:integer "5") (em:atom ">"))) .
+proof:record66 pe:rule 190 .
+proof:record66 pe:binding (("A" 9) ("B" 5) ("O" (em:atom ">"))) .
+proof:record66 pe:uses ((em:compound "once" ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">")))))) .
+proof:record67 pe:conclusion (em:compound "once" ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))))) .
+proof:record67 pe:justification (em:atom "control") .
 proof:record67 pe:binding () .
-proof:record67 pe:uses () .
-proof:record68 pe:conclusion (em:compound "srl_compare" ((em:integer "9") (em:integer "5") (em:atom ">"))) .
-proof:record68 pe:rule 113 .
-proof:record68 pe:binding (("X" 9) ("Y" 5) ("O" (em:atom ">"))) .
-proof:record68 pe:uses ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">")))))))) .
-proof:record69 pe:conclusion (em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) .
-proof:record69 pe:justification (em:atom "control") .
-proof:record69 pe:binding () .
-proof:record69 pe:uses ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">")))) .
-proof:record70 pe:conclusion (em:compound "gt" ((em:integer "9") (em:integer "5"))) .
-proof:record70 pe:justification (em:atom "builtin") .
-proof:record70 pe:binding () .
-proof:record70 pe:uses () .
-proof:record71 pe:conclusion (em:compound "unify" ((em:atom ">") (em:atom ">"))) .
+proof:record67 pe:uses ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">")))) .
+proof:record68 pe:conclusion (em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))) .
+proof:record68 pe:rule 191 .
+proof:record68 pe:binding (("A" 9) ("B" 5) ("O" (em:atom ">")) ("_0" (em:atom "integer")) ("X" 9) ("Y" 5)) .
+proof:record68 pe:uses ((em:compound "srl_pair" ((em:integer "9") (em:integer "5") (em:atom "integer") (em:integer "9") (em:integer "5"))) (em:compound "srl_value_compare" ((em:integer "9") (em:integer "5") (em:atom ">")))) .
+proof:record69 pe:conclusion (em:compound "srl_pair" ((em:integer "9") (em:integer "5") (em:atom "integer") (em:integer "9") (em:integer "5"))) .
+proof:record69 pe:rule 64 .
+proof:record69 pe:binding (("A" 9) ("B" 5) ("K" (em:atom "integer")) ("X" 9) ("Y" 5) ("KA" (em:atom "integer")) ("VA" 9) ("KB" (em:atom "integer")) ("VB" 5)) .
+proof:record69 pe:uses ((em:compound "srl_num" ((em:integer "9") (em:atom "integer") (em:integer "9"))) (em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))) (em:compound "srl_promote" ((em:atom "integer") (em:atom "integer") (em:atom "integer"))) (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "9") (em:integer "9"))) (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "5") (em:integer "5")))) .
+proof:record70 pe:conclusion (em:compound "srl_num" ((em:integer "9") (em:atom "integer") (em:integer "9"))) .
+proof:record70 pe:rule 117 .
+proof:record70 pe:binding (("T" 9)) .
+proof:record70 pe:uses ((em:compound "is_int" ((em:integer "9")))) .
+proof:record71 pe:conclusion (em:compound "is_int" ((em:integer "9"))) .
 proof:record71 pe:justification (em:atom "builtin") .
 proof:record71 pe:binding () .
 proof:record71 pe:uses () .
-proof:record72 pe:conclusion (em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))) .
-proof:record72 pe:rule 122 .
-proof:record72 pe:binding () .
-proof:record72 pe:uses () .
-proof:record73 pe:conclusion (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
-proof:record73 pe:rule 126 .
+proof:record72 pe:conclusion (em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))) .
+proof:record72 pe:rule 117 .
+proof:record72 pe:binding (("T" 5)) .
+proof:record72 pe:uses ((em:compound "is_int" ((em:integer "5")))) .
+proof:record73 pe:conclusion (em:compound "is_int" ((em:integer "5"))) .
+proof:record73 pe:justification (em:atom "builtin") .
 proof:record73 pe:binding () .
 proof:record73 pe:uses () .
-proof:record74 pe:conclusion (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
-proof:record74 pe:rule 75 .
-proof:record74 pe:binding (("T" true)) .
-proof:record74 pe:uses ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))) .
-proof:record75 pe:conclusion (em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) .
-proof:record75 pe:rule 63 .
-proof:record75 pe:binding (("T" true) ("B" (em:atom "true"))) .
-proof:record75 pe:uses ((em:compound "once" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))))) .
-proof:record76 pe:conclusion (em:compound "once" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))) .
-proof:record76 pe:justification (em:atom "control") .
+proof:record74 pe:conclusion (em:compound "srl_promote" ((em:atom "integer") (em:atom "integer") (em:atom "integer"))) .
+proof:record74 pe:rule 144 .
+proof:record74 pe:binding (("A" (em:atom "integer")) ("B" (em:atom "integer")) ("K" (em:atom "integer")) ("I" 0) ("J" 0) ("M" 0)) .
+proof:record74 pe:uses ((em:compound "srl_rank" ((em:atom "integer") (em:integer "0"))) (em:compound "srl_rank" ((em:atom "integer") (em:integer "0"))) (em:compound "is" ((em:integer "0") (em:compound "max" ((em:integer "0") (em:integer "0"))))) (em:compound "srl_rank" ((em:atom "integer") (em:integer "0")))) .
+proof:record75 pe:conclusion (em:compound "srl_rank" ((em:atom "integer") (em:integer "0"))) .
+proof:record75 pe:rule 140 .
+proof:record75 pe:binding () .
+proof:record75 pe:uses () .
+proof:record76 pe:conclusion (em:compound "is" ((em:integer "0") (em:compound "max" ((em:integer "0") (em:integer "0"))))) .
+proof:record76 pe:justification (em:atom "builtin") .
 proof:record76 pe:binding () .
-proof:record76 pe:uses ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))) .
-proof:record77 pe:conclusion (em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) .
-proof:record77 pe:rule 64 .
-proof:record77 pe:binding (("L" (em:atom "true")) ("B" (em:atom "true"))) .
-proof:record77 pe:uses ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true")))) .
-proof:record78 pe:conclusion (em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))) .
-proof:record78 pe:rule 70 .
-proof:record78 pe:binding (("L" (em:atom "true")) ("B" (em:atom "true"))) .
-proof:record78 pe:uses ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false")))))))) .
-proof:record79 pe:conclusion (em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))))) .
-proof:record79 pe:justification (em:atom "control") .
-proof:record79 pe:binding () .
-proof:record79 pe:uses ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false")))))) .
-proof:record80 pe:conclusion (em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))) .
-proof:record80 pe:justification (em:atom "control") .
-proof:record80 pe:binding () .
-proof:record80 pe:uses ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true")))) .
-proof:record81 pe:conclusion (em:compound "srl_true_text" ((em:atom "true"))) .
-proof:record81 pe:rule 71 .
+proof:record76 pe:uses () .
+proof:record77 pe:conclusion (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "9") (em:integer "9"))) .
+proof:record77 pe:rule 61 .
+proof:record77 pe:binding (("N" 9)) .
+proof:record77 pe:uses ((em:compound "is_int" ((em:integer "9")))) .
+proof:record78 pe:conclusion (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "5") (em:integer "5"))) .
+proof:record78 pe:rule 61 .
+proof:record78 pe:binding (("N" 5)) .
+proof:record78 pe:uses ((em:compound "is_int" ((em:integer "5")))) .
+proof:record79 pe:conclusion (em:compound "srl_value_compare" ((em:integer "9") (em:integer "5") (em:atom ">"))) .
+proof:record79 pe:rule 83 .
+proof:record79 pe:binding (("X" 9) ("Y" 5) ("O" (em:atom ">"))) .
+proof:record79 pe:uses ((em:compound "is_int" ((em:integer "9"))) (em:compound "is_int" ((em:integer "5"))) (em:compound "srl_compare" ((em:integer "9") (em:integer "5") (em:atom ">")))) .
+proof:record80 pe:conclusion (em:compound "srl_compare" ((em:integer "9") (em:integer "5") (em:atom ">"))) .
+proof:record80 pe:rule 116 .
+proof:record80 pe:binding (("X" 9) ("Y" 5) ("O" (em:atom ">"))) .
+proof:record80 pe:uses ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">")))))))) .
+proof:record81 pe:conclusion (em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) .
+proof:record81 pe:justification (em:atom "control") .
 proof:record81 pe:binding () .
-proof:record81 pe:uses () .
-proof:record82 pe:conclusion (em:compound "unify" ((em:atom "true") (em:atom "true"))) .
+proof:record81 pe:uses ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">")))) .
+proof:record82 pe:conclusion (em:compound "gt" ((em:integer "9") (em:integer "5"))) .
 proof:record82 pe:justification (em:atom "builtin") .
 proof:record82 pe:binding () .
 proof:record82 pe:uses () .
-proof:record83 pe:conclusion <<( :b :connected :d )>> .
-proof:record83 pe:rule 31 .
-proof:record83 pe:binding (("X" :b) ("Y" :d) ("R" :l3) ("W" 7) ("R_2" true)) .
-proof:record83 pe:uses (<<( :b :link :d )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 :weight 7 )>> (em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
-proof:record84 pe:conclusion <<( :b :link :d )>> .
-proof:record84 pe:rule 21 .
+proof:record83 pe:conclusion (em:compound "unify" ((em:atom ">") (em:atom ">"))) .
+proof:record83 pe:justification (em:atom "builtin") .
+proof:record83 pe:binding () .
+proof:record83 pe:uses () .
+proof:record84 pe:conclusion (em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))) .
+proof:record84 pe:rule 206 .
 proof:record84 pe:binding () .
 proof:record84 pe:uses () .
-proof:record85 pe:conclusion <<( :l3 rdf:reifies <<( :b :link :d )>> )>> .
-proof:record85 pe:rule 23 .
+proof:record85 pe:conclusion (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
+proof:record85 pe:rule 211 .
 proof:record85 pe:binding () .
 proof:record85 pe:uses () .
-proof:record86 pe:conclusion <<( :l3 :weight 7 )>> .
-proof:record86 pe:rule 27 .
-proof:record86 pe:binding () .
-proof:record86 pe:uses () .
-proof:record87 pe:conclusion (em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
-proof:record87 pe:rule 130 .
-proof:record87 pe:binding (("A" 7) ("B" 5) ("R" true) ("O" (em:atom ">")) ("T" (em:atom "true"))) .
-proof:record87 pe:uses ((em:compound "srl_order" ((em:integer "7") (em:integer "5") (em:atom ">"))) (em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))) (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
-proof:record88 pe:conclusion (em:compound "srl_order" ((em:integer "7") (em:integer "5") (em:atom ">"))) .
-proof:record88 pe:rule 108 .
-proof:record88 pe:binding (("A" 7) ("B" 5) ("O" (em:atom ">"))) .
-proof:record88 pe:uses ((em:compound "once" ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">")))))) .
-proof:record89 pe:conclusion (em:compound "once" ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))))) .
-proof:record89 pe:justification (em:atom "control") .
-proof:record89 pe:binding () .
-proof:record89 pe:uses ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">")))) .
-proof:record90 pe:conclusion (em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))) .
-proof:record90 pe:rule 109 .
-proof:record90 pe:binding (("A" 7) ("B" 5) ("O" (em:atom ">")) ("_0" (em:atom "integer")) ("X" 7) ("_1" (em:atom "integer")) ("Y" 5)) .
-proof:record90 pe:uses ((em:compound "srl_num" ((em:integer "7") (em:atom "integer") (em:integer "7"))) (em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))) (em:compound "srl_compare" ((em:integer "7") (em:integer "5") (em:atom ">")))) .
-proof:record91 pe:conclusion (em:compound "srl_num" ((em:integer "7") (em:atom "integer") (em:integer "7"))) .
-proof:record91 pe:rule 35 .
-proof:record91 pe:binding (("T" 7)) .
-proof:record91 pe:uses ((em:compound "is_int" ((em:integer "7")))) .
-proof:record92 pe:conclusion (em:compound "is_int" ((em:integer "7"))) .
-proof:record92 pe:justification (em:atom "builtin") .
+proof:record86 pe:conclusion (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
+proof:record86 pe:rule 157 .
+proof:record86 pe:binding (("T" true)) .
+proof:record86 pe:uses ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))) .
+proof:record87 pe:conclusion (em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) .
+proof:record87 pe:rule 145 .
+proof:record87 pe:binding (("T" true) ("B" (em:atom "true"))) .
+proof:record87 pe:uses ((em:compound "once" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))))) .
+proof:record88 pe:conclusion (em:compound "once" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))) .
+proof:record88 pe:justification (em:atom "control") .
+proof:record88 pe:binding () .
+proof:record88 pe:uses ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))) .
+proof:record89 pe:conclusion (em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) .
+proof:record89 pe:rule 146 .
+proof:record89 pe:binding (("L" (em:atom "true")) ("B" (em:atom "true"))) .
+proof:record89 pe:uses ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true")))) .
+proof:record90 pe:conclusion (em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))) .
+proof:record90 pe:rule 152 .
+proof:record90 pe:binding (("L" (em:atom "true")) ("B" (em:atom "true"))) .
+proof:record90 pe:uses ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false")))))))) .
+proof:record91 pe:conclusion (em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))))) .
+proof:record91 pe:justification (em:atom "control") .
+proof:record91 pe:binding () .
+proof:record91 pe:uses ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false")))))) .
+proof:record92 pe:conclusion (em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))) .
+proof:record92 pe:justification (em:atom "control") .
 proof:record92 pe:binding () .
-proof:record92 pe:uses () .
-proof:record93 pe:conclusion (em:compound "srl_compare" ((em:integer "7") (em:integer "5") (em:atom ">"))) .
-proof:record93 pe:rule 113 .
-proof:record93 pe:binding (("X" 7) ("Y" 5) ("O" (em:atom ">"))) .
-proof:record93 pe:uses ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">")))))))) .
-proof:record94 pe:conclusion (em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) .
-proof:record94 pe:justification (em:atom "control") .
+proof:record92 pe:uses ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true")))) .
+proof:record93 pe:conclusion (em:compound "srl_true_text" ((em:atom "true"))) .
+proof:record93 pe:rule 153 .
+proof:record93 pe:binding () .
+proof:record93 pe:uses () .
+proof:record94 pe:conclusion (em:compound "unify" ((em:atom "true") (em:atom "true"))) .
+proof:record94 pe:justification (em:atom "builtin") .
 proof:record94 pe:binding () .
-proof:record94 pe:uses ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">")))) .
-proof:record95 pe:conclusion (em:compound "gt" ((em:integer "7") (em:integer "5"))) .
-proof:record95 pe:justification (em:atom "builtin") .
-proof:record95 pe:binding () .
-proof:record95 pe:uses () .
-proof:record96 pe:conclusion <<( :a :connected :d )>> .
-proof:record96 pe:rule 32 .
-proof:record96 pe:binding (("X" :a) ("Y" :b) ("Z" :d)) .
-proof:record96 pe:uses (<<( :a :connected :b )>> <<( :b :connected :d )>>) .
-proof:record97 pe:conclusion <<( :a :connected :b )>> .
-proof:record97 pe:rule 31 .
-proof:record97 pe:binding (("X" :a) ("Y" :b) ("R" :l1) ("W" 9) ("R_2" true)) .
-proof:record97 pe:uses (<<( :a :link :b )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 :weight 9 )>> (em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
-proof:record98 pe:conclusion <<( :b :connected :d )>> .
-proof:record98 pe:rule 31 .
-proof:record98 pe:binding (("X" :b) ("Y" :d) ("R" :l3) ("W" 7) ("R_2" true)) .
-proof:record98 pe:uses (<<( :b :link :d )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 :weight 7 )>> (em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
-proof:record99 pe:conclusion <<( :survey :reported <<( :a :link :b )>> )>> .
-proof:record99 pe:rule 33 .
-proof:record99 pe:binding (("R" :l1) ("X" :a) ("Y" :b) ("S" :survey)) .
-proof:record99 pe:uses (<<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 :source :survey )>>) .
-proof:record100 pe:conclusion <<( :l1 :source :survey )>> .
-proof:record100 pe:rule 9 .
-proof:record100 pe:binding () .
-proof:record100 pe:uses () .
-proof:record101 pe:conclusion <<( :rumour :reported <<( :b :link :c )>> )>> .
-proof:record101 pe:rule 33 .
-proof:record101 pe:binding (("R" :l2) ("X" :b) ("Y" :c) ("S" :rumour)) .
-proof:record101 pe:uses (<<( :l2 rdf:reifies <<( :b :link :c )>> )>> <<( :l2 :source :rumour )>>) .
-proof:record102 pe:conclusion <<( :l2 rdf:reifies <<( :b :link :c )>> )>> .
-proof:record102 pe:rule 13 .
-proof:record102 pe:binding () .
-proof:record102 pe:uses () .
-proof:record103 pe:conclusion <<( :l2 :source :rumour )>> .
-proof:record103 pe:rule 19 .
-proof:record103 pe:binding () .
-proof:record103 pe:uses () .
-proof:record104 pe:conclusion <<( :survey :reported <<( :b :link :d )>> )>> .
-proof:record104 pe:rule 33 .
-proof:record104 pe:binding (("R" :l3) ("X" :b) ("Y" :d) ("S" :survey)) .
-proof:record104 pe:uses (<<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 :source :survey )>>) .
-proof:record105 pe:conclusion <<( :l3 :source :survey )>> .
-proof:record105 pe:rule 29 .
+proof:record94 pe:uses () .
+proof:record95 pe:conclusion <<( :b :connected :d )>> .
+proof:record95 pe:rule 31 .
+proof:record95 pe:binding (("X" :b) ("Y" :d) ("R" :l3) ("W" 7) ("R_2" true)) .
+proof:record95 pe:uses (<<( :b :link :d )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 :weight 7 )>> (em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record96 pe:conclusion <<( :b :link :d )>> .
+proof:record96 pe:rule 21 .
+proof:record96 pe:binding () .
+proof:record96 pe:uses () .
+proof:record97 pe:conclusion <<( :l3 rdf:reifies <<( :b :link :d )>> )>> .
+proof:record97 pe:rule 23 .
+proof:record97 pe:binding () .
+proof:record97 pe:uses () .
+proof:record98 pe:conclusion <<( :l3 :weight 7 )>> .
+proof:record98 pe:rule 27 .
+proof:record98 pe:binding () .
+proof:record98 pe:uses () .
+proof:record99 pe:conclusion (em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
+proof:record99 pe:rule 215 .
+proof:record99 pe:binding (("A" 7) ("B" 5) ("R" true) ("O" (em:atom ">")) ("T" (em:atom "true"))) .
+proof:record99 pe:uses ((em:compound "srl_order" ((em:integer "7") (em:integer "5") (em:atom ">"))) (em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))) (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record100 pe:conclusion (em:compound "srl_order" ((em:integer "7") (em:integer "5") (em:atom ">"))) .
+proof:record100 pe:rule 190 .
+proof:record100 pe:binding (("A" 7) ("B" 5) ("O" (em:atom ">"))) .
+proof:record100 pe:uses ((em:compound "once" ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">")))))) .
+proof:record101 pe:conclusion (em:compound "once" ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))))) .
+proof:record101 pe:justification (em:atom "control") .
+proof:record101 pe:binding () .
+proof:record101 pe:uses ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">")))) .
+proof:record102 pe:conclusion (em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))) .
+proof:record102 pe:rule 191 .
+proof:record102 pe:binding (("A" 7) ("B" 5) ("O" (em:atom ">")) ("_0" (em:atom "integer")) ("X" 7) ("Y" 5)) .
+proof:record102 pe:uses ((em:compound "srl_pair" ((em:integer "7") (em:integer "5") (em:atom "integer") (em:integer "7") (em:integer "5"))) (em:compound "srl_value_compare" ((em:integer "7") (em:integer "5") (em:atom ">")))) .
+proof:record103 pe:conclusion (em:compound "srl_pair" ((em:integer "7") (em:integer "5") (em:atom "integer") (em:integer "7") (em:integer "5"))) .
+proof:record103 pe:rule 64 .
+proof:record103 pe:binding (("A" 7) ("B" 5) ("K" (em:atom "integer")) ("X" 7) ("Y" 5) ("KA" (em:atom "integer")) ("VA" 7) ("KB" (em:atom "integer")) ("VB" 5)) .
+proof:record103 pe:uses ((em:compound "srl_num" ((em:integer "7") (em:atom "integer") (em:integer "7"))) (em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))) (em:compound "srl_promote" ((em:atom "integer") (em:atom "integer") (em:atom "integer"))) (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "7") (em:integer "7"))) (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "5") (em:integer "5")))) .
+proof:record104 pe:conclusion (em:compound "srl_num" ((em:integer "7") (em:atom "integer") (em:integer "7"))) .
+proof:record104 pe:rule 117 .
+proof:record104 pe:binding (("T" 7)) .
+proof:record104 pe:uses ((em:compound "is_int" ((em:integer "7")))) .
+proof:record105 pe:conclusion (em:compound "is_int" ((em:integer "7"))) .
+proof:record105 pe:justification (em:atom "builtin") .
 proof:record105 pe:binding () .
 proof:record105 pe:uses () .
-proof:record106 pe:conclusion <<( :a :link :b )>> .
-proof:record106 pe:rule 2 .
-proof:record106 pe:binding () .
-proof:record106 pe:uses () .
-proof:record107 pe:conclusion <<( :l1 rdf:reifies <<( :a :link :b )>> )>> .
-proof:record107 pe:rule 4 .
-proof:record107 pe:binding () .
-proof:record107 pe:uses () .
-proof:record108 pe:conclusion <<( :l1 :weight 9 )>> .
-proof:record108 pe:rule 8 .
-proof:record108 pe:binding () .
-proof:record108 pe:uses () .
-proof:record109 pe:conclusion <<( :l1 :source :survey )>> .
-proof:record109 pe:rule 10 .
+proof:record106 pe:conclusion (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "7") (em:integer "7"))) .
+proof:record106 pe:rule 61 .
+proof:record106 pe:binding (("N" 7)) .
+proof:record106 pe:uses ((em:compound "is_int" ((em:integer "7")))) .
+proof:record107 pe:conclusion (em:compound "srl_value_compare" ((em:integer "7") (em:integer "5") (em:atom ">"))) .
+proof:record107 pe:rule 83 .
+proof:record107 pe:binding (("X" 7) ("Y" 5) ("O" (em:atom ">"))) .
+proof:record107 pe:uses ((em:compound "is_int" ((em:integer "7"))) (em:compound "is_int" ((em:integer "5"))) (em:compound "srl_compare" ((em:integer "7") (em:integer "5") (em:atom ">")))) .
+proof:record108 pe:conclusion (em:compound "srl_compare" ((em:integer "7") (em:integer "5") (em:atom ">"))) .
+proof:record108 pe:rule 116 .
+proof:record108 pe:binding (("X" 7) ("Y" 5) ("O" (em:atom ">"))) .
+proof:record108 pe:uses ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">")))))))) .
+proof:record109 pe:conclusion (em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) .
+proof:record109 pe:justification (em:atom "control") .
 proof:record109 pe:binding () .
-proof:record109 pe:uses () .
-proof:record110 pe:conclusion <<( :b :link :c )>> .
-proof:record110 pe:rule 12 .
+proof:record109 pe:uses ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">")))) .
+proof:record110 pe:conclusion (em:compound "gt" ((em:integer "7") (em:integer "5"))) .
+proof:record110 pe:justification (em:atom "builtin") .
 proof:record110 pe:binding () .
 proof:record110 pe:uses () .
-proof:record111 pe:conclusion <<( :l2 rdf:reifies <<( :b :link :c )>> )>> .
-proof:record111 pe:rule 14 .
-proof:record111 pe:binding () .
-proof:record111 pe:uses () .
-proof:record112 pe:conclusion <<( :l2 :weight 2 )>> .
-proof:record112 pe:rule 18 .
-proof:record112 pe:binding () .
-proof:record112 pe:uses () .
-proof:record113 pe:conclusion <<( :l2 :source :rumour )>> .
-proof:record113 pe:rule 20 .
-proof:record113 pe:binding () .
-proof:record113 pe:uses () .
-proof:record114 pe:conclusion <<( :b :link :d )>> .
-proof:record114 pe:rule 22 .
-proof:record114 pe:binding () .
-proof:record114 pe:uses () .
-proof:record115 pe:conclusion <<( :l3 rdf:reifies <<( :b :link :d )>> )>> .
-proof:record115 pe:rule 24 .
+proof:record111 pe:conclusion <<( :a :connected :d )>> .
+proof:record111 pe:rule 32 .
+proof:record111 pe:binding (("X" :a) ("Y" :b) ("Z" :d)) .
+proof:record111 pe:uses (<<( :a :connected :b )>> <<( :b :connected :d )>>) .
+proof:record112 pe:conclusion <<( :a :connected :b )>> .
+proof:record112 pe:rule 31 .
+proof:record112 pe:binding (("X" :a) ("Y" :b) ("R" :l1) ("W" 9) ("R_2" true)) .
+proof:record112 pe:uses (<<( :a :link :b )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 :weight 9 )>> (em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record113 pe:conclusion <<( :b :connected :d )>> .
+proof:record113 pe:rule 31 .
+proof:record113 pe:binding (("X" :b) ("Y" :d) ("R" :l3) ("W" 7) ("R_2" true)) .
+proof:record113 pe:uses (<<( :b :link :d )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 :weight 7 )>> (em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record114 pe:conclusion <<( :survey :reported <<( :a :link :b )>> )>> .
+proof:record114 pe:rule 33 .
+proof:record114 pe:binding (("R" :l1) ("X" :a) ("Y" :b) ("S" :survey)) .
+proof:record114 pe:uses (<<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 :source :survey )>>) .
+proof:record115 pe:conclusion <<( :l1 :source :survey )>> .
+proof:record115 pe:rule 9 .
 proof:record115 pe:binding () .
 proof:record115 pe:uses () .
-proof:record116 pe:conclusion <<( :l3 :weight 7 )>> .
-proof:record116 pe:rule 28 .
-proof:record116 pe:binding () .
-proof:record116 pe:uses () .
-proof:record117 pe:conclusion <<( :l3 :source :survey )>> .
-proof:record117 pe:rule 30 .
+proof:record116 pe:conclusion <<( :rumour :reported <<( :b :link :c )>> )>> .
+proof:record116 pe:rule 33 .
+proof:record116 pe:binding (("R" :l2) ("X" :b) ("Y" :c) ("S" :rumour)) .
+proof:record116 pe:uses (<<( :l2 rdf:reifies <<( :b :link :c )>> )>> <<( :l2 :source :rumour )>>) .
+proof:record117 pe:conclusion <<( :l2 rdf:reifies <<( :b :link :c )>> )>> .
+proof:record117 pe:rule 13 .
 proof:record117 pe:binding () .
 proof:record117 pe:uses () .
-<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41 proof:record42 proof:record43 proof:record44 proof:record45 proof:record46 proof:record47 proof:record48 proof:record49 proof:record50 proof:record51 proof:record52 proof:record53 proof:record54 proof:record55 proof:record56 proof:record57 proof:record58 proof:record59 proof:record60 proof:record61 proof:record62 proof:record63 proof:record64 proof:record65 proof:record66 proof:record67 proof:record68 proof:record69 proof:record70 proof:record71 proof:record72 proof:record73 proof:record74 proof:record75 proof:record76 proof:record77 proof:record78 proof:record79 proof:record80 proof:record81 proof:record82 proof:record83 proof:record84 proof:record85 proof:record86 proof:record87 proof:record88 proof:record89 proof:record90 proof:record91 proof:record92 proof:record93 proof:record94 proof:record95 proof:record96 proof:record97 proof:record98 proof:record99 proof:record100 proof:record101 proof:record102 proof:record103 proof:record104 proof:record105 proof:record106 proof:record107 proof:record108 proof:record109 proof:record110 proof:record111 proof:record112 proof:record113 proof:record114 proof:record115 proof:record116 proof:record117) .
+proof:record118 pe:conclusion <<( :l2 :source :rumour )>> .
+proof:record118 pe:rule 19 .
+proof:record118 pe:binding () .
+proof:record118 pe:uses () .
+proof:record119 pe:conclusion <<( :survey :reported <<( :b :link :d )>> )>> .
+proof:record119 pe:rule 33 .
+proof:record119 pe:binding (("R" :l3) ("X" :b) ("Y" :d) ("S" :survey)) .
+proof:record119 pe:uses (<<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 :source :survey )>>) .
+proof:record120 pe:conclusion <<( :l3 :source :survey )>> .
+proof:record120 pe:rule 29 .
+proof:record120 pe:binding () .
+proof:record120 pe:uses () .
+proof:record121 pe:conclusion <<( :a :link :b )>> .
+proof:record121 pe:rule 2 .
+proof:record121 pe:binding () .
+proof:record121 pe:uses () .
+proof:record122 pe:conclusion <<( :l1 rdf:reifies <<( :a :link :b )>> )>> .
+proof:record122 pe:rule 4 .
+proof:record122 pe:binding () .
+proof:record122 pe:uses () .
+proof:record123 pe:conclusion <<( :l1 :weight 9 )>> .
+proof:record123 pe:rule 8 .
+proof:record123 pe:binding () .
+proof:record123 pe:uses () .
+proof:record124 pe:conclusion <<( :l1 :source :survey )>> .
+proof:record124 pe:rule 10 .
+proof:record124 pe:binding () .
+proof:record124 pe:uses () .
+proof:record125 pe:conclusion <<( :b :link :c )>> .
+proof:record125 pe:rule 12 .
+proof:record125 pe:binding () .
+proof:record125 pe:uses () .
+proof:record126 pe:conclusion <<( :l2 rdf:reifies <<( :b :link :c )>> )>> .
+proof:record126 pe:rule 14 .
+proof:record126 pe:binding () .
+proof:record126 pe:uses () .
+proof:record127 pe:conclusion <<( :l2 :weight 2 )>> .
+proof:record127 pe:rule 18 .
+proof:record127 pe:binding () .
+proof:record127 pe:uses () .
+proof:record128 pe:conclusion <<( :l2 :source :rumour )>> .
+proof:record128 pe:rule 20 .
+proof:record128 pe:binding () .
+proof:record128 pe:uses () .
+proof:record129 pe:conclusion <<( :b :link :d )>> .
+proof:record129 pe:rule 22 .
+proof:record129 pe:binding () .
+proof:record129 pe:uses () .
+proof:record130 pe:conclusion <<( :l3 rdf:reifies <<( :b :link :d )>> )>> .
+proof:record130 pe:rule 24 .
+proof:record130 pe:binding () .
+proof:record130 pe:uses () .
+proof:record131 pe:conclusion <<( :l3 :weight 7 )>> .
+proof:record131 pe:rule 28 .
+proof:record131 pe:binding () .
+proof:record131 pe:uses () .
+proof:record132 pe:conclusion <<( :l3 :source :survey )>> .
+proof:record132 pe:rule 30 .
+proof:record132 pe:binding () .
+proof:record132 pe:uses () .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41 proof:record42 proof:record43 proof:record44 proof:record45 proof:record46 proof:record47 proof:record48 proof:record49 proof:record50 proof:record51 proof:record52 proof:record53 proof:record54 proof:record55 proof:record56 proof:record57 proof:record58 proof:record59 proof:record60 proof:record61 proof:record62 proof:record63 proof:record64 proof:record65 proof:record66 proof:record67 proof:record68 proof:record69 proof:record70 proof:record71 proof:record72 proof:record73 proof:record74 proof:record75 proof:record76 proof:record77 proof:record78 proof:record79 proof:record80 proof:record81 proof:record82 proof:record83 proof:record84 proof:record85 proof:record86 proof:record87 proof:record88 proof:record89 proof:record90 proof:record91 proof:record92 proof:record93 proof:record94 proof:record95 proof:record96 proof:record97 proof:record98 proof:record99 proof:record100 proof:record101 proof:record102 proof:record103 proof:record104 proof:record105 proof:record106 proof:record107 proof:record108 proof:record109 proof:record110 proof:record111 proof:record112 proof:record113 proof:record114 proof:record115 proof:record116 proof:record117 proof:record118 proof:record119 proof:record120 proof:record121 proof:record122 proof:record123 proof:record124 proof:record125 proof:record126 proof:record127 proof:record128 proof:record129 proof:record130 proof:record131 proof:record132) .
 proof:record1 em:term (em:compound "inf" ((em:iri :a) (em:iri :connected) (em:iri :b))) .
 proof:record2 em:term (em:compound "inf" ((em:iri :b) (em:iri :connected) (em:iri :d))) .
 proof:record3 em:term (em:compound "inf" ((em:iri :a) (em:iri :connected) (em:iri :d))) .
@@ -301,78 +341,93 @@ proof:record40 em:term (em:compound "clause" ((em:integer "30") (em:compound "fa
 proof:record41 em:term (em:compound "clause" ((em:integer "31") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "X") (em:iri :link) (em:variable "Y"))) (em:compound "rdf" ((em:variable "R") (em:iri rdf:reifies) (em:compound "triple" ((em:variable "X") (em:iri :link) (em:variable "Y"))))) (em:compound "rdf" ((em:variable "R") (em:iri rdf:reifies) (em:compound "triple" ((em:variable "X") (em:iri :link) (em:variable "Y"))))) (em:compound "rdf" ((em:variable "R") (em:iri :weight) (em:variable "W"))) (em:compound "srl_gt" ((em:variable "W") (em:integer "5") (em:variable "R_2"))) (em:compound "srl_true" ((em:variable "R_2"))))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri :connected) (em:variable "Y"))) (em:compound "inf" ((em:variable "X") (em:iri :connected) (em:variable "Y"))))))))) .
 proof:record42 em:term (em:compound "clause" ((em:integer "32") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "X") (em:iri :connected) (em:variable "Y"))) (em:compound "rdf" ((em:variable "Y") (em:iri :connected) (em:variable "Z"))))) (em:list ((em:compound "rdf" ((em:variable "X") (em:iri :connected) (em:variable "Z"))) (em:compound "inf" ((em:variable "X") (em:iri :connected) (em:variable "Z"))))))))) .
 proof:record43 em:term (em:compound "clause" ((em:integer "33") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "R") (em:iri rdf:reifies) (em:compound "triple" ((em:variable "X") (em:iri :link) (em:variable "Y"))))) (em:compound "rdf" ((em:variable "R") (em:iri :source) (em:variable "S"))))) (em:list ((em:compound "rdf" ((em:variable "S") (em:iri :reported) (em:compound "triple" ((em:variable "X") (em:iri :link) (em:variable "Y"))))) (em:compound "inf" ((em:variable "S") (em:iri :reported) (em:compound "triple" ((em:variable "X") (em:iri :link) (em:variable "Y"))))))))))) .
-proof:record44 em:term (em:compound "clause" ((em:integer "35") (em:compound "implied_by" ((em:compound "srl_num" ((em:variable "T") (em:atom "integer") (em:variable "T"))) (em:compound "is_int" ((em:variable "T"))))))) .
-proof:record45 em:term (em:compound "clause" ((em:integer "63") (em:compound "implied_by" ((em:compound "srl_ebv" ((em:variable "T") (em:variable "B"))) (em:compound "once" ((em:compound "srl_ebv_" ((em:variable "T") (em:variable "B"))))))))) .
-proof:record46 em:term (em:compound "clause" ((em:integer "64") (em:compound "implied_by" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:variable "L") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:variable "B"))) (em:compound "srl_boolean_text" ((em:variable "L") (em:variable "B"))))))) .
-proof:record47 em:term (em:compound "clause" ((em:integer "70") (em:compound "implied_by" ((em:compound "srl_boolean_text" ((em:variable "L") (em:variable "B"))) (em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:variable "L"))) (em:compound "unify" ((em:variable "B") (em:atom "true"))))) (em:compound "unify" ((em:variable "B") (em:atom "false"))))))))))) .
-proof:record48 em:term (em:compound "clause" ((em:integer "71") (em:compound "fact" ((em:compound "srl_true_text" ((em:atom "true"))))))) .
-proof:record49 em:term (em:compound "clause" ((em:integer "75") (em:compound "implied_by" ((em:compound "srl_true" ((em:variable "T"))) (em:compound "srl_ebv" ((em:variable "T") (em:atom "true"))))))) .
-proof:record50 em:term (em:compound "clause" ((em:integer "108") (em:compound "implied_by" ((em:compound "srl_order" ((em:variable "A") (em:variable "B") (em:variable "O"))) (em:compound "once" ((em:compound "srl_order_" ((em:variable "A") (em:variable "B") (em:variable "O"))))))))) .
-proof:record51 em:term (em:compound "clause" ((em:integer "109") (em:compound "implied_by" ((em:compound "srl_order_" ((em:variable "A") (em:variable "B") (em:variable "O"))) (em:list ((em:compound "srl_num" ((em:variable "A") (em:variable "_0") (em:variable "X"))) (em:compound "srl_num" ((em:variable "B") (em:variable "_1") (em:variable "Y"))) (em:compound "srl_compare" ((em:variable "X") (em:variable "Y") (em:variable "O"))))))))) .
-proof:record52 em:term (em:compound "clause" ((em:integer "113") (em:compound "implied_by" ((em:compound "srl_compare" ((em:variable "X") (em:variable "Y") (em:variable "O"))) (em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:variable "X") (em:variable "Y"))) (em:compound "unify" ((em:variable "O") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:variable "X") (em:variable "Y"))) (em:compound "unify" ((em:variable "O") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:variable "X") (em:variable "Y"))) (em:compound "unify" ((em:variable "O") (em:atom ">"))))))))))) .
-proof:record53 em:term (em:compound "clause" ((em:integer "122") (em:compound "fact" ((em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))))))) .
-proof:record54 em:term (em:compound "clause" ((em:integer "126") (em:compound "fact" ((em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
-proof:record55 em:term (em:compound "clause" ((em:integer "130") (em:compound "implied_by" ((em:compound "srl_gt" ((em:variable "A") (em:variable "B") (em:variable "R"))) (em:list ((em:compound "srl_order" ((em:variable "A") (em:variable "B") (em:variable "O"))) (em:compound "srl_gt_" ((em:variable "O") (em:variable "T"))) (em:compound "srl_bool" ((em:variable "T") (em:variable "R"))))))))) .
-proof:record56 em:term (em:compound "step" ((em:compound "inf" ((em:iri :a) (em:iri :connected) (em:iri :b))) (em:compound "clause" ((em:integer "31"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :a))) (em:compound "=" ((em:atom "Y") (em:iri :b))) (em:compound "=" ((em:atom "R") (em:iri :l1))) (em:compound "=" ((em:atom "W") (em:integer "9"))) (em:compound "=" ((em:atom "R_2") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :link) (em:iri :b))) (em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri :weight) (em:integer "9"))) (em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
-proof:record57 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :a) (em:iri :link) (em:iri :b))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record58 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record59 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l1) (em:iri :weight) (em:integer "9"))) (em:compound "clause" ((em:integer "7"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record60 em:term (em:compound "step" ((em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "130"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "9"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "R") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "=" ((em:atom "O") (em:atom ">"))) (em:compound "=" ((em:atom "T") (em:atom "true"))))) (em:list ((em:compound "srl_order" ((em:integer "9") (em:integer "5") (em:atom ">"))) (em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))) (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
-proof:record61 em:term (em:compound "step" ((em:compound "srl_order" ((em:integer "9") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "108"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "9"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))))) (em:list ((em:compound "once" ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))))))))) .
-proof:record62 em:term (em:compound "step" ((em:compound "once" ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))))))) .
-proof:record63 em:term (em:compound "step" ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "109"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "9"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))) (em:compound "=" ((em:atom "_0") (em:atom "integer"))) (em:compound "=" ((em:atom "X") (em:integer "9"))) (em:compound "=" ((em:atom "_1") (em:atom "integer"))) (em:compound "=" ((em:atom "Y") (em:integer "5"))))) (em:list ((em:compound "srl_num" ((em:integer "9") (em:atom "integer") (em:integer "9"))) (em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))) (em:compound "srl_compare" ((em:integer "9") (em:integer "5") (em:atom ">"))))))) .
-proof:record64 em:term (em:compound "step" ((em:compound "srl_num" ((em:integer "9") (em:atom "integer") (em:integer "9"))) (em:compound "clause" ((em:integer "35"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "9"))))) (em:list ((em:compound "is_int" ((em:integer "9"))))))) .
-proof:record65 em:term (em:compound "step" ((em:compound "is_int" ((em:integer "9"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
-proof:record66 em:term (em:compound "step" ((em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))) (em:compound "clause" ((em:integer "35"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "5"))))) (em:list ((em:compound "is_int" ((em:integer "5"))))))) .
-proof:record67 em:term (em:compound "step" ((em:compound "is_int" ((em:integer "5"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
-proof:record68 em:term (em:compound "step" ((em:compound "srl_compare" ((em:integer "9") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "113"))) (em:list ((em:compound "=" ((em:atom "X") (em:integer "9"))) (em:compound "=" ((em:atom "Y") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))))) (em:list ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))))))) .
-proof:record69 em:term (em:compound "step" ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) .
-proof:record70 em:term (em:compound "step" ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
-proof:record71 em:term (em:compound "step" ((em:compound "unify" ((em:atom ">") (em:atom ">"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
-proof:record72 em:term (em:compound "step" ((em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))) (em:compound "clause" ((em:integer "122"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record73 em:term (em:compound "step" ((em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "126"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record74 em:term (em:compound "step" ((em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "75"))) (em:list ((em:compound "=" ((em:atom "T") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))) .
-proof:record75 em:term (em:compound "step" ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) (em:compound "clause" ((em:integer "63"))) (em:list ((em:compound "=" ((em:atom "T") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "=" ((em:atom "B") (em:atom "true"))))) (em:list ((em:compound "once" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))))) .
-proof:record76 em:term (em:compound "step" ((em:compound "once" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))) .
-proof:record77 em:term (em:compound "step" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) (em:compound "clause" ((em:integer "64"))) (em:list ((em:compound "=" ((em:atom "L") (em:atom "true"))) (em:compound "=" ((em:atom "B") (em:atom "true"))))) (em:list ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))))))) .
-proof:record78 em:term (em:compound "step" ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))) (em:compound "clause" ((em:integer "70"))) (em:list ((em:compound "=" ((em:atom "L") (em:atom "true"))) (em:compound "=" ((em:atom "B") (em:atom "true"))))) (em:list ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))))))))) .
-proof:record79 em:term (em:compound "step" ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))))))) .
-proof:record80 em:term (em:compound "step" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))))) .
-proof:record81 em:term (em:compound "step" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "clause" ((em:integer "71"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record82 em:term (em:compound "step" ((em:compound "unify" ((em:atom "true") (em:atom "true"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
-proof:record83 em:term (em:compound "step" ((em:compound "inf" ((em:iri :b) (em:iri :connected) (em:iri :d))) (em:compound "clause" ((em:integer "31"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :b))) (em:compound "=" ((em:atom "Y") (em:iri :d))) (em:compound "=" ((em:atom "R") (em:iri :l3))) (em:compound "=" ((em:atom "W") (em:integer "7"))) (em:compound "=" ((em:atom "R_2") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :b) (em:iri :link) (em:iri :d))) (em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri :weight) (em:integer "7"))) (em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
-proof:record84 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :b) (em:iri :link) (em:iri :d))) (em:compound "clause" ((em:integer "21"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record85 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "clause" ((em:integer "23"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record86 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l3) (em:iri :weight) (em:integer "7"))) (em:compound "clause" ((em:integer "27"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record87 em:term (em:compound "step" ((em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "130"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "7"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "R") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "=" ((em:atom "O") (em:atom ">"))) (em:compound "=" ((em:atom "T") (em:atom "true"))))) (em:list ((em:compound "srl_order" ((em:integer "7") (em:integer "5") (em:atom ">"))) (em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))) (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
-proof:record88 em:term (em:compound "step" ((em:compound "srl_order" ((em:integer "7") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "108"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "7"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))))) (em:list ((em:compound "once" ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))))))))) .
-proof:record89 em:term (em:compound "step" ((em:compound "once" ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))))))) .
-proof:record90 em:term (em:compound "step" ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "109"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "7"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))) (em:compound "=" ((em:atom "_0") (em:atom "integer"))) (em:compound "=" ((em:atom "X") (em:integer "7"))) (em:compound "=" ((em:atom "_1") (em:atom "integer"))) (em:compound "=" ((em:atom "Y") (em:integer "5"))))) (em:list ((em:compound "srl_num" ((em:integer "7") (em:atom "integer") (em:integer "7"))) (em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))) (em:compound "srl_compare" ((em:integer "7") (em:integer "5") (em:atom ">"))))))) .
-proof:record91 em:term (em:compound "step" ((em:compound "srl_num" ((em:integer "7") (em:atom "integer") (em:integer "7"))) (em:compound "clause" ((em:integer "35"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "7"))))) (em:list ((em:compound "is_int" ((em:integer "7"))))))) .
-proof:record92 em:term (em:compound "step" ((em:compound "is_int" ((em:integer "7"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
-proof:record93 em:term (em:compound "step" ((em:compound "srl_compare" ((em:integer "7") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "113"))) (em:list ((em:compound "=" ((em:atom "X") (em:integer "7"))) (em:compound "=" ((em:atom "Y") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))))) (em:list ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))))))) .
-proof:record94 em:term (em:compound "step" ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) .
-proof:record95 em:term (em:compound "step" ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
-proof:record96 em:term (em:compound "step" ((em:compound "inf" ((em:iri :a) (em:iri :connected) (em:iri :d))) (em:compound "clause" ((em:integer "32"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :a))) (em:compound "=" ((em:atom "Y") (em:iri :b))) (em:compound "=" ((em:atom "Z") (em:iri :d))))) (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :connected) (em:iri :b))) (em:compound "rdf" ((em:iri :b) (em:iri :connected) (em:iri :d))))))) .
-proof:record97 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :a) (em:iri :connected) (em:iri :b))) (em:compound "clause" ((em:integer "31"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :a))) (em:compound "=" ((em:atom "Y") (em:iri :b))) (em:compound "=" ((em:atom "R") (em:iri :l1))) (em:compound "=" ((em:atom "W") (em:integer "9"))) (em:compound "=" ((em:atom "R_2") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :link) (em:iri :b))) (em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri :weight) (em:integer "9"))) (em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
-proof:record98 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :b) (em:iri :connected) (em:iri :d))) (em:compound "clause" ((em:integer "31"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :b))) (em:compound "=" ((em:atom "Y") (em:iri :d))) (em:compound "=" ((em:atom "R") (em:iri :l3))) (em:compound "=" ((em:atom "W") (em:integer "7"))) (em:compound "=" ((em:atom "R_2") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :b) (em:iri :link) (em:iri :d))) (em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri :weight) (em:integer "7"))) (em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
-proof:record99 em:term (em:compound "step" ((em:compound "inf" ((em:iri :survey) (em:iri :reported) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "R") (em:iri :l1))) (em:compound "=" ((em:atom "X") (em:iri :a))) (em:compound "=" ((em:atom "Y") (em:iri :b))) (em:compound "=" ((em:atom "S") (em:iri :survey))))) (em:list ((em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri :source) (em:iri :survey))))))) .
-proof:record100 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l1) (em:iri :source) (em:iri :survey))) (em:compound "clause" ((em:integer "9"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record101 em:term (em:compound "step" ((em:compound "inf" ((em:iri :rumour) (em:iri :reported) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "R") (em:iri :l2))) (em:compound "=" ((em:atom "X") (em:iri :b))) (em:compound "=" ((em:atom "Y") (em:iri :c))) (em:compound "=" ((em:atom "S") (em:iri :rumour))))) (em:list ((em:compound "rdf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "rdf" ((em:iri :l2) (em:iri :source) (em:iri :rumour))))))) .
-proof:record102 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "clause" ((em:integer "13"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record103 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l2) (em:iri :source) (em:iri :rumour))) (em:compound "clause" ((em:integer "19"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record104 em:term (em:compound "step" ((em:compound "inf" ((em:iri :survey) (em:iri :reported) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "R") (em:iri :l3))) (em:compound "=" ((em:atom "X") (em:iri :b))) (em:compound "=" ((em:atom "Y") (em:iri :d))) (em:compound "=" ((em:atom "S") (em:iri :survey))))) (em:list ((em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri :source) (em:iri :survey))))))) .
-proof:record105 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l3) (em:iri :source) (em:iri :survey))) (em:compound "clause" ((em:integer "29"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record106 em:term (em:compound "step" ((em:compound "inf" ((em:iri :a) (em:iri :link) (em:iri :b))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record107 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "clause" ((em:integer "4"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record108 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l1) (em:iri :weight) (em:integer "9"))) (em:compound "clause" ((em:integer "8"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record109 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l1) (em:iri :source) (em:iri :survey))) (em:compound "clause" ((em:integer "10"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record110 em:term (em:compound "step" ((em:compound "inf" ((em:iri :b) (em:iri :link) (em:iri :c))) (em:compound "clause" ((em:integer "12"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record111 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "clause" ((em:integer "14"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record112 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l2) (em:iri :weight) (em:integer "2"))) (em:compound "clause" ((em:integer "18"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record113 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l2) (em:iri :source) (em:iri :rumour))) (em:compound "clause" ((em:integer "20"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record114 em:term (em:compound "step" ((em:compound "inf" ((em:iri :b) (em:iri :link) (em:iri :d))) (em:compound "clause" ((em:integer "22"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record115 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "clause" ((em:integer "24"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record116 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l3) (em:iri :weight) (em:integer "7"))) (em:compound "clause" ((em:integer "28"))) (em:atom "[]") (em:atom "[]"))) .
-proof:record117 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l3) (em:iri :source) (em:iri :survey))) (em:compound "clause" ((em:integer "30"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record44 em:term (em:compound "clause" ((em:integer "61") (em:compound "implied_by" ((em:compound "srl_numeric_value" ((em:atom "integer") (em:variable "N") (em:variable "N"))) (em:compound "is_int" ((em:variable "N"))))))) .
+proof:record45 em:term (em:compound "clause" ((em:integer "64") (em:compound "implied_by" ((em:compound "srl_pair" ((em:variable "A") (em:variable "B") (em:variable "K") (em:variable "X") (em:variable "Y"))) (em:list ((em:compound "srl_num" ((em:variable "A") (em:variable "KA") (em:variable "VA"))) (em:compound "srl_num" ((em:variable "B") (em:variable "KB") (em:variable "VB"))) (em:compound "srl_promote" ((em:variable "KA") (em:variable "KB") (em:variable "K"))) (em:compound "srl_numeric_value" ((em:variable "K") (em:variable "VA") (em:variable "X"))) (em:compound "srl_numeric_value" ((em:variable "K") (em:variable "VB") (em:variable "Y"))))))))) .
+proof:record46 em:term (em:compound "clause" ((em:integer "83") (em:compound "implied_by" ((em:compound "srl_value_compare" ((em:variable "X") (em:variable "Y") (em:variable "O"))) (em:list ((em:compound "is_int" ((em:variable "X"))) (em:compound "is_int" ((em:variable "Y"))) (em:compound "srl_compare" ((em:variable "X") (em:variable "Y") (em:variable "O"))))))))) .
+proof:record47 em:term (em:compound "clause" ((em:integer "116") (em:compound "implied_by" ((em:compound "srl_compare" ((em:variable "X") (em:variable "Y") (em:variable "O"))) (em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:variable "X") (em:variable "Y"))) (em:compound "unify" ((em:variable "O") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:variable "X") (em:variable "Y"))) (em:compound "unify" ((em:variable "O") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:variable "X") (em:variable "Y"))) (em:compound "unify" ((em:variable "O") (em:atom ">"))))))))))) .
+proof:record48 em:term (em:compound "clause" ((em:integer "117") (em:compound "implied_by" ((em:compound "srl_num" ((em:variable "T") (em:atom "integer") (em:variable "T"))) (em:compound "is_int" ((em:variable "T"))))))) .
+proof:record49 em:term (em:compound "clause" ((em:integer "140") (em:compound "fact" ((em:compound "srl_rank" ((em:atom "integer") (em:integer "0"))))))) .
+proof:record50 em:term (em:compound "clause" ((em:integer "144") (em:compound "implied_by" ((em:compound "srl_promote" ((em:variable "A") (em:variable "B") (em:variable "K"))) (em:list ((em:compound "srl_rank" ((em:variable "A") (em:variable "I"))) (em:compound "srl_rank" ((em:variable "B") (em:variable "J"))) (em:compound "is" ((em:variable "M") (em:compound "max" ((em:variable "I") (em:variable "J"))))) (em:compound "srl_rank" ((em:variable "K") (em:variable "M"))))))))) .
+proof:record51 em:term (em:compound "clause" ((em:integer "145") (em:compound "implied_by" ((em:compound "srl_ebv" ((em:variable "T") (em:variable "B"))) (em:compound "once" ((em:compound "srl_ebv_" ((em:variable "T") (em:variable "B"))))))))) .
+proof:record52 em:term (em:compound "clause" ((em:integer "146") (em:compound "implied_by" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:variable "L") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:variable "B"))) (em:compound "srl_boolean_text" ((em:variable "L") (em:variable "B"))))))) .
+proof:record53 em:term (em:compound "clause" ((em:integer "152") (em:compound "implied_by" ((em:compound "srl_boolean_text" ((em:variable "L") (em:variable "B"))) (em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:variable "L"))) (em:compound "unify" ((em:variable "B") (em:atom "true"))))) (em:compound "unify" ((em:variable "B") (em:atom "false"))))))))))) .
+proof:record54 em:term (em:compound "clause" ((em:integer "153") (em:compound "fact" ((em:compound "srl_true_text" ((em:atom "true"))))))) .
+proof:record55 em:term (em:compound "clause" ((em:integer "157") (em:compound "implied_by" ((em:compound "srl_true" ((em:variable "T"))) (em:compound "srl_ebv" ((em:variable "T") (em:atom "true"))))))) .
+proof:record56 em:term (em:compound "clause" ((em:integer "190") (em:compound "implied_by" ((em:compound "srl_order" ((em:variable "A") (em:variable "B") (em:variable "O"))) (em:compound "once" ((em:compound "srl_order_" ((em:variable "A") (em:variable "B") (em:variable "O"))))))))) .
+proof:record57 em:term (em:compound "clause" ((em:integer "191") (em:compound "implied_by" ((em:compound "srl_order_" ((em:variable "A") (em:variable "B") (em:variable "O"))) (em:list ((em:compound "srl_pair" ((em:variable "A") (em:variable "B") (em:variable "_0") (em:variable "X") (em:variable "Y"))) (em:compound "srl_value_compare" ((em:variable "X") (em:variable "Y") (em:variable "O"))))))))) .
+proof:record58 em:term (em:compound "clause" ((em:integer "206") (em:compound "fact" ((em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))))))) .
+proof:record59 em:term (em:compound "clause" ((em:integer "211") (em:compound "fact" ((em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record60 em:term (em:compound "clause" ((em:integer "215") (em:compound "implied_by" ((em:compound "srl_gt" ((em:variable "A") (em:variable "B") (em:variable "R"))) (em:list ((em:compound "srl_order" ((em:variable "A") (em:variable "B") (em:variable "O"))) (em:compound "srl_gt_" ((em:variable "O") (em:variable "T"))) (em:compound "srl_bool" ((em:variable "T") (em:variable "R"))))))))) .
+proof:record61 em:term (em:compound "step" ((em:compound "inf" ((em:iri :a) (em:iri :connected) (em:iri :b))) (em:compound "clause" ((em:integer "31"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :a))) (em:compound "=" ((em:atom "Y") (em:iri :b))) (em:compound "=" ((em:atom "R") (em:iri :l1))) (em:compound "=" ((em:atom "W") (em:integer "9"))) (em:compound "=" ((em:atom "R_2") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :link) (em:iri :b))) (em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri :weight) (em:integer "9"))) (em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record62 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :a) (em:iri :link) (em:iri :b))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record63 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "clause" ((em:integer "3"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record64 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l1) (em:iri :weight) (em:integer "9"))) (em:compound "clause" ((em:integer "7"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record65 em:term (em:compound "step" ((em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "215"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "9"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "R") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "=" ((em:atom "O") (em:atom ">"))) (em:compound "=" ((em:atom "T") (em:atom "true"))))) (em:list ((em:compound "srl_order" ((em:integer "9") (em:integer "5") (em:atom ">"))) (em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))) (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record66 em:term (em:compound "step" ((em:compound "srl_order" ((em:integer "9") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "190"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "9"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))))) (em:list ((em:compound "once" ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))))))))) .
+proof:record67 em:term (em:compound "step" ((em:compound "once" ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))))))) .
+proof:record68 em:term (em:compound "step" ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "191"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "9"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))) (em:compound "=" ((em:atom "_0") (em:atom "integer"))) (em:compound "=" ((em:atom "X") (em:integer "9"))) (em:compound "=" ((em:atom "Y") (em:integer "5"))))) (em:list ((em:compound "srl_pair" ((em:integer "9") (em:integer "5") (em:atom "integer") (em:integer "9") (em:integer "5"))) (em:compound "srl_value_compare" ((em:integer "9") (em:integer "5") (em:atom ">"))))))) .
+proof:record69 em:term (em:compound "step" ((em:compound "srl_pair" ((em:integer "9") (em:integer "5") (em:atom "integer") (em:integer "9") (em:integer "5"))) (em:compound "clause" ((em:integer "64"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "9"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "K") (em:atom "integer"))) (em:compound "=" ((em:atom "X") (em:integer "9"))) (em:compound "=" ((em:atom "Y") (em:integer "5"))) (em:compound "=" ((em:atom "KA") (em:atom "integer"))) (em:compound "=" ((em:atom "VA") (em:integer "9"))) (em:compound "=" ((em:atom "KB") (em:atom "integer"))) (em:compound "=" ((em:atom "VB") (em:integer "5"))))) (em:list ((em:compound "srl_num" ((em:integer "9") (em:atom "integer") (em:integer "9"))) (em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))) (em:compound "srl_promote" ((em:atom "integer") (em:atom "integer") (em:atom "integer"))) (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "9") (em:integer "9"))) (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "5") (em:integer "5"))))))) .
+proof:record70 em:term (em:compound "step" ((em:compound "srl_num" ((em:integer "9") (em:atom "integer") (em:integer "9"))) (em:compound "clause" ((em:integer "117"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "9"))))) (em:list ((em:compound "is_int" ((em:integer "9"))))))) .
+proof:record71 em:term (em:compound "step" ((em:compound "is_int" ((em:integer "9"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record72 em:term (em:compound "step" ((em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))) (em:compound "clause" ((em:integer "117"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "5"))))) (em:list ((em:compound "is_int" ((em:integer "5"))))))) .
+proof:record73 em:term (em:compound "step" ((em:compound "is_int" ((em:integer "5"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record74 em:term (em:compound "step" ((em:compound "srl_promote" ((em:atom "integer") (em:atom "integer") (em:atom "integer"))) (em:compound "clause" ((em:integer "144"))) (em:list ((em:compound "=" ((em:atom "A") (em:atom "integer"))) (em:compound "=" ((em:atom "B") (em:atom "integer"))) (em:compound "=" ((em:atom "K") (em:atom "integer"))) (em:compound "=" ((em:atom "I") (em:integer "0"))) (em:compound "=" ((em:atom "J") (em:integer "0"))) (em:compound "=" ((em:atom "M") (em:integer "0"))))) (em:list ((em:compound "srl_rank" ((em:atom "integer") (em:integer "0"))) (em:compound "srl_rank" ((em:atom "integer") (em:integer "0"))) (em:compound "is" ((em:integer "0") (em:compound "max" ((em:integer "0") (em:integer "0"))))) (em:compound "srl_rank" ((em:atom "integer") (em:integer "0"))))))) .
+proof:record75 em:term (em:compound "step" ((em:compound "srl_rank" ((em:atom "integer") (em:integer "0"))) (em:compound "clause" ((em:integer "140"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record76 em:term (em:compound "step" ((em:compound "is" ((em:integer "0") (em:compound "max" ((em:integer "0") (em:integer "0"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record77 em:term (em:compound "step" ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "9") (em:integer "9"))) (em:compound "clause" ((em:integer "61"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "9"))))) (em:list ((em:compound "is_int" ((em:integer "9"))))))) .
+proof:record78 em:term (em:compound "step" ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "5") (em:integer "5"))) (em:compound "clause" ((em:integer "61"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "5"))))) (em:list ((em:compound "is_int" ((em:integer "5"))))))) .
+proof:record79 em:term (em:compound "step" ((em:compound "srl_value_compare" ((em:integer "9") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "83"))) (em:list ((em:compound "=" ((em:atom "X") (em:integer "9"))) (em:compound "=" ((em:atom "Y") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))))) (em:list ((em:compound "is_int" ((em:integer "9"))) (em:compound "is_int" ((em:integer "5"))) (em:compound "srl_compare" ((em:integer "9") (em:integer "5") (em:atom ">"))))))) .
+proof:record80 em:term (em:compound "step" ((em:compound "srl_compare" ((em:integer "9") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "116"))) (em:list ((em:compound "=" ((em:atom "X") (em:integer "9"))) (em:compound "=" ((em:atom "Y") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))))) (em:list ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))))))) .
+proof:record81 em:term (em:compound "step" ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) .
+proof:record82 em:term (em:compound "step" ((em:compound "gt" ((em:integer "9") (em:integer "5"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record83 em:term (em:compound "step" ((em:compound "unify" ((em:atom ">") (em:atom ">"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record84 em:term (em:compound "step" ((em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))) (em:compound "clause" ((em:integer "206"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record85 em:term (em:compound "step" ((em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "211"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record86 em:term (em:compound "step" ((em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "157"))) (em:list ((em:compound "=" ((em:atom "T") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))) .
+proof:record87 em:term (em:compound "step" ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) (em:compound "clause" ((em:integer "145"))) (em:list ((em:compound "=" ((em:atom "T") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "=" ((em:atom "B") (em:atom "true"))))) (em:list ((em:compound "once" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))))) .
+proof:record88 em:term (em:compound "step" ((em:compound "once" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))) .
+proof:record89 em:term (em:compound "step" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) (em:compound "clause" ((em:integer "146"))) (em:list ((em:compound "=" ((em:atom "L") (em:atom "true"))) (em:compound "=" ((em:atom "B") (em:atom "true"))))) (em:list ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))))))) .
+proof:record90 em:term (em:compound "step" ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))) (em:compound "clause" ((em:integer "152"))) (em:list ((em:compound "=" ((em:atom "L") (em:atom "true"))) (em:compound "=" ((em:atom "B") (em:atom "true"))))) (em:list ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))))))))) .
+proof:record91 em:term (em:compound "step" ((em:compound "once" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))))))) .
+proof:record92 em:term (em:compound "step" ((em:compound "or" ((em:compound "and" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))) (em:compound "unify" ((em:atom "true") (em:atom "false"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "unify" ((em:atom "true") (em:atom "true"))))))) .
+proof:record93 em:term (em:compound "step" ((em:compound "srl_true_text" ((em:atom "true"))) (em:compound "clause" ((em:integer "153"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record94 em:term (em:compound "step" ((em:compound "unify" ((em:atom "true") (em:atom "true"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record95 em:term (em:compound "step" ((em:compound "inf" ((em:iri :b) (em:iri :connected) (em:iri :d))) (em:compound "clause" ((em:integer "31"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :b))) (em:compound "=" ((em:atom "Y") (em:iri :d))) (em:compound "=" ((em:atom "R") (em:iri :l3))) (em:compound "=" ((em:atom "W") (em:integer "7"))) (em:compound "=" ((em:atom "R_2") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :b) (em:iri :link) (em:iri :d))) (em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri :weight) (em:integer "7"))) (em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record96 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :b) (em:iri :link) (em:iri :d))) (em:compound "clause" ((em:integer "21"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record97 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "clause" ((em:integer "23"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record98 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l3) (em:iri :weight) (em:integer "7"))) (em:compound "clause" ((em:integer "27"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record99 em:term (em:compound "step" ((em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "clause" ((em:integer "215"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "7"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "R") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "=" ((em:atom "O") (em:atom ">"))) (em:compound "=" ((em:atom "T") (em:atom "true"))))) (em:list ((em:compound "srl_order" ((em:integer "7") (em:integer "5") (em:atom ">"))) (em:compound "srl_gt_" ((em:atom ">") (em:atom "true"))) (em:compound "srl_bool" ((em:atom "true") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record100 em:term (em:compound "step" ((em:compound "srl_order" ((em:integer "7") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "190"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "7"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))))) (em:list ((em:compound "once" ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))))))))) .
+proof:record101 em:term (em:compound "step" ((em:compound "once" ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))))))) .
+proof:record102 em:term (em:compound "step" ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "191"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "7"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))) (em:compound "=" ((em:atom "_0") (em:atom "integer"))) (em:compound "=" ((em:atom "X") (em:integer "7"))) (em:compound "=" ((em:atom "Y") (em:integer "5"))))) (em:list ((em:compound "srl_pair" ((em:integer "7") (em:integer "5") (em:atom "integer") (em:integer "7") (em:integer "5"))) (em:compound "srl_value_compare" ((em:integer "7") (em:integer "5") (em:atom ">"))))))) .
+proof:record103 em:term (em:compound "step" ((em:compound "srl_pair" ((em:integer "7") (em:integer "5") (em:atom "integer") (em:integer "7") (em:integer "5"))) (em:compound "clause" ((em:integer "64"))) (em:list ((em:compound "=" ((em:atom "A") (em:integer "7"))) (em:compound "=" ((em:atom "B") (em:integer "5"))) (em:compound "=" ((em:atom "K") (em:atom "integer"))) (em:compound "=" ((em:atom "X") (em:integer "7"))) (em:compound "=" ((em:atom "Y") (em:integer "5"))) (em:compound "=" ((em:atom "KA") (em:atom "integer"))) (em:compound "=" ((em:atom "VA") (em:integer "7"))) (em:compound "=" ((em:atom "KB") (em:atom "integer"))) (em:compound "=" ((em:atom "VB") (em:integer "5"))))) (em:list ((em:compound "srl_num" ((em:integer "7") (em:atom "integer") (em:integer "7"))) (em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))) (em:compound "srl_promote" ((em:atom "integer") (em:atom "integer") (em:atom "integer"))) (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "7") (em:integer "7"))) (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "5") (em:integer "5"))))))) .
+proof:record104 em:term (em:compound "step" ((em:compound "srl_num" ((em:integer "7") (em:atom "integer") (em:integer "7"))) (em:compound "clause" ((em:integer "117"))) (em:list ((em:compound "=" ((em:atom "T") (em:integer "7"))))) (em:list ((em:compound "is_int" ((em:integer "7"))))))) .
+proof:record105 em:term (em:compound "step" ((em:compound "is_int" ((em:integer "7"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record106 em:term (em:compound "step" ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "7") (em:integer "7"))) (em:compound "clause" ((em:integer "61"))) (em:list ((em:compound "=" ((em:atom "N") (em:integer "7"))))) (em:list ((em:compound "is_int" ((em:integer "7"))))))) .
+proof:record107 em:term (em:compound "step" ((em:compound "srl_value_compare" ((em:integer "7") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "83"))) (em:list ((em:compound "=" ((em:atom "X") (em:integer "7"))) (em:compound "=" ((em:atom "Y") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))))) (em:list ((em:compound "is_int" ((em:integer "7"))) (em:compound "is_int" ((em:integer "5"))) (em:compound "srl_compare" ((em:integer "7") (em:integer "5") (em:atom ">"))))))) .
+proof:record108 em:term (em:compound "step" ((em:compound "srl_compare" ((em:integer "7") (em:integer "5") (em:atom ">"))) (em:compound "clause" ((em:integer "116"))) (em:list ((em:compound "=" ((em:atom "X") (em:integer "7"))) (em:compound "=" ((em:atom "Y") (em:integer "5"))) (em:compound "=" ((em:atom "O") (em:atom ">"))))) (em:list ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))))))) .
+proof:record109 em:term (em:compound "step" ((em:compound "or" ((em:compound "or" ((em:compound "and" ((em:compound "lt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "<"))))) (em:compound "and" ((em:compound "eq" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom "="))))))) (em:compound "and" ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) (em:atom "control") (em:atom "[]") (em:list ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:compound "unify" ((em:atom ">") (em:atom ">"))))))) .
+proof:record110 em:term (em:compound "step" ((em:compound "gt" ((em:integer "7") (em:integer "5"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
+proof:record111 em:term (em:compound "step" ((em:compound "inf" ((em:iri :a) (em:iri :connected) (em:iri :d))) (em:compound "clause" ((em:integer "32"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :a))) (em:compound "=" ((em:atom "Y") (em:iri :b))) (em:compound "=" ((em:atom "Z") (em:iri :d))))) (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :connected) (em:iri :b))) (em:compound "rdf" ((em:iri :b) (em:iri :connected) (em:iri :d))))))) .
+proof:record112 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :a) (em:iri :connected) (em:iri :b))) (em:compound "clause" ((em:integer "31"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :a))) (em:compound "=" ((em:atom "Y") (em:iri :b))) (em:compound "=" ((em:atom "R") (em:iri :l1))) (em:compound "=" ((em:atom "W") (em:integer "9"))) (em:compound "=" ((em:atom "R_2") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :link) (em:iri :b))) (em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri :weight) (em:integer "9"))) (em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record113 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :b) (em:iri :connected) (em:iri :d))) (em:compound "clause" ((em:integer "31"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :b))) (em:compound "=" ((em:atom "Y") (em:iri :d))) (em:compound "=" ((em:atom "R") (em:iri :l3))) (em:compound "=" ((em:atom "W") (em:integer "7"))) (em:compound "=" ((em:atom "R_2") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))) (em:list ((em:compound "rdf" ((em:iri :b) (em:iri :link) (em:iri :d))) (em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri :weight) (em:integer "7"))) (em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record114 em:term (em:compound "step" ((em:compound "inf" ((em:iri :survey) (em:iri :reported) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "R") (em:iri :l1))) (em:compound "=" ((em:atom "X") (em:iri :a))) (em:compound "=" ((em:atom "Y") (em:iri :b))) (em:compound "=" ((em:atom "S") (em:iri :survey))))) (em:list ((em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri :source) (em:iri :survey))))))) .
+proof:record115 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l1) (em:iri :source) (em:iri :survey))) (em:compound "clause" ((em:integer "9"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record116 em:term (em:compound "step" ((em:compound "inf" ((em:iri :rumour) (em:iri :reported) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "R") (em:iri :l2))) (em:compound "=" ((em:atom "X") (em:iri :b))) (em:compound "=" ((em:atom "Y") (em:iri :c))) (em:compound "=" ((em:atom "S") (em:iri :rumour))))) (em:list ((em:compound "rdf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "rdf" ((em:iri :l2) (em:iri :source) (em:iri :rumour))))))) .
+proof:record117 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "clause" ((em:integer "13"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record118 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l2) (em:iri :source) (em:iri :rumour))) (em:compound "clause" ((em:integer "19"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record119 em:term (em:compound "step" ((em:compound "inf" ((em:iri :survey) (em:iri :reported) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "R") (em:iri :l3))) (em:compound "=" ((em:atom "X") (em:iri :b))) (em:compound "=" ((em:atom "Y") (em:iri :d))) (em:compound "=" ((em:atom "S") (em:iri :survey))))) (em:list ((em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri :source) (em:iri :survey))))))) .
+proof:record120 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :l3) (em:iri :source) (em:iri :survey))) (em:compound "clause" ((em:integer "29"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record121 em:term (em:compound "step" ((em:compound "inf" ((em:iri :a) (em:iri :link) (em:iri :b))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record122 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "clause" ((em:integer "4"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record123 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l1) (em:iri :weight) (em:integer "9"))) (em:compound "clause" ((em:integer "8"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record124 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l1) (em:iri :source) (em:iri :survey))) (em:compound "clause" ((em:integer "10"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record125 em:term (em:compound "step" ((em:compound "inf" ((em:iri :b) (em:iri :link) (em:iri :c))) (em:compound "clause" ((em:integer "12"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record126 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "clause" ((em:integer "14"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record127 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l2) (em:iri :weight) (em:integer "2"))) (em:compound "clause" ((em:integer "18"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record128 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l2) (em:iri :source) (em:iri :rumour))) (em:compound "clause" ((em:integer "20"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record129 em:term (em:compound "step" ((em:compound "inf" ((em:iri :b) (em:iri :link) (em:iri :d))) (em:compound "clause" ((em:integer "22"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record130 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "clause" ((em:integer "24"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record131 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l3) (em:iri :weight) (em:integer "7"))) (em:compound "clause" ((em:integer "28"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record132 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l3) (em:iri :source) (em:iri :survey))) (em:compound "clause" ((em:integer "30"))) (em:atom "[]") (em:atom "[]"))) .
 }

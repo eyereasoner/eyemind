@@ -1,10 +1,11 @@
 // The eyemind command line.
 import { run, unusedClauses } from './engine.js';
-import { OUTPUT_FORMATS, defaultFormat, loadInputs, rdfMessageFormat, scopeOf, writeConclusions, writeProof } from './formats.js';
+import { OUTPUT_FORMATS, defaultFormat, inputKind, loadInputs, rdfMessageFormat, scopeOf, writeConclusions, writeProof } from './formats.js';
 import { isRdfMessageLog, replayMessages, RdfMessageReader } from './messages.js';
 import { checkProof, checkReport, publicReport } from './proof.js';
 import { EyemindError } from './terms.js';
 import { VERSION } from './version.js';
+import { srlContextFromProof } from './srl.js';
 
 export const HELP = `Usage: eyemind [OPTION ...] [FILE ...]
 Programs are JavaScript; forward rules run to a fixpoint. Other files are read
@@ -178,7 +179,10 @@ export function main(argv, io) {
       }
       return 0;
     }
-    const loaded = loadInputs(files.map((file) => [readSource(file, io), file === '-' ? '<stdin>' : file]), io, { base, messageInputs: io.messageInputs });
+    const document = proofFile === null ? null : readSource(proofFile, io);
+    const loaded = loadInputs(files.map((file) => [readSource(file, io), file === '-' ? '<stdin>' : file]), io,
+      { base, messageInputs: io.messageInputs,
+        srlContext: document !== null && files.some((file) => inputKind(file) === 'srl') ? srlContextFromProof(document) : null });
     const program = loaded.program;
     if (printProgram) {
       stdout(loaded.text);
@@ -187,7 +191,6 @@ export function main(argv, io) {
     // A compiled program has the larger bounds, unless they are given.
     if (loaded.kind !== 'js') for (const [name, value] of Object.entries(COMPILED_LIMITS)) options[name] ??= value;
     if (proofFile !== null) {
-      const document = readSource(proofFile, io);
       const report = checkProof(program, document, { goals, allowTrusted: !strictProof });
       stdout(asJson ? `${JSON.stringify(publicReport(report), null, 2)}\n` : checkReport(report));
       // An invalid proof is a result, not an error: it has its own exit code.

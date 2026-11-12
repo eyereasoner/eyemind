@@ -912,5 +912,29 @@
     "trusted": [
       "call_fidelity"
     ]
+  },
+  {
+    "name": "execution-identifiers",
+    "files": [
+      "execution-identifiers.srl"
+    ],
+    "description": "Orders share one execution time and receive distinct UUID IRIs and strings",
+    "trusted": [
+      "call_fidelity"
+    ],
+    "srlContext": {
+      "now": "2026-11-12T00:00:00.000Z",
+      "seed": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    }
+  },
+  {
+    "name": "exact-decimals",
+    "files": [
+      "exact-decimals.srl"
+    ],
+    "description": "Exact decimal invoice totals and division alongside binary64 double arithmetic",
+    "trusted": [
+      "call_fidelity"
+    ]
   }
 ]

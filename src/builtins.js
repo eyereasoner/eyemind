@@ -212,6 +212,35 @@ function termText(args, resolved, env, bind) {
   return bind(args[1], write(copyResolved(args[0], env)));
 }
 
+// IEEE-754 exceptional values are atoms, keeping core numbers finite.
+// The conversion is explicit, like float(N) in arithmetic expressions.
+function float64(args, resolved, env, bind) {
+  const [op, a, b] = resolved;
+  if (!['parse', 'compare', 'trunc', 'convert', 'add', 'sub', 'mul', 'div', 'neg', 'abs', 'ceil', 'floor', 'round'].includes(op)) {
+    throw new EyemindError(`float64/4: unknown operation ${write(op)}`);
+  }
+  const special = { INF: Infinity, '-INF': -Infinity, NaN: NaN };
+  const decode = (v) => typeof v === 'number' || typeof v === 'bigint' ? Number(v)
+    : typeof v === 'string' && Object.hasOwn(special, v) ? special[v] : undefined;
+  const encode = (v) => Number.isNaN(v) ? 'NaN' : v === Infinity ? 'INF' : v === -Infinity ? '-INF' : v;
+  const y = decode(b);
+  if (y === undefined) return false;
+  if (op === 'parse') {
+    if (typeof a !== 'string' || !/^[\t\n\r ]*(?:[+-]?(?:INF|(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?)|NaN)[\t\n\r ]*$/.test(a)) return false;
+    const text = a.trim();
+    return bind(args[3], encode(/^[+]?INF$/.test(text) ? Infinity : text === '-INF' ? -Infinity : Number(text)));
+  }
+  const x = decode(a);
+  if (x === undefined) return false;
+  if (op === 'compare') return bind(args[3], Number.isNaN(x) || Number.isNaN(y) ? 'unordered' : x < y ? '<' : x > y ? '>' : '=');
+  if (op === 'trunc') return Number.isFinite(x) && bind(args[3], BigInt(Math.trunc(x)));
+  const operations = {
+    convert: () => x, add: () => x + y, sub: () => x - y, mul: () => x * y, div: () => x / y,
+    neg: () => -x, abs: () => Math.abs(x), ceil: () => Math.ceil(x), floor: () => Math.floor(x), round: () => Math.round(x),
+  };
+  return bind(args[3], encode(operations[op]()));
+}
+
 const isNumberValue = (term) => typeof term === 'bigint' || typeof term === 'number';
 
 export const TESTS = new Map([
@@ -249,6 +278,7 @@ export const TESTS = new Map([
   ['atom_upper/2', caseConversion('atom_upper/2', (a) => a.toUpperCase())],
   ['digest/3', digest],
   ['term_text/2', termText],
+  ['float64/4', float64],
   ['regex_match/2', regexMatch],
   ['regex_replace/4', regexReplace],
 ]);

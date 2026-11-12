@@ -59,7 +59,9 @@ class Parser {
         this.parseImports();
       } else if (this.matchWord('DATA')) {
         this.expectValue('{');
-        data.push(...this.parseTriplesBlock({ allowPath: false, context: 'data' }));
+        // eyemind: native certificates can expand into more triples than a
+        // host permits as function arguments to one push(...triples).
+        for (const triple of this.parseTriplesBlock({ allowPath: false, context: 'data' })) data.push(triple);
       } else if (this.matchWord('RULE')) {
         rules.push(this.parseRule());
       } else {
@@ -153,7 +155,7 @@ class Parser {
   parseTriplesBlock(options = {}) {
     const triples = [];
     while (!this.matchValue('}')) {
-      triples.push(...this.parseTripleStatement(options));
+      for (const triple of this.parseTripleStatement(options)) triples.push(triple);
       this.consumeOptionalDot();
     }
     return triples;
@@ -162,7 +164,7 @@ class Parser {
   parseTripleStatement(options = {}) {
     const subjectNode = this.parseGraphNode({ ...options, position: 'subject' });
     const triples = [...subjectNode.triples];
-    triples.push(...this.parsePropertyListForSubject(subjectNode.term, options));
+    for (const triple of this.parsePropertyListForSubject(subjectNode.term, options)) triples.push(triple);
     return triples;
   }
 
@@ -175,10 +177,10 @@ class Parser {
       const predicate = options.allowPath ? this.parseVerbPathOrSimple(options) : this.parseVerbTerm(options);
       do {
         const objectNode = this.parseGraphNode({ ...options, position: 'object' });
-        triples.push(...objectNode.triples);
+        for (const triple of objectNode.triples) triples.push(triple);
         const baseTriple = { s: subject, p: predicate, o: objectNode.term };
         triples.push(baseTriple);
-        triples.push(...this.parseAnnotationsForTriple(baseTriple, options));
+        for (const triple of this.parseAnnotationsForTriple(baseTriple, options)) triples.push(triple);
       } while (this.matchValue(','));
 
       if (this.matchValue(';')) {
@@ -216,7 +218,7 @@ class Parser {
     const triples = [];
     while (true) {
       const item = this.parseGraphNode(options);
-      triples.push(...item.triples);
+      for (const triple of item.triples) triples.push(triple);
       triples.push({ s: current, p: iri(RDF_FIRST), o: item.term });
       if (this.matchValue(')')) {
         triples.push({ s: current, p: iri(RDF_REST), o: iri(RDF_NIL) });
@@ -253,7 +255,7 @@ class Parser {
         if (this.checkValue('|}')) throw this.error('Annotation blocks may not be empty');
         const annotationSubject = currentReifier || this.freshGraphNode(options);
         triples.push({ s: annotationSubject, p: iri(RDF_REIFIES), o: reified });
-        triples.push(...this.parsePropertyListForSubject(annotationSubject, options, ['|}']));
+        for (const triple of this.parsePropertyListForSubject(annotationSubject, options, ['|}'])) triples.push(triple);
         this.expectValue('|}');
       }
     }

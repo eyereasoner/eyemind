@@ -20,13 +20,13 @@ inf(iri('http://example.org/links#l3'), iri('http://example.org/links#source'), 
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 48)
-condition('C2', 'well_founded', 'ok', 62)
-condition('C3', 'justification', 'ok', 62)
-condition('C4', 'coverage', 'ok', 83)
-condition('C5', 're_decision', 'ok', 14)
+condition('C1', 'resolution', 'ok', 57)
+condition('C2', 'well_founded', 'ok', 72)
+condition('C3', 'justification', 'ok', 72)
+condition('C4', 'coverage', 'ok', 104)
+condition('C5', 're_decision', 'ok', 15)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 80)
+condition('C7', 'relevance', 'ok', 90)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
@@ -52,9 +52,9 @@ obligation('call_fidelity', 'original_call', inf(iri('http://example.org/links#l
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/links#l3'), iri('http://example.org/links#source'), iri('http://example.org/links#survey')))
 
 // Proof statistics: recorded steps and how they were checked.
-steps(62)
-verified(48)
-recomputed(7)
+steps(72)
+verified(57)
+recomputed(8)
 composed(7)
 trusted(18)
 claims(18)

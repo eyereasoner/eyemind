@@ -12,8 +12,8 @@
 //   .srl                     a SPARQL 1.2 RL rule set, compiled to one
 //
 // The compiled program is ordinary eyemind: proofs, checking and --unused
-// apply to it, and compiling is deterministic, so a saved proof checks later
-// against the same inputs.
+// apply to it. SRL execution functions capture a context that a saved proof
+// retains; compiling with that context reproduces the same program later.
 import { EyemindError, Struct } from './terms.js';
 import { loadSources } from './lang.js';
 import { readTerms } from './reader.js';
@@ -55,7 +55,7 @@ export function loadInputs(inputs, io = null, options = {}) {
   }
 }
 
-function load(inputs, io, { base = null, messageInputs = null }) {
+function load(inputs, io, { base = null, messageInputs = null, srlContext = null }) {
   const kinds = inputs.map(([text, name]) => messageInputs?.has(name) ||
     (inputKind(name) === 'n3' && isRdfMessageLog(text)) ? 'rdf' : inputKind(name));
   const baseOf = (name) => base ?? io?.fileIri?.(name) ?? null;
@@ -75,7 +75,7 @@ function load(inputs, io, { base = null, messageInputs = null }) {
       if (parsed.triples) throw new EyemindError('RDF Message Log replay needs N3 or JavaScript rules; a SPARQL rule set takes an RDF base graph');
       return parsed.quads;
     });
-    const compiled = compileSrl(text, { base: baseOf(name), filename: name, resolve: importResolver(io), data });
+    const compiled = compileSrl(text, { base: baseOf(name), filename: name, resolve: importResolver(io), data, context: srlContext });
     for (const warning of compiled.warnings) io?.stderr?.(`eyemind: warning: ${warning}\n`);
     return { kind: 'srl', program: loadSources([[compiled.program, name]], io), text: compiled.program, prefixes: compiled.prefixes, compiled };
   }

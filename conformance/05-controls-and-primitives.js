@@ -2344,3 +2344,49 @@ conformance('term_text needs a ground term', [
   stderr('nonempty'),
   stdout([]),
 ])
+
+conformance('float64 retains exceptional values and explicit binary64 rounding', [
+  spec('4.3'),
+  file('program.js', [
+    "query(float64('add', float(0.1), float(0.2), R))",
+    "query(float64('div', float(1), float(-0), R))",
+    "query(float64('mul', float(1e300), float(1e300), R))",
+    "query(float64('div', float(0), float(0), R))",
+    "query(float64('compare', 'NaN', float(1), R))",
+    "query(float64('parse', '1e400', 0, R))",
+    "query(float64('convert', 9007199254740993n, 0, R))",
+    "query(float64('round', float(-0.5), 0, R))",
+    "query(float64('trunc', float(-2.5), 0, R))",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "float64('add', 0.1, 0.2, 0.30000000000000004)",
+    "float64('div', 1.0, -0.0, '-INF')",
+    "float64('mul', 1e+300, 1e+300, 'INF')",
+    "float64('div', 0.0, 0.0, 'NaN')",
+    "float64('compare', 'NaN', 1.0, 'unordered')",
+    "float64('parse', '1e400', 0, 'INF')",
+    "float64('convert', 9007199254740993, 0, 9007199254740992.0)",
+    "float64('round', -0.5, 0, -0.0)",
+    "float64('trunc', -2.5, 0, -2)",
+  ]),
+])
+
+conformance('float64 rejects invalid inputs and nonfinite integer conversion', [
+  spec('4.3'),
+  file('program.js', [
+    "query(float64('parse', '1.2oops', 0, R))",
+    "query(float64('convert', 'toString', 0, R))",
+    "query(float64('trunc', 'INF', 0, R))",
+    "query(float64('add', float(1), float(2), float(4)))",
+  ]),
+  stdout(['// No answers: no query() instance holds.']),
+])
+
+conformance('float64 needs a known operation', [
+  spec('4.3'),
+  exit(1),
+  file('program.js', ["query(float64('unknown', float(1), float(2), R))"]),
+  stderr('nonempty'),
+  stdout([]),
+])

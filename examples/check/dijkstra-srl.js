@@ -48,13 +48,13 @@ inf(iri('http://example.org/dijkstra#abcd'), iri('http://example.org/dijkstra#ri
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 128)
-condition('C2', 'well_founded', 'ok', 167)
-condition('C3', 'justification', 'ok', 167)
-condition('C4', 'coverage', 'ok', 296)
-condition('C5', 're_decision', 'ok', 36)
+condition('C1', 'resolution', 'ok', 140)
+condition('C2', 'well_founded', 'ok', 175)
+condition('C3', 'justification', 'ok', 175)
+condition('C4', 'coverage', 'ok', 327)
+condition('C5', 're_decision', 'ok', 32)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 213)
+condition('C7', 'relevance', 'ok', 221)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 3)
 condition('C10', 'call_fidelity', 'ok', 0)
@@ -108,10 +108,10 @@ obligation('call_fidelity', 'original_call', inf(iri('http://example.org/dijkstr
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/dijkstra#abcd'), iri('http://example.org/dijkstra#rightCost'), 3))
 
 // Proof statistics: recorded steps and how they were checked.
-steps(167)
-verified(128)
+steps(175)
+verified(140)
 recomputed(20)
-composed(16)
+composed(12)
 trusted(46)
 claims(46)
 

@@ -28,7 +28,9 @@
 // head triple term with variables) needs no more: the rule set's analysis
 // has rejected those that depend on their own conclusions, and the others
 // conclude the same when they run alongside what they read, because SET and
-// Skolem terms give the same values in every round.
+// Skolem terms give the same values in every round. Execution functions
+// retain their captured context and identify each UUID by its incoming
+// solution and expression occurrence.
 import { analyze } from './srl-analyze.js';
 import { BUILTIN_SIGNATURES, canonicalBuiltinName } from './srl-builtin-names.js';
 import { libraryText } from './srl-functions.js';
@@ -38,6 +40,7 @@ import { loadText } from './lang.js';
 import { DEFAULT_GRAPH } from './rdf.js';
 import { readTerms } from './reader.js';
 import { Struct } from './terms.js';
+import { readProofTerms } from './native-proof.js';
 import { write } from './writer.js';
 
 export class SrlError extends Error {}
@@ -96,14 +99,15 @@ const RESERVED = new Set(['Math', 'JSON', 'BigInt', 'Infinity', 'NaN', 'undefine
 
 // Compile a rule set's text. Options: base (IRI), filename, resolve (for
 // IMPORTS, see readRuleSet), data (the base graph, as RDF quads from
-// parseRdf, in its default graph). Returns { program, prefixes, warnings }.
-export function compileSrl(text, { base = null, filename = '<input>', resolve = null, data = [] } = {}) {
+// parseRdf, in its default graph), context (a recorded execution's now and
+// seed). Returns { program, prefixes, warnings, context }.
+export function compileSrl(text, { base = null, filename = '<input>', resolve = null, data = [], context = null } = {}) {
   const ruleSet = readRuleSet(text, { base, filename, resolve });
-  return compileRuleSet(ruleSet, { data, source: filename });
+  return compileRuleSet(ruleSet, { data, source: filename, context });
 }
 
 // Compile a parsed rule set over a base graph of RDF quads.
-export function compileRuleSet(ruleSet, { data = [], source = '<input>' } = {}) {
+export function compileRuleSet(ruleSet, { data = [], source = '<input>', context = null } = {}) {
   const needed = new Set();
   const warnings = [];
   const lines = [
@@ -122,10 +126,49 @@ export function compileRuleSet(ruleSet, { data = [], source = '<input>' } = {}) 
   ruleSet.rules.forEach((rule, index) => {
     lines.push(...new RuleCompiler(rule, index + 1, { needed, warnings }).compile());
   });
+  if (needed.has('srl_now') || needed.has('srl_uuid')) {
+    context = executionContext(context);
+    lines.push(`fact(srl_execution(${q(context.now)}, ${q(context.seed)}))`);
+  }
   lines.push('query(inf(S, P, O))');
   const library = libraryText(needed);
   if (library) lines.push('', '// SPARQL functions and aggregates.', library);
-  return { program: `${lines.join('\n')}\n`, prefixes: ruleSet.prefixes, warnings };
+  return { program: `${lines.join('\n')}\n`, prefixes: ruleSet.prefixes, warnings, context };
+}
+
+// Clock and entropy are inputs captured once when the rule set is compiled.
+// A saved proof carries this one fact; replay validates its shape and then
+// recompiles the source. No other clause display becomes source authority.
+function executionContext(context) {
+  if (context === null) {
+    const bytes = new Uint8Array(32);
+    if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(bytes);
+    else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+    context = { now: new Date().toISOString(), seed: [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('') };
+  }
+  if (typeof context?.now !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(context.now) ||
+      !Number.isFinite(Date.parse(context.now)) || new Date(context.now).toISOString() !== context.now ||
+      typeof context.seed !== 'string' || !/^[0-9a-f]{64}$/.test(context.seed)) {
+    throw new SrlError('an SRL execution context needs a UTC now timestamp and a 64-digit lowercase hexadecimal seed');
+  }
+  return { now: context.now, seed: context.seed };
+}
+
+export function srlContextFromProof(document) {
+  try {
+    const contexts = readProofTerms(document).map(([term]) => term)
+      .filter((t) => t instanceof Struct && t.name === 'clause' && t.args.length === 2)
+      .map((t) => t.args[1])
+      .filter((t) => t instanceof Struct && t.name === 'fact' && t.args.length === 1)
+      .map((t) => t.args[0])
+      .filter((t) => t instanceof Struct && t.name === 'srl_execution' && t.args.length === 2);
+    if (contexts.length !== 1) return null;
+    return executionContext({ now: contexts[0].args[0], seed: contexts[0].args[1] });
+  } catch {
+    // The ordinary checker reports malformed certificates, including native
+    // displays that disagree with their complete encoded records.
+    return null;
+  }
 }
 
 // RDF terms as eyemind terms. Blank nodes of data are bnode(Scope, Label).
@@ -173,6 +216,7 @@ class RuleCompiler {
     this.helpers = [];
     this.helperCount = 0;
     this.terms = new Terms('srl');
+    this.sites = new WeakMap();
   }
 
   compile() {
@@ -507,10 +551,22 @@ class RuleCompiler {
         };
       }
       case 'NOW':
-        throw new SrlError('NOW is not supported: eyemind has no clock');
+        return this.call('srl_now', []);
       case 'UUID':
-      case 'STRUUID':
-        throw new SrlError(`${name} is not supported: eyemind has no source of random identifiers`);
+      case 'STRUUID': {
+        this.need('srl_uuid');
+        if (!this.sites.has(expr)) this.sites.set(expr, ++this.helperCount);
+        const site = this.sites.get(expr);
+        const solution = [...scope.allBound()].sort().map((v) => scope.name(v));
+        const id = this.fresh('Uuid');
+        const value = this.fresh('R');
+        const goals = [`srl_uuid(${this.number}, ${site}, [${solution.join(', ')}], ${id})`];
+        if (name === 'UUID') {
+          const iri = this.fresh('Iri');
+          goals.push(`atom_concat('urn:uuid:', ${id}, ${iri})`, `unify(${value}, iri(${iri}))`);
+        } else goals.push(`unify(${value}, literal(${id}, datatype('${XSD}string')))`);
+        return { goals, value };
+      }
       default:
         throw new SrlError(`${name} is not supported`);
     }
@@ -551,7 +607,8 @@ class Scope {
   }
 
   allBound() {
-    return new Set([...(this.parent ? this.parent.allBound() : []), ...this.bound]);
+    const inherited = this.parent ? [...this.parent.allBound()].filter((v) => this.keys?.has(v)) : [];
+    return new Set([...inherited, ...this.bound]);
   }
 
   term(t) {
@@ -617,10 +674,10 @@ export const SRL_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferen
 // Returns { quads, program, prefixes, warnings, result }: the quads are the
 // inference graph's, and with proof, result.proof is eyemind's checked
 // proof of the compiled program.
-export function reasonSrl(text, { base = null, filename = '<input>', resolve = null, data = [], all = false, limits = {}, proof = false } = {}) {
-  const { program, prefixes, warnings } = compileSrl(text, { base, filename, resolve, data });
+export function reasonSrl(text, { base = null, filename = '<input>', resolve = null, data = [], all = false, limits = {}, proof = false, context = null } = {}) {
+  const { program, prefixes, warnings, context: execution } = compileSrl(text, { base, filename, resolve, data, context });
   const result = run(loadText(program, 'compiled.js'), { ...SRL_LIMITS, ...limits, proof });
-  return { quads: srlQuads(program, result.answers, { all }), program, prefixes, warnings, result };
+  return { quads: srlQuads(program, result.answers, { all }), program, prefixes, warnings, result, context: execution };
 }
 
 // The inference graph of a run's answers, as quads in the default graph:

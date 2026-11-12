@@ -14,12 +14,12 @@ inf(iri('http://example.org/people#p3'), iri('http://example.org/people#name'), 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
 condition('C1', 'resolution', 'ok', 55)
-condition('C2', 'well_founded', 'ok', 89)
-condition('C3', 'justification', 'ok', 89)
+condition('C2', 'well_founded', 'ok', 88)
+condition('C3', 'justification', 'ok', 88)
 condition('C4', 'coverage', 'ok', 143)
-condition('C5', 're_decision', 'ok', 34)
+condition('C5', 're_decision', 'ok', 33)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 100)
+condition('C7', 'relevance', 'ok', 99)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
@@ -38,9 +38,9 @@ obligation('call_fidelity', 'original_call', inf(iri('http://example.org/people#
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/people#p3'), iri('http://example.org/people#name'), literal('Ἀριστοτέλης', lang('grc'))))
 
 // Proof statistics: recorded steps and how they were checked.
-steps(89)
+steps(88)
 verified(55)
-recomputed(30)
+recomputed(29)
 composed(4)
 trusted(11)
 claims(11)

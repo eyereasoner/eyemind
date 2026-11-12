@@ -125,7 +125,9 @@ for (const entry of MANIFEST) {
       assert.equal(outputText(loaded, { answers: readTerms(answers).map(([term]) => write(term)) }), output);
     }
     if (large(entry)) return;
-    const result = cli(['--prove-and-check', ...inputs(entry)]);
+    const result = entry.srlContext
+      ? cli(['--check-proof', relative(ROOT, artifactPath('proof', entry)), ...inputs(entry)])
+      : cli(['--prove-and-check', ...inputs(entry)]);
     assert.equal(result.code, entry.halt_code ?? 0, result.stderr);
     assert.equal(result.stdout, saved);
   };

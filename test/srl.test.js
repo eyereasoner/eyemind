@@ -4,9 +4,10 @@
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { checkProof, loadText } from '../src/index.js';
+import { checkProof, loadText, run } from '../src/index.js';
 import { parseRdf, rdfFormat, writeRdf } from '../src/rdf.js';
-import { SrlError, compileSrl, parseRuleSet, readRuleSet, reasonSrl } from '../src/srl.js';
+import { SrlError, compileSrl, parseRuleSet, readRuleSet, reasonSrl, srlContextFromProof } from '../src/srl.js';
+import { loadInputs, writeProof } from '../src/formats.js';
 import { assert, command } from './helpers.js';
 import { runSparqlRl } from './w3c.js';
 
@@ -54,6 +55,10 @@ test('parser: data blocks, rules and prefixes', () => {
   assert.equal(rs.rules.length, 1);
   assert.equal(rs.prefixes[''], 'http://example/');
 });
+test('parser: large DATA blocks do not use the host function argument stack', () => {
+  const rs = parseRuleSet(`${P}DATA { :s :p (${' :v'.repeat(70000)} ) }`);
+  assert.equal(rs.data.length, 140001);
+});
 test('parser: the grammar is SPARQL 1.2 RL', () => {
   assert.throws(() => parseRuleSet(`${P}RULE { ?x :q ?y } WHERE { ?x :p ?y BIND(1 AS ?z) }`), /BIND is not part of the SPARQL 1.2 RL grammar/);
   assert.throws(() => parseRuleSet(`${P}IF { ?x :p ?y } THEN { ?x :q ?y }`), /Expected PREFIX, BASE, VERSION, IMPORTS, DATA, or RULE/);
@@ -96,9 +101,55 @@ test('compiler: an unknown function is an error expression, with a warning', () 
   assert.match(warnings[0], /the function <http:\/\/example\/f> is not known/);
   assert.deepEqual(derived('RULE { :r :v ?v } WHERE { SET(?v := :f(1)) }'), []);
 });
-test('compiler: NOW and UUID say why they are not supported', () => {
-  assert.throws(() => compileSrl(`${P}RULE { :r :v ?v } WHERE { SET(?v := NOW()) }`), /NOW is not supported: eyemind has no clock/);
-  assert.throws(() => compileSrl(`${P}RULE { :r :v ?v } WHERE { SET(?v := STRUUID()) }`), /STRUUID is not supported/);
+test('NOW is one timestamp throughout the rule set, with fresh contexts for executions', () => {
+  const before = Date.now();
+  const text = `${P}DATA { :a :p :x, :y } RULE { ?n :at ?a ; :again ?b } WHERE { :a :p ?n SET(?a := NOW()) SET(?b := NOW()) } RULE { :other :at ?t } WHERE { SET(?t := NOW()) }`;
+  const r = srl(text, { proof: true });
+  const times = r.quads.filter((q) => q[1].args[0] !== 'http://example/p').map((q) => q[2].args[0]);
+  assert.equal(times.length, 5);
+  assert.equal(new Set(times).size, 1);
+  assert.ok(Date.parse(times[0]) >= before && Date.parse(times[0]) <= Date.now());
+  assert.notEqual(compileSrl(text).context.seed, r.context.seed);
+});
+test('UUID and STRUUID have distinct values per solution, site, rule and execution', () => {
+  const text = `${P}DATA { :a :p :x, :y } RULE { ?n :iri ?u ; :text ?s ; :other ?v } WHERE { :a :p ?n SET(?u := UUID()) SET(?s := STRUUID()) SET(?v := UUID()) } RULE { :r :iri ?u } WHERE { SET(?u := UUID()) }`;
+  const r = srl(text, { proof: true });
+  const ids = r.quads.filter((q) => q[1].args[0] !== 'http://example/p').map((q) => {
+    assert.equal(q[2].name, q[1].args[0] === 'http://example/text' ? 'literal' : 'iri');
+    return q[2].args[0].replace(/^urn:uuid:/, '');
+  });
+  assert.equal(ids.length, 7);
+  assert.equal(new Set(ids).size, 7);
+  assert.ok(ids.every((id) => /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(id)));
+  assert.notEqual(srl(text).turtle, r.turtle);
+  assert.equal(srl(text, { context: r.context }).turtle, r.turtle);
+});
+test('UUID functions in GROUP see only its keys and local solution variables', () => {
+  const text = 'DATA { :a :p 1 . :b :q 2, 3 } RULE { :r :count ?n } WHERE { :a :p ?outer GROUP { :b :q ?v FILTER(UUID() != UUID()) } [ ?n := COUNT(*) ] }';
+  assert.ok(derived(text).includes(':r :count 2 .'));
+  const keyed = 'DATA { :a :p 1 . :b :q 2, 3 } RULE { ?v :count ?n } WHERE { :a :p ?outer GROUP BY ?v { :b :q ?v FILTER(STRUUID() != STRUUID()) } [ ?n := COUNT(*) ] }';
+  assert.equal(derived(keyed).filter((line) => line.includes(':count 1')).length, 2);
+});
+test('saved SRL execution proofs replay their context and reject forged computations', () => {
+  const text = `${P}RULE { :r :time ?t ; :id ?u ; :sum ?n } WHERE { SET(?t := NOW()) SET(?u := UUID()) SET(?n := 0.1 + 0.2) }`;
+  const loaded = loadInputs([[text, 'run.srl']]);
+  const r = srl(text, { context: loaded.compiled.context, proof: true });
+  const proof = writeProof(loaded, r.result);
+  const replay = compileSrl(text, { context: srlContextFromProof(proof) });
+  assert.ok(checkProof(loadText(replay.program), proof).valid);
+  const forged = r.result.proof.replaceAll('0.3', '0.4');
+  assert.ok(!checkProof(loadText(replay.program), forged).valid);
+  const forgedId = r.result.proof.replaceAll(/urn:uuid:[0-9a-f-]+/g, 'urn:uuid:00000000-0000-4000-8000-000000000000');
+  assert.ok(!checkProof(loadText(replay.program), forgedId).valid);
+  const dir = mkdtempSync(join(tmpdir(), 'eyemind-srl-clock-'));
+  const source = join(dir, 'run.srl');
+  const saved = join(dir, 'proof.srl');
+  writeFileSync(source, text);
+  writeFileSync(saved, proof);
+  const check = command(['--check-proof', saved, source]);
+  assert.equal(check.code, 0, check.stderr);
+  assert.match(check.stdout, /verdict\('checked_with_obligations'\)/);
+  assert.throws(() => compileSrl(text, { context: { now: '2026-02-30T00:00:00.000Z', seed: '0'.repeat(64) } }), /execution context/);
 });
 test('compiler: wrong arities are errors', () => {
   assert.throws(() => compileSrl(`${P}RULE { :r :v ?v } WHERE { SET(?v := STRLEN("a", "b")) }`), /STRLEN takes 1 arguments, not 2/);
@@ -156,12 +207,72 @@ test('arithmetic keeps SPARQL numeric types', () => {
   assert.equal(value('123456789012345678901234567890 + 1'), '123456789012345678901234567891');
   assert.equal(value('xsd:decimal(1.0e22)'), '10000000000000000000000.0');
 });
-test('errors drop a solution: division by zero, wrong types', () => {
+test('decimals preserve exact values through arithmetic, comparisons, casts and rounding', () => {
+  const cases = [
+    ['0.1 + 0.2', '0.3'], ['0.3 - 0.1', '0.2'], ['0.1 * 0.2', '0.02'],
+    ['9007199254740993.1 + 0.2', '9007199254740993.3'],
+    ['9007199254740993.1 > 9007199254740993.0', 'true'],
+    ['0.1 + 0.2 = 0.3', 'true'], ['1 / 8', '0.125'],
+    ['1 / 3', '0.3333333333333333333333333333333333'],
+    ['2 / 3', '0.6666666666666666666666666666666667'],
+    ['xsd:decimal("9007199254740993.100")', '9007199254740993.1'],
+    ['xsd:integer(9007199254740993.9)', '9007199254740993'],
+    ['xsd:boolean(0.0000000000000000000000000000000001)', 'true'],
+    ['ABS(-9007199254740993.1)', '9007199254740993.1'],
+    ['FLOOR(-9007199254740993.1)', '-9007199254740994.0'],
+    ['CEIL(9007199254740993.1)', '9007199254740994.0'],
+    ['ROUND(9007199254740993.5)', '9007199254740994.0'],
+    ['ROUND(-9007199254740993.5)', '-9007199254740993.0'],
+    ['0.1e0 + 0.2', '"0.30000000000000004"^^xsd:double'],
+    ['xsd:decimal("1e2")', null],
+    ['" 0.1 "^^xsd:decimal + 0.2', '0.3'],
+    ['" 001 "^^xsd:integer + 0.2', '1.2'],
+    ['xsd:decimal(" 0.2 ")', '0.2'],
+    [`1 / ${2n ** 100n}`, '0.0000000000000000000000000000007888609052210118054117285652827862296732064351090230047702789306640625'],
+  ];
+  for (const [expr, expected] of cases) assert.equal(value(expr), expected, expr);
+  checked('RULE { :r :v ?v } WHERE { SET(?v := 9007199254740993.1 + 0.2) }');
+});
+test('decimal SUM, MIN and MAX compare exact values', () => {
+  const out = reason('DATA { :a :n 0.1, 0.2, 9007199254740993.1, 9007199254740993.2 } RULE { :r :sum ?s ; :min ?lo ; :max ?hi } WHERE { GROUP { :a :n ?v } [ ?s := SUM(?v), ?lo := MIN(?v), ?hi := MAX(?v) ] }');
+  assert.match(out, /:r :sum 18014398509481986.6/);
+  assert.match(out, /:r :min 0.1/);
+  assert.match(out, /:r :max 9007199254740993.2/);
+});
+test('errors drop a solution: decimal division by zero, wrong types', () => {
   assert.equal(value('1 / 0'), null);
   assert.equal(value('"a" + 1'), null);
-  assert.equal(value('1.0e300 * 1.0e300'), null);
-  assert.equal(value('1.0e300 / 1.0e-300'), null);
+  assert.equal(value('1.0 / 0.0'), null);
   assert.deepEqual(derived('DATA { :a :n 0 , 2 } RULE { :r :ok ?n } WHERE { :a :n ?n FILTER(1 / ?n) }'), [':a :n 0 .', ':a :n 2 .', ':r :ok 2 .']);
+});
+test('binary64 doubles preserve infinities, NaN, signed zero and rounding', () => {
+  const cases = [
+    ['1.0e300 * 1.0e300', '"INF"^^xsd:double'],
+    ['1.0e300 / 1.0e-300', '"INF"^^xsd:double'],
+    ['1e0 / 0e0', '"INF"^^xsd:double'],
+    ['-1e0 / 0e0', '"-INF"^^xsd:double'],
+    ['0e0 / 0e0', '"NaN"^^xsd:double'],
+    ['1e0 / -0e0', '"-INF"^^xsd:double'],
+    ['xsd:double("1e400")', '"INF"^^xsd:double'],
+    ['xsd:double("NaN") = xsd:double("NaN")', 'false'],
+    ['xsd:double("NaN") != 1', 'true'],
+    ['xsd:double("NaN") <= 1', 'false'],
+    ['xsd:boolean(xsd:double("NaN"))', 'false'],
+    ['xsd:boolean(xsd:double("INF"))', 'true'],
+    ['xsd:integer(xsd:double("INF"))', null],
+    ['xsd:decimal(xsd:double("INF"))', null],
+    ['1.7976931348623157e308 + 0e0', '1.7976931348623157e+308'],
+  ];
+  for (const [expr, expected] of cases) assert.equal(value(expr), expected, expr);
+  const r = checked('RULE { :r :v ?v } WHERE { SET(?v := 1e0 / 0e0) }');
+  assert.ok(!checkProof(loadText(r.program), r.result.proof.replaceAll("'INF'", "'-INF'")).valid);
+});
+test('float64 primitive results are independently re-decided by C5', () => {
+  const program = loadText("query(float64('div', float(1), float(0), R))");
+  const result = run(program, { proof: true });
+  assert.ok(checkProof(program, result.proof, { allowTrusted: false }).valid);
+  const forged = result.proof.replaceAll("'INF'", "'-INF'");
+  assert.ok(checkProof(program, forged).failures.some((f) => f.condition === 'C5'));
 });
 test('comparison: numbers by value, strings by code point', () => {
   assert.equal(value('1 = 1.0'), 'true');

@@ -14,6 +14,19 @@ const source = `fact(p('a'), p('b'))
   query(q(X), total(L))`;
 
 export const tests = {
+  'native numeric displays retain exact decimal digits and reject rounded-value forgeries'() {
+    const program = loadText("fact(inf(iri('urn:s'), iri('urn:p'), literal('9007199254740993.3', datatype('http://www.w3.org/2001/XMLSchema#decimal'))))\nquery(inf(S, P, O))");
+    const result = run(program, { proof: true });
+    for (const format of ['n3', 'srl']) {
+      const proof = writeNativeProof(result.proof, { format });
+      assert.ok(checkProof(program, proof, { allowTrusted: false }).valid);
+      const forged = proof.replace(/^[^\n]*pe:claims[^\n]*$/gm, (line) => line.replaceAll('9007199254740993.3', '9007199254740993.4'));
+      assert.notEqual(proof, forged);
+      const report = checkProof(program, forged);
+      assert.ok(!report.valid);
+      assert.ok(report.failures.some((failure) => failure.condition === 'C3'));
+    }
+  },
   'N3 and SRL commands write native proofs and check them from stdin independently of their filename'() {
     for (const format of ['n3', 'srl']) {
       const files = [`examples/socrates.${format}`];
