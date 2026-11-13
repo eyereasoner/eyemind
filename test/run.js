@@ -22,7 +22,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { VERSION } from '../src/index.js';
 import { check, execute, loadCases, shellSplit } from '../conformance/run.js';
-import { RDF_MANIFESTS, W3C_BASE, manifestCases, runCase, runSparqlRlCase, sparqlRlCases } from './w3c.js';
+import { RDF_MANIFESTS, manifestCases, runCase, runSparqlRlCase, sparqlRlCases } from './w3c.js';
 import { writeEarlReports } from '../tools/earl.js';
 import { ensureTestCache } from '../tools/sync.js';
 import { cachePaths } from '../tools/test-cache.js';
@@ -326,7 +326,7 @@ async function main(argv) {
   return code || (passed === total ? 0 : 1);
 }
 
-// The W3C suites, case by case, timed per manifest or section.
+// The W3C suites, case by case, timed as one row per suite.
 function w3cRows() {
   const rows = [];
   const rdf = [];
@@ -347,10 +347,8 @@ function w3cRows() {
     }
     rows.push({ suite, cases: cases.length, passed, seconds: (performance.now() - started) / 1000 });
   };
-  for (const manifest of RDF_MANIFESTS) timed(`W3C RDF ${manifest.slice(W3C_BASE.length).replace(/\/manifest\.ttl$/, '')}`, manifestCases(manifest), runCase, rdf);
-  const sections = new Map();
-  for (const c of sparqlRlCases()) sections.set(c.section, [...(sections.get(c.section) ?? []), c]);
-  for (const [section, cases] of sections) timed(`W3C SPARQL 1.2 RL ${section}`, cases, runSparqlRlCase, srl);
+  timed('W3C RDF 1.1 and 1.2', RDF_MANIFESTS.flatMap(manifestCases), runCase, rdf);
+  timed('W3C SPARQL 1.2 RL', sparqlRlCases(), runSparqlRlCase, srl);
   return { rows, rdf, srl };
 }
 
