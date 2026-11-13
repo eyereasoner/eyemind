@@ -200,6 +200,28 @@ export class Program {
     this.layered = this.strata.layered === true;
   }
 
+  // Restricted rules in the order they run: one whose heads can satisfy
+  // another's, its witnesses free, before that one, and otherwise, as on a
+  // cycle of such rules, in clause order (SPEC Section 8.2).
+  restraining(rules) {
+    if (rules.length < 2) return rules;
+    const before = new Map(rules.map((rule) => [rule.id, new Set()]));
+    for (const first of rules) {
+      for (const second of rules) {
+        if (first !== second && restrains(first, second)) before.get(second.id).add(first.id);
+      }
+    }
+    const order = [];
+    const placed = new Set();
+    while (order.length < rules.length) {
+      const ready = rules.find((rule) => !placed.has(rule.id) && [...before.get(rule.id)].every((id) => placed.has(id)))
+        ?? rules.find((rule) => !placed.has(rule.id));
+      order.push(ready);
+      placed.add(ready.id);
+    }
+    return order;
+  }
+
   prepareInspections() {
     if (this.inspectionCatalogue !== null) return;
     this.inspectionCatalogue = new Map([['implies/2', []], ['implied_by/2', []]]);
@@ -356,6 +378,33 @@ function restriction(ordinal, head, heads, body) {
   const skolems = witnesses.map((variable) => new Struct('skolem', [BigInt(ordinal), variable.name, frontier]));
   const other = new Struct('not_unify', [listFromItems([...anonymous.values()]), listFromItems(skolems)]);
   return new Struct('not', [conjunction([...heads.map(rename), other])]);
+}
+
+// Whether firing a restricted rule can satisfy another's heads: a head of
+// the first matches a head of the second that holds a witness, and the
+// first's heads also match every other head of the second sharing that
+// witness.
+function restrains(first, second) {
+  const witnesses = new Set(second.witnessNames.map((name) => `${name}#restrained`));
+  const targets = flattenConjunction(freshTerm(conjunction(second.plainHeads), 'restrained'));
+  const own = flattenConjunction(freshTerm(conjunction(first.plainHeads), 'restraining'));
+  const witnessesOf = (term) => [...variables(term).keys()].filter((name) => witnesses.has(name));
+  const matchAll = (goals, env) => {
+    if (!goals.length) return true;
+    for (const head of own) {
+      const mark = env.mark();
+      if (unify(head, goals[0], env) && matchAll(goals.slice(1), env)) return true;
+      env.undo(mark);
+    }
+    return false;
+  };
+  for (const target of targets) {
+    const shared = witnessesOf(target);
+    if (!shared.length) continue;
+    const piece = targets.filter((other) => witnessesOf(other).some((name) => shared.includes(name)));
+    if (matchAll(piece, new Env())) return true;
+  }
+  return false;
 }
 
 // Whether a goal could contribute a closed dependency or a dynamic call.

@@ -25,7 +25,7 @@ the case files in order, with the SPEC sections and the topic of each.
 | [04-programs.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/04-programs.js) | 3, 6 | 161 | Statements, clause numbering, names a program leaves undefined, rejected clauses, stratification, chain stratification |
 | [05-controls-and-primitives.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/05-controls-and-primitives.js) | 4 | 212 | Every control and primitive, and the errors of their flow patterns |
 | [06-arithmetic.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/06-arithmetic.js) | 5 | 191 | The meaning of every arithmetic term and function, exact integers, and each error |
-| [07-reasoning.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/07-reasoning.js) | 7, 8 | 163 | Search order, forward rounds, Skolem terms, restricted rules, chain strata, conclusions, halting, bounds |
+| [07-reasoning.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/07-reasoning.js) | 7, 8 | 165 | Search order, forward rounds, Skolem terms, restricted rules, chain strata, conclusions, halting, bounds |
 | [08-canonical-text.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/08-canonical-text.js) | 9 | 57 | The one spelling of atoms, numbers, variables, lists and compounds |
 | [09-reading.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/09-reading.js) | 9.1 | 115 | What a document reader accepts, and what it must reject without running anything |
 | [10-proofs.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/10-proofs.js) | 10 | 61 | Proof documents for every kind of justification, step order and sharing |

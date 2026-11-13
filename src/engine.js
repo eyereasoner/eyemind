@@ -286,6 +286,7 @@ export class Solver {
     this.genericKeys = new Set();
     this.genericPredicates = new Set();
     this.derived = [];
+    this.guards = [];
     this.reported = new Map();
     this.stats = { inferences: 0, rounds: 0, derived: 0 };
     this.haltCode = null;
@@ -810,7 +811,9 @@ export class Solver {
       }
       if (this.recording || clause.templates.length) bindings = [...names].map(([name, value]) => [name, copyResolved(value, answerEnv)]);
       const claim = conclusions.some((item) => item === 'true') ? copyResolved(conjunction(body), answerEnv) : null;
-      found.push([[conclusions, children, bindings, claim], this.chosen !== null ? [...this.chosen] : null]);
+      // A restricted firing keeps its guard, checked again once reasoning ends.
+      const guard = clause.guard === null || !unresolved.size ? null : copyResolved(body[body.length - 1], answerEnv);
+      found.push([[conclusions, children, bindings, claim, guard], this.chosen !== null ? [...this.chosen] : null]);
       answerEnv.undo(mark);
     }
     return found;
@@ -822,11 +825,38 @@ export class Solver {
   // stratum, restricted rules run only in a round where the other rules
   // derive nothing, so their guards see what those rules derive.
   forward(reporting = true) {
+    this.forwardRounds(reporting);
+    // A restricted rule's witness must still be needed once reasoning ends:
+    // otherwise later facts satisfy its heads, and the result depends on
+    // the order in which rules were applied (SPEC Section 8.2).
+    if (this.haltCode !== null) return;
+    for (const [clause, guard, conclusions] of this.guards) {
+      if (this.holds(guard)) continue;
+      throw new EyemindError(`restricted rule ${clause.id} concluded ${text(conclusions[0])}, whose witness later facts make unneeded; ` +
+        'the result depends on the order of rule applications');
+    }
+  }
+
+  // Whether a goal holds in the current state.
+  holds(goal) {
+    for (const _ of this.solve([goal], new Env())) return true; // eslint-disable-line no-unused-vars
+    return false;
+  }
+
+  forwardRounds(reporting) {
     const layers = new Map();
     for (const clause of this.program.forward) {
       const rank = this.program.strata.get(clause.id) || 0;
       if (!layers.has(rank)) layers.set(rank, []);
       layers.get(rank).push(clause);
+    }
+    // In a chain stratum too, a restricted rule runs after those whose heads
+    // can satisfy its own.
+    if (this.program.layered) {
+      for (const [rank, rules] of layers) {
+        const restricted = this.program.restraining(rules.filter((clause) => clause.restricted));
+        layers.set(rank, [...rules.filter((clause) => !clause.restricted), ...restricted]);
+      }
     }
     const ranks = [...layers.keys()].sort((a, b) => a - b);
     const maxIterations = this.options.maxIterations || 1000;
@@ -851,7 +881,7 @@ export class Solver {
     for (const rank of ranks) {
       rounds = 0;
       const all = layers.get(rank);
-      const restricted = all.filter((clause) => clause.restricted);
+      const restricted = this.program.restraining(all.filter((clause) => clause.restricted));
       const ordinary = restricted.length ? all.filter((clause) => !clause.restricted) : all;
       let changed = true;
       let lean = false;
@@ -879,7 +909,8 @@ export class Solver {
       // All instances of this template see the same state. Publishing one
       // instance's conclusions during another's search changes recursive
       // bodies and their observable order.
-      for (const [clause, [conclusions, children, bindings, claim]] of firings) {
+      for (const [clause, [conclusions, children, bindings, claim, guard]] of firings) {
+        if (guard) this.guards.push([clause, guard, conclusions]);
         for (const [position, conclusion] of conclusions.entries()) {
           const template = clause.templates.find((item) => item.position === position);
           if (template) {

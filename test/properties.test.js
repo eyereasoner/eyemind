@@ -12,6 +12,11 @@
 //   programs, forward and backward, and every proof of it checks; leaving out
 //   a clause no derivation cites, or stating the clauses in another order,
 //   does not change the fixpoint.
+// - A random program that classic stratification rejects but chain
+//   stratification accepts has a stable model as its result, the same
+//   whatever the order of its rules, and every proof of it checks.
+// - Random programs with restricted rules derive what a direct reading of
+//   the specification derives, and every proof of them checks.
 // - Every term reads back from its canonical text as itself.
 // - The document reader returns terms or raises an EyemindError on any text,
 //   and never runs any of it.
@@ -25,7 +30,7 @@ import { shortcuts } from '../src/proof.js';
 import { apply } from '../src/arith.js';
 import { compareText, identity } from '../src/terms.js';
 import { artifactPath, loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
-import { assert, program } from './helpers.js';
+import { assert, program, throwsMatching } from './helpers.js';
 
 const SCALE = Math.max(1, Number(process.env.EYEMIND_PROPERTY_SCALE) || 1);
 
@@ -467,6 +472,226 @@ function circularProof({ facts, rules }, model) {
   return `${quoted(instances[0].head)}\n${[...steps.values()].join('\n')}\n`;
 }
 
+// --- Chain-stratified programs ------------------------------------------
+
+const NODES = ['a', 'b', 'c'];
+const PREDICATES = ['p', 'q', 'r', 'type', 'spo'];
+const CLASSES = ['k', 'l'];
+
+// A random program over one ternary relation t with a rule that has a
+// variable in every position of its head, so that classic stratification
+// fails as soon as a rule has a negation: t(P, spo, Q), t(X, P, Y) gives
+// t(X, Q, Y). Negation rules, plain rules and contradictions on spo facts
+// are drawn at random; so are the facts. Each rule is a list of positive
+// goals, negated goals and a head, or a contradiction's goals.
+function randomChainProgram(r) {
+  const term = (kind) => (kind === 'node' ? r.pick(NODES) : kind === 'pred' ? r.pick(PREDICATES) : r.pick(CLASSES));
+  const facts = [];
+  for (let i = 0; i < 3 + r.below(5); i++) {
+    facts.push(r.chance(0.3) ? [r.pick(PREDICATES), 'spo', r.pick(PREDICATES)]
+      : r.chance(0.3) ? [term('node'), 'type', term('class')] : [term('node'), term('pred'), term('node')]);
+  }
+  const rules = [{ positive: [['P', 'spo', 'Q'], ['X', 'P', 'Y']], negated: [], head: ['X', 'Q', 'Y'] }];
+  if (r.chance(0.5)) rules.push({ positive: [['P', 'spo', 'Q'], ['Q', 'spo', 'R']], negated: [], head: ['P', 'spo', 'R'] });
+  for (let i = 0; i < 1 + r.below(2); i++) {
+    const negated = r.chance(0.5) ? ['Y', 'type', term('class')] : ['X', term('pred'), 'Y'];
+    rules.push({ positive: [['X', term('pred'), 'Y']], negated: [negated], head: ['X', term('pred'), 'Y'] });
+  }
+  for (let i = 0; i < r.below(3); i++) {
+    rules.push({ positive: [['X', term('pred'), 'Y']], negated: [], head: r.chance(0.5) ? ['Y', 'type', term('class')] : ['X', term('pred'), 'Y'] });
+  }
+  for (let i = 0; i < r.below(4); i++) {
+    rules.push({ positive: [[term('pred'), 'spo', r.chance(0.7) ? term('pred') : 'spo']], negated: [], head: null });
+  }
+  return { facts, rules };
+}
+
+const isChainVariable = (arg) => /^[A-Z]$/.test(arg);
+const chainAtom = (args) => `t(${args.map((arg) => (isChainVariable(arg) ? arg : `'${arg}'`)).join(', ')})`;
+
+function chainProgramLines({ facts, rules }) {
+  return [
+    ...facts.map((fact) => `fact(${chainAtom(fact)})`),
+    ...rules.map(({ positive, negated, head }) => {
+      const goals = [...positive.map(chainAtom), ...negated.map((goal) => `not(${chainAtom(goal)})`)];
+      return head === null ? `contradiction(${goals.join(', ')})` : `implies([${goals.join(', ')}], ${chainAtom(head)})`;
+    }),
+  ];
+}
+
+// Whether a set of t facts, as 'x y z' keys, is a stable model of the rules
+// over the facts: the least fixpoint of the rules with every negation decided
+// by the set itself, and no contradiction holds in it.
+function isStableModel({ facts, rules }, model) {
+  const holds = (set, args) => set.has(args.join(' '));
+  const solutions = (set, goals, binding = {}) => {
+    if (!goals.length) return [binding];
+    const [first, ...rest] = goals;
+    const found = [];
+    for (const key of set) {
+      const values = key.split(' ');
+      const next = { ...binding };
+      if (first.every((arg, i) => (isChainVariable(arg) ? (next[arg] ??= values[i]) === values[i] : arg === values[i]))) {
+        found.push(...solutions(set, rest, next));
+      }
+    }
+    return found;
+  };
+  const ground = (args, binding) => args.map((arg) => (isChainVariable(arg) ? binding[arg] : arg));
+  const least = new Set(facts.map((fact) => fact.join(' ')));
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const rule of rules) {
+      for (const binding of solutions(least, rule.positive)) {
+        if (rule.negated.some((goal) => holds(model, ground(goal, binding)))) continue;
+        if (rule.head === null) return false;
+        const key = ground(rule.head, binding).join(' ');
+        if (!least.has(key)) {
+          least.add(key);
+          changed = true;
+        }
+      }
+    }
+  }
+  return least.size === model.size && [...least].every((key) => model.has(key));
+}
+
+// --- Restricted rules ---------------------------------------------------
+
+// A random program with restricted rules: facts of e/2 and f/1, plain rules
+// deriving g/2 and h/1, and restricted rules whose heads have the witness W.
+function randomRestrictedProgram(r) {
+  const arity = { e: 2, f: 1, g: 2, h: 1 };
+  const facts = [];
+  for (let i = 0; i < 2 + r.below(4); i++) facts.push(r.chance(0.5) ? ['e', [r.pick(NODES), r.pick(NODES)]] : ['f', [r.pick(NODES)]]);
+  const atom = (name, vars) => [name, Array.from({ length: arity[name] }, () => r.pick(vars))];
+  const rules = [];
+  for (let i = 0; i < r.below(3); i++) {
+    const body = [atom(r.pick(['e', 'f', 'g', 'h']), ['X', 'Y'])];
+    if (r.chance(0.4)) body.push(atom(r.pick(['e', 'f', 'g', 'h']), ['X', 'Y']));
+    const bound = [...new Set(body.flatMap(([, args]) => args))];
+    rules.push({ restricted: false, body, heads: [atom(r.pick(['g', 'h']), bound)] });
+  }
+  for (let i = 0; i < 1 + r.below(2); i++) {
+    const body = [atom(r.pick(['e', 'f', 'g', 'h']), ['X', 'Y'])];
+    const x = body[0][1][0];
+    const heads = r.pick([[['g', [x, 'W']]], [['g', [x, 'W']], ['h', ['W']]], [['h', ['W']]], [['g', ['W', x]]]]);
+    rules.splice(r.below(rules.length + 1), 0, { restricted: true, body, heads });
+  }
+  return { facts, rules };
+}
+
+const restrictedAtom = ([name, args]) => `${name}(${args.map((arg) => (isChainVariable(arg) ? arg : `'${arg}'`)).join(', ')})`;
+
+function restrictedLines({ facts, rules }) {
+  return [
+    ...facts.map((fact) => `fact(${restrictedAtom(fact)})`),
+    ...rules.map(({ restricted, body, heads }) =>
+      `${restricted ? 'restricted' : 'implies'}([${body.map(restrictedAtom).join(', ')}], [${heads.map(restrictedAtom).join(', ')}])`),
+  ];
+}
+
+// Whether firing restricted rule a can satisfy the heads of restricted rule
+// b: a's heads match all of b's heads that hold its witness W, with the
+// variables of each rule its own.
+function restrainsNaive(a, b) {
+  const piece = b.heads.filter(([, args]) => args.includes('W'));
+  const match = (goals, binding) => {
+    if (!goals.length) return true;
+    const [[name, args], ...rest] = goals;
+    for (const [headName, headArgs] of a.heads) {
+      if (headName !== name) continue;
+      const next = { ...binding };
+      const resolve = (term) => { while (next[term] !== undefined) term = next[term]; return term; };
+      const ok = args.every((arg, i) => {
+        const x = resolve(`b:${arg}`);
+        const y = resolve(`a:${headArgs[i]}`);
+        if (x === y) return true;
+        next[x] = y;
+        return true;
+      });
+      if (ok && match(rest, next)) return true;
+    }
+    return false;
+  };
+  return piece.length > 0 && match(piece, {});
+}
+
+// The derived facts of a restricted program as SPEC Sections 7.2 and 8.2
+// define them, worked out directly: rounds of the plain rules until one adds
+// nothing, then a round of the restricted rules, each searching the state as
+// it was before its own firings and firing only where nothing but its own
+// witness satisfies its heads; again until a round of each adds nothing. The
+// restricted rules run in restraint order, clause order breaking ties and
+// cycles. Values are canonical texts; a witness is skolem(N, 'W', Frontier).
+// null when a witness is unneeded at the end, undefined when more than 40
+// facts are derived, as when witnesses keep making witnesses.
+function naiveRestricted({ facts, rules }) {
+  const known = new Map();
+  for (const [name, args] of facts) known.set(write(new Struct(name, args)), [name, args]);
+  const derived = [];
+  const solutions = (goals, binding = {}) => {
+    if (!goals.length) return [binding];
+    const [[name, args], ...rest] = goals;
+    const found = [];
+    for (const [factName, values] of known.values()) {
+      if (factName !== name) continue;
+      const next = { ...binding };
+      if (args.every((arg, i) => (isChainVariable(arg) ? write(next[arg] ??= values[i]) === write(values[i]) : arg === values[i]))) {
+        found.push(...solutions(rest, next));
+      }
+    }
+    return found;
+  };
+  const add = (name, args) => {
+    const text = write(new Struct(name, args));
+    if (known.has(text)) return false;
+    known.set(text, [name, args]);
+    derived.push(text);
+    return true;
+  };
+  const indexed = rules.map((rule, index) => ({ rule, index }));
+  const plain = indexed.filter(({ rule }) => !rule.restricted);
+  const pending = indexed.filter(({ rule }) => rule.restricted);
+  const ordered = [];
+  while (pending.length) {
+    const ready = pending.findIndex(({ rule }) => pending.every((other) => other.rule === rule || !restrainsNaive(other.rule, rule)));
+    ordered.push(...pending.splice(ready < 0 ? 0 : ready, 1));
+  }
+  const fired = [];
+  const round = (restricted) => {
+    let changed = false;
+    (restricted ? ordered : plain).forEach(({ rule, index }) => {
+      const id = facts.length + index + 1;
+      const firings = [];
+      for (const binding of solutions(rule.body)) {
+        if (restricted) {
+          const frontier = [];
+          for (const [, args] of rule.heads) for (const arg of args) if (arg !== 'W' && !frontier.includes(arg)) frontier.push(arg);
+          const witness = new Struct('skolem', [BigInt(id), 'W', frontier.reduceRight((tail, arg) => new Struct('.', [binding[arg], tail]), '[]')]);
+          const others = solutions(rule.heads.map(([name, args]) => [name, args.map((arg) => (arg === 'W' ? 'W' : arg))]), { ...binding });
+          if (others.some((found) => write(found.W) !== write(witness))) continue;
+          firings.push({ ...binding, W: witness });
+          fired.push([rule, { ...binding }, witness]);
+        } else firings.push(binding);
+      }
+      for (const binding of firings) {
+        for (const [name, args] of rule.heads) if (add(name, args.map((arg) => (isChainVariable(arg) ? binding[arg] : arg)))) changed = true;
+      }
+    });
+    return changed;
+  };
+  for (let changed = true, lean = false; changed || !lean;) {
+    lean = !changed;
+    changed = round(lean);
+    if (derived.length > 40) return undefined;
+  }
+  for (const [rule, binding, witness] of fired) {
+    if (solutions(rule.heads, binding).some((found) => write(found.W) !== write(witness))) return null;
+  }
+  return derived;
+}
+
 // --- Documents -----------------------------------------------------------
 
 const HOSTILE = ['globalThis.__eyemindRan = 1', 'process.exit(3)', '(() => { globalThis.__eyemindRan = 1 })()',
@@ -685,6 +910,81 @@ implies(implied_by(H, B), backward_rule(H, B))`);
       assert.equal(reordered.haltCode, result.haltCode, source);
     });
     assert.ok(left >= 50, `only ${left} uncited clauses left out`);
+  },
+
+  'a chain-stratified program has one stable model, whatever the order of its rules, and its proof checks'() {
+    let layered = 0;
+    let rejected = 0;
+    forSeeds(150, (r) => {
+      const generated = randomChainProgram(r);
+      const lines = chainProgramLines(generated);
+      const source = `${lines.join('\n')}\n`;
+      let loaded;
+      try {
+        loaded = program(source);
+      } catch (error) {
+        assert.match(error.message, /unstratified/, source);
+        rejected++;
+        return;
+      }
+      if (loaded.layered) layered++;
+      const result = run(loaded, { proof: true });
+      const report = checkProof(loaded, result.proof);
+      assert.ok(report.valid, `${JSON.stringify(report.failures)}\n${source}`);
+      const derived = [...new Set(result.answers)].sort();
+      if (result.haltCode !== 65) {
+        const model = new Set(generated.facts.map((fact) => fact.join(' ')));
+        for (const answer of derived) model.add(readTerm(answer).args.join(' '));
+        assert.ok(isStableModel(generated, model), `not a stable model: ${derived.join(' ')}\n${source}`);
+      }
+      // The rules in another order run another chase, which must reach the
+      // same result.
+      const shuffled = [...lines];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = r.below(i + 1);
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      const reordered = run(program(`${shuffled.join('\n')}\n`));
+      assert.equal(reordered.haltCode, result.haltCode, `${source}\nreordered:\n${shuffled.join('\n')}`);
+      if (result.haltCode !== 65) {
+        assert.deepEqual([...new Set(reordered.answers)].sort(), derived, `${source}\nreordered:\n${shuffled.join('\n')}`);
+      }
+    });
+    assert.ok(layered >= 15 && rejected >= 15, `${layered} chain-stratified and ${rejected} rejected programs`);
+  },
+
+  'restricted rules agree with a direct reading of the specification, and their proofs check'() {
+    let blocked = 0;
+    let unneeded = 0;
+    forSeeds(150, (r) => {
+      const generated = randomRestrictedProgram(r);
+      const source = `${restrictedLines(generated).join('\n')}\n`;
+      const loaded = program(source);
+      const expected = naiveRestricted(generated);
+      if (expected === undefined) return;
+      if (expected === null) {
+        throwsMatching(() => run(loaded), /depends on the order of rule applications/);
+        unneeded++;
+        return;
+      }
+      const result = run(loaded, { proof: true });
+      assert.deepEqual([...result.answers].sort(), [...expected].sort(), source);
+      const report = checkProof(loaded, result.proof);
+      assert.ok(report.valid, `${JSON.stringify(report.failures)}\n${source}`);
+      // Where a restricted rule's body holds but it made no witness, a proof
+      // that makes one anyway is rejected.
+      const open = generated.rules.map((rule, index) => ({ rule, id: generated.facts.length + index + 1 }))
+        .filter(({ rule }) => rule.restricted);
+      for (const { rule, id } of open) {
+        if (expected.some((text) => text.includes(`skolem(${id}, `))) continue;
+        const holds = run(loaded, { goal: rule.body.map(restrictedAtom).join(', ') }).answers.length > 0;
+        if (holds) blocked++;
+      }
+    });
+    assert.ok(blocked >= 20, `only ${blocked} restricted rules were blocked`);
+    // Most programs must have an order-independent result for the
+    // comparison to say much.
+    assert.ok(unneeded < 15 * SCALE, `${unneeded} programs made an unneeded witness`);
   },
 
   'a circular proof of an atom only a cycle supports is rejected'() {
