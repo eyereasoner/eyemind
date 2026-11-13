@@ -2258,3 +2258,32 @@ conformance('a contradiction a chain-stratified program relies on still halts it
     "'false'",
   ]),
 ])
+
+conformance('a restricted rule runs before one whose heads it can satisfy', [
+  spec('8.2'),
+  file('program.js', [
+    "fact(f('a'), f('b'), e('b', 'a'))",
+    'restricted(f(X), h(W))',
+    'restricted(f(Y), [g(Y, W), h(W)])',
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "g('a', skolem(5, 'W', ['a']))",
+    "h(skolem(5, 'W', ['a']))",
+    "g('b', skolem(5, 'W', ['b']))",
+    "h(skolem(5, 'W', ['b']))",
+  ]),
+])
+
+conformance('a restricted witness that later facts make unneeded is an error', [
+  spec('8.2'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "fact(f('a'))",
+    'restricted(f(X), h(W))',
+    'implies(g(X, Y), h(Y))',
+    'restricted(f(X), g(X, W))',
+  ]),
+  stdout([]),
+])

@@ -1146,12 +1146,39 @@ having added nothing. A rule thus never fires while a rule of a lower rank
 has a firing left.
 
 A stratum with restricted rules alternates two kinds of round. Its other
-rules run in rounds as above; a round of its restricted rules, in clause
+rules run in rounds as above; a round of its restricted rules, in restraint
 order, follows only a round of the other rules that adds nothing, and is
 followed by rounds of the other rules again when it adds something. The
 stratum ends with a round of its restricted rules that adds nothing. The
 other rules of a stratum thus run before its restricted rules, whose guards
 see what they derive.
+
+A restricted rule `A` **restrains** a restricted rule `B`, both renamed
+apart, when for some head `h` of `B` with a head-only variable of `B`, the
+heads of `B` sharing a head-only variable with `h` (`h` included) unify, one
+after another under one substitution, each with some head of `A`: firing
+`A` can then satisfy `B`'s heads. The **restraint order** of a set of
+restricted rules repeatedly takes the first rule, in clause order, that no
+other remaining rule restrains, or the first remaining rule when every one
+is restrained. A chain stratum ([Section 6.4](#64-chain-stratification)) runs its restricted rules after its
+other rules, in restraint order.
+
+When reasoning ends without a contradiction, every guard of a published
+restricted firing MUST hold again, with the firing's bindings, in the final
+facts. Otherwise later facts satisfy the firing's heads, so its witness is
+not needed and the result depends on the order in which rules were applied:
+the run MUST fail with an error. For example,
+
+```js
+fact(f('a'))
+restricted(f(X), h(W))
+implies(g(X, Y), h(Y))
+restricted(f(X), g(X, W))
+```
+
+fails: the second rule makes `h(skolem(2, 'W', []))`, and the last rule's
+`g('a', skolem(4, 'W', ['a']))` then gives `h(skolem(4, 'W', ['a']))`,
+which satisfies the second rule's head too.
 
 For a generator, use its scope projection ([Section 6.2](#62-inline-rule-templates)) as its head when
 constructing witnesses. For an appended forward clause of [Section 6.2](#62-inline-rule-templates),
