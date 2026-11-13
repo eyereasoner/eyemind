@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 classification('nixon', 'quaker')
 classification('ada', 'quaker')
 classification('nixon', 'republican')
@@ -16,22 +16,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 16)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection or original-call evidence remains unproved.
-obligation('call_fidelity', 'original_call', classification('nixon', 'quaker'))
-obligation('call_fidelity', 'original_call', classification('ada', 'quaker'))
-obligation('call_fidelity', 'original_call', classification('nixon', 'republican'))
-obligation('call_fidelity', 'original_call', classification('nixon', 'nonpacifist'))
-obligation('call_fidelity', 'original_call', classification('ada', 'pacifist'))
+condition('C10', 'call_fidelity', 'ok', 5)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(11)
 verified(10)
 recomputed(0)
 composed(0)
-trusted(5)
+trusted(0)
 claims(5)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')

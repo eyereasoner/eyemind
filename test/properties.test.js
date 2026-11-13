@@ -14,7 +14,8 @@
 //   does not change the fixpoint.
 // - A random program that classic stratification rejects but chain
 //   stratification accepts has a stable model as its result, the same
-//   whatever the order of its rules, and every proof of it checks.
+//   whatever the order of its rules or of rule applications, every proof of
+//   it checks, and a forged one certifies nothing else.
 // - Random programs with restricted rules derive what a direct reading of
 //   the specification derives, and every proof of them checks.
 // - Every term reads back from its canonical text as itself.
@@ -556,6 +557,41 @@ function isStableModel({ facts, rules }, model) {
   return least.size === model.size && [...least].every((key) => model.has(key));
 }
 
+// The facts a chase of a chain program ends with when each step applies a
+// rule instance picked at random among those whose positive goals hold and
+// whose negated goals are absent just then, whatever its rank; null when a
+// contradiction's goals come to hold.
+function randomChase({ facts, rules }, r) {
+  const set = new Set(facts.map((fact) => fact.join(' ')));
+  const solutions = (goals, binding = {}) => {
+    if (!goals.length) return [binding];
+    const [first, ...rest] = goals;
+    const found = [];
+    for (const key of set) {
+      const values = key.split(' ');
+      const next = { ...binding };
+      if (first.every((arg, i) => (isChainVariable(arg) ? (next[arg] ??= values[i]) === values[i] : arg === values[i]))) {
+        found.push(...solutions(rest, next));
+      }
+    }
+    return found;
+  };
+  for (;;) {
+    const applicable = [];
+    for (const rule of rules) {
+      for (const binding of solutions(rule.positive)) {
+        const ground = (args) => args.map((arg) => (isChainVariable(arg) ? binding[arg] : arg));
+        if (rule.negated.some((goal) => set.has(ground(goal).join(' ')))) continue;
+        if (rule.head === null) return null;
+        const key = ground(rule.head).join(' ');
+        if (!set.has(key)) applicable.push(key);
+      }
+    }
+    if (!applicable.length) return set;
+    set.add(r.pick(applicable));
+  }
+}
+
 // --- Restricted rules ---------------------------------------------------
 
 // A random program with restricted rules: facts of e/2 and f/1, plain rules
@@ -912,9 +948,11 @@ implies(implied_by(H, B), backward_rule(H, B))`);
     assert.ok(left >= 50, `only ${left} uncited clauses left out`);
   },
 
-  'a chain-stratified program has one stable model, whatever the order of its rules, and its proof checks'() {
+  'a chain-stratified program has one stable model, whatever the order of rule applications, and only its proof checks'() {
     let layered = 0;
     let rejected = 0;
+    let compared = 0;
+    let forgeries = 0;
     forSeeds(150, (r) => {
       const generated = randomChainProgram(r);
       const lines = chainProgramLines(generated);
@@ -936,6 +974,34 @@ implies(implied_by(H, B), backward_rule(H, B))`);
         const model = new Set(generated.facts.map((fact) => fact.join(' ')));
         for (const answer of derived) model.add(readTerm(answer).args.join(' '));
         assert.ok(isStableModel(generated, model), `not a stable model: ${derived.join(' ')}\n${source}`);
+        // It is the only stable model a chase reaches: the checker accepts
+        // any supported, closed set of facts consistent with its negations,
+        // so another one would be a proof of something eyemind does not
+        // conclude.
+        for (let trial = 0; trial < 10 && loaded.layered; trial++) {
+          const other = randomChase(generated, r);
+          if (other === null || !isStableModel(generated, other)) continue;
+          compared++;
+          assert.deepEqual([...other].sort(), [...model].sort(), `another stable model\n${source}`);
+        }
+        // A proof with one value replaced throughout checks only when its
+        // claims still hold.
+        for (const [from, to] of NODES.flatMap((x) => NODES.filter((y) => y !== x).map((y) => [x, y]))) {
+          const forged = result.proof.replaceAll(`'${from}'`, `'${to}'`);
+          if (forged === result.proof || !loaded.layered) continue;
+          forgeries++;
+          let report = null;
+          try {
+            report = checkProof(loaded, forged);
+          } catch (error) {
+            assert.ok(error instanceof EyemindError, `${error.stack}\n${forged}`);
+          }
+          if (report !== null && report.valid) {
+            for (const [claim] of readProofTerms(forged)) {
+              if (claim instanceof Struct && claim.name === 't') assert.ok(model.has(claim.args.join(' ')), `a forged proof was accepted for ${write(claim)}\n${source}\n${forged}`);
+            }
+          }
+        }
       }
       // The rules in another order run another chase, which must reach the
       // same result.
@@ -951,11 +1017,13 @@ implies(implied_by(H, B), backward_rule(H, B))`);
       }
     });
     assert.ok(layered >= 15 && rejected >= 15, `${layered} chain-stratified and ${rejected} rejected programs`);
+    assert.ok(compared >= 50 && forgeries >= 5, `${compared} chases compared and ${forgeries} proofs forged`);
   },
 
   'restricted rules agree with a direct reading of the specification, and their proofs check'() {
     let blocked = 0;
     let unneeded = 0;
+    let forgeries = 0;
     forSeeds(150, (r) => {
       const generated = randomRestrictedProgram(r);
       const source = `${restrictedLines(generated).join('\n')}\n`;
@@ -971,8 +1039,34 @@ implies(implied_by(H, B), backward_rule(H, B))`);
       assert.deepEqual([...result.answers].sort(), [...expected].sort(), source);
       const report = checkProof(loaded, result.proof);
       assert.ok(report.valid, `${JSON.stringify(report.failures)}\n${source}`);
-      // Where a restricted rule's body holds but it made no witness, a proof
-      // that makes one anyway is rejected.
+      // Another order could make other witnesses, so no proof with one is
+      // checked without obligations.
+      if (expected.some((text) => text.includes('skolem('))) {
+        assert.ok(!checkProof(loaded, result.proof, { allowTrusted: false }).valid, `a restricted witness was checked strictly\n${source}`);
+      }
+      // A proof with one value replaced throughout certifies nothing else,
+      // unless on an obligation a strict check rejects.
+      const [from, to] = [r.pick(NODES), r.pick(NODES)];
+      const forged = result.proof.replaceAll(`'${from}'`, `'${to}'`);
+      if (forged !== result.proof) {
+        forgeries++;
+        let forgedReport = null;
+        try {
+          forgedReport = checkProof(loaded, forged);
+        } catch (error) {
+          assert.ok(error instanceof EyemindError, `${error.stack}\n${forged}`);
+        }
+        if (forgedReport !== null && forgedReport.valid) {
+          const known = new Set([...expected, ...generated.facts.map((fact) => write(new Struct(fact[0], fact[1])))]);
+          const unentailed = readProofTerms(forged).map(([term]) => term).filter((term) => isClaim(term) && !known.has(write(term)));
+          if (unentailed.length) {
+            assert.ok(!checkProof(loaded, forged, { allowTrusted: false }).valid,
+              `a forged proof was accepted for ${write(unentailed[0])}, even strictly\n${source}\n${forged}`);
+          }
+        }
+      }
+      // Count the restricted rules whose premise holds but which made no
+      // witness, so that blocking is known to be exercised.
       const open = generated.rules.map((rule, index) => ({ rule, id: generated.facts.length + index + 1 }))
         .filter(({ rule }) => rule.restricted);
       for (const { rule, id } of open) {
@@ -981,7 +1075,7 @@ implies(implied_by(H, B), backward_rule(H, B))`);
         if (holds) blocked++;
       }
     });
-    assert.ok(blocked >= 20, `only ${blocked} restricted rules were blocked`);
+    assert.ok(blocked >= 20 && forgeries >= 20, `only ${blocked} restricted rules were blocked, ${forgeries} proofs forged`);
     // Most programs must have an order-independent result for the
     // comparison to say much.
     assert.ok(unneeded < 15 * SCALE, `${unneeded} programs made an unneeded witness`);

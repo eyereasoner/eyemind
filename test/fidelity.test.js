@@ -141,6 +141,33 @@ export const tests = {
     checked("fact(p('a'))\nimplies(p(X), q(X, W))");
   },
 
+  'C10 certifies bound negations within disjunctions and their backward dependencies'() {
+    for (const rules of [
+      'implies(or(and(p(X), not(q(X))), and(p(X), not(r(X)))), ok(X))',
+      'implies([p(X), or(not(q(X)), not(r(X)))], ok(X))',
+      'implied_by(clear(X), or(and(p(X), not(q(X, _))), and(p(X), not(r(X)))))\nimplies(clear(X), ok(X))',
+    ]) {
+      const { loaded, result } = checked(`fact(p('a'))\n${rules}`);
+      assert.deepEqual(result.answers, ["ok('a')"]);
+      assert.ok(checkProof(loaded, result.proof, { allowTrusted: false }).valid, result.proof);
+      assert.ok(!checkProof(loaded, result.proof.replaceAll("'a'", "'b'"), { allowTrusted: false }).valid);
+    }
+  },
+
+  'C10 keeps nested negations and restricted witnesses outside supported listings'() {
+    for (const rules of [
+      'implies([p(X), not(not(p(X)))], ok(X))',
+      'restricted(p(X), ok(X, W))',
+    ]) {
+      const loaded = program(`fact(p('a'))\n${rules}`);
+      const result = run(loaded, { proof: true });
+      const report = rejected(loaded, result.proof);
+      assert.ok(report.trusted.some(({ kind }) => kind === 'call_fidelity'));
+    }
+    const { loaded, result } = checked("fact(p('a'))\nrestricted(p(X), q(X))\nrestricted(p(X), r(X, W))", { goal: 'q(X)' });
+    assert.ok(checkProof(loaded, result.proof, { goals: ['q(X)'], allowTrusted: false }).valid);
+  },
+
   'C10 refuses unsupported forward publication states instead of trusting a listing'() {
     const loaded = program("fact(p('b'))\nimplies([not_unify(X, 'a'), p(X)], r(X))\nquery(r(X))");
     const document = "r('b')\nstep(r('b'), clause(2), {}, [not_unify('b', 'a'), p('b')])\n" +

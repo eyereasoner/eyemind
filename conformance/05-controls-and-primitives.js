@@ -103,6 +103,11 @@ conformance('a negation with anonymous variables is an absent step that checks',
     "step(s('b'), clause(4), {X: 'b', _0: A}, [p('b'), not(q('b', A))])",
     "step(p('b'), clause(2), {}, [])",
     "step(not(q('b', A)), 'absent', {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "derived(s(B), [s('b')])",
+    "called(s(A), [s('b')])",
   ]),
 ])
 

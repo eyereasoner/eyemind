@@ -135,7 +135,14 @@ step(not(nonpacifist('ada')), 'absent', {}, [])
 // Search certificate: derived facts and complete answers used to check
 // negations, collections and the original questions.
 derived(nonpacifist(A), [nonpacifist('nixon')])
+derived(classification(A, B), [classification('nixon', 'quaker'), classification('ada', 'quaker'), classification('nixon', 'republican'), classification('nixon', 'nonpacifist'), classification('ada', 'pacifist')])
+derived(pacifist(A), [pacifist('ada')])
 searched(nonpacifist('ada'), [])
+called(classification(A, B), [classification('nixon', 'quaker'), classification('ada', 'quaker'), classification('nixon', 'republican'), classification('nixon', 'nonpacifist'), classification('ada', 'pacifist')])
+called(pacifist(C), [pacifist('ada')])
+called(nonpacifist(D), [nonpacifist('nixon')])
+called(nonpacifist('nixon'), [nonpacifist('nixon')])
+called(nonpacifist('ada'), [])
 ```
 
 It has four parts:
@@ -197,7 +204,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 classification('nixon', 'quaker')
 classification('ada', 'quaker')
 classification('nixon', 'republican')
@@ -215,25 +222,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 16)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection or original-call evidence remains unproved.
-obligation('call_fidelity', 'original_call', classification('nixon', 'quaker'))
-obligation('call_fidelity', 'original_call', classification('ada', 'quaker'))
-obligation('call_fidelity', 'original_call', classification('nixon', 'republican'))
-obligation('call_fidelity', 'original_call', classification('nixon', 'nonpacifist'))
-obligation('call_fidelity', 'original_call', classification('ada', 'pacifist'))
+condition('C10', 'call_fidelity', 'ok', 5)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(11)
 verified(10)
 recomputed(0)
 composed(0)
-trusted(5)
+trusted(0)
 claims(5)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -272,14 +272,18 @@ could.
 
 The statistics: 11 steps, 10 verified against the program and the absence
 settled by the certificate, so no boundary steps are trusted.
-The verdict is **checked with obligations**: every answer follows from the program. As the
+The verdict is **checked**: every answer follows from the program. As the
 last comment says, the verdict does not establish completeness: it does not say
 these are the only classifications there could be.
 
-C10 leaves 5 original-call claims unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 checks the original questions too. The search certificate lists every
+fact the rules derive for each relation the answers rest on, each with
+steps of its own, and no rule derives one the lists leave out. The
+negations are decided by those listed facts alone, and this program has
+only one such set of facts, so all five claims are what its questions
+return. The verdict is **checked**, with no obligations, and
+`--strict-proof` accepts it. The report does not establish answer
+completeness.
 
 
 ---

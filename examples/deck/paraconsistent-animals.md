@@ -123,7 +123,7 @@ there at all.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each conclusion. The full proof
-is 167 lines with 66 steps and a 9-line search certificate, so here is its
+is 217 lines with 66 steps and a 59-line search certificate, so here is its
 opening, a selection of its clauses, the complete steps behind two
 decisions, Falco flies safely and Tweety's flight is undecided, and the
 start of the certificate. The
@@ -178,7 +178,8 @@ step(flies_safely('falco', 'true'), clause(25), {X: 'falco'}, [flight_status('fa
 derived(flies(A, B), [flies('tweety', 'true'), flies('falco', 'true'), flies('mythic', 'true'), flies('tweety', 'false'), flies('opus', 'false'), flies('batsy', 'true'), flies('mythic', 'false')])
 derived(wings(A, B), [wings('tweety', 'true'), wings('falco', 'true'), wings('mythic', 'true'), wings('batsy', 'false'), wings('batsy', 'true'), wings('nemo', 'false')])
 searched(flies('falco', 'false'), [])
-// … 6 more searched lines, one for each other absence
+// … 9 more derived lines, 6 more searched lines, one for each other
+// absence, and 41 called lines for the original questions
 ```
 
 It has four parts:
@@ -192,7 +193,8 @@ It has four parts:
   facts the seven `'absent'` steps say are missing. `derived(flies(A, B),
   [...])` lists every `flies` fact the rules derived, and likewise for
   `wings`; each `searched(Call, [])` line records a search that found
-  nothing.
+  nothing. The other `derived` lines and the `called` lines record what the
+  original questions return.
 
 Falco's decision, read from the bottom up:
 
@@ -229,7 +231,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 flies('tweety', 'true')
 flies('falco', 'true')
 flies('mythic', 'true')
@@ -292,56 +294,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 116)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 7)
-condition('C10', 'call_fidelity', 'ok', 14)
-
-// Obligations: absence, collection or original-call evidence remains unproved.
-obligation('call_fidelity', 'original_call', flight_status('tweety', 'both'))
-obligation('call_fidelity', 'original_call', flight_status('mythic', 'both'))
-obligation('call_fidelity', 'original_call', wing_status('batsy', 'both'))
-obligation('call_fidelity', 'original_call', inconsistent('tweety', 'flies'))
-obligation('call_fidelity', 'original_call', needs_review('tweety', 'flies'))
-obligation('call_fidelity', 'original_call', inconsistent('mythic', 'flies'))
-obligation('call_fidelity', 'original_call', needs_review('mythic', 'flies'))
-obligation('call_fidelity', 'original_call', inconsistent('batsy', 'wings'))
-obligation('call_fidelity', 'original_call', needs_review('batsy', 'wings'))
-obligation('call_fidelity', 'original_call', flies_safely('tweety', 'undecided'))
-obligation('call_fidelity', 'original_call', flies_safely('mythic', 'undecided'))
-obligation('call_fidelity', 'original_call', wings_safely('batsy', 'undecided'))
-obligation('call_fidelity', 'original_call', moves_by('tweety', 'unknown'))
-obligation('call_fidelity', 'original_call', migrates('tweety', 'undecided'))
-obligation('call_fidelity', 'original_call', moves_by('mythic', 'unknown'))
-obligation('call_fidelity', 'original_call', migrates('mythic', 'undecided'))
-obligation('call_fidelity', 'original_call', flight_status('falco', 'true_only'))
-obligation('call_fidelity', 'original_call', flight_status('batsy', 'true_only'))
-obligation('call_fidelity', 'original_call', flight_status('opus', 'false_only'))
-obligation('call_fidelity', 'original_call', wing_status('tweety', 'true_only'))
-obligation('call_fidelity', 'original_call', wing_status('falco', 'true_only'))
-obligation('call_fidelity', 'original_call', wing_status('mythic', 'true_only'))
-obligation('call_fidelity', 'original_call', wing_status('nemo', 'false_only'))
-obligation('call_fidelity', 'original_call', flies_safely('falco', 'true'))
-obligation('call_fidelity', 'original_call', flies_safely('batsy', 'true'))
-obligation('call_fidelity', 'original_call', flies_safely('opus', 'false'))
-obligation('call_fidelity', 'original_call', wings_safely('tweety', 'true'))
-obligation('call_fidelity', 'original_call', wings_safely('falco', 'true'))
-obligation('call_fidelity', 'original_call', wings_safely('mythic', 'true'))
-obligation('call_fidelity', 'original_call', wings_safely('nemo', 'false'))
-obligation('call_fidelity', 'original_call', moves_by('falco', 'flying'))
-obligation('call_fidelity', 'original_call', migrates('falco', 'true'))
-obligation('call_fidelity', 'original_call', moves_by('batsy', 'flying'))
-obligation('call_fidelity', 'original_call', migrates('batsy', 'true'))
-obligation('call_fidelity', 'original_call', moves_by('opus', 'walking'))
-obligation('call_fidelity', 'original_call', migrates('opus', 'false'))
+condition('C10', 'call_fidelity', 'ok', 50)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(66)
 verified(59)
 recomputed(0)
 composed(0)
-trusted(36)
+trusted(0)
 claims(50)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 The report first repeats the 50 conclusions, now checked answers. Each `condition` line then names a check, says `'ok'`,
@@ -365,6 +329,8 @@ and counts what it looked at:
   there is no invented name to verify.
 - **C9 search closure (7)**: the 7 "not found" steps were each settled by
   the search certificate, as explained below.
+- **C10 call fidelity (50)**: the 50 claims are what the original questions
+  return.
 
 The seven absences the decisions lean on are, in plain words: nothing says
 Falco or Batsy cannot fly, nothing says Opus can fly, nothing says Tweety,
@@ -380,14 +346,17 @@ real world.
 
 The statistics: 66 steps, 59 verified against the program and the 7
 absences settled by the certificate, so none is trusted and there are no
-obligations. The verdict is **checked with obligations**: every conclusion follows from the
+obligations. The verdict is **checked**: every conclusion follows from the
 program. It does not establish that the program has no other
 conclusions.
 
-C10 leaves 36 original-call claims unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 checks the original questions too. The search certificate lists every
+fact the rules derive for each relation the answers rest on, each with
+steps of its own, and no rule derives one the lists leave out. The
+absences are decided by those listed facts alone, and this program has
+only one such set of facts, so all 50 claims are what its questions
+return. `--strict-proof` accepts the proof. The report does not establish
+answer completeness.
 
 
 ---

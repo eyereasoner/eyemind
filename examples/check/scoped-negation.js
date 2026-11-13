@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 rdf(iri('https://example.org/orders#order2'), iri('https://example.org/orders#hold'), iri('https://example.org/orders#addressCheck'))
 rdf(iri('https://example.org/orders#order1'), iri('https://example.org/orders#action'), iri('https://example.org/orders#ship'))
 
@@ -13,19 +13,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 7)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection or original-call evidence remains unproved.
-obligation('call_fidelity', 'original_call', rdf(iri('https://example.org/orders#order2'), iri('https://example.org/orders#hold'), iri('https://example.org/orders#addressCheck')))
-obligation('call_fidelity', 'original_call', rdf(iri('https://example.org/orders#order1'), iri('https://example.org/orders#action'), iri('https://example.org/orders#ship')))
+condition('C10', 'call_fidelity', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(5)
 verified(4)
 recomputed(0)
 composed(0)
-trusted(2)
+trusted(0)
 claims(2)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')

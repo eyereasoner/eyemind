@@ -195,10 +195,11 @@ implies([node(X), not(edge(X, _))], isolated(X))
     assert.ok(!result.answers.includes("allowed('bob')"));
     assert.ok(result.answers.some((answer) => answer.startsWith("children('alice',")));
     assert.deepEqual(run(graphs, { goal: "base('bob', 'child_of', 'alice')" }).answers, []);
-    // Its search certificate settles the absence; the collection of derived
-    // facts stays an obligation, since their order cannot be checked.
+    // Its search certificate settles the absence, and with it the original
+    // call of allowed/1; the collection of derived facts stays an obligation,
+    // since their order cannot be checked, and so does the call resting on it.
     const report = checkProof(graphs, result.proof);
-    assert.deepEqual(report.trusted.map((item) => item.kind), ['collected', 'call_fidelity', 'call_fidelity']);
+    assert.deepEqual(report.trusted.map((item) => item.kind), ['collected', 'call_fidelity']);
     assert.ok(!checkProof(graphs, result.proof, { allowTrusted: false }).valid);
   },
 
@@ -306,6 +307,13 @@ implies(t(X, 'seed', 'true'), t(X, 'blocked', 'true'))
     // Variables of different clauses that share a name stay distinct.
     const term = new Struct('v', [new Var('X#1'), new Var('X#2'), new Var('X_2'), new Var('_0#1'), new Var('X#1')]);
     assert.equal(write(term, null, new SourceNaming()), 'v(X, X_2, X_2_2, _, X)');
+  },
+
+  'a restricted rule distinguishes an unbound guard from an unbound premise negation'() {
+    throwsMatching(() => run(program('fact(p(X))\nrestricted(p(X), q(X, W))')),
+      /^restricted rule 2 needs its premise to bind the variables of its conclusion other than its new values$/);
+    throwsMatching(() => run(program("fact(p('a'))\nrestricted([p(X), not(not_unify([Y], ['b']))], q(X, W))")),
+      /^negation requires a goal whose variables are bound.*Y is unbound in not\(not_unify/);
   },
 
   'library reasoning bounds reject values that cannot bound work reliably'() {

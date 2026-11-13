@@ -134,10 +134,15 @@ step(findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']), 'collected', {}, [
 // Search certificate: derived facts and complete answers used to check
 // negations, collections and the original questions.
 derived(t(B, C, D), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
+derived(allowed(B), [allowed('carol')])
 searched(t('carol', 'blocked', 'true'), [])
 searched(t(E, 'parent_of', F), [t('alice', 'parent_of', 'bob'), t('alice', 'parent_of', 'carol')])
 called(t(A, 'child_of', B), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
 called(t(C, 'parent_of', D), [t('alice', 'parent_of', 'bob'), t('alice', 'parent_of', 'carol')])
+called(allowed(E), [allowed('carol')])
+called(t(F, 'child_of', 'alice'), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
+called(t('bob', 'blocked', 'true'), [t('bob', 'blocked', 'true')])
+called(t('carol', 'blocked', 'true'), [])
 ```
 
 It has four parts:
@@ -214,11 +219,10 @@ condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 14)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 2)
+condition('C10', 'call_fidelity', 'ok', 3)
 
 // Obligations: absence, collection or original-call evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']))
-obligation('call_fidelity', 'original_call', allowed('carol'))
 obligation('call_fidelity', 'original_call', children('alice', ['bob', 'carol']))
 
 // Proof statistics: recorded steps and how they were checked.
@@ -226,7 +230,7 @@ steps(10)
 verified(8)
 recomputed(0)
 composed(0)
-trusted(3)
+trusted(2)
 claims(4)
 
 // This verdict applies to the claims above; it does not establish completeness.
@@ -276,9 +280,12 @@ could change it. The verdict is **checked with obligations**: the four
 conclusions follow from the program, provided that collection is right. The
 verdict does not say the program has no other conclusions.
 
-C10 leaves 2 original-call claims unproved by the available evidence. The
+C10 leaves 1 original-call claim unproved by the available evidence: the
+children list, which rests on that collection. *Carol is allowed* is
+confirmed as an answer of the original question, since its negation is
+decided by the listed facts alone. The
 verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
+conditional on the remaining obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.
 
 

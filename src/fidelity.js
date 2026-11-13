@@ -6,7 +6,7 @@ import { text, variant } from './common.js';
 import { goalTerm } from './goals.js';
 import { INSPECTION_KEYS } from './inspection.js';
 import {
-  Env, conjunction, copyResolved, freshTerm, isCallable, isGround, isTerm, key, unify, variables,
+  Env, conjunction, copyResolved, freshTerm, isAnonymous, isCallable, isGround, isTerm, key, unify, variables,
 } from './terms.js';
 
 function instance(goal, pattern) {
@@ -34,27 +34,39 @@ export function callQuestions(program, goals, claims) {
   });
 }
 
-// C9's support plus closure establishes the least ground positive model.
-// For forward rules that observe bindings or order, a final listing alone
-// does not establish which firings occurred. Refuse that stronger promise.
+// C9's support plus closure establishes the least ground positive model,
+// and with negations the one stable model of a stratified or
+// chain-stratified program: a negation whose named variables earlier goals
+// bind is decided by the listed facts alone. For forward rules that observe
+// bindings or order, and for restricted rules, whose guard another order of
+// firings could decide otherwise, a final listing alone does not establish
+// which firings occurred. Refuse that stronger promise.
 export function positiveListings(program, listings) {
   const pending = [...listings];
   const seen = new Set();
-  function bound(goal) {
-    if (goal === 'true') return new Set();
+  function bound(goal, grounded, negated = false) {
+    if (goal === 'true') return grounded;
     if (isTerm(goal, 'and', 2) || isTerm(goal, 'or', 2)) {
-      const left = bound(goal.args[0]);
-      const right = bound(goal.args[1]);
-      if (left === null || right === null) return null;
-      return goal.name === 'and' ? new Set([...left, ...right])
+      const left = bound(goal.args[0], grounded, negated);
+      if (left === null) return null;
+      const right = bound(goal.args[1], goal.name === 'and' ? left : grounded, negated);
+      if (right === null) return null;
+      return goal.name === 'and' ? right
         : new Set([...left].filter((name) => right.has(name)));
+    }
+    if (isTerm(goal, 'not', 1)) {
+      if (negated) return null;
+      for (const [name, variable] of variables(goal)) {
+        if (!isAnonymous(variable) && !grounded.has(name)) return null;
+      }
+      return bound(goal.args[0], grounded, true) === null ? null : grounded;
     }
     if (!isCallable(goal)) return null;
     const goalKey = key(goal);
     if (PRIMITIVE_KEYS.has(goalKey) || INSPECTION_KEYS.has(goalKey) ||
         ['not/1', 'findall/3', 'once/1', 'call/1'].includes(goalKey)) return null;
     pending.push(goalKey);
-    return new Set(variables(goal).keys());
+    return new Set([...grounded, ...variables(goal).keys()]);
   }
   while (pending.length) {
     const goalKey = pending.pop();
@@ -63,16 +75,15 @@ export function positiveListings(program, listings) {
     const clauses = [...(program.groups.get(goalKey) || []), ...program.forward.filter((clause) =>
       clause.plainHeads.some((head) => isCallable(head) && key(head) === goalKey))];
     for (const clause of clauses) {
-      if (clause.parentId !== null || clause.templates.length || clause.captures !== null) return false;
+      if (clause.parentId !== null || clause.templates.length || clause.captures !== null || clause.guard !== null) return false;
       if (!clause.forward && !clause.body.length) {
         if (!isGround(clause.head)) return false;
         continue;
       }
-      const grounded = new Set();
+      let grounded = new Set();
       for (const goal of clause.body) {
-        const names = bound(goal);
-        if (names === null) return false;
-        for (const name of names) grounded.add(name);
+        grounded = bound(goal, grounded);
+        if (grounded === null) return false;
       }
       const witnesses = new Set(clause.forward ? clause.witnessNames : []);
       for (const name of variables(clause.head).keys()) {

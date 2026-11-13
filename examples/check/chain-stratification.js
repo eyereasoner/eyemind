@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 rdf(iri('http://example.org/ann'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student'))
 rdf(iri('http://example.org/c1'), iri('http://example.org/staff'), iri('http://example.org/ann'))
 rdf(iri('http://example.org/c1'), iri('http://example.org/staff'), iri('http://example.org/tim'))
@@ -15,21 +15,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 13)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection or original-call evidence remains unproved.
-obligation('call_fidelity', 'original_call', rdf(iri('http://example.org/ann'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student')))
-obligation('call_fidelity', 'original_call', rdf(iri('http://example.org/c1'), iri('http://example.org/staff'), iri('http://example.org/ann')))
-obligation('call_fidelity', 'original_call', rdf(iri('http://example.org/c1'), iri('http://example.org/staff'), iri('http://example.org/tim')))
-obligation('call_fidelity', 'original_call', rdf(iri('http://example.org/c1'), iri('http://example.org/examiner'), iri('http://example.org/tim')))
+condition('C10', 'call_fidelity', 'ok', 4)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(9)
 verified(8)
 recomputed(0)
 composed(0)
-trusted(4)
+trusted(0)
 claims(4)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')

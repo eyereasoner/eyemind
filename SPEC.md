@@ -1005,6 +1005,12 @@ concludes `man('bob')` and invents no father for `'jo'`, since `'bob'`
 already satisfies the heads once the third rule has run. A restricted
 rule's display omits its guard ([Section 10.2](#102-clause-displays)).
 
+A `restricted` call states a clause and is no rule value: a `restricted`
+call nested in another statement MUST be rejected. Its premise MUST bind
+every variable of its heads other than the head-only ones when the guard is
+solved; a solution that leaves one unbound, as a fact with variables can,
+is an error.
+
 This gives the specified Skolemized reading of existential conclusions.
 The original existential rule need not have a least model over its original
 vocabulary. A witness is an ordinary compound in subsequent reasoning; it
@@ -1038,6 +1044,20 @@ strata before testing absence at a higher rank ([Section 6.1](#61-dependencies-a
 holds when `G` has no solution, with the binding restrictions of [Section
 4.2](#42-controls). This is absence relative to the program, not falsity in the world.
 For relational goals this gives the stratified least-model reading.
+
+A chain-stratified program ([Section 6.4](#64-chain-stratification)) has no such ranks. Its meaning
+is the set of facts [Section 8.2](#82-forward-evaluation-and-witnesses)'s chain strata derive. When no
+contradiction holds, that set is a **stable model**: the least model of
+the program's rules with every negation decided by the set itself. Chain
+stratification is what makes it the only one, so the order of rule
+applications cannot change it.
+
+A restricted rule ([Section 7.2](#72-variables-and-witnesses)) reads its conclusion existentially: for each
+solution of its premise, some values satisfy its heads. A result is **lean**
+when each witness a restricted rule made is needed, no other values
+satisfying those heads. [Section 8.2](#82-forward-evaluation-and-witnesses) derives one lean result or fails;
+another order of rule applications could derive another, so a lean result
+is not determined by the program alone.
 
 Collection also waits for its dependencies. `findall` collects ordered
 search solutions, including repeated derivations and nonground instances;
@@ -1631,6 +1651,16 @@ boundary is established by its search certificate. An unconditional
 `checked` verdict also establishes operational query fidelity
 ([Section 11.2](#112-operational-query-fidelity)).
 
+For a program with negation, "follows" is relative to the facts the
+certificate lists: C9 establishes that they are supported by steps, closed
+under the forward rules and consistent with every settled negation. In the
+ground relational fragment of [Section 11.13](#1113-c10-call-fidelity), a stratified or
+chain-stratified program has only one such result ([Section 7.4](#74-negation-and-collection)). With restricted
+witnesses, different lean results can have these properties. A claim whose
+forward dependency closure includes a restricted rule with head-only
+variables therefore retains a call-fidelity obligation, and a strict check
+rejects it. Independent claims may still check strictly.
+
 It does not establish:
 
 - that the proof contains all conclusions of the program;
@@ -2125,8 +2155,8 @@ with these differences:
 4. A comparison `compare/3` with either compared term nonground is not
    supported by this certificate format: alpha renaming of a table need
    not preserve the order of variable names. Such a search leaves call fidelity unproved.
-5. A consulted forward listing MUST have a dependency closure in the ground
-   positive fragment described below. A final listing alone MUST NOT certify
+5. A consulted forward listing MUST have a dependency closure in the
+   supported fragment described below. A final listing alone MUST NOT certify
    binding-sensitive or order-sensitive forward firings outside that fragment.
 
 For the `once` example in [Section 11.2](#112-operational-query-fidelity),
@@ -2144,14 +2174,18 @@ first, and `once` selects it. Thus `q('a')` is an answer and `q('b')` is
 excluded. Substituting `called(p('b'), [p('b')])` cannot establish the
 different call `p(X)`.
 
-**Supported forward listings.** A forward listing's **ground positive
-dependency closure** contains its relation and each ordinary body relation
-of every source fact, backward rule or forward rule defining any relation
-in that closure. To use a listing for C10:
+**Supported forward listings.** A forward listing's **ground dependency
+closure** contains its relation and each ordinary body relation, inside a
+negation or not, of every source fact, backward rule or forward rule
+defining any relation in that closure. To use a listing for C10:
 
 - All source facts in the closure MUST be ground.
-- Rule bodies MUST contain only ordinary calls, `'true'`, conjunction and
-  disjunction. Templates, captures and source inspection are excluded.
+- Rule bodies MUST contain only ordinary calls, `'true'`, conjunction,
+  disjunction and negations of these. Templates, captures and source
+  inspection are excluded.
+- A negation grounds nothing. Each of its variables other than anonymous
+  ones MUST be grounded by the body goals before it, and it MUST NOT contain
+  a negation.
 - A body call to an ordinary relation grounds its variables. Conjunction
   accumulates the grounded variables of its parts; disjunction grounds only
   those grounded by both alternatives.
@@ -2163,8 +2197,13 @@ in that closure. To use a listing for C10:
   restricted rule makes can depend on the order of rule applications.
 
 Supported facts and closed listings then establish the least ground
-positive closure. More general forward execution requires publication
-evidence this format does not supply, leaving call fidelity unproved.
+positive closure and, with negations, a set of facts that is supported,
+closed under the rules and consistent with each negation, every negation
+being decided by the listed facts alone. A stratified or chain-stratified
+program has exactly one such set ([Section 7.4](#74-negation-and-collection)), its result, so the
+listings are the facts the original calls consult. More general forward
+execution requires publication evidence this format does not supply,
+leaving call fidelity unproved.
 
 **Deciding claims.** Every relevant call certificate MUST be valid. Each
 claim MUST be identical, up to variable renaming, to an answer of at least
