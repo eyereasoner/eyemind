@@ -6,7 +6,7 @@ import { loadInputs } from '../src/formats.js';
 import { ROOT, assert } from './helpers.js';
 
 function programFrom(name, extra = '') {
-  const path = join(ROOT, 'examples', `${name}.n3`);
+  const path = join(ROOT, 'examples', `${name}-n3.n3`);
   return loadInputs([[`${readFileSync(path, 'utf8')}\n${extra}`, path]]).program;
 }
 
@@ -29,7 +29,7 @@ export const tests = {
   // renamed guard as C8 rejects the renamed witness.
   'a forged delivery witness is rejected'() {
     const program = programFrom('witnesses');
-    const saved = readFileSync(join(ROOT, 'examples/proof/witnesses.n3'), 'utf8');
+    const saved = readFileSync(join(ROOT, 'examples/proof/witnesses-n3.n3'), 'utf8');
     const certificate = readNativeProof(saved).map((term) => write(term)).join('\n');
     const altered = certificate.replace(/(skolem\([0-9]+, )'Bdelivery'/g, "$1'invented'");
     assert.notEqual(altered, certificate);

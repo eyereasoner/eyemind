@@ -99,13 +99,21 @@ export const tests = [
     }
   }],
 
+  ['older links name N3 and SRL examples without -n3 or -srl', async (page, base) => {
+    const p = driver(page);
+    for (const [link, name] of [['family', 'family-n3'], ['orders', 'orders-srl'], ['socrates', 'socrates']]) {
+      await p.open(`${base}#example=${link}`);
+      assert.equal(await page.evaluate("document.getElementById('examples').value"), name, link);
+    }
+  }],
+
   ['SRL decimal arithmetic and execution functions work with saved proofs', async (page, base) => {
     const p = driver(page);
-    await p.open(`${base}#example=exact-decimals`);
+    await p.open(`${base}#example=exact-decimals-srl`);
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
-    assert.equal(await p.output(), readFileSync(artifactPath('output', manifest.find((e) => e.name === 'exact-decimals')), 'utf8'));
-    await p.open(`${base}#example=execution-identifiers`);
+    assert.equal(await p.output(), readFileSync(artifactPath('output', manifest.find((e) => e.name === 'exact-decimals-srl')), 'utf8'));
+    await p.open(`${base}#example=execution-identifiers-srl`);
     await p.select('mode', '--proof');
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
@@ -123,12 +131,12 @@ export const tests = [
     const p = driver(page);
     // Cover each loading path, including a contradiction and message replay.
     // The example corpus checks the remaining programs outside the browser.
-    for (const example of ['family', 'triple-term', 'trig-named-graph', 'distances', 'fuse', 'message-boundaries']) {
+    for (const example of ['family-n3', 'triple-term-n3', 'trig-named-graph-n3', 'distances-srl', 'fuse-n3', 'message-boundaries-n3']) {
       const entry = manifest.find(({ name }) => name === example);
       assert.ok(entry, `missing browser example: ${example}`);
       const { name } = entry;
       const files = sourceFiles(entry).map((file) => `examples/${file}`);
-      const mobile = name === 'trig-named-graph';
+      const mobile = name === 'trig-named-graph-n3';
       await p.open(`${base}#example=${name}`, mobile ? 390 : 1280, mobile);
       assert.equal(await page.evaluate("document.getElementById('input-source').textContent"), files.join(' + '), name);
       await p.run();
@@ -152,8 +160,8 @@ export const tests = [
 
   ['RDF Messages stream independently and preserve their mode in shared links', async (page, base) => {
     const p = driver(page);
-    const output = readFileSync(new URL('../examples/output/message-alerts.n3', import.meta.url), 'utf8');
-    await p.open(`${base}#example=message-alerts`, 390, true);
+    const output = readFileSync(new URL('../examples/output/message-alerts-n3.n3', import.meta.url), 'utf8');
+    await p.open(`${base}#example=message-alerts-n3`, 390, true);
     await p.select('mode', '--stream-messages');
     assert.match(await page.evaluate("document.getElementById('command').textContent"), /^eyemind --stream-messages /);
     assert.ok(await page.evaluate("document.getElementById('strict-proof').disabled"));
@@ -168,10 +176,10 @@ export const tests = [
     await p.run();
     assert.equal(await p.output(), output);
     await p.select('mode', '--check-proof');
-    await p.type('proof-input', readFileSync(new URL('../examples/proof/message-alerts.n3', import.meta.url), 'utf8'));
+    await p.type('proof-input', readFileSync(new URL('../examples/proof/message-alerts-n3.n3', import.meta.url), 'utf8'));
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
-    assert.equal(await p.output(), readFileSync(new URL('../examples/check/message-alerts.js', import.meta.url), 'utf8'));
+    assert.equal(await p.output(), readFileSync(new URL('../examples/check/message-alerts-n3.js', import.meta.url), 'utf8'));
     await p.select('mode', '');
   }],
 

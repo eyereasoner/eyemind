@@ -2,7 +2,7 @@
 
 *RDF list patterns extract a trade from a structured description.*
 
-[good-cobbler.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/good-cobbler.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/good-cobbler.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/good-cobbler.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/good-cobbler-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=good-cobbler-srl)
+[good-cobbler-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/good-cobbler-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/good-cobbler-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/good-cobbler-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/good-cobbler-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=good-cobbler-srl)
 
 ---
 
@@ -14,7 +14,7 @@ Which trade can the rules extract from Joe’s structured description?
 
 ## What the program says
 
-`good-cobbler.srl`:
+`good-cobbler-srl.srl`:
 
 ```srl
 # Joe is described by the RDF list (good Cobbler). Rules extract his trade
@@ -81,7 +81,7 @@ does not assert that an arbitrary certificate lists every possible answer.
 From the repository root:
 
 ```sh
-node bin/eyemind.js examples/good-cobbler.srl
-node bin/eyemind.js --proof examples/good-cobbler.srl
-node bin/eyemind.js --check-proof examples/proof/good-cobbler.srl examples/good-cobbler.srl
+node bin/eyemind.js examples/good-cobbler-srl.srl
+node bin/eyemind.js --proof examples/good-cobbler-srl.srl
+node bin/eyemind.js --check-proof examples/proof/good-cobbler-srl.srl examples/good-cobbler-srl.srl
 ```

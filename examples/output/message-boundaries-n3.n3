@@ -1,0 +1,11 @@
+@prefix : <https://example.org/messages#> .
+
+<urn:eyemind:message-log:message-boundaries-n3.trig#message1> :position 1 .
+<urn:eyemind:message-log:message-boundaries-n3.trig#message1> :observation _:b0 .
+<urn:eyemind:message-log:message-boundaries-n3.trig#message1> :temperature 22 .
+<urn:eyemind:message-log:message-boundaries-n3.trig#message3> :position 3 .
+<urn:eyemind:message-log:message-boundaries-n3.trig#message3> :observation _:b1 .
+<urn:eyemind:message-log:message-boundaries-n3.trig#message3> :temperature 23 .
+<urn:eyemind:message-log:message-boundaries-n3.trig#message2> :heartbeat true .
+:log :messages 3 .
+:scope :reusedLabelIsDistinct true .

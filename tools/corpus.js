@@ -20,6 +20,14 @@ export function readManifest() {
       throw new Error(`invalid example manifest entry: ${JSON.stringify(entry)}`);
     }
     names.add(entry.name);
+    for (const file of sourceFiles(entry)) {
+      const expected = `${entry.name}${extname(file)}`;
+      if (basename(file) !== expected) throw new Error(`example ${entry.name}: ${file} must be named ${expected}`);
+    }
+    const source = nativeSource(entry);
+    if (source && !entry.name.endsWith(`-${extname(source).slice(1)}`)) {
+      throw new Error(`example ${entry.name} must be named ${entry.name}-${extname(source).slice(1)}`);
+    }
   }
   return manifest;
 }
@@ -28,11 +36,13 @@ export const sourceFiles = (entry) => entry.files ?? [`${entry.name}.js`];
 export const outputExtension = (entry) => entry.output ??
   (sourceFiles(entry).some((file) => file.endsWith('.n3')) ? 'n3' :
     sourceFiles(entry).some((file) => file.endsWith('.srl')) ? 'ttl' : 'js');
+// Every file of an example, sources, data and artifacts alike, is named
+// after the example, and an N3 or SRL example's name ends in -n3 or -srl.
+const nativeSource = (entry) => sourceFiles(entry).find((file) => /\.(n3|srl)$/.test(file));
 export function artifactPath(kind, entry) {
-  const source = sourceFiles(entry).find((file) => /\.(n3|srl)$/.test(file));
-  const name = kind !== 'check' && source ? basename(source, extname(source)) : entry.name;
+  const source = nativeSource(entry);
   const extension = kind === 'output' ? outputExtension(entry) : kind === 'proof' && source ? extname(source).slice(1) : 'js';
-  return join(ROOT, kind, `${name}.${extension}`);
+  return join(ROOT, kind, `${entry.name}.${extension}`);
 }
 
 export function loadExampleInputs(entry) {

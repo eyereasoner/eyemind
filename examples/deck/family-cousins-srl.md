@@ -2,7 +2,7 @@
 
 *Bounded generations and inherited branch labels identify cousins across a family tree.*
 
-[family-cousins.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-cousins.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-cousins.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-cousins-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-cousins-srl)
+[family-cousins-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-cousins-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-cousins-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-cousins-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-cousins-srl)
 
 ---
 
@@ -14,7 +14,7 @@ Which people share a generation while belonging to different family branches?
 
 ## What the program says
 
-`family-cousins.srl`:
+`family-cousins-srl.srl`:
 
 ```srl
 # A four-generation family has two labelled branches. Bounded property
@@ -148,7 +148,7 @@ does not assert that an arbitrary certificate lists every possible answer.
 From the repository root:
 
 ```sh
-node bin/eyemind.js examples/family-cousins.srl
-node bin/eyemind.js --proof examples/family-cousins.srl
-node bin/eyemind.js --check-proof examples/proof/family-cousins.srl examples/family-cousins.srl
+node bin/eyemind.js examples/family-cousins-srl.srl
+node bin/eyemind.js --proof examples/family-cousins-srl.srl
+node bin/eyemind.js --check-proof examples/proof/family-cousins-srl.srl examples/family-cousins-srl.srl
 ```

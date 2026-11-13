@@ -29,7 +29,7 @@ export const tests = {
   },
   'N3 and SRL commands write native proofs and check them from stdin independently of their filename'() {
     for (const format of ['n3', 'srl']) {
-      const files = [`examples/socrates.${format}`];
+      const files = [`examples/socrates-${format}.${format}`];
       const proof = cli(['--proof', ...files]);
       assert.equal(proof.code, 0, proof.stderr);
       assert.match(proof.stdout, /pe:claims/);
@@ -123,14 +123,14 @@ export const tests = {
   },
 
   'SRL proof collections do not collide with displayed existential witnesses'() {
-    const proof = cli(['--proof', 'examples/orders.srl']);
+    const proof = cli(['--proof', 'examples/orders-srl.srl']);
     assert.equal(proof.code, 0, proof.stderr);
     const renamed = proof.stdout.replace(/_:b(\d+)\b/g, '_:witness$1');
-    assert.equal(cli(['--check-proof', '-', 'examples/orders.srl'], renamed).code, 0);
+    assert.equal(cli(['--check-proof', '-', 'examples/orders-srl.srl'], renamed).code, 0);
   },
 
   'legacy JavaScript certificates still check for native inputs'() {
-    const file = 'examples/socrates.n3';
+    const file = 'examples/socrates-n3.n3';
     const loaded = loadInputs([[readFileSync(file, 'utf8'), file]]);
     const proof = run(loaded.program, { proof: true }).proof;
     assert.equal(cli(['--check-proof', '-', file], proof).code, 0);

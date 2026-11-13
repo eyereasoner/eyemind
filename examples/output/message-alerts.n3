@@ -1,5 +1,0 @@
-@prefix : <https://example.org/alerts#> .
-
-<urn:eyemind:message-log:message-alerts.nt#message2> :alert :overheat .
-<urn:eyemind:message-log:message-alerts.nt#message2> :sensor :sensorA .
-<urn:eyemind:message-log:message-alerts.nt#message2> :temperature 29 .

@@ -200,9 +200,9 @@ A reified triple `<< s p o >>` and an annotation `{| ... |}` become their reifie
 A file ending in `.n3` is Notation3: eyemind compiles its facts and rules into a program, with the N3 built-ins it uses written as eyemind rules, and writes the conclusions back as N3. RDF default-graph data joins the N3 document as triples:
 
 ```sh
-eyemind examples/family.n3                               # the derived triples as N3
-eyemind --program examples/family.n3 > /tmp/family.js    # the compiled program, to inspect
-eyemind -c examples/family.n3                            # a proof of it, checked
+eyemind examples/family-n3.n3                            # the derived triples as N3
+eyemind --program examples/family-n3.n3 > /tmp/family.js # the compiled program, to inspect
+eyemind -c examples/family-n3.n3                         # a proof of it, checked
 ```
 
 Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above. N3 integers and decimals become eyemind numbers; float and double literals retain their RDF datatype, including numbers written with an exponent. Decimals use binary64 storage; `math:sum` adds their canonical decimal values before rounding its result. `=>` becomes `implies`, or `restricted` when the conclusion has blank nodes of its own, `<=` becomes `implied_by`, `{ ... } => false` becomes `contradiction`, and scoped negation and collection become `not` and `findall`, so an N3 run has a proof that eyemind checks like any other. Derived rules can trigger inference fuses too.
@@ -233,11 +233,11 @@ for a quoted universal, as rules stated as data quote their variables.
 `log:includes` never instantiates the universals of its subject. Matching in
 nested graph terms below the first level is by unification, so it depends on
 the order of their triples. See
-[universal instances](https://eyereasoner.github.io/eyemind/examples/deck/universal-instances),
-[a shared existential](https://eyereasoner.github.io/eyemind/examples/deck/shared-existential),
-[an existential rule](https://eyereasoner.github.io/eyemind/examples/deck/explicit-existential-rule),
-[quantifier scopes](https://eyereasoner.github.io/eyemind/examples/deck/quantifier-scopes) and
-[graph terms](https://eyereasoner.github.io/eyemind/examples/deck/graph-terms).
+[universal instances](https://eyereasoner.github.io/eyemind/examples/deck/universal-instances-n3),
+[a shared existential](https://eyereasoner.github.io/eyemind/examples/deck/shared-existential-n3),
+[an existential rule](https://eyereasoner.github.io/eyemind/examples/deck/explicit-existential-rule-n3),
+[quantifier scopes](https://eyereasoner.github.io/eyemind/examples/deck/quantifier-scopes-n3) and
+[graph terms](https://eyereasoner.github.io/eyemind/examples/deck/graph-terms-n3).
 
 The Notation3 test suite case `static/success-literal-22.n3` expects the
 pattern `{ _:X :B :C }` to match `{ :A :B :C }`. eyemind's scorer checks
@@ -260,17 +260,17 @@ inside their formulas; `?g graph:content ?data` and
 `?data log:includes { ... }` inspect them. Contents with the same graph name
 from several RDF inputs are combined, while blank nodes keep their source
 scopes. Conclusions can attach further formulas to that name; the output
-writes these as N3 formulas. See the [named graph example](https://eyereasoner.github.io/eyemind/examples/deck/trig-named-graph).
+writes these as N3 formulas. See the [named graph example](https://eyereasoner.github.io/eyemind/examples/deck/trig-named-graph-n3).
 
 Scoped calls can use formulas supplied by the document's stated lists, including RDF collections written with `rdf:first` and `rdf:rest`, and the named-graph formulas loaded from RDF. These calls are specialized before reasoning so their dependencies remain available for stratification and proof checking; formulas constructed only during reasoning are not supported by this compilation.
 
 The documents `log:semantics`, `log:semanticsOrError` and `log:content` name are read before compiling. The command reads local files and HTTP(S) documents, with a ten-second fetch timeout and a 16 MiB response limit. The library uses the host callbacks `readFile(path)` and `readDocument(iri)`; without them it does not read external documents. Their contents become facts of the compiled program, which can be saved with `--program` for later proof checking.
 
 Examples run directly from their N3 source in the playground and on the command line:
-[family queries](https://eyereasoner.github.io/eyemind/examples/deck/family),
-[scoped negation](https://eyereasoner.github.io/eyemind/examples/deck/scoped-negation),
-[invoice collection](https://eyereasoner.github.io/eyemind/examples/deck/invoice),
-[French cities](https://eyereasoner.github.io/eyemind/examples/deck/french-cities), and
+[family queries](https://eyereasoner.github.io/eyemind/examples/deck/family-n3),
+[scoped negation](https://eyereasoner.github.io/eyemind/examples/deck/scoped-negation-n3),
+[invoice collection](https://eyereasoner.github.io/eyemind/examples/deck/invoice-n3),
+[French cities](https://eyereasoner.github.io/eyemind/examples/deck/french-cities-n3), and
 [existential witnesses](https://eyereasoner.github.io/eyemind/examples/deck/witnesses-n3).
 Each deck shows the N3 result and what its saved proof establishes, including
 any remaining obligations.
@@ -287,9 +287,9 @@ to their message. Prefix and base changes apply to subsequent data.
 Whole-log replay gives N3 or JavaScript rules an ordered view of the messages:
 
 ```sh
-eyemind examples/message-boundaries.n3 examples/data/message-boundaries.trig
-eyemind --proof examples/message-boundaries.n3 examples/data/message-boundaries.trig
-eyemind --check-proof examples/proof/message-boundaries.n3 examples/message-boundaries.n3 examples/data/message-boundaries.trig
+eyemind examples/message-boundaries-n3.n3 examples/data/message-boundaries-n3.trig
+eyemind --proof examples/message-boundaries-n3.n3 examples/data/message-boundaries-n3.trig
+eyemind --check-proof examples/proof/message-boundaries-n3.n3 examples/message-boundaries-n3.n3 examples/data/message-boundaries-n3.trig
 ```
 
 The replay vocabulary is `eymsg:`, with namespace
@@ -311,7 +311,7 @@ with `graph(...)` terms for payload formulas.
 For independent processing, run the rules once per message:
 
 ```sh
-eyemind --stream-messages examples/message-alerts.n3 examples/data/message-alerts.nt
+eyemind --stream-messages examples/message-alerts-n3.n3 examples/data/message-alerts-n3.nt
 ```
 
 The Node command incrementally reads files, standard input (`-`) or HTTP(S)
@@ -324,9 +324,9 @@ the ordinary N3, RDF or term format selected for the run.
 The playground's **Independent RDF Messages** mode processes its loaded
 text with the same boundaries. Whole-log replay supports proofs;
 `--stream-messages` rejects proof, proof-checking, compiled-program and
-unused-clause modes. The [message-boundaries](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries),
-[message-alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts)
-and [message-provenance](https://eyereasoner.github.io/eyemind/examples/deck/message-provenance)
+unused-clause modes. The [message-boundaries](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries-n3),
+[message-alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3)
+and [message-provenance](https://eyereasoner.github.io/eyemind/examples/deck/message-provenance-n3)
 decks show the outputs and remaining proof obligations.
 
 Library hosts can import `RdfMessageReader` and `parseRdfMessages` from
@@ -358,7 +358,7 @@ use binary64 arithmetic: `0.1e0 + 0.2e0` is
 `"0.30000000000000004"^^xsd:double`. Floating-point overflow and division by
 zero follow IEEE-754, including `INF`, `-INF`, `NaN` and signed zero; decimal
 division by zero is an expression error. Mixed numeric expressions use
-SPARQL type promotion. The [exact decimals example](https://eyereasoner.github.io/eyemind/examples/deck/exact-decimals)
+SPARQL type promotion. The [exact decimals example](https://eyereasoner.github.io/eyemind/examples/deck/exact-decimals-srl)
 shows both arithmetic models.
 
 `NOW()` returns one UTC `xsd:dateTime` throughout a rule set evaluation.
@@ -374,7 +374,7 @@ recorded context; it does not attest the wall-clock time or the randomness
 of the seed. Library calls to `compileSrl` and `reasonSrl` accept
 `context: { now, seed }`, with an ISO UTC timestamp including milliseconds
 and 64 lowercase hexadecimal seed digits, to reproduce an execution.
-The [execution identifiers example](https://eyereasoner.github.io/eyemind/examples/deck/execution-identifiers)
+The [execution identifiers example](https://eyereasoner.github.io/eyemind/examples/deck/execution-identifiers-srl)
 has a fixed context in the example manifest for its saved artifacts;
 ordinary command-line and playground runs capture fresh values.
 
@@ -403,10 +403,10 @@ inference. JavaScript programs write `step(...)` records. N3 inputs write
 N3 proofs, and SRL inputs write SRL `DATA` proofs:
 
 ```sh
-eyemind --proof examples/socrates.n3 > /tmp/socrates-proof.n3
-eyemind --check-proof /tmp/socrates-proof.n3 examples/socrates.n3
-eyemind --proof examples/socrates.srl > /tmp/socrates-proof.srl
-eyemind --check-proof /tmp/socrates-proof.srl examples/socrates.srl
+eyemind --proof examples/socrates-n3.n3 > /tmp/socrates-proof.n3
+eyemind --check-proof /tmp/socrates-proof.n3 examples/socrates-n3.n3
+eyemind --proof examples/socrates-srl.srl > /tmp/socrates-proof.srl
+eyemind --check-proof /tmp/socrates-proof.srl examples/socrates-srl.srl
 ```
 
 Native proofs use `pe:`, `https://eyereasoner.github.io/pe#`, for the claims,

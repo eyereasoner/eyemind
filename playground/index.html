@@ -385,8 +385,10 @@
         window.scrollTo({ top, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
       }
 
+      // Older links name some N3 and SRL examples without -n3 or -srl.
       function exampleNamed(name) {
-        return examples.find((entry) => entry.name === name) ?? null;
+        return [name, `${name}-n3`, `${name}-srl`].map((candidate) => examples.find((entry) => entry.name === candidate))
+          .find(Boolean) ?? null;
       }
 
       function proofExtension() {
@@ -502,7 +504,7 @@
         return { v: 1, source, mode, goal: raw.goal ?? '',
           strictProof: raw.strictProof ?? false, json: raw.json ?? false, stats: raw.stats ?? false,
           maxDepth: raw.maxDepth ?? '', maxInferences: raw.maxInferences ?? '',
-          proof: raw.proof ?? { name: 'proof.js', text: '' }, example: exampleNamed(raw.example) ? raw.example : '' };
+          proof: raw.proof ?? { name: 'proof.js', text: '' }, example: exampleNamed(raw.example)?.name ?? '' };
       }
 
       function applyState(saved) {
@@ -788,14 +790,15 @@
       async function readExampleSource(name, signal) {
         const entry = exampleNamed(name);
         if (!entry) throw new Error('Unknown bundled example.');
-        const files = entry.files ?? [`${name}.js`];
+        const files = entry.files ?? [`${entry.name}.js`];
         const [primary, ...companions] = await Promise.all(files.map((file) =>
           fetchSource(`../examples/${file}`, `examples/${file}`, signal)));
         if (companions.length) primary.companions = companions;
         return primary;
       }
 
-      async function loadExample(name, signal) {
+      async function loadExample(link, signal) {
+        const name = exampleNamed(link)?.name ?? link;
         const loaded = await readExampleSource(name, signal);
         originalExample = { name, source: { ...loaded } };
         source = loaded;

@@ -212,7 +212,7 @@ export const tests = {
       assert.equal(result.code, 1);
       assert.match(result.stderr, /cannot be combined/);
     }
-    const noLog = command(['--stream-messages', 'examples/family.n3']);
+    const noLog = command(['--stream-messages', 'examples/family-n3.n3']);
     assert.equal(noLog.code, 1);
     assert.match(noLog.stderr, /needs an RDF Message Log/);
   },

@@ -65,9 +65,12 @@ goals, and keep error messages specific and user-facing text direct.
   proof and check report; `examples/deck/` a card deck per example. Outputs
   use the input format’s default (`.js`, `.n3` or `.ttl`; `.txt` for the text
   report); proofs match their source (`.js`, `.n3`, `.srl`) and check reports
-  remain `.js`. Source files can share a
-  basename across formats (`socrates.js`, `socrates.n3`, `socrates.srl`).
-  Manifest names distinguish check reports and decks. TriG
+  remain `.js`. Every file of an example is named after the example, and the
+  name of an N3 or SRL example ends in `-n3` or `-srl`: `socrates.js`,
+  `socrates-n3.n3` and `socrates-srl.srl` with
+  `data/annotation-n3.ttl`, `output/socrates-srl.ttl`,
+  `proof/socrates-n3.n3`, `check/socrates-n3.js` and
+  `deck/socrates-n3.md`. TriG
   joins N3 as quoted `graph:content` formulas.
   RDF Message examples keep their logs in `examples/data/`; payloads are
   quoted `log:nameOf` formulas. Replay has proofs and check reports;
