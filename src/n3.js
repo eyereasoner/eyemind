@@ -1027,7 +1027,7 @@ export function readSources(sources, { base = '', baseOf = () => '' } = {}) {
       if (!Array.isArray(sources[k]) && triple.p.v === GRAPH_CONTENT && triple.o.t === 'graph') {
         const key = `${triple.s.t}:${triple.s.v}`;
         if (graphs.has(key)) {
-          graphs.get(key).triples.push(...triple.o.triples);
+          for (const item of triple.o.triples) graphs.get(key).triples.push(item);
           continue;
         }
         graphs.set(key, triple.o);

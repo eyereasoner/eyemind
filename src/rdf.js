@@ -359,9 +359,11 @@ export function writeRdf(quads, { format = 'turtle', prefixes = {}, blankNodePre
     graphs.get(key)[1].push(q);
   }
   for (const [key, [g, qs]] of graphs) {
-    const lines = qs.map(([s, p, o]) => `${w.term(s)} ${w.predicate(p)} ${w.term(o)} .`);
-    if (key === DEFAULT_GRAPH) body.push(...lines);
-    else body.push(`${w.term(g)} {`, ...lines.map((l) => `  ${l}`), '}');
+    // One push per line: a graph can have more lines than a call takes arguments.
+    const indent = key === DEFAULT_GRAPH ? '' : '  ';
+    if (indent) body.push(`${w.term(g)} {`);
+    for (const [s, p, o] of qs) body.push(`${indent}${w.term(s)} ${w.predicate(p)} ${w.term(o)} .`);
+    if (indent) body.push('}');
   }
   const head = [...w.used].sort().map((name) => `PREFIX ${name}: <${w.prefixes.get(name)}>`);
   if (head.length && body.length) head.push('');
