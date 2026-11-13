@@ -1,10 +1,25 @@
 import { EyemindError, Struct, Var, readTerm, run, write } from '../src/index.js';
-import { Env, compareTerms, copyResolved, deref, identity, unify } from '../src/terms.js';
+import { Env, compareTerms, copyResolved, deref, identity, indexKey, unify } from '../src/terms.js';
 import { assert, program, proven, throwsMatching } from './helpers.js';
 
 const order = (left, right) => run(program(''), { goal: `compare(O, ${left}, ${right})` }).bindings[0].O;
 
 export const tests = {
+  'index keys remain sensitive to bindings after a ground lookup'() {
+    const env = new Env();
+    const x = new Var('X');
+    const term = new Struct('iri', [x]);
+    assert.equal(indexKey(term), undefined);
+    assert.ok(unify(x, 'a', env));
+    const a = indexKey(term, env);
+    assert.equal(a, indexKey(new Struct('iri', ['a'])));
+    env.undo(0);
+    assert.equal(indexKey(term, env), undefined);
+    assert.ok(unify(x, 'b', env));
+    assert.notEqual(indexKey(term, env), a);
+    assert.equal(indexKey(term, env), indexKey(new Struct('iri', ['b'])));
+  },
+
   'fresh variable names cannot collide with source names'() {
     assert.notEqual(write(new Var('X#1')), write(new Var('X_1')));
     assert.notEqual(write(new Var('X#1')), write(new Var('VAR_X_23_1')));

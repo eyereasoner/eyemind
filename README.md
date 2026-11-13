@@ -565,7 +565,7 @@ console.log(result.bindings);
 console.log(checkProof(socrates, result.proof, { goals }).valid);
 ```
 
-`run()` returns `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals, allowTrusted })` checks C1–C10, and `allowTrusted: false` rejects every obligation. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text.
+`run()` returns `conclusions`, `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `conclusions` holds the answer terms; `answers`, `bindings` and `stdout` are rendered when first read. Ground N3 conclusions are written directly from their terms. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals, allowTrusted })` checks C1–C10, and `allowTrusted: false` rejects every obligation. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text.
 
 The core library's `result.proof` is the JavaScript certificate.
 `writeNativeProof(result.proof, { format: 'n3', prefixes })` writes its N3

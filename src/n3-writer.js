@@ -5,7 +5,7 @@
 // Skolem term skolem(Rule, Variable, Arguments) is a blank node, the same one
 // for the same rule firing.
 import { readTerms } from './reader.js';
-import { Struct, Var } from './terms.js';
+import { Struct, Var, identity } from './terms.js';
 import { write } from './writer.js';
 import { LOG, RDF, XSD } from './n3-parser.js';
 
@@ -14,16 +14,23 @@ export class N3WriteError extends Error {}
 // The triples of an eyemind conclusions document, in order and without
 // duplicates. Also reports whether a contradiction halted the run.
 export function triplesFromEyemind(text) {
+  return triplesFromTerms(readTerms(String(text)).map(([term]) => term));
+}
+
+// Native conclusions need no canonical-text round trip.
+export function triplesFromTerms(terms, distinct = false) {
   const triples = [];
   const seen = new Set();
   let contradiction = false;
-  for (const [term] of readTerms(String(text))) {
+  for (const term of terms) {
     if (term === 'false') { contradiction = true; continue; }
     const t = tripleTerm(term);
     if (!t) continue;
-    const k = write(t);
-    if (seen.has(k)) continue;
-    seen.add(k);
+    if (!distinct) {
+      const k = identity(t);
+      if (seen.has(k)) continue;
+      seen.add(k);
+    }
     triples.push(t.args);
   }
   return { triples, contradiction };

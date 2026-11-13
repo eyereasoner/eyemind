@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { Program, Struct, checkProof, loadText, readTerm, run } from '../src/index.js';
 import { Node, Solver, clausesBehindBoundaries, clausesUsed } from '../src/engine.js';
 import { Env, Var } from '../src/terms.js';
-import { SourceNaming, write } from '../src/writer.js';
+import { Lettering, SourceNaming, write } from '../src/writer.js';
 import { nodeIO } from '../src/node.js';
 import { ROOT, assert, program, proven, throwsMatching } from './helpers.js';
 
@@ -162,8 +162,45 @@ implies([node(X), not(edge(X, _))], isolated(X))
 
   'answers name their variables as their bindings do'() {
     const result = run(program('implied_by(r(Y, Z), unify(Y, f(_, Z)))'), { goal: 'r(P, Q)' });
-    assert.deepEqual(result.answers, ['r(f(A, B), B)']);
     assert.deepEqual(result.bindings, [{ P: 'f(A, B)', Q: 'B' }]);
+    assert.deepEqual(result.answers, ['r(f(A, B), B)']);
+    const naming = new Lettering();
+    assert.deepEqual(result.conclusions.map((term) => write(term, null, naming)), result.answers);
+  },
+
+  'direct ground firings preserve search order, rounds, bounds and proof answers'() {
+    const saved = Solver.prototype.directFirings;
+    for (const extra of ['', 'query(q(X))', 'contradiction(s(f(2)))']) {
+      const loaded = program(`
+fact(p(f(1), f(1)), p(f(1), f(2)), p(f(2), f(2)), p(f(1), f(1)))
+implies(r(X), s(X))
+implies(p(X, X), [q(X), r(X)])
+implies(q(X), r(X))
+implies(q(X), t(X, W))
+implies(t(X, W), u(W))
+${extra}
+`);
+      const direct = run(loaded);
+      const proof = proven(loaded);
+      Solver.prototype.directFirings = () => null;
+      try {
+        const searched = run(loaded);
+        assert.deepEqual([direct.stdout, direct.stats, direct.haltCode], [searched.stdout, searched.stats, searched.haltCode]);
+        assert.deepEqual([direct.answers, direct.stats], [proof.answers, proof.stats]);
+        throwsMatching(() => run(loaded, { maxInferences: 1 }), /max_inferences/);
+      } finally {
+        Solver.prototype.directFirings = saved;
+      }
+      throwsMatching(() => run(loaded, { maxInferences: 1 }), /max_inferences/);
+    }
+  },
+
+  'IRI and atom index collisions still require unification'() {
+    const loaded = program("fact(p('u', 'atom'), p(iri('u'), 'iri'))\nimplies(p(iri('u'), X), q(X))");
+    assert.deepEqual(run(loaded).answers, ["q('iri')"]);
+    for (const [goal, answer] of [["p('u', X)", "p('u', 'atom')"], ["p(iri('u'), X)", "p(iri('u'), 'iri')"]]) {
+      assert.deepEqual(proven(loaded, { goal }).answers, [answer]);
+    }
   },
 
   'a query without answers concludes nothing'() {

@@ -23,10 +23,11 @@
 // predicates of a body become goals defined in eyemind itself (builtins.mjs).
 import { run } from './engine.js';
 import { loadText } from './lang.js';
-import { Struct } from './terms.js';
+import { Program, Source } from './program.js';
+import { Struct, Var, conjunction, isGround } from './terms.js';
 import { write } from './writer.js';
 import { N3SyntaxError, parseN3, typedLiteral, LOG, XSD } from './n3-parser.js';
-import { triplesFromEyemind, tripleToEyemind, writeN3 } from './n3-writer.js';
+import { triplesFromEyemind, triplesFromTerms, termToEyemind, tripleToEyemind, writeN3 } from './n3-writer.js';
 import { documentIris, readDocuments } from './n3-documents.js';
 
 const MATH = 'http://www.w3.org/2000/10/swap/math#';
@@ -1040,11 +1041,63 @@ export function readSources(sources, { base = '', baseOf = () => '' } = {}) {
 
 // A document's program: { program, documents }; readFile reads the
 // documents it names for log:semantics and log:content.
-export function compileSources(sources, { base = '', baseOf, readFile = null, readDocument = null, source } = {}) {
+export function compileSources(sources, { base = '', baseOf, readFile = null, readDocument = null, source, native = false } = {}) {
   const doc = readSources(sources, { base, baseOf });
   const documents = readDocuments(documentIris(doc.triples), readFile, readDocument);
-  const { program } = compileN3Document(doc, { source: source ?? sourceNames(sources), documents });
-  return { doc, program };
+  let program;
+  const compiled = native && !documents.size ? plainProgram(doc) : null;
+  const display = () => compileN3Document(doc, { source: source ?? sourceNames(sources), documents }).program;
+  if (compiled === null) program = display();
+  return { doc, nativeProgram: compiled, get program() { return program ??= display(); } };
+}
+
+// Ordinary triple rules already are clauses. Build them without generating
+// and executing a second language. Other N3 constructs use the full compiler;
+// the JavaScript display remains available and keeps the same clause lines.
+function plainProgram(doc) {
+  const listIris = new Set(['first', 'rest', 'nil'].map((name) => `${RDF_NS}${name}`));
+  const constant = (t) => ['iri', 'literal', 'int', 'float'].includes(t.t) && !(t.t === 'iri' && listIris.has(t.v));
+  const ordinary = (x) => x.p.t === 'iri' && [x.s, x.p, x.o].every((t) => constant(t) || (t.t === 'var' && (t.scope ?? 0) === 0));
+  const facts = [];
+  const rules = [];
+  for (const x of doc.triples) {
+    if (x.p.t === 'iri' && x.p.v === `${LOG}implies` && x.s.t === 'graph' && x.o.t === 'graph') {
+      if (!x.s.triples.every((b) => ordinary(b) && !BUILTINS.has(b.p.v) && !UNSUPPORTED.has(b.p.v) &&
+          !INLINE.has(b.p.v) && !TESTS.has(b.p.v) && !SCOPED_SUBJECT.has(b.p.v) && !SCOPED_OBJECT.has(b.p.v) && !RULE_PREDICATES.has(b.p.v))) return null;
+      if (!x.o.triples.every(ordinary)) return null;
+      const bound = keysOf(x.s);
+      if ([...keysOf(x.o)].some((name) => !bound.has(name))) return null;
+      if (x.o.triples.length) rules.push(x);
+    } else {
+      if (![x.s, x.p, x.o].every(constant)) return null;
+      facts.push(x);
+    }
+  }
+  const iris = new Map();
+  const named = new Map();
+  const term = (t, ctx) => {
+    if (t.t === 'var') {
+      const name = ctx.name(`v:${t.v}`, t.v);
+      let value = named.get(name);
+      if (value === undefined) named.set(name, value = new Var(name));
+      return value;
+    }
+    if (t.t === 'iri') {
+      let value = iris.get(t.v);
+      if (value === undefined) iris.set(t.v, value = new Struct('iri', [t.v]));
+      return value;
+    }
+    return termToEyemind(t);
+  };
+  const triple = (x, ctx) => new Struct('rdf', [term(x.s, ctx), term(x.p, ctx), term(x.o, ctx)]);
+  const sources = facts.map((x, i) => new Source('fact', triple(x), [], i + 4));
+  for (const x of rules) {
+    const ctx = new Context(true);
+    const body = x.s.triples.map((b) => triple(b, ctx));
+    const head = conjunction(x.o.triples.map((h) => triple(h, ctx)));
+    sources.push(new Source('forward', head, body.length ? body : ['true'], sources.length + 4));
+  }
+  return new Program(sources);
 }
 
 const sourceNames = (sources) => (typeof sources === 'string' ? 'input' : sources.map((s) => (Array.isArray(s) ? s[1] : 'data')).join(', '));
@@ -1053,7 +1106,17 @@ const sourceNames = (sources) => (typeof sources === 'string' ? 'input' : source
 // mode 'all', and the document's own log:outputString strings when the
 // result writes strings.
 export function answersToN3(doc, answers, { mode = 'new', strings = 'auto', blankNodePrefix = '' } = {}) {
-  let { triples, contradiction } = triplesFromEyemind(answers.join('\n'));
+  return conclusionsToN3(doc, triplesFromEyemind(answers.join('\n')), { mode, strings, blankNodePrefix });
+}
+
+export function resultToN3(doc, result, options = {}) {
+  // Nonground answers retain the document-wide variable names of their
+  // canonical text. Forward ground conclusions are already distinct.
+  if (!result.conclusions || result.conclusions.some((term) => !isGround(term))) return answersToN3(doc, result.answers, options);
+  return conclusionsToN3(doc, triplesFromTerms(result.conclusions, true), options);
+}
+
+function conclusionsToN3(doc, { triples, contradiction }, { mode = 'new', strings = 'auto', blankNodePrefix = '' } = {}) {
   const given = doc.triples.filter((x) => !isRule(x)).map(tripleToEyemind);
   if (mode === 'all') triples = [...given, ...triples];
   else if (strings !== false && triples.some(isOutputString)) triples = [...given.filter(isOutputString), ...triples];
@@ -1067,9 +1130,9 @@ export const N3_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferenc
 // result }; with proof, result.proof is eyemind's checked proof of the
 // compiled program.
 export function reasonN3(sources, { base = '', mode = 'new', strings = 'auto', limits = {}, proof = false, goals = [], readFile = null, readDocument = null } = {}) {
-  const { doc, program } = compileSources(sources, { base, readFile, readDocument });
-  const result = run(loadText(program, 'compiled.js'), { ...N3_LIMITS, ...limits, proof, goals });
-  return { ...answersToN3(doc, result.answers, { mode, strings }), program, result };
+  const compiled = compileSources(sources, { base, readFile, readDocument, native: true });
+  const result = run(compiled.nativeProgram ?? loadText(compiled.program, 'compiled.js'), { ...N3_LIMITS, ...limits, proof, goals });
+  return { ...resultToN3(compiled.doc, result, { mode, strings }), get program() { return compiled.program; }, result };
 }
 
 const RULE_IRIS = new Set([`${LOG}implies`, `${LOG}impliedBy`, `${LOG}query`]);

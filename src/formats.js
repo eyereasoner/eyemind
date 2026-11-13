@@ -18,7 +18,7 @@ import { EyemindError, Struct } from './terms.js';
 import { loadSources } from './lang.js';
 import { readTerms } from './reader.js';
 import { DEFAULT_GRAPH, parseRdf, rdfDocument, rdfFormat, writeRdf } from './rdf.js';
-import { answersToN3, compileSources } from './n3.js';
+import { resultToN3, compileSources } from './n3.js';
 import { compileSrl, srlQuads } from './srl.js';
 import { write } from './writer.js';
 import { isRdfMessageLog, parseRdfMessages } from './messages.js';
@@ -83,8 +83,9 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
     if (kinds.includes('js')) throw new EyemindError('an N3 run takes .n3 documents and RDF data, not JavaScript programs');
     const sources = inputs.map(([t, n], k) => (kinds[k] === 'rdf' ? rdf(t, n, k) : [t, n]));
     const compiled = compileSources(sources, { base: base ?? '', baseOf: (n) => baseOf(n) ?? '', readFile: io?.readFile ?? null, readDocument: io?.readDocument ?? null,
-      source: inputs.map(([, n]) => n).join(', ') });
-    return { kind: 'n3', program: loadSources([[compiled.program, inputs[kinds.indexOf('n3')][1]]], io), text: compiled.program, prefixes: compiled.doc.prefixes, compiled };
+      source: inputs.map(([, n]) => n).join(', '), native: true });
+    return { kind: 'n3', program: compiled.nativeProgram ?? loadSources([[compiled.program, inputs[kinds.indexOf('n3')][1]]], io),
+      get text() { return compiled.program; }, prefixes: compiled.doc.prefixes, compiled };
   }
   // RDF data joins a program as rdf/4 facts, read without running anything.
   const prefixes = {};
@@ -136,11 +137,11 @@ export function writeProof(loaded, result, { goals = null } = {}) {
 // all also writes the given data. Throws when a conclusion is no triple.
 export function writeConclusions(loaded, result, { format, all = false, blankNodePrefix = '' } = {}) {
   if (format === 'eyemind') return null;
-  const answers = result.answers;
   if (format === 'n3') {
     if (loaded.kind !== 'n3') throw new EyemindError('--to n3 writes the conclusions of an N3 run');
-    return answersToN3(loaded.compiled.doc, answers, { mode: all ? 'all' : 'new', blankNodePrefix }).n3;
+    return resultToN3(loaded.compiled.doc, result, { mode: all ? 'all' : 'new', blankNodePrefix }).n3;
   }
+  const answers = result.answers;
   let quads;
   if (loaded.kind === 'srl') quads = srlQuads(loaded.text, answers, { all });
   else quads = conclusionQuads(answers, all ? loaded.text : null);

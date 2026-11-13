@@ -6,7 +6,7 @@ import { cpus, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { checkProof, loadText, run } from '../src/index.js';
-import { compileN3, reasonN3 } from '../src/n3.js';
+import { answersToN3, compileN3, reasonN3 } from '../src/n3.js';
 import { parseN3 } from '../src/n3-parser.js';
 import { readDocuments } from '../src/n3-documents.js';
 import { loadInputs, writeConclusions } from '../src/formats.js';
@@ -25,6 +25,50 @@ const checkedReason = (text) => {
   return r.n3;
 };
 const P = '@prefix : <http://example.org/#>.\n';
+
+test('direct N3 clauses preserve the generated program and its proof', () => {
+  for (const text of [
+    ':a :p :b. { ?x :p ?y } => { ?x :q ?y; :r ?y }. { ?x :q ?y } => { ?y :q ?x }.',
+    '{ } => { :a :p 1, 1.0, -0.0, 9007199254740993 }. { ?math :p ?VAR_a } => { ?VAR_a :q ?math }.',
+    '{ :a :p :b } => { }. :a :p :b. { :a :p :b } => { :a :q :b }.',
+  ]) {
+    const loaded = loadInputs([[`${P}${text}`, 'input.n3']]);
+    assert.ok(loaded.compiled.nativeProgram);
+    const generated = loadText(loaded.text);
+    assert.deepEqual(loaded.program.sources, generated.sources);
+    const direct = run(loaded.program, { proof: true });
+    const ordinary = run(generated, { proof: true });
+    assert.equal(direct.proof, ordinary.proof);
+    assert.ok(checkProof(generated, direct.proof).valid);
+    assert.ok(!checkProof(generated, direct.proof.replaceAll("iri('http://example.org/#a')", "iri('http://example.org/#invented')")).valid);
+  }
+});
+
+test('native N3 output avoids ground answer text and preserves universal answer names', () => {
+  const loaded = loadInputs([[`${P}:a :p :b. { ?s :p ?o } => { ?s :q ?o }.`, 'input.n3']]);
+  const result = run(loaded.program);
+  const text = writeConclusions(loaded, { answers: result.answers }, { format: 'n3' });
+  Object.defineProperty(result, 'answers', { get() { throw new Error('ground N3 output requested canonical answer text'); } });
+  assert.equal(writeConclusions(loaded, result, { format: 'n3' }), text);
+  assert.match(text, /:a :q :b/);
+  const universal = loadInputs([[`${P}{ } => { @forAll :x. :x :p :o }. { ?s :p :o } log:query { ?s :q :o }.`, 'input.n3']]);
+  const answer = run(universal.program);
+  assert.equal(writeConclusions(universal, answer, { format: 'n3' }), answersToN3(universal.compiled.doc, answer.answers).n3);
+});
+
+test('N3 constructs outside ordinary triple rules retain the full compiler', () => {
+  for (const text of [
+    ':a :p rdf:nil.',
+    ':a :p :b. { ?x :p ?y } => { ?x :q _:w }.',
+    ':a :p :b. { ?x ?p ?y } => { ?x :q ?y }.',
+    ':a :p :b. { :a :p :b } => { @forAll :x. :x :q :b }.',
+    ':a :p :b. { :a :p :b } <= { :a :q :b }.',
+  ]) {
+    const loaded = loadInputs([[`${P}${text}`, 'input.n3']]);
+    assert.equal(loaded.compiled.nativeProgram, null);
+    assert.deepEqual(run(loaded.program).answers, run(loadText(loaded.text)).answers);
+  }
+});
 
 test('TriG joins N3 as named graph formulas without leaking triples or blank nodes', () => {
   const loaded = loadInputs([

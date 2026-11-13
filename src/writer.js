@@ -91,6 +91,7 @@ const ESCAPES = { '\\': '\\\\', "'": "\\'", '\n': '\\n', '\r': '\\r', '\t': '\\t
 // separators and lone surrogates are escaped; any other character is written
 // as it is.
 export function quote(text) {
+  if (!/['\\\u0000-\u001f\u007f-\u009f\u2028\u2029\ud800-\udfff]/.test(text)) return `'${text}'`;
   let out = "'";
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];

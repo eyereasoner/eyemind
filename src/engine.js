@@ -285,6 +285,10 @@ export class Solver {
     // of the facts with that value there.
     this.factIndex = new Map();
     this.factKeys = new Set(program.groundFactKeys);
+    this.iriIds = new Map();
+    for (const clause of program.clauses) {
+      if (!clause.forward && !clause.body.length && isGround(clause.head)) this.factKeys.add(this.factKey(clause.head));
+    }
     this.genericKeys = new Set();
     this.genericPredicates = new Set();
     this.derived = [];
@@ -301,6 +305,7 @@ export class Solver {
     this.chosen = null;
     this.snapshots = new Map();
     this.direct = new Map();
+    this.groundCalls = new Map();
     this.rules = new Map();
     this.ruleKeys = new Map();
     this.maxInferences = options.maxInferences || 1000000;
@@ -548,11 +553,26 @@ export class Solver {
         const argument = indexKey(arg);
         if (argument !== undefined) {
           const bucket = positions[position].get(argument);
-          if (bucket === undefined) positions[position].set(argument, [number]);
+          if (bucket === undefined) positions[position].set(argument, number);
+          else if (typeof bucket === 'number') positions[position].set(argument, [bucket, number]);
           else bucket.push(number);
         }
       });
     }
+  }
+
+  // RDF rules often derive only IRI tuples. Small per-run identifiers avoid
+  // retaining a second copy of every IRI in each fact's duplicate key.
+  factKey(term) {
+    if (!(term instanceof Struct) || !term.args.length ||
+        !term.args.every((arg) => isTerm(arg, 'iri', 1) && typeof arg.args[0] === 'string')) return identity(term);
+    const ids = term.args.map((arg) => {
+      const iri = arg.args[0];
+      let id = this.iriIds.get(iri);
+      if (id === undefined) this.iriIds.set(iri, id = this.iriIds.size);
+      return id;
+    });
+    return `@${term.name.length}:${term.name}:${ids.length}:${ids.join(',')}`;
   }
 
   // The indexes of the derived facts a goal could match, in order, when an
@@ -566,7 +586,8 @@ export class Solver {
     for (let position = 0; position < goal.args.length; position++) {
       const arg = indexKey(goal.args[position], env);
       if (arg !== undefined) {
-        const bucket = positions[position].get(arg) || NO_NODES;
+        const stored = positions[position].get(arg);
+        const bucket = typeof stored === 'number' ? [stored] : stored ?? NO_NODES;
         if (bucket.length < size) {
           best = bucket;
           size = bucket.length;
@@ -718,8 +739,7 @@ export class Solver {
     let now = null;
     let previous = null;
     if (keys !== null) {
-      now = new Map();
-      for (const goalKey of keys) if (goalKey) now.set(goalKey, (this.facts.get(goalKey) || NO_NODES).length);
+      now = keys.map((goalKey) => goalKey === null ? null : (this.facts.get(goalKey) || NO_NODES).length);
       previous = this.snapshots.get(clause) || null;
       this.snapshots.set(clause, now);
     }
@@ -727,13 +747,15 @@ export class Solver {
     if (previous !== null) {
       positions = [];
       keys.forEach((goalKey, i) => {
-        if (goalKey && now.get(goalKey) > previous.get(goalKey)) positions.push(i);
+        if (goalKey && now[i] > previous[i]) positions.push(i);
       });
-      if (!positions.some((i) => this.mayMatchNew(clause.localBody[i], keys[i], previous, now))) {
+      if (!positions.some((i) => this.mayMatchNew(clause.localBody[i], keys[i], previous[i], now[i]))) {
         return []; // nothing derived since its last search can be used, so nothing new follows
       }
     }
     this.serial++;
+    const direct = this.directFirings(clause, keys, previous);
+    if (direct !== null) return direct;
     const [head, fullBody, names] = freshClause(clause, this.serial, true);
     const body = fullBody.slice(clause.prefixLength);
     const env = new Env();
@@ -743,9 +765,9 @@ export class Solver {
     for (const delta of positions) {
       const window = keys.map((goalKey, i) => {
         if (goalKey === null) return null;
-        if (i < delta) return [0, previous.get(goalKey), true];
-        if (i === delta) return [previous.get(goalKey), now.get(goalKey), false];
-        return [0, now.get(goalKey), true];
+        if (i < delta) return [0, previous[i], true];
+        if (i === delta) return [previous[i], now[i], false];
+        return [0, now[i], true];
       });
       this.window = window;
       this.windowGoals = body;
@@ -760,14 +782,56 @@ export class Solver {
     return found.map(([firing]) => firing);
   }
 
+  // A single ordinary call over ground facts needs only a substitution.
+  // Keep the search machine for proofs, templates, witnesses and nonground
+  // source facts; otherwise no renamed clause or choice-point frames escape.
+  directFirings(clause, keys, previous) {
+    if (this.recording || keys === null || keys.length !== 1 || keys[0] === null ||
+        clause.parentId !== null || clause.templates.length || clause.captures !== null || clause.witnessNames.length) return null;
+    const goalKey = keys[0];
+    let ground = this.groundCalls.get(goalKey);
+    if (ground === undefined) {
+      ground = (this.program.groups.get(goalKey) || []).every((candidate) => isGround(candidate.head));
+      this.groundCalls.set(goalKey, ground);
+    }
+    if (!ground) return null;
+    if (++this.stats.inferences > this.maxInferences) throw new EyemindError('reasoning exceeded max_inferences');
+    const goal = clause.localBody[0];
+    const facts = this.facts.get(goalKey) || NO_NODES;
+    const order = this.factOrder(goal, null, goalKey);
+    const start = previous === null ? 0 : previous[0];
+    const found = [];
+    const env = new Env();
+    const add = (fact) => {
+      if (unify(goal, fact, env)) {
+        const conclusions = flattenConjunction(copyResolved(clause.head, env));
+        const claim = conclusions.includes('true') ? copyResolved(goal, env) : null;
+        found.push([conclusions, NO_NODES, NO_NODES, claim, null]);
+      }
+      env.undo(0);
+    };
+    if (order === null) {
+      for (let i = start; i < facts.length; i++) add(facts[i].goal);
+    } else {
+      for (let i = bisectLeft(order, start); i < order.length; i++) add(facts[order[i]].goal);
+    }
+    if (previous === null) {
+      for (const candidate of this.program.candidates(goal, null, goalKey)) {
+        this.serial++;
+        add(candidate.head);
+      }
+    }
+    return found;
+  }
+
   // Whether a body goal, as the rule writes it, could match a fact derived
   // since the rule's last search. The goal's own atoms and numbers narrow the
   // facts down before the rule is renamed and searched.
   mayMatchNew(goal, goalKey, previous, now) {
     const order = this.factOrder(goal, null, goalKey);
     if (order === null) return true;
-    const first = bisectLeft(order, previous.get(goalKey));
-    return first < order.length && order[first] < now.get(goalKey);
+    const first = bisectLeft(order, previous);
+    return first < order.length && order[first] < now;
   }
 
   // The solutions of a rule's body. A restricted rule's guard is a negation
@@ -929,6 +993,7 @@ export class Solver {
       // bodies and their observable order.
       for (const [clause, [conclusions, children, bindings, claim, guard]] of firings) {
         if (guard) this.guards.push([clause, guard, conclusions]);
+        const by = new Struct('clause', [BigInt(clause.id)]);
         for (const [position, conclusion] of conclusions.entries()) {
           const template = clause.templates.find((item) => item.position === position);
           if (template) {
@@ -940,14 +1005,14 @@ export class Solver {
             if (!this.reported.has(claimId)) this.reported.set(claimId, [claim, children, clause.id]);
             continue;
           }
-          const node = new Node(conclusion, new Struct('clause', [BigInt(clause.id)]), bindings, children, null, true);
+          const node = new Node(conclusion, by, bindings, children, null, true);
           if (conclusion === 'false') {
             this.derived.push(node);
             this.haltCode = 65;
             return 'halt';
           }
           node.generic = this.program.inspectionEnabled && !isGround(conclusion);
-          const conclusionId = node.generic ? variant(conclusion) : identity(conclusion);
+          const conclusionId = node.generic ? variant(conclusion) : this.factKey(conclusion);
           const factKeys = node.generic ? this.genericKeys : this.factKeys;
           if (factKeys.has(conclusionId)) continue;
           factKeys.add(conclusionId);
@@ -1144,7 +1209,7 @@ class Missing extends Error {
 // of clauses only searches behind a trusted boundary could consult.
 export class Result {
   constructor(fields) {
-    Object.assign(this, fields);
+    Object.defineProperties(this, Object.getOwnPropertyDescriptors(fields));
   }
 
   // The derived facts as text, written only when asked for.
@@ -1236,12 +1301,9 @@ function reason(program, goalInputs, options) {
   // Variables are named A, B, ... in the order the conclusions show them; the
   // bindings of each answer name them as its conclusion does.
   const lettering = new Lettering();
-  const answers = claims.map((claim) => write(claim, null, lettering));
-  const answerBindings = bindings.map((answer) => {
-    const out = {};
-    for (const [name, value] of answer) out[name] = write(value, null, lettering);
-    return out;
-  });
+  let answers = null;
+  let answerBindings = null;
+  let stdout = null;
   const rendered = options.proof
     ? renderProof(program, claims, roots, true, heading, (boundaries) => {
       const ordinary = certify(solver, boundaries);
@@ -1271,12 +1333,22 @@ function reason(program, goalInputs, options) {
     behind = [...clausesBehindBoundaries(program, roots)].filter((id) => !used.has(id)).sort((a, b) => a - b);
   }
   return new Result({
-    answers,
-    bindings: answerBindings,
+    conclusions: claims,
+    // Native writers consume terms directly. Canonical text is made only
+    // when asked for, with conclusions named before their bindings.
+    get answers() { return answers ??= claims.map((claim) => write(claim, null, lettering)); },
+    get bindings() {
+      this.answers;
+      return answerBindings ??= bindings.map((answer) => {
+        const out = {};
+        for (const [name, value] of answer) out[name] = write(value, null, lettering);
+        return out;
+      });
+    },
     derived: solver.derived,
     clausesUsed: used !== null ? [...used].sort((a, b) => a - b) : null,
     clausesBehindBoundaries: behind,
-    stdout: document !== null ? document : [heading, ...answers].map((line) => `${line}\n`).join(''),
+    get stdout() { return stdout ??= document ?? [heading, ...this.answers].map((line) => `${line}\n`).join(''); },
     proof: document,
     proofReport: report,
     stats: solver.stats,

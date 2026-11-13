@@ -34,13 +34,21 @@ export class N3SyntaxError extends SyntaxError {
 
 const NUMBER = /[+-]?(?:[0-9]+\.[0-9]*[eE][+-]?[0-9]+|\.[0-9]+[eE][+-]?[0-9]+|[0-9]+[eE][+-]?[0-9]+|[0-9]*\.[0-9]+|[0-9]+)/y;
 const PUNCT = ['^^', '=>', '<=', '<-', '.', ';', ',', '[', ']', '(', ')', '{', '}', '=', '!', '^'];
+const punctuation = new Map();
+for (const p of PUNCT) punctuation.set(p[0], [...(punctuation.get(p[0]) || []), p]);
 
 function isPnCharsBase(c) {
+  const code = c.charCodeAt(0);
+  if (code < 128) return (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
   return /[A-Za-zÀ-ÖØ-öø-˿Ͱ-ͽͿ-῿‌-‍⁰-↏Ⰰ-⿯、-퟿豈-﷏ﷰ-�]/u.test(c) ||
     (c.codePointAt(0) >= 0x10000 && c.codePointAt(0) <= 0xEFFFF);
 }
 const isPnCharsU = (c) => isPnCharsBase(c) || c === '_';
-const isPnChars = (c) => isPnCharsU(c) || c === '-' || /[0-9·̀-ͯ‿-⁀]/u.test(c);
+const isPnChars = (c) => {
+  const code = c.charCodeAt(0);
+  if (code < 128) return (code >= 65 && code <= 90) || (code >= 97 && code <= 122) || (code >= 48 && code <= 57) || c === '_' || c === '-';
+  return isPnCharsU(c) || /[·̀-ͯ‿-⁀]/u.test(c);
+};
 
 function decodeEscapes(text, line) {
   let out = '';
@@ -69,11 +77,16 @@ function decodeEscapes(text, line) {
 // Tokens: { k: kind, v: text, line }. Kinds: iri, pname, bnode, var, string,
 // lang, number, word, punct, eof.
 export function tokenize(src) {
-  const toks = [];
+  return [...tokens(src)];
+}
+
+// The parser needs only two tokens of lookahead, even for a large document.
+function* tokens(src) {
+  let previous = null;
   let i = 0;
   let line = 1;
   const n = src.length;
-  const push = (k, v) => toks.push({ k, v, line });
+  const push = (k, v) => (previous = { k, v, line });
   while (i < n) {
     const c = src[i];
     if (c === '\n') { line++; i++; continue; }
@@ -81,7 +94,7 @@ export function tokenize(src) {
     if (c === '#') { while (i < n && src[i] !== '\n') i++; continue; }
     if (src.startsWith('<<', i) || src.startsWith('>>', i) || src.startsWith(')>>', i)) {
       const v = src.startsWith('<<(', i) ? '<<(' : src.startsWith(')>>', i) ? ')>>' : src.slice(i, i + 2);
-      push('punct', v);
+      yield push('punct', v);
       i += v.length;
       continue;
     }
@@ -93,7 +106,7 @@ export function tokenize(src) {
       const decoded = decodeEscapes(raw, line);
       // An escape may not bring in what the IRI could not hold as written.
       if (/[\u0000-\u0020<>"{}|^`\\]/.test(decoded)) throw new N3SyntaxError(`invalid character in IRI <${raw}>`, line);
-      push('iri', decoded);
+      yield push('iri', decoded);
       i = end + 1;
       continue;
     }
@@ -114,7 +127,7 @@ export function tokenize(src) {
         if (src[j] === '\n') { if (!long) throw new N3SyntaxError('line break in a short string', line); line++; }
         raw += src[j++];
       }
-      push('string', decodeEscapes(raw, start));
+      yield push('string', decodeEscapes(raw, start));
       i = j + q.length;
       continue;
     }
@@ -122,10 +135,10 @@ export function tokenize(src) {
       const m = /^@([A-Za-z]+(?:-[A-Za-z0-9]+)*(?:--(?:ltr|rtl))?)/.exec(src.slice(i, i + 100));
       if (!m) throw new N3SyntaxError('expected a language tag or keyword after @', line);
       const word = m[1];
-      const prev = toks[toks.length - 1];
-      if (['prefix', 'base', 'version', 'keywords', 'forAll', 'forSome'].includes(word) && !(prev && prev.k === 'string')) push('word', `@${word}`);
-      else if (['a', 'is', 'of', 'has'].includes(word) && !(prev && prev.k === 'string')) push('word', word);
-      else push('lang', word);
+      const prev = previous;
+      if (['prefix', 'base', 'version', 'keywords', 'forAll', 'forSome'].includes(word) && !(prev && prev.k === 'string')) yield push('word', `@${word}`);
+      else if (['a', 'is', 'of', 'has'].includes(word) && !(prev && prev.k === 'string')) yield push('word', word);
+      else yield push('lang', word);
       i += m[0].length;
       continue;
     }
@@ -136,7 +149,7 @@ export function tokenize(src) {
         if (!isPnChars(ch)) break;
         j += ch.length;
       }
-      push('var', src.slice(i + 1, j));
+      yield push('var', src.slice(i + 1, j));
       i = j;
       continue;
     }
@@ -148,20 +161,20 @@ export function tokenize(src) {
         j += ch.length;
       }
       while (src[j - 1] === '.') j--;
-      push('bnode', src.slice(i + 2, j));
+      yield push('bnode', src.slice(i + 2, j));
       i = j;
       continue;
     }
     NUMBER.lastIndex = i;
     const num = NUMBER.exec(src);
     if (num && (/[0-9]/.test(c) || ((c === '+' || c === '-' || c === '.') && /[0-9.]/.test(src[i + 1] ?? '')))) {
-      push('number', num[0]);
+      yield push('number', num[0]);
       i += num[0].length;
       continue;
     }
-    const punct = PUNCT.find((p) => src.startsWith(p, i));
+    const punct = punctuation.get(c)?.find((p) => src.startsWith(p, i));
     if (punct && !(punct === '.' && /[0-9]/.test(src[i + 1] ?? ''))) {
-      push('punct', punct);
+      yield push('punct', punct);
       i += punct.length;
       continue;
     }
@@ -180,15 +193,14 @@ export function tokenize(src) {
       }
       while (src[j - 1] === '.' && j > i) j--;
       const text = src.slice(i, j);
-      if (prefix === null) push('word', text);
-      else push('pname', text);
+      if (prefix === null) yield push('word', text);
+      else yield push('pname', text);
       i = j;
       continue;
     }
     throw new N3SyntaxError(`unexpected character ${JSON.stringify(c)}`, line);
   }
-  push('eof', '');
-  return toks;
+  yield push('eof', '');
 }
 
 // Resolve a relative IRI reference against a base (RFC 3986, Section 5.2).
@@ -221,8 +233,6 @@ function removeDots(path) {
   return out.join('/');
 }
 
-const iri = (v) => ({ t: 'iri', v });
-
 // Prefixes a document may use without declaring them.
 export const DEFAULT_PREFIXES = {
   rdf: RDF,
@@ -241,17 +251,30 @@ export const DEFAULT_PREFIXES = {
 // in declaration order. Native proof validation preserves numeric literal
 // text, so two different decimal displays cannot agree through rounding.
 export function parseN3(src, { base = '', preserveNumericLiterals = false } = {}) {
-  const toks = tokenize(String(src));
-  let pos = 0;
+  src = String(src);
+  const input = tokens(src);
+  const ahead = [];
+  const iris = new Map();
+  const iri = (v) => {
+    let term = iris.get(v);
+    if (term === undefined) iris.set(v, term = { t: 'iri', v });
+    return term;
+  };
   const prefixes = new Map();
   let bnodeCount = 0;
   let scopeCount = 0;
   const top = { id: 0, triples: [], parent: null, bound: new Map(), started: false, existential: false };
   // Names for declared variables, apart from those the document writes.
-  const taken = new Set(toks.filter((t) => t.k === 'var' || t.k === 'bnode').map((t) => `${t.k}:${t.v}`));
+  const taken = new Set();
+  if (src.includes('@forAll') || src.includes('@forSome')) {
+    for (const t of tokens(src)) if (t.k === 'var' || t.k === 'bnode') taken.add(`${t.k}:${t.v}`);
+  }
   let scope = top;
-  const peek = (k = 0) => toks[pos + k];
-  const next = () => toks[pos++];
+  const peek = (k = 0) => {
+    while (ahead.length <= k) ahead.push(input.next().value);
+    return ahead[k];
+  };
+  const next = () => { const t = peek(); ahead.shift(); return t; };
   const fail = (message, tok = peek()) => new N3SyntaxError(message, tok.line);
   const isP = (v, tok = peek()) => tok.k === 'punct' && tok.v === v;
   const expectP = (v) => {

@@ -483,12 +483,14 @@ export function identity(term) {
 }
 
 // The key an argument index files a term under: an atom or a number is its
-// own key, and a small ground compound, such as iri('http://e/a'), the text
+// own key, an IRI uses its string, and another small ground compound the text
 // of its structure. Signed zeros share a key, as they unify. A variable, a
 // compound holding one, or one of more than INDEX_NODES nodes has none and
 // constrains nothing. A key is only a filter, so an atom whose text happens
 // to equal a compound's key could at most add candidates, never lose one.
 const INDEX_NODES = 64;
+// Only variable-free terms have a key independent of later bindings.
+const indexKeys = new WeakMap();
 
 export function indexKey(term, env = null) {
   if (term instanceof Var) {
@@ -497,12 +499,20 @@ export function indexKey(term, env = null) {
     if (term instanceof Var) return undefined;
   }
   if (!(term instanceof Struct)) return term;
+  if (term.name === 'iri' && term.args.length === 1) {
+    const value = env === null ? term.args[0] : deref(term.args[0], env);
+    if (typeof value === 'string') return value;
+  }
+  const known = indexKeys.get(term);
+  if (known !== undefined) return known;
   const out = ['\u0000k'];
   const pending = [term];
   let nodes = 0;
+  let ground = true;
   while (pending.length) {
     let item = pending.pop();
     if (item instanceof Var) {
+      ground = false;
       if (env === null) return undefined;
       item = deref(item, env);
       if (item instanceof Var) return undefined;
@@ -519,7 +529,9 @@ export function indexKey(term, env = null) {
       out.push('f', String(item));
     }
   }
-  return out.join('\u0001');
+  const result = out.join('\u0001');
+  if (ground) indexKeys.set(term, result);
+  return result;
 }
 
 // The variables of a term by name, in order of first appearance.
