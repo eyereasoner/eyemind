@@ -1,0 +1,8 @@
+@prefix : <https://example.org/provenance#> .
+
+<urn:eyemind:message-log:message-provenance-n3.trig#message1> :reportedBy :stationA .
+<urn:eyemind:message-log:message-provenance-n3.trig#message1> :graph :readings .
+<urn:eyemind:message-log:message-provenance-n3.trig#message1> :temperature 24 .
+<urn:eyemind:message-log:message-provenance-n3.trig#message2> :reportedBy :stationB .
+<urn:eyemind:message-log:message-provenance-n3.trig#message2> :graph :readings .
+<urn:eyemind:message-log:message-provenance-n3.trig#message2> :temperature 27 .

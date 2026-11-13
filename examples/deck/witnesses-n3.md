@@ -2,7 +2,7 @@
 
 *One new delivery record per order, shared by the triples of its rule firing.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/witnesses.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/witnesses.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/witnesses.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/witnesses-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=witnesses-n3)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/witnesses-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/witnesses-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/witnesses-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/witnesses-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=witnesses-n3)
 
 ---
 
@@ -107,15 +107,15 @@ is a separate step that can be inspected.
 ## Try it
 
 ```sh
-node bin/eyemind.js examples/witnesses.n3
-node bin/eyemind.js --to eyemind examples/witnesses.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/witnesses.n3 examples/witnesses.n3
+node bin/eyemind.js examples/witnesses-n3.n3
+node bin/eyemind.js --to eyemind examples/witnesses-n3.n3
+node bin/eyemind.js --strict-proof --check-proof examples/proof/witnesses-n3.n3 examples/witnesses-n3.n3
 ```
 
 Recompile the original N3 and inspect its witness terms:
 
 ```sh
-node bin/eyemind.js --program examples/witnesses.n3 > /tmp/witnesses-n3.js
+node bin/eyemind.js --program examples/witnesses-n3.n3 > /tmp/witnesses-n3.js
 node bin/eyemind.js --proof /tmp/witnesses-n3.js
 ```
 

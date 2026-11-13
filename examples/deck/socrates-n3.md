@@ -2,7 +2,7 @@
 
 *Class membership follows the subclass hierarchy in Notation3.*
 
-[socrates.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/socrates.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/socrates.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/socrates-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=socrates-n3)
+[socrates-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/socrates-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/socrates-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/socrates-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=socrates-n3)
 
 ---
 
@@ -14,7 +14,7 @@ What follows when Socrates is human and humans are mortal?
 
 ## What the program says
 
-`socrates.n3`:
+`socrates-n3.n3`:
 
 ```n3
 # Socrates is human, and every human is mortal: one forward rule concludes
@@ -69,7 +69,7 @@ arbitrary proof lists every possible answer.
 From the repository root:
 
 ```sh
-node bin/eyemind.js examples/socrates.n3
-node bin/eyemind.js --proof examples/socrates.n3
-node bin/eyemind.js --check-proof examples/proof/socrates.n3 examples/socrates.n3
+node bin/eyemind.js examples/socrates-n3.n3
+node bin/eyemind.js --proof examples/socrates-n3.n3
+node bin/eyemind.js --check-proof examples/proof/socrates-n3.n3 examples/socrates-n3.n3
 ```

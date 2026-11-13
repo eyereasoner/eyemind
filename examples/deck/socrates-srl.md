@@ -2,7 +2,7 @@
 
 *Class membership follows the subclass hierarchy in SPARQL 1.2 RL.*
 
-[socrates.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/socrates.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/socrates.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/socrates-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=socrates-srl)
+[socrates-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/socrates-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/socrates-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/socrates-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=socrates-srl)
 
 ---
 
@@ -14,7 +14,7 @@ What follows from a human and a subclass relation in a DATA block?
 
 ## What the program says
 
-`socrates.srl`:
+`socrates-srl.srl`:
 
 ```srl
 # Socrates is a human, and every human is mortal: a rule that follows the
@@ -77,7 +77,7 @@ arbitrary proof lists every possible answer.
 From the repository root:
 
 ```sh
-node bin/eyemind.js examples/socrates.srl
-node bin/eyemind.js --proof examples/socrates.srl
-node bin/eyemind.js --check-proof examples/proof/socrates.srl examples/socrates.srl
+node bin/eyemind.js examples/socrates-srl.srl
+node bin/eyemind.js --proof examples/socrates-srl.srl
+node bin/eyemind.js --check-proof examples/proof/socrates-srl.srl examples/socrates-srl.srl
 ```

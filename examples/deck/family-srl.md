@@ -2,7 +2,7 @@
 
 *Recursive forward ancestry over a three-generation family tree.*
 
-[family.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-srl)
+[family-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-srl)
 
 ---
 
@@ -14,7 +14,7 @@ Which ancestor links follow from a family chain three generations long?
 
 ## What the program says
 
-`family.srl`:
+`family-srl.srl`:
 
 ```srl
 # A family tree: parents, and ancestors as parents of parents, to any depth.
@@ -89,7 +89,7 @@ arbitrary proof lists every possible answer.
 From the repository root:
 
 ```sh
-node bin/eyemind.js examples/family.srl
-node bin/eyemind.js --proof examples/family.srl
-node bin/eyemind.js --check-proof examples/proof/family.srl examples/family.srl
+node bin/eyemind.js examples/family-srl.srl
+node bin/eyemind.js --proof examples/family-srl.srl
+node bin/eyemind.js --check-proof examples/proof/family-srl.srl examples/family-srl.srl
 ```

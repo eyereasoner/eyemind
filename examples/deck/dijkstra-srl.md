@@ -2,7 +2,7 @@
 
 *Listed candidate routes receive total costs and the cheapest alternatives survive stratified negation.*
 
-[dijkstra.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/dijkstra.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/dijkstra.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/dijkstra.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/dijkstra-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=dijkstra-srl)
+[dijkstra-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/dijkstra-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/dijkstra-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/dijkstra-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/dijkstra-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=dijkstra-srl)
 
 ---
 
@@ -14,7 +14,7 @@ Which supplied candidates have the least cost among routes with the same endpoin
 
 ## What the program says
 
-`dijkstra.srl`:
+`dijkstra-srl.srl`:
 
 ```srl
 # A route planner has named candidate paths with supplied segment costs.
@@ -139,7 +139,7 @@ does not assert that an arbitrary certificate lists every possible answer.
 From the repository root:
 
 ```sh
-node bin/eyemind.js examples/dijkstra.srl
-node bin/eyemind.js --proof examples/dijkstra.srl
-node bin/eyemind.js --check-proof examples/proof/dijkstra.srl examples/dijkstra.srl
+node bin/eyemind.js examples/dijkstra-srl.srl
+node bin/eyemind.js --proof examples/dijkstra-srl.srl
+node bin/eyemind.js --check-proof examples/proof/dijkstra-srl.srl examples/dijkstra-srl.srl
 ```

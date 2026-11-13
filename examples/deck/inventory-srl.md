@@ -2,7 +2,7 @@
 
 *Grouped stock records yield location counts, totals, minimums and maximums.*
 
-[inventory.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/inventory.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/inventory.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/inventory.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/inventory-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=inventory-srl)
+[inventory-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/inventory-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/inventory-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/inventory-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/inventory-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=inventory-srl)
 
 ---
 
@@ -14,7 +14,7 @@ How much stock does each product have, and across how many locations?
 
 ## What the program says
 
-`inventory.srl`:
+`inventory-srl.srl`:
 
 ```srl
 # A warehouse lists stock per product and location. For each product the
@@ -116,7 +116,7 @@ arbitrary proof lists every possible answer.
 From the repository root:
 
 ```sh
-node bin/eyemind.js examples/inventory.srl
-node bin/eyemind.js --proof examples/inventory.srl
-node bin/eyemind.js --check-proof examples/proof/inventory.srl examples/inventory.srl
+node bin/eyemind.js examples/inventory-srl.srl
+node bin/eyemind.js --proof examples/inventory-srl.srl
+node bin/eyemind.js --check-proof examples/proof/inventory-srl.srl examples/inventory-srl.srl
 ```

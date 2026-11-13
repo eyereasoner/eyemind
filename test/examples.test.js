@@ -78,7 +78,7 @@ export const tests = {
   'the manifest covers every source, artifact and deck'() {
     const examples = join(ROOT, 'examples');
     const sources = readdirSync(examples).filter((name) => /\.(js|n3|srl|ttl|trig)$/.test(name));
-    assert.ok(sources.every((file) => !/-(n3|srl)\.\1$/.test(file)), 'source extensions already identify their format');
+    assert.ok(sources.every((file) => !/\.(n3|srl)$/.test(file) || /-(n3|srl)\.\1$/.test(file)), 'N3 and SRL sources are named NAME-n3.n3 and NAME-srl.srl');
     assert.ok(sources.every((file) => !/^(n3-|rdf12-)/.test(file)));
     sources.push(...readdirSync(join(examples, 'data')).map((name) => `data/${name}`));
     assert.deepEqual(sources.sort(), MANIFEST.flatMap(sourceFiles).sort());
@@ -90,7 +90,7 @@ export const tests = {
   },
 
   'the command line on examples'() {
-    for (const name of ['socrates', 'graphs', 'integrity', 'annotation', 'distances', 'report', 'fuse']) {
+    for (const name of ['socrates', 'graphs', 'integrity', 'annotation-n3', 'distances-srl', 'report-n3', 'fuse-n3']) {
       const entry = MANIFEST.find((item) => item.name === name);
       const sources = inputs(entry);
       const ran = cli(sources);

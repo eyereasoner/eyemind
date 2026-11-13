@@ -2,7 +2,7 @@
 
 *Directory listings, initials and language information from Unicode names.*
 
-[strings.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/strings.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/strings.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/strings.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/strings-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=strings-srl)
+[strings-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/strings-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/strings-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/strings-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/strings-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=strings-srl)
 
 ---
 
@@ -14,7 +14,7 @@ How can names yield directory listings, initials and language information?
 
 ## What the program says
 
-`strings.srl`:
+`strings-srl.srl`:
 
 ```srl
 # Names are tidied for a directory listing: an upper-case surname, initials,
@@ -98,7 +98,7 @@ arbitrary proof lists every possible answer.
 From the repository root:
 
 ```sh
-node bin/eyemind.js examples/strings.srl
-node bin/eyemind.js --proof examples/strings.srl
-node bin/eyemind.js --check-proof examples/proof/strings.srl examples/strings.srl
+node bin/eyemind.js examples/strings-srl.srl
+node bin/eyemind.js --proof examples/strings-srl.srl
+node bin/eyemind.js --check-proof examples/proof/strings-srl.srl examples/strings-srl.srl
 ```
