@@ -739,6 +739,67 @@ export function loadSources(sources, io = null) {
   return builder.program();
 }
 
+// The clauses of statements that are document terms, read and never run:
+// fact, implies, implied_by and query, and facts_from({ text: ... }), given
+// the program line text starts on. A compiler's generated program has only
+// these; they state the clauses loadText states from the same text, without
+// the cost of compiling and running a large program as JavaScript. Null for
+// any other text, which the caller runs instead.
+export function statementSources(text, first = 1) {
+  let terms;
+  try {
+    terms = readTerms(text);
+  } catch {
+    return null;
+  }
+  const builder = new Builder(() => null);
+  try {
+    for (const [statement, at] of terms) {
+      if (!(statement instanceof Struct)) return null;
+      const { name } = statement;
+      const line = at + first - 1;
+      // A program's _ is one name each clause numbers; a document numbers it.
+      const args = statement.args.map(unnumbered);
+      if (name === 'fact') {
+        for (const term of args) builder.add('fact', term, [], line);
+      } else if (name === 'implies' && args.length === 2) {
+        builder.add('forward', normalizeGoal(args[1]), [normalizeGoal(args[0])], line);
+      } else if (name === 'implied_by' && args.length === 2) {
+        builder.add('backward', args[0], [normalizeGoal(args[1])], line);
+      } else if (name === 'query') {
+        builder.add('query', TRUE_ATOM, args.map(normalizeGoal), line);
+      } else if (name === 'facts_from' && args.length === 1 && args[0] instanceof Struct && args[0].name === '.' &&
+                 args[0].args[1] === EMPTY && args[0].args[0] instanceof Struct && args[0].args[0].name === '=' &&
+                 args[0].args[0].args[0] === 'text' && typeof args[0].args[0].args[1] === 'string') {
+        for (const [term] of readTerms(args[0].args[0].args[1])) builder.add('fact', term, [], line, false);
+      } else {
+        return null;
+      }
+    }
+    return builder.sources;
+  } catch {
+    // Run as JavaScript, it reports the error with its line.
+    return null;
+  }
+}
+
+const ANONYMOUS = new Var('_');
+
+function unnumbered(term) {
+  if (term instanceof Var) return term.name.startsWith('_#') ? ANONYMOUS : term;
+  if (!(term instanceof Struct)) return term;
+  let args = null;
+  for (let index = 0; index < term.args.length; index++) {
+    const arg = term.args[index];
+    const plain = arg instanceof Struct || arg instanceof Var ? unnumbered(arg) : arg;
+    if (plain !== arg) {
+      if (args === null) args = [...term.args];
+      args[index] = plain;
+    }
+  }
+  return args === null ? term : new Struct(term.name, args);
+}
+
 // A Program from a function that states clauses when called: a function of a
 // program, which states them with the names the program uses, or one of
 // library code, which is handed those names.

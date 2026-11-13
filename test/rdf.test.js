@@ -65,6 +65,14 @@ export const tests = {
     assert.match(writeRdf(quads, { prefixes }), /^PREFIX : <http:\/\/e\/>\n\n:s :p 1 \./);
   },
 
+  'a graph of more lines than a call takes arguments is written'() {
+    const p = new Struct('iri', ['http://e/p']);
+    const quads = Array.from({ length: 300000 }, (_, i) => [new Struct('iri', [`http://e/s${i}`]), p, BigInt(i), DEFAULT_GRAPH]);
+    const lines = writeRdf(quads, { prefixes: { '': 'http://e/' } }).split('\n');
+    assert.equal(lines.length, 300003);
+    assert.equal(lines[300001], ':s299999 :p 299999 .');
+  },
+
   'a document of rdf/4 terms for facts_from'() {
     const { quads } = parseRdf('<http://e/s> <http://e/p> "o" .', { format: 'n-triples' });
     assert.equal(rdfDocument(quads), "rdf(iri('http://e/s'), iri('http://e/p'), literal('o', datatype('http://www.w3.org/2001/XMLSchema#string')), 'default_graph')");

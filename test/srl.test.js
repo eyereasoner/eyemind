@@ -5,6 +5,8 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkProof, loadText, run } from '../src/index.js';
+import { statementSources } from '../src/lang.js';
+import { write } from '../src/writer.js';
 import { parseRdf, rdfFormat, writeRdf } from '../src/rdf.js';
 import { SrlError, compileSrl, parseRuleSet, readRuleSet, reasonSrl, srlContextFromProof } from '../src/srl.js';
 import { loadInputs, writeProof } from '../src/formats.js';
@@ -59,6 +61,22 @@ test('parser: large DATA blocks do not use the host function argument stack', ()
   const rs = parseRuleSet(`${P}DATA { :s :p (${' :v'.repeat(70000)} ) }`);
   assert.equal(rs.data.length, 140001);
 });
+test('compiler: the native program states what running the compiled text states', () => {
+  const show = (p) => p.sources.map((s) => `${s.kind} ${s.line} ${write(s.head)} :- ${s.body.map((g) => write(g)).join(', ')}`).join('\n');
+  const data = toQuads([[`${P}:b :p 2, -0.0e0, 123456789012345678901234567890, "x"@en--rtl, <<( :a :p _:c )>> .`, 'data.ttl']]);
+  for (const text of [
+    `DATA { :a :p 1.5, 99999999999999999999 } RULE { ?x :ok "\\u2028\\"" } WHERE { ?x :p ?y FILTER(?y > 1) NOT { ?x :q _:z } }`,
+    'RULE { ?x :q ?y . ?y :r <<( ?x :p 7 )>> } WHERE { ?x :p ?y }',
+    'RULE { :a :b _:n } WHERE { ?s :t ?q }',
+    'RULE { ?s ?p ?o } WHERE { ?o ?p ?s . ?p :x 1 } RULE { ?s ?q 1 } WHERE { ?s :t ?q } RULE { } WHERE { ?s :t ?q } RULE { :a :b :c } WHERE { }',
+  ]) {
+    const compiled = compileSrl(P + text, { data });
+    assert.equal(show(compiled.nativeProgram), show(loadText(compiled.program, 'compiled.js')), text);
+  }
+  assert.equal(statementSources('fact(p(1))\nconst x = 1'), null);
+  assert.equal(statementSources('// two\nfact(p(_, _))', 4)[0].line, 5);
+});
+
 test('parser: the grammar is SPARQL 1.2 RL', () => {
   assert.throws(() => parseRuleSet(`${P}RULE { ?x :q ?y } WHERE { ?x :p ?y BIND(1 AS ?z) }`), /BIND is not part of the SPARQL 1.2 RL grammar/);
   assert.throws(() => parseRuleSet(`${P}IF { ?x :p ?y } THEN { ?x :q ?y }`), /Expected PREFIX, BASE, VERSION, IMPORTS, DATA, or RULE/);

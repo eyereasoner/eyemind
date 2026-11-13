@@ -269,7 +269,7 @@ function stratificationLayers(ruleCount, components, componentOf, edges) {
       }
     }
   }
-  const max = Math.max(0, ...levels);
+  const max = levels.reduce((a, b) => Math.max(a, b), 0); // eyemind: more levels than a call takes as arguments
   const layers = Array.from({ length: max + 1 }, () => []);
   levels.forEach((level, index) => layers[level].push(index));
   return layers;

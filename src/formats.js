@@ -19,7 +19,7 @@ import { loadSources } from './lang.js';
 import { readTerms } from './reader.js';
 import { DEFAULT_GRAPH, parseRdf, rdfDocument, rdfFormat, writeRdf } from './rdf.js';
 import { resultToN3, compileSources } from './n3.js';
-import { compileSrl, srlQuads } from './srl.js';
+import { compileSrl, srlAnswers, srlQuads } from './srl.js';
 import { write } from './writer.js';
 import { isRdfMessageLog, parseRdfMessages } from './messages.js';
 import { writeNativeProof } from './native-proof.js';
@@ -77,7 +77,8 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
     });
     const compiled = compileSrl(text, { base: baseOf(name), filename: name, resolve: importResolver(io), data, context: srlContext });
     for (const warning of compiled.warnings) io?.stderr?.(`eyemind: warning: ${warning}\n`);
-    return { kind: 'srl', program: loadSources([[compiled.program, name]], io), text: compiled.program, prefixes: compiled.prefixes, compiled };
+    return { kind: 'srl', program: compiled.nativeProgram ?? loadSources([[compiled.program, name]], io),
+      get text() { return compiled.program; }, prefixes: compiled.prefixes, compiled };
   }
   if (kinds.includes('n3')) {
     if (kinds.includes('js')) throw new EyemindError('an N3 run takes .n3 documents and RDF data, not JavaScript programs');
@@ -141,10 +142,9 @@ export function writeConclusions(loaded, result, { format, all = false, blankNod
     if (loaded.kind !== 'n3') throw new EyemindError('--to n3 writes the conclusions of an N3 run');
     return resultToN3(loaded.compiled.doc, result, { mode: all ? 'all' : 'new', blankNodePrefix }).n3;
   }
-  const answers = result.answers;
   let quads;
-  if (loaded.kind === 'srl') quads = srlQuads(loaded.text, answers, { all });
-  else quads = conclusionQuads(answers, all ? loaded.text : null);
+  if (loaded.kind === 'srl') quads = srlQuads(loaded.compiled, srlAnswers(result), { all });
+  else quads = conclusionQuads(result.answers, all ? loaded.text : null);
   return writeRdf(quads, { format, prefixes: loaded.kind === 'n3' ? Object.fromEntries(loaded.prefixes) : loaded.prefixes, blankNodePrefix });
 }
 

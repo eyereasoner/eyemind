@@ -773,7 +773,8 @@ export class Solver {
       this.windowGoals = body;
       this.chosen = new Array(body.length).fill(null);
       try {
-        found.push(...this.scan(clause, head, body, names, env, prefix));
+        // One push each: a scan can find more firings than a call takes arguments.
+        for (const item of this.scan(clause, head, body, names, env, prefix)) found.push(item);
       } finally {
         this.window = this.windowGoals = this.chosen = null;
       }
@@ -1001,7 +1002,7 @@ export class Solver {
             continue;
           }
           if (conclusion === 'true') {
-            const claimId = this.program.inspectionEnabled ? variant(claim) : text(claim);
+            const claimId = this.program.inspectionEnabled ? variant(claim) : this.factKey(claim);
             if (!this.reported.has(claimId)) this.reported.set(claimId, [claim, children, clause.id]);
             continue;
           }
