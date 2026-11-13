@@ -2287,3 +2287,14 @@ conformance('a restricted witness that later facts make unneeded is an error', [
   ]),
   stdout([]),
 ])
+
+conformance('a restricted rule whose premise leaves a head variable unbound is an error', [
+  spec('7.2'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(p(X))',
+    'restricted(p(X), q(X, W))',
+  ]),
+  stdout([]),
+])

@@ -2076,3 +2076,14 @@ conformance('without the contradiction on type, a chain makes the negation fail'
   ]),
   stdout([]),
 ])
+
+conformance('a restricted rule nested in another statement is rejected', [
+  spec('7.2'),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    'fact(p(1))',
+    'implies(p(X), restricted(q(X), r(X, W)))',
+  ]),
+  stdout([]),
+])

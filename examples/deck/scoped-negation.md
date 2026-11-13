@@ -85,14 +85,10 @@ tables and `derived/2` listing. It checks the listing's fact evidence and
 closure, including the rule that derives the hold for order 2. Simply
 omitting that hold from the certificate would not pass closure.
 
-The report nevertheless ends with `verdict('checked_with_obligations')`: C10 leaves
-two original-call obligations. The current C10 format supports forward
-listings only in its ground positive fragment; this `rdf/3` relation also
-has a rule using negation. Settling the boundary by C9 does not establish
-that stronger original-call guarantee.
-
-There is no unresolved absence obligation here. `--strict-proof` rejects
-the remaining call-fidelity obligations.
+The report ends with `verdict('checked')`, with no obligations. C10 checks
+the original questions too: the `rdf/3` listing is supported and closed,
+and the rule's negation is decided by the listed facts alone, so the
+claims are what the questions return. `--strict-proof` accepts the proof.
 
 ---
 

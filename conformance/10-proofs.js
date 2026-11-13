@@ -183,6 +183,11 @@ conformance('a negation is an absent step', [
     'step(ok(1), clause(2), {X: 1}, [p(1), not(q(1))])',
     'step(p(1), clause(1), {}, [])',
     "step(not(q(1)), 'absent', {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(ok(A), [ok(1)])',
+    'called(ok(A), [ok(1)])',
   ]),
 ])
 

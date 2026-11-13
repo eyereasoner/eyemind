@@ -28,7 +28,12 @@ step(findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']), 'collected', {}, [
 // Search certificate: derived facts and complete answers used to check
 // negations, collections and the original questions.
 derived(t(B, C, D), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
+derived(allowed(B), [allowed('carol')])
 searched(t('carol', 'blocked', 'true'), [])
 searched(t(E, 'parent_of', F), [t('alice', 'parent_of', 'bob'), t('alice', 'parent_of', 'carol')])
 called(t(A, 'child_of', B), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
 called(t(C, 'parent_of', D), [t('alice', 'parent_of', 'bob'), t('alice', 'parent_of', 'carol')])
+called(allowed(E), [allowed('carol')])
+called(t(F, 'child_of', 'alice'), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
+called(t('bob', 'blocked', 'true'), [t('bob', 'blocked', 'true')])
+called(t('carol', 'blocked', 'true'), [])

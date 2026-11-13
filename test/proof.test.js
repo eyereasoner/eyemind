@@ -21,7 +21,7 @@ const named = (records, name) => records.filter((record) => record instanceof St
 
 // A proof document without its search certificate.
 const withoutCertificate = (document) => document.split('\n')
-  .filter((line) => !line.startsWith('searched(') && !line.startsWith('derived(')).join('\n');
+  .filter((line) => !line.startsWith('searched(') && !line.startsWith('derived(') && !line.startsWith('called(')).join('\n');
 
 const CERTIFIED = program([
   "fact(edge('a', 'b'), edge('b', 'c'))",
@@ -470,8 +470,8 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
 
   'a search certificate settles absences and collections without boundary obligations'() {
     const result = run(CERTIFIED, { proof: true });
-    for (const line of ["searched(path('a', 'a'), [])", "searched(path('b', E), [path('b', 'c')])",
-      "searched(path('a', D), [path('a', 'b'), path('a', 'c')])", "searched(tagged(G, H), [tagged('a', I), tagged('b', J)])"]) {
+    for (const line of ["searched(path('a', 'a'), [])", "searched(path('b', F), [path('b', 'c')])",
+      "searched(path('a', E), [path('a', 'b'), path('a', 'c')])", "searched(tagged(H, I), [tagged('a', J), tagged('b', K)])"]) {
       assert.ok(result.proof.includes(`\n${line}\n`), line);
     }
     assert.equal(boundaries(result.proofReport).length, 0);
@@ -489,9 +489,9 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
     for (const [original, forged] of [
       ["[path('a', 'b'), path('a', 'c')]", "[path('a', 'b')]"],
       ["[path('a', 'b'), path('a', 'c')]", "[path('a', 'c'), path('a', 'b')]"],
-      ["searched(path('b', E), [path('b', 'c')])", "searched(path('b', E), [])"],
+      ["searched(path('b', F), [path('b', 'c')])", "searched(path('b', F), [])"],
       ["searched(path('b', 'a'), [])", "searched(path('b', 'a'), [path('b', 'a')])"],
-      ["[tagged('a', I), tagged('b', J)]", "[tagged('a', 'x'), tagged('b', J)]"],
+      ["[tagged('a', J), tagged('b', K)]", "[tagged('a', 'x'), tagged('b', K)]"],
     ]) {
       assert.ok(document.includes(original), original);
       invalid(document.replace(original, forged), 'C9', CERTIFIED);
@@ -565,7 +565,7 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
   'a certificate statement that settles nothing fails C7, and a repeated one C3'() {
     const document = run(CERTIFIED, { proof: true }).proof;
     invalid(`${document}searched(edge('z', A), [])\n`, 'C7', CERTIFIED);
-    invalid(`${document}derived(acyclic_from(A), [])\n`, 'C7', CERTIFIED);
+    invalid(`${document}derived(reach(A, B), [])\n`, 'C7', CERTIFIED);
     invalid(`${document}searched(path('a', 'a'), [])\n`, 'C3', CERTIFIED);
     invalid(`${document}searched(path('a', 'a'), 'none')\n`, 'C3', CERTIFIED);
     const listed = run(program("fact(r('n'))\nfact(k('a'))\nimplies(r(X), np(X))\nimplies([k(X), not(np(X))], pac(X))"), { proof: true }).proof;

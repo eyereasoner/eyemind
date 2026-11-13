@@ -18,7 +18,9 @@ goals, and keep error messages specific and user-facing text direct.
     reading documents back without executing them.
   - `lang.js`: stating programs in JavaScript (the implicit-name scope,
     statements, line numbers). `goals.js`: arrays as conjunctions.
-  - `program.js`: clause validation, indexing and stratification.
+  - `program.js`: clause validation, indexing and stratification, and the
+    guards and restraint order of restricted rules. `chains.js`: chain
+    stratification for programs whose negations lie on a dependency cycle.
     `templates.js`: potential derived clauses, scopes and generator links.
     `builtins.js`, `arith.js`: primitives and arithmetic.
   - `engine.js`: backward search as an explicit machine, semi-naive forward
@@ -184,7 +186,13 @@ evidence may refute (C6); a variable only a rule's conclusion mentions must
 be the Skolem term of that firing, recomputed from its uses (C8). C10 always
 checks the original questions using separate `called/2` tables;
 missing or unsupported evidence leaves a call-fidelity obligation, rejected
-by strict checking. Every proof the engine generates is checked before
+by strict checking. A restricted rule's guard is an ordinary negation of its
+clause, so C6 and C9 settle that each of its witnesses is needed; the engine
+fails a run whose witness later facts make unneeded, and a proof with a
+restricted witness never checks strictly. The checker accepts any supported,
+closed set of facts consistent with its negations, so chain stratification
+must only accept programs with one stable model: `test/properties.test.js`
+searches random chases for another. Every proof the engine generates is checked before
 it is returned. For every new check, add a forged proof the checker rejects,
 and confirm that all saved example proofs still check. `test/properties.test.js`
 forges proofs at random and catches a checker with C1, C2, C4, C5 or C8

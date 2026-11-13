@@ -183,6 +183,11 @@ class Builder {
       const term = pending.pop();
       if (!(term instanceof Struct)) continue;
       const source = this.rules.get(term);
+      // A restricted rule is a statement only: nested, it would be read as
+      // a term and its rule dropped.
+      if (source !== undefined && source.kind === 'restricted') {
+        throw new EyemindError('restricted() states a rule and cannot be nested in another statement');
+      }
       if (source !== undefined) this.embedded.add(source);
       pending.push(...term.args);
     }

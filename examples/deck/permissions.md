@@ -83,6 +83,7 @@ allowed('bob', 'read')
 // Clauses: the program clauses the steps cite, by clause number.
 clause(1, fact(role('alice', 'editor')))
 clause(2, fact(role('bob', 'viewer')))
+clause(3, fact(role('carol', 'editor')))
 clause(4, fact(permits('editor', 'read')))
 clause(5, fact(permits('editor', 'write')))
 clause(6, fact(permits('viewer', 'read')))
@@ -104,14 +105,23 @@ step(candidate('bob', 'read'), clause(8), {User: 'bob', Role: 'viewer', Action: 
 step(role('bob', 'viewer'), clause(2), {}, [])
 step(permits('viewer', 'read'), clause(6), {}, [])
 step(not(suspended('bob')), 'absent', {}, [])
+step(candidate('carol', 'read'), clause(8), {User: 'carol', Role: 'editor', Action: 'read'}, [role('carol', 'editor'), permits('editor', 'read')])
+step(role('carol', 'editor'), clause(3), {}, [])
+step(candidate('carol', 'write'), clause(8), {User: 'carol', Role: 'editor', Action: 'write'}, [role('carol', 'editor'), permits('editor', 'write')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(allowed(A, B), [allowed('alice', 'read'), allowed('alice', 'write'), allowed('bob', 'read')])
+derived(candidate(A, B), [candidate('alice', 'read'), candidate('alice', 'write'), candidate('bob', 'read'), candidate('carol', 'read'), candidate('carol', 'write')])
+called(allowed(A, B), [allowed('alice', 'read'), allowed('alice', 'write'), allowed('bob', 'read')])
+called(candidate(C, D), [candidate('alice', 'read'), candidate('alice', 'write'), candidate('bob', 'read'), candidate('carol', 'read'), candidate('carol', 'write')])
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the three answers the proof is about.
 - **The clauses**: the program lines the steps rely on, by their number.
-  Facts 3 and 7 (Carol's role and her suspension) are missing: no answer
-  rests on them.
+  Fact 7 (Carol's suspension) is missing: no step rests on it.
 - **The steps**: one per thing established. A step reads
   `step(what, by which clause, with which values, using what)`.
 
@@ -136,6 +146,13 @@ Read the steps as sentences:
 11. *Bob is a viewer*: fact 2.
 12. *Viewers may read*: fact 6.
 13. *Bob is not suspended*: `'absent'`, like step 5.
+14. *Carol is a candidate to read*, 15. *Carol is an editor* (fact 3) and
+    16. *Carol is a candidate to write*: by rule 8, like steps 2 and 7.
+
+- **The search certificate**: the complete lists of `allowed` and
+  `candidate` facts the rules derive, and what the original questions
+  return. Steps 14 to 16 answer no question: they show that Carol's
+  candidates, which the lists must include to be complete, are derived.
 
 Steps 5 and 13 are different in kind. They do not point at a program line;
 they point at a line that is *missing*. A proof cannot show something
@@ -153,82 +170,82 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 allowed('alice', 'read')
 allowed('alice', 'write')
 allowed('bob', 'read')
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 11)
-condition('C2', 'well_founded', 'ok', 13)
-condition('C3', 'justification', 'ok', 13)
-condition('C4', 'coverage', 'ok', 15)
+condition('C1', 'resolution', 'ok', 14)
+condition('C2', 'well_founded', 'ok', 16)
+condition('C3', 'justification', 'ok', 16)
+condition('C4', 'coverage', 'ok', 19)
 condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 16)
+condition('C7', 'relevance', 'ok', 19)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 2)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection or original-call evidence remains unproved.
-obligation('call_fidelity', 'original_call', allowed('alice', 'read'))
-obligation('call_fidelity', 'original_call', allowed('alice', 'write'))
-obligation('call_fidelity', 'original_call', allowed('bob', 'read'))
+condition('C10', 'call_fidelity', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
-steps(13)
-verified(11)
+steps(16)
+verified(14)
 recomputed(0)
 composed(0)
-trusted(3)
+trusted(0)
 claims(3)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
 at:
 
-- **C1 resolution (11)**: the 11 steps that cite a program line really are
+- **C1 resolution (14)**: the 14 steps that cite a program line really are
   instances of it. Step 2, for example, is rule 8 with `User` = alice,
   `Role` = editor and `Action` = read.
-- **C2 well-founded (13)**: none of the 13 steps depends on itself, even
+- **C2 well-founded (16)**: none of the 16 steps depends on itself, even
   indirectly.
-- **C3 justification (13)**: every step says how it was justified, in a form
+- **C3 justification (16)**: every step says how it was justified, in a form
   the checker understands.
-- **C4 coverage (15)**: the 3 answers and the 12 things the steps use are
+- **C4 coverage (19)**: the 3 answers and the 16 things the steps use are
   each backed by a step.
 - **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
   recomputing.
 - **C6 boundary consistency (0)**: no boundary was left to the evidence:
   C9 settled both absences.
-- **C7 relevance (16)**: the 3 answers each answer the question, and all 13
-  steps serve them.
+- **C7 relevance (19)**: the 3 answers each answer the question, and all 16
+  steps serve them or the facts the search certificate lists.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
 - **C9 search closure (2)**: the 2 absences were settled by scanning the
   `suspended` facts: none names Alice or Bob.
+- **C10 call fidelity (3)**: the 3 answers are what the original question
+  returns.
 
 Neither absence is taken on trust. Because no rule concludes `suspended`,
 the checker settles "Alice is not suspended" and "Bob is not suspended" by
-scanning the program's facts directly, so the proof needs no search
-certificate and there are no absence obligations. The absence holds *within
+scanning the program's facts directly, and there are no absence
+obligations. The absence holds *within
 this program*: these are the facts we gave, and nobody outside it was asked.
 
-The statistics: 13 steps, 11 verified against the program and the 2 absences
+The statistics: 16 steps, 14 verified against the program and the 2 absences
 settled from the facts, no boundary steps trusted, for 3 claims. The verdict is
-**checked with obligations**: the three answers follow from the program. If Bob were in fact
+**checked**: the three answers follow from the program. If Bob were in fact
 suspended somewhere the program does not know about, the answer for Bob
 would be wrong, but that is a question about the data, not about the
 proof. And as the last comment says, the verdict confirms these
 answers; it does not say they are the only ones.
 
-C10 leaves 3 original-call claims unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 checks the original question too. The proof's search certificate lists
+every `candidate` and `allowed` fact the rules derive, each with steps of
+its own, Carol's candidates included, and no rule derives one the lists
+leave out. The absences are decided by the program's facts alone, so
+exactly these three answers are allowed. The verdict is **checked**, with
+no obligations, and `--strict-proof` accepts it. The report does not
+establish answer completeness.
 
 
 ---

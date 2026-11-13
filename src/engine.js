@@ -165,8 +165,10 @@ function unboundNegation(goal, env) {
   const shown = write(resolved, null, naming);
   const unbound = [...new Set([...variables(resolved).values()]
     .filter((variable) => !isAnonymous(variable)).map((variable) => naming.get(variable.name)))];
-  return new EyemindError('negation requires a goal whose variables are bound, except for anonymous ones: ' +
+  const error = new EyemindError('negation requires a goal whose variables are bound, except for anonymous ones: ' +
     `${unbound.join(', ')} ${unbound.length === 1 ? 'is' : 'are'} unbound in ${shown}`);
+  error.goal = goal;
+  return error;
 }
 
 // Resolve a proof forest with an explicit stack: a derivation chain is as deep
@@ -768,6 +770,22 @@ export class Solver {
     return first < order.length && order[first] < now.get(goalKey);
   }
 
+  // The solutions of a rule's body. A restricted rule's guard is a negation
+  // the program did not write: when its premise leaves a variable of its
+  // heads unbound, the error names the rule rather than the guard.
+  *guarded(clause, guard, solutions) {
+    if (clause.guard === null) {
+      yield* solutions;
+      return;
+    }
+    try {
+      yield* solutions;
+    } catch (error) {
+      if (!(error instanceof EyemindError) || error.goal !== guard) throw error;
+      throw new EyemindError(`restricted rule ${clause.id} needs its premise to bind the variables of its conclusion other than its new values`);
+    }
+  }
+
   // Each solution of a renamed rule's body, as what it concludes, with the
   // alternatives its goals took when the body is searched in a window.
   // Bindings last only until the next answer is requested, and adding facts
@@ -775,7 +793,7 @@ export class Solver {
   // first and concluded afterwards.
   scan(clause, head, body, names, env, prefix) {
     const found = [];
-    for (const [answerEnv, nodes] of this.solve(body, env)) {
+    for (const [answerEnv, nodes] of this.guarded(clause, body[body.length - 1], this.solve(body, env))) {
       const mark = answerEnv.mark();
       // Head variables the body leaves unbound become Skolem terms, shared
       // between the heads of one conclusion.

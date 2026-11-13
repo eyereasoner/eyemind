@@ -79,11 +79,12 @@ staff, through the subproperty. Tim examines.
 
 ## What the proof establishes
 
-The report ends with `verdict('checked_with_obligations')`. The negation
-that Tim is no student is settled by the search certificate against the
-derived facts, as for any program. The remaining obligations are
-`call_fidelity`, since a forward rule with a negation leaves call fidelity
-unproved, and the manifest lists them as trusted. Delete one of the three
+The report ends with `verdict('checked')`, with no obligations. The
+negation that Tim is no student is settled by the search certificate
+against the derived facts, as for any program. C10 checks the original
+questions too: the listed facts are supported and closed under the rules,
+and a chain-stratified program has only one such set of facts consistent
+with its negations, so `--strict-proof` accepts the proof. Delete one of the three
 constraints and eyemind rejects the rules as unstratified: a chain then
 makes a teacher a student.
 

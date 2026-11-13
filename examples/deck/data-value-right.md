@@ -409,7 +409,7 @@ condition('C6', 'boundary_consistency', 'ok', 10)
 condition('C7', 'relevance', 'ok', 121)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 24)
-condition('C10', 'call_fidelity', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 1)
 
 // Obligations: absence, collection or original-call evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, delivers('interpret_existing_law', A), ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement']))
@@ -434,14 +434,13 @@ obligation('call_fidelity', 'original_call', evaluation('extend_portability', ['
 obligation('call_fidelity', 'original_call', evaluation('data_dividend', ['value_share', 'collective_exercise'], [unaddressed('value_transparency'), unaddressed('use_control'), unaddressed('value_mobility'), 'gives the data subject no claim of their own']))
 obligation('call_fidelity', 'original_call', evaluation('data_ownership', ['value_share', 'use_control', 'value_mobility', 'individual_enforcement'], ['treats personal data as a commodity', unaddressed('value_transparency'), unaddressed('collective_exercise')]))
 obligation('call_fidelity', 'original_call', evaluation('autonomous_right', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share'], []))
-obligation('call_fidelity', 'original_call', recommended('autonomous_right'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(108)
 verified(74)
 recomputed(0)
 composed(0)
-trusted(23)
+trusted(22)
 claims(13)
 
 // This verdict applies to the claims above; it does not establish completeness.
@@ -500,9 +499,12 @@ conclusions the program has.
 component and rule makes a difference to some conclusion. Nothing in the
 model is decoration.
 
-C10 leaves 13 original-call claims unproved by the available evidence. The
+C10 leaves 12 original-call claims unproved by the available evidence:
+those that rest on a collection or a computation. The recommendation of the
+autonomous right is confirmed as an answer of the original question, since
+its negation is decided by the listed facts alone. The
 verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
+conditional on the remaining obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.
 
 

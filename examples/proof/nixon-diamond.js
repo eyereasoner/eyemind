@@ -33,4 +33,11 @@ step(not(nonpacifist('ada')), 'absent', {}, [])
 // Search certificate: derived facts and complete answers used to check
 // negations, collections and the original questions.
 derived(nonpacifist(A), [nonpacifist('nixon')])
+derived(classification(A, B), [classification('nixon', 'quaker'), classification('ada', 'quaker'), classification('nixon', 'republican'), classification('nixon', 'nonpacifist'), classification('ada', 'pacifist')])
+derived(pacifist(A), [pacifist('ada')])
 searched(nonpacifist('ada'), [])
+called(classification(A, B), [classification('nixon', 'quaker'), classification('ada', 'quaker'), classification('nixon', 'republican'), classification('nixon', 'nonpacifist'), classification('ada', 'pacifist')])
+called(pacifist(C), [pacifist('ada')])
+called(nonpacifist(D), [nonpacifist('nixon')])
+called(nonpacifist('nixon'), [nonpacifist('nixon')])
+called(nonpacifist('ada'), [])

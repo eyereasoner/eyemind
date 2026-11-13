@@ -153,9 +153,15 @@ step(uncompensated_violation('alice', missed_obligation('obtain_consent')), clau
 // negations, collections and the original questions.
 derived(violation(A, B), [violation('alice', missed_obligation('obtain_consent')), violation('alice', prohibited_action('share_record'))])
 derived(compensation(A, B), [compensation('alice', compensation('share_record', 'notify_dpo'))])
+derived(status(A, B), [status('alice', 'requires_review')])
+derived(uncompensated_violation(A, B), [uncompensated_violation('alice', missed_obligation('obtain_consent'))])
 called(violation(A, B), [violation('alice', missed_obligation('obtain_consent')), violation('alice', prohibited_action('share_record'))])
 called(compensation(C, D), [compensation('alice', compensation('share_record', 'notify_dpo'))])
 called(violation(E, prohibited_action(F)), [violation('alice', prohibited_action('share_record'))])
+called(status(G, H), [status('alice', 'requires_review')])
+called(uncompensated_violation(I, _9), [uncompensated_violation('alice', missed_obligation('obtain_consent'))])
+called(violation(K, missed_obligation(L)), [violation('alice', missed_obligation('obtain_consent'))])
+called(compensation('alice', compensation('share_record', _12)), [compensation('alice', compensation('share_record', 'notify_dpo'))])
 ```
 
 It has three parts:
@@ -201,7 +207,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 violation('alice', missed_obligation('obtain_consent'))
 violation('alice', prohibited_action('share_record'))
 compensation('alice', compensation('share_record', 'notify_dpo'))
@@ -218,21 +224,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 15)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 3)
-
-// Obligations: absence, collection or original-call evidence remains unproved.
-obligation('call_fidelity', 'original_call', status('alice', 'requires_review'))
+condition('C10', 'call_fidelity', 'ok', 4)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(11)
 verified(11)
 recomputed(0)
 composed(0)
-trusted(1)
+trusted(0)
 claims(4)
 
 // This verdict applies to the claims above; it does not establish completeness.
-verdict('checked_with_obligations')
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -253,18 +256,23 @@ at:
   serve them. There is no padding.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to settle,
-  so no search certificate to check.
+- **C9 search closure (0)**: there was no absence or collection to settle.
+- **C10 call fidelity (4)**: the 4 claims are what the original questions
+  return.
 
 The statistics repeat this: 11 steps, all 11 verified against the program,
-no boundary steps taken on trust. The verdict is **checked with obligations**: all four answers follow
+no boundary steps taken on trust. The verdict is **checked**: all four answers follow
 from the program. As the last comment says, this confirms the claims; it does
 not say the program has no other answers.
 
-C10 leaves 1 original-call claim unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 checks the original questions too. The search certificate lists every
+fact the rules derive for each relation the answers rest on, each with
+steps of its own, and no rule derives one the lists leave out. The
+negations are decided by those listed facts alone, and this program has
+only one such set of facts, so all four claims are what its questions
+return. The verdict is **checked**, with no obligations, and
+`--strict-proof` accepts it. The report does not establish answer
+completeness.
 
 
 ---

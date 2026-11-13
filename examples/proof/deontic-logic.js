@@ -35,6 +35,12 @@ step(uncompensated_violation('alice', missed_obligation('obtain_consent')), clau
 // negations, collections and the original questions.
 derived(violation(A, B), [violation('alice', missed_obligation('obtain_consent')), violation('alice', prohibited_action('share_record'))])
 derived(compensation(A, B), [compensation('alice', compensation('share_record', 'notify_dpo'))])
+derived(status(A, B), [status('alice', 'requires_review')])
+derived(uncompensated_violation(A, B), [uncompensated_violation('alice', missed_obligation('obtain_consent'))])
 called(violation(A, B), [violation('alice', missed_obligation('obtain_consent')), violation('alice', prohibited_action('share_record'))])
 called(compensation(C, D), [compensation('alice', compensation('share_record', 'notify_dpo'))])
 called(violation(E, prohibited_action(F)), [violation('alice', prohibited_action('share_record'))])
+called(status(G, H), [status('alice', 'requires_review')])
+called(uncompensated_violation(I, _9), [uncompensated_violation('alice', missed_obligation('obtain_consent'))])
+called(violation(K, missed_obligation(L)), [violation('alice', missed_obligation('obtain_consent'))])
+called(compensation('alice', compensation('share_record', _12)), [compensation('alice', compensation('share_record', 'notify_dpo'))])

@@ -27,7 +27,15 @@ proof:record9 pe:searched { ?F :status :paid } .
 proof:record9 pe:answers ({ :o1 :status :paid } { :o2 :status :paid }) .
 proof:record10 pe:searched { :o2 :hold ?G } .
 proof:record10 pe:answers ({ :o2 :hold :addressCheck }) .
-<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10) .
+proof:record11 pe:called { ?A :action :ship } .
+proof:record11 pe:answers ({ :o1 :action :ship }) .
+proof:record12 pe:called { ?B :status :paid } .
+proof:record12 pe:answers ({ :o1 :status :paid } { :o2 :status :paid }) .
+proof:record13 pe:called { :o1 :hold ?_2 } .
+proof:record13 pe:answers () .
+proof:record14 pe:called { :o2 :hold ?_2 } .
+proof:record14 pe:answers ({ :o2 :hold :addressCheck }) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14) .
 proof:record1 em:term (em:compound "rdf" ((em:iri :o1) (em:iri :action) (em:iri :ship))) .
 proof:record2 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :o1) (em:iri :status) (em:iri :paid))))))) .
 proof:record3 em:term (em:compound "clause" ((em:integer "5") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:variable "O") (em:iri :status) (em:iri :paid))) (em:compound "not" ((em:compound "rdf" ((em:variable "O") (em:iri :hold) (em:variable "_1"))))))) (em:compound "rdf" ((em:variable "O") (em:iri :action) (em:iri :ship))))))) .
@@ -38,3 +46,7 @@ proof:record7 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "
 proof:record8 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :o1) (em:iri :hold) (em:variable "E"))) (em:atom "[]"))) .
 proof:record9 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "F") (em:iri :status) (em:iri :paid))) (em:list ((em:compound "rdf" ((em:iri :o1) (em:iri :status) (em:iri :paid))) (em:compound "rdf" ((em:iri :o2) (em:iri :status) (em:iri :paid))))))) .
 proof:record10 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :o2) (em:iri :hold) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:iri :o2) (em:iri :hold) (em:iri :addressCheck))))))) .
+proof:record11 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "A") (em:iri :action) (em:iri :ship))) (em:list ((em:compound "rdf" ((em:iri :o1) (em:iri :action) (em:iri :ship))))))) .
+proof:record12 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "B") (em:iri :status) (em:iri :paid))) (em:list ((em:compound "rdf" ((em:iri :o1) (em:iri :status) (em:iri :paid))) (em:compound "rdf" ((em:iri :o2) (em:iri :status) (em:iri :paid))))))) .
+proof:record13 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :o1) (em:iri :hold) (em:variable "_2"))) (em:atom "[]"))) .
+proof:record14 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :o2) (em:iri :hold) (em:variable "_2"))) (em:list ((em:compound "rdf" ((em:iri :o2) (em:iri :hold) (em:iri :addressCheck))))))) .
