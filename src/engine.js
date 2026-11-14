@@ -1132,7 +1132,6 @@ function certify(solver, boundaries, operational = false) {
     },
     facts(goalKey) {
       const nodes = solver.facts.get(goalKey) || NO_NODES;
-      if (nodes.some((node) => node.generic)) throw new Unsettled();
       listed.set(goalKey, nodes);
       return nodes.map((node) => node.goal);
     },

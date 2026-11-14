@@ -237,8 +237,8 @@ export const tests = [
     await p.select('mode', '--prove-and-check');
     await p.run();
     assert.match(await p.output(), /test\(a\(A\), c\(A\)\)/);
-    assert.match(await p.output(), /verdict\('checked_with_obligations'\)/);
-    assert.match(await p.output(), /obligation\('call_fidelity', 'original_call',/);
+    assert.match(await p.output(), /verdict\('checked'\)/);
+    assert.doesNotMatch(await p.output(), /obligation\(/);
     await p.select('mode', '');
   }],
 
@@ -283,7 +283,7 @@ query(or(q(X), r(X)))`);
     await page.evaluate("document.getElementById('json').click()");
     await p.run();
     assert.deepEqual(JSON.parse(await p.output()).answers, ["type('socrates', 'mortal')", "type('socrates', 'human')"]);
-    await p.open(`${base}#example=rule-inspection`);
+    await p.open(`${base}#example=witnesses-n3`);
     await p.select('mode', '--prove-and-check');
     await page.evaluate("document.getElementById('strict-proof').click()");
     await p.run();

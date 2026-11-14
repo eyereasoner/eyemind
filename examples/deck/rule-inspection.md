@@ -93,9 +93,14 @@ clause(3, implies(implies(X, Y), test(X, Y)))
 // absence or a collection), the bindings and the goals it uses.
 step(test(a(A), c(A)), clause(3), {X: a(A), Y: c(A)}, [implies(a(A), c(A))])
 step(implies(a(A), c(A)), source(2), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(test(B, C), [test(a(D), c(D))])
+called(test(A, B), [test(a(C), c(C))])
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claim**: the answer the proof is about.
 - **The clauses**: the program lines the proof relies on, numbered by their
@@ -103,6 +108,11 @@ It has three parts:
   the inspecting rule clause 3).
 - **The steps**: one per thing established. A step reads
   `step(what, justified by, with which values, using what)`.
+- **The search certificate**: `derived(test(B, C), ...)` lists every `test`
+  fact the rules derive, here the one pattern, and `called(test(A, B), ...)`
+  every answer of the query. The answer keeps its variable: it is a pattern
+  that holds for every value of `A`, and a listing compares patterns up to
+  the renaming of their variables.
 
 Read the steps as sentences:
 
@@ -123,36 +133,32 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 test(a(A), c(A))
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 2)
-condition('C2', 'well_founded', 'ok', 2)
-condition('C3', 'justification', 'ok', 2)
-condition('C4', 'coverage', 'ok', 2)
+condition('C1', 'resolution', 'ok', 4)
+condition('C2', 'well_founded', 'ok', 4)
+condition('C3', 'justification', 'ok', 4)
+condition('C4', 'coverage', 'ok', 3)
 condition('C5', 're_decision', 'ok', 0)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 3)
+condition('C7', 'relevance', 'ok', 5)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', test(a(A), c(A)))
-obligation('call_fidelity', 'all_answers', test(A, B))
+condition('C10', 'call_fidelity', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
-steps(2)
-verified(2)
+steps(4)
+verified(4)
 recomputed(0)
 composed(0)
-trusted(2)
+trusted(0)
 claims(1)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -176,17 +182,17 @@ at:
   it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
 - **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
+  settle.
+- **C10 call fidelity (2)**: the claim is an answer of the query, and the
+  query has no other. The checker answers the inspection `implies(X, Y)`
+  from the program's own catalogue of rules, in source order, renamed apart,
+  so it needs no table for it, and it replays the step of the listed
+  pattern against that catalogue.
 
 The statistics repeat this: 2 steps, both verified against the program, none
-taken on trust. The verdict is **checked with obligations**: the reported rule really is in
-the program, and the answer follows from it. It does not say the program has
-no other answers.
-
-C10 leaves 1 original-call claim and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+taken on trust. The verdict is **checked**: the reported rule really is in
+the program, the answer follows from it, and it is every answer of the
+query. `--strict-proof` accepts the proof.
 
 
 ---

@@ -19,7 +19,8 @@ export const tests = {
     assert.deepEqual(result.answers, ['test(a(A), c(A))']);
     assert.deepEqual(run(source).answers, result.answers);
     assert.match(result.proof, /step\(implies\(a\(A\), c\(A\)\), source\(2\), \{\}, \[\]\)/);
-    assert.equal(verdictText(result.proofReport), "verdict('checked_with_obligations')\n");
+    // The catalogue answers the inspection, so the pattern is certified.
+    assert.equal(verdictText(result.proofReport), "verdict('checked')\n");
     assert.deepEqual(proven(SOURCE.replace("fact(a('b'))\n", '')).answers, result.answers);
   },
 
@@ -92,7 +93,8 @@ implies(findall(rule(X, Y), implies(X, Y), L), rules(L))`);
   'inspection under negation and collection is checked against the fixed catalogue'() {
     const source = program("implies(a(X), c(X))\nquery(not(implies(a('missing'), d('missing'))))");
     const document = proven(source).proof;
-    reject(source, document.replaceAll("d('missing')", "c('missing')"), 'C6');
+    // The certificate's search of the catalogue finds the rule (C9).
+    reject(source, document.replaceAll("d('missing')", "c('missing')"), 'C9');
     const collected = program('implies(a(X), c(X))\nquery(findall(pair(X, Y), implies(X, Y), L))');
     const proof = proven(collected).proof;
     const changed = proof.replaceAll('[pair(a(C), c(C))]', '[]');

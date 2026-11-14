@@ -192,12 +192,16 @@ export function renderProof(program, claims, roots, checkable = false, heading =
   const spellings = new Spellings();
   const steps = new Map();
   const cited = new Set();
-  const walk = (starts) => {
+  const walk = (starts, listed = false) => {
     const pending = [...starts].reverse();
     while (pending.length) {
       const node = pending.pop();
       const nodeId = spellings.spell(node.goal);
       if (steps.has(nodeId)) continue;
+      // A listed derived pattern a claim's step already shows, up to the
+      // renaming of its variables, needs no second step.
+      if (listed && !isGround(node.goal) &&
+          [...steps.values()].some((step) => !isGround(step.goal) && variant(step.goal) === variant(node.goal))) continue;
       steps.set(nodeId, node);
       if (isTerm(node.by, 'clause', 1) || isTerm(node.by, 'source', 1)) {
         const id = Number(node.by.args[0]);
@@ -216,7 +220,7 @@ export function renderProof(program, claims, roots, checkable = false, heading =
   // Their negations and collections need certificates too, which can list
   // further facts: certify again until no new boundary appears.
   for (;;) {
-    walk(certificate.listings.flatMap(([, nodes]) => nodes));
+    walk(certificate.listings.flatMap(([, nodes]) => nodes), true);
     if (certify === null || boundariesOf().length === boundaries.length) break;
     boundaries = boundariesOf();
     certificate = certify(boundaries);
@@ -319,6 +323,22 @@ export function checkRendered(program, checkable, goals = null, allowTrusted = t
   return check(program, claims, steps, certificate, goals, allowTrusted, new Failures(name), spellings, name);
 }
 
+// The step of a goal: by its spelling, or for a derived pattern up to the
+// renaming of its variables (Section 6.3), since a listing may spell a
+// pattern's variables differently from the step that derives it.
+const patternSteps = new WeakMap();
+export function stepIdOf(steps, spellings, goal) {
+  const stepId = spellings.spell(goal);
+  if (steps.has(stepId) || isGround(goal)) return stepId;
+  let index = patternSteps.get(steps);
+  if (index === undefined) {
+    index = new Map();
+    for (const [id, step] of steps) if (!isGround(step.goal) && !index.has(variant(step.goal))) index.set(variant(step.goal), id);
+    patternSteps.set(steps, index);
+  }
+  return index.get(variant(goal)) ?? stepId;
+}
+
 // Settle each negation and collection that is well formed by its search
 // certificate (C9), before the steps are checked: a settled one is no
 // obligation.
@@ -326,7 +346,7 @@ function settleBoundaries(program, steps, certificate, spellings) {
   const settler = new Settler(program, {
     answers: (call) => certificate.tables.get(variant(call)) ?? null,
     facts: (goalKey) => certificate.listings.get(goalKey) ?? null,
-    supported: (fact) => steps.has(spellings.spell(fact)),
+    supported: (fact) => steps.has(stepIdOf(steps, spellings, fact)),
   });
   const outcomes = new Map();
   for (const [stepId, step] of steps) {
@@ -1034,7 +1054,7 @@ function checkRelevance(program, claims, steps, goals, fail, spellings, settleme
   const reach = [];
   for (const claim of claims) for (const part of flattenConjunction(claim)) reach.push(spellings.spell(part));
   for (const entry of settlement.calls.settler.listings.values()) {
-    for (const fact of entry.facts) reach.push(spellings.spell(fact));
+    for (const fact of entry.facts) reach.push(stepIdOf(steps, spellings, fact));
   }
   while (reach.length) {
     const stepId = reach.pop();
@@ -1047,7 +1067,7 @@ function checkRelevance(program, claims, steps, goals, fail, spellings, settleme
     const outcome = settlement.outcomes.get(stepId);
     if (outcome?.status === 'settled') {
       for (const goalKey of outcome.listings) {
-        for (const fact of settlement.settler.listings.get(goalKey).facts) reach.push(spellings.spell(fact));
+        for (const fact of settlement.settler.listings.get(goalKey).facts) reach.push(stepIdOf(steps, spellings, fact));
       }
     }
   }

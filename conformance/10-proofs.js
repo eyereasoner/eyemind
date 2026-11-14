@@ -418,6 +418,11 @@ conformance('inspection evidence cites the source rule without solving its premi
     '// absence or a collection), the bindings and the goals it uses.',
     'step(test(a(A), c(A)), clause(3), {X: a(A), Y: c(A)}, [implies(a(A), c(A))])',
     'step(implies(a(A), c(A)), source(2), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(test(B, C), [test(a(D), c(D))])',
+    'called(test(A, B), [test(a(C), c(C))])',
   ]),
 ])
 
@@ -1286,6 +1291,11 @@ conformance('inspecting a backward rule cites it as a source step', [
     '// absence or a collection), the bindings and the goals it uses.',
     'step(rule(r(A), s(A)), clause(2), {H: r(A), B: s(A)}, [implied_by(r(A), s(A))])',
     'step(implied_by(r(A), s(A)), source(1), {}, [])',
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(rule(B, C), [rule(r(D), s(D))])',
+    'called(rule(A, B), [rule(r(C), s(C))])',
   ]),
 ])
 

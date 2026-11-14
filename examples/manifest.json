@@ -550,9 +550,7 @@
   {
     "name": "rule-inspection",
     "description": "Inspecting a source rule as data while preserving its shared variable",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "closed-world-n3",

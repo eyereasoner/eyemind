@@ -9,3 +9,8 @@ clause(3, implies(implies(X, Y), test(X, Y)))
 // absence or a collection), the bindings and the goals it uses.
 step(test(a(A), c(A)), clause(3), {X: a(A), Y: c(A)}, [implies(a(A), c(A))])
 step(implies(a(A), c(A)), source(2), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(test(B, C), [test(a(D), c(D))])
+called(test(A, B), [test(a(C), c(C))])

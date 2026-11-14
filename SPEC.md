@@ -2035,6 +2035,10 @@ separately checks the bindings with which the original question called it.
   renaming. Rename each answer apart before using it.
 - Answer a relation defined by source facts alone from those facts, in
   clause order; it needs no table.
+- Answer an inspection goal from the catalogue of [Section 6.3](#63-source-rule-inspection),
+  in source order, each rule renamed apart; it needs no table.
+- Use a listed derived pattern ([Section 6.3](#63-source-rule-inspection))
+  renamed apart, as it is freshened at every use.
 - Inside this search, negation treats unbound variables as anonymous.
   This does not establish that a named variable was bound at the original
   call; that is a C10 requirement.
@@ -2064,12 +2068,18 @@ closure checks. No table it rests on may depend on itself through the
 tables consulted by its expansion.
 
 **Supporting and closing listings.** Every listed fact MUST have a step,
-have the listing's name and arity, and be ground. Its step is subject to the
-other proof conditions. A listing is **closed** when, for every forward
-rule with a head of its relation, each solution of the body under the
-certificate gives head instances that are listed or are ground source
-facts. Bind the rule's witnesses to their specified Skolem terms when
-checking this closure ([Section 8.2](#82-forward-evaluation-and-witnesses)).
+have the listing's name and arity, and be ground, unless the program
+inspects source rules and the fact is a derived pattern
+([Section 6.3](#63-source-rule-inspection)): its step is then the step of a
+pattern identical to it up to the renaming of its variables. Its step is
+subject to the other proof conditions. A listing is **closed** when, for
+every forward rule with a head of its relation, each solution of the body
+under the certificate gives head instances that are listed, a pattern up to
+the renaming of its variables, or are ground source facts. Bind the rule's
+witnesses to their specified Skolem terms when checking this closure
+([Section 8.2](#82-forward-evaluation-and-witnesses)). A head instance that
+keeps a variable no inspection or listed pattern supplied leaves the
+boundary unsettled: the run would have bound it to a Skolem term.
 
 Support rules out invented facts; closure rules out omitted facts. For
 example, an empty answer table is insufficient if a forward rule could
@@ -2095,7 +2105,6 @@ requires:
   publication order for order-sensitive operations. A `findall_sorted` of
   ground items depends on the solutions and how often each occurs, not on
   their order.
-- The search reaches no source inspection.
 - No consulted listing's relation is concluded by a forward rule within a
   template's scope ([Section 6.2](#62-inline-rule-templates)) that
   introduces witnesses, or whose generators have a guard or introduce
@@ -2142,7 +2151,7 @@ from evidence that cannot settle the boundary:
 | A table differs from its expansion; a listed fact lacks a step or has the wrong name or arity; a listing is not closed; tables are circular; the certificate's search raises an error; or the checked search finds a solution to a negated goal. | C9 fails. |
 | A needed table or listing is missing, evidence is incomplete, or a certificate limit above applies. | The boundary is not settled. |
 | A collection's list disagrees with the certificate's search results. | The boundary is not settled; C6 may refute it from available evidence. |
-| A listing contains a nonground fact. | At the first such fact in listing order, leave the boundary unsettled rather than fail it. |
+| A listing contains a nonground fact, and the program inspects no source rules. | At the first such fact in listing order, leave the boundary unsettled rather than fail it. |
 
 An incorrect table or listing is reported once, for the first boundary
 resting on it. Any boundary C9 did not settle counts as trusted, including
@@ -2311,12 +2320,16 @@ step's corresponding use records:
   goal, and the template's part after. A use with no step is unified with a source fact
   of the relation, renamed apart. A replay that meets the same use under
   the same call again does not replay.
+- An inspection follows its use's `source(N)` step: rule `N` of the
+  catalogue, renamed apart, is unified with the goal.
 - After each goal, the goal MUST still unify with its use, since a step
   shows its goals after the whole solution's bindings.
 
 Each witness is then bound to its Skolem term
 ([Section 8.2](#82-forward-evaluation-and-witnesses)), and the fact MUST be
-identical to an instance of one of the rule's heads. Replay re-executes each
+identical to an instance of one of the rule's heads, or for a derived
+pattern identical up to the renaming of its variables, every one of which an
+inspection or a listed pattern supplied. Replay re-executes each
 recorded firing, so a test of whether a variable is bound sees what a search
 sees, a first answer is the search's first answer, and host math is
 computed rather than accepted within a tolerance. C2 keeps the steps a

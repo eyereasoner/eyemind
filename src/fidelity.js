@@ -3,6 +3,7 @@
 // these searches start before a final substitution.
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
 import { Settler, plainGenerators } from './closure.js';
+import { stepIdOf } from './proof.js';
 import { freshClause, text, variant } from './common.js';
 import { goalTerm } from './goals.js';
 import { INSPECTION_KEYS } from './inspection.js';
@@ -274,7 +275,12 @@ export function replayed(program, settler, listingKeys, stepOf) {
       }
       return false;
     }
-    if (INSPECTION_KEYS.has(goalKey)) return false;
+    if (INSPECTION_KEYS.has(goalKey)) {
+      // An inspection reads the source rule its step cites, renamed apart.
+      const step = stepOf(use);
+      const source = step && isTerm(step.by, 'source', 1) ? program.inspectedById.get(Number(step.by.args[0])) : null;
+      return Boolean(source) && unify(goal, freshTerm(source.term, `inspect${++serial}`), env) && compatible(goal, use, env);
+    }
     const step = stepOf(use);
     if (!step) {
       // A use without a step is an instance of a source fact.
@@ -290,7 +296,7 @@ export function replayed(program, settler, listingKeys, stepOf) {
     if (!isTerm(step.by, 'clause', 1)) return false;
     const clause = program.byId.get(Number(step.by.args[0]));
     if (!supportedRule(clause)) return false;
-    if (clause.forward) return fact(use) && unify(goal, fresh(use), env);
+    if (clause.forward) return fact(use) && unify(goal, freshTerm(use, `pattern${++serial}`), env);
     const [head, body] = freshClause(clause, `replay${++serial}`);
     if (!body.length) return unify(goal, head, env) && compatible(goal, use, env);
     const call = `${text(use)} ${text(copyResolved(goal, env))}`;
@@ -331,8 +337,15 @@ export function replayed(program, settler, listingKeys, stepOf) {
           unify(names.get(name), new Struct('skolem', [BigInt(clause.id), name, listFromItems(values)]), env);
         }
       }
-      holds = holds && flattenConjunction(head).some((item) => isCallable(item) &&
-        identity(copyResolved(item, env)) === identity(goal));
+      // A derived pattern is identified up to the renaming of its variables,
+      // and keeps only variables an inspection supplied: the run binds any
+      // other head variable a firing leaves unbound to a Skolem term.
+      const same = isGround(goal) ? (item) => identity(item) === identity(goal) : (item) => variant(item) === variant(goal);
+      holds = holds && flattenConjunction(head).some((item) => {
+        if (!isCallable(item)) return false;
+        const conclusion = copyResolved(item, env);
+        return [...variables(conclusion).keys()].every((name) => /#(?:inspect|pattern)\d+$/.test(name)) && same(conclusion);
+      });
       active.delete(id);
     }
     confirmed.set(id, holds);
@@ -351,10 +364,10 @@ export function checkCalls(program, claims, goals, certificate, steps, spellings
   const settler = new Settler(program, {
     answers: (call) => certificate.calls.get(variant(call, true)) ?? null,
     facts: (goalKey) => certificate.listings.get(goalKey) ?? null,
-    supported: (fact) => steps.has(spellings.spell(fact)),
+    supported: (fact) => steps.has(stepIdOf(steps, spellings, fact)),
   }, true);
   if (claims.includes('false')) return { settler, outcomes: [], unresolved: [], covered: 0 };
-  const stepOf = (goal) => steps.get(spellings.spell(goal));
+  const stepOf = (goal) => steps.get(stepIdOf(steps, spellings, goal));
   // Replay runs host math exactly, so it needs no exclusion for tolerance.
   const supported = (listings) => (!(inexact && listings.length) && positiveListings(program, listings)) ||
     replayed(program, settler, listings, stepOf);

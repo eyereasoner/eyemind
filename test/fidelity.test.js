@@ -310,6 +310,20 @@ export const tests = {
     assert.deepEqual(strictly.report.trusted, []);
   },
 
+  'C10 certifies answers found by source rule inspection, patterns included'() {
+    const source = "fact(a('b'))\nimplies(a(X), c(X))\nimplies(implies(X, Y), test(X, Y))\nquery(test(X, Y))";
+    const { loaded, result, report } = checked(source);
+    assert.deepEqual(result.answers, ['test(a(A), c(A))']);
+    assert.deepEqual(report.trusted, []);
+    assert.ok(checkProof(loaded, result.proof, { allowTrusted: false }).valid, result.proof);
+    // A pattern stands for every instance; neither a more general nor a
+    // specialized claim, nor a rule that is not in the catalogue, checks.
+    for (const [from, to] of [['test(a(A), c(A))', 'test(A, B)'], ['test(a(A), c(A))', "test(a('b'), c('b'))"],
+      ['c(A)', 'd(A)']]) {
+      assert.equal(checkProof(loaded, result.proof.replaceAll(from, to), { allowTrusted: false }).valid, false, to);
+    }
+  },
+
   'C10 supports no listing on host math accepted only within its tolerance'() {
     const source = 'fact(v(1))\nimplies([v(X), is(Y, exp(X))], w(Y))';
     const { loaded, result } = checked(source);

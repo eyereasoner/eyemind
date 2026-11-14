@@ -43,6 +43,12 @@ function instanceOf(term, pattern) {
   return unify(pattern, term, env) && variant(copyResolved(term, env)) === variant(term);
 }
 
+// How a listing identifies a fact: a ground fact by identity, a derived
+// pattern up to the renaming of its variables (Section 6.3).
+function listedKey(fact) {
+  return isGround(fact) ? identity(fact) : `pattern ${variant(fact)}`;
+}
+
 // Whether the generators of a rule appended by a template fire as ordinary
 // rules: no restricted guard, whose firings depend on the order of rule
 // applications, and no witnesses, which the derived rule would share.
@@ -226,7 +232,12 @@ export class Settler {
         env.undo(mark);
       }
     } else if (INSPECTION_KEYS.has(goalKey)) {
-      throw new Unsettled();
+      // The catalogue of source rules, in source order, each renamed apart:
+      // its variables are scoped pattern variables (Section 6.3).
+      for (const source of this.program.inspections.get(goalKey) || []) {
+        if (unify(goal, freshTerm(source.term, `inspect${++this.serial}`), env)) yield;
+        env.undo(mark);
+      }
     } else if (!this.derivedKeys.has(goalKey) &&
                (this.program.groups.get(goalKey) || []).every((clause) => !clause.body.length && clause.parentId === null)) {
       // Facts alone are scanned where they stand, with no table needed.
@@ -261,7 +272,8 @@ export class Settler {
       const facts = this.listing(goalKey);
       reliance.listings.add(goalKey);
       for (const fact of facts) {
-        if (unify(call, fact, env)) yield;
+        // A derived pattern is freshened at every use.
+        if (unify(call, isGround(fact) ? fact : freshTerm(fact, `pattern${++this.serial}`), env)) yield;
         env.undo(mark);
       }
     }
@@ -375,14 +387,14 @@ export class Settler {
           entry.subject = fact;
           return entry;
         }
-        // A pattern an inspection derived is not a fact closure can compare.
-        if (!isGround(fact)) throw new Unsettled();
+        // Only a program that inspects source rules derives patterns.
+        if (!isGround(fact) && !this.program.inspectionEnabled) throw new Unsettled();
         if (!this.source.supported(fact)) {
           entry.failure = `derived fact without a step: ${text(fact)}`;
           entry.subject = fact;
           return entry;
         }
-        listed.add(identity(fact));
+        listed.add(listedKey(fact));
       }
       for (const rule of this.program.forward) {
         if (!rule.plainHeads.some((head) => isCallable(head) && key(head) === goalKey)) continue;
@@ -437,9 +449,11 @@ export class Settler {
       }
       for (const item of heads) {
         const conclusion = copyResolved(item, env);
-        if (!isGround(conclusion)) throw new Unsettled();
-        const conclusionId = identity(conclusion);
-        if (!listed.has(conclusionId) && !this.program.groundFactKeys.has(conclusionId)) return conclusion;
+        // Only variables an inspection supplied stay free in a conclusion;
+        // any other would have been bound to a Skolem term.
+        if ([...variables(conclusion).keys()].some((name) => !/#(?:inspect|pattern)\d+$/.test(name))) throw new Unsettled();
+        const conclusionId = listedKey(conclusion);
+        if (!listed.has(conclusionId) && !(isGround(conclusion) && this.program.groundFactKeys.has(conclusionId))) return conclusion;
       }
       env.undo(mark);
     }
