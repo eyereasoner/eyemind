@@ -29,7 +29,8 @@ goals, and keep error messages specific and user-facing text direct.
   - `proof.js`: proof rendering and the C1–C10 checker, which never calls
     the engine. `closure.js`: settling negations and collections by their
     search certificate, one call expanded one level at a time. `fidelity.js`:
-    C10 original questions, call tables and supported forward dependencies.
+    C10 original questions, call tables, supported forward dependencies and
+    the replay of recorded firings.
     `native-proof.js`: N3 and SRL proof data, lossless term records and
     validated displays of claims, steps and search certificates.
   - `cli.js`: the command line, with no Node imports so the playground's

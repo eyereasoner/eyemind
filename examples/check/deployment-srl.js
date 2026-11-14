@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 inf(iri('http://example.org/deployment#shop'), iri('http://example.org/deployment#dependsOn'), iri('http://example.org/deployment#payments'))
 inf(iri('http://example.org/deployment#payments'), iri('http://example.org/deployment#dependsOn'), iri('http://example.org/deployment#ledger'))
 inf(iri('http://example.org/deployment#ledger'), iri('http://example.org/deployment#exposedTo'), iri('http://example.org/deployment#cve1'))
@@ -28,35 +28,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 103)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#shop'), iri('http://example.org/deployment#dependsOn'), iri('http://example.org/deployment#payments')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#payments'), iri('http://example.org/deployment#dependsOn'), iri('http://example.org/deployment#ledger')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#ledger'), iri('http://example.org/deployment#exposedTo'), iri('http://example.org/deployment#cve1')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#payments'), iri('http://example.org/deployment#exposedTo'), iri('http://example.org/deployment#cve1')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#ledger'), iri('http://example.org/deployment#status'), iri('http://example.org/deployment#critical')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#payments'), iri('http://example.org/deployment#status'), iri('http://example.org/deployment#critical')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#shop'), iri('http://example.org/deployment#exposedTo'), iri('http://example.org/deployment#cve1')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#shop'), iri('http://example.org/deployment#status'), iri('http://example.org/deployment#critical')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#logger'), iri('http://example.org/deployment#status'), iri('http://example.org/deployment#safeToDeploy')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#shop'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/deployment#Component')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#shop'), iri('http://example.org/deployment#callsService'), iri('http://example.org/deployment#payments')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#payments'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/deployment#Component')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#payments'), iri('http://example.org/deployment#queriesDatabase'), iri('http://example.org/deployment#ledger')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#ledger'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/deployment#Component')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#ledger'), iri('http://example.org/deployment#hasVulnerability'), iri('http://example.org/deployment#cve1')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#logger'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/deployment#Component')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/deployment#cve1'), iri('http://example.org/deployment#severity'), literal('9.8', datatype('http://www.w3.org/2001/XMLSchema#decimal'))))
-obligation('call_fidelity', 'all_answers', inf(A, B, C))
+condition('C10', 'call_fidelity', 'ok', 18)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(86)
 verified(60)
 recomputed(20)
 composed(5)
-trusted(18)
+trusted(0)
 claims(17)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')

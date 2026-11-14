@@ -3,7 +3,7 @@ import { PRIMITIVE_KEYS, STATE_TESTS, primitive } from './builtins.js';
 import { Reliance, Settler, Unsettled } from './closure.js';
 import { freshClause, matchHead, renaming, text, variant } from './common.js';
 import { goalTerm, subgoals } from './goals.js';
-import { callQuestions, positiveListings } from './fidelity.js';
+import { callQuestions, positiveListings, replayed } from './fidelity.js';
 import { INSPECTION_KEYS } from './inspection.js';
 import { checkRendered, clauseDisplay, renderProof } from './proof.js';
 import { CONTROL_KEYS, Program } from './program.js';
@@ -1130,7 +1130,6 @@ function certify(solver, boundaries, operational = false) {
       }
     },
     facts(goalKey) {
-      if (operational && !positiveListings(program, [goalKey])) throw new Unsettled();
       const nodes = solver.facts.get(goalKey) || NO_NODES;
       if (nodes.some((node) => node.generic)) throw new Unsettled();
       listed.set(goalKey, nodes);
@@ -1156,9 +1155,27 @@ function certify(solver, boundaries, operational = false) {
       }
     }
   }
+  // The recorded derivation of a listed fact or one of its premises, for the
+  // replay that supports a listing beyond the mode analysis.
+  let recorded = null;
+  const stepOf = (goal) => {
+    if (recorded === null) {
+      recorded = new Map();
+      const pending = [...listed.values()].flat();
+      while (pending.length) {
+        const node = pending.pop();
+        const goalText = text(node.goal);
+        if (recorded.has(goalText)) continue;
+        recorded.set(goalText, { by: node.by, uses: node.children.map((child) => child.goal) });
+        pending.push(...node.children);
+      }
+    }
+    return recorded.get(text(goal));
+  };
   const tables = new Set();
   const listings = new Set();
   for (const boundary of boundaries) {
+    recorded = null;
     let outcome = null;
     budget = 0;
     volume = 0;
@@ -1175,7 +1192,8 @@ function certify(solver, boundaries, operational = false) {
         }
       }
     }
-    if (outcome.status === 'settled' && (!operational || positiveListings(program, outcome.listings))) {
+    if (outcome.status === 'settled' && (!operational || positiveListings(program, outcome.listings) ||
+        replayed(program, settler, outcome.listings, stepOf))) {
       for (const item of outcome.tables) tables.add(item);
       for (const item of outcome.listings) listings.add(item);
     } else if (outcome.status === 'failed' && solver.haltCode === null) {

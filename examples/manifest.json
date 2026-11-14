@@ -227,9 +227,7 @@
   {
     "name": "research-portal",
     "description": "A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "package-holiday",
@@ -298,9 +296,7 @@
   {
     "name": "aunt-agatha",
     "description": "Who killed Aunt Agatha? A conclusion entailed by holding in every model of the premises",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "four-color",
@@ -405,9 +401,7 @@
       "trig-named-graph-n3.n3"
     ],
     "description": "Ancestors derived within a TriG named graph, each conclusion kept in its named-graph formula",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "trig-triple-term-n3",
@@ -416,9 +410,7 @@
       "trig-triple-term-n3.n3"
     ],
     "description": "A triple term inside a named graph, asserted in a formula named for the graph that holds the claim",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "trig-graph-join-n3",
@@ -427,9 +419,7 @@
       "trig-graph-join-n3.n3"
     ],
     "description": "Data about a named graph in the default graph joined with data inside that graph",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "family-n3",
@@ -657,9 +647,7 @@
       "quantifier-scopes-n3.n3"
     ],
     "description": "An @forSome of the document reaches into quoted formulas, and an inner declaration shadows it",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "chain-stratification-n3",
@@ -685,9 +673,7 @@
       "graph-terms-n3.n3"
     ],
     "description": "Quoted formulas as opaque graph terms: unquoting, identity up to renaming, and universals inside quotes",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "family-recursion-n3",
@@ -723,9 +709,7 @@
       "report-n3.n3"
     ],
     "description": "A formatted text report of fruit quantities, prices and costs",
-    "trusted": [
-      "call_fidelity"
-    ],
+    "trusted": [],
     "output": "txt"
   },
   {
@@ -742,9 +726,7 @@
       "deployment-srl.srl"
     ],
     "description": "Service dependencies propagate severe vulnerabilities and safe deployment decisions",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "distances-srl",
@@ -753,9 +735,7 @@
       "data/distances-srl.ttl"
     ],
     "description": "Missing kilometre distances are converted from miles without replacing base data",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "family-srl",
@@ -790,9 +770,7 @@
       "provenance-srl.srl"
     ],
     "description": "Strong annotated links yield connections and source-attributed triple terms",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "socrates-srl",
@@ -808,9 +786,7 @@
       "strings-srl.srl"
     ],
     "description": "Directory listings, initials and language information from Unicode names",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "property-paths-srl",
@@ -842,9 +818,7 @@
       "cat-koko-srl.srl"
     ],
     "description": "Separate head blank nodes create distinct witnesses that pass an identity filter",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "good-cobbler-srl",
@@ -876,9 +850,7 @@
       "dijkstra-srl.srl"
     ],
     "description": "Listed candidate routes receive total costs and the cheapest alternatives survive stratified negation",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "message-boundaries-n3",
@@ -887,9 +859,7 @@
       "data/message-boundaries-n3.trig"
     ],
     "description": "Ordered RDF Messages preserve an empty heartbeat and distinguish reused blank-node labels",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "message-alerts-n3",
@@ -898,9 +868,7 @@
       "data/message-alerts-n3.nt"
     ],
     "description": "Independent sensor messages raise an alert only for the observation above the temperature threshold",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "message-provenance-n3",
@@ -909,9 +877,7 @@
       "data/message-provenance-n3.trig"
     ],
     "description": "Reporters and named-graph readings join within each message without crossing its boundary",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "execution-identifiers-srl",
@@ -931,8 +897,6 @@
       "exact-decimals-srl.srl"
     ],
     "description": "Exact decimal invoice totals and division alongside binary64 double arithmetic",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   }
 ]

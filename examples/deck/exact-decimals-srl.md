@@ -77,11 +77,11 @@ inf(iri('https://example.org/numbers/measurement'), iri('https://example.org/num
 
 The decimal calculations are ordinary rules over exact integer coefficients and scales. C5 re-decides their integer arithmetic and the float64 primitive used for double results, including exceptional values. The certificate retains the original rule set compilation and all computation evidence.
 
-The saved report ends with `verdict('checked_with_obligations')`. Its
-`call_fidelity` obligations say that C10 has not established the original
-calls from closed call tables. Strict checking rejects these remaining
-obligations. The checker follows the certificate without calling the
-reasoning engine. The report does not establish completeness.
+The saved report ends with `verdict('checked')`. C10 establishes the
+original calls from closed call tables and replays the decimal rules'
+firings, so the claims are every answer, and strict checking accepts the
+proof. The checker follows the certificate without calling the reasoning
+engine.
 
 ---
 

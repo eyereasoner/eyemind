@@ -7,7 +7,7 @@ eyemind is a **JavaScript rule language** with forward and backward reasoning an
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 135 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1381 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 135 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1382 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -480,7 +480,7 @@ A negation `not(G)` concludes from what is *absent* and a collection `findall(T,
 - **Negate only what is bound.** The variables of `not(G)` must be bound when it runs; write `not(q(X, _))` for "no value at all".
 - **Check the search, not just its result.** A proof ends with a search certificate: `searched(Call, Answers)` lists each call's answers and `derived(Pattern, Facts)` each consulted relation. The checker expands each call one level against the program, so a wrong table shows up as a disagreement.
 - **Say what was taken on trust.** Anything the certificate cannot settle becomes an obligation, and evidence in the proof can still refute it (C6).
-- **Certify the original questions.** Supported, closed listings establish the original calls, and that the claims are all their answers, when no rule they depend on can observe bindings or evaluation order. A mode analysis checks this: primitives such as arithmetic run with their inputs bound, negations with their variables bound, and `once` and `findall` bind nothing other goals use. A proof within this fragment can be `checked` with no obligation, even under `--strict-proof`. Tests of whether a variable is bound, collections of derived facts, whose order a listing cannot show, templates and `restricted` rules with new witnesses keep an obligation.
+- **Certify the original questions.** Supported, closed listings establish the original calls, and that the claims are all their answers, when no rule they depend on can observe bindings or evaluation order. A mode analysis checks this: primitives such as arithmetic run with their inputs bound, negations with their variables bound, and `once` and `findall` bind nothing other goals use. Where it does not apply, as for tests of whether a variable is bound, the checker replays each derived fact's recorded firing in source order instead. A proof within these bounds can be `checked` with no obligation, even under `--strict-proof`. Collections and first answers over derived facts, whose order a listing cannot show, templates and `restricted` rules with new witnesses keep an obligation.
 
 ## Checking the translation
 

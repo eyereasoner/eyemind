@@ -565,7 +565,7 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
   'a certificate statement that settles nothing fails C7, and a repeated one C3'() {
     const document = run(CERTIFIED, { proof: true }).proof;
     invalid(`${document}searched(edge('z', A), [])\n`, 'C7', CERTIFIED);
-    invalid(`${document}derived(tagged_all(A), [])\n`, 'C7', CERTIFIED);
+    invalid(`${document}derived(path(A, B), [])\n`, 'C7', CERTIFIED);
     invalid(`${document}searched(path('a', 'a'), [])\n`, 'C3', CERTIFIED);
     invalid(`${document}searched(path('a', 'a'), 'none')\n`, 'C3', CERTIFIED);
     const listed = run(program("fact(r('n'))\nfact(k('a'))\nimplies(r(X), np(X))\nimplies([k(X), not(np(X))], pac(X))"), { proof: true }).proof;

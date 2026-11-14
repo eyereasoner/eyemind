@@ -166,7 +166,7 @@ test('saved SRL execution proofs replay their context and reject forged computat
   writeFileSync(saved, proof);
   const check = command(['--check-proof', saved, source]);
   assert.equal(check.code, 0, check.stderr);
-  assert.match(check.stdout, /verdict\('checked_with_obligations'\)/);
+  assert.match(check.stdout, /verdict\('checked'\)/);
   assert.throws(() => compileSrl(text, { context: { now: '2026-02-30T00:00:00.000Z', seed: '0'.repeat(64) } }), /execution context/);
 });
 test('compiler: wrong arities are errors', () => {
