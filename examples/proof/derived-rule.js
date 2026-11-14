@@ -12,3 +12,8 @@ clause(4, implies([type(X, 'Cat'), type(Y, 'Dog')], t('test', 'is', 'true')))
 step(t('test', 'is', 'true'), clause(4), {X: 'Minka', Y: 'Charly'}, [type('Minka', 'Cat'), type('Charly', 'Dog')])
 step(type('Minka', 'Cat'), clause(1), {}, [])
 step(type('Charly', 'Dog'), clause(2), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(t(A, B, C), [t('test', 'is', 'true')])
+called(t('test', 'is', 'true'), [t('test', 'is', 'true')])

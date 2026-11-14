@@ -2040,6 +2040,18 @@ clause order. Search each rule's body in its place, answering inner calls
 as above. Each table MUST equal its expansion: the same number of answers,
 each identical up to variable renaming to the answer in the same position.
 
+A backward rule appended by a template ([Section 6.2](#62-inline-rule-templates))
+answers through its instances. A rule whose enclosing generators are not
+all in the program has none. Otherwise, search the generator's part of its
+body first, with none of the call's bindings, and take its solutions in
+order, skipping a solution whose captured values are identical to an
+earlier one's. For each, unify the call with the head and search the
+template's part of the body. This is the order in which the run made the
+instances only when the generator's search consults no table and no
+listing, and its generators have no guard and introduce no witnesses;
+otherwise the search is unsettled. Captured values that are not ground
+also leave it unsettled.
+
 The boundary **rests on** every table and listing its search consults,
 including those consulted transitively by table expansions and listing
 closure checks. No table it rests on may depend on itself through the
@@ -2072,10 +2084,14 @@ requires:
   closure check uses a table whose answers rest on a forward listing.
   This format checks support and closure of derived facts, but cannot
   establish their publication order for order-sensitive operations.
-- The search reaches neither source inspection nor a clause appended by
-  a template.
-- No consulted listing's relation is concluded by a forward rule with a
-  template head or captures ([Section 6.2](#62-inline-rule-templates)).
+- The search reaches no source inspection.
+- No consulted listing's relation is concluded by a forward rule within a
+  template's scope ([Section 6.2](#62-inline-rule-templates)) that
+  introduces witnesses, or whose generators have a guard or introduce
+  witnesses. A rule appended by a template fires once for each instance, so
+  closure searches its whole body, generator's part first. A rule whose
+  enclosing generators are not all in the program never fires, and closure
+  skips it.
 
 For example, the saved
 [Nixon diamond proof](https://eyereasoner.github.io/eyemind/examples/proof/nixon-diamond.js)
@@ -2255,8 +2271,10 @@ this analysis.
 
 **Replayed listings.** A listing the mode analysis does not support still
 supports C10 when every fact of every consulted listing **replays**. A fact
-replays when its step cites a forward rule, other than a template, a rule
-with captures or a restricted rule, and a search of that rule's body in
+replays when its step cites a forward rule that is not restricted, does
+not introduce witnesses within a template's scope, and, if appended by a
+template, has all its enclosing generators in the program, none with a
+guard or witnesses; and when a search of that rule's body in
 source order, starting with no bindings, solves each body goal as the
 step's corresponding use records:
 
@@ -2271,11 +2289,14 @@ step's corresponding use records:
   with the use.
 - `call/1` and a disjunction replay the goals their `'control'` step uses,
   for a disjunction from the side those uses form.
-- A call to an ordinary relation follows the use's step. A forward rule's
+- A call to an ordinary relation follows the use's step, whose rule MUST
+  meet the conditions above other than direction. A forward rule's
   conclusion MUST itself replay, and is then unified with the goal. A
   source fact, renamed apart, is unified with the goal. A backward rule,
   renamed apart, has its head unified with the goal and its body replayed
-  against its step's uses. A use with no step is unified with a source fact
+  against its step's uses. For a backward rule appended by a template, the
+  generator's part of the body replays first, before the head meets the
+  goal, and the template's part after. A use with no step is unified with a source fact
   of the relation, renamed apart. A replay that meets the same use under
   the same call again does not replay.
 - After each goal, the goal MUST still unify with its use, since a step

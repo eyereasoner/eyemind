@@ -14,3 +14,10 @@ step(t('bob', 'hasParent', 'alice'), clause(4), {X: 'bob', Y: 'alice'}, [t('bob'
 step(t('bob', 'childOf', 'alice'), clause(5), {X: 'bob', Q: 'childOf', Y: 'alice', P: 'parentOf'}, [inv_of('parentOf', 'childOf'), t('alice', 'parentOf', 'bob')])
 step(inv_of('parentOf', 'childOf'), clause(1), {}, [])
 step(t('alice', 'parentOf', 'bob'), clause(2), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(t(A, B, C), [t('bob', 'hasParent', 'alice')])
+called(t(A, 'hasParent', B), [t('bob', 'hasParent', 'alice')])
+called(t(C, 'childOf', D), [t('bob', 'childOf', 'alice')])
+called(t(E, 'parentOf', F), [t('alice', 'parentOf', 'bob')])

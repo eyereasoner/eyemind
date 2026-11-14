@@ -23,6 +23,11 @@ conformance('an inline forward template has local universal variables and direct
     "step(test('yes'), clause(4), {X: 'minka', Y: 'charly'}, [cat('minka'), dog('charly')])",
     "step(cat('minka'), clause(1), {}, [])",
     "step(dog('charly'), clause(2), {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "derived(test(A), [test('yes')])",
+    "called(test('yes'), [test('yes')])",
   ]),
 ])
 

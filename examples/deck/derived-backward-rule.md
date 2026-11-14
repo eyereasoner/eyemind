@@ -109,6 +109,13 @@ step(t('bob', 'hasParent', 'alice'), clause(4), {X: 'bob', Y: 'alice'}, [t('bob'
 step(t('bob', 'childOf', 'alice'), clause(5), {X: 'bob', Q: 'childOf', Y: 'alice', P: 'parentOf'}, [inv_of('parentOf', 'childOf'), t('alice', 'parentOf', 'bob')])
 step(inv_of('parentOf', 'childOf'), clause(1), {}, [])
 step(t('alice', 'parentOf', 'bob'), clause(2), {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(t(A, B, C), [t('bob', 'hasParent', 'alice')])
+called(t(A, 'hasParent', B), [t('bob', 'hasParent', 'alice')])
+called(t(C, 'childOf', D), [t('bob', 'childOf', 'alice')])
+called(t(E, 'parentOf', F), [t('alice', 'parentOf', 'bob')])
 ```
 
 It has three parts:
@@ -140,7 +147,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 t('bob', 'hasParent', 'alice')
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
@@ -154,22 +161,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 5)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', t('bob', 'hasParent', 'alice'))
-obligation('call_fidelity', 'all_answers', t(A, 'hasParent', B))
+condition('C10', 'call_fidelity', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(4)
 verified(4)
 recomputed(0)
 composed(0)
-trusted(2)
+trusted(0)
 claims(1)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each condition reports what the checker verified:
@@ -185,15 +188,15 @@ Each condition reports what the checker verified:
   serve those claims.
 - **C8 witness integrity (0)**: this example introduces no existential witness.
 - **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
+  settle; the search certificate serves the original questions (C10).
 
-The report records 4 steps, 4 verified against program clauses. The verdict is **checked with obligations**: the recorded claims follow from
-the source program. It establishes no completeness claim.
+The report records 4 steps, 4 verified against program clauses. The verdict is **checked**: the recorded claims follow from the source
+program, and they are every answer of the original questions.
 
-C10 leaves 1 original-call claim and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 checks the original questions through the derived rule's instances:
+each instance comes from a solution of its generating premises, so every
+claim is an answer and the claims are every answer. The verdict is
+**checked**, also under `--strict-proof`.
 
 
 ---
