@@ -202,7 +202,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 3)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 1)
+condition('C10', 'call_fidelity', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(2)
@@ -212,7 +212,7 @@ composed(0)
 trusted(0)
 claims(1)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
@@ -244,8 +244,8 @@ as far as these rules and facts can show. The statistics say the same: 2
 steps, 1 verified against the program and the absence settled by the
 certificate, none trusted.
 
-The verdict is **checked**: the claim follows from the program. It does not
-establish completeness, and the checker did not re-run the search: it
+The verdict is **checked**: the claim follows from the program, and it is
+every answer of the question. The checker did not re-run the search: it
 confirmed the record of it, line by line.
 
 ---

@@ -21,9 +21,9 @@ condition('C6', 'boundary_consistency', 'ok', 6)
 condition('C7', 'relevance', 'ok', 57)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 1)
+condition('C10', 'call_fidelity', 'ok', 2)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, rests_on(refused('bob', 'income above 2500'), A), [applicant('bob'), income('bob', 2900)]))
 obligation('collected', 'theory_scoped', findall(A, assumes(refused('bob', 'income above 2500'), A), []))
 obligation('collected', 'theory_scoped', findall(A, rests_on(grant('ann'), A), [applicant('ann'), income('ann', 2100)]))
@@ -45,14 +45,16 @@ obligation('call_fidelity', 'original_call', explanation(grant('cara'), [applica
 obligation('call_fidelity', 'original_call', explanation(grant('dan'), [applicant('dan'), income('dan', 2400)], [not(already_received('dan'))]))
 obligation('call_fidelity', 'original_call', explanation(top_up('ann'), [household('ann', 4), applicant('ann'), income('ann', 2100)], [not(already_received('ann'))]))
 obligation('call_fidelity', 'original_call', explanation(top_up('dan'), [household('dan', 3), applicant('dan'), income('dan', 2400)], [not(already_received('dan'))]))
+obligation('call_fidelity', 'all_answers', at_risk(A, B))
+obligation('call_fidelity', 'all_answers', explanation(A, B, C))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(47)
 verified(35)
 recomputed(0)
 composed(0)
-trusted(21)
+trusted(23)
 claims(10)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

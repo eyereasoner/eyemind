@@ -217,7 +217,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 28)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 12)
+condition('C10', 'call_fidelity', 'ok', 13)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(16)
@@ -227,7 +227,7 @@ composed(0)
 trusted(0)
 claims(12)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
@@ -259,8 +259,9 @@ at:
 The statistics repeat this: 16 steps, all 16 verified against the program,
 none taken on trust, for 12 claims. The verdict is **checked**: every
 reachable pair shown follows from the roads. As the last comment says, it
-does not establish completeness: the check confirms that d reaches nothing
-is never *claimed*, not that it was proved impossible.
+also establishes that these are every reachable pair: the listing of derived
+`reachable` facts is checked closed under the rules, so d reaching nothing is
+proved, not merely left unclaimed.
 
 ---
 

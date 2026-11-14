@@ -222,7 +222,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 16)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 5)
+condition('C10', 'call_fidelity', 'ok', 6)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(11)
@@ -232,7 +232,7 @@ composed(0)
 trusted(0)
 claims(5)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
@@ -273,8 +273,8 @@ could.
 The statistics: 11 steps, 10 verified against the program and the absence
 settled by the certificate, so no boundary steps are trusted.
 The verdict is **checked**: every answer follows from the program. As the
-last comment says, the verdict does not establish completeness: it does not say
-these are the only classifications there could be.
+last comment says, the verdict also establishes that these are every answer
+of the original questions: the program derives no other classification.
 
 C10 checks the original questions too. The search certificate lists every
 fact the rules derive for each relation the answers rest on, each with

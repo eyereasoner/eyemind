@@ -22,7 +22,7 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', n3_unquote(graph([rdf(iri('http://example.org/alice'), iri('http://example.org/likes'), iri('http://example.org/pizza')), rdf(iri('http://example.org/alice'), iri('http://example.org/likes'), iri('http://example.org/pasta'))])))
 obligation('call_fidelity', 'original_call', n3_unquote(graph([rdf(iri('http://example.org/bob'), iri('http://example.org/is'), iri('http://example.org/wise'))])))
 obligation('call_fidelity', 'original_call', rdf(iri('http://example.org/loisLane'), iri('http://example.org/knowsAbout'), iri('http://example.org/superman')))
@@ -32,14 +32,22 @@ obligation('call_fidelity', 'original_call', rdf(iri('http://example.org/alice')
 obligation('call_fidelity', 'original_call', rdf(iri('http://example.org/alice'), iri('http://example.org/likes'), iri('http://example.org/pasta')))
 obligation('call_fidelity', 'original_call', rdf(iri('http://example.org/bob'), iri('http://example.org/is'), iri('http://example.org/wise')))
 obligation('call_fidelity', 'original_call', rdf(iri('http://example.org/alice'), iri('http://example.org/likes'), iri('http://example.org/spaghetti')))
+obligation('call_fidelity', 'all_answers', n3_unquote(A))
+obligation('call_fidelity', 'all_answers', rdf(A, iri('http://example.org/likes'), iri('http://example.org/spaghetti')))
+obligation('call_fidelity', 'all_answers', rdf(iri('http://example.org/loisLane'), iri('http://example.org/knowsAbout'), iri('http://example.org/clarkKent')))
+obligation('call_fidelity', 'all_answers', rdf(iri('http://example.org/loisLane'), iri('http://example.org/knowsAbout'), iri('http://example.org/superman')))
+obligation('call_fidelity', 'all_answers', rdf(iri('http://example.org/g1'), iri('http://example.org/isomorphicTo'), iri('http://example.org/g2')))
+obligation('call_fidelity', 'all_answers', rdf(iri('http://example.org/g1'), iri('http://example.org/isomorphicTo'), iri('http://example.org/g3')))
+obligation('call_fidelity', 'all_answers', rdf(iri('http://example.org/tom'), iri('http://example.org/said'), A))
+obligation('call_fidelity', 'all_answers', rdf(A, B, C))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(55)
 verified(44)
 recomputed(9)
 composed(2)
-trusted(9)
+trusted(17)
 claims(9)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

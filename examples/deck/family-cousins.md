@@ -346,9 +346,9 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 67)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 3)
+condition('C10', 'call_fidelity', 'ok', 4)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', generation('bob', 1))
 obligation('call_fidelity', 'original_call', generation('carol', 1))
 obligation('call_fidelity', 'original_call', generation('dave', 2))
@@ -370,16 +370,18 @@ obligation('call_fidelity', 'original_call', cousin('heidi', 'judy'))
 obligation('call_fidelity', 'original_call', cousin('ivan', 'judy'))
 obligation('call_fidelity', 'original_call', cousin('judy', 'heidi'))
 obligation('call_fidelity', 'original_call', cousin('judy', 'ivan'))
+obligation('call_fidelity', 'all_answers', generation(A, B))
+obligation('call_fidelity', 'all_answers', cousin(A, B))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(43)
 verified(38)
 recomputed(5)
 composed(0)
-trusted(21)
+trusted(23)
 claims(24)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')
 ```
 
@@ -412,7 +414,7 @@ recomputed, no boundary steps taken on trust. The verdict is **checked with obli
 conclusions follow from the program. It confirms them; it does not say the
 program's definition of cousin is the right one.
 
-C10 leaves 21 original-call claims unproved by the available evidence. The
+C10 leaves 21 original-call claims and the answers of 2 questions unproved by the available evidence. The
 verdict is **checked with obligations**: the recorded derivations are
 conditional on these call-fidelity obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.

@@ -222,18 +222,19 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', shortest('a', 'd', 6))
+obligation('call_fidelity', 'all_answers', shortest('a', 'd', A))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(22)
 verified(16)
 recomputed(5)
 composed(0)
-trusted(1)
+trusted(2)
 claims(1)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')
 ```
 
@@ -292,7 +293,7 @@ by its search certificate, but C10 cannot establish the original call from
 this forward listing, so the report includes a C10 failure for its unresolved
 call-fidelity obligation.
 
-C10 leaves 1 original-call claim unproved by the available evidence. The
+C10 leaves 1 original-call claim and the answers of 1 question unproved by the available evidence. The
 verdict is **checked with obligations**: the recorded derivations are
 conditional on these call-fidelity obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.

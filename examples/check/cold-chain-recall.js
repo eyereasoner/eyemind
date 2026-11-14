@@ -20,7 +20,7 @@ condition('C8', 'witness_integrity', 'ok', 1)
 condition('C9', 'search_closure', 'ok', 2)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', conflicting_sample('handover_a', 'batch_a'))
 obligation('call_fidelity', 'original_call', selected_reading('logger_a', 'batch_a', 94))
 obligation('call_fidelity', 'original_call', selected_reading('logger_b', 'batch_b', 75))
@@ -28,14 +28,19 @@ obligation('call_fidelity', 'original_call', quarantine('batch_a', 'logger_a'))
 obligation('call_fidelity', 'original_call', notify('north_depot', 'batch_a'))
 obligation('call_fidelity', 'original_call', notify('station_shop', 'batch_a'))
 obligation('call_fidelity', 'original_call', inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a'])))
+obligation('call_fidelity', 'all_answers', selected_reading(A, B, C))
+obligation('call_fidelity', 'all_answers', conflicting_sample(A, B))
+obligation('call_fidelity', 'all_answers', quarantine(A, B))
+obligation('call_fidelity', 'all_answers', notify(A, B))
+obligation('call_fidelity', 'all_answers', inspection_task(A, B, C))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(28)
 verified(20)
 recomputed(6)
 composed(0)
-trusted(7)
+trusted(12)
 claims(7)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

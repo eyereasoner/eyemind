@@ -22,5 +22,5 @@ composed(0)
 trusted(0)
 claims(1)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked')

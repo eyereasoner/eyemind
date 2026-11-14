@@ -15,17 +15,18 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', triple('alice', 'grandparent', 'carol'))
 obligation('call_fidelity', 'original_call', triple('bob', 'grandparent', 'dave'))
+obligation('call_fidelity', 'all_answers', triple(A, 'grandparent', B))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(10)
 verified(10)
 recomputed(0)
 composed(0)
-trusted(2)
+trusted(3)
 claims(2)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

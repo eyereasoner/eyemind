@@ -47,7 +47,7 @@ export const tests = {
     const checked = run(conditional, { proof: true }).proofReport;
     assert.match(checkReport(checked), /^\/\/ Answers checked subject to the obligations below\./);
     assert.match(checkReport(checked), /\/\/ Obligations:/);
-    assert.match(checkReport(checkProof(program(''), '')), /^\/\/ No answers claimed;/);
+    assert.match(checkReport(checkProof(program(''), '')), /^\/\/ No answers: the original questions have none\./);
     assert.deepEqual(publicReport(report).answers, report.answers);
   },
 
@@ -409,7 +409,7 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
       { id: 'C7', name: 'relevance', covered: 4, failed: 0 },
       { id: 'C8', name: 'witness_integrity', covered: 0, failed: 0 },
       { id: 'C9', name: 'search_closure', covered: 0, failed: 0 },
-      { id: 'C10', name: 'call_fidelity', covered: 1, failed: 0 },
+      { id: 'C10', name: 'call_fidelity', covered: 2, failed: 0 },
     ]);
     assert.equal(report.uses, 2);
     assert.equal(verdictText(report), "verdict('checked')\n");

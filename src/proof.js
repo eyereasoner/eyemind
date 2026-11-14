@@ -381,13 +381,15 @@ function check(program, claims, steps, certificate, goals, allowTrusted, fail, s
 
 // The verdict allowTrusted false would give, from a report without it.
 // Without failures, strict checking adds C5 failures for trusted boundaries
-// and C10 failures for unresolved original calls, in obligation order. It
+// and C10 failures for unresolved original calls and questions whose
+// answers are not shown complete, in obligation order. It
 // needs no second reading. A report with failures returns null: check again.
 export function strict(report) {
   if (report.failures.length) return null;
   const failures = report.trusted.map((record) => ({
     condition: record.kind === 'call_fidelity' ? 'C10' : 'C5',
-    detail: record.kind === 'call_fidelity' ? `call fidelity remains unproved: ${record.conclusion}` : `trusted boundary forbidden: ${record.kind}`,
+    detail: record.reason === 'all_answers' ? `answer completeness remains unproved: ${record.conclusion}`
+      : record.kind === 'call_fidelity' ? `call fidelity remains unproved: ${record.conclusion}` : `trusted boundary forbidden: ${record.kind}`,
     conclusion: record.conclusion,
   }));
   const conditions = report.conditions.map((condition) => (
@@ -1127,7 +1129,8 @@ export function checkReport(report) {
   }
   facts.push(new Struct('verdict', [verdict(report)]));
   const heading = !report.valid ? '// Unverified claims: proof checking failed.'
-    : !report.answers.length ? '// No answers claimed; this check establishes no conclusions.'
+    : !report.answers.length && report.trusted.length ? '// No answers claimed; this check establishes no conclusions.'
+    : !report.answers.length ? '// No answers: the original questions have none.'
     : report.trusted.length ? '// Answers checked subject to the obligations below.'
     : '// Checked answers: these follow from the input program.';
   const lines = [heading, ...report.answers, '',
@@ -1139,10 +1142,14 @@ export function checkReport(report) {
       lines.push('', '// Failures: the claims above have not passed every check.');
     }
     if (fact.name === 'obligation' && previous !== 'obligation') {
-      lines.push('', '// Obligations: absence, collection or original-call evidence remains unproved.');
+      lines.push('', '// Obligations: absence, collection, original-call or all-answers evidence remains unproved.');
     }
     if (fact.name === 'steps') lines.push('', '// Proof statistics: recorded steps and how they were checked.');
-    if (fact.name === 'verdict') lines.push('', '// This verdict applies to the claims above; it does not establish completeness.');
+    if (fact.name === 'verdict') {
+      lines.push('', report.valid && !report.trusted.length && !report.answers.includes("'false'")
+        ? '// This verdict also establishes that the claims above are every answer of the original questions.'
+        : '// This verdict applies to the claims above; it does not establish that they are every answer.');
+    }
     lines.push(text(lettered(fact)));
     previous = fact.name;
   }

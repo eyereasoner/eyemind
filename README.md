@@ -7,7 +7,7 @@ eyemind is a **JavaScript rule language** with forward and backward reasoning an
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 135 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1376 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 135 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1379 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -44,7 +44,7 @@ Prolog, Datalog, N3 and SRL already exist, and eyemind adds no new logic: rules 
    - eyemind proofs include the hard parts:
      - "nothing matched" (negation and collections), backed by a search certificate whose listings must be closed (C9);
      - what a rule says exists, as the Skolem term of that rule firing (C8);
-     - whether each answer really answers the question asked (C10).
+     - whether each answer really answers the question asked, and whether every answer of the question is there (C10).
    - A forged proof must never pass the check, so a result is something you can hand to someone who does not trust your engine.
 2. **Programs are plain JavaScript.**
    - There is no syntax to learn, no parser to install and no dependency.
@@ -436,7 +436,7 @@ Checking applies ten conditions:
 | **C7** | relevance | Every claim answers the question, and every step serves a claim |
 | **C8** | witness integrity | Every "something exists" uses the Skolem term of its own firing |
 | **C9** | search closure | Every absence and collection the search certificate settles holds |
-| **C10** | call fidelity | Each answer is an actual answer of the original question |
+| **C10** | call fidelity | Each answer is an actual answer of the original question, and every answer of each question is claimed |
 
 **The checker follows the certificate:** it never calls the reasoner, so a missing step fails rather than being quietly re-derived. **The source is the authority:** clauses a proof displays cannot override the program. Proofs are read as data, so checking someone else's proof runs none of their code, and every proof eyemind generates is checked before it is returned. The report is a document too:
 
@@ -456,7 +456,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 5)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
+condition('C10', 'call_fidelity', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(3)
@@ -466,11 +466,11 @@ composed(0)
 trusted(0)
 claims(2)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-A failed check gives `failure(Condition, Conclusion, Detail)` facts, `verdict(failed(N))` and exit code 2. What a certificate cannot settle stays an `obligation(...)` with the verdict `checked_with_obligations`; `--strict-proof` rejects those. To check answers to `--goal` questions, pass the same goals when checking. [SPEC §11](https://eyereasoner.github.io/eyemind/SPEC#11-proof-checking) defines every condition.
+A `checked` verdict thus establishes two things: every claim follows from the program, and the claims are every answer of the original questions. The `called/2` table of each question lists all its answers and is checked against the program, so a proof that omits one fails C10, and a question with no claims is shown to have no answers. A failed check gives `failure(Condition, Conclusion, Detail)` facts, `verdict(failed(N))` and exit code 2. What a certificate cannot settle stays an `obligation(...)` with the verdict `checked_with_obligations`, among them `obligation('call_fidelity', 'all_answers', Question)` for a question whose answers it cannot show complete; `--strict-proof` rejects those. To check answers to `--goal` questions, pass the same goals when checking. [SPEC §11](https://eyereasoner.github.io/eyemind/SPEC#11-proof-checking) defines every condition.
 
 ### Why negation and collection are safe
 

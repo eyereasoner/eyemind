@@ -31,7 +31,7 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/links#a'), iri('http://example.org/links#connected'), iri('http://example.org/links#b')))
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/links#b'), iri('http://example.org/links#connected'), iri('http://example.org/links#d')))
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/links#a'), iri('http://example.org/links#connected'), iri('http://example.org/links#d')))
@@ -50,14 +50,15 @@ obligation('call_fidelity', 'original_call', inf(iri('http://example.org/links#b
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/links#l3'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'), triple(iri('http://example.org/links#b'), iri('http://example.org/links#link'), iri('http://example.org/links#d'))))
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/links#l3'), iri('http://example.org/links#weight'), 7))
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/links#l3'), iri('http://example.org/links#source'), iri('http://example.org/links#survey')))
+obligation('call_fidelity', 'all_answers', inf(A, B, C))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(72)
 verified(57)
 recomputed(8)
 composed(7)
-trusted(18)
+trusted(19)
 claims(18)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

@@ -61,7 +61,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 116)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 7)
-condition('C10', 'call_fidelity', 'ok', 50)
+condition('C10', 'call_fidelity', 'ok', 78)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(66)
@@ -71,5 +71,5 @@ composed(0)
 trusted(0)
 claims(50)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

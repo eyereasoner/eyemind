@@ -17,20 +17,21 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, feasible_pack(B, C, A), [37, 35, 40, 33, 31, 24, 36, 29, 36, 34, 27, 39, 32, 32, 25, 23, 16, 36, 34, 27, 34, 32, 25, 37, 30, 30, 23, 21, 14, 37, 30, 35, 35, 28, 26, 19, 33, 33, 26, 24, 17, 38, 31, 29, 22, 22, 15, 13, 6, 38, 31, 36, 29, 34, 34, 27, 25, 18, 34, 32, 30, 23, 37, 30, 28, 21, 35, 33, 26, 26, 19, 17, 10, 32, 37, 30, 28, 21, 35, 35, 28, 26, 19, 33, 31, 24, 24, 17, 15, 8, 33, 31, 24, 36, 29, 29, 22, 20, 13, 34, 27, 27, 20, 18, 11, 32, 25, 23, 16, 16, 9, 7, 0]))
 obligation('call_fidelity', 'original_call', knapsack_answer('best_pack', ['atlas', 'battery', 'camera', 'medkit', 'sensor']))
 obligation('call_fidelity', 'original_call', knapsack_answer('total_weight', 15))
 obligation('call_fidelity', 'original_call', knapsack_answer('total_value', 40))
 obligation('call_fidelity', 'original_call', knapsack_answer('feasible_pack_count', 113))
+obligation('call_fidelity', 'all_answers', knapsack_answer(A, B))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(469)
 verified(257)
 recomputed(211)
 composed(0)
-trusted(5)
+trusted(6)
 claims(4)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

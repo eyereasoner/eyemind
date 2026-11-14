@@ -135,18 +135,19 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', t('test', 'is', 'true'))
+obligation('call_fidelity', 'all_answers', t('test', 'is', 'true'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(3)
 verified(3)
 recomputed(0)
 composed(0)
-trusted(1)
+trusted(2)
 claims(1)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')
 ```
 
@@ -168,7 +169,7 @@ Each condition reports what the checker verified:
 The report records 3 steps, 3 verified against program clauses. The verdict is **checked with obligations**: the recorded claims follow from
 the source program. It establishes no completeness claim.
 
-C10 leaves 1 original-call claim unproved by the available evidence. The
+C10 leaves 1 original-call claim and the answers of 1 question unproved by the available evidence. The
 verdict is **checked with obligations**: the recorded derivations are
 conditional on these call-fidelity obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.

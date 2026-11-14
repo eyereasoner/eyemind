@@ -1,5 +1,6 @@
-// C10: answers of the original questions, checked from source call tables.
-// Unlike logical steps, these searches start before a final substitution.
+// C10: answers of the original questions, checked from source call tables:
+// each claim is an answer, and each answer is claimed. Unlike logical steps,
+// these searches start before a final substitution.
 import { PRIMITIVE_KEYS } from './builtins.js';
 import { Settler } from './closure.js';
 import { text, variant } from './common.js';
@@ -8,6 +9,7 @@ import { INSPECTION_KEYS } from './inspection.js';
 import {
   Env, conjunction, copyResolved, freshTerm, isAnonymous, isCallable, isGround, isTerm, key, unify, variables,
 } from './terms.js';
+import { Lettering, write } from './writer.js';
 
 function instance(goal, pattern) {
   const renamed = freshTerm(pattern, 'callQuestion');
@@ -16,6 +18,7 @@ function instance(goal, pattern) {
 }
 
 // The original questions of Section 8.6, without specializing them to claims.
+// A halted run answers none of them.
 export function callQuestions(program, goals, claims) {
   if (claims.includes('false')) return [];
   let questions = (goals || []).map(goalTerm);
@@ -28,7 +31,7 @@ export function callQuestions(program, goals, claims) {
   const seen = new Set();
   return questions.filter((question) => {
     const id = variant(question, true);
-    if (seen.has(id) || !claims.some((claim) => instance(claim, question))) return false;
+    if (seen.has(id)) return false;
     seen.add(id);
     return true;
   });
@@ -94,6 +97,10 @@ export function positiveListings(program, listings) {
   return true;
 }
 
+// Both directions of C10: each claim is an answer of an original question,
+// and each answer of a certified question is claimed. When the conclusions
+// are the derived facts, a question's answers that are not derived (source
+// facts, backward answers) are no conclusions, so only its listed facts are.
 export function checkCalls(program, claims, goals, certificate, steps, spellings, fail, allowTrusted, name) {
   const settler = new Settler(program, {
     answers: (call) => certificate.calls.get(variant(call, true)) ?? null,
@@ -126,6 +133,32 @@ export function checkCalls(program, claims, goals, certificate, steps, spellings
     }
     covered++;
     if (detail !== null) fail.add('C10', `${detail}: ${text(claim)}`, claim);
+  }
+  const derivedOnly = !(goals || []).length && !program.forward.some((clause) => clause.heads.includes('true'));
+  const claimed = new Set(claims.map((claim) => variant(claim)));
+  for (const { question, status, answers } of outcomes) {
+    if (status === 'failed') {
+      // A claim of this question already failed with its certificate.
+      if (!claims.some((claim) => instance(claim, question))) {
+        fail.add('C10', `the original call has an invalid search certificate: ${text(question)}`, question);
+      }
+      covered++;
+      continue;
+    }
+    if (status !== 'settled') {
+      unresolved.push([{ kind: 'call_fidelity', reason: 'all_answers', conclusion: text(question) }, question]);
+      if (!allowTrusted) fail.add('C10', `answer completeness remains unproved: ${text(question)}`, question);
+      continue;
+    }
+    const required = derivedOnly
+      ? (settler.listings.get(key(question))?.facts || []).filter((fact) => instance(fact, question))
+      : answers;
+    covered++;
+    for (const answer of required) {
+      if (!claimed.has(variant(answer))) {
+        fail.add('C10', `the proof omits an answer of the original call: ${write(answer, null, new Lettering())}`, answer);
+      }
+    }
   }
   return { settler, outcomes, unresolved, covered };
 }

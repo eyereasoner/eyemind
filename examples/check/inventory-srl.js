@@ -33,7 +33,7 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 4)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('collected', 'theory_scoped', findall([iri('http://example.org/inventory#bolt')], and(rdf(A, iri('http://example.org/inventory#product'), iri('http://example.org/inventory#bolt')), rdf(A, iri('http://example.org/inventory#location'), B), rdf(A, iri('http://example.org/inventory#quantity'), C)), [[iri('http://example.org/inventory#bolt')], [iri('http://example.org/inventory#bolt')]]))
 obligation('collected', 'theory_scoped', findall([A, B], and(rdf(C, iri('http://example.org/inventory#product'), iri('http://example.org/inventory#bolt')), rdf(C, iri('http://example.org/inventory#location'), A), rdf(C, iri('http://example.org/inventory#quantity'), B)), [[iri('http://example.org/inventory#ghent'), 120], [iri('http://example.org/inventory#lyon'), 80]]))
 obligation('collected', 'theory_scoped', findall([iri('http://example.org/inventory#nut')], and(rdf(A, iri('http://example.org/inventory#product'), iri('http://example.org/inventory#nut')), rdf(A, iri('http://example.org/inventory#location'), B), rdf(A, iri('http://example.org/inventory#quantity'), C)), [[iri('http://example.org/inventory#nut')]]))
@@ -58,14 +58,15 @@ obligation('call_fidelity', 'original_call', inf(iri('http://example.org/invento
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#product'), iri('http://example.org/inventory#nut')))
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#location'), iri('http://example.org/inventory#ghent')))
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#quantity'), 500))
+obligation('call_fidelity', 'all_answers', inf(A, B, C))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(154)
 verified(112)
 recomputed(23)
 composed(11)
-trusted(24)
+trusted(25)
 claims(20)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

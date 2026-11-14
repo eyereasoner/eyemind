@@ -265,8 +265,11 @@ query(or(q(X), r(X)))`);
     assert.equal(await p.output(), '// No answers: no query() instance holds.\n');
     await p.select('mode', '--prove-and-check');
     await p.run();
+    // A derived rule lies outside the certified fragment, so that the question
+    // has no answers stays an obligation.
     assert.match(await p.output(), /^\/\/ No answers claimed;/);
-    assert.match(await p.output(), /verdict\('checked'\)/);
+    assert.match(await p.output(), /obligation\('call_fidelity', 'all_answers', or\(q\(A\), r\(A\)\)\)/);
+    assert.match(await p.output(), /verdict\('checked_with_obligations'\)/);
     await p.select('mode', '');
   }],
 
@@ -296,7 +299,8 @@ query(or(q(X), r(X)))`);
     await p.select('mode', '--prove-and-check');
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
-    assert.match(await p.output(), /condition\('C10', 'call_fidelity', 'ok', 2\)/);
+    assert.match(await p.output(), /condition\('C10', 'call_fidelity', 'ok', 3\)/);
+    assert.match(await p.output(), /every answer of the original questions/);
     await p.type('input', "fact(p('a'), p('b'))\nimplied_by(q(X), once(p(X)))\nquery(q(X))");
     await p.type('proof-input', "q('b')\nstep(q('b'), clause(3), {}, [once(p('b'))])\n" +
       "step(once(p('b')), 'control', {}, [p('b')])\ncalled(q(A), [q('a')])\n");

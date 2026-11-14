@@ -247,7 +247,8 @@ function forgeable(entry, text) {
       isRecord(term.args[0], 'is', 2)).map((term) => term.args[0].args[0]),
     ...subterms.filter((t) => isRecord(t, 'skolem', 3)),
   ];
-  return { entry, program: loadExample(entry), terms, established, pool, compounds, results, trusted: obligations(terms), oracle: new Map() };
+  const claims = new Set(terms.filter(isClaim).map(variant));
+  return { entry, program: loadExample(entry), terms, established, claims, pool, compounds, results, trusted: obligations(terms), oracle: new Map() };
 }
 
 // The report checkProof gives with and without the fast path for flat
@@ -293,6 +294,13 @@ function forgeExample(entry, text, count) {
     if (!report.valid) {
       rejected++;
       return;
+    }
+    // Checked with no obligation, the claims are every answer of the
+    // original questions, so none of the saved proof's answers is missing.
+    const claimed = new Set(terms.filter(isClaim).map(variant));
+    if (!report.trusted.length && !claimed.has(variant('false'))) {
+      const missing = [...example.claims].find((claim) => !claimed.has(claim));
+      assert.ok(missing === undefined, `a forged proof without ${missing} was checked\n${document}`);
     }
     const unentailed = terms.filter((term) => isClaim(term) && !entailed(example, term));
     if (!unentailed.length) return;
@@ -773,16 +781,19 @@ export const tests = {
       const document = `${local}called(q(A), [${early ? '' : `q(${first})`}])\n`;
       const report = checkBothWays(loaded, document);
       assert.equal(report.valid, false, document);
-      assert.deepEqual(report.failures.map(({ condition }) => condition), ['C10']);
+      // The claim is no answer, and under once/1 the actual answer is omitted.
+      assert.deepEqual(report.failures.map(({ condition }) => condition), early ? ['C10'] : ['C10', 'C10']);
       // A second original question may return the same claim. Missing its
       // table leaves an obligation; the first question alone cannot refute it.
       const overlapping = program(`${source}\nquery(q(${wrong}))`);
-      const incomplete = checkBothWays(overlapping, document);
+      const actual = early ? '' : `q(${first})\nstep(q(${first}), clause(${values.length + 1}), {}, [once(p(${first}))])\n` +
+        `step(once(p(${first})), 'control', {}, [p(${first})])\n`;
+      const incomplete = checkBothWays(overlapping, `${actual}${document}`);
       assert.ok(incomplete.valid);
       assert.equal(incomplete.trusted[0].kind, 'call_fidelity');
-      assert.equal(checkProof(overlapping, document, { allowTrusted: false }).valid, false);
+      assert.equal(checkProof(overlapping, `${actual}${document}`, { allowTrusted: false }).valid, false);
       const alternate = early ? values.filter((value) => value === wrong) : [wrong];
-      const completed = `${document}called(q(${wrong}), [${alternate.map((value) => `q(${value})`).join(', ')}])\n`;
+      const completed = `${actual}${document}called(q(${wrong}), [${alternate.map((value) => `q(${value})`).join(', ')}])\n`;
       assert.ok(checkProof(overlapping, completed, { allowTrusted: false }).valid, completed);
     });
   },
@@ -905,6 +916,7 @@ implies(implied_by(H, B), backward_rule(H, B))`);
 
   'reasoning, clause removal and statement order agree with a naive fixpoint'() {
     let left = 0;
+    let complete = 0;
     forSeeds(150, (r) => {
       const generated = randomProgram(r);
       const source = programText(generated);
@@ -922,6 +934,21 @@ implies(implied_by(H, B), backward_rule(H, B))`);
       assert.deepEqual(plain.stats, result.stats, source);
       const report = checkProof(loaded, result.proof, { goals });
       assert.ok(report.valid, `${JSON.stringify(report.failures)}\n${source}`);
+      // A strict check establishes that the claims are every answer, which
+      // the naive model confirms; leaving any claim out must then fail C10.
+      if (checkProof(loaded, result.proof, { goals, allowTrusted: false }).valid) {
+        assert.deepEqual([...new Set(report.answers)].sort(), expected, source);
+        const lines = result.proof.split('\n');
+        const end = lines.indexOf('');
+        if (end > 1) {
+          const dropped = 1 + r.below(end - 1);
+          const fewer = [...lines.slice(0, dropped), ...lines.slice(dropped + 1)].join('\n');
+          const omitted = checkProof(loaded, fewer, { goals });
+          assert.ok(omitted.failures.some(({ condition, detail }) => condition === 'C10' && /omits an answer/.test(detail)),
+            `leaving out ${lines[dropped]} was not caught\n${source}`);
+          complete++;
+        }
+      }
       const cited = new Set(result.clausesUsed);
       const consulted = new Set(result.clausesBehindBoundaries);
       // Clauses are numbered as programText states them: the facts, then the rules.
@@ -949,6 +976,7 @@ implies(implied_by(H, B), backward_rule(H, B))`);
       assert.equal(reordered.haltCode, result.haltCode, source);
     });
     assert.ok(left >= 50, `only ${left} uncited clauses left out`);
+    assert.ok(complete >= 50, `only ${complete} proofs had their answers shown complete`);
   },
 
   'a chain-stratified program has one stable model, whatever the order of rule applications, and only its proof checks'() {

@@ -24,7 +24,7 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/people#p1'), iri('http://example.org/people#listing'), literal('LOVELACE, Ada', datatype('http://www.w3.org/2001/XMLSchema#string'))))
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/people#p1'), iri('http://example.org/people#initial'), literal('A', datatype('http://www.w3.org/2001/XMLSchema#string'))))
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/people#p2'), iri('http://example.org/people#listing'), literal('TURING, Alan', datatype('http://www.w3.org/2001/XMLSchema#string'))))
@@ -36,14 +36,15 @@ obligation('call_fidelity', 'original_call', inf(iri('http://example.org/people#
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/people#p2'), iri('http://example.org/people#given'), literal('Alan', datatype('http://www.w3.org/2001/XMLSchema#string'))))
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/people#p2'), iri('http://example.org/people#family'), literal('Turing', datatype('http://www.w3.org/2001/XMLSchema#string'))))
 obligation('call_fidelity', 'original_call', inf(iri('http://example.org/people#p3'), iri('http://example.org/people#name'), literal('Ἀριστοτέλης', lang('grc'))))
+obligation('call_fidelity', 'all_answers', inf(A, B, C))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(88)
 verified(55)
 recomputed(29)
 composed(4)
-trusted(11)
+trusted(12)
 claims(11)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

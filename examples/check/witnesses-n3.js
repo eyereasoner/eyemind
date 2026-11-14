@@ -17,19 +17,21 @@ condition('C8', 'witness_integrity', 'ok', 4)
 condition('C9', 'search_closure', 'ok', 2)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', rdf(iri('https://example.org/delivery#order1'), iri('https://example.org/delivery#delivery'), skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order1')])))
 obligation('call_fidelity', 'original_call', rdf(skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order1')]), iri('https://example.org/delivery#status'), iri('https://example.org/delivery#ready')))
 obligation('call_fidelity', 'original_call', rdf(iri('https://example.org/delivery#order2'), iri('https://example.org/delivery#delivery'), skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order2')])))
 obligation('call_fidelity', 'original_call', rdf(skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order2')]), iri('https://example.org/delivery#status'), iri('https://example.org/delivery#ready')))
+obligation('call_fidelity', 'all_answers', rdf(A, iri('https://example.org/delivery#delivery'), B))
+obligation('call_fidelity', 'all_answers', rdf(A, iri('https://example.org/delivery#status'), iri('https://example.org/delivery#ready')))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(8)
 verified(6)
 recomputed(0)
 composed(0)
-trusted(4)
+trusted(6)
 claims(4)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

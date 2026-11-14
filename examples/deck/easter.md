@@ -274,7 +274,7 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', easter(2021, [4, 4]))
 obligation('call_fidelity', 'original_call', easter(2022, [4, 17]))
 obligation('call_fidelity', 'original_call', easter(2023, [4, 9]))
@@ -305,16 +305,17 @@ obligation('call_fidelity', 'original_call', easter(2047, [4, 14]))
 obligation('call_fidelity', 'original_call', easter(2048, [4, 5]))
 obligation('call_fidelity', 'original_call', easter(2049, [4, 18]))
 obligation('call_fidelity', 'original_call', easter(2050, [4, 10]))
+obligation('call_fidelity', 'all_answers', easter(A, B))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(818)
 verified(525)
 recomputed(293)
 composed(0)
-trusted(30)
+trusted(31)
 claims(30)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')
 ```
 
@@ -349,7 +350,7 @@ it does not say the program has no other conclusions. Nor does it say the
 recipe matches the church calendar: it says the dates follow from *this*
 recipe.
 
-C10 leaves 30 original-call claims unproved by the available evidence. The
+C10 leaves 30 original-call claims and the answers of 1 question unproved by the available evidence. The
 verdict is **checked with obligations**: the recorded derivations are
 conditional on these call-fidelity obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.
