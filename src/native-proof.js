@@ -189,18 +189,22 @@ function srlData(document) {
     if (t.t === 'iri' && t.v === `${RDF}nil`) return { t: 'list', items: [] };
     if (t.t === 'triple') return { ...t, s: expand(t.s, ancestors), p: expand(t.p, ancestors), o: expand(t.o, ancestors) };
     if (t.t !== 'bnode' || !cells.has(t.v)) return t;
-    const path = new Set(ancestors);
+    // Keep only the active path: copying all ancestors for each nested list
+    // makes a long list of encoded terms quadratic. Siblings may share cells.
+    const path = [];
     const items = [];
     while (t.t === 'bnode' && cells.has(t.v)) {
-      if (path.has(t.v)) fail('cyclic collection');
-      path.add(t.v);
+      if (ancestors.has(t.v)) fail('cyclic collection');
+      ancestors.add(t.v);
+      path.push(t.v);
       const cell = cells.get(t.v);
       if (cell.size !== 2) fail('an RDF collection needs first and rest');
       used.add(t.v);
-      items.push(expand(cell.get(`${RDF}first`), path));
+      items.push(expand(cell.get(`${RDF}first`), ancestors));
       t = cell.get(`${RDF}rest`);
     }
     if (t.t !== 'iri' || t.v !== `${RDF}nil`) fail('an RDF collection must end in rdf:nil');
+    for (const id of path) ancestors.delete(id);
     return { t: 'list', items };
   };
   const out = triples.filter((t) => !(t.s.t === 'bnode' && cells.has(t.s.v) && [`${RDF}first`, `${RDF}rest`].includes(t.p.v)))
@@ -246,6 +250,21 @@ function compare(actual, expected) {
   for (const [key, value] of e) if (!same(a.get(key), value)) fail(`a displayed proof property differs from its record: ${key}`);
 }
 
+// Read the graph reconstructed from records with N3's direct collections,
+// avoiding SRL's expansion into first/rest cells and folding them back again.
+// SRL folds every rdf:nil, including an explicit IRI, to ().
+function expectedData(terms, format) {
+  const parsed = parseN3(writeN3(graph(terms, format), { strings: false }), { preserveNumericLiterals: true });
+  if (format === 'n3') return parsed;
+  const fold = (t) => {
+    if (t.t === 'iri' && t.v === `${RDF}nil`) return { t: 'list', items: [] };
+    if (t.t === 'list') return { ...t, items: t.items.map(fold) };
+    if (t.t === 'triple') return { ...t, s: fold(t.s), p: fold(t.p), o: fold(t.o) };
+    return t;
+  };
+  return { triples: parsed.triples.map((t) => ({ s: fold(t.s), p: fold(t.p), o: fold(t.o) })) };
+}
+
 function readNative(document) {
   let parsed, format;
   try { parsed = parseN3(document, { preserveNumericLiterals: true }); format = 'n3'; }
@@ -271,7 +290,7 @@ function readNative(document) {
     if (id.t !== 'iri' || id.v !== `${ROOT}#record${i + 1}`) fail('proof records must be numbered in document order');
     return decode(property(id.v, `${TERM_NS}term`));
   });
-  const expected = format === 'n3' ? parseN3(render(terms, format), { preserveNumericLiterals: true }) : srlData(render(terms, format));
+  const expected = expectedData(terms, format);
   compare(parsed.triples, expected.triples);
   return terms;
 }

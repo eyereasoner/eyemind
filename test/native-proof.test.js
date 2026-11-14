@@ -61,6 +61,22 @@ export const tests = {
     for (const format of ['n3', 'srl']) assert.equal(canonical(writeNativeProof(document, { format })), canonical(document));
   },
 
+  'native displays compare rdf:nil inside triple terms and reject altered IRIs'() {
+    const nil = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#nil';
+    const program = loadText(`fact(inf(iri('${nil}'), iri('urn:p'), triple(iri('${nil}'), iri('urn:p'), iri('${nil}'))))\nquery(inf(S, P, O))`);
+    const result = run(program, { proof: true });
+    for (const format of ['n3', 'srl']) {
+      const native = writeNativeProof(result.proof, { format });
+      assert.equal(canonical(native), canonical(result.proof));
+      assert.ok(checkProof(program, native, { allowTrusted: false }).valid);
+      const forged = native.replace(/^[^\n]*pe:claims[^\n]*$/gm, (line) => line.replaceAll(nil, 'urn:forged'));
+      assert.notEqual(forged, native);
+      const report = checkProof(program, forged);
+      assert.ok(!report.valid);
+      assert.ok(report.failures.some(({ condition }) => condition === 'C3'));
+    }
+  },
+
   'native checking preserves search certificates and the exact ordinary and strict reports'() {
     const program = loadText(source);
     const result = run(program, { proof: true });
@@ -127,6 +143,35 @@ export const tests = {
     assert.equal(proof.code, 0, proof.stderr);
     const renamed = proof.stdout.replace(/_:b(\d+)\b/g, '_:witness$1');
     assert.equal(cli(['--check-proof', '-', 'examples/orders-srl.srl'], renamed).code, 0);
+  },
+
+  'SRL proof collections may share cells across siblings and properties'() {
+    const program = loadText('fact(p([1, 1]))\nquery(p(X))');
+    const result = run(program, { proof: true });
+    const native = writeNativeProof(result.proof, { format: 'srl' });
+    const shared = native.replaceAll('(em:integer "1")', '_:shared').replace('DATA {',
+      'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nDATA {\n' +
+      '_:shared rdf:first em:integer; rdf:rest ("1") .');
+    assert.notEqual(shared, native);
+    assert.equal(canonical(shared), canonical(result.proof));
+    assert.ok(checkProof(program, shared, { allowTrusted: false }).valid);
+  },
+
+  'SRL proof collections reject cycles through first, rest and nested lists'() {
+    const program = loadText("fact(p('a'))\nquery(p(X))");
+    const native = writeNativeProof(run(program, { proof: true }).proof, { format: 'srl' });
+    for (const links of [
+      '_:cycle rdf:first em:compound; rdf:rest _:cycle .',
+      '_:cycle rdf:first _:cycle; rdf:rest () .',
+      '_:cycle rdf:first _:inner; rdf:rest () .\n_:inner rdf:first em:compound; rdf:rest _:cycle .',
+    ]) {
+      const forged = native.replace(/pe:claims [^\n]+/, 'pe:claims _:cycle .').replace('DATA {',
+        `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nDATA {\n${links}`);
+      assert.throws(() => readNativeProof(forged), /cyclic collection/);
+      const report = checkProof(program, forged);
+      assert.ok(!report.valid);
+      assert.ok(report.failures.some(({ condition }) => condition === 'C3'));
+    }
   },
 
   'legacy JavaScript certificates still check for native inputs'() {
