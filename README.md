@@ -580,6 +580,9 @@ Cut, conditional commitment, mutable databases, attributed variables, constraint
 
 ## Development
 
+eyemind is authored and maintained by Jos De Roo. Codex and Claude Code are
+development tools used by the author.
+
 ```sh
 npm test                                              # unit, examples, conformance, command line, playground
 npm test -- unit examples                             # these sections, plus W3C EARL

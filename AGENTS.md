@@ -224,6 +224,13 @@ review and `git diff --check`.
 
 ## Versions and releases
 
+Jos De Roo is the author and maintainer. Codex and Claude Code are development
+tools, not authors or contributors. Keep commits under the user's configured
+Git identity. Do not add AI `Co-Authored-By` trailers or AI author bylines to
+commits, pull requests, releases or contributor lists. Describe AI assistance
+as tool use when relevant. Preserve credits to external human authors and
+sources.
+
 Commit directly to `main`. Do not use closing keywords such as `Fixes #N` in
 commit messages; issues are closed by hand. Follow the user's instructions
 about committing, pushing, and releasing.
