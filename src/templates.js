@@ -3,7 +3,7 @@
 import { RULE_NAMES, normalizeGoal, subgoals } from './goals.js';
 import { isInspection } from './inspection.js';
 import {
-  EMPTY, EyemindError, Struct, Var, conjunction, flattenConjunction, isCallable, isTerm, listFromItems, variables,
+  EMPTY, EyemindError, Struct, Var, conjunction, flattenConjunction, isCallable, isCollection, isTerm, listFromItems, variables,
 } from './terms.js';
 
 const isTemplate = (term) => term instanceof Struct && term.args.length === 2 && RULE_NAMES.has(term.name);
@@ -26,7 +26,7 @@ function checkGoal(goal, line, generated = false) {
   if (!(goal instanceof Struct)) return;
   if (isInspection(goal)) return;
   if (isTemplate(goal)) throw new EyemindError(`line ${line}: rule templates belong in an implies() conclusion`);
-  if (isTerm(goal, 'findall', 3) && (containsTemplate(goal.args[0]) || containsTemplate(goal.args[2]))) {
+  if (isCollection(goal) && (containsTemplate(goal.args[0]) || containsTemplate(goal.args[2]))) {
     throw new EyemindError(`line ${line}: rule values in a body must be inspection goals`);
   }
   const inner = subgoals(goal);

@@ -18,7 +18,7 @@
 //   NOT { P }                       not(srl_not_N(Bound...)), with
 //                                   implied_by(srl_not_N(Bound...), P)
 //   FILTER(E), SET(?v := E)         goals that bind E's value
-//   GROUP BY ?k { P } [ ?a := F ]   findall over P, then the aggregate
+//   GROUP BY ?k { P } [ ?a := F ]   findall_sorted over P, then the aggregate
 //
 // A blank node in a rule head is a variable only the conclusion mentions,
 // so eyemind makes it the Skolem term of the firing; the extra conclusion
@@ -464,11 +464,11 @@ class RuleCompiler {
       const distinct = this.fresh('Groups');
       this.need('srl_distinct');
       this.need('srl_member');
-      goals.push(`findall([${clause.keys.map((k) => own.name(k)).join(', ')}], ${ownConj}, ${all})`,
+      goals.push(`findall_sorted([${clause.keys.map((k) => own.name(k)).join(', ')}], ${ownConj}, ${all})`,
         `srl_distinct(${all}, ${distinct})`, `srl_member(${keys}, ${distinct})`);
     }
     const rows = this.fresh('Rows');
-    goals.push(`findall([${distinctColumns.map((v) => inner.name(v)).join(', ')}], ${conj}, ${rows})`);
+    goals.push(`findall_sorted([${distinctColumns.map((v) => inner.name(v)).join(', ')}], ${conj}, ${rows})`);
     this.need('srl_aggregates');
     this.need('srl_column');
     for (const k of clause.keys) scope.bind(k);

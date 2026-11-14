@@ -20,7 +20,7 @@ import { freshClause, text, variant } from './common.js';
 import { INSPECTION_KEYS } from './inspection.js';
 import {
   Env, EyemindError, Struct, Var, copyResolved, deref, flattenConjunction, freshTerm, identity, isCallable, isGround, isTerm, key,
-  isGroundButAnonymous, listFromItems, unify, variables,
+  isCollection, isGroundButAnonymous, listFromItems, sortCollected, unify, variables,
 } from './terms.js';
 
 // A search the certificate cannot vouch for: its boundary stays an obligation.
@@ -92,10 +92,13 @@ export class Settler {
   // only failure is the boundary's own result, and the tables and listings it
   // rests on.
   settle(boundary) {
-    const collecting = isTerm(boundary, 'findall', 3);
+    const collecting = isCollection(boundary);
+    const sorting = isTerm(boundary, 'findall_sorted', 3);
     const answering = isTerm(boundary, 'answers', 1);
     const goal = collecting ? boundary.args[1] : boundary.args[0];
-    const root = new Reliance(collecting);
+    // A sorted collection of ground items depends on its answers, not their
+    // order, so it does not need the order a listing cannot show.
+    const root = new Reliance(collecting && !sorting);
     const outcome = { status: 'settled', failures: [], boundaryOnly: false, tables: [], listings: [] };
     let found = [];
     try {
@@ -111,6 +114,11 @@ export class Settler {
       if (!(error instanceof EyemindError)) throw error;
       outcome.failures.push([`search certificate leads to an error: ${error.message}`, boundary]);
       found = null;
+    }
+    if (sorting && found !== null) {
+      // Items equal up to their variables keep their search order.
+      if (!found.every((item) => isGround(item))) for (const item of root.tables) root.ordered.add(item);
+      found = sortCollected(found);
     }
     let unsettled = false;
     const tables = new Set();
@@ -188,15 +196,26 @@ export class Settler {
       inner.return();
       env.undo(mark);
       if (!once && first.done) yield;
-    } else if (goalKey === 'findall/3') {
+    } else if (goalKey === 'findall/3' || goalKey === 'findall_sorted/3') {
+      const sorting = goalKey === 'findall_sorted/3';
       const items = [];
-      reliance.inner++;
-      for (const _ of this.solve(goal.args[1], env, reliance)) { // eslint-disable-line no-unused-vars
+      // A sorted collection relies on the order of its tables only when an
+      // item has variables, which can make items equal up to their variables.
+      const inner = sorting ? new Reliance() : reliance;
+      if (!sorting) reliance.inner++;
+      for (const _ of this.solve(goal.args[1], env, inner)) { // eslint-disable-line no-unused-vars
         items.push(freshTerm(copyResolved(goal.args[0], env), `collection${++this.serial}`));
       }
-      reliance.inner--;
+      if (sorting) {
+        for (const item of inner.tables) reliance.tables.add(item);
+        for (const item of inner.listings) reliance.listings.add(item);
+        for (const item of inner.ordered) reliance.ordered.add(item);
+        if (!items.every((item) => isGround(item))) for (const item of inner.tables) reliance.ordered.add(item);
+      } else {
+        reliance.inner--;
+      }
       env.undo(mark);
-      if (unify(goal.args[2], listFromItems(items), env)) yield;
+      if (unify(goal.args[2], listFromItems(sorting ? sortCollected(items) : items), env)) yield;
     } else if (PRIMITIVE_KEYS.has(goalKey)) {
       // Relative names of unbound variables are not preserved by alpha
       // renaming of a table. A name-dependent comparison needs more evidence.

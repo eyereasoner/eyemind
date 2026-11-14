@@ -595,8 +595,9 @@ export function compareNumbers(a, b) {
 
 // Standard order: variables < numbers < atoms < compound terms. Numbers are
 // ordered by value, and a float precedes an integer of equal value. Distinct
-// variables are ordered by name, so the order is the same in every comparison.
-export function compareTerms(left, right) {
+// variables are ordered by name, so the order is the same in every comparison;
+// with variablesEqual, any two variables compare equal instead.
+export function compareTerms(left, right, variablesEqual = false) {
   const pending = [left, right];
   while (pending.length) {
     const r = pending.pop();
@@ -609,7 +610,7 @@ export function compareTerms(left, right) {
       if (order) return order;
       if (typeof l !== typeof r) return typeof l === 'bigint' ? 1 : -1;
     } else if (lr === 0) {
-      const order = compareText(l.name, r.name);
+      const order = variablesEqual ? 0 : compareText(l.name, r.name);
       if (order) return order;
     } else if (lr === 2) {
       const order = compareText(l, r);
@@ -622,4 +623,16 @@ export function compareTerms(left, right) {
     }
   }
   return 0;
+}
+
+// findall/3 and findall_sorted/3: the collections.
+export function isCollection(goal) {
+  return isTerm(goal, 'findall', 3) || isTerm(goal, 'findall_sorted', 3);
+}
+
+// The items of findall_sorted/3 in the standard order, any two variables
+// comparing equal: collected items have fresh variables, whose names say
+// nothing. Items that compare equal keep their search order.
+export function sortCollected(items) {
+  return [...items].sort((a, b) => compareTerms(a, b, true));
 }

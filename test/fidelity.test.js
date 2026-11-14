@@ -286,6 +286,30 @@ export const tests = {
     assert.ok(result.proofReport.trusted.some(({ reason }) => reason === 'all_answers'));
   },
 
+  'findall_sorted collects in the standard order and certifies over derived facts'() {
+    const source = "fact(p('c'), p('a'), p('b'), p('a'))\nimplies(p(X), q(X))\n" +
+      'implies(findall_sorted(X, q(X), L), sorted(L))\nimplies(findall(X, q(X), L), plain(L))';
+    const loaded = program(source);
+    const result = run(loaded, { proof: true });
+    assert.deepEqual(result.answers, ["q('c')", "q('a')", "q('b')", "sorted(['a', 'b', 'c'])", "plain(['c', 'a', 'b'])"]);
+    // Only the order-sensitive findall keeps its obligations.
+    assert.deepEqual(result.proofReport.trusted.map(({ kind, conclusion }) => `${kind} ${conclusion}`), [
+      "collected findall(B, q(B), ['c', 'a', 'b'])",
+      "call_fidelity plain(['c', 'a', 'b'])",
+      'call_fidelity plain(L)',
+    ]);
+    // A reordered sorted list is neither settled nor an answer.
+    const forged = result.proof.replaceAll("['a', 'b', 'c']", "['b', 'a', 'c']");
+    assert.equal(checkProof(loaded, forged, { allowTrusted: false }).valid, false);
+    // Repeated solutions stay, and items equal up to variables keep their order.
+    assert.deepEqual(run(program("fact(r(2), r(1), r(2))\nquery(findall_sorted(X, r(X), L))")).answers,
+      ['findall_sorted(A, r(A), [1, 2, 2])']);
+    assert.deepEqual(run(program("fact(s(f(A), 'x'), s(f(B), 'y'), s('a', 'z'))\nquery(findall_sorted(T, s(T, _), L))")).answers,
+      ["findall_sorted(A, s(A, B), ['a', f(C), f(D)])"]);
+    const strictly = checked("fact(p('c'), p('a'))\nimplies(p(X), q(X))\nimplies(findall_sorted(X, q(X), L), sorted(L))");
+    assert.deepEqual(strictly.report.trusted, []);
+  },
+
   'C10 supports no listing on host math accepted only within its tolerance'() {
     const source = 'fact(v(1))\nimplies([v(X), is(Y, exp(X))], w(Y))';
     const { loaded, result } = checked(source);

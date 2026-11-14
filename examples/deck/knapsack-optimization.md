@@ -86,7 +86,7 @@ implies(                                                                       /
 )
 // count (clauses 17, 18) and maximum (19, 20) walk a list, adding 1 or keeping the larger
 implies(                                                                       // 21
-  [findall(Value, feasible_pack(_, _, Value), Values), count(Values, Count), maximum(Values, Best)],
+  [findall_sorted(Value, feasible_pack(_, _, Value), Values), count(Values, Count), maximum(Values, Best)],
   summary(Count, Best),
 )
 implies([summary(_, Best), feasible_pack(Pack, Weight, Best)], best_pack(Pack, Weight, Best))   // 22
@@ -99,11 +99,13 @@ the premise list holds, eyemind adds the conclusion. A pack is **feasible**
 when it weighs at most the capacity (`le`, "less than or equal", another
 built-in).
 
-`findall(Item, Goal, List)` ("find all") gathers every `Item` for which
-`Goal` holds into one list: here, the value of every feasible pack. Its
-length is how many packs fit, and its maximum the best value. The best pack
-is a feasible pack with that value. eyemind collects the list only after
-every feasible pack is known.
+`findall_sorted(Item, Goal, List)` ("find all, sorted") gathers every
+`Item` for which `Goal` holds into one list, sorted from low to high: here,
+the value of every feasible pack. Its length is how many packs fit, and its
+maximum the best value. The best pack is a feasible pack with that value.
+eyemind collects the list only after every feasible pack is known. Sorting
+keeps repeated values and makes the list independent of the order in which
+the packs were derived, so a checker can confirm it.
 
 ---
 
@@ -128,10 +130,11 @@ but weighs 16, so it never becomes a feasible pack.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each answer. The full proof has
-469 steps and is 194 KB, because many steps carry the whole list of 113
-values ([read it all](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/knapsack-optimization.js)).
-Below are its claims, all its clauses, and the steps for the first answer,
-verbatim, except the long counting and maximum walks:
+1032 steps and is 741 KB, because many steps carry the whole list of 113
+values and every feasible pack's derivation is included ([read it all](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/knapsack-optimization.js)).
+Below are its claims, all its clauses, and the steps for the four answers,
+verbatim, except the long counting and maximum walks, the other feasible
+packs and the search certificate:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -146,6 +149,9 @@ clause(2, fact(items(['atlas', 'battery', 'camera', 'drone', 'emergency_radio', 
 clause(3, fact(item('atlas', 2, 6)))
 clause(4, fact(item('battery', 4, 10)))
 clause(5, fact(item('camera', 3, 8)))
+clause(6, fact(item('drone', 6, 13)))
+clause(7, fact(item('emergency_radio', 5, 11)))
+clause(8, fact(item('field_laptop', 7, 16)))
 clause(9, fact(item('medkit', 4, 9)))
 clause(10, fact(item('sensor', 2, 7)))
 clause(11, fact(subset([], [])))
@@ -158,7 +164,7 @@ clause(17, fact(count([], 0)))
 clause(18, implied_by(count([_0, ...Rest], N), [count(Rest, Before), is(N, add(Before, 1))]))
 clause(19, fact(maximum([], 0)))
 clause(20, implied_by(maximum([X, ...Rest], Max), [maximum(Rest, Before), is(Max, max(X, Before))]))
-clause(21, implies([findall(Value, feasible_pack(_0, _1, Value), Values), count(Values, Count), maximum(Values, Best)], summary(Count, Best)))
+clause(21, implies([findall_sorted(Value, feasible_pack(_0, _1, Value), Values), count(Values, Count), maximum(Values, Best)], summary(Count, Best)))
 clause(22, implies([summary(_0, Best), feasible_pack(Pack, Weight, Best)], best_pack(Pack, Weight, Best)))
 clause(23, implied_by(knapsack_answer('best_pack', Pack), best_pack(Pack, _0, _1)))
 clause(24, implied_by(knapsack_answer('total_weight', Weight), best_pack(_0, Weight, _1)))
@@ -169,11 +175,11 @@ clause(26, implied_by(knapsack_answer('feasible_pack_count', Count), summary(Cou
 // absence or a collection), the bindings and the goals it uses.
 step(knapsack_answer('best_pack', ['atlas', 'battery', 'camera', 'medkit', 'sensor']), clause(23), {Pack: ['atlas', 'battery', 'camera', 'medkit', 'sensor'], _0: 15, _1: 40}, [best_pack(['atlas', 'battery', 'camera', 'medkit', 'sensor'], 15, 40)])
 step(best_pack(['atlas', 'battery', 'camera', 'medkit', 'sensor'], 15, 40), clause(22), {_0: 113, Best: 40, Pack: ['atlas', 'battery', 'camera', 'medkit', 'sensor'], Weight: 15}, [summary(113, 40), feasible_pack(['atlas', 'battery', 'camera', 'medkit', 'sensor'], 15, 40)])
-step(summary(113, 40), clause(21), {Value: A, _0: B, _1: C, Values: [37, 35, 40, 33, 31, 24, 36, 29, 36, 34, 27, 39, 32, 32, 25, 23, 16, 36, 34, 27, 34, 32, 25, 37, 30, 30, 23, 21, 14, 37, 30, 35, 35, 28, 26, 19, 33, 33, 26, 24, 17, 38, 31, 29, 22, 22, 15, 13, 6, 38, 31, 36, 29, 34, 34, 27, 25, 18, 34, 32, 30, 23, 37, 30, 28, 21, 35, 33, 26, 26, 19, 17, 10, 32, 37, 30, 28, 21, 35, 35, 28, 26, 19, 33, 31, 24, 24, 17, 15, 8, 33, 31, 24, 36, 29, 29, 22, 20, 13, 34, 27, 27, 20, 18, 11, 32, 25, 23, 16, 16, 9, 7, 0], Count: 113, Best: 40}, [findall(A, feasible_pack(B, C, A), [37, 35, 40, 33, 31, 24, 36, 29, 36, 34, 27, 39, 32, 32, 25, 23, 16, 36, 34, 27, 34, 32, 25, 37, 30, 30, 23, 21, 14, 37, 30, 35, 35, 28, 26, 19, 33, 33, 26, 24, 17, 38, 31, 29, 22, 22, 15, 13, 6, 38, 31, 36, 29, 34, 34, 27, 25, 18, 34, 32, 30, 23, 37, 30, 28, 21, 35, 33, 26, 26, 19, 17, 10, 32, 37, 30, 28, 21, 35, 35, 28, 26, 19, 33, 31, 24, 24, 17, 15, 8, 33, 31, 24, 36, 29, 29, 22, 20, 13, 34, 27, 27, 20, 18, 11, 32, 25, 23, 16, 16, 9, 7, 0]), count([37, 35, 40, 33, 31, 24, 36, 29, 36, 34, 27, 39, 32, 32, 25, 23, 16, 36, 34, 27, 34, 32, 25, 37, 30, 30, 23, 21, 14, 37, 30, 35, 35, 28, 26, 19, 33, 33, 26, 24, 17, 38, 31, 29, 22, 22, 15, 13, 6, 38, 31, 36, 29, 34, 34, 27, 25, 18, 34, 32, 30, 23, 37, 30, 28, 21, 35, 33, 26, 26, 19, 17, 10, 32, 37, 30, 28, 21, 35, 35, 28, 26, 19, 33, 31, 24, 24, 17, 15, 8, 33, 31, 24, 36, 29, 29, 22, 20, 13, 34, 27, 27, 20, 18, 11, 32, 25, 23, 16, 16, 9, 7, 0], 113), maximum([37, 35, 40, 33, 31, 24, 36, 29, 36, 34, 27, 39, 32, 32, 25, 23, 16, 36, 34, 27, 34, 32, 25, 37, 30, 30, 23, 21, 14, 37, 30, 35, 35, 28, 26, 19, 33, 33, 26, 24, 17, 38, 31, 29, 22, 22, 15, 13, 6, 38, 31, 36, 29, 34, 34, 27, 25, 18, 34, 32, 30, 23, 37, 30, 28, 21, 35, 33, 26, 26, 19, 17, 10, 32, 37, 30, 28, 21, 35, 35, 28, 26, 19, 33, 31, 24, 24, 17, 15, 8, 33, 31, 24, 36, 29, 29, 22, 20, 13, 34, 27, 27, 20, 18, 11, 32, 25, 23, 16, 16, 9, 7, 0], 40)])
-step(findall(A, feasible_pack(B, C, A), [37, 35, 40, 33, 31, 24, 36, 29, 36, 34, 27, 39, 32, 32, 25, 23, 16, 36, 34, 27, 34, 32, 25, 37, 30, 30, 23, 21, 14, 37, 30, 35, 35, 28, 26, 19, 33, 33, 26, 24, 17, 38, 31, 29, 22, 22, 15, 13, 6, 38, 31, 36, 29, 34, 34, 27, 25, 18, 34, 32, 30, 23, 37, 30, 28, 21, 35, 33, 26, 26, 19, 17, 10, 32, 37, 30, 28, 21, 35, 35, 28, 26, 19, 33, 31, 24, 24, 17, 15, 8, 33, 31, 24, 36, 29, 29, 22, 20, 13, 34, 27, 27, 20, 18, 11, 32, 25, 23, 16, 16, 9, 7, 0]), 'collected', {}, [])
-// … steps 5-432: counting the 113 values (count, steps 5-118, and its
+step(summary(113, 40), clause(21), {Value: A, _0: B, _1: C, Values: [0, 6, 7, 8, 9, 10, 11, 13, 13, 14, 15, 15, 16, 16, 16, 17, 17, 17, 18, 18, 19, 19, 19, 20, 20, 21, 21, 21, 22, 22, 22, 23, 23, 23, 23, 24, 24, 24, 24, 24, 25, 25, 25, 25, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 28, 28, 28, 28, 29, 29, 29, 29, 29, 30, 30, 30, 30, 30, 30, 31, 31, 31, 31, 31, 32, 32, 32, 32, 32, 32, 33, 33, 33, 33, 33, 33, 34, 34, 34, 34, 34, 34, 34, 35, 35, 35, 35, 35, 35, 36, 36, 36, 36, 36, 37, 37, 37, 37, 37, 38, 38, 39, 40], Count: 113, Best: 40}, [findall_sorted(A, feasible_pack(B, C, A), [0, 6, 7, 8, 9, 10, 11, 13, 13, 14, 15, 15, 16, 16, 16, 17, 17, 17, 18, 18, 19, 19, 19, 20, 20, 21, 21, 21, 22, 22, 22, 23, 23, 23, 23, 24, 24, 24, 24, 24, 25, 25, 25, 25, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 28, 28, 28, 28, 29, 29, 29, 29, 29, 30, 30, 30, 30, 30, 30, 31, 31, 31, 31, 31, 32, 32, 32, 32, 32, 32, 33, 33, 33, 33, 33, 33, 34, 34, 34, 34, 34, 34, 34, 35, 35, 35, 35, 35, 35, 36, 36, 36, 36, 36, 37, 37, 37, 37, 37, 38, 38, 39, 40]), count([0, 6, 7, 8, 9, 10, 11, 13, 13, 14, 15, 15, 16, 16, 16, 17, 17, 17, 18, 18, 19, 19, 19, 20, 20, 21, 21, 21, 22, 22, 22, 23, 23, 23, 23, 24, 24, 24, 24, 24, 25, 25, 25, 25, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 28, 28, 28, 28, 29, 29, 29, 29, 29, 30, 30, 30, 30, 30, 30, 31, 31, 31, 31, 31, 32, 32, 32, 32, 32, 32, 33, 33, 33, 33, 33, 33, 34, 34, 34, 34, 34, 34, 34, 35, 35, 35, 35, 35, 35, 36, 36, 36, 36, 36, 37, 37, 37, 37, 37, 38, 38, 39, 40], 113), maximum([0, 6, 7, 8, 9, 10, 11, 13, 13, 14, 15, 15, 16, 16, 16, 17, 17, 17, 18, 18, 19, 19, 19, 20, 20, 21, 21, 21, 22, 22, 22, 23, 23, 23, 23, 24, 24, 24, 24, 24, 25, 25, 25, 25, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 28, 28, 28, 28, 29, 29, 29, 29, 29, 30, 30, 30, 30, 30, 30, 31, 31, 31, 31, 31, 32, 32, 32, 32, 32, 32, 33, 33, 33, 33, 33, 33, 34, 34, 34, 34, 34, 34, 34, 35, 35, 35, 35, 35, 35, 36, 36, 36, 36, 36, 37, 37, 37, 37, 37, 38, 38, 39, 40], 40)])
+step(findall_sorted(A, feasible_pack(B, C, A), [0, 6, 7, 8, 9, 10, 11, 13, 13, 14, 15, 15, 16, 16, 16, 17, 17, 17, 18, 18, 19, 19, 19, 20, 20, 21, 21, 21, 22, 22, 22, 23, 23, 23, 23, 24, 24, 24, 24, 24, 25, 25, 25, 25, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 28, 28, 28, 28, 29, 29, 29, 29, 29, 30, 30, 30, 30, 30, 30, 31, 31, 31, 31, 31, 32, 32, 32, 32, 32, 32, 33, 33, 33, 33, 33, 33, 34, 34, 34, 34, 34, 34, 34, 35, 35, 35, 35, 35, 35, 36, 36, 36, 36, 36, 37, 37, 37, 37, 37, 38, 38, 39, 40]), 'collected', {}, [])
+// … steps 5-380: counting the 113 values (count, steps 5-118, and its
 // additions, 119-231) and finding their maximum (maximum, 232-345, and its
-// comparisons, 346-432)
+// comparisons, 346-380)
 step(feasible_pack(['atlas', 'battery', 'camera', 'medkit', 'sensor'], 15, 40), clause(16), {All: ['atlas', 'battery', 'camera', 'drone', 'emergency_radio', 'field_laptop', 'medkit', 'sensor'], Pack: ['atlas', 'battery', 'camera', 'medkit', 'sensor'], Weight: 15, Value: 40, Capacity: 15}, [items(['atlas', 'battery', 'camera', 'drone', 'emergency_radio', 'field_laptop', 'medkit', 'sensor']), subset(['atlas', 'battery', 'camera', 'drone', 'emergency_radio', 'field_laptop', 'medkit', 'sensor'], ['atlas', 'battery', 'camera', 'medkit', 'sensor']), totals(['atlas', 'battery', 'camera', 'medkit', 'sensor'], 15, 40), capacity(15), le(15, 15)])
 step(items(['atlas', 'battery', 'camera', 'drone', 'emergency_radio', 'field_laptop', 'medkit', 'sensor']), clause(2), {}, [])
 step(subset(['atlas', 'battery', 'camera', 'drone', 'emergency_radio', 'field_laptop', 'medkit', 'sensor'], ['atlas', 'battery', 'camera', 'medkit', 'sensor']), clause(12), {Item: 'atlas', Rest: ['battery', 'camera', 'drone', 'emergency_radio', 'field_laptop', 'medkit', 'sensor'], Chosen: ['battery', 'camera', 'medkit', 'sensor']}, [subset(['battery', 'camera', 'drone', 'emergency_radio', 'field_laptop', 'medkit', 'sensor'], ['battery', 'camera', 'medkit', 'sensor'])])
@@ -211,18 +217,24 @@ step(le(15, 15), 'builtin', {}, [])
 step(knapsack_answer('total_weight', 15), clause(24), {Weight: 15, _0: ['atlas', 'battery', 'camera', 'medkit', 'sensor'], _1: 40}, [best_pack(['atlas', 'battery', 'camera', 'medkit', 'sensor'], 15, 40)])
 step(knapsack_answer('total_value', 40), clause(25), {Value: 40, _0: ['atlas', 'battery', 'camera', 'medkit', 'sensor'], _1: 15}, [best_pack(['atlas', 'battery', 'camera', 'medkit', 'sensor'], 15, 40)])
 step(knapsack_answer('feasible_pack_count', 113), clause(26), {Count: 113, _0: 40}, [summary(113, 40)])
-// 469 steps in all.
+// … steps 418-1032: how each of the other 112 feasible packs is derived
+// … search certificate: the derived feasible packs and the complete
+// answers of the searches behind them and behind the original questions
+// 1032 steps in all.
 ```
 
-It has three parts:
+It has four parts:
 
 - **The claims**: the four answers the proof is about.
-- **The clauses**: the program clauses the proof relies on, by number.
-  Clauses 6 to 8 (drone, emergency radio, field laptop) are missing because
-  no step needs them: the best pack does not contain them. Each don't-care
-  `_` gets a name (`_0`, `_1`) so a step can say what it stood for.
+- **The clauses**: the program clauses the proof relies on, by number:
+  all 26 of them. Each don't-care `_` gets a name (`_0`, `_1`) so a step
+  can say what it stood for.
 - **The steps**: one per thing established. A step reads
   `step(what, by what, with which values, using what)`.
+- **The search certificate**: a `derived` listing of all 113
+  `feasible_pack` facts the forward rule derived (and of the `best_pack` and
+  `summary` facts), and `searched` and `called` lines with the complete
+  answers of the searches behind them and behind the original questions.
 
 Three kinds of justification occur:
 
@@ -231,15 +243,15 @@ Three kinds of justification occur:
 - `'builtin'`: a calculation by a built-in operation, such as
   `is(15, add(2, 13))` or `le(15, 15)`. It cites no clause and uses
   nothing; the checker simply calculates it again.
-- `'collected'`: a `findall` list. A proof can show items that belong in
-  the list, but not that none is missing: that would mean proving a
-  negative. The checker can confirm some collected lists from a search
-  certificate, but not this one: the packs are facts a forward rule
-  derived, and the list gives them in the order they were derived, which
-  the checker cannot confirm. So the list is complete only on trust, and
-  the checker records it as an *obligation*, something the reader must
-  accept or verify separately. In it, the placeholders are renamed `A`, `B`, `C`, which is
-  why step 3 says `Value: A`.
+- `'collected'`: a `findall_sorted` list. A proof can show items that
+  belong in the list, but that none is missing is a negative, which the
+  checker settles from the search certificate: the `derived` listing gives
+  every feasible pack, each backed by its own steps, and the checker sorts
+  their values itself and compares. A plain `findall` list would give the
+  values in the order the packs were derived, which the certificate cannot
+  show; the sorted list does not depend on that order. In the step, the
+  placeholders are renamed `A`, `B`, `C`, which is why step 3 says
+  `Value: A`.
 
 Read the steps as sentences:
 
@@ -247,32 +259,36 @@ Read the steps as sentences:
   rule 23, because of step 2.
 - **Step 2**: *That pack, weighing 15 and worth 40, is the best pack*: by
   rule 22, because the best value is 40 (step 3) and the pack is feasible
-  with value 40 (step 433).
+  with value 40 (step 381).
 - **Step 3**: *There are 113 feasible packs and the best value is 40*: by
   rule 21, because of the collected list (step 4), its count and its
   maximum.
-- **Step 4**: *The values of all feasible packs are these 113 numbers*:
-  `'collected'`, taken on trust as complete.
-- **Steps 5 to 432** (left out): counting the list one item at a time, 113
-  additions of 1, and finding its maximum one item at a time, 87 distinct
+- **Step 4**: *The values of all feasible packs are these 113 numbers,
+  sorted*: `'collected'`, settled by the search certificate.
+- **Steps 5 to 380** (left out): counting the list one item at a time, 113
+  additions of 1, and finding its maximum one item at a time, 35 distinct
   comparisons; repeated comparisons are reused.
-- **Step 433**: *The pack is feasible, weighing 15 and worth 40*: by rule
+- **Step 381**: *The pack is feasible, weighing 15 and worth 40*: by rule
   16, because of the item list, the subset, the totals, the capacity and
   15 ≤ 15.
-- **Step 434**: *The items are these eight*: fact 2.
-- **Steps 435 to 443**: *The pack is a subset of the items*: rule 12 takes
+- **Step 382**: *The items are these eight*: fact 2.
+- **Steps 383 to 391**: *The pack is a subset of the items*: rule 12 takes
   atlas, battery and camera, rule 13 leaves out drone, emergency radio and
   field laptop, rule 12 takes medkit and sensor, down to fact 11.
-- **Steps 444 to 454**: *The pack weighs 15 and is worth 40*: rule 15 once
+- **Steps 392 to 402**: *The pack weighs 15 and is worth 40*: rule 15 once
   per item, each using its `item` fact (3, 4, 5, 9 and 10), down to the
   empty pack, fact 14.
-- **Steps 455 to 464**: the ten additions, from the last item back:
+- **Steps 403 to 412**: the ten additions, from the last item back:
   2 + 0, 7 + 0, 4 + 2, 9 + 7, 3 + 6, 8 + 16, 4 + 9, 10 + 24, 2 + 13 and
   6 + 34.
-- **Step 465**: *The capacity is 15*: fact 1.
-- **Step 466**: *15 ≤ 15*: a built-in comparison.
-- **Steps 467 to 469**: the other three answers, by rules 24, 25 and 26,
+- **Step 413**: *The capacity is 15*: fact 1.
+- **Step 414**: *15 ≤ 15*: a built-in comparison.
+- **Steps 415 to 417**: the other three answers, by rules 24, 25 and 26,
   reusing steps 2 and 3.
+- **Steps 418 to 1032** (left out): the other 112 feasible packs, each
+  derived by rule 16 like step 381, with the subsets, totals and sums that
+  earlier steps do not already give. These back the `derived` listing that
+  settles step 4.
 
 ---
 
@@ -284,7 +300,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 knapsack_answer('best_pack', ['atlas', 'battery', 'camera', 'medkit', 'sensor'])
 knapsack_answer('total_weight', 15)
 knapsack_answer('total_value', 40)
@@ -292,83 +308,66 @@ knapsack_answer('feasible_pack_count', 113)
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 257)
-condition('C2', 'well_founded', 'ok', 469)
-condition('C3', 'justification', 'ok', 469)
-condition('C4', 'coverage', 'ok', 498)
-condition('C5', 're_decision', 'ok', 211)
-condition('C6', 'boundary_consistency', 'ok', 1)
-condition('C7', 'relevance', 'ok', 473)
+condition('C1', 'resolution', 'ok', 739)
+condition('C2', 'well_founded', 'ok', 1032)
+condition('C3', 'justification', 'ok', 1032)
+condition('C4', 'coverage', 'ok', 1746)
+condition('C5', 're_decision', 'ok', 292)
+condition('C6', 'boundary_consistency', 'ok', 0)
+condition('C7', 'relevance', 'ok', 1036)
 condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('collected', 'theory_scoped', findall(A, feasible_pack(B, C, A), [37, 35, 40, 33, 31, 24, 36, 29, 36, 34, 27, 39, 32, 32, 25, 23, 16, 36, 34, 27, 34, 32, 25, 37, 30, 30, 23, 21, 14, 37, 30, 35, 35, 28, 26, 19, 33, 33, 26, 24, 17, 38, 31, 29, 22, 22, 15, 13, 6, 38, 31, 36, 29, 34, 34, 27, 25, 18, 34, 32, 30, 23, 37, 30, 28, 21, 35, 33, 26, 26, 19, 17, 10, 32, 37, 30, 28, 21, 35, 35, 28, 26, 19, 33, 31, 24, 24, 17, 15, 8, 33, 31, 24, 36, 29, 29, 22, 20, 13, 34, 27, 27, 20, 18, 11, 32, 25, 23, 16, 16, 9, 7, 0]))
-obligation('call_fidelity', 'original_call', knapsack_answer('best_pack', ['atlas', 'battery', 'camera', 'medkit', 'sensor']))
-obligation('call_fidelity', 'original_call', knapsack_answer('total_weight', 15))
-obligation('call_fidelity', 'original_call', knapsack_answer('total_value', 40))
-obligation('call_fidelity', 'original_call', knapsack_answer('feasible_pack_count', 113))
-obligation('call_fidelity', 'all_answers', knapsack_answer(A, B))
+condition('C9', 'search_closure', 'ok', 1)
+condition('C10', 'call_fidelity', 'ok', 5)
 
 // Proof statistics: recorded steps and how they were checked.
-steps(469)
-verified(257)
-recomputed(211)
+steps(1032)
+verified(739)
+recomputed(292)
 composed(0)
-trusted(6)
+trusted(0)
 claims(4)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
 at:
 
-- **C1 resolution (257)**: the 257 clause steps really are instances of the
+- **C1 resolution (739)**: the 739 clause steps really are instances of the
   clauses they cite, with the values shown, including every count and
-  maximum step over the list.
-- **C2 well-founded (469)**: none of the 469 steps depends on itself, even
-  indirectly.
-- **C3 justification (469)**: all 469 steps say how they were justified, in
-  a form the checker understands.
-- **C4 coverage (498)**: the 4 claims and the 494 things the steps use are
-  each backed by a step: nothing is taken for granted.
-- **C5 re-decision (211)**: the 211 built-in calculations (113 count
-  additions, 87 maximum comparisons, the 10 weight and value sums and the
-  capacity check) were calculated again by the checker itself, and they
+  maximum step over the list and every feasible pack's derivation.
+- **C2 well-founded (1032)**: none of the 1032 steps depends on itself,
+  even indirectly.
+- **C3 justification (1032)**: all 1032 steps say how they were justified,
+  in a form the checker understands.
+- **C4 coverage (1746)**: the 4 claims and the 1742 things the steps use
+  are each backed by a step: nothing is taken for granted.
+- **C5 re-decision (292)**: the 292 built-in calculations (113 count
+  additions, 35 maximum comparisons, 129 weight and value sums and 15
+  capacity checks) were calculated again by the checker itself, and they
   agree.
-- **C6 boundary consistency (1)**: the 1 collected list, which no
-  certificate settled, was confronted with the evidence at hand, the
-  program's facts and the proof's own `feasible_pack` step. The best pack's value, 40, is in the list, so the
-  list is not refuted.
-- **C7 relevance (473)**: the 4 claims answer the query, and all 469 steps
-  serve them. There is no padding.
+- **C6 boundary consistency (0)**: C9 settled the collected list, so
+  nothing was left open to confront with the evidence.
+- **C7 relevance (1036)**: the 4 claims answer the query, and all 1032
+  steps serve them. There is no padding.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
-- **C9 search closure (0)**: the proof carries no search certificate for
-  the collected list, so it is not settled as complete.
+- **C9 search closure (1)**: the 1 collected list is settled by the search
+  certificate: its values are exactly those of the 113 `feasible_pack`
+  facts the `derived` listing gives, in sorted order.
+- **C10 call fidelity (5)**: the 4 answers are what the original question
+  returns, and its `called` table shows it has no other answers.
 
-The `obligation` line says, in plain words: *it is taken on trust that
-these 113 values are the values of all the feasible packs*. That no feasible
-pack is missing from the list is recorded, not proved. `'theory_scoped'`
-means the claim is about what this program says, not about the world.
-
-The statistics repeat this: 469 steps, 257 verified against the program, 211
-recomputed, 1 trusted. The verdict is **checked_with_obligations**: the
-answers follow from the program, provided the collected list is complete. It
-does not establish that eyemind found every answer, and the list's
-completeness was taken on trust rather than proved.
+The statistics repeat this: 1032 steps, 739 verified against the program,
+292 recomputed, the collected list settled, none trusted. The verdict is
+**checked**: the answers follow from the program, the list of values is
+complete, and the report also establishes that the four answers are every
+answer of the original question. `--strict-proof` accepts the proof.
 
 "The best pack" rests on "and these are all the packs". eyemind checks
-every sum behind the answer, and names the one place it relies on a
-complete list.
-
-C10 leaves 4 original-call claims and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+every sum behind the answer, and the search certificate proves that the
+list of values leaves no feasible pack out.
 
 
 ---

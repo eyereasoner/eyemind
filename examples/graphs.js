@@ -4,7 +4,7 @@
 // rules derive, here the child_of triple for each parent_of triple.
 //
 // The program concludes that Bob and Carol are children of Alice, that only
-// Carol is allowed (not(...) excludes the blocked Bob), and, with findall,
+// Carol is allowed (not(...) excludes the blocked Bob), and, with findall_sorted,
 // that Alice's children are ['bob', 'carol'].
 
 fact(base('alice', 'parent_of', 'bob'))
@@ -15,6 +15,6 @@ implied_by(t(S, P, O), base(S, P, O))
 implies(t(P, 'parent_of', C), t(C, 'child_of', P))
 implies([t(C, 'child_of', 'alice'), not(t(C, 'blocked', 'true'))], allowed(C))
 implies(
-  [base(P, 'parent_of', _), findall(C, t(C, 'child_of', P), Children)],
+  [base(P, 'parent_of', _), findall_sorted(C, t(C, 'child_of', P), Children)],
   children(P, Children),
 )

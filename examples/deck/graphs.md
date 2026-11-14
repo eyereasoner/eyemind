@@ -33,7 +33,7 @@ implied_by(t(S, P, O), base(S, P, O))
 implies(t(P, 'parent_of', C), t(C, 'child_of', P))
 implies([t(C, 'child_of', 'alice'), not(t(C, 'blocked', 'true'))], allowed(C))
 implies(
-  [base(P, 'parent_of', _), findall(C, t(C, 'child_of', P), Children)],
+  [base(P, 'parent_of', _), findall_sorted(C, t(C, 'child_of', P), Children)],
   children(P, Children),
 )
 ```
@@ -50,8 +50,9 @@ implies(
 - The second rule turns every *parent of* into a *child of*.
 - The third rule uses `not(...)`: Carol is allowed if she is a child of Alice
   **and** eyemind cannot find that she is blocked.
-- The fourth rule uses `findall(C, ..., Children)`: it **collects** every `C`
-  that is a child of `P` into one list, `Children`.
+- The fourth rule uses `findall_sorted(C, ..., Children)`: it **collects**
+  every `C` that is a child of `P` into one list, `Children`, sorted in the
+  standard order of terms (here, alphabetically).
 
 ---
 
@@ -73,7 +74,7 @@ And the list of Alice's children is `['bob', 'carol']`.
 
 ## Two claims about what is missing
 
-`not` and `findall` are claims about what is *missing*:
+`not` and `findall_sorted` are claims about what is *missing*:
 
 - **"Carol is not blocked"** is concluded because eyemind searched everything
   it knows and found nothing. That is an **absence**, and a proof cannot point
@@ -89,12 +90,13 @@ can verify them. Both are safe to conclude because eyemind first finishes
 everything that could make Carol blocked or add a child, and only then looks
 for what is missing.
 
-The checker can settle the absence but not the collection. A collection's
-list is in the order its items were found, and here the children are
-`child_of` triples that a forward rule derived; the order in which derived
-facts arose is not something the checker can confirm. So the collection
-stays an **obligation**: a step taken on trust, named so you know what you
-are trusting.
+The checker can settle both. The children are `child_of` triples that a
+forward rule derived, and the certificate proves which triples were derived
+but not in what order. A plain `findall` lists its items in the order they
+were found, so over derived facts it would stay an **obligation**, a step
+taken on trust. `findall_sorted` sorts its list, and its items are plain
+names, so the list depends only on which children there are: the
+certificate settles it.
 
 ---
 
@@ -116,7 +118,7 @@ clause(2, fact(base('alice', 'parent_of', 'carol')))
 clause(4, implied_by(t(S, P, O), base(S, P, O)))
 clause(5, implies(t(P, 'parent_of', C), t(C, 'child_of', P)))
 clause(6, implies([t(C, 'child_of', 'alice'), not(t(C, 'blocked', 'true'))], allowed(C)))
-clause(7, implies([base(P, 'parent_of', _0), findall(C, t(C, 'child_of', P), Children)], children(P, Children)))
+clause(7, implies([base(P, 'parent_of', _0), findall_sorted(C, t(C, 'child_of', P), Children)], children(P, Children)))
 
 // Steps: each goal, what justifies it (a clause, a builtin, a control, an
 // absence or a collection), the bindings and the goals it uses.
@@ -128,21 +130,24 @@ step(t('alice', 'parent_of', 'carol'), clause(4), {S: 'alice', P: 'parent_of', O
 step(base('alice', 'parent_of', 'carol'), clause(2), {}, [])
 step(allowed('carol'), clause(6), {C: 'carol'}, [t('carol', 'child_of', 'alice'), not(t('carol', 'blocked', 'true'))])
 step(not(t('carol', 'blocked', 'true')), 'absent', {}, [])
-step(children('alice', ['bob', 'carol']), clause(7), {P: 'alice', _0: 'bob', C: A, Children: ['bob', 'carol']}, [base('alice', 'parent_of', 'bob'), findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol'])])
-step(findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']), 'collected', {}, [])
+step(children('alice', ['bob', 'carol']), clause(7), {P: 'alice', _0: 'bob', C: A, Children: ['bob', 'carol']}, [base('alice', 'parent_of', 'bob'), findall_sorted(A, t(A, 'child_of', 'alice'), ['bob', 'carol'])])
+step(findall_sorted(A, t(A, 'child_of', 'alice'), ['bob', 'carol']), 'collected', {}, [])
 
 // Search certificate: derived facts and complete answers used to check
 // negations, collections and the original questions.
 derived(t(B, C, D), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
 derived(allowed(B), [allowed('carol')])
+derived(children(B, C), [children('alice', ['bob', 'carol'])])
 searched(t('carol', 'blocked', 'true'), [])
 searched(t(E, 'parent_of', F), [t('alice', 'parent_of', 'bob'), t('alice', 'parent_of', 'carol')])
+searched(t(G, 'child_of', 'alice'), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
 called(t(A, 'child_of', B), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
 called(t(C, 'parent_of', D), [t('alice', 'parent_of', 'bob'), t('alice', 'parent_of', 'carol')])
 called(allowed(E), [allowed('carol')])
 called(t(F, 'child_of', 'alice'), [t('bob', 'child_of', 'alice'), t('carol', 'child_of', 'alice')])
 called(t('bob', 'blocked', 'true'), [t('bob', 'blocked', 'true')])
 called(t('carol', 'blocked', 'true'), [])
+called(children(G, H), [children('alice', ['bob', 'carol'])])
 ```
 
 It has four parts:
@@ -157,8 +162,9 @@ It has four parts:
   braces say what each variable of the cited line stood for. The `A` in the
   last two steps is not a value: it is the open placeholder of the
   collection, "every child".
-- **The search certificate**: what the searches behind the absence and the
-  collection found.
+- **The search certificate**: what the forward rules derived, what the
+  searches behind the absence and the collection found, and what each call
+  of the original questions answered.
 
 Read the steps as sentences:
 
@@ -180,17 +186,24 @@ Read the steps as sentences:
    parent of someone (Bob, which fills the `_0`) and the collection of her
    children is that list.
 10. *Every child of Alice is in `['bob', 'carol']`* — **collected**: the list
-    of everything found. Taken on trust as complete.
+    of everything found, sorted. The checker settles this from the search
+    certificate.
 
-The search certificate has three lines:
+The search certificate reads:
 
 - `derived(t(B, C, D), [...])`: the only `t` triples the forward rules
   derived are the two `child_of` triples, for Bob and for Carol. Each also
-  has a step of its own (steps 1 and 4).
+  has a step of its own (steps 1 and 4). The `derived` lines for `allowed`
+  and `children` list the other two conclusions in the same way.
 - `searched(t('carol', 'blocked', 'true'), [])`: the search for "Carol is
   blocked" gave no answers.
 - `searched(t(E, 'parent_of', F), [...])`: a search over every `parent_of`
   triple, which the forward rule consults, gave Alice's two.
+- `searched(t(G, 'child_of', 'alice'), [...])`: the search behind the
+  collection gave Bob and Carol.
+- The `called` lines are separate tables for the original questions: every
+  call a question made, with all of its answers. The checker uses them to
+  confirm that the claims are every answer.
 
 ---
 
@@ -202,7 +215,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 t('bob', 'child_of', 'alice')
 t('carol', 'child_of', 'alice')
 allowed('carol')
@@ -215,27 +228,22 @@ condition('C2', 'well_founded', 'ok', 10)
 condition('C3', 'justification', 'ok', 10)
 condition('C4', 'coverage', 'ok', 12)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 1)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 14)
 condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 5)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('collected', 'theory_scoped', findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']))
-obligation('call_fidelity', 'original_call', children('alice', ['bob', 'carol']))
-obligation('call_fidelity', 'all_answers', children(A, B))
+condition('C9', 'search_closure', 'ok', 2)
+condition('C10', 'call_fidelity', 'ok', 7)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(10)
 verified(8)
 recomputed(0)
 composed(0)
-trusted(3)
+trusted(0)
 claims(4)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -250,19 +258,22 @@ at:
 - **C4 coverage (12)**: the 4 claims and the 8 things the steps use are each
   backed by a step.
 - **C5 re-decision (0)**: there was no calculation to redo.
-- **C6 boundary consistency (1)**: the collection, which the certificate
-  left open, was confronted with the evidence in the proof and is not
-  contradicted: every child of Alice that the proof shows (Bob and Carol)
-  is in the list.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled both the absence and the collection.
 - **C7 relevance (14)**: the 4 claims are conclusions of the program, and all
   10 steps serve them.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
-- **C9 search closure (1)**: the absence *Carol is not blocked* was settled
-  by the search certificate, as explained below.
+- **C9 search closure (2)**: the absence *Carol is not blocked* and the
+  collection of Alice's children were settled by the search certificate, as
+  explained below.
+- **C10 call fidelity (7)**: the 4 claims and the 3 original questions
+  were checked against the `called` tables. Without a query, the questions
+  are the heads of the forward rules: `t(C, 'child_of', P)`, `allowed(C)`
+  and `children(P, Children)`.
 
-The statistics: 10 steps, 8 verified against the program, the absence
-settled by the certificate, 1 trusted, 4 claims.
+The statistics: 10 steps, 8 verified against the program, the absence and
+the collection settled by the certificate, none trusted, 4 claims.
 
 *Carol is not blocked* is not an obligation. The checker expands the call
 one level against the program, as a search would: a `t` triple is either a
@@ -272,22 +283,18 @@ with `searched(t('carol', 'blocked', 'true'), [])`. The listing itself is
 accepted because each of its triples has its own steps and, given the
 `parent_of` triples, the rule derives no `t` triple it leaves out.
 
-The one `obligation` line is the step still taken on trust: *the children of
-Alice are exactly Bob and Carol* (`'collected'`). Its answers rest on
-triples a forward rule derived, and the list gives them in the order they
-were derived; that order is not something the checker can confirm this
-way. `'theory_scoped'` means "with respect to this program": a new fact
-could change it. The verdict is **checked with obligations**: the four
-conclusions follow from the program, provided that collection is right. The
-verdict does not say the program has no other conclusions.
+Nor is *the children of Alice are exactly Bob and Carol*. The checker
+expands `t(G, 'child_of', 'alice')` the same way: base facts give no
+`child_of` triple, and the accepted `derived` listing gives Bob's and
+Carol's. That agrees with the `searched` line, and sorting those two names
+in the standard order gives `['bob', 'carol']`, the list in the step,
+whatever order the triples were derived in. The claim is about this
+program: a new fact could change it.
 
-C10 leaves 1 original-call claim unproved by the available evidence: the
-children list, which rests on that collection. *Carol is allowed* is
-confirmed as an answer of the original question, since its negation is
-decided by the listed facts alone. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on the remaining obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`: the four conclusions follow from the program, and they
+are every answer of those three questions.
 
 
 ---
@@ -312,5 +319,5 @@ allowed, and the list grows to `['bob', 'carol', 'dan']`.
 
 "Not" and "all" are claims about what is *missing*, and a proof cannot
 display a missing thing. eyemind still uses them, writes down what its
-searches found so the checker can confirm the absence, and names the one
-collection it must still take on trust.
+searches found so the checker can confirm the absence, and sorts the
+collection so the checker can confirm that too.

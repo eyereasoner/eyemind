@@ -7,7 +7,7 @@ eyemind is a **JavaScript rule language** with forward and backward reasoning an
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 135 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1384 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 135 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1388 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -125,7 +125,7 @@ Now add `fact(parent('carol', 'dave'))`, or remove a rule, and watch which answe
 | `contradiction(...Body)` | Stop with exit code 65 when `Body` holds: an integrity constraint. |
 | `facts_from(path)`, `facts_from({text})` | State every expression of a document as a fact, without running it. |
 
-**An array is a conjunction:** `implies([p(X), q(X)], [r(X), s(X)])`. Disjunction is `or(A, B)`, negation is `not(G)`, and collection is `findall(T, G, L)`, alongside `call` and `once`.
+**An array is a conjunction:** `implies([p(X), q(X)], [r(X), s(X)])`. Disjunction is `or(A, B)`, negation is `not(G)`, and collection is `findall(T, G, L)`, or `findall_sorted(T, G, L)` for the same list in the standard order of terms, alongside `call` and `once`.
 
 **Text is atoms:** `atom_chars`, `atom_concat` and `atom_length` take them apart, `atom_lower` and `atom_upper` change their case, `regex_match(P, T)`, `regex_find(P, T, Groups)` and `regex_replace(P, T, R, U)` search them with ECMAScript regular expressions, `digest('sha256', A, Hex)` hashes them, and `term_text(T, A)` writes a ground term as its canonical text.
 
@@ -205,7 +205,7 @@ eyemind --program examples/family-n3.n3 > /tmp/family.js # the compiled program,
 eyemind -c examples/family-n3.n3                         # a proof of it, checked
 ```
 
-Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above. N3 integers and decimals become eyemind numbers; float and double literals retain their RDF datatype, including numbers written with an exponent. Decimals use binary64 storage; `math:sum` adds their canonical decimal values before rounding its result. `=>` becomes `implies`, or `restricted` when the conclusion has blank nodes of its own, `<=` becomes `implied_by`, `{ ... } => false` becomes `contradiction`, and scoped negation and collection become `not` and `findall`, so an N3 run has a proof that eyemind checks like any other. Derived rules can trigger inference fuses too.
+Triples are `rdf(Subject, Predicate, Object)`, with IRIs, blank nodes and literals written as in the RDF table above. N3 integers and decimals become eyemind numbers; float and double literals retain their RDF datatype, including numbers written with an exponent. Decimals use binary64 storage; `math:sum` adds their canonical decimal values before rounding its result. `=>` becomes `implies`, or `restricted` when the conclusion has blank nodes of its own, `<=` becomes `implied_by`, `{ ... } => false` becomes `contradiction`, and scoped negation and collection become `not` and `findall` (`findall_sorted` when the collected list is only counted with `list:length` or added with `math:sum`), so an N3 run has a proof that eyemind checks like any other. Derived rules can trigger inference fuses too.
 
 Quoted formulas are graph terms, read as in D. Arndt and P.-A. Champin,
 ["Notation3: Graph Terms for RDF"](https://arxiv.org/abs/2610.31266).
@@ -347,7 +347,7 @@ eyemind --all rules.srl facts.ttl         # the base graph too
 eyemind -c rules.srl facts.ttl            # a proof of it, checked
 ```
 
-Triples are `rdf(Subject, Predicate, Object)`, with `base/3` marking the base graph and `inf/3` the inference graph. A rule becomes `implies`, `NOT` becomes `not` of a helper, `GROUP` becomes `findall`, a blank node in a rule head becomes the Skolem term of its firing, and a SPARQL error is a goal that fails, so `FILTER` rejects the solution and `SET` drops it. The W3C SPARQL 1.2 RL test suite runs in `npm test` from `.cache/w3c/sparql-rl`: all 241 tests pass.
+Triples are `rdf(Subject, Predicate, Object)`, with `base/3` marking the base graph and `inf/3` the inference graph. A rule becomes `implies`, `NOT` becomes `not` of a helper, `GROUP` becomes `findall_sorted`, which leaves aggregates independent of derivation order, a blank node in a rule head becomes the Skolem term of its firing, and a SPARQL error is a goal that fails, so `FILTER` rejects the solution and `SET` drops it. The W3C SPARQL 1.2 RL test suite runs in `npm test` from `.cache/w3c/sparql-rl`: all 241 tests pass.
 
 SRL integers and decimals use exact integer arithmetic. Decimal addition,
 subtraction, multiplication, comparison, rounding and terminating division
@@ -480,7 +480,7 @@ A negation `not(G)` concludes from what is *absent* and a collection `findall(T,
 - **Negate only what is bound.** The variables of `not(G)` must be bound when it runs; write `not(q(X, _))` for "no value at all".
 - **Check the search, not just its result.** A proof ends with a search certificate: `searched(Call, Answers)` lists each call's answers and `derived(Pattern, Facts)` each consulted relation. The checker expands each call one level against the program, so a wrong table shows up as a disagreement.
 - **Say what was taken on trust.** Anything the certificate cannot settle becomes an obligation, and evidence in the proof can still refute it (C6).
-- **Certify the original questions.** Supported, closed listings establish the original calls, and that the claims are all their answers, when no rule they depend on can observe bindings or evaluation order. A mode analysis checks this: primitives such as arithmetic run with their inputs bound, negations with their variables bound, and `once` and `findall` bind nothing other goals use. Where it does not apply, as for tests of whether a variable is bound, the checker replays each derived fact's recorded firing in source order instead. A proof within these bounds can be `checked` with no obligation, even under `--strict-proof`. Rules generated by templates are checked through their instances. Collections and first answers over derived facts, whose order a listing cannot show, and `restricted` rules with new witnesses keep an obligation.
+- **Certify the original questions.** Supported, closed listings establish the original calls, and that the claims are all their answers, when no rule they depend on can observe bindings or evaluation order. A mode analysis checks this: primitives such as arithmetic run with their inputs bound, negations with their variables bound, and `once` and `findall` bind nothing other goals use. Where it does not apply, as for tests of whether a variable is bound, the checker replays each derived fact's recorded firing in source order instead. A proof within these bounds can be `checked` with no obligation, even under `--strict-proof`. Rules generated by templates are checked through their instances. A `findall_sorted` of ground items is certified from the set of derived facts alone. `findall` and first answers over derived facts, whose order a listing cannot show, and `restricted` rules with new witnesses keep an obligation.
 
 ## Checking the translation
 

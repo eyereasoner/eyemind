@@ -81,7 +81,7 @@ query(at_risk(D, F))
 
 // For each decision: the data it rests on and the assumptions it makes.
 implies(
-  [decision(D), findall(F, rests_on(D, F), Data), findall(A, assumes(D, A), Assumptions)],
+  [decision(D), findall_sorted(F, rests_on(D, F), Data), findall_sorted(A, assumes(D, A), Assumptions)],
   explanation(D, Data, Assumptions),
 )
 query(explanation(D, Data, Assumptions))

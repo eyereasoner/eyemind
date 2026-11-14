@@ -52,7 +52,7 @@ Collection gives totals of 245 for inv1 and 25 for inv2. Only inv1 exceeds 200, 
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 rdf(iri('http://example.org/invoice#inv1'), iri('http://example.org/invoice#total'), 245)
 rdf(iri('http://example.org/invoice#inv2'), iri('http://example.org/invoice#total'), 25)
 rdf(iri('http://example.org/invoice#inv1'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/invoice#LargeInvoice'))
@@ -62,14 +62,19 @@ rdf(iri('http://example.org/invoice#inv1'), iri('http://www.w3.org/1999/02/22-rd
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked_with_obligations')`. The report lists `call_fidelity`, `collected` obligations. Strict checking rejects these remaining obligations.
+The saved report ends with `verdict('checked')`. The report has no remaining obligations.
+Each collected list of amounts is used only by `math:sum`, and summing does
+not depend on order, so `log:collectAllIn` compiles to `findall_sorted`. C9
+settles each sorted list from the proof's search certificate: the
+certificate lists the facts the collection searches, and the sorted list
+does not depend on the order in which they were derived.
 C1 checks each inference against the compiled source clauses, C5 re-decides
 primitive computations, C8 checks any fresh witness, and C10 checks the
 original questions against the proof's call tables. The checker follows the
 certificate without calling the reasoning engine.
 
-The verdict certifies the displayed claims; it does not assert that an
-arbitrary proof lists every possible answer.
+The verdict also establishes that the displayed claims are every answer of
+the original questions, and `--strict-proof` accepts the proof.
 
 ---
 

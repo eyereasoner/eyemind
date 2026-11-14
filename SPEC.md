@@ -153,9 +153,10 @@ Programs:
 - **Head** and **body**: the conclusions of a clause, and its premises.
 - **Goal**: an atom, a compound, a variable bound to one of them, or a
   conjunction of goals, to be solved ([Section 4.1](#41-goal-syntax)).
-- **Control**: `and`, `or`, `not`, `call`, `once` or `findall` ([Section 4.2](#42-controls)).
-  A **negation** is a `not(G)` goal and a **collection** a
-  `findall(T, G, L)` goal.
+- **Control**: `and`, `or`, `not`, `call`, `once`, `findall` or
+  `findall_sorted` ([Section 4.2](#42-controls)). A **negation** is a `not(G)`
+  goal and a **collection** a `findall(T, G, L)` or `findall_sorted(T, G, L)`
+  goal.
 - **Primitive**: a built-in goal such as `is` or `atom_concat` ([Section 4.3](#43-primitives)).
 - **Rank** and **stratum**: a clause's rank is at least that of every
   clause it depends on, and above that of every clause a negation or
@@ -501,7 +502,7 @@ Array-to-conjunction notation applies in these positions:
 
 - a rule body and each argument of `query` or `contradiction`;
 - each argument of `and`, `or`, `not`, `call` and `once`;
-- the second argument of `findall`;
+- the second argument of `findall` and `findall_sorted`;
 - both arguments of a rule template or source inspection pattern.
 
 It also applies to a forward head, where the conjunction means several
@@ -530,6 +531,7 @@ primitive, inspection form nor any clause head has no solution.
 | `call(G)` | `call(G)` | The solutions of `G`. |
 | `once(G)` | `once(G)` | The first solution of `G`. |
 | `findall(T, G, L)` | `findall(T, G, L)` | Unifies `L` with the list of instances of `T`, one per solution of `G`, in order, each renamed apart. |
+| `findall_sorted(T, G, L)` | `findall_sorted(T, G, L)` | As `findall`, with the list sorted in the standard order ([Section 2.4](#24-standard-order)), any two variables comparing equal. Items that compare equal keep their search order; repeated items are kept. |
 
 Anonymous variables are `_` occurrences and source variables named `_`
 followed by digits ([Section 3.3](#33-term-construction)), including their renamed-apart copies.
@@ -745,7 +747,7 @@ Nested `implies(Body, Head)` and `implied_by(Head, Body)` calls construct rule
 templates. A rule value in a conclusion MUST occur as a top-level conjunct of
 an `implies` conclusion; in a body, `implies` and `implied_by` are inspection
 goals ([Section 6.3](#63-source-rule-inspection)). A rule value anywhere else in a clause, such as an
-argument of an ordinary head or goal, or the template or result of `findall`,
+argument of an ordinary head or goal, or the template or result of a collection,
 MUST be rejected. The conclusion MAY combine ordinary heads and several
 templates. Each template's
 body and head MAY themselves be conjunctions, written as arrays. A backward
@@ -881,7 +883,8 @@ not chain-stratified. A rule has:
 - **positive goals**: its body goals other than primitives, negations,
   collections and `'true'`, and other than a restricted rule's guard
   ([Section 7.2](#72-variables-and-witnesses));
-- **negated groups**: for each `not(G)` and `findall(T, G, L)` body goal,
+- **negated groups**: for each `not(G)` and collection `findall(T, G, L)` or
+  `findall_sorted(T, G, L)` body goal,
   the goals of the conjunction `G` other than primitives; a group with a
   control or a variable makes the program not chain-stratified, and an
   empty group is left out;
@@ -1068,6 +1071,9 @@ search solutions, including repeated derivations and nonground instances;
 its meaning is not determined by a set of ground atoms alone. Bindings
 made while solving its goal do not escape except through the copied result
 list. Clause order and duplicate source clauses can affect that list.
+`findall_sorted` collects the same solutions in the standard order, so the
+order in which they were found decides its list only among items equal up to
+their variables.
 
 ### 7.5 Sets and operational behavior
 
@@ -1282,7 +1288,7 @@ differently; they are ignored when the output is read ([Section 9.1](#91-accepte
 When a proof is requested, each solution records how each of its goals was
 justified: by a fact or rule of the program, by a derived fact (whose own
 record is kept), by a primitive, by a control, by an absence (a negation) or
-by a collection (`findall`). For each conclusion the first derivation found is
+by a collection. For each conclusion the first derivation found is
 recorded. Each original question gets call-fidelity evidence (Sections [10.5](#105-call-fidelity-certificates) and [11.13](#1113-c10-call-fidelity)),
 when supported. Each negation and collection of a proof gets the search certificate
 that settles it (Sections [10.4](#104-search-certificates) and [11.12](#1112-c9-search-closure)) whenever [Section 11.12](#1112-c9-search-closure) allows one. A
@@ -1500,7 +1506,7 @@ order. `By` is one of:
 | `called(Called)` | `Goal` is a state test ([Section 8.7](#87-proof-generation)) that held as `Called`, the goal when it ran, its then unbound variables written as variables. | empty | empty |
 | `'control'` | `Goal` is `call`, `once` or a disjunction, solved by `Uses`. | empty | the solved goals; for a disjunction, the side that was solved, so `or(or(A, B), C)` solved by `A` uses `or(A, B)`, which has a step of its own |
 | `'absent'` | `Goal` is a negation, settled by the search certificate or taken on trust. | empty | empty |
-| `'collected'` | `Goal` is a `findall`, settled by the search certificate or taken on trust. | empty | empty |
+| `'collected'` | `Goal` is a collection, settled by the search certificate or taken on trust. | empty | empty |
 
 `Bindings` is an object from each variable name of the cited clause, as
 the program wrote it, to its value in this step: `{X: 'socrates'}`. A key
@@ -1811,7 +1817,7 @@ forms MUST have no bindings and no uses:
 | `'builtin'` | A primitive |
 | `called(Called)` | A state test |
 | `'absent'` | A negation `not(G)` |
-| `'collected'` | A collection `findall(T, G, L)` |
+| `'collected'` | A collection `findall(T, G, L)` or `findall_sorted(T, G, L)` |
 
 A well-formed negation or collection step is called a **boundary**. A step
 that fails C3 is not a trusted boundary: it counts in neither `trusted`, C6
@@ -1885,7 +1891,7 @@ it does not establish absence.
   conjunction, whose every goal has evidence. It fails C6 when every goal of
   `G` unifies with some of its evidence; the anonymous variables of `G`
   unify with anything.
-- A collection `findall(T, G, L)` fails C6 when `L` is not a list, and is
+- A collection `findall(T, G, L)` or `findall_sorted(T, G, L)` fails C6 when `L` is not a list, and is
   decided when `G` is a single goal with evidence. It fails C6 when an
   instance of `T` for some evidence of `G` unifies with no element of `L`.
 
@@ -2077,13 +2083,18 @@ requires:
   `T`, one per solution of `G`, in order, each renamed apart. Repeated
   solutions remain repeated list elements. The instance test allows later
   goals to have bound variables in the copied results.
+- For `findall_sorted(T, G, L)`, `L` is an instance of that list sorted as
+  [Section 4.2](#42-controls) specifies.
 
 **Certificate limits.** Settlement also requires all of the following:
 
-- No collection or `once` in the boundary's search, a relied-on table or a
-  closure check uses a table whose answers rest on a forward listing.
-  This format checks support and closure of derived facts, but cannot
-  establish their publication order for order-sensitive operations.
+- No `findall`, `once`, or `findall_sorted` collecting an item that is not
+  ground, in the boundary's search, a relied-on table or a closure check,
+  uses a table whose answers rest on a forward listing. This format checks
+  support and closure of derived facts, but cannot establish their
+  publication order for order-sensitive operations. A `findall_sorted` of
+  ground items depends on the solutions and how often each occurs, not on
+  their order.
 - The search reaches no source inspection.
 - No consulted listing's relation is concluded by a forward rule within a
   template's scope ([Section 6.2](#62-inline-rule-templates)) that
@@ -2177,7 +2188,7 @@ with these differences:
 2. Negation MUST enforce [Section 4.2](#42-controls)'s binding restriction at the actual
    call. C9's treatment of an unbound named variable as anonymous MUST NOT
    be used. A source search that raises an error fails its certificate.
-3. `once` and `findall` keep their [Section 4.2](#42-controls) meanings, so the first answer
+3. `once` and the collections keep their [Section 4.2](#42-controls) meanings, so the first answer
    or collected answers come from the actual inner call. [Section 11.12](#1112-c9-search-closure)'s
    restriction on order-sensitive uses of derived listings still applies.
    The order of unrelated answers of an ordinary question need not be
@@ -2234,8 +2245,9 @@ with the variables grounded before it:
 - `once(G)` grounds nothing. `G` MUST satisfy these conditions. Each named
   variable of `G` that occurs elsewhere in the clause MUST be grounded before
   it, so the choice of a first answer binds nothing another goal uses.
-- `findall(T, G, L)` follows the same rule for `T` and `G`. It grounds the
-  variables of `L` when `G` grounds every variable of `T`.
+- A collection `findall(T, G, L)` or `findall_sorted(T, G, L)` follows the
+  same rule for `T` and `G`. It grounds the variables of `L` when `G`
+  grounds every variable of `T`.
 - A primitive whose variables are all grounded before it is a test, and
   grounds nothing. `unify/2` with one side ground grounds the other, and
   with neither ground grounds nothing. Otherwise the primitive MUST be
@@ -2281,7 +2293,7 @@ step's corresponding use records:
 - A primitive runs on the bindings of that point of the search. Its first
   solution under which the goal can still unify with the use is taken.
   `compare/3` with a nonground compared term does not replay.
-- `once/1`, `not/1` and `findall/3` take the answers of the goal, as it
+- `once/1`, `not/1`, `findall/3` and `findall_sorted/3` take the answers of the goal, as it
   stands at that point, from the call tables and listings, as in checking
   the original calls. A negation with an unbound named variable does not
   replay, and neither does a first answer or a collection whose order rests

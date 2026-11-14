@@ -118,7 +118,7 @@ Confidence times trust gives the authority 9310 and the anonymous post 700. Coll
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 result(iri('https://example.org/bridge'), iri('https://example.org/decision'), iri('https://example.org/avoid_bridge'))
 result(iri('https://example.org/bridge'), iri('https://example.org/trustedSource'), iri('https://example.org/transportAuthority'))
 result(iri('https://example.org/bridge'), iri('https://example.org/score'), 9310)
@@ -134,14 +134,20 @@ result(iri('https://example.org/open'), iri('https://example.org/score'), 700)
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked_with_obligations')`. The report lists `call_fidelity`, `collected` obligations. Strict checking rejects these remaining obligations.
+The saved report ends with `verdict('checked')`. The report has no remaining obligations.
+The collected list of higher scores is used only by `list:length`, and
+counting does not depend on order, so `log:collectAllIn` compiles to
+`findall_sorted`. C9 settles that sorted list from the proof's search
+certificate, even though the scores are facts forward rules derived: the
+certificate lists those facts, and the sorted list does not depend on the
+order in which they were derived.
 C1 checks each inference against the compiled source clauses, C5 re-decides
 primitive computations, C8 checks any fresh witness, and C10 checks the
 original questions against the proof's call tables. The checker follows the
 certificate without calling the reasoning engine.
 
-The verdict certifies the displayed claims; it does not assert that an
-arbitrary proof lists every possible answer.
+The verdict also establishes that the displayed claims are every answer of
+the original questions, and `--strict-proof` accepts the proof.
 
 ---
 

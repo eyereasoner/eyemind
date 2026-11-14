@@ -8,7 +8,7 @@
 // changed on 3 days' notice where 14 are required, 85), and c4 (data export
 // prohibited, 70, moderate). c5 and c6 have their safeguards and are not
 // reported. The rank of a finding is one more than the number of findings
-// that score higher, counted with findall.
+// that score higher, counted with findall_sorted.
 //
 // This is a small illustrative policy model: the base scores, weights and
 // thresholds are supplied choices, not a legal assessment.
@@ -87,7 +87,7 @@ implies(
     score(Clause, Score),
     finding(Clause, Raw, Why, Fix),
     severity(Score, Severity),
-    findall(Other, higher(Score, Other), Higher),
+    findall_sorted(Other, higher(Score, Other), Higher),
     count(Higher, Count),
     is(Rank, add(Count, 1)),
   ],

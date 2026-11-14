@@ -15,13 +15,13 @@ export const RULE_NAMES = new Set(['implies', 'implied_by', 'forward', 'backward
 
 // The goal positions directly inside a control goal, or null when the goal is
 // not a control: both sides of and and or, the argument of not, call and
-// once, and the goal of findall.
+// once, and the goal of findall and findall_sorted.
 export function subgoals(goal) {
   if (!(goal instanceof Struct)) return null;
   const { name, args } = goal;
   if ((name === 'and' || name === 'or') && args.length === 2) return args;
   if ((name === 'not' || name === 'call' || name === 'once') && args.length === 1) return args;
-  if (name === 'findall' && args.length === 3) return [args[1]];
+  if ((name === 'findall' || name === 'findall_sorted') && args.length === 3) return [args[1]];
   return null;
 }
 
@@ -48,7 +48,7 @@ export function normalizeGoal(term) {
   if ((name === 'not' || name === 'call' || name === 'once') && args.length === 1) {
     return rebuild(term, [normalizeGoal(args[0])]);
   }
-  if (name === 'findall' && args.length === 3) {
+  if ((name === 'findall' || name === 'findall_sorted') && args.length === 3) {
     return rebuild(term, [args[0], normalizeGoal(args[1]), args[2]]);
   }
   return term;

@@ -41,8 +41,10 @@ through the copied result list; `?line` does not become an output.
 
 ## What gets compiled
 
-eyemind compiles
-`log:collectAllIn` to `findall(Template, Goal, List)`. `math:sum` and
+The collected list is used only as the subject of `math:sum`, and summing
+does not depend on order, so eyemind compiles `log:collectAllIn` to
+`findall_sorted(Template, Goal, List)`, which sorts the list in the standard
+order of terms and keeps repeated items. `math:sum` and
 `math:greaterThan` become backward definitions included in the generated
 program, using eyemind primitives for arithmetic and comparison.
 
@@ -52,7 +54,7 @@ The rule does not depend on its own total through collection.
 
 | Invoice | Collected amounts | Total |
 | --- | --- | --- |
-| 1 | `[120, 80, 45]` | 245 |
+| 1 | `[45, 80, 120]` | 245 |
 | 2 | `[10, 15]` | 25 |
 | 3 | `[]` | 0 |
 
@@ -89,20 +91,18 @@ the threshold.
 
 ## What the proof establishes
 
-The saved report has `verdict('checked_with_obligations')`. It checks the recorded
-rule applications and recomputes the arithmetic, but leaves three
-collection obligations and four original-call obligations.
+The saved report has `verdict('checked')`. It checks the recorded rule
+applications, recomputes the arithmetic, and has no remaining obligations.
 
-C9 cannot settle these collections with the current certificate format:
-their `rdf/3` calls depend on a forward listing, whose publication order is
-not certified for an order-sensitive collection. This restriction applies
-even though the line and amount facts in this example are source facts;
-the relation `rdf/3` also holds the derived totals and type.
+C9 settles the three collections from the proof's search certificate. Their
+`rdf/3` calls depend on a forward listing, since the relation `rdf/3` also
+holds the derived totals and type. The listing proves which facts there
+are, but not the order in which they were derived; a sorted list of ground
+items does not depend on that order, so the certificate settles it.
 
-C10 likewise cannot establish the forward listing outside its ground
-positive fragment. The obligations are explicit in the report;
-`--strict-proof` rejects them. Successful execution demonstrates the totals,
-while the saved proof remains conditional on its listed obligations.
+C10 checks the original questions against the proof's call tables, so the
+verdict also establishes that the four claims are every answer of the
+original questions. `--strict-proof` accepts the proof.
 
 ---
 
