@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 consented('approved', 'alice')
 needs_review('incomplete', 'bob')
 
@@ -13,21 +13,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 12)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', consented('approved', 'alice'))
-obligation('call_fidelity', 'original_call', needs_review('incomplete', 'bob'))
-obligation('call_fidelity', 'all_answers', consented(A, B))
-obligation('call_fidelity', 'all_answers', needs_review(A, B))
+condition('C10', 'call_fidelity', 'ok', 4)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(10)
 verified(9)
 recomputed(0)
 composed(0)
-trusted(4)
+trusted(0)
 claims(2)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')

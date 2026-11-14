@@ -441,7 +441,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 case_name('delfour', 'delfour')
 derived_need('sugar_insight', 'low_sugar')
 decision('delfour', 'Allowed', 'sugar_insight')
@@ -480,43 +480,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 96)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 3)
-condition('C10', 'call_fidelity', 'ok', 20)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', decision('delfour', 'Allowed', 'sugar_insight'))
-obligation('call_fidelity', 'original_call', headline('delfour', 'Track sugar per serving while you scan'))
-obligation('call_fidelity', 'original_call', banner('delfour', 'Classic Tea Biscuits', 12.0))
-obligation('call_fidelity', 'original_call', note('delfour', 'High sugar'))
-obligation('call_fidelity', 'original_call', banner_alternative('delfour', 'Low-Sugar Tea Biscuits', 'aisle 7'))
-obligation('call_fidelity', 'original_call', passed('delfour', 'trusted_signature'))
-obligation('call_fidelity', 'original_call', passed('delfour', 'matching_hash'))
-obligation('call_fidelity', 'original_call', passed('delfour', 'complete_scope'))
-obligation('call_fidelity', 'original_call', passed('delfour', 'authorization'))
-obligation('call_fidelity', 'original_call', passed('delfour', 'high_sugar'))
-obligation('call_fidelity', 'original_call', passed('delfour', 'duty_timing'))
-obligation('call_fidelity', 'original_call', passed('delfour', 'marketing_prohibited'))
-obligation('call_fidelity', 'original_call', passed('delfour', 'expected_file_count'))
-obligation('call_fidelity', 'original_call', passed('delfour', 'minimal_payload'))
-obligation('call_fidelity', 'original_call', passed('delfour', 'lower_sugar'))
-obligation('call_fidelity', 'original_call', all_checks_pass('delfour'))
-obligation('call_fidelity', 'all_answers', decision('delfour', A, B))
-obligation('call_fidelity', 'all_answers', headline('delfour', A))
-obligation('call_fidelity', 'all_answers', banner('delfour', A, B))
-obligation('call_fidelity', 'all_answers', note('delfour', A))
-obligation('call_fidelity', 'all_answers', banner_alternative('delfour', A, B))
-obligation('call_fidelity', 'all_answers', passed('delfour', A))
-obligation('call_fidelity', 'all_answers', all_checks_pass('delfour'))
+condition('C10', 'call_fidelity', 'ok', 43)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(70)
 verified(61)
 recomputed(6)
 composed(0)
-trusted(23)
+trusted(0)
 claims(26)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -560,16 +535,15 @@ splitting the shared text starts with either word. Each expansion agrees
 with its line, so nothing is left as an obligation. Each absence is meant
 relative to this program.
 
-The verdict is **checked with obligations**: every claim follows from the program. As the last comment says, it
-also does not establish completeness: it does not say these are all the
-conclusions the program has. And the `trusted_signature` check vouches only
+The verdict is **checked**: every claim follows from the program. As the last comment says, it
+also establishes that these are every answer of the original questions. The
+`trusted_signature` check vouches only
 for the input's statement that the signature was verified upstream, not for
 the signature's bytes.
 
-C10 leaves 16 original-call claims and the answers of 7 questions unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

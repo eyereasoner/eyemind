@@ -209,6 +209,75 @@ export const tests = {
     assert.ok(checkProof(loaded, result.proof, { goals: ['q(X)'], allowTrusted: false }).valid);
   },
 
+  'C10 certifies forward listings whose rules compute with bound inputs'() {
+    const strictly = (source, options = {}) => {
+      const { loaded, result, report } = checked(source, options);
+      assert.deepEqual(report.trusted, [], result.proof);
+      assert.ok(checkProof(loaded, result.proof, { goals: options.goals || null, allowTrusted: false }).valid, result.proof);
+      return { loaded, result };
+    };
+    // Arithmetic and comparisons with bound inputs, in a recursive forward rule.
+    const counted = strictly("fact(n(1))\nimplies([n(X), lt(X, 4), is(Y, add(X, 1))], n(Y))");
+    assert.deepEqual(counted.result.answers, ['n(2)', 'n(3)', 'n(4)']);
+    rejected(counted.loaded, counted.result.proof.replace(/^n\(3\)\n/m, ''));
+    // A backward rule analyzed in the mode its caller uses: the list is bound.
+    strictly("fact(list(['a', 'b', 'c']))\nimplied_by(size([], 0), 'true')\n" +
+      'implied_by(size([_, ...T], N), [size(T, M), is(N, add(M, 1))])\nimplies([list(L), size(L, N)], sized(N))');
+    // A relation with a nonground fact, answering calls in a mode that binds it.
+    strictly("fact(item('a'), item('b'))\nfact(member(X, [X, ..._]))\nimplied_by(member(X, [_, ...T]), member(X, T))\n" +
+      "implies([item(X), member(X, ['b', 'c'])], listed(X))");
+    // once/1 and findall/3 as tests of what they bind only locally.
+    strictly("fact(k('a'), p('a', 1), p('a', 2))\nimplies([k(X), once(p(X, _))], has(X))");
+    strictly("fact(k('a'), p('a', 1), p('a', 2))\nimplies([k(X), findall(N, p(X, N), L)], all(X, L))");
+  },
+
+  'C10 leaves forward rules that observe bindings or first answers unproved'() {
+    for (const rules of [
+      'implies([k(X), once(p(X, N))], first(X, N))',
+      'implies([k(X), is_var(Y), unify(Y, X)], fresh(Y))',
+      'implies([k(X), gt(Y, 0), p(X, Y)], positive(X))',
+    ]) {
+      const loaded = program(`fact(k('a'), p('a', 1), p('a', 2))\n${rules}`);
+      let result;
+      try {
+        result = run(loaded, { proof: true });
+      } catch {
+        continue; // gt/2 with an unbound input is an error, not a proof
+      }
+      assert.ok(result.proofReport.trusted.some(({ reason }) => reason === 'all_answers'), rules);
+      assert.equal(checkProof(loaded, result.proof, { allowTrusted: false }).valid, false, rules);
+    }
+  },
+
+  'C10 supports no listing on host math accepted only within its tolerance'() {
+    const source = 'fact(v(1))\nimplies([v(X), is(Y, exp(X))], w(Y))';
+    const { loaded, result } = checked(source);
+    assert.ok(checkProof(loaded, result.proof, { allowTrusted: false }).valid, result.proof);
+    const view = new DataView(new ArrayBuffer(8));
+    view.setFloat64(0, Math.exp(1));
+    view.setBigUint64(0, view.getBigUint64(0) + 1n);
+    const [exact, near] = [Math.exp(1), view.getFloat64(0)];
+    // A near value alone: closure finds the exact one missing from the listing.
+    assert.equal(checkProof(loaded, result.proof.replaceAll(String(exact), String(near))).valid, false);
+    // Listed beside the exact value, C5 accepts its step within tolerance, so
+    // the listing supports no C10 certificate.
+    const both = [`w(${exact})`, `w(${near})`, "step(v(1), clause(1), {}, [])", ...[exact, near].flatMap((value) => [
+      `step(w(${value}), clause(2), {X: 1, Y: ${value}}, [v(1), is(${value}, exp(1))])`,
+      `step(is(${value}, exp(1)), 'builtin', {}, [])`]),
+    `derived(w(A), [w(${exact}), w(${near})])`, `called(w(A), [w(${exact}), w(${near})])`].join('\n');
+    const report = checkProof(loaded, `${both}\n`);
+    assert.ok(report.valid, JSON.stringify(report.failures));
+    assert.ok(report.trusted.some(({ reason }) => reason === 'all_answers'));
+    assert.equal(checkProof(loaded, `${both}\n`, { allowTrusted: false }).valid, false);
+  },
+
+  'C10 certifies negations in the steps of listed facts no claim uses'() {
+    const source = "fact(p('a'), p('b'))\nimplied_by(q('z'), 'true')\nimplies([p(X), not(q(X))], r(X))\nquery(r('a'))";
+    const { loaded, result } = checked(source);
+    assert.match(result.proof, /searched\(q\('b'\), \[\]\)/);
+    assert.ok(checkProof(loaded, result.proof, { allowTrusted: false }).valid, result.proof);
+  },
+
   'C10 refuses unsupported forward publication states instead of trusting a listing'() {
     const loaded = program("fact(p('b'))\nimplies([not_unify(X, 'a'), p(X)], r(X))\nquery(r(X))");
     const document = "r('b')\nstep(r('b'), clause(2), {}, [not_unify('b', 'a'), p('b')])\n" +

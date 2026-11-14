@@ -317,9 +317,9 @@ at:
 
 The statistics repeat this: 53 steps, 49 verified against the program, 4
 recomputed, none taken on trust. The verdict is **checked**: all eight
-answers follow from the program. As the last comment says, this confirms the
-claims; it does not say the program has no other answers, nor that a
-program without an answer is badly typed.
+answers follow from the program. As the last comment says, they are also
+every answer of the original questions. It does not say that a program without an answer is
+badly typed.
 
 ---
 

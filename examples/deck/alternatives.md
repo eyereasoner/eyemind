@@ -215,8 +215,8 @@ at:
 
 The statistics repeat this: 6 steps, 4 verified against the program and 2
 composed from their parts, none taken on trust. The verdict is **checked**:
-all four answers follow from the program. As the last comment says, this
-confirms the answers shown; it does not say they are the only possible ones.
+all four answers follow from the program. As the last comment says, they
+are also every answer of the original questions.
 
 ---
 

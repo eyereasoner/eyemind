@@ -333,7 +333,7 @@ at:
 The statistics: 54 steps, 21 verified against the program, 33 recomputed,
 none taken on trust, 1 claim. The verdict is **checked**: Pat's age is above
 80 on 1 October 2026, down to the last day. As the last comment says, this
-confirms the claim; it does not say the program has no other conclusions.
+confirms the claim, and that it is every answer of the original questions.
 
 ---
 

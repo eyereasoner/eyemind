@@ -309,7 +309,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 affected_function('place_order')
 affected_function('mobile_checkout')
 best_repair(['catalog_replica', 'bank_backup'], 3)
@@ -327,28 +327,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 499)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 3)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', affected_function('place_order'))
-obligation('call_fidelity', 'original_call', affected_function('mobile_checkout'))
-obligation('call_fidelity', 'original_call', best_repair(['catalog_replica', 'bank_backup'], 3))
-obligation('call_fidelity', 'original_call', restored_function('place_order'))
-obligation('call_fidelity', 'original_call', restored_function('mobile_checkout'))
-obligation('call_fidelity', 'all_answers', affected_function(A))
-obligation('call_fidelity', 'all_answers', best_repair(A, B))
-obligation('call_fidelity', 'all_answers', restored_function(A))
+condition('C10', 'call_fidelity', 'ok', 8)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(494)
 verified(476)
 recomputed(15)
 composed(0)
-trusted(8)
+trusted(0)
 claims(5)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -387,15 +377,14 @@ its own steps and no rule derives a fact they leave out. The statistics:
 494 steps, 476 verified, 15 recomputed and the 3 absences settled, none
 trusted, for 5 claims.
 
-The verdict is **checked with obligations**. The plan works and costs 3, and that it is the
+The verdict is **checked**. The plan works and costs 3, and that it is the
 *cheapest* is checked too. The result also assumes the supplied hardware
-states and dependency model, and, as the last comment says, it does not
-establish completeness.
+states and dependency model. As the last comment says, the claims are
+every answer of the original questions.
 
-C10 leaves 5 original-call claims and the answers of 3 questions unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

@@ -105,8 +105,8 @@ None of these fuses fires for the supplied graph.
 The saved report ends with `verdict('checked')`, with four claims and no
 obligations. C1 checks the path derivations; C10 checks the original query
 against the positive forward closure. The verdict certifies the four
-reported positive answers. It does not certify a list of negative claims
-about the other cities, nor establish answer completeness.
+reported positive answers, and that they are every answer of the query: no
+other city is reachable.
 
 ---
 

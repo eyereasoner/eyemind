@@ -10,3 +10,9 @@ clause(2, implies(more_interesting(5, 3), indeed_more_interesting(5, 3)))
 step(indeed_more_interesting(5, 3), clause(2), {}, [more_interesting(5, 3)])
 step(more_interesting(5, 3), clause(1), {X: 5, Y: 3}, [gt(5, 3)])
 step(gt(5, 3), 'builtin', {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(indeed_more_interesting(A, B), [indeed_more_interesting(5, 3)])
+called(indeed_more_interesting(5, 3), [indeed_more_interesting(5, 3)])
+called(more_interesting(5, 3), [more_interesting(5, 3)])

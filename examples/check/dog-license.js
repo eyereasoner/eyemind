@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 dog_count('alice', 5)
 dog_count('bob', 2)
 requires('alice', 'dog_license')
@@ -14,22 +14,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 24)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 2)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', dog_count('alice', 5))
-obligation('call_fidelity', 'original_call', dog_count('bob', 2))
-obligation('call_fidelity', 'original_call', requires('alice', 'dog_license'))
-obligation('call_fidelity', 'all_answers', dog_count(A, B))
-obligation('call_fidelity', 'all_answers', requires(A, 'dog_license'))
+condition('C10', 'call_fidelity', 'ok', 5)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(21)
 verified(13)
 recomputed(6)
 composed(0)
-trusted(5)
+trusted(0)
 claims(3)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')

@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 assessment('directive_2015', 'r7', refused_by_terms([unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)]), basis(['ex:terms']))
 assessment('directive_2015', 'r8', refused_by_terms([unmet('ex:byLeadTraveller', 'ex:requesterRole', 'ex:otherPerson', 'odrl:eq', 'ex:leadTraveller')]), basis(['ex:terms']))
 assessment('revised_2026', 'r7', refused_by_terms([unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)]), basis(['ex:terms']))
@@ -35,41 +35,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 242)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 6)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', assessment('directive_2015', 'r7', refused_by_terms([unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)]), basis(['ex:terms'])))
-obligation('call_fidelity', 'original_call', assessment('directive_2015', 'r8', refused_by_terms([unmet('ex:byLeadTraveller', 'ex:requesterRole', 'ex:otherPerson', 'odrl:eq', 'ex:leadTraveller')]), basis(['ex:terms'])))
-obligation('call_fidelity', 'original_call', assessment('revised_2026', 'r7', refused_by_terms([unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)]), basis(['ex:terms'])))
-obligation('call_fidelity', 'original_call', assessment('revised_2026', 'r8', refused_by_terms([unmet('ex:byLeadTraveller', 'ex:requesterRole', 'ex:otherPerson', 'odrl:eq', 'ex:leadTraveller')]), basis(['ex:terms'])))
-obligation('call_fidelity', 'original_call', assessment('directive_2015', 'r1', pay_fee(percent(25), fee(600), refund(1800), within_days(14)), basis(['ex:terms', 'PTD Art. 12(1)', 'PTD Art. 12(4)'])))
-obligation('call_fidelity', 'original_call', assessment('directive_2015', 'r2', pay_fee(percent(100), fee(1800), refund(0), within_days(14)), basis(['ex:terms', 'PTD Art. 12(1)', 'PTD Art. 12(4)'])))
-obligation('call_fidelity', 'original_call', assessment('directive_2015', 'r3', refund(1500, within_days(14)), basis(['ex:terms', 'PTD Art. 12(2)', 'PTD Art. 12(4)'])))
-obligation('call_fidelity', 'original_call', assessment('directive_2015', 'r4', pay_fee(percent(100), fee(2100), refund(0), within_days(14)), basis(['ex:terms', 'PTD Art. 12(1)', 'PTD Art. 12(4)'])))
-obligation('call_fidelity', 'original_call', assessment('directive_2015', 'r5', refund(1200, within_days(14)), basis(['ex:terms', 'PTD Art. 12(2)', 'PTD Art. 12(4)'])))
-obligation('call_fidelity', 'original_call', assessment('directive_2015', 'r6', voucher(value(1600), terms('as_agreed')), basis(['ex:terms', 'PTD Art. 12(2)', 'PTD 2015: no voucher rules'])))
-obligation('call_fidelity', 'original_call', assessment('revised_2026', 'r1', pay_fee(percent(25), fee(600), refund(1800), within_days(14)), basis(['ex:terms', 'PTD Art. 12(1)', 'PTD Art. 12(4)'])))
-obligation('call_fidelity', 'original_call', assessment('revised_2026', 'r2', pay_fee(percent(100), fee(1800), refund(0), within_days(14)), basis(['ex:terms', 'PTD Art. 12(1)', 'PTD Art. 12(4)'])))
-obligation('call_fidelity', 'original_call', assessment('revised_2026', 'r3', refund(1500, within_days(14)), basis(['ex:terms', 'revised PTD: destination', 'PTD Art. 12(4)'])))
-obligation('call_fidelity', 'original_call', assessment('revised_2026', 'r4', refund(2100, within_days(14)), basis(['ex:terms', 'revised PTD: point of departure', 'PTD Art. 12(4)'])))
-obligation('call_fidelity', 'original_call', assessment('revised_2026', 'r5', refund(1200, within_days(14)), basis(['ex:terms', 'revised PTD: destination', 'revised PTD: vouchers'])))
-obligation('call_fidelity', 'original_call', assessment('revised_2026', 'r6', voucher(value(1600), valid_months(12), 'unused_value_refunded'), basis(['ex:terms', 'revised PTD: destination', 'revised PTD: vouchers'])))
-obligation('call_fidelity', 'original_call', changed(cancellation('r4'), from(pay_fee(percent(100), fee(2100), refund(0), within_days(14))), to(refund(2100, within_days(14)))))
-obligation('call_fidelity', 'original_call', changed(cancellation('r6'), from(voucher(value(1600), terms('as_agreed'))), to(voucher(value(1600), valid_months(12), 'unused_value_refunded'))))
-obligation('call_fidelity', 'original_call', changed(complaint('k1'), from(deadlines('set_by_national_law')), to(deadlines(acknowledge(within_days(7)), reasoned_reply(within_days(60))))))
-obligation('call_fidelity', 'original_call', changed(complaint('k2'), from(deadlines('set_by_national_law')), to(deadlines(acknowledge(within_days(7)), reasoned_reply(within_days(60))))))
-obligation('call_fidelity', 'all_answers', assessment(A, B, refused_by_terms(C), basis(['ex:terms'])))
-obligation('call_fidelity', 'all_answers', assessment(A, B, C, basis(['ex:terms', D, E])))
-obligation('call_fidelity', 'all_answers', changed(cancellation(A), from(B), to(C)))
-obligation('call_fidelity', 'all_answers', changed(complaint(A), from(B), to(C)))
+condition('C10', 'call_fidelity', 'ok', 30)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(218)
 verified(185)
 recomputed(33)
 composed(0)
-trusted(24)
+trusted(0)
 claims(24)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')

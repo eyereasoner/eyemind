@@ -34,3 +34,18 @@ step(length(['dog6', 'dog7'], 2), clause(11), {_0: 'dog6', Xs: ['dog7'], N: 2, B
 step(length(['dog7'], 1), clause(11), {_0: 'dog7', Xs: [], N: 1, Before: 0}, [length([], 0), is(1, add(0, 1))])
 step(requires('alice', 'dog_license'), clause(13), {Owner: 'alice', N: 5}, [dog_count('alice', 5), gt(5, 4)])
 step(gt(5, 4), 'builtin', {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(dog_count(B, C), [dog_count('alice', 5), dog_count('bob', 2)])
+derived(requires(B, C), [requires('alice', 'dog_license')])
+called(dog_count(A, B), [dog_count('alice', 5), dog_count('bob', 2)])
+called(length(['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], C), [length(['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], 5)])
+called(length(['dog2', 'dog3', 'dog4', 'dog5'], D), [length(['dog2', 'dog3', 'dog4', 'dog5'], 4)])
+called(length(['dog3', 'dog4', 'dog5'], E), [length(['dog3', 'dog4', 'dog5'], 3)])
+called(length(['dog4', 'dog5'], F), [length(['dog4', 'dog5'], 2)])
+called(length(['dog5'], G), [length(['dog5'], 1)])
+called(length([], H), [length([], 0)])
+called(length(['dog6', 'dog7'], C), [length(['dog6', 'dog7'], 2)])
+called(length(['dog7'], I), [length(['dog7'], 1)])
+called(requires(J, 'dog_license'), [requires('alice', 'dog_license')])

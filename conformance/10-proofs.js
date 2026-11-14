@@ -209,6 +209,11 @@ conformance('a findall is a collected step', [
     '// absence or a collection), the bindings and the goals it uses.',
     'step(all_of([1, 2]), clause(3), {X: A, L: [1, 2]}, [findall(A, p(A), [1, 2])])',
     "step(findall(A, p(A), [1, 2]), 'collected', {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    'derived(all_of(B), [all_of([1, 2])])',
+    'called(all_of(A), [all_of([1, 2])])',
   ]),
 ])
 

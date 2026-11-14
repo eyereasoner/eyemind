@@ -236,16 +236,15 @@ settled from the facts, no boundary steps trusted, for 3 claims. The verdict is
 **checked**: the three answers follow from the program. If Bob were in fact
 suspended somewhere the program does not know about, the answer for Bob
 would be wrong, but that is a question about the data, not about the
-proof. And as the last comment says, the verdict confirms these
-answers; it does not say they are the only ones.
+proof. And as the last comment says, the verdict also establishes that
+these are every answer of the original question.
 
 C10 checks the original question too. The proof's search certificate lists
 every `candidate` and `allowed` fact the rules derive, each with steps of
 its own, Carol's candidates included, and no rule derives one the lists
 leave out. The absences are decided by the program's facts alone, so
 exactly these three answers are allowed. The verdict is **checked**, with
-no obligations, and `--strict-proof` accepts it. The report does not
-establish answer completeness.
+no obligations, and `--strict-proof` accepts it.
 
 
 ---

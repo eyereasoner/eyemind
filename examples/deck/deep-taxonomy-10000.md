@@ -197,7 +197,7 @@ at:
 
 The statistics repeat this: 10,001 steps, all verified against the program,
 none taken on trust. The verdict is **checked**: `'ind'` is in `'n10000'`
-follows from the program. It does not say there are no other answers.
+follows from the program, and it is every answer of the original questions.
 
 The program is a few lines and its proof about 1.4 MB: a proof records every
 step it claims.

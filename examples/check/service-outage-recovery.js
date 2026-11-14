@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 affected_function('place_order')
 affected_function('mobile_checkout')
 best_repair(['catalog_replica', 'bank_backup'], 3)
@@ -16,25 +16,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 499)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 3)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', affected_function('place_order'))
-obligation('call_fidelity', 'original_call', affected_function('mobile_checkout'))
-obligation('call_fidelity', 'original_call', best_repair(['catalog_replica', 'bank_backup'], 3))
-obligation('call_fidelity', 'original_call', restored_function('place_order'))
-obligation('call_fidelity', 'original_call', restored_function('mobile_checkout'))
-obligation('call_fidelity', 'all_answers', affected_function(A))
-obligation('call_fidelity', 'all_answers', best_repair(A, B))
-obligation('call_fidelity', 'all_answers', restored_function(A))
+condition('C10', 'call_fidelity', 'ok', 8)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(494)
 verified(476)
 recomputed(15)
 composed(0)
-trusted(8)
+trusted(0)
 claims(5)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')

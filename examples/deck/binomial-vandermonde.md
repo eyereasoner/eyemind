@@ -312,8 +312,8 @@ four answers follow from the program.
 
 What this does not establish: the checker confirmed these four finite
 calculations. It does not prove Vandermonde's identity, or the row-sum
-pattern, for every N, M and R. And, as the last comment says, it does not say
-the program has no other answers.
+pattern, for every N, M and R. As the last comment says, it does establish
+that the program has no other answers to these questions.
 
 ---
 

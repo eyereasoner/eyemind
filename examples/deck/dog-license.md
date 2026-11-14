@@ -116,6 +116,21 @@ step(length(['dog6', 'dog7'], 2), clause(11), {_0: 'dog6', Xs: ['dog7'], N: 2, B
 step(length(['dog7'], 1), clause(11), {_0: 'dog7', Xs: [], N: 1, Before: 0}, [length([], 0), is(1, add(0, 1))])
 step(requires('alice', 'dog_license'), clause(13), {Owner: 'alice', N: 5}, [dog_count('alice', 5), gt(5, 4)])
 step(gt(5, 4), 'builtin', {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(dog_count(B, C), [dog_count('alice', 5), dog_count('bob', 2)])
+derived(requires(B, C), [requires('alice', 'dog_license')])
+called(dog_count(A, B), [dog_count('alice', 5), dog_count('bob', 2)])
+called(length(['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], C), [length(['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], 5)])
+called(length(['dog2', 'dog3', 'dog4', 'dog5'], D), [length(['dog2', 'dog3', 'dog4', 'dog5'], 4)])
+called(length(['dog3', 'dog4', 'dog5'], E), [length(['dog3', 'dog4', 'dog5'], 3)])
+called(length(['dog4', 'dog5'], F), [length(['dog4', 'dog5'], 2)])
+called(length(['dog5'], G), [length(['dog5'], 1)])
+called(length([], H), [length([], 0)])
+called(length(['dog6', 'dog7'], C), [length(['dog6', 'dog7'], 2)])
+called(length(['dog7'], I), [length(['dog7'], 1)])
+called(requires(J, 'dog_license'), [requires('alice', 'dog_license')])
 ```
 
 It has three parts:
@@ -173,7 +188,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 dog_count('alice', 5)
 dog_count('bob', 2)
 requires('alice', 'dog_license')
@@ -189,25 +204,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 24)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 2)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', dog_count('alice', 5))
-obligation('call_fidelity', 'original_call', dog_count('bob', 2))
-obligation('call_fidelity', 'original_call', requires('alice', 'dog_license'))
-obligation('call_fidelity', 'all_answers', dog_count(A, B))
-obligation('call_fidelity', 'all_answers', requires(A, 'dog_license'))
+condition('C10', 'call_fidelity', 'ok', 5)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(21)
 verified(13)
 recomputed(6)
 composed(0)
-trusted(5)
+trusted(0)
 claims(3)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -240,14 +248,12 @@ Neither collection is taken on trust. Because only facts define `owns`, the
 proof needs no search certificate: the checker reads the facts and confirms
 that Alice's dogs are exactly `dog1` to `dog5`, and Bob's exactly `dog6` and
 `dog7`. "Complete" means complete with respect to this program: add a dog
-and the list changes. The verdict is **checked with obligations**: the conclusions follow
-from the program. The verdict does not say the program has no other
-conclusions.
+and the list changes. The verdict is **checked**: the conclusions follow
+from the program, and they are every answer of the original questions.
 
-C10 leaves 3 original-call claims and the answers of 2 questions unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---
@@ -259,8 +265,8 @@ eyemind examples/dog-license.js
 eyemind --strict-proof --check-proof examples/proof/dog-license.js examples/dog-license.js
 ```
 
-The second command rejects this proof with exit code 2 because its three
-call-fidelity obligations remain unproved. Its collections are settled.
+The second command accepts this proof: its collections are settled and C10
+certifies the original questions, so no obligation remains.
 
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=dog-license).
 Add `fact(owns('bob', 'dog8'))`, `fact(owns('bob', 'dog9'))` and

@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 provisional('ada', 'centrum')
 provisional('bjorn', 'centrum')
 provisional('clara', 'haga')
@@ -29,39 +29,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 97)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 11)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', provisional('ada', 'centrum'))
-obligation('call_fidelity', 'original_call', provisional('bjorn', 'centrum'))
-obligation('call_fidelity', 'original_call', provisional('clara', 'haga'))
-obligation('call_fidelity', 'original_call', provisional('davi', 'centrum'))
-obligation('call_fidelity', 'original_call', recommended('ada', 'lindholmen', 1800))
-obligation('call_fidelity', 'original_call', recommended('bjorn', 'backa', 2600))
-obligation('call_fidelity', 'original_call', recommended('clara', 'haga', 800))
-obligation('call_fidelity', 'original_call', recommended('davi', 'haga', 1600))
-obligation('call_fidelity', 'original_call', hidden_detour('ada', 3000))
-obligation('call_fidelity', 'original_call', hidden_detour('bjorn', 2000))
-obligation('call_fidelity', 'original_call', hidden_detour('clara', 150))
-obligation('call_fidelity', 'original_call', hidden_detour('davi', 1800))
-obligation('call_fidelity', 'original_call', audit_flag('ada', 'walking_limit_exceeded'))
-obligation('call_fidelity', 'original_call', audit_flag('bjorn', 'walking_limit_exceeded'))
-obligation('call_fidelity', 'original_call', audit_flag('davi', 'walking_limit_exceeded'))
-obligation('call_fidelity', 'original_call', audit_flag('ada', 'assignment_differs'))
-obligation('call_fidelity', 'original_call', audit_flag('bjorn', 'assignment_differs'))
-obligation('call_fidelity', 'original_call', audit_flag('davi', 'assignment_differs'))
-obligation('call_fidelity', 'all_answers', provisional(A, B))
-obligation('call_fidelity', 'all_answers', recommended(A, B, C))
-obligation('call_fidelity', 'all_answers', audit_flag(A, B))
-obligation('call_fidelity', 'all_answers', hidden_detour(A, B))
+condition('C10', 'call_fidelity', 'ok', 22)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(79)
 verified(42)
 recomputed(26)
 composed(0)
-trusted(22)
+trusted(0)
 claims(18)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')

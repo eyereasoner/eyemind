@@ -117,6 +117,20 @@ step(triple('bob', 'grandparent', 'dave'), clause(5), {P: 'grandparent', First: 
 step(follow_chain(['parent'], 'carol', 'dave'), clause(7), {P: 'parent', Rest: [], S: 'carol', E: 'dave', M: 'dave'}, [triple('carol', 'parent', 'dave'), follow_chain([], 'dave', 'dave')])
 step(triple('carol', 'parent', 'dave'), clause(4), {}, [])
 step(follow_chain([], 'dave', 'dave'), clause(6), {N: 'dave'}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(triple(A, B, C), [triple('alice', 'grandparent', 'carol'), triple('bob', 'grandparent', 'dave')])
+called(triple(A, 'grandparent', B), [triple('alice', 'grandparent', 'carol'), triple('bob', 'grandparent', 'dave')])
+called(triple(C, 'parent', D), [triple('alice', 'parent', 'bob'), triple('bob', 'parent', 'carol'), triple('carol', 'parent', 'dave')])
+called(follow_chain(['parent'], 'bob', E), [follow_chain(['parent'], 'bob', 'carol')])
+called(triple('bob', 'parent', F), [triple('bob', 'parent', 'carol')])
+called(follow_chain([], 'carol', G), [follow_chain([], 'carol', 'carol')])
+called(follow_chain(['parent'], 'carol', E), [follow_chain(['parent'], 'carol', 'dave')])
+called(triple('carol', 'parent', H), [triple('carol', 'parent', 'dave')])
+called(follow_chain([], 'dave', I), [follow_chain([], 'dave', 'dave')])
+called(follow_chain(['parent'], 'dave', E), [])
+called(triple('dave', 'parent', J), [])
 ```
 
 It has three parts:
@@ -159,7 +173,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 triple('alice', 'grandparent', 'carol')
 triple('bob', 'grandparent', 'dave')
 
@@ -174,23 +188,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 12)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', triple('alice', 'grandparent', 'carol'))
-obligation('call_fidelity', 'original_call', triple('bob', 'grandparent', 'dave'))
-obligation('call_fidelity', 'all_answers', triple(A, 'grandparent', B))
+condition('C10', 'call_fidelity', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(10)
 verified(10)
 recomputed(0)
 composed(0)
-trusted(3)
+trusted(0)
 claims(2)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -217,14 +226,13 @@ at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 10 steps, all 10 verified against the program,
-no boundary steps taken on trust. The verdict is **checked with obligations**: both grandparent links
-follow from the program. As the last comment says, this confirms the claims;
-it does not say the program has no other answers.
+no boundary steps taken on trust. The verdict is **checked**: both grandparent links
+follow from the program. As the last comment says, they are also
+every answer of the original questions.
 
-C10 leaves 2 original-call claims and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

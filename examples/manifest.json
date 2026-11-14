@@ -34,9 +34,7 @@
   {
     "name": "backward",
     "description": "Backward definitions inside forward bodies",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "fibonacci",
@@ -54,16 +52,12 @@
   {
     "name": "terms",
     "description": "Quoted graphs, triple terms and residual witnesses",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "existential-rules",
     "description": "Existential rules: a fresh witness per activation, never a clash",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "reachability",
@@ -73,9 +67,7 @@
   {
     "name": "shortest-path",
     "description": "Weighted paths and stratified minimum selection",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "path-discovery",
@@ -139,16 +131,12 @@
   {
     "name": "family-cousins",
     "description": "Generations, family branches and cousin relationships",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "dog-license",
     "description": "A licensing threshold based on collected dog counts",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "hanoi",
@@ -173,9 +161,7 @@
   {
     "name": "scoped-audit",
     "description": "Presence and absence within separate quoted graphs",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "control-system",
@@ -205,16 +191,12 @@
   {
     "name": "expression-eval",
     "description": "Recursive expression graphs used in forward inference",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "complex",
     "description": "Complex arithmetic, exact over Gaussian integers and polar beyond them",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "polynomial",
@@ -224,9 +206,7 @@
   {
     "name": "interval-relations",
     "description": "All thirteen interval relations and endpoint completion",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "bayes-diagnosis",
@@ -254,16 +234,12 @@
   {
     "name": "package-holiday",
     "description": "Package holiday cancellations under the tour operator's ODRL terms and the 2015 and revised EU Package Travel Directive",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "delfour",
     "description": "A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "queens",
@@ -305,9 +281,7 @@
   {
     "name": "easter",
     "description": "Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "turing",
@@ -343,9 +317,7 @@
   {
     "name": "monkey-bananas",
     "description": "Every plan of up to five moves that gets the monkey the bananas",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "gps",
@@ -355,16 +327,12 @@
   {
     "name": "superdense-coding",
     "description": "Superdense coding in discrete quantum theory, with interference as odd path counts",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "teleportation",
     "description": "Quantum teleportation in discrete quantum theory, checked for every state and outcome",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "audited-grants",
@@ -524,9 +492,7 @@
   {
     "name": "owl-property-chain",
     "description": "A property chain declared as data, followed by one general rule",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "type-inference",
@@ -546,65 +512,47 @@
   {
     "name": "symbolic-derivative",
     "description": "Symbolic differentiation of structured formulas by the sum, product, quotient, power and chain rules",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "group-inverse-uniqueness",
     "description": "Uniqueness of group inverses derived from the associativity, identity and inverse laws",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "service-outage-recovery",
     "description": "Least-cost repairs that restore checkout through redundant providers and a dependency cycle",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "critical-path-schedule",
     "description": "Earliest task times and every critical predecessor in a launch schedule",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "battery-dispatch",
     "description": "Cheapest four-slot battery schedule under energy and power limits",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "cold-chain-recall",
     "description": "Conflicting temperature evidence, checkpoint filtering and a witnessed inspection task",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "school-placement-audit",
     "description": "Walking-route and preference scores audit provisional school placements",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "gcd-bezout-identity",
     "description": "Exact extended Euclidean certificates for positive, negative and zero inputs",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "pell-equation",
     "description": "Exact Pell solutions through step 50, checked against the defining equation",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "binomial-vandermonde",
@@ -614,16 +562,12 @@
   {
     "name": "least-squares-regression",
     "description": "Straight-line fits from exact sufficient statistics, with explicit degenerate cases",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "hamming-code",
     "description": "Parity syndromes and correction of a single flipped bit in Hamming(7,4)",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "derived-rule",
@@ -687,9 +631,7 @@
       "universal-instances-n3.n3"
     ],
     "description": "@forAll statements hold of every individual, and @forSome inside them gives each its own witness",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "shared-existential-n3",
@@ -697,9 +639,7 @@
       "shared-existential-n3.n3"
     ],
     "description": "A top-level @forSome witness is the one individual a universal conclusion talks about",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "explicit-existential-rule-n3",
@@ -979,9 +919,7 @@
       "execution-identifiers-srl.srl"
     ],
     "description": "Orders share one execution time and receive distinct UUID IRIs and strings",
-    "trusted": [
-      "call_fidelity"
-    ],
+    "trusted": [],
     "srlContext": {
       "now": "2026-11-12T00:00:00.000Z",
       "seed": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"

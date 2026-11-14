@@ -24,7 +24,7 @@ condition('C6', 'boundary_consistency', 'ok', 10)
 condition('C7', 'relevance', 'ok', 121)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 24)
-condition('C10', 'call_fidelity', 'ok', 2)
+condition('C10', 'call_fidelity', 'ok', 10)
 
 // Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, delivers('interpret_existing_law', A), ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement']))
@@ -37,19 +37,11 @@ obligation('collected', 'theory_scoped', findall(A, delivers('data_ownership', A
 obligation('collected', 'theory_scoped', findall(A, objection('data_ownership', A), ['treats personal data as a commodity', unaddressed('value_transparency'), unaddressed('collective_exercise')]))
 obligation('collected', 'theory_scoped', findall(A, delivers('autonomous_right', A), ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share']))
 obligation('collected', 'theory_scoped', findall(A, objection('autonomous_right', A), []))
-obligation('call_fidelity', 'original_call', analysis('value_transparency', 'knowing that and how one\'s data creates value, including in AI training', 'by interpretation', ['GDPR art. 13-15', 'AI Act art. 53(1)(d)']))
-obligation('call_fidelity', 'original_call', analysis('use_control', 'deciding on the uses through which one\'s data creates value', 'by interpretation', ['GDPR art. 7(3)', 'GDPR art. 21']))
-obligation('call_fidelity', 'original_call', analysis('value_mobility', 'taking one\'s data elsewhere, to have value created there', 'by interpretation', ['GDPR art. 20', 'DMA art. 6(9)']))
-obligation('call_fidelity', 'original_call', analysis('value_recognition', 'the law acknowledging that personal data has economic value', 'in existing law', ['Directive 2019/770 art. 3(1)']))
-obligation('call_fidelity', 'original_call', analysis('collective_exercise', 'exercising the right together, through an intermediary', 'by interpretation', ['DGA ch. III']))
-obligation('call_fidelity', 'original_call', analysis('individual_enforcement', 'enforcing the right oneself, before a court', 'in existing law', ['GDPR art. 79 and 82']))
-obligation('call_fidelity', 'original_call', analysis('value_share', 'receiving a share of the value one\'s data creates', 'needs an autonomous right', []))
 obligation('call_fidelity', 'original_call', evaluation('interpret_existing_law', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement'], [unaddressed('value_share')]))
 obligation('call_fidelity', 'original_call', evaluation('extend_portability', ['value_mobility', 'value_transparency'], [unaddressed('use_control'), unaddressed('collective_exercise'), unaddressed('value_share')]))
 obligation('call_fidelity', 'original_call', evaluation('data_dividend', ['value_share', 'collective_exercise'], [unaddressed('value_transparency'), unaddressed('use_control'), unaddressed('value_mobility'), 'gives the data subject no claim of their own']))
 obligation('call_fidelity', 'original_call', evaluation('data_ownership', ['value_share', 'use_control', 'value_mobility', 'individual_enforcement'], ['treats personal data as a commodity', unaddressed('value_transparency'), unaddressed('collective_exercise')]))
 obligation('call_fidelity', 'original_call', evaluation('autonomous_right', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share'], []))
-obligation('call_fidelity', 'all_answers', analysis(A, B, C, D))
 obligation('call_fidelity', 'all_answers', evaluation(A, B, C))
 
 // Proof statistics: recorded steps and how they were checked.
@@ -57,7 +49,7 @@ steps(108)
 verified(74)
 recomputed(0)
 composed(0)
-trusted(24)
+trusted(16)
 claims(13)
 
 // This verdict applies to the claims above; it does not establish that they are every answer.

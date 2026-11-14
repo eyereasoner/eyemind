@@ -173,6 +173,11 @@ conformance('each _ of a clause is a variable named _0, _1, ... skipping names t
     "step(q(1, skolem(2, '_2', [1]), [1, ...skolem(2, '_3', [1])]), clause(2), {X: 1, _0: A, _1: A, _2: skolem(2, '_2', [1]), _3: skolem(2, '_3', [1])}, [p(1), unify(A, A)])",
     'step(p(1), clause(1), {}, [])',
     "step(unify(A, A), 'builtin', {}, [])",
+    '',
+    '// Search certificate: derived facts and complete answers used to check',
+    '// negations, collections and the original questions.',
+    "derived(q(B, C, D), [q(1, skolem(2, '_2', [1]), [1, ...skolem(2, '_3', [1])])])",
+    "called(q(A, _1, [A, ..._2]), [q(1, skolem(2, '_2', [1]), [1, ...skolem(2, '_3', [1])])])",
   ]),
 ])
 

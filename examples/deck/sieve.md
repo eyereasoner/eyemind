@@ -225,8 +225,7 @@ at:
 
 The statistics repeat this: 1,173 steps, 563 verified against the program,
 610 recomputed, none taken on trust. The verdict is **checked**: the list of
-primes follows from the program. It does not say there are no other
-answers.
+primes follows from the program, and it is every answer of the original questions.
 
 Why stop at 100? The proof records every intermediate list, so it grows far
 faster than the answer: about 315 KB here, and more than memory holds at a

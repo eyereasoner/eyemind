@@ -461,9 +461,9 @@ at:
 
 The statistics repeat this: 93 steps, 54 verified against the program, 39
 recomputed, none taken on trust. The verdict is **checked**: the alarm,
-its numbers and its reason follow from the landmarks and the formulas. It
-does not say the measurement or the formulas are clinically right, nor
-that there are no other answers.
+its numbers and its reason follow from the landmarks and the formulas, and
+they are every answer of the original questions. It does not say the measurement or the formulas
+are clinically right.
 
 ---
 

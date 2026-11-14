@@ -278,8 +278,8 @@ at:
 
 The statistics repeat this: 613 steps, 534 verified against the program, 79
 recomputed, none taken on trust. The verdict is **checked**: the three routes
-and their lengths follow from the program, with no obligations. It does not
-say there are no other answers.
+and their lengths follow from the program, with no obligations, and they
+are every answer of the original questions.
 
 ---
 

@@ -186,11 +186,32 @@ step(gt(2, 1), 'builtin', {}, [])
 // negations, collections and the original questions.
 derived(superseded(A), [superseded('handheld_a')])
 derived(current_reading(A, B, C, D, E), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
+derived(selected_reading(A, B, C), [selected_reading('logger_a', 'batch_a', 94), selected_reading('logger_b', 'batch_b', 75)])
+derived(conflicting_sample(A, B), [conflicting_sample('handover_a', 'batch_a')])
+derived(quarantine(A, B), [quarantine('batch_a', 'logger_a')])
+derived(notify(A, B), [notify('north_depot', 'batch_a'), notify('station_shop', 'batch_a')])
+derived(inspection_task(A, B, C), [inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a']))])
 searched(superseded('logger_a'), [])
 searched(current_reading(F, G, H, I, J), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
 searched(current_reading(K, 'handover_a', 'batch_a', L, M), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94)])
 searched(current_reading(K, 'handover_b', 'batch_b', L, M), [current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
 searched(superseded('logger_b'), [])
+called(selected_reading(A, B, C), [selected_reading('logger_a', 'batch_a', 94), selected_reading('logger_b', 'batch_b', 75)])
+called(current_reading(D, _4, F, _6, H), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
+called(superseded('handheld_a'), [superseded('handheld_a')])
+called(superseded('logger_a'), [])
+called(superseded('logger_b'), [])
+called(current_reading(I, J, K, L, _12), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
+called(current_reading(_13, 'handover_a', 'batch_a', O, _15), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94)])
+called(current_reading(_13, 'handover_b', 'batch_b', O, _15), [current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
+called(conflicting_sample(Q, R), [conflicting_sample('handover_a', 'batch_a')])
+called(current_reading(_18, T, U, _21, W), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
+called(current_reading(_23, 'handover_a', 'batch_a', _24, Z), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94)])
+called(current_reading(_23, 'handover_b', 'batch_b', _24, Z), [current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
+called(quarantine(A1, B1), [quarantine('batch_a', 'logger_a')])
+called(notify(C1, D1), [notify('north_depot', 'batch_a'), notify('station_shop', 'batch_a')])
+called(quarantine(E1, _31), [quarantine('batch_a', 'logger_a')])
+called(inspection_task(G1, H1, I1), [inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a']))])
 ```
 
 It has four parts:
@@ -288,7 +309,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 conflicting_sample('handover_a', 'batch_a')
 selected_reading('logger_a', 'batch_a', 94)
 selected_reading('logger_b', 'batch_b', 75)
@@ -308,32 +329,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 35)
 condition('C8', 'witness_integrity', 'ok', 1)
 condition('C9', 'search_closure', 'ok', 2)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', conflicting_sample('handover_a', 'batch_a'))
-obligation('call_fidelity', 'original_call', selected_reading('logger_a', 'batch_a', 94))
-obligation('call_fidelity', 'original_call', selected_reading('logger_b', 'batch_b', 75))
-obligation('call_fidelity', 'original_call', quarantine('batch_a', 'logger_a'))
-obligation('call_fidelity', 'original_call', notify('north_depot', 'batch_a'))
-obligation('call_fidelity', 'original_call', notify('station_shop', 'batch_a'))
-obligation('call_fidelity', 'original_call', inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a'])))
-obligation('call_fidelity', 'all_answers', selected_reading(A, B, C))
-obligation('call_fidelity', 'all_answers', conflicting_sample(A, B))
-obligation('call_fidelity', 'all_answers', quarantine(A, B))
-obligation('call_fidelity', 'all_answers', notify(A, B))
-obligation('call_fidelity', 'all_answers', inspection_task(A, B, C))
+condition('C10', 'call_fidelity', 'ok', 12)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(28)
 verified(20)
 recomputed(6)
 composed(0)
-trusted(12)
+trusted(0)
 claims(7)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -378,17 +385,16 @@ world.
 
 The statistics: 28 steps, 20 verified against the program, 6 recomputed and
 the 2 absences settled by the certificate, no boundary steps trusted. The verdict is
-**checked with obligations**: the answers follow from the program. It does not establish
-that eyemind found every answer.
+**checked**: the answers follow from the program, and they are every
+answer of the original questions.
 
 The supplied priorities express an evidence policy; they do not establish
 sensor calibration in the real world. Equal priorities can leave multiple
 readings selected. The program reports actions without executing them.
 
-C10 leaves 7 original-call claims and the answers of 5 questions unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

@@ -195,7 +195,7 @@ at:
 
 The statistics repeat this: 6 steps, all 6 verified against the program,
 none taken on trust. The verdict is **checked**: both answers follow from the
-program. It confirms them; it does not say there are no other answers.
+program, and they are every answer of the original questions.
 
 ---
 

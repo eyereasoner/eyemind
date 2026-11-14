@@ -262,8 +262,8 @@ at:
 
 The statistics repeat this: 11 steps, all 11 verified against the program,
 no boundary steps taken on trust. The verdict is **checked**: all four answers follow
-from the program. As the last comment says, this confirms the claims; it does
-not say the program has no other answers.
+from the program. As the last comment says, they are also every answer of
+the original questions.
 
 C10 checks the original questions too. The search certificate lists every
 fact the rules derive for each relation the answers rest on, each with
@@ -271,8 +271,7 @@ steps of its own, and no rule derives one the lists leave out. The
 negations are decided by those listed facts alone, and this program has
 only one such set of facts, so all four claims are what its questions
 return. The verdict is **checked**, with no obligations, and
-`--strict-proof` accepts it. The report does not establish answer
-completeness.
+`--strict-proof` accepts it.
 
 
 ---

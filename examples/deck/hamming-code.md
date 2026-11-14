@@ -263,7 +263,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 decoded('damaged', 5, [1, 0, 1, 1, 0, 1, 0], [1, 0, 1, 0])
 decoded('intact', 0, [1, 0, 1, 1, 0, 1, 0], [1, 0, 1, 0])
 decoded('last_bit', 7, [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0])
@@ -279,24 +279,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 118)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', decoded('damaged', 5, [1, 0, 1, 1, 0, 1, 0], [1, 0, 1, 0]))
-obligation('call_fidelity', 'original_call', decoded('intact', 0, [1, 0, 1, 1, 0, 1, 0], [1, 0, 1, 0]))
-obligation('call_fidelity', 'original_call', decoded('last_bit', 7, [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0]))
-obligation('call_fidelity', 'all_answers', decoded(A, B, C, D))
+condition('C10', 'call_fidelity', 'ok', 4)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(115)
 verified(76)
 recomputed(39)
 composed(0)
-trusted(4)
+trusted(0)
 claims(3)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -324,18 +318,17 @@ at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 115 steps, 76 verified against the program, 39
-recomputed, no boundary steps taken on trust. The verdict is **checked with obligations**: the three
+recomputed, no boundary steps taken on trust. The verdict is **checked**: the three
 decodings follow from the program. It certifies the decoder's result,
-subject to the channel assumption above; as the last comment says, it does
-not say the program has no other answers.
+subject to the channel assumption above; as the last comment says, the
+decodings are also every answer of the original questions.
 
 The example's regression test covers all 16 payloads with no error and with
 each of the seven possible single-bit errors: 128 cases.
 
-C10 leaves 3 original-call claims and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

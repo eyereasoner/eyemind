@@ -429,18 +429,11 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 310)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 33)
-condition('C10', 'call_fidelity', 'ok', 0)
+condition('C10', 'call_fidelity', 'ok', 9)
 
 // Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', breach_plan('in_force', 'b1', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
-obligation('call_fidelity', 'original_call', breach_plan('in_force', 'b2', notify(authority(within_hours(72)), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
-obligation('call_fidelity', 'original_call', breach_plan('in_force', 'b3', notify(authority(within_hours(72)), people('without_undue_delay')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
-obligation('call_fidelity', 'original_call', breach_plan('omnibus_proposal', 'b1', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1) as amended', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
-obligation('call_fidelity', 'original_call', breach_plan('omnibus_proposal', 'b2', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1) as amended', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
-obligation('call_fidelity', 'original_call', breach_plan('omnibus_proposal', 'b3', notify(authority(within_hours_via_single_entry_point(96)), people('without_undue_delay')), 'document_breach', basis(['GDPR Art. 33(1) as amended', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
 obligation('call_fidelity', 'original_call', changed(breach('b2'), from(notify(authority(within_hours(72)), people('none'))), to(notify(authority('none'), people('none')))))
 obligation('call_fidelity', 'original_call', changed(breach('b3'), from(notify(authority(within_hours(72)), people('without_undue_delay'))), to(notify(authority(within_hours_via_single_entry_point(96)), people('without_undue_delay')))))
-obligation('call_fidelity', 'original_call', policy_conflict('ex:r6', resolved_by('odrl:prohibit', 'ex:noTransferUS', overrides('ex:research'))))
 obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r2', deny_policy(not_permitted([unmet('ex:forResearch', 'odrl:purpose', 'dpv:PersonalisedAdvertising', 'odrl:isA', 'dpv:ResearchAndDevelopment'), unmet('ex:underConsent', 'ex:legalBasis', 'dpv:LegitimateInterest', 'odrl:eq', 'dpv:Consent'), unmet('ex:consentGiven', 'ex:consentStatus', 'dpv:ConsentUnknown', 'odrl:eq', 'dpv:ConsentGiven')])), basis(['ex:policy'])))
 obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r3', deny_policy(prohibited_by('ex:noMarketing')), basis(['ex:policy'])))
 obligation('call_fidelity', 'original_call', assessment('in_force', 'ex:r4', deny_policy(not_permitted([unmet('ex:consentGiven', 'ex:consentStatus', 'dpv:ConsentWithdrawn', 'odrl:eq', 'dpv:ConsentGiven')])), basis(['ex:policy'])))
@@ -473,9 +466,7 @@ obligation('call_fidelity', 'all_answers', assessment(A, B, deny_policy(C), basi
 obligation('call_fidelity', 'all_answers', assessment(A, B, permit(C), basis(['ex:policy', D])))
 obligation('call_fidelity', 'all_answers', assessment(A, B, await_device_consent(C), basis(D)))
 obligation('call_fidelity', 'all_answers', assessment(A, B, deny_device(C), basis(D)))
-obligation('call_fidelity', 'all_answers', policy_conflict(A, resolved_by('odrl:prohibit', B, overrides(C))))
 obligation('call_fidelity', 'all_answers', planned_duty(A, B, C, within_days(D)))
-obligation('call_fidelity', 'all_answers', breach_plan(A, B, notify(authority(C), people(D)), 'document_breach', basis([E, F, 'GDPR Art. 33(5)'])))
 obligation('call_fidelity', 'all_answers', changed(session(A), from(B), to(C)))
 obligation('call_fidelity', 'all_answers', changed(breach(A), from(B), to(C)))
 
@@ -484,7 +475,7 @@ steps(273)
 verified(225)
 recomputed(15)
 composed(0)
-trusted(46)
+trusted(37)
 claims(37)
 
 // This verdict applies to the claims above; it does not establish that they are every answer.
@@ -540,7 +531,7 @@ conclusions, that the rules are legally correct, that consent was really
 given, or that the data was really deleted. It shows that the conclusions
 follow from these rules and these facts.
 
-C10 leaves 37 original-call claims and the answers of 9 questions unproved by the available evidence. The
+C10 leaves 30 original-call claims and the answers of 7 questions unproved by the available evidence. The
 verdict is **checked with obligations**: the recorded derivations are
 conditional on these call-fidelity obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.

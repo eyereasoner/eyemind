@@ -148,8 +148,13 @@ step(witness(graph([triple(iri('https://example.org/s'), iri('https://example.or
 
 // Search certificate: derived facts and complete answers used to check
 // negations, collections and the original questions.
+derived(found(A), [found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))])
 derived(witness(A, B), [witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])]))])
-called(witness(A, B), [witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])]))])
+called(found(A), [found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))])
+called(includes(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), B), [includes(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))])
+called(member_of(C, [triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), [member_of(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))), [triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])])
+called(member_of(D, []), [])
+called(witness(E, F), [witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])]))])
 ```
 
 The lines are long because the whole triple is written out each time. It has
@@ -188,7 +193,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))
 witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])]))
 
@@ -203,22 +208,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 7)
 condition('C8', 'witness_integrity', 'ok', 1)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))))
-obligation('call_fidelity', 'all_answers', found(A))
+condition('C10', 'call_fidelity', 'ok', 4)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(5)
 verified(5)
 recomputed(0)
 composed(0)
-trusted(2)
+trusted(0)
 claims(2)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -244,14 +245,12 @@ at:
   settle, so no search certificate to check.
 
 The statistics: 5 steps, all 5 verified against the program, none taken on
-trust, 2 claims. The verdict is **checked with obligations**: both conclusions follow from the
-program. As the last comment says, this confirms the claims; it does not say
-the program has no other conclusions.
+trust, 2 claims. The verdict is **checked**: both conclusions follow from the
+program. As the last comment says, they are also every answer of the original questions.
 
-C10 leaves 1 original-call claim and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

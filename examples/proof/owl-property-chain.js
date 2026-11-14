@@ -23,3 +23,17 @@ step(triple('bob', 'grandparent', 'dave'), clause(5), {P: 'grandparent', First: 
 step(follow_chain(['parent'], 'carol', 'dave'), clause(7), {P: 'parent', Rest: [], S: 'carol', E: 'dave', M: 'dave'}, [triple('carol', 'parent', 'dave'), follow_chain([], 'dave', 'dave')])
 step(triple('carol', 'parent', 'dave'), clause(4), {}, [])
 step(follow_chain([], 'dave', 'dave'), clause(6), {N: 'dave'}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(triple(A, B, C), [triple('alice', 'grandparent', 'carol'), triple('bob', 'grandparent', 'dave')])
+called(triple(A, 'grandparent', B), [triple('alice', 'grandparent', 'carol'), triple('bob', 'grandparent', 'dave')])
+called(triple(C, 'parent', D), [triple('alice', 'parent', 'bob'), triple('bob', 'parent', 'carol'), triple('carol', 'parent', 'dave')])
+called(follow_chain(['parent'], 'bob', E), [follow_chain(['parent'], 'bob', 'carol')])
+called(triple('bob', 'parent', F), [triple('bob', 'parent', 'carol')])
+called(follow_chain([], 'carol', G), [follow_chain([], 'carol', 'carol')])
+called(follow_chain(['parent'], 'carol', E), [follow_chain(['parent'], 'carol', 'dave')])
+called(triple('carol', 'parent', H), [triple('carol', 'parent', 'dave')])
+called(follow_chain([], 'dave', I), [follow_chain([], 'dave', 'dave')])
+called(follow_chain(['parent'], 'dave', E), [])
+called(triple('dave', 'parent', J), [])

@@ -118,9 +118,32 @@ step(not(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'conse
 
 // Search certificate: derived facts and complete answers used to check
 // negations, collections and the original questions.
+derived(consented(A, B), [consented('approved', 'alice')])
+derived(needs_review(A, B), [needs_review('incomplete', 'bob')])
 searched(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes')), [])
 searched(member(triple('bob', 'consent', 'yes'), [triple('bob', 'role', 'editor')]), [])
 searched(member(triple('bob', 'consent', 'yes'), []), [])
+called(consented(A, B), [consented('approved', 'alice')])
+called(includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple(C, 'consent', 'yes')), [includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple('alice', 'consent', 'yes'))])
+called(member(triple(D, 'consent', 'yes'), [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), [member(triple('alice', 'consent', 'yes'), [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])])
+called(member(triple(E, 'consent', 'yes'), [triple('alice', 'consent', 'yes')]), [member(triple('alice', 'consent', 'yes'), [triple('alice', 'consent', 'yes')])])
+called(member(triple(F, 'consent', 'yes'), []), [])
+called(includes(graph([triple('bob', 'role', 'editor')]), triple(C, 'consent', 'yes')), [])
+called(member(triple(G, 'consent', 'yes'), [triple('bob', 'role', 'editor')]), [])
+called(needs_review(H, I), [needs_review('incomplete', 'bob')])
+called(includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple(J, 'role', 'editor')), [includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple('alice', 'role', 'editor'))])
+called(member(triple(K, 'role', 'editor'), [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), [member(triple('alice', 'role', 'editor'), [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])])
+called(member(triple(L, 'role', 'editor'), [triple('alice', 'consent', 'yes')]), [])
+called(member(triple(M, 'role', 'editor'), []), [])
+called(includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple('alice', 'consent', 'yes')), [includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple('alice', 'consent', 'yes'))])
+called(member(triple('alice', 'consent', 'yes'), [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), [member(triple('alice', 'consent', 'yes'), [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])])
+called(member(triple('alice', 'consent', 'yes'), [triple('alice', 'consent', 'yes')]), [member(triple('alice', 'consent', 'yes'), [triple('alice', 'consent', 'yes')])])
+called(member(triple('alice', 'consent', 'yes'), []), [])
+called(includes(graph([triple('bob', 'role', 'editor')]), triple(J, 'role', 'editor')), [includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'role', 'editor'))])
+called(member(triple(N, 'role', 'editor'), [triple('bob', 'role', 'editor')]), [member(triple('bob', 'role', 'editor'), [triple('bob', 'role', 'editor')])])
+called(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes')), [])
+called(member(triple('bob', 'consent', 'yes'), [triple('bob', 'role', 'editor')]), [])
+called(member(triple('bob', 'consent', 'yes'), []), [])
 ```
 
 It has four parts:
@@ -181,7 +204,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 consented('approved', 'alice')
 needs_review('incomplete', 'bob')
 
@@ -196,24 +219,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 12)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', consented('approved', 'alice'))
-obligation('call_fidelity', 'original_call', needs_review('incomplete', 'bob'))
-obligation('call_fidelity', 'all_answers', consented(A, B))
-obligation('call_fidelity', 'all_answers', needs_review(A, B))
+condition('C10', 'call_fidelity', 'ok', 4)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(10)
 verified(9)
 recomputed(0)
 composed(0)
-trusted(4)
+trusted(0)
 claims(2)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -252,13 +269,12 @@ one record, not "nothing anywhere".
 
 The statistics: 10 steps, 9 verified against the program and the absence
 settled by the certificate, so none is trusted and there are no
-obligations. The verdict is **checked with obligations**: both conclusions follow from the
-program. It does not establish that eyemind found every conclusion.
+obligations. The verdict is **checked**: both conclusions follow from the
+program, and they are every answer of the original questions.
 
-C10 leaves 2 original-call claims and the answers of 2 questions unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

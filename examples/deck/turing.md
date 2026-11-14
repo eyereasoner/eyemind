@@ -324,8 +324,8 @@ at:
 
 The statistics repeat this: 144 steps, 142 verified against the program, 2
 recomputed, none taken on trust. The verdict is **checked**: all four runs
-follow from the program. As the last comment says, this confirms the claims;
-it does not say the program has no other answers.
+follow from the program. As the last comment says, they are also
+every answer of the original questions.
 
 ---
 

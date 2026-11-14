@@ -251,8 +251,8 @@ exactly `['o3', 'o4']` and that `missing` has nothing at all. Because only
 facts define `t`, the proof needs no search certificate; the checker reads
 the facts. "Complete" means complete with respect to this program: if
 someone adds a fact, these lists could change. The verdict is **checked**:
-the three answers follow from the program. The verdict does not say the
-program has no other conclusions. A stricter check, `--strict-proof`,
+the three answers follow from the program, and they are every answer of the original questions.
+A stricter check, `--strict-proof`,
 rejects any proof that leans on trust; this one passes it.
 
 ---

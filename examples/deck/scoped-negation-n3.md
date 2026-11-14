@@ -88,7 +88,7 @@ omitting that hold from the certificate would not pass closure.
 The report ends with `verdict('checked')`, with no obligations. C10 checks
 the original questions too: the `rdf/3` listing is supported and closed,
 and the rule's negation is decided by the listed facts alone, so the
-claims are what the questions return. `--strict-proof` accepts the proof.
+claims are exactly what the questions return. `--strict-proof` accepts the proof.
 
 ---
 

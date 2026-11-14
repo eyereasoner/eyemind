@@ -979,6 +979,54 @@ implies(implied_by(H, B), backward_rule(H, B))`);
     assert.ok(complete >= 50, `only ${complete} proofs had their answers shown complete`);
   },
 
+  'forward rules computing with bound inputs agree with a naive fixpoint and their answers check as complete'() {
+    let complete = 0;
+    forSeeds(60, (r) => {
+      const start = [0, 1, 2, 3, 4].filter(() => r.chance(0.4));
+      if (!start.length) start.push(r.below(5));
+      const limit = 2 + r.below(6);
+      const step = 1 + r.below(3);
+      const gaps = r.chance(0.7);
+      const holes = gaps && r.chance(0.7);
+      const lines = [`fact(${start.map((k) => `n(${k})`).join(', ')})`,
+        `implies([n(X), lt(X, ${limit}), is(Y, add(X, ${step}))], n(Y))`];
+      if (gaps) lines.push('implies([n(X), n(Y), lt(X, Y), is(Z, sub(Y, X))], gap(Z))');
+      if (holes) lines.push('implies([gap(Z), not(n(Z))], hole(Z))');
+      const source = `${lines.join('\n')}\n`;
+      // The model, computed directly.
+      const n = new Set(start);
+      for (let changed = true; changed;) {
+        changed = false;
+        for (const x of [...n]) {
+          if (x < limit && !n.has(x + step)) {
+            n.add(x + step);
+            changed = true;
+          }
+        }
+      }
+      const gap = new Set();
+      if (gaps) for (const x of n) for (const y of n) if (x < y) gap.add(y - x);
+      const expected = [...[...n].filter((k) => !start.includes(k)).map((k) => `n(${k})`),
+        ...[...gap].map((k) => `gap(${k})`), ...(holes ? [...gap].filter((k) => !n.has(k)).map((k) => `hole(${k})`) : [])].sort();
+      const loaded = program(source);
+      const result = run(loaded, { proof: true });
+      assert.deepEqual([...result.answers].sort(), expected, source);
+      const report = checkProof(loaded, result.proof, { allowTrusted: false });
+      assert.ok(report.valid, `${JSON.stringify(report.failures)}\n${source}`);
+      // Leaving out any one claim must fail C10.
+      const proofLines = result.proof.split('\n');
+      const end = proofLines.indexOf('');
+      if (end > 1) {
+        const dropped = 1 + r.below(end - 1);
+        const fewer = [...proofLines.slice(0, dropped), ...proofLines.slice(dropped + 1)].join('\n');
+        assert.ok(checkProof(loaded, fewer).failures.some(({ condition }) => condition === 'C10'),
+          `leaving out ${proofLines[dropped]} was not caught\n${source}`);
+        complete++;
+      }
+    });
+    assert.ok(complete >= 30, `only ${complete} programs had answers to leave out`);
+  },
+
   'a chain-stratified program has one stable model, whatever the order of rule applications, and only its proof checks'() {
     let layered = 0;
     let rejected = 0;

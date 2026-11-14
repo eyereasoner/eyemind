@@ -202,7 +202,7 @@ at:
 
 The statistics repeat this: 6 steps, all 6 verified against the program,
 none taken on trust. The verdict is **checked**: all four facts follow from
-the program. It does not say the program has no other conclusions.
+the program, and they are every answer of the original questions.
 
 ---
 

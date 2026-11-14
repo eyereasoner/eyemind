@@ -9,8 +9,8 @@
 // ann, cara and dan get a grant, ann and dan also a top-up for a household of
 // three or more, bob is refused for his income, and eve gets nothing because
 // she already received a grant. The checker confirms each grant's absence of
-// an earlier grant from the already_received facts. Call fidelity remains an
-// explicit obligation for these forward policy rules. The decisions for
+// an earlier grant from the already_received facts and certifies the policy's
+// questions, so its proof has no obligation. The decisions for
 // cara and dan are at risk, because their incomes are self-declared. It shows
 // the library API (eyemind.build, run and readTerms) used inside a program,
 // and proofs read back as ordinary data.

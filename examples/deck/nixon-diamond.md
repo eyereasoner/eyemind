@@ -282,8 +282,7 @@ steps of its own, and no rule derives one the lists leave out. The
 negations are decided by those listed facts alone, and this program has
 only one such set of facts, so all five claims are what its questions
 return. The verdict is **checked**, with no obligations, and
-`--strict-proof` accepts it. The report does not establish answer
-completeness.
+`--strict-proof` accepts it.
 
 
 ---

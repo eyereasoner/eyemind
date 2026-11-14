@@ -124,7 +124,7 @@ export const tests = [
     await p.type('proof-input', proof);
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
-    assert.match(await p.output(), /verdict\('checked_with_obligations'\)/);
+    assert.match(await p.output(), /verdict\('checked'\)/);
   }],
 
   ['native input combinations run and their saved proofs check in the playground', async (page, base) => {
