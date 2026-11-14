@@ -289,7 +289,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 schedule('requirements', 0, 2)
 schedule('architecture', 2, 5)
 schedule('api_design', 2, 4)
@@ -321,30 +321,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 97)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 12)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', project_finish(23))
-obligation('call_fidelity', 'original_call', critical_task('launch'))
-obligation('call_fidelity', 'original_call', critical_task('security_review'))
-obligation('call_fidelity', 'original_call', critical_task('integration'))
-obligation('call_fidelity', 'original_call', critical_task('backend'))
-obligation('call_fidelity', 'original_call', critical_task('database'))
-obligation('call_fidelity', 'original_call', critical_task('architecture'))
-obligation('call_fidelity', 'original_call', critical_task('requirements'))
-obligation('call_fidelity', 'all_answers', project_finish(A))
-obligation('call_fidelity', 'all_answers', critical_task(A))
+condition('C10', 'call_fidelity', 'ok', 22)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(78)
 verified(56)
 recomputed(22)
 composed(0)
-trusted(10)
+trusted(0)
 claims(19)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -371,17 +359,16 @@ at:
   settle, so no search certificate to check.
 
 The statistics: 78 steps, 56 verified against the program, 22 recomputed,
-no boundary steps taken on trust, 19 claims. The verdict is **checked with obligations**: the schedule,
+no boundary steps taken on trust, 19 claims. The verdict is **checked**: the schedule,
 the finish time and the seven critical tasks follow from the program. As the
-last comment says, this confirms the claims; it does not say the program has
-no other conclusions. It also establishes only the supplied precedence
+last comment says, they are also every answer of the original questions. It establishes only the
+supplied precedence
 schedule: shared staffing limits, calendar dates and uncertainty in durations
 are outside this model.
 
-C10 leaves 8 original-call claims and the answers of 2 questions unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

@@ -2188,36 +2188,79 @@ first, and `once` selects it. Thus `q('a')` is an answer and `q('b')` is
 excluded. Substituting `called(p('b'), [p('b')])` cannot establish the
 different call `p(X)`.
 
-**Supported forward listings.** A forward listing's **ground dependency
-closure** contains its relation and each ordinary body relation, inside a
-negation or not, of every source fact, backward rule or forward rule
-defining any relation in that closure. To use a listing for C10:
+**Supported forward listings.** A listing supports C10 when a search of
+each rule body it depends on, in source order, finds exactly the ground
+instances of that body that hold. Its steps, whose primitives C5 re-decides
+on their ground instances, then show firings that a search makes. This holds
+when no goal can observe the bindings or the order in which it runs. The
+checker establishes it by a **mode analysis** of the rules the listing
+depends on. A **mode** of a call gives, for each argument, whether it is
+ground when the call runs: an argument is ground when every variable in it
+is **grounded** at that point.
 
-- All source facts in the closure MUST be ground.
-- Rule bodies MUST contain only ordinary calls, `'true'`, conjunction,
-  disjunction and negations of these. Templates, captures and source
-  inspection are excluded.
+The analysis starts from the listed relation and its forward rules, and
+follows each ordinary body call, inside a negation or not, to the called
+relation in the mode of that call: its forward rules once, and its backward
+rules once in each mode. A forward rule's body starts with no grounded
+variable. A backward rule's body starts with the variables of the head
+arguments that are ground in the mode. Body goals are taken in order, each
+with the variables grounded before it:
+
+- `'true'` grounds nothing. Conjunction accumulates the grounded variables
+  of its parts. Disjunction grounds only those grounded by both
+  alternatives. `call(G)` is `G`.
+- A call to an ordinary relation grounds its variables when every source
+  fact of the relation is ground once the arguments ground in the mode are
+  unified with it, and the relation is not **loose** in that mode;
+  otherwise it grounds nothing.
 - A negation grounds nothing. Each of its variables other than anonymous
-  ones MUST be grounded by the body goals before it, and it MUST NOT contain
-  a negation.
-- A body call to an ordinary relation grounds its variables. Conjunction
-  accumulates the grounded variables of its parts; disjunction grounds only
-  those grounded by both alternatives.
-- Every backward head variable MUST be grounded by its body.
-- Every forward head variable MUST either be grounded by its body or be a
-  head-only witness checked by C8.
-- A restricted rule's guard is a negation, so a closure with a restricted
-  rule that has head-only variables is not supported: which firings a
-  restricted rule makes can depend on the order of rule applications.
+  ones MUST be grounded before it, and it MUST NOT contain a negation.
+- `once(G)` grounds nothing. `G` MUST satisfy these conditions. Each named
+  variable of `G` that occurs elsewhere in the clause MUST be grounded before
+  it, so the choice of a first answer binds nothing another goal uses.
+- `findall(T, G, L)` follows the same rule for `T` and `G`. It grounds the
+  variables of `L` when `G` grounds every variable of `T`.
+- A primitive whose variables are all grounded before it is a test, and
+  grounds nothing. `unify/2` with one side ground grounds the other, and
+  with neither ground grounds nothing. Otherwise the primitive MUST be
+  called in one of the modes below, its input arguments ground, and it
+  grounds its variables.
+- Source inspection, templates, captures and restricted rules are not
+  supported. A restricted rule's guard is a negation, but which firings the
+  rule makes can depend on the order of rule applications.
+
+After its body, every head variable of a forward rule MUST be grounded or
+be a head-only witness checked by C8. If a head variable of a backward rule
+is not grounded, the relation is loose in that mode, and the analysis
+starts again with that call grounding nothing.
+
+| Primitive | Inputs → outputs |
+| --- | --- |
+| `is/2` | expression → result |
+| `compare/3` | both compared terms → order |
+| `atom_chars/2`, `atom_codes/2` | atom → list, or list → atom |
+| `number_chars/2` | list → number |
+| `atom_length/2`, `atom_lower/2`, `atom_upper/2`, `term_text/2` | first → second |
+| `atom_concat/3` | both parts → whole, or whole → both parts |
+| `regex_find/3`, `digest/3` | first two → third |
+| `float64/4` | first three → fourth |
+
+In each listed mode, a call with ground inputs has exactly the solutions
+whose ground instances C5 re-decides as holding. `number_chars/2` re-decides
+a ground instance by reading its characters, so only that direction is
+listed. A host-math result accepted by C5 only within its tolerance
+([Section 11.8](#118-c5-re-decision)) need not be the result a search
+finds. A proof with such a step therefore supports no listing for C10.
 
 Supported facts and closed listings then establish the least ground
-positive closure and, with negations, a set of facts that is supported,
-closed under the rules and consistent with each negation, every negation
-being decided by the listed facts alone. A stratified or chain-stratified
-program has exactly one such set ([Section 7.4](#74-negation-and-collection)), its result, so the
-listings are the facts the original calls consult. More general forward
-execution requires publication evidence this format does not supply,
-leaving call fidelity unproved.
+closure and, with negations, a set of facts that is supported, closed under
+the rules and consistent with each negation, every negation being decided
+by the listed facts alone. A stratified or chain-stratified program has
+exactly one such set ([Section 7.4](#74-negation-and-collection)), its
+result, so the listings are the facts the original calls consult. A rule
+outside the analysis, for example one that tests whether a variable is
+bound or keeps the first of several answers it uses, requires publication
+evidence this format does not supply, leaving call fidelity unproved.
 
 **Deciding claims.** Every relevant call certificate MUST be valid. Each
 claim MUST be identical, up to variable renaming, to an answer of at least

@@ -208,7 +208,7 @@ at:
 The statistics repeat this: 11 steps, all 11 verified against the program,
 none recomputed, composed or taken on trust. The verdict is **checked**:
 `ind` is an `n10` follows from the program. As the last comment says, this
-confirms the claim; it does not say the program has no other answers.
+confirms the claim, and that it is every answer of the original questions.
 
 ---
 

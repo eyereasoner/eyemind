@@ -209,8 +209,8 @@ at:
 
 The statistics repeat this: 7 steps, 3 verified against the rules, 4
 recomputed, none taken on trust. The verdict is **checked**: all three
-answers follow from the program. As the last comment says, this confirms the
-claims; it does not say the program has no other answers.
+answers follow from the program. As the last comment says, they are also
+every answer of the original questions.
 
 ---
 

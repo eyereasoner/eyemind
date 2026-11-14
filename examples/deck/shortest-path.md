@@ -137,13 +137,52 @@ step(path('a', 'd', 10), clause(7), {X: 'a', Y: 'c', Before: 2, Z: 'd', Weight: 
 step(is(10, add(2, 8)), 'builtin', {}, [])
 step(path('c', 'd', 4), clause(7), {X: 'c', Y: 'b', Before: 1, Z: 'd', Weight: 3, Cost: 4}, [path('c', 'b', 1), edge('b', 'd', 3), is(4, add(1, 3))])
 step(is(4, add(1, 3)), 'builtin', {}, [])
+step(shortest('a', 'c', 2), clause(9), {X: 'a', Y: 'c', Cost: 2}, [path('a', 'c', 2), not(cheaper('a', 'c', 2))])
+step(not(cheaper('a', 'c', 2)), 'absent', {}, [])
+step(shortest('c', 'b', 1), clause(9), {X: 'c', Y: 'b', Cost: 1}, [path('c', 'b', 1), not(cheaper('c', 'b', 1))])
+step(not(cheaper('c', 'b', 1)), 'absent', {}, [])
+step(shortest('b', 'd', 3), clause(9), {X: 'b', Y: 'd', Cost: 3}, [path('b', 'd', 3), not(cheaper('b', 'd', 3))])
+step(not(cheaper('b', 'd', 3)), 'absent', {}, [])
+step(shortest('a', 'b', 3), clause(9), {X: 'a', Y: 'b', Cost: 3}, [path('a', 'b', 3), not(cheaper('a', 'b', 3))])
+step(not(cheaper('a', 'b', 3)), 'absent', {}, [])
+step(shortest('c', 'd', 4), clause(9), {X: 'c', Y: 'd', Cost: 4}, [path('c', 'd', 4), not(cheaper('c', 'd', 4))])
+step(not(cheaper('c', 'd', 4)), 'absent', {}, [])
 
 // Search certificate: derived facts and complete answers used to check
 // negations, collections and the original questions.
 derived(path(A, B, C), [path('a', 'b', 4), path('a', 'c', 2), path('c', 'b', 1), path('b', 'd', 3), path('c', 'd', 8), path('a', 'd', 7), path('a', 'b', 3), path('a', 'd', 10), path('c', 'd', 4), path('a', 'd', 6)])
+derived(shortest(A, B, C), [shortest('a', 'c', 2), shortest('c', 'b', 1), shortest('b', 'd', 3), shortest('a', 'b', 3), shortest('c', 'd', 4), shortest('a', 'd', 6)])
 searched(cheaper('a', 'd', 6), [])
 searched(path('a', 'd', D), [path('a', 'd', 7), path('a', 'd', 10), path('a', 'd', 6)])
 searched(path(E, F, G), [path('a', 'b', 4), path('a', 'c', 2), path('c', 'b', 1), path('b', 'd', 3), path('c', 'd', 8), path('a', 'd', 7), path('a', 'b', 3), path('a', 'd', 10), path('c', 'd', 4), path('a', 'd', 6)])
+searched(cheaper('a', 'c', 2), [])
+searched(path('a', 'c', H), [path('a', 'c', 2)])
+searched(cheaper('c', 'b', 1), [])
+searched(path('c', 'b', I), [path('c', 'b', 1)])
+searched(cheaper('b', 'd', 3), [])
+searched(path('b', 'd', J), [path('b', 'd', 3)])
+searched(cheaper('a', 'b', 3), [])
+searched(path('a', 'b', K), [path('a', 'b', 4), path('a', 'b', 3)])
+searched(cheaper('c', 'd', 4), [])
+searched(path('c', 'd', L), [path('c', 'd', 8), path('c', 'd', 4)])
+called(shortest('a', 'd', A), [shortest('a', 'd', 6)])
+called(path(B, C, D), [path('a', 'b', 4), path('a', 'c', 2), path('c', 'b', 1), path('b', 'd', 3), path('c', 'd', 8), path('a', 'd', 7), path('a', 'b', 3), path('a', 'd', 10), path('c', 'd', 4), path('a', 'd', 6)])
+called(cheaper('a', 'b', 4), [cheaper('a', 'b', 4)])
+called(path('a', 'b', E), [path('a', 'b', 4), path('a', 'b', 3)])
+called(cheaper('a', 'c', 2), [])
+called(path('a', 'c', F), [path('a', 'c', 2)])
+called(cheaper('c', 'b', 1), [])
+called(path('c', 'b', G), [path('c', 'b', 1)])
+called(cheaper('b', 'd', 3), [])
+called(path('b', 'd', H), [path('b', 'd', 3)])
+called(cheaper('c', 'd', 8), [cheaper('c', 'd', 8)])
+called(path('c', 'd', I), [path('c', 'd', 8), path('c', 'd', 4)])
+called(cheaper('a', 'd', 7), [cheaper('a', 'd', 7)])
+called(path('a', 'd', J), [path('a', 'd', 7), path('a', 'd', 10), path('a', 'd', 6)])
+called(cheaper('a', 'b', 3), [])
+called(cheaper('a', 'd', 10), [cheaper('a', 'd', 10), cheaper('a', 'd', 10)])
+called(cheaper('c', 'd', 4), [])
+called(cheaper('a', 'd', 6), [])
 ```
 
 It has four parts:
@@ -206,36 +245,32 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 shortest('a', 'd', 6)
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 16)
-condition('C2', 'well_founded', 'ok', 22)
-condition('C3', 'justification', 'ok', 22)
-condition('C4', 'coverage', 'ok', 23)
+condition('C1', 'resolution', 'ok', 21)
+condition('C2', 'well_founded', 'ok', 32)
+condition('C3', 'justification', 'ok', 32)
+condition('C4', 'coverage', 'ok', 33)
 condition('C5', 're_decision', 'ok', 5)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 23)
+condition('C7', 'relevance', 'ok', 33)
 condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', shortest('a', 'd', 6))
-obligation('call_fidelity', 'all_answers', shortest('a', 'd', A))
+condition('C9', 'search_closure', 'ok', 6)
+condition('C10', 'call_fidelity', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
-steps(22)
-verified(16)
+steps(32)
+verified(21)
 recomputed(5)
 composed(0)
-trusted(2)
+trusted(0)
 claims(1)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -272,31 +307,31 @@ that hid a cheaper route, would disagree with this expansion and fail the
 check.
 
 The statistics: 22 steps, 16 verified against the program, 5 recomputed,
-and the absence settled by the certificate, so no boundary steps are taken on trust. The verdict is **checked with obligations**: the route of cost 6
+and the absence settled by the certificate, so no boundary steps are taken on trust. The verdict is **checked**: the route of cost 6
 exists, and no route from a to d is cheaper. This holds relative to this
 program: true of this map, not necessarily of the real roads. The verdict
-also does not establish that there are no other answers.
+also establishes that there is no other answer: C10 certifies the original
+question, whose listing of derived paths is closed under the rules.
 
 ---
 
 ## Strict mode
 
-Strict mode refuses any proof that takes something on trust:
+Strict mode refuses any proof that takes something on trust, and this one
+takes nothing on trust:
 
 ```sh
 eyemind --proof examples/shortest-path.js > /tmp/sp-proof.js
 eyemind --strict-proof --check-proof /tmp/sp-proof.js examples/shortest-path.js
 ```
 
-The strict check rejects this proof with exit code 2. The absence is settled
-by its search certificate, but C10 cannot establish the original call from
-this forward listing, so the report includes a C10 failure for its unresolved
-call-fidelity obligation.
+The strict check accepts this proof. The absence is settled by its search
+certificate, and C10 establishes the original call from the forward listing
+of paths: its rules compare and add costs only once their inputs are bound.
 
-C10 leaves 1 original-call claim and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

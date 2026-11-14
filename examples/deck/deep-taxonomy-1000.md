@@ -198,7 +198,7 @@ at:
 
 The statistics repeat this: 1001 steps, all 1001 verified against the
 program, none taken on trust. The verdict is **checked**: `ind` is in n1000.
-It confirms that answer; it does not say there are no other answers.
+It confirms that answer, and that it is every answer of the original questions.
 
 ---
 

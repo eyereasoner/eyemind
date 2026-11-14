@@ -208,11 +208,19 @@ export function renderProof(program, claims, roots, checkable = false, heading =
     }
   };
   walk(roots);
-  const boundaries = [...steps.values()].filter((node) => node.by === 'absent' || node.by === 'collected')
+  const boundariesOf = () => [...steps.values()].filter((node) => node.by === 'absent' || node.by === 'collected')
     .map((node) => node.goal);
-  const certificate = certify !== null ? certify(boundaries) : { tables: [], listings: [] };
+  let boundaries = boundariesOf();
+  let certificate = certify !== null ? certify(boundaries) : { tables: [], listings: [] };
   // A listed derived fact is shown by its own steps, after the claims' steps.
-  walk(certificate.listings.flatMap(([, nodes]) => nodes));
+  // Their negations and collections need certificates too, which can list
+  // further facts: certify again until no new boundary appears.
+  for (;;) {
+    walk(certificate.listings.flatMap(([, nodes]) => nodes));
+    if (certify === null || boundariesOf().length === boundaries.length) break;
+    boundaries = boundariesOf();
+    certificate = certify(boundaries);
+  }
   // Variables are named A, B, ... in the order the document first shows
   // them, the claims written first, as in the run's conclusions.
   const lettering = new Lettering();
@@ -342,7 +350,7 @@ function check(program, claims, steps, certificate, goals, allowTrusted, fail, s
   const provenance = new WitnessProvenance(program, steps, certificate, settlement.outcomes, spellings);
   const tally = checkSteps(program, steps, allowTrusted, fail, spellings, name, settlement.outcomes, provenance);
   const [confronted, closed] = checkBoundaries(program, steps, tally.boundaries, fail, settlement.outcomes, spellings);
-  settlement.calls = checkCalls(program, claims, goals, certificate, steps, spellings, fail, allowTrusted, name);
+  settlement.calls = checkCalls(program, claims, goals, certificate, steps, spellings, fail, allowTrusted, name, tally.inexact);
   tally.trusted.push(...settlement.calls.unresolved);
   checkRelevance(program, claims, steps, goals || [], fail, spellings, settlement, certificate);
   checkWellFounded(steps, fail, spellings);
@@ -482,7 +490,7 @@ const CONTROL_BY = 'control';
 // instance of the clause it cites, a recomputed primitive, a control composed
 // of its uses, or a trusted boundary the later checks confront.
 function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcomes, provenance) {
-  const tally = { verified: 0, redecided: 0, composed: 0, witnessed: 0, boundaries: [], trusted: [] };
+  const tally = { verified: 0, redecided: 0, composed: 0, witnessed: 0, boundaries: [], trusted: [], inexact: false };
 
   function covered(goal) {
     if (isTerm(goal, 'and', 2)) return flattenConjunction(goal).every(covered);
@@ -512,9 +520,11 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcome
         fail.add('C3', 'invalid builtin justification', goal);
         continue;
       }
-      const agrees = redecides(goal);
-      if (!agrees) fail.add('C5', `primitive disagrees: ${text(goal)}`, goal);
+      const exact = redecidesExactly(goal);
+      if (!exact && !nearHostMath(goal)) fail.add('C5', `primitive disagrees: ${text(goal)}`, goal);
       else tally.redecided++;
+      // Host math within its tolerance is not the result a search here finds.
+      if (!exact) tally.inexact = true;
     } else if (isTerm(by, 'called', 1)) {
       if (bindings.length || uses.length || !isCallable(goal) || !STATE_TESTS.has(key(goal))) {
         fail.add('C3', 'invalid called justification', goal);
@@ -553,6 +563,10 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcome
 }
 
 function redecides(goal) {
+  return redecidesExactly(goal) || nearHostMath(goal);
+}
+
+function redecidesExactly(goal) {
   try {
     for (const env of primitive(goal, new Env())) {
       if (resolvesTo(goal, env, goal)) return true;
@@ -560,7 +574,7 @@ function redecides(goal) {
   } catch (error) {
     if (!(error instanceof EyemindError)) throw error;
   }
-  return nearHostMath(goal);
+  return false;
 }
 
 // A state test recorded as called: the called goal, renamed apart, holds as

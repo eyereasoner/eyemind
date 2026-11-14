@@ -260,8 +260,7 @@ at:
 
 The statistics repeat this: 21 steps, 13 verified against the program, 8
 recomputed, none taken on trust. The verdict is **checked**: all three
-answers follow from the program. It confirms those answers; it does not say
-there are no others.
+answers follow from the program, and they are every answer of the original questions.
 
 ---
 

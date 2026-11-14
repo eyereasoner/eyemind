@@ -230,7 +230,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 fit('demo', 0.8, 1.5, 0.64)
 fit('declining', -2.0, 3.0, 1.0)
 rejected('single', 'too_few_points')
@@ -248,27 +248,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 108)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', fit('demo', 0.8, 1.5, 0.64))
-obligation('call_fidelity', 'original_call', fit('declining', -2.0, 3.0, 1.0))
-obligation('call_fidelity', 'original_call', rejected('single', 'too_few_points'))
-obligation('call_fidelity', 'original_call', rejected('vertical', 'no_x_variation'))
-obligation('call_fidelity', 'original_call', rejected('constant', 'no_y_variation'))
-obligation('call_fidelity', 'all_answers', fit(A, B, C, D))
-obligation('call_fidelity', 'all_answers', rejected(A, B))
+condition('C10', 'call_fidelity', 'ok', 7)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(103)
 verified(27)
 recomputed(76)
 composed(0)
-trusted(7)
+trusted(0)
 claims(5)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -295,16 +286,15 @@ at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 103 steps, 27 verified against the program and 76
-recomputed, no boundary steps taken on trust, for 5 claims. The verdict is **checked with obligations**:
+recomputed, no boundary steps taken on trust, for 5 claims. The verdict is **checked**:
 the fits and the rejections follow from the program and the supplied points.
 It verifies the calculation; it does not establish that a straight line is a
-suitable explanation or predictor for the data. And, as the last comment
-says, it does not establish completeness.
+suitable explanation or predictor for the data. As the last comment says,
+the claims are every answer of the original questions.
 
-C10 leaves 5 original-call claims and the answers of 2 questions unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

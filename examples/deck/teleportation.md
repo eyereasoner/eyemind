@@ -248,7 +248,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 teleported('zero', 0, ['false'])
 teleported('zero', 1, ['false'])
 teleported('zero', 2, ['false'])
@@ -273,33 +273,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 43)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 12)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', teleported('zero', 0, ['false']))
-obligation('call_fidelity', 'original_call', teleported('zero', 1, ['false']))
-obligation('call_fidelity', 'original_call', teleported('zero', 2, ['false']))
-obligation('call_fidelity', 'original_call', teleported('zero', 3, ['false']))
-obligation('call_fidelity', 'original_call', teleported('one', 0, ['true']))
-obligation('call_fidelity', 'original_call', teleported('one', 1, ['true']))
-obligation('call_fidelity', 'original_call', teleported('one', 2, ['true']))
-obligation('call_fidelity', 'original_call', teleported('one', 3, ['true']))
-obligation('call_fidelity', 'original_call', teleported('plus', 0, ['false', 'true']))
-obligation('call_fidelity', 'original_call', teleported('plus', 1, ['false', 'true']))
-obligation('call_fidelity', 'original_call', teleported('plus', 2, ['false', 'true']))
-obligation('call_fidelity', 'original_call', teleported('plus', 3, ['false', 'true']))
-obligation('call_fidelity', 'all_answers', teleported(A, B, C))
+condition('C10', 'call_fidelity', 'ok', 13)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(31)
 verified(19)
 recomputed(0)
 composed(0)
-trusted(13)
+trusted(0)
 claims(12)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -335,13 +320,12 @@ value" means every value within this program's rules.
 
 The statistics: 31 steps, 19 verified against the program and the 12
 collections settled by the certificate, no boundary steps taken on trust. The verdict is
-**checked with obligations**: each answer follows from the program. The verdict does not establish
-that there are no other answers.
+**checked**: each answer follows from the program, and there are no other
+answers to the original questions.
 
-C10 leaves 12 original-call claims and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

@@ -72,11 +72,11 @@ inf(iri('https://example.org/orders/alice'), iri('https://example.org/orders/ord
 
 The certificate records the execution context as a compiled source fact. Checking a saved proof restores that context before recompiling the rules, and checks the UUID hash, variant bits and other computations. This proves consequences of the recorded inputs; it does not attest a clock observation or seed randomness.
 
-The saved report ends with `verdict('checked_with_obligations')`. Its
-`call_fidelity` obligations say that C10 has not established the original
-calls from closed call tables. Strict checking rejects these remaining
-obligations. The checker follows the certificate without calling the
-reasoning engine. The report does not establish completeness.
+The saved report ends with `verdict('checked')`. C10 establishes the
+original calls from closed call tables: the compiled rules compute the
+identifiers only from bound inputs, so the claims are every answer of the
+original questions, and strict checking accepts the proof. The checker
+follows the certificate without calling the reasoning engine.
 
 ---
 

@@ -262,8 +262,8 @@ at:
 
 The statistics repeat this: 17 steps, 8 verified against the program, 9
 recomputed, none taken on trust. The verdict is **checked**: a balance of 65
-after event 3 follows from the program. As the last comment says, this
-confirms the claim; it does not say there could be no other answers.
+after event 3 follows from the program. As the last comment says, it is
+also every answer of the original questions.
 
 ---
 

@@ -108,6 +108,8 @@ same_inverse('x', 'i', 'j')
 same_inverse('x', 'j', 'i')
 
 // Clauses: the program clauses the steps cite, by clause number.
+clause(1, fact(element('e')))
+clause(2, fact(element('x')))
 clause(3, fact(element('i')))
 clause(4, fact(element('j')))
 clause(5, fact(inverse_of('i', 'x')))
@@ -137,6 +139,45 @@ step(product('i', 'x', 'e'), clause(8), {Y: 'i', X: 'x'}, [inverse_of('i', 'x')]
 step(product('e', 'j', 'j'), clause(7), {A: 'j'}, [element('j')])
 step(product('x', 'j', 'e'), clause(8), {Y: 'j', X: 'x'}, [inverse_of('j', 'x')])
 step(product('i', 'e', 'i'), clause(7), {A: 'i'}, [element('i')])
+step(equal('e', 'e'), clause(9), {A: 'e', B: 'e', AB: 'e', C: 'e', Left: 'e', BC: 'e', Right: 'e'}, [product('e', 'e', 'e'), product('e', 'e', 'e'), product('e', 'e', 'e'), product('e', 'e', 'e')])
+step(product('e', 'e', 'e'), clause(7), {A: 'e'}, [element('e')])
+step(element('e'), clause(1), {}, [])
+step(equal('x', 'x'), clause(9), {A: 'e', B: 'e', AB: 'e', C: 'x', Left: 'x', BC: 'x', Right: 'x'}, [product('e', 'e', 'e'), product('e', 'x', 'x'), product('e', 'x', 'x'), product('e', 'x', 'x')])
+step(product('e', 'x', 'x'), clause(7), {A: 'x'}, [element('x')])
+step(element('x'), clause(2), {}, [])
+step(equal('i', 'i'), clause(9), {A: 'e', B: 'e', AB: 'e', C: 'i', Left: 'i', BC: 'i', Right: 'i'}, [product('e', 'e', 'e'), product('e', 'i', 'i'), product('e', 'i', 'i'), product('e', 'i', 'i')])
+step(equal('j', 'j'), clause(9), {A: 'e', B: 'e', AB: 'e', C: 'j', Left: 'j', BC: 'j', Right: 'j'}, [product('e', 'e', 'e'), product('e', 'j', 'j'), product('e', 'j', 'j'), product('e', 'j', 'j')])
+step(product('x', 'e', 'x'), clause(7), {A: 'x'}, [element('x')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(same_inverse(A, B, C), [same_inverse('x', 'i', 'j'), same_inverse('x', 'j', 'i')])
+derived(equal(A, B), [equal('e', 'e'), equal('x', 'x'), equal('i', 'i'), equal('j', 'j'), equal('j', 'i'), equal('i', 'j')])
+derived(product(A, B, C), [product('e', 'e', 'e'), product('e', 'x', 'x'), product('x', 'e', 'x'), product('e', 'i', 'i'), product('i', 'e', 'i'), product('e', 'j', 'j'), product('j', 'e', 'j'), product('x', 'i', 'e'), product('i', 'x', 'e'), product('x', 'j', 'e'), product('j', 'x', 'e')])
+called(same_inverse(A, B, C), [same_inverse('x', 'i', 'j'), same_inverse('x', 'j', 'i')])
+called(equal('i', 'j'), [equal('i', 'j')])
+called(equal('j', 'i'), [equal('j', 'i')])
+called(product(D, E, F), [product('e', 'e', 'e'), product('e', 'x', 'x'), product('x', 'e', 'x'), product('e', 'i', 'i'), product('i', 'e', 'i'), product('e', 'j', 'j'), product('j', 'e', 'j'), product('x', 'i', 'e'), product('i', 'x', 'e'), product('x', 'j', 'e'), product('j', 'x', 'e')])
+called(product('e', G, H), [product('e', 'e', 'e'), product('e', 'x', 'x'), product('e', 'i', 'i'), product('e', 'j', 'j')])
+called(product('e', 'e', I), [product('e', 'e', 'e')])
+called(product('e', 'x', I), [product('e', 'x', 'x')])
+called(product('e', 'i', I), [product('e', 'i', 'i')])
+called(product('e', 'j', I), [product('e', 'j', 'j')])
+called(product('x', G, H), [product('x', 'e', 'x'), product('x', 'i', 'e'), product('x', 'j', 'e')])
+called(product('x', 'e', I), [product('x', 'e', 'x')])
+called(product('x', 'i', I), [product('x', 'i', 'e')])
+called(product('x', 'j', I), [product('x', 'j', 'e')])
+called(product('i', G, H), [product('i', 'e', 'i'), product('i', 'x', 'e')])
+called(product('i', 'e', I), [product('i', 'e', 'i')])
+called(product('i', 'x', I), [product('i', 'x', 'e')])
+called(product('j', G, H), [product('j', 'e', 'j'), product('j', 'x', 'e')])
+called(product('j', 'e', I), [product('j', 'e', 'j')])
+called(product('j', 'x', I), [product('j', 'x', 'e')])
+called(product('i', 'i', I), [])
+called(product('i', 'j', I), [])
+called(product('x', 'x', I), [])
+called(product('j', 'i', I), [])
+called(product('j', 'j', I), [])
 ```
 
 It has three parts:
@@ -192,38 +233,33 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 same_inverse('x', 'i', 'j')
 same_inverse('x', 'j', 'i')
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 16)
-condition('C2', 'well_founded', 'ok', 18)
-condition('C3', 'justification', 'ok', 18)
-condition('C4', 'coverage', 'ok', 26)
+condition('C1', 'resolution', 'ok', 25)
+condition('C2', 'well_founded', 'ok', 27)
+condition('C3', 'justification', 'ok', 27)
+condition('C4', 'coverage', 'ok', 45)
 condition('C5', 're_decision', 'ok', 2)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 20)
+condition('C7', 'relevance', 'ok', 29)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', same_inverse('x', 'i', 'j'))
-obligation('call_fidelity', 'original_call', same_inverse('x', 'j', 'i'))
-obligation('call_fidelity', 'all_answers', same_inverse(A, B, C))
+condition('C10', 'call_fidelity', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
-steps(18)
-verified(16)
+steps(27)
+verified(25)
 recomputed(2)
 composed(0)
-trusted(3)
+trusted(0)
 claims(2)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -251,15 +287,13 @@ at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 18 steps, 16 verified against the program and 2
-recomputed, no boundary steps taken on trust. The verdict is **checked with obligations**: the uniqueness
+recomputed, no boundary steps taken on trust. The verdict is **checked**: the uniqueness
 of the inverse follows from the group laws and the hypothesis. As the last
-comment says, this confirms the claims; it does not say the program has no
-other conclusions.
+comment says, they are also every answer of the original questions.
 
-C10 leaves 2 original-call claims and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

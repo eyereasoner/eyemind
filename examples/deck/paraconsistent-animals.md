@@ -347,16 +347,14 @@ real world.
 The statistics: 66 steps, 59 verified against the program and the 7
 absences settled by the certificate, so none is trusted and there are no
 obligations. The verdict is **checked**: every conclusion follows from the
-program. It does not establish that the program has no other
-conclusions.
+program, and the program has no other conclusions.
 
 C10 checks the original questions too. The search certificate lists every
 fact the rules derive for each relation the answers rest on, each with
 steps of its own, and no rule derives one the lists leave out. The
 absences are decided by those listed facts alone, and this program has
 only one such set of facts, so all 50 claims are what its questions
-return. `--strict-proof` accepts the proof. The report does not establish
-answer completeness.
+return. `--strict-proof` accepts the proof.
 
 
 ---

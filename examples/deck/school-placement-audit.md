@@ -309,6 +309,9 @@ derived(better_map_option(B, C), [better_map_option('ada', 'lindholmen'), better
 derived(better_route_option(B, C), [better_route_option('ada', 'haga'), better_route_option('clara', 'centrum')])
 derived(route_score(B, C, D), [route_score('ada', 'lindholmen', 1800), route_score('ada', 'haga', 3400), route_score('bjorn', 'backa', 2600), route_score('clara', 'haga', 800), route_score('clara', 'centrum', 2000), route_score('davi', 'haga', 1600)])
 derived(recommended(B, C, D), [recommended('ada', 'lindholmen', 1800), recommended('bjorn', 'backa', 2600), recommended('clara', 'haga', 800), recommended('davi', 'haga', 1600)])
+derived(provisional(B, C), [provisional('ada', 'centrum'), provisional('bjorn', 'centrum'), provisional('clara', 'haga'), provisional('davi', 'centrum')])
+derived(audit_flag(B, C), [audit_flag('ada', 'walking_limit_exceeded'), audit_flag('bjorn', 'walking_limit_exceeded'), audit_flag('davi', 'walking_limit_exceeded'), audit_flag('ada', 'assignment_differs'), audit_flag('bjorn', 'assignment_differs'), audit_flag('davi', 'assignment_differs')])
+derived(hidden_detour(B, C), [hidden_detour('ada', 3000), hidden_detour('bjorn', 2000), hidden_detour('clara', 150), hidden_detour('davi', 1800)])
 searched(better_map_option('ada', 'centrum'), [])
 searched(better_map_option('bjorn', 'centrum'), [])
 searched(better_map_option('clara', 'haga'), [])
@@ -327,6 +330,38 @@ searched(better_route_option('ada', 'haga'), [better_route_option('ada', 'haga')
 searched(better_route_option('clara', 'centrum'), [better_route_option('clara', 'centrum')])
 searched(recommended('bjorn', 'centrum', K), [])
 searched(recommended('davi', 'centrum', L), [])
+called(provisional(A, B), [provisional('ada', 'centrum'), provisional('bjorn', 'centrum'), provisional('clara', 'haga'), provisional('davi', 'centrum')])
+called(better_map_option('ada', 'centrum'), [])
+called(better_map_option('ada', 'lindholmen'), [better_map_option('ada', 'lindholmen')])
+called(better_map_option('ada', 'haga'), [better_map_option('ada', 'haga')])
+called(better_map_option('bjorn', 'centrum'), [])
+called(better_map_option('bjorn', 'backa'), [better_map_option('bjorn', 'backa')])
+called(better_map_option('clara', 'haga'), [])
+called(better_map_option('clara', 'centrum'), [better_map_option('clara', 'centrum')])
+called(better_map_option('davi', 'centrum'), [])
+called(better_map_option('davi', 'haga'), [better_map_option('davi', 'haga')])
+called(recommended(C, D, E), [recommended('ada', 'lindholmen', 1800), recommended('bjorn', 'backa', 2600), recommended('clara', 'haga', 800), recommended('davi', 'haga', 1600)])
+called(route_score(F, G, H), [route_score('ada', 'lindholmen', 1800), route_score('ada', 'haga', 3400), route_score('bjorn', 'backa', 2600), route_score('clara', 'haga', 800), route_score('clara', 'centrum', 2000), route_score('davi', 'haga', 1600)])
+called(better_route_option('ada', 'lindholmen'), [])
+called(better_route_option('ada', 'haga'), [better_route_option('ada', 'haga')])
+called(better_route_option('bjorn', 'backa'), [])
+called(better_route_option('clara', 'haga'), [])
+called(better_route_option('clara', 'centrum'), [better_route_option('clara', 'centrum')])
+called(better_route_option('davi', 'haga'), [])
+called(route_score('ada', _8, J), [route_score('ada', 'lindholmen', 1800), route_score('ada', 'haga', 3400)])
+called(route_score('bjorn', _8, J), [route_score('bjorn', 'backa', 2600)])
+called(route_score('clara', _8, J), [route_score('clara', 'haga', 800), route_score('clara', 'centrum', 2000)])
+called(route_score('davi', _8, J), [route_score('davi', 'haga', 1600)])
+called(audit_flag(K, L), [audit_flag('ada', 'walking_limit_exceeded'), audit_flag('bjorn', 'walking_limit_exceeded'), audit_flag('davi', 'walking_limit_exceeded'), audit_flag('ada', 'assignment_differs'), audit_flag('bjorn', 'assignment_differs'), audit_flag('davi', 'assignment_differs')])
+called(recommended('ada', _12, _13), [recommended('ada', 'lindholmen', 1800)])
+called(recommended('ada', 'centrum', _14), [])
+called(recommended('bjorn', _12, _13), [recommended('bjorn', 'backa', 2600)])
+called(recommended('bjorn', 'centrum', _14), [])
+called(recommended('clara', _12, _13), [recommended('clara', 'haga', 800)])
+called(recommended('clara', 'haga', _14), [recommended('clara', 'haga', 800)])
+called(recommended('davi', _12, _13), [recommended('davi', 'haga', 1600)])
+called(recommended('davi', 'centrum', _14), [])
+called(hidden_detour(P, Q), [hidden_detour('ada', 3000), hidden_detour('bjorn', 2000), hidden_detour('clara', 150), hidden_detour('davi', 1800)])
 ```
 
 It has four parts:
@@ -399,7 +434,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 provisional('ada', 'centrum')
 provisional('bjorn', 'centrum')
 provisional('clara', 'haga')
@@ -430,42 +465,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 97)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 11)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', provisional('ada', 'centrum'))
-obligation('call_fidelity', 'original_call', provisional('bjorn', 'centrum'))
-obligation('call_fidelity', 'original_call', provisional('clara', 'haga'))
-obligation('call_fidelity', 'original_call', provisional('davi', 'centrum'))
-obligation('call_fidelity', 'original_call', recommended('ada', 'lindholmen', 1800))
-obligation('call_fidelity', 'original_call', recommended('bjorn', 'backa', 2600))
-obligation('call_fidelity', 'original_call', recommended('clara', 'haga', 800))
-obligation('call_fidelity', 'original_call', recommended('davi', 'haga', 1600))
-obligation('call_fidelity', 'original_call', hidden_detour('ada', 3000))
-obligation('call_fidelity', 'original_call', hidden_detour('bjorn', 2000))
-obligation('call_fidelity', 'original_call', hidden_detour('clara', 150))
-obligation('call_fidelity', 'original_call', hidden_detour('davi', 1800))
-obligation('call_fidelity', 'original_call', audit_flag('ada', 'walking_limit_exceeded'))
-obligation('call_fidelity', 'original_call', audit_flag('bjorn', 'walking_limit_exceeded'))
-obligation('call_fidelity', 'original_call', audit_flag('davi', 'walking_limit_exceeded'))
-obligation('call_fidelity', 'original_call', audit_flag('ada', 'assignment_differs'))
-obligation('call_fidelity', 'original_call', audit_flag('bjorn', 'assignment_differs'))
-obligation('call_fidelity', 'original_call', audit_flag('davi', 'assignment_differs'))
-obligation('call_fidelity', 'all_answers', provisional(A, B))
-obligation('call_fidelity', 'all_answers', recommended(A, B, C))
-obligation('call_fidelity', 'all_answers', audit_flag(A, B))
-obligation('call_fidelity', 'all_answers', hidden_detour(A, B))
+condition('C10', 'call_fidelity', 'ok', 22)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(79)
 verified(42)
 recomputed(26)
 composed(0)
-trusted(22)
+trusted(0)
 claims(18)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -505,20 +516,19 @@ option exists*, and *Ada, Bjorn and Davi have no recommendation at
 Centrum*. Each is meant relative to this program: the absence is true if
 the program's rules cannot produce the missing conclusion.
 
-The verdict is **checked with obligations**: every claim follows from the program. The
+The verdict is **checked**: every claim follows from the program. The
 checker did not re-search for the absences; it verified the written record
 of the search. As the last comment says, the
-verdict also does not establish completeness: it does not say these are all
-the conclusions the program has.
+verdict also establishes that these are every answer of the original
+questions.
 
 This policy is illustrative. There are no school-capacity limits, sibling
 priorities or shared-seat allocation; each child's options are evaluated
 independently.
 
-C10 leaves 18 original-call claims and the answers of 4 questions unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

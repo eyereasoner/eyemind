@@ -284,8 +284,8 @@ at:
 
 The statistics repeat this: 74 steps, 33 verified against the program, 41
 recomputed, none taken on trust. The verdict is **checked**: all 11 values,
-down to the last digit, follow from the rules. It does not say there are no
-other answers.
+down to the last digit, follow from the rules, and they are
+every answer of the original questions.
 
 ---
 

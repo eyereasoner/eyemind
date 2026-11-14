@@ -147,6 +147,21 @@ step(calculate('sub', 10, 4, 6), clause(12), {L: 10, R: 4, Value: 6}, [is(6, sub
 step(is(6, sub(10, 4)), 'builtin', {}, [])
 step(calculate('add', 6, 6, 12), clause(11), {L: 6, R: 6, Value: 12}, [is(12, add(6, 6))])
 step(is(12, add(6, 6)), 'builtin', {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(result(A, B), [result('example', 12)])
+called(result(A, B), [result('example', 12)])
+called(value('total', C), [value('total', 12)])
+called(value('product', D), [value('product', 6)])
+called(value('n2', E), [value('n2', 2)])
+called(value('n3', F), [value('n3', 3)])
+called(calculate('mul', 2, 3, G), [calculate('mul', 2, 3, 6)])
+called(value('difference', H), [value('difference', 6)])
+called(value('n10', I), [value('n10', 10)])
+called(value('n4', J), [value('n4', 4)])
+called(calculate('sub', 10, 4, K), [calculate('sub', 10, 4, 6)])
+called(calculate('add', 6, 6, L), [calculate('add', 6, 6, 12)])
 ```
 
 It has three parts:
@@ -198,7 +213,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 result('example', 12)
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
@@ -212,22 +227,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 23)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', result('example', 12))
-obligation('call_fidelity', 'all_answers', result(A, B))
+condition('C10', 'call_fidelity', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(22)
 verified(19)
 recomputed(3)
 composed(0)
-trusted(2)
+trusted(0)
 claims(1)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -254,14 +265,13 @@ at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 22 steps, 19 verified against the program and 3
-recomputed, no boundary steps taken on trust, for 1 claim. The verdict is **checked with obligations**: the
+recomputed, no boundary steps taken on trust, for 1 claim. The verdict is **checked**: the
 formula's value 12 follows from the program. As the last comment says, it
 confirms this answer; it does not by itself say there is no other.
 
-C10 leaves 1 original-call claim and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

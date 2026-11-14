@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 fit('demo', 0.8, 1.5, 0.64)
 fit('declining', -2.0, 3.0, 1.0)
 rejected('single', 'too_few_points')
@@ -16,24 +16,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 108)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', fit('demo', 0.8, 1.5, 0.64))
-obligation('call_fidelity', 'original_call', fit('declining', -2.0, 3.0, 1.0))
-obligation('call_fidelity', 'original_call', rejected('single', 'too_few_points'))
-obligation('call_fidelity', 'original_call', rejected('vertical', 'no_x_variation'))
-obligation('call_fidelity', 'original_call', rejected('constant', 'no_y_variation'))
-obligation('call_fidelity', 'all_answers', fit(A, B, C, D))
-obligation('call_fidelity', 'all_answers', rejected(A, B))
+condition('C10', 'call_fidelity', 'ok', 7)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(103)
 verified(27)
 recomputed(76)
 composed(0)
-trusted(7)
+trusted(0)
 claims(5)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')

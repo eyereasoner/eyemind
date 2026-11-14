@@ -470,8 +470,8 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
 
   'a search certificate settles absences and collections without boundary obligations'() {
     const result = run(CERTIFIED, { proof: true });
-    for (const line of ["searched(path('a', 'a'), [])", "searched(path('b', F), [path('b', 'c')])",
-      "searched(path('a', E), [path('a', 'b'), path('a', 'c')])", "searched(tagged(H, I), [tagged('a', J), tagged('b', K)])"]) {
+    for (const line of ["searched(path('a', 'a'), [])", "searched(path('b', G), [path('b', 'c')])",
+      "searched(path('a', F), [path('a', 'b'), path('a', 'c')])", "searched(tagged(I, J), [tagged('a', K), tagged('b', L)])"]) {
       assert.ok(result.proof.includes(`\n${line}\n`), line);
     }
     assert.equal(boundaries(result.proofReport).length, 0);
@@ -489,9 +489,9 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
     for (const [original, forged] of [
       ["[path('a', 'b'), path('a', 'c')]", "[path('a', 'b')]"],
       ["[path('a', 'b'), path('a', 'c')]", "[path('a', 'c'), path('a', 'b')]"],
-      ["searched(path('b', F), [path('b', 'c')])", "searched(path('b', F), [])"],
+      ["searched(path('b', G), [path('b', 'c')])", "searched(path('b', G), [])"],
       ["searched(path('b', 'a'), [])", "searched(path('b', 'a'), [path('b', 'a')])"],
-      ["[tagged('a', J), tagged('b', K)]", "[tagged('a', 'x'), tagged('b', K)]"],
+      ["[tagged('a', K), tagged('b', L)]", "[tagged('a', 'x'), tagged('b', L)]"],
     ]) {
       assert.ok(document.includes(original), original);
       invalid(document.replace(original, forged), 'C9', CERTIFIED);
@@ -565,7 +565,7 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
   'a certificate statement that settles nothing fails C7, and a repeated one C3'() {
     const document = run(CERTIFIED, { proof: true }).proof;
     invalid(`${document}searched(edge('z', A), [])\n`, 'C7', CERTIFIED);
-    invalid(`${document}derived(reach(A, B), [])\n`, 'C7', CERTIFIED);
+    invalid(`${document}derived(tagged_all(A), [])\n`, 'C7', CERTIFIED);
     invalid(`${document}searched(path('a', 'a'), [])\n`, 'C3', CERTIFIED);
     invalid(`${document}searched(path('a', 'a'), 'none')\n`, 'C3', CERTIFIED);
     const listed = run(program("fact(r('n'))\nfact(k('a'))\nimplies(r(X), np(X))\nimplies([k(X), not(np(X))], pac(X))"), { proof: true }).proof;

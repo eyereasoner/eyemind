@@ -356,8 +356,8 @@ line vouches for itself, and a plan the certificate hid would show up as a
 disagreement. "No shorter plan" is meant with respect to this program: the
 search covered every plan of 0 to 6 crossings the program allows. The
 verdict is **checked**: the two plans are fully checked, move by move, and
-so is the claim that *7 is the minimum*. The verdict does not say the program has no
-other conclusions.
+so is the claim that *7 is the minimum*. The claims are also
+every answer of the original questions.
 
 ---
 

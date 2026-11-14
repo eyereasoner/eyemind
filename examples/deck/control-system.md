@@ -300,8 +300,8 @@ at:
 
 The statistics repeat this: 24 steps, 10 verified against the program, 14
 recomputed, none taken on trust. The verdict is **checked**: both commands
-follow from the readings and formulas. It does not say the formulas are good
-control engineering, nor that there are no other answers.
+follow from the readings and formulas, and they are every answer of the original questions. It does
+not say the formulas are good control engineering.
 
 ---
 

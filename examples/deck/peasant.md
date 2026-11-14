@@ -318,8 +318,8 @@ at:
 
 The statistics repeat this: 1,186 steps, 233 verified against the program,
 953 recomputed, none taken on trust. The verdict is **checked**: all ten
-answers follow from the program. As the last comment says, this confirms the
-claims; it does not say the program has no other answers. Nor does it prove
+answers follow from the program. As the last comment says, they are also
+every answer of the original questions. It does not prove
 that the method works for *every* pair of numbers: it confirms these ten
 calculations.
 

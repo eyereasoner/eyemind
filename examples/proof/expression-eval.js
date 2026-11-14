@@ -41,3 +41,18 @@ step(calculate('sub', 10, 4, 6), clause(12), {L: 10, R: 4, Value: 6}, [is(6, sub
 step(is(6, sub(10, 4)), 'builtin', {}, [])
 step(calculate('add', 6, 6, 12), clause(11), {L: 6, R: 6, Value: 12}, [is(12, add(6, 6))])
 step(is(12, add(6, 6)), 'builtin', {}, [])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(result(A, B), [result('example', 12)])
+called(result(A, B), [result('example', 12)])
+called(value('total', C), [value('total', 12)])
+called(value('product', D), [value('product', 6)])
+called(value('n2', E), [value('n2', 2)])
+called(value('n3', F), [value('n3', 3)])
+called(calculate('mul', 2, 3, G), [calculate('mul', 2, 3, 6)])
+called(value('difference', H), [value('difference', 6)])
+called(value('n10', I), [value('n10', 10)])
+called(value('n4', J), [value('n4', 4)])
+called(calculate('sub', 10, 4, K), [calculate('sub', 10, 4, 6)])
+called(calculate('add', 6, 6, L), [calculate('add', 6, 6, 12)])

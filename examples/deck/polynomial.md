@@ -242,9 +242,9 @@ about mathematics at large.
 
 The statistics: 4 steps, 2 verified against the program and the 2
 collections settled by the certificate, none trusted, none recomputed as
-steps. The verdict is **checked**: the answers follow from the program. It
-does not establish that the rounded roots are exact, nor that there are no other
-answers.
+steps. The verdict is **checked**: the answers follow from the program, and
+they are every answer of the original questions. It does not establish that
+the rounded roots are exact.
 
 ---
 

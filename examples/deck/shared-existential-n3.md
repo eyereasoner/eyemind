@@ -64,10 +64,10 @@ rdf(iri('http://example.org/liz'), iri('http://example.org/beloved'), bnode('n3'
 
 ## What the proof establishes
 
-The report ends with `verdict('checked_with_obligations')`. C1 checks both
-forward steps and the backward rule instances they use. The two
-`call_fidelity` obligations remain because the answers come from backward
-search with no call tables for C10, as for other backward-rule examples.
+The report ends with `verdict('checked')`. C1 checks both forward steps
+and the backward rule instances they use. C10 checks the original questions
+through their call tables, so the claims are every answer, with no
+obligations left.
 
 ---
 

@@ -69,12 +69,12 @@ rdf(iri('http://example.org/liz'), iri('http://example.org/mother'), bnode('n3',
 
 ## What the proof establishes
 
-The report ends with `verdict('checked_with_obligations')`. C1 checks each
-step against an instance of the compiled facts and rules: Bob's mother is
-the fact instance with `X` bound to `:bob`, so a proof claiming Liz's
-witness for Bob fails. The three obligations are `call_fidelity`: an answer
-found through a fact with variables has no call table for C10 to follow,
-and the manifest lists that obligation as trusted.
+The report ends with `verdict('checked')`. C1 checks each step against an
+instance of the compiled facts and rules: Bob's mother is the fact instance
+with `X` bound to `:bob`, so a proof claiming Liz's witness for Bob fails.
+C10 follows the call tables through the fact with variables, which the rule
+calls with `X` already bound, so the claims are every answer, with no
+obligations left.
 
 ---
 

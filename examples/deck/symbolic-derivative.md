@@ -166,11 +166,26 @@ step(d(sub(sym('x'), num(1)), 'x', sub(num(1), num(0))), clause(9), {U: sym('x')
 
 // Search certificate: derived facts and complete answers used to check
 // negations, collections and the original questions.
-called(d(divide(sym('y'), sub(sym('x'), num(1))), 'x', A), [d(divide(sym('y'), sub(sym('x'), num(1))), 'x', divide(sub(mul(num(0), sub(sym('x'), num(1))), mul(sym('y'), sub(num(1), num(0)))), pow(sub(sym('x'), num(1)), 2)))])
-called(d(sym('y'), 'x', B), [d(sym('y'), 'x', num(0))])
-called(d(sub(sym('x'), num(1)), 'x', C), [d(sub(sym('x'), num(1)), 'x', sub(num(1), num(0)))])
+derived(derivative(A, B), [derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1)))), derivative('linear_plus_const', add(num(1), num(0))), derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))))))), derivative('nested_log', divide(divide(num(1), sym('x')), log(sym('x'))))])
+called(derivative(A, B), [derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1)))), derivative('linear_plus_const', add(num(1), num(0))), derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))))))), derivative('nested_log', divide(divide(num(1), sym('x')), log(sym('x'))))])
+called(d(mul(sym('x'), sym('x')), 'x', C), [d(mul(sym('x'), sym('x')), 'x', add(mul(num(1), sym('x')), mul(sym('x'), num(1))))])
 called(d(sym('x'), 'x', D), [d(sym('x'), 'x', num(1))])
-called(d(num(1), 'x', E), [d(num(1), 'x', num(0))])
+called(d(add(sym('x'), num(3)), 'x', C), [d(add(sym('x'), num(3)), 'x', add(num(1), num(0)))])
+called(d(num(3), 'x', E), [d(num(3), 'x', num(0))])
+called(d(mul(add(sym('x'), num(1)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), 'x', C), [d(mul(add(sym('x'), num(1)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), 'x', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0)))))))])
+called(d(add(sym('x'), num(1)), 'x', F), [d(add(sym('x'), num(1)), 'x', add(num(1), num(0)))])
+called(d(num(1), 'x', G), [d(num(1), 'x', num(0))])
+called(d(mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3))), 'x', H), [d(mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3))), 'x', add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0)))))])
+called(d(add(pow(sym('x'), 2), num(2)), 'x', I), [d(add(pow(sym('x'), 2), num(2)), 'x', add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)))])
+called(d(pow(sym('x'), 2), 'x', J), [d(pow(sym('x'), 2), 'x', mul(mul(num(2), pow(sym('x'), 1)), num(1)))])
+called(d(num(2), 'x', K), [d(num(2), 'x', num(0))])
+called(d(add(pow(sym('x'), 3), num(3)), 'x', L), [d(add(pow(sym('x'), 3), num(3)), 'x', add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0)))])
+called(d(pow(sym('x'), 3), 'x', M), [d(pow(sym('x'), 3), 'x', mul(mul(num(3), pow(sym('x'), 2)), num(1)))])
+called(d(log(log(sym('x'))), 'x', C), [d(log(log(sym('x'))), 'x', divide(divide(num(1), sym('x')), log(sym('x'))))])
+called(d(log(sym('x')), 'x', N), [d(log(sym('x')), 'x', divide(num(1), sym('x')))])
+called(d(divide(sym('y'), sub(sym('x'), num(1))), 'x', O), [d(divide(sym('y'), sub(sym('x'), num(1))), 'x', divide(sub(mul(num(0), sub(sym('x'), num(1))), mul(sym('y'), sub(num(1), num(0)))), pow(sub(sym('x'), num(1)), 2)))])
+called(d(sym('y'), 'x', P), [d(sym('y'), 'x', num(0))])
+called(d(sub(sym('x'), num(1)), 'x', Q), [d(sub(sym('x'), num(1)), 'x', sub(num(1), num(0)))])
 ```
 
 It has three parts:
@@ -233,7 +248,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1))))
 derivative('linear_plus_const', add(num(1), num(0)))
 derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0)))))))
@@ -251,25 +266,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 34)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1)))))
-obligation('call_fidelity', 'original_call', derivative('linear_plus_const', add(num(1), num(0))))
-obligation('call_fidelity', 'original_call', derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))))))))
-obligation('call_fidelity', 'original_call', derivative('nested_log', divide(divide(num(1), sym('x')), log(sym('x')))))
-obligation('call_fidelity', 'all_answers', derivative(A, B))
+condition('C10', 'call_fidelity', 'ok', 7)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(29)
 verified(26)
 recomputed(3)
 composed(0)
-trusted(5)
+trusted(0)
 claims(5)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 The report first repeats the five answers it confirmed. Each `condition`
@@ -297,15 +305,14 @@ line then names a check, says `'ok'`, and counts what it looked at:
   settle, so no search certificate to check.
 
 The statistics repeat this: 29 steps, 26 verified against the program, 3
-recomputed, no boundary steps taken on trust. The verdict is **checked with obligations**: the five
-derivatives follow from the program's rules of calculus. It confirms them;
-it does not say there are no other answers, and it does not judge whether
+recomputed, no boundary steps taken on trust. The verdict is **checked**: the five
+derivatives follow from the program's rules of calculus, and they are
+every answer of the original questions. It does not judge whether
 the calculus rules themselves are written correctly.
 
-C10 leaves 4 original-call claims and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer. The verdict is **checked**, also under
+`--strict-proof`.
 
 
 ---

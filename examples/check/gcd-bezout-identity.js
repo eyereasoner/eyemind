@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 certificate('common_factor', 6, -1, 3)
 certificate('coprime', 1, 215, -47)
 certificate('zero_left', 5, 0, 1)
@@ -25,33 +25,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 250)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', certificate('common_factor', 6, -1, 3))
-obligation('call_fidelity', 'original_call', certificate('coprime', 1, 215, -47))
-obligation('call_fidelity', 'original_call', certificate('zero_left', 5, 0, 1))
-obligation('call_fidelity', 'original_call', certificate('zero_right', 5, 1, 0))
-obligation('call_fidelity', 'original_call', certificate('larger', 6, 5, -7))
-obligation('call_fidelity', 'original_call', certificate('negative', 9, 1, 1))
-obligation('call_fidelity', 'original_call', certificate('large', 6, -649, 10155))
-obligation('call_fidelity', 'original_call', identity_holds('common_factor'))
-obligation('call_fidelity', 'original_call', identity_holds('coprime'))
-obligation('call_fidelity', 'original_call', identity_holds('zero_left'))
-obligation('call_fidelity', 'original_call', identity_holds('zero_right'))
-obligation('call_fidelity', 'original_call', identity_holds('larger'))
-obligation('call_fidelity', 'original_call', identity_holds('negative'))
-obligation('call_fidelity', 'original_call', identity_holds('large'))
-obligation('call_fidelity', 'all_answers', certificate(A, B, C, D))
-obligation('call_fidelity', 'all_answers', identity_holds(A))
+condition('C10', 'call_fidelity', 'ok', 16)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(236)
 verified(73)
 recomputed(163)
 composed(0)
-trusted(16)
+trusted(0)
 claims(14)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
