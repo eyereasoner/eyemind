@@ -113,6 +113,16 @@ step(type('Socrates', 'Human'), clause(4), {}, ['true', 'true'])
 step('true', 'builtin', {}, [])
 step(subclass_of('Human', 'Mortal'), clause(5), {}, ['true', 'true'])
 step(t('test', 'is', 'true'), clause(3), {}, [type('Socrates', 'Mortal')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(type(A, B), [type('Socrates', 'Mortal')])
+derived(t(A, B, C), [t('test', 'is', 'true')])
+called(type(A, B), [type('Socrates', 'Mortal'), type('Socrates', 'Human')])
+called(subclass_of('Mortal', C), [])
+called(subclass_of('Human', C), [subclass_of('Human', 'Mortal')])
+called(t('test', 'is', 'true'), [t('test', 'is', 'true')])
+called(type('Socrates', 'Mortal'), [type('Socrates', 'Mortal')])
 ```
 
 It has three parts:
@@ -144,7 +154,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 type('Socrates', 'Mortal')
 t('test', 'is', 'true')
 
@@ -159,24 +169,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 7)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', type('Socrates', 'Mortal'))
-obligation('call_fidelity', 'original_call', t('test', 'is', 'true'))
-obligation('call_fidelity', 'all_answers', type(A, B))
-obligation('call_fidelity', 'all_answers', t('test', 'is', 'true'))
+condition('C10', 'call_fidelity', 'ok', 4)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(5)
 verified(4)
 recomputed(1)
 composed(0)
-trusted(4)
+trusted(0)
 claims(2)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each condition reports what the checker verified:
@@ -192,16 +196,16 @@ Each condition reports what the checker verified:
   serve those claims.
 - **C8 witness integrity (0)**: this example introduces no existential witness.
 - **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
+  settle; the search certificate serves the original questions (C10).
 
 The report records 5 steps, 4 verified against program clauses and one
-primitive recomputed. The verdict is **checked with obligations**: the recorded claims follow from
-the source program. It establishes no completeness claim.
+primitive recomputed. The verdict is **checked**: the recorded claims follow from the source
+program, and they are every answer of the original questions.
 
-C10 leaves 2 original-call claims and the answers of 2 questions unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 checks the original questions through the derived rule's instances:
+each instance comes from a solution of its generating premises, so every
+claim is an answer and the claims are every answer. The verdict is
+**checked**, also under `--strict-proof`.
 
 
 ---

@@ -562,23 +562,17 @@
   {
     "name": "derived-rule",
     "description": "An inline forward rule enabled by a cat and applied to a dog",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "derived-backward-rule",
     "description": "A captured inverse pair enables a reusable backward rule",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "derived-backward-rule-2",
     "description": "A conjunction of backward templates supplies premises for forward reasoning",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "rule-inspection",
@@ -601,9 +595,7 @@
       "derived-rule-n3.n3"
     ],
     "description": "An active policy derives and reports a membership rule",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "existential-n3",

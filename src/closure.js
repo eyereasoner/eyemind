@@ -43,6 +43,16 @@ function instanceOf(term, pattern) {
   return unify(pattern, term, env) && variant(copyResolved(term, env)) === variant(term);
 }
 
+// Whether the generators of a rule appended by a template fire as ordinary
+// rules: no restricted guard, whose firings depend on the order of rule
+// applications, and no witnesses, which the derived rule would share.
+export function plainGenerators(program, clause) {
+  return clause.scopeIds.every((id) => {
+    const generator = program.byId.get(id);
+    return !generator || (generator.guard === null && !generator.witnessNames.length);
+  });
+}
+
 // The name and arity of every relation a forward rule concludes.
 export function forwardKeys(program) {
   const keys = new Set();
@@ -239,12 +249,44 @@ export class Settler {
     const clauses = this.program.hasTemplates ? this.program.groups.get(goalKey) || []
       : this.program.candidates(call, env, goalKey);
     for (const clause of clauses) {
-      // A derived rule instance answers only through the run that made it.
-      if (clause.parentId !== null) throw new Unsettled();
+      if (clause.parentId !== null) {
+        yield* this.instances(clause, call, env, reliance);
+        continue;
+      }
       const [head, body] = freshClause(clause, `clause${++this.serial}`);
       if (unify(call, head, env)) yield* this.solveAll(body, 0, env, reliance);
       env.undo(mark);
     }
+  }
+
+  // A backward rule appended by a template answers through its instances:
+  // one for each solution of its generator's body with captures not met
+  // before, in the order the generator found them, each searching only the
+  // template's body. The generator ran with none of the caller's bindings,
+  // so its body is solved before the head meets the call. Its order is the
+  // order of the run only when it consults no derived facts or tables.
+  * instances(clause, call, env, reliance) {
+    // Without its generator in the program, a rule has no instances.
+    if (!clause.scopeIds.every((id) => this.program.byId.has(id))) return;
+    if (!plainGenerators(this.program, clause)) throw new Unsettled();
+    const mark = env.mark();
+    const [head, body, names] = freshClause(clause, `clause${++this.serial}`);
+    const captures = listFromItems(clause.captures.map((name) => names.get(name) ?? new Var(name)));
+    const generator = new Reliance();
+    const seen = new Set();
+    for (const _ of this.solveAll(body.slice(0, clause.prefixLength), 0, env, generator)) { // eslint-disable-line no-unused-vars
+      if (generator.tables.size || generator.listings.size) throw new Unsettled();
+      const values = copyResolved(captures, env);
+      if (!isGround(values)) throw new Unsettled();
+      const id = identity(values);
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const inner = env.mark();
+      if (unify(call, head, env)) yield* this.solveAll(body.slice(clause.prefixLength), 0, env, reliance);
+      env.undo(inner);
+    }
+    if (generator.tables.size || generator.listings.size) throw new Unsettled();
+    env.undo(mark);
   }
 
   * solveAll(goals, index, env, reliance) {
@@ -325,7 +367,14 @@ export class Settler {
       }
       for (const rule of this.program.forward) {
         if (!rule.plainHeads.some((head) => isCallable(head) && key(head) === goalKey)) continue;
-        if (rule.parentId !== null || rule.templates.length || rule.captures !== null) throw new Unsettled();
+        // Without its generator in the program, an appended rule never fires.
+        if (!rule.scopeIds.every((id) => this.program.byId.has(id))) continue;
+        if (!plainGenerators(this.program, rule)) throw new Unsettled();
+        // A rule appended by a template fires once for each instance, so as a
+        // rule over facts it is its full body. Witnesses that depend on a
+        // captured context are not recomputed here.
+        if ((rule.parentId === null && rule.captures !== null) ||
+            ((rule.parentId !== null || rule.templates.length) && rule.witnessNames.length)) throw new Unsettled();
         const missing = this.closes(rule, goalKey, listed, entry.reliance);
         if (missing !== null) {
           entry.failure = `derived facts of ${goalKey} leave out ${text(missing)}, which clause ${rule.id} derives`;

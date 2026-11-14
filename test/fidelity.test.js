@@ -262,6 +262,30 @@ export const tests = {
     assert.equal(checkProof(loaded, cyclic).valid, false);
   },
 
+  'C10 certifies rules appended by templates through their instances'() {
+    const strictly = (source) => {
+      const { loaded, result, report } = checked(source);
+      assert.deepEqual(report.trusted, [], result.proof);
+      assert.ok(checkProof(loaded, result.proof, { allowTrusted: false }).valid, result.proof);
+      return { loaded, result };
+    };
+    // A forward template fires once for each generator solution.
+    strictly("fact(cat('m'), dog('c'))\nimplies(cat(X), implies(dog(Y), pair(X, Y)))");
+    // Identical captures make one instance, so r('a') is answered once.
+    const once = strictly("fact(g('a', 1), g('a', 2))\nimplies(g(X, _), implied_by(r(X), 'true'))\nquery(r(X))");
+    assert.match(once.result.proof, /called\(r\(A\), \[r\('a'\)\]\)/);
+    assert.equal(checkProof(once.loaded, once.result.proof.replace("called(r(A), [r('a')])",
+      "called(r(A), [r('a'), r('a')])")).valid, false);
+    assert.equal(checkProof(once.loaded, once.result.proof.replace("called(r(A), [r('a')])",
+      "called(r(A), [r('a'), r('b')])")).valid, false);
+    // A backward template whose generator consults derived facts answers in
+    // the order the run made its instances, which the certificate cannot show.
+    const loaded = program("fact(p('a'))\nimplies(p(X), q(X))\nimplies(q(X), implied_by(r(X), 'true'))\nquery(r(X))");
+    const result = run(loaded, { proof: true });
+    assert.deepEqual(result.answers, ["r('a')"]);
+    assert.ok(result.proofReport.trusted.some(({ reason }) => reason === 'all_answers'));
+  },
+
   'C10 supports no listing on host math accepted only within its tolerance'() {
     const source = 'fact(v(1))\nimplies([v(X), is(Y, exp(X))], w(Y))';
     const { loaded, result } = checked(source);

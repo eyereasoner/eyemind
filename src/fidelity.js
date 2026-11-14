@@ -2,7 +2,7 @@
 // each claim is an answer, and each answer is claimed. Unlike logical steps,
 // these searches start before a final substitution.
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
-import { Settler } from './closure.js';
+import { Settler, plainGenerators } from './closure.js';
 import { freshClause, text, variant } from './common.js';
 import { goalTerm } from './goals.js';
 import { INSPECTION_KEYS } from './inspection.js';
@@ -226,8 +226,12 @@ export function replayed(program, settler, listingKeys, stepOf) {
   const active = new Set();
   let serial = 0;
   const fresh = (term) => freshTerm(term, `replay${++serial}`);
-  const supportedRule = (clause) => clause && clause.parentId === null && !clause.templates.length &&
-    clause.captures === null && clause.guard === null;
+  // A rule appended by a template replays as its full body, generator first.
+  // Witnesses that depend on a captured context are not recomputed here.
+  const supportedRule = (clause) => clause && clause.guard === null &&
+    clause.scopeIds.every((id) => program.byId.has(id)) && plainGenerators(program, clause) &&
+    (clause.parentId !== null || clause.captures === null) &&
+    !((clause.parentId !== null || clause.templates.length) && clause.witnessNames.length);
   function compatible(goal, use, env) {
     const mark = env.mark();
     const agrees = unify(goal, fresh(use), env);
@@ -292,7 +296,11 @@ export function replayed(program, settler, listingKeys, stepOf) {
     const call = `${text(use)} ${text(copyResolved(goal, env))}`;
     if (active.has(call)) return false;
     active.add(call);
-    const solved = unify(goal, head, env) && all(body, step.uses, env) && compatible(goal, use, env);
+    // A generator ran before any caller: its premises replay before the head
+    // meets the call.
+    const prefix = clause.prefixLength;
+    const solved = step.uses.length === body.length && all(body.slice(0, prefix), step.uses.slice(0, prefix), env) &&
+      unify(goal, head, env) && all(body.slice(prefix), step.uses.slice(prefix), env) && compatible(goal, use, env);
     active.delete(call);
     return solved;
   }

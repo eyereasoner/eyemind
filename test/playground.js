@@ -220,8 +220,8 @@ export const tests = [
       await p.select('mode', '--check-proof');
       await p.type('proof-input', proof);
       await p.run();
-      assert.match(await p.output(), /verdict\('checked_with_obligations'\)/);
-      assert.match(await p.output(), /obligation\('call_fidelity', 'original_call',/);
+      assert.match(await p.output(), /verdict\('checked'\)/);
+      assert.doesNotMatch(await p.output(), /obligation\(/);
     }
     await p.select('mode', '');
   }],
@@ -265,11 +265,10 @@ query(or(q(X), r(X)))`);
     assert.equal(await p.output(), '// No answers: no query() instance holds.\n');
     await p.select('mode', '--prove-and-check');
     await p.run();
-    // A derived rule lies outside the certified fragment, so that the question
-    // has no answers stays an obligation.
-    assert.match(await p.output(), /^\/\/ No answers claimed;/);
-    assert.match(await p.output(), /obligation\('call_fidelity', 'all_answers', or\(q\(A\), r\(A\)\)\)/);
-    assert.match(await p.output(), /verdict\('checked_with_obligations'\)/);
+    // The generator never holds, so neither derived rule has an instance, and
+    // the certificate shows that the question has no answers.
+    assert.match(await p.output(), /^\/\/ No answers: the original questions have none\./);
+    assert.match(await p.output(), /verdict\('checked'\)/);
     await p.select('mode', '');
   }],
 

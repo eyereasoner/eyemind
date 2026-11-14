@@ -23,7 +23,17 @@ proof:record10 pe:conclusion { :alice a :Member } .
 proof:record10 pe:rule 2 .
 proof:record10 pe:binding () .
 proof:record10 pe:uses () .
-<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10) .
+proof:record11 pe:derived { ?A ?B ?C } .
+proof:record11 pe:answers ({ { ?x a :Member } => { ?x :mayRead :report } } { :alice :mayRead :report }) .
+proof:record12 pe:called { { ?x a :Member } => { ?x :mayRead :report } } .
+proof:record12 pe:answers ({ { ?x a :Member } => { ?x :mayRead :report } }) .
+proof:record13 pe:called { :policy :status :active } .
+proof:record13 pe:answers ({ :policy :status :active }) .
+proof:record14 pe:called { ?A a :Member } .
+proof:record14 pe:answers ({ :alice a :Member }) .
+proof:record15 pe:called { ?B :mayRead :report } .
+proof:record15 pe:answers ({ :alice :mayRead :report }) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15) .
 proof:record1 em:term (em:compound "rdf" ((em:compound "graph" ((em:list ((em:compound "rdf" ((em:compound "qvar" ((em:atom "x"))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Member))))))) (em:iri <http://www.w3.org/2000/10/swap/log#implies>) (em:compound "graph" ((em:list ((em:compound "rdf" ((em:compound "qvar" ((em:atom "x"))) (em:iri :mayRead) (em:iri :report))))))))) .
 proof:record2 em:term (em:compound "rdf" ((em:iri :alice) (em:iri :mayRead) (em:iri :report))) .
 proof:record3 em:term (em:compound "clause" ((em:integer "1") (em:compound "fact" ((em:compound "rdf" ((em:iri :policy) (em:iri :status) (em:iri :active))))))) .
@@ -34,3 +44,8 @@ proof:record7 em:term (em:compound "step" ((em:compound "rdf" ((em:compound "gra
 proof:record8 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :policy) (em:iri :status) (em:iri :active))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
 proof:record9 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :alice) (em:iri :mayRead) (em:iri :report))) (em:compound "clause" ((em:integer "4"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :alice))))) (em:list ((em:compound "rdf" ((em:iri :policy) (em:iri :status) (em:iri :active))) (em:compound "rdf" ((em:iri :alice) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Member))))))) .
 proof:record10 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :alice) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Member))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record11 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:compound "graph" ((em:list ((em:compound "rdf" ((em:compound "qvar" ((em:atom "x"))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Member))))))) (em:iri <http://www.w3.org/2000/10/swap/log#implies>) (em:compound "graph" ((em:list ((em:compound "rdf" ((em:compound "qvar" ((em:atom "x"))) (em:iri :mayRead) (em:iri :report))))))))) (em:compound "rdf" ((em:iri :alice) (em:iri :mayRead) (em:iri :report))))))) .
+proof:record12 em:term (em:compound "called" ((em:compound "rdf" ((em:compound "graph" ((em:list ((em:compound "rdf" ((em:compound "qvar" ((em:atom "x"))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Member))))))) (em:iri <http://www.w3.org/2000/10/swap/log#implies>) (em:compound "graph" ((em:list ((em:compound "rdf" ((em:compound "qvar" ((em:atom "x"))) (em:iri :mayRead) (em:iri :report))))))))) (em:list ((em:compound "rdf" ((em:compound "graph" ((em:list ((em:compound "rdf" ((em:compound "qvar" ((em:atom "x"))) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Member))))))) (em:iri <http://www.w3.org/2000/10/swap/log#implies>) (em:compound "graph" ((em:list ((em:compound "rdf" ((em:compound "qvar" ((em:atom "x"))) (em:iri :mayRead) (em:iri :report))))))))))))) .
+proof:record13 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :policy) (em:iri :status) (em:iri :active))) (em:list ((em:compound "rdf" ((em:iri :policy) (em:iri :status) (em:iri :active))))))) .
+proof:record14 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "A") (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Member))) (em:list ((em:compound "rdf" ((em:iri :alice) (em:iri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>) (em:iri :Member))))))) .
+proof:record15 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "B") (em:iri :mayRead) (em:iri :report))) (em:list ((em:compound "rdf" ((em:iri :alice) (em:iri :mayRead) (em:iri :report))))))) .

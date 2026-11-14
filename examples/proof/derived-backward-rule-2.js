@@ -16,3 +16,13 @@ step(type('Socrates', 'Human'), clause(4), {}, ['true', 'true'])
 step('true', 'builtin', {}, [])
 step(subclass_of('Human', 'Mortal'), clause(5), {}, ['true', 'true'])
 step(t('test', 'is', 'true'), clause(3), {}, [type('Socrates', 'Mortal')])
+
+// Search certificate: derived facts and complete answers used to check
+// negations, collections and the original questions.
+derived(type(A, B), [type('Socrates', 'Mortal')])
+derived(t(A, B, C), [t('test', 'is', 'true')])
+called(type(A, B), [type('Socrates', 'Mortal'), type('Socrates', 'Human')])
+called(subclass_of('Mortal', C), [])
+called(subclass_of('Human', C), [subclass_of('Human', 'Mortal')])
+called(t('test', 'is', 'true'), [t('test', 'is', 'true')])
+called(type('Socrates', 'Mortal'), [type('Socrates', 'Mortal')])
