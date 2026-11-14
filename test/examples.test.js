@@ -5,7 +5,7 @@ import { basename, join, relative } from 'node:path';
 import { checkProof, checkReport, publicReport, readProofTerms, readTerms, run, strict, write } from '../src/index.js';
 import { writeProof } from '../src/formats.js';
 import { KINDS, artifactPath, certify, loadExampleInputs, outputText, readManifest, sourceFiles } from '../tools/corpus.js';
-import { ROOT, assert, cli } from './helpers.js';
+import { ROOT, assert, cachedCli, cli } from './helpers.js';
 
 export const section = 'examples';
 
@@ -126,8 +126,8 @@ for (const entry of MANIFEST) {
     }
     if (large(entry)) return;
     const result = entry.srlContext
-      ? cli(['--check-proof', relative(ROOT, artifactPath('proof', entry)), ...inputs(entry)])
-      : cli(['--prove-and-check', ...inputs(entry)]);
+      ? cachedCli(['--check-proof', relative(ROOT, artifactPath('proof', entry)), ...inputs(entry)])
+      : cachedCli(['--prove-and-check', ...inputs(entry)]);
     assert.equal(result.code, entry.halt_code ?? 0, result.stderr);
     assert.equal(result.stdout, saved);
   };

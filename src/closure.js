@@ -16,7 +16,7 @@
 // a once/1 whose answers rest on a listing stays an obligation, and so does a
 // boundary whose search reaches rule templates or inspection.
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
-import { freshClause, text, variant } from './common.js';
+import { freshClause, sameVariant, text, variant } from './common.js';
 import { INSPECTION_KEYS } from './inspection.js';
 import {
   Env, EyemindError, Struct, Var, copyResolved, deref, flattenConjunction, freshTerm, identity, isCallable, isGround, isTerm, key,
@@ -352,7 +352,7 @@ export class Settler {
       for (const _ of this.expand(call, env, entry.reliance)) found.push(copyResolved(call, env)); // eslint-disable-line no-unused-vars
       const listed = entry.answers;
       let i = 0;
-      while (i < found.length && i < listed.length && this.variant(found[i]) === this.variant(listed[i])) i++;
+      while (i < found.length && i < listed.length && sameVariant(found[i], listed[i], this.operational)) i++;
       if (i < found.length && i < listed.length) {
         entry.failure = `the search of ${text(entry.call)} answers ${text(found[i])} where its table lists ${text(listed[i])}`;
       } else if (i < found.length) {

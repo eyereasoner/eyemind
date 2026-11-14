@@ -284,7 +284,14 @@ export function readNativeProof(document) {
   }
 }
 
+// The command line reads an SRL proof's execution context before checking
+// the same document, so the last native document read is kept.
+let lastNative = null;
+
 export function readProofTerms(document) {
-  if (/^\s*(?:#|@|PREFIX\b|BASE\b|DATA\b|<|_:)/i.test(document)) return readNativeProof(document).map((term) => [term, 0]);
+  if (/^\s*(?:#|@|PREFIX\b|BASE\b|DATA\b|<|_:)/i.test(document)) {
+    if (lastNative?.document !== document) lastNative = { document, terms: readNativeProof(document) };
+    return lastNative.terms.map((term) => [term, 0]);
+  }
   return readTerms(document);
 }

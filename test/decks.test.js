@@ -10,7 +10,7 @@ import { shellSplit } from '../conformance/run.js';
 import { parseN3 } from '../src/n3-parser.js';
 import { tripleToEyemind } from '../src/n3-writer.js';
 import { artifactPath, loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
-import { ROOT, assert } from './helpers.js';
+import { ROOT, assert, cachedCli } from './helpers.js';
 
 const MANIFEST = readManifest();
 const PROSE_GOALS = new Set(['gcd-bezout-identity', 'pell-equation', 'binomial-vandermonde', 'hamming-code']);
@@ -347,7 +347,8 @@ for (const entry of MANIFEST) {
         }
         assert.ok(inputs.every((file) => args.includes(file)) || args.some((arg) => compiled.has(arg)),
           'command must use all example inputs or the program compiled from them');
-        const result = deckCommand(args, files);
+        // A command that reads a file an earlier one wrote runs afresh.
+        const result = args.some((arg) => files.has(arg)) ? deckCommand(args, files) : cachedCli(args);
         if (target) files.set(target, result.stdout);
         if (args.includes('--program')) {
           assert.equal(result.code, 0, result.stderr);

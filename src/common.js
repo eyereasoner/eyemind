@@ -183,16 +183,62 @@ function build(term, values, fresh) {
   return new Struct(term.name, term.args.map((arg) => build(arg, values, fresh)));
 }
 
-// A key that preserves sharing while forgetting variable names.
+// Whether two terms are variants of each other, as their variant keys would
+// say, compared directly: one consistent renaming in each direction.
+export function sameVariant(left, right, anonymous = false) {
+  const forward = new Map();
+  const backward = new Map();
+  const pending = [left, right];
+  while (pending.length) {
+    const b = pending.pop();
+    const a = pending.pop();
+    if (a instanceof Var || b instanceof Var) {
+      if (!(a instanceof Var && b instanceof Var)) return false;
+      if (anonymous && isAnonymous(a) !== isAnonymous(b)) return false;
+      const mapped = forward.get(a.name);
+      if (mapped === undefined) {
+        if (backward.has(b.name)) return false;
+        forward.set(a.name, b.name);
+        backward.set(b.name, a.name);
+      } else if (mapped !== b.name) {
+        return false;
+      }
+    } else if (a instanceof Struct || b instanceof Struct) {
+      if (!(a instanceof Struct && b instanceof Struct) || a.name !== b.name || a.args.length !== b.args.length) return false;
+      for (let i = a.args.length - 1; i >= 0; i--) pending.push(a.args[i], b.args[i]);
+    } else if (typeof a !== typeof b || !Object.is(a, b)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// A key that preserves sharing while forgetting variable names: variables
+// are numbered in order of first occurrence, anonymous ones apart when asked.
+// It encodes the term as identity does, without writing canonical text.
 export function variant(term, anonymous = false) {
   const names = new Map();
-  function visit(t) {
-    if (t instanceof Var) {
-      if (!names.has(t.name)) names.set(t.name, new Var(`${anonymous && isAnonymous(t) ? '_' : 'V'}${names.size}`));
-      return names.get(t.name);
+  const out = [];
+  const pending = [term];
+  while (pending.length) {
+    const item = pending.pop();
+    if (item instanceof Var) {
+      let name = names.get(item.name);
+      if (name === undefined) {
+        name = `${anonymous && isAnonymous(item) ? '_' : 'V'}${names.size}`;
+        names.set(item.name, name);
+      }
+      out.push('\u0000v', name);
+    } else if (item instanceof Struct) {
+      out.push('\u0000c', String(item.name.length), item.name, String(item.args.length));
+      for (let i = item.args.length - 1; i >= 0; i--) pending.push(item.args[i]);
+    } else if (typeof item === 'string') {
+      out.push('\u0000a', String(item.length), item);
+    } else if (typeof item === 'bigint') {
+      out.push('\u0000i', String(item));
+    } else {
+      out.push('\u0000f', Object.is(item, -0) ? '-0' : String(item));
     }
-    if (t instanceof Struct) return new Struct(t.name, t.args.map(visit));
-    return t;
   }
-  return text(visit(term));
+  return out.join('\u0001');
 }

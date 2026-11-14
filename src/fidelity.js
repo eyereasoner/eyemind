@@ -4,7 +4,7 @@
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
 import { Settler, plainGenerators } from './closure.js';
 import { stepIdOf } from './proof.js';
-import { freshClause, text, variant } from './common.js';
+import { freshClause, sameVariant, text, variant } from './common.js';
 import { goalTerm } from './goals.js';
 import { INSPECTION_KEYS } from './inspection.js';
 import {
@@ -385,7 +385,7 @@ export function checkCalls(program, claims, goals, certificate, steps, spellings
     let detail = null;
     if (matching.some(({ status }) => status === 'failed')) detail = 'the original call has an invalid search certificate';
     else if (!matching.some(({ status, answers }) => status === 'settled' &&
-      answers.some((answer) => variant(answer) === variant(claim)))) {
+      answers.some((answer) => sameVariant(answer, claim)))) {
       if (matching.length && matching.every(({ status }) => status === 'settled')) {
         detail = 'the original call does not return this answer';
       } else {
