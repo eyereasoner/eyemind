@@ -6,11 +6,11 @@ import { subgoals } from './goals.js';
 import { hasInspection, inspectionTerm } from './inspection.js';
 import {
   EMPTY, Env, EyemindError, Struct, Var, conjunction, deref, flattenConjunction, freshTerm, identity, indexKey, isCallable,
-  isGround, isTerm, key, keyArity, listFromItems, unify, variables,
+  isCollection, isGround, isTerm, key, keyArity, listFromItems, unify, variables,
 } from './terms.js';
 import { write } from './writer.js';
 
-export const CONTROL_KEYS = new Set(['and/2', 'or/2', 'not/1', 'call/1', 'once/1', 'findall/3']);
+export const CONTROL_KEYS = new Set(['and/2', 'or/2', 'not/1', 'call/1', 'once/1', 'findall/3', 'findall_sorted/3']);
 export const RESERVED_KEYS = new Set(['step/4', 'clause/2', 'searched/2', 'derived/2', 'called/2', 'activated/2', 'implies/2', 'implied_by/2', 'forward/2', 'backward/2']);
 
 // The statements that state a forward rule, and how an error names them.
@@ -344,7 +344,7 @@ function bucketEntries(found) {
 function dependencies(goal, closed = false, out = []) {
   const inner = subgoals(goal);
   if (inner !== null) {
-    const inside = closed || isTerm(goal, 'not', 1) || isTerm(goal, 'findall', 3);
+    const inside = closed || isTerm(goal, 'not', 1) || isCollection(goal);
     for (const part of inner) dependencies(part, inside, out);
   } else if (goal instanceof Var || (isCallable(goal) && !PRIMITIVE_KEYS.has(key(goal)))) {
     out.push([goal, closed]);
@@ -409,7 +409,7 @@ function restrains(first, second) {
 
 // Whether a goal could contribute a closed dependency or a dynamic call.
 function mayNeedStratifying(goal) {
-  if (goal instanceof Var || isTerm(goal, 'not', 1) || isTerm(goal, 'findall', 3)) return true;
+  if (goal instanceof Var || isTerm(goal, 'not', 1) || isCollection(goal)) return true;
   const inner = subgoals(goal);
   return inner !== null && inner.some(mayNeedStratifying);
 }

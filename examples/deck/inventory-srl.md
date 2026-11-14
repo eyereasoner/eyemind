@@ -73,7 +73,7 @@ Grouping counts distinct locations and computes SUM, MIN and MAX. Bolts total 20
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#locations'), 2)
 inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#total'), 200)
 inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#smallest'), 80)
@@ -100,14 +100,19 @@ inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#qu
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked_with_obligations')`. The report lists `call_fidelity`, `collected` obligations. Strict checking rejects these remaining obligations.
+The saved report ends with `verdict('checked')`. The report has no remaining obligations.
+`GROUP BY` compiles to `findall_sorted`, so the aggregates do not depend on
+the order in which the stock records were derived. C9 settles each grouped
+list from the proof's search certificate: the certificate lists the facts
+the grouping searches, and the sorted list does not depend on derivation
+order.
 C1 checks each inference against the compiled source clauses, C5 re-decides
 primitive computations, C8 checks any fresh witness, and C10 checks the
 original questions against the proof's call tables. The checker follows the
 certificate without calling the reasoning engine.
 
-The verdict certifies the displayed claims; it does not assert that an
-arbitrary proof lists every possible answer.
+The verdict also establishes that the displayed claims are every answer of
+the original questions, and `--strict-proof` accepts the proof.
 
 ---
 

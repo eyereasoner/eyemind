@@ -9,7 +9,7 @@
 // The program concludes that a paper jam is the most likely fault (about
 // 0.48), then network loss (0.38) and power loss (0.13). Weights are whole
 // percentages, so the products stay exact integers until the final division.
-// It shows forward rules, a collection with findall, and a recursive sum.
+// It shows forward rules, a collection with findall_sorted, and a recursive sum.
 
 // fault(Name, Prior, P(jam | fault), P(offline | fault)), all in percent.
 fact(fault('paper_jam', 20, 90, 10))
@@ -22,7 +22,7 @@ implies(
 // The total weight of all faults normalizes the posteriors.
 fact(sum_weights([], 0))
 implied_by(sum_weights([W, ...Ws], Sum), [sum_weights(Ws, Rest), is(Sum, add(W, Rest))])
-implies([findall(W, weight(Fault, W), Weights), sum_weights(Weights, Total)], total(Total))
+implies([findall_sorted(W, weight(Fault, W), Weights), sum_weights(Weights, Total)], total(Total))
 implies(
   [
     weight(Fault, Numerator),

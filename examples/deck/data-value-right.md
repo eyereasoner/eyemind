@@ -88,7 +88,7 @@ implies([anchored(C), not(fully_anchored(C))], fit(C, 'by interpretation'))
 implies(gap(C), fit(C, 'needs an autonomous right'))
 
 implies(
-  [component(C, Meaning), fit(C, How), findall(P, anchor(P, C, D, W), Provisions)],
+  [component(C, Meaning), fit(C, How), findall_sorted(P, anchor(P, C, D, W), Provisions)],
   analysis(C, Meaning, How, Provisions),
 )
 ```
@@ -107,8 +107,10 @@ Two features do the work:
 - `not(...)` holds when eyemind cannot find what is inside it: "no provision
   anchors this component". eyemind only asks such a question after it has
   derived everything that could answer it.
-- `findall(P, anchor(P, C, D, W), Provisions)` **collects** into the list
-  `Provisions` every provision `P` that anchors component `C`.
+- `findall_sorted(P, anchor(P, C, D, W), Provisions)` **collects** into the
+  list `Provisions` every provision `P` that anchors component `C`, sorted
+  in the standard order of terms. Names are compared character by character
+  by code point, so `'GDPR art. 21'` comes before `'GDPR art. 7(3)'`.
 
 ### The policy evaluation, as rules
 
@@ -126,7 +128,11 @@ implies(
 implies(objection(O, Why), objectionable(O))
 implies([option(O, F), not(objectionable(O))], recommended(O))
 implies(
-  [option(O, F), findall(C, delivers(O, C), Delivered), findall(Why, objection(O, Why), Objections)],
+  [
+    option(O, F),
+    findall_sorted(C, delivers(O, C), Delivered),
+    findall_sorted(Why, objection(O, Why), Objections),
+  ],
   evaluation(O, Delivered, Objections),
 )
 ```
@@ -136,7 +142,7 @@ A component *needs development* unless the law anchors it fully. An option
 undelivered, when its framing treats data as a commodity, or when its framing
 gives the data subject no claim of their own. An option with no objection at
 all is **recommended**. Each evaluation collects what an option delivers and
-the objections it meets.
+the objections it meets, each list sorted.
 
 ---
 
@@ -144,18 +150,18 @@ the objections it meets.
 
 ```js
 // Answers: each instance of a query() that holds.
-analysis('value_transparency', 'knowing that and how one\'s data creates value, including in AI training', 'by interpretation', ['GDPR art. 13-15', 'AI Act art. 53(1)(d)'])
-analysis('use_control', 'deciding on the uses through which one\'s data creates value', 'by interpretation', ['GDPR art. 7(3)', 'GDPR art. 21'])
-analysis('value_mobility', 'taking one\'s data elsewhere, to have value created there', 'by interpretation', ['GDPR art. 20', 'DMA art. 6(9)'])
+analysis('value_transparency', 'knowing that and how one\'s data creates value, including in AI training', 'by interpretation', ['AI Act art. 53(1)(d)', 'GDPR art. 13-15'])
+analysis('use_control', 'deciding on the uses through which one\'s data creates value', 'by interpretation', ['GDPR art. 21', 'GDPR art. 7(3)'])
+analysis('value_mobility', 'taking one\'s data elsewhere, to have value created there', 'by interpretation', ['DMA art. 6(9)', 'GDPR art. 20'])
 analysis('value_recognition', 'the law acknowledging that personal data has economic value', 'in existing law', ['Directive 2019/770 art. 3(1)'])
 analysis('collective_exercise', 'exercising the right together, through an intermediary', 'by interpretation', ['DGA ch. III'])
 analysis('individual_enforcement', 'enforcing the right oneself, before a court', 'in existing law', ['GDPR art. 79 and 82'])
 analysis('value_share', 'receiving a share of the value one\'s data creates', 'needs an autonomous right', [])
-evaluation('interpret_existing_law', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement'], [unaddressed('value_share')])
-evaluation('extend_portability', ['value_mobility', 'value_transparency'], [unaddressed('use_control'), unaddressed('collective_exercise'), unaddressed('value_share')])
-evaluation('data_dividend', ['value_share', 'collective_exercise'], [unaddressed('value_transparency'), unaddressed('use_control'), unaddressed('value_mobility'), 'gives the data subject no claim of their own'])
-evaluation('data_ownership', ['value_share', 'use_control', 'value_mobility', 'individual_enforcement'], ['treats personal data as a commodity', unaddressed('value_transparency'), unaddressed('collective_exercise')])
-evaluation('autonomous_right', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share'], [])
+evaluation('interpret_existing_law', ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_transparency'], [unaddressed('value_share')])
+evaluation('extend_portability', ['value_mobility', 'value_transparency'], [unaddressed('collective_exercise'), unaddressed('use_control'), unaddressed('value_share')])
+evaluation('data_dividend', ['collective_exercise', 'value_share'], ['gives the data subject no claim of their own', unaddressed('use_control'), unaddressed('value_mobility'), unaddressed('value_transparency')])
+evaluation('data_ownership', ['individual_enforcement', 'use_control', 'value_mobility', 'value_share'], ['treats personal data as a commodity', unaddressed('collective_exercise'), unaddressed('value_transparency')])
+evaluation('autonomous_right', ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency'], [])
 recommended('autonomous_right')
 ```
 
@@ -201,16 +207,16 @@ that call's own line, from the `derived` listings, or from the facts, so
 no line vouches for itself. A boundary that passes is **settled**, not
 taken on trust.
 
-That settles every absence here, and every list gathered from facts alone,
-such as the provisions anchoring a component. It does not settle a list
+That settles every absence here and every collected list, including those
 gathered from facts that forward rules derived, such as an option's
-objections: a `findall` list gives its items in the order they were
-derived, and that order is not something the checker can confirm. Each such
-list stays an **obligation**: a point taken on trust, which anyone may
-challenge by showing the missing thing. The checker also confronts every
-boundary with the evidence it has, the program's facts and the proof's own
-steps: if, say, the program had an `anchor` fact for the value share, the
-absence and the empty list would be refuted and the proof rejected.
+objections. A `derived` listing proves *which* facts were derived, not in
+what order. A plain `findall` list gives its items in the order they were
+found, so over derived facts it would stay an **obligation**: a point taken
+on trust. `findall_sorted` sorts its list, and these items contain no
+variables, so the list depends only on which facts there are, and the
+certificate settles it. If, say, the program had an `anchor` fact for the
+value share, the `searched` line for its anchoring could not be confirmed,
+and the absence and the empty list would be rejected.
 
 ---
 
@@ -225,18 +231,18 @@ with `// …` mark what is left out:
 
 ```js
 // Answers: each instance of a query() that holds.
-analysis('value_transparency', 'knowing that and how one\'s data creates value, including in AI training', 'by interpretation', ['GDPR art. 13-15', 'AI Act art. 53(1)(d)'])
-analysis('use_control', 'deciding on the uses through which one\'s data creates value', 'by interpretation', ['GDPR art. 7(3)', 'GDPR art. 21'])
-analysis('value_mobility', 'taking one\'s data elsewhere, to have value created there', 'by interpretation', ['GDPR art. 20', 'DMA art. 6(9)'])
+analysis('value_transparency', 'knowing that and how one\'s data creates value, including in AI training', 'by interpretation', ['AI Act art. 53(1)(d)', 'GDPR art. 13-15'])
+analysis('use_control', 'deciding on the uses through which one\'s data creates value', 'by interpretation', ['GDPR art. 21', 'GDPR art. 7(3)'])
+analysis('value_mobility', 'taking one\'s data elsewhere, to have value created there', 'by interpretation', ['DMA art. 6(9)', 'GDPR art. 20'])
 analysis('value_recognition', 'the law acknowledging that personal data has economic value', 'in existing law', ['Directive 2019/770 art. 3(1)'])
 analysis('collective_exercise', 'exercising the right together, through an intermediary', 'by interpretation', ['DGA ch. III'])
 analysis('individual_enforcement', 'enforcing the right oneself, before a court', 'in existing law', ['GDPR art. 79 and 82'])
 analysis('value_share', 'receiving a share of the value one\'s data creates', 'needs an autonomous right', [])
-evaluation('interpret_existing_law', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement'], [unaddressed('value_share')])
-evaluation('extend_portability', ['value_mobility', 'value_transparency'], [unaddressed('use_control'), unaddressed('collective_exercise'), unaddressed('value_share')])
-evaluation('data_dividend', ['value_share', 'collective_exercise'], [unaddressed('value_transparency'), unaddressed('use_control'), unaddressed('value_mobility'), 'gives the data subject no claim of their own'])
-evaluation('data_ownership', ['value_share', 'use_control', 'value_mobility', 'individual_enforcement'], ['treats personal data as a commodity', unaddressed('value_transparency'), unaddressed('collective_exercise')])
-evaluation('autonomous_right', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share'], [])
+evaluation('interpret_existing_law', ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_transparency'], [unaddressed('value_share')])
+evaluation('extend_portability', ['value_mobility', 'value_transparency'], [unaddressed('collective_exercise'), unaddressed('use_control'), unaddressed('value_share')])
+evaluation('data_dividend', ['collective_exercise', 'value_share'], ['gives the data subject no claim of their own', unaddressed('use_control'), unaddressed('value_mobility'), unaddressed('value_transparency')])
+evaluation('data_ownership', ['individual_enforcement', 'use_control', 'value_mobility', 'value_share'], ['treats personal data as a commodity', unaddressed('collective_exercise'), unaddressed('value_transparency')])
+evaluation('autonomous_right', ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency'], [])
 recommended('autonomous_right')
 
 // Clauses: the program clauses the steps cite, by clause number.
@@ -265,7 +271,7 @@ clause(43, implies([component(C, Description), not(anchored(C))], gap(C)))
 clause(44, implies(fully_anchored(C), fit(C, 'in existing law')))
 clause(45, implies([anchored(C), not(fully_anchored(C))], fit(C, 'by interpretation')))
 clause(46, implies(gap(C), fit(C, 'needs an autonomous right')))
-clause(47, implies([component(C, Meaning), fit(C, How), findall(P, anchor(P, C, D, W), Provisions)], analysis(C, Meaning, How, Provisions)))
+clause(47, implies([component(C, Meaning), fit(C, How), findall_sorted(P, anchor(P, C, D, W), Provisions)], analysis(C, Meaning, How, Provisions)))
 clause(49, implies(anchored(C), delivers('interpret_existing_law', C)))
 clause(50, implies([component(C, Meaning), not(fully_anchored(C))], needs_development(C)))
 clause(51, implies([option(O, F), needs_development(C), not(delivers(O, C))], objection(O, unaddressed(C))))
@@ -273,23 +279,23 @@ clause(52, implies([option(O, F), commodifies(F)], objection(O, 'treats personal
 clause(53, implies([option(O, F), not(own_claim(F))], objection(O, 'gives the data subject no claim of their own')))
 clause(54, implies(objection(O, Why), objectionable(O)))
 clause(55, implies([option(O, F), not(objectionable(O))], recommended(O)))
-clause(56, implies([option(O, F), findall(C, delivers(O, C), Delivered), findall(Why, objection(O, Why), Objections)], evaluation(O, Delivered, Objections)))
+clause(56, implies([option(O, F), findall_sorted(C, delivers(O, C), Delivered), findall_sorted(Why, objection(O, Why), Objections)], evaluation(O, Delivered, Objections)))
 
 // Steps: each goal, what justifies it (a clause, a builtin, a control, an
 // absence or a collection), the bindings and the goals it uses.
 // … the proof has 108 steps; 12 are shown. Left out here: 40 steps for the
 // first six analyses, which follow the same pattern per component.
-step(analysis('value_share', 'receiving a share of the value one\'s data creates', 'needs an autonomous right', []), clause(47), {C: 'value_share', Meaning: 'receiving a share of the value one\'s data creates', How: 'needs an autonomous right', P: A, D: B, W: C, Provisions: []}, [component('value_share', 'receiving a share of the value one\'s data creates'), fit('value_share', 'needs an autonomous right'), findall(A, anchor(A, 'value_share', B, C), [])])
+step(analysis('value_share', 'receiving a share of the value one\'s data creates', 'needs an autonomous right', []), clause(47), {C: 'value_share', Meaning: 'receiving a share of the value one\'s data creates', How: 'needs an autonomous right', P: A, D: B, W: C, Provisions: []}, [component('value_share', 'receiving a share of the value one\'s data creates'), fit('value_share', 'needs an autonomous right'), findall_sorted(A, anchor(A, 'value_share', B, C), [])])
 step(component('value_share', 'receiving a share of the value one\'s data creates'), clause(7), {}, [])
 step(fit('value_share', 'needs an autonomous right'), clause(46), {C: 'value_share'}, [gap('value_share')])
 step(gap('value_share'), clause(43), {C: 'value_share', Description: 'receiving a share of the value one\'s data creates'}, [component('value_share', 'receiving a share of the value one\'s data creates'), not(anchored('value_share'))])
 step(not(anchored('value_share')), 'absent', {}, [])
-step(findall(A, anchor(A, 'value_share', B, C), []), 'collected', {}, [])
+step(findall_sorted(A, anchor(A, 'value_share', B, C), []), 'collected', {}, [])
 // … 16 steps for the evaluations of the other four options
-step(evaluation('autonomous_right', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share'], []), clause(56), {O: 'autonomous_right', F: 'inalienable_right', C: D, Delivered: ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share'], Why: E, Objections: []}, [option('autonomous_right', 'inalienable_right'), findall(D, delivers('autonomous_right', D), ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share']), findall(E, objection('autonomous_right', E), [])])
+step(evaluation('autonomous_right', ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency'], []), clause(56), {O: 'autonomous_right', F: 'inalienable_right', C: D, Delivered: ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency'], Why: E, Objections: []}, [option('autonomous_right', 'inalienable_right'), findall_sorted(D, delivers('autonomous_right', D), ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency']), findall_sorted(E, objection('autonomous_right', E), [])])
 step(option('autonomous_right', 'inalienable_right'), clause(29), {}, [])
-step(findall(D, delivers('autonomous_right', D), ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share']), 'collected', {}, [])
-step(findall(E, objection('autonomous_right', E), []), 'collected', {}, [])
+step(findall_sorted(D, delivers('autonomous_right', D), ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency']), 'collected', {}, [])
+step(findall_sorted(E, objection('autonomous_right', E), []), 'collected', {}, [])
 step(recommended('autonomous_right'), clause(55), {O: 'autonomous_right', F: 'inalienable_right'}, [option('autonomous_right', 'inalienable_right'), not(objectionable('autonomous_right'))])
 step(not(objectionable('autonomous_right')), 'absent', {}, [])
 // … 40 more steps prove the facts the search certificate lists: the
@@ -297,13 +303,16 @@ step(not(objectionable('autonomous_right')), 'absent', {}, [])
 
 // Search certificate: derived facts and complete answers used to check
 // negations, collections and the original questions.
-// … six derived(...) listings, for fully_anchored, anchored, delivers,
-// objection, needs_development and objectionable
+// … eleven derived(...) listings: for fully_anchored, anchored, delivers,
+// objection, needs_development and objectionable, and for the relations of
+// the claims and their premises: analysis, fit, gap, evaluation, recommended
 // … 4 searched lines
 searched(anchored('value_share'), [])
-// … 30 searched lines
+// … 39 searched lines
+searched(objection('autonomous_right', U), [])
 searched(objectionable('autonomous_right'), [])
-// … 1 more searched line
+// … 1 more searched line, and 69 called(...) tables for the
+// original questions
 ```
 
 It has four parts:
@@ -320,9 +329,9 @@ It has four parts:
 - **The steps**: one per thing established. A step reads
   `step(what, justified by, with which values, using what)`.
 - **The search certificate**: the facts and searches behind the absences
-  and lists, explained in the previous card. For example,
-  `searched(anchored('value_share'), [])`: the search for an anchoring of
-  the value share found none.
+  and lists, explained in the previous card, and the `called` tables of the
+  original questions. For example, `searched(anchored('value_share'), [])`:
+  the search for an anchoring of the value share found none.
 
 Three kinds of justification occur:
 
@@ -332,7 +341,7 @@ Three kinds of justification occur:
 - `'collected'`: a list gathered by searching.
 
 In the values, letters such as `A`, `B`, `C`, `D` and `E` stand for "any
-value": `findall(A, anchor(A, 'value_share', B, C), [])` reads *the
+value": `findall_sorted(A, anchor(A, 'value_share', B, C), [])` reads *the
 provisions A that anchor the value share, to any degree B, for any reason C:
 none*.
 
@@ -369,9 +378,9 @@ The last 40 steps answer no question. They prove the facts the certificate
 lists, such as each objection: `objection('extend_portability',
 unaddressed('use_control'))` holds because use control needs development
 and extending portability does not deliver it, an absence of its own. So
-every individual objection now has steps. What remains on trust is only
-that each option's lists of deliveries and objections are complete, in the
-order given.
+every individual objection has steps, and the `derived` listings they back
+let the checker confirm that each option's lists of deliveries and
+objections are complete.
 
 ---
 
@@ -383,19 +392,19 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
-analysis('value_transparency', 'knowing that and how one\'s data creates value, including in AI training', 'by interpretation', ['GDPR art. 13-15', 'AI Act art. 53(1)(d)'])
-analysis('use_control', 'deciding on the uses through which one\'s data creates value', 'by interpretation', ['GDPR art. 7(3)', 'GDPR art. 21'])
-analysis('value_mobility', 'taking one\'s data elsewhere, to have value created there', 'by interpretation', ['GDPR art. 20', 'DMA art. 6(9)'])
+// Checked answers: these follow from the input program.
+analysis('value_transparency', 'knowing that and how one\'s data creates value, including in AI training', 'by interpretation', ['AI Act art. 53(1)(d)', 'GDPR art. 13-15'])
+analysis('use_control', 'deciding on the uses through which one\'s data creates value', 'by interpretation', ['GDPR art. 21', 'GDPR art. 7(3)'])
+analysis('value_mobility', 'taking one\'s data elsewhere, to have value created there', 'by interpretation', ['DMA art. 6(9)', 'GDPR art. 20'])
 analysis('value_recognition', 'the law acknowledging that personal data has economic value', 'in existing law', ['Directive 2019/770 art. 3(1)'])
 analysis('collective_exercise', 'exercising the right together, through an intermediary', 'by interpretation', ['DGA ch. III'])
 analysis('individual_enforcement', 'enforcing the right oneself, before a court', 'in existing law', ['GDPR art. 79 and 82'])
 analysis('value_share', 'receiving a share of the value one\'s data creates', 'needs an autonomous right', [])
-evaluation('interpret_existing_law', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement'], [unaddressed('value_share')])
-evaluation('extend_portability', ['value_mobility', 'value_transparency'], [unaddressed('use_control'), unaddressed('collective_exercise'), unaddressed('value_share')])
-evaluation('data_dividend', ['value_share', 'collective_exercise'], [unaddressed('value_transparency'), unaddressed('use_control'), unaddressed('value_mobility'), 'gives the data subject no claim of their own'])
-evaluation('data_ownership', ['value_share', 'use_control', 'value_mobility', 'individual_enforcement'], ['treats personal data as a commodity', unaddressed('value_transparency'), unaddressed('collective_exercise')])
-evaluation('autonomous_right', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share'], [])
+evaluation('interpret_existing_law', ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_transparency'], [unaddressed('value_share')])
+evaluation('extend_portability', ['value_mobility', 'value_transparency'], [unaddressed('collective_exercise'), unaddressed('use_control'), unaddressed('value_share')])
+evaluation('data_dividend', ['collective_exercise', 'value_share'], ['gives the data subject no claim of their own', unaddressed('use_control'), unaddressed('value_mobility'), unaddressed('value_transparency')])
+evaluation('data_ownership', ['individual_enforcement', 'use_control', 'value_mobility', 'value_share'], ['treats personal data as a commodity', unaddressed('collective_exercise'), unaddressed('value_transparency')])
+evaluation('autonomous_right', ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency'], [])
 recommended('autonomous_right')
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
@@ -405,40 +414,22 @@ condition('C2', 'well_founded', 'ok', 108)
 condition('C3', 'justification', 'ok', 108)
 condition('C4', 'coverage', 'ok', 123)
 condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 10)
+condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 121)
 condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 24)
-condition('C10', 'call_fidelity', 'ok', 10)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('collected', 'theory_scoped', findall(A, delivers('interpret_existing_law', A), ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement']))
-obligation('collected', 'theory_scoped', findall(A, objection('interpret_existing_law', A), [unaddressed('value_share')]))
-obligation('collected', 'theory_scoped', findall(A, delivers('extend_portability', A), ['value_mobility', 'value_transparency']))
-obligation('collected', 'theory_scoped', findall(A, objection('extend_portability', A), [unaddressed('use_control'), unaddressed('collective_exercise'), unaddressed('value_share')]))
-obligation('collected', 'theory_scoped', findall(A, delivers('data_dividend', A), ['value_share', 'collective_exercise']))
-obligation('collected', 'theory_scoped', findall(A, objection('data_dividend', A), [unaddressed('value_transparency'), unaddressed('use_control'), unaddressed('value_mobility'), 'gives the data subject no claim of their own']))
-obligation('collected', 'theory_scoped', findall(A, delivers('data_ownership', A), ['value_share', 'use_control', 'value_mobility', 'individual_enforcement']))
-obligation('collected', 'theory_scoped', findall(A, objection('data_ownership', A), ['treats personal data as a commodity', unaddressed('value_transparency'), unaddressed('collective_exercise')]))
-obligation('collected', 'theory_scoped', findall(A, delivers('autonomous_right', A), ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share']))
-obligation('collected', 'theory_scoped', findall(A, objection('autonomous_right', A), []))
-obligation('call_fidelity', 'original_call', evaluation('interpret_existing_law', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement'], [unaddressed('value_share')]))
-obligation('call_fidelity', 'original_call', evaluation('extend_portability', ['value_mobility', 'value_transparency'], [unaddressed('use_control'), unaddressed('collective_exercise'), unaddressed('value_share')]))
-obligation('call_fidelity', 'original_call', evaluation('data_dividend', ['value_share', 'collective_exercise'], [unaddressed('value_transparency'), unaddressed('use_control'), unaddressed('value_mobility'), 'gives the data subject no claim of their own']))
-obligation('call_fidelity', 'original_call', evaluation('data_ownership', ['value_share', 'use_control', 'value_mobility', 'individual_enforcement'], ['treats personal data as a commodity', unaddressed('value_transparency'), unaddressed('collective_exercise')]))
-obligation('call_fidelity', 'original_call', evaluation('autonomous_right', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share'], []))
-obligation('call_fidelity', 'all_answers', evaluation(A, B, C))
+condition('C9', 'search_closure', 'ok', 34)
+condition('C10', 'call_fidelity', 'ok', 16)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(108)
 verified(74)
 recomputed(0)
 composed(0)
-trusted(16)
+trusted(0)
 claims(13)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -455,51 +446,39 @@ at:
   each backed by a step: nothing is taken for granted silently.
 - **C5 re-decision (0)**: there is no arithmetic or other built-in
   calculation to recompute.
-- **C6 boundary consistency (10)**: the 10 lists C9 left open, of what
-  each option delivers and meets as objections, were confronted with the
-  program's facts and the proof's steps, and none is contradicted: every
-  `delivers` or `objection` the proof shows for an option is in its list.
-  `delivers` and `objection` facts are partly or wholly derived by forward
-  rules, so these lists stay obligations.
+- **C6 boundary consistency (0)**: no boundary was left to the evidence:
+  C9 settled all 34.
 - **C7 relevance (121)**: the 13 claims each answer one of the program's
   queries, and all 108 steps serve a claim.
 - **C8 witness integrity (0)**: no rule invents a new, unnamed thing, so
   there is no invented name to verify.
-- **C9 search closure (24)**: the search certificate settled 24 of the 34
-  boundary steps: the 17 absences, checked against their `searched` lines
-  and the `derived` listings, and the 7 lists of anchoring provisions,
-  which the checker reads from the `anchor` facts.
+- **C9 search closure (34)**: the search certificate settled all 34
+  boundary steps: the 17 absences and the 17 collected lists, checked
+  against their `searched` lines and the `derived` listings. The 7 lists of
+  anchoring provisions are read from the `anchor` facts; the 10 lists of
+  what each option delivers and meets as objections rest on `delivers` and
+  `objection` facts that forward rules derived, and are settled because
+  they are sorted.
+- **C10 call fidelity (16)**: the 13 claims and the 3 original questions,
+  one per `query`, were checked against the `called` tables.
 
-The statistics: 108 steps, 74 verified against the program, 24 settled and
-10 trusted, none recomputed or composed; 13 claims.
+The statistics: 108 steps, 74 verified against the program, 34 settled by
+the certificate, none recomputed, composed or trusted; 13 claims.
 
-The difference between settled and trusted is plain here. Settled, and so
-not obligations: four components are *not fully anchored*, the value share
-is *not anchored at all*, the autonomous right is *not objectionable*, each
-option leaves the listed components undelivered, and the 7 lists of
-provisions per component are complete. The 10 `obligation` lines are the
-trusted steps: for each of the five options, the list of what it delivers
-and the list of objections it meets are *complete*. Those lists gather
-facts that forward rules derived, and the order in which derived facts
-arose cannot be checked from the certificate. `'theory_scoped'` means each
-is meant relative to this program.
-
-The verdict is **checked with obligations**: every claim follows from the
-program, provided those 10 lists hold. As the last comment says,
-it also does not establish completeness: it does not say these are all the
-conclusions the program has.
+Settled, and so not obligations: four components are *not fully anchored*,
+the value share is *not anchored at all*, the autonomous right is *not
+objectionable*, each option leaves the listed components undelivered, the
+7 lists of provisions per component are complete, and for each of the five
+options, so are the list of what it delivers and the list of objections it
+meets. Each is meant relative to this program.
 
 `eyemind --unused` lists nothing for this program: every provision,
 component and rule makes a difference to some conclusion. Nothing in the
 model is decoration.
 
-C10 leaves 12 original-call claims unproved by the available evidence:
-those that rest on a collection or a computation. The recommendation of the
-autonomous right is confirmed as an answer of the original question, since
-its negation is decided by the listed facts alone. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on the remaining obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
+C10 certifies the original questions: every claim is an answer, and the
+claims are every answer of the three queries. The verdict is **checked**,
+also under `--strict-proof`: every claim follows from the program.
 
 
 ---

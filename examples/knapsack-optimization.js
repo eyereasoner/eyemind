@@ -10,7 +10,7 @@
 //
 // The example shows exhaustive search with a collection: a backward rule
 // enumerates every subset of the items, a forward rule keeps the packs that
-// fit, and findall gathers their values so that one list gives both how many
+// fit, and findall_sorted gathers their values so that one list gives both how many
 // packs fit and the highest value. Arithmetic with is(...) adds up weights
 // and values, exactly, as integers.
 
@@ -59,7 +59,7 @@ implied_by(maximum([X, ...Rest], Max), [maximum(Rest, Before), is(Max, max(X, Be
 // their number is the count of feasible packs, and their maximum the best
 // value. The empty pack is feasible, so the list is never empty.
 implies(
-  [findall(Value, feasible_pack(_, _, Value), Values), count(Values, Count), maximum(Values, Best)],
+  [findall_sorted(Value, feasible_pack(_, _, Value), Values), count(Values, Count), maximum(Values, Best)],
   summary(Count, Best),
 )
 implies([summary(_, Best), feasible_pack(Pack, Weight, Best)], best_pack(Pack, Weight, Best))

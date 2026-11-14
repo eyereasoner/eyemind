@@ -119,12 +119,12 @@ function ruleOf(clause) {
     if (goal === 'true') continue;
     if (!isCallable(goal)) return null;
     const goalKey = key(goal);
-    if (goalKey === 'not/1' || goalKey === 'findall/3') {
+    if (goalKey === 'not/1' || goalKey === 'findall/3' || goalKey === 'findall_sorted/3') {
       const group = [];
       for (const inner of flattenConjunction(goalKey === 'not/1' ? goal.args[0] : goal.args[1])) {
         if (inner instanceof Var || !isCallable(inner)) return null;
         if (PRIMITIVE_KEYS.has(key(inner))) continue;
-        if (['not/1', 'findall/3', 'or/2', 'once/1', 'call/1'].includes(key(inner))) return null;
+        if (['not/1', 'findall/3', 'findall_sorted/3', 'or/2', 'once/1', 'call/1'].includes(key(inner))) return null;
         group.push(inner);
       }
       if (group.length) negated.push(group);

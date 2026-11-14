@@ -10,7 +10,7 @@ import { CONTROL_KEYS, Program } from './program.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
   identity, indexKey, isAnonymous, isCallable, isGround, isGroundButAnonymous, isTerm, key, keyArity, listFromItems,
-  unify, variables,
+  sortCollected, unify, variables,
 } from './terms.js';
 import { Lettering, SourceNaming, write } from './writer.js';
 
@@ -433,7 +433,7 @@ export class Solver {
       if (!absent) return null;
       return this.advance(frame, recording ? new Node(goal, ABSENT) : null);
     }
-    if (goalKey === 'findall/3') {
+    if (goalKey === 'findall/3' || goalKey === 'findall_sorted/3') {
       const items = [];
       const scoped = [];
       const uses = recording ? new Set() : null;
@@ -450,7 +450,7 @@ export class Solver {
         if (recording) clausesUsed(nodes, uses);
       }
       env.undo(mark);
-      if (!unify(goal.args[2], listFromItems(items), env)) {
+      if (!unify(goal.args[2], listFromItems(goalKey === 'findall/3' ? items : sortCollected(items)), env)) {
         env.undo(mark);
         return null;
       }
@@ -713,7 +713,8 @@ export class Solver {
     // and stratification rejects variables a forward rule can reach.
     for (const goal of clause.localBody) {
       const goalKey = key(goal);
-      if (PRIMITIVE_KEYS.has(goalKey) || INSPECTION_KEYS.has(goalKey) || goalKey === 'not/1' || goalKey === 'findall/3') {
+      if (PRIMITIVE_KEYS.has(goalKey) || INSPECTION_KEYS.has(goalKey) || goalKey === 'not/1' || goalKey === 'findall/3' ||
+          goalKey === 'findall_sorted/3') {
         keys.push(null);
       } else if (CONTROL_KEYS.has(goalKey) || (this.program.groups.get(goalKey) || []).some((item) => item.body.length)) {
         keys = null;

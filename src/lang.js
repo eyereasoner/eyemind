@@ -363,6 +363,7 @@ function exportsFor(io) {
     call: (...goals) => new Struct('call', [joined(goals)]),
     once: (...goals) => new Struct('once', [joined(goals)]),
     findall: (template, goal, result) => new Struct('findall', [toTerm(template), goalOf(goal), toTerm(result)]),
+    findall_sorted: (template, goal, result) => new Struct('findall_sorted', [toTerm(template), goalOf(goal), toTerm(result)]),
     fail: 'fail',
     eyemind: LIBRARY,
   };

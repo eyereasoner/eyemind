@@ -8,7 +8,7 @@ import { goalTerm } from './goals.js';
 import { INSPECTION_KEYS } from './inspection.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm, identity, isAnonymous, isCallable,
-  isGround, isTerm, key, listFromItems, unify, variables,
+  isCollection, isGround, isTerm, key, listFromItems, unify, variables,
 } from './terms.js';
 import { Lettering, write } from './writer.js';
 
@@ -146,7 +146,7 @@ function groundedListings(program, listings, loose) {
       const inner = bound(goal.args[0], grounded, negated);
       return inner === null || shared(goal).some((name) => !grounded.has(name)) ? null : grounded;
     }
-    if (isTerm(goal, 'findall', 3)) {
+    if (isCollection(goal)) {
       const inner = bound(goal.args[1], grounded, negated);
       const collected = new Struct('-', [goal.args[0], goal.args[1]]);
       if (inner === null || shared(collected).some((name) => !grounded.has(name))) return null;
@@ -257,7 +257,7 @@ export function replayed(program, settler, listingKeys, stepOf) {
       });
       return side !== undefined && all(flattenConjunction(goal.args[side]), step.uses, env);
     }
-    if (['once/1', 'not/1', 'findall/3'].includes(goalKey)) {
+    if (['once/1', 'not/1', 'findall/3', 'findall_sorted/3'].includes(goalKey)) {
       const outcome = settler.answers(copyResolved(goal, env));
       if (outcome.status !== 'settled' || !outcome.answers.length) return false;
       return unify(goal, fresh(outcome.answers[0]), env) && compatible(goal, use, env);

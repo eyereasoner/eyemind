@@ -19,7 +19,7 @@ proof:record51 pe:uses ({ (1 :closed :transportAuthority 9310) a :RankedClaim } 
 proof:record52 pe:conclusion { (1 :closed :transportAuthority 9310) a :RankedClaim } .
 proof:record52 pe:rule 16 .
 proof:record52 pe:binding (("Status" :closed) ("Source" :transportAuthority) ("Score" 9310) ("Other" ?A) ("Higher" ()) ("Count" 0) ("Rank" 1)) .
-proof:record52 pe:uses ({ (:closed :transportAuthority 9310) a :Claim } (em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) (em:compound "n3_list_length" ((em:atom "[]") (em:integer "0"))) (em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1")))) .
+proof:record52 pe:uses ({ (:closed :transportAuthority 9310) a :Claim } (em:compound "findall_sorted" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) (em:compound "n3_list_length" ((em:atom "[]") (em:integer "0"))) (em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1")))) .
 proof:record53 pe:conclusion { (:closed :transportAuthority 9310) a :Claim } .
 proof:record53 pe:rule 14 .
 proof:record53 pe:binding (("Status" :closed) ("Reifier" :authorityClaim) ("Source" :transportAuthority) ("Confidence" 98) ("Trust" 95) ("Score" 9310)) .
@@ -116,7 +116,7 @@ proof:record76 pe:conclusion (em:compound "unify" ((em:integer "9310") (em:integ
 proof:record76 pe:justification (em:atom "builtin") .
 proof:record76 pe:binding () .
 proof:record76 pe:uses () .
-proof:record77 pe:conclusion (em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) .
+proof:record77 pe:conclusion (em:compound "findall_sorted" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) .
 proof:record77 pe:justification (em:atom "collected") .
 proof:record77 pe:binding () .
 proof:record77 pe:uses () .
@@ -391,7 +391,7 @@ proof:record144 pe:uses ({ (2 :open :anonymousPost 700) a :RankedClaim }) .
 proof:record145 pe:conclusion { (2 :open :anonymousPost 700) a :RankedClaim } .
 proof:record145 pe:rule 16 .
 proof:record145 pe:binding (("Status" :open) ("Source" :anonymousPost) ("Score" 700) ("Other" ?A) ("Higher" (9310)) ("Count" 1) ("Rank" 2)) .
-proof:record145 pe:uses ({ (:open :anonymousPost 700) a :Claim } (em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "700") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:integer "9310"))))) (em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2")))) .
+proof:record145 pe:uses ({ (:open :anonymousPost 700) a :Claim } (em:compound "findall_sorted" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "700") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:integer "9310"))))) (em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2")))) .
 proof:record146 pe:conclusion { (:open :anonymousPost 700) a :Claim } .
 proof:record146 pe:rule 14 .
 proof:record146 pe:binding (("Status" :open) ("Reifier" :socialClaim) ("Source" :anonymousPost) ("Confidence" 35) ("Trust" 20) ("Score" 700)) .
@@ -484,7 +484,7 @@ proof:record168 pe:conclusion (em:compound "unify" ((em:integer "700") (em:integ
 proof:record168 pe:justification (em:atom "builtin") .
 proof:record168 pe:binding () .
 proof:record168 pe:uses () .
-proof:record169 pe:conclusion (em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "700") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:integer "9310"))))) .
+proof:record169 pe:conclusion (em:compound "findall_sorted" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "700") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:integer "9310"))))) .
 proof:record169 pe:justification (em:atom "collected") .
 proof:record169 pe:binding () .
 proof:record169 pe:uses () .
@@ -600,7 +600,401 @@ proof:record197 pe:conclusion { :open :score 700 } .
 proof:record197 pe:rule 20 .
 proof:record197 pe:binding (("Rank" 2) ("Status" :open) ("Source" :anonymousPost) ("Score" 700)) .
 proof:record197 pe:uses ({ (2 :open :anonymousPost 700) a :RankedClaim }) .
-<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41 proof:record42 proof:record43 proof:record44 proof:record45 proof:record46 proof:record47 proof:record48 proof:record49 proof:record50 proof:record51 proof:record52 proof:record53 proof:record54 proof:record55 proof:record56 proof:record57 proof:record58 proof:record59 proof:record60 proof:record61 proof:record62 proof:record63 proof:record64 proof:record65 proof:record66 proof:record67 proof:record68 proof:record69 proof:record70 proof:record71 proof:record72 proof:record73 proof:record74 proof:record75 proof:record76 proof:record77 proof:record78 proof:record79 proof:record80 proof:record81 proof:record82 proof:record83 proof:record84 proof:record85 proof:record86 proof:record87 proof:record88 proof:record89 proof:record90 proof:record91 proof:record92 proof:record93 proof:record94 proof:record95 proof:record96 proof:record97 proof:record98 proof:record99 proof:record100 proof:record101 proof:record102 proof:record103 proof:record104 proof:record105 proof:record106 proof:record107 proof:record108 proof:record109 proof:record110 proof:record111 proof:record112 proof:record113 proof:record114 proof:record115 proof:record116 proof:record117 proof:record118 proof:record119 proof:record120 proof:record121 proof:record122 proof:record123 proof:record124 proof:record125 proof:record126 proof:record127 proof:record128 proof:record129 proof:record130 proof:record131 proof:record132 proof:record133 proof:record134 proof:record135 proof:record136 proof:record137 proof:record138 proof:record139 proof:record140 proof:record141 proof:record142 proof:record143 proof:record144 proof:record145 proof:record146 proof:record147 proof:record148 proof:record149 proof:record150 proof:record151 proof:record152 proof:record153 proof:record154 proof:record155 proof:record156 proof:record157 proof:record158 proof:record159 proof:record160 proof:record161 proof:record162 proof:record163 proof:record164 proof:record165 proof:record166 proof:record167 proof:record168 proof:record169 proof:record170 proof:record171 proof:record172 proof:record173 proof:record174 proof:record175 proof:record176 proof:record177 proof:record178 proof:record179 proof:record180 proof:record181 proof:record182 proof:record183 proof:record184 proof:record185 proof:record186 proof:record187 proof:record188 proof:record189 proof:record190 proof:record191 proof:record192 proof:record193 proof:record194 proof:record195 proof:record196 proof:record197) .
+proof:record198 pe:derived { ?M ?N ?O } .
+proof:record198 pe:answers ({ (:closed :transportAuthority 9310) a :Claim } { (:open :anonymousPost 700) a :Claim } { (1 :closed :transportAuthority 9310) a :RankedClaim } { (2 :open :anonymousPost 700) a :RankedClaim } { (:avoid_bridge :transportAuthority 9310) a :Decision }) .
+proof:record199 pe:derived { ?M ?N ?O } .
+proof:record199 pe:answers ({ :bridge :decision :avoid_bridge } { :bridge :trustedSource :transportAuthority } { :bridge :score 9310 } { :closed :rank 1 } { :closed :assertedBy :transportAuthority } { :closed :score 9310 } { :open :rank 2 } { :open :assertedBy :anonymousPost } { :open :score 700 }) .
+proof:record200 pe:searched { (9310 ?P) a :HigherScore } .
+proof:record200 pe:answers () .
+proof:record201 pe:searched { (?Q ?R ?S) a :Claim } .
+proof:record201 pe:answers ({ (:closed :transportAuthority 9310) a :Claim } { (:open :anonymousPost 700) a :Claim }) .
+proof:record202 pe:searched (em:compound "n3_math_greaterThan" ((em:integer "9310") (em:integer "9310"))) .
+proof:record202 pe:answers () .
+proof:record203 pe:searched (em:compound "n3_num" ((em:integer "9310") (em:variable "T"))) .
+proof:record203 pe:answers ((em:compound "n3_num" ((em:integer "9310") (em:integer "9310")))) .
+proof:record204 pe:searched (em:compound "n3_infinite_order" ((em:integer "9310") (em:integer "9310") (em:variable "U"))) .
+proof:record204 pe:answers () .
+proof:record205 pe:searched (em:compound "n3_extended" ((em:integer "9310") (em:list ((em:variable "V") (em:variable "W"))))) .
+proof:record205 pe:answers ((em:compound "n3_extended" ((em:integer "9310") (em:list ((em:integer "1") (em:integer "9310")))))) .
+proof:record206 pe:searched (em:compound "n3_math_greaterThan" ((em:integer "700") (em:integer "9310"))) .
+proof:record206 pe:answers () .
+proof:record207 pe:searched (em:compound "n3_num" ((em:integer "700") (em:variable "X"))) .
+proof:record207 pe:answers ((em:compound "n3_num" ((em:integer "700") (em:integer "700")))) .
+proof:record208 pe:searched (em:compound "n3_infinite_order" ((em:integer "700") (em:integer "9310") (em:variable "Y"))) .
+proof:record208 pe:answers () .
+proof:record209 pe:searched (em:compound "n3_extended" ((em:integer "700") (em:list ((em:variable "Z") (em:variable "A1"))))) .
+proof:record209 pe:answers ((em:compound "n3_extended" ((em:integer "700") (em:list ((em:integer "1") (em:integer "700")))))) .
+proof:record210 pe:searched { :bridge :status ?B1 } .
+proof:record210 pe:answers ({ :bridge :status :closed } { :bridge :status :open }) .
+proof:record211 pe:searched { ?C1 rdf:reifies <<( :bridge :status :closed )>> } .
+proof:record211 pe:answers ({ :authorityClaim rdf:reifies <<( :bridge :status :closed )>> }) .
+proof:record212 pe:searched { :authorityClaim :assertedBy ?D1 } .
+proof:record212 pe:answers ({ :authorityClaim :assertedBy :transportAuthority }) .
+proof:record213 pe:searched { :authorityClaim :confidence ?E1 } .
+proof:record213 pe:answers ({ :authorityClaim :confidence 98 }) .
+proof:record214 pe:searched { :transportAuthority :trustScore ?F1 } .
+proof:record214 pe:answers ({ :transportAuthority :trustScore 95 }) .
+proof:record215 pe:searched (em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:variable "G1"))) .
+proof:record215 pe:answers ((em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:integer "9310")))) .
+proof:record216 pe:searched (em:compound "n3_nums" ((em:list ((em:integer "98") (em:integer "95"))) (em:compound "." ((em:variable "H1") (em:variable "I1"))))) .
+proof:record216 pe:answers ((em:compound "n3_nums" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95")))))) .
+proof:record217 pe:searched (em:compound "n3_nums_" ((em:list ((em:integer "98") (em:integer "95"))) (em:compound "." ((em:variable "J1") (em:variable "K1"))))) .
+proof:record217 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95")))))) .
+proof:record218 pe:searched (em:compound "n3_num" ((em:integer "98") (em:variable "L1"))) .
+proof:record218 pe:answers ((em:compound "n3_num" ((em:integer "98") (em:integer "98")))) .
+proof:record219 pe:searched (em:compound "n3_nums_" ((em:list ((em:integer "95"))) (em:variable "M1"))) .
+proof:record219 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "95"))) (em:list ((em:integer "95")))))) .
+proof:record220 pe:searched (em:compound "n3_num" ((em:integer "95") (em:variable "N1"))) .
+proof:record220 pe:answers ((em:compound "n3_num" ((em:integer "95") (em:integer "95")))) .
+proof:record221 pe:searched (em:compound "n3_nums_" ((em:atom "[]") (em:variable "O1"))) .
+proof:record221 pe:answers ((em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]")))) .
+proof:record222 pe:searched (em:compound "n3_product" ((em:list ((em:integer "95"))) (em:integer "98") (em:variable "P1"))) .
+proof:record222 pe:answers ((em:compound "n3_product" ((em:list ((em:integer "95"))) (em:integer "98") (em:integer "9310")))) .
+proof:record223 pe:searched (em:compound "n3_product" ((em:atom "[]") (em:integer "9310") (em:variable "Q1"))) .
+proof:record223 pe:answers ((em:compound "n3_product" ((em:atom "[]") (em:integer "9310") (em:integer "9310")))) .
+proof:record224 pe:searched (em:compound "n3_result" ((em:integer "9310") (em:variable "R1"))) .
+proof:record224 pe:answers ((em:compound "n3_result" ((em:integer "9310") (em:integer "9310")))) .
+proof:record225 pe:searched { ?C1 rdf:reifies <<( :bridge :status :open )>> } .
+proof:record225 pe:answers ({ :socialClaim rdf:reifies <<( :bridge :status :open )>> }) .
+proof:record226 pe:searched { :socialClaim :assertedBy ?D1 } .
+proof:record226 pe:answers ({ :socialClaim :assertedBy :anonymousPost }) .
+proof:record227 pe:searched { :socialClaim :confidence ?E1 } .
+proof:record227 pe:answers ({ :socialClaim :confidence 35 }) .
+proof:record228 pe:searched { :anonymousPost :trustScore ?F1 } .
+proof:record228 pe:answers ({ :anonymousPost :trustScore 20 }) .
+proof:record229 pe:searched (em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:variable "G1"))) .
+proof:record229 pe:answers ((em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:integer "700")))) .
+proof:record230 pe:searched (em:compound "n3_nums" ((em:list ((em:integer "35") (em:integer "20"))) (em:compound "." ((em:variable "S1") (em:variable "T1"))))) .
+proof:record230 pe:answers ((em:compound "n3_nums" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20")))))) .
+proof:record231 pe:searched (em:compound "n3_nums_" ((em:list ((em:integer "35") (em:integer "20"))) (em:compound "." ((em:variable "U1") (em:variable "V1"))))) .
+proof:record231 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20")))))) .
+proof:record232 pe:searched (em:compound "n3_num" ((em:integer "35") (em:variable "W1"))) .
+proof:record232 pe:answers ((em:compound "n3_num" ((em:integer "35") (em:integer "35")))) .
+proof:record233 pe:searched (em:compound "n3_nums_" ((em:list ((em:integer "20"))) (em:variable "X1"))) .
+proof:record233 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "20"))) (em:list ((em:integer "20")))))) .
+proof:record234 pe:searched (em:compound "n3_num" ((em:integer "20") (em:variable "Y1"))) .
+proof:record234 pe:answers ((em:compound "n3_num" ((em:integer "20") (em:integer "20")))) .
+proof:record235 pe:searched (em:compound "n3_product" ((em:list ((em:integer "20"))) (em:integer "35") (em:variable "Z1"))) .
+proof:record235 pe:answers ((em:compound "n3_product" ((em:list ((em:integer "20"))) (em:integer "35") (em:integer "700")))) .
+proof:record236 pe:searched (em:compound "n3_product" ((em:atom "[]") (em:integer "700") (em:variable "A2"))) .
+proof:record236 pe:answers ((em:compound "n3_product" ((em:atom "[]") (em:integer "700") (em:integer "700")))) .
+proof:record237 pe:searched (em:compound "n3_result" ((em:integer "700") (em:variable "B2"))) .
+proof:record237 pe:answers ((em:compound "n3_result" ((em:integer "700") (em:integer "700")))) .
+proof:record238 pe:searched (em:compound "n3_list_length" ((em:atom "[]") (em:variable "C2"))) .
+proof:record238 pe:answers ((em:compound "n3_list_length" ((em:atom "[]") (em:integer "0")))) .
+proof:record239 pe:searched (em:compound "n3_length" ((em:atom "[]") (em:variable "D2"))) .
+proof:record239 pe:answers ((em:compound "n3_length" ((em:atom "[]") (em:integer "0")))) .
+proof:record240 pe:searched (em:compound "n3_integer_result" ((em:integer "0") (em:variable "E2"))) .
+proof:record240 pe:answers ((em:compound "n3_integer_result" ((em:integer "0") (em:integer "0")))) .
+proof:record241 pe:searched (em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "F2"))) .
+proof:record241 pe:answers ((em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1")))) .
+proof:record242 pe:searched (em:compound "n3_nums" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "G2"))) .
+proof:record242 pe:answers ((em:compound "n3_nums" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1")))))) .
+proof:record243 pe:searched (em:compound "n3_nums_" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "H2"))) .
+proof:record243 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1")))))) .
+proof:record244 pe:searched (em:compound "n3_num" ((em:integer "0") (em:variable "I2"))) .
+proof:record244 pe:answers ((em:compound "n3_num" ((em:integer "0") (em:integer "0")))) .
+proof:record245 pe:searched (em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:variable "J2"))) .
+proof:record245 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:list ((em:integer "1")))))) .
+proof:record246 pe:searched (em:compound "n3_num" ((em:integer "1") (em:variable "K2"))) .
+proof:record246 pe:answers ((em:compound "n3_num" ((em:integer "1") (em:integer "1")))) .
+proof:record247 pe:searched (em:compound "n3_sum_kind" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "L2"))) .
+proof:record247 pe:answers ((em:compound "n3_sum_kind" ((em:list ((em:integer "0") (em:integer "1"))) (em:atom "decimal")))) .
+proof:record248 pe:searched (em:compound "n3_member" ((em:compound "literal" ((em:variable "M2") (em:compound "datatype" ((em:variable "N2"))))) (em:list ((em:integer "0") (em:integer "1"))))) .
+proof:record248 pe:answers () .
+proof:record249 pe:searched (em:compound "n3_member" ((em:compound "literal" ((em:variable "O2") (em:compound "datatype" ((em:variable "P2"))))) (em:list ((em:integer "1"))))) .
+proof:record249 pe:answers () .
+proof:record250 pe:searched (em:compound "n3_member" ((em:compound "literal" ((em:variable "Q2") (em:compound "datatype" ((em:variable "R2"))))) (em:atom "[]"))) .
+proof:record250 pe:answers () .
+proof:record251 pe:searched (em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "0") (em:integer "1"))) (em:variable "S2"))) .
+proof:record251 pe:answers ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "0") (em:integer "1"))) (em:integer "1")))) .
+proof:record252 pe:searched (em:compound "n3_decimal_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:variable "T2") (em:variable "U2"))) .
+proof:record252 pe:answers ((em:compound "n3_decimal_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0")))) .
+proof:record253 pe:searched (em:compound "n3_decimal" ((em:integer "0") (em:variable "V2") (em:variable "W2"))) .
+proof:record253 pe:answers ((em:compound "n3_decimal" ((em:integer "0") (em:integer "0") (em:integer "0")))) .
+proof:record254 pe:searched (em:compound "n3_decimal_exp" ((em:atom "") (em:variable "X2"))) .
+proof:record254 pe:answers ((em:compound "n3_decimal_exp" ((em:atom "") (em:integer "0")))) .
+proof:record255 pe:searched (em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:variable "Y2") (em:variable "Z2"))) .
+proof:record255 pe:answers ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0")))) .
+proof:record256 pe:searched (em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "0") (em:integer "0") (em:variable "A3") (em:variable "B3"))) .
+proof:record256 pe:answers ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0")))) .
+proof:record257 pe:searched (em:compound "n3_decimal" ((em:integer "1") (em:variable "C3") (em:variable "D3"))) .
+proof:record257 pe:answers ((em:compound "n3_decimal" ((em:integer "1") (em:integer "1") (em:integer "0")))) .
+proof:record258 pe:searched (em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:variable "E3") (em:variable "F3"))) .
+proof:record258 pe:answers ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0")))) .
+proof:record259 pe:searched (em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "1") (em:integer "0") (em:variable "G3") (em:variable "H3"))) .
+proof:record259 pe:answers ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0")))) .
+proof:record260 pe:searched (em:compound "n3_sum_result" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1") (em:integer "0") (em:variable "I3"))) .
+proof:record260 pe:answers ((em:compound "n3_sum_result" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "1")))) .
+proof:record261 pe:searched (em:compound "n3_member" ((em:variable "J3") (em:list ((em:integer "0") (em:integer "1"))))) .
+proof:record261 pe:answers ((em:compound "n3_member" ((em:integer "0") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "0") (em:integer "1")))))) .
+proof:record262 pe:searched (em:compound "n3_member" ((em:variable "K3") (em:list ((em:integer "1"))))) .
+proof:record262 pe:answers ((em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "1")))))) .
+proof:record263 pe:searched (em:compound "n3_member" ((em:variable "L3") (em:atom "[]"))) .
+proof:record263 pe:answers () .
+proof:record264 pe:searched (em:compound "n3_sum_number" ((em:atom "int") (em:integer "1") (em:integer "0") (em:variable "M3"))) .
+proof:record264 pe:answers ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "1") (em:integer "0") (em:integer "1")))) .
+proof:record265 pe:searched (em:compound "n3_result" ((em:integer "1") (em:variable "N3"))) .
+proof:record265 pe:answers ((em:compound "n3_result" ((em:integer "1") (em:integer "1")))) .
+proof:record266 pe:searched { (700 ?O3) a :HigherScore } .
+proof:record266 pe:answers ({ (700 9310) a :HigherScore }) .
+proof:record267 pe:searched (em:compound "n3_math_greaterThan" ((em:integer "9310") (em:integer "700"))) .
+proof:record267 pe:answers ((em:compound "n3_math_greaterThan" ((em:integer "9310") (em:integer "700")))) .
+proof:record268 pe:searched (em:compound "n3_infinite_order" ((em:integer "9310") (em:integer "700") (em:variable "P3"))) .
+proof:record268 pe:answers () .
+proof:record269 pe:searched (em:compound "n3_math_greaterThan" ((em:integer "700") (em:integer "700"))) .
+proof:record269 pe:answers () .
+proof:record270 pe:searched (em:compound "n3_infinite_order" ((em:integer "700") (em:integer "700") (em:variable "Q3"))) .
+proof:record270 pe:answers () .
+proof:record271 pe:searched (em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:variable "C2"))) .
+proof:record271 pe:answers ((em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1")))) .
+proof:record272 pe:searched (em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:variable "R3"))) .
+proof:record272 pe:answers ((em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:integer "1")))) .
+proof:record273 pe:searched (em:compound "n3_integer_result" ((em:integer "1") (em:variable "S3"))) .
+proof:record273 pe:answers ((em:compound "n3_integer_result" ((em:integer "1") (em:integer "1")))) .
+proof:record274 pe:searched (em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "F2"))) .
+proof:record274 pe:answers ((em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2")))) .
+proof:record275 pe:searched (em:compound "n3_nums" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "T3"))) .
+proof:record275 pe:answers ((em:compound "n3_nums" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1")))))) .
+proof:record276 pe:searched (em:compound "n3_nums_" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "U3"))) .
+proof:record276 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1")))))) .
+proof:record277 pe:searched (em:compound "n3_sum_kind" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "V3"))) .
+proof:record277 pe:answers ((em:compound "n3_sum_kind" ((em:list ((em:integer "1") (em:integer "1"))) (em:atom "decimal")))) .
+proof:record278 pe:searched (em:compound "n3_member" ((em:compound "literal" ((em:variable "W3") (em:compound "datatype" ((em:variable "X3"))))) (em:list ((em:integer "1") (em:integer "1"))))) .
+proof:record278 pe:answers () .
+proof:record279 pe:searched (em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "1") (em:integer "1"))) (em:variable "Y3"))) .
+proof:record279 pe:answers ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "1") (em:integer "1"))) (em:integer "2")))) .
+proof:record280 pe:searched (em:compound "n3_decimal_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:variable "Z3") (em:variable "A4"))) .
+proof:record280 pe:answers ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "2") (em:integer "0")))) .
+proof:record281 pe:searched (em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "1") (em:integer "0") (em:variable "B4") (em:variable "C4"))) .
+proof:record281 pe:answers ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0")))) .
+proof:record282 pe:searched (em:compound "n3_decimal_add" ((em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0") (em:variable "D4") (em:variable "E4"))) .
+proof:record282 pe:answers ((em:compound "n3_decimal_add" ((em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0")))) .
+proof:record283 pe:searched (em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "2") (em:integer "0") (em:variable "F4") (em:variable "G4"))) .
+proof:record283 pe:answers ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "2") (em:integer "0") (em:integer "2") (em:integer "0")))) .
+proof:record284 pe:searched (em:compound "n3_sum_result" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2") (em:integer "0") (em:variable "H4"))) .
+proof:record284 pe:answers ((em:compound "n3_sum_result" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2") (em:integer "0") (em:integer "2")))) .
+proof:record285 pe:searched (em:compound "n3_member" ((em:variable "I4") (em:list ((em:integer "1") (em:integer "1"))))) .
+proof:record285 pe:answers ((em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "1") (em:integer "1")))))) .
+proof:record286 pe:searched (em:compound "n3_sum_number" ((em:atom "int") (em:integer "2") (em:integer "0") (em:variable "J4"))) .
+proof:record286 pe:answers ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "2") (em:integer "0") (em:integer "2")))) .
+proof:record287 pe:searched (em:compound "n3_result" ((em:integer "2") (em:variable "K4"))) .
+proof:record287 pe:answers ((em:compound "n3_result" ((em:integer "2") (em:integer "2")))) .
+proof:record288 pe:searched { (1 ?L4 ?M4 ?N4) a :RankedClaim } .
+proof:record288 pe:answers ({ (1 :closed :transportAuthority 9310) a :RankedClaim }) .
+proof:record289 pe:searched { :policy :threshold ?O4 } .
+proof:record289 pe:answers ({ :policy :threshold 8000 }) .
+proof:record290 pe:searched (em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000"))) .
+proof:record290 pe:answers ((em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000")))) .
+proof:record291 pe:searched (em:compound "n3_num" ((em:integer "8000") (em:variable "P4"))) .
+proof:record291 pe:answers ((em:compound "n3_num" ((em:integer "8000") (em:integer "8000")))) .
+proof:record292 pe:searched (em:compound "n3_infinite_order" ((em:integer "9310") (em:integer "8000") (em:variable "Q4"))) .
+proof:record292 pe:answers () .
+proof:record293 pe:searched (em:compound "n3_extended" ((em:integer "8000") (em:list ((em:variable "R4") (em:variable "S4"))))) .
+proof:record293 pe:answers ((em:compound "n3_extended" ((em:integer "8000") (em:list ((em:integer "1") (em:integer "8000")))))) .
+proof:record294 pe:searched { :closed :action ?T4 } .
+proof:record294 pe:answers ({ :closed :action :avoid_bridge }) .
+proof:record295 pe:searched (em:compound "n3_math_lessThan" ((em:integer "9310") (em:integer "8000"))) .
+proof:record295 pe:answers () .
+proof:record296 pe:called { ?A ?B ?C } .
+proof:record296 pe:answers ({ :bridge :decision :avoid_bridge } { :bridge :trustedSource :transportAuthority } { :bridge :score 9310 } { :closed :rank 1 } { :closed :assertedBy :transportAuthority } { :closed :score 9310 } { :open :rank 2 } { :open :assertedBy :anonymousPost } { :open :score 700 }) .
+proof:record297 pe:called { (?D ?E ?F) a :Decision } .
+proof:record297 pe:answers ({ (:avoid_bridge :transportAuthority 9310) a :Decision }) .
+proof:record298 pe:called { (?G ?H ?I ?J) a :RankedClaim } .
+proof:record298 pe:answers ({ (1 :closed :transportAuthority 9310) a :RankedClaim } { (2 :open :anonymousPost 700) a :RankedClaim }) .
+proof:record299 pe:called { :bridge :status ?K } .
+proof:record299 pe:answers ({ :bridge :status :closed } { :bridge :status :open }) .
+proof:record300 pe:called { ?L rdf:reifies <<( :bridge :status :closed )>> } .
+proof:record300 pe:answers ({ :authorityClaim rdf:reifies <<( :bridge :status :closed )>> }) .
+proof:record301 pe:called { :authorityClaim :assertedBy ?M } .
+proof:record301 pe:answers ({ :authorityClaim :assertedBy :transportAuthority }) .
+proof:record302 pe:called { :authorityClaim :confidence ?N } .
+proof:record302 pe:answers ({ :authorityClaim :confidence 98 }) .
+proof:record303 pe:called { :transportAuthority :trustScore ?O } .
+proof:record303 pe:answers ({ :transportAuthority :trustScore 95 }) .
+proof:record304 pe:called (em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:variable "P"))) .
+proof:record304 pe:answers ((em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:integer "9310")))) .
+proof:record305 pe:called (em:compound "n3_nums" ((em:list ((em:integer "98") (em:integer "95"))) (em:compound "." ((em:variable "Q") (em:variable "R"))))) .
+proof:record305 pe:answers ((em:compound "n3_nums" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95")))))) .
+proof:record306 pe:called (em:compound "n3_nums_" ((em:list ((em:integer "98") (em:integer "95"))) (em:compound "." ((em:variable "S") (em:variable "T"))))) .
+proof:record306 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95")))))) .
+proof:record307 pe:called (em:compound "n3_num" ((em:integer "98") (em:variable "U"))) .
+proof:record307 pe:answers ((em:compound "n3_num" ((em:integer "98") (em:integer "98")))) .
+proof:record308 pe:called (em:compound "n3_nums_" ((em:list ((em:integer "95"))) (em:variable "V"))) .
+proof:record308 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "95"))) (em:list ((em:integer "95")))))) .
+proof:record309 pe:called (em:compound "n3_num" ((em:integer "95") (em:variable "W"))) .
+proof:record309 pe:answers ((em:compound "n3_num" ((em:integer "95") (em:integer "95")))) .
+proof:record310 pe:called (em:compound "n3_nums_" ((em:atom "[]") (em:variable "X"))) .
+proof:record310 pe:answers ((em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]")))) .
+proof:record311 pe:called (em:compound "n3_product" ((em:list ((em:integer "95"))) (em:integer "98") (em:variable "Y"))) .
+proof:record311 pe:answers ((em:compound "n3_product" ((em:list ((em:integer "95"))) (em:integer "98") (em:integer "9310")))) .
+proof:record312 pe:called (em:compound "n3_product" ((em:atom "[]") (em:integer "9310") (em:variable "Z"))) .
+proof:record312 pe:answers ((em:compound "n3_product" ((em:atom "[]") (em:integer "9310") (em:integer "9310")))) .
+proof:record313 pe:called (em:compound "n3_result" ((em:integer "9310") (em:variable "A1"))) .
+proof:record313 pe:answers ((em:compound "n3_result" ((em:integer "9310") (em:integer "9310")))) .
+proof:record314 pe:called { ?L rdf:reifies <<( :bridge :status :open )>> } .
+proof:record314 pe:answers ({ :socialClaim rdf:reifies <<( :bridge :status :open )>> }) .
+proof:record315 pe:called { :socialClaim :assertedBy ?M } .
+proof:record315 pe:answers ({ :socialClaim :assertedBy :anonymousPost }) .
+proof:record316 pe:called { :socialClaim :confidence ?N } .
+proof:record316 pe:answers ({ :socialClaim :confidence 35 }) .
+proof:record317 pe:called { :anonymousPost :trustScore ?O } .
+proof:record317 pe:answers ({ :anonymousPost :trustScore 20 }) .
+proof:record318 pe:called (em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:variable "P"))) .
+proof:record318 pe:answers ((em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:integer "700")))) .
+proof:record319 pe:called (em:compound "n3_nums" ((em:list ((em:integer "35") (em:integer "20"))) (em:compound "." ((em:variable "B1") (em:variable "C1"))))) .
+proof:record319 pe:answers ((em:compound "n3_nums" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20")))))) .
+proof:record320 pe:called (em:compound "n3_nums_" ((em:list ((em:integer "35") (em:integer "20"))) (em:compound "." ((em:variable "D1") (em:variable "E1"))))) .
+proof:record320 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20")))))) .
+proof:record321 pe:called (em:compound "n3_num" ((em:integer "35") (em:variable "F1"))) .
+proof:record321 pe:answers ((em:compound "n3_num" ((em:integer "35") (em:integer "35")))) .
+proof:record322 pe:called (em:compound "n3_nums_" ((em:list ((em:integer "20"))) (em:variable "G1"))) .
+proof:record322 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "20"))) (em:list ((em:integer "20")))))) .
+proof:record323 pe:called (em:compound "n3_num" ((em:integer "20") (em:variable "H1"))) .
+proof:record323 pe:answers ((em:compound "n3_num" ((em:integer "20") (em:integer "20")))) .
+proof:record324 pe:called (em:compound "n3_product" ((em:list ((em:integer "20"))) (em:integer "35") (em:variable "I1"))) .
+proof:record324 pe:answers ((em:compound "n3_product" ((em:list ((em:integer "20"))) (em:integer "35") (em:integer "700")))) .
+proof:record325 pe:called (em:compound "n3_product" ((em:atom "[]") (em:integer "700") (em:variable "J1"))) .
+proof:record325 pe:answers ((em:compound "n3_product" ((em:atom "[]") (em:integer "700") (em:integer "700")))) .
+proof:record326 pe:called (em:compound "n3_result" ((em:integer "700") (em:variable "K1"))) .
+proof:record326 pe:answers ((em:compound "n3_result" ((em:integer "700") (em:integer "700")))) .
+proof:record327 pe:called { (?L1 ?M1 ?N1) a :Claim } .
+proof:record327 pe:answers ({ (:closed :transportAuthority 9310) a :Claim } { (:open :anonymousPost 700) a :Claim }) .
+proof:record328 pe:called { (9310 ?O1) a :HigherScore } .
+proof:record328 pe:answers () .
+proof:record329 pe:called (em:compound "n3_math_greaterThan" ((em:integer "9310") (em:integer "9310"))) .
+proof:record329 pe:answers () .
+proof:record330 pe:called (em:compound "n3_num" ((em:integer "9310") (em:variable "P1"))) .
+proof:record330 pe:answers ((em:compound "n3_num" ((em:integer "9310") (em:integer "9310")))) .
+proof:record331 pe:called (em:compound "n3_infinite_order" ((em:integer "9310") (em:integer "9310") (em:variable "Q1"))) .
+proof:record331 pe:answers () .
+proof:record332 pe:called (em:compound "n3_extended" ((em:integer "9310") (em:list ((em:variable "R1") (em:variable "S1"))))) .
+proof:record332 pe:answers ((em:compound "n3_extended" ((em:integer "9310") (em:list ((em:integer "1") (em:integer "9310")))))) .
+proof:record333 pe:called (em:compound "n3_math_greaterThan" ((em:integer "700") (em:integer "9310"))) .
+proof:record333 pe:answers () .
+proof:record334 pe:called (em:compound "n3_num" ((em:integer "700") (em:variable "T1"))) .
+proof:record334 pe:answers ((em:compound "n3_num" ((em:integer "700") (em:integer "700")))) .
+proof:record335 pe:called (em:compound "n3_infinite_order" ((em:integer "700") (em:integer "9310") (em:variable "U1"))) .
+proof:record335 pe:answers () .
+proof:record336 pe:called (em:compound "n3_extended" ((em:integer "700") (em:list ((em:variable "V1") (em:variable "W1"))))) .
+proof:record336 pe:answers ((em:compound "n3_extended" ((em:integer "700") (em:list ((em:integer "1") (em:integer "700")))))) .
+proof:record337 pe:called (em:compound "n3_list_length" ((em:atom "[]") (em:variable "X1"))) .
+proof:record337 pe:answers ((em:compound "n3_list_length" ((em:atom "[]") (em:integer "0")))) .
+proof:record338 pe:called (em:compound "n3_length" ((em:atom "[]") (em:variable "Y1"))) .
+proof:record338 pe:answers ((em:compound "n3_length" ((em:atom "[]") (em:integer "0")))) .
+proof:record339 pe:called (em:compound "n3_integer_result" ((em:integer "0") (em:variable "Z1"))) .
+proof:record339 pe:answers ((em:compound "n3_integer_result" ((em:integer "0") (em:integer "0")))) .
+proof:record340 pe:called (em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "A2"))) .
+proof:record340 pe:answers ((em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1")))) .
+proof:record341 pe:called (em:compound "n3_nums" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "B2"))) .
+proof:record341 pe:answers ((em:compound "n3_nums" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1")))))) .
+proof:record342 pe:called (em:compound "n3_nums_" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "C2"))) .
+proof:record342 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1")))))) .
+proof:record343 pe:called (em:compound "n3_num" ((em:integer "0") (em:variable "D2"))) .
+proof:record343 pe:answers ((em:compound "n3_num" ((em:integer "0") (em:integer "0")))) .
+proof:record344 pe:called (em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:variable "E2"))) .
+proof:record344 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:list ((em:integer "1")))))) .
+proof:record345 pe:called (em:compound "n3_num" ((em:integer "1") (em:variable "F2"))) .
+proof:record345 pe:answers ((em:compound "n3_num" ((em:integer "1") (em:integer "1")))) .
+proof:record346 pe:called (em:compound "n3_sum_kind" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "G2"))) .
+proof:record346 pe:answers ((em:compound "n3_sum_kind" ((em:list ((em:integer "0") (em:integer "1"))) (em:atom "decimal")))) .
+proof:record347 pe:called (em:compound "n3_member" ((em:compound "literal" ((em:variable "_59") (em:compound "datatype" ((em:variable "I2"))))) (em:list ((em:integer "0") (em:integer "1"))))) .
+proof:record347 pe:answers () .
+proof:record348 pe:called (em:compound "n3_member" ((em:compound "literal" ((em:variable "_61") (em:compound "datatype" ((em:variable "K2"))))) (em:list ((em:integer "1"))))) .
+proof:record348 pe:answers () .
+proof:record349 pe:called (em:compound "n3_member" ((em:compound "literal" ((em:variable "_63") (em:compound "datatype" ((em:variable "M2"))))) (em:atom "[]"))) .
+proof:record349 pe:answers () .
+proof:record350 pe:called (em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "0") (em:integer "1"))) (em:variable "N2"))) .
+proof:record350 pe:answers ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "0") (em:integer "1"))) (em:integer "1")))) .
+proof:record351 pe:called (em:compound "n3_decimal_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:variable "O2") (em:variable "P2"))) .
+proof:record351 pe:answers ((em:compound "n3_decimal_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0")))) .
+proof:record352 pe:called (em:compound "n3_decimal" ((em:integer "0") (em:variable "Q2") (em:variable "R2"))) .
+proof:record352 pe:answers ((em:compound "n3_decimal" ((em:integer "0") (em:integer "0") (em:integer "0")))) .
+proof:record353 pe:called (em:compound "n3_decimal_exp" ((em:atom "") (em:variable "S2"))) .
+proof:record353 pe:answers ((em:compound "n3_decimal_exp" ((em:atom "") (em:integer "0")))) .
+proof:record354 pe:called (em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:variable "T2") (em:variable "U2"))) .
+proof:record354 pe:answers ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0")))) .
+proof:record355 pe:called (em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "0") (em:integer "0") (em:variable "V2") (em:variable "W2"))) .
+proof:record355 pe:answers ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0")))) .
+proof:record356 pe:called (em:compound "n3_decimal" ((em:integer "1") (em:variable "X2") (em:variable "Y2"))) .
+proof:record356 pe:answers ((em:compound "n3_decimal" ((em:integer "1") (em:integer "1") (em:integer "0")))) .
+proof:record357 pe:called (em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:variable "Z2") (em:variable "A3"))) .
+proof:record357 pe:answers ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0")))) .
+proof:record358 pe:called (em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "1") (em:integer "0") (em:variable "B3") (em:variable "C3"))) .
+proof:record358 pe:answers ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0")))) .
+proof:record359 pe:called (em:compound "n3_sum_result" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1") (em:integer "0") (em:variable "D3"))) .
+proof:record359 pe:answers ((em:compound "n3_sum_result" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "1")))) .
+proof:record360 pe:called (em:compound "n3_member" ((em:variable "E3") (em:list ((em:integer "0") (em:integer "1"))))) .
+proof:record360 pe:answers ((em:compound "n3_member" ((em:integer "0") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "0") (em:integer "1")))))) .
+proof:record361 pe:called (em:compound "n3_member" ((em:variable "F3") (em:list ((em:integer "1"))))) .
+proof:record361 pe:answers ((em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "1")))))) .
+proof:record362 pe:called (em:compound "n3_member" ((em:variable "G3") (em:atom "[]"))) .
+proof:record362 pe:answers () .
+proof:record363 pe:called (em:compound "n3_sum_number" ((em:atom "int") (em:integer "1") (em:integer "0") (em:variable "H3"))) .
+proof:record363 pe:answers ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "1") (em:integer "0") (em:integer "1")))) .
+proof:record364 pe:called (em:compound "n3_result" ((em:integer "1") (em:variable "I3"))) .
+proof:record364 pe:answers ((em:compound "n3_result" ((em:integer "1") (em:integer "1")))) .
+proof:record365 pe:called { (700 ?O1) a :HigherScore } .
+proof:record365 pe:answers ({ (700 9310) a :HigherScore }) .
+proof:record366 pe:called (em:compound "n3_math_greaterThan" ((em:integer "9310") (em:integer "700"))) .
+proof:record366 pe:answers ((em:compound "n3_math_greaterThan" ((em:integer "9310") (em:integer "700")))) .
+proof:record367 pe:called (em:compound "n3_infinite_order" ((em:integer "9310") (em:integer "700") (em:variable "J3"))) .
+proof:record367 pe:answers () .
+proof:record368 pe:called (em:compound "n3_math_greaterThan" ((em:integer "700") (em:integer "700"))) .
+proof:record368 pe:answers () .
+proof:record369 pe:called (em:compound "n3_infinite_order" ((em:integer "700") (em:integer "700") (em:variable "K3"))) .
+proof:record369 pe:answers () .
+proof:record370 pe:called (em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:variable "X1"))) .
+proof:record370 pe:answers ((em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1")))) .
+proof:record371 pe:called (em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:variable "L3"))) .
+proof:record371 pe:answers ((em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:integer "1")))) .
+proof:record372 pe:called (em:compound "n3_integer_result" ((em:integer "1") (em:variable "M3"))) .
+proof:record372 pe:answers ((em:compound "n3_integer_result" ((em:integer "1") (em:integer "1")))) .
+proof:record373 pe:called (em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "A2"))) .
+proof:record373 pe:answers ((em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2")))) .
+proof:record374 pe:called (em:compound "n3_nums" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "N3"))) .
+proof:record374 pe:answers ((em:compound "n3_nums" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1")))))) .
+proof:record375 pe:called (em:compound "n3_nums_" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "O3"))) .
+proof:record375 pe:answers ((em:compound "n3_nums_" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1")))))) .
+proof:record376 pe:called (em:compound "n3_sum_kind" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "P3"))) .
+proof:record376 pe:answers ((em:compound "n3_sum_kind" ((em:list ((em:integer "1") (em:integer "1"))) (em:atom "decimal")))) .
+proof:record377 pe:called (em:compound "n3_member" ((em:compound "literal" ((em:variable "_94") (em:compound "datatype" ((em:variable "R3"))))) (em:list ((em:integer "1") (em:integer "1"))))) .
+proof:record377 pe:answers () .
+proof:record378 pe:called (em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "1") (em:integer "1"))) (em:variable "S3"))) .
+proof:record378 pe:answers ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "1") (em:integer "1"))) (em:integer "2")))) .
+proof:record379 pe:called (em:compound "n3_decimal_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:variable "T3") (em:variable "U3"))) .
+proof:record379 pe:answers ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "2") (em:integer "0")))) .
+proof:record380 pe:called (em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "1") (em:integer "0") (em:variable "V3") (em:variable "W3"))) .
+proof:record380 pe:answers ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0")))) .
+proof:record381 pe:called (em:compound "n3_decimal_add" ((em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0") (em:variable "X3") (em:variable "Y3"))) .
+proof:record381 pe:answers ((em:compound "n3_decimal_add" ((em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0")))) .
+proof:record382 pe:called (em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "2") (em:integer "0") (em:variable "Z3") (em:variable "A4"))) .
+proof:record382 pe:answers ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "2") (em:integer "0") (em:integer "2") (em:integer "0")))) .
+proof:record383 pe:called (em:compound "n3_sum_result" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2") (em:integer "0") (em:variable "B4"))) .
+proof:record383 pe:answers ((em:compound "n3_sum_result" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2") (em:integer "0") (em:integer "2")))) .
+proof:record384 pe:called (em:compound "n3_member" ((em:variable "C4") (em:list ((em:integer "1") (em:integer "1"))))) .
+proof:record384 pe:answers ((em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "1") (em:integer "1")))))) .
+proof:record385 pe:called (em:compound "n3_sum_number" ((em:atom "int") (em:integer "2") (em:integer "0") (em:variable "D4"))) .
+proof:record385 pe:answers ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "2") (em:integer "0") (em:integer "2")))) .
+proof:record386 pe:called (em:compound "n3_result" ((em:integer "2") (em:variable "E4"))) .
+proof:record386 pe:answers ((em:compound "n3_result" ((em:integer "2") (em:integer "2")))) .
+proof:record387 pe:called { (1 ?F4 ?G4 ?H4) a :RankedClaim } .
+proof:record387 pe:answers ({ (1 :closed :transportAuthority 9310) a :RankedClaim }) .
+proof:record388 pe:called { :policy :threshold ?I4 } .
+proof:record388 pe:answers ({ :policy :threshold 8000 }) .
+proof:record389 pe:called (em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000"))) .
+proof:record389 pe:answers ((em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000")))) .
+proof:record390 pe:called (em:compound "n3_num" ((em:integer "8000") (em:variable "J4"))) .
+proof:record390 pe:answers ((em:compound "n3_num" ((em:integer "8000") (em:integer "8000")))) .
+proof:record391 pe:called (em:compound "n3_infinite_order" ((em:integer "9310") (em:integer "8000") (em:variable "K4"))) .
+proof:record391 pe:answers () .
+proof:record392 pe:called (em:compound "n3_extended" ((em:integer "8000") (em:list ((em:variable "L4") (em:variable "M4"))))) .
+proof:record392 pe:answers ((em:compound "n3_extended" ((em:integer "8000") (em:list ((em:integer "1") (em:integer "8000")))))) .
+proof:record393 pe:called { :closed :action ?N4 } .
+proof:record393 pe:answers ({ :closed :action :avoid_bridge }) .
+proof:record394 pe:called (em:compound "n3_math_lessThan" ((em:integer "9310") (em:integer "8000"))) .
+proof:record394 pe:answers () .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41 proof:record42 proof:record43 proof:record44 proof:record45 proof:record46 proof:record47 proof:record48 proof:record49 proof:record50 proof:record51 proof:record52 proof:record53 proof:record54 proof:record55 proof:record56 proof:record57 proof:record58 proof:record59 proof:record60 proof:record61 proof:record62 proof:record63 proof:record64 proof:record65 proof:record66 proof:record67 proof:record68 proof:record69 proof:record70 proof:record71 proof:record72 proof:record73 proof:record74 proof:record75 proof:record76 proof:record77 proof:record78 proof:record79 proof:record80 proof:record81 proof:record82 proof:record83 proof:record84 proof:record85 proof:record86 proof:record87 proof:record88 proof:record89 proof:record90 proof:record91 proof:record92 proof:record93 proof:record94 proof:record95 proof:record96 proof:record97 proof:record98 proof:record99 proof:record100 proof:record101 proof:record102 proof:record103 proof:record104 proof:record105 proof:record106 proof:record107 proof:record108 proof:record109 proof:record110 proof:record111 proof:record112 proof:record113 proof:record114 proof:record115 proof:record116 proof:record117 proof:record118 proof:record119 proof:record120 proof:record121 proof:record122 proof:record123 proof:record124 proof:record125 proof:record126 proof:record127 proof:record128 proof:record129 proof:record130 proof:record131 proof:record132 proof:record133 proof:record134 proof:record135 proof:record136 proof:record137 proof:record138 proof:record139 proof:record140 proof:record141 proof:record142 proof:record143 proof:record144 proof:record145 proof:record146 proof:record147 proof:record148 proof:record149 proof:record150 proof:record151 proof:record152 proof:record153 proof:record154 proof:record155 proof:record156 proof:record157 proof:record158 proof:record159 proof:record160 proof:record161 proof:record162 proof:record163 proof:record164 proof:record165 proof:record166 proof:record167 proof:record168 proof:record169 proof:record170 proof:record171 proof:record172 proof:record173 proof:record174 proof:record175 proof:record176 proof:record177 proof:record178 proof:record179 proof:record180 proof:record181 proof:record182 proof:record183 proof:record184 proof:record185 proof:record186 proof:record187 proof:record188 proof:record189 proof:record190 proof:record191 proof:record192 proof:record193 proof:record194 proof:record195 proof:record196 proof:record197 proof:record198 proof:record199 proof:record200 proof:record201 proof:record202 proof:record203 proof:record204 proof:record205 proof:record206 proof:record207 proof:record208 proof:record209 proof:record210 proof:record211 proof:record212 proof:record213 proof:record214 proof:record215 proof:record216 proof:record217 proof:record218 proof:record219 proof:record220 proof:record221 proof:record222 proof:record223 proof:record224 proof:record225 proof:record226 proof:record227 proof:record228 proof:record229 proof:record230 proof:record231 proof:record232 proof:record233 proof:record234 proof:record235 proof:record236 proof:record237 proof:record238 proof:record239 proof:record240 proof:record241 proof:record242 proof:record243 proof:record244 proof:record245 proof:record246 proof:record247 proof:record248 proof:record249 proof:record250 proof:record251 proof:record252 proof:record253 proof:record254 proof:record255 proof:record256 proof:record257 proof:record258 proof:record259 proof:record260 proof:record261 proof:record262 proof:record263 proof:record264 proof:record265 proof:record266 proof:record267 proof:record268 proof:record269 proof:record270 proof:record271 proof:record272 proof:record273 proof:record274 proof:record275 proof:record276 proof:record277 proof:record278 proof:record279 proof:record280 proof:record281 proof:record282 proof:record283 proof:record284 proof:record285 proof:record286 proof:record287 proof:record288 proof:record289 proof:record290 proof:record291 proof:record292 proof:record293 proof:record294 proof:record295 proof:record296 proof:record297 proof:record298 proof:record299 proof:record300 proof:record301 proof:record302 proof:record303 proof:record304 proof:record305 proof:record306 proof:record307 proof:record308 proof:record309 proof:record310 proof:record311 proof:record312 proof:record313 proof:record314 proof:record315 proof:record316 proof:record317 proof:record318 proof:record319 proof:record320 proof:record321 proof:record322 proof:record323 proof:record324 proof:record325 proof:record326 proof:record327 proof:record328 proof:record329 proof:record330 proof:record331 proof:record332 proof:record333 proof:record334 proof:record335 proof:record336 proof:record337 proof:record338 proof:record339 proof:record340 proof:record341 proof:record342 proof:record343 proof:record344 proof:record345 proof:record346 proof:record347 proof:record348 proof:record349 proof:record350 proof:record351 proof:record352 proof:record353 proof:record354 proof:record355 proof:record356 proof:record357 proof:record358 proof:record359 proof:record360 proof:record361 proof:record362 proof:record363 proof:record364 proof:record365 proof:record366 proof:record367 proof:record368 proof:record369 proof:record370 proof:record371 proof:record372 proof:record373 proof:record374 proof:record375 proof:record376 proof:record377 proof:record378 proof:record379 proof:record380 proof:record381 proof:record382 proof:record383 proof:record384 proof:record385 proof:record386 proof:record387 proof:record388 proof:record389 proof:record390 proof:record391 proof:record392 proof:record393 proof:record394) .
 proof:record1 em:term (em:compound "result" ((em:iri :bridge) (em:iri :decision) (em:iri :avoid_bridge))) .
 proof:record2 em:term (em:compound "result" ((em:iri :bridge) (em:iri :trustedSource) (em:iri :transportAuthority))) .
 proof:record3 em:term (em:compound "result" ((em:iri :bridge) (em:iri :score) (em:integer "9310"))) .
@@ -623,7 +1017,7 @@ proof:record19 em:term (em:compound "clause" ((em:integer "10") (em:compound "fa
 proof:record20 em:term (em:compound "clause" ((em:integer "11") (em:compound "fact" ((em:compound "rdf" ((em:iri :policy) (em:iri :threshold) (em:integer "8000"))))))) .
 proof:record21 em:term (em:compound "clause" ((em:integer "12") (em:compound "fact" ((em:compound "rdf" ((em:iri :closed) (em:iri :action) (em:iri :avoid_bridge))))))) .
 proof:record22 em:term (em:compound "clause" ((em:integer "14") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:variable "Status"))) (em:compound "rdf" ((em:variable "Reifier") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:variable "Status"))))) (em:compound "rdf" ((em:variable "Reifier") (em:iri :assertedBy) (em:variable "Source"))) (em:compound "rdf" ((em:variable "Reifier") (em:iri :confidence) (em:variable "Confidence"))) (em:compound "rdf" ((em:variable "Source") (em:iri :trustScore) (em:variable "Trust"))) (em:compound "n3_math_product" ((em:list ((em:variable "Confidence") (em:variable "Trust"))) (em:variable "Score"))))) (em:compound "rdf" ((em:list ((em:variable "Status") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :Claim))))))) .
-proof:record23 em:term (em:compound "clause" ((em:integer "16") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:list ((em:variable "Status") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "findall" ((em:variable "Other") (em:compound "rdf" ((em:list ((em:variable "Score") (em:variable "Other"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:variable "Higher"))) (em:compound "n3_list_length" ((em:variable "Higher") (em:variable "Count"))) (em:compound "n3_math_sum" ((em:list ((em:variable "Count") (em:integer "1"))) (em:variable "Rank"))))) (em:compound "rdf" ((em:list ((em:variable "Rank") (em:variable "Status") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
+proof:record23 em:term (em:compound "clause" ((em:integer "16") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:list ((em:variable "Status") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "findall_sorted" ((em:variable "Other") (em:compound "rdf" ((em:list ((em:variable "Score") (em:variable "Other"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:variable "Higher"))) (em:compound "n3_list_length" ((em:variable "Higher") (em:variable "Count"))) (em:compound "n3_math_sum" ((em:list ((em:variable "Count") (em:integer "1"))) (em:variable "Rank"))))) (em:compound "rdf" ((em:list ((em:variable "Rank") (em:variable "Status") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
 proof:record24 em:term (em:compound "clause" ((em:integer "17") (em:compound "implies" ((em:list ((em:compound "rdf" ((em:list ((em:integer "1") (em:variable "Status") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "rdf" ((em:iri :policy) (em:iri :threshold) (em:variable "Limit"))) (em:compound "n3_math_notLessThan" ((em:variable "Score") (em:variable "Limit"))) (em:compound "rdf" ((em:variable "Status") (em:iri :action) (em:variable "Action"))))) (em:compound "rdf" ((em:list ((em:variable "Action") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :Decision))))))) .
 proof:record25 em:term (em:compound "clause" ((em:integer "19") (em:compound "implies" ((em:compound "rdf" ((em:list ((em:variable "Action") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :Decision))) (em:list ((em:compound "result" ((em:iri :bridge) (em:iri :decision) (em:variable "Action"))) (em:compound "result" ((em:iri :bridge) (em:iri :trustedSource) (em:variable "Source"))) (em:compound "result" ((em:iri :bridge) (em:iri :score) (em:variable "Score"))))))))) .
 proof:record26 em:term (em:compound "clause" ((em:integer "20") (em:compound "implies" ((em:compound "rdf" ((em:list ((em:variable "Rank") (em:variable "Status") (em:variable "Source") (em:variable "Score"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:list ((em:compound "result" ((em:variable "Status") (em:iri :rank) (em:variable "Rank"))) (em:compound "result" ((em:variable "Status") (em:iri :assertedBy) (em:variable "Source"))) (em:compound "result" ((em:variable "Status") (em:iri :score) (em:variable "Score"))))))))) .
@@ -652,7 +1046,7 @@ proof:record48 em:term (em:compound "clause" ((em:integer "87") (em:compound "im
 proof:record49 em:term (em:compound "clause" ((em:integer "88") (em:compound "implied_by" ((em:compound "n3_sum_number" ((em:atom "int") (em:variable "I") (em:variable "E") (em:variable "V"))) (em:compound "is" ((em:variable "V") (em:compound "mul" ((em:variable "I") (em:compound "pow" ((em:integer "10") (em:variable "E"))))))))))) .
 proof:record50 em:term (em:compound "step" ((em:compound "result" ((em:iri :bridge) (em:iri :decision) (em:iri :avoid_bridge))) (em:compound "clause" ((em:integer "19"))) (em:list ((em:compound "=" ((em:atom "Action") (em:iri :avoid_bridge))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))))) (em:list ((em:compound "rdf" ((em:list ((em:iri :avoid_bridge) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Decision))))))) .
 proof:record51 em:term (em:compound "step" ((em:compound "rdf" ((em:list ((em:iri :avoid_bridge) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Decision))) (em:compound "clause" ((em:integer "17"))) (em:list ((em:compound "=" ((em:atom "Status") (em:iri :closed))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))) (em:compound "=" ((em:atom "Limit") (em:integer "8000"))) (em:compound "=" ((em:atom "Action") (em:iri :avoid_bridge))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "rdf" ((em:iri :policy) (em:iri :threshold) (em:integer "8000"))) (em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000"))) (em:compound "rdf" ((em:iri :closed) (em:iri :action) (em:iri :avoid_bridge))))))) .
-proof:record52 em:term (em:compound "step" ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "clause" ((em:integer "16"))) (em:list ((em:compound "=" ((em:atom "Status") (em:iri :closed))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))) (em:compound "=" ((em:atom "Other") (em:variable "A"))) (em:compound "=" ((em:atom "Higher") (em:atom "[]"))) (em:compound "=" ((em:atom "Count") (em:integer "0"))) (em:compound "=" ((em:atom "Rank") (em:integer "1"))))) (em:list ((em:compound "rdf" ((em:list ((em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) (em:compound "n3_list_length" ((em:atom "[]") (em:integer "0"))) (em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))))))) .
+proof:record52 em:term (em:compound "step" ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "clause" ((em:integer "16"))) (em:list ((em:compound "=" ((em:atom "Status") (em:iri :closed))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))) (em:compound "=" ((em:atom "Other") (em:variable "A"))) (em:compound "=" ((em:atom "Higher") (em:atom "[]"))) (em:compound "=" ((em:atom "Count") (em:integer "0"))) (em:compound "=" ((em:atom "Rank") (em:integer "1"))))) (em:list ((em:compound "rdf" ((em:list ((em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "findall_sorted" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) (em:compound "n3_list_length" ((em:atom "[]") (em:integer "0"))) (em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))))))) .
 proof:record53 em:term (em:compound "step" ((em:compound "rdf" ((em:list ((em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "clause" ((em:integer "14"))) (em:list ((em:compound "=" ((em:atom "Status") (em:iri :closed))) (em:compound "=" ((em:atom "Reifier") (em:iri :authorityClaim))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Confidence") (em:integer "98"))) (em:compound "=" ((em:atom "Trust") (em:integer "95"))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))))) (em:list ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :closed))) (em:compound "rdf" ((em:iri :authorityClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :closed))))) (em:compound "rdf" ((em:iri :authorityClaim) (em:iri :assertedBy) (em:iri :transportAuthority))) (em:compound "rdf" ((em:iri :authorityClaim) (em:iri :confidence) (em:integer "98"))) (em:compound "rdf" ((em:iri :transportAuthority) (em:iri :trustScore) (em:integer "95"))) (em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:integer "9310"))))))) .
 proof:record54 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :closed))) (em:compound "clause" ((em:integer "1"))) (em:atom "[]") (em:atom "[]"))) .
 proof:record55 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :closed))))) (em:compound "clause" ((em:integer "2"))) (em:atom "[]") (em:atom "[]"))) .
@@ -677,7 +1071,7 @@ proof:record73 em:term (em:compound "step" ((em:compound "n3_product" ((em:atom 
 proof:record74 em:term (em:compound "step" ((em:compound "n3_result" ((em:integer "9310") (em:integer "9310"))) (em:compound "clause" ((em:integer "68"))) (em:list ((em:compound "=" ((em:atom "V") (em:integer "9310"))) (em:compound "=" ((em:atom "O") (em:integer "9310"))))) (em:list ((em:compound "is_var" ((em:integer "9310"))) (em:compound "unify" ((em:integer "9310") (em:integer "9310"))))))) .
 proof:record75 em:term (em:compound "step" ((em:compound "is_var" ((em:integer "9310"))) (em:compound "called" ((em:compound "is_var" ((em:variable "B"))))) (em:atom "[]") (em:atom "[]"))) .
 proof:record76 em:term (em:compound "step" ((em:compound "unify" ((em:integer "9310") (em:integer "9310"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
-proof:record77 em:term (em:compound "step" ((em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) (em:atom "collected") (em:atom "[]") (em:atom "[]"))) .
+proof:record77 em:term (em:compound "step" ((em:compound "findall_sorted" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) (em:atom "collected") (em:atom "[]") (em:atom "[]"))) .
 proof:record78 em:term (em:compound "step" ((em:compound "n3_list_length" ((em:atom "[]") (em:integer "0"))) (em:compound "clause" ((em:integer "47"))) (em:list ((em:compound "=" ((em:atom "L") (em:atom "[]"))) (em:compound "=" ((em:atom "O") (em:integer "0"))) (em:compound "=" ((em:atom "N") (em:integer "0"))))) (em:list ((em:compound "is_nonvar" ((em:atom "[]"))) (em:compound "n3_length" ((em:atom "[]") (em:integer "0"))) (em:compound "n3_integer_result" ((em:integer "0") (em:integer "0"))))))) .
 proof:record79 em:term (em:compound "step" ((em:compound "is_nonvar" ((em:atom "[]"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
 proof:record80 em:term (em:compound "step" ((em:compound "n3_length" ((em:atom "[]") (em:integer "0"))) (em:compound "clause" ((em:integer "22"))) (em:atom "[]") (em:atom "[]"))) .
@@ -745,7 +1139,7 @@ proof:record141 em:term (em:compound "step" ((em:compound "result" ((em:iri :clo
 proof:record142 em:term (em:compound "step" ((em:compound "result" ((em:iri :closed) (em:iri :assertedBy) (em:iri :transportAuthority))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "Rank") (em:integer "1"))) (em:compound "=" ((em:atom "Status") (em:iri :closed))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
 proof:record143 em:term (em:compound "step" ((em:compound "result" ((em:iri :closed) (em:iri :score) (em:integer "9310"))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "Rank") (em:integer "1"))) (em:compound "=" ((em:atom "Status") (em:iri :closed))) (em:compound "=" ((em:atom "Source") (em:iri :transportAuthority))) (em:compound "=" ((em:atom "Score") (em:integer "9310"))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
 proof:record144 em:term (em:compound "step" ((em:compound "result" ((em:iri :open) (em:iri :rank) (em:integer "2"))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "Rank") (em:integer "2"))) (em:compound "=" ((em:atom "Status") (em:iri :open))) (em:compound "=" ((em:atom "Source") (em:iri :anonymousPost))) (em:compound "=" ((em:atom "Score") (em:integer "700"))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "2") (em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
-proof:record145 em:term (em:compound "step" ((em:compound "rdf" ((em:list ((em:integer "2") (em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "clause" ((em:integer "16"))) (em:list ((em:compound "=" ((em:atom "Status") (em:iri :open))) (em:compound "=" ((em:atom "Source") (em:iri :anonymousPost))) (em:compound "=" ((em:atom "Score") (em:integer "700"))) (em:compound "=" ((em:atom "Other") (em:variable "A"))) (em:compound "=" ((em:atom "Higher") (em:list ((em:integer "9310"))))) (em:compound "=" ((em:atom "Count") (em:integer "1"))) (em:compound "=" ((em:atom "Rank") (em:integer "2"))))) (em:list ((em:compound "rdf" ((em:list ((em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "700") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:integer "9310"))))) (em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))))))) .
+proof:record145 em:term (em:compound "step" ((em:compound "rdf" ((em:list ((em:integer "2") (em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "clause" ((em:integer "16"))) (em:list ((em:compound "=" ((em:atom "Status") (em:iri :open))) (em:compound "=" ((em:atom "Source") (em:iri :anonymousPost))) (em:compound "=" ((em:atom "Score") (em:integer "700"))) (em:compound "=" ((em:atom "Other") (em:variable "A"))) (em:compound "=" ((em:atom "Higher") (em:list ((em:integer "9310"))))) (em:compound "=" ((em:atom "Count") (em:integer "1"))) (em:compound "=" ((em:atom "Rank") (em:integer "2"))))) (em:list ((em:compound "rdf" ((em:list ((em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "findall_sorted" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "700") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:integer "9310"))))) (em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))))))) .
 proof:record146 em:term (em:compound "step" ((em:compound "rdf" ((em:list ((em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "clause" ((em:integer "14"))) (em:list ((em:compound "=" ((em:atom "Status") (em:iri :open))) (em:compound "=" ((em:atom "Reifier") (em:iri :socialClaim))) (em:compound "=" ((em:atom "Source") (em:iri :anonymousPost))) (em:compound "=" ((em:atom "Confidence") (em:integer "35"))) (em:compound "=" ((em:atom "Trust") (em:integer "20"))) (em:compound "=" ((em:atom "Score") (em:integer "700"))))) (em:list ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :open))) (em:compound "rdf" ((em:iri :socialClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :open))))) (em:compound "rdf" ((em:iri :socialClaim) (em:iri :assertedBy) (em:iri :anonymousPost))) (em:compound "rdf" ((em:iri :socialClaim) (em:iri :confidence) (em:integer "35"))) (em:compound "rdf" ((em:iri :anonymousPost) (em:iri :trustScore) (em:integer "20"))) (em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:integer "700"))))))) .
 proof:record147 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :open))) (em:compound "clause" ((em:integer "5"))) (em:atom "[]") (em:atom "[]"))) .
 proof:record148 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :socialClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :open))))) (em:compound "clause" ((em:integer "6"))) (em:atom "[]") (em:atom "[]"))) .
@@ -769,7 +1163,7 @@ proof:record165 em:term (em:compound "step" ((em:compound "n3_product" ((em:atom
 proof:record166 em:term (em:compound "step" ((em:compound "n3_result" ((em:integer "700") (em:integer "700"))) (em:compound "clause" ((em:integer "68"))) (em:list ((em:compound "=" ((em:atom "V") (em:integer "700"))) (em:compound "=" ((em:atom "O") (em:integer "700"))))) (em:list ((em:compound "is_var" ((em:integer "700"))) (em:compound "unify" ((em:integer "700") (em:integer "700"))))))) .
 proof:record167 em:term (em:compound "step" ((em:compound "is_var" ((em:integer "700"))) (em:compound "called" ((em:compound "is_var" ((em:variable "H"))))) (em:atom "[]") (em:atom "[]"))) .
 proof:record168 em:term (em:compound "step" ((em:compound "unify" ((em:integer "700") (em:integer "700"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
-proof:record169 em:term (em:compound "step" ((em:compound "findall" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "700") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:integer "9310"))))) (em:atom "collected") (em:atom "[]") (em:atom "[]"))) .
+proof:record169 em:term (em:compound "step" ((em:compound "findall_sorted" ((em:variable "A") (em:compound "rdf" ((em:list ((em:integer "700") (em:variable "A"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:integer "9310"))))) (em:atom "collected") (em:atom "[]") (em:atom "[]"))) .
 proof:record170 em:term (em:compound "step" ((em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "clause" ((em:integer "47"))) (em:list ((em:compound "=" ((em:atom "L") (em:list ((em:integer "9310"))))) (em:compound "=" ((em:atom "O") (em:integer "1"))) (em:compound "=" ((em:atom "N") (em:integer "1"))))) (em:list ((em:compound "is_nonvar" ((em:list ((em:integer "9310"))))) (em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "n3_integer_result" ((em:integer "1") (em:integer "1"))))))) .
 proof:record171 em:term (em:compound "step" ((em:compound "is_nonvar" ((em:list ((em:integer "9310"))))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
 proof:record172 em:term (em:compound "step" ((em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:integer "1"))) (em:compound "clause" ((em:integer "23"))) (em:list ((em:compound "=" ((em:atom "_0") (em:integer "9310"))) (em:compound "=" ((em:atom "T") (em:atom "[]"))) (em:compound "=" ((em:atom "N") (em:integer "1"))) (em:compound "=" ((em:atom "M") (em:integer "0"))))) (em:list ((em:compound "n3_length" ((em:atom "[]") (em:integer "0"))) (em:compound "is" ((em:integer "1") (em:compound "add" ((em:integer "0") (em:integer "1"))))))))) .
@@ -798,3 +1192,200 @@ proof:record194 em:term (em:compound "step" ((em:compound "is_var" ((em:integer 
 proof:record195 em:term (em:compound "step" ((em:compound "unify" ((em:integer "2") (em:integer "2"))) (em:atom "builtin") (em:atom "[]") (em:atom "[]"))) .
 proof:record196 em:term (em:compound "step" ((em:compound "result" ((em:iri :open) (em:iri :assertedBy) (em:iri :anonymousPost))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "Rank") (em:integer "2"))) (em:compound "=" ((em:atom "Status") (em:iri :open))) (em:compound "=" ((em:atom "Source") (em:iri :anonymousPost))) (em:compound "=" ((em:atom "Score") (em:integer "700"))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "2") (em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
 proof:record197 em:term (em:compound "step" ((em:compound "result" ((em:iri :open) (em:iri :score) (em:integer "700"))) (em:compound "clause" ((em:integer "20"))) (em:list ((em:compound "=" ((em:atom "Rank") (em:integer "2"))) (em:compound "=" ((em:atom "Status") (em:iri :open))) (em:compound "=" ((em:atom "Source") (em:iri :anonymousPost))) (em:compound "=" ((em:atom "Score") (em:integer "700"))))) (em:list ((em:compound "rdf" ((em:list ((em:integer "2") (em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
+proof:record198 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "M") (em:variable "N") (em:variable "O"))) (em:list ((em:compound "rdf" ((em:list ((em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "rdf" ((em:list ((em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "rdf" ((em:list ((em:integer "2") (em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "rdf" ((em:list ((em:iri :avoid_bridge) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Decision))))))) .
+proof:record199 em:term (em:compound "derived" ((em:compound "result" ((em:variable "M") (em:variable "N") (em:variable "O"))) (em:list ((em:compound "result" ((em:iri :bridge) (em:iri :decision) (em:iri :avoid_bridge))) (em:compound "result" ((em:iri :bridge) (em:iri :trustedSource) (em:iri :transportAuthority))) (em:compound "result" ((em:iri :bridge) (em:iri :score) (em:integer "9310"))) (em:compound "result" ((em:iri :closed) (em:iri :rank) (em:integer "1"))) (em:compound "result" ((em:iri :closed) (em:iri :assertedBy) (em:iri :transportAuthority))) (em:compound "result" ((em:iri :closed) (em:iri :score) (em:integer "9310"))) (em:compound "result" ((em:iri :open) (em:iri :rank) (em:integer "2"))) (em:compound "result" ((em:iri :open) (em:iri :assertedBy) (em:iri :anonymousPost))) (em:compound "result" ((em:iri :open) (em:iri :score) (em:integer "700"))))))) .
+proof:record200 em:term (em:compound "searched" ((em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "P"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) .
+proof:record201 em:term (em:compound "searched" ((em:compound "rdf" ((em:list ((em:variable "Q") (em:variable "R") (em:variable "S"))) (em:iri rdf:type) (em:iri :Claim))) (em:list ((em:compound "rdf" ((em:list ((em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "rdf" ((em:list ((em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :Claim))))))) .
+proof:record202 em:term (em:compound "searched" ((em:compound "n3_math_greaterThan" ((em:integer "9310") (em:integer "9310"))) (em:atom "[]"))) .
+proof:record203 em:term (em:compound "searched" ((em:compound "n3_num" ((em:integer "9310") (em:variable "T"))) (em:list ((em:compound "n3_num" ((em:integer "9310") (em:integer "9310"))))))) .
+proof:record204 em:term (em:compound "searched" ((em:compound "n3_infinite_order" ((em:integer "9310") (em:integer "9310") (em:variable "U"))) (em:atom "[]"))) .
+proof:record205 em:term (em:compound "searched" ((em:compound "n3_extended" ((em:integer "9310") (em:list ((em:variable "V") (em:variable "W"))))) (em:list ((em:compound "n3_extended" ((em:integer "9310") (em:list ((em:integer "1") (em:integer "9310"))))))))) .
+proof:record206 em:term (em:compound "searched" ((em:compound "n3_math_greaterThan" ((em:integer "700") (em:integer "9310"))) (em:atom "[]"))) .
+proof:record207 em:term (em:compound "searched" ((em:compound "n3_num" ((em:integer "700") (em:variable "X"))) (em:list ((em:compound "n3_num" ((em:integer "700") (em:integer "700"))))))) .
+proof:record208 em:term (em:compound "searched" ((em:compound "n3_infinite_order" ((em:integer "700") (em:integer "9310") (em:variable "Y"))) (em:atom "[]"))) .
+proof:record209 em:term (em:compound "searched" ((em:compound "n3_extended" ((em:integer "700") (em:list ((em:variable "Z") (em:variable "A1"))))) (em:list ((em:compound "n3_extended" ((em:integer "700") (em:list ((em:integer "1") (em:integer "700"))))))))) .
+proof:record210 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:variable "B1"))) (em:list ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :closed))) (em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :open))))))) .
+proof:record211 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "C1") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :closed))))) (em:list ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :closed))))))))) .
+proof:record212 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri :assertedBy) (em:variable "D1"))) (em:list ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri :assertedBy) (em:iri :transportAuthority))))))) .
+proof:record213 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri :confidence) (em:variable "E1"))) (em:list ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri :confidence) (em:integer "98"))))))) .
+proof:record214 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :transportAuthority) (em:iri :trustScore) (em:variable "F1"))) (em:list ((em:compound "rdf" ((em:iri :transportAuthority) (em:iri :trustScore) (em:integer "95"))))))) .
+proof:record215 em:term (em:compound "searched" ((em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:variable "G1"))) (em:list ((em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:integer "9310"))))))) .
+proof:record216 em:term (em:compound "searched" ((em:compound "n3_nums" ((em:list ((em:integer "98") (em:integer "95"))) (em:compound "." ((em:variable "H1") (em:variable "I1"))))) (em:list ((em:compound "n3_nums" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95"))))))))) .
+proof:record217 em:term (em:compound "searched" ((em:compound "n3_nums_" ((em:list ((em:integer "98") (em:integer "95"))) (em:compound "." ((em:variable "J1") (em:variable "K1"))))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95"))))))))) .
+proof:record218 em:term (em:compound "searched" ((em:compound "n3_num" ((em:integer "98") (em:variable "L1"))) (em:list ((em:compound "n3_num" ((em:integer "98") (em:integer "98"))))))) .
+proof:record219 em:term (em:compound "searched" ((em:compound "n3_nums_" ((em:list ((em:integer "95"))) (em:variable "M1"))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "95"))) (em:list ((em:integer "95"))))))))) .
+proof:record220 em:term (em:compound "searched" ((em:compound "n3_num" ((em:integer "95") (em:variable "N1"))) (em:list ((em:compound "n3_num" ((em:integer "95") (em:integer "95"))))))) .
+proof:record221 em:term (em:compound "searched" ((em:compound "n3_nums_" ((em:atom "[]") (em:variable "O1"))) (em:list ((em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]"))))))) .
+proof:record222 em:term (em:compound "searched" ((em:compound "n3_product" ((em:list ((em:integer "95"))) (em:integer "98") (em:variable "P1"))) (em:list ((em:compound "n3_product" ((em:list ((em:integer "95"))) (em:integer "98") (em:integer "9310"))))))) .
+proof:record223 em:term (em:compound "searched" ((em:compound "n3_product" ((em:atom "[]") (em:integer "9310") (em:variable "Q1"))) (em:list ((em:compound "n3_product" ((em:atom "[]") (em:integer "9310") (em:integer "9310"))))))) .
+proof:record224 em:term (em:compound "searched" ((em:compound "n3_result" ((em:integer "9310") (em:variable "R1"))) (em:list ((em:compound "n3_result" ((em:integer "9310") (em:integer "9310"))))))) .
+proof:record225 em:term (em:compound "searched" ((em:compound "rdf" ((em:variable "C1") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :open))))) (em:list ((em:compound "rdf" ((em:iri :socialClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :open))))))))) .
+proof:record226 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :socialClaim) (em:iri :assertedBy) (em:variable "D1"))) (em:list ((em:compound "rdf" ((em:iri :socialClaim) (em:iri :assertedBy) (em:iri :anonymousPost))))))) .
+proof:record227 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :socialClaim) (em:iri :confidence) (em:variable "E1"))) (em:list ((em:compound "rdf" ((em:iri :socialClaim) (em:iri :confidence) (em:integer "35"))))))) .
+proof:record228 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :anonymousPost) (em:iri :trustScore) (em:variable "F1"))) (em:list ((em:compound "rdf" ((em:iri :anonymousPost) (em:iri :trustScore) (em:integer "20"))))))) .
+proof:record229 em:term (em:compound "searched" ((em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:variable "G1"))) (em:list ((em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:integer "700"))))))) .
+proof:record230 em:term (em:compound "searched" ((em:compound "n3_nums" ((em:list ((em:integer "35") (em:integer "20"))) (em:compound "." ((em:variable "S1") (em:variable "T1"))))) (em:list ((em:compound "n3_nums" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20"))))))))) .
+proof:record231 em:term (em:compound "searched" ((em:compound "n3_nums_" ((em:list ((em:integer "35") (em:integer "20"))) (em:compound "." ((em:variable "U1") (em:variable "V1"))))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20"))))))))) .
+proof:record232 em:term (em:compound "searched" ((em:compound "n3_num" ((em:integer "35") (em:variable "W1"))) (em:list ((em:compound "n3_num" ((em:integer "35") (em:integer "35"))))))) .
+proof:record233 em:term (em:compound "searched" ((em:compound "n3_nums_" ((em:list ((em:integer "20"))) (em:variable "X1"))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "20"))) (em:list ((em:integer "20"))))))))) .
+proof:record234 em:term (em:compound "searched" ((em:compound "n3_num" ((em:integer "20") (em:variable "Y1"))) (em:list ((em:compound "n3_num" ((em:integer "20") (em:integer "20"))))))) .
+proof:record235 em:term (em:compound "searched" ((em:compound "n3_product" ((em:list ((em:integer "20"))) (em:integer "35") (em:variable "Z1"))) (em:list ((em:compound "n3_product" ((em:list ((em:integer "20"))) (em:integer "35") (em:integer "700"))))))) .
+proof:record236 em:term (em:compound "searched" ((em:compound "n3_product" ((em:atom "[]") (em:integer "700") (em:variable "A2"))) (em:list ((em:compound "n3_product" ((em:atom "[]") (em:integer "700") (em:integer "700"))))))) .
+proof:record237 em:term (em:compound "searched" ((em:compound "n3_result" ((em:integer "700") (em:variable "B2"))) (em:list ((em:compound "n3_result" ((em:integer "700") (em:integer "700"))))))) .
+proof:record238 em:term (em:compound "searched" ((em:compound "n3_list_length" ((em:atom "[]") (em:variable "C2"))) (em:list ((em:compound "n3_list_length" ((em:atom "[]") (em:integer "0"))))))) .
+proof:record239 em:term (em:compound "searched" ((em:compound "n3_length" ((em:atom "[]") (em:variable "D2"))) (em:list ((em:compound "n3_length" ((em:atom "[]") (em:integer "0"))))))) .
+proof:record240 em:term (em:compound "searched" ((em:compound "n3_integer_result" ((em:integer "0") (em:variable "E2"))) (em:list ((em:compound "n3_integer_result" ((em:integer "0") (em:integer "0"))))))) .
+proof:record241 em:term (em:compound "searched" ((em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "F2"))) (em:list ((em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))))))) .
+proof:record242 em:term (em:compound "searched" ((em:compound "n3_nums" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "G2"))) (em:list ((em:compound "n3_nums" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1"))))))))) .
+proof:record243 em:term (em:compound "searched" ((em:compound "n3_nums_" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "H2"))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1"))))))))) .
+proof:record244 em:term (em:compound "searched" ((em:compound "n3_num" ((em:integer "0") (em:variable "I2"))) (em:list ((em:compound "n3_num" ((em:integer "0") (em:integer "0"))))))) .
+proof:record245 em:term (em:compound "searched" ((em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:variable "J2"))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:list ((em:integer "1"))))))))) .
+proof:record246 em:term (em:compound "searched" ((em:compound "n3_num" ((em:integer "1") (em:variable "K2"))) (em:list ((em:compound "n3_num" ((em:integer "1") (em:integer "1"))))))) .
+proof:record247 em:term (em:compound "searched" ((em:compound "n3_sum_kind" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "L2"))) (em:list ((em:compound "n3_sum_kind" ((em:list ((em:integer "0") (em:integer "1"))) (em:atom "decimal"))))))) .
+proof:record248 em:term (em:compound "searched" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "M2") (em:compound "datatype" ((em:variable "N2"))))) (em:list ((em:integer "0") (em:integer "1"))))) (em:atom "[]"))) .
+proof:record249 em:term (em:compound "searched" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "O2") (em:compound "datatype" ((em:variable "P2"))))) (em:list ((em:integer "1"))))) (em:atom "[]"))) .
+proof:record250 em:term (em:compound "searched" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "Q2") (em:compound "datatype" ((em:variable "R2"))))) (em:atom "[]"))) (em:atom "[]"))) .
+proof:record251 em:term (em:compound "searched" ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "0") (em:integer "1"))) (em:variable "S2"))) (em:list ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))))))) .
+proof:record252 em:term (em:compound "searched" ((em:compound "n3_decimal_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:variable "T2") (em:variable "U2"))) (em:list ((em:compound "n3_decimal_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0"))))))) .
+proof:record253 em:term (em:compound "searched" ((em:compound "n3_decimal" ((em:integer "0") (em:variable "V2") (em:variable "W2"))) (em:list ((em:compound "n3_decimal" ((em:integer "0") (em:integer "0") (em:integer "0"))))))) .
+proof:record254 em:term (em:compound "searched" ((em:compound "n3_decimal_exp" ((em:atom "") (em:variable "X2"))) (em:list ((em:compound "n3_decimal_exp" ((em:atom "") (em:integer "0"))))))) .
+proof:record255 em:term (em:compound "searched" ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:variable "Y2") (em:variable "Z2"))) (em:list ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0"))))))) .
+proof:record256 em:term (em:compound "searched" ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "0") (em:integer "0") (em:variable "A3") (em:variable "B3"))) (em:list ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0"))))))) .
+proof:record257 em:term (em:compound "searched" ((em:compound "n3_decimal" ((em:integer "1") (em:variable "C3") (em:variable "D3"))) (em:list ((em:compound "n3_decimal" ((em:integer "1") (em:integer "1") (em:integer "0"))))))) .
+proof:record258 em:term (em:compound "searched" ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:variable "E3") (em:variable "F3"))) (em:list ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))))))) .
+proof:record259 em:term (em:compound "searched" ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "1") (em:integer "0") (em:variable "G3") (em:variable "H3"))) (em:list ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))))))) .
+proof:record260 em:term (em:compound "searched" ((em:compound "n3_sum_result" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1") (em:integer "0") (em:variable "I3"))) (em:list ((em:compound "n3_sum_result" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "1"))))))) .
+proof:record261 em:term (em:compound "searched" ((em:compound "n3_member" ((em:variable "J3") (em:list ((em:integer "0") (em:integer "1"))))) (em:list ((em:compound "n3_member" ((em:integer "0") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "0") (em:integer "1"))))))))) .
+proof:record262 em:term (em:compound "searched" ((em:compound "n3_member" ((em:variable "K3") (em:list ((em:integer "1"))))) (em:list ((em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "1"))))))))) .
+proof:record263 em:term (em:compound "searched" ((em:compound "n3_member" ((em:variable "L3") (em:atom "[]"))) (em:atom "[]"))) .
+proof:record264 em:term (em:compound "searched" ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "1") (em:integer "0") (em:variable "M3"))) (em:list ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "1") (em:integer "0") (em:integer "1"))))))) .
+proof:record265 em:term (em:compound "searched" ((em:compound "n3_result" ((em:integer "1") (em:variable "N3"))) (em:list ((em:compound "n3_result" ((em:integer "1") (em:integer "1"))))))) .
+proof:record266 em:term (em:compound "searched" ((em:compound "rdf" ((em:list ((em:integer "700") (em:variable "O3"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:compound "rdf" ((em:list ((em:integer "700") (em:integer "9310"))) (em:iri rdf:type) (em:iri :HigherScore))))))) .
+proof:record267 em:term (em:compound "searched" ((em:compound "n3_math_greaterThan" ((em:integer "9310") (em:integer "700"))) (em:list ((em:compound "n3_math_greaterThan" ((em:integer "9310") (em:integer "700"))))))) .
+proof:record268 em:term (em:compound "searched" ((em:compound "n3_infinite_order" ((em:integer "9310") (em:integer "700") (em:variable "P3"))) (em:atom "[]"))) .
+proof:record269 em:term (em:compound "searched" ((em:compound "n3_math_greaterThan" ((em:integer "700") (em:integer "700"))) (em:atom "[]"))) .
+proof:record270 em:term (em:compound "searched" ((em:compound "n3_infinite_order" ((em:integer "700") (em:integer "700") (em:variable "Q3"))) (em:atom "[]"))) .
+proof:record271 em:term (em:compound "searched" ((em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:variable "C2"))) (em:list ((em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1"))))))) .
+proof:record272 em:term (em:compound "searched" ((em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:variable "R3"))) (em:list ((em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:integer "1"))))))) .
+proof:record273 em:term (em:compound "searched" ((em:compound "n3_integer_result" ((em:integer "1") (em:variable "S3"))) (em:list ((em:compound "n3_integer_result" ((em:integer "1") (em:integer "1"))))))) .
+proof:record274 em:term (em:compound "searched" ((em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "F2"))) (em:list ((em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))))))) .
+proof:record275 em:term (em:compound "searched" ((em:compound "n3_nums" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "T3"))) (em:list ((em:compound "n3_nums" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1"))))))))) .
+proof:record276 em:term (em:compound "searched" ((em:compound "n3_nums_" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "U3"))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1"))))))))) .
+proof:record277 em:term (em:compound "searched" ((em:compound "n3_sum_kind" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "V3"))) (em:list ((em:compound "n3_sum_kind" ((em:list ((em:integer "1") (em:integer "1"))) (em:atom "decimal"))))))) .
+proof:record278 em:term (em:compound "searched" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "W3") (em:compound "datatype" ((em:variable "X3"))))) (em:list ((em:integer "1") (em:integer "1"))))) (em:atom "[]"))) .
+proof:record279 em:term (em:compound "searched" ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "1") (em:integer "1"))) (em:variable "Y3"))) (em:list ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))))))) .
+proof:record280 em:term (em:compound "searched" ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:variable "Z3") (em:variable "A4"))) (em:list ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "2") (em:integer "0"))))))) .
+proof:record281 em:term (em:compound "searched" ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "1") (em:integer "0") (em:variable "B4") (em:variable "C4"))) (em:list ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0"))))))) .
+proof:record282 em:term (em:compound "searched" ((em:compound "n3_decimal_add" ((em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0") (em:variable "D4") (em:variable "E4"))) (em:list ((em:compound "n3_decimal_add" ((em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0"))))))) .
+proof:record283 em:term (em:compound "searched" ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "2") (em:integer "0") (em:variable "F4") (em:variable "G4"))) (em:list ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "2") (em:integer "0") (em:integer "2") (em:integer "0"))))))) .
+proof:record284 em:term (em:compound "searched" ((em:compound "n3_sum_result" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2") (em:integer "0") (em:variable "H4"))) (em:list ((em:compound "n3_sum_result" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2") (em:integer "0") (em:integer "2"))))))) .
+proof:record285 em:term (em:compound "searched" ((em:compound "n3_member" ((em:variable "I4") (em:list ((em:integer "1") (em:integer "1"))))) (em:list ((em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "1") (em:integer "1"))))))))) .
+proof:record286 em:term (em:compound "searched" ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "2") (em:integer "0") (em:variable "J4"))) (em:list ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "2") (em:integer "0") (em:integer "2"))))))) .
+proof:record287 em:term (em:compound "searched" ((em:compound "n3_result" ((em:integer "2") (em:variable "K4"))) (em:list ((em:compound "n3_result" ((em:integer "2") (em:integer "2"))))))) .
+proof:record288 em:term (em:compound "searched" ((em:compound "rdf" ((em:list ((em:integer "1") (em:variable "L4") (em:variable "M4") (em:variable "N4"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:list ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
+proof:record289 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :policy) (em:iri :threshold) (em:variable "O4"))) (em:list ((em:compound "rdf" ((em:iri :policy) (em:iri :threshold) (em:integer "8000"))))))) .
+proof:record290 em:term (em:compound "searched" ((em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000"))) (em:list ((em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000"))))))) .
+proof:record291 em:term (em:compound "searched" ((em:compound "n3_num" ((em:integer "8000") (em:variable "P4"))) (em:list ((em:compound "n3_num" ((em:integer "8000") (em:integer "8000"))))))) .
+proof:record292 em:term (em:compound "searched" ((em:compound "n3_infinite_order" ((em:integer "9310") (em:integer "8000") (em:variable "Q4"))) (em:atom "[]"))) .
+proof:record293 em:term (em:compound "searched" ((em:compound "n3_extended" ((em:integer "8000") (em:list ((em:variable "R4") (em:variable "S4"))))) (em:list ((em:compound "n3_extended" ((em:integer "8000") (em:list ((em:integer "1") (em:integer "8000"))))))))) .
+proof:record294 em:term (em:compound "searched" ((em:compound "rdf" ((em:iri :closed) (em:iri :action) (em:variable "T4"))) (em:list ((em:compound "rdf" ((em:iri :closed) (em:iri :action) (em:iri :avoid_bridge))))))) .
+proof:record295 em:term (em:compound "searched" ((em:compound "n3_math_lessThan" ((em:integer "9310") (em:integer "8000"))) (em:atom "[]"))) .
+proof:record296 em:term (em:compound "called" ((em:compound "result" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "result" ((em:iri :bridge) (em:iri :decision) (em:iri :avoid_bridge))) (em:compound "result" ((em:iri :bridge) (em:iri :trustedSource) (em:iri :transportAuthority))) (em:compound "result" ((em:iri :bridge) (em:iri :score) (em:integer "9310"))) (em:compound "result" ((em:iri :closed) (em:iri :rank) (em:integer "1"))) (em:compound "result" ((em:iri :closed) (em:iri :assertedBy) (em:iri :transportAuthority))) (em:compound "result" ((em:iri :closed) (em:iri :score) (em:integer "9310"))) (em:compound "result" ((em:iri :open) (em:iri :rank) (em:integer "2"))) (em:compound "result" ((em:iri :open) (em:iri :assertedBy) (em:iri :anonymousPost))) (em:compound "result" ((em:iri :open) (em:iri :score) (em:integer "700"))))))) .
+proof:record297 em:term (em:compound "called" ((em:compound "rdf" ((em:list ((em:variable "D") (em:variable "E") (em:variable "F"))) (em:iri rdf:type) (em:iri :Decision))) (em:list ((em:compound "rdf" ((em:list ((em:iri :avoid_bridge) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Decision))))))) .
+proof:record298 em:term (em:compound "called" ((em:compound "rdf" ((em:list ((em:variable "G") (em:variable "H") (em:variable "I") (em:variable "J"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:list ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:compound "rdf" ((em:list ((em:integer "2") (em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
+proof:record299 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:variable "K"))) (em:list ((em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :closed))) (em:compound "rdf" ((em:iri :bridge) (em:iri :status) (em:iri :open))))))) .
+proof:record300 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "L") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :closed))))) (em:list ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :closed))))))))) .
+proof:record301 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri :assertedBy) (em:variable "M"))) (em:list ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri :assertedBy) (em:iri :transportAuthority))))))) .
+proof:record302 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri :confidence) (em:variable "N"))) (em:list ((em:compound "rdf" ((em:iri :authorityClaim) (em:iri :confidence) (em:integer "98"))))))) .
+proof:record303 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :transportAuthority) (em:iri :trustScore) (em:variable "O"))) (em:list ((em:compound "rdf" ((em:iri :transportAuthority) (em:iri :trustScore) (em:integer "95"))))))) .
+proof:record304 em:term (em:compound "called" ((em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:variable "P"))) (em:list ((em:compound "n3_math_product" ((em:list ((em:integer "98") (em:integer "95"))) (em:integer "9310"))))))) .
+proof:record305 em:term (em:compound "called" ((em:compound "n3_nums" ((em:list ((em:integer "98") (em:integer "95"))) (em:compound "." ((em:variable "Q") (em:variable "R"))))) (em:list ((em:compound "n3_nums" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95"))))))))) .
+proof:record306 em:term (em:compound "called" ((em:compound "n3_nums_" ((em:list ((em:integer "98") (em:integer "95"))) (em:compound "." ((em:variable "S") (em:variable "T"))))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "98") (em:integer "95"))) (em:list ((em:integer "98") (em:integer "95"))))))))) .
+proof:record307 em:term (em:compound "called" ((em:compound "n3_num" ((em:integer "98") (em:variable "U"))) (em:list ((em:compound "n3_num" ((em:integer "98") (em:integer "98"))))))) .
+proof:record308 em:term (em:compound "called" ((em:compound "n3_nums_" ((em:list ((em:integer "95"))) (em:variable "V"))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "95"))) (em:list ((em:integer "95"))))))))) .
+proof:record309 em:term (em:compound "called" ((em:compound "n3_num" ((em:integer "95") (em:variable "W"))) (em:list ((em:compound "n3_num" ((em:integer "95") (em:integer "95"))))))) .
+proof:record310 em:term (em:compound "called" ((em:compound "n3_nums_" ((em:atom "[]") (em:variable "X"))) (em:list ((em:compound "n3_nums_" ((em:atom "[]") (em:atom "[]"))))))) .
+proof:record311 em:term (em:compound "called" ((em:compound "n3_product" ((em:list ((em:integer "95"))) (em:integer "98") (em:variable "Y"))) (em:list ((em:compound "n3_product" ((em:list ((em:integer "95"))) (em:integer "98") (em:integer "9310"))))))) .
+proof:record312 em:term (em:compound "called" ((em:compound "n3_product" ((em:atom "[]") (em:integer "9310") (em:variable "Z"))) (em:list ((em:compound "n3_product" ((em:atom "[]") (em:integer "9310") (em:integer "9310"))))))) .
+proof:record313 em:term (em:compound "called" ((em:compound "n3_result" ((em:integer "9310") (em:variable "A1"))) (em:list ((em:compound "n3_result" ((em:integer "9310") (em:integer "9310"))))))) .
+proof:record314 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "L") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :open))))) (em:list ((em:compound "rdf" ((em:iri :socialClaim) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :bridge) (em:iri :status) (em:iri :open))))))))) .
+proof:record315 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :socialClaim) (em:iri :assertedBy) (em:variable "M"))) (em:list ((em:compound "rdf" ((em:iri :socialClaim) (em:iri :assertedBy) (em:iri :anonymousPost))))))) .
+proof:record316 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :socialClaim) (em:iri :confidence) (em:variable "N"))) (em:list ((em:compound "rdf" ((em:iri :socialClaim) (em:iri :confidence) (em:integer "35"))))))) .
+proof:record317 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :anonymousPost) (em:iri :trustScore) (em:variable "O"))) (em:list ((em:compound "rdf" ((em:iri :anonymousPost) (em:iri :trustScore) (em:integer "20"))))))) .
+proof:record318 em:term (em:compound "called" ((em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:variable "P"))) (em:list ((em:compound "n3_math_product" ((em:list ((em:integer "35") (em:integer "20"))) (em:integer "700"))))))) .
+proof:record319 em:term (em:compound "called" ((em:compound "n3_nums" ((em:list ((em:integer "35") (em:integer "20"))) (em:compound "." ((em:variable "B1") (em:variable "C1"))))) (em:list ((em:compound "n3_nums" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20"))))))))) .
+proof:record320 em:term (em:compound "called" ((em:compound "n3_nums_" ((em:list ((em:integer "35") (em:integer "20"))) (em:compound "." ((em:variable "D1") (em:variable "E1"))))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "35") (em:integer "20"))) (em:list ((em:integer "35") (em:integer "20"))))))))) .
+proof:record321 em:term (em:compound "called" ((em:compound "n3_num" ((em:integer "35") (em:variable "F1"))) (em:list ((em:compound "n3_num" ((em:integer "35") (em:integer "35"))))))) .
+proof:record322 em:term (em:compound "called" ((em:compound "n3_nums_" ((em:list ((em:integer "20"))) (em:variable "G1"))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "20"))) (em:list ((em:integer "20"))))))))) .
+proof:record323 em:term (em:compound "called" ((em:compound "n3_num" ((em:integer "20") (em:variable "H1"))) (em:list ((em:compound "n3_num" ((em:integer "20") (em:integer "20"))))))) .
+proof:record324 em:term (em:compound "called" ((em:compound "n3_product" ((em:list ((em:integer "20"))) (em:integer "35") (em:variable "I1"))) (em:list ((em:compound "n3_product" ((em:list ((em:integer "20"))) (em:integer "35") (em:integer "700"))))))) .
+proof:record325 em:term (em:compound "called" ((em:compound "n3_product" ((em:atom "[]") (em:integer "700") (em:variable "J1"))) (em:list ((em:compound "n3_product" ((em:atom "[]") (em:integer "700") (em:integer "700"))))))) .
+proof:record326 em:term (em:compound "called" ((em:compound "n3_result" ((em:integer "700") (em:variable "K1"))) (em:list ((em:compound "n3_result" ((em:integer "700") (em:integer "700"))))))) .
+proof:record327 em:term (em:compound "called" ((em:compound "rdf" ((em:list ((em:variable "L1") (em:variable "M1") (em:variable "N1"))) (em:iri rdf:type) (em:iri :Claim))) (em:list ((em:compound "rdf" ((em:list ((em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :Claim))) (em:compound "rdf" ((em:list ((em:iri :open) (em:iri :anonymousPost) (em:integer "700"))) (em:iri rdf:type) (em:iri :Claim))))))) .
+proof:record328 em:term (em:compound "called" ((em:compound "rdf" ((em:list ((em:integer "9310") (em:variable "O1"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:atom "[]"))) .
+proof:record329 em:term (em:compound "called" ((em:compound "n3_math_greaterThan" ((em:integer "9310") (em:integer "9310"))) (em:atom "[]"))) .
+proof:record330 em:term (em:compound "called" ((em:compound "n3_num" ((em:integer "9310") (em:variable "P1"))) (em:list ((em:compound "n3_num" ((em:integer "9310") (em:integer "9310"))))))) .
+proof:record331 em:term (em:compound "called" ((em:compound "n3_infinite_order" ((em:integer "9310") (em:integer "9310") (em:variable "Q1"))) (em:atom "[]"))) .
+proof:record332 em:term (em:compound "called" ((em:compound "n3_extended" ((em:integer "9310") (em:list ((em:variable "R1") (em:variable "S1"))))) (em:list ((em:compound "n3_extended" ((em:integer "9310") (em:list ((em:integer "1") (em:integer "9310"))))))))) .
+proof:record333 em:term (em:compound "called" ((em:compound "n3_math_greaterThan" ((em:integer "700") (em:integer "9310"))) (em:atom "[]"))) .
+proof:record334 em:term (em:compound "called" ((em:compound "n3_num" ((em:integer "700") (em:variable "T1"))) (em:list ((em:compound "n3_num" ((em:integer "700") (em:integer "700"))))))) .
+proof:record335 em:term (em:compound "called" ((em:compound "n3_infinite_order" ((em:integer "700") (em:integer "9310") (em:variable "U1"))) (em:atom "[]"))) .
+proof:record336 em:term (em:compound "called" ((em:compound "n3_extended" ((em:integer "700") (em:list ((em:variable "V1") (em:variable "W1"))))) (em:list ((em:compound "n3_extended" ((em:integer "700") (em:list ((em:integer "1") (em:integer "700"))))))))) .
+proof:record337 em:term (em:compound "called" ((em:compound "n3_list_length" ((em:atom "[]") (em:variable "X1"))) (em:list ((em:compound "n3_list_length" ((em:atom "[]") (em:integer "0"))))))) .
+proof:record338 em:term (em:compound "called" ((em:compound "n3_length" ((em:atom "[]") (em:variable "Y1"))) (em:list ((em:compound "n3_length" ((em:atom "[]") (em:integer "0"))))))) .
+proof:record339 em:term (em:compound "called" ((em:compound "n3_integer_result" ((em:integer "0") (em:variable "Z1"))) (em:list ((em:compound "n3_integer_result" ((em:integer "0") (em:integer "0"))))))) .
+proof:record340 em:term (em:compound "called" ((em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "A2"))) (em:list ((em:compound "n3_math_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))))))) .
+proof:record341 em:term (em:compound "called" ((em:compound "n3_nums" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "B2"))) (em:list ((em:compound "n3_nums" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1"))))))))) .
+proof:record342 em:term (em:compound "called" ((em:compound "n3_nums_" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "C2"))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "0") (em:integer "1"))) (em:list ((em:integer "0") (em:integer "1"))))))))) .
+proof:record343 em:term (em:compound "called" ((em:compound "n3_num" ((em:integer "0") (em:variable "D2"))) (em:list ((em:compound "n3_num" ((em:integer "0") (em:integer "0"))))))) .
+proof:record344 em:term (em:compound "called" ((em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:variable "E2"))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "1"))) (em:list ((em:integer "1"))))))))) .
+proof:record345 em:term (em:compound "called" ((em:compound "n3_num" ((em:integer "1") (em:variable "F2"))) (em:list ((em:compound "n3_num" ((em:integer "1") (em:integer "1"))))))) .
+proof:record346 em:term (em:compound "called" ((em:compound "n3_sum_kind" ((em:list ((em:integer "0") (em:integer "1"))) (em:variable "G2"))) (em:list ((em:compound "n3_sum_kind" ((em:list ((em:integer "0") (em:integer "1"))) (em:atom "decimal"))))))) .
+proof:record347 em:term (em:compound "called" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "_59") (em:compound "datatype" ((em:variable "I2"))))) (em:list ((em:integer "0") (em:integer "1"))))) (em:atom "[]"))) .
+proof:record348 em:term (em:compound "called" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "_61") (em:compound "datatype" ((em:variable "K2"))))) (em:list ((em:integer "1"))))) (em:atom "[]"))) .
+proof:record349 em:term (em:compound "called" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "_63") (em:compound "datatype" ((em:variable "M2"))))) (em:atom "[]"))) (em:atom "[]"))) .
+proof:record350 em:term (em:compound "called" ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "0") (em:integer "1"))) (em:variable "N2"))) (em:list ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "0") (em:integer "1"))) (em:integer "1"))))))) .
+proof:record351 em:term (em:compound "called" ((em:compound "n3_decimal_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:variable "O2") (em:variable "P2"))) (em:list ((em:compound "n3_decimal_sum" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0"))))))) .
+proof:record352 em:term (em:compound "called" ((em:compound "n3_decimal" ((em:integer "0") (em:variable "Q2") (em:variable "R2"))) (em:list ((em:compound "n3_decimal" ((em:integer "0") (em:integer "0") (em:integer "0"))))))) .
+proof:record353 em:term (em:compound "called" ((em:compound "n3_decimal_exp" ((em:atom "") (em:variable "S2"))) (em:list ((em:compound "n3_decimal_exp" ((em:atom "") (em:integer "0"))))))) .
+proof:record354 em:term (em:compound "called" ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:variable "T2") (em:variable "U2"))) (em:list ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0") (em:integer "0"))))))) .
+proof:record355 em:term (em:compound "called" ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "0") (em:integer "0") (em:variable "V2") (em:variable "W2"))) (em:list ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0"))))))) .
+proof:record356 em:term (em:compound "called" ((em:compound "n3_decimal" ((em:integer "1") (em:variable "X2") (em:variable "Y2"))) (em:list ((em:compound "n3_decimal" ((em:integer "1") (em:integer "1") (em:integer "0"))))))) .
+proof:record357 em:term (em:compound "called" ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:variable "Z2") (em:variable "A3"))) (em:list ((em:compound "n3_decimal_add" ((em:integer "0") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))))))) .
+proof:record358 em:term (em:compound "called" ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "1") (em:integer "0") (em:variable "B3") (em:variable "C3"))) (em:list ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0"))))))) .
+proof:record359 em:term (em:compound "called" ((em:compound "n3_sum_result" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1") (em:integer "0") (em:variable "D3"))) (em:list ((em:compound "n3_sum_result" ((em:list ((em:integer "0") (em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "1"))))))) .
+proof:record360 em:term (em:compound "called" ((em:compound "n3_member" ((em:variable "E3") (em:list ((em:integer "0") (em:integer "1"))))) (em:list ((em:compound "n3_member" ((em:integer "0") (em:list ((em:integer "0") (em:integer "1"))))) (em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "0") (em:integer "1"))))))))) .
+proof:record361 em:term (em:compound "called" ((em:compound "n3_member" ((em:variable "F3") (em:list ((em:integer "1"))))) (em:list ((em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "1"))))))))) .
+proof:record362 em:term (em:compound "called" ((em:compound "n3_member" ((em:variable "G3") (em:atom "[]"))) (em:atom "[]"))) .
+proof:record363 em:term (em:compound "called" ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "1") (em:integer "0") (em:variable "H3"))) (em:list ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "1") (em:integer "0") (em:integer "1"))))))) .
+proof:record364 em:term (em:compound "called" ((em:compound "n3_result" ((em:integer "1") (em:variable "I3"))) (em:list ((em:compound "n3_result" ((em:integer "1") (em:integer "1"))))))) .
+proof:record365 em:term (em:compound "called" ((em:compound "rdf" ((em:list ((em:integer "700") (em:variable "O1"))) (em:iri rdf:type) (em:iri :HigherScore))) (em:list ((em:compound "rdf" ((em:list ((em:integer "700") (em:integer "9310"))) (em:iri rdf:type) (em:iri :HigherScore))))))) .
+proof:record366 em:term (em:compound "called" ((em:compound "n3_math_greaterThan" ((em:integer "9310") (em:integer "700"))) (em:list ((em:compound "n3_math_greaterThan" ((em:integer "9310") (em:integer "700"))))))) .
+proof:record367 em:term (em:compound "called" ((em:compound "n3_infinite_order" ((em:integer "9310") (em:integer "700") (em:variable "J3"))) (em:atom "[]"))) .
+proof:record368 em:term (em:compound "called" ((em:compound "n3_math_greaterThan" ((em:integer "700") (em:integer "700"))) (em:atom "[]"))) .
+proof:record369 em:term (em:compound "called" ((em:compound "n3_infinite_order" ((em:integer "700") (em:integer "700") (em:variable "K3"))) (em:atom "[]"))) .
+proof:record370 em:term (em:compound "called" ((em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:variable "X1"))) (em:list ((em:compound "n3_list_length" ((em:list ((em:integer "9310"))) (em:integer "1"))))))) .
+proof:record371 em:term (em:compound "called" ((em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:variable "L3"))) (em:list ((em:compound "n3_length" ((em:list ((em:integer "9310"))) (em:integer "1"))))))) .
+proof:record372 em:term (em:compound "called" ((em:compound "n3_integer_result" ((em:integer "1") (em:variable "M3"))) (em:list ((em:compound "n3_integer_result" ((em:integer "1") (em:integer "1"))))))) .
+proof:record373 em:term (em:compound "called" ((em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "A2"))) (em:list ((em:compound "n3_math_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))))))) .
+proof:record374 em:term (em:compound "called" ((em:compound "n3_nums" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "N3"))) (em:list ((em:compound "n3_nums" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1"))))))))) .
+proof:record375 em:term (em:compound "called" ((em:compound "n3_nums_" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "O3"))) (em:list ((em:compound "n3_nums_" ((em:list ((em:integer "1") (em:integer "1"))) (em:list ((em:integer "1") (em:integer "1"))))))))) .
+proof:record376 em:term (em:compound "called" ((em:compound "n3_sum_kind" ((em:list ((em:integer "1") (em:integer "1"))) (em:variable "P3"))) (em:list ((em:compound "n3_sum_kind" ((em:list ((em:integer "1") (em:integer "1"))) (em:atom "decimal"))))))) .
+proof:record377 em:term (em:compound "called" ((em:compound "n3_member" ((em:compound "literal" ((em:variable "_94") (em:compound "datatype" ((em:variable "R3"))))) (em:list ((em:integer "1") (em:integer "1"))))) (em:atom "[]"))) .
+proof:record378 em:term (em:compound "called" ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "1") (em:integer "1"))) (em:variable "S3"))) (em:list ((em:compound "n3_sum_value" ((em:atom "decimal") (em:list ((em:integer "1") (em:integer "1"))) (em:integer "2"))))))) .
+proof:record379 em:term (em:compound "called" ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:variable "T3") (em:variable "U3"))) (em:list ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "0") (em:integer "0") (em:integer "2") (em:integer "0"))))))) .
+proof:record380 em:term (em:compound "called" ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "1") (em:integer "0") (em:variable "V3") (em:variable "W3"))) (em:list ((em:compound "n3_decimal_sum" ((em:list ((em:integer "1"))) (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0"))))))) .
+proof:record381 em:term (em:compound "called" ((em:compound "n3_decimal_add" ((em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0") (em:variable "X3") (em:variable "Y3"))) (em:list ((em:compound "n3_decimal_add" ((em:integer "1") (em:integer "0") (em:integer "1") (em:integer "0") (em:integer "2") (em:integer "0"))))))) .
+proof:record382 em:term (em:compound "called" ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "2") (em:integer "0") (em:variable "Z3") (em:variable "A4"))) (em:list ((em:compound "n3_decimal_sum" ((em:atom "[]") (em:integer "2") (em:integer "0") (em:integer "2") (em:integer "0"))))))) .
+proof:record383 em:term (em:compound "called" ((em:compound "n3_sum_result" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2") (em:integer "0") (em:variable "B4"))) (em:list ((em:compound "n3_sum_result" ((em:list ((em:integer "1") (em:integer "1"))) (em:integer "2") (em:integer "0") (em:integer "2"))))))) .
+proof:record384 em:term (em:compound "called" ((em:compound "n3_member" ((em:variable "C4") (em:list ((em:integer "1") (em:integer "1"))))) (em:list ((em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "1") (em:integer "1"))))) (em:compound "n3_member" ((em:integer "1") (em:list ((em:integer "1") (em:integer "1"))))))))) .
+proof:record385 em:term (em:compound "called" ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "2") (em:integer "0") (em:variable "D4"))) (em:list ((em:compound "n3_sum_number" ((em:atom "int") (em:integer "2") (em:integer "0") (em:integer "2"))))))) .
+proof:record386 em:term (em:compound "called" ((em:compound "n3_result" ((em:integer "2") (em:variable "E4"))) (em:list ((em:compound "n3_result" ((em:integer "2") (em:integer "2"))))))) .
+proof:record387 em:term (em:compound "called" ((em:compound "rdf" ((em:list ((em:integer "1") (em:variable "F4") (em:variable "G4") (em:variable "H4"))) (em:iri rdf:type) (em:iri :RankedClaim))) (em:list ((em:compound "rdf" ((em:list ((em:integer "1") (em:iri :closed) (em:iri :transportAuthority) (em:integer "9310"))) (em:iri rdf:type) (em:iri :RankedClaim))))))) .
+proof:record388 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :policy) (em:iri :threshold) (em:variable "I4"))) (em:list ((em:compound "rdf" ((em:iri :policy) (em:iri :threshold) (em:integer "8000"))))))) .
+proof:record389 em:term (em:compound "called" ((em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000"))) (em:list ((em:compound "n3_math_notLessThan" ((em:integer "9310") (em:integer "8000"))))))) .
+proof:record390 em:term (em:compound "called" ((em:compound "n3_num" ((em:integer "8000") (em:variable "J4"))) (em:list ((em:compound "n3_num" ((em:integer "8000") (em:integer "8000"))))))) .
+proof:record391 em:term (em:compound "called" ((em:compound "n3_infinite_order" ((em:integer "9310") (em:integer "8000") (em:variable "K4"))) (em:atom "[]"))) .
+proof:record392 em:term (em:compound "called" ((em:compound "n3_extended" ((em:integer "8000") (em:list ((em:variable "L4") (em:variable "M4"))))) (em:list ((em:compound "n3_extended" ((em:integer "8000") (em:list ((em:integer "1") (em:integer "8000"))))))))) .
+proof:record393 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :closed) (em:iri :action) (em:variable "N4"))) (em:list ((em:compound "rdf" ((em:iri :closed) (em:iri :action) (em:iri :avoid_bridge))))))) .
+proof:record394 em:term (em:compound "called" ((em:compound "n3_math_lessThan" ((em:integer "9310") (em:integer "8000"))) (em:atom "[]"))) .

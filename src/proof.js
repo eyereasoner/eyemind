@@ -21,7 +21,7 @@ import { CONTROL_KEYS, Program } from './program.js';
 import { readProofTerms } from './native-proof.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
-  isCallable, isFloat, isGround, isTerm, key, keyArity, keyName, listFromItems, properListItems, unify, variables,
+  isCallable, isCollection, isFloat, isGround, isTerm, key, keyArity, keyName, listFromItems, properListItems, unify, variables,
 } from './terms.js';
 import { Lettering, letterName, quote, write, writeNotingVariables } from './writer.js';
 
@@ -336,7 +336,7 @@ function settleBoundaries(program, steps, certificate, spellings) {
 }
 
 function isBoundary({ goal, by, bindings, uses }) {
-  return ((by === 'absent' && isTerm(goal, 'not', 1)) || (by === 'collected' && isTerm(goal, 'findall', 3))) &&
+  return ((by === 'absent' && isTerm(goal, 'not', 1)) || (by === 'collected' && isCollection(goal))) &&
     !bindings.length && !uses.length;
 }
 
@@ -545,7 +545,7 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcome
       } else {
         tally.composed++;
       }
-    } else if ((by === 'absent' && isTerm(goal, 'not', 1)) || (by === 'collected' && isTerm(goal, 'findall', 3))) {
+    } else if ((by === 'absent' && isTerm(goal, 'not', 1)) || (by === 'collected' && isCollection(goal))) {
       if (bindings.length || uses.length) {
         fail.add('C3', 'trusted boundaries cannot have bindings or uses', goal);
         continue;

@@ -232,13 +232,12 @@ ${extra}
     assert.ok(!result.answers.includes("allowed('bob')"));
     assert.ok(result.answers.some((answer) => answer.startsWith("children('alice',")));
     assert.deepEqual(run(graphs, { goal: "base('bob', 'child_of', 'alice')" }).answers, []);
-    // Its search certificate settles the absence, and with it the original
-    // call of allowed/1; the collection of derived facts stays an obligation,
-    // since their order cannot be checked, and so do the call resting on it and
-    // the completeness of its question's answers.
+    // Its search certificate settles the absence and, since findall_sorted
+    // does not depend on the order of derived facts, the collection; with
+    // them every original question and the completeness of its answers.
     const report = checkProof(graphs, result.proof);
-    assert.deepEqual(report.trusted.map((item) => item.kind), ['collected', 'call_fidelity', 'call_fidelity']);
-    assert.ok(!checkProof(graphs, result.proof, { allowTrusted: false }).valid);
+    assert.deepEqual(report.trusted, []);
+    assert.ok(checkProof(graphs, result.proof, { allowTrusted: false }).valid);
   },
 
   'negative dependencies through backward definitions run after closure'() {

@@ -221,6 +221,30 @@ conformance('findall collects every solution in order', [
   ]),
 ])
 
+conformance('findall_sorted collects every solution in the standard order', [
+  spec('2.4, 4.2'),
+  args("program.js --goal 'findall_sorted(X, p(X), L)'"),
+  file('program.js', [
+    "fact(p('b'), p(2), p(f(1)), p('a'), p(float(1)), p(1), p(2))",
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    "findall_sorted(A, p(A), [1.0, 1, 2, 2, 'a', 'b', f(1)])",
+  ]),
+])
+
+conformance('findall_sorted keeps the search order of items equal up to variables', [
+  spec('4.2'),
+  args("program.js --goal 'findall_sorted(T, s(T, _), L)'"),
+  file('program.js', [
+    "fact(s(f(A), 'x'), s(f(B, 'z'), 'y'), s(f(C), 'w'))",
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    "findall_sorted(A, s(A, B), [f(C), f(D), f(E, 'z')])",
+  ]),
+])
+
 conformance('findall collects the empty list when nothing holds', [
   spec('4.2'),
   args("--goal 'findall(X, missing(X), L)'"),

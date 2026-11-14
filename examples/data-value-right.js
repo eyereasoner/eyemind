@@ -15,7 +15,7 @@
 // of value has no anchor at all), what objections each option meets, and
 // that only the autonomous right meets none and is recommended. It shows
 // facts generated from JavaScript tables by loops, not(...) to find what is
-// missing, and findall to collect provisions and objections into lists.
+// missing, and findall_sorted to collect provisions and objections into lists.
 //
 // The provisions are summarized for illustration, and the decomposition is
 // one working hypothesis among others: this models a research design, it is
@@ -92,7 +92,7 @@ implies(gap(C), fit(C, 'needs an autonomous right'))
 
 // Each component, what it means, how it fits, and the provisions it rests on.
 implies(
-  [component(C, Meaning), fit(C, How), findall(P, anchor(P, C, D, W), Provisions)],
+  [component(C, Meaning), fit(C, How), findall_sorted(P, anchor(P, C, D, W), Provisions)],
   analysis(C, Meaning, How, Provisions),
 )
 query(analysis(C, Meaning, How, Provisions))
@@ -117,8 +117,8 @@ implies([option(O, F), not(objectionable(O))], recommended(O))
 implies(
   [
     option(O, F),
-    findall(C, delivers(O, C), Delivered),
-    findall(Why, objection(O, Why), Objections),
+    findall_sorted(C, delivers(O, C), Delivered),
+    findall_sorted(Why, objection(O, Why), Objections),
   ],
   evaluation(O, Delivered, Objections),
 )

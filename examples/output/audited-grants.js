@@ -7,5 +7,5 @@ explanation(refused('bob', 'income above 2500'), [applicant('bob'), income('bob'
 explanation(grant('ann'), [applicant('ann'), income('ann', 2100)], [not(already_received('ann'))])
 explanation(grant('cara'), [applicant('cara'), income('cara', 1800)], [not(already_received('cara'))])
 explanation(grant('dan'), [applicant('dan'), income('dan', 2400)], [not(already_received('dan'))])
-explanation(top_up('ann'), [household('ann', 4), applicant('ann'), income('ann', 2100)], [not(already_received('ann'))])
-explanation(top_up('dan'), [household('dan', 3), applicant('dan'), income('dan', 2400)], [not(already_received('dan'))])
+explanation(top_up('ann'), [applicant('ann'), household('ann', 4), income('ann', 2100)], [not(already_received('ann'))])
+explanation(top_up('dan'), [applicant('dan'), household('dan', 3), income('dan', 2400)], [not(already_received('dan'))])

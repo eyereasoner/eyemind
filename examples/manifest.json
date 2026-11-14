@@ -44,10 +44,7 @@
   {
     "name": "graphs",
     "description": "Base data, negation and collection",
-    "trusted": [
-      "call_fidelity",
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "terms",
@@ -87,10 +84,7 @@
   {
     "name": "inventory",
     "description": "An invoice from collected line totals",
-    "trusted": [
-      "call_fidelity",
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "permissions",
@@ -211,18 +205,12 @@
   {
     "name": "bayes-diagnosis",
     "description": "Normalized probabilities for illustrative printer faults",
-    "trusted": [
-      "call_fidelity",
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "policy-risk",
     "description": "Ranked findings with explanations and suggested mitigations",
-    "trusted": [
-      "call_fidelity",
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "research-portal",
@@ -333,18 +321,12 @@
   {
     "name": "audited-grants",
     "description": "A grant policy whose own proof and check report are read back as facts and audited, in the same language",
-    "trusted": [
-      "call_fidelity",
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "data-value-right",
     "description": "A right to the value of personal data in the age of AI: how it fits existing EU law, and how it could become an autonomous right",
-    "trusted": [
-      "call_fidelity",
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "triple-term-n3",
@@ -380,10 +362,7 @@
       "annotated-claims-n3.n3"
     ],
     "description": "Conflicting RDF 1.2 annotated claims ranked by confidence and trust, with typed literals read as numbers",
-    "trusted": [
-      "call_fidelity",
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "directional-language-n3",
@@ -443,10 +422,7 @@
       "invoice-n3.n3"
     ],
     "description": "Notation3 collection totals invoices, including an empty invoice",
-    "trusted": [
-      "call_fidelity",
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "french-cities-n3",
@@ -474,10 +450,7 @@
   {
     "name": "knapsack-optimization",
     "description": "The 0/1 knapsack problem: the most valuable pack within a weight limit",
-    "trusted": [
-      "call_fidelity",
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "owl-property-chain",
@@ -690,10 +663,7 @@
       "invoice-totals-n3.n3"
     ],
     "description": "Collected line amounts produce invoice totals and a large-invoice classification",
-    "trusted": [
-      "call_fidelity",
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "report-n3",
@@ -743,10 +713,7 @@
       "inventory-srl.srl"
     ],
     "description": "Grouped stock records yield location counts, totals, minimums and maximums",
-    "trusted": [
-      "call_fidelity",
-      "collected"
-    ]
+    "trusted": []
   },
   {
     "name": "orders-srl",

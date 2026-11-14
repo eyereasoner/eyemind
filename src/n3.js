@@ -540,6 +540,18 @@ function compileRule(body, head, kind, needed, views = true, values = [], witnes
     return keys;
   };
   const goals = (triples, negated) => triples.flatMap((x) => goal(x, negated));
+  // A collected list used only as the subject of list:length or math:sum
+  // gives the same count and sum in any order, so it is collected sorted,
+  // which a proof can certify over derived triples (a sum of doubles may
+  // round differently in another order).
+  const orderFree = (x, list) => {
+    if (list.t !== 'var' && list.t !== 'bnode') return false;
+    const [listKey] = keysOf(list);
+    if (headKeys.has(listKey)) return false;
+    return bodyTriples.every((y) => y === x || !keysOfTriple(y).has(listKey) ||
+      ((y.p.v === `${LIST}length` || y.p.v === `${MATH}sum`) && y.s.t === list.t && keysOf(y.s).has(listKey) &&
+        !keysOf(y.o).has(listKey)));
+  };
   // A body triple with variables, none of which another body triple, or an
   // enclosing rule, can bind.
   const unconstrained = (x) => {
@@ -619,7 +631,8 @@ function compileRule(body, head, kind, needed, views = true, values = [], witnes
       try {
         if (p === `${LOG}collectAllIn`) {
           const [template, where, list] = x.s.items;
-          return [`findall(${ctx.term(template)}, ${conj(goals(where.triples, negated))}, ${ctx.term(list)})`];
+          const collect = orderFree(x, list) ? 'findall_sorted' : 'findall';
+          return [`${collect}(${ctx.term(template)}, ${conj(goals(where.triples, negated))}, ${ctx.term(list)})`];
         }
         const [where, then] = x.s.items;
         if (!negated) markAnonymous([where, then], x);

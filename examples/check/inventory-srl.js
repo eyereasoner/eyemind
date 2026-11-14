@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#locations'), 2)
 inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#total'), 200)
 inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#smallest'), 80)
@@ -22,51 +22,24 @@ inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#qu
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
 // boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 112)
-condition('C2', 'well_founded', 'ok', 154)
-condition('C3', 'justification', 'ok', 154)
-condition('C4', 'coverage', 'ok', 272)
+condition('C1', 'resolution', 'ok', 120)
+condition('C2', 'well_founded', 'ok', 162)
+condition('C3', 'justification', 'ok', 162)
+condition('C4', 'coverage', 'ok', 376)
 condition('C5', 're_decision', 'ok', 34)
 condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 174)
+condition('C7', 'relevance', 'ok', 182)
 condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 4)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('collected', 'theory_scoped', findall([iri('http://example.org/inventory#bolt')], and(rdf(A, iri('http://example.org/inventory#product'), iri('http://example.org/inventory#bolt')), rdf(A, iri('http://example.org/inventory#location'), B), rdf(A, iri('http://example.org/inventory#quantity'), C)), [[iri('http://example.org/inventory#bolt')], [iri('http://example.org/inventory#bolt')]]))
-obligation('collected', 'theory_scoped', findall([A, B], and(rdf(C, iri('http://example.org/inventory#product'), iri('http://example.org/inventory#bolt')), rdf(C, iri('http://example.org/inventory#location'), A), rdf(C, iri('http://example.org/inventory#quantity'), B)), [[iri('http://example.org/inventory#ghent'), 120], [iri('http://example.org/inventory#lyon'), 80]]))
-obligation('collected', 'theory_scoped', findall([iri('http://example.org/inventory#nut')], and(rdf(A, iri('http://example.org/inventory#product'), iri('http://example.org/inventory#nut')), rdf(A, iri('http://example.org/inventory#location'), B), rdf(A, iri('http://example.org/inventory#quantity'), C)), [[iri('http://example.org/inventory#nut')]]))
-obligation('collected', 'theory_scoped', findall([A, B], and(rdf(C, iri('http://example.org/inventory#product'), iri('http://example.org/inventory#nut')), rdf(C, iri('http://example.org/inventory#location'), A), rdf(C, iri('http://example.org/inventory#quantity'), B)), [[iri('http://example.org/inventory#ghent'), 500]]))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#locations'), 2))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#total'), 200))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#smallest'), 80))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#largest'), 120))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#nut'), iri('http://example.org/inventory#locations'), 1))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#nut'), iri('http://example.org/inventory#total'), 500))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#nut'), iri('http://example.org/inventory#smallest'), 500))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#nut'), iri('http://example.org/inventory#largest'), 500))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#bolt'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/inventory#Product')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#nut'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/inventory#Product')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#gear'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/inventory#Product')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s1'), iri('http://example.org/inventory#product'), iri('http://example.org/inventory#bolt')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s1'), iri('http://example.org/inventory#location'), iri('http://example.org/inventory#ghent')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s1'), iri('http://example.org/inventory#quantity'), 120))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s2'), iri('http://example.org/inventory#product'), iri('http://example.org/inventory#bolt')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s2'), iri('http://example.org/inventory#location'), iri('http://example.org/inventory#lyon')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s2'), iri('http://example.org/inventory#quantity'), 80))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#product'), iri('http://example.org/inventory#nut')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#location'), iri('http://example.org/inventory#ghent')))
-obligation('call_fidelity', 'original_call', inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#quantity'), 500))
-obligation('call_fidelity', 'all_answers', inf(A, B, C))
+condition('C9', 'search_closure', 'ok', 8)
+condition('C10', 'call_fidelity', 'ok', 21)
 
 // Proof statistics: recorded steps and how they were checked.
-steps(154)
-verified(112)
+steps(162)
+verified(120)
 recomputed(23)
 composed(11)
-trusted(25)
+trusted(0)
 claims(20)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
