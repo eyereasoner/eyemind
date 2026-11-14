@@ -88,11 +88,11 @@ Bob says is true.
 
 ## What the proof establishes
 
-The report ends with `verdict('checked_with_obligations')`. C1 checks each
-step against the compiled rules, including the unquoting rule and the
-matching of graph terms. The remaining obligations are `call_fidelity`: the
-graph matching and unquoting helpers answer through backward search without
-call tables for C10, and the manifest lists that obligation as trusted.
+The report ends with `verdict('checked')`. C1 checks each step against the
+compiled rules, including the unquoting rule and the matching of graph
+terms. C10 replays the firings that use the graph matching and unquoting
+helpers in source order, so the claims are every answer, with no
+obligations left.
 
 ---
 

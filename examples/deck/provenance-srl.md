@@ -93,7 +93,7 @@ inf(iri('http://example.org/links#l3'), iri('http://example.org/links#source'), 
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked_with_obligations')`. The report lists `call_fidelity` obligations. Strict checking rejects these remaining obligations.
+The saved report ends with `verdict('checked')`. C10 certifies the original questions, so the claims are every answer, and strict checking accepts the proof.
 C1 checks each inference against the compiled source clauses, C5 re-decides
 primitive computations, C8 checks any fresh witness, and C10 checks the
 original questions against the proof's call tables. The checker follows the

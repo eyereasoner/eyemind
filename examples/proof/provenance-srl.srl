@@ -297,7 +297,151 @@ proof:record132 pe:conclusion <<( :l3 :source :survey )>> .
 proof:record132 pe:rule 30 .
 proof:record132 pe:binding () .
 proof:record132 pe:uses () .
-<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41 proof:record42 proof:record43 proof:record44 proof:record45 proof:record46 proof:record47 proof:record48 proof:record49 proof:record50 proof:record51 proof:record52 proof:record53 proof:record54 proof:record55 proof:record56 proof:record57 proof:record58 proof:record59 proof:record60 proof:record61 proof:record62 proof:record63 proof:record64 proof:record65 proof:record66 proof:record67 proof:record68 proof:record69 proof:record70 proof:record71 proof:record72 proof:record73 proof:record74 proof:record75 proof:record76 proof:record77 proof:record78 proof:record79 proof:record80 proof:record81 proof:record82 proof:record83 proof:record84 proof:record85 proof:record86 proof:record87 proof:record88 proof:record89 proof:record90 proof:record91 proof:record92 proof:record93 proof:record94 proof:record95 proof:record96 proof:record97 proof:record98 proof:record99 proof:record100 proof:record101 proof:record102 proof:record103 proof:record104 proof:record105 proof:record106 proof:record107 proof:record108 proof:record109 proof:record110 proof:record111 proof:record112 proof:record113 proof:record114 proof:record115 proof:record116 proof:record117 proof:record118 proof:record119 proof:record120 proof:record121 proof:record122 proof:record123 proof:record124 proof:record125 proof:record126 proof:record127 proof:record128 proof:record129 proof:record130 proof:record131 proof:record132) .
+proof:record133 pe:conclusion <<( :a :connected :d )>> .
+proof:record133 pe:rule 32 .
+proof:record133 pe:binding (("X" :a) ("Y" :b) ("Z" :d)) .
+proof:record133 pe:uses (<<( :a :connected :b )>> <<( :b :connected :d )>>) .
+proof:record134 pe:conclusion <<( :survey :reported <<( :a :link :b )>> )>> .
+proof:record134 pe:rule 33 .
+proof:record134 pe:binding (("R" :l1) ("X" :a) ("Y" :b) ("S" :survey)) .
+proof:record134 pe:uses (<<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 :source :survey )>>) .
+proof:record135 pe:conclusion <<( :rumour :reported <<( :b :link :c )>> )>> .
+proof:record135 pe:rule 33 .
+proof:record135 pe:binding (("R" :l2) ("X" :b) ("Y" :c) ("S" :rumour)) .
+proof:record135 pe:uses (<<( :l2 rdf:reifies <<( :b :link :c )>> )>> <<( :l2 :source :rumour )>>) .
+proof:record136 pe:conclusion <<( :survey :reported <<( :b :link :d )>> )>> .
+proof:record136 pe:rule 33 .
+proof:record136 pe:binding (("R" :l3) ("X" :b) ("Y" :d) ("S" :survey)) .
+proof:record136 pe:uses (<<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 :source :survey )>>) .
+proof:record137 pe:derived (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record137 pe:answers (<<( :a :connected :b )>> <<( :b :connected :d )>> <<( :a :connected :d )>> <<( :survey :reported <<( :a :link :b )>> )>> <<( :rumour :reported <<( :b :link :c )>> )>> <<( :survey :reported <<( :b :link :d )>> )>>) .
+proof:record138 pe:derived (em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record138 pe:answers (<<( :a :connected :b )>> <<( :b :connected :d )>> <<( :a :connected :d )>> <<( :survey :reported <<( :a :link :b )>> )>> <<( :rumour :reported <<( :b :link :c )>> )>> <<( :survey :reported <<( :b :link :d )>> )>>) .
+proof:record139 pe:called (em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) .
+proof:record139 pe:answers (<<( :a :connected :b )>> <<( :b :connected :d )>> <<( :a :connected :d )>> <<( :survey :reported <<( :a :link :b )>> )>> <<( :rumour :reported <<( :b :link :c )>> )>> <<( :survey :reported <<( :b :link :d )>> )>> <<( :a :link :b )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 :weight 9 )>> <<( :l1 :source :survey )>> <<( :b :link :c )>> <<( :l2 rdf:reifies <<( :b :link :c )>> )>> <<( :l2 rdf:reifies <<( :b :link :c )>> )>> <<( :l2 :weight 2 )>> <<( :l2 :source :rumour )>> <<( :b :link :d )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 :weight 7 )>> <<( :l3 :source :survey )>>) .
+proof:record140 pe:called (em:compound "rdf" ((em:variable "D") (em:iri :link) (em:variable "E"))) .
+proof:record140 pe:answers (<<( :a :link :b )>> <<( :b :link :c )>> <<( :b :link :d )>>) .
+proof:record141 pe:called (em:compound "rdf" ((em:variable "F") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) .
+proof:record141 pe:answers (<<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>>) .
+proof:record142 pe:called <<( :l1 rdf:reifies <<( :a :link :b )>> )>> .
+proof:record142 pe:answers (<<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>>) .
+proof:record143 pe:called (em:compound "rdf" ((em:iri :l1) (em:iri :weight) (em:variable "G"))) .
+proof:record143 pe:answers (<<( :l1 :weight 9 )>>) .
+proof:record144 pe:called (em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:variable "H"))) .
+proof:record144 pe:answers ((em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record145 pe:called (em:compound "srl_order" ((em:integer "9") (em:integer "5") (em:variable "I"))) .
+proof:record145 pe:answers ((em:compound "srl_order" ((em:integer "9") (em:integer "5") (em:atom ">")))) .
+proof:record146 pe:called (em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:variable "J"))) .
+proof:record146 pe:answers ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">")))) .
+proof:record147 pe:called (em:compound "srl_pair" ((em:integer "9") (em:integer "5") (em:variable "_10") (em:variable "L") (em:variable "M"))) .
+proof:record147 pe:answers ((em:compound "srl_pair" ((em:integer "9") (em:integer "5") (em:atom "integer") (em:integer "9") (em:integer "5")))) .
+proof:record148 pe:called (em:compound "srl_num" ((em:integer "9") (em:variable "N") (em:variable "O"))) .
+proof:record148 pe:answers ((em:compound "srl_num" ((em:integer "9") (em:atom "integer") (em:integer "9")))) .
+proof:record149 pe:called (em:compound "srl_num" ((em:integer "5") (em:variable "P") (em:variable "Q"))) .
+proof:record149 pe:answers ((em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5")))) .
+proof:record150 pe:called (em:compound "srl_promote" ((em:atom "integer") (em:atom "integer") (em:variable "R"))) .
+proof:record150 pe:answers ((em:compound "srl_promote" ((em:atom "integer") (em:atom "integer") (em:atom "integer")))) .
+proof:record151 pe:called (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "9") (em:variable "S"))) .
+proof:record151 pe:answers ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "9") (em:integer "9")))) .
+proof:record152 pe:called (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "5") (em:variable "T"))) .
+proof:record152 pe:answers ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "5") (em:integer "5")))) .
+proof:record153 pe:called (em:compound "srl_value_compare" ((em:integer "9") (em:integer "5") (em:variable "U"))) .
+proof:record153 pe:answers ((em:compound "srl_value_compare" ((em:integer "9") (em:integer "5") (em:atom ">")))) .
+proof:record154 pe:called (em:compound "srl_compare" ((em:integer "9") (em:integer "5") (em:variable "V"))) .
+proof:record154 pe:answers ((em:compound "srl_compare" ((em:integer "9") (em:integer "5") (em:atom ">")))) .
+proof:record155 pe:called (em:compound "srl_float_operand" ((em:integer "9"))) .
+proof:record155 pe:answers ((em:compound "srl_float_operand" ((em:integer "9")))) .
+proof:record156 pe:called (em:compound "srl_float_operand" ((em:integer "5"))) .
+proof:record156 pe:answers ((em:compound "srl_float_operand" ((em:integer "5")))) .
+proof:record157 pe:called (em:compound "srl_boolean" ((em:integer "9") (em:variable "W"))) .
+proof:record157 pe:answers () .
+proof:record158 pe:called (em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
+proof:record158 pe:answers ((em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record159 pe:called (em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) .
+proof:record159 pe:answers ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))) .
+proof:record160 pe:called (em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) .
+proof:record160 pe:answers ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true")))) .
+proof:record161 pe:called (em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))) .
+proof:record161 pe:answers ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true")))) .
+proof:record162 pe:called (em:compound "srl_num" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:variable "_23") (em:variable "Y"))) .
+proof:record162 pe:answers () .
+proof:record163 pe:called (em:compound "rdf" ((em:variable "F") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) .
+proof:record163 pe:answers (<<( :l2 rdf:reifies <<( :b :link :c )>> )>> <<( :l2 rdf:reifies <<( :b :link :c )>> )>>) .
+proof:record164 pe:called <<( :l2 rdf:reifies <<( :b :link :c )>> )>> .
+proof:record164 pe:answers (<<( :l2 rdf:reifies <<( :b :link :c )>> )>> <<( :l2 rdf:reifies <<( :b :link :c )>> )>>) .
+proof:record165 pe:called (em:compound "rdf" ((em:iri :l2) (em:iri :weight) (em:variable "G"))) .
+proof:record165 pe:answers (<<( :l2 :weight 2 )>>) .
+proof:record166 pe:called (em:compound "srl_gt" ((em:integer "2") (em:integer "5") (em:variable "H"))) .
+proof:record166 pe:answers ((em:compound "srl_gt" ((em:integer "2") (em:integer "5") (em:compound "literal" ((em:atom "false") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record167 pe:called (em:compound "srl_order" ((em:integer "2") (em:integer "5") (em:variable "Z"))) .
+proof:record167 pe:answers ((em:compound "srl_order" ((em:integer "2") (em:integer "5") (em:atom "<")))) .
+proof:record168 pe:called (em:compound "srl_order_" ((em:integer "2") (em:integer "5") (em:variable "A1"))) .
+proof:record168 pe:answers ((em:compound "srl_order_" ((em:integer "2") (em:integer "5") (em:atom "<")))) .
+proof:record169 pe:called (em:compound "srl_pair" ((em:integer "2") (em:integer "5") (em:variable "_27") (em:variable "C1") (em:variable "D1"))) .
+proof:record169 pe:answers ((em:compound "srl_pair" ((em:integer "2") (em:integer "5") (em:atom "integer") (em:integer "2") (em:integer "5")))) .
+proof:record170 pe:called (em:compound "srl_num" ((em:integer "2") (em:variable "E1") (em:variable "F1"))) .
+proof:record170 pe:answers ((em:compound "srl_num" ((em:integer "2") (em:atom "integer") (em:integer "2")))) .
+proof:record171 pe:called (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "2") (em:variable "G1"))) .
+proof:record171 pe:answers ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "2") (em:integer "2")))) .
+proof:record172 pe:called (em:compound "srl_value_compare" ((em:integer "2") (em:integer "5") (em:variable "H1"))) .
+proof:record172 pe:answers ((em:compound "srl_value_compare" ((em:integer "2") (em:integer "5") (em:atom "<")))) .
+proof:record173 pe:called (em:compound "srl_compare" ((em:integer "2") (em:integer "5") (em:variable "I1"))) .
+proof:record173 pe:answers ((em:compound "srl_compare" ((em:integer "2") (em:integer "5") (em:atom "<")))) .
+proof:record174 pe:called (em:compound "srl_float_operand" ((em:integer "2"))) .
+proof:record174 pe:answers ((em:compound "srl_float_operand" ((em:integer "2")))) .
+proof:record175 pe:called (em:compound "srl_boolean" ((em:integer "2") (em:variable "J1"))) .
+proof:record175 pe:answers () .
+proof:record176 pe:called (em:compound "srl_true" ((em:compound "literal" ((em:atom "false") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) .
+proof:record176 pe:answers () .
+proof:record177 pe:called (em:compound "srl_ebv" ((em:compound "literal" ((em:atom "false") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) .
+proof:record177 pe:answers () .
+proof:record178 pe:called (em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "false") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) .
+proof:record178 pe:answers () .
+proof:record179 pe:called (em:compound "srl_boolean_text" ((em:atom "false") (em:atom "true"))) .
+proof:record179 pe:answers () .
+proof:record180 pe:called (em:compound "srl_num" ((em:compound "literal" ((em:atom "false") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:variable "_36") (em:variable "L1"))) .
+proof:record180 pe:answers () .
+proof:record181 pe:called (em:compound "rdf" ((em:variable "F") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) .
+proof:record181 pe:answers (<<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>>) .
+proof:record182 pe:called <<( :l3 rdf:reifies <<( :b :link :d )>> )>> .
+proof:record182 pe:answers (<<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>>) .
+proof:record183 pe:called (em:compound "rdf" ((em:iri :l3) (em:iri :weight) (em:variable "G"))) .
+proof:record183 pe:answers (<<( :l3 :weight 7 )>>) .
+proof:record184 pe:called (em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:variable "H"))) .
+proof:record184 pe:answers ((em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean")))))))) .
+proof:record185 pe:called (em:compound "srl_order" ((em:integer "7") (em:integer "5") (em:variable "M1"))) .
+proof:record185 pe:answers ((em:compound "srl_order" ((em:integer "7") (em:integer "5") (em:atom ">")))) .
+proof:record186 pe:called (em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:variable "N1"))) .
+proof:record186 pe:answers ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">")))) .
+proof:record187 pe:called (em:compound "srl_pair" ((em:integer "7") (em:integer "5") (em:variable "_40") (em:variable "P1") (em:variable "Q1"))) .
+proof:record187 pe:answers ((em:compound "srl_pair" ((em:integer "7") (em:integer "5") (em:atom "integer") (em:integer "7") (em:integer "5")))) .
+proof:record188 pe:called (em:compound "srl_num" ((em:integer "7") (em:variable "R1") (em:variable "S1"))) .
+proof:record188 pe:answers ((em:compound "srl_num" ((em:integer "7") (em:atom "integer") (em:integer "7")))) .
+proof:record189 pe:called (em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "7") (em:variable "T1"))) .
+proof:record189 pe:answers ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "7") (em:integer "7")))) .
+proof:record190 pe:called (em:compound "srl_value_compare" ((em:integer "7") (em:integer "5") (em:variable "U1"))) .
+proof:record190 pe:answers ((em:compound "srl_value_compare" ((em:integer "7") (em:integer "5") (em:atom ">")))) .
+proof:record191 pe:called (em:compound "srl_compare" ((em:integer "7") (em:integer "5") (em:variable "V1"))) .
+proof:record191 pe:answers ((em:compound "srl_compare" ((em:integer "7") (em:integer "5") (em:atom ">")))) .
+proof:record192 pe:called (em:compound "srl_float_operand" ((em:integer "7"))) .
+proof:record192 pe:answers ((em:compound "srl_float_operand" ((em:integer "7")))) .
+proof:record193 pe:called (em:compound "srl_boolean" ((em:integer "7") (em:variable "W1"))) .
+proof:record193 pe:answers () .
+proof:record194 pe:called (em:compound "rdf" ((em:variable "X1") (em:iri :connected) (em:variable "Y1"))) .
+proof:record194 pe:answers (<<( :a :connected :b )>> <<( :b :connected :d )>> <<( :a :connected :d )>>) .
+proof:record195 pe:called (em:compound "rdf" ((em:iri :b) (em:iri :connected) (em:variable "Z1"))) .
+proof:record195 pe:answers (<<( :b :connected :d )>>) .
+proof:record196 pe:called (em:compound "rdf" ((em:iri :d) (em:iri :connected) (em:variable "Z1"))) .
+proof:record196 pe:answers () .
+proof:record197 pe:called (em:compound "rdf" ((em:variable "A2") (em:iri rdf:reifies) (em:compound "triple" ((em:variable "B2") (em:iri :link) (em:variable "C2"))))) .
+proof:record197 pe:answers (<<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l1 rdf:reifies <<( :a :link :b )>> )>> <<( :l2 rdf:reifies <<( :b :link :c )>> )>> <<( :l2 rdf:reifies <<( :b :link :c )>> )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>> <<( :l3 rdf:reifies <<( :b :link :d )>> )>>) .
+proof:record198 pe:called (em:compound "rdf" ((em:iri :l1) (em:iri :source) (em:variable "D2"))) .
+proof:record198 pe:answers (<<( :l1 :source :survey )>>) .
+proof:record199 pe:called (em:compound "rdf" ((em:iri :l2) (em:iri :source) (em:variable "D2"))) .
+proof:record199 pe:answers (<<( :l2 :source :rumour )>>) .
+proof:record200 pe:called (em:compound "rdf" ((em:iri :l3) (em:iri :source) (em:variable "D2"))) .
+proof:record200 pe:answers (<<( :l3 :source :survey )>>) .
+<urn:eyemind:proof> em:records (proof:record1 proof:record2 proof:record3 proof:record4 proof:record5 proof:record6 proof:record7 proof:record8 proof:record9 proof:record10 proof:record11 proof:record12 proof:record13 proof:record14 proof:record15 proof:record16 proof:record17 proof:record18 proof:record19 proof:record20 proof:record21 proof:record22 proof:record23 proof:record24 proof:record25 proof:record26 proof:record27 proof:record28 proof:record29 proof:record30 proof:record31 proof:record32 proof:record33 proof:record34 proof:record35 proof:record36 proof:record37 proof:record38 proof:record39 proof:record40 proof:record41 proof:record42 proof:record43 proof:record44 proof:record45 proof:record46 proof:record47 proof:record48 proof:record49 proof:record50 proof:record51 proof:record52 proof:record53 proof:record54 proof:record55 proof:record56 proof:record57 proof:record58 proof:record59 proof:record60 proof:record61 proof:record62 proof:record63 proof:record64 proof:record65 proof:record66 proof:record67 proof:record68 proof:record69 proof:record70 proof:record71 proof:record72 proof:record73 proof:record74 proof:record75 proof:record76 proof:record77 proof:record78 proof:record79 proof:record80 proof:record81 proof:record82 proof:record83 proof:record84 proof:record85 proof:record86 proof:record87 proof:record88 proof:record89 proof:record90 proof:record91 proof:record92 proof:record93 proof:record94 proof:record95 proof:record96 proof:record97 proof:record98 proof:record99 proof:record100 proof:record101 proof:record102 proof:record103 proof:record104 proof:record105 proof:record106 proof:record107 proof:record108 proof:record109 proof:record110 proof:record111 proof:record112 proof:record113 proof:record114 proof:record115 proof:record116 proof:record117 proof:record118 proof:record119 proof:record120 proof:record121 proof:record122 proof:record123 proof:record124 proof:record125 proof:record126 proof:record127 proof:record128 proof:record129 proof:record130 proof:record131 proof:record132 proof:record133 proof:record134 proof:record135 proof:record136 proof:record137 proof:record138 proof:record139 proof:record140 proof:record141 proof:record142 proof:record143 proof:record144 proof:record145 proof:record146 proof:record147 proof:record148 proof:record149 proof:record150 proof:record151 proof:record152 proof:record153 proof:record154 proof:record155 proof:record156 proof:record157 proof:record158 proof:record159 proof:record160 proof:record161 proof:record162 proof:record163 proof:record164 proof:record165 proof:record166 proof:record167 proof:record168 proof:record169 proof:record170 proof:record171 proof:record172 proof:record173 proof:record174 proof:record175 proof:record176 proof:record177 proof:record178 proof:record179 proof:record180 proof:record181 proof:record182 proof:record183 proof:record184 proof:record185 proof:record186 proof:record187 proof:record188 proof:record189 proof:record190 proof:record191 proof:record192 proof:record193 proof:record194 proof:record195 proof:record196 proof:record197 proof:record198 proof:record199 proof:record200) .
 proof:record1 em:term (em:compound "inf" ((em:iri :a) (em:iri :connected) (em:iri :b))) .
 proof:record2 em:term (em:compound "inf" ((em:iri :b) (em:iri :connected) (em:iri :d))) .
 proof:record3 em:term (em:compound "inf" ((em:iri :a) (em:iri :connected) (em:iri :d))) .
@@ -430,4 +574,72 @@ proof:record129 em:term (em:compound "step" ((em:compound "inf" ((em:iri :b) (em
 proof:record130 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "clause" ((em:integer "24"))) (em:atom "[]") (em:atom "[]"))) .
 proof:record131 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l3) (em:iri :weight) (em:integer "7"))) (em:compound "clause" ((em:integer "28"))) (em:atom "[]") (em:atom "[]"))) .
 proof:record132 em:term (em:compound "step" ((em:compound "inf" ((em:iri :l3) (em:iri :source) (em:iri :survey))) (em:compound "clause" ((em:integer "30"))) (em:atom "[]") (em:atom "[]"))) .
+proof:record133 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :a) (em:iri :connected) (em:iri :d))) (em:compound "clause" ((em:integer "32"))) (em:list ((em:compound "=" ((em:atom "X") (em:iri :a))) (em:compound "=" ((em:atom "Y") (em:iri :b))) (em:compound "=" ((em:atom "Z") (em:iri :d))))) (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :connected) (em:iri :b))) (em:compound "rdf" ((em:iri :b) (em:iri :connected) (em:iri :d))))))) .
+proof:record134 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :survey) (em:iri :reported) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "R") (em:iri :l1))) (em:compound "=" ((em:atom "X") (em:iri :a))) (em:compound "=" ((em:atom "Y") (em:iri :b))) (em:compound "=" ((em:atom "S") (em:iri :survey))))) (em:list ((em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri :source) (em:iri :survey))))))) .
+proof:record135 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :rumour) (em:iri :reported) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "R") (em:iri :l2))) (em:compound "=" ((em:atom "X") (em:iri :b))) (em:compound "=" ((em:atom "Y") (em:iri :c))) (em:compound "=" ((em:atom "S") (em:iri :rumour))))) (em:list ((em:compound "rdf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "rdf" ((em:iri :l2) (em:iri :source) (em:iri :rumour))))))) .
+proof:record136 em:term (em:compound "step" ((em:compound "rdf" ((em:iri :survey) (em:iri :reported) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "clause" ((em:integer "33"))) (em:list ((em:compound "=" ((em:atom "R") (em:iri :l3))) (em:compound "=" ((em:atom "X") (em:iri :b))) (em:compound "=" ((em:atom "Y") (em:iri :d))) (em:compound "=" ((em:atom "S") (em:iri :survey))))) (em:list ((em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri :source) (em:iri :survey))))))) .
+proof:record137 em:term (em:compound "derived" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :a) (em:iri :connected) (em:iri :b))) (em:compound "inf" ((em:iri :b) (em:iri :connected) (em:iri :d))) (em:compound "inf" ((em:iri :a) (em:iri :connected) (em:iri :d))) (em:compound "inf" ((em:iri :survey) (em:iri :reported) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "inf" ((em:iri :rumour) (em:iri :reported) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "inf" ((em:iri :survey) (em:iri :reported) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))))))) .
+proof:record138 em:term (em:compound "derived" ((em:compound "rdf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :connected) (em:iri :b))) (em:compound "rdf" ((em:iri :b) (em:iri :connected) (em:iri :d))) (em:compound "rdf" ((em:iri :a) (em:iri :connected) (em:iri :d))) (em:compound "rdf" ((em:iri :survey) (em:iri :reported) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :rumour) (em:iri :reported) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "rdf" ((em:iri :survey) (em:iri :reported) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))))))) .
+proof:record139 em:term (em:compound "called" ((em:compound "inf" ((em:variable "A") (em:variable "B") (em:variable "C"))) (em:list ((em:compound "inf" ((em:iri :a) (em:iri :connected) (em:iri :b))) (em:compound "inf" ((em:iri :b) (em:iri :connected) (em:iri :d))) (em:compound "inf" ((em:iri :a) (em:iri :connected) (em:iri :d))) (em:compound "inf" ((em:iri :survey) (em:iri :reported) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "inf" ((em:iri :rumour) (em:iri :reported) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "inf" ((em:iri :survey) (em:iri :reported) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "inf" ((em:iri :a) (em:iri :link) (em:iri :b))) (em:compound "inf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "inf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "inf" ((em:iri :l1) (em:iri :weight) (em:integer "9"))) (em:compound "inf" ((em:iri :l1) (em:iri :source) (em:iri :survey))) (em:compound "inf" ((em:iri :b) (em:iri :link) (em:iri :c))) (em:compound "inf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "inf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "inf" ((em:iri :l2) (em:iri :weight) (em:integer "2"))) (em:compound "inf" ((em:iri :l2) (em:iri :source) (em:iri :rumour))) (em:compound "inf" ((em:iri :b) (em:iri :link) (em:iri :d))) (em:compound "inf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "inf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "inf" ((em:iri :l3) (em:iri :weight) (em:integer "7"))) (em:compound "inf" ((em:iri :l3) (em:iri :source) (em:iri :survey))))))) .
+proof:record140 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "D") (em:iri :link) (em:variable "E"))) (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :link) (em:iri :b))) (em:compound "rdf" ((em:iri :b) (em:iri :link) (em:iri :c))) (em:compound "rdf" ((em:iri :b) (em:iri :link) (em:iri :d))))))) .
+proof:record141 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "F") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))))))) .
+proof:record142 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:list ((em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))))))) .
+proof:record143 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :l1) (em:iri :weight) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:iri :l1) (em:iri :weight) (em:integer "9"))))))) .
+proof:record144 em:term (em:compound "called" ((em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:variable "H"))) (em:list ((em:compound "srl_gt" ((em:integer "9") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record145 em:term (em:compound "called" ((em:compound "srl_order" ((em:integer "9") (em:integer "5") (em:variable "I"))) (em:list ((em:compound "srl_order" ((em:integer "9") (em:integer "5") (em:atom ">"))))))) .
+proof:record146 em:term (em:compound "called" ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:variable "J"))) (em:list ((em:compound "srl_order_" ((em:integer "9") (em:integer "5") (em:atom ">"))))))) .
+proof:record147 em:term (em:compound "called" ((em:compound "srl_pair" ((em:integer "9") (em:integer "5") (em:variable "_10") (em:variable "L") (em:variable "M"))) (em:list ((em:compound "srl_pair" ((em:integer "9") (em:integer "5") (em:atom "integer") (em:integer "9") (em:integer "5"))))))) .
+proof:record148 em:term (em:compound "called" ((em:compound "srl_num" ((em:integer "9") (em:variable "N") (em:variable "O"))) (em:list ((em:compound "srl_num" ((em:integer "9") (em:atom "integer") (em:integer "9"))))))) .
+proof:record149 em:term (em:compound "called" ((em:compound "srl_num" ((em:integer "5") (em:variable "P") (em:variable "Q"))) (em:list ((em:compound "srl_num" ((em:integer "5") (em:atom "integer") (em:integer "5"))))))) .
+proof:record150 em:term (em:compound "called" ((em:compound "srl_promote" ((em:atom "integer") (em:atom "integer") (em:variable "R"))) (em:list ((em:compound "srl_promote" ((em:atom "integer") (em:atom "integer") (em:atom "integer"))))))) .
+proof:record151 em:term (em:compound "called" ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "9") (em:variable "S"))) (em:list ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "9") (em:integer "9"))))))) .
+proof:record152 em:term (em:compound "called" ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "5") (em:variable "T"))) (em:list ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "5") (em:integer "5"))))))) .
+proof:record153 em:term (em:compound "called" ((em:compound "srl_value_compare" ((em:integer "9") (em:integer "5") (em:variable "U"))) (em:list ((em:compound "srl_value_compare" ((em:integer "9") (em:integer "5") (em:atom ">"))))))) .
+proof:record154 em:term (em:compound "called" ((em:compound "srl_compare" ((em:integer "9") (em:integer "5") (em:variable "V"))) (em:list ((em:compound "srl_compare" ((em:integer "9") (em:integer "5") (em:atom ">"))))))) .
+proof:record155 em:term (em:compound "called" ((em:compound "srl_float_operand" ((em:integer "9"))) (em:list ((em:compound "srl_float_operand" ((em:integer "9"))))))) .
+proof:record156 em:term (em:compound "called" ((em:compound "srl_float_operand" ((em:integer "5"))) (em:list ((em:compound "srl_float_operand" ((em:integer "5"))))))) .
+proof:record157 em:term (em:compound "called" ((em:compound "srl_boolean" ((em:integer "9") (em:variable "W"))) (em:atom "[]"))) .
+proof:record158 em:term (em:compound "called" ((em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:list ((em:compound "srl_true" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record159 em:term (em:compound "called" ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) (em:list ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))) .
+proof:record160 em:term (em:compound "called" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) (em:list ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))))))) .
+proof:record161 em:term (em:compound "called" ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))) (em:list ((em:compound "srl_boolean_text" ((em:atom "true") (em:atom "true"))))))) .
+proof:record162 em:term (em:compound "called" ((em:compound "srl_num" ((em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:variable "_23") (em:variable "Y"))) (em:atom "[]"))) .
+proof:record163 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "F") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "rdf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))))))) .
+proof:record164 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:list ((em:compound "rdf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "rdf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))))))) .
+proof:record165 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :l2) (em:iri :weight) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:iri :l2) (em:iri :weight) (em:integer "2"))))))) .
+proof:record166 em:term (em:compound "called" ((em:compound "srl_gt" ((em:integer "2") (em:integer "5") (em:variable "H"))) (em:list ((em:compound "srl_gt" ((em:integer "2") (em:integer "5") (em:compound "literal" ((em:atom "false") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record167 em:term (em:compound "called" ((em:compound "srl_order" ((em:integer "2") (em:integer "5") (em:variable "Z"))) (em:list ((em:compound "srl_order" ((em:integer "2") (em:integer "5") (em:atom "<"))))))) .
+proof:record168 em:term (em:compound "called" ((em:compound "srl_order_" ((em:integer "2") (em:integer "5") (em:variable "A1"))) (em:list ((em:compound "srl_order_" ((em:integer "2") (em:integer "5") (em:atom "<"))))))) .
+proof:record169 em:term (em:compound "called" ((em:compound "srl_pair" ((em:integer "2") (em:integer "5") (em:variable "_27") (em:variable "C1") (em:variable "D1"))) (em:list ((em:compound "srl_pair" ((em:integer "2") (em:integer "5") (em:atom "integer") (em:integer "2") (em:integer "5"))))))) .
+proof:record170 em:term (em:compound "called" ((em:compound "srl_num" ((em:integer "2") (em:variable "E1") (em:variable "F1"))) (em:list ((em:compound "srl_num" ((em:integer "2") (em:atom "integer") (em:integer "2"))))))) .
+proof:record171 em:term (em:compound "called" ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "2") (em:variable "G1"))) (em:list ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "2") (em:integer "2"))))))) .
+proof:record172 em:term (em:compound "called" ((em:compound "srl_value_compare" ((em:integer "2") (em:integer "5") (em:variable "H1"))) (em:list ((em:compound "srl_value_compare" ((em:integer "2") (em:integer "5") (em:atom "<"))))))) .
+proof:record173 em:term (em:compound "called" ((em:compound "srl_compare" ((em:integer "2") (em:integer "5") (em:variable "I1"))) (em:list ((em:compound "srl_compare" ((em:integer "2") (em:integer "5") (em:atom "<"))))))) .
+proof:record174 em:term (em:compound "called" ((em:compound "srl_float_operand" ((em:integer "2"))) (em:list ((em:compound "srl_float_operand" ((em:integer "2"))))))) .
+proof:record175 em:term (em:compound "called" ((em:compound "srl_boolean" ((em:integer "2") (em:variable "J1"))) (em:atom "[]"))) .
+proof:record176 em:term (em:compound "called" ((em:compound "srl_true" ((em:compound "literal" ((em:atom "false") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))) (em:atom "[]"))) .
+proof:record177 em:term (em:compound "called" ((em:compound "srl_ebv" ((em:compound "literal" ((em:atom "false") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) (em:atom "[]"))) .
+proof:record178 em:term (em:compound "called" ((em:compound "srl_ebv_" ((em:compound "literal" ((em:atom "false") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:atom "true"))) (em:atom "[]"))) .
+proof:record179 em:term (em:compound "called" ((em:compound "srl_boolean_text" ((em:atom "false") (em:atom "true"))) (em:atom "[]"))) .
+proof:record180 em:term (em:compound "called" ((em:compound "srl_num" ((em:compound "literal" ((em:atom "false") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))) (em:variable "_36") (em:variable "L1"))) (em:atom "[]"))) .
+proof:record181 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "F") (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:list ((em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))))))) .
+proof:record182 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:list ((em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))))))) .
+proof:record183 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :l3) (em:iri :weight) (em:variable "G"))) (em:list ((em:compound "rdf" ((em:iri :l3) (em:iri :weight) (em:integer "7"))))))) .
+proof:record184 em:term (em:compound "called" ((em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:variable "H"))) (em:list ((em:compound "srl_gt" ((em:integer "7") (em:integer "5") (em:compound "literal" ((em:atom "true") (em:compound "datatype" ((em:atom "http://www.w3.org/2001/XMLSchema#boolean"))))))))))) .
+proof:record185 em:term (em:compound "called" ((em:compound "srl_order" ((em:integer "7") (em:integer "5") (em:variable "M1"))) (em:list ((em:compound "srl_order" ((em:integer "7") (em:integer "5") (em:atom ">"))))))) .
+proof:record186 em:term (em:compound "called" ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:variable "N1"))) (em:list ((em:compound "srl_order_" ((em:integer "7") (em:integer "5") (em:atom ">"))))))) .
+proof:record187 em:term (em:compound "called" ((em:compound "srl_pair" ((em:integer "7") (em:integer "5") (em:variable "_40") (em:variable "P1") (em:variable "Q1"))) (em:list ((em:compound "srl_pair" ((em:integer "7") (em:integer "5") (em:atom "integer") (em:integer "7") (em:integer "5"))))))) .
+proof:record188 em:term (em:compound "called" ((em:compound "srl_num" ((em:integer "7") (em:variable "R1") (em:variable "S1"))) (em:list ((em:compound "srl_num" ((em:integer "7") (em:atom "integer") (em:integer "7"))))))) .
+proof:record189 em:term (em:compound "called" ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "7") (em:variable "T1"))) (em:list ((em:compound "srl_numeric_value" ((em:atom "integer") (em:integer "7") (em:integer "7"))))))) .
+proof:record190 em:term (em:compound "called" ((em:compound "srl_value_compare" ((em:integer "7") (em:integer "5") (em:variable "U1"))) (em:list ((em:compound "srl_value_compare" ((em:integer "7") (em:integer "5") (em:atom ">"))))))) .
+proof:record191 em:term (em:compound "called" ((em:compound "srl_compare" ((em:integer "7") (em:integer "5") (em:variable "V1"))) (em:list ((em:compound "srl_compare" ((em:integer "7") (em:integer "5") (em:atom ">"))))))) .
+proof:record192 em:term (em:compound "called" ((em:compound "srl_float_operand" ((em:integer "7"))) (em:list ((em:compound "srl_float_operand" ((em:integer "7"))))))) .
+proof:record193 em:term (em:compound "called" ((em:compound "srl_boolean" ((em:integer "7") (em:variable "W1"))) (em:atom "[]"))) .
+proof:record194 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "X1") (em:iri :connected) (em:variable "Y1"))) (em:list ((em:compound "rdf" ((em:iri :a) (em:iri :connected) (em:iri :b))) (em:compound "rdf" ((em:iri :b) (em:iri :connected) (em:iri :d))) (em:compound "rdf" ((em:iri :a) (em:iri :connected) (em:iri :d))))))) .
+proof:record195 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :b) (em:iri :connected) (em:variable "Z1"))) (em:list ((em:compound "rdf" ((em:iri :b) (em:iri :connected) (em:iri :d))))))) .
+proof:record196 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :d) (em:iri :connected) (em:variable "Z1"))) (em:atom "[]"))) .
+proof:record197 em:term (em:compound "called" ((em:compound "rdf" ((em:variable "A2") (em:iri rdf:reifies) (em:compound "triple" ((em:variable "B2") (em:iri :link) (em:variable "C2"))))) (em:list ((em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l1) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :a) (em:iri :link) (em:iri :b))))) (em:compound "rdf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "rdf" ((em:iri :l2) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :c))))) (em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))) (em:compound "rdf" ((em:iri :l3) (em:iri rdf:reifies) (em:compound "triple" ((em:iri :b) (em:iri :link) (em:iri :d))))))))) .
+proof:record198 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :l1) (em:iri :source) (em:variable "D2"))) (em:list ((em:compound "rdf" ((em:iri :l1) (em:iri :source) (em:iri :survey))))))) .
+proof:record199 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :l2) (em:iri :source) (em:variable "D2"))) (em:list ((em:compound "rdf" ((em:iri :l2) (em:iri :source) (em:iri :rumour))))))) .
+proof:record200 em:term (em:compound "called" ((em:compound "rdf" ((em:iri :l3) (em:iri :source) (em:variable "D2"))) (em:list ((em:compound "rdf" ((em:iri :l3) (em:iri :source) (em:iri :survey))))))) .
 }

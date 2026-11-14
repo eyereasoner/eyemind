@@ -1265,15 +1265,15 @@ implies(implied_by(H, B), backward_rule(H, B))`);
 
 // One forgery test per example, so that a failure names it. Clause removal
 // and reordering use the small generated programs and their independent model.
-// Proofs over 100 KB are too slow to forge many times.
+// Proofs over 200 KB are too slow to forge many times.
 for (const entry of readManifest()) {
   const path = artifactPath('proof', entry);
   const saved = readFileSync(path, 'utf8');
   // Choose the workload by certificate size, independently of its encoding.
   // Native RDF displays must not reduce the forgery coverage of an example.
   const text = /\.(n3|srl)$/.test(path) ? readProofTerms(saved).map(([term]) => write(term)).join('\n') : saved;
-  if (text.length <= 100000) {
-    const count = text.length <= 12000 ? 30 : text.length <= 40000 ? 15 : 8;
+  if (text.length <= 200000) {
+    const count = text.length <= 12000 ? 30 : text.length <= 40000 ? 15 : text.length <= 100000 ? 8 : 4;
     tests[`a forged proof of examples/${sourceFiles(entry)[0]} never certifies what the program does not entail`] =
       () => forgeExample(entry, text, count);
   }

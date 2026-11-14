@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/total'), literal('0.3', datatype('http://www.w3.org/2001/XMLSchema#decimal')))
 inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/largeTotal'), literal('9007199254740993.3', datatype('http://www.w3.org/2001/XMLSchema#decimal')))
 inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/eighth'), literal('0.125', datatype('http://www.w3.org/2001/XMLSchema#decimal')))
@@ -19,26 +19,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 365)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 5)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/total'), literal('0.3', datatype('http://www.w3.org/2001/XMLSchema#decimal'))))
-obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/largeTotal'), literal('9007199254740993.3', datatype('http://www.w3.org/2001/XMLSchema#decimal'))))
-obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/eighth'), literal('0.125', datatype('http://www.w3.org/2001/XMLSchema#decimal'))))
-obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/third'), literal('0.3333333333333333333333333333333333', datatype('http://www.w3.org/2001/XMLSchema#decimal'))))
-obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/measurement'), iri('https://example.org/numbers/doubleSum'), literal('0.30000000000000004', datatype('http://www.w3.org/2001/XMLSchema#double'))))
-obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/measurement'), iri('https://example.org/numbers/overflow'), literal('INF', datatype('http://www.w3.org/2001/XMLSchema#double'))))
-obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/measurement'), iri('https://example.org/numbers/invalid'), literal('NaN', datatype('http://www.w3.org/2001/XMLSchema#double'))))
-obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/measurement'), iri('https://example.org/numbers/negativeInfinity'), literal('-INF', datatype('http://www.w3.org/2001/XMLSchema#double'))))
-obligation('call_fidelity', 'all_answers', inf(A, B, C))
+condition('C10', 'call_fidelity', 'ok', 9)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(357)
 verified(183)
 recomputed(156)
 composed(13)
-trusted(9)
+trusted(0)
 claims(8)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')

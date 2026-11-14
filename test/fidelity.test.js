@@ -195,18 +195,13 @@ export const tests = {
     }
   },
 
-  'C10 keeps nested negations and restricted witnesses outside supported listings'() {
-    for (const rules of [
-      'implies([p(X), not(not(p(X)))], ok(X))',
-      'restricted(p(X), ok(X, W))',
-    ]) {
-      const loaded = program(`fact(p('a'))\n${rules}`);
-      const result = run(loaded, { proof: true });
-      const report = rejected(loaded, result.proof);
-      assert.ok(report.trusted.some(({ kind }) => kind === 'call_fidelity'));
-    }
-    const { loaded, result } = checked("fact(p('a'))\nrestricted(p(X), q(X))\nrestricted(p(X), r(X, W))", { goal: 'q(X)' });
-    assert.ok(checkProof(loaded, result.proof, { goals: ['q(X)'], allowTrusted: false }).valid);
+  'C10 keeps restricted witnesses outside supported listings'() {
+    const loaded = program("fact(p('a'))\nrestricted(p(X), ok(X, W))");
+    const result = run(loaded, { proof: true });
+    const report = rejected(loaded, result.proof);
+    assert.ok(report.trusted.some(({ kind }) => kind === 'call_fidelity'));
+    const independent = checked("fact(p('a'))\nrestricted(p(X), q(X))\nrestricted(p(X), r(X, W))", { goal: 'q(X)' });
+    assert.ok(checkProof(independent.loaded, independent.result.proof, { goals: ['q(X)'], allowTrusted: false }).valid);
   },
 
   'C10 certifies forward listings whose rules compute with bound inputs'() {
@@ -231,22 +226,40 @@ export const tests = {
     strictly("fact(k('a'), p('a', 1), p('a', 2))\nimplies([k(X), findall(N, p(X, N), L)], all(X, L))");
   },
 
-  'C10 leaves forward rules that observe bindings or first answers unproved'() {
+  'C10 replays forward rules that observe bindings or first answers'() {
     for (const rules of [
       'implies([k(X), once(p(X, N))], first(X, N))',
       'implies([k(X), is_var(Y), unify(Y, X)], fresh(Y))',
-      'implies([k(X), gt(Y, 0), p(X, Y)], positive(X))',
+      'implies([k(X), not(not(p(X, 1)))], known(X))',
     ]) {
-      const loaded = program(`fact(k('a'), p('a', 1), p('a', 2))\n${rules}`);
-      let result;
-      try {
-        result = run(loaded, { proof: true });
-      } catch {
-        continue; // gt/2 with an unbound input is an error, not a proof
-      }
-      assert.ok(result.proofReport.trusted.some(({ reason }) => reason === 'all_answers'), rules);
-      assert.equal(checkProof(loaded, result.proof, { allowTrusted: false }).valid, false, rules);
+      const { loaded, result, report } = checked(`fact(k('a'), p('a', 1), p('a', 2))\n${rules}`);
+      assert.deepEqual(report.trusted, [], result.proof);
+      assert.ok(checkProof(loaded, result.proof, { allowTrusted: false }).valid, rules);
     }
+    // A later answer of once/1, though C1-C9 accept its steps, is no firing a
+    // search makes: replay and closure both find the first answer instead.
+    const loaded = program("fact(k('a'), p('a', 1), p('a', 2))\nimplies([k(X), once(p(X, N))], first(X, N))");
+    const forged = "first('a', 2)\nstep(first('a', 2), clause(4), {X: 'a', N: 2}, [k('a'), once(p('a', 2))])\n" +
+      "step(k('a'), clause(1), {}, [])\nstep(once(p('a', 2)), 'control', {}, [p('a', 2)])\nstep(p('a', 2), clause(3), {}, [])\n" +
+      "derived(first(A, B), [first('a', 2)])\ncalled(first(A, B), [first('a', 2)])\n";
+    assert.equal(checkProof(loaded, forged).valid, false);
+    assert.equal(checkProof(loaded, forged.replace("derived(first(A, B), [first('a', 2)])",
+      "derived(first(A, B), [first('a', 1), first('a', 2)])").replace("called(first(A, B), [first('a', 2)])",
+      "called(first(A, B), [first('a', 1), first('a', 2)])"), { allowTrusted: false }).valid, false);
+  },
+
+  'C10 replay rejects a fact a binding-sensitive rule never fires, even through a cycle'() {
+    // not_unify(X, 'a') runs with X unbound, so the first rule never fires;
+    // the second would keep r('b') once it existed.
+    const loaded = program("fact(p('b'))\nimplies([not_unify(X, 'a'), p(X)], r(X))\nimplies(r(X), r(X))\nquery(r(X))");
+    assert.deepEqual(run(loaded).answers, []);
+    const forged = "r('b')\nstep(r('b'), clause(2), {X: 'b'}, [not_unify('b', 'a'), p('b')])\n" +
+      "step(not_unify('b', 'a'), 'builtin', {}, [])\nderived(r(A), [r('b')])\ncalled(r(B), [r('b')])\n";
+    assert.equal(checkProof(loaded, forged, { allowTrusted: false }).valid, false);
+    assert.ok(checkProof(loaded, forged).trusted.some(({ reason }) => reason === 'all_answers'));
+    const cyclic = forged.replace("step(r('b'), clause(2), {X: 'b'}, [not_unify('b', 'a'), p('b')])",
+      "step(r('b'), clause(3), {X: 'b'}, [r('b')])");
+    assert.equal(checkProof(loaded, cyclic).valid, false);
   },
 
   'C10 supports no listing on host math accepted only within its tolerance'() {

@@ -72,14 +72,14 @@ inf(iri('https://eyereasoner.github.io/ns#test'), iri('https://eyereasoner.githu
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked_with_obligations')`. The report lists `call_fidelity` obligations. These claims depend on the listed obligations, and strict checking rejects them.
+The saved report ends with `verdict('checked')`, with no obligations, and strict checking accepts it.
 C1 checks inference steps against the compiled source clauses; C5 checks
 primitive computations; C8 checks fresh witnesses; C10 checks the original
 questions against the recorded call tables. The checker follows the
 certificate without calling the reasoning engine.
 
-The verdict describes the displayed claims and any listed obligations. It
-does not assert that an arbitrary certificate lists every possible answer.
+The verdict establishes the displayed claims and that they are
+every answer of the original questions.
 
 ---
 

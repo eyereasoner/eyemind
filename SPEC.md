@@ -2250,17 +2250,55 @@ whose ground instances C5 re-decides as holding. `number_chars/2` re-decides
 a ground instance by reading its characters, so only that direction is
 listed. A host-math result accepted by C5 only within its tolerance
 ([Section 11.8](#118-c5-re-decision)) need not be the result a search
-finds. A proof with such a step therefore supports no listing for C10.
+finds. A proof with such a step therefore supports no listing for C10 by
+this analysis.
+
+**Replayed listings.** A listing the mode analysis does not support still
+supports C10 when every fact of every consulted listing **replays**. A fact
+replays when its step cites a forward rule, other than a template, a rule
+with captures or a restricted rule, and a search of that rule's body in
+source order, starting with no bindings, solves each body goal as the
+step's corresponding use records:
+
+- A primitive runs on the bindings of that point of the search. Its first
+  solution under which the goal can still unify with the use is taken.
+  `compare/3` with a nonground compared term does not replay.
+- `once/1`, `not/1` and `findall/3` take the answers of the goal, as it
+  stands at that point, from the call tables and listings, as in checking
+  the original calls. A negation with an unbound named variable does not
+  replay, and neither does a first answer or a collection whose order rests
+  on a listing. The first answer is taken, and the goal MUST still unify
+  with the use.
+- `call/1` and a disjunction replay the goals their `'control'` step uses,
+  for a disjunction from the side those uses form.
+- A call to an ordinary relation follows the use's step. A forward rule's
+  conclusion MUST itself replay, and is then unified with the goal. A
+  source fact, renamed apart, is unified with the goal. A backward rule,
+  renamed apart, has its head unified with the goal and its body replayed
+  against its step's uses. A use with no step is unified with a source fact
+  of the relation, renamed apart. A replay that meets the same use under
+  the same call again does not replay.
+- After each goal, the goal MUST still unify with its use, since a step
+  shows its goals after the whole solution's bindings.
+
+Each witness is then bound to its Skolem term
+([Section 8.2](#82-forward-evaluation-and-witnesses)), and the fact MUST be
+identical to an instance of one of the rule's heads. Replay re-executes each
+recorded firing, so a test of whether a variable is bound sees what a search
+sees, a first answer is the search's first answer, and host math is
+computed rather than accepted within a tolerance. C2 keeps the steps a
+replay follows acyclic.
 
 Supported facts and closed listings then establish the least ground
 closure and, with negations, a set of facts that is supported, closed under
 the rules and consistent with each negation, every negation being decided
 by the listed facts alone. A stratified or chain-stratified program has
 exactly one such set ([Section 7.4](#74-negation-and-collection)), its
-result, so the listings are the facts the original calls consult. A rule
-outside the analysis, for example one that tests whether a variable is
-bound or keeps the first of several answers it uses, requires publication
-evidence this format does not supply, leaving call fidelity unproved.
+result, so the listings are the facts the original calls consult. A
+collection or first answer over facts that forward rules derive depends on
+their publication order, which this format does not establish, and a
+restricted rule's firings can depend on the order of rule applications:
+both leave call fidelity unproved.
 
 **Deciding claims.** Every relevant call certificate MUST be valid. Each
 claim MUST be identical, up to variable renaming, to an answer of at least

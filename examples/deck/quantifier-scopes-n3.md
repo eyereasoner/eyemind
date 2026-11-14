@@ -74,11 +74,11 @@ The rumor's waver is no known astronomer, so nothing follows about it.
 
 ## What the proof establishes
 
-The report ends with `verdict('checked_with_obligations')`. C1 matches the
-step's premises against the source facts, which share the term
-`bnode('n3', 'someone')`; the graph term is matched by a helper that
-answers through backward search, which leaves a `call_fidelity` obligation,
-trusted in the manifest.
+The report ends with `verdict('checked')`. C1 matches the step's premises
+against the source facts, which share the term `bnode('n3', 'someone')`; the
+graph term is matched by a helper that answers through backward search. C10
+replays that firing in source order, so the claims are every answer, with
+no obligations left.
 
 ---
 

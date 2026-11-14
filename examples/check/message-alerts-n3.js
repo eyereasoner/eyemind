@@ -1,4 +1,4 @@
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 rdf(iri('urn:eyemind:message-log:message-alerts-n3.nt#message2'), iri('https://example.org/alerts#alert'), iri('https://example.org/alerts#overheat'))
 rdf(iri('urn:eyemind:message-log:message-alerts-n3.nt#message2'), iri('https://example.org/alerts#sensor'), iri('https://example.org/alerts#sensorA'))
 rdf(iri('urn:eyemind:message-log:message-alerts-n3.nt#message2'), iri('https://example.org/alerts#temperature'), 29)
@@ -14,23 +14,15 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 26)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', rdf(iri('urn:eyemind:message-log:message-alerts-n3.nt#message2'), iri('https://example.org/alerts#alert'), iri('https://example.org/alerts#overheat')))
-obligation('call_fidelity', 'original_call', rdf(iri('urn:eyemind:message-log:message-alerts-n3.nt#message2'), iri('https://example.org/alerts#sensor'), iri('https://example.org/alerts#sensorA')))
-obligation('call_fidelity', 'original_call', rdf(iri('urn:eyemind:message-log:message-alerts-n3.nt#message2'), iri('https://example.org/alerts#temperature'), 29))
-obligation('call_fidelity', 'all_answers', rdf(A, iri('https://example.org/alerts#alert'), iri('https://example.org/alerts#overheat')))
-obligation('call_fidelity', 'all_answers', rdf(A, iri('https://example.org/alerts#sensor'), B))
-obligation('call_fidelity', 'all_answers', rdf(A, iri('https://example.org/alerts#temperature'), B))
+condition('C10', 'call_fidelity', 'ok', 6)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(23)
 verified(16)
 recomputed(7)
 composed(0)
-trusted(6)
+trusted(0)
 claims(3)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')

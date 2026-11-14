@@ -95,8 +95,8 @@ and its [interoperability cases](https://w3c-cg.github.io/rsp/spec/messages-test
 
 ## What the proof establishes
 
-The report ends with `verdict('checked_with_obligations')`. The claims retain
-`call_fidelity` obligations; strict checking rejects those obligations.
+The report ends with `verdict('checked')`, with no obligations; strict
+checking accepts it.
 C1 checks the steps against the compiled source, C5 re-decides the primitive
 calls, and C10 checks support for the original questions. The checker follows
 the certificate without running the reasoning engine.
