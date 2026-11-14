@@ -22,7 +22,7 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, rdf([9310, A], iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('https://example.org/HigherScore')), []))
 obligation('collected', 'theory_scoped', findall(A, rdf([700, A], iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('https://example.org/HigherScore')), [9310]))
 obligation('call_fidelity', 'original_call', result(iri('https://example.org/bridge'), iri('https://example.org/decision'), iri('https://example.org/avoid_bridge')))
@@ -34,14 +34,15 @@ obligation('call_fidelity', 'original_call', result(iri('https://example.org/clo
 obligation('call_fidelity', 'original_call', result(iri('https://example.org/open'), iri('https://example.org/rank'), 2))
 obligation('call_fidelity', 'original_call', result(iri('https://example.org/open'), iri('https://example.org/assertedBy'), iri('https://example.org/anonymousPost')))
 obligation('call_fidelity', 'original_call', result(iri('https://example.org/open'), iri('https://example.org/score'), 700))
+obligation('call_fidelity', 'all_answers', result(A, B, C))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(148)
 verified(85)
 recomputed(53)
 composed(8)
-trusted(11)
+trusted(12)
 claims(9)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

@@ -242,7 +242,7 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', sum(complex(4, 6)))
 obligation('call_fidelity', 'original_call', product(complex(-5, 10)))
 obligation('call_fidelity', 'original_call', quotient(complex(3.0, 4.0)))
@@ -266,16 +266,34 @@ obligation('call_fidelity', 'original_call', sine(complex(1.9999999999999998, 1.
 obligation('call_fidelity', 'original_call', cosine(complex(1.9999999999999998, 0.0)))
 obligation('call_fidelity', 'original_call', arctangent(complex(1.3389725222944935, 0.402359478108525)))
 obligation('call_fidelity', 'original_call', tangent(complex(1.0, 1.9999999999999996)))
+obligation('call_fidelity', 'all_answers', sum(A))
+obligation('call_fidelity', 'all_answers', product(A))
+obligation('call_fidelity', 'all_answers', quotient(A))
+obligation('call_fidelity', 'all_answers', ratio(A))
+obligation('call_fidelity', 'all_answers', unit_square(A))
+obligation('call_fidelity', 'all_answers', conjugate_product(A, B))
+obligation('call_fidelity', 'all_answers', norm_multiplicative(A, B, C))
+obligation('call_fidelity', 'all_answers', integer_power(A, B))
+obligation('call_fidelity', 'all_answers', modulus(A, B))
+obligation('call_fidelity', 'all_answers', power(A, B))
+obligation('call_fidelity', 'all_answers', arcsine(A, B))
+obligation('call_fidelity', 'all_answers', arccosine(A, B))
+obligation('call_fidelity', 'all_answers', logarithm('natural', A))
+obligation('call_fidelity', 'all_answers', logarithm('imaginary', A))
+obligation('call_fidelity', 'all_answers', sine(A))
+obligation('call_fidelity', 'all_answers', cosine(A))
+obligation('call_fidelity', 'all_answers', arctangent(A))
+obligation('call_fidelity', 'all_answers', tangent(A))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(215)
 verified(93)
 recomputed(122)
 composed(0)
-trusted(23)
+trusted(41)
 claims(23)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')
 ```
 
@@ -309,7 +327,7 @@ conclusions follow from the program. It confirms those conclusions; it does
 not say the program has no others, nor that the decimals are free of
 rounding.
 
-C10 leaves 23 original-call claims unproved by the available evidence. The
+C10 leaves 23 original-call claims and the answers of 18 questions unproved by the available evidence. The
 verdict is **checked with obligations**: the recorded derivations are
 conditional on these call-fidelity obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.

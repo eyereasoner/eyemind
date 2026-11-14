@@ -219,21 +219,22 @@ condition('C6', 'boundary_consistency', 'ok', 1)
 condition('C7', 'relevance', 'ok', 14)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 3)
+condition('C10', 'call_fidelity', 'ok', 5)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, t(A, 'child_of', 'alice'), ['bob', 'carol']))
 obligation('call_fidelity', 'original_call', children('alice', ['bob', 'carol']))
+obligation('call_fidelity', 'all_answers', children(A, B))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(10)
 verified(8)
 recomputed(0)
 composed(0)
-trusted(2)
+trusted(3)
 claims(4)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')
 ```
 

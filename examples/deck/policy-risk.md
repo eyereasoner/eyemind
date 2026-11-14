@@ -308,7 +308,7 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 3)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, higher(100, A), []))
 obligation('collected', 'theory_scoped', findall(A, higher(85, A), [100, 97]))
 obligation('collected', 'theory_scoped', findall(A, higher(70, A), [100, 85, 97]))
@@ -317,16 +317,17 @@ obligation('call_fidelity', 'original_call', report(1, 'c1', 100, 'high', 'no_re
 obligation('call_fidelity', 'original_call', report(3, 'c2', 85, 'high', short_notice(3, 14), increase_notice(14)))
 obligation('call_fidelity', 'original_call', report(4, 'c4', 70, 'moderate', 'export_prohibited', 'permit_export'))
 obligation('call_fidelity', 'original_call', report(2, 'c3', 97, 'high', 'sharing_without_consent', 'require_consent'))
+obligation('call_fidelity', 'all_answers', report(A, B, C, D, E, F))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(57)
 verified(32)
 recomputed(18)
 composed(0)
-trusted(8)
+trusted(9)
 claims(4)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')
 ```
 
@@ -378,7 +379,7 @@ the 3 absences settled and the 4 collections taken on trust. The verdict is
 *provided* those four lists are complete. The verdict does not establish that the program has no
 other answers.
 
-C10 leaves 4 original-call claims unproved by the available evidence. The
+C10 leaves 4 original-call claims and the answers of 1 question unproved by the available evidence. The
 verdict is **checked with obligations**: the recorded derivations are
 conditional on these call-fidelity obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.

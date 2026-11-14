@@ -322,18 +322,19 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 1)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', best_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28))
+obligation('call_fidelity', 'all_answers', best_dispatch(A, B))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(182)
 verified(92)
 recomputed(89)
 composed(0)
-trusted(1)
+trusted(2)
 claims(1)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')
 ```
 
@@ -379,7 +380,7 @@ verdict is **checked with obligations**: the schedule is feasible, costs 28 cent
 the cheapest. The model assumes perfect efficiency and ignores battery wear,
 forecast uncertainty and changing power within a slot.
 
-C10 leaves 1 original-call claim unproved by the available evidence. The
+C10 leaves 1 original-call claim and the answers of 1 question unproved by the available evidence. The
 verdict is **checked with obligations**: the recorded derivations are
 conditional on these call-fidelity obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.

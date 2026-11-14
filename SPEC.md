@@ -216,12 +216,16 @@ Proofs:
   certificate and checked by C10 ([Section 10.5](#105-call-fidelity-certificates)).
 - **Original question**: each external goal; without external goals, the
   body of each query; without queries, each ordinary forward head. C10
-  checks the claims answering them ([Section 11.13](#1113-c10-call-fidelity)).
+  checks that the claims are exactly their answers ([Section 11.13](#1113-c10-call-fidelity)).
+- **Answer completeness**: of a proof, that its claims include every answer
+  of every original question; an unconditional `checked` verdict
+  establishes it ([Section 11.1](#111-scope-of-a-valid-proof)).
 - **Settled**: established by its search certificate, as a boundary is when
   C9 accepts that certificate ([Section 11.12](#1112-c9-search-closure)).
 - **Trusted boundary**: a boundary that is not settled. A valid proof
   assumes it, and its check report lists it as an **obligation**, as it
-  lists each claim whose call fidelity remains unproved (Sections [11.9](#119-c6-boundary-consistency),
+  lists each claim whose call fidelity and each question whose answer
+  completeness remains unproved (Sections [11.9](#119-c6-boundary-consistency),
   [11.13](#1113-c10-call-fidelity) and [12](#12-check-reports)).
 - **Check report**: what a checker writes: the claims, the outcome of each
   of C1–C10, failures, obligations, counts and a verdict ([Section 12](#12-check-reports)).
@@ -1090,8 +1094,10 @@ infinite closure. A finite model does not ensure search termination:
 `implied_by(p(X), p(X))` has an empty least model, but searching `p('a')`
 recurs indefinitely. Exceeding a resource bound raises an error ([Section
 8.3](#83-resource-bounds)). Contradictions halt without completing the closure ([Section 8.5](#85-contradictions)).
-A valid proof establishes only its claims subject to its trusted boundaries
-([Section 11.1](#111-scope-of-a-valid-proof)), not completeness of the model or the answers. Its search
+A valid proof establishes its claims subject to its obligations and, when
+it checks without obligations, that they are every answer of the original
+questions ([Section 11.1](#111-scope-of-a-valid-proof)); it does not
+establish termination of the whole program. Its search
 certificate settles the negations and collections it can ([Section 10.4](#104-search-certificates)).
 
 ## 8. Evaluation and Conclusions
@@ -1288,8 +1294,8 @@ would extend: the run stopped before its fixpoint, so its derived facts need
 not be closed under the rules. A
 reasoner MUST check every proof it generates ([Section 11](#11-proof-checking)) before returning it,
 and MUST fail with an error rather than return a proof that does not pass. A
-run without conclusions has a proof without claims, which is valid and
-certifies nothing.
+run without conclusions has a proof without claims; its call tables, when
+they settle, certify that the original questions have no answers.
 
 A **state test** is `is_var/1`, `not_identical/2` or `compare/3`: a test a
 later binding can make false. A goal such as `is_var(X)` followed by
@@ -1620,7 +1626,7 @@ The ten conditions answer different questions:
 | [C7 Relevance](#1110-c7-relevance) | Does the evidence serve the claimed answers to the program's questions? |
 | [C8 Witness integrity](#1111-c8-witness-integrity) | Does each existential witness identify the correct rule firing? |
 | [C9 Search closure](#1112-c9-search-closure) | Does the certificate establish the recorded negation or collection? |
-| [C10 Call fidelity](#1113-c10-call-fidelity) | Can the original question return this answer? |
+| [C10 Call fidelity](#1113-c10-call-fidelity) | Can the original question return this answer, and is each of its answers claimed? |
 
 C9 checks the search behind a recorded step; C10 checks the original call
 before the proof's final bindings. This distinction matters for negation,
@@ -1639,9 +1645,10 @@ can instead leave an obligation. The verdict distinguishes these outcomes:
 | `checked_with_obligations` | No condition failed, but the claims depend on the reported obligations. |
 | `failed(N)` | The checker recorded `N` failures. |
 
-Strict checking forbids unresolved obligations. Even `checked` establishes
-only the claimed answers, not that the proof contains every answer or that
-the whole program terminates ([Section 11.1](#111-scope-of-a-valid-proof)).
+Strict checking forbids unresolved obligations. A `checked` verdict
+establishes the claimed answers and that they are every answer of the
+original questions, but not that the whole program terminates
+([Section 11.1](#111-scope-of-a-valid-proof)).
 
 ### 11.1 Scope of a valid proof
 
@@ -1649,7 +1656,10 @@ A valid proof establishes that each claim follows from the source program
 by the recorded steps, conditional on any reported obligations. A settled
 boundary is established by its search certificate. An unconditional
 `checked` verdict also establishes operational query fidelity
-([Section 11.2](#112-operational-query-fidelity)).
+([Section 11.2](#112-operational-query-fidelity)) and **answer
+completeness**: the claims include every answer of every original question
+([Section 11.13](#1113-c10-call-fidelity)). Every question asked has a
+certified answer set, and every answer in it is claimed.
 
 For a program with negation, "follows" is relative to the facts the
 certificate lists: C9 establishes that they are supported by steps, closed
@@ -1663,14 +1673,16 @@ rejects it. Independent claims may still check strictly.
 
 It does not establish:
 
-- that the proof contains all conclusions of the program;
+- answer completeness for a halted proof, whose claims contain `'false'`;
 - that the program derives no `'false'`;
 - that execution of the whole program terminates or reaches every question;
 - that the supplied program expresses the author's intended model.
 
-A proof MAY omit conclusions. A run's own proof contains exactly that
-run's conclusions. An empty proof establishes no answers, including no
-claim that a question has no answers.
+A run's own proof contains exactly that run's conclusions. A proof that
+omits an answer its certificate establishes fails C10. One without the
+certificate to show its answers complete is valid only conditionally: an
+empty proof establishes no answers and leaves each original question whose
+answers need a call table as an obligation.
 
 ### 11.2 Operational query fidelity
 
@@ -1722,8 +1734,9 @@ MUST NOT invoke the reasoner to fill gaps.
 
 C10 supplies this certificate check in [Section 11.13](#1113-c10-call-fidelity).
 A C1–C9 verdict alone MUST NOT be presented as establishing operational
-query fidelity. Fidelity does not establish completeness, avoidance of an
-earlier contradiction, or termination of preceding questions.
+query fidelity. Fidelity alone does not establish answer completeness,
+which C10 checks separately, avoidance of an earlier contradiction, or
+termination of preceding questions.
 
 ### 11.3 Reading the document
 
@@ -1815,8 +1828,9 @@ C4 checks that the proof has no missing premises:
   as premises, but claims still require steps.
 
 For a missing use, the failure's conclusion is the goal of the step that
-uses it. A document without claims certifies nothing; it is valid if no
-condition fails.
+uses it. A document without claims establishes no answers; it is valid if
+no condition fails, and C10 decides whether it shows that the original
+questions have none.
 
 ### 11.8 C5 Re-decision
 
@@ -2127,13 +2141,13 @@ obligation rather than an unconditional `checked` verdict.
 Otherwise, if any forward rule has a head `'true'`, use those rules' bodies
 as conjunctions. Otherwise use the ordinary forward heads, excluding
 `'false'`. Do not instantiate these questions with the proof's final
-bindings. Only questions of which a claim is an instance need a
-certificate.
+bindings. Every question needs a certificate, including one of which no
+claim is an instance: its answers must still be shown to be claimed.
 
 When the claims contain `'false'`, C10 is inapplicable: it covers no
 answers and adds no call-fidelity obligations for that halted proof.
-Empty proofs certify no answers and do not establish that a question has
-none.
+A proof without claims certifies that a question has no answers only
+through that question's certificate.
 
 **Checking calls.** For each relevant original question, use the one-level
 expansion and closure checks of [Section 11.12](#1112-c9-search-closure),
@@ -2227,6 +2241,30 @@ forbidden, each such obligation fails C10. C10 does not discharge C6/C9
 obligations: both the recorded boundary and the original call need their
 respective evidence.
 
+**Answer completeness.** A valid certificate for an original question
+gives all of its answers, so C10 also checks the converse: each answer is
+claimed. The **required answers** of a question are its certificate's
+answers when the conclusions answer goals or `query()` rules. When the
+conclusions are the derived facts ([Section 8.6](#86-reported-conclusions)),
+they are the facts of the question's relation in its consulted listing
+that are instances of the question, since a source fact or a backward
+answer is no derived fact. For each original question, in question order:
+
+| Evidence for the question | C10 result |
+| --- | --- |
+| Its certificate is false. | Fail the question once, unless a claim that is an instance of it already failed for that certificate. |
+| Its certificate is valid and complete, and every required answer is identical, up to renaming, to a claim. | Establish answer completeness for the question. |
+| Its certificate is valid and complete, and a required answer is not claimed. | Fail once for each required answer not claimed. |
+| Its certificate is missing, incomplete or unsupported. | Leave `obligation('call_fidelity', 'all_answers', Question)`. |
+
+For example, with `fact(p('a'), p('b'))` and `query(p(X))`, a proof that
+claims only `p('a')` fails C10 for `p('b')`, though `p('a')` follows. With
+`implied_by(r(X), p(X))` and `query(r('c'))`, the proof without claims
+holding `called(r('c'), [])` establishes that the question has no answers;
+an empty document leaves `r('c')` as an obligation. A question answered
+from source facts alone needs no table, so its required answers come from
+the facts.
+
 **Limits and production of certificates.** The current format requires
 complete tables, even for a relation called under `once`. Later recursion
 or an error may prevent a table from closing although `once` itself
@@ -2245,13 +2283,14 @@ units of answer text.
 **Relevance and counts.** Call tables and their supporting listings serve
 the claims for C7; their listed facts are reachable through that evidence.
 C10 does not change C1–C9 covered counts. Its own covered count includes
-claims whose call fidelity is established or refuted, excluding unresolved
-claims. Report failures in claim order, after checking boundaries and
-before C7 and C2 ([Section 12](#12-check-reports)).
+claims whose call fidelity is established or refuted and questions whose
+answer completeness is established or refuted, excluding unresolved ones.
+Report failures in claim order, then in question order, after checking
+boundaries and before C7 and C2 ([Section 12](#12-check-reports)).
 
-These checks establish membership of claimed answers in an original
-question's results. They do not establish that all answers were claimed
-or that preceding distinct questions terminated.
+These checks establish that the claims are exactly the answers of the
+original questions, up to renaming. They do not establish that preceding
+distinct questions terminated.
 
 ### 11.14 Counts and validity
 
@@ -2270,7 +2309,7 @@ negation, collection or original call that remains an obligation.
 | C7 relevance | claims plus steps |
 | C8 witness_integrity | `clause` steps with witnesses in their forward head or enclosing generators that passed C8 |
 | C9 search_closure | boundaries their search certificate settled or refuted |
-| C10 call_fidelity | claims whose call fidelity is established or refuted |
+| C10 call_fidelity | claims whose call fidelity, and questions whose answer completeness, is established or refuted |
 
 A check also records these totals:
 
@@ -2280,7 +2319,8 @@ A check also records these totals:
 - **recomputed**: the `'builtin'` and `called(Called)` steps that passed C5;
 - **composed**: the `'control'` steps that passed C5;
 - **trusted**: the `'absent'` and `'collected'` steps C9 did not settle,
-  plus each claim whose call fidelity remains unproved by C10.
+  plus each claim whose call fidelity and each question whose answer
+  completeness remains unproved by C10.
 
 A proof is **valid** when no condition failed. It is valid *conditional on*
 any obligations that remain. Section [12](#12-check-reports) specifies the
@@ -2299,7 +2339,8 @@ the following report facts, one per line:
 3. `obligation(Kind, 'theory_scoped', Goal)` per trusted boundary, in step
    order, where `Kind` is `'absent'` or `'collected'`, followed by
    `obligation('call_fidelity', 'original_call', Claim)` per unresolved claim,
-   in claim order;
+   in claim order, then `obligation('call_fidelity', 'all_answers', Question)`
+   per question whose answer completeness is unresolved, in question order;
 4. `steps(N)`, `verified(N)`, `recomputed(N)`, `composed(N)`, `trusted(N)`,
    `claims(N)`, the counts of [Section 11.14](#1114-counts-and-validity);
 5. `verdict(V)`, where `V` is `failed(N)` when `N` failures were recorded,
@@ -2310,9 +2351,11 @@ Comments MUST identify these initial terms as checked answers only when the
 report is valid with no obligations. A valid report with obligations MUST
 label them as conditional on those obligations. A failed report MUST label
 them as unverified claims; their inclusion does not validate them. A valid
-report with no claims MUST say it establishes no conclusions. Comments also
-explain the C1-C10 order, failures and obligations when present, the statistics,
-and that the verdict does not establish completeness. Comments are informative
+report with no claims MUST say it establishes no conclusions, unless it is
+valid with no obligations: it then establishes that the original questions
+have no answers. Comments also explain the C1-C10 order, failures and
+obligations when present, the statistics, and whether the verdict
+establishes that the claims are every answer. Comments are informative
 and MAY be worded differently. They are ignored when the document is read.
 
 Failures are listed in the order they are found: those of reading the
@@ -2320,7 +2363,7 @@ document ([Section 11.3](#113-reading-the-document)), in document order; C4 for 
 order; then for each step, in document order, C4 for its uses and the C1, C3,
 C5 or C8 failure of its justification; for each boundary, in step order, the
 C9 failures of its search certificate in the order found, or else its C6
-failure; C10 for each claim; C7 for each claim, then
+failure; C10 for each claim, then for each question; C7 for each claim, then
 for each step, then for each table and listing, in document order; and C2.
 
 `Detail` is informative text identifying what failed; its wording is not
@@ -2338,7 +2381,8 @@ texts, including unverified claims when `valid` is false. It also has `valid` (b
 `claims`, `verified`, `redecided` (the count `recomputed`), `composed`,
 `uses` (the number of uses of all steps, integers), `trusted`
 (a list of `{kind, conclusion, reason?}`, with `reason: 'original_call'`
-for call-fidelity obligations), `failures` (a list of
+for a claim's call-fidelity obligation and `reason: 'all_answers'` for a
+question's answer-completeness obligation), `failures` (a list of
 `{condition, detail, conclusion?}`) and `conditions` (a list of
 `{id, name, covered, failed}`), where `conclusion` is a canonical text.
 Its variables keep the names the document gives them, rather than being
@@ -2679,7 +2723,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 5)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
+condition('C10', 'call_fidelity', 'ok', 3)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(3)
@@ -2689,6 +2733,6 @@ composed(0)
 trusted(0)
 claims(2)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```

@@ -17,19 +17,20 @@ condition('C8', 'witness_integrity', 'ok', 4)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', inf(skolem(3, 'Bcat', []), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('https://eyereasoner.github.io/ns#Cat')))
 obligation('call_fidelity', 'original_call', inf(skolem(4, 'Bbsh', []), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('https://eyereasoner.github.io/ns#BritishShortHair')))
 obligation('call_fidelity', 'original_call', inf(iri('https://eyereasoner.github.io/ns#test'), iri('https://eyereasoner.github.io/ns#is'), literal('true', datatype('http://www.w3.org/2001/XMLSchema#boolean'))))
 obligation('call_fidelity', 'original_call', inf(iri('https://eyereasoner.github.io/ns#Koko'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('https://eyereasoner.github.io/ns#Animal')))
+obligation('call_fidelity', 'all_answers', inf(A, B, C))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(26)
 verified(20)
 recomputed(2)
 composed(4)
-trusted(4)
+trusted(5)
 claims(4)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

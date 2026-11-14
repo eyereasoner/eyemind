@@ -385,7 +385,7 @@ for (const entry of MANIFEST) {
             assert.equal(BigInt(failures.length), trusted);
             for (const failure of failures) {
               assert.ok(['C5', 'C10'].includes(failure.args[0]));
-              assert.match(failure.args[2], /^(?:trusted boundary forbidden:|call fidelity remains unproved:)/);
+              assert.match(failure.args[2], /^(?:trusted boundary forbidden:|call fidelity remains unproved:|answer completeness remains unproved:)/);
             }
           } else assert.equal(result.stdout, read(`check/${name}.js`));
         } else {

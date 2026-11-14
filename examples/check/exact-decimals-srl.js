@@ -21,7 +21,7 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 5)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/total'), literal('0.3', datatype('http://www.w3.org/2001/XMLSchema#decimal'))))
 obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/largeTotal'), literal('9007199254740993.3', datatype('http://www.w3.org/2001/XMLSchema#decimal'))))
 obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/eighth'), literal('0.125', datatype('http://www.w3.org/2001/XMLSchema#decimal'))))
@@ -30,14 +30,15 @@ obligation('call_fidelity', 'original_call', inf(iri('https://example.org/number
 obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/measurement'), iri('https://example.org/numbers/overflow'), literal('INF', datatype('http://www.w3.org/2001/XMLSchema#double'))))
 obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/measurement'), iri('https://example.org/numbers/invalid'), literal('NaN', datatype('http://www.w3.org/2001/XMLSchema#double'))))
 obligation('call_fidelity', 'original_call', inf(iri('https://example.org/numbers/measurement'), iri('https://example.org/numbers/negativeInfinity'), literal('-INF', datatype('http://www.w3.org/2001/XMLSchema#double'))))
+obligation('call_fidelity', 'all_answers', inf(A, B, C))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(357)
 verified(183)
 recomputed(156)
 composed(13)
-trusted(8)
+trusted(9)
 claims(8)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

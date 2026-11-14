@@ -24,9 +24,9 @@ condition('C6', 'boundary_consistency', 'ok', 10)
 condition('C7', 'relevance', 'ok', 121)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 24)
-condition('C10', 'call_fidelity', 'ok', 1)
+condition('C10', 'call_fidelity', 'ok', 2)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, delivers('interpret_existing_law', A), ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement']))
 obligation('collected', 'theory_scoped', findall(A, objection('interpret_existing_law', A), [unaddressed('value_share')]))
 obligation('collected', 'theory_scoped', findall(A, delivers('extend_portability', A), ['value_mobility', 'value_transparency']))
@@ -49,14 +49,16 @@ obligation('call_fidelity', 'original_call', evaluation('extend_portability', ['
 obligation('call_fidelity', 'original_call', evaluation('data_dividend', ['value_share', 'collective_exercise'], [unaddressed('value_transparency'), unaddressed('use_control'), unaddressed('value_mobility'), 'gives the data subject no claim of their own']))
 obligation('call_fidelity', 'original_call', evaluation('data_ownership', ['value_share', 'use_control', 'value_mobility', 'individual_enforcement'], ['treats personal data as a commodity', unaddressed('value_transparency'), unaddressed('collective_exercise')]))
 obligation('call_fidelity', 'original_call', evaluation('autonomous_right', ['value_transparency', 'use_control', 'value_mobility', 'value_recognition', 'collective_exercise', 'individual_enforcement', 'value_share'], []))
+obligation('call_fidelity', 'all_answers', analysis(A, B, C, D))
+obligation('call_fidelity', 'all_answers', evaluation(A, B, C))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(108)
 verified(74)
 recomputed(0)
 composed(0)
-trusted(22)
+trusted(24)
 claims(13)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

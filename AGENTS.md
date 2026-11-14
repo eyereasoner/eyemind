@@ -187,9 +187,11 @@ proof's search certificate, whose tables the checker expands one level each
 and whose listings must be closed (C9), or else stay obligations that
 evidence may refute (C6); a variable only a rule's conclusion mentions must
 be the Skolem term of that firing, recomputed from its uses (C8). C10 always
-checks the original questions using separate `called/2` tables;
-missing or unsupported evidence leaves a call-fidelity obligation, rejected
-by strict checking. A restricted rule's guard is an ordinary negation of its
+checks the original questions using separate `called/2` tables, both ways:
+each claim is an answer, and each answer is claimed, so a strict `checked`
+establishes that the claims are every answer. Missing or unsupported
+evidence leaves a call-fidelity or all-answers obligation, rejected by
+strict checking. A restricted rule's guard is an ordinary negation of its
 clause, so C6 and C9 settle that each of its witnesses is needed; the engine
 fails a run whose witness later facts make unneeded, and a proof with a
 restricted witness never checks strictly. The checker accepts any supported,

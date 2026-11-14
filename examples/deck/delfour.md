@@ -480,9 +480,9 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 96)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 3)
-condition('C10', 'call_fidelity', 'ok', 10)
+condition('C10', 'call_fidelity', 'ok', 20)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', decision('delfour', 'Allowed', 'sugar_insight'))
 obligation('call_fidelity', 'original_call', headline('delfour', 'Track sugar per serving while you scan'))
 obligation('call_fidelity', 'original_call', banner('delfour', 'Classic Tea Biscuits', 12.0))
@@ -499,16 +499,23 @@ obligation('call_fidelity', 'original_call', passed('delfour', 'expected_file_co
 obligation('call_fidelity', 'original_call', passed('delfour', 'minimal_payload'))
 obligation('call_fidelity', 'original_call', passed('delfour', 'lower_sugar'))
 obligation('call_fidelity', 'original_call', all_checks_pass('delfour'))
+obligation('call_fidelity', 'all_answers', decision('delfour', A, B))
+obligation('call_fidelity', 'all_answers', headline('delfour', A))
+obligation('call_fidelity', 'all_answers', banner('delfour', A, B))
+obligation('call_fidelity', 'all_answers', note('delfour', A))
+obligation('call_fidelity', 'all_answers', banner_alternative('delfour', A, B))
+obligation('call_fidelity', 'all_answers', passed('delfour', A))
+obligation('call_fidelity', 'all_answers', all_checks_pass('delfour'))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(70)
 verified(61)
 recomputed(6)
 composed(0)
-trusted(16)
+trusted(23)
 claims(26)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')
 ```
 
@@ -559,7 +566,7 @@ conclusions the program has. And the `trusted_signature` check vouches only
 for the input's statement that the signature was verified upstream, not for
 the signature's bytes.
 
-C10 leaves 16 original-call claims unproved by the available evidence. The
+C10 leaves 16 original-call claims and the answers of 7 questions unproved by the available evidence. The
 verdict is **checked with obligations**: the recorded derivations are
 conditional on these call-fidelity obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.

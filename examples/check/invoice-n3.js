@@ -17,7 +17,7 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('collected', 'theory_scoped', findall(A, and(rdf(iri('https://example.org/invoice#invoice1'), iri('https://example.org/invoice#line'), B), rdf(B, iri('https://example.org/invoice#amount'), A)), [120, 80, 45]))
 obligation('collected', 'theory_scoped', findall(A, and(rdf(iri('https://example.org/invoice#invoice2'), iri('https://example.org/invoice#line'), B), rdf(B, iri('https://example.org/invoice#amount'), A)), [10, 15]))
 obligation('collected', 'theory_scoped', findall(A, and(rdf(iri('https://example.org/invoice#invoice3'), iri('https://example.org/invoice#line'), B), rdf(B, iri('https://example.org/invoice#amount'), A)), []))
@@ -25,14 +25,16 @@ obligation('call_fidelity', 'original_call', rdf(iri('https://example.org/invoic
 obligation('call_fidelity', 'original_call', rdf(iri('https://example.org/invoice#invoice2'), iri('https://example.org/invoice#total'), 25))
 obligation('call_fidelity', 'original_call', rdf(iri('https://example.org/invoice#invoice3'), iri('https://example.org/invoice#total'), 0))
 obligation('call_fidelity', 'original_call', rdf(iri('https://example.org/invoice#invoice1'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('https://example.org/invoice#LargeInvoice')))
+obligation('call_fidelity', 'all_answers', rdf(A, iri('https://example.org/invoice#total'), B))
+obligation('call_fidelity', 'all_answers', rdf(A, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('https://example.org/invoice#LargeInvoice')))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(137)
 verified(61)
 recomputed(61)
 composed(12)
-trusted(7)
+trusted(9)
 claims(4)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

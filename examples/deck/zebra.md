@@ -300,18 +300,19 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', zebra('norwegian', 'japanese'))
+obligation('call_fidelity', 'all_answers', zebra(A, B))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(108)
 verified(54)
 recomputed(52)
 composed(2)
-trusted(1)
+trusted(2)
 claims(1)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')
 ```
 
@@ -345,9 +346,9 @@ The statistics: 108 steps, 54 verified against the program, 52 recomputed,
 
 The verdict is **checked with obligations**: this street satisfies every clue, so the answer
 follows from the program. It does not show that no *other* street would fit:
-the verdict does not establish completeness, and that was never claimed.
+that the question has no other answer remains an obligation.
 
-C10 leaves 1 original-call claim unproved by the available evidence. The
+C10 leaves 1 original-call claim and the answers of 1 question unproved by the available evidence. The
 verdict is **checked with obligations**: the recorded derivations are
 conditional on these call-fidelity obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.

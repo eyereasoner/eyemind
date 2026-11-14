@@ -431,7 +431,7 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 33)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', breach_plan('in_force', 'b1', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
 obligation('call_fidelity', 'original_call', breach_plan('in_force', 'b2', notify(authority(within_hours(72)), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
 obligation('call_fidelity', 'original_call', breach_plan('in_force', 'b3', notify(authority(within_hours(72)), people('without_undue_delay')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)'])))
@@ -469,16 +469,25 @@ obligation('call_fidelity', 'original_call', planned_duty('omnibus_proposal', 'e
 obligation('call_fidelity', 'original_call', changed(session('ex:r1'), from(await_device_consent('ex:research')), to(permit('ex:research'))))
 obligation('call_fidelity', 'original_call', changed(session('ex:r7'), from(await_device_consent('ex:research')), to(deny_device('refused_by_signal'))))
 obligation('call_fidelity', 'original_call', changed(session('ex:r8'), from(await_device_consent('ex:research')), to(deny_device('do_not_ask_again'))))
+obligation('call_fidelity', 'all_answers', assessment(A, B, deny_policy(C), basis(['ex:policy'])))
+obligation('call_fidelity', 'all_answers', assessment(A, B, permit(C), basis(['ex:policy', D])))
+obligation('call_fidelity', 'all_answers', assessment(A, B, await_device_consent(C), basis(D)))
+obligation('call_fidelity', 'all_answers', assessment(A, B, deny_device(C), basis(D)))
+obligation('call_fidelity', 'all_answers', policy_conflict(A, resolved_by('odrl:prohibit', B, overrides(C))))
+obligation('call_fidelity', 'all_answers', planned_duty(A, B, C, within_days(D)))
+obligation('call_fidelity', 'all_answers', breach_plan(A, B, notify(authority(C), people(D)), 'document_breach', basis([E, F, 'GDPR Art. 33(5)'])))
+obligation('call_fidelity', 'all_answers', changed(session(A), from(B), to(C)))
+obligation('call_fidelity', 'all_answers', changed(breach(A), from(B), to(C)))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(273)
 verified(225)
 recomputed(15)
 composed(0)
-trusted(37)
+trusted(46)
 claims(37)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')
 ```
 
@@ -531,7 +540,7 @@ conclusions, that the rules are legally correct, that consent was really
 given, or that the data was really deleted. It shows that the conclusions
 follow from these rules and these facts.
 
-C10 leaves 37 original-call claims unproved by the available evidence. The
+C10 leaves 37 original-call claims and the answers of 9 questions unproved by the available evidence. The
 verdict is **checked with obligations**: the recorded derivations are
 conditional on these call-fidelity obligations. `--strict-proof` rejects
 them. The report does not establish answer completeness.

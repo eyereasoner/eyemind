@@ -1,3 +1,4 @@
+import { callQuestions } from '../src/fidelity.js';
 import { checkProof, checkReport, run } from '../src/index.js';
 import { assert, program } from './helpers.js';
 
@@ -7,7 +8,11 @@ function checked(source, options = {}) {
   const report = checkProof(loaded, result.proof, { goals: options.goals || (options.goal ? [options.goal] : null) });
   assert.ok(report.valid, JSON.stringify(report.failures));
   assert.equal(report.conditions.at(-1).id, 'C10');
-  assert.equal(report.conditions.at(-1).covered, result.answers.length);
+  // C10 covers each claim and each question whose answers are shown complete.
+  const goals = options.goals || (options.goal ? [options.goal] : null);
+  const open = report.trusted.filter(({ reason }) => reason === 'all_answers').length;
+  assert.equal(report.conditions.at(-1).covered,
+    result.answers.length + callQuestions(loaded, goals, result.conclusions).length - open);
   assert.deepEqual(report, { ...result.proofReport, failureTerms: report.failureTerms, trustedTerms: report.trustedTerms });
   return { loaded, result, report };
 }
@@ -37,7 +42,8 @@ export const tests = {
     const loaded = program(ONCE);
     assert.ok(checkProof(loaded, LATER).valid);
     const document = `${LATER}called(q(A), [q('a')])\n`;
-    assert.deepEqual(rejected(loaded, document).failures.map(({ condition }) => condition), ['C10']);
+    // q('b') is no answer of q(X), and q('a') is one the proof omits.
+    assert.deepEqual(rejected(loaded, document).failures.map(({ condition }) => condition), ['C10', 'C10']);
     rejected(loaded, document.replace("[q('a')]", "[q('b')]"));
     rejected(loaded, LATER);
   },
@@ -47,22 +53,57 @@ export const tests = {
     const report = checkProof(loaded, LATER);
     assert.equal(report.conditions.length, 10);
     assert.ok(report.conditions.every(({ failed }) => failed === 0));
-    assert.deepEqual(report.trusted, [{ kind: 'call_fidelity', reason: 'original_call', conclusion: "q('b')" }]);
+    assert.deepEqual(report.trusted, [
+      { kind: 'call_fidelity', reason: 'original_call', conclusion: "q('b')" },
+      { kind: 'call_fidelity', reason: 'all_answers', conclusion: 'q(X)' },
+    ]);
     assert.match(checkReport(report), /verdict\('checked_with_obligations'\)/);
     rejected(loaded, LATER);
   },
 
   'C10 leaves overlapping original questions unproved until one certifies the answer'() {
     const loaded = program(`${ONCE}\nquery(q('b'))`);
-    const document = `${LATER}called(q(A), [q('a')])\n`;
+    const document = `q('a')\n${LATER}step(q('a'), clause(3), {}, [once(p('a'))])\n` +
+      "step(once(p('a')), 'control', {}, [p('a')])\ncalled(q(A), [q('a')])\n";
     const report = checkProof(loaded, document);
-    assert.ok(report.valid);
-    assert.equal(report.conditions[9].covered, 0);
-    assert.equal(report.trusted[0].kind, 'call_fidelity');
+    assert.ok(report.valid, JSON.stringify(report.failures));
+    assert.equal(report.conditions[9].covered, 2);
+    assert.deepEqual(report.trusted.map(({ reason }) => reason), ['original_call', 'all_answers']);
     rejected(loaded, document);
     const complete = checkProof(loaded, `${document}called(q('b'), [q('b')])\n`, { allowTrusted: false });
     assert.ok(complete.valid, JSON.stringify(complete.failures));
-    assert.equal(complete.conditions[9].covered, 1);
+    assert.equal(complete.conditions[9].covered, 4);
+  },
+
+  'C10 rejects a proof that omits an answer its certificate establishes'() {
+    const { loaded, result } = checked("fact(p('a'), p('b'))\nquery(p(X))");
+    assert.deepEqual(result.answers, ["p('a')", "p('b')"]);
+    assert.match(checkReport(result.proofReport), /every answer of the original questions/);
+    const omitted = result.proof.replace(/^p\('b'\)\n/m, '').replace(/^step\(p\('b'\).*\n/m, '');
+    const report = rejected(loaded, omitted);
+    assert.deepEqual(report.failures.map(({ detail }) => detail),
+      ["the proof omits an answer of the original call: p('b')"]);
+    // The same omission in the forward conclusions.
+    const derived = checked("fact(p('a'), p('b'))\nimplies(p(X), q(X))");
+    const fewer = derived.result.proof.replace(/^q\('b'\)\n/m, '');
+    assert.deepEqual(rejected(derived.loaded, fewer).failures.map(({ detail }) => detail),
+      ["the proof omits an answer of the original call: q('b')"]);
+  },
+
+  'C10 certifies that a question without claims has no answers'() {
+    const { loaded, result, report } = checked("fact(p('a'))\nimplied_by(r(X), p(X))\nquery(r('b'))");
+    assert.deepEqual(result.answers, []);
+    assert.match(result.proof, /called\(r\('b'\), \[\]\)/);
+    assert.equal(report.trusted.length, 0);
+    assert.equal(report.conditions[9].covered, 1);
+    // An empty proof certifies nothing: its question stays an obligation.
+    const empty = checkProof(loaded, '');
+    assert.deepEqual(empty.trusted, [{ kind: 'call_fidelity', reason: 'all_answers', conclusion: "r('b')" }]);
+    assert.match(checkReport(empty), /does not establish that they are every answer/);
+    assert.match(rejected(loaded, '').failures[0].detail, /answer completeness remains unproved/);
+    // A forged empty table is refuted by its expansion.
+    const forged = checkProof(program("fact(p('a'))\nimplied_by(r(X), p(X))\nquery(r(X))"), 'called(r(A), [])\n');
+    assert.match(forged.failures[0].detail, /differs from its expansion|invalid search certificate/);
   },
 
   'C10 rejects earlier tests made true by final bindings'() {
@@ -97,7 +138,7 @@ export const tests = {
     const goal = `is(${view.getFloat64(0)}, exp(1))`;
     const report = rejected(program('query(is(X, exp(1)))'), `${goal}\nstep(${goal}, 'builtin', {}, [])\n`);
     assert.equal(report.conditions[4].failed, 0);
-    assert.equal(report.conditions[9].failed, 1);
+    assert.equal(report.conditions[9].failed, 2);
   },
 
   'C10 enforces original aliasing and question bindings'() {

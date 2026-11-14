@@ -17,19 +17,20 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', plan([go('loc3'), push('loc1'), 'climb_on', 'grab']))
 obligation('call_fidelity', 'original_call', plan([go('loc1'), go('loc3'), push('loc1'), 'climb_on', 'grab']))
 obligation('call_fidelity', 'original_call', plan([go('loc3'), push('loc1'), 'climb_on', 'grab', 'climb_off']))
 obligation('call_fidelity', 'original_call', plan([go('loc3'), push('loc2'), push('loc1'), 'climb_on', 'grab']))
+obligation('call_fidelity', 'all_answers', plan(A))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(86)
 verified(61)
 recomputed(25)
 composed(0)
-trusted(4)
+trusted(5)
 claims(4)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

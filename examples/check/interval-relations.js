@@ -113,7 +113,7 @@ condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
 condition('C10', 'call_fidelity', 'ok', 0)
 
-// Obligations: absence, collection or original-call evidence remains unproved.
+// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
 obligation('call_fidelity', 'original_call', relation('a', 'before', 'i'))
 obligation('call_fidelity', 'original_call', relation('a', 'before', 'j'))
 obligation('call_fidelity', 'original_call', relation('a', 'before', 'b'))
@@ -214,14 +214,15 @@ obligation('call_fidelity', 'original_call', relation('h', 'contains', 'g'))
 obligation('call_fidelity', 'original_call', relation('h', 'finished_by', 'j'))
 obligation('call_fidelity', 'original_call', relation('a', 'finished_by', 'g'))
 obligation('call_fidelity', 'original_call', relation('e', 'finished_by', 'g'))
+obligation('call_fidelity', 'all_answers', relation(A, B, C))
 
 // Proof statistics: recorded steps and how they were checked.
 steps(214)
 verified(178)
 recomputed(36)
 composed(0)
-trusted(100)
+trusted(101)
 claims(100)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked_with_obligations')

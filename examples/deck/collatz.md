@@ -247,7 +247,7 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 437)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 20)
+condition('C10', 'call_fidelity', 'ok', 21)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(417)
@@ -257,7 +257,7 @@ composed(0)
 trusted(0)
 claims(20)
 
-// This verdict applies to the claims above; it does not establish completeness.
+// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
@@ -287,8 +287,8 @@ at:
 The statistics repeat this: 417 steps, 248 verified against the program and
 169 recomputed, none taken on trust, for 20 claims. The verdict is
 **checked**: all twenty paths follow from the rules. It does not settle the
-conjecture: nothing about 21 or beyond is claimed. And, as the last comment
-says, it does not establish completeness.
+conjecture: nothing about 21 or beyond is claimed. As the last comment
+says, the twenty paths are every answer of the questions asked.
 
 ---
 
