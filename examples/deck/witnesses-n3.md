@@ -2,7 +2,7 @@
 
 *One stable Skolem IRI per order, shared by the delivery link and ready status.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/witnesses-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/witnesses-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/witnesses-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/witnesses-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=witnesses-n3)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/witnesses-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/witnesses-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/witnesses-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/witnesses-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=witnesses-n3)
 
 ---
 
@@ -81,7 +81,7 @@ compared with `--program` output.
 ```sh
 node bin/eyemind.js examples/witnesses-n3.n3
 node bin/eyemind.js --strict-proof -c examples/witnesses-n3.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/witnesses-n3.n3 examples/witnesses-n3.n3
+node bin/eyemind.js --strict-proof --check-proof examples/proof/witnesses-n3.js examples/witnesses-n3.n3
 ```
 
 Add `:order3 :status :paid .` to a copy. It receives a third delivery IRI,

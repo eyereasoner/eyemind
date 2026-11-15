@@ -2,7 +2,7 @@
 
 *Listed candidate routes receive total costs and the cheapest alternatives survive stratified negation.*
 
-[dijkstra-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/dijkstra-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/dijkstra-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/dijkstra-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/dijkstra-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=dijkstra-srl)
+[dijkstra-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/dijkstra-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/dijkstra-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/dijkstra-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/dijkstra-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=dijkstra-srl)
 
 ---
 
@@ -141,5 +141,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/dijkstra-srl.srl
 node bin/eyemind.js --proof examples/dijkstra-srl.srl
-node bin/eyemind.js --check-proof examples/proof/dijkstra-srl.srl examples/dijkstra-srl.srl
+node bin/eyemind.js --check-proof examples/proof/dijkstra-srl.js examples/dijkstra-srl.srl
 ```

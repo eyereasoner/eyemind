@@ -2,7 +2,7 @@
 
 *Recursive forward ancestry over a three-generation family tree.*
 
-[family-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-srl)
+[family-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-srl)
 
 ---
 
@@ -91,5 +91,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/family-srl.srl
 node bin/eyemind.js --proof examples/family-srl.srl
-node bin/eyemind.js --check-proof examples/proof/family-srl.srl examples/family-srl.srl
+node bin/eyemind.js --check-proof examples/proof/family-srl.js examples/family-srl.srl
 ```

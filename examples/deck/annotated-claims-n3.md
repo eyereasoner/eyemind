@@ -2,7 +2,7 @@
 
 *Conflicting RDF 1.2 annotated claims ranked by confidence and trust, with typed literals read as numbers.*
 
-[data/annotated-claims-n3.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/annotated-claims-n3.ttl) · [annotated-claims-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/annotated-claims-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/annotated-claims-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/annotated-claims-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/annotated-claims-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=annotated-claims-n3)
+[data/annotated-claims-n3.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/annotated-claims-n3.ttl) · [annotated-claims-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/annotated-claims-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/annotated-claims-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/annotated-claims-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/annotated-claims-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=annotated-claims-n3)
 
 ---
 
@@ -158,5 +158,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/data/annotated-claims-n3.ttl examples/annotated-claims-n3.n3
 node bin/eyemind.js --proof examples/data/annotated-claims-n3.ttl examples/annotated-claims-n3.n3
-node bin/eyemind.js --check-proof examples/proof/annotated-claims-n3.n3 examples/data/annotated-claims-n3.ttl examples/annotated-claims-n3.n3
+node bin/eyemind.js --check-proof examples/proof/annotated-claims-n3.js examples/data/annotated-claims-n3.ttl examples/annotated-claims-n3.n3
 ```

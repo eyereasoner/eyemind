@@ -3,7 +3,7 @@
 *An existential of the document reaches into quoted formulas, unless one
 declares its own.*
 
-[quantifier-scopes-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/quantifier-scopes-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/quantifier-scopes-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/quantifier-scopes-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/quantifier-scopes-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=quantifier-scopes-n3)
+[quantifier-scopes-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/quantifier-scopes-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/quantifier-scopes-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/quantifier-scopes-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/quantifier-scopes-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=quantifier-scopes-n3)
 
 ---
 
@@ -87,5 +87,5 @@ no obligations left.
 ```sh
 node bin/eyemind.js examples/quantifier-scopes-n3.n3
 node bin/eyemind.js --program examples/quantifier-scopes-n3.n3 > /tmp/quantifier-scopes.js
-node bin/eyemind.js --check-proof examples/proof/quantifier-scopes-n3.n3 examples/quantifier-scopes-n3.n3
+node bin/eyemind.js --check-proof examples/proof/quantifier-scopes-n3.js examples/quantifier-scopes-n3.n3
 ```

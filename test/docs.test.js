@@ -82,7 +82,7 @@ export const tests = {
     assert.ok(headings.includes('14. Security'));
     assert.ok(!headings.some((heading) => /Command.Line|JSON form|Unused clauses|Conformance test suite/.test(heading)));
     assert.doesNotMatch(spec, /`--[a-z]|halt code \d|50,000|8,388,608|2\^26|srl_execution|urn:eyemind:proof/);
-    for (const heading of ['Native proof data', 'JSON check reports', 'Resource limits', 'Unused clauses']) {
+    for (const heading of ['JSON check reports', 'Resource limits', 'Unused clauses']) {
       assert.ok(document('README.md').includes(`### ${heading}\n`), heading);
     }
   },

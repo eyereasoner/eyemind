@@ -2,7 +2,7 @@
 
 *Write ancestry in Notation3, run it in eyemind, and write the answers back as N3.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/family-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-n3)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/family-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-n3)
 
 ---
 
@@ -104,7 +104,7 @@ node bin/eyemind.js /tmp/family.js
 Check the saved proof against the N3 source:
 
 ```sh
-node bin/eyemind.js --strict-proof --check-proof examples/proof/family-n3.n3 examples/family-n3.n3
+node bin/eyemind.js --strict-proof --check-proof examples/proof/family-n3.js examples/family-n3.n3
 ```
 
 Add `:cara :parent :dan .` to a copy of the N3 source, then compile and run

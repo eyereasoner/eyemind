@@ -1,7 +1,7 @@
 // Compiled N3 examples keep their domain constraints and checkable witnesses.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { checkProof, readNativeProof, run, write, writeNativeProof } from '../src/index.js';
+import { checkProof, run } from '../src/index.js';
 import { loadInputs } from '../src/formats.js';
 import { ROOT, assert } from './helpers.js';
 
@@ -93,13 +93,11 @@ export const tests = {
 
   'a forged delivery Skolem IRI is rejected by recomputing its construction'() {
     const program = programFrom('witnesses');
-    const saved = readFileSync(join(ROOT, 'examples/proof/witnesses-n3.n3'), 'utf8');
-    const certificate = readNativeProof(saved).map((term) => write(term)).join('\n');
+    const certificate = readFileSync(join(ROOT, 'examples/proof/witnesses-n3.js'), 'utf8');
     const delivery = iri(run(program).conclusions[0].args[2]);
     const altered = certificate.replaceAll(delivery, 'https://example.org/invented');
     assert.notEqual(altered, certificate);
-    const forged = writeNativeProof(altered);
-    const report = checkProof(program, forged, { allowTrusted: false });
+    const report = checkProof(program, altered, { allowTrusted: false });
     assert.ok(!report.valid);
     assert.ok(report.failures.some(({ condition }) => condition === 'C5'));
   },

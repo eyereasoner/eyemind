@@ -2,7 +2,7 @@
 
 *Bounded generations and inherited branch labels identify cousins across a family tree.*
 
-[family-cousins-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-cousins-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-cousins-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-cousins-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-cousins-srl)
+[family-cousins-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-cousins-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-cousins-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-cousins-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-cousins-srl)
 
 ---
 
@@ -150,5 +150,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/family-cousins-srl.srl
 node bin/eyemind.js --proof examples/family-cousins-srl.srl
-node bin/eyemind.js --check-proof examples/proof/family-cousins-srl.srl examples/family-cousins-srl.srl
+node bin/eyemind.js --check-proof examples/proof/family-cousins-srl.js examples/family-cousins-srl.srl
 ```

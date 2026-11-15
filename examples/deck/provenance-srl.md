@@ -2,7 +2,7 @@
 
 *Strong annotated links yield connections and source-attributed triple terms.*
 
-[provenance-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/provenance-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/provenance-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/provenance-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/provenance-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=provenance-srl)
+[provenance-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/provenance-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/provenance-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/provenance-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/provenance-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=provenance-srl)
 
 ---
 
@@ -111,5 +111,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/provenance-srl.srl
 node bin/eyemind.js --proof examples/provenance-srl.srl
-node bin/eyemind.js --check-proof examples/proof/provenance-srl.srl examples/provenance-srl.srl
+node bin/eyemind.js --check-proof examples/proof/provenance-srl.js examples/provenance-srl.srl
 ```

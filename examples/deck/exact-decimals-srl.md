@@ -2,7 +2,7 @@
 
 *Does 0.1 plus 0.2 make exactly 0.3?*
 
-[exact-decimals-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/exact-decimals-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/exact-decimals-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/exact-decimals-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/exact-decimals-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=exact-decimals-srl)
+[exact-decimals-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/exact-decimals-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/exact-decimals-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/exact-decimals-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/exact-decimals-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=exact-decimals-srl)
 
 ---
 
@@ -90,5 +90,5 @@ engine.
 ```sh
 node bin/eyemind.js examples/exact-decimals-srl.srl
 node bin/eyemind.js --proof examples/exact-decimals-srl.srl
-node bin/eyemind.js --check-proof examples/proof/exact-decimals-srl.srl examples/exact-decimals-srl.srl
+node bin/eyemind.js --check-proof examples/proof/exact-decimals-srl.js examples/exact-decimals-srl.srl
 ```

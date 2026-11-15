@@ -3,8 +3,8 @@
 eyemind is a dependency-free JavaScript rule language with forward and
 backward reasoning and checkable proofs. Programs are JavaScript scripts;
 conclusions, proofs and check reports are JavaScript expressions that a
-reader turns back into terms without running them. N3 and SRL inputs also
-write native proof data preserving the complete compiled certificate.
+reader turns back into terms without running them. N3 and SRL inputs write
+the same JavaScript proofs, citing the clauses of their compiled program.
 It runs as a command-line
 program, a JavaScript library, and a browser application. Describe what it
 implements as it currently is, distinguish demonstrated behavior from design
@@ -31,8 +31,6 @@ goals, and keep error messages specific and user-facing text direct.
     search certificate, one call expanded one level at a time. `fidelity.js`:
     C10 original questions, call tables, supported forward dependencies and
     the replay of recorded firings.
-    `native-proof.js`: N3 and SRL proof data, lossless term records and
-    validated displays of claims, steps and search certificates.
   - `cli.js`: the command line, with no Node imports so the playground's
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
     library API. `version.js`: the version, synced from `package.json`.
@@ -65,12 +63,11 @@ goals, and keep error messages specific and user-facing text direct.
   `examples/proof/` and `examples/check/` hold each one's saved conclusions,
   proof and check report; `examples/deck/` a card deck per example. Outputs
   use the input format’s default (`.js`, `.n3` or `.ttl`; `.txt` for the text
-  report); proofs match their source (`.js`, `.n3`, `.srl`) and check reports
-  remain `.js`. Every file of an example is named after the example, and the
+  report); proofs and check reports are `.js` for every example. Every file of an example is named after the example, and the
   name of an N3 or SRL example ends in `-n3` or `-srl`: `socrates.js`,
   `socrates-n3.n3` and `socrates-srl.srl` with
   `data/annotation-n3.ttl`, `output/socrates-srl.ttl`,
-  `proof/socrates-n3.n3`, `check/socrates-n3.js` and
+  `proof/socrates-n3.js`, `check/socrates-n3.js` and
   `deck/socrates-n3.md`. TriG
   joins N3 as quoted `graph:content` formulas.
   RDF Message examples keep their logs in `examples/data/`; payloads are

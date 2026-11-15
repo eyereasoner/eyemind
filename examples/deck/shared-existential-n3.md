@@ -2,7 +2,7 @@
 
 *Someone everybody loves: one witness for all.*
 
-[shared-existential-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/shared-existential-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/shared-existential-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/shared-existential-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/shared-existential-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=shared-existential-n3)
+[shared-existential-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/shared-existential-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/shared-existential-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/shared-existential-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/shared-existential-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=shared-existential-n3)
 
 ---
 
@@ -76,5 +76,5 @@ obligations left.
 ```sh
 node bin/eyemind.js examples/shared-existential-n3.n3
 node bin/eyemind.js --program examples/shared-existential-n3.n3 > /tmp/shared-existential.js
-node bin/eyemind.js --check-proof examples/proof/shared-existential-n3.n3 examples/shared-existential-n3.n3
+node bin/eyemind.js --check-proof examples/proof/shared-existential-n3.js examples/shared-existential-n3.n3
 ```

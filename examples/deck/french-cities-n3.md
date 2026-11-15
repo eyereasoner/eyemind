@@ -2,7 +2,7 @@
 
 *Which cities can reach Nantes through a small network of one-way links?*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/french-cities-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/french-cities-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/french-cities-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/french-cities-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=french-cities-n3)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/french-cities-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/french-cities-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/french-cities-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/french-cities-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=french-cities-n3)
 
 ---
 
@@ -115,7 +115,7 @@ other city is reachable.
 ```sh
 node bin/eyemind.js examples/french-cities-n3.n3
 node bin/eyemind.js --to eyemind examples/french-cities-n3.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/french-cities-n3.n3 examples/french-cities-n3.n3
+node bin/eyemind.js --strict-proof --check-proof examples/proof/french-cities-n3.js examples/french-cities-n3.n3
 ```
 
 To inspect the compilation:

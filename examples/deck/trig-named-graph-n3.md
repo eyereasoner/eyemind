@@ -2,7 +2,7 @@
 
 *Ancestors derived within a TriG named graph, each conclusion kept in its named-graph formula.*
 
-[data/trig-named-graph-n3.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/trig-named-graph-n3.trig) · [trig-named-graph-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/trig-named-graph-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/trig-named-graph-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/trig-named-graph-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/trig-named-graph-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=trig-named-graph-n3)
+[data/trig-named-graph-n3.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/trig-named-graph-n3.trig) · [trig-named-graph-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/trig-named-graph-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/trig-named-graph-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/trig-named-graph-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/trig-named-graph-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=trig-named-graph-n3)
 
 ---
 
@@ -99,5 +99,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/data/trig-named-graph-n3.trig examples/trig-named-graph-n3.n3
 node bin/eyemind.js --proof examples/data/trig-named-graph-n3.trig examples/trig-named-graph-n3.n3
-node bin/eyemind.js --check-proof examples/proof/trig-named-graph-n3.n3 examples/data/trig-named-graph-n3.trig examples/trig-named-graph-n3.n3
+node bin/eyemind.js --check-proof examples/proof/trig-named-graph-n3.js examples/data/trig-named-graph-n3.trig examples/trig-named-graph-n3.n3
 ```

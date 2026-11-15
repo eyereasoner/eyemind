@@ -2,7 +2,7 @@
 
 *A named reifier links an asserted statement to its author and recording date.*
 
-[annotation-evidence-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/annotation-evidence-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/annotation-evidence-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/annotation-evidence-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/annotation-evidence-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=annotation-evidence-srl)
+[annotation-evidence-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/annotation-evidence-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/annotation-evidence-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/annotation-evidence-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/annotation-evidence-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=annotation-evidence-srl)
 
 ---
 
@@ -100,5 +100,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/annotation-evidence-srl.srl
 node bin/eyemind.js --proof examples/annotation-evidence-srl.srl
-node bin/eyemind.js --check-proof examples/proof/annotation-evidence-srl.srl examples/annotation-evidence-srl.srl
+node bin/eyemind.js --check-proof examples/proof/annotation-evidence-srl.js examples/annotation-evidence-srl.srl
 ```

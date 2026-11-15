@@ -41,7 +41,6 @@ import { Program, Source } from './program.js';
 import { DEFAULT_GRAPH } from './rdf.js';
 import { readTerms } from './reader.js';
 import { Struct, Var, conjunction, identity, isGround } from './terms.js';
-import { readProofTerms } from './native-proof.js';
 import { write } from './writer.js';
 
 export class SrlError extends Error {}
@@ -207,7 +206,7 @@ function executionContext(context) {
 
 export function srlContextFromProof(document) {
   try {
-    const contexts = readProofTerms(document).map(([term]) => term)
+    const contexts = readTerms(document).map(([term]) => term)
       .filter((t) => t instanceof Struct && t.name === 'clause' && t.args.length === 2)
       .map((t) => t.args[1])
       .filter((t) => t instanceof Struct && t.name === 'fact' && t.args.length === 1)

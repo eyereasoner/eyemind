@@ -24,7 +24,7 @@ For SPARQL 1.2 RL, try [property paths](https://eyereasoner.github.io/eyemind/ex
 [candidate routes](https://eyereasoner.github.io/eyemind/examples/deck/dijkstra-srl),
 [exact decimals and doubles](https://eyereasoner.github.io/eyemind/examples/deck/exact-decimals-srl),
 or [execution times and UUIDs](https://eyereasoner.github.io/eyemind/examples/deck/execution-identifiers-srl).
-These `.srl` programs write Turtle output and native SRL proofs.
+These `.srl` programs write Turtle output.
 For RDF Messages, try [message boundaries and heartbeats](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries-n3),
 [independent alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3),
 or [named-graph provenance](https://eyereasoner.github.io/eyemind/examples/deck/message-provenance-n3).
@@ -41,15 +41,15 @@ eyemind --check-proof examples/proof/socrates.js examples/socrates.js
 Each program has a matching conclusion file in `output/`, a certificate in
 `proof/`, and a C1-C10 verification report in `check/`. JavaScript examples
 save term documents as `.js`; N3 examples save `.n3` output, SRL examples
-save Turtle as `.ttl`, and the text report saves `.txt`. Proofs use `.js`,
-`.n3` or `.srl` to match their source; check reports remain JavaScript
-expressions read as data. Every file of an example is named after the
+save Turtle as `.ttl`, and the text report saves `.txt`. Proofs and check
+reports are JavaScript expressions read as data, saved as `.js` for every
+example. Every file of an example is named after the
 example, and the name of an N3 or SRL example ends in `-n3` or `-srl`:
 `socrates.js`, `socrates-n3.n3` and `socrates-srl.srl` are the examples
 `socrates`, `socrates-n3` and `socrates-srl`, with outputs
 `output/socrates.js`, `output/socrates-n3.n3` and `output/socrates-srl.ttl`,
-proofs `proof/socrates.js`, `proof/socrates-n3.n3` and
-`proof/socrates-srl.srl`, check reports `check/socrates.js`,
+proofs `proof/socrates.js`, `proof/socrates-n3.js` and
+`proof/socrates-srl.js`, check reports `check/socrates.js`,
 `check/socrates-n3.js` and `check/socrates-srl.js`, and decks in `deck/`
 under the same names. Data files follow the rule too, as
 `data/annotation-n3.ttl` beside `annotation-n3.n3`. The same command checks each proof against its

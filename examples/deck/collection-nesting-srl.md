@@ -2,7 +2,7 @@
 
 *Property paths read nested RDF lists and a blank node property.*
 
-[collection-nesting-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/collection-nesting-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/collection-nesting-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/collection-nesting-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/collection-nesting-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=collection-nesting-srl)
+[collection-nesting-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/collection-nesting-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/collection-nesting-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/collection-nesting-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/collection-nesting-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=collection-nesting-srl)
 
 ---
 
@@ -98,5 +98,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/collection-nesting-srl.srl
 node bin/eyemind.js --proof examples/collection-nesting-srl.srl
-node bin/eyemind.js --check-proof examples/proof/collection-nesting-srl.srl examples/collection-nesting-srl.srl
+node bin/eyemind.js --check-proof examples/proof/collection-nesting-srl.js examples/collection-nesting-srl.srl
 ```

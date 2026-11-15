@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { basename, dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkReport, run } from '../src/index.js';
-import { defaultFormat, loadInputs, writeConclusions, writeProof } from '../src/formats.js';
+import { defaultFormat, loadInputs, writeConclusions } from '../src/formats.js';
 import { nodeIO } from '../src/node.js';
 
 export const ROOT = join(dirname(dirname(fileURLToPath(import.meta.url))), 'examples');
@@ -39,9 +39,10 @@ export const outputExtension = (entry) => entry.output ??
 // Every file of an example, sources, data and artifacts alike, is named
 // after the example, and an N3 or SRL example's name ends in -n3 or -srl.
 const nativeSource = (entry) => sourceFiles(entry).find((file) => /\.(n3|srl)$/.test(file));
+// Proofs and check reports are eyemind's own JavaScript expressions for
+// every example, so all examples keep them in one standard form.
 export function artifactPath(kind, entry) {
-  const source = nativeSource(entry);
-  const extension = kind === 'output' ? outputExtension(entry) : kind === 'proof' && source ? extname(source).slice(1) : 'js';
+  const extension = kind === 'output' ? outputExtension(entry) : 'js';
   return join(ROOT, kind, `${entry.name}.${extension}`);
 }
 
@@ -79,5 +80,5 @@ export function evaluate(entry) {
   const { program } = loaded;
   const output = run(program);
   const proved = certify(entry, program, output);
-  return { output: outputText(loaded, output), proof: writeProof(loaded, proved), check: checkReport(proved.proofReport) };
+  return { output: outputText(loaded, output), proof: proved.proof, check: checkReport(proved.proofReport) };
 }

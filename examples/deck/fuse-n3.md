@@ -2,7 +2,7 @@
 
 *A locked and open door triggers an integrity violation.*
 
-[fuse-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/fuse-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/fuse-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/fuse-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/fuse-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=fuse-n3)
+[fuse-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/fuse-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/fuse-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/fuse-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/fuse-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=fuse-n3)
 
 ---
 
@@ -67,5 +67,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/fuse-n3.n3
 node bin/eyemind.js --proof examples/fuse-n3.n3
-node bin/eyemind.js --check-proof examples/proof/fuse-n3.n3 examples/fuse-n3.n3
+node bin/eyemind.js --check-proof examples/proof/fuse-n3.js examples/fuse-n3.n3
 ```

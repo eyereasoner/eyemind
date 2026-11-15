@@ -9,7 +9,7 @@ import { statementSources } from '../src/lang.js';
 import { write } from '../src/writer.js';
 import { parseRdf, rdfFormat, writeRdf } from '../src/rdf.js';
 import { SrlError, compileSrl, parseRuleSet, readRuleSet, reasonSrl, srlContextFromProof } from '../src/srl.js';
-import { loadInputs, writeProof } from '../src/formats.js';
+import { loadInputs } from '../src/formats.js';
 import { assert, command } from './helpers.js';
 import { runSparqlRl } from './w3c.js';
 
@@ -152,7 +152,7 @@ test('saved SRL execution proofs replay their context and reject forged computat
   const text = `${P}RULE { :r :time ?t ; :id ?u ; :sum ?n } WHERE { SET(?t := NOW()) SET(?u := UUID()) SET(?n := 0.1 + 0.2) }`;
   const loaded = loadInputs([[text, 'run.srl']]);
   const r = srl(text, { context: loaded.compiled.context, proof: true });
-  const proof = writeProof(loaded, r.result);
+  const proof = r.result.proof;
   const replay = compileSrl(text, { context: srlContextFromProof(proof) });
   assert.ok(checkProof(loadText(replay.program), proof).valid);
   const forged = r.result.proof.replaceAll('0.3', '0.4');

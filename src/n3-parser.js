@@ -248,9 +248,8 @@ export const DEFAULT_PREFIXES = {
 };
 
 // Parse a document: { triples, prefixes, base }. Prefixes map names to IRIs
-// in declaration order. Native proof validation preserves numeric literal
-// text, so two different decimal displays cannot agree through rounding.
-export function parseN3(src, { base = '', preserveNumericLiterals = false } = {}) {
+// in declaration order.
+export function parseN3(src, { base = '' } = {}) {
   src = String(src);
   const input = tokens(src);
   const ahead = [];
@@ -327,7 +326,7 @@ export function parseN3(src, { base = '', preserveNumericLiterals = false } = {}
     if (isP('^^')) {
       next();
       const dt = iriTerm();
-      return typedLiteral(text, dt.v, preserveNumericLiterals);
+      return typedLiteral(text, dt.v);
     }
     return { t: 'literal', v: text, dt: `${XSD}string` };
   }
@@ -381,7 +380,7 @@ export function parseN3(src, { base = '', preserveNumericLiterals = false } = {}
     if (tok.k === 'var') return { t: 'var', v: tok.v, scope: 0 };
     if (tok.k === 'bnode') return { t: 'bnode', v: tok.v, scope: scope.id };
     if (tok.k === 'string') return literalTail(tok.v);
-    if (tok.k === 'number') return numberTerm(tok.v, preserveNumericLiterals);
+    if (tok.k === 'number') return numberTerm(tok.v);
     if (tok.k === 'word') {
       if (tok.v === 'true' || tok.v === 'false') return { t: 'literal', v: tok.v, dt: `${XSD}boolean` };
       throw fail(`unexpected word '${tok.v}'; prefixed names need a colon, as in :${tok.v}`, tok);
@@ -510,9 +509,8 @@ export function parseN3(src, { base = '', preserveNumericLiterals = false } = {}
   return { triples: top.triples, prefixes, base };
 }
 
-function numberTerm(text, preserve = false) {
+function numberTerm(text) {
   if (/^[+-]?[0-9]+$/.test(text)) return { t: 'int', v: BigInt(text) };
-  if (preserve) return { t: 'literal', v: text, dt: `${XSD}${/[eE]/.test(text) ? 'double' : 'decimal'}` };
   if (/[eE]/.test(text)) return { t: 'literal', v: String(Number(text)), dt: `${XSD}double` };
   return { t: 'float', v: Number(text) };
 }
@@ -522,10 +520,9 @@ const FLOAT_TYPES = new Set(['decimal']);
 
 // Native numbers represent integer and decimal. Float and double retain
 // their datatype so triple matching and log:equalTo distinguish them.
-export function typedLiteral(text, dt, preserve = false) {
+export function typedLiteral(text, dt) {
   if (dt.startsWith(XSD)) {
     const local = dt.slice(XSD.length);
-    if (preserve && ['decimal', 'float', 'double'].includes(local)) return { t: 'literal', v: text, dt };
     if (INTEGER_TYPES.has(local) && /^[+-]?[0-9]+$/.test(text)) return { t: 'int', v: BigInt(text) };
     if (FLOAT_TYPES.has(local) && /^[+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?$/.test(text)) return { t: 'float', v: Number(text) };
     if ((local === 'double' || local === 'float') && Number.isFinite(Number(text)) && /^[+-]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][+-]?[0-9]+)?$/.test(text)) return { t: 'literal', v: String(Number(text)), dt };

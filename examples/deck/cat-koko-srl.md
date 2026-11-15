@@ -2,7 +2,7 @@
 
 *Separate head blank nodes create distinct witnesses that pass an identity filter.*
 
-[cat-koko-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/cat-koko-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/cat-koko-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/cat-koko-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/cat-koko-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=cat-koko-srl)
+[cat-koko-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/cat-koko-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/cat-koko-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/cat-koko-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/cat-koko-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=cat-koko-srl)
 
 ---
 
@@ -90,5 +90,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/cat-koko-srl.srl
 node bin/eyemind.js --proof examples/cat-koko-srl.srl
-node bin/eyemind.js --check-proof examples/proof/cat-koko-srl.srl examples/cat-koko-srl.srl
+node bin/eyemind.js --check-proof examples/proof/cat-koko-srl.js examples/cat-koko-srl.srl
 ```

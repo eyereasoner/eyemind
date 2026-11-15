@@ -2,7 +2,7 @@
 
 *Recursive backward ancestry selected by a query.*
 
-[family-recursion-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/family-recursion-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-recursion-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-recursion-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-recursion-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-recursion-n3)
+[family-recursion-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/family-recursion-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-recursion-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-recursion-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-recursion-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-recursion-n3)
 
 ---
 
@@ -78,5 +78,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/family-recursion-n3.n3
 node bin/eyemind.js --proof examples/family-recursion-n3.n3
-node bin/eyemind.js --check-proof examples/proof/family-recursion-n3.n3 examples/family-recursion-n3.n3
+node bin/eyemind.js --check-proof examples/proof/family-recursion-n3.js examples/family-recursion-n3.n3
 ```

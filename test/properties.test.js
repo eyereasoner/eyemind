@@ -26,7 +26,7 @@
 // and a failure names the seed that reproduces it. EYEMIND_PROPERTY_SCALE
 // multiplies the number of cases for a deeper search.
 import { readFileSync } from 'node:fs';
-import { EyemindError, Program, Struct, Var, checkProof, publicReport, readGoal, readNativeProof, readProofTerms, readTerm, readTerms, run, write, writeNativeProof } from '../src/index.js';
+import { EyemindError, Program, Struct, Var, checkProof, publicReport, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
 import { shortcuts } from '../src/proof.js';
 import { apply } from '../src/arith.js';
 import { compareText, identity } from '../src/terms.js';
@@ -231,7 +231,7 @@ const obligations = (terms) => new Set(terms.filter((term) => isRecord(term, 'st
 // establishes (its claims and the goals of its steps), and the values to
 // forge with.
 function forgeable(entry, text) {
-  const terms = readProofTerms(text).map(([term]) => term);
+  const terms = readTerms(text).map(([term]) => term);
   const established = new Set();
   for (const term of terms) {
     if (isRecord(term, 'step', 4)) established.add(variant(term.args[0]));
@@ -1076,7 +1076,7 @@ implies(implied_by(H, B), backward_rule(H, B))`);
             assert.ok(error instanceof EyemindError, `${error.stack}\n${forged}`);
           }
           if (report !== null && report.valid) {
-            for (const [claim] of readProofTerms(forged)) {
+            for (const [claim] of readTerms(forged)) {
               if (claim instanceof Struct && claim.name === 't') assert.ok(model.has(claim.args.join(' ')), `a forged proof was accepted for ${write(claim)}\n${source}\n${forged}`);
             }
           }
@@ -1137,7 +1137,7 @@ implies(implied_by(H, B), backward_rule(H, B))`);
         }
         if (forgedReport !== null && forgedReport.valid) {
           const known = new Set([...expected, ...generated.facts.map((fact) => write(new Struct(fact[0], fact[1])))]);
-          const unentailed = readProofTerms(forged).map(([term]) => term).filter((term) => isClaim(term) && !known.has(write(term)));
+          const unentailed = readTerms(forged).map(([term]) => term).filter((term) => isClaim(term) && !known.has(write(term)));
           if (unentailed.length) {
             assert.ok(!checkProof(loaded, forged, { allowTrusted: false }).valid,
               `a forged proof was accepted for ${write(unentailed[0])}, even strictly\n${source}\n${forged}`);
@@ -1187,18 +1187,6 @@ implies(implied_by(H, B), backward_rule(H, B))`);
       assert.equal(identity(back), key);
       if (keys.has(key)) assert.equal(keys.get(key), text, 'distinct terms share an identity key');
       keys.set(key, text);
-    });
-  },
-
-  'native proof records preserve generated terms in both N3 and SRL'() {
-    forSeeds(250, (r) => {
-      const term = randomTerm(r);
-      const text = write(term);
-      for (const format of ['n3', 'srl']) {
-        const back = readNativeProof(writeNativeProof(text, { format }));
-        assert.equal(back.length, 1);
-        assert.ok(same(back[0], readTerm(text)), `${format}: ${text}`);
-      }
     });
   },
 
@@ -1268,10 +1256,7 @@ implies(implied_by(H, B), backward_rule(H, B))`);
 // Proofs over 200 KB are too slow to forge many times.
 for (const entry of readManifest()) {
   const path = artifactPath('proof', entry);
-  const saved = readFileSync(path, 'utf8');
-  // Choose the workload by certificate size, independently of its encoding.
-  // Native RDF displays must not reduce the forgery coverage of an example.
-  const text = /\.(n3|srl)$/.test(path) ? readProofTerms(saved).map(([term]) => write(term)).join('\n') : saved;
+  const text = readFileSync(path, 'utf8');
   if (text.length <= 200000) {
     const count = text.length <= 12000 ? 30 : text.length <= 40000 ? 15 : text.length <= 100000 ? 8 : 4;
     tests[`a forged proof of examples/${sourceFiles(entry)[0]} never certifies what the program does not entail`] =

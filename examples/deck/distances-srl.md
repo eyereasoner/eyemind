@@ -2,7 +2,7 @@
 
 *Missing kilometre distances are converted from miles without replacing base data.*
 
-[distances-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/distances-srl.srl) · [data/distances-srl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/distances-srl.ttl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/distances-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/distances-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/distances-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=distances-srl)
+[distances-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/distances-srl.srl) · [data/distances-srl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/distances-srl.ttl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/distances-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/distances-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/distances-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=distances-srl)
 
 ---
 
@@ -89,5 +89,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/distances-srl.srl examples/data/distances-srl.ttl
 node bin/eyemind.js --proof examples/distances-srl.srl examples/data/distances-srl.ttl
-node bin/eyemind.js --check-proof examples/proof/distances-srl.srl examples/distances-srl.srl examples/data/distances-srl.ttl
+node bin/eyemind.js --check-proof examples/proof/distances-srl.js examples/distances-srl.srl examples/data/distances-srl.ttl
 ```

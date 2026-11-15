@@ -2,7 +2,7 @@
 
 *Data about a named graph in the default graph joined with data inside that graph.*
 
-[data/trig-graph-join-n3.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/trig-graph-join-n3.trig) · [trig-graph-join-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/trig-graph-join-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/trig-graph-join-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/trig-graph-join-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/trig-graph-join-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=trig-graph-join-n3)
+[data/trig-graph-join-n3.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/trig-graph-join-n3.trig) · [trig-graph-join-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/trig-graph-join-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/trig-graph-join-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/trig-graph-join-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/trig-graph-join-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=trig-graph-join-n3)
 
 ---
 
@@ -89,5 +89,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/data/trig-graph-join-n3.trig examples/trig-graph-join-n3.n3
 node bin/eyemind.js --proof examples/data/trig-graph-join-n3.trig examples/trig-graph-join-n3.n3
-node bin/eyemind.js --check-proof examples/proof/trig-graph-join-n3.n3 examples/data/trig-graph-join-n3.trig examples/trig-graph-join-n3.n3
+node bin/eyemind.js --check-proof examples/proof/trig-graph-join-n3.js examples/data/trig-graph-join-n3.trig examples/trig-graph-join-n3.n3
 ```

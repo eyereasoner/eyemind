@@ -2,7 +2,7 @@
 
 *Do two orders share a recording time while keeping separate identifiers?*
 
-[execution-identifiers-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/execution-identifiers-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/execution-identifiers-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/execution-identifiers-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/execution-identifiers-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=execution-identifiers-srl)
+[execution-identifiers-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/execution-identifiers-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/execution-identifiers-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/execution-identifiers-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/execution-identifiers-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=execution-identifiers-srl)
 
 ---
 
@@ -83,7 +83,7 @@ follows the certificate without calling the reasoning engine.
 ## Try it
 
 ```sh
-node bin/eyemind.js --check-proof examples/proof/execution-identifiers-srl.srl examples/execution-identifiers-srl.srl
+node bin/eyemind.js --check-proof examples/proof/execution-identifiers-srl.js examples/execution-identifiers-srl.srl
 ```
 
 Run `node bin/eyemind.js examples/execution-identifiers-srl.srl` for fresh times

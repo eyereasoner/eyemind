@@ -1,6 +1,6 @@
 // The eyemind command line.
 import { run, unusedClauses } from './engine.js';
-import { OUTPUT_FORMATS, defaultFormat, inputKind, loadInputs, rdfMessageFormat, scopeOf, writeConclusions, writeProof } from './formats.js';
+import { OUTPUT_FORMATS, defaultFormat, inputKind, loadInputs, rdfMessageFormat, scopeOf, writeConclusions } from './formats.js';
 import { isRdfMessageLog, replayMessages, RdfMessageReader } from './messages.js';
 import { checkProof, checkReport, publicReport } from './proof.js';
 import { EyemindError } from './terms.js';
@@ -210,7 +210,7 @@ export function main(argv, io) {
       return report.valid ? result.haltCode || 0 : 2;
     }
     // Answers to goals are eyemind terms unless an output format is asked.
-    const written = options.proof ? writeProof(loaded, result, { goals }) : writeConclusions(loaded, result, {
+    const written = options.proof ? result.proof : writeConclusions(loaded, result, {
       format: format ?? (goals.length ? 'eyemind' : defaultFormat(loaded.kind)), all, blankNodePrefix: io.blankNodePrefix,
     });
     stdout(written ?? result.stdout);

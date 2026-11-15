@@ -2,7 +2,7 @@
 
 *Named witnesses, with classifications and reciprocal child relations.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/existential-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/existential-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/existential-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/existential-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=existential-n3)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/existential-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/existential-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/existential-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/existential-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=existential-n3)
 
 ---
 
@@ -75,7 +75,7 @@ compared with `--program` output.
 ```sh
 node bin/eyemind.js examples/existential-n3.n3
 node bin/eyemind.js --strict-proof -c examples/existential-n3.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/existential-n3.n3 examples/existential-n3.n3
+node bin/eyemind.js --strict-proof --check-proof examples/proof/existential-n3.js examples/existential-n3.n3
 ```
 
 Add `:cy a :Person .` to a copy. The rules give Cy a mother IRI and the two

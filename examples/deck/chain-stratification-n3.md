@@ -2,7 +2,7 @@
 
 *No strata, yet one intended result.*
 
-[chain-stratification-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/chain-stratification-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/chain-stratification-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/chain-stratification-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/chain-stratification-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=chain-stratification-n3)
+[chain-stratification-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/chain-stratification-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/chain-stratification-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/chain-stratification-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/chain-stratification-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=chain-stratification-n3)
 
 ---
 
@@ -95,5 +95,5 @@ makes a teacher a student.
 ```sh
 node bin/eyemind.js examples/chain-stratification-n3.n3
 node bin/eyemind.js --program examples/chain-stratification-n3.n3 > /tmp/chain-stratification.js
-node bin/eyemind.js --check-proof examples/proof/chain-stratification-n3.n3 examples/chain-stratification-n3.n3
+node bin/eyemind.js --check-proof examples/proof/chain-stratification-n3.js examples/chain-stratification-n3.n3
 ```

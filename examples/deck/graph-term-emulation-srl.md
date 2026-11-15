@@ -2,7 +2,7 @@
 
 *Closed lists of quoted triples yield graph metadata through recursive list traversal.*
 
-[graph-term-emulation-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/graph-term-emulation-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/graph-term-emulation-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/graph-term-emulation-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/graph-term-emulation-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=graph-term-emulation-srl)
+[graph-term-emulation-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/graph-term-emulation-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/graph-term-emulation-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/graph-term-emulation-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/graph-term-emulation-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=graph-term-emulation-srl)
 
 ---
 
@@ -142,5 +142,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/graph-term-emulation-srl.srl
 node bin/eyemind.js --proof examples/graph-term-emulation-srl.srl
-node bin/eyemind.js --check-proof examples/proof/graph-term-emulation-srl.srl examples/graph-term-emulation-srl.srl
+node bin/eyemind.js --check-proof examples/proof/graph-term-emulation-srl.js examples/graph-term-emulation-srl.srl
 ```

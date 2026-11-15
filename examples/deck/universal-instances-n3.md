@@ -2,7 +2,7 @@
 
 *"Everyone has a mother", but not the same one.*
 
-[universal-instances-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/universal-instances-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/universal-instances-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/universal-instances-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/universal-instances-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=universal-instances-n3)
+[universal-instances-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/universal-instances-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/universal-instances-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/universal-instances-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/universal-instances-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=universal-instances-n3)
 
 ---
 
@@ -83,5 +83,5 @@ obligations left.
 ```sh
 node bin/eyemind.js examples/universal-instances-n3.n3
 node bin/eyemind.js --program examples/universal-instances-n3.n3 > /tmp/universal-instances.js
-node bin/eyemind.js --check-proof examples/proof/universal-instances-n3.n3 examples/universal-instances-n3.n3
+node bin/eyemind.js --check-proof examples/proof/universal-instances-n3.js examples/universal-instances-n3.n3
 ```

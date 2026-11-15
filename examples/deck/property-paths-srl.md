@@ -2,7 +2,7 @@
 
 *Sequential and inverse property paths derive grandparent and child-to-parent links.*
 
-[property-paths-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/property-paths-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/property-paths-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/property-paths-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/property-paths-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=property-paths-srl)
+[property-paths-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/property-paths-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/property-paths-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/property-paths-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/property-paths-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=property-paths-srl)
 
 ---
 
@@ -82,5 +82,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/property-paths-srl.srl
 node bin/eyemind.js --proof examples/property-paths-srl.srl
-node bin/eyemind.js --check-proof examples/proof/property-paths-srl.srl examples/property-paths-srl.srl
+node bin/eyemind.js --check-proof examples/proof/property-paths-srl.js examples/property-paths-srl.srl
 ```

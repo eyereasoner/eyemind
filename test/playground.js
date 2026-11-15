@@ -118,7 +118,7 @@ export const tests = [
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
     const proof = await p.output();
-    assert.match(proof, /^# SRL proof/);
+    assert.match(proof, /^\/\/ Answers:/);
     assert.match(proof, /urn:uuid:/);
     await p.select('mode', '--check-proof');
     await p.type('proof-input', proof);
@@ -176,16 +176,16 @@ export const tests = [
     await p.run();
     assert.equal(await p.output(), output);
     await p.select('mode', '--check-proof');
-    await p.type('proof-input', readFileSync(new URL('../examples/proof/message-alerts-n3.n3', import.meta.url), 'utf8'));
+    await p.type('proof-input', readFileSync(new URL('../examples/proof/message-alerts-n3.js', import.meta.url), 'utf8'));
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
     assert.equal(await p.output(), readFileSync(new URL('../examples/check/message-alerts-n3.js', import.meta.url), 'utf8'));
     await p.select('mode', '');
   }],
 
-  ['native proof generation, downloads and checking preserve N3 and SRL formats', async (page, base) => {
+  ['N3 and SRL proofs generate, download and check as JavaScript proofs', async (page, base) => {
     const p = driver(page);
-    for (const [name, extension, width] of [['socrates-n3', 'n3', 1280], ['socrates-srl', 'srl', 390]]) {
+    for (const [name, width] of [['socrates-n3', 1280], ['socrates-srl', 390]]) {
       const entry = manifest.find((entry) => entry.name === name);
       await p.open(`${base}#example=${name}`, width, width === 390);
       await p.select('mode', '--proof');
@@ -196,9 +196,9 @@ export const tests = [
         HTMLAnchorElement.prototype.click = function () { window.savedFilename = this.download; };
         document.getElementById('save-output').click();
       })()`);
-      assert.equal(await page.evaluate('window.savedFilename'), `proof.${extension}`);
+      assert.equal(await page.evaluate('window.savedFilename'), 'proof.js');
       await p.select('mode', '--check-proof');
-      assert.match(await page.evaluate("document.getElementById('command').textContent"), new RegExp(`--check-proof proof\\.${extension} `));
+      assert.match(await page.evaluate("document.getElementById('command').textContent"), /--check-proof proof\.js /);
       await p.type('proof-input', document);
       await p.run();
       assert.match(await p.status(), /^Done · exit 0/);

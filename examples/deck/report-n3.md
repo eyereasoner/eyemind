@@ -2,7 +2,7 @@
 
 *A formatted text report of fruit quantities, prices and costs.*
 
-[report-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/report-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/report-n3.txt) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/report-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/report-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=report-n3)
+[report-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/report-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/report-n3.txt) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/report-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/report-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=report-n3)
 
 ---
 
@@ -78,5 +78,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/report-n3.n3
 node bin/eyemind.js --proof examples/report-n3.n3
-node bin/eyemind.js --check-proof examples/proof/report-n3.n3 examples/report-n3.n3
+node bin/eyemind.js --check-proof examples/proof/report-n3.js examples/report-n3.n3
 ```

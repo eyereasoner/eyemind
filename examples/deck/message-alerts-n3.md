@@ -2,7 +2,7 @@
 
 *Independent sensor messages raise an alert only for the observation above the temperature threshold.*
 
-[message-alerts-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/message-alerts-n3.n3) · [data/message-alerts-n3.nt](https://github.com/eyereasoner/eyemind/blob/main/examples/data/message-alerts-n3.nt) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/message-alerts-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/message-alerts-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/message-alerts-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=message-alerts-n3)
+[message-alerts-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/message-alerts-n3.n3) · [data/message-alerts-n3.nt](https://github.com/eyereasoner/eyemind/blob/main/examples/data/message-alerts-n3.nt) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/message-alerts-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/message-alerts-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/message-alerts-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=message-alerts-n3)
 
 ---
 
@@ -113,7 +113,7 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/message-alerts-n3.n3 examples/data/message-alerts-n3.nt
 node bin/eyemind.js --proof examples/message-alerts-n3.n3 examples/data/message-alerts-n3.nt
-node bin/eyemind.js --check-proof examples/proof/message-alerts-n3.n3 examples/message-alerts-n3.n3 examples/data/message-alerts-n3.nt
+node bin/eyemind.js --check-proof examples/proof/message-alerts-n3.js examples/message-alerts-n3.n3 examples/data/message-alerts-n3.nt
 ```
 
 Process each message independently:

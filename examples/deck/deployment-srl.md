@@ -2,7 +2,7 @@
 
 *Service dependencies propagate severe vulnerabilities and safe deployment decisions.*
 
-[deployment-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/deployment-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deployment-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deployment-srl.srl) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deployment-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=deployment-srl)
+[deployment-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/deployment-srl.srl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/deployment-srl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deployment-srl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/deployment-srl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=deployment-srl)
 
 ---
 
@@ -114,5 +114,5 @@ From the repository root:
 ```sh
 node bin/eyemind.js examples/deployment-srl.srl
 node bin/eyemind.js --proof examples/deployment-srl.srl
-node bin/eyemind.js --check-proof examples/proof/deployment-srl.srl examples/deployment-srl.srl
+node bin/eyemind.js --check-proof examples/proof/deployment-srl.js examples/deployment-srl.srl
 ```

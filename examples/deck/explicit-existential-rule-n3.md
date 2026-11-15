@@ -2,7 +2,7 @@
 
 *A universally quantified rule computes a named mother for each human.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/explicit-existential-rule-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/explicit-existential-rule-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/explicit-existential-rule-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/explicit-existential-rule-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=explicit-existential-rule-n3)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/explicit-existential-rule-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/explicit-existential-rule-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/explicit-existential-rule-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/explicit-existential-rule-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=explicit-existential-rule-n3)
 
 ---
 
@@ -79,7 +79,7 @@ compared with `--program` output.
 ```sh
 node bin/eyemind.js examples/explicit-existential-rule-n3.n3
 node bin/eyemind.js --strict-proof -c examples/explicit-existential-rule-n3.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/explicit-existential-rule-n3.n3 examples/explicit-existential-rule-n3.n3
+node bin/eyemind.js --strict-proof --check-proof examples/proof/explicit-existential-rule-n3.js examples/explicit-existential-rule-n3.n3
 ```
 
 Add `:bob a :Human .` to a copy. The same universally quantified rule

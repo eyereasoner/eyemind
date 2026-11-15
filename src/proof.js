@@ -18,11 +18,11 @@ import { goalTerm } from './goals.js';
 import { checkCalls } from './fidelity.js';
 import { INSPECTION_KEYS, isInspection } from './inspection.js';
 import { CONTROL_KEYS, Program } from './program.js';
-import { readProofTerms } from './native-proof.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
   isCallable, isCollection, isFloat, isGround, isTerm, key, keyArity, keyName, listFromItems, properListItems, unify, variables,
 } from './terms.js';
+import { readTerms } from './reader.js';
 import { Lettering, letterName, quote, write, writeNotingVariables } from './writer.js';
 
 // Several goals or conclusions are displayed as an array, as a program
@@ -434,7 +434,7 @@ function readDocument(program, document, fail, spellings) {
   const certificate = { tables: new Map(), calls: new Map(), listings: new Map(), order: [] };
   const empty = new Env();
   try {
-    for (const [term] of readProofTerms(document)) {
+    for (const [term] of readTerms(document)) {
       if (isTerm(term, 'searched', 2) || isTerm(term, 'derived', 2) || isTerm(term, 'called', 2)) {
         readCertificate(term, certificate, fail, empty);
         continue;

@@ -2,7 +2,7 @@
 
 *Settle every possible hold before deciding which orders can ship.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/scoped-negation-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/scoped-negation-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/scoped-negation-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/scoped-negation-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=scoped-negation-n3)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/scoped-negation-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/scoped-negation-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/scoped-negation-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/scoped-negation-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=scoped-negation-n3)
 
 ---
 
@@ -97,7 +97,7 @@ claims are exactly what the questions return. `--strict-proof` accepts the proof
 ```sh
 node bin/eyemind.js examples/scoped-negation-n3.n3
 node bin/eyemind.js --to eyemind examples/scoped-negation-n3.n3
-node bin/eyemind.js --check-proof examples/proof/scoped-negation-n3.n3 examples/scoped-negation-n3.n3
+node bin/eyemind.js --check-proof examples/proof/scoped-negation-n3.js examples/scoped-negation-n3.n3
 ```
 
 To inspect a fresh compilation:

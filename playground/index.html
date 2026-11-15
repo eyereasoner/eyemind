@@ -176,7 +176,7 @@
           <p class="hint">Edit the program above, choose an example, or load a URL. Loading replaces the input.</p>
           <section id="proof-panel" class="proof-input" aria-labelledby="proof-heading" hidden>
             <h2 id="proof-heading">Proof to check</h2>
-            <form id="proof-url-form" class="row url-row"><input id="proof-url" type="url" placeholder="https://example.org/proof.n3" aria-label="Proof URL" autocapitalize="off" spellcheck="false" required /><button id="load-proof-url" class="secondary" type="submit">Load URL</button></form>
+            <form id="proof-url-form" class="row url-row"><input id="proof-url" type="url" placeholder="https://example.org/proof.js" aria-label="Proof URL" autocapitalize="off" spellcheck="false" required /><button id="load-proof-url" class="secondary" type="submit">Load URL</button></form>
             <textarea id="proof-input" spellcheck="false" aria-label="Saved proof"></textarea>
           </section>
         </div>
@@ -391,18 +391,12 @@
           .find(Boolean) ?? null;
       }
 
-      function proofExtension() {
-        const names = [source.name, ...(source.companions ?? []).map((file) => file.name)];
-        return names.some((name) => /\.n3$/i.test(name)) ? 'n3' : names.some((name) => /\.srl$/i.test(name)) ? 'srl' : 'js';
-      }
-
       function showSource() {
         const wasRestoring = restoring;
         restoring = true;
         input.setValue(source.text);
         byId('input-source').textContent = [source.name, ...(source.companions ?? []).map((file) => file.name)].join(' + ');
         byId('input-source').hidden = source.name === '-';
-        if (!proof.getValue() && /^proof\.(js|n3|srl)$/.test(proofName)) proofName = `proof.${proofExtension()}`;
         const entry = exampleNamed(byId('examples').value);
         byId('example-description').textContent = entry ? entry.description : '';
         byId('example-description').hidden = !entry;
@@ -742,7 +736,7 @@
           if (!byId(id).checkValidity()) { byId(id).reportValidity(); return; }
         }
         setBusy(true);
-        outputName = args.includes('--proof') || args.includes('-p') ? `proof.${proofExtension()}` : 'output.js';
+        outputName = args.includes('--proof') || args.includes('-p') ? 'proof.js' : 'output.js';
         output.setValue('');
         input.markLine(null);
         output.setOption('colored', !byId('json').checked || !['--check-proof', '--prove-and-check'].includes(byId('mode').value));

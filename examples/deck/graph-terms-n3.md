@@ -2,7 +2,7 @@
 
 *Quoted formulas are values: opaque, unquotable, and the same up to renaming.*
 
-[graph-terms-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/graph-terms-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/graph-terms-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/graph-terms-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/graph-terms-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=graph-terms-n3)
+[graph-terms-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/graph-terms-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/graph-terms-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/graph-terms-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/graph-terms-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=graph-terms-n3)
 
 ---
 
@@ -101,5 +101,5 @@ obligations left.
 ```sh
 node bin/eyemind.js examples/graph-terms-n3.n3
 node bin/eyemind.js --program examples/graph-terms-n3.n3 > /tmp/graph-terms.js
-node bin/eyemind.js --check-proof examples/proof/graph-terms-n3.n3 examples/graph-terms-n3.n3
+node bin/eyemind.js --check-proof examples/proof/graph-terms-n3.js examples/graph-terms-n3.n3
 ```

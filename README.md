@@ -24,7 +24,6 @@ The playground runs programs in your browser; the specification defines the lang
   - [SPARQL 1.2 RL](#sparql-12-rl)
 - [How eyemind reasons](#how-eyemind-reasons)
 - [Proofs, and what checking one means](#proofs-and-what-checking-one-means)
-  - [Native proof data](#native-proof-data)
   - [JSON check reports](#json-check-reports)
   - [Why negation and collection are safe](#why-negation-and-collection-are-safe)
 - [Checking the translation](#checking-the-translation)
@@ -148,7 +147,7 @@ for (let level = 1; level <= 10; level++) {
 - **Arithmetic is a term, not an operator.** `is(Y, add(X, 1))` computes and `gt(X, 1)` compares. `X + 1` or `X > 1` stops the program with a message saying what to write instead, and operators on plain numbers are JavaScript's own (`2 ** 60 + 1` arrives already rounded). The primitives are listed in [SPEC §4](https://eyereasoner.github.io/eyemind/SPEC#4-goals-and-primitives) and the arithmetic functions in [SPEC §5](https://eyereasoner.github.io/eyemind/SPEC#5-arithmetic).
 - **Numbers are exact.** An integral number is an integer, `2` and `2.0` alike, and `float(2)` is a float; write integers beyond 2^53 as a `BigInt`, `9007199254740993n`. `1` and `float(1)` do not unify, yet compare equal.
 - **Something exists.** A variable only a forward rule's conclusion mentions becomes a Skolem term of that firing: `implies(person(X), has_parent(X, P))` concludes `has_parent('ann', skolem(2, 'P', ['ann']))`.
-- **Data is not a program.** eyemind's term documents are plain expressions. `facts_from` reads one as facts and never executes it, so it is the safe way to take in data you do not trust, and lets one run reason over another's proof, as [audited-grants](https://github.com/eyereasoner/eyemind/blob/main/examples/audited-grants.js) does. Native N3 and SRL proofs are RDF data too.
+- **Data is not a program.** eyemind's term documents are plain expressions. `facts_from` reads one as facts and never executes it, so it is the safe way to take in data you do not trust, and lets one run reason over another's proof, as [audited-grants](https://github.com/eyereasoner/eyemind/blob/main/examples/audited-grants.js) does.
 
 ### Deriving rules
 
@@ -293,7 +292,7 @@ Whole-log replay gives N3 or JavaScript rules an ordered view of the messages:
 ```sh
 eyemind examples/message-boundaries-n3.n3 examples/data/message-boundaries-n3.trig
 eyemind --proof examples/message-boundaries-n3.n3 examples/data/message-boundaries-n3.trig
-eyemind --check-proof examples/proof/message-boundaries-n3.n3 examples/message-boundaries-n3.n3 examples/data/message-boundaries-n3.trig
+eyemind --check-proof examples/proof/message-boundaries-n3.js examples/message-boundaries-n3.n3 examples/data/message-boundaries-n3.trig
 ```
 
 The replay vocabulary is `eymsg:`, with namespace
@@ -403,29 +402,19 @@ The two work together: a forward rule's premise can call a backward definition, 
 ## Proofs, and what checking one means
 
 A proof holds the claims, the source clauses it cites, and each recorded
-inference. JavaScript programs write `step(...)` records. N3 inputs write
-N3 proofs, and SRL inputs write SRL `DATA` proofs:
+inference as `step(...)` records. Every input writes the same JavaScript
+proof: an N3 document or SRL rule set is compiled to an eyemind program, and
+its proof cites that program's clauses, with triples as `rdf(S, P, O)` (an
+SRL inference as `inf(S, P, O)`) over `iri(...)` and `literal(...)` terms:
 
 ```sh
-eyemind --proof examples/socrates-n3.n3 > /tmp/socrates-proof.n3
-eyemind --check-proof /tmp/socrates-proof.n3 examples/socrates-n3.n3
-eyemind --proof examples/socrates-srl.srl > /tmp/socrates-proof.srl
-eyemind --check-proof /tmp/socrates-proof.srl examples/socrates-srl.srl
+eyemind --proof examples/socrates-n3.n3 > /tmp/socrates-proof.js
+eyemind --check-proof /tmp/socrates-proof.js examples/socrates-n3.n3
+eyemind --proof examples/socrates-srl.srl > /tmp/socrates-proof.js
+eyemind --check-proof /tmp/socrates-proof.js examples/socrates-srl.srl
 ```
 
-Native proofs use `pe:`, `https://eyereasoner.github.io/pe#`, for the claims,
-conclusions, rule numbers, bindings and ordered uses. N3 displays statements
-as quoted formulas; SRL displays them as RDF triple terms. Rule numbers name
-clauses of the compiled eyemind program. The `em:` vocabulary,
-`https://eyereasoner.github.io/eyemind/proof#`, keeps the exact terms and
-ordered records, including all C9 search and C10 call tables. The checker
-validates the displays against those records, then checks the certificate
-against the source program. Altered displays, duplicate properties and extra
-assertions fail checking. Proofs can be read as data by other N3 or SRL rules.
-
-`--check-proof` recognizes the content, independently of the filename, and
-continues to accept JavaScript certificates for native inputs. Check reports
-remain JavaScript term documents, or JSON with `--json`.
+Check reports are JavaScript term documents too, or JSON with `--json`.
 
 Checking applies ten conditions:
 
@@ -475,69 +464,6 @@ verdict('checked')
 ```
 
 A `checked` verdict thus establishes two things: every claim follows from the program, and the claims are every answer of the original questions. The `called/2` table of each question lists all its answers and is checked against the program, so a proof that omits one fails C10, and a question with no claims is shown to have no answers. A failed check gives `failure(Condition, Conclusion, Detail)` facts, `verdict(failed(N))` and exit code 2. What a certificate cannot settle stays an `obligation(...)` with the verdict `checked_with_obligations`, among them `obligation('call_fidelity', 'all_answers', Question)` for a question whose answers it cannot show complete; `--strict-proof` rejects those. To check answers to `--goal` questions, pass the same goals when checking. [SPEC §11](https://eyereasoner.github.io/eyemind/SPEC#11-proof-checking) defines every condition.
-
-### Native proof data
-
-These N3 and SRL encodings are implementation extensions to the canonical
-proof documents. Language and proof conformance does not require them.
-
-The native proof resource is `<urn:eyemind:proof>`, of type `pe:Proof`, where
-`pe:` is `https://eyereasoner.github.io/pe#` and `em:` is
-`https://eyereasoner.github.io/eyemind/proof#`. It has `em:format` equal to
-`"n3"` or `"srl"`, `pe:claims` as an ordered collection of claim displays,
-and `em:records` as an ordered collection of record IRIs. Record `N`, counted
-from 1, is `<urn:eyemind:proof#recordN>` and has one `em:term` containing its
-[Section 10](https://eyereasoner.github.io/eyemind/SPEC#10-proof-documents) statement, encoded as a tagged collection:
-
-| Term | Collection |
-| --- | --- |
-| Atom | `(em:atom "text")` |
-| Integer | `(em:integer "digits")`, with a minus for a negative integer |
-| Float | `(em:float "number")`, preserving signed zero as `"-0"` |
-| Variable | `(em:variable "name")`, including anonymous-variable status |
-| `iri(I)` with an RDF-compatible IRI | `(em:iri <I>)` |
-| Nonempty proper list | `(em:list (EncodedItem ...))` |
-| Compound | `(em:compound "name" (EncodedArgument ...))` |
-
-The empty list is the atom `"[]"`. Other compounds, including open lists,
-quoted graphs and Skolem terms, use the compound encoding. A string field
-containing a character RDF cannot represent uses an `em:utf16` typed literal
-whose lexical form is four lowercase hexadecimal digits per UTF-16 code
-unit. This retains every atom and variable name accepted by
-[Section 9.2](https://eyereasoner.github.io/eyemind/SPEC#92-canonical-atoms-numbers-variables-and-lists).
-
-A triple goal's display is an N3 quoted formula, or an SRL RDF triple term.
-Other goals use their tagged encoding. A step record also displays
-`pe:conclusion`, `pe:rule` for a `clause(N)` justification, `pe:source` for
-`source(N)`, or `pe:justification` for another justification. `pe:binding`
-is an ordered collection of `(VariableName Value)` pairs, and `pe:uses` an
-ordered collection of premise displays. Non-native binding values retain
-their tagged encoding. Search records display `pe:derived`, `pe:searched`
-or `pe:called` and an ordered `pe:answers` collection. Clause numbers name
-the compiled program's clauses, whose authority is still the source input.
-SRL proofs contain only `DATA` and declarations, never rules or imports.
-
-When an SRL rule set uses `NOW`, `UUID` or `STRUUID`, its compiled program
-includes one ground `srl_execution(Now, Seed)` fact. `Now` is an ISO UTC
-timestamp with milliseconds and `Seed` contains 64 lowercase hexadecimal
-digits. The compiler captures these external inputs once per compilation;
-they remain fixed throughout evaluation. To check a saved SRL proof, the
-format loader may recover this fact from its clause records, validate its
-two fields, and recompile the source with that execution context. All other
-clauses still come from the source, and all displays undergo C1–C10 as
-usual. This establishes consequences of the recorded context, without
-certifying a clock observation or the entropy of the seed.
-
-The reader decodes every record, verifies all displays and properties against
-those records, and applies the unchanged checks of
-[Section 11](https://eyereasoner.github.io/eyemind/SPEC#11-proof-checking) to the decoded
-certificate. A missing, extra, duplicate or inconsistent property fails C3.
-Numeric literal displays retain their decimal digits during this comparison;
-distinct decimal literals do not agree merely by rounding to binary64.
-Prefix aliases and reordering top-level properties are accepted, as is
-consistent blank-node renaming; the order of collections and formula triples
-is retained. Displayed claims cannot replace encoded claims, and neither
-representation can change the source authority or supply missing evidence.
 
 ### JSON check reports
 
@@ -640,8 +566,7 @@ before exhaustion.
 | 2 | An invalid proof check; the report is printed as usual. |
 | 65 | The run concluded `'false'` and halted. |
 
-The command line, JSON output, additional input formats, native proof
-encodings, library API and browser interface describe this implementation.
+The command line, JSON output, additional input formats, library API and browser interface describe this implementation.
 They are outside the language and proof specification.
 
 ### Resource limits
@@ -721,13 +646,6 @@ console.log(checkProof(socrates, result.proof, { goals }).valid);
 ```
 
 `run()` returns `conclusions`, `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `conclusions` holds the answer terms; `answers`, `bindings` and `stdout` are rendered when first read. Ground N3 conclusions are written directly from their terms. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals, allowTrusted })` checks C1–C10, and `allowTrusted: false` rejects every obligation. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text.
-
-The core library's `result.proof` is the JavaScript certificate.
-`writeNativeProof(result.proof, { format: 'n3', prefixes })` writes its N3
-representation; use `format: 'srl'` for SRL. `readNativeProof(document)`
-returns the decoded terms, and `readProofTerms(document)` reads any supported
-proof as `[term, line]` pairs. Native records have line 0. `checkProof`
-accepts all three representations and never evaluates proof text.
 
 ## What is deliberately absent
 

@@ -2,7 +2,7 @@
 // independently reproduce those artifacts and check their proofs.
 import { readFileSync } from 'node:fs';
 import { basename, isAbsolute, join } from 'node:path';
-import { checkProof, loadText, readGoal, readProofTerms, readTerm, readTerms, run, write } from '../src/index.js';
+import { checkProof, loadText, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
 import { main } from '../src/cli.js';
 import { nodeIO } from '../src/node.js';
 import { Env, properListItems, unify } from '../src/terms.js';
@@ -406,7 +406,7 @@ for (const entry of MANIFEST) {
           } else if (proof) {
             const saved = readFileSync(artifactPath('proof', entry), 'utf8');
             if (args.some((arg) => compiled.has(arg))) {
-              const records = (text) => readProofTerms(text).map(([term]) => write(term));
+              const records = (text) => readTerms(text).map(([term]) => write(term));
               assert.deepEqual(records(result.stdout), records(saved));
             } else assert.equal(result.stdout, saved);
           }

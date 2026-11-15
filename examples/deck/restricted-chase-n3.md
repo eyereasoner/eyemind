@@ -2,7 +2,7 @@
 
 *Reuse supplied fathers and name a new one only where none is supplied.*
 
-[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/restricted-chase-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/restricted-chase-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/restricted-chase-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/restricted-chase-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=restricted-chase-n3)
+[N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/restricted-chase-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/restricted-chase-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/restricted-chase-n3.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/restricted-chase-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=restricted-chase-n3)
 
 ---
 
@@ -108,7 +108,7 @@ compared with `--program` output.
 ```sh
 node bin/eyemind.js examples/restricted-chase-n3.n3
 node bin/eyemind.js --strict-proof -c examples/restricted-chase-n3.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/restricted-chase-n3.n3 examples/restricted-chase-n3.n3
+node bin/eyemind.js --strict-proof --check-proof examples/proof/restricted-chase-n3.js examples/restricted-chase-n3.n3
 ```
 
 Add `:ann :knownFather :alice .` to a copy. Alice is reused, and no father
