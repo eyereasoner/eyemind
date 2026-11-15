@@ -84,8 +84,8 @@ deep is no problem.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached the answer. The whole proof is
-about 14.5 MB, with 100,001 clause lines and 100,001 steps; see the
-[full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-100000.js).
+about 20 MB, with 100,001 clause lines, 100,001 steps and 100,001 call
+tables; see the [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-100000.js).
 Here are its opening comment and claim, its first and last clauses, and the
 beginning and end of its single chain of steps:
 
@@ -119,7 +119,7 @@ step(type('ind', 'n1'), clause(2), {X: 'ind'}, [type('ind', 'n0')])
 step(type('ind', 'n0'), clause(1), {}, [])
 ```
 
-It has three parts:
+The excerpt has three parts:
 
 - **The claim**: the one answer.
 - **The clauses**: the program lines the steps cite, by their number in the
@@ -142,6 +142,13 @@ Read the steps as sentences:
 
 That is 100,000 rule steps and 1 fact step: 100,001 in all.
 
+The full proof also contains a call table at every level, beginning with the
+original question before `X` is bound. Each table lists exactly one answer,
+`'ind'`. The checker expands it against the source rules and the table of
+the preceding level. Together these establish that the reported individual
+is every answer of the question. The two side branches at each level cannot
+add answers to an `n` call: their heads are `i` and `j` categories.
+
 ---
 
 ## Checked: what the report says
@@ -152,7 +159,7 @@ a saved proof. The checker never reasons by itself: it only confirms each step
 against the program. This is the complete report:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program.
 type('ind', 'n100000')
 
 // C1-C10: resolution, acyclicity, justification, coverage, re-decision,
@@ -166,22 +173,18 @@ condition('C6', 'boundary_consistency', 'ok', 0)
 condition('C7', 'relevance', 'ok', 100002)
 condition('C8', 'witness_integrity', 'ok', 0)
 condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', type('ind', 'n100000'))
-obligation('call_fidelity', 'all_answers', type(A, 'n100000'))
+condition('C10', 'call_fidelity', 'ok', 2)
 
 // Proof statistics: recorded steps and how they were checked.
 steps(100001)
 verified(100001)
 recomputed(0)
 composed(0)
-trusted(2)
+trusted(0)
 claims(1)
 
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
+// This verdict also establishes that the claims above are every answer of the original questions.
+verdict('checked')
 ```
 
 Each `condition` line names a check, says `'ok'`, and counts what it looked
@@ -202,20 +205,14 @@ at:
   steps serve it.
 - **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
   there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
+- **C9 search closure (0)**: there was no absence or collection to settle.
+- **C10 call fidelity (2)**: the original question returns the claim, and
+  its certificate establishes that there are no other answers.
 
-The statistics: 100,001 steps, all verified against the program, none taken
-on trust, 1 claim. The verdict is **checked with obligations**: `'ind'` is in `'n100000'`. As
-the last comment says, this confirms the claim; it does not say the program
-has no other conclusions. The program is a few lines; its proof is large
-because a proof records every step it claims.
-
-C10 leaves 1 original-call claim and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
-
+The statistics: 100,001 steps, all verified against the program, zero
+obligations and one claim. The verdict is **checked**: `'ind'` is in
+`'n100000'`, and it is every answer of the original question. The program is
+a few lines; its proof records each derivation step and each call table.
 
 ---
 

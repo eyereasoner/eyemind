@@ -1,6 +1,6 @@
 @prefix : <https://example.org/delivery#> .
 
-:order1 :delivery _:b0 .
-_:b0 :status :ready .
-:order2 :delivery _:b1 .
-_:b1 :status :ready .
+:order1 :delivery <https://eyereasoner.github.io/.well-known/genid/3213a0e029482d0ca0c2d0d6677d39ca7acaacb155b42de122a869757d2ef2a6> .
+<https://eyereasoner.github.io/.well-known/genid/3213a0e029482d0ca0c2d0d6677d39ca7acaacb155b42de122a869757d2ef2a6> :status :ready .
+:order2 :delivery <https://eyereasoner.github.io/.well-known/genid/5db2153099ad05a8d82608bdfa7738f98bd3a827616c8bec408caff1259c0c71> .
+<https://eyereasoner.github.io/.well-known/genid/5db2153099ad05a8d82608bdfa7738f98bd3a827616c8bec408caff1259c0c71> :status :ready .

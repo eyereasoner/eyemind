@@ -1,6 +1,6 @@
 // Independent answers and boundary cases for practical and mathematical examples.
 import { readFileSync } from 'node:fs';
-import { loadText, run } from '../src/index.js';
+import { checkProof, loadText, run } from '../src/index.js';
 import { assert } from './helpers.js';
 
 function solve(name, goal, edit = (text) => text) {
@@ -9,6 +9,64 @@ function solve(name, goal, edit = (text) => text) {
 }
 
 export const tests = {
+  'Goldbach search returns exactly the least prime split of each small even number'() {
+    const text = readFileSync(new URL('../examples/goldbach.js', import.meta.url), 'utf8')
+      .replace('implies([in_range(2, 25, I), is(N, pow(2, I)), split(N, Pair)], goldbach(N, Pair))',
+        'for (let n = 4; n <= 100; n += 2) query(split(n, Pair))');
+    const prime = (n) => {
+      if (n < 2) return false;
+      for (let d = 2; d * d <= n; d++) if (n % d === 0) return false;
+      return true;
+    };
+    const expected = [];
+    for (let n = 4; n <= 100; n += 2) {
+      let p = 2;
+      while (!prime(p) || !prime(n - p)) p++;
+      expected.push(`split(${n}, [${p}, ${n - p}])`);
+    }
+    const program = loadText(text);
+    const result = run(program, { proof: true });
+    assert.deepEqual(result.answers, expected);
+    assert.ok(checkProof(program, result.proof, { allowTrusted: false }).valid);
+  },
+
+  'zebra retains the puzzle answer and needs the clue that supplies the blue house'() {
+    assert.deepEqual(solve('zebra', 'zebra(Water, Zebra)'), ["zebra('norwegian', 'japanese')"]);
+    const withoutBlue = (text) => text.replace(
+      "    adjacent(house(_, 'norwegian', _, _, _), house('blue', _, _, _, _), Houses),\n", '');
+    assert.deepEqual(solve('zebra', 'zebra(Water, Zebra)', withoutBlue), []);
+  },
+
+  'map colouring revisits an earlier colour and reports an exhausted palette'() {
+    const source = readFileSync(new URL('../examples/four-color.js', import.meta.url), 'utf8');
+    // With two colours, A=red, D=red, B=green strands C. D must become green.
+    const rules = source.split('// The map of the European Union.')[0]
+      .replace("['red', 'green', 'blue', 'yellow']", "['red', 'green']");
+    const path = `
+      fact(neighbours('C', ['B', 'D']))
+      fact(neighbours('B', ['A', 'C']))
+      fact(neighbours('D', ['C']))
+      fact(neighbours('A', ['B']))
+      query(colors('path', Places))
+    `;
+    const program = loadText(rules + path);
+    const result = run(program, { proof: true });
+    assert.deepEqual(result.answers,
+      ["colors('path', [['C', 'red'], ['B', 'green'], ['D', 'green'], ['A', 'red']])"]);
+    assert.ok(checkProof(program, result.proof, { allowTrusted: false }).valid);
+    const triangle = `
+      fact(neighbours('A', ['B', 'C']))
+      fact(neighbours('B', ['A', 'C']))
+      fact(neighbours('C', ['A', 'B']))
+      query(colors('triangle', Places))
+      query(color_places(['A', 'B', 'C'], [], 'failed'))
+    `;
+    const impossible = loadText(rules + triangle);
+    const failure = run(impossible, { proof: true });
+    assert.deepEqual(failure.answers, ["color_places(['A', 'B', 'C'], [], 'failed')"]);
+    assert.ok(checkProof(impossible, failure.proof, { allowTrusted: false }).valid);
+  },
+
   'outage repairs restore both functions and a dependency cycle cannot start itself'() {
     assert.deepEqual(solve('service-outage-recovery', 'best_repair(Plan, Cost)'),
       ["best_repair(['catalog_replica', 'bank_backup'], 3)"]);

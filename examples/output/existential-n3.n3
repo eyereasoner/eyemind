@@ -1,8 +1,8 @@
 @prefix : <http://example.org/people#> .
 
-:ann :mother _:b0 .
-_:b0 a :Woman .
-:bob :mother _:b1 .
-_:b1 a :Woman .
-_:b0 :hasChild :ann .
-_:b1 :hasChild :bob .
+:ann :mother <https://eyereasoner.github.io/.well-known/genid/ee2956d8f5822f2cb3b208c5b988d2d006eedc4b3785315b961306ac4e4059b1> .
+<https://eyereasoner.github.io/.well-known/genid/ee2956d8f5822f2cb3b208c5b988d2d006eedc4b3785315b961306ac4e4059b1> a :Woman .
+:bob :mother <https://eyereasoner.github.io/.well-known/genid/bd71c82d337e4be11be5babdab1403beb35f509f069848b543dbfca97f131ddf> .
+<https://eyereasoner.github.io/.well-known/genid/bd71c82d337e4be11be5babdab1403beb35f509f069848b543dbfca97f131ddf> a :Woman .
+<https://eyereasoner.github.io/.well-known/genid/ee2956d8f5822f2cb3b208c5b988d2d006eedc4b3785315b961306ac4e4059b1> :hasChild :ann .
+<https://eyereasoner.github.io/.well-known/genid/bd71c82d337e4be11be5babdab1403beb35f509f069848b543dbfca97f131ddf> :hasChild :bob .

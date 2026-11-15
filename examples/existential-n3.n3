@@ -1,10 +1,12 @@
-# Something exists: every person has a mother, a blank node in the rule's
-# conclusion. Each firing names its own node, so ann and bob get different
-# mothers, and a second rule reasons about them.
+# Each person has a mother named by a Skolem IRI. The role and person form
+# the key, so Ann and Bob get different mother IRIs, and a second rule adds
+# reciprocal child links. The computed name is bound in the premise, making
+# this an ordinary forward rule with a strictly checkable proof.
 @prefix : <http://example.org/people#>.
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
 
 :ann a :Person.
 :bob a :Person.
 
-{ ?p a :Person } => { ?p :mother _:m. _:m a :Woman }.
+{ ?p a :Person. (:mother ?p) log:skolem ?m } => { ?p :mother ?m. ?m a :Woman }.
 { ?p :mother ?m } => { ?m :hasChild ?p }.

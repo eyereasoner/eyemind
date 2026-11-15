@@ -1,6 +1,6 @@
 # N3 delivery witnesses
 
-*One new delivery record per order, shared by the triples of its rule firing.*
+*One stable Skolem IRI per order, shared by the delivery link and ready status.*
 
 [N3 source](https://github.com/eyereasoner/eyemind/blob/main/examples/witnesses-n3.n3) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/witnesses-n3.n3) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/witnesses-n3.n3) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/witnesses-n3.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=witnesses-n3)
 
@@ -8,9 +8,8 @@
 
 ## The question
 
-Two paid orders each need a delivery record. The rule must give each order
-its own record and mark that same record ready. How does an unnamed N3
-record keep its identity through compilation, reasoning and proof checking?
+Two paid orders each need a delivery record. How can both triples about one
+record use the same name, while different orders get different records?
 
 ---
 
@@ -18,89 +17,62 @@ record keep its identity through compilation, reasoning and proof checking?
 
 ```n3
 @prefix : <https://example.org/delivery#> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
 
 :order1 :status :paid .
 :order2 :status :paid .
 
-{ ?order :status :paid } => {
-  ?order :delivery _:delivery .
-  _:delivery :status :ready .
+{
+  ?order :status :paid .
+  (:delivery ?order) log:skolem ?delivery
+} => {
+  ?order :delivery ?delivery .
+  ?delivery :status :ready .
 } .
 ```
 
-The blank node `_:delivery` occurs only in the conclusion. Both triples
-of one firing refer to the same new delivery. Firing for another order
-creates another delivery.
+`(:delivery ?order)` is the naming key. `log:skolem` computes an IRI from
+its canonical term text using SHA-256. Both conclusion triples use that
+computed value. Repeating the same key produces the same IRI; adding another
+order leaves the first two names unchanged. The role `:delivery` is part of
+the key so another kind of record can use a different key for the same order.
 
----
-
-## What gets compiled
-
-eyemind translates
-the two conclusion triples into one conjunctive head of a restricted rule,
-sharing the variable `Bdelivery`. That variable is absent from the premise,
-so eyemind assigns a Skolem witness to it. A restricted rule fires only
-where no known delivery is already linked to the order and ready, so a
-delivery stated in the data would be reused instead of a new one.
-
-For order 1 the witness is:
-
-```js
-skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order1')])
-```
-
-The term identifies clause 3, its existential variable, and the order that
-determines this firing. The second order's witness has `order2` in its
-arguments. Both the order-to-delivery link and the delivery's ready status
-use the same witness for their firing.
+The variable `?delivery` is bound in the premise. The compiler therefore
+produces an ordinary forward rule, with no conclusion-only existential
+variable. This example deliberately assigns a deterministic name to every
+paid order's delivery; it does not test whether a different delivery was
+already supplied.
 
 ---
 
 ## What eyemind concludes
 
-The check report records these answers as terms:
+There are four conclusions: a delivery link and a ready-status triple for
+each order. Each pair shares one IRI, and the two orders use different IRIs.
+
+The check report writes the claims as terms:
 
 ```js
-// Conclusions: the facts the program derives, in the order derived.
-rdf(iri('https://example.org/delivery#order1'), iri('https://example.org/delivery#delivery'), skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order1')]))
-rdf(skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order1')]), iri('https://example.org/delivery#status'), iri('https://example.org/delivery#ready'))
-rdf(iri('https://example.org/delivery#order2'), iri('https://example.org/delivery#delivery'), skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order2')]))
-rdf(skolem(3, 'Bdelivery', [iri('https://example.org/delivery#order2')]), iri('https://example.org/delivery#status'), iri('https://example.org/delivery#ready'))
+// Checked answers: these follow from the input program.
+rdf(iri('https://example.org/delivery#order1'), iri('https://example.org/delivery#delivery'), iri('https://eyereasoner.github.io/.well-known/genid/3213a0e029482d0ca0c2d0d6677d39ca7acaacb155b42de122a869757d2ef2a6'))
+rdf(iri('https://eyereasoner.github.io/.well-known/genid/3213a0e029482d0ca0c2d0d6677d39ca7acaacb155b42de122a869757d2ef2a6'), iri('https://example.org/delivery#status'), iri('https://example.org/delivery#ready'))
+rdf(iri('https://example.org/delivery#order2'), iri('https://example.org/delivery#delivery'), iri('https://eyereasoner.github.io/.well-known/genid/5db2153099ad05a8d82608bdfa7738f98bd3a827616c8bec408caff1259c0c71'))
+rdf(iri('https://eyereasoner.github.io/.well-known/genid/5db2153099ad05a8d82608bdfa7738f98bd3a827616c8bec408caff1259c0c71'), iri('https://example.org/delivery#status'), iri('https://example.org/delivery#ready'))
 ```
-
-Converted back to N3, they read:
-
-```turtle
-@prefix : <https://example.org/delivery#> .
-
-:order1 :delivery _:b0 .
-_:b0 :status :ready .
-:order2 :delivery _:b1 .
-_:b1 :status :ready .
-```
-
-eyemind assigns blank-node labels to the witnesses while writing
-the document. Within this output, `_:b0` consistently denotes order 1's
-delivery and `_:b1` order 2's. These labels are local identifiers in the
-output document.
 
 ---
 
 ## What the proof establishes
 
-The report ends with `verdict('checked_with_obligations')`, with four
-claims. C8 covers all four derived steps and recomputes the correct
-Skolem witnesses from the source rule and premise evidence. Renaming a
-witness's variable field or replacing it with an arbitrary record would
-fail C8 even if the triples still looked like a rule instance to C1.
+C5 re-decides the term text, SHA-256 computation and IRI construction.
+Changing a generated IRI consistently throughout a forged proof still fails
+those computations. C10 establishes that the claims are every answer of the
+original questions. No C8 witness is needed: the name was computed in the
+premise.
 
-Each firing's restriction is a negation that the search certificate
-settles against the derived facts: no other delivery serves the order, so
-the new one is needed. Which firings a restricted rule makes can depend on
-the order of rule applications, so C10 leaves a `call_fidelity`
-obligation for each claim, which the manifest lists as trusted. The proof
-concerns the compiled eyemind program; the conversion from the N3 source
-is a separate step that can be inspected.
+The verdict is **checked**, with zero obligations. The saved native N3
+proof carries the complete compiled certificate, whose clauses can be
+compared with `--program` output.
 
 ---
 
@@ -108,16 +80,9 @@ is a separate step that can be inspected.
 
 ```sh
 node bin/eyemind.js examples/witnesses-n3.n3
-node bin/eyemind.js --to eyemind examples/witnesses-n3.n3
+node bin/eyemind.js --strict-proof -c examples/witnesses-n3.n3
 node bin/eyemind.js --strict-proof --check-proof examples/proof/witnesses-n3.n3 examples/witnesses-n3.n3
 ```
 
-Recompile the original N3 and inspect its witness terms:
-
-```sh
-node bin/eyemind.js --program examples/witnesses-n3.n3 > /tmp/witnesses-n3.js
-node bin/eyemind.js --proof /tmp/witnesses-n3.js
-```
-
-Add a third paid order to a copy of the N3 source, then compile and run it.
-It receives its own delivery record and ready-status triple.
+Add `:order3 :status :paid .` to a copy. It receives a third delivery IRI,
+while the names of the first two deliveries stay the same.

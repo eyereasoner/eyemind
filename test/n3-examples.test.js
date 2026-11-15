@@ -10,7 +10,73 @@ function programFrom(name, extra = '') {
   return loadInputs([[`${readFileSync(path, 'utf8')}\n${extra}`, path]]).program;
 }
 
+function strictly(name, extra = '') {
+  const program = programFrom(name, extra);
+  const result = run(program, { proof: true });
+  assert.deepEqual(result.proofReport.trusted, []);
+  assert.ok(checkProof(program, result.proof, { allowTrusted: false }).valid);
+  return result.conclusions;
+}
+
+const relation = (triples, predicate) => triples.filter((triple) => triple.args[1].args[0] === predicate);
+const iri = (term) => {
+  assert.equal(term.name, 'iri');
+  return term.args[0];
+};
+const generated = (term) => assert.match(iri(term), /^https:\/\/eyereasoner.github.io\/\.well-known\/genid\/[0-9a-f]{64}$/);
+
 export const tests = {
+  'Skolem delivery IRIs stay shared and stable when another order is supplied'() {
+    const ns = 'https://example.org/delivery#';
+    const original = relation(strictly('witnesses'), `${ns}delivery`);
+    const triples = strictly('witnesses', ':order3 :status :paid .');
+    const links = relation(triples, `${ns}delivery`);
+    assert.equal(links.length, 3);
+    assert.equal(new Set(links.map((link) => iri(link.args[2]))).size, 3);
+    for (const link of links) {
+      generated(link.args[2]);
+      assert.ok(triples.some((triple) => iri(triple.args[0]) === iri(link.args[2]) &&
+        iri(triple.args[1]) === `${ns}status` && iri(triple.args[2]) === `${ns}ready`));
+    }
+    assert.deepEqual(links.slice(0, 2).map((link) => iri(link.args[2])), original.map((link) => iri(link.args[2])));
+  },
+
+  'Skolem mothers keep their classifications and reciprocal child links'() {
+    const ns = 'http://example.org/people#';
+    const triples = strictly('existential');
+    const mothers = relation(triples, `${ns}mother`);
+    assert.equal(mothers.length, 2);
+    assert.notEqual(iri(mothers[0].args[2]), iri(mothers[1].args[2]));
+    for (const mother of mothers) {
+      generated(mother.args[2]);
+      assert.ok(triples.some((triple) => iri(triple.args[0]) === iri(mother.args[2]) &&
+        iri(triple.args[1]) === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && iri(triple.args[2]) === `${ns}Woman`));
+      assert.ok(triples.some((triple) => iri(triple.args[0]) === iri(mother.args[2]) &&
+        iri(triple.args[1]) === `${ns}hasChild` && iri(triple.args[2]) === iri(mother.args[0])));
+    }
+    const explicit = relation(strictly('explicit-existential-rule'), 'http://example.org/hasMother');
+    assert.equal(explicit.length, 2);
+    assert.deepEqual(explicit.map((link) => iri(link.args[0])), ['http://example.org/tom', 'http://example.org/ann']);
+    assert.notEqual(iri(explicit[0].args[2]), iri(explicit[1].args[2]));
+    explicit.forEach((link) => generated(link.args[2]));
+  },
+
+  'Skolem fathers reuse supplied links and expose two distinct known fathers'() {
+    const ns = 'http://example.org/';
+    const triples = strictly('restricted-chase');
+    const fathers = relation(triples, `${ns}father`);
+    assert.equal(fathers.length, 2);
+    assert.equal(iri(fathers.find((triple) => iri(triple.args[0]) === `${ns}jo`).args[2]), `${ns}bob`);
+    generated(fathers.find((triple) => iri(triple.args[0]) === `${ns}ann`).args[2]);
+    assert.equal(relation(triples, `${ns}nef`).length, 0);
+    const supplied = strictly('restricted-chase', ':ann :knownFather :alice .');
+    assert.deepEqual(relation(supplied, `${ns}father`).map((triple) => iri(triple.args[2])), [`${ns}bob`, `${ns}alice`]);
+    assert.ok(!supplied.some((triple) => triple.args.some((term) => iri(term).includes('/.well-known/genid/'))));
+    const two = relation(strictly('restricted-chase', ':jo :knownFather :carl .'), `${ns}nef`);
+    assert.deepEqual(new Set(two.map((triple) => `${iri(triple.args[0])} ${iri(triple.args[2])}`)),
+      new Set([`${ns}bob ${ns}carl`, `${ns}carl ${ns}bob`]));
+  },
+
   'an additional hold blocks the remaining paid order'() {
     const program = programFrom('scoped-negation', ':order1 :hold :review .');
     assert.deepEqual(run(program).answers, [
@@ -25,17 +91,16 @@ export const tests = {
     assert.ok(result.answers.includes("'false'"));
   },
 
-  // The restricted rule's guard names the witness too, so C1 rejects the
-  // renamed guard as C8 rejects the renamed witness.
-  'a forged delivery witness is rejected'() {
+  'a forged delivery Skolem IRI is rejected by recomputing its construction'() {
     const program = programFrom('witnesses');
     const saved = readFileSync(join(ROOT, 'examples/proof/witnesses-n3.n3'), 'utf8');
     const certificate = readNativeProof(saved).map((term) => write(term)).join('\n');
-    const altered = certificate.replace(/(skolem\([0-9]+, )'Bdelivery'/g, "$1'invented'");
+    const delivery = iri(run(program).conclusions[0].args[2]);
+    const altered = certificate.replaceAll(delivery, 'https://example.org/invented');
     assert.notEqual(altered, certificate);
     const forged = writeNativeProof(altered);
-    const report = checkProof(program, forged);
+    const report = checkProof(program, forged, { allowTrusted: false });
     assert.ok(!report.valid);
-    assert.ok(report.failures.some(({ condition }) => condition === 'C1' || condition === 'C8'));
+    assert.ok(report.failures.some(({ condition }) => condition === 'C5'));
   },
 };

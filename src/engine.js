@@ -1093,7 +1093,7 @@ function certify(solver, boundaries, operational = false) {
   let budget = 0;
   let depth = 0;
   let volume = 0;
-  const limit = operational ? Math.min(solver.maxInferences, 50000) : solver.maxInferences;
+  const limit = operational ? Math.min(solver.maxInferences, 500000) : solver.maxInferences;
   const callKeyOf = (call) => variant(call, operational);
   const settler = new Settler(program, {
     answers(call) {

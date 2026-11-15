@@ -239,7 +239,7 @@ nested graph terms below the first level is by unification, so it depends on
 the order of their triples. See
 [universal instances](https://eyereasoner.github.io/eyemind/examples/deck/universal-instances-n3),
 [a shared existential](https://eyereasoner.github.io/eyemind/examples/deck/shared-existential-n3),
-[an existential rule](https://eyereasoner.github.io/eyemind/examples/deck/explicit-existential-rule-n3),
+[a Skolem IRI rule with explicit universals](https://eyereasoner.github.io/eyemind/examples/deck/explicit-existential-rule-n3),
 [quantifier scopes](https://eyereasoner.github.io/eyemind/examples/deck/quantifier-scopes-n3) and
 [graph terms](https://eyereasoner.github.io/eyemind/examples/deck/graph-terms-n3).
 
@@ -275,7 +275,7 @@ Examples run directly from their N3 source in the playground and on the command 
 [scoped negation](https://eyereasoner.github.io/eyemind/examples/deck/scoped-negation-n3),
 [invoice collection](https://eyereasoner.github.io/eyemind/examples/deck/invoice-n3),
 [French cities](https://eyereasoner.github.io/eyemind/examples/deck/french-cities-n3), and
-[existential witnesses](https://eyereasoner.github.io/eyemind/examples/deck/witnesses-n3).
+[Skolem IRI witnesses](https://eyereasoner.github.io/eyemind/examples/deck/witnesses-n3).
 Each deck shows the N3 result and what its saved proof establishes, including
 any remaining obligations.
 
@@ -658,7 +658,7 @@ Arithmetic also limits integer growth: `pow(A, B)` with integer `B > 0` and
 2^26. These limits protect the process from excessively large allocations.
 
 Auxiliary C10 certification is bounded per question by the smaller of the
-run's inference limit and 50,000 calls plus answers, and by 8,388,608 UTF-16
+run's inference limit and 500,000 calls plus answers, and by 8,388,608 UTF-16
 code units of answer text. Hitting these limits leaves an obligation and
 does not change the run's answers.
 

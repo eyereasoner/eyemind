@@ -28,7 +28,35 @@ const ONCE = "fact(p('a'), p('b'))\nimplied_by(q(X), once(p(X)))\nquery(q(X))";
 const LATER = "q('b')\nstep(q('b'), clause(3), {}, [once(p('b'))])\n" +
   "step(once(p('b')), 'control', {}, [p('b')])\n";
 
+function chain(depth) {
+  return `fact(level('ind', 0))
+    for (let n = 1; n <= ${depth}; n++) implied_by(level(X, n), level(X, n - 1))
+    query(level(X, ${depth}))`;
+}
+
 export const tests = {
+  'C10 certifies a finite chain beyond fifty thousand calls plus answers'() {
+    const loaded = program(chain(25000));
+    const result = run(loaded, { proof: true });
+    assert.deepEqual(result.answers, ["level('ind', 25000)"]);
+    assert.deepEqual(result.proofReport.trusted, []);
+    assert.ok(checkProof(loaded, result.proof, { allowTrusted: false }).valid);
+    // A missing answer halfway down cannot certify the rest of the chain.
+    const forged = result.proof.replace(
+      /^(called\(level\([^,\n]+, 12500\), )\[level\('ind', 12500\)\](\))$/m, '$1[]$2');
+    assert.ok(forged !== result.proof, 'missing intermediate call table');
+    rejected(loaded, forged);
+  },
+
+  'C10 certification still respects a smaller run inference budget'() {
+    const loaded = program(chain(300));
+    const result = run(loaded, { proof: true, maxInferences: 400 });
+    assert.deepEqual(result.answers, ["level('ind', 300)"]);
+    assert.ok(result.proofReport.valid);
+    assert.ok(result.proofReport.trusted.some(({ reason }) => reason === 'all_answers'));
+    rejected(loaded, result.proof);
+  },
+
   'C10 certifies original calls and survives writing and reading the proof'() {
     const { result, report } = checked(ONCE);
     assert.deepEqual(result.answers, ["q('a')"]);

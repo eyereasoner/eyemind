@@ -287,6 +287,12 @@ query(or(q(X), r(X)))`);
     await p.select('mode', '--prove-and-check');
     await page.evaluate("document.getElementById('strict-proof').click()");
     await p.run();
+    assert.match(await p.status(), /^Done · exit 0/);
+    assert.match(await p.output(), /trusted\(0\)/);
+    assert.match(await p.output(), /verdict\('checked'\)/);
+    // Native conclusion blank nodes still require restricted firing evidence.
+    await p.type('input', '@prefix : <http://example.org/>.\n:a :p :b.\n{ ?x :p ?y } => { ?x :q _:w }.');
+    await p.run();
     assert.match(await p.status(), /^Proof not valid · exit 2/);
     assert.match(await p.output(), /^\/\/ Unverified claims:/);
     await p.select('mode', '');

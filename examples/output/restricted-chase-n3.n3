@@ -1,7 +1,8 @@
 @prefix : <http://example.org/> .
 
+:jo :father :bob .
+:ann :father <https://eyereasoner.github.io/.well-known/genid/277aa42c177ba05114fc60349a038157131415db9bec7275538a263eb9ef4b03> .
+<https://eyereasoner.github.io/.well-known/genid/277aa42c177ba05114fc60349a038157131415db9bec7275538a263eb9ef4b03> a :Man .
 :bob a :Man .
 :bob :eq :bob .
-:ann :father _:b0 .
-_:b0 a :Man .
-_:b0 :eq _:b0 .
+<https://eyereasoner.github.io/.well-known/genid/277aa42c177ba05114fc60349a038157131415db9bec7275538a263eb9ef4b03> :eq <https://eyereasoner.github.io/.well-known/genid/277aa42c177ba05114fc60349a038157131415db9bec7275538a263eb9ef4b03> .

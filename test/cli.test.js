@@ -66,7 +66,8 @@ export const tests = {
     assert.equal(cli(['-c'], "fact(p('a'))\nquery(p(X))").code, 0);
     assert.deepEqual(JSON.parse(cli(['-c', '--json', 'examples/socrates.js']).stdout).answers,
       ["type('socrates', 'mortal')", "type('socrates', 'human')"]);
-    assert.equal(cli(['-c', '--strict-proof', 'examples/witnesses-n3.n3']).code, 2);
+    assert.equal(cli(['-c', '--strict-proof', 'examples/witnesses-n3.n3']).code, 0);
+    assert.equal(cli(['-c', '--strict-proof'], "fact(p('a'))\nrestricted(p(X), q(X, W))").code, 2);
     assert.equal(cli(['-c', 'examples/integrity.js']).code, 65);
     assert.equal(JSON.parse(cli(['-c', '--stats', 'examples/socrates.js']).stderr).derived, 1);
     for (const args of [['-p'], ['--check-proof', 'examples/proof/socrates.js'], ['--unused']]) {
@@ -177,7 +178,9 @@ export const tests = {
     assert.ok(failed.stdout.includes("condition('C5', 're_decision', failed(1), 0)\n"));
     assert.ok(failed.stdout.includes("failure('C5', is(7, add(2, 3)),"));
     assert.ok(failed.stdout.includes('verdict(failed(2))\n'));
-    const strictly = cli(['--strict-proof', '--check-proof', 'examples/proof/witnesses-n3.n3', 'examples/witnesses-n3.n3']);
+    const incomplete = readFileSync(join(ROOT, 'examples/proof/socrates.js'), 'utf8')
+      .replace(/^(?:called|derived)\(.*\n/gm, '');
+    const strictly = cli(['--strict-proof', '--check-proof', '-', 'examples/socrates.js'], incomplete);
     assert.equal(strictly.code, 2);
     assert.ok(strictly.stdout.includes("obligation('call_fidelity', 'original_call',"));
     assert.ok(strictly.stdout.includes('verdict(failed('));

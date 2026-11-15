@@ -4,10 +4,10 @@
 // Each constraint narrows a list of five partially known houses; unification
 // does the rest. The answer: the Norwegian drinks water and the Japanese owns
 // the zebra.
-// No search strategy is programmed: the clues are a conjunction in one
+// Fixed-position clues come first to narrow the search. The clues form one
 // backward rule, and backtracking tries the ways each clue can fit. A last
 // check accepts only a fully known street in which no two houses share a
-// value, so dropping a clue gives no answer rather than a half-filled one.
+// colour, nationality, pet, drink or brand.
 //
 // This version of the puzzle was printed in Life International on
 // 17 December 1962.
@@ -18,6 +18,11 @@ implied_by(
   zebra(WaterDrinker, ZebraOwner),
   [
     unify(Houses, [_, _, _, _, _]),
+    // Milk is drunk in the middle house; the Norwegian lives in the first.
+    unify(Houses, [_, _, house(_, _, _, 'milk', _), _, _]),
+    unify(Houses, [house(_, 'norwegian', _, _, _), ..._]),
+    // The Norwegian lives next to the blue house.
+    adjacent(house(_, 'norwegian', _, _, _), house('blue', _, _, _, _), Houses),
     member(house('red', 'english', _, _, _), Houses),
     member(house(_, 'spanish', 'dog', _, _), Houses),
     member(house('green', _, _, 'coffee', _), Houses),
@@ -26,14 +31,10 @@ implied_by(
     next_to(house('ivory', _, _, _, _), house('green', _, _, _, _), Houses),
     member(house(_, _, 'snail', _, 'old_gold'), Houses),
     member(house('yellow', _, _, _, 'kools'), Houses),
-    // Milk is drunk in the middle house; the Norwegian lives in the first.
-    unify(Houses, [_, _, house(_, _, _, 'milk', _), _, _]),
-    unify(Houses, [house(_, 'norwegian', _, _, _), ..._]),
     adjacent(house(_, _, _, _, 'chesterfields'), house(_, _, 'fox', _, _), Houses),
     adjacent(house(_, _, _, _, 'kools'), house(_, _, 'horse', _, _), Houses),
     member(house(_, _, _, 'orange_juice', 'lucky_strike'), Houses),
     member(house(_, 'japanese', _, _, 'parliaments'), Houses),
-    adjacent(house(_, 'norwegian', _, _, _), house('blue', _, _, _, _), Houses),
     member(house(_, WaterDrinker, _, 'water', _), Houses),
     member(house(_, ZebraOwner, 'zebra', _, _), Houses),
     // The puzzle takes for granted that the street is fully known and that no

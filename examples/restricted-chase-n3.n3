@@ -1,22 +1,30 @@
-# Fathers made only where none is known
+# Skolem fathers made only where none is supplied
 #
 # Every human has some father who is a man. Jo's father Bob is known, Ann's
-# is not. A rule then flags two fathers of one child that are not known to
-# be equal. eyemind concludes that Bob is a man, gives Ann one new father,
-# invents none for Jo, and flags no one. It shows the restricted chase: a
-# rule with a blank node in its conclusion fires only where no known values
-# satisfy that conclusion, after the other rules have run. The rules are
-# L8-L11 of N. Küchenmeister, A. Ivliev, D. Arndt and M. Krötzsch,
+# is not. knownFather records supplied father links; an ordinary rule copies
+# them to father. Only a human without a knownFather gets a Skolem father
+# IRI. Bob is classified as a man, Ann gets one generated father, Jo gets no
+# extra father, and the two-father rule flags no one.
+#
+# This Skolem IRI adaptation of L8-L11 separates supplied and derived links;
+# it does not implement the general restricted chase over arbitrary derived
+# fathers. Source: N. Küchenmeister, A. Ivliev, D. Arndt and M. Krötzsch,
 # "Stratified Negation in RDF Rules: A Correct Approach" (arXiv:2607.28778).
 
 @prefix : <http://example.org/> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
 
 :jo a :Human .
-:jo :father :bob .
+:jo :knownFather :bob .
 :ann a :Human .
 
-# L8: every human has some father who is a man.
-{ ?x a :Human } => { ?x :father _:1 . _:1 a :Man } .
+# Reuse supplied fathers, and generate an IRI only where none is supplied.
+{ ?x :knownFather ?father } => { ?x :father ?father } .
+{
+    ?x a :Human .
+    [] log:notIncludes { ?x :knownFather [] } .
+    (:father ?x) log:skolem ?father
+} => { ?x :father ?father . ?father a :Man } .
 
 # L9: a father is a man.
 { ?x :father ?y } => { ?y a :Man } .

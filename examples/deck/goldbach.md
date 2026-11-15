@@ -26,18 +26,18 @@ whose smaller prime is as small as possible?**
 
 ```js
 fact(split(4, [2, 2]))
-implied_by(split(N, Pair), [eq(0, mod(N, 2)), gt(N, 4), once(split_from(N, Pair, 3))])
+implied_by(split(N, Pair), [eq(0, mod(N, 2)), gt(N, 4), split_from(N, Pair, 3)])
 
 // Try P = 3, 5, 7, 11, ... in turn, each the next prime, until N - P is prime.
 implied_by(split_from(N, [P, Q], P), [is(Q, sub(N, P)), is_prime(Q)])
 implied_by(
   split_from(N, Pair, P),
-  [lt(P, N), once(next_prime(P, Next)), split_from(N, Pair, Next)],
+  [lt(P, N), is(Q, sub(N, P)), not(is_prime(Q)), next_prime(P, Next), split_from(N, Pair, Next)],
 )
 
 // the next prime after the odd number P
 implied_by(next_prime(P, Next), [is(Next, add(P, 2)), is_prime(Next)])
-implied_by(next_prime(P, Next), [is(Q, add(P, 2)), next_prime(Q, Next)])
+implied_by(next_prime(P, Next), [is(Q, add(P, 2)), not(is_prime(Q)), next_prime(Q, Next)])
 ```
 
 These are clauses 1 to 6. Capitalized names are **variables**, blanks to be
@@ -49,9 +49,9 @@ arithmetic: equal, greater than, less than, compute, remainder, minus, plus.
 In words: 4 is 2 + 2 (fact 1). For a larger even N, start with the prime
 P = 3. If N − P is prime, that is the split (rule 3). If not, move on to the
 next prime and try again (rule 4). The next prime after P is found by
-stepping 2 at a time until `is_prime` holds (rules 5 and 6). `once(...)`
-means: take the first answer found and stop looking. That is what makes the
-smaller prime the least possible.
+stepping 2 at a time until `is_prime` holds (rules 5 and 6). Each recursive
+continuation explicitly requires the current candidate to fail. The search
+therefore stops at its first success, making the smaller prime the least possible.
 
 ---
 
@@ -63,13 +63,14 @@ fact(is_prime(3))
 implied_by(is_prime(P), [gt(P, 3), eq(1, mod(P, 2)), not(has_factor(P, 3))])
 
 // has_factor(N, L): N is divisible by L or by a later odd number, trying
-// divisors only until their square reaches N.
+// divisors only until their square reaches N, and stopping at the first factor.
 implied_by(has_factor(N, L), eq(0, mod(N, L)))
-implied_by(has_factor(N, L), [lt(mul(L, L), N), is(M, add(L, 2)), has_factor(N, M)])
+implied_by(has_factor(N, L), [ne(0, mod(N, L)), lt(mul(L, L), N), is(M, add(L, 2)), has_factor(N, M)])
 ```
 
 Clauses 7 to 11. This is **trial division**: an odd number above 3 is prime
-if none of 3, 5, 7, … (up to its square root) divides it.
+if none of 3, 5, 7, … (up to its square root) divides it. The recursive
+branch requires a nonzero remainder, so it stops at the first divisor.
 `not(has_factor(P, 3))` succeeds when the search for a factor finds nothing.
 This is **negation as failure**: "cannot be found" counts as "false".
 
@@ -105,285 +106,26 @@ factor. Testing cases illustrates the conjecture; it does not prove it.
 
 ---
 
-## The proof, line by line
+## What the proof establishes
 
-`eyemind --proof` writes down how it reached each conclusion. The full proof
-has 913 steps and a search certificate of 9,915 lines; see the
-[proof file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/goldbach.js).
-Below are its claims, its clauses, and the complete chain of 17 steps behind
-one claim, `goldbach(8, [3, 5])`. The `// …` lines mark the steps left out:
-the 5 for 4 and the 891 for the larger numbers. The certificate shows its
-first three lines.
+The recorded steps justify each split and its primality tests. Search tables
+settle the negations and the original forward-rule calls, including every
+answer. The checker expands the supplied tables against the source clauses;
+it never calls the reasoning engine to supply missing evidence.
 
-```js
-// Conclusions: the facts the program derives, in the order derived.
-goldbach(4, [2, 2])
-goldbach(8, [3, 5])
-goldbach(16, [3, 13])
-goldbach(32, [3, 29])
-goldbach(64, [3, 61])
-goldbach(128, [19, 109])
-goldbach(256, [5, 251])
-goldbach(512, [3, 509])
-goldbach(1024, [3, 1021])
-goldbach(2048, [19, 2029])
-goldbach(4096, [3, 4093])
-goldbach(8192, [13, 8179])
-goldbach(16384, [3, 16381])
-goldbach(32768, [19, 32749])
-goldbach(65536, [17, 65519])
-goldbach(131072, [13, 131059])
-goldbach(262144, [5, 262139])
-goldbach(524288, [19, 524269])
-goldbach(1048576, [3, 1048573])
-goldbach(2097152, [19, 2097133])
-goldbach(4194304, [3, 4194301])
-goldbach(8388608, [37, 8388571])
-goldbach(16777216, [3, 16777213])
-goldbach(33554432, [61, 33554371])
-
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(split(4, [2, 2])))
-clause(2, implied_by(split(N, Pair), [eq(0, mod(N, 2)), gt(N, 4), once(split_from(N, Pair, 3))]))
-clause(3, implied_by(split_from(N, [P, Q], P), [is(Q, sub(N, P)), is_prime(Q)]))
-clause(4, implied_by(split_from(N, Pair, P), [lt(P, N), once(next_prime(P, Next)), split_from(N, Pair, Next)]))
-clause(5, implied_by(next_prime(P, Next), [is(Next, add(P, 2)), is_prime(Next)]))
-clause(6, implied_by(next_prime(P, Next), [is(Q, add(P, 2)), next_prime(Q, Next)]))
-clause(9, implied_by(is_prime(P), [gt(P, 3), eq(1, mod(P, 2)), not(has_factor(P, 3))]))
-clause(12, implied_by(in_range(Low, High, Low), le(Low, High)))
-clause(13, implied_by(in_range(Low, High, N), [lt(Low, High), is(Next, add(Low, 1)), in_range(Next, High, N)]))
-clause(14, implies([in_range(2, 25, I), is(N, pow(2, I)), split(N, Pair)], goldbach(N, Pair)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-// … 5 steps left out
-step(goldbach(8, [3, 5]), clause(14), {I: 3, N: 8, Pair: [3, 5]}, [in_range(2, 25, 3), is(8, pow(2, 3)), split(8, [3, 5])])
-step(in_range(2, 25, 3), clause(13), {Low: 2, High: 25, N: 3, Next: 3}, [lt(2, 25), is(3, add(2, 1)), in_range(3, 25, 3)])
-step(lt(2, 25), 'builtin', {}, [])
-step(is(3, add(2, 1)), 'builtin', {}, [])
-step(in_range(3, 25, 3), clause(12), {Low: 3, High: 25}, [le(3, 25)])
-step(le(3, 25), 'builtin', {}, [])
-step(is(8, pow(2, 3)), 'builtin', {}, [])
-step(split(8, [3, 5]), clause(2), {N: 8, Pair: [3, 5]}, [eq(0, mod(8, 2)), gt(8, 4), once(split_from(8, [3, 5], 3))])
-step(eq(0, mod(8, 2)), 'builtin', {}, [])
-step(gt(8, 4), 'builtin', {}, [])
-step(once(split_from(8, [3, 5], 3)), 'control', {}, [split_from(8, [3, 5], 3)])
-step(split_from(8, [3, 5], 3), clause(3), {N: 8, P: 3, Q: 5}, [is(5, sub(8, 3)), is_prime(5)])
-step(is(5, sub(8, 3)), 'builtin', {}, [])
-step(is_prime(5), clause(9), {P: 5}, [gt(5, 3), eq(1, mod(5, 2)), not(has_factor(5, 3))])
-step(gt(5, 3), 'builtin', {}, [])
-step(eq(1, mod(5, 2)), 'builtin', {}, [])
-step(not(has_factor(5, 3)), 'absent', {}, [])
-// … 891 steps left out
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-searched(has_factor(5, 3), [])
-searched(has_factor(13, 3), [])
-searched(has_factor(13, 5), [])
-// … 9912 more searched lines
-```
-
-It has four parts:
-
-- **The claims**: the 24 conclusions.
-- **The clauses**: the program lines the steps cite, by their number. Facts
-  7 and 8 (2 and 3 are prime) and rules 10 and 11 (`has_factor`) are never
-  cited; why the last two are missing is explained below.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
-- **The search certificate**: every search behind the 35 "no factor"
-  steps, each written `searched(call, answers)` with every answer it gave.
-
-Read the chain for 8 as sentences:
-
-1. *8 splits as 3 + 5*: by rule 14 with `I` = 3, because 3 is in the range 2
-   to 25, 2³ = 8, and 8 splits as `[3, 5]`.
-2. *3 is in the range 2 to 25*: by rule 13, because 2 < 25, 2 + 1 = 3, and 3
-   is in the range 3 to 25.
-3. *2 < 25*: justified as `'builtin'`, a calculation the checker does again
-   itself.
-4. *3 is 2 + 1*: `'builtin'`.
-5. *3 is in the range 3 to 25*: by rule 12, because 3 ≤ 25.
-6. *3 ≤ 25*: `'builtin'`.
-7. *8 is 2³*: `'builtin'`.
-8. *8 splits as `[3, 5]`*: by rule 2, because 8 is even, 8 > 4, and the
-   first split found starting from 3 is `[3, 5]`.
-9. *8 leaves remainder 0 when divided by 2*: `'builtin'`.
-10. *8 > 4*: `'builtin'`.
-11. *The first split from 3 is `[3, 5]`*: justified as `'control'`. `once`
-    is part of the language, not a program line; the checker rebuilds this
-    step from the one thing it uses, step 12.
-12. *Starting from 3, 8 splits as `[3, 5]`*: by rule 3 with `Q` = 5, because
-    8 − 3 = 5 and 5 is prime.
-13. *5 is 8 − 3*: `'builtin'`.
-14. *5 is prime*: by rule 9, because 5 > 3, 5 is odd, and 5 has no factor
-    from 3 on.
-15. *5 > 3*: `'builtin'`.
-16. *5 leaves remainder 1 when divided by 2*: `'builtin'`.
-17. *5 has no factor from 3 on*: justified as `'absent'`. eyemind searched
-    for a factor and found none. A proof can show a factor that exists, but
-    no step can show that none exists. That is why the `has_factor` rules
-    are never cited: the search that failed leaves no steps behind. It
-    leaves certificate lines instead: `searched(has_factor(5, 3), [])` says
-    the search for a factor of 5 from 3 on gave no answers.
-
-Larger numbers follow the same pattern, sometimes after stepping through
-several primes P, each found by `next_prime`, before N − P turns out to be
-prime.
-
----
-
-## Checked: what the report says
-
-A proof is only worth something if someone else can check it. `eyemind -c`
-generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
-
-```js
-// Answers checked subject to the obligations below.
-goldbach(4, [2, 2])
-goldbach(8, [3, 5])
-goldbach(16, [3, 13])
-goldbach(32, [3, 29])
-goldbach(64, [3, 61])
-goldbach(128, [19, 109])
-goldbach(256, [5, 251])
-goldbach(512, [3, 509])
-goldbach(1024, [3, 1021])
-goldbach(2048, [19, 2029])
-goldbach(4096, [3, 4093])
-goldbach(8192, [13, 8179])
-goldbach(16384, [3, 16381])
-goldbach(32768, [19, 32749])
-goldbach(65536, [17, 65519])
-goldbach(131072, [13, 131059])
-goldbach(262144, [5, 262139])
-goldbach(524288, [19, 524269])
-goldbach(1048576, [3, 1048573])
-goldbach(2097152, [19, 2097133])
-goldbach(4194304, [3, 4194301])
-goldbach(8388608, [37, 8388571])
-goldbach(16777216, [3, 16777213])
-goldbach(33554432, [61, 33554371])
-
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 506)
-condition('C2', 'well_founded', 'ok', 913)
-condition('C3', 'justification', 'ok', 913)
-condition('C4', 'coverage', 'ok', 1478)
-condition('C5', 're_decision', 'ok', 372)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 937)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 35)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Obligations: absence, collection, original-call or all-answers evidence remains unproved.
-obligation('call_fidelity', 'original_call', goldbach(4, [2, 2]))
-obligation('call_fidelity', 'original_call', goldbach(8, [3, 5]))
-obligation('call_fidelity', 'original_call', goldbach(16, [3, 13]))
-obligation('call_fidelity', 'original_call', goldbach(32, [3, 29]))
-obligation('call_fidelity', 'original_call', goldbach(64, [3, 61]))
-obligation('call_fidelity', 'original_call', goldbach(128, [19, 109]))
-obligation('call_fidelity', 'original_call', goldbach(256, [5, 251]))
-obligation('call_fidelity', 'original_call', goldbach(512, [3, 509]))
-obligation('call_fidelity', 'original_call', goldbach(1024, [3, 1021]))
-obligation('call_fidelity', 'original_call', goldbach(2048, [19, 2029]))
-obligation('call_fidelity', 'original_call', goldbach(4096, [3, 4093]))
-obligation('call_fidelity', 'original_call', goldbach(8192, [13, 8179]))
-obligation('call_fidelity', 'original_call', goldbach(16384, [3, 16381]))
-obligation('call_fidelity', 'original_call', goldbach(32768, [19, 32749]))
-obligation('call_fidelity', 'original_call', goldbach(65536, [17, 65519]))
-obligation('call_fidelity', 'original_call', goldbach(131072, [13, 131059]))
-obligation('call_fidelity', 'original_call', goldbach(262144, [5, 262139]))
-obligation('call_fidelity', 'original_call', goldbach(524288, [19, 524269]))
-obligation('call_fidelity', 'original_call', goldbach(1048576, [3, 1048573]))
-obligation('call_fidelity', 'original_call', goldbach(2097152, [19, 2097133]))
-obligation('call_fidelity', 'original_call', goldbach(4194304, [3, 4194301]))
-obligation('call_fidelity', 'original_call', goldbach(8388608, [37, 8388571]))
-obligation('call_fidelity', 'original_call', goldbach(16777216, [3, 16777213]))
-obligation('call_fidelity', 'original_call', goldbach(33554432, [61, 33554371]))
-obligation('call_fidelity', 'all_answers', goldbach(A, B))
-
-// Proof statistics: recorded steps and how they were checked.
-steps(913)
-verified(506)
-recomputed(333)
-composed(39)
-trusted(25)
-claims(24)
-
-// This verdict applies to the claims above; it does not establish that they are every answer.
-verdict('checked_with_obligations')
-```
-
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (506)**: the 506 steps that cite a program line really are
-  instances of it with the values shown.
-- **C2 well-founded (913)**: none of the 913 steps depends on itself, even
-  indirectly.
-- **C3 justification (913)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (1478)**: the 24 claims and the 1454 things the steps use are
-  each backed by a step.
-- **C5 re-decision (372)**: the 333 built-in calculations were done again by
-  the checker, including 2²⁵ = 33,554,432 and every remainder, and the 39
-  `once` steps were rebuilt from their parts.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled all 35 absences.
-- **C7 relevance (937)**: the 24 claims are conclusions of the program, and
-  all 913 steps serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (35)**: the 35 absences were settled by the search
-  certificate: no number declared prime has a factor, as explained below.
-
-The 35 absences are one per number the proof declares prime by trial
-division: 5, 13, 29, 61, and so on up to 33,554,371. Each reads "this number
-has no factor from 3 on, within this program". None is taken on trust. The
-checker never searches; it expands each `searched` call one level against
-the program, as a search would. For `has_factor(13, 3)`: 13 mod 3 is not 0,
-which it recomputes, and 3 × 3 < 13, so the rule moves on to
-`has_factor(13, 5)`, which is answered by its own line, `[]`. That line in
-turn: 13 mod 5 is not 0, and 5 × 5 is not below 13, so it has no answers.
-Every line agrees with its expansion, so a hidden factor would show up as a
-disagreement. The statistics: 913 steps, 506 verified, 333 recomputed, 39
-composed and the 35 absences settled by the certificate, no boundary steps trusted, for
-24 claims.
-
-The verdict is **checked with obligations**: every split follows from the program. Strict checking rejects its unresolved call-fidelity obligations. As
-the last comment says, the verdict does not establish completeness, and it certainly
-does not prove the conjecture.
-
-C10 leaves 24 original-call claims and the answers of 1 question unproved by the available evidence. The
-verdict is **checked with obligations**: the recorded derivations are
-conditional on these call-fidelity obligations. `--strict-proof` rejects
-them. The report does not establish answer completeness.
-
+The explicit stopping conditions keep those tables finite for all 24 inputs.
+The verdict is **checked**, with zero obligations. This establishes every
+answer of this program, without proving Goldbach's conjecture for other numbers.
 
 ---
 
 ## Try it
 
 ```sh
-eyemind examples/goldbach.js                                           # the splits
-eyemind --check-proof examples/proof/goldbach.js examples/goldbach.js  # the report
+eyemind examples/goldbach.js
+eyemind --strict-proof -c examples/goldbach.js
 ```
 
-Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=goldbach).
-
-Change `in_range(2, 25, I)` to `in_range(2, 26, I)` and run again: one more
-line appears, `goldbach(67108864, [5, 67108859])`.
-
----
-
-## Takeaway
-
-Even a search for "no factor" is made visible: the proof shows every split it
-found, and its search certificate lets the checker confirm the 35 places
-where it relies on "searched and found nothing".
+Open the playground to inspect the rules, proof and check report. Increasing
+the exponent range asks for more individual cases; it still does not establish
+the conjecture in general.

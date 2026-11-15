@@ -1,19 +1,21 @@
-# A universally quantified rule with fresh mothers
+# A universally quantified rule with explicitly named mothers
 #
 # A rule says that each human has some mother, and Tom and Ann are humans.
-# Explicit N3 quantifiers distinguish the universally bound person from a
-# fresh existential witness in the conclusion: eyemind concludes that Tom
-# and Ann each have a mother, two different unnamed individuals.
+# Explicit @forAll declarations name its two rule variables; log:skolem
+# computes the mother IRI from the person. Tom and Ann receive different
+# mother IRIs. Both variables are bound in the premise, so the proof checks
+# strictly without a restricted existential firing.
 
 @prefix : <http://example.org/> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
 
-# :x is declared universal, so the rule applies to every human. Inside the
-# conclusion, @forSome makes :y existential: each firing gets a fresh mother.
+# The universal :x matches a human; the universal :y receives the computed IRI.
 @forAll :x .
+@forAll :y .
 {
-    :x a :Human
+    :x a :Human .
+    (:mother :x) log:skolem :y
 } => {
-    @forSome :y .
     :x :hasMother :y
 } .
 

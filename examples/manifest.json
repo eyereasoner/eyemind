@@ -27,9 +27,7 @@
   {
     "name": "deep-taxonomy-100000",
     "description": "The same taxonomy benchmark at a hundred thousand levels",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "backward",
@@ -255,9 +253,7 @@
   {
     "name": "goldbach",
     "description": "Goldbach splits of every power of two up to 2^25",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "kaprekar",
@@ -277,9 +273,7 @@
   {
     "name": "zebra",
     "description": "The zebra puzzle solved by narrowing five partially known houses",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "aunt-agatha",
@@ -289,9 +283,7 @@
   {
     "name": "four-color",
     "description": "Four-colouring the map of the European Union",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "trusted": []
   },
   {
     "name": "wolf-goat-cabbage",
@@ -437,10 +429,8 @@
     "files": [
       "witnesses-n3.n3"
     ],
-    "description": "Notation3 conclusion blank nodes become shared witnesses for each order",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "description": "Deterministic Skolem IRIs give each paid order its own ready delivery record",
+    "trusted": []
   },
   {
     "name": "dijkstra",
@@ -573,10 +563,8 @@
     "files": [
       "existential-n3.n3"
     ],
-    "description": "Each person gets a distinct mother and a reciprocal child relation",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "description": "Skolem mother IRIs and reciprocal child relations for each person",
+    "trusted": []
   },
   {
     "name": "universal-instances-n3",
@@ -599,10 +587,8 @@
     "files": [
       "explicit-existential-rule-n3.n3"
     ],
-    "description": "An @forAll rule whose @forSome conclusion gives each human a fresh mother",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "description": "Explicit @forAll variables and a computed Skolem mother IRI for each human",
+    "trusted": []
   },
   {
     "name": "quantifier-scopes-n3",
@@ -625,10 +611,8 @@
     "files": [
       "restricted-chase-n3.n3"
     ],
-    "description": "A rule with a blank node in its conclusion makes a father only where no known one fits",
-    "trusted": [
-      "call_fidelity"
-    ]
+    "description": "Reuse supplied fathers and generate a Skolem father IRI only where none is supplied",
+    "trusted": []
   },
   {
     "name": "graph-terms-n3",
