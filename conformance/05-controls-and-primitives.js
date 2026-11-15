@@ -944,7 +944,7 @@ conformance('an array as the second argument of findall is a conjunction', [
 ])
 
 conformance('in goal text an array as the goal of findall is a conjunction', [
-  spec('4.1, 13.1'),
+  spec('4.1, README.command-line'),
   args('program.js --goal "findall(X, [p(X), gt(X, 1)], L)"'),
   file('program.js', [
     'fact(p(1), p(2), p(3))',

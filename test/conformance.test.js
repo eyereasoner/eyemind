@@ -8,12 +8,18 @@ export const tests = {
   'every behavioral specification subsection has an explicitly tagged case'() {
     const specification = readFileSync(join(ROOT, 'SPEC.md'), 'utf8');
     const headings = [...specification.matchAll(/^#{2,3} (\d+(?:\.\d+)?)\.? /gm)].map((m) => m[1]);
+    const guide = readFileSync(join(ROOT, 'README.md'), 'utf8');
+    const guideHeadings = new Set([...guide.matchAll(/^#{2,3} (.+)$/gm)]
+      .map((match) => match[1].toLowerCase().replace(/[^\p{L}\p{N}_\- ]/gu, '').replace(/ /g, '-')));
     const tagged = new Set(loadCases().flatMap((item) => item.spec.split(/,\s*/)));
-    for (const tag of tagged) assert.ok(headings.includes(tag), `unknown SPEC section ${tag}`);
-    for (const section of headings.filter((id) => id.includes('.') && Number(id.split('.')[0]) >= 2 && Number(id.split('.')[0]) <= 13)) {
+    for (const tag of tagged) {
+      if (tag.startsWith('README.')) assert.ok(guideHeadings.has(tag.slice(7)), `unknown README heading ${tag}`);
+      else assert.ok(headings.includes(tag), `unknown SPEC section ${tag}`);
+    }
+    for (const section of headings.filter((id) => id.includes('.') && Number(id.split('.')[0]) >= 2 && Number(id.split('.')[0]) <= 12)) {
       assert.ok(tagged.has(section), `SPEC ${section} has no explicitly tagged case`);
     }
-    assert.ok(tagged.has('15'), 'document security needs conformance cases');
+    assert.ok(tagged.has('14'), 'document security needs conformance cases');
   },
 
   'every documented arithmetic function has a successful evaluation case'() {

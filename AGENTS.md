@@ -76,7 +76,8 @@ goals, and keep error messages specific and user-facing text direct.
   RDF Message examples keep their logs in `examples/data/`; payloads are
   quoted `log:nameOf` formulas. Replay has proofs and check reports;
   `--stream-messages` runs each message independently.
-- `conformance/`: the black-box suite of SPEC.md. Each case file is an
+- `conformance/`: black-box language and proof cases from SPEC.md, plus
+  implementation interface checks tagged with their README headings. Each case file is an
   eyemind document of `conformance(Name, [Setting, ...])` terms, read by
   `conformance/run.js`; `conformance/README.md` describes the format.
 - `test/`: `run.js` runs every `*.test.js` module, the conformance suite and
@@ -154,13 +155,14 @@ very large proofs; redirect them to a file and inspect focused parts.
   change, run `node tools/update-examples.js` and review the diff: no
   artifact should change unless intended.
 - Expected conformance outputs come from the specification, not from running
-  eyemind. When a case and eyemind disagree, SPEC.md decides which is wrong.
+  eyemind. When a language or proof case and eyemind disagree, SPEC.md decides
+  which is wrong. Interface compatibility cases cite the README instead.
 
 ## Other formats
 
 RDF data, N3 and SPARQL 1.2 RL are inputs of the command line, compiled to
-ordinary programs; they are outside the specification's conformance (SPEC
-Section 13.1). The RDF lexer and parser, and the SRL tokenizer, parser and
+ordinary programs; they are implementation extensions described in README.md,
+outside the language and proof specification. The RDF lexer and parser, and the SRL tokenizer, parser and
 analysis, are maintained in `src/` as ES modules. Preserve the `eyemind:`
 comments that explain adaptations in these modules. The W3C suites decide
 what is correct: all RDF tests of `.cache/w3c/rdf-tests` and all SPARQL 1.2 RL
@@ -211,7 +213,7 @@ another implementation's code in sync. Decide behavior from the
 specification, keep the suite free of anything only eyemind can run, and put
 what another implementer needs in SPEC.md rather than only in eyemind's code.
 Floats from a host's math library (`exp`, `log`, trigonometry, `pow`) may
-differ in the last place between implementations; SPEC Section 14 allows it,
+differ in the last place between implementations; SPEC Section 13 allows it,
 and C5 accepts such a result within 4 units (Section 11.8).
 
 Run focused tests while working, then the full suite before finishing code

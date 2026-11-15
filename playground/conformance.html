@@ -16,7 +16,7 @@
     .cases { list-style: none; margin: 0; padding: 0 0 6px; }
     .cases details { border-top: 1px solid var(--border); }
     .cases details > summary {
-      display: flex; gap: 10px; align-items: baseline; padding: 6px 14px; font-weight: 400;
+      display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; padding: 6px 14px; font-weight: 400;
     }
     .cases details[open] > summary { border-bottom: 0; }
     .mark { flex: none; width: 1.2em; text-align: center; font-weight: 700; color: var(--muted); }
@@ -24,6 +24,7 @@
     .mark.fail { color: var(--danger); }
     .case-name { flex: 1 1 auto; }
     .spec, .time { flex: none; color: var(--muted); font-size: 13px; }
+    .spec { max-width: 100%; overflow-wrap: anywhere; }
     .case-body { padding: 0 14px 12px 44px; display: grid; gap: 8px; }
     .case-body h4 { margin: 6px 0 0; font-size: 13px; color: var(--muted); font-weight: 600; }
     .case-body pre {
@@ -49,7 +50,8 @@
       <p class="tagline">eyemind — reasoning you can see.</p>
       <p>Every case of the <a href="../conformance/">conformance suite</a>,
         run against eyemind in your browser and checked against the
-        <a href="../SPEC">specification</a>.</p>
+        <a href="../SPEC">language and proof specification</a> and the
+        <a href="../#command-line">README interface documentation</a>.</p>
     </div>
   </header>
   <main>
@@ -57,7 +59,7 @@
       <div class="toolbar">
         <button id="run" type="button" class="primary" disabled>Run the cases</button>
         <button id="stop" type="button" disabled>Stop</button>
-        <input id="filter" type="search" placeholder="Filter by name, file or SPEC section" autocomplete="off">
+        <input id="filter" type="search" placeholder="Filter by name, file or reference" autocomplete="off">
         <label class="option"><input id="failures" type="checkbox"> Failures only</label>
       </div>
       <div class="progress"><div id="bar"></div></div>
@@ -70,9 +72,9 @@
     <section>
       <div class="panel-body">
         <p class="hint">Each case runs eyemind's command line on the files it names, in a directory of its own, and
-          compares what eyemind prints and its exit code with what the specification requires. In an expected
-          line, <code>…</code> stands for text the specification leaves to the implementation. Run the same
-          cases against any implementation with <code>node conformance/run.js --command "…"</code>.</p>
+          compares the result with the language specification or the README interface documentation, as each
+          case's references indicate. In an expected line, <code>…</code> matches unspecified text. Run the same
+          cases through another implementation's command adapter with <code>node conformance/run.js --command "…"</code>.</p>
       </div>
     </section>
   </main>
@@ -158,7 +160,7 @@
       group.dataset.file = entry.file;
       group.innerHTML = `<details class="group" open>
         <summary><span>${escapeHtml(entry.file)}</span>
-          <span class="hint">SPEC ${escapeHtml(entry.spec)} · ${escapeHtml(entry.topic)}</span>
+          <span class="hint">References: ${escapeHtml(entry.spec)} · ${escapeHtml(entry.topic)}</span>
           <span class="counts"></span></summary>
         <ul class="cases"></ul></details>`;
       return group;
@@ -169,7 +171,7 @@
       row.id = `case-${index}`;
       row.innerHTML = `<details>
         <summary><span class="mark">•</span><span class="case-name">${escapeHtml(item.name)}</span>
-          <span class="spec">SPEC ${escapeHtml(item.spec)}</span><span class="time"></span></summary>
+          <span class="spec">References: ${escapeHtml(item.spec)}</span><span class="time"></span></summary>
         <div class="case-body"></div></details>`;
       row.querySelector('details').addEventListener('toggle', (event) => {
         if (event.target.open) renderBody(index);

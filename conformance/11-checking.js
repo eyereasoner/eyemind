@@ -445,7 +445,7 @@ conformance('a valid proof is checked', [
 ])
 
 conformance('the proof can come from standard input', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--check-proof - program.js'),
   file('program.js', [
     "fact(p('a'))",
@@ -1115,7 +1115,7 @@ conformance('C3: a document that does not read fails', [
 ])
 
 conformance('C3: a document is never executed', [
-  spec('9.1, 11.3, 15'),
+  spec('9.1, 11.3, 14'),
   args('--check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -1770,7 +1770,7 @@ conformance('obligations are listed and make the verdict conditional', [
 ])
 
 conformance('strict checking forbids trusted boundaries', [
-  spec('11.8, 13.1'),
+  spec('11.8, README.command-line'),
   args('--strict-proof --check-proof proof.js program.js'),
   exit(2),
   file('program.js', [
@@ -2456,7 +2456,7 @@ conformance("a report's variables are lettered in order of appearance", [
 ])
 
 conformance('a report as JSON', [
-  spec('12, 13.1, 12.1'),
+  spec('12, README.command-line, README.json-check-reports'),
   args("--json --check-proof proof.js --goal 'p(X)' program.js"),
   file('program.js', [
     "fact(p('a'))",
@@ -2547,7 +2547,7 @@ conformance('a report as JSON', [
 ])
 
 conformance('a failing report as JSON', [
-  spec('12, 13.1, 12.1'),
+  spec('12, README.command-line, README.json-check-reports'),
   args("--json --check-proof proof.js --goal 'is(7, add(2, 3))' program.js"),
   exit(2),
   file('program.js', [
@@ -2649,7 +2649,7 @@ conformance('a failing report as JSON', [
 ])
 
 conformance('a host math result within four units in the last place re-decides', [
-  spec('11.8, 14'),
+  spec('11.8, 13'),
   args("--json --check-proof proof.js --goal 'is(2.718281828459047, exp(1))' program.js"),
   exit(2),
   file('program.js', [
@@ -2746,7 +2746,7 @@ conformance('a host math result within four units in the last place re-decides',
 ])
 
 conformance('a host math result five units in the last place away fails re-decision', [
-  spec('11.8, 14'),
+  spec('11.8, 13'),
   args("--json --check-proof proof.js --goal 'is(2.7182818284590473, exp(1))' program.js"),
   exit(2),
   file('program.js', [
@@ -3210,7 +3210,7 @@ conformance('C8 rejects an open inspection pattern with one shared existential w
 // Additional boundary and specification-coverage cases.
 
 conformance("C10: a proof of a proper subset of the answers fails", [
-  spec("7.6, 11.13, 11.1, 12.1"),
+  spec("7.6, 11.13, 11.1, README.json-check-reports"),
   args("--check-proof proof.js --json --goal 'p(X)' program.js"),
   exit(2),
   stderr('empty'),
@@ -3308,7 +3308,7 @@ conformance("C10: a proof of a proper subset of the answers fails", [
 ])
 
 conformance("an empty document for a program without questions has zero counts", [
-  spec("11.14, 11.1, 12.1"),
+  spec("11.14, 11.1, README.json-check-reports"),
   args("--check-proof proof.js --json program.js"),
   stderr('empty'),
   file('program.js', [
@@ -6128,7 +6128,7 @@ conformance("C5: a primitive with several solutions re-decides its stated one", 
 ])
 
 conformance("C5: host math tolerance covers a trigonometric function", [
-  spec("11.8, 14"),
+  spec("11.8, 13"),
   args("--check-proof proof.js --goal 'is(0.8414709848078961, sin(1))' program.js"),
   exit(2),
   file('program.js', [
@@ -6172,7 +6172,7 @@ conformance("C5: host math tolerance covers a trigonometric function", [
 ])
 
 conformance("C5: host math tolerance covers pow with floats", [
-  spec("11.8, 14"),
+  spec("11.8, 13"),
   args("--check-proof proof.js --goal 'is(1.4142135623730954, pow(2.0, 0.5))' program.js"),
   exit(2),
   file('program.js', [
@@ -8532,7 +8532,7 @@ conformance("C6 counts the decided boundaries while every boundary is trusted", 
 ])
 
 conformance("the JSON report counts uses and lists each trusted boundary", [
-  spec("11.14, 12.1, 13.1"),
+  spec("11.14, README.json-check-reports, README.command-line"),
   args("--json --check-proof proof.js --goal 'q(X)' program.js"),
   file('program.js', [
     "fact(p(1))",
@@ -9009,7 +9009,7 @@ conformance("a check report is data that facts_from states as facts", [
 ])
 
 conformance("the JSON answers keep the proof's variable names", [
-  spec("12, 12.1"),
+  spec("12, README.json-check-reports"),
   args("--json --check-proof proof.js --goal 'p(X)' program.js"),
   file('program.js', [
     "fact(p(X))",
@@ -9536,7 +9536,7 @@ conformance('C8: a head-only variable left unbound fails witness integrity', [
 ])
 
 conformance('JSON conclusions keep the variable names of the document', [
-  spec('12.1'),
+  spec('README.json-check-reports'),
   args('--json --check-proof proof.js program.js'),
   exit(2),
   file('program.js', [

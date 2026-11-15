@@ -7,7 +7,7 @@ eyemind is a **JavaScript rule language** with forward and backward reasoning an
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 135 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1388 cases that test any implementation of the specification through its command line; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 135 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1388 cases that test language and proof behavior through a command adapter, together with implementation interface checks; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -24,10 +24,14 @@ The playground runs programs in your browser; the specification defines the lang
   - [SPARQL 1.2 RL](#sparql-12-rl)
 - [How eyemind reasons](#how-eyemind-reasons)
 - [Proofs, and what checking one means](#proofs-and-what-checking-one-means)
+  - [Native proof data](#native-proof-data)
+  - [JSON check reports](#json-check-reports)
   - [Why negation and collection are safe](#why-negation-and-collection-are-safe)
 - [Checking the translation](#checking-the-translation)
 - [Examples and the playground](#examples-and-the-playground)
 - [Command line](#command-line)
+  - [Resource limits](#resource-limits)
+  - [Unused clauses](#unused-clauses)
 - [Troubleshooting](#troubleshooting)
 - [JavaScript library](#javascript-library)
 - [What is deliberately absent](#what-is-deliberately-absent)
@@ -472,6 +476,84 @@ verdict('checked')
 
 A `checked` verdict thus establishes two things: every claim follows from the program, and the claims are every answer of the original questions. The `called/2` table of each question lists all its answers and is checked against the program, so a proof that omits one fails C10, and a question with no claims is shown to have no answers. A failed check gives `failure(Condition, Conclusion, Detail)` facts, `verdict(failed(N))` and exit code 2. What a certificate cannot settle stays an `obligation(...)` with the verdict `checked_with_obligations`, among them `obligation('call_fidelity', 'all_answers', Question)` for a question whose answers it cannot show complete; `--strict-proof` rejects those. To check answers to `--goal` questions, pass the same goals when checking. [SPEC §11](https://eyereasoner.github.io/eyemind/SPEC#11-proof-checking) defines every condition.
 
+### Native proof data
+
+These N3 and SRL encodings are implementation extensions to the canonical
+proof documents. Language and proof conformance does not require them.
+
+The native proof resource is `<urn:eyemind:proof>`, of type `pe:Proof`, where
+`pe:` is `https://eyereasoner.github.io/pe#` and `em:` is
+`https://eyereasoner.github.io/eyemind/proof#`. It has `em:format` equal to
+`"n3"` or `"srl"`, `pe:claims` as an ordered collection of claim displays,
+and `em:records` as an ordered collection of record IRIs. Record `N`, counted
+from 1, is `<urn:eyemind:proof#recordN>` and has one `em:term` containing its
+[Section 10](https://eyereasoner.github.io/eyemind/SPEC#10-proof-documents) statement, encoded as a tagged collection:
+
+| Term | Collection |
+| --- | --- |
+| Atom | `(em:atom "text")` |
+| Integer | `(em:integer "digits")`, with a minus for a negative integer |
+| Float | `(em:float "number")`, preserving signed zero as `"-0"` |
+| Variable | `(em:variable "name")`, including anonymous-variable status |
+| `iri(I)` with an RDF-compatible IRI | `(em:iri <I>)` |
+| Nonempty proper list | `(em:list (EncodedItem ...))` |
+| Compound | `(em:compound "name" (EncodedArgument ...))` |
+
+The empty list is the atom `"[]"`. Other compounds, including open lists,
+quoted graphs and Skolem terms, use the compound encoding. A string field
+containing a character RDF cannot represent uses an `em:utf16` typed literal
+whose lexical form is four lowercase hexadecimal digits per UTF-16 code
+unit. This retains every atom and variable name accepted by
+[Section 9.2](https://eyereasoner.github.io/eyemind/SPEC#92-canonical-atoms-numbers-variables-and-lists).
+
+A triple goal's display is an N3 quoted formula, or an SRL RDF triple term.
+Other goals use their tagged encoding. A step record also displays
+`pe:conclusion`, `pe:rule` for a `clause(N)` justification, `pe:source` for
+`source(N)`, or `pe:justification` for another justification. `pe:binding`
+is an ordered collection of `(VariableName Value)` pairs, and `pe:uses` an
+ordered collection of premise displays. Non-native binding values retain
+their tagged encoding. Search records display `pe:derived`, `pe:searched`
+or `pe:called` and an ordered `pe:answers` collection. Clause numbers name
+the compiled program's clauses, whose authority is still the source input.
+SRL proofs contain only `DATA` and declarations, never rules or imports.
+
+When an SRL rule set uses `NOW`, `UUID` or `STRUUID`, its compiled program
+includes one ground `srl_execution(Now, Seed)` fact. `Now` is an ISO UTC
+timestamp with milliseconds and `Seed` contains 64 lowercase hexadecimal
+digits. The compiler captures these external inputs once per compilation;
+they remain fixed throughout evaluation. To check a saved SRL proof, the
+format loader may recover this fact from its clause records, validate its
+two fields, and recompile the source with that execution context. All other
+clauses still come from the source, and all displays undergo C1–C10 as
+usual. This establishes consequences of the recorded context, without
+certifying a clock observation or the entropy of the seed.
+
+The reader decodes every record, verifies all displays and properties against
+those records, and applies the unchanged checks of
+[Section 11](https://eyereasoner.github.io/eyemind/SPEC#11-proof-checking) to the decoded
+certificate. A missing, extra, duplicate or inconsistent property fails C3.
+Numeric literal displays retain their decimal digits during this comparison;
+distinct decimal literals do not agree merely by rounding to binary64.
+Prefix aliases and reordering top-level properties are accepted, as is
+consistent blank-node renaming; the order of collections and formula triples
+is retained. Displayed claims cannot replace encoded claims, and neither
+representation can change the source authority or supply missing evidence.
+
+### JSON check reports
+
+With `--json`, checking modes write a JSON report instead of a term document.
+The JSON form includes `answers`, an array of the initial claims' canonical
+texts, including unverified claims when `valid` is false. It also has `valid` (boolean), `steps`,
+`claims`, `verified`, `redecided` (the count `recomputed`), `composed`,
+`uses` (the number of uses of all steps, integers), `trusted`
+(a list of `{kind, conclusion, reason?}`, with `reason: 'original_call'`
+for a claim's call-fidelity obligation and `reason: 'all_answers'` for a
+question's answer-completeness obligation), `failures` (a list of
+`{condition, detail, conclusion?}`) and `conditions` (a list of
+`{id, name, covered, failed}`), where `conclusion` is a canonical text.
+Its variables keep the names the document gives them, rather than being
+renamed for each report fact as in the text form.
+
 ### Why negation and collection are safe
 
 A negation `not(G)` concludes from what is *absent* and a collection `findall(T, G, L)` from *everything* present, so both are only right once nothing more can be derived:
@@ -534,7 +616,80 @@ eyemind [OPTION ...] [FILE ...]
 | `--base IRI` | Resolve relative IRIs of the inputs against `IRI` instead of each file's location. |
 | `-v`, `--version`, `-h`, `--help` | Print the version or the usage. |
 
-Exit codes: 0 success, 1 error, 2 a proof that is not valid, 65 a contradiction.
+`--proof`, `--prove-and-check`, `--check-proof` and `--unused` are mutually
+exclusive. `--json` and `--strict-proof` need a checking mode. `--goal` reads
+each goal as a data document, with an array denoting conjunction. With
+`--check-proof`, supply the original goals the proof answers.
+
+With `--prove-and-check`, reasoning bounds and `--stats` apply to proof
+generation; an invalid check returns 2, otherwise the run's halt code is
+retained. Input with a line starting with `step(` or `called(` is recognized
+as a proof document; when supplied as a program, it produces an error
+explaining how to check it instead.
+
+`--stats` writes `inferences` (goals started), `rounds` (forward rounds over
+all strata), and `derived` (facts added during reasoning). `derived` excludes
+source facts, query answers and `'false'`. A run that exceeds a reasoning
+bound writes no conclusions to standard output, including answers found
+before exhaustion.
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | Success, including a valid proof check. |
+| 1 | An error, printed to standard error as `eyemind: message`. |
+| 2 | An invalid proof check; the report is printed as usual. |
+| 65 | The run concluded `'false'` and halted. |
+
+The command line, JSON output, additional input formats, native proof
+encodings, library API and browser interface describe this implementation.
+They are outside the language and proof specification.
+
+### Resource limits
+
+The JavaScript implementation defaults to a depth limit of 1000000, an
+inference limit of 1000000 and a limit of 1000 forward rounds per stratum.
+Compiled N3 and SRL programs use 1000000, 1000000000 and 100000 respectively.
+Each supplied bound must be a positive integer no greater than
+9007199254740991.
+
+Arithmetic also limits integer growth: `pow(A, B)` with integer `B > 0` and
+`abs(A) > 1` raises an error when `B` times the bit length of `A` exceeds
+2^26. An integer left shift `shl(A, B)` raises an error when `B` exceeds
+2^26. These limits protect the process from excessively large allocations.
+
+Auxiliary C10 certification is bounded per question by the smaller of the
+run's inference limit and 50,000 calls plus answers, and by 8,388,608 UTF-16
+code units of answer text. Hitting these limits leaves an obligation and
+does not change the run's answers.
+
+### Unused clauses
+
+A clause is **unused** when no conclusion's recorded derivation cites it,
+unless a negation or collection in the proof could consult it and its
+omission changes the conclusions or halt code, or causes an error. The clauses a
+negation or collection could consult are those whose heads have the name and
+arity of a goal it reaches through the program's bodies. Running the program
+without a clause leaves every other clause its number ([Section 3.5](https://eyereasoner.github.io/eyemind/SPEC#35-clause-constraints-and-numbering)), so the
+Skolem terms of the other rules ([Section 8.2](https://eyereasoner.github.io/eyemind/SPEC#82-forward-evaluation-and-witnesses)) do not change.
+
+Unused clauses are reported one per line, in clause order, as
+`unused(line(L), Display)`, where `L` is the source line where the statement call begins; facts read
+by `facts_from` use that call's line. `Display` is as in [Section 10.2](https://eyereasoner.github.io/eyemind/SPEC#102-clause-displays); with several
+scripts, clause order tells which script a line belongs to. The listing is
+the result whether or not the program halts with `'false'`, and the command
+exits with code 0 after it.
+
+A clause compiled from a template inherits its generator's source line.
+
+"Unused" is relative to the recorded derivations, which are the first ones
+found ([Section 8.7](https://eyereasoner.github.io/eyemind/SPEC#87-proof-generation)). A clause that only offers a second derivation of a
+conclusion, such as a duplicate rule, is unused, though leaving out the
+clause that offers the first one would make it used; leaving out several
+unused clauses together can therefore change the conclusions. A
+`contradiction` rule that never fires changes no conclusion and is unused,
+though it guards the program against data that would make it fire; so are
+the clauses only its negations or collections could consult, since they are
+not in the proof.
 
 ## Troubleshooting
 

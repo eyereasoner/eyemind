@@ -248,7 +248,7 @@ conformance('error: a float power overflow', [
 ])
 
 conformance('error: a power too large to hold', [
-  spec('5.4'),
+  spec('5.4, README.resource-limits'),
   args("--goal 'is(X, pow(2, pow(10, 10)))'"),
   exit(1),
   stderr('nonempty'),
@@ -257,7 +257,7 @@ conformance('error: a power too large to hold', [
 ])
 
 conformance('error: a shift too large to hold', [
-  spec('5.4'),
+  spec('5.4, README.resource-limits'),
   args("--goal 'is(X, shl(1, pow(2, 30)))'"),
   exit(1),
   stderr('nonempty'),
@@ -1108,7 +1108,7 @@ conformance("arithmetic rejects round(1, 1.0)", [
 ])
 
 conformance("arithmetic rejects shl(0, 67108865)", [
-  spec("5.4"),
+  spec("5.4, README.resource-limits"),
   args("--goal 'is(X, shl(0, 67108865))'"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -1119,7 +1119,7 @@ conformance("arithmetic rejects shl(0, 67108865)", [
 ])
 
 conformance("unit and zero bases are exempt from the integer power growth limit", [
-  spec("5.3, 5.4"),
+  spec("5.3, 5.4, README.resource-limits"),
   args("--goal 'is(A, pow(-1, 67108865))' --goal 'is(B, pow(0, 67108865))'"),
   stderr('empty'),
   stdin([
@@ -1774,7 +1774,7 @@ conformance('no arithmetic result makes an integer unify with a float', [
 // Errors and limits.
 
 conformance('a power at the size limit is computed', [
-  spec('5.4'),
+  spec('5.4, README.resource-limits'),
   args('program.js --goal "big()"'),
   file('program.js', [
     'implied_by(big, [is(X, pow(2, 33554432)), gt(X, 0)])',
@@ -1786,7 +1786,7 @@ conformance('a power at the size limit is computed', [
 ])
 
 conformance('a left shift at the size limit is computed', [
-  spec('5.4'),
+  spec('5.4, README.resource-limits'),
   args('program.js --goal "big()"'),
   file('program.js', [
     'implied_by(big, [is(X, shl(1, 67108864)), gt(X, 0)])',
@@ -2016,7 +2016,7 @@ conformance('error: a shift count that is a float', [
 ])
 
 conformance('error: a power one step beyond the size limit', [
-  spec('5.4'),
+  spec('5.4, README.resource-limits'),
   args('--goal "is(X, pow(2, 33554433))"'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -2025,7 +2025,7 @@ conformance('error: a power one step beyond the size limit', [
 ])
 
 conformance('error: a negative base power beyond the size limit', [
-  spec('5.4'),
+  spec('5.4, README.resource-limits'),
   args('--goal "is(X, pow(-3, 33554433))"'),
   exit(1),
   stderr(prefix('eyemind:')),

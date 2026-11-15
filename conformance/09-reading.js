@@ -120,7 +120,7 @@ conformance('a name reads as a variable, and each _ as a new one', [
 ])
 
 conformance('a document is not executed', [
-  spec('9.1, 15'),
+  spec('9.1, 14'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
@@ -481,7 +481,7 @@ conformance('documents reject a nonbreaking space outside a literal', [
 // Additional boundary and specification-coverage cases.
 
 conformance("document syntax rejects 'p\\n(1)'", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal 'p\n(1)'"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -492,7 +492,7 @@ conformance("document syntax rejects 'p\\n(1)'", [
 ])
 
 conformance("document syntax rejects '-\\n1'", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal '-\n1'"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -503,7 +503,7 @@ conformance("document syntax rejects '-\\n1'", [
 ])
 
 conformance("document syntax rejects '007'", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal 007"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -514,7 +514,7 @@ conformance("document syntax rejects '007'", [
 ])
 
 conformance("document syntax rejects '0x10'", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal 0x10"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -525,7 +525,7 @@ conformance("document syntax rejects '0x10'", [
 ])
 
 conformance("document syntax rejects '1_000'", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal 1_000"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -536,7 +536,7 @@ conformance("document syntax rejects '1_000'", [
 ])
 
 conformance("document syntax rejects \"'\\\\a'\"", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal ''\"'\"'\\a'\"'\"''"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -547,7 +547,7 @@ conformance("document syntax rejects \"'\\\\a'\"", [
 ])
 
 conformance("document syntax rejects \"'\\\\01'\"", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal ''\"'\"'\\01'\"'\"''"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -558,7 +558,7 @@ conformance("document syntax rejects \"'\\\\01'\"", [
 ])
 
 conformance("document syntax rejects \"'\\\\u{110000}'\"", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal ''\"'\"'\\u{110000}'\"'\"''"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -569,7 +569,7 @@ conformance("document syntax rejects \"'\\\\u{110000}'\"", [
 ])
 
 conformance("document syntax rejects \"'\\\\x4'\"", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal ''\"'\"'\\x4'\"'\"''"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -580,7 +580,7 @@ conformance("document syntax rejects \"'\\\\x4'\"", [
 ])
 
 conformance("document syntax rejects 'f(...X)'", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal 'f(...X)'"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -591,7 +591,7 @@ conformance("document syntax rejects 'f(...X)'", [
 ])
 
 conformance("document syntax rejects '{...X}'", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal '{...X}'"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -602,7 +602,7 @@ conformance("document syntax rejects '{...X}'", [
 ])
 
 conformance("document syntax rejects 'f(X = 1)'", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal 'f(X = 1)'"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -613,7 +613,7 @@ conformance("document syntax rejects 'f(X = 1)'", [
 ])
 
 conformance("document syntax rejects 'f()()'", [
-  spec("9.1, 15"),
+  spec("9.1, 14"),
   args("--goal 'f()()'"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -808,7 +808,7 @@ conformance('an object reads with string keys, variable values and a trailing co
 ])
 
 conformance('object keys that mean something to JavaScript are only atoms', [
-  spec('9.1, 15'),
+  spec('9.1, 14'),
   file('program.js', [
     "facts_from('data.js')",
     'query(d(X))',
@@ -945,7 +945,7 @@ conformance('the last statement needs no line break', [
 ])
 
 conformance('names of JavaScript functions and globals read as compounds and variables, never run', [
-  spec('9.1, 15'),
+  spec('9.1, 14'),
   file('program.js', [
     "facts_from('data.js')",
     'query(d(X))',

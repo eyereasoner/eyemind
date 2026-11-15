@@ -438,7 +438,7 @@ conformance('C10 refuses unsupported forward publication evidence', [
 ])
 
 conformance('there is no --call-fidelity option: C10 is always checked', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--call-fidelity program.js'),
   exit(1),
   file('program.js', [
@@ -509,7 +509,7 @@ conformance('C10 always reports missing original-call evidence as an obligation'
 ])
 
 conformance('--prove-and-check always generates C10 evidence', [
-  spec('8.7, 10.5, 11.13, 13.1'),
+  spec('8.7, 10.5, 11.13, README.command-line'),
   args('--prove-and-check program.js'),
   file('program.js', [
     'fact(p(\'a\'), p(\'b\'))',

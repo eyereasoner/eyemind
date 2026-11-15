@@ -1,7 +1,7 @@
-// SPEC 13.1: the command line.
+// README Command line: the implementation interface.
 
 conformance('without files the program is read from standard input', [
-  spec('13.1'),
+  spec('README.command-line'),
   args(''),
   stdin([
     'fact(p(1))',
@@ -14,7 +14,7 @@ conformance('without files the program is read from standard input', [
 ])
 
 conformance('standard input can be one of several program files', [
-  spec('13.1'),
+  spec('README.command-line'),
   args("a.js - --goal 'q(X)'"),
   file('a.js', [
     'fact(p(1))',
@@ -29,7 +29,7 @@ conformance('standard input can be one of several program files', [
 ])
 
 conformance('goals may be repeated', [
-  spec('13.1'),
+  spec('README.command-line'),
   args("program.js --goal 'p(X)' --goal 'q(X)'"),
   file('program.js', [
     'fact(p(1), q(2))',
@@ -42,7 +42,7 @@ conformance('goals may be repeated', [
 ])
 
 conformance('the exit code is 65 when the run halted', [
-  spec('8.5, 13.1'),
+  spec('8.5, README.command-line'),
   exit(65),
   file('program.js', [
     'fact(p)',
@@ -55,7 +55,7 @@ conformance('the exit code is 65 when the run halted', [
 ])
 
 conformance('an invalid proof exits with 2 and prints its report', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--check-proof proof.js program.js'),
   exit(2),
   stderr('empty'),
@@ -103,7 +103,7 @@ conformance('an invalid proof exits with 2 and prints its report', [
 ])
 
 conformance('a run without conclusions has a proof without claims', [
-  spec('8.6, 8.7, 10.1, 11.7, 13.1'),
+  spec('8.6, 8.7, 10.1, 11.7, README.command-line'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -117,7 +117,7 @@ conformance('a run without conclusions has a proof without claims', [
 ])
 
 conformance('errors are printed as eyemind: message and exit with 1', [
-  spec('13.1'),
+  spec('README.command-line'),
   exit(1),
   stderr(prefix('eyemind:')),
   file('program.js', [
@@ -128,7 +128,7 @@ conformance('errors are printed as eyemind: message and exit with 1', [
 ])
 
 conformance('a missing program file is an error', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('missing.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -136,7 +136,7 @@ conformance('a missing program file is an error', [
 ])
 
 conformance('a proof document given as a program says how to check it', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('proof.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -151,7 +151,7 @@ conformance('a proof document given as a program says how to check it', [
 ])
 
 conformance('--check-proof cannot be combined with --proof', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--proof --check-proof proof.js program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -161,7 +161,7 @@ conformance('--check-proof cannot be combined with --proof', [
 ])
 
 conformance('--unused cannot be combined with --proof', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--unused --proof program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -170,7 +170,7 @@ conformance('--unused cannot be combined with --proof', [
 ])
 
 conformance('--unused cannot be combined with --check-proof', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--unused --check-proof proof.js program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -180,7 +180,7 @@ conformance('--unused cannot be combined with --check-proof', [
 ])
 
 conformance('--json requires a checking mode', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--json program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -189,7 +189,7 @@ conformance('--json requires a checking mode', [
 ])
 
 conformance('--strict-proof requires a checking mode', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--strict-proof program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -198,7 +198,7 @@ conformance('--strict-proof requires a checking mode', [
 ])
 
 conformance('an unknown option is an error', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--frobnicate program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -207,7 +207,7 @@ conformance('an unknown option is an error', [
 ])
 
 conformance('an option missing its value is an error', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('program.js --goal'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -216,7 +216,7 @@ conformance('an option missing its value is an error', [
 ])
 
 conformance('a bound must be a positive integer', [
-  spec('8.3, 13.1'),
+  spec('8.3, README.command-line'),
   args('program.js --max-depth 0'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -225,7 +225,7 @@ conformance('a bound must be a positive integer', [
 ])
 
 conformance('a bound must be an integer', [
-  spec('8.3, 13.1'),
+  spec('8.3, README.command-line'),
   args('program.js --max-inferences many'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -234,7 +234,7 @@ conformance('a bound must be an integer', [
 ])
 
 conformance('standard input can be read only once', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('- -'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -243,7 +243,7 @@ conformance('standard input can be read only once', [
 ])
 
 conformance('a proof from standard input needs the program in files', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--check-proof -'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -252,7 +252,7 @@ conformance('a proof from standard input needs the program in files', [
 ])
 
 conformance('--stats prints statistics as JSON to standard error', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--stats program.js'),
   stderr('json'),
   file('program.js', [
@@ -266,19 +266,19 @@ conformance('--stats prints statistics as JSON to standard error', [
 ])
 
 conformance('--help prints the usage', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--help'),
   stdout('nonempty'),
 ])
 
 conformance('-h prints the usage', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('-h'),
   stdout('nonempty'),
 ])
 
 conformance('-c generates a proof and checks it against the program', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('-c program.js'),
   stderr('empty'),
   file('program.js', [
@@ -316,7 +316,7 @@ conformance('-c generates a proof and checks it against the program', [
 ])
 
 conformance('-c reads the input program from standard input', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('-c'),
   stderr('empty'),
   stdin([
@@ -354,13 +354,13 @@ conformance('-c reads the input program from standard input', [
 ])
 
 conformance('--version prints the version', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('--version'),
   stdout('nonempty'),
 ])
 
 conformance('a bound must be exactly representable as a safe integer', [
-  spec('8.3, 13.1'),
+  spec('8.3, README.command-line'),
   args('program.js --max-inferences 9007199254740992'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -369,7 +369,7 @@ conformance('a bound must be exactly representable as a safe integer', [
 ])
 
 conformance('an overflowing bound is rejected instead of disabling the limit', [
-  spec('8.3, 13.1'),
+  spec('8.3, README.command-line'),
   args('program.js --max-depth 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -378,7 +378,7 @@ conformance('an overflowing bound is rejected instead of disabling the limit', [
 ])
 
 conformance('--prove-and-check generates answers for an external goal', [
-  spec('12, 13.1'),
+  spec('12, README.command-line'),
   args('--prove-and-check --goal "p(2)" program.js'),
   file('program.js', [
     'fact(p(1), p(2))',
@@ -414,7 +414,7 @@ conformance('--prove-and-check generates answers for an external goal', [
 ])
 
 conformance('--prove-and-check can reject its generated proof under strict checking', [
-  spec('11.8, 12, 13.1'),
+  spec('11.8, 12, README.command-line'),
   args('--prove-and-check --strict-proof program.js'),
   file('program.js', ['fact(a(1))', 'implies(a(X), b(X))', 'implies(findall(X, b(X), L), all(L))']),
   exit(2),
@@ -422,19 +422,19 @@ conformance('--prove-and-check can reject its generated proof under strict check
 ])
 
 conformance('--prove-and-check cannot be combined with --proof', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('-c --proof'),
   exit(1), stderr(prefix('eyemind:')), stdout([]),
 ])
 
 conformance('--prove-and-check cannot be combined with --check-proof', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('-c --check-proof proof.js'),
   exit(1), stderr(prefix('eyemind:')), stdout([]),
 ])
 
 conformance('--prove-and-check cannot be combined with --unused', [
-  spec('13.1'),
+  spec('README.command-line'),
   args('-c --unused'),
   exit(1), stderr(prefix('eyemind:')), stdout([]),
 ])
@@ -442,7 +442,7 @@ conformance('--prove-and-check cannot be combined with --unused', [
 // Further command-line cases.
 
 conformance("-p prints the proof document, also after the files", [
-  spec("10.1, 13.1"),
+  spec("10.1, README.command-line"),
   args("program.js -p"),
   file('program.js', [
     "fact(p(1))",
@@ -469,7 +469,7 @@ conformance("-p prints the proof document, also after the files", [
 ])
 
 conformance("several files are numbered as one program in input order", [
-  spec("3.1, 3.5, 13.1"),
+  spec("3.1, 3.5, README.command-line"),
   args("-p a.js b.js"),
   file('a.js', [
     "fact(p(1))",
@@ -498,7 +498,7 @@ conformance("several files are numbered as one program in input order", [
 ])
 
 conformance("-c keeps the halt code 65 when its proof checks", [
-  spec("8.5, 13.1"),
+  spec("8.5, README.command-line"),
   args("-c program.js"),
   exit(65),
   file('program.js', [
@@ -536,7 +536,7 @@ conformance("-c keeps the halt code 65 when its proof checks", [
 ])
 
 conformance("-c exits 0 when its proof checks with obligations", [
-  spec("12, 13.1"),
+  spec("12, README.command-line"),
   args("-c program.js"),
   file('program.js', [
     "fact(a(1))",
@@ -580,7 +580,7 @@ conformance("-c exits 0 when its proof checks with obligations", [
 ])
 
 conformance("--prove-and-check --json prints the report as JSON", [
-  spec("12.1, 13.1"),
+  spec("README.json-check-reports, README.command-line"),
   args("--prove-and-check --json program.js"),
   file('program.js', [
     "fact(p(1))",
@@ -667,7 +667,7 @@ conformance("--prove-and-check --json prints the report as JSON", [
 ])
 
 conformance("-c combines with --strict-proof and --json", [
-  spec("12.1, 13.1"),
+  spec("README.json-check-reports, README.command-line"),
   args("-c --strict-proof --json program.js"),
   file('program.js', [
     "fact(p(1))",
@@ -754,7 +754,7 @@ conformance("-c combines with --strict-proof and --json", [
 ])
 
 conformance("--strict-proof accepts a proof without trusted boundaries", [
-  spec("11.8, 13.1"),
+  spec("11.8, README.command-line"),
   args("--strict-proof --check-proof proof.js program.js"),
   file('program.js', [
     "fact(p(1))",
@@ -799,7 +799,7 @@ conformance("--strict-proof accepts a proof without trusted boundaries", [
 ])
 
 conformance("the program to check against may come from standard input", [
-  spec("13.1"),
+  spec("README.command-line"),
   args("--check-proof proof.js"),
   file('proof.js', [
     "q(1)",
@@ -846,7 +846,7 @@ conformance("the program to check against may come from standard input", [
 ])
 
 conformance("--json reports an invalid proof with exit code 2", [
-  spec("12.1, 13.1"),
+  spec("README.json-check-reports, README.command-line"),
   args("--json --check-proof proof.js program.js"),
   exit(2),
   stderr('empty'),
@@ -860,7 +860,7 @@ conformance("--json reports an invalid proof with exit code 2", [
 ])
 
 conformance("an array goal asks a conjunction", [
-  spec("4.1, 13.1"),
+  spec("4.1, README.command-line"),
   args("program.js --goal '[p(X), q(X)]'"),
   file("program.js", [
     "fact(p(1), p(2), q(2))",
@@ -872,7 +872,7 @@ conformance("an array goal asks a conjunction", [
 ])
 
 conformance("a goal that does not read is an error", [
-  spec("9.1, 13.1"),
+  spec("9.1, README.command-line"),
   args("program.js --goal 'p(X'"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -884,7 +884,7 @@ conformance("a goal that does not read is an error", [
 ])
 
 conformance("a goal with an assignment is rejected rather than run", [
-  spec("9.1, 13.1, 15"),
+  spec("9.1, README.command-line, 14"),
   args("program.js --goal 'X = 1'"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -896,7 +896,7 @@ conformance("a goal with an assignment is rejected rather than run", [
 ])
 
 conformance("--max-depth stops runaway recursion with an error", [
-  spec("8.3, 13.1"),
+  spec("8.3, README.command-line"),
   args("program.js --goal 'p(1)' --max-depth 10"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -908,7 +908,7 @@ conformance("--max-depth stops runaway recursion with an error", [
 ])
 
 conformance("--max-iterations bounds the forward rounds", [
-  spec("8.3, 13.1"),
+  spec("8.3, README.command-line"),
   args("program.js --max-iterations 5"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -921,7 +921,7 @@ conformance("--max-iterations bounds the forward rounds", [
 ])
 
 conformance("--max-inferences bounds the goals started", [
-  spec("8.3, 13.1"),
+  spec("8.3, README.command-line"),
   args("program.js --max-inferences 50"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -934,7 +934,7 @@ conformance("--max-inferences bounds the goals started", [
 ])
 
 conformance("-c applies reasoning bounds to proof generation", [
-  spec("8.3, 13.1"),
+  spec("8.3, README.command-line"),
   args("-c --max-iterations 5 program.js"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -947,7 +947,7 @@ conformance("-c applies reasoning bounds to proof generation", [
 ])
 
 conformance("the largest safe integer is an accepted bound", [
-  spec("8.3, 13.1"),
+  spec("8.3, README.command-line"),
   args("program.js --max-iterations 9007199254740991"),
   file("program.js", [
     "fact(p(1))",
@@ -960,7 +960,7 @@ conformance("the largest safe integer is an accepted bound", [
 ])
 
 conformance("a negative bound is rejected", [
-  spec("8.3, 13.1"),
+  spec("8.3, README.command-line"),
   args("program.js --max-iterations -5"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -971,7 +971,7 @@ conformance("a negative bound is rejected", [
 ])
 
 conformance("a fractional bound is rejected", [
-  spec("8.3, 13.1"),
+  spec("8.3, README.command-line"),
   args("program.js --max-depth 2.5"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -982,7 +982,7 @@ conformance("a fractional bound is rejected", [
 ])
 
 conformance("--stats with -c prints statistics to standard error and the report to standard output", [
-  spec("13.1"),
+  spec("README.command-line"),
   args("-c --stats program.js"),
   stderr('json'),
   file('program.js', [
@@ -1020,13 +1020,13 @@ conformance("--stats with -c prints statistics to standard error and the report 
 ])
 
 conformance("-v prints the version", [
-  spec("13.1"),
+  spec("README.command-line"),
   args("-v"),
   stdout('nonempty'),
 ])
 
 conformance("--json with --proof is an error", [
-  spec("13.1"),
+  spec("README.command-line"),
   args("--json --proof program.js"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -1037,7 +1037,7 @@ conformance("--json with --proof is an error", [
 ])
 
 conformance("--strict-proof with --unused is an error", [
-  spec("13.1"),
+  spec("README.command-line"),
   args("--strict-proof --unused program.js"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -1048,7 +1048,7 @@ conformance("--strict-proof with --unused is an error", [
 ])
 
 conformance("a proof document on standard input is refused as a program", [
-  spec("13.1"),
+  spec("README.command-line"),
   args(""),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -1062,7 +1062,7 @@ conformance("a proof document on standard input is refused as a program", [
 ])
 
 conformance("a missing proof file is an error", [
-  spec("13.1"),
+  spec("README.command-line"),
   args("--check-proof missing.js program.js"),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -1074,7 +1074,7 @@ conformance("a missing proof file is an error", [
 ])
 
 conformance("a misspelled statement is an error, not an empty program", [
-  spec("3.2, 13.1"),
+  spec("3.2, README.command-line"),
   exit(1),
   stderr(prefix('eyemind:')),
   file("program.js", [
@@ -1085,7 +1085,7 @@ conformance("a misspelled statement is an error, not an empty program", [
 ])
 
 conformance("an empty program has no conclusions", [
-  spec("8.6, 13.1"),
+  spec("8.6, README.command-line"),
   args(""),
   stdin([
 ]),

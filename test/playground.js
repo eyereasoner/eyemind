@@ -392,6 +392,8 @@ query(or(q(X), r(X)))`);
     assert.equal(await page.evaluate('location.pathname'), '/playground/conformance');
     assert.deepEqual(await page.evaluate("[...document.querySelectorAll('nav a')].map(a => a.textContent)"), labels);
     assert.equal(await page.evaluate("document.querySelector('nav [aria-current=page]').textContent"), 'Conformance');
+    assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].some(node => node.textContent.includes('README.command-line'))"));
+    assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].every(node => node.textContent.startsWith('References: '))"));
     await p.type('filter', 'C8');
     const filtered = await page.evaluate("document.querySelectorAll('.cases > li:not(.hidden)').length");
     assert.ok(filtered > 0 && filtered < count);
@@ -403,6 +405,8 @@ query(or(q(X), r(X)))`);
     for (const width of [1280, 390]) {
       await page.command('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width === 390 });
       assert.ok(await page.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth'), `conformance at ${width}px`);
+      assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].every(node => node.getBoundingClientRect().right <= innerWidth)"),
+        `conformance references fit at ${width}px`);
     }
     await page.evaluate("document.querySelector('nav a[href=\"./\"]').click()");
     await p.until("document.getElementById('input') && !document.getElementById('run').disabled", 'return to the playground');

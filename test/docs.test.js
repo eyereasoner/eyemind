@@ -75,8 +75,20 @@ export const tests = {
     }
   },
 
-  'the specification defines the conformance manifest and every setting the cases use'() {
-    const section = document('SPEC.md').split('### 14.1 Conformance test suite\n')[1].split(/\n## /)[0];
+  'the specification keeps implementation interfaces in the guide'() {
+    const spec = document('SPEC.md');
+    const headings = [...spec.matchAll(/^#{2,3} (.+)$/gm)].map((match) => match[1]);
+    assert.ok(headings.includes('13. Conformance'));
+    assert.ok(headings.includes('14. Security'));
+    assert.ok(!headings.some((heading) => /Command.Line|JSON form|Unused clauses|Conformance test suite/.test(heading)));
+    assert.doesNotMatch(spec, /`--[a-z]|halt code \d|50,000|8,388,608|2\^26|srl_execution|urn:eyemind:proof/);
+    for (const heading of ['Native proof data', 'JSON check reports', 'Resource limits', 'Unused clauses']) {
+      assert.ok(document('README.md').includes(`### ${heading}\n`), heading);
+    }
+  },
+
+  'the harness guide defines the conformance manifest and every setting the cases use'() {
+    const section = document('conformance/README.md').split('## Case format\n')[1].split(/\n## /)[0];
     const defined = new Set([...section.matchAll(/^\| `([a-z_]+)\(/gm)].map((match) => match[1]));
     assert.deepEqual([...defined].sort(),
       ['args', 'exit', 'file', 'spec', 'stderr', 'stdin', 'stdout', 'stdout_json', 'stdout_text']);
@@ -88,7 +100,7 @@ export const tests = {
     // Settings stand at the start of a case's lines, indented by two spaces.
     for (const { file } of manifest) {
       for (const [, name] of document(`conformance/${file}`).matchAll(/^ {2}([a-z_]+)\(/gm)) {
-        assert.ok(defined.has(name), `${file}: ${name} is not a setting SPEC Section 14.1 defines`);
+        assert.ok(defined.has(name), `${file}: ${name} is not a setting the harness guide defines`);
       }
     }
     assert.throws(() => parseCases("conformance('x', [timeout(1)])"), /unknown setting timeout\/1/);

@@ -82,13 +82,8 @@ proof.
   - [11.13 C10 Call fidelity](#1113-c10-call-fidelity)
   - [11.14 Counts and validity](#1114-counts-and-validity)
 - [12. Check Reports](#12-check-reports)
-  - [12.1 JSON form](#121-json-form)
-- [13. Command-Line Interface](#13-command-line-interface)
-  - [13.1 Invocation and options](#131-invocation-and-options)
-  - [13.2 Unused clauses](#132-unused-clauses)
-- [14. Conformance](#14-conformance)
-  - [14.1 Conformance test suite](#141-conformance-test-suite)
-- [15. Security](#15-security)
+- [13. Conformance](#13-conformance)
+- [14. Security](#14-security)
 - [Appendix A. Document Grammar](#appendix-a-document-grammar)
 - [Appendix B. Example](#appendix-b-example)
 
@@ -99,13 +94,19 @@ proof.
 ### 1.1 Scope
 
 This specification defines eyemind's terms, program syntax, semantics,
-evaluation, document formats, proof checking and command-line interface.
+evaluation, data documents, proof documents and proof checking.
 Programs are JavaScript scripts. Conclusions, proofs and check reports are
 data documents whose expressions MUST be read without execution.
 
-The JavaScript library API, browser interface, installation and release
-procedures are outside this specification. [Section 1.3](#13-terminology) defines the terms
-used throughout.
+The requirements apply to any conforming implementation. JavaScript is the
+program notation; it does not prescribe the implementation language, data
+structures or execution architecture. Observable behavior is specified
+independently of those choices.
+
+Command-line options, exit codes, library APIs, browser interfaces,
+additional input formats and proof encodings, installation and release
+procedures are outside this specification. [Section 1.3](#13-terminology)
+defines the terms used throughout.
 
 ### 1.2 Requirements and notation
 
@@ -185,7 +186,7 @@ Runs:
   (Sections [7.2](#72-variables-and-witnesses) and [8.2](#82-forward-evaluation-and-witnesses)).
 - **External goal**: a goal given to a run from outside the program
   ([Section 8.4](#84-external-goals)).
-- **Halt**: the end of a run that concludes `'false'`, with halt code 65
+- **Halt**: the end of a run that concludes `'false'`
   ([Section 8.5](#85-contradictions)).
 - **Conclusion**: a term reported by a run ([Section 8.6](#86-reported-conclusions)).
 - **Reasoner**: a processor that evaluates programs and checks its generated
@@ -321,8 +322,10 @@ declarations.
 
 The supplied names are the statements of [Section 3.4](#34-statements), `forward`, `backward`,
 `preds`, `vars`, `struct`, the controls and primitives of [Section 4](#4-goals-and-primitives), the
-atom `fail`, and the library name `eyemind`. Library operations are outside
-this specification. Other names are resolved as [Section 3.2](#32-names) specifies.
+atom `fail`. Other names are resolved as [Section 3.2](#32-names) specifies.
+
+An embedding MAY supply additional library names. Their operations and
+programs that depend on them are outside this specification.
 
 ### 3.2 Names
 
@@ -460,8 +463,7 @@ It only states facts. A path requires file access; a text string does not.
 
 After embedded rule calls have been excluded ([Section 6.2](#62-inline-rule-templates)), clauses are
 numbered from 1 in statement order. A multi-argument `fact` contributes one
-numbered clause per argument. Each clause records the source line where its
-statement call begins; facts read by `facts_from` use that call's line.
+numbered clause per argument.
 
 A clause MUST be rejected when:
 
@@ -708,12 +710,11 @@ An evaluation MUST raise an error, rather than produce a value, on a division
 or modulo by zero, a domain error (such as `sqrt(-1)`, `log(0)`, or a
 logarithm `log(X, B)` whose `X` or base `B` is not positive or whose `B` is
 1), a bitwise operation, `isqrt`, `gcd` or `lcm` on a float, a negative shift
-count, when the result
-is not a finite real number,
-or when a power or left shift would need more than 2^26 bits: for a power of
-integers `pow(A, B)` with `B > 0` and `abs(A) > 1`, when `B` times the bit
-length of `A` exceeds 2^26; for a shift `shl(A, B)` of integers, when `B`
-exceeds 2^26.
+count, or when the result is not a finite real number.
+
+An implementation MAY bound the resources used by arithmetic. If a bound
+is exceeded, evaluation MUST report resource exhaustion instead of returning
+an incorrect or partial value. The bounds are implementation-defined.
 
 ## 6. Rule Structure
 
@@ -784,9 +785,9 @@ template's body; its head and direction are those of the template. A forward
 template keeps its head conjunction; a backward template appends one clause
 per head. Continue processing appended clauses in order, compiling nested
 forward templates in the same way. Original clause numbers are kept;
-appended clauses are numbered consecutively and inherit the generator's
-source line. `forward` and `backward` are displayed as `implies` and
-`implied_by`. The original generating clause retains its template heads.
+appended clauses are numbered consecutively. `forward` and `backward` are
+displayed as `implies` and `implied_by`. The original generating clause
+retains its template heads.
 
 For example, `implies(cat(X), implies(dog(Y), test('yes')))` as the only
 stated clause has these displays:
@@ -871,8 +872,8 @@ make one of its negated goals true without also satisfying a
 contradiction's body. N. Küchenmeister, A. Ivliev, D. Arndt and
 M. Krötzsch, "Stratified Negation in RDF Rules: A Correct Approach"
 (arXiv:2607.28778), call such programs chain-stratified under constraints.
-This section defines the decision eyemind makes, which errs towards
-rejection: a program it accepts is chain-stratified in the paper's sense.
+This section defines a conservative decision procedure: a program it
+accepts is chain-stratified in the paper's sense.
 It is made only for a program [Section 6.1](#61-dependencies-and-stratification) rejects for a closed cycle.
 
 **Rules.** The rules are the forward clauses and the backward clauses with a
@@ -1159,8 +1160,7 @@ and `p(2)` publishes `a(1)`, `b(1)`, `a(2)`, `b(2)`. For each head:
   checker verifies the Skolem terms of a proof (C8, [Section 11.11](#1111-c8-witness-integrity));
 - a head `'true'` reports the instance of the rule's body, as a conjunction,
   once per distinct instance (by identity of canonical text);
-- a head `'false'` records the conclusion `'false'` and stops all reasoning
-  with halt code 65;
+- a head `'false'` records the conclusion `'false'` and stops all reasoning;
 - a template head derives a rule instance as specified in [Section 6.2](#62-inline-rule-templates);
 - any other head is added as a derived fact unless an identical fact is
   already derived or is a ground fact of the program.
@@ -1226,28 +1226,24 @@ a pattern identical up to renaming of its variables was already derived.
 
 ### 8.3 Resource bounds
 
-A run is bounded by `max_depth`, the depth of nested rule bodies (default
-1000000), by `max_inferences`, the number of goals started (default
-1000000), and by `max_iterations`, the rounds per stratum (default 1000).
-Exceeding a bound MUST raise an error; a partial result MUST NOT be returned
-as complete. The bounds count as follows:
+An implementation MAY bound evaluation resources. Exceeding a bound MUST
+raise an error; a partial result MUST NOT be returned as complete. Limits
+and their configuration are implementation-defined. When bounds on search
+depth, goals started or forward rounds are provided, they count as follows:
 
 - A goal solved by a rule is one level deeper than the goal whose body it is
   in, and a goal asked from outside or a forward rule's premise is at level
-  0; solving a goal through more than `max_depth` nested rule bodies exceeds
-  the bound. A goal solved by a fact adds no level.
-- Every goal the search starts counts once toward `max_inferences`,
+  0; solving a goal through more nested rule bodies than the depth bound
+  allows exceeds it. A goal solved by a fact adds no level.
+- Every goal the search starts counts once toward the inference bound,
   including each conjunction, control and primitive, in forward premises as
   in goals: `[p(X), p(Y)]` against one fact starts three goals.
-- Every forward round of a stratum counts toward `max_iterations`,
+- Every forward round of a stratum counts toward the round bound,
   including the final round that adds nothing; a stratum without forward
   rules has no rounds.
 
-A run that exceeds a bound concludes nothing: the command line writes no
-conclusions to standard output, even answers found before the bound was
-reached, and exits with code 1 ([Section 13.1](#131-invocation-and-options)).
-
-Each supplied bound MUST be a positive integer no greater than 9007199254740991.
+A run that exceeds a bound MUST report resource exhaustion. Answers found
+before exhaustion MUST NOT be presented as the complete result of that run.
 
 ### 8.4 External goals
 
@@ -1260,7 +1256,8 @@ this goal or an earlier one of the same run.
 
 ### 8.5 Contradictions
 
-A run that concluded `'false'` has halt code 65; otherwise it has none.
+A run halts exactly when it concludes `'false'`. The halt is part of its
+result and stops evaluation as specified in [Section 8.2](#82-forward-evaluation-and-witnesses).
 
 ### 8.6 Reported conclusions
 
@@ -1274,7 +1271,6 @@ The conclusions of a run are, in order:
 4. otherwise: every derived fact, in the order derived.
 
 Rule instances are not facts and cannot be queried as enabling predicates.
-The `derived` statistic counts only facts added during reasoning.
 
 The output of a run is a comment line saying which of these the conclusions
 are, followed by the canonical text ([Section 9](#9-document-syntax-and-canonical-text)) of each conclusion, one per
@@ -1294,7 +1290,8 @@ when supported. Each negation and collection of a proof gets the search certific
 that settles it (Sections [10.4](#104-search-certificates) and [11.12](#1112-c9-search-closure)) whenever [Section 11.12](#1112-c9-search-closure) allows one. A
 table holds every answer of its call, so it can search beyond where the run
 stopped, as under `once`; a boundary whose tables would meet an error, or
-exceed `max_inferences` calls and answers ([Section 8.3](#83-resource-bounds)), stays trusted. So does a
+exceed the inference bound while recording calls and answers
+([Section 8.3](#83-resource-bounds)), stays trusted. So does a
 boundary of a halted run ([Section 8.5](#85-contradictions)) whose listings a rule of a later stratum
 would extend: the run stopped before its fixpoint, so its derived facts need
 not be closed under the rules. A
@@ -1865,7 +1862,7 @@ Host math is the one exception to identical re-decision. A `'builtin'` step
 `log10`, a trigonometric or hyperbolic function, or `pow`, also passes C5
 when `E` evaluates to a float at most 4 units in the last place from `V`,
 that is, with at most 3 floats between them. Such results may differ between
-conforming implementations ([Section 14](#14-conformance)). C5 therefore accepts this bounded
+conforming implementations ([Section 13](#13-conformance)). C5 therefore accepts this bounded
 variation. C10 still compares actual answers of the original question;
 when those answers depend on host math, a proof MAY fail C10 on another
 implementation even when its primitive steps pass C5. Every other recomputed result MUST be identical; a difference
@@ -2113,9 +2110,7 @@ requires:
   enclosing generators are not all in the program never fires, and closure
   skips it.
 
-For example, the saved
-[Nixon diamond proof](https://eyereasoner.github.io/eyemind/examples/proof/nixon-diamond.js)
-contains this step and certificate:
+For example, a proof of a negation can contain this step and certificate:
 
 ```js
 step(not(nonpacifist('ada')), 'absent', {}, [])
@@ -2392,7 +2387,7 @@ an empty document leaves `r('c')` as an obligation. A question answered
 from source facts alone needs no table, so its required answers come from
 the facts.
 
-**Limits and production of certificates.** The current format requires
+**Limits and production of certificates.** The certificate format requires
 complete tables, even for a relation called under `once`. Later recursion
 or an error may prevent a table from closing although `once` itself
 terminates. A certificate for just the searched prefix is not defined, so
@@ -2401,11 +2396,11 @@ call fidelity then remains unproved.
 A reasoner MUST attempt call-fidelity certification for every proof it
 generates ([Section 8.7](#87-proof-generation)). It MAY bound this auxiliary
 production. Exceeding that bound leaves an obligation and MUST NOT change
-the run's answers. The bounds are outside conformance, so conforming
+the run's answers. The bounds are implementation-defined, so conforming
 reasoners may differ in which generated claims carry call-fidelity
-obligations. eyemind bounds this work per question by the smaller of
-`max_inferences` and 50,000 calls plus answers, and by 8,388,608 UTF-16 code
-units of answer text.
+obligations. A checker MUST
+decide each supplied certificate from its contents and the source program,
+without assuming the limits or decisions of the processor that produced it.
 
 **Relevance and counts.** Call tables and their supporting listings serve
 the claims for C7; their listed facts are reachable through that evidence.
@@ -2501,176 +2496,15 @@ each subsequent report fact are renamed `A`, `B`, ..., `Z`, `A1`, ... in order
 of first occurrence. A report is ordinary data: `facts_from` ([Section 3.4](#34-statements))
 states it as facts.
 
-### 12.1 JSON form
-
-The JSON form includes `answers`, an array of the initial claims' canonical
-texts, including unverified claims when `valid` is false. It also has `valid` (boolean), `steps`,
-`claims`, `verified`, `redecided` (the count `recomputed`), `composed`,
-`uses` (the number of uses of all steps, integers), `trusted`
-(a list of `{kind, conclusion, reason?}`, with `reason: 'original_call'`
-for a claim's call-fidelity obligation and `reason: 'all_answers'` for a
-question's answer-completeness obligation), `failures` (a list of
-`{condition, detail, conclusion?}`) and `conditions` (a list of
-`{id, name, covered, failed}`), where `conclusion` is a canonical text.
-Its variables keep the names the document gives them, rather than being
-renamed for each report fact as in the text form.
-
-## 13. Command-Line Interface
-
-### 13.1 Invocation and options
-
-```text
-eyemind [OPTION ...] [FILE ...]
-```
-
-| Option | Meaning |
-| --- | --- |
-| (none) | Load the files, or standard input, as one program and print its conclusions. |
-| `-p`, `--proof` | Print the proof document instead. |
-| `-c`, `--prove-and-check` | Generate a proof, check the rendered proof against the input program, and print its answers and check report. |
-| `--check-proof FILE` | Check the proof in `FILE` (`-` for standard input) against the program and print its answers and report. |
-| `--json` | With either checking mode, print the report, including `answers`, as JSON. |
-| `--goal GOAL` | Ask `GOAL`, read as in [Section 9.1](#91-accepted-document-syntax), where an array is a conjunction; MAY be repeated. With `--check-proof`, the goals the proof answers. |
-| `--strict-proof` | With either checking mode, forbid trusted obligations. |
-| `--unused` | Print the unused clauses ([Section 13.2](#132-unused-clauses)). |
-| `--stats` | Print reasoning statistics as JSON to standard error: `inferences`, the goals started, which `--max-inferences` bounds; `rounds`, the forward rounds run over all strata; and `derived`, the facts forward rules added, not counting a conclusion the program states as a fact, a query's answers or `'false'`. |
-| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | The bounds of [Section 8.3](#83-resource-bounds), with the values it allows. |
-| `-v`, `--version` | Print the version. |
-| `-h`, `--help` | Print the usage, including every option and its short alias where one exists. |
-
-`--proof`, `--prove-and-check`, `--check-proof` and `--unused` are mutually
-exclusive. `--json` and `--strict-proof` need a checking mode. With
-`--prove-and-check`, reasoning bounds and `--stats` apply to proof generation;
-an invalid check returns 2, otherwise the run's halt code is retained
-(65 for a contradiction, 0 otherwise). A program
-text that has a line starting with `step(` or `called(` is a proof document; given one as
-a program, the command line MUST say how to check it instead.
-
-Files are programs ([Section 3](#3-program-syntax)) unless an
-implementation reads other formats. eyemind reads files by their extension:
-`.ttl`, `.trig`, `.nt` and `.nq` as RDF 1.2 data, joining a program as
-`rdf(S, P, O, G)` facts, `.n3` as Notation3 and `.srl` as a SPARQL 1.2 RL rule
-set, both compiled to a program, with the options `--to FORMAT` (the output
-format of the conclusions), `--all`, `--program` and `--base IRI`; its README
-describes the mappings. Such formats are outside conformance: a conforming
-implementation need not read them, and the suite does not test them. The
-proofs and checks of a compiled program are those of any program.
-
-For N3 and SRL inputs, `--proof` writes native proof data, `.n3` and `.srl`
-respectively. This is an additional representation of the complete proof of
-[Section 10](#10-proof-documents), outside conformance. JavaScript programs and the core library
-continue to write the canonical representation. `--check-proof` recognizes
-all three representations from their contents, regardless of filename;
-check reports retain the representation of [Section 12](#12-check-reports).
-
-The native proof resource is `<urn:eyemind:proof>`, of type `pe:Proof`, where
-`pe:` is `https://eyereasoner.github.io/pe#` and `em:` is
-`https://eyereasoner.github.io/eyemind/proof#`. It has `em:format` equal to
-`"n3"` or `"srl"`, `pe:claims` as an ordered collection of claim displays,
-and `em:records` as an ordered collection of record IRIs. Record `N`, counted
-from 1, is `<urn:eyemind:proof#recordN>` and has one `em:term` containing its
-[Section 10](#10-proof-documents) statement, encoded as a tagged collection:
-
-| Term | Collection |
-| --- | --- |
-| Atom | `(em:atom "text")` |
-| Integer | `(em:integer "digits")`, with a minus for a negative integer |
-| Float | `(em:float "number")`, preserving signed zero as `"-0"` |
-| Variable | `(em:variable "name")`, including anonymous-variable status |
-| `iri(I)` with an RDF-compatible IRI | `(em:iri <I>)` |
-| Nonempty proper list | `(em:list (EncodedItem ...))` |
-| Compound | `(em:compound "name" (EncodedArgument ...))` |
-
-The empty list is the atom `"[]"`. Other compounds, including open lists,
-quoted graphs and Skolem terms, use the compound encoding. A string field
-containing a character RDF cannot represent uses an `em:utf16` typed literal
-whose lexical form is four lowercase hexadecimal digits per UTF-16 code
-unit. This retains every atom and variable name accepted by
-[Section 9.2](#92-canonical-atoms-numbers-variables-and-lists).
-
-A triple goal's display is an N3 quoted formula, or an SRL RDF triple term.
-Other goals use their tagged encoding. A step record also displays
-`pe:conclusion`, `pe:rule` for a `clause(N)` justification, `pe:source` for
-`source(N)`, or `pe:justification` for another justification. `pe:binding`
-is an ordered collection of `(VariableName Value)` pairs, and `pe:uses` an
-ordered collection of premise displays. Non-native binding values retain
-their tagged encoding. Search records display `pe:derived`, `pe:searched`
-or `pe:called` and an ordered `pe:answers` collection. Clause numbers name
-the compiled program's clauses, whose authority is still the source input.
-SRL proofs contain only `DATA` and declarations, never rules or imports.
-
-When an SRL rule set uses `NOW`, `UUID` or `STRUUID`, its compiled program
-includes one ground `srl_execution(Now, Seed)` fact. `Now` is an ISO UTC
-timestamp with milliseconds and `Seed` contains 64 lowercase hexadecimal
-digits. The compiler captures these external inputs once per compilation;
-they remain fixed throughout evaluation. To check a saved SRL proof, the
-format loader may recover this fact from its clause records, validate its
-two fields, and recompile the source with that execution context. All other
-clauses still come from the source, and all displays undergo C1–C10 as
-usual. This establishes consequences of the recorded context, without
-certifying a clock observation or the entropy of the seed.
-
-The reader decodes every record, verifies all displays and properties against
-those records, and applies the unchanged checks of
-[Section 11](#11-proof-checking) to the decoded
-certificate. A missing, extra, duplicate or inconsistent property fails C3.
-Numeric literal displays retain their decimal digits during this comparison;
-distinct decimal literals MUST NOT agree merely by rounding to binary64.
-Prefix aliases and reordering top-level properties are accepted, as is
-consistent blank-node renaming; the order of collections and formula triples
-is retained. Displayed claims cannot replace encoded claims, and neither
-representation can change the source authority or supply missing evidence.
-
-eyemind also reads RDF Message Logs in these four RDF syntaxes, announced by
-a `*-messages` version. Replay supplies ordered envelopes and quoted payloads
-to N3 or JavaScript rules; `--stream-messages` evaluates each message
-independently and supports incremental Node input. Replay can produce and
-check ordinary eyemind proofs. The streaming mode rejects proof generation,
-proof checking, `--program` and `--unused`. These mappings and this option
-are also outside conformance; the README describes their supported behavior.
-
-| Exit code | Meaning |
-| --- | --- |
-| 0 | Success, including a check that found the proof valid. |
-| 1 | An error, printed to standard error as `eyemind: message`. |
-| 2 | A check that found the proof not valid; the report is printed as usual. |
-| 65 | The run halted ([Section 8.5](#85-contradictions)). |
-
-### 13.2 Unused clauses
-
-A clause is **unused** when no conclusion's recorded derivation cites it,
-unless a negation or collection in the proof could consult it and its
-omission changes the conclusions or halt code, or causes an error. The clauses a
-negation or collection could consult are those whose heads have the name and
-arity of a goal it reaches through the program's bodies. Running the program
-without a clause leaves every other clause its number ([Section 3.5](#35-clause-constraints-and-numbering)), so the
-Skolem terms of the other rules ([Section 8.2](#82-forward-evaluation-and-witnesses)) do not change.
-
-Unused clauses are reported one per line, in clause order, as
-`unused(line(L), Display)`, where `L` is the clause's line ([Section 3.5](#35-clause-constraints-and-numbering)) in
-the script that states it, and `Display` as in [Section 10.2](#102-clause-displays); with several
-scripts, clause order tells which script a line belongs to. The listing is
-the result whether or not the program halts with `'false'`, and the command
-exits with code 0 after it.
-
-"Unused" is relative to the recorded derivations, which are the first ones
-found ([Section 8.7](#87-proof-generation)). A clause that only offers a second derivation of a
-conclusion, such as a duplicate rule, is unused, though leaving out the
-clause that offers the first one would make it used; leaving out several
-unused clauses together can therefore change the conclusions. A
-`contradiction` rule that never fires changes no conclusion and is unused,
-though it guards the program against data that would make it fire; so are
-the clauses only its negations or collections could consult, since they are
-not in the proof.
-
-## 14. Conformance
+## 13. Conformance
 
 A conforming reasoner MUST implement the program syntax, semantics and
 evaluation of Sections [2](#2-terms)–[8](#8-evaluation-and-conclusions) and the document and proof formats of Sections
 [9](#9-document-syntax-and-canonical-text)–[12](#12-check-reports). A conforming checker MUST implement Sections [9](#9-document-syntax-and-canonical-text)–[12](#12-check-reports) against the supplied
 program, including the clause and template rules of Sections [3](#3-program-syntax) and [6](#6-rule-structure),
-without invoking a reasoner to complete the certificate. The command-line
-interface of [Section 13](#13-command-line-interface) is a separate conformance requirement.
+without invoking a reasoner to complete the certificate. Conformance does
+not require a particular command-line interface, library API, browser
+interface or test runner.
 
 Canonical term spelling, conclusion order, proof contents and report counts
 are required as specified. Comment wording and failure `Detail` text are
@@ -2679,70 +2513,12 @@ so. Float results of `exp`, logarithms, trigonometric and hyperbolic
 functions, and `pow` with floats MAY differ by one unit in the last place,
 and C5 accepts a result of such a function within 4 units ([Section 11.8](#118-c5-re-decision)).
 
-The conformance cases and saved example documents exercise these
-requirements. They do not replace the definitions in this specification.
+Tests and example documents can provide evidence of conformance. Passing
+a test suite does not replace these requirements, and the behavior of an
+implementation does not define them. When a test or implementation
+disagrees with this specification, this specification governs.
 
-### 14.1 Conformance test suite
-
-The conformance test suite tests an implementation of the command line of
-[Section 13.1](#131-invocation-and-options) as a black box: each case creates files, runs the command and
-compares its exit code and output with what this specification requires.
-The suite is the `conformance` directory of the eyemind repository. Its
-expected outputs are derived from this specification; where a case and this
-specification disagree, the specification governs and the case is wrong.
-
-**Manifest.** `manifest.json` is a JSON array that lists the case files in
-the order they run. Each element is an object with three string members:
-`file`, the name of a case file in the same directory; `spec`, the sections
-of this specification it tests, separated by commas; and `topic`, a
-description. The cases of a file run in the order they appear in it.
-
-**Case files.** A case file is a document ([Section 9.1](#91-accepted-document-syntax)), read as data and
-never executed, whatever its file name extension. Each of its terms is one
-case, `conformance(Name, Settings)`, where `Name` is an atom unique in the
-suite and `Settings` is a proper list of the settings below. A **block** is a
-proper list of atoms, each one line; its text is each line followed by a
-line feed, so `[]` is empty text. A file MUST NOT contain any other term,
-and a setting other than these is an error in the suite.
-
-| Setting | Meaning | When absent |
-| --- | --- | --- |
-| `spec(S)` | `S`, an atom: the sections the case tests, separated by commas. | |
-| `args(A)` | `A`, an atom: the command's arguments, split into words as described below. | `'program.js'` |
-| `exit(N)` | `N`, an integer: the exit code required. | `0` |
-| `stderr(M)` | Standard error: `'empty'`, no text; `'nonempty'`, some text other than white space; `'json'`, one JSON value; `prefix(T)`, text that starts with the atom `T`. | Not compared |
-| `file(Name, Block)` | A file the case creates before running; `Name` is a relative path whose `/` separates directories. | |
-| `stdin(Block)` | Standard input. | Empty |
-| `stdout(Block)` | Standard output, compared line by line. | Not compared |
-| `stdout('nonempty')` | Standard output contains text other than white space. | |
-| `stdout_json(Block)` | Standard output, compared as JSON. | |
-| `stdout_text(T)` | Standard output given as the atom `T`, for text a block cannot show, such as text without a final line feed; compared as `stdout` compares. | |
-
-Each setting appears at most once in a case, except `file`.
-
-**Running a case.** A case runs in a new empty directory. Each `file`
-setting creates its file there, with any directories its path names. The
-command then runs in that directory, with the words of `args` after the
-command's own words and with the `stdin` text on standard input. `args` is
-split into words as a POSIX shell splits a command line without expansions:
-white space separates words; text between single quotes is taken as is;
-between double quotes a backslash escapes only `"`, `\`, `$`, `` ` `` and a
-line feed; elsewhere a backslash escapes the next character; and adjacent
-quoted and unquoted parts join into one word.
-
-**Passing.** A case passes when the exit code equals `exit` and standard
-output and standard error meet the settings that compare them. Line by line,
-the expected and actual standard output MUST have the same number of lines,
-and each expected line MUST equal the actual one, except that each `…`
-(U+2026) in an expected line matches any sequence of characters within that
-line; this specification leaves such text, for example a failure detail, to
-the implementation ([Section 14](#14-conformance)). As JSON, both outputs MUST parse, and they
-MUST be equal as JSON values: arrays element by element, objects with the
-same member names whatever their order, numbers by their values, and
-strings as lines are, so that an expected string containing `…` matches any
-string of that form.
-
-## 15. Security
+## 14. Security
 
 Programs execute JavaScript and require the caller's trust. Documents,
 including proofs, reports, goals and `facts_from` input, MUST be read as data

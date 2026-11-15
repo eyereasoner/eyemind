@@ -1,7 +1,7 @@
-// SPEC 13.2: unused clauses, reported with the line their statement begins on.
+// README Unused clauses: the listing and source line of each unused clause.
 
 conformance('clauses no conclusion rests on are unused', [
-  spec('13.2'),
+  spec('README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     "fact(p('a'))",
@@ -18,7 +18,7 @@ conformance('clauses no conclusion rests on are unused', [
 ])
 
 conformance('a program whose every clause is used lists nothing', [
-  spec('13.2'),
+  spec('README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     "fact(type('socrates', 'human'))",
@@ -30,7 +30,7 @@ conformance('a program whose every clause is used lists nothing', [
 ])
 
 conformance('a clause a negation consults is used when leaving it out changes the conclusions', [
-  spec('13.2'),
+  spec('README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     "fact(p('a'), p('b'))",
@@ -43,7 +43,7 @@ conformance('a clause a negation consults is used when leaving it out changes th
 ])
 
 conformance('a clause a negation consults is unused when leaving it out changes nothing', [
-  spec('13.2'),
+  spec('README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     "fact(p('a'))",
@@ -56,7 +56,7 @@ conformance('a clause a negation consults is unused when leaving it out changes 
 ])
 
 conformance('leaving a clause out keeps the numbers of the others and their Skolem terms', [
-  spec('13.2'),
+  spec('README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     "fact(p('a'))",
@@ -70,7 +70,7 @@ conformance('leaving a clause out keeps the numbers of the others and their Skol
 ])
 
 conformance('a clause a collection consults is used when leaving it out changes the conclusions', [
-  spec('13.2'),
+  spec('README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     'fact(p(1), p(2))',
@@ -82,7 +82,7 @@ conformance('a clause a collection consults is used when leaving it out changes 
 ])
 
 conformance('a multi-line clause is reported with its first line', [
-  spec('13.2'),
+  spec('README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -95,7 +95,7 @@ conformance('a multi-line clause is reported with its first line', [
 ])
 
 conformance('unused clauses are relative to the goals asked', [
-  spec('13.2'),
+  spec('README.unused-clauses'),
   args("--unused --goal 'a(X)' program.js"),
   file('program.js', [
     'fact(a(1))',
@@ -107,7 +107,7 @@ conformance('unused clauses are relative to the goals asked', [
 ])
 
 conformance('a forward rule that concludes nothing is unused', [
-  spec('13.2'),
+  spec('README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -120,7 +120,7 @@ conformance('a forward rule that concludes nothing is unused', [
 ])
 
 conformance('facts stated by facts_from record the line of the call', [
-  spec('3.4, 13.2'),
+  spec('3.4, README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -134,7 +134,7 @@ conformance('facts stated by facts_from record the line of the call', [
 ])
 
 conformance('a generated rule that never fires is unused and keeps its generator line', [
-  spec('6.2, 13.2'),
+  spec('6.2, README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     "fact(enabled('x'), p('a'))",
@@ -151,7 +151,7 @@ conformance('a generated rule that never fires is unused and keeps its generator
 // Further unused-clause cases.
 
 conformance("a duplicate rule that offers only a second derivation is unused", [
-  spec("13.2"),
+  spec("README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "fact(p(1))",
@@ -164,7 +164,7 @@ conformance("a duplicate rule that offers only a second derivation is unused", [
 ])
 
 conformance("a duplicate fact is unused", [
-  spec("13.2"),
+  spec("README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "fact(p(1))",
@@ -177,7 +177,7 @@ conformance("a duplicate fact is unused", [
 ])
 
 conformance("a duplicate backward rule is unused when its answer was already reported", [
-  spec("8.4, 13.2"),
+  spec("8.4, README.unused-clauses"),
   args("--unused --goal 'q(X)' program.js"),
   file("program.js", [
     "fact(p(1))",
@@ -190,7 +190,7 @@ conformance("a duplicate backward rule is unused when its answer was already rep
 ])
 
 conformance("a contradiction that never fires is unused", [
-  spec("13.2"),
+  spec("README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "fact(p(1))",
@@ -203,7 +203,7 @@ conformance("a contradiction that never fires is unused", [
 ])
 
 conformance("a query without answers is unused, with the facts nothing cites", [
-  spec("8.6, 13.2"),
+  spec("8.6, README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "fact(p(1))",
@@ -216,7 +216,7 @@ conformance("a query without answers is unused, with the facts nothing cites", [
 ])
 
 conformance("a fact no query answer rests on is unused", [
-  spec("13.2"),
+  spec("README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "fact(p(1))",
@@ -230,7 +230,7 @@ conformance("a fact no query answer rests on is unused", [
 ])
 
 conformance("with goals, a forward rule off the derivation of the answers is unused", [
-  spec("8.6, 13.2"),
+  spec("8.6, README.unused-clauses"),
   args("--unused --goal 'q(X)' program.js"),
   file("program.js", [
     "fact(p(1))",
@@ -243,7 +243,7 @@ conformance("with goals, a forward rule off the derivation of the answers is unu
 ])
 
 conformance("each unused argument of a multi-argument fact is reported on its line", [
-  spec("3.5, 13.2"),
+  spec("3.5, README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "fact(p(1), p(2), p(3))",
@@ -256,7 +256,7 @@ conformance("each unused argument of a multi-argument fact is reported on its li
 ])
 
 conformance("a clause stated over several lines is reported with the line its call begins on", [
-  spec("3.5, 13.2"),
+  spec("3.5, README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "fact(p(1))",
@@ -272,7 +272,7 @@ conformance("a clause stated over several lines is reported with the line its ca
 ])
 
 conformance("a negation consults clauses it reaches through backward rules", [
-  spec("13.2"),
+  spec("README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "fact(p('a'), p('b'))",
@@ -286,7 +286,7 @@ conformance("a negation consults clauses it reaches through backward rules", [
 ])
 
 conformance("a collection consults only clauses of the same name and arity", [
-  spec("13.2"),
+  spec("README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "fact(p(1))",
@@ -299,7 +299,7 @@ conformance("a collection consults only clauses of the same name and arity", [
 ])
 
 conformance("a source rule an inspection cites is used", [
-  spec("6.3, 13.2"),
+  spec("6.3, README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "implies(a(X), c(X))",
@@ -310,7 +310,7 @@ conformance("a source rule an inspection cites is used", [
 ])
 
 conformance("unused clauses are displayed in normalized statement form", [
-  spec("10.2, 13.2"),
+  spec("10.2, README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "fact(p(1))",
@@ -327,7 +327,7 @@ conformance("unused clauses are displayed in normalized statement form", [
 ])
 
 conformance("an unused clause shows its anonymous variables as _0, _1", [
-  spec("3.3, 13.2"),
+  spec("3.3, README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "fact(p(1))",
@@ -340,7 +340,7 @@ conformance("an unused clause shows its anonymous variables as _0, _1", [
 ])
 
 conformance("unused clauses of a program read from standard input", [
-  spec("13.1, 13.2"),
+  spec("README.command-line, README.unused-clauses"),
   args("--unused"),
   stdin([
     "fact(p(1))",
@@ -355,7 +355,7 @@ conformance("unused clauses of a program read from standard input", [
 // Behaviors the specification settles explicitly (resolved gaps).
 
 conformance('--unused lists nothing and exits 0 for a program that halts', [
-  spec('13.2'),
+  spec('README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     'fact(a)',
@@ -367,7 +367,7 @@ conformance('--unused lists nothing and exits 0 for a program that halts', [
 ])
 
 conformance('--unused gives each clause its line in its own script', [
-  spec('13.2'),
+  spec('README.unused-clauses'),
   args('--unused a.js b.js'),
   file('a.js', [
     'fact(a)',
@@ -386,7 +386,7 @@ conformance('--unused gives each clause its line in its own script', [
 ])
 
 conformance('clauses only a contradiction that never fires consults are unused', [
-  spec('13.2'),
+  spec('README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     'fact(a)',

@@ -16,7 +16,7 @@
   },
   {
     "file": "06-arithmetic.js",
-    "spec": "5",
+    "spec": "5, README.resource-limits",
     "topic": "the meaning of every arithmetic term and function, exact integers, and each error"
   },
   {
@@ -46,17 +46,17 @@
   },
   {
     "file": "12-fidelity.js",
-    "spec": "10.5, 11.13, 13.1",
+    "spec": "10.5, 11.13, README.command-line",
     "topic": "C10 call fidelity: original bindings, ordered answers, closed call certificates and unsupported evidence"
   },
   {
     "file": "13-unused.js",
-    "spec": "13.2",
+    "spec": "README.unused-clauses",
     "topic": "Unused clauses, including those a negation or collection consults"
   },
   {
     "file": "14-command-line.js",
-    "spec": "13.1",
+    "spec": "README.command-line",
     "topic": "Options, their combinations, standard input, errors and exit codes"
   }
 ]

@@ -1748,7 +1748,7 @@ conformance('the largest safe bounds are accepted', [
 ])
 
 conformance('a fractional round bound is rejected', [
-  spec('8.3, 13.1'),
+  spec('8.3, README.command-line'),
   args('--max-iterations 2.5 program.js'),
   exit(1),
   stderr(prefix('eyemind:')),
@@ -1759,7 +1759,7 @@ conformance('a fractional round bound is rejected', [
 ])
 
 conformance('a zero round bound is rejected', [
-  spec('8.3, 13.1'),
+  spec('8.3, README.command-line'),
   args('--max-iterations 0 program.js'),
   exit(1),
   stderr(prefix('eyemind:')),

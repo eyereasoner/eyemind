@@ -442,7 +442,7 @@ conformance('other JavaScript globals are predicates and variables', [
 ])
 
 conformance("an error in a program's own JavaScript code is reported at its line", [
-  spec('3.1, 13.1'),
+  spec('3.1, README.command-line'),
   exit(1),
   stderr(prefix('eyemind: line 2:')),
   file('program.js', [
@@ -1789,7 +1789,7 @@ conformance('facts read by facts_from are numbered where the call stands', [
 ])
 
 conformance('a clause records the line where its statement call begins', [
-  spec('3.5, 13.2'),
+  spec('3.5, README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -1807,7 +1807,7 @@ conformance('a clause records the line where its statement call begins', [
 ])
 
 conformance('facts read by facts_from record the line of the call', [
-  spec('3.5, 13.2'),
+  spec('3.5, README.unused-clauses'),
   args('--unused program.js'),
   file('program.js', [
     '// data',
