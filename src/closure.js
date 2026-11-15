@@ -153,12 +153,12 @@ export class Settler {
     }
     outcome.tables = [...tables];
     outcome.listings = [...listings];
-    const circular = this.circularity(tables);
+    const circular = this.checkDependencies(tables);
     if (circular !== null) {
       outcome.failures.push([`search certificate is circular at ${text(circular.call)}`, circular.call]);
     }
     if (outcome.failures.length || outcome.failed) return { ...outcome, status: 'failed' };
-    if (unsettled || [...ordered].some((item) => !this.exact(item))) return { ...outcome, status: 'unsettled' };
+    if (unsettled || [...ordered].some((item) => !this.exactness.get(item))) return { ...outcome, status: 'unsettled' };
     if (answering) return { ...outcome, answers: found };
     if (!collecting && found.length) {
       outcome.failures.push([`absence contradicted by its search: ${text(boundary)}`, boundary]);
@@ -460,52 +460,32 @@ export class Settler {
     return null;
   }
 
-  // The first table found on a cycle of tables, or null: a search that met
-  // its own call again would never have finished.
-  circularity(tables) {
-    const state = new Map();
+  // Check the table dependency graph once: detect a cycle, or cache in
+  // dependency order which tables are independent of forward listings.
+  checkDependencies(tables) {
+    const exact = this.exactness ??= new Map();
+    const open = new Set();
+    const frame = (item) => [item, [...this.tables.get(item).reliance.tables], 0];
     for (const start of tables) {
-      if (state.has(start)) continue;
-      const stack = [[start, [...this.tables.get(start).reliance.tables], 0]];
-      state.set(start, 'open');
+      if (exact.has(start)) continue;
+      const stack = [frame(start)];
+      open.add(start);
       while (stack.length) {
         const top = stack[stack.length - 1];
         if (top[2] >= top[1].length) {
-          state.set(top[0], 'done');
+          const reliance = this.tables.get(top[0]).reliance;
+          exact.set(top[0], !reliance.listings.size && top[1].every((item) => exact.get(item)));
+          open.delete(top[0]);
           stack.pop();
           continue;
         }
         const next = top[1][top[2]++];
-        if (state.get(next) === 'open') return this.tables.get(next);
-        if (state.has(next)) continue;
-        state.set(next, 'open');
-        const entry = this.tables.get(next);
-        stack.push([next, entry.reliance ? [...entry.reliance.tables] : [], 0]);
+        if (open.has(next)) return this.tables.get(next);
+        if (exact.has(next)) continue;
+        open.add(next);
+        stack.push(frame(next));
       }
     }
     return null;
-  }
-
-  // Whether a table's answers keep the order a search finds them in: none of
-  // them, through any table it rests on, came from a listing.
-  exact(callKey) {
-    const memo = this.exactness ??= new Map();
-    if (memo.has(callKey)) return memo.get(callKey);
-    // Finish each dependency before caching its parent. Reversing discovery
-    // order is insufficient when two branches share a dependency.
-    const frame = (item) => [item, [...this.tables.get(item).reliance.tables], 0];
-    const stack = [frame(callKey)];
-    while (stack.length) {
-      const top = stack[stack.length - 1];
-      if (top[2] < top[1].length) {
-        const next = top[1][top[2]++];
-        if (!memo.has(next)) stack.push(frame(next));
-        continue;
-      }
-      const reliance = this.tables.get(top[0]).reliance;
-      memo.set(top[0], !reliance.listings.size && top[1].every((item) => memo.get(item)));
-      stack.pop();
-    }
-    return memo.get(callKey);
   }
 }

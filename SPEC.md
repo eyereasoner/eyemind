@@ -1666,9 +1666,9 @@ certified answer set, and every answer in it is claimed.
 
 For a program with negation, "follows" is relative to the facts the
 certificate lists: C9 establishes that they are supported by steps, closed
-under the forward rules and consistent with every settled negation. In the
-ground relational fragment of [Section 11.13](#1113-c10-call-fidelity), a stratified or
-chain-stratified program has only one such result ([Section 7.4](#74-negation-and-collection)). With restricted
+under the forward rules and consistent with every settled negation. Under
+the call-fidelity requirements of [Section 11.13](#1113-c10-call-fidelity),
+a stratified or chain-stratified program has only one such result ([Section 7.4](#74-negation-and-collection)). With restricted
 witnesses, different lean results can have these properties. A claim whose
 forward dependency closure includes a restricted rule with head-only
 variables therefore retains a call-fidelity obligation, and a strict check
@@ -2064,6 +2064,10 @@ including those consulted transitively by table expansions and listing
 closure checks. No table it rests on may depend on itself through the
 tables consulted by its expansion.
 
+The same dependency graph establishes **answer order**. A table has
+certified answer order exactly when its expansion consults no forward
+listing and every table it depends on has certified answer order.
+
 **Supporting and closing listings.** Every listed fact MUST have a step,
 have the listing's name and arity, and be ground, unless the program
 inspects source rules and the fact is a derived pattern
@@ -2095,13 +2099,12 @@ requires:
 
 **Certificate limits.** Settlement also requires all of the following:
 
-- No `findall`, `once`, or `findall_sorted` collecting an item that is not
-  ground, in the boundary's search, a relied-on table or a closure check,
-  uses a table whose answers rest on a forward listing. This format checks
-  support and closure of derived facts, but cannot establish their
-  publication order for order-sensitive operations. A `findall_sorted` of
-  ground items depends on the solutions and how often each occurs, not on
-  their order.
+- Every table used by `findall` or `once`, or by `findall_sorted` whose
+  results include a nonground item, MUST have certified answer order. This
+  applies in the boundary's search, relied-on tables and closure checks.
+  Support and closure do not establish the publication order of forward
+  facts. A `findall_sorted` of ground items depends on the solutions and
+  how often each occurs, not on their order.
 - No consulted listing's relation is concluded by a forward rule within a
   template's scope ([Section 6.2](#62-inline-rule-templates)) that
   introduces witnesses, or whose generators have a guard or introduce
@@ -2200,9 +2203,9 @@ with these differences:
 4. A comparison `compare/3` with either compared term nonground is not
    supported by this certificate format: alpha renaming of a table need
    not preserve the order of variable names. Such a search leaves call fidelity unproved.
-5. A consulted forward listing MUST have a dependency closure in the
-   supported fragment described below. A final listing alone MUST NOT certify
-   binding-sensitive or order-sensitive forward firings outside that fragment.
+5. Each fact of every consulted forward listing MUST replay its recorded
+   firing as specified below. Support and closure alone MUST NOT certify
+   bindings or control choices that the recorded firing never makes.
 
 For the `once` example in [Section 11.2](#112-operational-query-fidelity),
 the call certificate contains:
@@ -2219,80 +2222,21 @@ first, and `once` selects it. Thus `q('a')` is an answer and `q('b')` is
 excluded. Substituting `called(p('b'), [p('b')])` cannot establish the
 different call `p(X)`.
 
-**Supported forward listings.** A listing supports C10 when a search of
-each rule body it depends on, in source order, finds exactly the ground
-instances of that body that hold. Its steps, whose primitives C5 re-decides
-on their ground instances, then show firings that a search makes. This holds
-when no goal can observe the bindings or the order in which it runs. The
-checker establishes it by a **mode analysis** of the rules the listing
-depends on. A **mode** of a call gives, for each argument, whether it is
-ground when the call runs: an argument is ground when every variable in it
-is **grounded** at that point.
+**Replaying forward listings.** In addition to the support and closure
+checks of C9, every fact of every consulted listing MUST replay. Replay
+follows the source rule and the step's uses in order, starting with no
+bindings. It checks the bindings at each premise, rather than assuming
+the proof's final substitution was already available. It MUST NOT call a
+reasoner or supply a missing derivation.
 
-The analysis starts from the listed relation and its forward rules, and
-follows each ordinary body call, inside a negation or not, to the called
-relation in the mode of that call: its forward rules once, and its backward
-rules once in each mode. A forward rule's body starts with no grounded
-variable. A backward rule's body starts with the variables of the head
-arguments that are ground in the mode. Body goals are taken in order, each
-with the variables grounded before it:
+A listing with a fact that does not replay is unsupported for C10 and
+leaves the obligations specified below. C1–C9 still check its steps normally.
 
-- `'true'` grounds nothing. Conjunction accumulates the grounded variables
-  of its parts. Disjunction grounds only those grounded by both
-  alternatives. `call(G)` is `G`.
-- A call to an ordinary relation grounds its variables when every source
-  fact of the relation is ground once the arguments ground in the mode are
-  unified with it, and the relation is not **loose** in that mode;
-  otherwise it grounds nothing.
-- A negation grounds nothing. Each of its variables other than anonymous
-  ones MUST be grounded before it, and it MUST NOT contain a negation.
-- `once(G)` grounds nothing. `G` MUST satisfy these conditions. Each named
-  variable of `G` that occurs elsewhere in the clause MUST be grounded before
-  it, so the choice of a first answer binds nothing another goal uses.
-- A collection `findall(T, G, L)` or `findall_sorted(T, G, L)` follows the
-  same rule for `T` and `G`. It grounds the variables of `L` when `G`
-  grounds every variable of `T`.
-- A primitive whose variables are all grounded before it is a test, and
-  grounds nothing. `unify/2` with one side ground grounds the other, and
-  with neither ground grounds nothing. Otherwise the primitive MUST be
-  called in one of the modes below, its input arguments ground, and it
-  grounds its variables.
-- Source inspection, templates, captures and restricted rules are not
-  supported. A restricted rule's guard is a negation, but which firings the
-  rule makes can depend on the order of rule applications.
-
-After its body, every head variable of a forward rule MUST be grounded or
-be a head-only witness checked by C8. If a head variable of a backward rule
-is not grounded, the relation is loose in that mode, and the analysis
-starts again with that call grounding nothing.
-
-| Primitive | Inputs → outputs |
-| --- | --- |
-| `is/2` | expression → result |
-| `compare/3` | both compared terms → order |
-| `atom_chars/2`, `atom_codes/2` | atom → list, or list → atom |
-| `number_chars/2` | list → number |
-| `atom_length/2`, `atom_lower/2`, `atom_upper/2`, `term_text/2` | first → second |
-| `atom_concat/3` | both parts → whole, or whole → both parts |
-| `regex_find/3`, `digest/3` | first two → third |
-| `float64/4` | first three → fourth |
-
-In each listed mode, a call with ground inputs has exactly the solutions
-whose ground instances C5 re-decides as holding. `number_chars/2` re-decides
-a ground instance by reading its characters, so only that direction is
-listed. A host-math result accepted by C5 only within its tolerance
-([Section 11.8](#118-c5-re-decision)) need not be the result a search
-finds. A proof with such a step therefore supports no listing for C10 by
-this analysis.
-
-**Replayed listings.** A listing the mode analysis does not support still
-supports C10 when every fact of every consulted listing **replays**. A fact
-replays when its step cites a forward rule that is not restricted, does
-not introduce witnesses within a template's scope, and, if appended by a
-template, has all its enclosing generators in the program, none with a
-guard or witnesses; and when a search of that rule's body in
-source order, starting with no bindings, solves each body goal as the
-step's corresponding use records:
+A fact's step MUST cite a forward rule that is not restricted and introduces
+no witnesses within a template's scope. For a rule appended by a template,
+every enclosing generator MUST belong to the program and have no guard or
+witnesses. Replay checks each body goal against the step's corresponding
+use as follows:
 
 - A primitive runs on the bindings of that point of the search. Its first
   solution under which the goal can still unify with the use is taken.
@@ -2313,8 +2257,8 @@ step's corresponding use records:
   against its step's uses. For a backward rule appended by a template, the
   generator's part of the body replays first, before the head meets the
   goal, and the template's part after. A use with no step is unified with a source fact
-  of the relation, renamed apart. A replay that meets the same use under
-  the same call again does not replay.
+  of the relation, renamed apart. A cycle through recorded uses does not
+  replay, as required by C2.
 - An inspection follows its use's `source(N)` step: rule `N` of the
   catalogue, renamed apart, is unified with the goal.
 - After each goal, the goal MUST still unify with its use, since a step

@@ -521,8 +521,31 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
       "searched(p('a'), [])\nsearched(q('a'), [])", 'C9', source);
   },
 
-  'shared table dependencies cannot hide a collection ordering obligation'() {
+  'a table cycle is rejected after another boundary has certified a shared dependency'() {
     const source = program([
+      'implied_by(leaf(X), seed(X))',
+      'implied_by(p(X), or(leaf(X), q(X)))',
+      'implied_by(q(X), p(X))',
+      "implies(not(leaf('a')), safe)",
+      "implies(not(p('a')), unsafe)",
+    ].join('\n'));
+    const document = [
+      "'safe'", "'unsafe'",
+      "step('safe', clause(4), {}, [not(leaf('a'))])",
+      "step(not(leaf('a')), 'absent', {}, [])",
+      "step('unsafe', clause(5), {}, [not(p('a'))])",
+      "step(not(p('a')), 'absent', {}, [])",
+      "searched(leaf('a'), [])", "searched(p('a'), [])", "searched(q('a'), [])",
+    ].join('\n');
+    const report = checkProof(source, document);
+    assert.equal(report.valid, false);
+    assert.equal(report.conditions[8].covered, 2);
+    assert.equal(report.conditions[8].failed, 1);
+    assert.ok(report.failures.some(({ condition, detail }) => condition === 'C9' && detail.includes('circular')));
+  },
+
+  'shared table dependencies cannot hide a collection ordering obligation'() {
+    const rules = [
       'fact(seed(1), seed(2))',
       'implies(seed(X), f(X))',
       'implied_by(c(X), f(X))',
@@ -532,7 +555,8 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
       'implied_by(root(X), or(a(X), b(X)))',
       'implies(findall(X, root(X), L), allroot(L))',
       'implies(findall(X, a(X), L), alla(L))',
-    ].join('\n'));
+    ].join('\n');
+    const source = program(rules);
     // The first boundary visits root -> a, b -> d, both resting on c -> f.
     // Its order check must not cache a as independent of f's listing.
     const document = withoutCertificate(run(source, { proof: true }).proof) + '\n' + [
@@ -560,6 +584,11 @@ implies(or(seed(X), link(X)), [mark(X, W), implied_by(link(W), 'true')])`);
       assert.equal(strict.valid, false);
       assert.equal(strict.conditions[4].failed, 2);
     }
+    // The same diamond has certified order when its leaves are source facts.
+    const pure = program(rules.replace('implies(seed(X), f(X))', 'implied_by(f(X), seed(X))'));
+    const result = run(pure, { proof: true });
+    assert.deepEqual(result.answers, ['allroot([1, 2, 1, 2])', 'alla([1, 2])']);
+    assert.ok(checkProof(pure, result.proof, { allowTrusted: false }).valid);
   },
 
   'a certificate statement that settles nothing fails C7, and a repeated one C3'() {

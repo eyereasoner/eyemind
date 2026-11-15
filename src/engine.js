@@ -3,7 +3,7 @@ import { PRIMITIVE_KEYS, STATE_TESTS, primitive } from './builtins.js';
 import { Reliance, Settler, Unsettled } from './closure.js';
 import { freshClause, matchHead, renaming, text, variant } from './common.js';
 import { goalTerm, subgoals } from './goals.js';
-import { callQuestions, positiveListings, replayed } from './fidelity.js';
+import { callQuestions, replayed } from './fidelity.js';
 import { INSPECTION_KEYS } from './inspection.js';
 import { checkRendered, clauseDisplay, renderProof } from './proof.js';
 import { CONTROL_KEYS, Program } from './program.js';
@@ -1156,7 +1156,7 @@ function certify(solver, boundaries, operational = false) {
     }
   }
   // The recorded derivation of a listed fact or one of its premises, for the
-  // replay that supports a listing beyond the mode analysis.
+  // replay that supports the original calls.
   let recorded = null;
   const stepOf = (goal) => {
     if (recorded === null) {
@@ -1192,8 +1192,7 @@ function certify(solver, boundaries, operational = false) {
         }
       }
     }
-    if (outcome.status === 'settled' && (!operational || positiveListings(program, outcome.listings) ||
-        replayed(program, settler, outcome.listings, stepOf))) {
+    if (outcome.status === 'settled' && (!operational || replayed(program, settler, outcome.listings, stepOf))) {
       for (const item of outcome.tables) tables.add(item);
       for (const item of outcome.listings) listings.add(item);
     } else if (outcome.status === 'failed' && solver.haltCode === null) {

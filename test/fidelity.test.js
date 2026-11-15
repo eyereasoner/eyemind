@@ -57,6 +57,14 @@ export const tests = {
     rejected(loaded, result.proof);
   },
 
+  'C10 replays a deep backward derivation used by a forward firing'() {
+    const loaded = program(chain(3000).replace('query(level(X, 3000))', 'implies(level(X, 3000), found(X))'));
+    const result = run(loaded, { proof: true });
+    assert.deepEqual(result.answers, ["found('ind')"]);
+    assert.deepEqual(result.proofReport.trusted, []);
+    assert.ok(checkProof(loaded, result.proof, { allowTrusted: false }).valid);
+  },
+
   'C10 certifies original calls and survives writing and reading the proof'() {
     const { result, report } = checked(ONCE);
     assert.deepEqual(result.answers, ["q('a')"]);
@@ -243,10 +251,10 @@ export const tests = {
     const counted = strictly("fact(n(1))\nimplies([n(X), lt(X, 4), is(Y, add(X, 1))], n(Y))");
     assert.deepEqual(counted.result.answers, ['n(2)', 'n(3)', 'n(4)']);
     rejected(counted.loaded, counted.result.proof.replace(/^n\(3\)\n/m, ''));
-    // A backward rule analyzed in the mode its caller uses: the list is bound.
+    // A backward premise replays with the list bound by the preceding goal.
     strictly("fact(list(['a', 'b', 'c']))\nimplied_by(size([], 0), 'true')\n" +
       'implied_by(size([_, ...T], N), [size(T, M), is(N, add(M, 1))])\nimplies([list(L), size(L, N)], sized(N))');
-    // A relation with a nonground fact, answering calls in a mode that binds it.
+    // A nonground source fact is used with the bindings of the actual call.
     strictly("fact(item('a'), item('b'))\nfact(member(X, [X, ..._]))\nimplied_by(member(X, [_, ...T]), member(X, T))\n" +
       "implies([item(X), member(X, ['b', 'c'])], listed(X))");
     // once/1 and findall/3 as tests of what they bind only locally.

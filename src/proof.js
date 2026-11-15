@@ -370,7 +370,7 @@ function check(program, claims, steps, certificate, goals, allowTrusted, fail, s
   const provenance = new WitnessProvenance(program, steps, certificate, settlement.outcomes, spellings);
   const tally = checkSteps(program, steps, allowTrusted, fail, spellings, name, settlement.outcomes, provenance);
   const [confronted, closed] = checkBoundaries(program, steps, tally.boundaries, fail, settlement.outcomes, spellings);
-  settlement.calls = checkCalls(program, claims, goals, certificate, steps, spellings, fail, allowTrusted, name, tally.inexact);
+  settlement.calls = checkCalls(program, claims, goals, certificate, steps, spellings, fail, allowTrusted, name);
   tally.trusted.push(...settlement.calls.unresolved);
   checkRelevance(program, claims, steps, goals || [], fail, spellings, settlement, certificate);
   checkWellFounded(steps, fail, spellings);
@@ -510,7 +510,7 @@ const CONTROL_BY = 'control';
 // instance of the clause it cites, a recomputed primitive, a control composed
 // of its uses, or a trusted boundary the later checks confront.
 function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcomes, provenance) {
-  const tally = { verified: 0, redecided: 0, composed: 0, witnessed: 0, boundaries: [], trusted: [], inexact: false };
+  const tally = { verified: 0, redecided: 0, composed: 0, witnessed: 0, boundaries: [], trusted: [] };
 
   function covered(goal) {
     if (isTerm(goal, 'and', 2)) return flattenConjunction(goal).every(covered);
@@ -540,11 +540,8 @@ function checkSteps(program, steps, allowTrusted, fail, spellings, name, outcome
         fail.add('C3', 'invalid builtin justification', goal);
         continue;
       }
-      const exact = redecidesExactly(goal);
-      if (!exact && !nearHostMath(goal)) fail.add('C5', `primitive disagrees: ${text(goal)}`, goal);
+      if (!redecides(goal)) fail.add('C5', `primitive disagrees: ${text(goal)}`, goal);
       else tally.redecided++;
-      // Host math within its tolerance is not the result a search here finds.
-      if (!exact) tally.inexact = true;
     } else if (isTerm(by, 'called', 1)) {
       if (bindings.length || uses.length || !isCallable(goal) || !STATE_TESTS.has(key(goal))) {
         fail.add('C3', 'invalid called justification', goal);
