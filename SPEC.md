@@ -2,7 +2,7 @@
 
 ```text
 Title:      The eyemind Rule Language and Proof Format
-Version:    eyemind 0.5.30
+Version:    eyemind 0.5.31
 ```
 
 This document specifies the syntax and meaning of eyemind programs and data
