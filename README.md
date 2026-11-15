@@ -7,7 +7,7 @@ eyemind is a **JavaScript rule language** with forward and backward reasoning an
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and the C1–C10 checks. The examples are 135 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1390 cases that test language and proof behavior through a command adapter, together with implementation interface checks; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and how a proof is checked. The examples are 135 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1246 cases that test language and proof behavior through a command adapter, together with implementation interface checks; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -45,9 +45,9 @@ Prolog, Datalog, N3 and SRL already exist, and eyemind adds no new logic: rules 
 1. **The proof covers everything that went into the answer.**
    - Most engines show an answer, or at best a trace you have to trust.
    - eyemind proofs include the hard parts:
-     - "nothing matched" (negation and collections), backed by a search certificate whose listings must be closed (C9);
-     - what a rule says exists, as the Skolem term of that rule firing (C8);
-     - whether each answer really answers the question asked, and whether every answer of the question is there (C10).
+     - "nothing matched" (negation and collections), decided from complete answer tables whose listings of derived facts must be closed;
+     - what a rule says exists, as the Skolem term of that rule firing;
+     - whether each answer really answers the question asked, and whether every answer of the question is there.
    - A forged proof must never pass the check, so a result is something you can hand to someone who does not trust your engine.
 2. **Programs are plain JavaScript.**
    - There is no syntax to learn, no parser to install and no dependency.
@@ -275,8 +275,7 @@ Examples run directly from their N3 source in the playground and on the command 
 [invoice collection](https://eyereasoner.github.io/eyemind/examples/deck/invoice-n3),
 [French cities](https://eyereasoner.github.io/eyemind/examples/deck/french-cities-n3), and
 [Skolem IRI witnesses](https://eyereasoner.github.io/eyemind/examples/deck/witnesses-n3).
-Each deck shows the N3 result and what its saved proof establishes, including
-any remaining obligations.
+Each deck shows the N3 result and what its saved proof establishes.
 
 ### RDF Messages
 
@@ -330,7 +329,7 @@ text with the same boundaries. Whole-log replay supports proofs;
 unused-clause modes. The [message-boundaries](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries-n3),
 [message-alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3)
 and [message-provenance](https://eyereasoner.github.io/eyemind/examples/deck/message-provenance-n3)
-decks show the outputs and remaining proof obligations.
+decks show the outputs and what their proofs establish.
 
 Library hosts can import `RdfMessageReader` and `parseRdfMessages` from
 `eyemind`. The former accepts text chunks through `write(text)` and
@@ -401,9 +400,9 @@ The two work together: a forward rule's premise can call a backward definition, 
 
 ## Proofs, and what checking one means
 
-A proof holds the claims, the source clauses it cites, and each recorded
-inference as `step(...)` records. Every input writes the same JavaScript
-proof: an N3 document or SRL rule set is compiled to an eyemind program, and
+A proof holds the claims, the certificate that answers the program's
+questions, and the recorded firings behind derived facts as `step(...)`
+records. Every input writes the same JavaScript proof: an N3 document or SRL rule set is compiled to an eyemind program, and
 its proof cites that program's clauses, with triples as `rdf(S, P, O)` (an
 SRL inference as `inf(S, P, O)`) over `iri(...)` and `literal(...)` terms:
 
@@ -416,69 +415,74 @@ eyemind --check-proof /tmp/socrates-proof.js examples/socrates-srl.srl
 
 Check reports are JavaScript term documents too, or JSON with `--json`.
 
-Checking applies ten conditions:
-
-| | Condition | What it establishes |
-| --- | --- | --- |
-| **C1** | resolution | Every step is an instance of a program clause |
-| **C2** | well-foundedness | The derivation has no cycles |
-| **C3** | justification | Every step's justification is known, well-formed and unique |
-| **C4** | coverage | Every claim and premise is accounted for |
-| **C5** | re-decision | Built-in calculations are recomputed, not trusted (math-library floats within 4 units in the last place) |
-| **C6** | boundary consistency | No unsettled absence or collection is contradicted by the evidence |
-| **C7** | relevance | Every claim answers the question, and every step serves a claim |
-| **C8** | witness integrity | Every "something exists" uses the Skolem term of its own firing |
-| **C9** | search closure | Every absence and collection the search certificate settles holds |
-| **C10** | call fidelity | Each answer is an actual answer of the original question, and every answer of each question is claimed |
-
-**The checker follows the certificate:** it never calls the reasoner, so a missing step fails rather than being quietly re-derived. **The source is the authority:** clauses a proof displays cannot override the program. Proofs are read as data, so checking someone else's proof runs none of their code, and every proof eyemind generates is checked before it is returned. The report is a document too:
+The proof of `examples/socrates.js` shows its parts:
 
 ```js
-// Checked answers: these follow from the input program.
+// Answers: each instance of a query() that holds.
 type('socrates', 'mortal')
 type('socrates', 'human')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 3)
-condition('C2', 'well_founded', 'ok', 3)
-condition('C3', 'justification', 'ok', 3)
-condition('C4', 'coverage', 'ok', 4)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 5)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 3)
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
+step(type('socrates', 'mortal'), clause(3), {S: 'socrates', A: 'human', B: 'mortal'}, [type('socrates', 'human'), subclass_of('human', 'mortal')])
+step(type('socrates', 'human'), clause(1), {}, [])
 
-// Proof statistics: recorded steps and how they were checked.
-steps(3)
-verified(3)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(2)
+// Certificate: the derived facts and every answer of each call the questions make.
+derived(type(A, B), [type('socrates', 'mortal')])
+called(type(A, B), [type('socrates', 'mortal'), type('socrates', 'human')])
+```
 
-// This verdict also establishes that the claims above are every answer of the original questions.
+- **The claims** are the run's conclusions.
+- **The call tables**, `called(Call, Answers)`, list every answer of each call
+  the original questions make: here the query `type(X, Y)`.
+- **The listings**, `derived(Pattern, Facts)`, list every fact forward rules
+  derived for a relation those searches consult.
+- **The steps** record the firing behind each listed fact: the rule, its
+  bindings and the goals it used; and, for a goal whose call rests on derived
+  facts, how that goal was derived. `type(_, _)` is a relation the rule
+  derives, so the stated fact `type('socrates', 'human')` has a step citing
+  clause 1.
+
+Checking is one procedure. The checker answers each original question by
+searching it against the program, one level at a time, with every inner call
+answered from its call table, and checks each table the same way, so a wrong
+table shows up as a disagreement. Each listing must be closed under the
+forward rules, and each listed fact must **replay** its recorded firing: the
+checker re-runs the rule from no bindings, with primitives computed and
+negations, collections and first answers taken from the tables at the
+bindings they had when they ran, and each witness bound to the Skolem term of
+its firing. The claims must then be exactly the answers: a claim the question
+does not return fails, and so does an answer the proof leaves out. A step,
+table or listing the check does not use fails it too, so nothing in a proof
+goes unchecked.
+
+**The checker follows the certificate:** it never calls the reasoner, so missing evidence fails rather than being quietly re-derived. **The source is the authority:** the proof cites clauses by number, read from the program. Proofs are read as data, so checking someone else's proof runs none of their code, and every proof eyemind generates is checked before it is returned. The report is a document too:
+
+```js
+// Checked answers: these follow from the input program and are every answer of its questions.
+type('socrates', 'mortal')
+type('socrates', 'human')
+
 verdict('checked')
 ```
 
-A `checked` verdict thus establishes two things: every claim follows from the program, and the claims are every answer of the original questions. The `called/2` table of each question lists all its answers and is checked against the program, so a proof that omits one fails C10, and a question with no claims is shown to have no answers. A failed check gives `failure(Condition, Conclusion, Detail)` facts, `verdict(failed(N))` and exit code 2. What a certificate cannot settle stays an `obligation(...)` with the verdict `checked_with_obligations`, among them `obligation('call_fidelity', 'all_answers', Question)` for a question whose answers it cannot show complete; `--strict-proof` rejects those. To check answers to `--goal` questions, pass the same goals when checking. [SPEC §11](https://eyereasoner.github.io/eyemind/SPEC#11-proof-checking) defines every condition.
+A `checked` verdict thus establishes two things: every claim follows from the program, and the claims are every answer of the original questions. A question with no claims is shown to have no answers by its table. A failed check lists `failure(Detail)` facts, ends with `verdict(failed(N))` and exits with code 2. A halted run's proof establishes that its claims follow, not that they are every answer. To check answers to `--goal` questions, pass the same goals when checking. [SPEC §11](https://eyereasoner.github.io/eyemind/SPEC#11-proof-checking) defines the check.
+
+Some results cannot be certified by this format, and `--proof` then reports an error while a plain run still gives the answers:
+
+- a first answer or a collection whose order rests on derived facts with more than one answer, since a listing does not show the order facts were derived in (a `findall_sorted` of ground items does not depend on it);
+- a firing of a `restricted` rule whose guard is a negation, which held before the firing but no longer does after it;
+- `compare/3` on terms that are not ground, and rules appended by templates whose generators consult derived facts or introduce witnesses;
+- a call table larger than the bound of [Resource limits](#resource-limits).
 
 ### JSON check reports
 
-With `--json`, checking modes write a JSON report instead of a term document.
-The JSON form includes `answers`, an array of the initial claims' canonical
-texts, including unverified claims when `valid` is false. It also has `valid` (boolean), `steps`,
-`claims`, `verified`, `redecided` (the count `recomputed`), `composed`,
-`uses` (the number of uses of all steps, integers), `trusted`
-(a list of `{kind, conclusion, reason?}`, with `reason: 'original_call'`
-for a claim's call-fidelity obligation and `reason: 'all_answers'` for a
-question's answer-completeness obligation), `failures` (a list of
-`{condition, detail, conclusion?}`) and `conditions` (a list of
-`{id, name, covered, failed}`), where `conclusion` is a canonical text.
-Its variables keep the names the document gives them, rather than being
-renamed for each report fact as in the text form.
+With `--json`, checking modes write a JSON report instead of a term document:
+`valid` (boolean), `claims` and `steps` (the numbers read), `answers` (the
+claims' canonical texts, including unverified claims when `valid` is false),
+`halted` (whether the claims contain `'false'`) and `failures` (a list of
+`{detail, subject?}`, where `subject` is the canonical text of the term
+concerned). Its variables keep the names the document gives them.
 
 ### Why negation and collection are safe
 
@@ -486,9 +490,8 @@ A negation `not(G)` concludes from what is *absent* and a collection `findall(T,
 
 - **Ask only once the answer is final.** Rules are ranked so that everything a negation or collection inspects reaches its fixpoint first; a program with no such ranking, such as `implies(not(q), p)` with `implies(p, q)`, is rejected.
 - **Negate only what is bound.** The variables of `not(G)` must be bound when it runs; write `not(q(X, _))` for "no value at all".
-- **Check the search, not just its result.** A proof ends with a search certificate: `searched(Call, Answers)` lists each call's answers and `derived(Pattern, Facts)` each consulted relation. The checker expands each call one level against the program, so a wrong table shows up as a disagreement.
-- **Say what was taken on trust.** Anything the certificate cannot settle becomes an obligation, and evidence in the proof can still refute it (C6).
-- **Certify the original questions.** Closed listings establish the original calls and all their answers when every listed fact's recorded firing replays. The checker follows the source rule and the recorded premise evidence in order, starting with no bindings, so a state test sees the bindings of its actual call and `once` takes the actual first answer. It does not call the reasoner or supply missing evidence. Rules generated by templates are checked through their instances, and source rule inspection through the program's catalogue. A proof within these bounds can be `checked` with no obligation, even under `--strict-proof`. A `findall_sorted` of ground items is certified from the set of derived facts alone. `findall` and first answers over derived facts, whose order a listing cannot show, and `restricted` rules with new witnesses keep an obligation.
+- **Check the search, not just its result.** A proof ends with its certificate: `called(Call, Answers)` lists each call's answers and `derived(Pattern, Facts)` each consulted relation. The checker expands each call one level against the program, so a wrong table shows up as a disagreement, and requires each listing to be closed under the rules, so an omitted fact shows up too.
+- **Decide at the actual call.** Replay runs each recorded firing from its source rule with the bindings of each point of the search, so a negation sees the goal as it was called, a state test sees the bindings of its actual call, and `once` takes the actual first answer.
 
 ## Checking the translation
 
@@ -531,7 +534,6 @@ eyemind [OPTION ...] [FILE ...]
 | `--check-proof FILE` | Check a saved proof (`-` for standard input) against the program. |
 | `--json` | With a checking mode, print the report as JSON. |
 | `--goal GOAL` | Ask `GOAL` after forward reasoning; may be repeated. |
-| `--strict-proof` | With a checking mode, reject proofs with any obligation. |
 | `--unused` | List the clauses that make no difference to the conclusions. |
 | `--stream-messages` | Read an RDF Message Log and run the rules independently per message; Node reads files, stdin and HTTP(S) incrementally. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
@@ -543,7 +545,7 @@ eyemind [OPTION ...] [FILE ...]
 | `-v`, `--version`, `-h`, `--help` | Print the version or the usage. |
 
 `--proof`, `--prove-and-check`, `--check-proof` and `--unused` are mutually
-exclusive. `--json` and `--strict-proof` need a checking mode. `--goal` reads
+exclusive. `--json` needs a checking mode. `--goal` reads
 each goal as a data document, with an array denoting conjunction. With
 `--check-proof`, supply the original goals the proof answers.
 
@@ -582,10 +584,10 @@ Arithmetic also limits integer growth: `pow(A, B)` with integer `B > 0` and
 2^26. An integer left shift `shl(A, B)` raises an error when `B` exceeds
 2^26. These limits protect the process from excessively large allocations.
 
-Auxiliary C10 certification is bounded per question by the smaller of the
+Making a proof's call tables is bounded per question by the smaller of the
 run's inference limit and 500,000 calls plus answers, and by 8,388,608 UTF-16
-code units of answer text. Hitting these limits leaves an obligation and
-does not change the run's answers.
+code units of answer text. Exceeding these bounds makes `--proof` report an
+error; it does not change the answers of a plain run.
 
 ### Unused clauses
 
@@ -645,7 +647,7 @@ console.log(result.bindings);
 console.log(checkProof(socrates, result.proof, { goals }).valid);
 ```
 
-`run()` returns `conclusions`, `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `conclusions` holds the answer terms; `answers`, `bindings` and `stdout` are rendered when first read. Ground N3 conclusions are written directly from their terms. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals, allowTrusted })` checks C1–C10, and `allowTrusted: false` rejects every obligation. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text.
+`run()` returns `conclusions`, `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `conclusions` holds the answer terms; `answers`, `bindings` and `stdout` are rendered when first read. Ground N3 conclusions are written directly from their terms. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals })` checks a proof. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text.
 
 ## What is deliberately absent
 

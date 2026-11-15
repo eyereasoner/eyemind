@@ -3,50 +3,20 @@ posterior('paper_jam', 18000, 37200, 0.4838709677419355)
 posterior('network_loss', 14250, 37200, 0.38306451612903225)
 posterior('power_loss', 4950, 37200, 0.13306451612903225)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(fault('paper_jam', 20, 90, 10)))
-clause(2, fact(fault('network_loss', 30, 5, 95)))
-clause(3, fact(fault('power_loss', 50, 1, 99)))
-clause(4, implies([fault(Fault, Prior, Jam, Offline), is(Weight, mul(mul(Prior, Jam), Offline))], weight(Fault, Weight)))
-clause(5, fact(sum_weights([], 0)))
-clause(6, implied_by(sum_weights([W, ...Ws], Sum), [sum_weights(Ws, Rest), is(Sum, add(W, Rest))]))
-clause(7, implies([findall_sorted(W, weight(Fault, W), Weights), sum_weights(Weights, Total)], total(Total)))
-clause(8, implies([weight(Fault, Numerator), total(Denominator), gt(Denominator, 0), is(Probability, div(Numerator, Denominator))], posterior(Fault, Numerator, Denominator, Probability)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(posterior('paper_jam', 18000, 37200, 0.4838709677419355), clause(8), {Fault: 'paper_jam', Numerator: 18000, Denominator: 37200, Probability: 0.4838709677419355}, [weight('paper_jam', 18000), total(37200), gt(37200, 0), is(0.4838709677419355, div(18000, 37200))])
 step(weight('paper_jam', 18000), clause(4), {Fault: 'paper_jam', Prior: 20, Jam: 90, Offline: 10, Weight: 18000}, [fault('paper_jam', 20, 90, 10), is(18000, mul(mul(20, 90), 10))])
-step(fault('paper_jam', 20, 90, 10), clause(1), {}, [])
-step(is(18000, mul(mul(20, 90), 10)), 'builtin', {}, [])
 step(total(37200), clause(7), {W: A, Fault: B, Weights: [4950, 14250, 18000], Total: 37200}, [findall_sorted(A, weight(B, A), [4950, 14250, 18000]), sum_weights([4950, 14250, 18000], 37200)])
-step(findall_sorted(A, weight(B, A), [4950, 14250, 18000]), 'collected', {}, [])
-step(sum_weights([4950, 14250, 18000], 37200), clause(6), {W: 4950, Ws: [14250, 18000], Sum: 37200, Rest: 32250}, [sum_weights([14250, 18000], 32250), is(37200, add(4950, 32250))])
-step(sum_weights([14250, 18000], 32250), clause(6), {W: 14250, Ws: [18000], Sum: 32250, Rest: 18000}, [sum_weights([18000], 18000), is(32250, add(14250, 18000))])
-step(sum_weights([18000], 18000), clause(6), {W: 18000, Ws: [], Sum: 18000, Rest: 0}, [sum_weights([], 0), is(18000, add(18000, 0))])
-step(sum_weights([], 0), clause(5), {}, [])
-step(is(18000, add(18000, 0)), 'builtin', {}, [])
-step(is(32250, add(14250, 18000)), 'builtin', {}, [])
-step(is(37200, add(4950, 32250)), 'builtin', {}, [])
-step(gt(37200, 0), 'builtin', {}, [])
-step(is(0.4838709677419355, div(18000, 37200)), 'builtin', {}, [])
 step(posterior('network_loss', 14250, 37200, 0.38306451612903225), clause(8), {Fault: 'network_loss', Numerator: 14250, Denominator: 37200, Probability: 0.38306451612903225}, [weight('network_loss', 14250), total(37200), gt(37200, 0), is(0.38306451612903225, div(14250, 37200))])
 step(weight('network_loss', 14250), clause(4), {Fault: 'network_loss', Prior: 30, Jam: 5, Offline: 95, Weight: 14250}, [fault('network_loss', 30, 5, 95), is(14250, mul(mul(30, 5), 95))])
-step(fault('network_loss', 30, 5, 95), clause(2), {}, [])
-step(is(14250, mul(mul(30, 5), 95)), 'builtin', {}, [])
-step(is(0.38306451612903225, div(14250, 37200)), 'builtin', {}, [])
 step(posterior('power_loss', 4950, 37200, 0.13306451612903225), clause(8), {Fault: 'power_loss', Numerator: 4950, Denominator: 37200, Probability: 0.13306451612903225}, [weight('power_loss', 4950), total(37200), gt(37200, 0), is(0.13306451612903225, div(4950, 37200))])
 step(weight('power_loss', 4950), clause(4), {Fault: 'power_loss', Prior: 50, Jam: 1, Offline: 99, Weight: 4950}, [fault('power_loss', 50, 1, 99), is(4950, mul(mul(50, 1), 99))])
-step(fault('power_loss', 50, 1, 99), clause(3), {}, [])
-step(is(4950, mul(mul(50, 1), 99)), 'builtin', {}, [])
-step(is(0.13306451612903225, div(4950, 37200)), 'builtin', {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-derived(weight(C, D), [weight('paper_jam', 18000), weight('network_loss', 14250), weight('power_loss', 4950)])
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(posterior(C, D, E, F), [posterior('paper_jam', 18000, 37200, 0.4838709677419355), posterior('network_loss', 14250, 37200, 0.38306451612903225), posterior('power_loss', 4950, 37200, 0.13306451612903225)])
+derived(weight(C, D), [weight('paper_jam', 18000), weight('network_loss', 14250), weight('power_loss', 4950)])
 derived(total(C), [total(37200)])
-searched(weight(G, H), [weight('paper_jam', 18000), weight('network_loss', 14250), weight('power_loss', 4950)])
 called(posterior(A, B, C, D), [posterior('paper_jam', 18000, 37200, 0.4838709677419355), posterior('network_loss', 14250, 37200, 0.38306451612903225), posterior('power_loss', 4950, 37200, 0.13306451612903225)])
 called(weight(E, F), [weight('paper_jam', 18000), weight('network_loss', 14250), weight('power_loss', 4950)])
 called(total(G), [total(37200)])

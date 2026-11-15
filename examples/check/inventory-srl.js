@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#locations'), 2)
 inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#total'), 200)
 inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#smallest'), 80)
@@ -20,26 +20,4 @@ inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#pr
 inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#location'), iri('http://example.org/inventory#ghent'))
 inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#quantity'), 500)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 120)
-condition('C2', 'well_founded', 'ok', 162)
-condition('C3', 'justification', 'ok', 162)
-condition('C4', 'coverage', 'ok', 376)
-condition('C5', 're_decision', 'ok', 34)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 182)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 8)
-condition('C10', 'call_fidelity', 'ok', 21)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(162)
-verified(120)
-recomputed(23)
-composed(11)
-trusted(0)
-claims(20)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

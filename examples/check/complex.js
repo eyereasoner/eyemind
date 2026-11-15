@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 sum(complex(4, 6))
 product(complex(-5, 10))
 quotient(complex(3.0, 4.0))
@@ -23,26 +23,4 @@ cosine(complex(1.9999999999999998, 0.0))
 arctangent(complex(1.3389725222944935, 0.402359478108525))
 tangent(complex(1.0, 1.9999999999999996))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 93)
-condition('C2', 'well_founded', 'ok', 215)
-condition('C3', 'justification', 'ok', 215)
-condition('C4', 'coverage', 'ok', 255)
-condition('C5', 're_decision', 'ok', 122)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 238)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 41)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(215)
-verified(93)
-recomputed(122)
-composed(0)
-trusted(0)
-claims(23)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

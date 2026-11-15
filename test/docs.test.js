@@ -147,8 +147,9 @@ export const tests = {
     assert.doesNotMatch(prose, /\bSections?\s+\d|\bAppendix [A-Z]\b/);
   },
 
-  'the guide report is the socrates report'() {
-    const [report] = blocks('README.md', '## Proofs, and what checking one means');
+  'the guide proof and report are the socrates proof and report'() {
+    const [proof, report] = blocks('README.md', '## Proofs, and what checking one means');
+    assert.equal(proof, document('examples/proof/socrates.js'));
     assert.equal(report, document('examples/check/socrates.js'));
   },
 

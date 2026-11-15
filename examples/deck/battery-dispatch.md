@@ -108,193 +108,71 @@ reduces imports in the final, expensive slot.
 
 `eyemind --proof` writes down how it reached the answer. The
 [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/battery-dispatch.js)
-has 182 steps and a search certificate. Below are its claim, its clauses,
-the complete 77 steps behind the chosen schedule, and the start of the
-certificate:
+has 13 steps, 2 listings and 78 call tables. Below are its claim, the two
+steps behind the chosen schedule, and the parts of the certificate that
+matter most:
 
 ```js
 // Answers: each instance of a query() that holds.
 best_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(capacity_kwh(4)))
-clause(2, fact(reserve_kwh(1)))
-clause(3, fact(power_limit_kw(2)))
-clause(4, fact(grid_limit_kw(3)))
-clause(5, fact(initial_charge_kwh(2)))
-clause(6, fact(final_charge_kwh(2)))
-clause(7, fact(actions([-2, -1, 0, 1, 2])))
-clause(8, fact(slot(1, 2, 0, 2, 1)))
-clause(9, fact(slot(2, 4, 1, 8, 1)))
-clause(10, fact(slot(3, 1, 3, 2, 1)))
-clause(11, fact(slot(4, 3, 0, 7, 1)))
-clause(12, fact(terminal_slot(5)))
-clause(13, fact(member(X, [X, ..._0])))
-clause(14, implied_by(member(X, [_0, ...Rest]), member(X, Rest)))
-clause(15, implied_by(transition(Time, Charge, Power, NextCharge, Grid, Cost), [slot(Time, Load, Solar, Tariff, Hours), is(NextCharge, add(Charge, mul(Power, Hours))), is(Grid, add(sub(Load, Solar), Power)), is(Cost, mul(mul(Grid, Hours), Tariff)), reserve_kwh(Reserve), capacity_kwh(Capacity), grid_limit_kw(GridLimit), power_limit_kw(PowerLimit), ge(NextCharge, Reserve), le(NextCharge, Capacity), ge(Grid, 0), le(Grid, GridLimit), is(Magnitude, abs(Power)), le(Magnitude, PowerLimit)]))
-clause(16, implied_by(dispatch_from(Time, Charge, [], 0), [terminal_slot(Time), final_charge_kwh(Final), capacity_kwh(Capacity), ge(Charge, Final), le(Charge, Capacity)]))
-clause(17, implied_by(dispatch_from(Time, Charge, [dispatch(Time, Power, Grid, NextCharge), ...Rest], Cost), [slot(Time, _0, _1, _2, _3), actions(Actions), member(Power, Actions), transition(Time, Charge, Power, NextCharge, Grid, Own), is(NextTime, add(Time, 1)), dispatch_from(NextTime, NextCharge, Rest, Future), is(Cost, add(Own, Future))]))
-clause(18, implies([initial_charge_kwh(Charge), dispatch_from(1, Charge, Plan, Cost)], feasible_dispatch(Plan, Cost)))
-clause(20, implies([feasible_dispatch(Plan, Cost), not(cheaper_dispatch(Cost))], best_dispatch(Plan, Cost)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(best_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28), clause(20), {Plan: [dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], Cost: 28}, [feasible_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28), not(cheaper_dispatch(28))])
 step(feasible_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28), clause(18), {Charge: 2, Plan: [dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], Cost: 28}, [initial_charge_kwh(2), dispatch_from(1, 2, [dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28)])
-step(initial_charge_kwh(2), clause(5), {}, [])
-step(dispatch_from(1, 2, [dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28), clause(17), {Time: 1, Charge: 2, Power: 1, Grid: 3, NextCharge: 3, Rest: [dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], Cost: 28, _0: 2, _1: 0, _2: 2, _3: 1, Actions: [-2, -1, 0, 1, 2], Own: 6, NextTime: 2, Future: 22}, [slot(1, 2, 0, 2, 1), actions([-2, -1, 0, 1, 2]), member(1, [-2, -1, 0, 1, 2]), transition(1, 2, 1, 3, 3, 6), is(2, add(1, 1)), dispatch_from(2, 3, [dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 22), is(28, add(6, 22))])
-step(slot(1, 2, 0, 2, 1), clause(8), {}, [])
-step(actions([-2, -1, 0, 1, 2]), clause(7), {}, [])
-step(member(1, [-2, -1, 0, 1, 2]), clause(14), {X: 1, _0: -2, Rest: [-1, 0, 1, 2]}, [member(1, [-1, 0, 1, 2])])
-step(member(1, [-1, 0, 1, 2]), clause(14), {X: 1, _0: -1, Rest: [0, 1, 2]}, [member(1, [0, 1, 2])])
-step(member(1, [0, 1, 2]), clause(14), {X: 1, _0: 0, Rest: [1, 2]}, [member(1, [1, 2])])
-step(member(1, [1, 2]), clause(13), {X: 1, _0: [2]}, [])
-step(transition(1, 2, 1, 3, 3, 6), clause(15), {Time: 1, Charge: 2, Power: 1, NextCharge: 3, Grid: 3, Cost: 6, Load: 2, Solar: 0, Tariff: 2, Hours: 1, Reserve: 1, Capacity: 4, GridLimit: 3, PowerLimit: 2, Magnitude: 1}, [slot(1, 2, 0, 2, 1), is(3, add(2, mul(1, 1))), is(3, add(sub(2, 0), 1)), is(6, mul(mul(3, 1), 2)), reserve_kwh(1), capacity_kwh(4), grid_limit_kw(3), power_limit_kw(2), ge(3, 1), le(3, 4), ge(3, 0), le(3, 3), is(1, abs(1)), le(1, 2)])
-step(is(3, add(2, mul(1, 1))), 'builtin', {}, [])
-step(is(3, add(sub(2, 0), 1)), 'builtin', {}, [])
-step(is(6, mul(mul(3, 1), 2)), 'builtin', {}, [])
-step(reserve_kwh(1), clause(2), {}, [])
-step(capacity_kwh(4), clause(1), {}, [])
-step(grid_limit_kw(3), clause(4), {}, [])
-step(power_limit_kw(2), clause(3), {}, [])
-step(ge(3, 1), 'builtin', {}, [])
-step(le(3, 4), 'builtin', {}, [])
-step(ge(3, 0), 'builtin', {}, [])
-step(le(3, 3), 'builtin', {}, [])
-step(is(1, abs(1)), 'builtin', {}, [])
-step(le(1, 2), 'builtin', {}, [])
-step(is(2, add(1, 1)), 'builtin', {}, [])
-step(dispatch_from(2, 3, [dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 22), clause(17), {Time: 2, Charge: 3, Power: -2, Grid: 1, NextCharge: 1, Rest: [dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], Cost: 22, _0: 4, _1: 1, _2: 8, _3: 1, Actions: [-2, -1, 0, 1, 2], Own: 8, NextTime: 3, Future: 14}, [slot(2, 4, 1, 8, 1), actions([-2, -1, 0, 1, 2]), member(-2, [-2, -1, 0, 1, 2]), transition(2, 3, -2, 1, 1, 8), is(3, add(2, 1)), dispatch_from(3, 1, [dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 14), is(22, add(8, 14))])
-step(slot(2, 4, 1, 8, 1), clause(9), {}, [])
-step(member(-2, [-2, -1, 0, 1, 2]), clause(13), {X: -2, _0: [-1, 0, 1, 2]}, [])
-step(transition(2, 3, -2, 1, 1, 8), clause(15), {Time: 2, Charge: 3, Power: -2, NextCharge: 1, Grid: 1, Cost: 8, Load: 4, Solar: 1, Tariff: 8, Hours: 1, Reserve: 1, Capacity: 4, GridLimit: 3, PowerLimit: 2, Magnitude: 2}, [slot(2, 4, 1, 8, 1), is(1, add(3, mul(-2, 1))), is(1, add(sub(4, 1), -2)), is(8, mul(mul(1, 1), 8)), reserve_kwh(1), capacity_kwh(4), grid_limit_kw(3), power_limit_kw(2), ge(1, 1), le(1, 4), ge(1, 0), le(1, 3), is(2, abs(-2)), le(2, 2)])
-step(is(1, add(3, mul(-2, 1))), 'builtin', {}, [])
-step(is(1, add(sub(4, 1), -2)), 'builtin', {}, [])
-step(is(8, mul(mul(1, 1), 8)), 'builtin', {}, [])
-step(ge(1, 1), 'builtin', {}, [])
-step(le(1, 4), 'builtin', {}, [])
-step(ge(1, 0), 'builtin', {}, [])
-step(le(1, 3), 'builtin', {}, [])
-step(is(2, abs(-2)), 'builtin', {}, [])
-step(le(2, 2), 'builtin', {}, [])
-step(is(3, add(2, 1)), 'builtin', {}, [])
-step(dispatch_from(3, 1, [dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 14), clause(17), {Time: 3, Charge: 1, Power: 2, Grid: 0, NextCharge: 3, Rest: [dispatch(4, -1, 2, 2)], Cost: 14, _0: 1, _1: 3, _2: 2, _3: 1, Actions: [-2, -1, 0, 1, 2], Own: 0, NextTime: 4, Future: 14}, [slot(3, 1, 3, 2, 1), actions([-2, -1, 0, 1, 2]), member(2, [-2, -1, 0, 1, 2]), transition(3, 1, 2, 3, 0, 0), is(4, add(3, 1)), dispatch_from(4, 3, [dispatch(4, -1, 2, 2)], 14), is(14, add(0, 14))])
-step(slot(3, 1, 3, 2, 1), clause(10), {}, [])
-step(member(2, [-2, -1, 0, 1, 2]), clause(14), {X: 2, _0: -2, Rest: [-1, 0, 1, 2]}, [member(2, [-1, 0, 1, 2])])
-step(member(2, [-1, 0, 1, 2]), clause(14), {X: 2, _0: -1, Rest: [0, 1, 2]}, [member(2, [0, 1, 2])])
-step(member(2, [0, 1, 2]), clause(14), {X: 2, _0: 0, Rest: [1, 2]}, [member(2, [1, 2])])
-step(member(2, [1, 2]), clause(14), {X: 2, _0: 1, Rest: [2]}, [member(2, [2])])
-step(member(2, [2]), clause(13), {X: 2, _0: []}, [])
-step(transition(3, 1, 2, 3, 0, 0), clause(15), {Time: 3, Charge: 1, Power: 2, NextCharge: 3, Grid: 0, Cost: 0, Load: 1, Solar: 3, Tariff: 2, Hours: 1, Reserve: 1, Capacity: 4, GridLimit: 3, PowerLimit: 2, Magnitude: 2}, [slot(3, 1, 3, 2, 1), is(3, add(1, mul(2, 1))), is(0, add(sub(1, 3), 2)), is(0, mul(mul(0, 1), 2)), reserve_kwh(1), capacity_kwh(4), grid_limit_kw(3), power_limit_kw(2), ge(3, 1), le(3, 4), ge(0, 0), le(0, 3), is(2, abs(2)), le(2, 2)])
-step(is(3, add(1, mul(2, 1))), 'builtin', {}, [])
-step(is(0, add(sub(1, 3), 2)), 'builtin', {}, [])
-step(is(0, mul(mul(0, 1), 2)), 'builtin', {}, [])
-step(ge(0, 0), 'builtin', {}, [])
-step(le(0, 3), 'builtin', {}, [])
-step(is(2, abs(2)), 'builtin', {}, [])
-step(is(4, add(3, 1)), 'builtin', {}, [])
-step(dispatch_from(4, 3, [dispatch(4, -1, 2, 2)], 14), clause(17), {Time: 4, Charge: 3, Power: -1, Grid: 2, NextCharge: 2, Rest: [], Cost: 14, _0: 3, _1: 0, _2: 7, _3: 1, Actions: [-2, -1, 0, 1, 2], Own: 14, NextTime: 5, Future: 0}, [slot(4, 3, 0, 7, 1), actions([-2, -1, 0, 1, 2]), member(-1, [-2, -1, 0, 1, 2]), transition(4, 3, -1, 2, 2, 14), is(5, add(4, 1)), dispatch_from(5, 2, [], 0), is(14, add(14, 0))])
-step(slot(4, 3, 0, 7, 1), clause(11), {}, [])
-step(member(-1, [-2, -1, 0, 1, 2]), clause(14), {X: -1, _0: -2, Rest: [-1, 0, 1, 2]}, [member(-1, [-1, 0, 1, 2])])
-step(member(-1, [-1, 0, 1, 2]), clause(13), {X: -1, _0: [0, 1, 2]}, [])
-step(transition(4, 3, -1, 2, 2, 14), clause(15), {Time: 4, Charge: 3, Power: -1, NextCharge: 2, Grid: 2, Cost: 14, Load: 3, Solar: 0, Tariff: 7, Hours: 1, Reserve: 1, Capacity: 4, GridLimit: 3, PowerLimit: 2, Magnitude: 1}, [slot(4, 3, 0, 7, 1), is(2, add(3, mul(-1, 1))), is(2, add(sub(3, 0), -1)), is(14, mul(mul(2, 1), 7)), reserve_kwh(1), capacity_kwh(4), grid_limit_kw(3), power_limit_kw(2), ge(2, 1), le(2, 4), ge(2, 0), le(2, 3), is(1, abs(-1)), le(1, 2)])
-step(is(2, add(3, mul(-1, 1))), 'builtin', {}, [])
-step(is(2, add(sub(3, 0), -1)), 'builtin', {}, [])
-step(is(14, mul(mul(2, 1), 7)), 'builtin', {}, [])
-step(ge(2, 1), 'builtin', {}, [])
-step(le(2, 4), 'builtin', {}, [])
-step(ge(2, 0), 'builtin', {}, [])
-step(le(2, 3), 'builtin', {}, [])
-step(is(1, abs(-1)), 'builtin', {}, [])
-step(is(5, add(4, 1)), 'builtin', {}, [])
-step(dispatch_from(5, 2, [], 0), clause(16), {Time: 5, Charge: 2, Final: 2, Capacity: 4}, [terminal_slot(5), final_charge_kwh(2), capacity_kwh(4), ge(2, 2), le(2, 4)])
-step(terminal_slot(5), clause(12), {}, [])
-step(final_charge_kwh(2), clause(6), {}, [])
-step(ge(2, 2), 'builtin', {}, [])
-step(is(14, add(14, 0)), 'builtin', {}, [])
-step(is(14, add(0, 14)), 'builtin', {}, [])
-step(is(22, add(8, 14)), 'builtin', {}, [])
-step(is(28, add(6, 22)), 'builtin', {}, [])
-step(not(cheaper_dispatch(28)), 'absent', {}, [])
-// … 105 more steps derive the other 11 feasible schedules
+// … 11 more steps, one for each other feasible schedule
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
+derived(best_dispatch(A, B), [best_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28)])
 // … derived(feasible_dispatch(A, B), [...]) lists all 12 feasible schedules
-searched(cheaper_dispatch(28), [])
-// … 65 more searched lines
+called(best_dispatch(A, B), [best_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28)])
+// … 9 tables: the feasible schedules, and the cheaper_dispatch calls for six of their costs
+called(cheaper_dispatch(28), [])
+called(cheaper_dispatch(29), [cheaper_dispatch(29)])
+// … 23 tables for more costs and for the dispatch_from, member and transition calls
+called(dispatch_from(5, 1, G1, H1), [])
+called(transition(4, 3, -1, D1, E1, F1), [transition(4, 3, -1, 2, 2, 14)])
+called(dispatch_from(5, 2, G1, H1), [dispatch_from(5, 2, [], 0)])
+// … 40 more tables for the other slots and charges
 ```
 
-It has four parts:
+It has three parts:
 
 - **The claim**: the best schedule and its cost.
-- **The clauses**: the facts and rules the steps cite, numbered by their
-  position in the program. The facts listed together in one `fact(...)` get
-  one number each. Clause 19, the `cheaper_dispatch` rule, is not cited:
-  it is only used inside the absence, step 77.
-- **The steps**: one per thing established. A step reads
-  `step(what, justified by, with which values, using what)`. A `'builtin'`
-  step is a calculation or comparison the checker redoes itself. An
-  `'absent'` step is concluded because something could **not** be found.
-- **The search certificate**: what eyemind found while it looked for a
-  cheaper schedule, written down so the checker can verify step 77.
+- **The steps**: one for each fact a forward rule derived: the best
+  schedule (rule 20, by its position in the program) and the 12 feasible
+  schedules (rule 18). A step reads
+  `step(what, justified by, with which values, using what)`.
+- **The certificate**: the **listings**, `derived(Pattern, Facts)`, give
+  every best and every feasible schedule the forward rules derived; the
+  **call tables**, `called(Call, Answers)`, give every answer of each call
+  made while answering the query. A table may repeat an answer: it holds one
+  per solution, so `cheaper_dispatch(40)` appears six times, once for each
+  cheaper schedule.
 
-Read the steps as sentences:
+Read the steps and the key tables as sentences:
 
 1. *This schedule, at 28 cents, is the best* — by rule 20, because it is
-   feasible (step 2) and no cheaper feasible schedule exists (step 77).
+   feasible and no cheaper feasible schedule exists: its uses are the
+   `feasible_dispatch(..., 28)` fact and `not(cheaper_dispatch(28))`.
 2. *The schedule is feasible* — by rule 18, because the battery starts with
-   2 kWh (step 3) and a schedule from slot 1 with 2 kWh costs 28 (step 4).
-3. *The battery starts with 2 kWh* — fact 5.
-4. *From slot 1 with 2 kWh, the schedule costs 28* — by rule 17, choosing
-   1 kW, with an own cost `Own` = 6 and the rest of the schedule costing
-   `Future` = 22; it uses steps 5, 6, 7, 11, 25 and 26, and the sum
-   6 + 22 = 28 (step 76).
-5. *Slot 1 has load 2, no sun, price 2, 1 hour* — fact 8.
-6. *The power choices are −2, −1, 0, 1, 2* — fact 7.
-7. –10. *1 is one of the choices* — by rules 14 and 13: `member` walks down
-   the list (−2, −1, 0) until it reaches 1.
-11. *Charging 1 kW in slot 1 is allowed: end charge 3, grid 3, cost 6* — by
-    rule 15, using steps 12–24.
-12. –14. *2 + 1 × 1 = 3* (end charge), *2 − 0 + 1 = 3* (grid import),
-    *3 × 1 × 2 = 6* (cost) — builtins.
-15. –18. *The reserve is 1, the capacity 4, the grid limit 3, the power
-    limit 2* — facts 2, 1, 4 and 3.
-19. –24. *3 ≥ 1, 3 ≤ 4* (charge within reserve and capacity), *3 ≥ 0,
-    3 ≤ 3* (grid import not negative and within its limit), *|1| = 1,
-    1 ≤ 2* (power within its limit) — builtins.
-25. *1 + 1 = 2* — builtin: the next slot is slot 2.
-26. *From slot 2 with 3 kWh, the rest costs 22* — by rule 17, choosing
-    −2 kW, own cost 8, future 14.
+   2 kWh and a schedule from slot 1 with 2 kWh costs 28.
+3. *Asking for a feasible schedule cheaper than 28 gives no answers*: the
+   table `called(cheaper_dispatch(28), [])`. That is what the negation in
+   rule 20 rests on.
+4. *Asking for one cheaper than 29 gives exactly one*: the 28-cent schedule
+   itself, so the 29-cent schedule is not the best.
+5. *From slot 5 with 1 kWh, no schedule ends the day*: the required final
+   charge is 2. *From slot 5 with 2 kWh, the empty rest costs 0.*
 
-Steps 27–39 justify slot 2 exactly as steps 5–25 did slot 1 (now −2 is the
-first choice in the list, so `member` takes one step). Steps 40–54 do slot 3
-(power 2, grid 0, cost 0) and steps 55–68 slot 4 (power −1, grid 2, cost 14).
-A comparison already proved is not repeated: slot 3 reuses `le(2, 2)` from
-step 38, and slot 4 reuses `le(1, 2)` from step 24, so their lists are a
-little shorter.
-
-69. *From slot 5 with 2 kWh, the empty rest of the schedule costs 0* — by
-    rule 16, because slot 5 is the end (fact 12, step 70), the required final
-    charge is 2 (fact 6, step 71), the capacity is 4 (step 16 reused), and
-    2 ≥ 2 and 2 ≤ 4 (step 72, and step 64 reused).
-73. –76. *14 + 0 = 14, 0 + 14 = 14, 8 + 14 = 22, 6 + 22 = 28* — builtins:
-    adding the costs back up, from the last slot to the first.
-77. *No feasible schedule costs less than 28* — `'absent'`: eyemind searched
-    for a cheaper one and found none. This step uses nothing; the search
-    certificate backs it.
-
-The remaining 105 steps prove the other 11 feasible schedules, in the same
-way as steps 4 to 76. No answer needs them; they are there because the
-certificate relies on them. Its lines read:
-
-- `derived(feasible_dispatch(A, B), [...])`: every feasible schedule the
-  forward rule derived, 12 in all, with its cost. The cheapest costs 28.
-- `searched(cheaper_dispatch(28), [])`: the search for a schedule cheaper
-  than 28 found none.
-- the other `searched` lines record the calls behind the schedules: every
-  `dispatch_from` from each slot and charge, and the power settings
-  `member` offers.
+How a schedule from slot 1 costs 28 is not written as steps: `dispatch_from`,
+`transition` and `member` are backward rules, so their answers are in the
+call tables, one per slot, charge and power setting, and every addition,
+multiplication and limit comparison in between is recomputed by the checker.
+The other 11 steps derive the other feasible schedules in the same way. No
+answer needs them for itself; they are there because the listing of feasible
+schedules must be complete for the absence of a cheaper one to mean
+anything.
 
 ---
 
@@ -302,61 +180,21 @@ certificate relies on them. Its lines read:
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers the query by
+expanding each call one level against the program, taking the answer of every
+inner call from its table and recomputing each builtin, so a wrong table shows
+up as a disagreement. It requires each listing to be closed under the forward
+rules, and **replays** each listed fact's step: it re-runs the cited rule,
+with each negation taken from the table at the bindings it had when it ran.
+A step, table or listing the check does not use fails it. This is the
+complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 best_dispatch([dispatch(1, 1, 3, 3), dispatch(2, -2, 1, 1), dispatch(3, 2, 0, 3), dispatch(4, -1, 2, 2)], 28)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 92)
-condition('C2', 'well_founded', 'ok', 182)
-condition('C3', 'justification', 'ok', 182)
-condition('C4', 'coverage', 'ok', 500)
-condition('C5', 're_decision', 'ok', 89)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 183)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(182)
-verified(92)
-recomputed(89)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
-
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (92)**: the 92 steps that cite a program line really are
-  instances of it, with the values shown. In the chosen schedule's 77 steps
-  that is 35: 12 facts, 12 `member` steps, 4 `transition` steps, 5
-  `dispatch_from` steps, and one use each of rules 18 and 20.
-- **C2 well-founded (182)**: none of the 182 steps depends on itself, even
-  indirectly.
-- **C3 justification (182)**: every step says how it was justified, in a
-  form the checker understands.
-- **C4 coverage (500)**: the 1 claim and the 499 things the steps use are
-  each backed by a step: nothing is taken for granted silently.
-- **C5 re-decision (89)**: the checker **recomputed** all 89 builtin steps,
-  every addition, multiplication and limit comparison, and got the same
-  results.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled the only absence.
-- **C7 relevance (183)**: the 1 claim answers the query, and all 182 steps
-  serve it.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
-- **C9 search closure (1)**: the one absence, *"no cheaper feasible
-  schedule"*, was settled by the search certificate, as explained below.
 
 *No feasible schedule under these rules costs less than 28* is not taken
 on trust. The checker expands `cheaper_dispatch(28)` one level against the
@@ -364,22 +202,16 @@ program, as a search would, without searching itself: the rule asks for a
 feasible schedule whose cost is less than 28. Feasible schedules come from
 a forward rule, so they are read from the `derived` listing, and none of
 its 12 costs is below 28. The listing itself is accepted because each
-listed schedule has its own steps and, given the certificate's `searched`
-lines, the forward rule derives no schedule the listing leaves out. A
-cheaper schedule hidden from the certificate would show up as a
-disagreement. The claim is limited to this program: the five power
-settings, whole hours, and the stated limits.
+listed schedule replays its step and, given the call tables, the forward
+rule derives no schedule the listing leaves out. A cheaper schedule hidden
+from the certificate would show up as a disagreement. The claim is limited
+to this program: the five power settings, whole hours, and the stated
+limits.
 
-The statistics: 182 steps, 92 verified against the program, 89 recomputed
-and the absence settled by the certificate, no boundary steps taken on trust. The
-verdict is **checked**: the schedule is feasible, costs 28 cents, and is
-the cheapest. The model assumes perfect efficiency and ignores battery wear,
-forecast uncertainty and changing power within a slot.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+The verdict is **checked**: the schedule is feasible, costs 28 cents, and is
+the cheapest, and it is every answer of the query. The model assumes perfect
+efficiency and ignores battery wear, forecast uncertainty and changing power
+within a slot.
 
 ---
 

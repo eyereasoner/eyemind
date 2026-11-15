@@ -1,10 +1,31 @@
-import { Program, build, checkProof, run, verdictText } from '../src/index.js';
+import { Program, build, checkProof, run, write } from '../src/index.js';
+import { clauseDisplay } from '../src/proof.js';
 import { assert, program, proven, throwsMatching } from './helpers.js';
 
-function rejected(source, document, condition) {
-  const report = checkProof(source, document);
-  assert.ok(!report.valid, document);
-  assert.ok(report.failures.some((failure) => failure.condition === condition), JSON.stringify(report.failures));
+function rejected(source, document) {
+  assert.ok(!checkProof(source, document).valid, document);
+}
+
+// The answers of a program whose proof the certificate format cannot
+// establish: a generator that consults derived facts or tables, a witness
+// within a template's scope, or a collection over such rules. The reasoner
+// refuses to certify it.
+function refused(source, options = {}) {
+  const prog = typeof source === 'string' ? program(source) : source;
+  throwsMatching(() => run(prog, { ...options, proof: true }), /cannot certify/);
+  return run(prog, options);
+}
+
+// The answers of a program whose variants the format establishes or not:
+// a proof, when made, checks, and otherwise the reasoner refuses it.
+function reasoned(source, options = {}) {
+  const prog = typeof source === 'string' ? program(source) : source;
+  try {
+    return proven(prog, options);
+  } catch (error) {
+    assert.match(error.message, /cannot certify/);
+    return run(prog, options);
+  }
 }
 
 export const tests = {
@@ -64,14 +85,12 @@ query(s(Y))`;
   'generated witnesses include captured context even when the head omits it'() {
     const source = program(`fact(p('a'), p('b'))
 implies(p(X), implies(p(X), witness(Y)))`);
-    const result = proven(source);
+    const result = refused(source);
     assert.deepEqual(result.answers, ["witness(skolem(4, 'Y', [['a']]))", "witness(skolem(4, 'Y', [['b']]))"]);
-    rejected(source, result.proof.replaceAll("skolem(4, 'Y', [['a']])", "skolem(4, 'Y', [['b']])"), 'C8');
-    rejected(source, result.proof.replaceAll("skolem(4, 'Y', [['a']])", "skolem(4, 'Y', [])"), 'C8');
   },
 
   'a template can capture a witness shared with an ordinary sibling conclusion'() {
-    const result = proven(`fact(p('a'))
+    const result = refused(`fact(p('a'))
 implies(p(X), [created(X, W), implied_by(owner(W, X), 'true')])
 query(owner(W, X))`);
     assert.deepEqual(result.answers, ["owner(skolem(2, 'W', ['a']), 'a')"]);
@@ -87,12 +106,9 @@ query(owner(W, X))`);
           "implies(findall(X, item(X), L), items(L))",
         ];
         const source = program("fact(seed('a'), seed('b'))\n" + (reverse ? clauses.reverse() : clauses).join('\n'));
-        const result = proven(source);
+        const result = refused(source);
         assert.ok(result.answers.includes("items(['a', 'b'])"));
         assert.ok(!result.answers.includes("missing('a')"));
-        const report = checkProof(source, result.proof);
-        assert.equal(verdictText(report), "verdict('checked_with_obligations')\n");
-        assert.ok(!checkProof(source, result.proof, { allowTrusted: false }).valid);
       }
     }
   },
@@ -111,10 +127,7 @@ implies('true', ${template})
 implies(findall(X, item(X), L), items(L))
 query(items(L))
 query(item(X))`);
-      const document = proven(source).proof;
-      const forged = document.replaceAll("['a', 'b']", "['a']");
-      assert.notEqual(forged, document);
-      rejected(source, forged, 'C6');
+      assert.ok(reasoned(source).answers.includes("items(['a', 'b'])"));
     }
   },
 
@@ -171,7 +184,7 @@ query(r('z'))`);
     assert.deepEqual(proven(source).answers, ["r('z')"]);
     assert.deepEqual(source.clauses.at(-1).captures, []);
     assert.doesNotMatch(proven(source).proof, /activated\(/);
-    assert.match(proven(source).proof, /implied_by\(r\(_1\), \[p\(_0\), q\(_2\)\]\)/);
+    assert.equal(write(clauseDisplay(source.clauses.at(-1))), 'implied_by(r(_1), [p(_0), q(_2)])');
   },
 
   'unembedded rule values keep their standalone clauses and statement lines'() {
@@ -238,11 +251,12 @@ query(r(X))`;
 implies('true', ${template})
 query(q(X))`);
       const document = proven(source).proof;
-      rejected(source, document.replace(/^step\('true'[^\n]*\n/m, ''), 'C4');
-      rejected(source, document.replaceAll("['true', p('a')]", "[p('a')]"), 'C1');
-      rejected(source, document.replace("['true', p('a')]", "['true', p('b')]"), 'C1');
-      rejected(source, document.replace('clause(4)', 'clause(99)'), 'C1');
       assert.ok(!checkProof(new Program(source.sources, 2), document).valid);
+      // A forward derived rule's firing replays its generator's premises first.
+      if (!template.startsWith('implies')) continue;
+      rejected(source, document.replaceAll("['true', p('a')]", "[p('a')]"));
+      rejected(source, document.replace("['true', p('a')]", "['true', p('b')]"));
+      rejected(source, document.replace('clause(4)', 'clause(99)'));
     }
   },
 
@@ -250,12 +264,7 @@ query(q(X))`);
     const source = program(`fact(p('a'))
 implies(p(X), [created(X, W, V), implied_by(owner(W, X), 'true')])
 query(owner(W, X))`);
-    const document = proven(source).proof;
-    assert.doesNotMatch(document, /activated\(/);
-    rejected(source, document.replaceAll("skolem(2, 'W', ['a'])", "'invented'"), 'C8');
-    rejected(source, document.replaceAll("skolem(2, 'W', ['a'])", "skolem(2, 'W', ['b'])"), 'C8');
-    rejected(source, document.replaceAll("skolem(2, 'W', ['a'])", "skolem(9, 'W', ['a'])"), 'C8');
-    rejected(source, document.replaceAll("skolem(2, 'V', ['a'])", "'invented'"), 'C8');
+    assert.deepEqual(refused(source).answers, ["owner(skolem(2, 'W', ['a']), 'a')"]);
   },
 
   'a generator is solved before a backward caller binds the captured variables'() {
@@ -272,11 +281,8 @@ query(q('b'))`;
     const source = `fact(seed('a'), seed('b'))
 implies(once(seed(X)), implied_by(selected(X), 'true'))
 implies('true', seed('c'))`;
-    const result = proven(source, { goals: ["findall(X, selected(X), L)", "not(selected('b'))"] });
+    const result = refused(source, { goals: ["findall(X, selected(X), L)", "not(selected('b'))"] });
     assert.deepEqual(result.answers, ["findall(A, selected(A), ['a', 'c'])", "not(selected('b'))"]);
-    assert.doesNotMatch(result.proof, /activated\(/);
-    // Two boundaries and two claims, and the answers of both questions.
-    assert.equal(result.proofReport.trusted.length, 6);
   },
 
   'collections keep backward derivation multiplicity and suppress duplicate forward facts'() {
@@ -286,7 +292,7 @@ implies('true', seed('c'))`;
         const facts = duplicate ? "seed('a'), seed('a'), seed('b')" : "seed('a'), seed('b')";
         const source = `fact(${facts})
 implies(seed(X), ${template})`;
-        const result = proven(source, { goal: 'findall(Y, item(Y), L)' });
+        const result = reasoned(source, { goal: 'findall(Y, item(Y), L)' });
         const values = backward ? (duplicate ? "['yes', 'yes', 'yes']" : "['yes', 'yes']") : "['yes']";
         assert.deepEqual(result.answers, [`findall(A, item(A), ${values})`]);
       }
@@ -296,7 +302,7 @@ implies(seed(X), ${template})`;
   'collections distinguish witnesses of different captured contexts'() {
     const source = `fact(p('a'), p('b'))
 implies(p(X), implies(p(X), witness(Y)))`;
-    const result = proven(source, { goal: 'findall(Y, witness(Y), L)' });
+    const result = refused(source, { goal: 'findall(Y, witness(Y), L)' });
     assert.deepEqual(result.answers, ["findall(A, witness(A), [skolem(4, 'Y', [['a']]), skolem(4, 'Y', [['b']])])"]);
   },
 
@@ -306,9 +312,8 @@ implies(p(X), implies(p(X), witness(Y)))`;
       const source = `fact(seed('a'), item(1), item(2))
 implies(seed(X), [created(X, W), ${template}])
 query([created('a', W), linked(W, 1), linked(W, 2)])`;
-      const result = proven(source);
+      const result = refused(source);
       assert.deepEqual(result.answers, ["and(created('a', skolem(4, 'W', ['a'])), linked(skolem(4, 'W', ['a']), 1), linked(skolem(4, 'W', ['a']), 2))"]);
-      rejected(program(source), result.proof.replaceAll("skolem(4, 'W', ['a'])", "'invented'"), 'C8');
     }
   },
 
@@ -321,9 +326,8 @@ query(pair(p('a'), q('a')))
 query(pair(p('b'), q('b')))
 query(pair(p('a'), q('b')))
 query(not(pair(p('a'), q('b'))))`;
-      const result = proven(source);
+      const result = reasoned(source);
       assert.deepEqual(result.answers, ["pair(p('a'), q('a'))", "pair(p('b'), q('b'))", "not(pair(p('a'), q('b')))"]);
-      assert.doesNotMatch(result.proof, /activated\(/);
     }
   },
 

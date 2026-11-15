@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 inf(iri('http://example.org/deployment#shop'), iri('http://example.org/deployment#dependsOn'), iri('http://example.org/deployment#payments'))
 inf(iri('http://example.org/deployment#payments'), iri('http://example.org/deployment#dependsOn'), iri('http://example.org/deployment#ledger'))
 inf(iri('http://example.org/deployment#ledger'), iri('http://example.org/deployment#exposedTo'), iri('http://example.org/deployment#cve1'))
@@ -17,26 +17,4 @@ inf(iri('http://example.org/deployment#ledger'), iri('http://example.org/deploym
 inf(iri('http://example.org/deployment#logger'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/deployment#Component'))
 inf(iri('http://example.org/deployment#cve1'), iri('http://example.org/deployment#severity'), literal('9.8', datatype('http://www.w3.org/2001/XMLSchema#decimal')))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 60)
-condition('C2', 'well_founded', 'ok', 86)
-condition('C3', 'justification', 'ok', 86)
-condition('C4', 'coverage', 'ok', 119)
-condition('C5', 're_decision', 'ok', 25)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 103)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 18)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(86)
-verified(60)
-recomputed(20)
-composed(5)
-trusted(0)
-claims(17)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

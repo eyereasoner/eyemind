@@ -103,68 +103,28 @@ proof:
 // Answers: each instance of a query() that holds.
 shortest('a', 'd', 6)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(edge('a', 'b', 4)))
-clause(2, fact(edge('a', 'c', 2)))
-clause(3, fact(edge('c', 'b', 1)))
-clause(4, fact(edge('b', 'd', 3)))
-clause(5, fact(edge('c', 'd', 8)))
-clause(6, implies(edge(X, Y, Cost), path(X, Y, Cost)))
-clause(7, implies([path(X, Y, Before), edge(Y, Z, Weight), is(Cost, add(Before, Weight))], path(X, Z, Cost)))
-clause(9, implies([path(X, Y, Cost), not(cheaper(X, Y, Cost))], shortest(X, Y, Cost)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
+step(shortest('a', 'c', 2), clause(9), {X: 'a', Y: 'c', Cost: 2}, [path('a', 'c', 2), not(cheaper('a', 'c', 2))])
+step(path('a', 'c', 2), clause(6), {X: 'a', Y: 'c', Cost: 2}, [edge('a', 'c', 2)])
+step(shortest('c', 'b', 1), clause(9), {X: 'c', Y: 'b', Cost: 1}, [path('c', 'b', 1), not(cheaper('c', 'b', 1))])
+step(path('c', 'b', 1), clause(6), {X: 'c', Y: 'b', Cost: 1}, [edge('c', 'b', 1)])
+step(shortest('b', 'd', 3), clause(9), {X: 'b', Y: 'd', Cost: 3}, [path('b', 'd', 3), not(cheaper('b', 'd', 3))])
+step(path('b', 'd', 3), clause(6), {X: 'b', Y: 'd', Cost: 3}, [edge('b', 'd', 3)])
+step(shortest('a', 'b', 3), clause(9), {X: 'a', Y: 'b', Cost: 3}, [path('a', 'b', 3), not(cheaper('a', 'b', 3))])
+step(path('a', 'b', 3), clause(7), {X: 'a', Y: 'c', Before: 2, Z: 'b', Weight: 1, Cost: 3}, [path('a', 'c', 2), edge('c', 'b', 1), is(3, add(2, 1))])
+step(shortest('c', 'd', 4), clause(9), {X: 'c', Y: 'd', Cost: 4}, [path('c', 'd', 4), not(cheaper('c', 'd', 4))])
+step(path('c', 'd', 4), clause(7), {X: 'c', Y: 'b', Before: 1, Z: 'd', Weight: 3, Cost: 4}, [path('c', 'b', 1), edge('b', 'd', 3), is(4, add(1, 3))])
 step(shortest('a', 'd', 6), clause(9), {X: 'a', Y: 'd', Cost: 6}, [path('a', 'd', 6), not(cheaper('a', 'd', 6))])
 step(path('a', 'd', 6), clause(7), {X: 'a', Y: 'b', Before: 3, Z: 'd', Weight: 3, Cost: 6}, [path('a', 'b', 3), edge('b', 'd', 3), is(6, add(3, 3))])
-step(path('a', 'b', 3), clause(7), {X: 'a', Y: 'c', Before: 2, Z: 'b', Weight: 1, Cost: 3}, [path('a', 'c', 2), edge('c', 'b', 1), is(3, add(2, 1))])
-step(path('a', 'c', 2), clause(6), {X: 'a', Y: 'c', Cost: 2}, [edge('a', 'c', 2)])
-step(edge('a', 'c', 2), clause(2), {}, [])
-step(edge('c', 'b', 1), clause(3), {}, [])
-step(is(3, add(2, 1)), 'builtin', {}, [])
-step(edge('b', 'd', 3), clause(4), {}, [])
-step(is(6, add(3, 3)), 'builtin', {}, [])
-step(not(cheaper('a', 'd', 6)), 'absent', {}, [])
 step(path('a', 'b', 4), clause(6), {X: 'a', Y: 'b', Cost: 4}, [edge('a', 'b', 4)])
-step(edge('a', 'b', 4), clause(1), {}, [])
-step(path('c', 'b', 1), clause(6), {X: 'c', Y: 'b', Cost: 1}, [edge('c', 'b', 1)])
-step(path('b', 'd', 3), clause(6), {X: 'b', Y: 'd', Cost: 3}, [edge('b', 'd', 3)])
 step(path('c', 'd', 8), clause(6), {X: 'c', Y: 'd', Cost: 8}, [edge('c', 'd', 8)])
-step(edge('c', 'd', 8), clause(5), {}, [])
 step(path('a', 'd', 7), clause(7), {X: 'a', Y: 'b', Before: 4, Z: 'd', Weight: 3, Cost: 7}, [path('a', 'b', 4), edge('b', 'd', 3), is(7, add(4, 3))])
-step(is(7, add(4, 3)), 'builtin', {}, [])
 step(path('a', 'd', 10), clause(7), {X: 'a', Y: 'c', Before: 2, Z: 'd', Weight: 8, Cost: 10}, [path('a', 'c', 2), edge('c', 'd', 8), is(10, add(2, 8))])
-step(is(10, add(2, 8)), 'builtin', {}, [])
-step(path('c', 'd', 4), clause(7), {X: 'c', Y: 'b', Before: 1, Z: 'd', Weight: 3, Cost: 4}, [path('c', 'b', 1), edge('b', 'd', 3), is(4, add(1, 3))])
-step(is(4, add(1, 3)), 'builtin', {}, [])
-step(shortest('a', 'c', 2), clause(9), {X: 'a', Y: 'c', Cost: 2}, [path('a', 'c', 2), not(cheaper('a', 'c', 2))])
-step(not(cheaper('a', 'c', 2)), 'absent', {}, [])
-step(shortest('c', 'b', 1), clause(9), {X: 'c', Y: 'b', Cost: 1}, [path('c', 'b', 1), not(cheaper('c', 'b', 1))])
-step(not(cheaper('c', 'b', 1)), 'absent', {}, [])
-step(shortest('b', 'd', 3), clause(9), {X: 'b', Y: 'd', Cost: 3}, [path('b', 'd', 3), not(cheaper('b', 'd', 3))])
-step(not(cheaper('b', 'd', 3)), 'absent', {}, [])
-step(shortest('a', 'b', 3), clause(9), {X: 'a', Y: 'b', Cost: 3}, [path('a', 'b', 3), not(cheaper('a', 'b', 3))])
-step(not(cheaper('a', 'b', 3)), 'absent', {}, [])
-step(shortest('c', 'd', 4), clause(9), {X: 'c', Y: 'd', Cost: 4}, [path('c', 'd', 4), not(cheaper('c', 'd', 4))])
-step(not(cheaper('c', 'd', 4)), 'absent', {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-derived(path(A, B, C), [path('a', 'b', 4), path('a', 'c', 2), path('c', 'b', 1), path('b', 'd', 3), path('c', 'd', 8), path('a', 'd', 7), path('a', 'b', 3), path('a', 'd', 10), path('c', 'd', 4), path('a', 'd', 6)])
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(shortest(A, B, C), [shortest('a', 'c', 2), shortest('c', 'b', 1), shortest('b', 'd', 3), shortest('a', 'b', 3), shortest('c', 'd', 4), shortest('a', 'd', 6)])
-searched(cheaper('a', 'd', 6), [])
-searched(path('a', 'd', D), [path('a', 'd', 7), path('a', 'd', 10), path('a', 'd', 6)])
-searched(path(E, F, G), [path('a', 'b', 4), path('a', 'c', 2), path('c', 'b', 1), path('b', 'd', 3), path('c', 'd', 8), path('a', 'd', 7), path('a', 'b', 3), path('a', 'd', 10), path('c', 'd', 4), path('a', 'd', 6)])
-searched(cheaper('a', 'c', 2), [])
-searched(path('a', 'c', H), [path('a', 'c', 2)])
-searched(cheaper('c', 'b', 1), [])
-searched(path('c', 'b', I), [path('c', 'b', 1)])
-searched(cheaper('b', 'd', 3), [])
-searched(path('b', 'd', J), [path('b', 'd', 3)])
-searched(cheaper('a', 'b', 3), [])
-searched(path('a', 'b', K), [path('a', 'b', 4), path('a', 'b', 3)])
-searched(cheaper('c', 'd', 4), [])
-searched(path('c', 'd', L), [path('c', 'd', 8), path('c', 'd', 4)])
+derived(path(A, B, C), [path('a', 'b', 4), path('a', 'c', 2), path('c', 'b', 1), path('b', 'd', 3), path('c', 'd', 8), path('a', 'd', 7), path('a', 'b', 3), path('a', 'd', 10), path('c', 'd', 4), path('a', 'd', 6)])
 called(shortest('a', 'd', A), [shortest('a', 'd', 6)])
 called(path(B, C, D), [path('a', 'b', 4), path('a', 'c', 2), path('c', 'b', 1), path('b', 'd', 3), path('c', 'd', 8), path('a', 'd', 7), path('a', 'b', 3), path('a', 'd', 10), path('c', 'd', 4), path('a', 'd', 6)])
 called(cheaper('a', 'b', 4), [cheaper('a', 'b', 4)])
@@ -185,55 +145,43 @@ called(cheaper('c', 'd', 4), [])
 called(cheaper('a', 'd', 6), [])
 ```
 
-It has four parts:
+It has three parts:
 
 - **The claim**: the answer the proof is about.
-- **The clauses**: the program lines the steps rely on, by their number in
-  the program. The definition of `cheaper` (clause 8) is not cited: no step
-  is an instance of it.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`.
-- **The search certificate**: what eyemind found while it looked for a
-  cheaper route, written down so the checker can verify the "nothing
-  cheaper" step.
+- **The steps**: one per fact the forward rules derived. A step reads
+  `step(what, by which clause, with which values, using what)`, where
+  clauses are numbered in program order: the five roads are facts 1–5, the
+  path rules 6 and 7, the definition of `cheaper` clause 8 and the
+  `shortest` rule clause 9.
+- **The certificate**: two **listings**, `derived(...)`, of every
+  `shortest` and every `path` fact the rules derived, in the order found;
+  and **call tables**, `called(Call, Answers)`, each giving every answer
+  of one call the question makes, directly or inside the rules.
 
-Read the steps as sentences:
+Read the steps for the answer as sentences:
 
 1. *The shortest route from a to d costs 6* — by rule 9, because there is a
-   path from a to d costing 6, and nothing cheaper was found.
+   path from a to d costing 6, and `not(cheaper('a', 'd', 6))` holds.
 2. *There is a path from a to d costing 6* — by rule 7, with `Y` = b, because
    there is a path from a to b costing 3, the road b → d costs 3, and
    6 is 3 + 3.
-3. *There is a path from a to b costing 3* — by rule 7, with `Y` = c, because
-   there is a path from a to c costing 2, the road c → b costs 1, and
-   3 is 2 + 1.
+3. *There is a path from a to b costing 3* — rule 7 again, with `Y` = c,
+   from the path a → c costing 2 and the road c → b costing 1.
 4. *There is a path from a to c costing 2* — by rule 6, because the road
    a → c costs 2.
-5. *The road a → c costs 2* — fact 2.
-6. *The road c → b costs 1* — fact 3.
-7. *3 is 2 + 1* — `'builtin'`: a calculation, which anyone checking the proof
-   simply redoes.
-8. *The road b → d costs 3* — fact 4.
-9. *6 is 3 + 3* — `'builtin'`.
-10. *No path from a to d is cheaper than 6* — `'absent'`: eyemind searched
-    everything it had concluded and found none. This is not derived from a
-    rule; the search certificate backs it.
 
-Steps 2 to 9 show the route in full. Step 10 is different: it is a claim that
-something does *not* exist. The remaining twelve steps derive every other
-path the rules found, including the two other routes from a to d, costing 7
-and 10, because the certificate relies on them.
+The roads themselves and the additions have no steps: roads are stated
+facts the program answers directly, and additions are computed again by
+whoever checks. The other steps derive every other path and shortest route,
+including the two other routes from a to d, costing 7 and 10, because the
+listings hold every derived fact and each listed fact has its own step.
 
-The certificate has two kinds of line:
-
-- `derived(path(A, B, C), [...])` lists every `path` fact the forward rules
-  derived, ten in all, in the order they were found.
-- `searched(Call, Answers)` records one search and every answer it gave, in
-  order. `searched(cheaper('a', 'd', 6), [])` says the search for a route
-  from a to d cheaper than 6 found none. It looked through
-  `path('a', 'd', D)`, whose answers were the routes costing 7, 10 and 6,
-  and none of them is less than 6. The last line, `searched(path(E, F, G),
-  ...)`, records a search over every path, which finds the same ten.
+The "nothing cheaper" part is in the call tables. `called(cheaper('a', 'd',
+6), [])` says the search for a route from a to d cheaper than 6 has no
+answers. It rests on `called(path('a', 'd', J), [...])`: the routes from a
+to d cost 7, 10 and 6, and none is less than 6. By contrast,
+`called(cheaper('a', 'd', 7), [cheaper('a', 'd', 7)])` shows that the route
+costing 7 is beaten, so it never becomes a `shortest` fact.
 
 ---
 
@@ -241,98 +189,53 @@ The certificate has two kinds of line:
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the rules from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the question.** `shortest('a', 'd', Cost)` is answered from
+  the `shortest` listing, which gives exactly the table's one answer.
+- **It checks every table it uses.** Each call is expanded one level against
+  the program. `cheaper('a', 'd', 6)` becomes `path('a', 'd', Other)` with
+  `Other` less than 6: the path table gives 7, 10 and 6, the checker
+  compares each with 6 itself, none passes, so the table's empty answer
+  list is right. A table that hid a cheaper route would disagree with this
+  expansion and fail.
+- **It checks the listings are closed.** Applying rules 6, 7 and 9 to the
+  listed facts derives nothing the listings leave out: no route and no
+  "shortest" is missing.
+- **It replays each listed fact.** Each step's rule is re-run from scratch:
+  the additions are computed again, and each `not(cheaper(...))` is decided
+  from its call table at the values it had when the rule ran.
+- **It compares the claims with the answers.** The claim is the one answer,
+  and every step, listing and table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 shortest('a', 'd', 6)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 21)
-condition('C2', 'well_founded', 'ok', 32)
-condition('C3', 'justification', 'ok', 32)
-condition('C4', 'coverage', 'ok', 33)
-condition('C5', 're_decision', 'ok', 5)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 33)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 6)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(32)
-verified(21)
-recomputed(5)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (16)**: the 16 steps that cite a rule or fact really are
-  instances of it with the values shown.
-- **C2 well-founded (22)**: none of the 22 steps depends on itself, even
-  indirectly.
-- **C3 justification (22)**: every step says how it was justified, in a form
-  the checker understands, including the `'absent'` one.
-- **C4 coverage (23)**: the 1 claim and the 22 things the steps use are each
-  backed by a step.
-- **C5 re-decision (5)**: the five additions were redone by the checker and
-  agree.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled the only one.
-- **C7 relevance (23)**: the 1 claim answers the query, and all 22 steps
-  serve it.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (1)**: the one "not found" step was settled by the
-  search certificate: no route from a to d is cheaper than 6.
-
-The checker settles the absence without searching itself. It expands
-`cheaper('a', 'd', 6)` one level against the program, as a search would:
-the definition asks for `path('a', 'd', Other)` with `Other` less than 6.
-That inner call is answered by its own `searched` line, the routes costing
-7, 10 and 6, and none passes the test, so the search has no answers, as
-claimed. The `derived` listing is trusted only because each of its ten
-paths has a step of its own, and because, given those paths, the rules
-derive no `path` fact the listing leaves out. A wrong certificate, say one
-that hid a cheaper route, would disagree with this expansion and fail the
-check.
-
-The statistics: 22 steps, 16 verified against the program, 5 recomputed,
-and the absence settled by the certificate, so no boundary steps are taken on trust. The verdict is **checked**: the route of cost 6
-exists, and no route from a to d is cheaper. This holds relative to this
-program: true of this map, not necessarily of the real roads. The verdict
-also establishes that there is no other answer: C10 certifies the original
-question, whose listing of derived paths is closed under the rules.
+The verdict is **checked**: the route of cost 6 exists, no route from a to d
+is cheaper, and there is no other answer. This holds relative to this
+program: true of this map, not necessarily of the real roads.
 
 ---
 
-## Strict mode
+## Checking a saved proof
 
-Strict mode refuses any proof that takes something on trust, and this one
-takes nothing on trust:
+A proof can be saved and checked later, by anyone with the program:
 
 ```sh
 eyemind --proof examples/shortest-path.js > /tmp/sp-proof.js
-eyemind --strict-proof --check-proof /tmp/sp-proof.js examples/shortest-path.js
+eyemind --check-proof /tmp/sp-proof.js examples/shortest-path.js
 ```
 
-The strict check accepts this proof. The absence is settled by its search
-certificate, and C10 establishes the original call from the forward listing
-of paths: its rules compare and add costs only once their inputs are bound.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+The check accepts this proof with the same report. The checker settles the
+negation from the call tables alone, so it needs nothing from the proof
+that it cannot confirm against the program.
 
 ---
 

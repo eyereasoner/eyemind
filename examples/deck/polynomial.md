@@ -111,66 +111,49 @@ number standing in for 0).
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each answer. This is the
-proof, with its claims, clause and steps in full; its search certificate
-has 654 lines, of which a few are shown:
+beginning of the proof, its claims and the first of its 656 call tables:
 
 ```js
 // Answers: each instance of a query() that holds.
 roots([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]])
 roots([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]])
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, implied_by(roots(P, L), findall(Z, racine(P, Z), L)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(roots([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]]), clause(1), {P: [[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], L: [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]], Z: A}, [findall(A, racine([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], A), [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]])])
-step(findall(A, racine([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], A), [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]]), 'collected', {}, [])
-step(roots([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]]), clause(1), {P: [[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], L: [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]], Z: B}, [findall(B, racine([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], B), [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]])])
-step(findall(B, racine([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], B), [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]]), 'collected', {}, [])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-// … searched(racine(...), [...]) with the four roots of the first polynomial
-searched(est(D, floordiv([-10, 0], fois([-4, 0], [1, 0]))), [est([2.5, -0.0], floordiv([-10, 0], fois([-4, 0], [1, 0])))])
-searched(est(E, [-10, 0]), [est([-10, 0], [-10, 0])])
-searched(est(F, fois([-4, 0], [1, 0])), [est([-4, 0], fois([-4, 0], [1, 0]))])
-// … 650 more searched lines, down to each calculation, for both polynomials
+// Certificate: the derived facts and every answer of each call the questions make.
+called(roots([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], _0), [roots([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]])])
+called(racine([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], B), [racine([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], [4.000000007450581, 0.0]), racine([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], [2.9999999925494194, 0.0]), racine([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], [1.9999999925494194, 0.0]), racine([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], [1.0000000074505806, 0.0])])
+called(est(C, floordiv([-10, 0], fois([-4, 0], [1, 0]))), [est([2.5, -0.0], floordiv([-10, 0], fois([-4, 0], [1, 0])))])
+called(est(D, [-10, 0]), [est([-10, 0], [-10, 0])])
+called(est(E, fois([-4, 0], [1, 0])), [est([-4, 0], fois([-4, 0], [1, 0]))])
+called(est(F, [-4, 0]), [est([-4, 0], [-4, 0])])
+// … 649 more call tables, down to each calculation, for both polynomials
 ```
 
-It has four parts:
+It has two parts:
 
 - **The claims**: the two answers the proof is about.
-- **The clauses**: the one program rule the steps cite, the `roots` rule,
-  which is clause 1 of the program.
-- **The steps**: one per thing established. A step reads
-  `step(what, justified by, with which values, using what)`. The variable
-  `A` (and `B`) stands for "a root" inside the collection.
-- **The search certificate**: every call the two collections made, each
-  written `searched(call, answers)` with every answer it gave. The first
-  line lists the four roots `racine` finds for the first polynomial; the
-  lines below it record the calls that search made, down to each
-  calculation, such as `est(D, floordiv(...))`, one complex division.
+- **The certificate**: one *call table* per call the search of the two
+  questions makes, each written `called(call, answers)` with every answer it
+  gives, in order. The first table is the question `roots(P, L)` for the
+  first polynomial, with its one answer. The second lists the four roots
+  `racine` finds for it, which the `roots` rule (clause 1, a backward rule)
+  collects with `findall`. The tables below record the calls that search
+  made in turn, down to each calculation, such as `est(C, floordiv(...))`,
+  one complex division. Variables in a table are renamed `A`, `B`, ..., or
+  `_0`, `_1`, ... for anonymous ones.
 
-Read the steps as sentences:
+There are no steps and no listings. Steps record the firings behind facts
+that *forward* rules derive, and this program has only backward rules: every
+answer comes from searching, and the call tables show that search one call
+at a time.
 
-1. *The roots of the first polynomial are 4, 3, 2 and 1 (rounded)* — by
-   clause 1, with `P` being the polynomial and `L` the list, because
-   collecting every root `racine` finds for it gives that list.
-2. *Collecting every root `racine` finds for the first polynomial gives that
-   list* — justified by `'collected'`: eyemind ran the search and recorded
-   the result. The proof does not spell out how each root was computed, and
-   it uses nothing else.
-3. *The roots of the second polynomial are 3+2i, 5+i, i and 1+i (rounded)*
-   — by clause 1, in the same way.
-4. *Collecting every root for the second polynomial gives that list* —
-   `'collected'` again.
+Read the first tables as sentences:
 
-All the arithmetic happens *inside* the collection, so the steps are few.
-A `'collected'` step has no steps of its own: the claim that the list holds
-**all** the roots, and nothing else, is backed by the search certificate.
-To see every calculation as steps, ask for one root at a time (see "Try
-it").
+1. *Asking for the roots of the first polynomial gives exactly one answer*:
+   the list 4, 3, 2 and 1 (rounded).
+2. *Asking `racine` for a root of that polynomial gives exactly these four
+   roots, in this order*, which is the list `findall` collects.
+3. *Evaluating −10 / (−4 × 1) gives exactly 2.5*, and the tables after it
+   give the values of the parts of that expression.
 
 ---
 
@@ -178,73 +161,40 @@ it").
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the questions.** It expands each `roots` question one level
+  against clause 1: the `findall` takes the answers of the `racine` call
+  from its table, in order, and gives the claimed list.
+- **It checks every table it consults the same way.** The `racine` table
+  must equal its own expansion against the `racine` rules, whose inner calls
+  are answered from their own tables, and so on down to `est`, whose
+  arithmetic the checker computes itself. Tables cannot vouch for
+  themselves through a cycle, so the whole search is confirmed, one level at
+  a time.
+- **It compares the claims with the answers.** Every claim is an answer,
+  every answer is claimed, and every table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 roots([[1, 0], [-10, 0], [35, 0], [-50, 0], [24, 0]], [[4.000000007450581, 0.0], [2.9999999925494194, 0.0], [1.9999999925494194, 0.0], [1.0000000074505806, 0.0]])
 roots([[1, 0], [-9, -5], [14, 33], [24, -44], [-26, 0]], [[3.000000000000004, 2.0000000000000013], [5.000000000000006, 0.9999999999999931], [-6.217248937900877e-15, 1.0000000000000022], [0.999999999999996, 1.0000000000000033]])
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 2)
-condition('C2', 'well_founded', 'ok', 4)
-condition('C3', 'justification', 'ok', 4)
-condition('C4', 'coverage', 'ok', 4)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 6)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 2)
-condition('C10', 'call_fidelity', 'ok', 4)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(4)
-verified(2)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(2)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
+Each list is "every root `racine` finds for this polynomial", and the claim
+is "every root these rules produce", not a statement about mathematics at
+large. The order of the list is certified too: every table it depends on
+comes from backward rules and stated facts, not from facts forward rules
+derived, so the order of its answers is the order of the search.
 
-- **C1 resolution (2)**: the 2 steps citing clause 1 really are instances of
-  the `roots` rule with the values shown. The 2 collected steps cite no rule,
-  so C1 does not apply to them.
-- **C2 well-founded (4)**: none of the 4 steps depends on itself, even
-  indirectly.
-- **C3 justification (4)**: every step says how it was justified, in a form
-  the checker understands (`clause(1)` or `'collected'`).
-- **C4 coverage (4)**: the 2 claims and the 2 collections the rule steps use
-  are each backed by a step.
-- **C5 re-decision (0)**: no built-in calculation appears as a step of its
-  own here, so there is nothing to recompute.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled both collections.
-- **C7 relevance (6)**: the 2 claims answer the two queries, and all 4 steps
-  serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
-- **C9 search closure (2)**: the two collected lists were settled by the
-  search certificate's 654 `searched` lines, as explained below.
-
-Each list is "every root `racine` finds for this polynomial", and the
-checker confirms it without searching: it expands each `searched` call one
-level against the program, as a search would, and answers every inner call
-from that call's own line, recomputing the calculations, so no line vouches
-for itself. The claim is "every root these rules produce", not a statement
-about mathematics at large.
-
-The statistics: 4 steps, 2 verified against the program and the 2
-collections settled by the certificate, none trusted, none recomputed as
-steps. The verdict is **checked**: the answers follow from the program, and
-they are every answer of the original questions. It does not establish that
-the rounded roots are exact.
+The verdict is **checked**: the answers follow from the program, and they
+are every answer of the original questions. It does not establish that the
+rounded roots are exact.
 
 ---
 
@@ -253,16 +203,15 @@ the rounded roots are exact.
 ```sh
 eyemind examples/polynomial.js
 eyemind --proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" examples/polynomial.js > /tmp/cubic.js
-eyemind --strict-proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" --check-proof /tmp/cubic.js examples/polynomial.js
 ```
 
 The second command solves the cubic x³ − 6x² + 11x − 6 one root at a time,
 with no collection: about 3, 1 and 2, each with a rounding error near 10⁻¹⁶.
-The third checks that proof against the same goal. It has 263 steps, and the
-checker recomputes 124 calculations itself. Its verdict is `'checked'`, with
-nothing taken on trust, even under `--strict-proof`, which rejects any
-obligation. The main proof passes `--strict-proof` too, since its
-certificate settles both collections.
+To check that proof, pass the same goal again:
+`eyemind --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" --check-proof /tmp/cubic.js examples/polynomial.js`.
+The checker answers the goal from the proof's call tables and computes every
+calculation itself. Its verdict is `'checked'`, and its report lists the
+three `racine` answers.
 
 Ask for `roots([[1, 0], [-3, 0], [2, 0]], L)` with `--goal`: the quadratic
 x² − 3x + 2 has the roots `[2.0, 0.0]` and `[1.0, 0.0]`. Ask for
@@ -273,6 +222,6 @@ eyemind finds i and −i (with a real part of about 6·10⁻¹⁷ for 0).
 
 ## Takeaway
 
-You can choose the shape of the explanation: a compact one whose steps
-leave the search to a certificate, or a long one where every multiplication
-is a step of its own. Either way, the checker confirms the answer.
+You can choose the shape of the question: every root at once, collected
+into a list, or one root at a time. Either way, the proof records the
+search down to every multiplication, and the checker confirms the answer.

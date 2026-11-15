@@ -12,24 +12,12 @@ reachable('a', 'd')
 reachable('b', 'b')
 reachable('c', 'c')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(edge('a', 'b')))
-clause(2, fact(edge('b', 'c')))
-clause(3, fact(edge('c', 'a')))
-clause(4, fact(edge('c', 'd')))
-clause(5, implies(edge(X, Y), reachable(X, Y)))
-clause(6, implies([reachable(X, Y), edge(Y, Z)], reachable(X, Z)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(reachable('a', 'b'), clause(5), {X: 'a', Y: 'b'}, [edge('a', 'b')])
-step(edge('a', 'b'), clause(1), {}, [])
 step(reachable('b', 'c'), clause(5), {X: 'b', Y: 'c'}, [edge('b', 'c')])
-step(edge('b', 'c'), clause(2), {}, [])
 step(reachable('c', 'a'), clause(5), {X: 'c', Y: 'a'}, [edge('c', 'a')])
-step(edge('c', 'a'), clause(3), {}, [])
 step(reachable('c', 'd'), clause(5), {X: 'c', Y: 'd'}, [edge('c', 'd')])
-step(edge('c', 'd'), clause(4), {}, [])
 step(reachable('a', 'c'), clause(6), {X: 'a', Y: 'b', Z: 'c'}, [reachable('a', 'b'), edge('b', 'c')])
 step(reachable('b', 'a'), clause(6), {X: 'b', Y: 'c', Z: 'a'}, [reachable('b', 'c'), edge('c', 'a')])
 step(reachable('b', 'd'), clause(6), {X: 'b', Y: 'c', Z: 'd'}, [reachable('b', 'c'), edge('c', 'd')])
@@ -39,7 +27,6 @@ step(reachable('a', 'd'), clause(6), {X: 'a', Y: 'c', Z: 'd'}, [reachable('a', '
 step(reachable('b', 'b'), clause(6), {X: 'b', Y: 'a', Z: 'b'}, [reachable('b', 'a'), edge('a', 'b')])
 step(reachable('c', 'c'), clause(6), {X: 'c', Y: 'b', Z: 'c'}, [reachable('c', 'b'), edge('b', 'c')])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(reachable(A, B), [reachable('a', 'b'), reachable('b', 'c'), reachable('c', 'a'), reachable('c', 'd'), reachable('a', 'c'), reachable('b', 'a'), reachable('b', 'd'), reachable('c', 'b'), reachable('a', 'a'), reachable('a', 'd'), reachable('b', 'b'), reachable('c', 'c')])
 called(reachable(A, B), [reachable('a', 'b'), reachable('b', 'c'), reachable('c', 'a'), reachable('c', 'd'), reachable('a', 'c'), reachable('b', 'a'), reachable('b', 'd'), reachable('c', 'b'), reachable('a', 'a'), reachable('a', 'd'), reachable('b', 'b'), reachable('c', 'c')])

@@ -111,38 +111,20 @@ triple('alice', 'related_to', 'bob')
 type('alice', 'person')
 type('bob', 'person')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(subclass('cat', 'mammal')))
-clause(2, fact(subclass('mammal', 'animal')))
-clause(3, fact(subproperty('parent_of', 'related_to')))
-clause(4, fact(domain('parent_of', 'person')))
-clause(5, fact(codomain('parent_of', 'person')))
-clause(6, fact(type('koko', 'cat')))
-clause(7, fact(triple('alice', 'parent_of', 'bob')))
-clause(8, implies([subclass(A, B), subclass(B, C)], subclass(A, C)))
-clause(9, implies([type(X, A), subclass(A, B)], type(X, B)))
-clause(10, implies([triple(S, P, O), subproperty(P, Q)], triple(S, Q, O)))
-clause(11, implies([triple(S, P, _0), domain(P, Class)], type(S, Class)))
-clause(12, implies([triple(_0, P, O), codomain(P, Class)], type(O, Class)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(subclass('cat', 'animal'), clause(8), {A: 'cat', B: 'mammal', C: 'animal'}, [subclass('cat', 'mammal'), subclass('mammal', 'animal')])
 step(subclass('cat', 'mammal'), clause(1), {}, [])
 step(subclass('mammal', 'animal'), clause(2), {}, [])
 step(type('koko', 'animal'), clause(9), {X: 'koko', A: 'cat', B: 'animal'}, [type('koko', 'cat'), subclass('cat', 'animal')])
 step(type('koko', 'cat'), clause(6), {}, [])
 step(type('koko', 'mammal'), clause(9), {X: 'koko', A: 'cat', B: 'mammal'}, [type('koko', 'cat'), subclass('cat', 'mammal')])
-step(triple('alice', 'related_to', 'bob'), clause(10), {S: 'alice', P: 'parent_of', O: 'bob', Q: 'related_to'}, [triple('alice', 'parent_of', 'bob'), subproperty('parent_of', 'related_to')])
-step(triple('alice', 'parent_of', 'bob'), clause(7), {}, [])
-step(subproperty('parent_of', 'related_to'), clause(3), {}, [])
 step(type('alice', 'person'), clause(11), {S: 'alice', P: 'parent_of', _0: 'bob', Class: 'person'}, [triple('alice', 'parent_of', 'bob'), domain('parent_of', 'person')])
-step(domain('parent_of', 'person'), clause(4), {}, [])
+step(triple('alice', 'parent_of', 'bob'), clause(7), {}, [])
 step(type('bob', 'person'), clause(12), {_0: 'alice', P: 'parent_of', O: 'bob', Class: 'person'}, [triple('alice', 'parent_of', 'bob'), codomain('parent_of', 'person')])
-step(codomain('parent_of', 'person'), clause(5), {}, [])
+step(triple('alice', 'related_to', 'bob'), clause(10), {S: 'alice', P: 'parent_of', O: 'bob', Q: 'related_to'}, [triple('alice', 'parent_of', 'bob'), subproperty('parent_of', 'related_to')])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(subclass(A, B), [subclass('cat', 'animal')])
 derived(type(A, B), [type('koko', 'animal'), type('koko', 'mammal'), type('alice', 'person'), type('bob', 'person')])
 derived(triple(A, B, C), [triple('alice', 'related_to', 'bob')])
@@ -160,12 +142,19 @@ called(triple(M, N, O), [triple('alice', 'related_to', 'bob'), triple('alice', '
 It has three parts:
 
 - **The claims**: the six conclusions the proof is about.
-- **The clauses**: every line of the program, numbered 1 to 12 in order; all
-  of them are needed. The `_` of the program is shown as `_0`, so that it
-  can be given a value like any other variable.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`. The values
-  in curly braces say what each variable of the cited rule stood for.
+- **The steps**: one per derived fact, and one per stated `subclass`,
+  `type` or `triple` fact a rule used, since the rules derive those
+  relations too. A step reads `step(what, by which clause, with which
+  values, using what)`, with the program's lines numbered 1 to 12 in order.
+  The values in curly braces say what each variable of the cited rule stood
+  for; the `_` of the program is shown as `_0`, so that it can be given a
+  value like any other variable.
+- **The certificate**: three *listings*, `derived(...)`, of every
+  `subclass`, `type` and `triple` fact the rules derived, and nine *call
+  tables*, `called(...)`, with every answer of each call the checker's
+  search makes. With no query, the program's questions are the heads of its
+  rules, so `called(subclass(A, B), ...)` lists every subclass statement,
+  stated or derived.
 
 Read the steps as sentences:
 
@@ -178,19 +167,18 @@ Read the steps as sentences:
 5. *Koko is a cat* — fact 6.
 6. *Koko is a mammal* — by rule 9, because Koko is a cat and every cat is a
    mammal.
-7. *Alice is related to Bob* — by rule 10, because Alice is a parent of Bob
-   and `parent_of` is a kind of `related_to`.
+7. *Alice is a person* — by rule 11, because Alice is a parent of someone
+   (Bob fills the `_0`) and whoever is a parent is a person.
 8. *Alice is a parent of Bob* — fact 7.
-9. *`parent_of` is a kind of `related_to`* — fact 3.
-10. *Alice is a person* — by rule 11, because Alice is a parent of someone
-    (Bob fills the `_0`) and whoever is a parent is a person.
-11. *Whoever is a parent is a person* — fact 4.
-12. *Bob is a person* — by rule 12, because someone (Alice fills the `_0`) is
-    a parent of Bob and whoever has a parent is a person.
-13. *Whoever has a parent is a person* — fact 5.
+9. *Bob is a person* — by rule 12, because someone (Alice fills the `_0`) is
+   a parent of Bob and whoever has a parent is a person.
+10. *Alice is related to Bob* — by rule 10, because Alice is a parent of Bob
+    and `parent_of` is a kind of `related_to`.
 
 Facts already shown are not repeated: step 6 reuses steps 2 and 5, and steps
-10 and 12 reuse step 8.
+9 and 10 reuse step 8. The `domain`, `codomain` and `subproperty` facts get
+no steps: no rule derives those relations, so the checker reads them from
+the program.
 
 ---
 
@@ -198,11 +186,26 @@ Facts already shown are not repeated: step 6 reuses steps 2 and 5, and steps
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the questions.** It expands each rule head, such as
+  `type(X, B)`, one level: the listed facts, then the stated ones. Each call
+  table must equal its expansion, so `called(subclass('animal', C), [])`
+  shows that nothing is above animal.
+- **It checks the listings are closed.** Applying the five rules to
+  everything known derives no `subclass`, `type` or `triple` fact the
+  listings leave out.
+- **It replays each listed fact.** It re-runs the cited rule from no
+  bindings against each step, following the steps of its uses down to the
+  stated facts.
+- **It compares the claims with the answers.** Every claim is an answer,
+  every answer is claimed, and every step, listing and table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 subclass('cat', 'animal')
 type('koko', 'animal')
 type('koko', 'mammal')
@@ -210,55 +213,11 @@ triple('alice', 'related_to', 'bob')
 type('alice', 'person')
 type('bob', 'person')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 13)
-condition('C2', 'well_founded', 'ok', 13)
-condition('C3', 'justification', 'ok', 13)
-condition('C4', 'coverage', 'ok', 18)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 19)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 9)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(13)
-verified(13)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(6)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (13)**: each of the 13 steps really is an instance of the
-  rule or fact it cites, with the values shown.
-- **C2 well-founded (13)**: no step depends on itself, even indirectly.
-- **C3 justification (13)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (18)**: the 6 claims and the 12 things the six rule steps
-  use (two each) are each backed by a step.
-- **C5 re-decision (0)**: there was no calculation to redo.
-- **C6 boundary consistency (0)**: nothing was concluded from the absence of
-  a fact, so there is nothing to confront.
-- **C7 relevance (19)**: the 6 claims are conclusions of the program, and all
-  13 steps serve them. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics: 13 steps, all 13 verified against the program, none taken
-on trust, 6 claims. The verdict is **checked**: all six conclusions follow
-from the program. As the last comment says, this confirms the claims; it does
-not say the program has no other conclusions.
+The verdict is **checked**: all six conclusions follow from the program,
+and they are every conclusion its rules derive.
 
 ---
 

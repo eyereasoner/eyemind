@@ -80,50 +80,36 @@ allowed('alice', 'read')
 allowed('alice', 'write')
 allowed('bob', 'read')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(role('alice', 'editor')))
-clause(2, fact(role('bob', 'viewer')))
-clause(3, fact(role('carol', 'editor')))
-clause(4, fact(permits('editor', 'read')))
-clause(5, fact(permits('editor', 'write')))
-clause(6, fact(permits('viewer', 'read')))
-clause(8, implies([role(User, Role), permits(Role, Action)], candidate(User, Action)))
-clause(9, implies([candidate(User, Action), not(suspended(User))], allowed(User, Action)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(allowed('alice', 'read'), clause(9), {User: 'alice', Action: 'read'}, [candidate('alice', 'read'), not(suspended('alice'))])
 step(candidate('alice', 'read'), clause(8), {User: 'alice', Role: 'editor', Action: 'read'}, [role('alice', 'editor'), permits('editor', 'read')])
-step(role('alice', 'editor'), clause(1), {}, [])
-step(permits('editor', 'read'), clause(4), {}, [])
-step(not(suspended('alice')), 'absent', {}, [])
 step(allowed('alice', 'write'), clause(9), {User: 'alice', Action: 'write'}, [candidate('alice', 'write'), not(suspended('alice'))])
 step(candidate('alice', 'write'), clause(8), {User: 'alice', Role: 'editor', Action: 'write'}, [role('alice', 'editor'), permits('editor', 'write')])
-step(permits('editor', 'write'), clause(5), {}, [])
 step(allowed('bob', 'read'), clause(9), {User: 'bob', Action: 'read'}, [candidate('bob', 'read'), not(suspended('bob'))])
 step(candidate('bob', 'read'), clause(8), {User: 'bob', Role: 'viewer', Action: 'read'}, [role('bob', 'viewer'), permits('viewer', 'read')])
-step(role('bob', 'viewer'), clause(2), {}, [])
-step(permits('viewer', 'read'), clause(6), {}, [])
-step(not(suspended('bob')), 'absent', {}, [])
 step(candidate('carol', 'read'), clause(8), {User: 'carol', Role: 'editor', Action: 'read'}, [role('carol', 'editor'), permits('editor', 'read')])
-step(role('carol', 'editor'), clause(3), {}, [])
 step(candidate('carol', 'write'), clause(8), {User: 'carol', Role: 'editor', Action: 'write'}, [role('carol', 'editor'), permits('editor', 'write')])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(allowed(A, B), [allowed('alice', 'read'), allowed('alice', 'write'), allowed('bob', 'read')])
 derived(candidate(A, B), [candidate('alice', 'read'), candidate('alice', 'write'), candidate('bob', 'read'), candidate('carol', 'read'), candidate('carol', 'write')])
 called(allowed(A, B), [allowed('alice', 'read'), allowed('alice', 'write'), allowed('bob', 'read')])
 called(candidate(C, D), [candidate('alice', 'read'), candidate('alice', 'write'), candidate('bob', 'read'), candidate('carol', 'read'), candidate('carol', 'write')])
 ```
 
-It has four parts:
+It has three parts:
 
 - **The claims**: the three answers the proof is about.
-- **The clauses**: the program lines the steps rely on, by their number.
-  Fact 7 (Carol's suspension) is missing: no step rests on it.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
+- **The steps**: one per derived fact the answers rest on. A step reads
+  `step(what, by which clause, with which values, using what)`, with clauses
+  numbered in program order: the six role and permission facts are clauses
+  1 to 6, Carol's suspension is fact 7, and the two rules are clauses 8 and 9.
+- **The certificate**: the *listings*, `derived(...)`, of every `allowed` and
+  every `candidate` fact the rules derive, and the *call tables*,
+  `called(...)`, of every answer of each call the question makes: the
+  question `allowed(X, Y)` itself, and the `candidate` call rule 9 makes when
+  the checker answers it.
 
 Read the steps as sentences:
 
@@ -131,34 +117,25 @@ Read the steps as sentences:
    because she is a candidate to read and she is not suspended.
 2. *Alice is a candidate to read*: by rule 8 with `Role` = editor, because
    she is an editor and editors may read.
-3. *Alice is an editor*: fact 1.
-4. *Editors may read*: fact 4.
-5. *Alice is not suspended*: justified as `'absent'`. eyemind looked for
-   `suspended('alice')` and found nothing.
-6. *Alice may write*: by rule 9, because she is a candidate to write and not
-   suspended (step 5 serves again).
-7. *Alice is a candidate to write*: by rule 8, because she is an editor
-   (step 3 serves again) and editors may write.
-8. *Editors may write*: fact 5.
-9. *Bob may read*: by rule 9, because he is a candidate to read and not
+3. *Alice may write*: by rule 9, because she is a candidate to write and not
    suspended.
-10. *Bob is a candidate to read*: by rule 8 with `Role` = viewer.
-11. *Bob is a viewer*: fact 2.
-12. *Viewers may read*: fact 6.
-13. *Bob is not suspended*: `'absent'`, like step 5.
-14. *Carol is a candidate to read*, 15. *Carol is an editor* (fact 3) and
-    16. *Carol is a candidate to write*: by rule 8, like steps 2 and 7.
+4. *Alice is a candidate to write*: by rule 8, because she is an editor and
+   editors may write.
+5. *Bob may read*: by rule 9, because he is a candidate to read and not
+   suspended.
+6. *Bob is a candidate to read*: by rule 8 with `Role` = viewer.
+7. *Carol is a candidate to read* and 8. *Carol is a candidate to write*: by
+   rule 8, like steps 2 and 4.
 
-- **The search certificate**: the complete lists of `allowed` and
-  `candidate` facts the rules derive, and what the original questions
-  return. Steps 14 to 16 answer no question: they show that Carol's
-  candidates, which the lists must include to be complete, are derived.
+The stated facts (`role`, `permits`) get no steps: no rule concludes them,
+so the checker answers them from the program itself. Steps 7 and 8 answer
+no question: they are the firings behind the two Carol facts the
+`candidate` listing must hold to be complete.
 
-Steps 5 and 13 are different in kind. They do not point at a program line;
-they point at a line that is *missing*. A proof cannot show something
-missing, but the checker can look for it: `suspended` is defined only by
-facts, so it reads those facts itself and confirms that none is about Alice
-or Bob.
+The uses `not(suspended('alice'))` and `not(suspended('bob'))` have no step
+either. A proof cannot show something missing, but the checker can look for
+it: `suspended` is defined only by facts, so it searches those facts itself
+and finds none about Alice or Bob.
 
 ---
 
@@ -166,86 +143,44 @@ or Bob.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the question.** It expands `allowed(X, Y)` one level: the
+  listed `allowed` facts, which rule 9 derives, so the call `candidate(User,
+  Action)` inside it is answered from its table. Each table must equal its
+  own expansion, so the `candidate` table is checked against rule 8 and the
+  facts in the same way.
+- **It checks the listings are closed.** Applying rules 8 and 9 to everything
+  known derives no `candidate` or `allowed` fact the listings leave out.
+  For Carol, rule 9 meets `suspended('carol')`, fact 7, and does not fire.
+- **It replays each listed fact.** It re-runs the cited rule from no bindings
+  against each step: each `not(suspended(...))` is decided at the binding it
+  had when it ran, against the stated facts.
+- **It compares the claims with the answers.** Every claim is an answer,
+  every answer is claimed, and every step, listing and table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 allowed('alice', 'read')
 allowed('alice', 'write')
 allowed('bob', 'read')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 14)
-condition('C2', 'well_founded', 'ok', 16)
-condition('C3', 'justification', 'ok', 16)
-condition('C4', 'coverage', 'ok', 19)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 19)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 2)
-condition('C10', 'call_fidelity', 'ok', 4)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(16)
-verified(14)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(3)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
+Neither absence is taken on trust: the checker decides "Alice is not
+suspended" and "Bob is not suspended" from the program's facts. The absence
+holds *within this program*: these are the facts we gave, and nobody outside
+it was asked.
 
-- **C1 resolution (14)**: the 14 steps that cite a program line really are
-  instances of it. Step 2, for example, is rule 8 with `User` = alice,
-  `Role` = editor and `Action` = read.
-- **C2 well-founded (16)**: none of the 16 steps depends on itself, even
-  indirectly.
-- **C3 justification (16)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (19)**: the 3 answers and the 16 things the steps use are
-  each backed by a step.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled both absences.
-- **C7 relevance (19)**: the 3 answers each answer the question, and all 16
-  steps serve them or the facts the search certificate lists.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (2)**: the 2 absences were settled by scanning the
-  `suspended` facts: none names Alice or Bob.
-- **C10 call fidelity (3)**: the 3 answers are what the original question
-  returns.
-
-Neither absence is taken on trust. Because no rule concludes `suspended`,
-the checker settles "Alice is not suspended" and "Bob is not suspended" by
-scanning the program's facts directly, and there are no absence
-obligations. The absence holds *within
-this program*: these are the facts we gave, and nobody outside it was asked.
-
-The statistics: 16 steps, 14 verified against the program and the 2 absences
-settled from the facts, no boundary steps trusted, for 3 claims. The verdict is
-**checked**: the three answers follow from the program. If Bob were in fact
-suspended somewhere the program does not know about, the answer for Bob
-would be wrong, but that is a question about the data, not about the
-proof. And as the last comment says, the verdict also establishes that
-these are every answer of the original question.
-
-C10 checks the original question too. The proof's search certificate lists
-every `candidate` and `allowed` fact the rules derive, each with steps of
-its own, Carol's candidates included, and no rule derives one the lists
-leave out. The absences are decided by the program's facts alone, so
-exactly these three answers are allowed. The verdict is **checked**, with
-no obligations, and `--strict-proof` accepts it.
-
+The verdict is **checked**: the three answers follow from the program, and
+they are every answer of its question, so exactly these three permissions
+are allowed. If Bob were in fact suspended somewhere the program does not
+know about, the answer for Bob would be wrong, but that is a question about
+the data, not about the proof.
 
 ---
 

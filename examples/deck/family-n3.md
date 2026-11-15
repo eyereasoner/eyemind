@@ -59,7 +59,7 @@ from the ancestry relation being searched.
 The check report records these answers as terms:
 
 ```js
-// Answers: each instance of a query() that holds.
+// Checked answers: these follow from the input program and are every answer of its questions.
 result(iri('https://example.org/family#ann'), iri('https://example.org/family#ancestor'), iri('https://example.org/family#bob'))
 result(iri('https://example.org/family#ann'), iri('https://example.org/family#ancestor'), iri('https://example.org/family#cara'))
 ```
@@ -81,13 +81,29 @@ the original parent facts are not repeated in this output.
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`: there are no obligations.
-C1 checks the ancestry derivations against the compiled source clauses.
-C10 checks both reported answers against the original query using the
-proof's `called/2` tables and supported forward listings.
+The proof holds the two claims, two steps and a certificate. Each step
+records how the query rule, clause 5 of the compiled program, concluded an
+answer from an ancestry triple:
 
-The proof certifies these answers. Its verdict does not assert that an
-arbitrary proof has listed every answer.
+```js
+step(result(iri('https://example.org/family#ann'), iri('https://example.org/family#ancestor'), iri('https://example.org/family#bob')), clause(5), {Who: iri('https://example.org/family#bob')}, [rdf(iri('https://example.org/family#ann'), iri('https://example.org/family#ancestor'), iri('https://example.org/family#bob'))])
+```
+
+The certificate lists the derived `result` facts and holds a call table for
+each ancestry search. The table for Bob's ancestry shows that his parent
+Cara is his only descendant, and the one for Cara shows she has none:
+
+```js
+called(rdf(iri('https://example.org/family#bob'), iri('https://example.org/family#ancestor'), F), [rdf(iri('https://example.org/family#bob'), iri('https://example.org/family#ancestor'), iri('https://example.org/family#cara'))])
+called(rdf(iri('https://example.org/family#cara'), iri('https://example.org/family#ancestor'), H), [])
+```
+
+The checker expands each of these calls one level against the two backward
+rules, answering the inner calls from their tables, and so confirms every
+table; it replays both steps, and requires the claims to be exactly the
+answers of the query. The saved report ends with `verdict('checked')`: the
+two answers follow from the N3 source, and they are every answer of its
+query.
 
 ---
 
@@ -104,7 +120,7 @@ node bin/eyemind.js /tmp/family.js
 Check the saved proof against the N3 source:
 
 ```sh
-node bin/eyemind.js --strict-proof --check-proof examples/proof/family-n3.js examples/family-n3.n3
+node bin/eyemind.js --check-proof examples/proof/family-n3.js examples/family-n3.n3
 ```
 
 Add `:cara :parent :dan .` to a copy of the N3 source, then compile and run

@@ -285,12 +285,12 @@ test('binary64 doubles preserve infinities, NaN, signed zero and rounding', () =
   const r = checked('RULE { :r :v ?v } WHERE { SET(?v := 1e0 / 0e0) }');
   assert.ok(!checkProof(loadText(r.program), r.result.proof.replaceAll("'INF'", "'-INF'")).valid);
 });
-test('float64 primitive results are independently re-decided by C5', () => {
+test('float64 primitive results are independently recomputed', () => {
   const program = loadText("query(float64('div', float(1), float(0), R))");
   const result = run(program, { proof: true });
-  assert.ok(checkProof(program, result.proof, { allowTrusted: false }).valid);
+  assert.ok(checkProof(program, result.proof).valid);
   const forged = result.proof.replaceAll("'INF'", "'-INF'");
-  assert.ok(checkProof(program, forged).failures.some((f) => f.condition === 'C5'));
+  assert.ok(!checkProof(program, forged).valid);
 });
 test('comparison: numbers by value, strings by code point', () => {
   assert.equal(value('1 = 1.0'), 'true');

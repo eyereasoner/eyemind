@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 analysis('value_transparency', 'knowing that and how one\'s data creates value, including in AI training', 'by interpretation', ['AI Act art. 53(1)(d)', 'GDPR art. 13-15'])
 analysis('use_control', 'deciding on the uses through which one\'s data creates value', 'by interpretation', ['GDPR art. 21', 'GDPR art. 7(3)'])
 analysis('value_mobility', 'taking one\'s data elsewhere, to have value created there', 'by interpretation', ['DMA art. 6(9)', 'GDPR art. 20'])
@@ -13,26 +13,4 @@ evaluation('data_ownership', ['individual_enforcement', 'use_control', 'value_mo
 evaluation('autonomous_right', ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency'], [])
 recommended('autonomous_right')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 74)
-condition('C2', 'well_founded', 'ok', 108)
-condition('C3', 'justification', 'ok', 108)
-condition('C4', 'coverage', 'ok', 123)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 121)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 34)
-condition('C10', 'call_fidelity', 'ok', 16)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(108)
-verified(74)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(13)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

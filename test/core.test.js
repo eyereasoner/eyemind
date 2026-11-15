@@ -52,7 +52,7 @@ export const tests = {
     assert.equal(reads, 512);
     const chain = program('fact(p0)\n' + Array.from({ length: 64 }, (_, i) =>
       `implies([p${i}, p${i}], p${i + 1})`).join('\n'));
-    assert.equal(proven(chain).proofReport.steps, 65);
+    assert.equal(proven(chain).proofReport.steps, 64);
   },
 
   'deep branching taxonomy answers proves and checks'() {
@@ -232,12 +232,9 @@ ${extra}
     assert.ok(!result.answers.includes("allowed('bob')"));
     assert.ok(result.answers.some((answer) => answer.startsWith("children('alice',")));
     assert.deepEqual(run(graphs, { goal: "base('bob', 'child_of', 'alice')" }).answers, []);
-    // Its search certificate settles the absence and, since findall_sorted
-    // does not depend on the order of derived facts, the collection; with
-    // them every original question and the completeness of its answers.
-    const report = checkProof(graphs, result.proof);
-    assert.deepEqual(report.trusted, []);
-    assert.ok(checkProof(graphs, result.proof, { allowTrusted: false }).valid);
+    // Its call tables decide the absence and, since findall_sorted does not
+    // depend on the order of derived facts, the collection.
+    assert.ok(checkProof(graphs, result.proof).valid);
   },
 
   'negative dependencies through backward definitions run after closure'() {
@@ -494,17 +491,19 @@ fact(p(float(0), 'positive_zero'), p(9007199254740993n, 'large'), p(f(1), 'struc
     assert.deepEqual(proven('implies(not(p(1)), p(float(1)))').answers, ['p(1.0)']);
   },
 
-  'proofs record a state test as it was called'() {
-    const source = program("implied_by(p(X), [is_var(X), not_identical(X, 'b'), compare(O, X, 'b'), unify(X, 'a')])");
+  'state tests run with the bindings the original call had'() {
+    const source = program("implied_by(p(X), [is_var(X), not_identical(X, 'b'), unify(X, 'a')])");
     const result = run(source, { goal: 'p(X)', proof: true });
     assert.deepEqual(result.answers, ["p('a')"]);
-    assert.match(result.proof, /step\(is_var\('a'\), called\(is_var\(A\)\), \{\}, \[\]\)/);
-    assert.match(result.proof, /step\(not_identical\('a', 'b'\), called\(not_identical\(B, 'b'\)\), \{\}, \[\]\)/);
-    assert.match(result.proof, /step\(compare\('<', 'a', 'b'\), called\(compare\('<', C, 'b'\)\), \{\}, \[\]\)/);
     assert.equal(checkProof(source, result.proof, { goals: ['p(X)'] }).valid, true);
-    // A state test no later binding touched stays an ordinary builtin.
-    const plain = run(program("implied_by(q(X), [unify(X, 'a'), is_nonvar(X), not_identical(X, 'b')])"), { goal: 'q(X)', proof: true });
-    assert.match(plain.proof, /step\(not_identical\('a', 'b'\), 'builtin', \{\}, \[\]\)/);
+    // The specialized call p('a') fails is_var, but the original call answers it.
+    assert.deepEqual(run(source, { goal: "p('a')" }).answers, []);
+    assert.equal(checkProof(source, result.proof.replace("[p('a')]", '[]'), { goals: ['p(X)'] }).valid, false);
+    // A comparison of an unbound variable depends on its name, which a table
+    // need not keep, so it cannot be certified.
+    const compared = program("implied_by(q(X), [compare(O, X, 'b'), unify(X, 'a')])");
+    assert.deepEqual(run(compared, { goal: 'q(X)' }).answers, ["q('a')"]);
+    throwsMatching(() => run(compared, { goal: 'q(X)', proof: true }), /cannot certify/);
   },
 
   'ground compound arguments are indexed without losing a match'() {
@@ -564,32 +563,17 @@ fact(p(float(0), 'positive_zero'), p(9007199254740993n, 'large'), p(f(1), 'struc
     throwsMatching(() => run(program("query(digest('sha3', 'a', D))")), /digest\/3 needs md5, sha1, sha256 or sha512/);
   },
 
-  'a halted run keeps a boundary its unfinished listings cannot settle trusted'() {
+  'a halted run whose unfinished listings cannot decide a negation is not certified'() {
     // The contradiction halts before the later stratum that would add
-    // r(1, n([1])), so the listing of r/2 cannot settle not(r(1, 'b')).
+    // r(1, n([1])), so the listing of r/2 cannot decide not(r(1, 'b')).
     const source = program([
       'fact(p(1))',
       "implies([p(X), not(r(X, 'b'))], t(X))",
       'implies([p(X), findall(Y, t(Y), L)], r(X, n(L)))',
       'contradiction(t(1))',
     ].join('\n'));
-    const result = run(source, { proof: true });
-    assert.equal(result.haltCode, 65);
-    const report = checkProof(source, result.proof);
-    assert.equal(report.valid, true);
-    assert.deepEqual(report.trusted.map((record) => record.conclusion), ["not(r(1, 'b'))"]);
-  },
-
-  'a forged called justification fails the check'() {
-    const source = program("implied_by(p(X), [is_var(X), unify(X, 'a')])");
-    const proof = run(source, { goal: 'p(X)', proof: true }).proof;
-    for (const [forged, condition] of [["called(is_var('b'))", 'C5'], ['called(is_nonvar(A))', 'C5'], ["'builtin'", 'C5']]) {
-      const report = checkProof(source, proof.replace('called(is_var(A))', forged), { goals: ['p(X)'] });
-      assert.equal(report.valid, false, forged);
-      assert.ok(report.failures.some((failure) => failure.condition === condition), forged);
-    }
-    const unify = proof.replace("step(unify('a', 'a'), 'builtin'", "step(unify('a', 'a'), called(unify(A, 'a'))");
-    assert.ok(checkProof(source, unify, { goals: ['p(X)'] }).failures.some((failure) => failure.condition === 'C3'));
+    assert.equal(run(source).haltCode, 65);
+    throwsMatching(() => run(source, { proof: true }), /cannot certify/);
   },
 
   'program from sources'() {

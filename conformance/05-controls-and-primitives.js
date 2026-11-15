@@ -83,8 +83,8 @@ conformance('in goal text, _ in a negation stands for any value', [
   ]),
 ])
 
-conformance('a negation with anonymous variables is an absent step that checks', [
-  spec('4.2, 10.3, 11.9'),
+conformance('a negation with anonymous variables is a use that keeps them', [
+  spec('4.2, 10.2'),
   args('--proof'),
   stdin([
     "fact(p('a'), p('b'), q('a', 1))",
@@ -94,18 +94,11 @@ conformance('a negation with anonymous variables is an absent step that checks',
     '// Conclusions: the facts the program derives, in the order derived.',
     "s('b')",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    "clause(2, fact(p('b')))",
-    'clause(4, implies([p(X), not(q(X, _0))], s(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     "step(s('b'), clause(4), {X: 'b', _0: A}, [p('b'), not(q('b', A))])",
-    "step(p('b'), clause(2), {}, [])",
-    "step(not(q('b', A)), 'absent', {}, [])",
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     "derived(s(B), [s('b')])",
     "called(s(A), [s('b')])",
   ]),

@@ -26,8 +26,7 @@
 // and a failure names the seed that reproduces it. EYEMIND_PROPERTY_SCALE
 // multiplies the number of cases for a deeper search.
 import { readFileSync } from 'node:fs';
-import { EyemindError, Program, Struct, Var, checkProof, publicReport, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
-import { shortcuts } from '../src/proof.js';
+import { EyemindError, Program, Struct, Var, checkProof, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
 import { apply } from '../src/arith.js';
 import { compareText, identity } from '../src/terms.js';
 import { artifactPath, loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
@@ -186,10 +185,9 @@ function mutateDocument(r, terms, pool, compounds, results) {
   const changed = terms.slice();
   const i = r.below(changed.length);
   if (r.chance(0.25)) {
-    // A consistent forgery: one value replaced throughout the claims and
-    // steps, as someone editing a proof by hand would do. The clause displays
-    // are left as they are, since the checker reads clauses from the source.
-    // Often a computed value or a witness, the values a forger most wants changed.
+    // A consistent forgery: one value replaced throughout the proof, as
+    // someone editing a proof by hand would do. Often a computed value or a
+    // witness, the values a forger most wants changed.
     const from = results.length && r.chance(0.3) ? r.pick(results)
       : r.chance(0.5) && compounds.length ? r.pick(compounds) : r.pick(pool);
     let to = r.chance(0.5) && compounds.length ? r.pick(compounds) : r.pick(pool);
@@ -197,7 +195,7 @@ function mutateDocument(r, terms, pool, compounds, results) {
     if (typeof from === 'bigint' && r.chance(0.6)) to = from + 1n;
     if (typeof from === 'number' && r.chance(0.6)) to = from + 1;
     if (same(from, to)) return null;
-    return changed.map((term) => (isRecord(term, 'clause', 2) ? term : replaceEverywhere(term, from, to)));
+    return changed.map((term) => replaceEverywhere(term, from, to));
   }
   if (r.chance(0.1)) {
     // Drop or repeat a whole line.
@@ -217,15 +215,10 @@ function mutateDocument(r, terms, pool, compounds, results) {
 
 const isRecord = (term, name, arity) => term instanceof Struct && term.name === name && term.args.length === arity;
 
-// Whether a statement of a proof document is a claim: not a step, a clause
-// display or a statement of its search certificate.
-const isClaim = (term) => !['step/4', 'clause/2', 'searched/2', 'derived/2', 'called/2']
+// Whether a statement of a proof document is a claim: not a step or a
+// statement of its certificate.
+const isClaim = (term) => !['step/4', 'derived/2', 'called/2']
   .some((goalKey) => isRecord(term, goalKey.split('/')[0], Number(goalKey.split('/')[1])));
-
-// The obligations of a proof document: the goals of its steps justified as
-// an absence or a collection, which the checker trusts rather than proves.
-const obligations = (terms) => new Set(terms.filter((term) => isRecord(term, 'step', 4) &&
-  (term.args[1] === 'absent' || term.args[1] === 'collected')).map((term) => variant(term.args[0])));
 
 // An example ready to forge: its saved proof, what that valid proof already
 // establishes (its claims and the goals of its steps), and the values to
@@ -240,33 +233,18 @@ function forgeable(entry, text) {
   const subterms = terms.flatMap((term) => positions(term).map(([, t]) => t));
   const pool = [...new Set(subterms.filter(atomic))];
   const compounds = subterms.filter((t) => !atomic(t) && t.name !== '.');
-  // The values a forger most wants changed: those the primitive steps
-  // compute, as is(Value, Expression), and the Skolem terms of the witnesses.
+  // The values a forger most wants changed: those the steps compute, as
+  // is(Value, Expression) uses, and the Skolem terms of the witnesses.
   const results = [
-    ...terms.filter((term) => isRecord(term, 'step', 4) && term.args[1] === 'builtin' &&
-      isRecord(term.args[0], 'is', 2)).map((term) => term.args[0].args[0]),
+    ...subterms.filter((t) => isRecord(t, 'is', 2)).map((t) => t.args[0]),
     ...subterms.filter((t) => isRecord(t, 'skolem', 3)),
   ];
   const claims = new Set(terms.filter(isClaim).map(variant));
-  return { entry, program: loadExample(entry), terms, established, claims, pool, compounds, results, trusted: obligations(terms), oracle: new Map() };
-}
-
-// The report checkProof gives with and without the fast path for flat
-// clauses, which must agree.
-function checkBothWays(program, document) {
-  const fast = checkProof(program, document);
-  shortcuts.flatResolution = false;
-  try {
-    assert.deepEqual(publicReport(checkProof(program, document)), publicReport(fast), `flat and general resolution disagree\n${document}`);
-  } finally {
-    shortcuts.flatResolution = true;
-  }
-  return fast;
+  return { entry, program: loadExample(entry), terms, established, claims, pool, compounds, results, oracle: new Map() };
 }
 
 // Forge the saved proof of an example count times: whatever the checker
-// accepts must claim only what the program entails, or have forged an
-// obligation that a strict check then rejects.
+// accepts must claim only what the program entails, and every answer.
 function forgeExample(entry, text, count) {
   const example = forgeable(entry, text);
   const seen = new Set();
@@ -277,13 +255,13 @@ function forgeExample(entry, text, count) {
     if (terms === null) return;
     const document = `${terms.map((term) => write(term)).join('\n')}\n`;
     // Different seeds can make the same forgery. Check each distinct
-    // document in both checker modes once, retaining all mutation trials.
+    // document once, retaining all mutation trials.
     if (seen.has(document)) return;
     seen.add(document);
     tried++;
     let report;
     try {
-      report = checkBothWays(example.program, document);
+      report = checkProof(example.program, document);
     } catch (error) {
       // A checker error is a rejection too, but it must be one of eyemind's.
       if (error instanceof assert.AssertionError) throw error;
@@ -295,22 +273,15 @@ function forgeExample(entry, text, count) {
       rejected++;
       return;
     }
-    // Checked with no obligation, the claims are every answer of the
-    // original questions, so none of the saved proof's answers is missing.
+    // A checked proof's claims are every answer of the original questions,
+    // so none of the saved proof's answers is missing.
     const claimed = new Set(terms.filter(isClaim).map(variant));
-    if (!report.trusted.length && !claimed.has(variant('false'))) {
+    if (!claimed.has(variant('false'))) {
       const missing = [...example.claims].find((claim) => !claimed.has(claim));
       assert.ok(missing === undefined, `a forged proof without ${missing} was checked\n${document}`);
     }
     const unentailed = terms.filter((term) => isClaim(term) && !entailed(example, term));
-    if (!unentailed.length) return;
-    const forged = `a forged proof was accepted for ${write(unentailed[0])}, which does not hold`;
-    assert.ok(report.trusted.some(({ kind, conclusion }) => kind === 'call_fidelity' &&
-      unentailed.some((claim) => write(claim) === conclusion)) ||
-      [...obligations(terms)].some((goal) => !example.trusted.has(goal)),
-      `${forged}, with no forged obligation\n${document}`);
-    assert.ok(!checkProof(example.program, document, { allowTrusted: false }).valid,
-      `${forged}, even strictly\n${document}`);
+    assert.ok(!unentailed.length, `a forged proof was accepted for ${unentailed.length && write(unentailed[0])}, which does not hold\n${document}`);
   });
   // Most changes must be caught, or the property is not being exercised.
   assert.ok(tried > 0 && rejected / tried >= 0.5, `${rejected} of ${tried} forged proofs rejected`);
@@ -755,7 +726,7 @@ function mutateText(r, text) {
 }
 
 export const tests = {
-  'C10 rejects locally valid answers that the original finite call never returns'() {
+  'the original question rejects answers its finite call never returns'() {
     forSeeds(120, (r) => {
       const values = [1, 2, 3];
       for (let i = values.length - 1; i > 0; i--) {
@@ -772,29 +743,20 @@ export const tests = {
       const loaded = program(source);
       const result = run(loaded, { proof: true });
       assert.deepEqual(result.answers, early ? [] : [`q(${first})`]);
-      assert.ok(checkBothWays(loaded, result.proof).valid);
-      const uses = early ? `not_unify(${wrong}, ${first}), p(${wrong})` : `once(p(${wrong}))`;
-      const support = early ? `step(not_unify(${wrong}, ${first}), 'builtin', {}, [])`
-        : `step(once(p(${wrong})), 'control', {}, [p(${wrong})])`;
-      const local = `q(${wrong})\nstep(q(${wrong}), clause(${values.length + 1}), {}, [${uses}])\n${support}\n`;
-      assert.ok(checkProof(loaded, local).valid, local);
-      const document = `${local}called(q(A), [${early ? '' : `q(${first})`}])\n`;
-      const report = checkBothWays(loaded, document);
-      assert.equal(report.valid, false, document);
-      // The claim is no answer, and under once/1 the actual answer is omitted.
-      assert.deepEqual(report.failures.map(({ condition }) => condition), early ? ['C10'] : ['C10', 'C10']);
-      // A second original question may return the same claim. Missing its
-      // table leaves an obligation; the first question alone cannot refute it.
+      assert.ok(checkProof(loaded, result.proof).valid);
+      // The specialized call q(wrong) succeeds, but the original question
+      // does not return it: the claim is no answer, and under once/1 the
+      // actual answer is omitted.
+      const document = `q(${wrong})\ncalled(q(A), [${early ? '' : `q(${first})`}])\n`;
+      assert.equal(checkProof(loaded, document).valid, false, document);
+      // A second original question may return the same claim, but only its
+      // own call table can show it.
       const overlapping = program(`${source}\nquery(q(${wrong}))`);
-      const actual = early ? '' : `q(${first})\nstep(q(${first}), clause(${values.length + 1}), {}, [once(p(${first}))])\n` +
-        `step(once(p(${first})), 'control', {}, [p(${first})])\n`;
-      const incomplete = checkBothWays(overlapping, `${actual}${document}`);
-      assert.ok(incomplete.valid);
-      assert.equal(incomplete.trusted[0].kind, 'call_fidelity');
-      assert.equal(checkProof(overlapping, `${actual}${document}`, { allowTrusted: false }).valid, false);
+      const actual = early ? '' : `q(${first})\n`;
+      assert.equal(checkProof(overlapping, `${actual}${document}`).valid, false);
       const alternate = early ? values.filter((value) => value === wrong) : [wrong];
       const completed = `${actual}${document}called(q(${wrong}), [${alternate.map((value) => `q(${value})`).join(', ')}])\n`;
-      assert.ok(checkProof(overlapping, completed, { allowTrusted: false }).valid, completed);
+      assert.ok(checkProof(overlapping, completed).valid, completed);
     });
   },
 
@@ -815,13 +777,9 @@ export const tests = {
       const document = run(source, { proof: true }).proof;
       const expected = `skolem(${id}, 'W', [${context}])`;
       assert.ok(document.includes(expected), document);
-      assert.ok(checkBothWays(source, document).valid);
+      assert.ok(checkProof(source, document).valid);
       const forged = document.replaceAll(expected, `skolem(${id}, 'W', [])`);
-      const report = checkBothWays(source, forged);
-      assert.equal(report.valid, false, forged);
-      assert.ok(report.failures.some(({ condition }) => condition === 'C8'), JSON.stringify(report.failures));
-      assert.ok(!report.failures.some(({ condition }) => condition === 'C1'), JSON.stringify(report.failures));
-      assert.equal(checkProof(source, forged, { allowTrusted: false }).valid, false);
+      assert.equal(checkProof(source, forged).valid, false, forged);
     });
   },
 
@@ -899,17 +857,26 @@ implies(implied_by(H, B), backward_rule(H, B))`);
         'query(item(X))',
       ].join('\n');
       const loaded = program(source);
-      const result = run(loaded, { proof: true });
+      const result = run(loaded);
       assert.ok(result.answers.includes(`gathered(${list})`), source);
       assert.equal(result.answers.includes("not(item('x'))"), !expected.includes('x'), source);
       assert.deepEqual(result.answers.filter((answer) => answer.startsWith('item(')).sort(),
         [...new Set(expected)].map((value) => `item('${value}')`).sort(), source);
-      assert.doesNotMatch(result.proof, /activated\(/);
+      // A collection of the facts a forward template derives rests on their
+      // order, which the certificate cannot show; the reasoner refuses it.
+      let proved;
+      try {
+        proved = run(loaded, { proof: true });
+      } catch (error) {
+        assert.match(error.message, /cannot certify/, source);
+        return;
+      }
+      assert.deepEqual(proved.answers, result.answers);
+      assert.doesNotMatch(proved.proof, /activated\(/);
       if (expected.length) {
-        const forged = result.proof.replaceAll(list, '[]');
+        const forged = proved.proof.replaceAll(list, '[]');
         const report = checkProof(loaded, forged);
-        assert.ok(!report.valid && report.failures.some((failure) => failure.condition === 'C6'),
-          `${JSON.stringify(report.failures)}\n${source}\n${forged}`);
+        assert.ok(!report.valid, `${JSON.stringify(report.failures)}\n${source}\n${forged}`);
       }
     });
   },
@@ -934,9 +901,9 @@ implies(implied_by(H, B), backward_rule(H, B))`);
       assert.deepEqual(plain.stats, result.stats, source);
       const report = checkProof(loaded, result.proof, { goals });
       assert.ok(report.valid, `${JSON.stringify(report.failures)}\n${source}`);
-      // A strict check establishes that the claims are every answer, which
-      // the naive model confirms; leaving any claim out must then fail C10.
-      if (checkProof(loaded, result.proof, { goals, allowTrusted: false }).valid) {
+      // A check establishes that the claims are every answer, which the
+      // naive model confirms; leaving any claim out must then fail.
+      {
         assert.deepEqual([...new Set(report.answers)].sort(), expected, source);
         const lines = result.proof.split('\n');
         const end = lines.indexOf('');
@@ -944,7 +911,7 @@ implies(implied_by(H, B), backward_rule(H, B))`);
           const dropped = 1 + r.below(end - 1);
           const fewer = [...lines.slice(0, dropped), ...lines.slice(dropped + 1)].join('\n');
           const omitted = checkProof(loaded, fewer, { goals });
-          assert.ok(omitted.failures.some(({ condition, detail }) => condition === 'C10' && /omits an answer/.test(detail)),
+          assert.ok(omitted.failures.some(({ detail }) => /omits an answer/.test(detail)),
             `leaving out ${lines[dropped]} was not caught\n${source}`);
           complete++;
         }
@@ -1011,15 +978,15 @@ implies(implied_by(H, B), backward_rule(H, B))`);
       const loaded = program(source);
       const result = run(loaded, { proof: true });
       assert.deepEqual([...result.answers].sort(), expected, source);
-      const report = checkProof(loaded, result.proof, { allowTrusted: false });
+      const report = checkProof(loaded, result.proof);
       assert.ok(report.valid, `${JSON.stringify(report.failures)}\n${source}`);
-      // Leaving out any one claim must fail C10.
+      // Leaving out any one claim must fail.
       const proofLines = result.proof.split('\n');
       const end = proofLines.indexOf('');
       if (end > 1) {
         const dropped = 1 + r.below(end - 1);
         const fewer = [...proofLines.slice(0, dropped), ...proofLines.slice(dropped + 1)].join('\n');
-        assert.ok(checkProof(loaded, fewer).failures.some(({ condition }) => condition === 'C10'),
+        assert.ok(!checkProof(loaded, fewer).valid,
           `leaving out ${proofLines[dropped]} was not caught\n${source}`);
         complete++;
       }
@@ -1045,9 +1012,18 @@ implies(implied_by(H, B), backward_rule(H, B))`);
         return;
       }
       if (loaded.layered) layered++;
-      const result = run(loaded, { proof: true });
-      const report = checkProof(loaded, result.proof);
-      assert.ok(report.valid, `${JSON.stringify(report.failures)}\n${source}`);
+      let result;
+      try {
+        result = run(loaded, { proof: true });
+        const report = checkProof(loaded, result.proof);
+        assert.ok(report.valid, `${JSON.stringify(report.failures)}\n${source}`);
+      } catch (error) {
+        // A halted run's negation over a relation the halt left unfinished
+        // cannot be established, so only a halted run may go uncertified.
+        if (!(error instanceof EyemindError) || !/cannot certify/.test(error.message)) throw error;
+        result = run(loaded);
+        assert.equal(result.haltCode, 65, `${error.message}\n${source}`);
+      }
       const derived = [...new Set(result.answers)].sort();
       if (result.haltCode !== 65) {
         const model = new Set(generated.facts.map((fact) => fact.join(' ')));
@@ -1099,7 +1075,7 @@ implies(implied_by(H, B), backward_rule(H, B))`);
     assert.ok(compared >= 50 && forgeries >= 5, `${compared} chases compared and ${forgeries} proofs forged`);
   },
 
-  'restricted rules agree with a direct reading of the specification, and their proofs check'() {
+  'restricted rules agree with a direct reading of the specification, and only proofs without their witnesses check'() {
     let blocked = 0;
     let unneeded = 0;
     let forgeries = 0;
@@ -1114,17 +1090,26 @@ implies(implied_by(H, B), backward_rule(H, B))`);
         unneeded++;
         return;
       }
+      assert.deepEqual([...run(loaded).answers].sort(), [...expected].sort(), source);
+      // Count the restricted rules whose premise holds but which made no
+      // witness, so that blocking is known to be exercised.
+      const open = generated.rules.map((rule, index) => ({ rule, id: generated.facts.length + index + 1 }))
+        .filter(({ rule }) => rule.restricted);
+      for (const { rule, id } of open) {
+        if (expected.some((text) => text.includes(`skolem(${id}, `))) continue;
+        const holds = run(loaded, { goal: rule.body.map(restrictedAtom).join(', ') }).answers.length > 0;
+        if (holds) blocked++;
+      }
+      // Another order could make other witnesses, so a proof cannot establish
+      // a restricted firing, and the reasoner refuses to certify one.
+      if (expected.some((text) => text.includes('skolem('))) {
+        throwsMatching(() => run(loaded, { proof: true }), /cannot certify/);
+        return;
+      }
       const result = run(loaded, { proof: true });
-      assert.deepEqual([...result.answers].sort(), [...expected].sort(), source);
       const report = checkProof(loaded, result.proof);
       assert.ok(report.valid, `${JSON.stringify(report.failures)}\n${source}`);
-      // Another order could make other witnesses, so no proof with one is
-      // checked without obligations.
-      if (expected.some((text) => text.includes('skolem('))) {
-        assert.ok(!checkProof(loaded, result.proof, { allowTrusted: false }).valid, `a restricted witness was checked strictly\n${source}`);
-      }
-      // A proof with one value replaced throughout certifies nothing else,
-      // unless on an obligation a strict check rejects.
+      // A proof with one value replaced throughout certifies nothing else.
       const [from, to] = [r.pick(NODES), r.pick(NODES)];
       const forged = result.proof.replaceAll(`'${from}'`, `'${to}'`);
       if (forged !== result.proof) {
@@ -1138,23 +1123,11 @@ implies(implied_by(H, B), backward_rule(H, B))`);
         if (forgedReport !== null && forgedReport.valid) {
           const known = new Set([...expected, ...generated.facts.map((fact) => write(new Struct(fact[0], fact[1])))]);
           const unentailed = readTerms(forged).map(([term]) => term).filter((term) => isClaim(term) && !known.has(write(term)));
-          if (unentailed.length) {
-            assert.ok(!checkProof(loaded, forged, { allowTrusted: false }).valid,
-              `a forged proof was accepted for ${write(unentailed[0])}, even strictly\n${source}\n${forged}`);
-          }
+          assert.ok(!unentailed.length, `a forged proof was accepted for ${unentailed.length && write(unentailed[0])}\n${source}\n${forged}`);
         }
       }
-      // Count the restricted rules whose premise holds but which made no
-      // witness, so that blocking is known to be exercised.
-      const open = generated.rules.map((rule, index) => ({ rule, id: generated.facts.length + index + 1 }))
-        .filter(({ rule }) => rule.restricted);
-      for (const { rule, id } of open) {
-        if (expected.some((text) => text.includes(`skolem(${id}, `))) continue;
-        const holds = run(loaded, { goal: rule.body.map(restrictedAtom).join(', ') }).answers.length > 0;
-        if (holds) blocked++;
-      }
     });
-    assert.ok(blocked >= 20 && forgeries >= 20, `only ${blocked} restricted rules were blocked, ${forgeries} proofs forged`);
+    assert.ok(blocked >= 20 && forgeries >= 3, `only ${blocked} restricted rules were blocked, ${forgeries} proofs forged`);
     // Most programs must have an order-independent result for the
     // comparison to say much.
     assert.ok(unneeded < 15 * SCALE, `${unneeded} programs made an unneeded witness`);
@@ -1169,8 +1142,6 @@ implies(implied_by(H, B), backward_rule(H, B))`);
       forged++;
       const report = checkProof(program(programText(generated)), document);
       assert.ok(!report.valid, `a circular proof was accepted\n${programText(generated)}\n${document}`);
-      assert.ok(report.failures.some((failure) => failure.condition === 'C2'),
-        `${JSON.stringify(report.failures)}\n${programText(generated)}\n${document}`);
     });
     assert.ok(forged >= 20, `only ${forged} programs had an atom only a cycle supports`);
   },

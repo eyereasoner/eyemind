@@ -1,40 +1,14 @@
 // Conclusions: the facts the program derives, in the order derived.
 rdf(iri('http://example.org/report'), iri('http://example.org/credibleObserver'), bnode('n3', 'someone'))
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(rdf(iri('http://example.org/report'), iri('http://example.org/says'), graph([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]))))
-clause(2, fact(rdf(bnode('n3', 'someone'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Astronomer'))))
-clause(4, implies([rdf(Source, iri('http://example.org/says'), G), n3_graph_match(G, graph([rdf(Who, iri('http://example.org/saw'), iri('http://example.org/comet'))]), [f(Who)]), rdf(Who, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Astronomer'))], rdf(Source, iri('http://example.org/credibleObserver'), Who)))
-clause(6, implied_by(n3_member(X, [X, ..._0]), 'true'))
-clause(11, fact(n3_all_members([], _0)))
-clause(12, implied_by(n3_all_members([P, ...Ps], Ts), [n3_member(P, Ts), n3_all_members(Ps, Ts)]))
-clause(13, fact(n3_sort([], [])))
-clause(31, fact(n3_length([], 0)))
-clause(33, implied_by(n3_graph_match(graph(Ts), graph(Ps), Ls), [n3_all_members(Ps, Ts), n3_all_members(Ts, Ps), n3_locals(Ls, [], _0)]))
-clause(34, implied_by(n3_locals([], Vs, Vs), [n3_sort(Vs, S), n3_length(Vs, N), n3_length(S, N)]))
-clause(37, implied_by(n3_locals([f(V), ...R], A, Vs), [once(or(is_var(V), not_unify(V, qbnode(_0)))), n3_locals(R, A, Vs)]))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(rdf(iri('http://example.org/report'), iri('http://example.org/credibleObserver'), bnode('n3', 'someone')), clause(4), {Source: iri('http://example.org/report'), G: graph([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), Who: bnode('n3', 'someone')}, [rdf(iri('http://example.org/report'), iri('http://example.org/says'), graph([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))])), n3_graph_match(graph([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), graph([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), [f(bnode('n3', 'someone'))]), rdf(bnode('n3', 'someone'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Astronomer'))])
 step(rdf(iri('http://example.org/report'), iri('http://example.org/says'), graph([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))])), clause(1), {}, [])
-step(n3_graph_match(graph([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), graph([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), [f(bnode('n3', 'someone'))]), clause(33), {Ts: [rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))], Ps: [rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))], Ls: [f(bnode('n3', 'someone'))], _0: []}, [n3_all_members([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))], [rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), n3_all_members([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))], [rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), n3_locals([f(bnode('n3', 'someone'))], [], [])])
-step(n3_all_members([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))], [rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), clause(12), {P: rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet')), Ps: [], Ts: [rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]}, [n3_member(rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet')), [rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), n3_all_members([], [rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))])])
-step(n3_member(rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet')), [rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), clause(6), {X: rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet')), _0: []}, ['true'])
-step('true', 'builtin', {}, [])
-step(n3_all_members([], [rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), clause(11), {_0: [rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]}, [])
-step(n3_locals([f(bnode('n3', 'someone'))], [], []), clause(37), {V: bnode('n3', 'someone'), R: [], A: [], Vs: [], _0: A}, [once(or(is_var(bnode('n3', 'someone')), not_unify(bnode('n3', 'someone'), qbnode(A)))), n3_locals([], [], [])])
-step(once(or(is_var(bnode('n3', 'someone')), not_unify(bnode('n3', 'someone'), qbnode(A)))), 'control', {}, [or(is_var(bnode('n3', 'someone')), not_unify(bnode('n3', 'someone'), qbnode(A)))])
-step(or(is_var(bnode('n3', 'someone')), not_unify(bnode('n3', 'someone'), qbnode(A))), 'control', {}, [not_unify(bnode('n3', 'someone'), qbnode(A))])
-step(not_unify(bnode('n3', 'someone'), qbnode(A)), 'builtin', {}, [])
-step(n3_locals([], [], []), clause(34), {Vs: [], S: [], N: 0}, [n3_sort([], []), n3_length([], 0), n3_length([], 0)])
-step(n3_sort([], []), clause(13), {}, [])
-step(n3_length([], 0), clause(31), {}, [])
 step(rdf(bnode('n3', 'someone'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Astronomer')), clause(2), {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-derived(rdf(B, C, D), [rdf(iri('http://example.org/report'), iri('http://example.org/credibleObserver'), bnode('n3', 'someone'))])
+// Certificate: the derived facts and every answer of each call the questions make.
+derived(rdf(A, B, C), [rdf(iri('http://example.org/report'), iri('http://example.org/credibleObserver'), bnode('n3', 'someone'))])
 called(rdf(A, iri('http://example.org/credibleObserver'), B), [rdf(iri('http://example.org/report'), iri('http://example.org/credibleObserver'), bnode('n3', 'someone'))])
 called(rdf(C, iri('http://example.org/says'), D), [rdf(iri('http://example.org/report'), iri('http://example.org/says'), graph([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))])), rdf(iri('http://example.org/rumor'), iri('http://example.org/says'), graph([rdf(qbnode('someone_2.2'), iri('http://example.org/waved'), iri('http://example.org/hello'))]))])
 called(n3_graph_match(graph([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), graph([rdf(E, iri('http://example.org/saw'), iri('http://example.org/comet'))]), [f(E)]), [n3_graph_match(graph([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), graph([rdf(bnode('n3', 'someone'), iri('http://example.org/saw'), iri('http://example.org/comet'))]), [f(bnode('n3', 'someone'))])])

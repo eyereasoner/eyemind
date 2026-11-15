@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 schedule('requirements', 0, 2)
 schedule('architecture', 2, 5)
 schedule('api_design', 2, 4)
@@ -19,26 +19,4 @@ critical_task('database')
 critical_task('architecture')
 critical_task('requirements')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 56)
-condition('C2', 'well_founded', 'ok', 78)
-condition('C3', 'justification', 'ok', 78)
-condition('C4', 'coverage', 'ok', 125)
-condition('C5', 're_decision', 'ok', 22)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 97)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 22)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(78)
-verified(56)
-recomputed(22)
-composed(0)
-trusted(0)
-claims(19)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

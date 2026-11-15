@@ -133,69 +133,28 @@ notify('north_depot', 'batch_a')
 notify('station_shop', 'batch_a')
 inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a']))
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(checkpoint(42)))
-clause(2, fact(temperature_limit(80)))
-clause(3, fact(sensor_priority('handheld', 1)))
-clause(4, fact(sensor_priority('calibrated_logger', 2)))
-clause(6, fact(observation('handheld_a', 'handover_a', 'batch_a', 43, 'handheld', 72)))
-clause(7, fact(observation('logger_a', 'handover_a', 'batch_a', 44, 'calibrated_logger', 94)))
-clause(8, fact(observation('logger_b', 'handover_b', 'batch_b', 45, 'calibrated_logger', 75)))
-clause(9, fact(destination('batch_a', 'north_depot')))
-clause(10, fact(destination('batch_a', 'station_shop')))
-clause(12, implies([observation(Id, Sample, Batch, Sequence, Sensor, Temperature), checkpoint(Committed), gt(Sequence, Committed)], current_reading(Id, Sample, Batch, Sensor, Temperature)))
-clause(13, implies([current_reading(_0, Sample, Batch, _1, Low), current_reading(_2, Sample, Batch, _3, High), temperature_limit(Limit), le(Low, Limit), gt(High, Limit)], conflicting_sample(Sample, Batch)))
-clause(14, implies([current_reading(Id, Sample, Batch, Sensor, _0), current_reading(_1, Sample, Batch, OtherSensor, _2), sensor_priority(Sensor, Priority), sensor_priority(OtherSensor, OtherPriority), gt(OtherPriority, Priority)], superseded(Id)))
-clause(15, implies([current_reading(Id, _0, Batch, _1, Temperature), not(superseded(Id))], selected_reading(Id, Batch, Temperature)))
-clause(16, implies([selected_reading(Id, Batch, Temperature), temperature_limit(Limit), gt(Temperature, Limit)], quarantine(Batch, Id)))
-clause(17, implies([quarantine(Batch, _0), destination(Batch, Site)], notify(Site, Batch)))
-clause(18, implies(quarantine(Batch, Evidence), inspection_task(Batch, Evidence, Task)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(conflicting_sample('handover_a', 'batch_a'), clause(13), {_0: 'handheld_a', Sample: 'handover_a', Batch: 'batch_a', _1: 'handheld', Low: 72, _2: 'logger_a', _3: 'calibrated_logger', High: 94, Limit: 80}, [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), temperature_limit(80), le(72, 80), gt(94, 80)])
-step(current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), clause(12), {Id: 'handheld_a', Sample: 'handover_a', Batch: 'batch_a', Sequence: 43, Sensor: 'handheld', Temperature: 72, Committed: 42}, [observation('handheld_a', 'handover_a', 'batch_a', 43, 'handheld', 72), checkpoint(42), gt(43, 42)])
-step(observation('handheld_a', 'handover_a', 'batch_a', 43, 'handheld', 72), clause(6), {}, [])
-step(checkpoint(42), clause(1), {}, [])
-step(gt(43, 42), 'builtin', {}, [])
-step(current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), clause(12), {Id: 'logger_a', Sample: 'handover_a', Batch: 'batch_a', Sequence: 44, Sensor: 'calibrated_logger', Temperature: 94, Committed: 42}, [observation('logger_a', 'handover_a', 'batch_a', 44, 'calibrated_logger', 94), checkpoint(42), gt(44, 42)])
-step(observation('logger_a', 'handover_a', 'batch_a', 44, 'calibrated_logger', 94), clause(7), {}, [])
-step(gt(44, 42), 'builtin', {}, [])
-step(temperature_limit(80), clause(2), {}, [])
-step(le(72, 80), 'builtin', {}, [])
-step(gt(94, 80), 'builtin', {}, [])
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(selected_reading('logger_a', 'batch_a', 94), clause(15), {Id: 'logger_a', _0: 'handover_a', Batch: 'batch_a', _1: 'calibrated_logger', Temperature: 94}, [current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), not(superseded('logger_a'))])
-step(not(superseded('logger_a')), 'absent', {}, [])
+step(current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), clause(12), {Id: 'logger_a', Sample: 'handover_a', Batch: 'batch_a', Sequence: 44, Sensor: 'calibrated_logger', Temperature: 94, Committed: 42}, [observation('logger_a', 'handover_a', 'batch_a', 44, 'calibrated_logger', 94), checkpoint(42), gt(44, 42)])
 step(selected_reading('logger_b', 'batch_b', 75), clause(15), {Id: 'logger_b', _0: 'handover_b', Batch: 'batch_b', _1: 'calibrated_logger', Temperature: 75}, [current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75), not(superseded('logger_b'))])
 step(current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75), clause(12), {Id: 'logger_b', Sample: 'handover_b', Batch: 'batch_b', Sequence: 45, Sensor: 'calibrated_logger', Temperature: 75, Committed: 42}, [observation('logger_b', 'handover_b', 'batch_b', 45, 'calibrated_logger', 75), checkpoint(42), gt(45, 42)])
-step(observation('logger_b', 'handover_b', 'batch_b', 45, 'calibrated_logger', 75), clause(8), {}, [])
-step(gt(45, 42), 'builtin', {}, [])
-step(not(superseded('logger_b')), 'absent', {}, [])
+step(current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), clause(12), {Id: 'handheld_a', Sample: 'handover_a', Batch: 'batch_a', Sequence: 43, Sensor: 'handheld', Temperature: 72, Committed: 42}, [observation('handheld_a', 'handover_a', 'batch_a', 43, 'handheld', 72), checkpoint(42), gt(43, 42)])
+step(superseded('handheld_a'), clause(14), {Id: 'handheld_a', Sample: 'handover_a', Batch: 'batch_a', Sensor: 'handheld', _0: 72, _1: 'logger_a', OtherSensor: 'calibrated_logger', _2: 94, Priority: 1, OtherPriority: 2}, [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), sensor_priority('handheld', 1), sensor_priority('calibrated_logger', 2), gt(2, 1)])
+step(conflicting_sample('handover_a', 'batch_a'), clause(13), {_0: 'handheld_a', Sample: 'handover_a', Batch: 'batch_a', _1: 'handheld', Low: 72, _2: 'logger_a', _3: 'calibrated_logger', High: 94, Limit: 80}, [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), temperature_limit(80), le(72, 80), gt(94, 80)])
 step(quarantine('batch_a', 'logger_a'), clause(16), {Id: 'logger_a', Batch: 'batch_a', Temperature: 94, Limit: 80}, [selected_reading('logger_a', 'batch_a', 94), temperature_limit(80), gt(94, 80)])
 step(notify('north_depot', 'batch_a'), clause(17), {Batch: 'batch_a', _0: 'logger_a', Site: 'north_depot'}, [quarantine('batch_a', 'logger_a'), destination('batch_a', 'north_depot')])
-step(destination('batch_a', 'north_depot'), clause(9), {}, [])
 step(notify('station_shop', 'batch_a'), clause(17), {Batch: 'batch_a', _0: 'logger_a', Site: 'station_shop'}, [quarantine('batch_a', 'logger_a'), destination('batch_a', 'station_shop')])
-step(destination('batch_a', 'station_shop'), clause(10), {}, [])
 step(inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a'])), clause(18), {Batch: 'batch_a', Evidence: 'logger_a', Task: skolem(18, 'Task', ['batch_a', 'logger_a'])}, [quarantine('batch_a', 'logger_a')])
-step(superseded('handheld_a'), clause(14), {Id: 'handheld_a', Sample: 'handover_a', Batch: 'batch_a', Sensor: 'handheld', _0: 72, _1: 'logger_a', OtherSensor: 'calibrated_logger', _2: 94, Priority: 1, OtherPriority: 2}, [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), sensor_priority('handheld', 1), sensor_priority('calibrated_logger', 2), gt(2, 1)])
-step(sensor_priority('handheld', 1), clause(3), {}, [])
-step(sensor_priority('calibrated_logger', 2), clause(4), {}, [])
-step(gt(2, 1), 'builtin', {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-derived(superseded(A), [superseded('handheld_a')])
-derived(current_reading(A, B, C, D, E), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(selected_reading(A, B, C), [selected_reading('logger_a', 'batch_a', 94), selected_reading('logger_b', 'batch_b', 75)])
+derived(current_reading(A, B, C, D, E), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
+derived(superseded(A), [superseded('handheld_a')])
 derived(conflicting_sample(A, B), [conflicting_sample('handover_a', 'batch_a')])
 derived(quarantine(A, B), [quarantine('batch_a', 'logger_a')])
 derived(notify(A, B), [notify('north_depot', 'batch_a'), notify('station_shop', 'batch_a')])
 derived(inspection_task(A, B, C), [inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a']))])
-searched(superseded('logger_a'), [])
-searched(current_reading(F, G, H, I, J), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
-searched(current_reading(K, 'handover_a', 'batch_a', L, M), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94)])
-searched(current_reading(K, 'handover_b', 'batch_b', L, M), [current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
-searched(superseded('logger_b'), [])
 called(selected_reading(A, B, C), [selected_reading('logger_a', 'batch_a', 94), selected_reading('logger_b', 'batch_b', 75)])
 called(current_reading(D, _4, F, _6, H), [current_reading('handheld_a', 'handover_a', 'batch_a', 'handheld', 72), current_reading('logger_a', 'handover_a', 'batch_a', 'calibrated_logger', 94), current_reading('logger_b', 'handover_b', 'batch_b', 'calibrated_logger', 75)])
 called(superseded('handheld_a'), [superseded('handheld_a')])
@@ -214,90 +173,50 @@ called(quarantine(E1, _31), [quarantine('batch_a', 'logger_a')])
 called(inspection_task(G1, H1, I1), [inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a']))])
 ```
 
-It has four parts:
+It has three parts:
 
 - **The claims**: the seven answers the proof is about.
-- **The clauses**: the program clauses the proof relies on, by number. Each
-  don't-care `_` gets a name (`_0`, `_1`, …) so a step can say what it stood
-  for.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`.
-- **The search certificate**: what eyemind found when it checked that the
-  two selected readings are not superseded, so the checker can verify it.
-
-Three kinds of justification occur:
-
-- `clause(N)`: the step is an instance of program clause N, with the
-  variables standing for the values shown.
-- `'builtin'`: a built-in comparison such as `gt(43, 42)`. It cites no
-  clause and uses nothing; the checker simply calculates it again.
-- `'absent'`: the step holds because something could **not** be found. A
-  proof cannot point at a missing thing, so this step leans on the search
-  certificate instead.
+- **The steps**: one per fact a forward rule derived. A step reads
+  `step(what, by which rule, with which values, using what)`. Each cites
+  `clause(N)`, rule N of the program, and lists the goals of that rule's
+  body as they were met. Source facts and comparisons such as `gt(44, 42)`
+  get no step: the checker looks up the one and calculates the other.
+- **The certificate**: the `derived(Pattern, Facts)` **listings** give every
+  fact the rules derived for a relation, and the `called(Call, Answers)`
+  **call tables** give every answer of each call made while answering the
+  questions.
 
 Read the steps as sentences:
 
-1. *The handover of batch A is a conflicting sample*: by rule 13, with
-   `Low` = 72, `High` = 94 and `Limit` = 80, because of the two current
-   readings below, the limit, and 72 ≤ 80 and 94 > 80.
-2. *The handheld reading (7.2°C) is current*: by rule 12, because of
-   observation 6, the checkpoint 42 and 43 > 42.
-3. *The handheld observation*: fact 6.
-4. *The checkpoint is 42*: fact 1.
-5. *43 > 42*: a built-in comparison.
-6. *The logger reading (9.4°C) is current*: by rule 12, because of
-   observation 7, the checkpoint and 44 > 42.
-7. *The logger observation*: fact 7.
-8. *44 > 42*: a built-in comparison.
-9. *The limit is 80*: fact 2.
-10. *72 ≤ 80*: a built-in comparison.
-11. *94 > 80*: a built-in comparison.
-12. *The logger reading of batch A is selected*: by rule 15, because it is
-    current (step 6) and not superseded.
-13. *The logger reading of batch A is not superseded*: `'absent'`; no
-    higher-priority sensor read that sample.
-14. *The logger reading of batch B (7.5°C) is selected*: by rule 15,
-    because it is current and not superseded.
-15. *The logger reading of batch B is current*: by rule 12, because of
-    observation 8, the checkpoint and 45 > 42.
-16. *The batch B observation*: fact 8.
-17. *45 > 42*: a built-in comparison.
-18. *The logger reading of batch B is not superseded*: `'absent'`.
-19. *Batch A is quarantined on the evidence of `logger_a`*: by rule 16,
-    because that reading is selected (step 12), the limit is 80 and 94 > 80
-    (steps 9 and 11).
-20. *North depot is notified about batch A*: by rule 17, because batch A is
-    quarantined and goes to north depot.
-21. *Batch A goes to north depot*: fact 9.
-22. *Station shop is notified about batch A*: by rule 17, likewise.
-23. *Batch A goes to station shop*: fact 10.
-24. *Batch A has the inspection task `skolem(18, 'Task', ['batch_a',
+1. *The logger reading of batch A is selected*: by rule 15, because it is
+   current (step 2) and `not(superseded('logger_a'))` holds.
+2. *The logger reading (9.4°C) is current*: by rule 12, because of its
+   observation, the checkpoint 42 and 44 > 42.
+3. *The logger reading of batch B (7.5°C) is selected*: by rule 15, because
+   it is current (step 4) and not superseded.
+4. *The logger reading of batch B is current*: by rule 12, with 45 > 42.
+5. *The handheld reading (7.2°C) is current*: by rule 12, with 43 > 42.
+6. *The handheld reading is superseded*: by rule 14, because the logger
+   read the same sample and the logger's priority, 2, is higher than the
+   handheld's, 1.
+7. *The handover of batch A is a conflicting sample*: by rule 13, with
+   `Low` = 72, `High` = 94 and `Limit` = 80, because 72 ≤ 80 and 94 > 80.
+8. *Batch A is quarantined on the evidence of `logger_a`*: by rule 16,
+   because that reading is selected (step 1) and 94 > 80.
+9. –10. *North depot and station shop are notified about batch A*: by rule
+   17, because batch A is quarantined and goes to both.
+11. *Batch A has the inspection task `skolem(18, 'Task', ['batch_a',
     'logger_a'])`*: by rule 18, because batch A is quarantined. `Task` is
     bound to the invented name.
-25. *The handheld reading is superseded*: by rule 14, because the logger
-    read the same sample and the logger's priority, 2, is higher than the
-    handheld's, 1.
-26. *The handheld has priority 1*: fact 3.
-27. *The calibrated logger has priority 2*: fact 4.
-28. *2 > 1*: a built-in comparison.
 
-Steps that were already established are reused rather than repeated: the
-checkpoint (step 4), the limit (step 9) and 94 > 80 (step 11) each appear
-once. No answer needs steps 25 to 28; they are there because the
-certificate lists every reading the rules found superseded, and each listed
-fact must have steps of its own.
+No answer is about the handheld being superseded, yet step 6 is there: the
+listing `derived(superseded(A), [superseded('handheld_a')])` holds every
+reading the rules set aside, and each listed fact needs a step of its own.
 
-The certificate reads:
-
-- `derived(superseded(A), [superseded('handheld_a')])`: the only reading the
-  rules set aside is the handheld one.
-- `derived(current_reading(...), [...])`: the three current readings.
-- `searched(superseded('logger_a'), [])` and
-  `searched(superseded('logger_b'), [])`: neither logger reading is
-  superseded. The other `searched` lines record the calls those two
-  searches made: which current readings there are, and which of them
-  belong to the same sample.
-
+The call tables record the searches. `called(superseded('logger_a'), [])`
+and `called(superseded('logger_b'), [])` say that neither logger reading is
+superseded: those calls have no answers. The `current_reading` tables record
+which current readings there are, and which belong to the same sample.
 
 ---
 
@@ -305,11 +224,11 @@ The certificate reads:
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it follows the
+certificate. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 conflicting_sample('handover_a', 'batch_a')
 selected_reading('logger_a', 'batch_a', 94)
 selected_reading('logger_b', 'batch_b', 75)
@@ -318,84 +237,36 @@ notify('north_depot', 'batch_a')
 notify('station_shop', 'batch_a')
 inspection_task('batch_a', 'logger_a', skolem(18, 'Task', ['batch_a', 'logger_a']))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 20)
-condition('C2', 'well_founded', 'ok', 28)
-condition('C3', 'justification', 'ok', 28)
-condition('C4', 'coverage', 'ok', 38)
-condition('C5', 're_decision', 'ok', 6)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 35)
-condition('C8', 'witness_integrity', 'ok', 1)
-condition('C9', 'search_closure', 'ok', 2)
-condition('C10', 'call_fidelity', 'ok', 12)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(28)
-verified(20)
-recomputed(6)
-composed(0)
-trusted(0)
-claims(7)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
+The checker does three things:
 
-- **C1 resolution (20)**: the 20 clause steps really are instances of the
-  clauses they cite, with the values shown.
-- **C2 well-founded (28)**: none of the 28 steps depends on itself, even
-  indirectly.
-- **C3 justification (28)**: all 28 steps say how they were justified, in a
-  form the checker understands.
-- **C4 coverage (38)**: the 7 claims and the 31 things the steps use are
-  each backed by a step: nothing is taken for granted.
-- **C5 re-decision (6)**: the 6 comparisons (43 > 42, 44 > 42, 72 ≤ 80,
-  94 > 80, 45 > 42 and 2 > 1) were calculated again by the checker, and
-  they hold.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled both absences.
-- **C7 relevance (35)**: the 7 claims answer the queries, and all 28 steps
-  serve them. There is no padding.
-- **C8 witness integrity (1)**: the 1 step that invents a name (step 24)
-  was checked: the checker recomputes the Skolem term from rule 18, the
-  variable `Task` and the values batch A and `logger_a`, and confirms that
-  the step uses exactly that name.
-- **C9 search closure (2)**: the 2 absences, "`logger_a` is not
-  superseded" and "`logger_b` is not superseded", were settled by the
-  search certificate, as explained below.
+- **It answers the questions from the tables.** Each `query()` is searched
+  one level against the program, with every inner call answered from its
+  call table, and each table is checked the same way, so a table with a
+  missing or an extra answer shows up as a disagreement.
+- **It requires each listing to be closed.** Rule 14, run over the listed
+  current readings and the priority facts, supersedes a reading only when a
+  sensor with a higher priority read the same sample; for handover A that is
+  just the handheld reading, and batch B's sample has no other reading at
+  all. So the listing of superseded readings is complete, and the empty
+  tables for `superseded('logger_a')` and `superseded('logger_b')` agree with
+  it. Neither absence is taken on trust.
+- **It replays each listed fact.** Each step's rule is run again from no
+  bindings: the comparisons are calculated, the negation is decided from the
+  tables at the bindings it had, and `Task` is bound to the Skolem term the
+  checker recomputes from rule 18, the variable `Task` and the values batch A
+  and `logger_a`. The step must then match exactly.
 
-Neither absence is taken on trust. The checker expands
-`superseded('logger_a')` one level against the program, as a search would,
-without searching itself: superseded readings come from forward rule 14, so
-the call is matched against the `derived` listing, whose only superseded
-reading is the handheld one, and that is not the logger. The listing is
-accepted because its fact has steps of its own and because it is closed:
-rule 14, run over the listed current readings and the priority facts,
-supersedes a reading only when a sensor with a higher priority read the
-same sample, and for handover A it supersedes just the handheld reading,
-since the logger's priority, 2, is above the handheld's, 1. Batch B's sample
-has no other reading at all. So the logger readings of batch A and of batch B are not
-superseded: no higher-priority sensor read the same samples. The claim is about what this program says, not about the
-world.
-
-The statistics: 28 steps, 20 verified against the program, 6 recomputed and
-the 2 absences settled by the certificate, no boundary steps trusted. The verdict is
+A step, table or listing the check does not use would fail it. The claim is
+about what this program says, not about the world. The verdict is
 **checked**: the answers follow from the program, and they are every
 answer of the original questions.
 
 The supplied priorities express an evidence policy; they do not establish
 sensor calibration in the real world. Equal priorities can leave multiple
 readings selected. The program reports actions without executing them.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
 
 ---
 

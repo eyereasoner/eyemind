@@ -9,8 +9,8 @@
 // ann, cara and dan get a grant, ann and dan also a top-up for a household of
 // three or more, bob is refused for his income, and eve gets nothing because
 // she already received a grant. The checker confirms each grant's absence of
-// an earlier grant from the already_received facts and certifies the policy's
-// questions, so its proof has no obligation. The decisions for
+// an earlier grant from the already_received facts and that the decisions are
+// every answer of the policy's questions. The decisions for
 // cara and dan are at risk, because their incomes are self-declared. It shows
 // the library API (eyemind.build, run and readTerms) used inside a program,
 // and proofs read back as ordinary data.
@@ -49,7 +49,7 @@ for (const [term] of eyemind.readTerms(decided.proof)) {
   if (term.name === 'step') {
     const [goal, by, , uses] = term.args
     fact(step_of(goal, by, uses))
-  } else if (!['clause', 'searched', 'derived', 'called'].includes(term.name)) {
+  } else if (!['derived', 'called'].includes(term.name)) {
     fact(decision(term))
   }
 }
@@ -67,10 +67,11 @@ implies([step_of(G, By, Uses), member(U, Uses)], depends(G, U))
 implies([depends(G, U), depends(U, W)], depends(G, W))
 
 // The data a decision rests on are the policy's facts in its support: the
-// steps justified by a clause that used nothing. Its assumptions are the
-// absences in its support: the steps justified as 'absent'.
-implies([decision(D), depends(D, F), step_of(F, clause(_), [])], rests_on(D, F))
-implies([decision(D), depends(D, A), step_of(A, 'absent', [])], assumes(D, A))
+// goals its steps used that no step derives and that are neither a test nor
+// an assumption. Its assumptions are the negations its steps used.
+fact(test(lt(_, _)), test(ge(_, _)))
+implies([decision(D), depends(D, F), not(step_of(F, _, _)), not(test(F)), not(unify(F, not(_)))], rests_on(D, F))
+implies([decision(D), depends(D, A), unify(A, not(_))], assumes(D, A))
 
 // Was the policy's own reasoning certified?
 query(verdict(V))

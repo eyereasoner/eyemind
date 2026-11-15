@@ -1,23 +1,19 @@
-// C10: answers of the original questions, checked from source call tables:
-// each claim is an answer, and each answer is claimed. Unlike logical steps,
-// these searches start before a final substitution.
+// The check of a proof: the answers of the original questions, from call
+// tables checked against the source program, are exactly the claims, and
+// every derived fact those answers rest on replays the firing its steps
+// record. These searches start from the original calls, before any final
+// substitution, so they see the bindings a run saw.
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
 import { Settler, plainGenerators } from './closure.js';
-import { stepIdOf } from './proof.js';
-import { freshClause, sameVariant, text, variant } from './common.js';
+import { freshClause, isInstance, sameVariant, text, variant } from './common.js';
 import { goalTerm } from './goals.js';
-import { INSPECTION_KEYS } from './inspection.js';
 import {
-  Env, EyemindError, Struct, conjunction, copyResolved, deref, flattenConjunction, freshTerm, identity, isCallable,
+  Env, EyemindError, Struct, conjunction, copyResolved, deref, flattenConjunction, freshTerm, isCallable,
   isGround, isTerm, key, listFromItems, unify, variables,
 } from './terms.js';
 import { Lettering, write } from './writer.js';
 
-function instance(goal, pattern) {
-  const renamed = freshTerm(pattern, 'callQuestion');
-  const env = new Env();
-  return unify(renamed, goal, env) && text(copyResolved(renamed, env)) === text(goal);
-}
+const instance = (goal, pattern) => isInstance(goal, pattern, 'callQuestion');
 
 // The original questions of Section 8.6, without specializing them to claims.
 // A halted run answers none of them.
@@ -39,21 +35,30 @@ export function callQuestions(program, goals, claims) {
   });
 }
 
-// Whether each fact of these listings is the conclusion of a firing that a
-// search makes, replaying in source order the derivation its steps record.
-// Primitives run on the bindings of that point of the search, so a test of
-// whether a variable is bound sees what the search saw. A relation call
-// follows its use's own step, which C2 keeps acyclic; a listed use is
-// replayed in turn. once/1, not/1 and findall/3 are decided by the call
-// tables, through Settler.answers, which refuses an order resting on a
-// listing. A use is compared with what its goal can still become, since steps
-// show goals after the whole solution's bindings. stepOf(goal) gives the
-// recorded justification and uses of a goal, or nothing.
-export function replayed(program, settler, listingKeys, stepOf) {
+// A function telling whether a derived fact is the conclusion of a firing
+// that a search makes, replaying in source order the firing its step
+// records. Each goal runs with the bindings of that point of the search, so
+// a test of whether a variable is bound sees what the search saw. Primitives
+// run; other goals are answered by the call tables, through Settler.answers,
+// which refuses an order resting on a listing. A call whose search consults
+// derived facts follows its use's step instead, never in a cycle, so derived
+// facts support each other only through steps. A use is compared with what
+// its goal can still become, since steps show goals after the whole
+// solution's bindings. stepOf(goal) gives the recorded justification and
+// uses of a goal, or nothing; used collects the tables and listings the
+// replays consult.
+export function replayer(program, settler, stepOf, used) {
   const confirmed = new Map();
   const active = new Set();
+  // The steps a firing's replay followed, each as [replayed, recorded]: once
+  // the whole firing has replayed, each must be its step up to renaming.
+  let followed = [];
+  const exactly = ([replayed, recorded], env) => variant(copyResolved(replayed, env)) === variant(recorded);
   let serial = 0;
   const fresh = (term) => freshTerm(term, `replay${++serial}`);
+  // An answer's variables are pattern variables only when its search read
+  // the inspected rules or a derived pattern.
+  const answer = (outcome, item) => freshTerm(item, `${outcome.inspected ? 'inspect' : 'replay'}${++serial}`);
   // A rule appended by a template replays as its full body, generator first.
   // Witnesses that depend on a captured context are not recomputed here.
   const supportedRule = (clause) => clause && clause.guard === null &&
@@ -84,6 +89,38 @@ export function replayed(program, settler, listingKeys, stepOf) {
     }
     return value;
   }
+  // A step's bindings name distinct variables of its clause, each with a
+  // value that agrees with what the replay gave it; they bind nothing.
+  function bound(step, names, env) {
+    const pairs = step.bindings.map((pair) => (pair instanceof Struct ? pair.args : pair));
+    if (new Set(pairs.map(([name]) => name)).size !== pairs.length) return false;
+    const values = fresh(new Struct('bindings', pairs.map(([, value]) => value))).args;
+    const mark = env.mark();
+    const agrees = pairs.every(([name], i) => typeof name === 'string' && names.has(name) && unify(names.get(name), values[i], env));
+    env.undo(mark);
+    return agrees;
+  }
+  // A goal answered by the call tables with the bindings it has: true when
+  // an answer agrees with the use; null when its search consults derived
+  // facts, whose support only steps show.
+  function answered(goal, use, env) {
+    const outcome = settler.answers(copyResolved(goal, env));
+    if (outcome.status === 'unsettled' || (outcome.status === 'settled' && outcome.listings.length)) return null;
+    for (const item of outcome.tables) used.tables.add(item);
+    if (outcome.status !== 'settled') return false;
+    // The answer that is the use, up to renaming, is the one the firing
+    // took; failing that, the first that can still become it.
+    const target = variant(use);
+    for (const exact of [true, false]) {
+      for (const item of outcome.answers) {
+        const mark = env.mark();
+        if (unify(goal, answer(outcome, item), env) && compatible(goal, use, env) &&
+            (!exact || variant(copyResolved(goal, env)) === target)) return true;
+        env.undo(mark);
+      }
+    }
+    return false;
+  }
   function* all(goals, uses, env) {
     if (goals.length !== uses.length) return false;
     for (let i = 0; i < goals.length; i++) if (!(yield one(goals[i], uses[i], env))) return false;
@@ -94,22 +131,6 @@ export function replayed(program, settler, listingKeys, stepOf) {
     if (!isCallable(goal) || !isCallable(use)) return false;
     const goalKey = key(goal);
     if (goalKey !== key(use)) return false;
-    if (goalKey === 'call/1' || goalKey === 'or/2') {
-      const step = stepOf(use);
-      if (!step || step.by !== 'control') return false;
-      const used = step.uses.map((item) => text(item));
-      const sides = goalKey === 'call/1' ? [0] : [0, 1];
-      const side = sides.find((i) => {
-        const parts = flattenConjunction(use.args[i]);
-        return parts.length === used.length && parts.every((part, j) => text(part) === used[j]);
-      });
-      return side !== undefined && (yield all(flattenConjunction(goal.args[side]), step.uses, env));
-    }
-    if (['once/1', 'not/1', 'findall/3', 'findall_sorted/3'].includes(goalKey)) {
-      const outcome = settler.answers(copyResolved(goal, env));
-      if (outcome.status !== 'settled' || !outcome.answers.length) return false;
-      return unify(goal, fresh(outcome.answers[0]), env) && compatible(goal, use, env);
-    }
     if (PRIMITIVE_KEYS.has(goalKey)) {
       // A comparison of variables orders them by name, which renaming changes.
       if (goalKey === 'compare/3' && (!isGround(goal.args[1], env) || !isGround(goal.args[2], env))) return false;
@@ -122,30 +143,36 @@ export function replayed(program, settler, listingKeys, stepOf) {
       }
       return false;
     }
-    if (INSPECTION_KEYS.has(goalKey)) {
-      // An inspection reads the source rule its step cites, renamed apart.
+    if (['once/1', 'not/1', 'findall/3', 'findall_sorted/3'].includes(goalKey)) {
+      const outcome = settler.answers(copyResolved(goal, env));
+      for (const item of outcome.tables) used.tables.add(item);
+      for (const item of outcome.listings) used.listings.add(item);
+      if (outcome.status !== 'settled' || !outcome.answers.length) return false;
+      return unify(goal, answer(outcome, outcome.answers[0]), env) && compatible(goal, use, env);
+    }
+    const decided = answered(goal, use, env);
+    if (decided !== null) return decided;
+    if (goalKey === 'call/1' || goalKey === 'or/2') {
       const step = stepOf(use);
-      const source = step && isTerm(step.by, 'source', 1) ? program.inspectedById.get(Number(step.by.args[0])) : null;
-      return Boolean(source) && unify(goal, freshTerm(source.term, `inspect${++serial}`), env) && compatible(goal, use, env);
+      if (!step || step.by !== 'control' || step.bindings.length) return false;
+      const used = step.uses.map((item) => text(item));
+      const sides = goalKey === 'call/1' ? [0] : [0, 1];
+      const side = sides.find((i) => {
+        const parts = flattenConjunction(use.args[i]);
+        return parts.length === used.length && parts.every((part, j) => text(part) === used[j]);
+      });
+      if (side === undefined) return false;
+      const parts = flattenConjunction(goal.args[side]);
+      followed.push([new Struct('step', [goal, ...parts]), new Struct('step', [use, ...step.uses])]);
+      return yield all(parts, step.uses, env);
     }
     const step = stepOf(use);
-    if (!step) {
-      // A use without a step is an instance of a source fact.
-      for (const clause of program.groups.get(goalKey) || []) {
-        if (clause.body.length || clause.forward || clause.parentId !== null) continue;
-        const mark = env.mark();
-        const [head] = freshClause(clause, `replay${++serial}`);
-        if (unify(goal, head, env) && compatible(goal, use, env)) return true;
-        env.undo(mark);
-      }
-      return false;
-    }
-    if (!isTerm(step.by, 'clause', 1)) return false;
+    if (!step || !isTerm(step.by, 'clause', 1)) return false;
     const clause = program.byId.get(Number(step.by.args[0]));
     if (!supportedRule(clause)) return false;
     if (clause.forward) return (yield fact(use)) && unify(goal, freshTerm(use, `pattern${++serial}`), env);
-    const [head, body] = freshClause(clause, `replay${++serial}`);
-    if (!body.length) return unify(goal, head, env) && compatible(goal, use, env);
+    const [head, body, names] = freshClause(clause, `replay${++serial}`);
+    if (!body.length) return unify(goal, head, env) && bound(step, names, env) && compatible(goal, use, env);
     const id = text(use);
     if (active.has(id)) return false;
     active.add(id);
@@ -153,7 +180,9 @@ export function replayed(program, settler, listingKeys, stepOf) {
     // meets the call.
     const prefix = clause.prefixLength;
     const solved = step.uses.length === body.length && (yield all(body.slice(0, prefix), step.uses.slice(0, prefix), env)) &&
-      unify(goal, head, env) && (yield all(body.slice(prefix), step.uses.slice(prefix), env)) && compatible(goal, use, env);
+      unify(goal, head, env) && (yield all(body.slice(prefix), step.uses.slice(prefix), env)) && bound(step, names, env) &&
+      compatible(goal, use, env);
+    if (solved) followed.push([new Struct('step', [head, ...body]), new Struct('step', [use, ...step.uses])]);
     active.delete(id);
     return solved;
   }
@@ -167,6 +196,8 @@ export function replayed(program, settler, listingKeys, stepOf) {
     let holds = false;
     if (supportedRule(clause) && clause.forward) {
       active.add(id);
+      const outer = followed;
+      followed = [];
       const [head, body, names] = freshClause(clause, `replay${++serial}`);
       const env = new Env();
       holds = yield all(body, step.uses, env);
@@ -184,86 +215,89 @@ export function replayed(program, settler, listingKeys, stepOf) {
           unify(names.get(name), new Struct('skolem', [BigInt(clause.id), name, listFromItems(values)]), env);
         }
       }
-      // A derived pattern is identified up to the renaming of its variables,
-      // and keeps only variables an inspection supplied: the run binds any
-      // other head variable a firing leaves unbound to a Skolem term.
-      const same = isGround(goal) ? (item) => identity(item) === identity(goal) : (item) => variant(item) === variant(goal);
+      holds = holds && bound(step, names, env);
+      // The firing is its step up to renaming: the fact is an instance of one
+      // of the rule's heads and the uses its body, variables shared as they
+      // are. A derived pattern keeps only variables an inspection supplied:
+      // the run binds any other head variable a firing leaves unbound to a
+      // Skolem term.
+      const recorded = new Struct('step', [goal, ...step.uses]);
       holds = holds && flattenConjunction(head).some((item) => {
         if (!isCallable(item)) return false;
         const conclusion = copyResolved(item, env);
-        return [...variables(conclusion).keys()].every((name) => /#(?:inspect|pattern)\d+$/.test(name)) && same(conclusion);
-      });
+        return [...variables(conclusion).keys()].every((name) => /#(?:inspect|pattern)\d+(?:#|$)/.test(name)) &&
+          exactly([new Struct('step', [item, ...body]), recorded], env);
+      }) && followed.every((pair) => exactly(pair, env));
+      followed = outer;
       active.delete(id);
     }
     confirmed.set(id, holds);
     return holds;
   }
-  return listingKeys.every((goalKey) => (settler.listings.get(goalKey)?.facts || []).every((goal) => finish(fact(goal))));
+  return (goal) => finish(fact(goal));
 }
 
-// Both directions of C10: each claim is an answer of an original question,
-// and each answer of a certified question is claimed. When the conclusions
-// are the derived facts, a question's answers that are not derived (source
-// facts, backward answers) are no conclusions, so only its listed facts are.
-export function checkCalls(program, claims, goals, certificate, steps, spellings, fail, allowTrusted, name) {
+// Check the claims against the original questions, adding failures to fail.
+// Each question's answers come from its certificate; every derived fact they
+// rest on must replay; each claim must be an answer and each answer claimed.
+// A halted run stopped before its fixpoint, so its claims are each replayed
+// instead, which shows that they follow but not that they are every answer.
+// Returns the tables and listings the check consulted.
+export function checkAnswers(program, claims, goals, certificate, stepOf, fail) {
   const settler = new Settler(program, {
     answers: (call) => certificate.calls.get(variant(call, true)) ?? null,
     facts: (goalKey) => certificate.listings.get(goalKey) ?? null,
-    supported: (fact) => steps.has(stepIdOf(steps, spellings, fact)),
-  }, true);
-  if (claims.includes('false')) return { settler, outcomes: [], unresolved: [], covered: 0 };
-  const stepOf = (goal) => steps.get(stepIdOf(steps, spellings, goal));
+  });
+  const used = { tables: new Set(), listings: new Set() };
+  const replays = replayer(program, settler, stepOf, used);
+  if (claims.includes('false')) {
+    for (const claim of claims) {
+      if (!replays(claim)) fail.add(`the claim does not replay a recorded firing: ${text(claim)}`, claim);
+    }
+    return used;
+  }
   const outcomes = callQuestions(program, goals, claims).map((question) => {
     const outcome = settler.answers(question);
-    if (outcome.status === 'settled' && !replayed(program, settler, outcome.listings, stepOf)) {
-      return { question, ...outcome, status: 'unsupported' };
+    for (const item of outcome.tables) used.tables.add(item);
+    for (const item of outcome.listings) used.listings.add(item);
+    for (const [detail, term] of outcome.failures) fail.add(detail, term);
+    if (outcome.status === 'unsettled') {
+      fail.add(`the certificate cannot establish the answers of ${text(question)}`, question);
+    } else if (outcome.status === 'settled') {
+      for (const goalKey of outcome.listings) {
+        for (const fact of settler.listings.get(goalKey)?.facts || []) {
+          if (!replays(fact)) {
+            fail.add(`the derived fact does not replay a recorded firing: ${text(fact)}`, fact);
+            outcome.status = 'failed';
+          }
+        }
+      }
     }
     return { question, ...outcome };
   });
-  const unresolved = [];
-  let covered = 0;
   for (const claim of claims) {
     const matching = outcomes.filter(({ question }) => instance(claim, question));
-    let detail = null;
-    if (matching.some(({ status }) => status === 'failed')) detail = 'the original call has an invalid search certificate';
-    else if (!matching.some(({ status, answers }) => status === 'settled' &&
-      answers.some((answer) => sameVariant(answer, claim)))) {
-      if (matching.length && matching.every(({ status }) => status === 'settled')) {
-        detail = 'the original call does not return this answer';
-      } else {
-        unresolved.push([{ kind: 'call_fidelity', reason: 'original_call', conclusion: name(claim) }, claim]);
-        if (!allowTrusted) fail.add('C10', `call fidelity remains unproved: ${name(claim)}`, claim);
-        continue;
-      }
+    if (!matching.length) fail.add(`the claim answers no question: ${text(claim)}`, claim);
+    else if (matching.every(({ status }) => status === 'settled') &&
+             !matching.some(({ answers }) => answers.some((answer) => sameVariant(answer, claim)))) {
+      fail.add(`the question does not return this answer: ${text(claim)}`, claim);
     }
-    covered++;
-    if (detail !== null) fail.add('C10', `${detail}: ${text(claim)}`, claim);
   }
+  // When the conclusions are the derived facts, a question's answers that are
+  // not derived (source facts, backward answers) are no conclusions, so only
+  // its listed facts are.
   const derivedOnly = !(goals || []).length && !program.forward.some((clause) => clause.heads.includes('true'));
   const claimed = new Set(claims.map((claim) => variant(claim)));
   for (const { question, status, answers } of outcomes) {
-    if (status === 'failed') {
-      // A claim of this question already failed with its certificate.
-      if (!claims.some((claim) => instance(claim, question))) {
-        fail.add('C10', `the original call has an invalid search certificate: ${text(question)}`, question);
-      }
-      covered++;
-      continue;
-    }
-    if (status !== 'settled') {
-      unresolved.push([{ kind: 'call_fidelity', reason: 'all_answers', conclusion: text(question) }, question]);
-      if (!allowTrusted) fail.add('C10', `answer completeness remains unproved: ${text(question)}`, question);
-      continue;
-    }
+    if (status !== 'settled') continue;
     const required = derivedOnly
       ? (settler.listings.get(key(question))?.facts || []).filter((fact) => instance(fact, question))
       : answers;
-    covered++;
     for (const answer of required) {
       if (!claimed.has(variant(answer))) {
-        fail.add('C10', `the proof omits an answer of the original call: ${write(answer, null, new Lettering())}`, answer);
+        fail.add(`the proof omits an answer of ${text(question)}: ${write(answer, null, new Lettering())}`, answer);
       }
     }
   }
-  return { settler, outcomes, unresolved, covered };
+  return used;
 }

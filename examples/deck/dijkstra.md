@@ -129,88 +129,45 @@ From a, the cheapest queue entry at each turn is:
 
 ## The proof, line by line
 
-`eyemind --proof` writes down how it reached each answer. The proof records
-the queue at every turn: 613 steps and about 500 KB, because many steps
-repeat the whole map and queue. The
+`eyemind --proof` writes down how it reached each answer. Every rule here is
+a backward rule, so the proof is the three claims followed by its
+certificate: 593 call tables and about 270 KB, because many calls repeat the
+whole map and queue. The
 [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/dijkstra.js)
-is linked above. Here are its claims, all its clauses, and the steps of the
-shortest answer, a→a, which are the last five steps:
+is linked above. Here are the tables of the shortest answer, a→a, which are
+the last five lines:
 
 ```js
-// Answers: each instance of a query() that holds.
-route('a', 'f', ['a', 'c', 'b', 'd', 'e', 'f'], 13)
-route('f', 'a', ['f', 'e', 'd', 'b', 'c', 'a'], 13)
-route('a', 'a', ['a'], 0)
-
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(network([edge('a', 'b', 4), edge('a', 'c', 2), edge('b', 'c', 1), edge('b', 'd', 5), edge('c', 'd', 8), edge('c', 'e', 10), edge('d', 'e', 2), edge('d', 'f', 6), edge('e', 'f', 3)])))
-clause(2, fact(valid_edges([])))
-clause(3, implied_by(valid_edges([edge(_0, _1, Length), ...Rest]), [ge(Length, 0), valid_edges(Rest)]))
-clause(4, fact(undirected([], [])))
-clause(5, implied_by(undirected([edge(A, B, Length), ...Rest], [edge(A, B, Length), edge(B, A, Length), ...Tail]), undirected(Rest, Tail)))
-clause(6, fact(seen(Node, [Node, ..._0])))
-clause(7, implied_by(seen(Node, [_0, ...Rest]), seen(Node, Rest)))
-clause(8, fact(unseen(_0, [])))
-clause(9, implied_by(unseen(Node, [Other, ...Rest]), [not_unify(Node, Other), unseen(Node, Rest)]))
-clause(10, fact(reverse([], Accumulator, Accumulator)))
-clause(11, implied_by(reverse([Head, ...Tail], Accumulator, Result), reverse(Tail, [Head, ...Accumulator], Result)))
-clause(12, implied_by(dijkstra(Edges, Start, Goal, Path, Cost), [valid_edges(Edges), search([entry(0, Start, [Start])], Goal, [], Edges, Backwards, Cost), reverse(Backwards, [], Path)]))
-clause(13, implied_by(search([entry(Cost, Goal, Path), ..._0], Goal, Settled, _1, Path, Cost), unseen(Goal, Settled)))
-clause(14, implied_by(search([entry(_0, Node, _1), ...Queue], Goal, Settled, Edges, Path, Cost), [seen(Node, Settled), search(Queue, Goal, Settled, Edges, Path, Cost)]))
-clause(15, implied_by(search([entry(Cost, Node, Path), ...Queue], Goal, Settled, Edges, Result, Total), [not_unify(Node, Goal), unseen(Node, Settled), expand(Edges, Node, Cost, Path, [Node, ...Settled], Queue, Next), search(Next, Goal, [Node, ...Settled], Edges, Result, Total)]))
-clause(16, fact(expand([], _0, _1, _2, _3, Queue, Queue)))
-clause(17, implied_by(expand([Edge, ...Rest], Node, Cost, Path, Settled, Queue, Result), [add_edge(Edge, Node, Cost, Path, Settled, Queue, Next), expand(Rest, Node, Cost, Path, Settled, Next, Result)]))
-clause(18, implied_by(add_edge(edge(From, _0, _1), Node, _2, _3, _4, Queue, Queue), not_unify(From, Node)))
-clause(19, implied_by(add_edge(edge(Node, To, _0), Node, _1, _2, Settled, Queue, Queue), seen(To, Settled)))
-clause(20, implied_by(add_edge(edge(Node, To, Length), Node, Cost, Path, Settled, Queue, Result), [unseen(To, Settled), is(Next, add(Cost, Length)), insert(entry(Next, To, [To, ...Path]), Queue, Result)]))
-clause(21, fact(insert(Entry, [], [Entry])))
-clause(22, implied_by(insert(entry(C, N, P), [entry(D, M, Q), ...Rest], [entry(C, N, P), entry(D, M, Q), ...Rest]), le(C, D)))
-clause(23, implied_by(insert(entry(C, N, P), [entry(D, M, Q), ...Rest], [entry(D, M, Q), ...Tail]), [gt(C, D), insert(entry(C, N, P), Rest, Tail)]))
-clause(24, implied_by(route(Start, Goal, Path, Cost), [network(Edges), undirected(Edges, Arcs), dijkstra(Arcs, Start, Goal, Path, Cost)]))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-// … steps 1–608: the routes a→f (from step 1) and f→a (from step 349)
-step(route('a', 'a', ['a'], 0), clause(24), {Start: 'a', Goal: 'a', Path: ['a'], Cost: 0, Edges: [edge('a', 'b', 4), edge('a', 'c', 2), edge('b', 'c', 1), edge('b', 'd', 5), edge('c', 'd', 8), edge('c', 'e', 10), edge('d', 'e', 2), edge('d', 'f', 6), edge('e', 'f', 3)], Arcs: [edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)]}, [network([edge('a', 'b', 4), edge('a', 'c', 2), edge('b', 'c', 1), edge('b', 'd', 5), edge('c', 'd', 8), edge('c', 'e', 10), edge('d', 'e', 2), edge('d', 'f', 6), edge('e', 'f', 3)]), undirected([edge('a', 'b', 4), edge('a', 'c', 2), edge('b', 'c', 1), edge('b', 'd', 5), edge('c', 'd', 8), edge('c', 'e', 10), edge('d', 'e', 2), edge('d', 'f', 6), edge('e', 'f', 3)], [edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)]), dijkstra([edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)], 'a', 'a', ['a'], 0)])
-step(dijkstra([edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)], 'a', 'a', ['a'], 0), clause(12), {Edges: [edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)], Start: 'a', Goal: 'a', Path: ['a'], Cost: 0, Backwards: ['a']}, [valid_edges([edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)]), search([entry(0, 'a', ['a'])], 'a', [], [edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)], ['a'], 0), reverse(['a'], [], ['a'])])
-step(search([entry(0, 'a', ['a'])], 'a', [], [edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)], ['a'], 0), clause(13), {Cost: 0, Goal: 'a', Path: ['a'], _0: [], Settled: [], _1: [edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)]}, [unseen('a', [])])
-step(reverse(['a'], [], ['a']), clause(11), {Head: 'a', Tail: [], Accumulator: [], Result: ['a']}, [reverse([], ['a'], ['a'])])
-step(reverse([], ['a'], ['a']), clause(10), {Accumulator: ['a']}, [])
+called(route('a', 'a', B18, C18), [route('a', 'a', ['a'], 0)])
+called(dijkstra([edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)], 'a', 'a', D18, E18), [dijkstra([edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)], 'a', 'a', ['a'], 0)])
+called(search([entry(0, 'a', ['a'])], 'a', [], [edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)], F18, G18), [search([entry(0, 'a', ['a'])], 'a', [], [edge('a', 'b', 4), edge('b', 'a', 4), edge('a', 'c', 2), edge('c', 'a', 2), edge('b', 'c', 1), edge('c', 'b', 1), edge('b', 'd', 5), edge('d', 'b', 5), edge('c', 'd', 8), edge('d', 'c', 8), edge('c', 'e', 10), edge('e', 'c', 10), edge('d', 'e', 2), edge('e', 'd', 2), edge('d', 'f', 6), edge('f', 'd', 6), edge('e', 'f', 3), edge('f', 'e', 3)], ['a'], 0)])
+called(reverse(['a'], [], H18), [reverse(['a'], [], ['a'])])
+called(reverse([], ['a'], I18), [reverse([], ['a'], ['a'])])
 ```
 
-It has three parts:
+A call table reads `called(call, answers)`: *this call, made while answering
+the questions, has exactly these answers*. The variables in a call (`B18`,
+`C18`, …) are the unknowns still open when it was made. The proof has no
+`step(...)` records, since no forward rule derives anything.
 
-- **The claims**: the three routes.
-- **The clauses**: the program's 24 lines, numbered by position. The `_`
-  placeholders are named `_0`, `_1`, … so a step can say what they stood
-  for.
-- **The steps**: one per thing established. A step reads
-  `step(what, justified by, with which values, using what)`.
+Read the a→a tables as sentences:
 
-Read the a→a steps as sentences:
-
-1. *The route from a to a is `['a']`, length 0* — by rule 24, with `Edges`
-   the map and `Arcs` its two-way version, because of the map (fact 1), the
-   two-way version (`undirected`), and the search result (step 2). The map
-   and the two-way version were already proved for a→f, so they are reused,
-   not repeated.
-2. *Dijkstra from a to a gives `['a']`, length 0* — by rule 12, because the
-   arcs are all nonnegative (`valid_edges`, also reused), the search gives
-   the backward path `['a']` (step 3), and reversing it gives `['a']`
-   (step 4).
+1. *Asking for a route from a to a gives exactly `['a']`, length 0.* Rule 24
+   answers it from the map (a fact, needing no table), its two-way version
+   (`undirected`) and Dijkstra's search. The two-way version was already
+   asked for a→f, so its table is reused, not repeated.
+2. *Dijkstra from a to a gives exactly `['a']`, length 0*: rule 12, once
+   the arcs are all nonnegative (`valid_edges`, also reused).
 3. *The search with the queue `[entry(0, 'a', ['a'])]` and nothing settled
-   reaches a at cost 0* — by rule 13, the "goal reached" case, because a is
-   not in the empty settled list (`unseen('a', [])`, fact 8, reused from the
-   a→f search).
-4. *Reversing `['a']` gives `['a']`* — by rule 11, moving `'a'` onto the
-   accumulator.
-5. *Reversing the empty list onto `['a']` gives `['a']`* — fact 10; it uses
-   nothing.
+   gives exactly the backward path `['a']` at cost 0*: rule 13, the "goal
+   reached" case, because a is not in the empty settled list
+   (`unseen('a', [])`, reused from the a→f search).
+4. –5. *Reversing `['a']` gives `['a']`*, by rule 11 and then fact 10.
 
 The two long answers are built the same way, one queue turn after another:
-each turn is a `search` step citing rule 13, 14 or 15, with `expand`,
-`add_edge` and `insert` steps for the roads and a builtin step for each sum
-and comparison.
+each turn is a `search` call answered by rule 13, 14 or 15, with `expand`,
+`add_edge` and `insert` calls for the roads. The sums and comparisons in
+between are not written down: the checker computes them itself.
 
 ---
 
@@ -218,68 +175,27 @@ and comparison.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers each question
+by applying the program's rules one level at a time, taking the answer of
+every inner call from its table and computing every sum of lengths, every
+cost comparison and every "these differ" (`not_unify`) itself. Each table it
+consults is checked the same way, so a wrong queue or a wrong cost shows up
+as a disagreement, and a table the check does not use fails it. This is the
+complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 route('a', 'f', ['a', 'c', 'b', 'd', 'e', 'f'], 13)
 route('f', 'a', ['f', 'e', 'd', 'b', 'c', 'a'], 13)
 route('a', 'a', ['a'], 0)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 534)
-condition('C2', 'well_founded', 'ok', 613)
-condition('C3', 'justification', 'ok', 613)
-condition('C4', 'coverage', 'ok', 826)
-condition('C5', 're_decision', 'ok', 79)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 616)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 6)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(613)
-verified(534)
-recomputed(79)
-composed(0)
-trusted(0)
-claims(3)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (534)**: the 534 steps that cite a program line really are
-  instances of it with the values shown: every queue turn, every road
-  considered, every list walk.
-- **C2 well-founded (613)**: none of the 613 steps depends on itself, even
-  indirectly.
-- **C3 justification (613)**: every step says how it was justified, in a
-  form the checker understands.
-- **C4 coverage (826)**: the 3 claims and the 823 things the steps use are
-  each backed by a step.
-- **C5 re-decision (79)**: the checker **recomputed** all 79 builtin steps,
-  every sum of lengths, every cost comparison and every "these differ"
-  (`not_unify`), and got the same results.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of something, so there is nothing to confront. That is the payoff of
-  deciding each case with checks that succeed.
-- **C7 relevance (616)**: the 3 claims answer the queries, and all 613 steps
-  serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
-- **C9 search closure (0)**: there was no absence or collection to settle,
-  so no search certificate to check.
-
-The statistics repeat this: 613 steps, 534 verified against the program, 79
-recomputed, none taken on trust. The verdict is **checked**: the three routes
-and their lengths follow from the program, with no obligations, and they
-are every answer of the original questions.
+Nothing was concluded from the *absence* of something: each case is decided
+with checks that succeed, so every table holds answers that a search finds.
+The verdict is **checked**: the three routes and their lengths follow from
+the program, and they are every answer of the original questions.
 
 ---
 

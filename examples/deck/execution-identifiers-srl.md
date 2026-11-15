@@ -55,7 +55,7 @@ Both orders have the same NOW timestamp. Each UUID() result is an IRI; each STRU
 The check report records these claims:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program and are every answer of its questions.
 inf(iri('https://example.org/orders/first'), iri('https://example.org/orders/recordedAt'), literal('2026-11-12T00:00:00.000Z', datatype('http://www.w3.org/2001/XMLSchema#dateTime')))
 inf(iri('https://example.org/orders/first'), iri('https://example.org/orders/record'), iri('urn:uuid:567640d9-7825-4b1a-8670-72e7537e6d6d'))
 inf(iri('https://example.org/orders/first'), iri('https://example.org/orders/reference'), literal('ed94111c-4eb9-43b6-a4ae-b143045578d2', datatype('http://www.w3.org/2001/XMLSchema#string')))
@@ -70,13 +70,25 @@ inf(iri('https://example.org/orders/alice'), iri('https://example.org/orders/ord
 
 ## What the proof establishes
 
-The certificate records the execution context as a compiled source fact. Checking a saved proof restores that context before recompiling the rules, and checks the UUID hash, variant bits and other computations. This proves consequences of the recorded inputs; it does not attest a clock observation or seed randomness.
+The compiled program states the execution context as one `srl_execution`
+rule, and the proof records it as the answer of that call's table:
 
-The saved report ends with `verdict('checked')`. C10 establishes the
-original calls from closed call tables: the compiled rules compute the
-identifiers only from bound inputs, so the claims are every answer of the
-original questions, and strict checking accepts the proof. The checker
-follows the certificate without calling the reasoning engine.
+```js
+called(srl_execution(F, _6), [srl_execution('2026-11-12T00:00:00.000Z', '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')])
+```
+
+Checking a saved proof restores that context before recompiling the rules,
+then checks the UUID hash, variant bits and other computations itself. This
+proves consequences of the recorded inputs; it does not attest a clock
+observation or seed randomness.
+
+The saved report ends with `verdict('checked')`. The checker follows the
+certificate without calling the reasoning engine: it checks each call table
+by applying the compiled rules one level, requires the listings to be closed
+under the rules, and replays each listed triple's firing. The compiled rules
+compute the identifiers only from bound inputs, so the verdict establishes
+that the claims follow from the program and are every answer of its
+questions.
 
 ---
 

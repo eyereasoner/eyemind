@@ -46,7 +46,7 @@ three triples about that mother.
 The check report writes the claims as terms:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 rdf(iri('http://example.org/people#ann'), iri('http://example.org/people#mother'), iri('https://eyereasoner.github.io/.well-known/genid/ee2956d8f5822f2cb3b208c5b988d2d006eedc4b3785315b961306ac4e4059b1'))
 rdf(iri('https://eyereasoner.github.io/.well-known/genid/ee2956d8f5822f2cb3b208c5b988d2d006eedc4b3785315b961306ac4e4059b1'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/people#Woman'))
 rdf(iri('http://example.org/people#bob'), iri('http://example.org/people#mother'), iri('https://eyereasoner.github.io/.well-known/genid/bd71c82d337e4be11be5babdab1403beb35f509f069848b543dbfca97f131ddf'))
@@ -59,14 +59,22 @@ rdf(iri('https://eyereasoner.github.io/.well-known/genid/bd71c82d337e4be11be5bab
 
 ## What the proof establishes
 
-C1 checks both rules and their uses. C5 re-decides the construction of
-the mother IRIs, and C10 checks the original calls and answer completeness.
-The checker follows the supplied certificate without invoking the reasoning
-engine. The names are premise computations, rather than C8 witnesses.
+The proof cites the program compiled from the N3 rules: each mother link and
+`:Woman` classification has a step citing the first rule, and each
+`:hasChild` link one citing the second. The naming itself appears in the
+call tables, one per person, each holding the IRI that `log:skolem` computes
+for that naming key.
 
-The verdict is **checked**, with zero obligations. The saved native N3
-proof carries the complete compiled certificate, whose clauses can be
-compared with `--program` output.
+The checker follows the certificate without invoking the reasoning engine.
+It checks each call table by applying the compiled program one level,
+computing the mother IRIs itself, requires the listing to be closed under
+the rules, and replays each listed triple's firing. The names are computed
+in the premise, as ordinary values, so no rule introduces a witness of its
+own.
+
+The verdict is **checked**: the claims follow from the program and are every
+answer of its questions. The proof cites the clauses of the compiled
+program, which `--program` writes out.
 
 ---
 
@@ -74,8 +82,8 @@ compared with `--program` output.
 
 ```sh
 node bin/eyemind.js examples/existential-n3.n3
-node bin/eyemind.js --strict-proof -c examples/existential-n3.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/existential-n3.js examples/existential-n3.n3
+node bin/eyemind.js -c examples/existential-n3.n3
+node bin/eyemind.js --check-proof examples/proof/existential-n3.js examples/existential-n3.n3
 ```
 
 Add `:cy a :Person .` to a copy. The rules give Cy a mother IRI and the two

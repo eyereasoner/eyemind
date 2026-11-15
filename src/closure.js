@@ -1,46 +1,48 @@
-// Search certificates: what settles a negation or a collection.
+// The certificate of a proof: every answer of a call, and every derived fact.
 //
-// A negation holds when its goal has no solution, and a collection lists
-// every solution; no step can show either. A search certificate can. For each
-// call the search behind the boundary made, it lists every answer, in search
-// order: searched(Call, Answers). For each predicate that forward rules derive
-// and the search consulted, it lists every derived fact: derived(Pattern,
-// Facts). A table is checked by expanding its call one level against the
-// program, as a search would, with every inner call answered by the table of
-// that call, so no table vouches for itself and a wrong one shows as a
-// disagreement. A listing is checked by its facts' own steps, which show each
-// was derived, and by closure: under the listed facts no forward rule derives
-// a fact of that predicate the listing leaves out. Nothing is searched for.
+// For each call a question's search makes, a call table lists every answer,
+// in search order: called(Call, Answers). For each relation that forward
+// rules derive and the search consulted, a listing lists every derived fact:
+// derived(Pattern, Facts). A table is checked by expanding its call one level
+// against the program, as a search would, with every inner call answered by
+// the table of that call, so no table vouches for itself and a wrong one shows
+// as a disagreement. A listing is checked by closure: under the listed facts
+// no forward rule derives a fact of that relation the listing leaves out; its
+// facts' own firings are replayed separately. Nothing is searched for.
 //
 // The order of derived facts cannot be checked this way, so a collection or
-// a once/1 whose answers rest on a listing stays an obligation, and so does a
-// boundary whose search reaches rule templates or inspection.
+// a once/1 whose answers rest on a listing cannot be established.
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
 import { freshClause, sameVariant, text, variant } from './common.js';
 import { INSPECTION_KEYS } from './inspection.js';
+import { Lettering, write } from './writer.js';
 import {
-  Env, EyemindError, Struct, Var, copyResolved, deref, flattenConjunction, freshTerm, identity, isCallable, isGround, isTerm, key,
-  isCollection, isGroundButAnonymous, listFromItems, sortCollected, unify, variables,
+  Env, EyemindError, Struct, Var, copyResolved, deref, flattenConjunction, freshTerm, identity, isCallable, isGround, key,
+  isGroundButAnonymous, listFromItems, sortCollected, unify, variables,
 } from './terms.js';
 
-// A search the certificate cannot vouch for: its boundary stays an obligation.
+// Terms as a failure message shows them, variables lettered A, B, ... across
+// them all.
+function shown(...terms) {
+  const lettering = new Lettering(true);
+  return terms.map((term) => write(term, null, lettering));
+}
+
+// A search the certificate cannot establish.
 export class Unsettled extends Error {}
 
-// What one expansion relied on: the tables it read, the listings it read and
-// the tables whose answer order it needed.
+// What one expansion relied on: the tables it read, the listings it read,
+// the tables whose answer order it needed, and whether it read the source
+// rule catalogue or a derived pattern, the only sources of the variables a
+// derived pattern keeps.
 export class Reliance {
   constructor(ordered = false) {
     this.tables = new Set();
     this.listings = new Set();
     this.ordered = new Set();
     this.inner = ordered ? 1 : 0;
+    this.inspected = false;
   }
-}
-
-// Whether term is an instance of pattern, whose variables are its own.
-function instanceOf(term, pattern) {
-  const env = new Env();
-  return unify(pattern, term, env) && variant(copyResolved(term, env)) === variant(term);
 }
 
 // How a listing identifies a fact: a ground fact by identity, a derived
@@ -70,61 +72,42 @@ export function forwardKeys(program) {
   return keys;
 }
 
-// Settles boundaries against a source of certificate statements:
-// answers(call) gives the answers listed for a call, or null; facts(goalKey)
-// the facts listed for a predicate forward rules derive, or null; and
-// supported(fact) whether the proof has a step for a listed fact. Tables and
-// listings are checked once, however many boundaries rest on them.
+// Answers calls from a source of certificate statements: answers(call)
+// gives the answers listed for a call, or null; facts(goalKey) the facts
+// listed for a relation forward rules derive, or null. Calls and answers are
+// compared up to renaming that keeps anonymous variables anonymous, since a
+// named unbound variable makes a negation an error. Tables and listings are
+// checked once, however many calls rest on them.
 export class Settler {
-  constructor(program, source, operational = false) {
+  constructor(program, source) {
     this.program = program;
     this.source = source;
     this.derivedKeys = forwardKeys(program);
     this.tables = new Map();
     this.listings = new Map();
     this.serial = 0;
-    this.operational = operational;
-    this.variant = (term) => variant(term, operational);
+    this.variant = (term) => variant(term, true);
   }
 
-  // All answers of an original call, rather than a final substituted step.
-  // This is the C10 root; inner calls still come only from the certificate.
+  // Every answer of a call, as its search finds them with the bindings it
+  // has when it runs; inner calls come only from the certificate. The
+  // outcome: status 'settled', 'unsettled' or 'failed', the failures as
+  // [detail, term] pairs, the answers, the tables and listings consulted,
+  // and whether the search read inspected rules or derived patterns.
   answers(call) {
-    return this.settle(new Struct('answers', [call]));
-  }
-
-  // The outcome for one negation or collection: status 'settled',
-  // 'unsettled' or 'failed', the failures as [detail, term] pairs, whether the
-  // only failure is the boundary's own result, and the tables and listings it
-  // rests on.
-  settle(boundary) {
-    const collecting = isCollection(boundary);
-    const sorting = isTerm(boundary, 'findall_sorted', 3);
-    const answering = isTerm(boundary, 'answers', 1);
-    const goal = collecting ? boundary.args[1] : boundary.args[0];
-    // A sorted collection of ground items depends on its answers, not their
-    // order, so it does not need the order a listing cannot show.
-    const root = new Reliance(collecting && !sorting);
-    const outcome = { status: 'settled', failures: [], boundaryOnly: false, tables: [], listings: [] };
-    let found = [];
+    const root = new Reliance();
+    const outcome = { status: 'settled', failures: [], tables: [], listings: [], inspected: false };
+    const found = [];
     try {
       const env = new Env();
-      const copied = freshTerm(collecting ? new Struct('-', [boundary.args[0], goal]) : goal, `root${++this.serial}`);
-      const [template, searched] = collecting ? copied.args : [answering ? copied : null, copied];
-      for (const _ of this.solve(searched, env, root)) { // eslint-disable-line no-unused-vars
-        found.push(collecting || answering ? freshTerm(copyResolved(template, env), `item${++this.serial}`) : null);
-        if (!collecting && !answering) break;
+      const copied = freshTerm(call, `root${++this.serial}`);
+      for (const _ of this.solve(copied, env, root)) { // eslint-disable-line no-unused-vars
+        found.push(freshTerm(copyResolved(copied, env), `item${++this.serial}`));
       }
     } catch (error) {
       if (error instanceof Unsettled) return { ...outcome, status: 'unsettled' };
       if (!(error instanceof EyemindError)) throw error;
-      outcome.failures.push([`search certificate leads to an error: ${error.message}`, boundary]);
-      found = null;
-    }
-    if (sorting && found !== null) {
-      // Items equal up to their variables keep their search order.
-      if (!found.every((item) => isGround(item))) for (const item of root.tables) root.ordered.add(item);
-      found = sortCollected(found);
+      outcome.failures.push([`the search of ${shown(call)} leads to an error: ${error.message}`, call]);
     }
     let unsettled = false;
     const tables = new Set();
@@ -140,6 +123,7 @@ export class Settler {
       seen.add(entryKey);
       const entry = fromTable ? this.checkTable(entryKey) : this.checkListing(entryKey);
       if (entry.unsettled) unsettled = true;
+      if (fromTable && entry.reliance.inspected) outcome.inspected = true;
       if (entry.failure !== null) {
         // A table or listing that fails is reported for the first boundary
         // resting on it; later ones fail with it, without repeating it.
@@ -155,21 +139,12 @@ export class Settler {
     outcome.listings = [...listings];
     const circular = this.checkDependencies(tables);
     if (circular !== null) {
-      outcome.failures.push([`search certificate is circular at ${text(circular.call)}`, circular.call]);
+      outcome.failures.push([`the call tables are circular at ${shown(circular.call)}`, circular.call]);
     }
+    if (root.inspected) outcome.inspected = true;
     if (outcome.failures.length || outcome.failed) return { ...outcome, status: 'failed' };
     if (unsettled || [...ordered].some((item) => !this.exactness.get(item))) return { ...outcome, status: 'unsettled' };
-    if (answering) return { ...outcome, answers: found };
-    if (!collecting && found.length) {
-      outcome.failures.push([`absence contradicted by its search: ${text(boundary)}`, boundary]);
-      return { ...outcome, status: 'failed', boundaryOnly: true };
-    }
-    // A collection's list is the search's, renamed apart, bound perhaps by
-    // later goals. A step shows its goal as the whole solution left it, so a
-    // goal a later goal instantiated may no longer be the goal searched: a
-    // list that disagrees is left to the evidence rather than refuted.
-    if (collecting && !instanceOf(boundary.args[2], listFromItems(found))) return { ...outcome, status: 'unsettled' };
-    return outcome;
+    return { ...outcome, answers: found };
   }
 
   // Each solution of a goal, its bindings made in env and undone before the
@@ -188,11 +163,9 @@ export class Settler {
     } else if (goalKey === 'call/1') {
       yield* this.solve(goal.args[0], env, reliance);
     } else if (goalKey === 'once/1' || goalKey === 'not/1') {
-      // A negation's unbound variables stand for any value, as anonymous
-      // ones do; a reasoner would not have run one with a named variable.
       const once = goalKey === 'once/1';
-      if (this.operational && !once && !isGroundButAnonymous(goal.args[0], env)) {
-        throw new EyemindError('call fidelity: negation has an unbound named variable');
+      if (!once && !isGroundButAnonymous(goal.args[0], env)) {
+        throw new EyemindError('negation has an unbound named variable');
       }
       if (once) reliance.inner++;
       const inner = this.solve(goal.args[0], env, reliance);
@@ -225,7 +198,7 @@ export class Settler {
     } else if (PRIMITIVE_KEYS.has(goalKey)) {
       // Relative names of unbound variables are not preserved by alpha
       // renaming of a table. A name-dependent comparison needs more evidence.
-      if (this.operational && goalKey === 'compare/3' &&
+      if (goalKey === 'compare/3' &&
           (!isGround(goal.args[1], env) || !isGround(goal.args[2], env))) throw new Unsettled();
       for (const _ of primitive(goal, env)) { // eslint-disable-line no-unused-vars
         yield;
@@ -234,6 +207,7 @@ export class Settler {
     } else if (INSPECTION_KEYS.has(goalKey)) {
       // The catalogue of source rules, in source order, each renamed apart:
       // its variables are scoped pattern variables (Section 6.3).
+      reliance.inspected = true;
       for (const source of this.program.inspections.get(goalKey) || []) {
         if (unify(goal, freshTerm(source.term, `inspect${++this.serial}`), env)) yield;
         env.undo(mark);
@@ -273,6 +247,7 @@ export class Settler {
       reliance.listings.add(goalKey);
       for (const fact of facts) {
         // A derived pattern is freshened at every use.
+        if (!isGround(fact)) reliance.inspected = true;
         if (unify(call, isGround(fact) ? fact : freshTerm(fact, `pattern${++this.serial}`), env)) yield;
         env.undo(mark);
       }
@@ -352,17 +327,20 @@ export class Settler {
       for (const _ of this.expand(call, env, entry.reliance)) found.push(copyResolved(call, env)); // eslint-disable-line no-unused-vars
       const listed = entry.answers;
       let i = 0;
-      while (i < found.length && i < listed.length && sameVariant(found[i], listed[i], this.operational)) i++;
+      while (i < found.length && i < listed.length && sameVariant(found[i], listed[i], true)) i++;
       if (i < found.length && i < listed.length) {
-        entry.failure = `the search of ${text(entry.call)} answers ${text(found[i])} where its table lists ${text(listed[i])}`;
+        const [call, answer, listing] = shown(entry.call, found[i], listed[i]);
+        entry.failure = `the search of ${call} answers ${answer} where its table lists ${listing}`;
       } else if (i < found.length) {
-        entry.failure = `the table of ${text(entry.call)} leaves out the answer ${text(found[i])}`;
+        const [call, answer] = shown(entry.call, found[i]);
+        entry.failure = `the table of ${call} leaves out the answer ${answer}`;
       } else if (i < listed.length) {
-        entry.failure = `the table of ${text(entry.call)} lists ${text(listed[i])}, which its search does not answer`;
+        const [call, listing] = shown(entry.call, listed[i]);
+        entry.failure = `the table of ${call} lists ${listing}, which its search does not answer`;
       }
     } catch (error) {
       if (error instanceof Unsettled) entry.unsettled = true;
-      else if (error instanceof EyemindError) entry.failure = `the search of ${text(entry.call)} leads to an error: ${error.message}`;
+      else if (error instanceof EyemindError) entry.failure = `the search of ${shown(entry.call)} leads to an error: ${error.message}`;
       else {
         // Checked again once whatever interrupted it is dealt with.
         entry.checked = false;
@@ -372,8 +350,8 @@ export class Settler {
     return entry;
   }
 
-  // A listing holds when each fact has a step and no forward rule derives,
-  // under the listed facts, a fact of that relation it leaves out.
+  // A listing holds when its facts are of its relation and no forward rule
+  // derives, under the listed facts, a fact of that relation it leaves out.
   checkListing(goalKey) {
     const entry = this.listings.get(goalKey);
     if (entry.checked) return entry;
@@ -383,14 +361,13 @@ export class Settler {
     try {
       for (const fact of entry.facts) {
         if (!isCallable(fact) || key(fact) !== goalKey) {
-          entry.failure = `derived facts of ${goalKey} list ${text(fact)}`;
+          entry.failure = `derived facts of ${goalKey} list ${shown(fact)}`;
           entry.subject = fact;
           return entry;
         }
         // Only a program that inspects source rules derives patterns.
-        if (!isGround(fact) && !this.program.inspectionEnabled) throw new Unsettled();
-        if (!this.source.supported(fact)) {
-          entry.failure = `derived fact without a step: ${text(fact)}`;
+        if (!isGround(fact) && !this.program.inspectionEnabled) {
+          entry.failure = `derived facts of ${goalKey} list ${shown(fact)}, which is not ground`;
           entry.subject = fact;
           return entry;
         }
@@ -408,7 +385,7 @@ export class Settler {
             ((rule.parentId !== null || rule.templates.length) && rule.witnessNames.length)) throw new Unsettled();
         const missing = this.closes(rule, goalKey, listed, entry.reliance);
         if (missing !== null) {
-          entry.failure = `derived facts of ${goalKey} leave out ${text(missing)}, which clause ${rule.id} derives`;
+          entry.failure = `derived facts of ${goalKey} leave out ${shown(missing)}, which clause ${rule.id} derives`;
           entry.subject = missing;
           return entry;
         }
@@ -449,9 +426,10 @@ export class Settler {
       }
       for (const item of heads) {
         const conclusion = copyResolved(item, env);
-        // Only variables an inspection supplied stay free in a conclusion;
-        // any other would have been bound to a Skolem term.
-        if ([...variables(conclusion).keys()].some((name) => !/#(?:inspect|pattern)\d+$/.test(name))) throw new Unsettled();
+        // Only a program that inspects source rules derives patterns; whether
+        // a listed pattern's variables came from an inspection, rather than
+        // standing for a Skolem term, its replay decides.
+        if (!isGround(conclusion) && !this.program.inspectionEnabled) throw new Unsettled();
         const conclusionId = listedKey(conclusion);
         if (!listed.has(conclusionId) && !(isGround(conclusion) && this.program.groundFactKeys.has(conclusionId))) return conclusion;
       }
@@ -461,7 +439,8 @@ export class Settler {
   }
 
   // Check the table dependency graph once: detect a cycle, or cache in
-  // dependency order which tables are independent of forward listings.
+  // dependency order which tables have certified answer order: those
+  // independent of forward listings, and those with one distinct answer.
   checkDependencies(tables) {
     const exact = this.exactness ??= new Map();
     const open = new Set();
@@ -473,8 +452,11 @@ export class Settler {
       while (stack.length) {
         const top = stack[stack.length - 1];
         if (top[2] >= top[1].length) {
-          const reliance = this.tables.get(top[0]).reliance;
-          exact.set(top[0], !reliance.listings.size && top[1].every((item) => exact.get(item)));
+          const entry = this.tables.get(top[0]);
+          // A table with at most one distinct answer has that order however
+          // the facts it rests on were published.
+          exact.set(top[0], (!entry.reliance.listings.size && top[1].every((item) => exact.get(item))) ||
+            new Set(entry.answers.map((answer) => variant(answer, true))).size <= 1);
           open.delete(top[0]);
           stack.pop();
           continue;

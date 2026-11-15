@@ -69,12 +69,11 @@ rdf(iri('http://example.org/liz'), iri('http://example.org/mother'), bnode('n3',
 
 ## What the proof establishes
 
-The report ends with `verdict('checked')`. C1 checks each step against an
-instance of the compiled facts and rules: Bob's mother is the fact instance
-with `X` bound to `:bob`, so a proof claiming Liz's witness for Bob fails.
-C10 follows the call tables through the fact with variables, which the rule
-calls with `X` already bound, so the claims are every answer, with no
-obligations left.
+The report ends with `verdict('checked')`. Each replayed firing must match
+its step: Bob's mother is the instance of the fact with `X` bound to `:bob`,
+so a proof claiming Liz's witness for Bob fails. The call tables are
+followed through the fact with variables, which the rule calls with `X`
+already bound, so the claims are every answer of the original questions.
 
 ---
 

@@ -79,14 +79,18 @@ staff, through the subproperty. Tim examines.
 
 ## What the proof establishes
 
-The report ends with `verdict('checked')`, with no obligations. The
-negation that Tim is no student is settled by the search certificate
-against the derived facts, as for any program. C10 checks the original
-questions too: the listed facts are supported and closed under the rules,
-and a chain-stratified program has only one such set of facts consistent
-with its negations, so `--strict-proof` accepts the proof. Delete one of the three
-constraints and eyemind rejects the rules as unstratified: a chain then
-makes a teacher a student.
+The report ends with `verdict('checked')`. The proof has a step for each
+derived triple, one listing of the derived `rdf` facts, and call tables for
+the calls the questions make. The negation that Tim is no student rests on
+the call table for the question whether Tim is a Student, which holds no
+answers: the checker expands that call against the program and the listing,
+finds no answer either, so the negation holds. It also requires the listing to be closed
+under the rules and replays each listed triple's step. A chain-stratified
+program has only one set of facts that is supported, closed and consistent
+with its negations, so the **checked** verdict establishes that the claims
+follow from the program and are every answer of its questions. Delete one of
+the three constraints and eyemind rejects the rules as unstratified: a chain
+then makes a teacher a student.
 
 ---
 

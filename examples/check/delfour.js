@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 case_name('delfour', 'delfour')
 derived_need('sugar_insight', 'low_sugar')
 decision('delfour', 'Allowed', 'sugar_insight')
@@ -26,26 +26,4 @@ passed('delfour', 'minimal_payload')
 passed('delfour', 'lower_sugar')
 all_checks_pass('delfour')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 61)
-condition('C2', 'well_founded', 'ok', 70)
-condition('C3', 'justification', 'ok', 70)
-condition('C4', 'coverage', 'ok', 117)
-condition('C5', 're_decision', 'ok', 6)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 96)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 3)
-condition('C10', 'call_fidelity', 'ok', 43)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(70)
-verified(61)
-recomputed(6)
-composed(0)
-trusted(0)
-claims(26)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

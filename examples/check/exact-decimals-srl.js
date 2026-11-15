@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/total'), literal('0.3', datatype('http://www.w3.org/2001/XMLSchema#decimal')))
 inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/largeTotal'), literal('9007199254740993.3', datatype('http://www.w3.org/2001/XMLSchema#decimal')))
 inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/eighth'), literal('0.125', datatype('http://www.w3.org/2001/XMLSchema#decimal')))
@@ -8,26 +8,4 @@ inf(iri('https://example.org/numbers/measurement'), iri('https://example.org/num
 inf(iri('https://example.org/numbers/measurement'), iri('https://example.org/numbers/invalid'), literal('NaN', datatype('http://www.w3.org/2001/XMLSchema#double')))
 inf(iri('https://example.org/numbers/measurement'), iri('https://example.org/numbers/negativeInfinity'), literal('-INF', datatype('http://www.w3.org/2001/XMLSchema#double')))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 183)
-condition('C2', 'well_founded', 'ok', 357)
-condition('C3', 'justification', 'ok', 357)
-condition('C4', 'coverage', 'ok', 578)
-condition('C5', 're_decision', 'ok', 169)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 365)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 5)
-condition('C10', 'call_fidelity', 'ok', 9)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(357)
-verified(183)
-recomputed(156)
-composed(13)
-trusted(0)
-claims(8)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

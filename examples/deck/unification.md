@@ -98,62 +98,41 @@ append(['a', 'b'], [], ['a', 'b'])
 matching_pair(pair('same', 'same'))
 head_tail(['a', 'b', 'c'], 'a', ['b', 'c'])
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(append([], Ys, Ys)))
-clause(2, implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs)))
-clause(3, fact(matching_pair(pair(X, X))))
-clause(4, fact(head_tail([Head, ...Tail], Head, Tail)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(append([], ['a', 'b'], ['a', 'b']), clause(1), {Ys: ['a', 'b']}, [])
-step(append(['a'], ['b'], ['a', 'b']), clause(2), {X: 'a', Xs: [], Ys: ['b'], Zs: ['b']}, [append([], ['b'], ['b'])])
-step(append([], ['b'], ['b']), clause(1), {Ys: ['b']}, [])
-step(append(['a', 'b'], [], ['a', 'b']), clause(2), {X: 'a', Xs: ['b'], Ys: [], Zs: ['b']}, [append(['b'], [], ['b'])])
-step(append(['b'], [], ['b']), clause(2), {X: 'b', Xs: [], Ys: [], Zs: []}, [append([], [], [])])
-step(append([], [], []), clause(1), {Ys: []}, [])
-step(matching_pair(pair('same', 'same')), clause(3), {X: 'same'}, [])
-step(head_tail(['a', 'b', 'c'], 'a', ['b', 'c']), clause(4), {Head: 'a', Tail: ['b', 'c']}, [])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 called(append(A, B, ['a', 'b']), [append([], ['a', 'b'], ['a', 'b']), append(['a'], ['b'], ['a', 'b']), append(['a', 'b'], [], ['a', 'b'])])
 called(append(C, D, ['b']), [append([], ['b'], ['b']), append(['b'], [], ['b'])])
 called(append(E, F, []), [append([], [], [])])
 ```
 
-It has three parts:
+It has two parts:
 
 - **The claims**: the five answers the proof is about.
-- **The clauses**: the four program lines the proof relies on, numbered in
-  the order they appear in the program. (The `query` lines are the
-  questions, not reasons, so they are not cited.)
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`. The values,
-  between curly braces, say exactly how each blank of the cited clause was
-  filled: that record *is* the unification.
+- **The certificate**: three *call tables*. A table reads
+  `called(call, answers)`: the call as the search made it, with its blanks
+  as variables, and every answer it has, in order. Each answer shows exactly
+  how the call's blanks were filled: that record *is* the unification.
 
-Read the steps as sentences:
+No forward rule derives anything, so there are no steps. And the program's
+four lines (fact 1, rule 2, facts 3 and 4, numbered in program order) are
+all the checker needs to answer `matching_pair` and `head_tail`: they come
+from facts alone, so the program itself answers them and they need no table.
 
-1. *Nothing followed by `['a', 'b']` is `['a', 'b']`*: fact 1 with `Ys` =
-   `['a', 'b']`. It uses nothing.
-2. *`['a']` followed by `['b']` is `['a', 'b']`*: rule 2 with `X` = `'a'`,
-   `Xs` = `[]`, `Ys` = `['b']`, `Zs` = `['b']`. It peels off the `'a'` and
-   needs step 3.
-3. *Nothing followed by `['b']` is `['b']`*: fact 1 with `Ys` = `['b']`.
-4. *`['a', 'b']` followed by nothing is `['a', 'b']`*: rule 2 with `X` =
-   `'a'`, `Xs` = `['b']`, `Ys` = `[]`, `Zs` = `['b']`. It peels off the `'a'`
-   and needs step 5.
-5. *`['b']` followed by nothing is `['b']`*: rule 2 again, now with `X` =
-   `'b'`; it peels off the `'b'` and needs step 6.
-6. *Nothing followed by nothing is nothing*: fact 1 with `Ys` = `[]`.
-7. *`pair('same', 'same')` is a matching pair*: fact 3 with `X` = `'same'`.
-   One value fills both blanks; `pair('same', 'other')` would need `X` to be
-   two things at once, so it would not match.
-8. *The head of `['a', 'b', 'c']` is `'a'` and its tail `['b', 'c']`*: fact 4
-   with `Head` = `'a'` and `Tail` = `['b', 'c']`.
+Read the tables as sentences:
 
-Every step leans only on steps listed below it, down to the facts.
+1. *Exactly three splits give `['a', 'b']`*: nothing followed by
+   `['a', 'b']` (fact 1), `['a']` followed by `['b']`, and `['a', 'b']`
+   followed by nothing. Rule 2 finds the last two by peeling off the `'a'`
+   and asking the next table.
+2. *Exactly two splits give `['b']`*: nothing followed by `['b']` (fact 1),
+   and `['b']` followed by nothing, found by rule 2 peeling off the `'b'`
+   and asking the last table.
+3. *Exactly one split gives `[]`*: nothing followed by nothing (fact 1);
+   rule 2 cannot apply, because `[]` has no first item.
+
+The other two answers come straight from the facts: `pair('same', 'same')`
+matches fact 3 with `X` = `'same'`, one value filling both blanks, while
+`pair('same', 'other')` would need `X` to be two things at once. And the
+head of `['a', 'b', 'c']` is `'a'` and its tail `['b', 'c']`, by fact 4.
 
 ---
 
@@ -161,70 +140,30 @@ Every step leans only on steps listed below it, down to the facts.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each
-step against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure. It
+answers each of the three questions one level against the program: the
+`append` question by unifying it with fact 1 and rule 2, with rule 2's inner
+call answered from the next table, and the other two from the facts. Each
+table is checked the same way, so a table with a split missing or added, or
+a wrong one, disagrees with its expansion. Then the claims must be exactly
+the answers, and every table must have been used. This is the complete
+report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 append([], ['a', 'b'], ['a', 'b'])
 append(['a'], ['b'], ['a', 'b'])
 append(['a', 'b'], [], ['a', 'b'])
 matching_pair(pair('same', 'same'))
 head_tail(['a', 'b', 'c'], 'a', ['b', 'c'])
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 8)
-condition('C2', 'well_founded', 'ok', 8)
-condition('C3', 'justification', 'ok', 8)
-condition('C4', 'coverage', 'ok', 8)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 13)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 8)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(8)
-verified(8)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(5)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (8)**: each of the 8 steps really is the clause it cites
-  with the stated values filled in. This is unification checked in the other
-  direction: filling `X` = `'same'` into `pair(X, X)` must give exactly
-  `pair('same', 'same')`.
-- **C2 well-founded (8)**: no step depends on itself, even indirectly.
-- **C3 justification (8)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (8)**: the 5 answers and the 3 things the steps use (steps
-  3, 5 and 6) are each backed by a step: nothing is taken for granted.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (13)**: the 5 answers each answer one of the three
-  questions, and all 8 steps serve an answer. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 8 steps, all 8 verified against the program, none
-recomputed, composed or taken on trust, for 5 claims. The verdict is
-**checked**: the five answers follow from the program. As the last comment
-says, this confirms the answers shown; on its own it does not prove that
-there are no other splits of `['a', 'b']`.
+The verdict is **checked**: the five answers follow from the program, and
+they are every answer of its three questions. So there are no other splits
+of `['a', 'b']`.
 
 ---
 

@@ -69,33 +69,24 @@ the complete proof:
 // Halted: a contradiction() holds; the facts derived until then, ending with 'false'.
 'false'
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(2, fact(account('bob', -5)))
-clause(3, contradiction(account(Owner, Balance), lt(Balance, 0)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step('false', clause(3), {Owner: 'bob', Balance: -5}, [account('bob', -5), lt(-5, 0)])
-step(account('bob', -5), clause(2), {}, [])
-step(lt(-5, 0), 'builtin', {}, [])
 ```
 
-It has three parts:
+It has two parts:
 
 - **The claim**: `'false'`, the alarm.
-- **The clauses**: the program lines the proof relies on, by their number in
-  the program. Alice's fact, clause 1, is not listed: it played no part in
-  the violation.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`.
+- **The step**: how the claim was derived. A step reads
+  `step(what, by which clause, with which values, using what)`. Clauses are
+  cited by their number in the program; Alice's fact, clause 1, plays no part.
 
-Read the steps as sentences:
-
-1. *The data contradicts itself* — by rule 3, with `Owner` being Bob and
-   `Balance` being −5, because Bob's account holds −5 and −5 is less than 0.
-2. *Bob's account holds −5* — fact 2; it uses nothing.
-3. *−5 is less than 0* — `'builtin'`: a calculation, which anyone checking
-   the proof simply redoes.
+Read the step as a sentence: *the data contradicts itself, by rule 3, with
+`Owner` being Bob and `Balance` being −5, because Bob's account holds −5 and
+−5 is less than 0.* Bob's account is a stated fact and −5 < 0 a calculation,
+so neither needs a step of its own: the checker looks the fact up in the
+program and redoes the calculation. A halted run has no certificate, since
+it stopped before answering any question.
 
 ---
 
@@ -103,66 +94,24 @@ Read the steps as sentences:
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. For a halted run, it
+replays the recorded firing of each claim: it takes rule 3 from the program,
+runs its body from no bindings, finds `account('bob', -5)` among the program's
+facts, recomputes −5 < 0, and confirms that the rule's head is `'false'`. A
+step the check does not use fails it. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked claims: these follow from the input program, which halted.
 'false'
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 2)
-condition('C2', 'well_founded', 'ok', 3)
-condition('C3', 'justification', 'ok', 3)
-condition('C4', 'coverage', 'ok', 3)
-condition('C5', 're_decision', 'ok', 1)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 4)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 0)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(3)
-verified(2)
-recomputed(1)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict applies to the claims above; it does not establish that they are every answer.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (2)**: the 2 steps that cite a program line really are
-  instances of it: step 1 is rule 3 with `Owner` = Bob and `Balance` = −5,
-  and step 2 is fact 2.
-- **C2 well-founded (3)**: none of the 3 steps depends on itself, even
-  indirectly.
-- **C3 justification (3)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (3)**: the 1 claim and the 2 things step 1 uses are each
-  backed by a step.
-- **C5 re-decision (1)**: the one built-in step, −5 < 0, was recomputed and
-  holds.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (4)**: the 1 claim is what the program concluded, and all 3
-  steps serve it: the proof holds nothing beyond what explains the violation.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 3 steps, 2 verified against the program, 1
-recomputed, none taken on trust. The verdict is **checked**: the alarm really
-follows from the data. The proof is sound; it is the *data* that is wrong.
-The verdict does not say Bob's is the only bad account: eyemind stops at the
-first violation it finds.
+The verdict is **checked**: the alarm really follows from the data. The
+proof is sound; it is the *data* that is wrong. For a halted run, the verdict
+establishes only that its claims follow, not that they are every answer: it
+does not say Bob's is the only bad account, since eyemind stops at the first
+violation it finds.
 
 ---
 

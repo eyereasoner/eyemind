@@ -124,9 +124,10 @@ the end, or an extra push via loc2.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each conclusion. The whole proof
-has 86 steps; see the [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/monkey-bananas.js).
-Here are its claims, all its clauses, and the complete chain of 41 steps
-for the first plan:
+has 4 steps, 1 listing and 79 call tables; see the
+[full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/monkey-bananas.js).
+Here are its claims, its steps and listing, and the call tables that show
+there is no plan of one move and how the four-move plan is found:
 
 ```js
 // Conclusions: the facts the program derives, in the order derived.
@@ -135,116 +136,77 @@ plan([go('loc1'), go('loc3'), push('loc1'), 'climb_on', 'grab'])
 plan([go('loc3'), push('loc1'), 'climb_on', 'grab', 'climb_off'])
 plan([go('loc3'), push('loc2'), push('loc1'), 'climb_on', 'grab'])
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, implied_by(reaches_goal(Moves), [initial_state(I), goal_state(G), reachable(I, Moves, G)]))
-clause(2, fact(reachable(S, [], S)))
-clause(3, implied_by(reachable(S1, [M, ...Rest], S3), [legal_move(S1, M, S2), reachable(S2, Rest, S3)]))
-clause(4, fact(initial_state(['loc1', 'loc2', 'loc3', 'n', 'n'])))
-clause(5, fact(goal_state([_0, _1, _2, _3, 'y'])))
-clause(6, fact(legal_move([B, M, M, 'n', H], 'climb_on', [B, M, M, 'y', H])))
-clause(7, fact(legal_move([B, M, M, 'y', H], 'climb_off', [B, M, M, 'n', H])))
-clause(8, fact(legal_move([B, B, B, 'y', 'n'], 'grab', [B, B, B, 'y', 'y'])))
-clause(9, implied_by(legal_move([B, M, M, 'n', H], push(X), [B, X, X, 'n', H]), [location(X), not_unify(X, M)]))
-clause(10, implied_by(legal_move([B, M, L, 'n', H], go(X), [B, X, L, 'n', H]), [location(X), not_unify(X, M)]))
-clause(11, fact(location('loc1')))
-clause(12, fact(location('loc2')))
-clause(13, fact(location('loc3')))
-clause(14, fact(moves(0, [])))
-clause(15, implied_by(moves(N, [_0, ...Rest]), [gt(N, 0), is(M, sub(N, 1)), moves(M, Rest)]))
-clause(16, implied_by(in_range(Low, High, Low), le(Low, High)))
-clause(17, implied_by(in_range(Low, High, N), [lt(Low, High), is(Next, add(Low, 1)), in_range(Next, High, N)]))
-clause(18, implies([in_range(1, 5, N), moves(N, Moves), reaches_goal(Moves)], plan(Moves)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(plan([go('loc3'), push('loc1'), 'climb_on', 'grab']), clause(18), {N: 4, Moves: [go('loc3'), push('loc1'), 'climb_on', 'grab']}, [in_range(1, 5, 4), moves(4, [go('loc3'), push('loc1'), 'climb_on', 'grab']), reaches_goal([go('loc3'), push('loc1'), 'climb_on', 'grab'])])
-step(in_range(1, 5, 4), clause(17), {Low: 1, High: 5, N: 4, Next: 2}, [lt(1, 5), is(2, add(1, 1)), in_range(2, 5, 4)])
-step(lt(1, 5), 'builtin', {}, [])
-step(is(2, add(1, 1)), 'builtin', {}, [])
-step(in_range(2, 5, 4), clause(17), {Low: 2, High: 5, N: 4, Next: 3}, [lt(2, 5), is(3, add(2, 1)), in_range(3, 5, 4)])
-step(lt(2, 5), 'builtin', {}, [])
-step(is(3, add(2, 1)), 'builtin', {}, [])
-step(in_range(3, 5, 4), clause(17), {Low: 3, High: 5, N: 4, Next: 4}, [lt(3, 5), is(4, add(3, 1)), in_range(4, 5, 4)])
-step(lt(3, 5), 'builtin', {}, [])
-step(is(4, add(3, 1)), 'builtin', {}, [])
-step(in_range(4, 5, 4), clause(16), {Low: 4, High: 5}, [le(4, 5)])
-step(le(4, 5), 'builtin', {}, [])
-step(moves(4, [go('loc3'), push('loc1'), 'climb_on', 'grab']), clause(15), {N: 4, _0: go('loc3'), Rest: [push('loc1'), 'climb_on', 'grab'], M: 3}, [gt(4, 0), is(3, sub(4, 1)), moves(3, [push('loc1'), 'climb_on', 'grab'])])
-step(gt(4, 0), 'builtin', {}, [])
-step(is(3, sub(4, 1)), 'builtin', {}, [])
-step(moves(3, [push('loc1'), 'climb_on', 'grab']), clause(15), {N: 3, _0: push('loc1'), Rest: ['climb_on', 'grab'], M: 2}, [gt(3, 0), is(2, sub(3, 1)), moves(2, ['climb_on', 'grab'])])
-step(gt(3, 0), 'builtin', {}, [])
-step(is(2, sub(3, 1)), 'builtin', {}, [])
-step(moves(2, ['climb_on', 'grab']), clause(15), {N: 2, _0: 'climb_on', Rest: ['grab'], M: 1}, [gt(2, 0), is(1, sub(2, 1)), moves(1, ['grab'])])
-step(gt(2, 0), 'builtin', {}, [])
-step(is(1, sub(2, 1)), 'builtin', {}, [])
-step(moves(1, ['grab']), clause(15), {N: 1, _0: 'grab', Rest: [], M: 0}, [gt(1, 0), is(0, sub(1, 1)), moves(0, [])])
-step(gt(1, 0), 'builtin', {}, [])
-step(is(0, sub(1, 1)), 'builtin', {}, [])
-step(moves(0, []), clause(14), {}, [])
-step(reaches_goal([go('loc3'), push('loc1'), 'climb_on', 'grab']), clause(1), {Moves: [go('loc3'), push('loc1'), 'climb_on', 'grab'], I: ['loc1', 'loc2', 'loc3', 'n', 'n'], G: ['loc1', 'loc1', 'loc1', 'y', 'y']}, [initial_state(['loc1', 'loc2', 'loc3', 'n', 'n']), goal_state(['loc1', 'loc1', 'loc1', 'y', 'y']), reachable(['loc1', 'loc2', 'loc3', 'n', 'n'], [go('loc3'), push('loc1'), 'climb_on', 'grab'], ['loc1', 'loc1', 'loc1', 'y', 'y'])])
-step(initial_state(['loc1', 'loc2', 'loc3', 'n', 'n']), clause(4), {}, [])
-step(goal_state(['loc1', 'loc1', 'loc1', 'y', 'y']), clause(5), {_0: 'loc1', _1: 'loc1', _2: 'loc1', _3: 'y'}, [])
-step(reachable(['loc1', 'loc2', 'loc3', 'n', 'n'], [go('loc3'), push('loc1'), 'climb_on', 'grab'], ['loc1', 'loc1', 'loc1', 'y', 'y']), clause(3), {S1: ['loc1', 'loc2', 'loc3', 'n', 'n'], M: go('loc3'), Rest: [push('loc1'), 'climb_on', 'grab'], S3: ['loc1', 'loc1', 'loc1', 'y', 'y'], S2: ['loc1', 'loc3', 'loc3', 'n', 'n']}, [legal_move(['loc1', 'loc2', 'loc3', 'n', 'n'], go('loc3'), ['loc1', 'loc3', 'loc3', 'n', 'n']), reachable(['loc1', 'loc3', 'loc3', 'n', 'n'], [push('loc1'), 'climb_on', 'grab'], ['loc1', 'loc1', 'loc1', 'y', 'y'])])
-step(legal_move(['loc1', 'loc2', 'loc3', 'n', 'n'], go('loc3'), ['loc1', 'loc3', 'loc3', 'n', 'n']), clause(10), {B: 'loc1', M: 'loc2', L: 'loc3', H: 'n', X: 'loc3'}, [location('loc3'), not_unify('loc3', 'loc2')])
-step(location('loc3'), clause(13), {}, [])
-step(not_unify('loc3', 'loc2'), 'builtin', {}, [])
-step(reachable(['loc1', 'loc3', 'loc3', 'n', 'n'], [push('loc1'), 'climb_on', 'grab'], ['loc1', 'loc1', 'loc1', 'y', 'y']), clause(3), {S1: ['loc1', 'loc3', 'loc3', 'n', 'n'], M: push('loc1'), Rest: ['climb_on', 'grab'], S3: ['loc1', 'loc1', 'loc1', 'y', 'y'], S2: ['loc1', 'loc1', 'loc1', 'n', 'n']}, [legal_move(['loc1', 'loc3', 'loc3', 'n', 'n'], push('loc1'), ['loc1', 'loc1', 'loc1', 'n', 'n']), reachable(['loc1', 'loc1', 'loc1', 'n', 'n'], ['climb_on', 'grab'], ['loc1', 'loc1', 'loc1', 'y', 'y'])])
-step(legal_move(['loc1', 'loc3', 'loc3', 'n', 'n'], push('loc1'), ['loc1', 'loc1', 'loc1', 'n', 'n']), clause(9), {B: 'loc1', M: 'loc3', H: 'n', X: 'loc1'}, [location('loc1'), not_unify('loc1', 'loc3')])
-step(location('loc1'), clause(11), {}, [])
-step(not_unify('loc1', 'loc3'), 'builtin', {}, [])
-step(reachable(['loc1', 'loc1', 'loc1', 'n', 'n'], ['climb_on', 'grab'], ['loc1', 'loc1', 'loc1', 'y', 'y']), clause(3), {S1: ['loc1', 'loc1', 'loc1', 'n', 'n'], M: 'climb_on', Rest: ['grab'], S3: ['loc1', 'loc1', 'loc1', 'y', 'y'], S2: ['loc1', 'loc1', 'loc1', 'y', 'n']}, [legal_move(['loc1', 'loc1', 'loc1', 'n', 'n'], 'climb_on', ['loc1', 'loc1', 'loc1', 'y', 'n']), reachable(['loc1', 'loc1', 'loc1', 'y', 'n'], ['grab'], ['loc1', 'loc1', 'loc1', 'y', 'y'])])
-step(legal_move(['loc1', 'loc1', 'loc1', 'n', 'n'], 'climb_on', ['loc1', 'loc1', 'loc1', 'y', 'n']), clause(6), {B: 'loc1', M: 'loc1', H: 'n'}, [])
-step(reachable(['loc1', 'loc1', 'loc1', 'y', 'n'], ['grab'], ['loc1', 'loc1', 'loc1', 'y', 'y']), clause(3), {S1: ['loc1', 'loc1', 'loc1', 'y', 'n'], M: 'grab', Rest: [], S3: ['loc1', 'loc1', 'loc1', 'y', 'y'], S2: ['loc1', 'loc1', 'loc1', 'y', 'y']}, [legal_move(['loc1', 'loc1', 'loc1', 'y', 'n'], 'grab', ['loc1', 'loc1', 'loc1', 'y', 'y']), reachable(['loc1', 'loc1', 'loc1', 'y', 'y'], [], ['loc1', 'loc1', 'loc1', 'y', 'y'])])
-step(legal_move(['loc1', 'loc1', 'loc1', 'y', 'n'], 'grab', ['loc1', 'loc1', 'loc1', 'y', 'y']), clause(8), {B: 'loc1'}, [])
-step(reachable(['loc1', 'loc1', 'loc1', 'y', 'y'], [], ['loc1', 'loc1', 'loc1', 'y', 'y']), clause(2), {S: ['loc1', 'loc1', 'loc1', 'y', 'y']}, [])
-// … 45 more steps, 86 in total, prove the three five-move plans. They reuse
-// the steps above wherever they can, such as the legal moves already shown.
+step(plan([go('loc1'), go('loc3'), push('loc1'), 'climb_on', 'grab']), clause(18), {N: 5, Moves: [go('loc1'), go('loc3'), push('loc1'), 'climb_on', 'grab']}, [in_range(1, 5, 5), moves(5, [go('loc1'), go('loc3'), push('loc1'), 'climb_on', 'grab']), reaches_goal([go('loc1'), go('loc3'), push('loc1'), 'climb_on', 'grab'])])
+step(plan([go('loc3'), push('loc1'), 'climb_on', 'grab', 'climb_off']), clause(18), {N: 5, Moves: [go('loc3'), push('loc1'), 'climb_on', 'grab', 'climb_off']}, [in_range(1, 5, 5), moves(5, [go('loc3'), push('loc1'), 'climb_on', 'grab', 'climb_off']), reaches_goal([go('loc3'), push('loc1'), 'climb_on', 'grab', 'climb_off'])])
+step(plan([go('loc3'), push('loc2'), push('loc1'), 'climb_on', 'grab']), clause(18), {N: 5, Moves: [go('loc3'), push('loc2'), push('loc1'), 'climb_on', 'grab']}, [in_range(1, 5, 5), moves(5, [go('loc3'), push('loc2'), push('loc1'), 'climb_on', 'grab']), reaches_goal([go('loc3'), push('loc2'), push('loc1'), 'climb_on', 'grab'])])
+
+// Certificate: the derived facts and every answer of each call the questions make.
+derived(plan(A), [plan([go('loc3'), push('loc1'), 'climb_on', 'grab']), plan([go('loc1'), go('loc3'), push('loc1'), 'climb_on', 'grab']), plan([go('loc3'), push('loc1'), 'climb_on', 'grab', 'climb_off']), plan([go('loc3'), push('loc2'), push('loc1'), 'climb_on', 'grab'])])
+called(plan(A), [plan([go('loc3'), push('loc1'), 'climb_on', 'grab']), plan([go('loc1'), go('loc3'), push('loc1'), 'climb_on', 'grab']), plan([go('loc3'), push('loc1'), 'climb_on', 'grab', 'climb_off']), plan([go('loc3'), push('loc2'), push('loc1'), 'climb_on', 'grab'])])
+called(in_range(1, 5, B), [in_range(1, 5, 1), in_range(1, 5, 2), in_range(1, 5, 3), in_range(1, 5, 4), in_range(1, 5, 5)])
+// … the tables counting 2 to 5
+called(moves(1, G), [moves(1, [_7])])
+called(moves(0, I), [moves(0, [])])
+called(reaches_goal([_9]), [])
+called(reachable(['loc1', 'loc2', 'loc3', 'n', 'n'], [_10], [_11, _12, _13, _14, 'y']), [])
+called(legal_move(['loc1', 'loc2', 'loc3', 'n', 'n'], P, Q), [legal_move(['loc1', 'loc2', 'loc3', 'n', 'n'], go('loc1'), ['loc1', 'loc1', 'loc3', 'n', 'n']), legal_move(['loc1', 'loc2', 'loc3', 'n', 'n'], go('loc3'), ['loc1', 'loc3', 'loc3', 'n', 'n'])])
+// … 30 tables: the rest of the one-move search, and the empty two- and
+// three-move searches
+called(moves(4, G), [moves(4, [_86, _87, _88, _89])])
+called(reaches_goal([_90, _91, _92, _93]), [reaches_goal([go('loc3'), push('loc1'), 'climb_on', 'grab'])])
+called(reachable(['loc1', 'loc2', 'loc3', 'n', 'n'], [_94, _95, _96, _97], [_98, _99, _100, _101, 'y']), [reachable(['loc1', 'loc2', 'loc3', 'n', 'n'], [go('loc3'), push('loc1'), 'climb_on', 'grab'], ['loc1', 'loc1', 'loc1', 'y', 'y'])])
+// … the table for the other first move
+called(reachable(['loc1', 'loc3', 'loc3', 'n', 'n'], [_102, _103, _104], [_105, _106, _107, _108, 'y']), [reachable(['loc1', 'loc3', 'loc3', 'n', 'n'], [push('loc1'), 'climb_on', 'grab'], ['loc1', 'loc1', 'loc1', 'y', 'y'])])
+// … the table for the other second move
+called(reachable(['loc1', 'loc1', 'loc1', 'n', 'n'], [_109, _110], [_111, _112, _113, _114, 'y']), [reachable(['loc1', 'loc1', 'loc1', 'n', 'n'], ['climb_on', 'grab'], ['loc1', 'loc1', 'loc1', 'y', 'y'])])
+called(reachable(['loc1', 'loc1', 'loc1', 'y', 'n'], [_115], [_116, _117, _118, _119, 'y']), [reachable(['loc1', 'loc1', 'loc1', 'y', 'n'], ['grab'], ['loc1', 'loc1', 'loc1', 'y', 'y'])])
+// … the moves allowed on the box
+called(reachable(['loc1', 'loc1', 'loc1', 'y', 'y'], [], [_122, _123, _124, _125, 'y']), [reachable(['loc1', 'loc1', 'loc1', 'y', 'y'], [], ['loc1', 'loc1', 'loc1', 'y', 'y'])])
+// … 28 more tables: the dead ends of four moves, and the plans of five
 ```
 
 It has three parts:
 
 - **The claims**: the four plans.
-- **The clauses**: every line of the program, numbered 1 to 18 in order. The
-  `_` marks of the program are shown as `_0` to `_3`, so they can be given
-  values like any other variable.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`. The values in curly
-  braces say what each variable of the cited line stood for. `clause(N)`
-  means "by line N of the program"; `'builtin'` means a test or calculation
-  that the checker does not take on trust but redoes itself.
+- **The steps**: one per plan, since `plan` is the only relation a forward
+  rule concludes. A step reads `step(what, by which clause, with which
+  values, using what)`: here clause 18, the planning rule, with `N` and
+  `Moves` filled in. Clauses are numbered 1 to 18 in program order.
+- **The certificate**: the *listing* `derived(plan(A), ...)` of every plan
+  the rule derived, and one *call table* `called(call, answers)` per call
+  the search made, with every answer it gave. Open places in a call are
+  shown as variables; `_7`, `_9` and the like are the move slots the search
+  had not yet filled.
 
-The 41 steps for the first plan say:
+The step for the first plan says: *`[go('loc3'), push('loc1'), 'climb_on',
+'grab']` is a plan* — by rule 18, with `N` = 4, because 4 is in the range 1
+to 5, the plan is a list of 4 moves, and it reaches the goal. The rest of
+the story is in the tables:
 
-- **Step 1.** *`[go('loc3'), push('loc1'), 'climb_on', 'grab']` is a plan* —
-  by rule 18, with `N` = 4: 4 is in the range 1 to 5, the plan is a list of
-  4 moves, and it reaches the goal.
-- **Steps 2 to 12.** *4 is in the range 1 to 5* — by rules 17 and 16,
-  counting up 1, 2, 3, 4 with the built-in tests `1 < 5`, `1 + 1 = 2`, and so
-  on, until `4 ≤ 5`.
-- **Steps 13 to 25.** *The plan is a list of 4 moves* — by rule 15, taking
-  one move off at a time (4 > 0, 4 − 1 = 3, …), down to the empty list of
-  0 moves (fact 14).
-- **Step 26.** *The plan reaches the goal* — by rule 1: it leads from the
-  initial state to the goal state `['loc1', 'loc1', 'loc1', 'y', 'y']`.
-- **Steps 27 and 28.** *The initial state is bananas at loc1, monkey at loc2,
-  box at loc3* (fact 4), and *any state where the monkey holds the bananas
-  is a goal* (fact 5).
-- **Steps 30 to 32.** *`go('loc3')` is legal* — by rule 10: loc3 is a
-  location (fact 13) and loc3 ≠ loc2 (builtin). The monkey walks to the box.
-- **Steps 34 to 36.** *`push('loc1')` is legal* — by rule 9: loc1 is a
-  location (fact 11) and loc1 ≠ loc3. Monkey and box move under the
-  bananas.
-- **Step 38.** *`'climb_on'` is legal* — fact 6: monkey and box are
-  in the same place, and the monkey is on the ground.
-- **Step 40.** *`'grab'` is legal* — fact 8: all three are at loc1
-  and the monkey is on the box.
-- **Step 41.** *With no moves left, the monkey stays in the goal state* —
-  fact 2.
+- **Counting.** `in_range(1, 5, B)` gives exactly 1 to 5: plans are tried for
+  each length in turn.
+- **No plan of one move.** `moves(1, G)` gives one list with an open slot,
+  `[_7]`; `reaches_goal([_9])` has *no* answers, because from the initial
+  state (bananas at loc1, monkey at loc2, box at loc3) no single legal move
+  reaches a state where the monkey holds the bananas. The `legal_move`
+  table lists the moves allowed from the start: the monkey can walk to loc1
+  or loc3.
+- **No plan of two or three moves.** Further tables show every search of
+  those lengths coming up empty.
+- **The four-move plan.** `reaches_goal` of four open moves has exactly one
+  answer, and the `reachable` tables below it follow the plan one move at a
+  time: from the box's position, `push('loc1')` moves monkey and box under
+  the bananas; from there `'climb_on'` and `'grab'` reach the goal state
+  `['loc1', 'loc1', 'loc1', 'y', 'y']`; and with no moves left, the monkey
+  stays there.
 
-Steps 29, 33, 37 and 39, by rule 3, link these moves together: each says
-*from this state, these remaining moves reach the goal*, because the first
-of them is legal and the rest reach the goal from the state it leads to.
+Each `reachable` table rests on the `legal_move` table of its state, and
+each `legal_move` table on rules 9 and 10 and the facts for climbing and
+grabbing, with the built-in test `not_unify` deciding that a walk or push
+goes somewhere new.
 
 ---
 
@@ -252,74 +214,37 @@ of them is legal and the rest reach the goal from the state it leads to.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the question.** The program has no query, so its question is
+  the head of its forward rule, `plan(Moves)`. The checker expands it one
+  level: the listed plans are its answers, as the table says.
+- **It checks the listing is closed.** It runs the body of rule 18 against
+  the certificate: for each length, `moves` and `reaches_goal` are answered
+  from their tables, and each of those tables is checked by expanding its
+  call one level against the program, with the counting and the `not_unify`
+  tests computed. The four plans it finds are exactly the four listed, so
+  the rule derives no plan the listing leaves out.
+- **It replays each listed fact.** It re-runs rule 18 for each plan from no
+  bindings, and the result matches the recorded step.
+- **It compares the claims with the answers.** The four claims are exactly
+  the four plans. Every step, listing and table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 plan([go('loc3'), push('loc1'), 'climb_on', 'grab'])
 plan([go('loc1'), go('loc3'), push('loc1'), 'climb_on', 'grab'])
 plan([go('loc3'), push('loc1'), 'climb_on', 'grab', 'climb_off'])
 plan([go('loc3'), push('loc2'), push('loc1'), 'climb_on', 'grab'])
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 61)
-condition('C2', 'well_founded', 'ok', 86)
-condition('C3', 'justification', 'ok', 86)
-condition('C4', 'coverage', 'ok', 127)
-condition('C5', 're_decision', 'ok', 25)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 90)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 5)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(86)
-verified(61)
-recomputed(25)
-composed(0)
-trusted(0)
-claims(4)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (61)**: the 61 steps that cite a program line really are
-  instances of that line with the values shown: each move is a legal move,
-  and each state follows from the last.
-- **C2 well-founded (86)**: none of the 86 steps depends on itself, even
-  indirectly.
-- **C3 justification (86)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (127)**: the 4 claims and the 123 things the steps use are
-  each backed by a step.
-- **C5 re-decision (25)**: the checker redid the 25 built-in tests and
-  calculations (counting to 5, "loc3 ≠ loc2", and so on) and got the same
-  results.
-- **C6 boundary consistency (0)**: nothing was concluded from the absence of
-  a fact, so there is nothing to confront.
-- **C7 relevance (90)**: the 4 claims are conclusions of the program, and
-  all 86 steps serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics: 86 steps, 61 verified against the program, 25 recomputed,
-no boundary steps taken on trust, 4 claims. The verdict is **checked**: each of the four
-plans really works. As the last comment says, this confirms the claims; it
-does not by itself show that there are no other plans of up to five moves.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+The verdict is **checked**: each of the four plans really works, and they
+are every plan of up to five moves this program allows.
 
 ---
 

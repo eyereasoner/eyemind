@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 provisional('ada', 'centrum')
 provisional('bjorn', 'centrum')
 provisional('clara', 'haga')
@@ -18,26 +18,4 @@ audit_flag('ada', 'assignment_differs')
 audit_flag('bjorn', 'assignment_differs')
 audit_flag('davi', 'assignment_differs')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 42)
-condition('C2', 'well_founded', 'ok', 79)
-condition('C3', 'justification', 'ok', 79)
-condition('C4', 'coverage', 'ok', 118)
-condition('C5', 're_decision', 'ok', 26)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 97)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 11)
-condition('C10', 'call_fidelity', 'ok', 22)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(79)
-verified(42)
-recomputed(26)
-composed(0)
-trusted(0)
-claims(18)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

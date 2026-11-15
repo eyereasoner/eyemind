@@ -1,26 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 rdf(iri('http://example.org/orders#o1'), iri('http://example.org/orders#action'), iri('http://example.org/orders#ship'))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 2)
-condition('C2', 'well_founded', 'ok', 3)
-condition('C3', 'justification', 'ok', 3)
-condition('C4', 'coverage', 'ok', 3)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 4)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(3)
-verified(2)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

@@ -3,23 +3,7 @@ label('alice', 'hello_alice')
 characters('café', ['c', 'a', 'f', 'é'], 4)
 unicode_codes('😀', [128512])
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, implied_by(label(Name, Label), atom_concat('hello_', Name, Label)))
-clause(2, implied_by(characters(Text, Chars, Length), [atom_chars(Text, Chars), atom_length(Text, Length)]))
-clause(3, implied_by(unicode_codes(Text, Codes), atom_codes(Text, Codes)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(label('alice', 'hello_alice'), clause(1), {Name: 'alice', Label: 'hello_alice'}, [atom_concat('hello_', 'alice', 'hello_alice')])
-step(atom_concat('hello_', 'alice', 'hello_alice'), 'builtin', {}, [])
-step(characters('café', ['c', 'a', 'f', 'é'], 4), clause(2), {Text: 'café', Chars: ['c', 'a', 'f', 'é'], Length: 4}, [atom_chars('café', ['c', 'a', 'f', 'é']), atom_length('café', 4)])
-step(atom_chars('café', ['c', 'a', 'f', 'é']), 'builtin', {}, [])
-step(atom_length('café', 4), 'builtin', {}, [])
-step(unicode_codes('😀', [128512]), clause(3), {Text: '😀', Codes: [128512]}, [atom_codes('😀', [128512])])
-step(atom_codes('😀', [128512]), 'builtin', {}, [])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 called(label('alice', A), [label('alice', 'hello_alice')])
 called(characters('café', B, C), [characters('café', ['c', 'a', 'f', 'é'], 4)])
 called(unicode_codes('😀', D), [unicode_codes('😀', [128512])])

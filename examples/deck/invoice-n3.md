@@ -65,7 +65,7 @@ The rule does not depend on its own total through collection.
 The check report records these answers as terms:
 
 ```js
-// Conclusions: the facts the program derives, in the order derived.
+// Checked answers: these follow from the input program and are every answer of its questions.
 rdf(iri('https://example.org/invoice#invoice1'), iri('https://example.org/invoice#total'), 245)
 rdf(iri('https://example.org/invoice#invoice2'), iri('https://example.org/invoice#total'), 25)
 rdf(iri('https://example.org/invoice#invoice3'), iri('https://example.org/invoice#total'), 0)
@@ -91,18 +91,19 @@ the threshold.
 
 ## What the proof establishes
 
-The saved report has `verdict('checked')`. It checks the recorded rule
-applications, recomputes the arithmetic, and has no remaining obligations.
+The saved report has `verdict('checked')`. It replays the recorded rule
+firings and computes the arithmetic again.
 
-C9 settles the three collections from the proof's search certificate. Their
-`rdf/3` calls depend on a forward listing, since the relation `rdf/3` also
-holds the derived totals and type. The listing proves which facts there
-are, but not the order in which they were derived; a sorted list of ground
-items does not depend on that order, so the certificate settles it.
+Each of the three collections is replayed from the proof's call tables for
+its search, as it stood when the collection ran. Those `rdf/3` calls
+consult the forward listing, since the relation `rdf/3` also holds the
+derived totals and type. The listing shows which facts there are, but not
+the order in which they were derived; a sorted list of ground items does
+not depend on that order, so the tables settle it.
 
-C10 checks the original questions against the proof's call tables, so the
-verdict also establishes that the four claims are every answer of the
-original questions. `--strict-proof` accepts the proof.
+The checker also answers the original questions from the proof's call
+tables, so the verdict establishes that the four claims are every answer of
+the original questions.
 
 ---
 

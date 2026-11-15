@@ -62,7 +62,7 @@ NOT DATA excludes the Antwerp route because its base graph already supplies 60 k
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program and are every answer of its questions.
 inf(iri('http://example.org/routes#ghent-bruges'), iri('http://example.org/routes#distanceKm'), 48)
 inf(iri('http://example.org/routes#ghent-brussels'), iri('http://example.org/routes#distanceKm'), 56)
 ```
@@ -71,14 +71,25 @@ inf(iri('http://example.org/routes#ghent-brussels'), iri('http://example.org/rou
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. C10 certifies the original questions, so the claims are every answer, and strict checking accepts the proof.
-C1 checks each inference against the compiled source clauses, C5 re-decides
-primitive computations, C8 checks any fresh witness, and C10 checks the
-original questions against the proof's call tables. The checker follows the
-certificate without calling the reasoning engine.
+The saved report ends with `verdict('checked')`. The proof cites the
+program compiled from the rule set and its data, with each inference as an
+`inf(S, P, O)` triple. Each kilometre value has a step citing the compiled
+rule with its bindings, including the exact decimal product `48.28032`
+before the cast. The listings `derived(Pattern, Facts)` hold the inferred
+triples, and the call tables every answer of each call the question makes:
+the miles triples, the arithmetic helpers of the compiled rule set and the
+NOT DATA test, whose table is empty for the Bruges and Brussels routes:
 
-The verdict certifies the displayed claims; it does not assert that an
-arbitrary proof lists every possible answer.
+```js
+called(srl_not_1_1(iri('http://example.org/routes#ghent-bruges')), [])
+```
+
+The checker follows this certificate without calling the reasoning engine.
+It checks each call table by applying the compiled program one level, so an
+empty table for NOT DATA must agree with the base graph, requires the
+listings to be closed under the rule, and replays each listed triple's
+firing, computing the arithmetic itself. The verdict establishes that the
+claims follow from the program and are every answer of its question.
 
 ---
 

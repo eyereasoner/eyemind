@@ -124,10 +124,10 @@ cell just past the last digit, which the machine visited; it is not a digit.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each answer. The full proof has
-176 lines and 144 steps
+105 lines and 98 call tables
 ([proof/turing.js](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/turing.js)).
-Here are its claims, all 22 clauses, and the complete chain of steps for the
-first claim, 101001 + 1:
+Here are its claims and the complete set of tables for the first claim,
+101001 + 1:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -136,111 +136,65 @@ compute([1, 0, 1, 1, 1, 1], [1, 1, 0, 0, 0, 0, '#'])
 compute([1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 0, 0, '#'])
 compute([], [1, '#'])
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, implied_by(compute([], OutTape), [start(_0, I), find(I, [], '#', [], OutTape)]))
-clause(2, implied_by(compute([Head, ...Tail], OutTape), [start(_0, I), find(I, [], Head, Tail, OutTape)]))
-clause(3, implied_by(find(State, Left, Cell, Right, OutTape), [t([State, Cell, Write, Move], Next), move(Move, Left, Write, Right, A, B, C), struct('continue', Next, A, B, C, OutTape)]))
-clause(4, implied_by(struct('continue', 'halt', Left, Cell, Right, OutTape), [reverse(Left, R), append(R, [Cell, ...Right], OutTape)]))
-clause(5, implied_by(struct('continue', State, Left, Cell, Right, OutTape), [not_unify(State, 'halt'), find(State, Left, Cell, Right, OutTape)]))
-clause(6, fact(move('l', [], Cell, Right, [], '#', [Cell, ...Right])))
-clause(7, fact(move('l', [Head, ...Tail], Cell, Right, Tail, Head, [Cell, ...Right])))
-clause(8, fact(move('s', Left, Cell, Right, Left, Cell, Right)))
-clause(9, fact(move('r', Left, Cell, [], [Cell, ...Left], '#', [])))
-clause(10, fact(move('r', Left, Cell, [Head, ...Tail], [Cell, ...Left], Head, Tail)))
-clause(11, fact(append([], Ys, Ys)))
-clause(12, implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs)))
-clause(13, implied_by(reverse(Xs, Ys), reverse(Xs, [], Ys)))
-clause(14, fact(reverse([], Ys, Ys)))
-clause(15, implied_by(reverse([X, ...Xs], Acc, Ys), reverse(Xs, [X, ...Acc], Ys)))
-clause(16, fact(start('add1', 0)))
-clause(17, fact(t([0, 0, 0, 'r'], 0)))
-clause(18, fact(t([0, 1, 1, 'r'], 0)))
-clause(19, fact(t([0, '#', '#', 'l'], 1)))
-clause(20, fact(t([1, 0, 1, 's'], 'halt')))
-clause(21, fact(t([1, 1, 0, 'l'], 1)))
-clause(22, fact(t([1, '#', 1, 's'], 'halt')))
-
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(compute([1, 0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#']), clause(2), {Head: 1, Tail: [0, 1, 0, 0, 1], OutTape: [1, 0, 1, 0, 1, 0, '#'], _0: 'add1', I: 0}, [start('add1', 0), find(0, [], 1, [0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])
-step(start('add1', 0), clause(16), {}, [])
-step(find(0, [], 1, [0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#']), clause(3), {State: 0, Left: [], Cell: 1, Right: [0, 1, 0, 0, 1], OutTape: [1, 0, 1, 0, 1, 0, '#'], Write: 1, Move: 'r', Next: 0, A: [1], B: 0, C: [1, 0, 0, 1]}, [t([0, 1, 1, 'r'], 0), move('r', [], 1, [0, 1, 0, 0, 1], [1], 0, [1, 0, 0, 1]), struct('continue', 0, [1], 0, [1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])
-step(t([0, 1, 1, 'r'], 0), clause(18), {}, [])
-step(move('r', [], 1, [0, 1, 0, 0, 1], [1], 0, [1, 0, 0, 1]), clause(10), {Left: [], Cell: 1, Head: 0, Tail: [1, 0, 0, 1]}, [])
-step(struct('continue', 0, [1], 0, [1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#']), clause(5), {State: 0, Left: [1], Cell: 0, Right: [1, 0, 0, 1], OutTape: [1, 0, 1, 0, 1, 0, '#']}, [not_unify(0, 'halt'), find(0, [1], 0, [1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])
-step(not_unify(0, 'halt'), 'builtin', {}, [])
-step(find(0, [1], 0, [1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#']), clause(3), {State: 0, Left: [1], Cell: 0, Right: [1, 0, 0, 1], OutTape: [1, 0, 1, 0, 1, 0, '#'], Write: 0, Move: 'r', Next: 0, A: [0, 1], B: 1, C: [0, 0, 1]}, [t([0, 0, 0, 'r'], 0), move('r', [1], 0, [1, 0, 0, 1], [0, 1], 1, [0, 0, 1]), struct('continue', 0, [0, 1], 1, [0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])
-step(t([0, 0, 0, 'r'], 0), clause(17), {}, [])
-step(move('r', [1], 0, [1, 0, 0, 1], [0, 1], 1, [0, 0, 1]), clause(10), {Left: [1], Cell: 0, Head: 1, Tail: [0, 0, 1]}, [])
-step(struct('continue', 0, [0, 1], 1, [0, 0, 1], [1, 0, 1, 0, 1, 0, '#']), clause(5), {State: 0, Left: [0, 1], Cell: 1, Right: [0, 0, 1], OutTape: [1, 0, 1, 0, 1, 0, '#']}, [not_unify(0, 'halt'), find(0, [0, 1], 1, [0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])
-step(find(0, [0, 1], 1, [0, 0, 1], [1, 0, 1, 0, 1, 0, '#']), clause(3), {State: 0, Left: [0, 1], Cell: 1, Right: [0, 0, 1], OutTape: [1, 0, 1, 0, 1, 0, '#'], Write: 1, Move: 'r', Next: 0, A: [1, 0, 1], B: 0, C: [0, 1]}, [t([0, 1, 1, 'r'], 0), move('r', [0, 1], 1, [0, 0, 1], [1, 0, 1], 0, [0, 1]), struct('continue', 0, [1, 0, 1], 0, [0, 1], [1, 0, 1, 0, 1, 0, '#'])])
-step(move('r', [0, 1], 1, [0, 0, 1], [1, 0, 1], 0, [0, 1]), clause(10), {Left: [0, 1], Cell: 1, Head: 0, Tail: [0, 1]}, [])
-step(struct('continue', 0, [1, 0, 1], 0, [0, 1], [1, 0, 1, 0, 1, 0, '#']), clause(5), {State: 0, Left: [1, 0, 1], Cell: 0, Right: [0, 1], OutTape: [1, 0, 1, 0, 1, 0, '#']}, [not_unify(0, 'halt'), find(0, [1, 0, 1], 0, [0, 1], [1, 0, 1, 0, 1, 0, '#'])])
-step(find(0, [1, 0, 1], 0, [0, 1], [1, 0, 1, 0, 1, 0, '#']), clause(3), {State: 0, Left: [1, 0, 1], Cell: 0, Right: [0, 1], OutTape: [1, 0, 1, 0, 1, 0, '#'], Write: 0, Move: 'r', Next: 0, A: [0, 1, 0, 1], B: 0, C: [1]}, [t([0, 0, 0, 'r'], 0), move('r', [1, 0, 1], 0, [0, 1], [0, 1, 0, 1], 0, [1]), struct('continue', 0, [0, 1, 0, 1], 0, [1], [1, 0, 1, 0, 1, 0, '#'])])
-step(move('r', [1, 0, 1], 0, [0, 1], [0, 1, 0, 1], 0, [1]), clause(10), {Left: [1, 0, 1], Cell: 0, Head: 0, Tail: [1]}, [])
-step(struct('continue', 0, [0, 1, 0, 1], 0, [1], [1, 0, 1, 0, 1, 0, '#']), clause(5), {State: 0, Left: [0, 1, 0, 1], Cell: 0, Right: [1], OutTape: [1, 0, 1, 0, 1, 0, '#']}, [not_unify(0, 'halt'), find(0, [0, 1, 0, 1], 0, [1], [1, 0, 1, 0, 1, 0, '#'])])
-step(find(0, [0, 1, 0, 1], 0, [1], [1, 0, 1, 0, 1, 0, '#']), clause(3), {State: 0, Left: [0, 1, 0, 1], Cell: 0, Right: [1], OutTape: [1, 0, 1, 0, 1, 0, '#'], Write: 0, Move: 'r', Next: 0, A: [0, 0, 1, 0, 1], B: 1, C: []}, [t([0, 0, 0, 'r'], 0), move('r', [0, 1, 0, 1], 0, [1], [0, 0, 1, 0, 1], 1, []), struct('continue', 0, [0, 0, 1, 0, 1], 1, [], [1, 0, 1, 0, 1, 0, '#'])])
-step(move('r', [0, 1, 0, 1], 0, [1], [0, 0, 1, 0, 1], 1, []), clause(10), {Left: [0, 1, 0, 1], Cell: 0, Head: 1, Tail: []}, [])
-step(struct('continue', 0, [0, 0, 1, 0, 1], 1, [], [1, 0, 1, 0, 1, 0, '#']), clause(5), {State: 0, Left: [0, 0, 1, 0, 1], Cell: 1, Right: [], OutTape: [1, 0, 1, 0, 1, 0, '#']}, [not_unify(0, 'halt'), find(0, [0, 0, 1, 0, 1], 1, [], [1, 0, 1, 0, 1, 0, '#'])])
-step(find(0, [0, 0, 1, 0, 1], 1, [], [1, 0, 1, 0, 1, 0, '#']), clause(3), {State: 0, Left: [0, 0, 1, 0, 1], Cell: 1, Right: [], OutTape: [1, 0, 1, 0, 1, 0, '#'], Write: 1, Move: 'r', Next: 0, A: [1, 0, 0, 1, 0, 1], B: '#', C: []}, [t([0, 1, 1, 'r'], 0), move('r', [0, 0, 1, 0, 1], 1, [], [1, 0, 0, 1, 0, 1], '#', []), struct('continue', 0, [1, 0, 0, 1, 0, 1], '#', [], [1, 0, 1, 0, 1, 0, '#'])])
-step(move('r', [0, 0, 1, 0, 1], 1, [], [1, 0, 0, 1, 0, 1], '#', []), clause(9), {Left: [0, 0, 1, 0, 1], Cell: 1}, [])
-step(struct('continue', 0, [1, 0, 0, 1, 0, 1], '#', [], [1, 0, 1, 0, 1, 0, '#']), clause(5), {State: 0, Left: [1, 0, 0, 1, 0, 1], Cell: '#', Right: [], OutTape: [1, 0, 1, 0, 1, 0, '#']}, [not_unify(0, 'halt'), find(0, [1, 0, 0, 1, 0, 1], '#', [], [1, 0, 1, 0, 1, 0, '#'])])
-step(find(0, [1, 0, 0, 1, 0, 1], '#', [], [1, 0, 1, 0, 1, 0, '#']), clause(3), {State: 0, Left: [1, 0, 0, 1, 0, 1], Cell: '#', Right: [], OutTape: [1, 0, 1, 0, 1, 0, '#'], Write: '#', Move: 'l', Next: 1, A: [0, 0, 1, 0, 1], B: 1, C: ['#']}, [t([0, '#', '#', 'l'], 1), move('l', [1, 0, 0, 1, 0, 1], '#', [], [0, 0, 1, 0, 1], 1, ['#']), struct('continue', 1, [0, 0, 1, 0, 1], 1, ['#'], [1, 0, 1, 0, 1, 0, '#'])])
-step(t([0, '#', '#', 'l'], 1), clause(19), {}, [])
-step(move('l', [1, 0, 0, 1, 0, 1], '#', [], [0, 0, 1, 0, 1], 1, ['#']), clause(7), {Head: 1, Tail: [0, 0, 1, 0, 1], Cell: '#', Right: []}, [])
-step(struct('continue', 1, [0, 0, 1, 0, 1], 1, ['#'], [1, 0, 1, 0, 1, 0, '#']), clause(5), {State: 1, Left: [0, 0, 1, 0, 1], Cell: 1, Right: ['#'], OutTape: [1, 0, 1, 0, 1, 0, '#']}, [not_unify(1, 'halt'), find(1, [0, 0, 1, 0, 1], 1, ['#'], [1, 0, 1, 0, 1, 0, '#'])])
-step(not_unify(1, 'halt'), 'builtin', {}, [])
-step(find(1, [0, 0, 1, 0, 1], 1, ['#'], [1, 0, 1, 0, 1, 0, '#']), clause(3), {State: 1, Left: [0, 0, 1, 0, 1], Cell: 1, Right: ['#'], OutTape: [1, 0, 1, 0, 1, 0, '#'], Write: 0, Move: 'l', Next: 1, A: [0, 1, 0, 1], B: 0, C: [0, '#']}, [t([1, 1, 0, 'l'], 1), move('l', [0, 0, 1, 0, 1], 0, ['#'], [0, 1, 0, 1], 0, [0, '#']), struct('continue', 1, [0, 1, 0, 1], 0, [0, '#'], [1, 0, 1, 0, 1, 0, '#'])])
-step(t([1, 1, 0, 'l'], 1), clause(21), {}, [])
-step(move('l', [0, 0, 1, 0, 1], 0, ['#'], [0, 1, 0, 1], 0, [0, '#']), clause(7), {Head: 0, Tail: [0, 1, 0, 1], Cell: 0, Right: ['#']}, [])
-step(struct('continue', 1, [0, 1, 0, 1], 0, [0, '#'], [1, 0, 1, 0, 1, 0, '#']), clause(5), {State: 1, Left: [0, 1, 0, 1], Cell: 0, Right: [0, '#'], OutTape: [1, 0, 1, 0, 1, 0, '#']}, [not_unify(1, 'halt'), find(1, [0, 1, 0, 1], 0, [0, '#'], [1, 0, 1, 0, 1, 0, '#'])])
-step(find(1, [0, 1, 0, 1], 0, [0, '#'], [1, 0, 1, 0, 1, 0, '#']), clause(3), {State: 1, Left: [0, 1, 0, 1], Cell: 0, Right: [0, '#'], OutTape: [1, 0, 1, 0, 1, 0, '#'], Write: 1, Move: 's', Next: 'halt', A: [0, 1, 0, 1], B: 1, C: [0, '#']}, [t([1, 0, 1, 's'], 'halt'), move('s', [0, 1, 0, 1], 1, [0, '#'], [0, 1, 0, 1], 1, [0, '#']), struct('continue', 'halt', [0, 1, 0, 1], 1, [0, '#'], [1, 0, 1, 0, 1, 0, '#'])])
-step(t([1, 0, 1, 's'], 'halt'), clause(20), {}, [])
-step(move('s', [0, 1, 0, 1], 1, [0, '#'], [0, 1, 0, 1], 1, [0, '#']), clause(8), {Left: [0, 1, 0, 1], Cell: 1, Right: [0, '#']}, [])
-step(struct('continue', 'halt', [0, 1, 0, 1], 1, [0, '#'], [1, 0, 1, 0, 1, 0, '#']), clause(4), {Left: [0, 1, 0, 1], Cell: 1, Right: [0, '#'], OutTape: [1, 0, 1, 0, 1, 0, '#'], R: [1, 0, 1, 0]}, [reverse([0, 1, 0, 1], [1, 0, 1, 0]), append([1, 0, 1, 0], [1, 0, '#'], [1, 0, 1, 0, 1, 0, '#'])])
-step(reverse([0, 1, 0, 1], [1, 0, 1, 0]), clause(13), {Xs: [0, 1, 0, 1], Ys: [1, 0, 1, 0]}, [reverse([0, 1, 0, 1], [], [1, 0, 1, 0])])
-step(reverse([0, 1, 0, 1], [], [1, 0, 1, 0]), clause(15), {X: 0, Xs: [1, 0, 1], Acc: [], Ys: [1, 0, 1, 0]}, [reverse([1, 0, 1], [0], [1, 0, 1, 0])])
-step(reverse([1, 0, 1], [0], [1, 0, 1, 0]), clause(15), {X: 1, Xs: [0, 1], Acc: [0], Ys: [1, 0, 1, 0]}, [reverse([0, 1], [1, 0], [1, 0, 1, 0])])
-step(reverse([0, 1], [1, 0], [1, 0, 1, 0]), clause(15), {X: 0, Xs: [1], Acc: [1, 0], Ys: [1, 0, 1, 0]}, [reverse([1], [0, 1, 0], [1, 0, 1, 0])])
-step(reverse([1], [0, 1, 0], [1, 0, 1, 0]), clause(15), {X: 1, Xs: [], Acc: [0, 1, 0], Ys: [1, 0, 1, 0]}, [reverse([], [1, 0, 1, 0], [1, 0, 1, 0])])
-step(reverse([], [1, 0, 1, 0], [1, 0, 1, 0]), clause(14), {Ys: [1, 0, 1, 0]}, [])
-step(append([1, 0, 1, 0], [1, 0, '#'], [1, 0, 1, 0, 1, 0, '#']), clause(12), {X: 1, Xs: [0, 1, 0], Ys: [1, 0, '#'], Zs: [0, 1, 0, 1, 0, '#']}, [append([0, 1, 0], [1, 0, '#'], [0, 1, 0, 1, 0, '#'])])
-step(append([0, 1, 0], [1, 0, '#'], [0, 1, 0, 1, 0, '#']), clause(12), {X: 0, Xs: [1, 0], Ys: [1, 0, '#'], Zs: [1, 0, 1, 0, '#']}, [append([1, 0], [1, 0, '#'], [1, 0, 1, 0, '#'])])
-step(append([1, 0], [1, 0, '#'], [1, 0, 1, 0, '#']), clause(12), {X: 1, Xs: [0], Ys: [1, 0, '#'], Zs: [0, 1, 0, '#']}, [append([0], [1, 0, '#'], [0, 1, 0, '#'])])
-step(append([0], [1, 0, '#'], [0, 1, 0, '#']), clause(12), {X: 0, Xs: [], Ys: [1, 0, '#'], Zs: [1, 0, '#']}, [append([], [1, 0, '#'], [1, 0, '#'])])
-step(append([], [1, 0, '#'], [1, 0, '#']), clause(11), {Ys: [1, 0, '#']}, [])
-// … 97 more steps for the other three runs (144 steps in all)
+// Certificate: the derived facts and every answer of each call the questions make.
+called(compute([1, 0, 1, 0, 0, 1], _0), [compute([1, 0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])
+called(find(0, [], 1, [0, 1, 0, 0, 1], B), [find(0, [], 1, [0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])
+called(struct('continue', 0, [1], 0, [1, 0, 0, 1], C), [struct('continue', 0, [1], 0, [1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])
+called(find(0, [1], 0, [1, 0, 0, 1], D), [find(0, [1], 0, [1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])
+called(struct('continue', 0, [0, 1], 1, [0, 0, 1], E), [struct('continue', 0, [0, 1], 1, [0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])
+called(find(0, [0, 1], 1, [0, 0, 1], F), [find(0, [0, 1], 1, [0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])])
+called(struct('continue', 0, [1, 0, 1], 0, [0, 1], G), [struct('continue', 0, [1, 0, 1], 0, [0, 1], [1, 0, 1, 0, 1, 0, '#'])])
+called(find(0, [1, 0, 1], 0, [0, 1], H), [find(0, [1, 0, 1], 0, [0, 1], [1, 0, 1, 0, 1, 0, '#'])])
+called(struct('continue', 0, [0, 1, 0, 1], 0, [1], I), [struct('continue', 0, [0, 1, 0, 1], 0, [1], [1, 0, 1, 0, 1, 0, '#'])])
+called(find(0, [0, 1, 0, 1], 0, [1], J), [find(0, [0, 1, 0, 1], 0, [1], [1, 0, 1, 0, 1, 0, '#'])])
+called(struct('continue', 0, [0, 0, 1, 0, 1], 1, [], K), [struct('continue', 0, [0, 0, 1, 0, 1], 1, [], [1, 0, 1, 0, 1, 0, '#'])])
+called(find(0, [0, 0, 1, 0, 1], 1, [], L), [find(0, [0, 0, 1, 0, 1], 1, [], [1, 0, 1, 0, 1, 0, '#'])])
+called(struct('continue', 0, [1, 0, 0, 1, 0, 1], '#', [], M), [struct('continue', 0, [1, 0, 0, 1, 0, 1], '#', [], [1, 0, 1, 0, 1, 0, '#'])])
+called(find(0, [1, 0, 0, 1, 0, 1], '#', [], N), [find(0, [1, 0, 0, 1, 0, 1], '#', [], [1, 0, 1, 0, 1, 0, '#'])])
+called(struct('continue', 1, [0, 0, 1, 0, 1], 1, ['#'], O), [struct('continue', 1, [0, 0, 1, 0, 1], 1, ['#'], [1, 0, 1, 0, 1, 0, '#'])])
+called(find(1, [0, 0, 1, 0, 1], 1, ['#'], P), [find(1, [0, 0, 1, 0, 1], 1, ['#'], [1, 0, 1, 0, 1, 0, '#'])])
+called(struct('continue', 1, [0, 1, 0, 1], 0, [0, '#'], Q), [struct('continue', 1, [0, 1, 0, 1], 0, [0, '#'], [1, 0, 1, 0, 1, 0, '#'])])
+called(find(1, [0, 1, 0, 1], 0, [0, '#'], R), [find(1, [0, 1, 0, 1], 0, [0, '#'], [1, 0, 1, 0, 1, 0, '#'])])
+called(struct('continue', 'halt', [0, 1, 0, 1], 1, [0, '#'], S), [struct('continue', 'halt', [0, 1, 0, 1], 1, [0, '#'], [1, 0, 1, 0, 1, 0, '#'])])
+called(reverse([0, 1, 0, 1], T), [reverse([0, 1, 0, 1], [1, 0, 1, 0])])
+called(reverse([0, 1, 0, 1], [], U), [reverse([0, 1, 0, 1], [], [1, 0, 1, 0])])
+called(reverse([1, 0, 1], [0], V), [reverse([1, 0, 1], [0], [1, 0, 1, 0])])
+called(reverse([0, 1], [1, 0], W), [reverse([0, 1], [1, 0], [1, 0, 1, 0])])
+called(reverse([1], [0, 1, 0], X), [reverse([1], [0, 1, 0], [1, 0, 1, 0])])
+called(reverse([], [1, 0, 1, 0], Y), [reverse([], [1, 0, 1, 0], [1, 0, 1, 0])])
+called(append([1, 0, 1, 0], [1, 0, '#'], Z), [append([1, 0, 1, 0], [1, 0, '#'], [1, 0, 1, 0, 1, 0, '#'])])
+called(append([0, 1, 0], [1, 0, '#'], A1), [append([0, 1, 0], [1, 0, '#'], [0, 1, 0, 1, 0, '#'])])
+called(append([1, 0], [1, 0, '#'], B1), [append([1, 0], [1, 0, '#'], [1, 0, 1, 0, '#'])])
+called(append([0], [1, 0, '#'], C1), [append([0], [1, 0, '#'], [0, 1, 0, '#'])])
+called(append([], [1, 0, '#'], D1), [append([], [1, 0, '#'], [1, 0, '#'])])
+// … 68 more called lines for the other three runs (98 in all)
 ```
 
-It has three parts:
+It has two parts:
 
 - **The claims**: the four answers the proof is about.
-- **The clauses**: the whole program, numbered 1 to 22: the interpreter
-  rules (1–15) and the machine (16–22). eyemind writes the "don't care" `_`
-  as `_0`.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`.
+- **The certificate**: one *call table* per call the four questions make,
+  each written `called(call, answers)` with every answer of that call, in
+  the order the calls were first met. The table's own variables, such as `B`
+  or `_0`, stand for the parts the call left open.
 
-Two kinds of justification occur:
+The whole interpreter works backwards, so no forward rule derives a fact:
+the proof needs no steps and no listings. Clauses are numbered by their
+place in the program: the interpreter rules (1–15) and the machine
+(16–22).
 
-- **`clause(N)`**: the step is an instance of rule or fact N, with the
-  variables set to the values shown between `{ }`.
-- **`'builtin'`**: a test the checker can redo by itself. Here it is
-  `not_unify(0, 'halt')`, "state 0 is not the halt state" (and the same for
-  state 1).
-
-Read the chain as the machine's moves. The tape is shown with the head's
+Read the tables as the machine's moves. The tape is shown with the head's
 cell in brackets:
 
-1. *Running on 101001 gives 101010 and a blank* — by rule 2: the first cell is 1, the
-   rest is 01001, and the machine starts in state 0 (fact 16).
-2. **[1]01001, state 0** — instruction 18 (read 1: write 1, go right), and
-   fact 10 moves the head right. Rule 5 continues, since state 0 is not
-   `'halt'` (the builtin test).
-3. **1[0]1001, 10[1]001, 101[0]01, 1010[0]1, 10100[1]** — the same, using
-   instruction 17 for a 0 and 18 for a 1. Each of these instructions and
-   moves is listed once and reused.
+1. *Running on 101001 gives 101010 and a blank* — the question
+   `compute([1, 0, 1, 0, 0, 1], _)` has exactly that one answer. Rule 2
+   starts the machine in state 0 (fact 16) on the first cell.
+2. **[1]01001, state 0** — the `find(0, [], 1, …)` table: instruction 18
+   (read 1: write 1, go right) and fact 10 move the head right, and the
+   `struct('continue', 0, …)` table continues, since state 0 is not
+   `'halt'`.
+3. **1[0]1001, 10[1]001, 101[0]01, 1010[0]1, 10100[1]** — one `find` and one
+   `struct` table per move, using instruction 17 for a 0 and 18 for a 1.
 4. **101001[#]** — moving right off the end of the tape reaches a fresh blank
    (fact 9).
 5. **At the blank, state 0** — instruction 19: write blank, go left, switch
@@ -250,13 +204,12 @@ cell in brackets:
    carry.
 7. **1010[0]0#, state 1** — instruction 20: read 0, write 1, stay, and halt
    (fact 8 for staying).
-8. *Halt* — rule 4 puts the tape back together: the left part, stored as
-   0101, is reversed to 1010 (rule 13, rule 15 four times, fact 14), and
-   joined to the cell and the rest, 1 0 #, giving 1 0 1 0 1 0 # (rule 12 four
-   times, fact 11).
+8. *Halt* — the `struct('continue', 'halt', …)` table: rule 4 puts the tape
+   back together. The `reverse` tables turn the left part, stored as 0101,
+   into 1010, and the `append` tables join it to the cell and the rest,
+   1 0 #, giving 1 0 1 0 1 0 #.
 
-Every step leans only on other steps of the proof, down to facts and the two
-tests.
+Each table has exactly one answer: the machine is deterministic.
 
 ---
 
@@ -264,68 +217,29 @@ tests.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms each table in one procedure. It expands the call
+one level against the program, as a search would, with inner calls answered
+from their own tables and the machine's instructions and moves from its
+facts, and requires the result to equal the table. So for every move it
+looks up the instruction and the `move` fact itself, and it decides
+"state 0 is not `'halt'`" itself. No table can vouch for itself through a
+cycle, so every run really halts. Then the claims must be exactly the
+answers of the four questions, and every table must have been used. This is
+the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 compute([1, 0, 1, 0, 0, 1], [1, 0, 1, 0, 1, 0, '#'])
 compute([1, 0, 1, 1, 1, 1], [1, 1, 0, 0, 0, 0, '#'])
 compute([1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 0, 0, '#'])
 compute([], [1, '#'])
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 142)
-condition('C2', 'well_founded', 'ok', 144)
-condition('C3', 'justification', 'ok', 144)
-condition('C4', 'coverage', 'ok', 210)
-condition('C5', 're_decision', 'ok', 2)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 148)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 8)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(144)
-verified(142)
-recomputed(2)
-composed(0)
-trusted(0)
-claims(4)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (142)**: each of the 142 steps that cite a rule or fact
-  really is an instance of it with the values shown: every move matches an
-  instruction in the table and a `move` fact.
-- **C2 well-founded (144)**: none of the 144 steps depends on itself, even
-  indirectly: every run really halts.
-- **C3 justification (144)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (210)**: the 4 claims and the 206 things the steps use are
-  each backed by a step: nothing is taken for granted.
-- **C5 re-decision (2)**: the checker redid the 2 tests "state 0 is not
-  `'halt'`" and "state 1 is not `'halt'`" itself.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (148)**: the 4 claims answer the 4 queries, and all 144
-  steps serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 144 steps, 142 verified against the program, 2
-recomputed, none taken on trust. The verdict is **checked**: all four runs
-follow from the program. As the last comment says, they are also
-every answer of the original questions.
+The verdict is **checked**: all four runs follow from the program, and they
+are every answer of the original questions.
 
 ---
 

@@ -131,9 +131,8 @@ wolf or the cabbage goes over first. The first plan, crossing by crossing:
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each answer. The whole proof
-has 72 steps and a 72-line search certificate; see the [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/wolf-goat-cabbage.js).
-Here are its claims, its clauses, the complete chain of 55 steps for
-the first answer, and the start of the certificate:
+has 87 call tables; see the [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/wolf-goat-cabbage.js).
+Here are its claims and a few of its tables:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -141,142 +140,46 @@ wolf_goat_cabbage_verified(7)
 shortest_crossing(['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])
 shortest_crossing(['goat', 'nothing', 'cabbage', 'goat', 'wolf', 'nothing', 'goat'])
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(solution(['e', 'e', 'e', 'e'], [])))
-clause(2, implied_by(solution(State, [Move, ...Rest]), [move(State, Move, Next), safe(Next), solution(Next, Rest)]))
-clause(3, implied_by(move([X, X, Goat, Cabbage], 'wolf', [Y, Y, Goat, Cabbage]), change(X, Y)))
-clause(4, implied_by(move([X, Wolf, X, Cabbage], 'goat', [Y, Wolf, Y, Cabbage]), change(X, Y)))
-clause(5, implied_by(move([X, Wolf, Goat, X], 'cabbage', [Y, Wolf, Goat, Y]), change(X, Y)))
-clause(6, implied_by(move([X, Wolf, Goat, Cabbage], 'nothing', [Y, Wolf, Goat, Cabbage]), change(X, Y)))
-clause(7, fact(change('e', 'w')))
-clause(8, fact(change('w', 'e')))
-clause(9, implied_by(safe([Farmer, Wolf, Goat, Cabbage]), [one_eq(Farmer, Goat, Wolf), one_eq(Farmer, Goat, Cabbage)]))
-clause(10, fact(one_eq(X, X, _0)))
-clause(11, fact(one_eq(X, _0, X)))
-clause(12, fact(moves(0, [])))
-clause(13, implied_by(moves(N, [_0, ...Rest]), [gt(N, 0), is(M, sub(N, 1)), moves(M, Rest)]))
-clause(17, implied_by(wolf_goat_cabbage_verified(7), [not('shorter_solution'), moves(7, Plan), once(solution(['w', 'w', 'w', 'w'], Plan))]))
-clause(18, implied_by(shortest_crossing(Plan), [not('shorter_solution'), moves(7, Plan), solution(['w', 'w', 'w', 'w'], Plan)]))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(wolf_goat_cabbage_verified(7), clause(17), {Plan: ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']}, [not('shorter_solution'), moves(7, ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']), once(solution(['w', 'w', 'w', 'w'], ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']))])
-step(not('shorter_solution'), 'absent', {}, [])
-step(moves(7, ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']), clause(13), {N: 7, _0: 'goat', Rest: ['nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'], M: 6}, [gt(7, 0), is(6, sub(7, 1)), moves(6, ['nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])])
-step(gt(7, 0), 'builtin', {}, [])
-step(is(6, sub(7, 1)), 'builtin', {}, [])
-step(moves(6, ['nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']), clause(13), {N: 6, _0: 'nothing', Rest: ['wolf', 'goat', 'cabbage', 'nothing', 'goat'], M: 5}, [gt(6, 0), is(5, sub(6, 1)), moves(5, ['wolf', 'goat', 'cabbage', 'nothing', 'goat'])])
-step(gt(6, 0), 'builtin', {}, [])
-step(is(5, sub(6, 1)), 'builtin', {}, [])
-step(moves(5, ['wolf', 'goat', 'cabbage', 'nothing', 'goat']), clause(13), {N: 5, _0: 'wolf', Rest: ['goat', 'cabbage', 'nothing', 'goat'], M: 4}, [gt(5, 0), is(4, sub(5, 1)), moves(4, ['goat', 'cabbage', 'nothing', 'goat'])])
-step(gt(5, 0), 'builtin', {}, [])
-step(is(4, sub(5, 1)), 'builtin', {}, [])
-step(moves(4, ['goat', 'cabbage', 'nothing', 'goat']), clause(13), {N: 4, _0: 'goat', Rest: ['cabbage', 'nothing', 'goat'], M: 3}, [gt(4, 0), is(3, sub(4, 1)), moves(3, ['cabbage', 'nothing', 'goat'])])
-step(gt(4, 0), 'builtin', {}, [])
-step(is(3, sub(4, 1)), 'builtin', {}, [])
-step(moves(3, ['cabbage', 'nothing', 'goat']), clause(13), {N: 3, _0: 'cabbage', Rest: ['nothing', 'goat'], M: 2}, [gt(3, 0), is(2, sub(3, 1)), moves(2, ['nothing', 'goat'])])
-step(gt(3, 0), 'builtin', {}, [])
-step(is(2, sub(3, 1)), 'builtin', {}, [])
-step(moves(2, ['nothing', 'goat']), clause(13), {N: 2, _0: 'nothing', Rest: ['goat'], M: 1}, [gt(2, 0), is(1, sub(2, 1)), moves(1, ['goat'])])
-step(gt(2, 0), 'builtin', {}, [])
-step(is(1, sub(2, 1)), 'builtin', {}, [])
-step(moves(1, ['goat']), clause(13), {N: 1, _0: 'goat', Rest: [], M: 0}, [gt(1, 0), is(0, sub(1, 1)), moves(0, [])])
-step(gt(1, 0), 'builtin', {}, [])
-step(is(0, sub(1, 1)), 'builtin', {}, [])
-step(moves(0, []), clause(12), {}, [])
-step(once(solution(['w', 'w', 'w', 'w'], ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])), 'control', {}, [solution(['w', 'w', 'w', 'w'], ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])])
-step(solution(['w', 'w', 'w', 'w'], ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']), clause(2), {State: ['w', 'w', 'w', 'w'], Move: 'goat', Rest: ['nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'], Next: ['e', 'w', 'e', 'w']}, [move(['w', 'w', 'w', 'w'], 'goat', ['e', 'w', 'e', 'w']), safe(['e', 'w', 'e', 'w']), solution(['e', 'w', 'e', 'w'], ['nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])])
-step(move(['w', 'w', 'w', 'w'], 'goat', ['e', 'w', 'e', 'w']), clause(4), {X: 'w', Wolf: 'w', Cabbage: 'w', Y: 'e'}, [change('w', 'e')])
-step(change('w', 'e'), clause(8), {}, [])
-step(safe(['e', 'w', 'e', 'w']), clause(9), {Farmer: 'e', Wolf: 'w', Goat: 'e', Cabbage: 'w'}, [one_eq('e', 'e', 'w'), one_eq('e', 'e', 'w')])
-step(one_eq('e', 'e', 'w'), clause(10), {X: 'e', _0: 'w'}, [])
-step(solution(['e', 'w', 'e', 'w'], ['nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat']), clause(2), {State: ['e', 'w', 'e', 'w'], Move: 'nothing', Rest: ['wolf', 'goat', 'cabbage', 'nothing', 'goat'], Next: ['w', 'w', 'e', 'w']}, [move(['e', 'w', 'e', 'w'], 'nothing', ['w', 'w', 'e', 'w']), safe(['w', 'w', 'e', 'w']), solution(['w', 'w', 'e', 'w'], ['wolf', 'goat', 'cabbage', 'nothing', 'goat'])])
-step(move(['e', 'w', 'e', 'w'], 'nothing', ['w', 'w', 'e', 'w']), clause(6), {X: 'e', Wolf: 'w', Goat: 'e', Cabbage: 'w', Y: 'w'}, [change('e', 'w')])
-step(change('e', 'w'), clause(7), {}, [])
-step(safe(['w', 'w', 'e', 'w']), clause(9), {Farmer: 'w', Wolf: 'w', Goat: 'e', Cabbage: 'w'}, [one_eq('w', 'e', 'w'), one_eq('w', 'e', 'w')])
-step(one_eq('w', 'e', 'w'), clause(11), {X: 'w', _0: 'e'}, [])
-step(solution(['w', 'w', 'e', 'w'], ['wolf', 'goat', 'cabbage', 'nothing', 'goat']), clause(2), {State: ['w', 'w', 'e', 'w'], Move: 'wolf', Rest: ['goat', 'cabbage', 'nothing', 'goat'], Next: ['e', 'e', 'e', 'w']}, [move(['w', 'w', 'e', 'w'], 'wolf', ['e', 'e', 'e', 'w']), safe(['e', 'e', 'e', 'w']), solution(['e', 'e', 'e', 'w'], ['goat', 'cabbage', 'nothing', 'goat'])])
-step(move(['w', 'w', 'e', 'w'], 'wolf', ['e', 'e', 'e', 'w']), clause(3), {X: 'w', Goat: 'e', Cabbage: 'w', Y: 'e'}, [change('w', 'e')])
-step(safe(['e', 'e', 'e', 'w']), clause(9), {Farmer: 'e', Wolf: 'e', Goat: 'e', Cabbage: 'w'}, [one_eq('e', 'e', 'e'), one_eq('e', 'e', 'w')])
-step(one_eq('e', 'e', 'e'), clause(10), {X: 'e', _0: 'e'}, [])
-step(solution(['e', 'e', 'e', 'w'], ['goat', 'cabbage', 'nothing', 'goat']), clause(2), {State: ['e', 'e', 'e', 'w'], Move: 'goat', Rest: ['cabbage', 'nothing', 'goat'], Next: ['w', 'e', 'w', 'w']}, [move(['e', 'e', 'e', 'w'], 'goat', ['w', 'e', 'w', 'w']), safe(['w', 'e', 'w', 'w']), solution(['w', 'e', 'w', 'w'], ['cabbage', 'nothing', 'goat'])])
-step(move(['e', 'e', 'e', 'w'], 'goat', ['w', 'e', 'w', 'w']), clause(4), {X: 'e', Wolf: 'e', Cabbage: 'w', Y: 'w'}, [change('e', 'w')])
-step(safe(['w', 'e', 'w', 'w']), clause(9), {Farmer: 'w', Wolf: 'e', Goat: 'w', Cabbage: 'w'}, [one_eq('w', 'w', 'e'), one_eq('w', 'w', 'w')])
-step(one_eq('w', 'w', 'e'), clause(10), {X: 'w', _0: 'e'}, [])
-step(one_eq('w', 'w', 'w'), clause(10), {X: 'w', _0: 'w'}, [])
-step(solution(['w', 'e', 'w', 'w'], ['cabbage', 'nothing', 'goat']), clause(2), {State: ['w', 'e', 'w', 'w'], Move: 'cabbage', Rest: ['nothing', 'goat'], Next: ['e', 'e', 'w', 'e']}, [move(['w', 'e', 'w', 'w'], 'cabbage', ['e', 'e', 'w', 'e']), safe(['e', 'e', 'w', 'e']), solution(['e', 'e', 'w', 'e'], ['nothing', 'goat'])])
-step(move(['w', 'e', 'w', 'w'], 'cabbage', ['e', 'e', 'w', 'e']), clause(5), {X: 'w', Wolf: 'e', Goat: 'w', Y: 'e'}, [change('w', 'e')])
-step(safe(['e', 'e', 'w', 'e']), clause(9), {Farmer: 'e', Wolf: 'e', Goat: 'w', Cabbage: 'e'}, [one_eq('e', 'w', 'e'), one_eq('e', 'w', 'e')])
-step(one_eq('e', 'w', 'e'), clause(11), {X: 'e', _0: 'w'}, [])
-step(solution(['e', 'e', 'w', 'e'], ['nothing', 'goat']), clause(2), {State: ['e', 'e', 'w', 'e'], Move: 'nothing', Rest: ['goat'], Next: ['w', 'e', 'w', 'e']}, [move(['e', 'e', 'w', 'e'], 'nothing', ['w', 'e', 'w', 'e']), safe(['w', 'e', 'w', 'e']), solution(['w', 'e', 'w', 'e'], ['goat'])])
-step(move(['e', 'e', 'w', 'e'], 'nothing', ['w', 'e', 'w', 'e']), clause(6), {X: 'e', Wolf: 'e', Goat: 'w', Cabbage: 'e', Y: 'w'}, [change('e', 'w')])
-step(safe(['w', 'e', 'w', 'e']), clause(9), {Farmer: 'w', Wolf: 'e', Goat: 'w', Cabbage: 'e'}, [one_eq('w', 'w', 'e'), one_eq('w', 'w', 'e')])
-step(solution(['w', 'e', 'w', 'e'], ['goat']), clause(2), {State: ['w', 'e', 'w', 'e'], Move: 'goat', Rest: [], Next: ['e', 'e', 'e', 'e']}, [move(['w', 'e', 'w', 'e'], 'goat', ['e', 'e', 'e', 'e']), safe(['e', 'e', 'e', 'e']), solution(['e', 'e', 'e', 'e'], [])])
-step(move(['w', 'e', 'w', 'e'], 'goat', ['e', 'e', 'e', 'e']), clause(4), {X: 'w', Wolf: 'e', Cabbage: 'e', Y: 'e'}, [change('w', 'e')])
-step(safe(['e', 'e', 'e', 'e']), clause(9), {Farmer: 'e', Wolf: 'e', Goat: 'e', Cabbage: 'e'}, [one_eq('e', 'e', 'e'), one_eq('e', 'e', 'e')])
-step(solution(['e', 'e', 'e', 'e'], []), clause(1), {}, [])
-// … 17 more steps, 72 in total, prove the two shortest_crossing answers.
-// They reuse the steps above, so only the second plan needs new ones.
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-searched('shorter_solution', [])
-// … 71 more searched lines: the lengths 0 to 6, and every plan tried
+// Certificate: the derived facts and every answer of each call the questions make.
+called(wolf_goat_cabbage_verified(7), [wolf_goat_cabbage_verified(7)])
+called('shorter_solution', [])
+called(in_range(0, 6, A), [in_range(0, 6, 0), in_range(0, 6, 1), in_range(0, 6, 2), in_range(0, 6, 3), in_range(0, 6, 4), in_range(0, 6, 5), in_range(0, 6, 6)])
+// …
+called(solution(['w', 'w', 'w', 'w'], [_79, _80, _81, _82, _83, _84]), [])
+// …
+called(moves(7, A4), [moves(7, [_105, _106, _107, _108, _109, _110, _111])])
+// … 82 more called lines, 87 in all
 ```
 
-It has four parts:
+It has two parts:
 
 - **The claims**: the three answers.
-- **The clauses**: the program lines the steps cite, numbered by their place
-  in the program. Lines 14 to 16 (`in_range` and `'shorter_solution'`) are
-  not cited: no step uses them, because the absence of a shorter plan is
-  backed by the search certificate rather than by steps (see below). The `_` of the program is
-  shown as `_0`.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`. The values in curly
-  braces say what each variable of the cited line stood for.
-- **The search certificate**: the search behind the absence, written as
-  `searched(call, answers)` lines, each with every answer the call gave.
+- **The certificate**: one *call table* per call the questions make, each
+  written `called(call, answers)` with every answer of that call, in the
+  order the search found them, repetitions included. A table's own
+  variables, such as `A` or `_79`, stand for what the call left open.
 
-Four kinds of justification occur. `clause(N)` means "by line N of the
-program". `'builtin'` means a test or calculation, such as `gt(7, 0)`, that
-the checker redoes itself. `'control'` means `once(...)`, which the checker
-rebuilds from the goal inside it. `'absent'` means something was concluded
-because it could **not** be found.
+The puzzle is solved entirely by backward rules, so no forward rule derives
+a fact: the proof needs no steps and no listings. Clauses are numbered by
+their place in the program.
 
-The 55 steps say:
+Read the shown tables as sentences:
 
-- **Step 1.** *7 crossings is verified* — by rule 17, because there is no
-  shorter solution, the plan is a list of 7 moves, and it is a solution.
-- **Step 2.** *There is no shorter solution* — **absent**: eyemind tried
-  every plan of 0 to 6 crossings and none worked. A proof cannot point at a
-  missing plan, so the search certificate records that search instead.
-- **Steps 3 to 24.** *The plan is a list of 7 moves* — by rule 13, taking
-  one move off at a time (7 > 0, 7 − 1 = 6, …), down to the empty list
-  (fact 12).
-- **Step 25.** *`once(...)` of the solution holds* — **control**: it holds
-  because the solution inside it holds (step 26).
-- **Steps 26 to 30.** *From all-west, taking the goat gets everyone across* —
-  by rule 2: the goat move is legal (rule 4, since the farmer goes from west
-  to east, fact 8), and the new state `['e', 'w', 'e', 'w']` is safe (rule
-  9: the goat is with the farmer, fact 10).
-- **Steps 31 to 35.** *Coming back alone* — rule 6 and fact 7; the state
-  `['w', 'w', 'e', 'w']` is safe because the goat is alone on the east bank,
-  apart from both the wolf and the cabbage (fact 11).
-- **Steps 36 to 39.** *Taking the wolf* — rule 3; `['e', 'e', 'e', 'w']` is
-  safe because the farmer is with the goat.
-- **Steps 40 to 44.** *Bringing the goat back* — rule 4; `['w', 'e', 'w',
-  'w']` is safe because the farmer is with the goat.
-- **Steps 45 to 48.** *Taking the cabbage* — rule 5; `['e', 'e', 'w', 'e']`
-  is safe because the goat is alone on the west bank.
-- **Steps 49 to 51.** *Coming back alone* — rule 6; `['w', 'e', 'w', 'e']`
-  is safe because the farmer is with the goat.
-- **Steps 52 to 54.** *Taking the goat* — rule 4; `['e', 'e', 'e', 'e']` is
-  safe.
-- **Step 55.** *With everyone east, nothing is left to do* — fact 1.
-
-Steps already shown, such as `change('w', 'e')`, are reused rather than
-repeated.
+- *7 crossings is verified, once* — the table for the first query. Rule 17
+  needs no shorter solution, a list of 7 moves, and the first solution among
+  them.
+- *There is no shorter solution* — `called('shorter_solution', [])`: the
+  search for a shorter plan has **no** answers. The tables below it record
+  that search: the lengths 0 to 6 from `in_range`, a plan of each length,
+  the moves possible from each state, and which states are safe.
+- *No plan of 6 crossings works* — the table for `solution` from all-west
+  with 6 open moves is empty, as are those for 0 to 5 moves.
+- *Every plan has 7 moves* — `moves(7, A4)` has one answer, a list of 7
+  open moves, which the `solution` table after it fills in. That table
+  holds the two plans, each found 16 times, because a safe state can often
+  be shown safe in two ways (facts 10 and 11). The table for
+  `shortest_crossing(_145)` repeats them the same way; the claims list each
+  plan once.
 
 ---
 
@@ -284,80 +187,34 @@ repeated.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms each table in one procedure. It expands the call
+one level against the program, as a search would, computing tests such as
+`gt(7, 0)` and `7 − 1 = 6` itself, and answers each inner call from that
+call's own table, so no table vouches for itself. For rule 17 it answers
+`not('shorter_solution')` from that call's empty table, and
+`once(solution(...))` from the first answer of the `solution` table. Every
+move must be legal and every state on the way safe, and a plan a table hid,
+or added, would show up as a disagreement. Finally the claims must be
+exactly the answers, and every table must have been used. This is the
+complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 wolf_goat_cabbage_verified(7)
 shortest_crossing(['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])
 shortest_crossing(['goat', 'nothing', 'cabbage', 'goat', 'wolf', 'nothing', 'goat'])
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 56)
-condition('C2', 'well_founded', 'ok', 72)
-condition('C3', 'justification', 'ok', 72)
-condition('C4', 'coverage', 'ok', 113)
-condition('C5', 're_decision', 'ok', 15)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 75)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 5)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(72)
-verified(56)
-recomputed(14)
-composed(1)
-trusted(0)
-claims(3)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (56)**: the 56 steps that cite a program line really are
-  instances of that line with the values shown: every move is legal and
-  every state on the way is safe.
-- **C2 well-founded (72)**: none of the 72 steps depends on itself, even
-  indirectly.
-- **C3 justification (72)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (113)**: the 3 claims and the 110 things the steps use are
-  each backed by a step.
-- **C5 re-decision (15)**: the checker redid the 14 built-in tests and
-  calculations and rebuilt the 1 `once(...)` from its part, and all agree.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled the only absence.
-- **C7 relevance (75)**: the 3 claims answer the queries, and all 72 steps
-  serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (1)**: the 1 absence was settled by the search
-  certificate: there is no shorter solution, as explained below.
-
-The statistics: 72 steps, 56 verified against the program, 14 recomputed, 1
-composed (the `once`) and the absence settled by the certificate, none
-trusted, 3 claims.
-
-*There is no shorter solution* is not taken on trust. The certificate opens
-with `searched('shorter_solution', [])`: the search for a shorter plan gave
-no answers. Below it come the calls that search made: the lengths 0 to 6
-from `in_range`, a plan of each length, the moves possible from each state,
-and which states are safe. The checker verifies every line without
-searching itself: it expands the call one level against the program, as a
-search would, and answers each inner call from that call's own line, so no
-line vouches for itself, and a plan the certificate hid would show up as a
-disagreement. "No shorter plan" is meant with respect to this program: the
+*There is no shorter solution* is not taken on trust: the empty table and
+the tables below it record the search behind it, and the checker confirms
+each one. "No shorter plan" is meant with respect to this program: the
 search covered every plan of 0 to 6 crossings the program allows. The
-verdict is **checked**: the two plans are fully checked, move by move, and
-so is the claim that *7 is the minimum*. The claims are also
-every answer of the original questions.
+verdict is **checked**: the two plans are fully checked, move by move, and so
+is the claim that *7 is the minimum*. The claims are also every answer of
+the original questions.
 
 ---
 
@@ -378,5 +235,5 @@ fails and eyemind reports `// No answers: no query() instance holds.`
 ## Takeaway
 
 "Here is a plan" and "no better plan exists" are different kinds of claim.
-eyemind proves the first step by step, and records the exhaustive search
-behind the second so that it can be checked as well.
+eyemind records the search behind both, call by call, so that the second
+can be checked as well as the first.

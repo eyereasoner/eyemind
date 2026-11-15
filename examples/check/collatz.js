@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 and(in_range(1, 20, 1), trajectory(1, [1]))
 and(in_range(1, 20, 2), trajectory(2, [2, 1]))
 and(in_range(1, 20, 3), trajectory(3, [3, 10, 5, 16, 8, 4, 2, 1]))
@@ -20,26 +20,4 @@ and(in_range(1, 20, 18), trajectory(18, [18, 9, 28, 14, 7, 22, 11, 34, 17, 52, 2
 and(in_range(1, 20, 19), trajectory(19, [19, 58, 29, 88, 44, 22, 11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1]))
 and(in_range(1, 20, 20), trajectory(20, [20, 10, 5, 16, 8, 4, 2, 1]))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 248)
-condition('C2', 'well_founded', 'ok', 417)
-condition('C3', 'justification', 'ok', 417)
-condition('C4', 'coverage', 'ok', 758)
-condition('C5', 're_decision', 'ok', 169)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 437)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 21)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(417)
-verified(248)
-recomputed(169)
-composed(0)
-trusted(0)
-claims(20)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

@@ -214,10 +214,9 @@ conclusions.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each conclusion. The full proof
-is 739 lines (about 124 KB) with 273 steps and a 323-line search
-certificate, so here is its opening, a selection of its 97 clauses, the
-complete steps behind one conclusion, *under the proposal, r1 may go
-ahead*, and the certificate lines for r1's three collections. The
+is 542 lines, with 37 steps, 5 listings and 457 call tables, so here is its
+opening, the step behind one conclusion, *under the proposal, r1 may go
+ahead*, and some of the call tables that conclusion rests on. The
 [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/research-portal.js)
 is online.
 
@@ -227,147 +226,74 @@ is online.
 assessment('omnibus_proposal', 'ex:r1', permit('ex:research'), basis(['ex:policy', 'GDPR Art. 88a(3)(c)']))
 // … 14 more conclusions, 37 in total
 
-// Clauses: the program clauses the steps cite, by clause number.
-// … 19 clauses
-clause(36, fact(process('ex:r1', 'ex:hospital', 'ex:partnerBE', 'dpv:Use', 'ex:labResults', 'dpv:AcademicResearch', 'dpv:Consent', 'dpv:ConsentGiven', 'dpv:Pseudonymisation', 20261115)))
-// … 19 clauses
-clause(71, implied_by(addresses(P, Rule), [t(P, 'ex:requestedBy', Who), t(Rule, 'odrl:assignee', Assignee), party(Who, Assignee), t(P, 'dpv:hasProcessing', Processing), action(Processing, Action), t(Rule, 'odrl:action', Action), t(P, 'dpv:hasPersonalData', Data), t(Rule, 'odrl:target', Data)]))
-clause(74, implied_by(applies(P, Rule), [addresses(P, Rule), findall(Why, unmet(P, Rule, Why), [])]))
-clause(75, implied_by(governs(Policy, P), [t(Policy, 'rdf:type', 'odrl:Agreement'), t(Policy, 'odrl:assigner', Controller), t(P, 'dpv:hasDataController', Controller)]))
-clause(76, implied_by(permitted(P, Rule), [governs(Policy, P), t(Policy, 'odrl:permission', Rule), applies(P, Rule)]))
-// … 2 clauses
-clause(79, implied_by(policy_ready(P), [governs(Policy, P), findall(S, t(Policy, 'odrl:conflict', S), ['odrl:prohibit'])]))
-clause(80, implied_by(policy_result(P, permit(Rule)), [policy_ready(P), permitted(P, Rule), findall(R, prohibited(P, R), [])]))
-// … 21 clauses
-clause(102, fact(consent('omnibus_proposal', 'own_audience_measurement', 'not_needed', 'GDPR Art. 88a(3)(c)')))
-// … 15 clauses
-clause(118, implies([regime(R), policy_result(P, permit(Rule)), session(P, Kind, _0), consent(R, Kind, 'not_needed', Provision)], assessment(R, P, permit(Rule), basis(['ex:policy', Provision]))))
-// … 12 more clauses, 97 in total
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-// … 14 steps
-step(regime('omnibus_proposal'), clause(96), {}, [])
-// … 16 steps
-step(t('ex:policy', 'rdf:type', 'odrl:Agreement'), clause(6), {}, [])
-step(t('ex:policy', 'odrl:assigner', 'ex:hospital'), clause(7), {}, [])
-// … 4 steps
-step(t('ex:policy', 'odrl:permission', 'ex:research'), clause(9), {}, [])
-// … 3 steps
-step(t('ex:research', 'odrl:assignee', 'ex:consortium'), clause(10), {}, [])
-// … 3 steps
-step(action('dpv:Use', 'odrl:use'), clause(57), {}, [])
-step(t('ex:research', 'odrl:action', 'odrl:use'), clause(11), {}, [])
-// … 1 step
-step(t('ex:research', 'odrl:target', 'ex:labResults'), clause(12), {}, [])
-// … 22 steps
-step(party('ex:partnerBE', 'ex:consortium'), clause(70), {Who: 'ex:partnerBE', Group: 'ex:consortium'}, [t('ex:partnerBE', 'odrl:partOf', 'ex:consortium')])
-step(t('ex:partnerBE', 'odrl:partOf', 'ex:consortium'), clause(4), {}, [])
-// … 95 steps
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
+// … 13 steps
 step(assessment('omnibus_proposal', 'ex:r1', permit('ex:research'), basis(['ex:policy', 'GDPR Art. 88a(3)(c)'])), clause(118), {R: 'omnibus_proposal', P: 'ex:r1', Rule: 'ex:research', Kind: 'own_audience_measurement', _0: 'first_visit', Provision: 'GDPR Art. 88a(3)(c)'}, [regime('omnibus_proposal'), policy_result('ex:r1', permit('ex:research')), session('ex:r1', 'own_audience_measurement', 'first_visit'), consent('omnibus_proposal', 'own_audience_measurement', 'not_needed', 'GDPR Art. 88a(3)(c)')])
-step(policy_result('ex:r1', permit('ex:research')), clause(80), {P: 'ex:r1', Rule: 'ex:research', R: Z}, [policy_ready('ex:r1'), permitted('ex:r1', 'ex:research'), findall(Z, prohibited('ex:r1', Z), [])])
-step(policy_ready('ex:r1'), clause(79), {P: 'ex:r1', Policy: 'ex:policy', S: A1}, [governs('ex:policy', 'ex:r1'), findall(A1, t('ex:policy', 'odrl:conflict', A1), ['odrl:prohibit'])])
-step(governs('ex:policy', 'ex:r1'), clause(75), {Policy: 'ex:policy', P: 'ex:r1', Controller: 'ex:hospital'}, [t('ex:policy', 'rdf:type', 'odrl:Agreement'), t('ex:policy', 'odrl:assigner', 'ex:hospital'), t('ex:r1', 'dpv:hasDataController', 'ex:hospital')])
-step(t('ex:r1', 'dpv:hasDataController', 'ex:hospital'), clause(48), {P: 'ex:r1', X: 'ex:hospital', _0: 'ex:partnerBE', _1: 'dpv:Use', _2: 'ex:labResults', _3: 'dpv:AcademicResearch', _4: 'dpv:Consent', _5: 'dpv:ConsentGiven', _6: 'dpv:Pseudonymisation', _7: 20261115}, [process('ex:r1', 'ex:hospital', 'ex:partnerBE', 'dpv:Use', 'ex:labResults', 'dpv:AcademicResearch', 'dpv:Consent', 'dpv:ConsentGiven', 'dpv:Pseudonymisation', 20261115)])
-step(process('ex:r1', 'ex:hospital', 'ex:partnerBE', 'dpv:Use', 'ex:labResults', 'dpv:AcademicResearch', 'dpv:Consent', 'dpv:ConsentGiven', 'dpv:Pseudonymisation', 20261115), clause(36), {}, [])
-step(findall(A1, t('ex:policy', 'odrl:conflict', A1), ['odrl:prohibit']), 'collected', {}, [])
-step(permitted('ex:r1', 'ex:research'), clause(76), {P: 'ex:r1', Rule: 'ex:research', Policy: 'ex:policy'}, [governs('ex:policy', 'ex:r1'), t('ex:policy', 'odrl:permission', 'ex:research'), applies('ex:r1', 'ex:research')])
-step(applies('ex:r1', 'ex:research'), clause(74), {P: 'ex:r1', Rule: 'ex:research', Why: B1}, [addresses('ex:r1', 'ex:research'), findall(B1, unmet('ex:r1', 'ex:research', B1), [])])
-step(addresses('ex:r1', 'ex:research'), clause(71), {P: 'ex:r1', Rule: 'ex:research', Who: 'ex:partnerBE', Assignee: 'ex:consortium', Processing: 'dpv:Use', Action: 'odrl:use', Data: 'ex:labResults'}, [t('ex:r1', 'ex:requestedBy', 'ex:partnerBE'), t('ex:research', 'odrl:assignee', 'ex:consortium'), party('ex:partnerBE', 'ex:consortium'), t('ex:r1', 'dpv:hasProcessing', 'dpv:Use'), action('dpv:Use', 'odrl:use'), t('ex:research', 'odrl:action', 'odrl:use'), t('ex:r1', 'dpv:hasPersonalData', 'ex:labResults'), t('ex:research', 'odrl:target', 'ex:labResults')])
-step(t('ex:r1', 'ex:requestedBy', 'ex:partnerBE'), clause(49), {P: 'ex:r1', Who: 'ex:partnerBE', _0: 'ex:hospital', _1: 'dpv:Use', _2: 'ex:labResults', _3: 'dpv:AcademicResearch', _4: 'dpv:Consent', _5: 'dpv:ConsentGiven', _6: 'dpv:Pseudonymisation', _7: 20261115}, [process('ex:r1', 'ex:hospital', 'ex:partnerBE', 'dpv:Use', 'ex:labResults', 'dpv:AcademicResearch', 'dpv:Consent', 'dpv:ConsentGiven', 'dpv:Pseudonymisation', 20261115)])
-step(t('ex:r1', 'dpv:hasProcessing', 'dpv:Use'), clause(50), {P: 'ex:r1', X: 'dpv:Use', _0: 'ex:hospital', _1: 'ex:partnerBE', _2: 'ex:labResults', _3: 'dpv:AcademicResearch', _4: 'dpv:Consent', _5: 'dpv:ConsentGiven', _6: 'dpv:Pseudonymisation', _7: 20261115}, [process('ex:r1', 'ex:hospital', 'ex:partnerBE', 'dpv:Use', 'ex:labResults', 'dpv:AcademicResearch', 'dpv:Consent', 'dpv:ConsentGiven', 'dpv:Pseudonymisation', 20261115)])
-step(t('ex:r1', 'dpv:hasPersonalData', 'ex:labResults'), clause(51), {P: 'ex:r1', X: 'ex:labResults', _0: 'ex:hospital', _1: 'ex:partnerBE', _2: 'dpv:Use', _3: 'dpv:AcademicResearch', _4: 'dpv:Consent', _5: 'dpv:ConsentGiven', _6: 'dpv:Pseudonymisation', _7: 20261115}, [process('ex:r1', 'ex:hospital', 'ex:partnerBE', 'dpv:Use', 'ex:labResults', 'dpv:AcademicResearch', 'dpv:Consent', 'dpv:ConsentGiven', 'dpv:Pseudonymisation', 20261115)])
-step(findall(B1, unmet('ex:r1', 'ex:research', B1), []), 'collected', {}, [])
-step(findall(Z, prohibited('ex:r1', Z), []), 'collected', {}, [])
-step(session('ex:r1', 'own_audience_measurement', 'first_visit'), clause(84), {}, [])
-step(consent('omnibus_proposal', 'own_audience_measurement', 'not_needed', 'GDPR Art. 88a(3)(c)'), clause(102), {}, [])
-// … 88 more steps, 273 in total
+// … 23 more steps, 37 in total
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-searched(t('ex:policy', 'odrl:conflict', H1), [t('ex:policy', 'odrl:conflict', 'odrl:prohibit')])
+// Certificate: the derived facts and every answer of each call the questions make.
+// … 1 listing
+derived(policy_conflict(A, B), [policy_conflict('ex:r6', resolved_by('odrl:prohibit', 'ex:noTransferUS', overrides('ex:research')))])
+// … 3 more listings and 2 call tables
+called(policy_ready('ex:r1'), [policy_ready('ex:r1')])
 // …
-searched(unmet('ex:r1', 'ex:research', X4), [])
-// …
-searched(prohibited('ex:r1', H5), [])
-// … 323 searched lines in all
+called(t('ex:policy', 'odrl:conflict', H), [t('ex:policy', 'odrl:conflict', 'odrl:prohibit')])
+called(prohibited('ex:r1', I), [])
+// … 22 call tables
+called(permitted('ex:r1', S), [permitted('ex:r1', 'ex:research')])
+called(applies('ex:r1', 'ex:research'), [applies('ex:r1', 'ex:research')])
+called(unmet('ex:r1', 'ex:research', T), [])
+// … 369 call tables
+called(policy_result(V6, permit(W6)), [policy_result('ex:r1', permit('ex:research')), policy_result('ex:r7', permit('ex:research')), policy_result('ex:r8', permit('ex:research')), policy_result('ex:r9', permit('ex:research')), policy_result('ex:r10', permit('ex:research'))])
+// … 44 call tables
+called(assessment('omnibus_proposal', 'ex:r1', V8, _230), [assessment('omnibus_proposal', 'ex:r1', permit('ex:research'), basis(['ex:policy', 'GDPR Art. 88a(3)(c)']))])
+// … 8 more call tables, 457 in total
 ```
 
-It has four parts:
+It has three parts:
 
 - **The claims**: the 37 conclusions the proof is about.
-- **The clauses**: the program's facts and rules that some step cites,
+- **The steps**: one per derived fact, here one per conclusion. A step reads
+  `step(what, by which clause, with which values, using what)`, with clauses
   numbered in the order they appear in the program. A nameless `_` in the
-  program is written `_0`, `_1`, … so the steps can say what it matched.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`. Steps are written
-  once and shared, which is why r1's steps are spread out: those it shares
-  with conclusions derived earlier, the breach plans and r6's policy
-  conflict, come first.
-- **The search certificate**: every search behind the collected lists, each
-  written `searched(call, answers)` with every answer it gave, in the order
-  the calls were first met. For r1, the policy's conflict strategies are
-  `'odrl:prohibit'` alone, the search for an unmet condition of the
-  research permission found none, and so did the search for a prohibition.
+  program is written `_0`, `_1`, … so the step can say what it matched.
+- **The certificate**: five *listings*, `derived(...)`, of every
+  `assessment`, `policy_conflict`, `planned_duty`, `breach_plan` and
+  `changed` fact the forward rules derived, and the *call tables*,
+  `called(call, answers)`, with every answer of each call the checker's
+  search makes, in the order the calls are first met. With no query, the
+  program's questions are the heads of its forward rules, such as
+  `assessment(R, P, permit(Rule), basis(['ex:policy', Provision]))`.
 
-Three kinds of justification occur in the whole proof: `clause(N)`, an
-instance of program line N; `'builtin'`, a comparison or test that anyone
-checking the proof simply redoes, such as 5 < 6 months; and `'collected'`, a
-`findall` list. A collected list's items can be checked as steps; that *nothing
-is missing from it* is checked against the search certificate.
+The step for r1 reads: *under the proposal, r1 may go ahead, on the policy
+and GDPR Art. 88a(3)(c)* — by rule 118, because the proposal is a rulebook,
+the policy permits r1, r1 uses the portal's own statistics on a first
+visit, and under the proposal those need no consent.
 
-The 27 steps for r1, read from the conclusion down:
+Gate 1, the policy, is a backward definition, so why the policy permits r1
+is not a step: it is the search the call tables record. Read from the top:
 
-1. *Under the proposal, r1 may go ahead, on the policy and GDPR Art.
-   88a(3)(c)* — by rule 118, because the proposal is a rulebook, the policy
-   permits r1, r1 uses the portal's own statistics, and under the proposal
-   those need no consent.
-2. *The proposal is a rulebook* — fact 96.
-3. *r1 uses the portal's own statistics on a first visit* — fact 84.
-4. *Under the proposal, the portal's own statistics need no consent, by GDPR
-   Art. 88a(3)(c)* — fact 102.
-5. *The policy permits r1* — by rule 80, because the policy is ready for r1,
-   its research permission applies to r1, and no prohibition applies.
-6. *The policy is ready for r1* — by rule 79, because it governs r1 and its
-   only conflict strategy is "prohibition wins".
-7. *The policy's conflict strategies are exactly `['odrl:prohibit']`* —
-   `'collected'`, backed by the certificate.
-8. *The policy governs r1* — by rule 75, because it is an agreement
-   (fact 6), assigned by the hospital (fact 7), and the hospital is r1's data
-   controller.
-9. *The hospital is r1's data controller* — by rule 48, reading r1's
-   process fact.
-10. *r1's process fact* — fact 36.
-11. *The research permission is permitted for r1* — by rule 76, because the
-    policy governs r1, contains that permission (fact 9), and it applies.
-12. *The research permission applies to r1* — by rule 74, because it
-    addresses r1 and no condition is unmet.
-13. *The research permission addresses r1* — by rule 71, because the Belgian
-    partner requests it and is part of the consortium the permission is for
-    (fact 10), r1's "use" is the ODRL action *use* (fact 57) that the
-    permission covers (fact 11), and r1's data are the lab results the
-    permission targets (fact 12).
-14. to 16. *r1 is requested by the Belgian partner*, *its processing is
-    use*, and *its data are the lab results* — by rules 49, 50 and 51, each
-    reading r1's process fact.
-17. *The Belgian partner counts as the consortium* — by rule 70, because it
-    is part of the consortium (fact 4).
-18. *The unmet conditions of the research permission for r1 are `[]`* —
-    `'collected'`, backed by the certificate.
-19. *The prohibitions that apply to r1 are `[]`* — `'collected'`, backed by
-    the certificate.
-20. to 27. The remaining facts: the policy is an agreement (6), assigned by
-    the hospital (7), contains the research permission (9), for the
-    consortium (10), for the action *use* (11), on the lab results (12);
-    the Belgian partner is part of the consortium (4); "use" is ODRL *use*
-    (57).
+1. *The policy is ready for r1*: `policy_ready('ex:r1')` has one answer.
+   The policy governs r1 (it is an agreement assigned by the hospital, r1's
+   data controller), and its only conflict strategy is `'odrl:prohibit'`.
+2. *No prohibition applies to r1*: `prohibited('ex:r1', I)` has no answers.
+3. *The research permission is permitted for r1, and applies to it*.
+4. *No condition of the research permission is unmet for r1*:
+   `unmet('ex:r1', 'ex:research', T)` has no answers, so the `findall`
+   that collects them gives `[]`. Further tables record each of the five
+   conditions being met: academic research is research, the legal basis is
+   consent, consent was given, the data are pseudonymised, and the request
+   date is before 2027.
+5. *The sessions the policy permits* are r1, r7, r8, r9 and r10, the call
+   `policy_result(P, permit(Rule))` that rule 118 makes when it runs.
+6. *Under the proposal, r1 has exactly one assessment*: the table of a call
+   that the `changed` rule makes, comparing the two rulebooks.
 
-Note what the proof does **not** contain: a step showing, condition by
-condition, that r1 meets each of the five policy conditions. That r1 meets
-them is carried by step 18, a list of unmet conditions that eyemind found to
-be empty, and the checker confirms that list from the search certificate:
-`searched(unmet('ex:r1', 'ex:research', X4), [])` and the lines for the
-calls that search made, condition by condition.
+The stated facts, such as `regime('omnibus_proposal')` and the consent
+table's `consent('omnibus_proposal', 'own_audience_measurement',
+'not_needed', 'GDPR Art. 88a(3)(c)')`, need no steps or tables: the checker
+reads them from the program.
 
 ---
 
@@ -375,11 +301,27 @@ calls that search made, condition by condition.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the questions.** It expands each original question one level
+  against the program: listed facts first, answering every inner call from
+  its table. Each table it consults must equal its own expansion, down to the
+  constraint tests, which it computes itself: comparisons of months (5 < 6,
+  6 ≥ 6) and of dates.
+- **It checks the listings are closed.** Applying the forward rules to
+  everything known derives no assessment, conflict, duty, breach plan or
+  change the listings leave out.
+- **It replays each listed fact.** It re-runs each cited rule from no
+  bindings against its step, taking each call's answers from its table as
+  the call stood when it ran, and each `findall` or negation the same way.
+- **It compares the claims with the answers.** Every claim is an answer,
+  every answer is claimed, and every step, listing and table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 breach_plan('in_force', 'b1', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
 breach_plan('in_force', 'b2', notify(authority(within_hours(72)), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
 breach_plan('in_force', 'b3', notify(authority(within_hours(72)), people('without_undue_delay')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
@@ -418,84 +360,24 @@ changed(session('ex:r1'), from(await_device_consent('ex:research')), to(permit('
 changed(session('ex:r7'), from(await_device_consent('ex:research')), to(deny_device('refused_by_signal')))
 changed(session('ex:r8'), from(await_device_consent('ex:research')), to(deny_device('do_not_ask_again')))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 225)
-condition('C2', 'well_founded', 'ok', 273)
-condition('C3', 'justification', 'ok', 273)
-condition('C4', 'coverage', 'ok', 474)
-condition('C5', 're_decision', 'ok', 15)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 310)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 33)
-condition('C10', 'call_fidelity', 'ok', 46)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(273)
-verified(225)
-recomputed(15)
-composed(0)
-trusted(0)
-claims(37)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-The report first repeats the 37 conclusions, now checked answers. Each `condition` line then names a check, says `'ok'`,
-and counts what it looked at:
+The report repeats the 37 conclusions, now checked answers. The lists the
+policy's `findall`s collect are settled the same way as every other call:
+nine times, "the policy's only conflict strategy is *prohibition wins*"; for
+the sessions that pass gate 1 (r1, r7, r8, r9, r10), "no condition of the
+research permission is unmet" and "no prohibition applies"; for r2, r4 and
+r5, "these are *all* the unmet conditions"; for r11, "no permission even
+addresses it". Each list holds relative to this program, not necessarily to
+the world.
 
-- **C1 resolution (225)**: the 225 steps that cite a rule or fact really are
-  instances of it with the values shown, such as step 1 above being rule 118
-  with `R` = the proposal and `P` = r1.
-- **C2 well-founded (273)**: none of the 273 steps depends on itself, even
-  indirectly.
-- **C3 justification (273)**: every step says how it was justified, in a
-  form the checker understands.
-- **C4 coverage (474)**: the 37 claims and the 437 things the steps use are
-  each backed by a step.
-- **C5 re-decision (15)**: the 15 built-in steps were redone by the checker
-  and agree: comparisons of months (5 < 6, 6 ≥ 6, and that they are whole
-  numbers), and tests that two results really differ, such as "wait for
-  consent" and "go ahead" for r1.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled all 33 collections.
-- **C7 relevance (310)**: the 37 claims are the program's conclusions, and
-  all 273 steps serve at least one of them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (33)**: all 33 collected lists were settled by the
-  search certificate's 323 `searched` lines, including the 8 lists of unmet
-  conditions and the 3 lists of reasons for refusing r2, r4 and r5, as
-  explained below.
-
-The 33 settled lists are, in plain words: nine times, "the policy's only conflict strategy is *prohibition
-wins*"; for the sessions that pass gate 1 (r1, r7, r8, r9, r10), "no
-condition of the research permission is unmet" and "no prohibition applies";
-for r6, "no condition of the research permission is unmet, and none of the
-US ban"; for r3, "no condition of the marketing ban is unmet"; for r2, r4 and r5, "nothing is permitted, nothing is
-prohibited, and these are *all* the unmet conditions"; for r11, "no
-permission even addresses it, and no prohibition applies". The checker
-confirms each without searching: it expands every `searched` call one level
-against the program, as a search would, answers each inner call from that
-call's own line, and reads the facts directly where only facts define a
-relation, so no line vouches for itself. Each list holds relative to this
-program, not necessarily to the world.
-
-The statistics: 273 steps, 225 verified against the program, 15 recomputed
-and the 33 collections settled by the certificate, no boundary steps taken on trust. The
-verdict is **checked**: every conclusion follows from the program, and the
-conclusions are every answer of the original questions.
+The verdict is **checked**: every conclusion follows from the program, and
+the conclusions are every answer of the original questions.
 
 What the checked proof does **not** show: that the rules are legally correct, that consent was really
 given, or that the data was really deleted. It shows that the conclusions
 follow from these rules and these facts.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
 
 ---
 

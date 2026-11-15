@@ -132,14 +132,21 @@ inf(iri('http://example.org/family-cousins#Judy'), iri('http://example.org/famil
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
-C1 checks inference steps against the compiled source clauses; C5 checks
-primitive computations; C8 checks fresh witnesses; C10 checks the original
-questions against the recorded call tables. The checker follows the
-certificate without calling the reasoning engine.
+The proof holds the 40 claims, 65 steps and a certificate. Every derived
+triple has a step citing the clause of the compiled program that concluded
+it: a DATA triple rests on nothing, a generation on the bounded parent-path
+rules, and a cousin link on clause 36, with the two people, their shared
+generation and their different branches as bindings.
 
-The verdict describes the displayed claims and any listed obligations. It
-does not assert that an arbitrary certificate lists every possible answer.
+The certificate lists the derived `inf` and `rdf` facts and holds 28 call
+tables, one for each search the questions make. The checker requires each
+listing to be closed under the rules, so no generation, branch or cousin link
+can be left out; replays every listed fact's step from its source rule;
+checks each table by expanding its call one level; and requires the claims to be exactly the
+answers. It never calls the reasoner.
+
+The saved report ends with `verdict('checked')`: the 40 triples follow from
+the rules, and they are every answer of the program's questions.
 
 ---
 

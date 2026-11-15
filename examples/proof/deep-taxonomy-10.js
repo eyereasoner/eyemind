@@ -1,35 +1,7 @@
 // Answers: each instance of a query() that holds.
 type('ind', 'n10')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(type('ind', 'n0')))
-clause(2, implied_by(type(X, 'n1'), type(X, 'n0')))
-clause(5, implied_by(type(X, 'n2'), type(X, 'n1')))
-clause(8, implied_by(type(X, 'n3'), type(X, 'n2')))
-clause(11, implied_by(type(X, 'n4'), type(X, 'n3')))
-clause(14, implied_by(type(X, 'n5'), type(X, 'n4')))
-clause(17, implied_by(type(X, 'n6'), type(X, 'n5')))
-clause(20, implied_by(type(X, 'n7'), type(X, 'n6')))
-clause(23, implied_by(type(X, 'n8'), type(X, 'n7')))
-clause(26, implied_by(type(X, 'n9'), type(X, 'n8')))
-clause(29, implied_by(type(X, 'n10'), type(X, 'n9')))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(type('ind', 'n10'), clause(29), {X: 'ind'}, [type('ind', 'n9')])
-step(type('ind', 'n9'), clause(26), {X: 'ind'}, [type('ind', 'n8')])
-step(type('ind', 'n8'), clause(23), {X: 'ind'}, [type('ind', 'n7')])
-step(type('ind', 'n7'), clause(20), {X: 'ind'}, [type('ind', 'n6')])
-step(type('ind', 'n6'), clause(17), {X: 'ind'}, [type('ind', 'n5')])
-step(type('ind', 'n5'), clause(14), {X: 'ind'}, [type('ind', 'n4')])
-step(type('ind', 'n4'), clause(11), {X: 'ind'}, [type('ind', 'n3')])
-step(type('ind', 'n3'), clause(8), {X: 'ind'}, [type('ind', 'n2')])
-step(type('ind', 'n2'), clause(5), {X: 'ind'}, [type('ind', 'n1')])
-step(type('ind', 'n1'), clause(2), {X: 'ind'}, [type('ind', 'n0')])
-step(type('ind', 'n0'), clause(1), {}, [])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 called(type(A, 'n10'), [type('ind', 'n10')])
 called(type(B, 'n9'), [type('ind', 'n9')])
 called(type(C, 'n8'), [type('ind', 'n8')])

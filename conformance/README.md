@@ -25,25 +25,25 @@ the case files in order, with the SPEC sections and the topic of each.
 | File | SPEC | Cases | What it tests |
 | --- | --- | --- | --- |
 | [03-terms.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/03-terms.js) | 2 | 90 | Unification, the occurs check, integers and finite floats, lists, the standard order |
-| [04-programs.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/04-programs.js) | 3, 6 | 162 | Statements, clause numbering, names a program leaves undefined, rejected clauses, stratification, chain stratification |
+| [04-programs.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/04-programs.js) | 3, 6 | 165 | Statements, clause numbering, names a program leaves undefined, reserved heads, rejected clauses, stratification, chain stratification |
 | [05-controls-and-primitives.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/05-controls-and-primitives.js) | 4 | 214 | Every control and primitive, and the errors of their flow patterns |
 | [06-arithmetic.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/06-arithmetic.js) | 5, README.resource-limits | 191 | The meaning of every arithmetic term and function, exact integers, and each error |
 | [07-reasoning.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/07-reasoning.js) | 7, 8 | 166 | Search order, forward rounds, Skolem terms, restricted rules, chain strata, conclusions, halting, bounds |
 | [08-canonical-text.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/08-canonical-text.js) | 9 | 57 | The one spelling of atoms, numbers, variables, lists and compounds |
 | [09-reading.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/09-reading.js) | 9.1 | 115 | What a document reader accepts, and what it must reject without running anything |
-| [10-proofs.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/10-proofs.js) | 10 | 61 | Proof documents for every kind of justification, step order and sharing |
-| [11-checking.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/11-checking.js) | 10.4, 11, 12 | 200 | Valid proofs, search certificates, and proofs tampered with to break each of C1-C9, with their exact reports |
-| [12-fidelity.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/12-fidelity.js) | 10.5, 11.13, README.command-line | 45 | C10 call fidelity and answer completeness, original bindings and first answers, forged call tables and unsupported evidence |
+| [10-proofs.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/10-proofs.js) | 10 | 61 | Proof documents: claims, steps of firings and controls, call tables and listings, their order and sharing |
+| [11-checking.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/11-checking.js) | 11, 11.3, 11.4, 11.6, 12, README.json-check-reports | 68 | Reading proofs, answering calls from call tables, replaying derived facts, nothing unused, and the exact reports of valid proofs |
+| [12-fidelity.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/12-fidelity.js) | 11.1, 11.2, 11.5 | 30 | Original questions and deciding the claims: every claim an answer, every answer claimed, halted proofs |
 | [13-unused.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/13-unused.js) | README.unused-clauses | 29 | Unused clauses, including those a negation or collection consults |
 | [14-command-line.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/14-command-line.js) | README.command-line | 60 | Options, their combinations, standard input, errors and exit codes |
 
 Every behavioral subsection of SPEC Sections 2–12 has an explicitly tagged
 case, and Section 14 has document-security cases. The suite includes every
 arithmetic function, its arity errors, every control and primitive, and valid
-and forged certificates covering C1–C10. Tags index the requirements exercised;
-they do not imply exhaustive coverage of all inputs or combinations. Section 13
-allows the host math library's last-digit differences, and the checking
-cases show how far C5 accepts them.
+and forged proofs for each requirement of the check: reading the document,
+answering calls from their tables, replaying derived facts, deciding the
+claims and using every statement. Tags index the requirements exercised;
+they do not imply exhaustive coverage of all inputs or combinations.
 
 ## Case format
 
@@ -84,21 +84,27 @@ and a setting other than these is an error in the suite.
 
 Each setting appears at most once in a case, except `file`.
 
-For example, this case requires the proof of one source fact:
+For example, this case requires the proof of one forward firing:
 
 ```js
-conformance('a fact with variables binds them', [
-  spec('10.3'),
-  args('--proof --goal "same(1, 1)" program.js'),
+conformance('a firing is recorded as a step', [
+  spec('10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    'fact(same(X, X))',
+    'fact(p(1))',
+    'implies(p(X), q(X))',
   ]),
   stdout([
-    'same(1, 1)',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'q(1)',
     '',
-    'clause(1, fact(same(X, X)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(q(1), clause(2), {X: 1}, [p(1)])',
     '',
-    'step(same(1, 1), clause(1), {X: 1}, [])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(q(A), [q(1)])',
+    'called(q(A), [q(1)])',
   ]),
 ])
 ```
@@ -129,6 +135,8 @@ string of that form.
 
 Expected language and proof results come from the specification, not from
 running an implementation. When a case and an implementation disagree, the
-specification decides which one is wrong. Interface compatibility cases take
+specification decides which one is wrong. A case whose proof check fails
+compares only the exit code, since the wording, number and order of failures
+are informative ([Section 12](https://eyereasoner.github.io/eyemind/SPEC#12-check-reports)). Interface compatibility cases take
 their expectations from the README. Keep these references explicit; passing
 implementation interface checks is not a language conformance requirement.

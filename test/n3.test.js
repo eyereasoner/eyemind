@@ -259,15 +259,12 @@ test('a rule with blank nodes in its conclusion makes values only where none are
     { ?x :father ?y } => { ?y :eq ?y }.
     { ?x :father ?y1. ?x :father ?y2. [] log:notIncludes { ?y1 :eq ?y2 } } => { ?y1 :nef ?y2 }.`;
   assert.match(compileN3(text).program, /^restricted\(rdf\(X, /m);
-  const out = checkedReason(text);
+  const out = reasonN3(text).n3;
   assert.match(out, /:ann :father _:b0 \./);
   assert.doesNotMatch(out, /:jo :father|:nef/);
-  // A father invented for Jo is refuted by Bob.
-  const r = reasonN3(text, { proof: true });
-  const program = loadText(r.program, 'compiled.js');
-  const forged = r.result.proof.replaceAll("iri('http://example.org/#ann')", "iri('http://example.org/#jo')");
-  assert.notEqual(forged, r.result.proof);
-  assert.equal(checkProof(program, forged).valid, false);
+  // Another order of rule applications could invent other fathers, so a
+  // proof cannot establish the restricted firing.
+  assert.throws(() => reasonN3(text, { proof: true }), /cannot certify/);
 });
 test('backward rules answer forward premises', () => {
   const out = reason(`${P}:a :n 3. { ?x :double ?y } <= { ?x :n ?n. (?n 2) math:product ?y }. { :a :double ?d } => { :a :twice ?d }.`);
@@ -519,13 +516,15 @@ test('RDF list patterns match a collection and its tail', () => {
   assert.doesNotMatch(out, /:wrong/);
 });
 test('scoped calls accept formulas supplied as data and RDF collections', () => {
-  const out = checkedReason(`${P}:a :p 1. :b :p 2. :a :q 1. :b :q 2.
+  // The collected list rests on the order of derived triples, which a proof
+  // cannot establish, so this run is not certified.
+  const out = reasonN3(`${P}:a :p 1. :b :p 2. :a :q 1. :b :q 2.
     :collect :value (_:value { ?x :p _:value } _:all).
     :every :value [ rdf:first { ?x :p ?n }; rdf:rest [ rdf:first { ?x :q ?n }; rdf:rest rdf:nil ] ].
     :bad :value ({ ?x :p ?n } { ?x :missing ?n }).
     { :collect :value ?call. ?call log:collectAllIn ?scope } => { :r :collected true }.
     { :every :value ?call. ?call log:forAllIn ?scope } => { :r :every true }.
-    { :bad :value ?call. ?call log:forAllIn ?scope } => { :r :is :wrong }.`);
+    { :bad :value ?call. ?call log:forAllIn ?scope } => { :r :is :wrong }.`).n3;
   assert.match(out, /:r :collected true \./);
   assert.match(out, /:r :every true \./);
   assert.doesNotMatch(out, /:wrong/);

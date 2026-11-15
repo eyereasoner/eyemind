@@ -96,22 +96,13 @@ complete proof:
 // Conclusions: the facts the program derives, in the order derived.
 t('bob', 'hasParent', 'alice')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(inv_of('parentOf', 'childOf')))
-clause(2, fact(t('alice', 'parentOf', 'bob')))
-clause(3, implies(inv_of(P, Q), implied_by(t(X, Q, Y), t(Y, P, X))))
-clause(4, implies(t(X, 'childOf', Y), t(X, 'hasParent', Y)))
-clause(5, implied_by(t(X, Q, Y), [inv_of(P, Q), t(Y, P, X)]))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(t('bob', 'hasParent', 'alice'), clause(4), {X: 'bob', Y: 'alice'}, [t('bob', 'childOf', 'alice')])
 step(t('bob', 'childOf', 'alice'), clause(5), {X: 'bob', Q: 'childOf', Y: 'alice', P: 'parentOf'}, [inv_of('parentOf', 'childOf'), t('alice', 'parentOf', 'bob')])
-step(inv_of('parentOf', 'childOf'), clause(1), {}, [])
 step(t('alice', 'parentOf', 'bob'), clause(2), {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(t(A, B, C), [t('bob', 'hasParent', 'alice')])
 called(t(A, 'hasParent', B), [t('bob', 'hasParent', 'alice')])
 called(t(C, 'childOf', D), [t('bob', 'childOf', 'alice')])
@@ -121,21 +112,26 @@ called(t(E, 'parentOf', F), [t('alice', 'parentOf', 'bob')])
 It has three parts:
 
 - **The claim**: the conclusion the proof is about.
-- **The clauses**: the program's two facts and three rules, numbered as
-  above, with the rule inside a rule already rewritten.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
+- **The steps**: the firing behind the derived fact, and how its use was
+  found. A step reads `step(what, by which clause, with which values, using
+  what)`, citing clauses by their number in the program: the two facts are
+  clauses 1 and 2, the rule inside a rule is 3, the `hasParent` rule 4 and
+  the derived backward rule 5.
+- **The certificate**: the **listing** `derived(t(A, B, C), [...])` holds
+  every `t` fact forward rules derived, and each **call table**
+  `called(Call, Answers)` every answer of a call made while answering the
+  question.
 
 Read the steps as sentences:
 
 1. *Bob has Alice as a parent* — by rule 4, because Bob is a child of Alice.
 2. *Bob is a child of Alice* — by rule 5, because parentOf and childOf are
    inverses and Alice is parent of Bob.
-3. *parentOf and childOf are inverses* — fact 1; it uses nothing.
-4. *Alice is parent of Bob* — fact 2; it uses nothing.
+3. *Alice is parent of Bob* — fact 2; it uses nothing.
 
-The creating condition and the backward rule's own premise are both direct
-uses of rule 5's step. The checker verifies them against the source program.
+`t` is a relation forward rules conclude, so the calls on it rest on derived
+facts, and their goals get steps too. The inverse-pair fact is answered
+straight from the program and needs none.
 
 ---
 
@@ -143,61 +139,24 @@ uses of rule 5's step. The checker verifies them against the source program.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers the question
+`t(X, 'hasParent', Y)` from its call table, checks each table by applying the
+program one level against the tables below it, requires the listing to be
+closed under the forward rules, and replays the step of the listed fact:
+rule 4 again, following the steps of its use through rule 5 to fact 2. A
+step or table the check does not use fails it. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 t('bob', 'hasParent', 'alice')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 4)
-condition('C2', 'well_founded', 'ok', 4)
-condition('C3', 'justification', 'ok', 4)
-condition('C4', 'coverage', 'ok', 4)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 5)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(4)
-verified(4)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each condition reports what the checker verified:
-
-- **C1 resolution (4)**: each rule or fact step matches the compiled
-  source clause, including every generating premise.
-- **C2 well-foundedness (4)**: no step depends on itself.
-- **C3 justification (4)**: each step uses a recognized justification.
-- **C4 coverage (4)**: all 1 claims and 3 premise uses have evidence.
-- **C5 re-decision (0)**: there are no primitive calculations to repeat.
-- **C6 boundary consistency (0)**: no absence or collection is taken on trust.
-- **C7 relevance (5)**: the 1 claims answer the program and all 4 steps
-  serve those claims.
-- **C8 witness integrity (0)**: this example introduces no existential witness.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle; the search certificate serves the original questions (C10).
-
-The report records 4 steps, 4 verified against program clauses. The verdict is **checked**: the recorded claims follow from the source
-program, and they are every answer of the original questions.
-
-C10 checks the original questions through the derived rule's instances:
-each instance comes from a solution of its generating premises, so every
-claim is an answer and the claims are every answer. The verdict is
-**checked**, also under `--strict-proof`.
-
+The verdict is **checked**: the recorded claim follows from the source
+program, and it is every answer of the original question. Rule 5 is read
+from the program, so its instance answers only through a solution of its
+generating premise, the inverse-pair fact.
 
 ---
 

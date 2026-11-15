@@ -79,7 +79,7 @@ from `:knownFather` to `:father`.
 The check report writes the claims as terms:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 rdf(iri('http://example.org/jo'), iri('http://example.org/father'), iri('http://example.org/bob'))
 rdf(iri('http://example.org/ann'), iri('http://example.org/father'), iri('https://eyereasoner.github.io/.well-known/genid/277aa42c177ba05114fc60349a038157131415db9bec7275538a263eb9ef4b03'))
 rdf(iri('https://eyereasoner.github.io/.well-known/genid/277aa42c177ba05114fc60349a038157131415db9bec7275538a263eb9ef4b03'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Man'))
@@ -92,14 +92,17 @@ rdf(iri('https://eyereasoner.github.io/.well-known/genid/277aa42c177ba05114fc603
 
 ## What the proof establishes
 
-C9 settles the absence of a supplied father for Ann and the absence tests
-in the two-father rule. C5 re-decides the Skolem IRI computation, and C10
-establishes that these are every answer. The explicit input relation keeps
-the guard stratified; no restricted existential firing is involved.
+The proof records the firing behind each derived fact. Replaying Ann's
+firing takes the absence of a supplied father from the proof's call table
+for that search, as it stood when the negation ran, and computes the
+`log:skolem` IRI again; the absence tests of the two-father rule are taken
+from the call tables the same way. The `derived` listing must be closed, so
+no rule can derive a fact the proof leaves out. The explicit input relation
+keeps the guard stratified; no restricted existential firing is involved.
 
-The verdict is **checked**, with zero obligations. The saved native N3
-proof carries the complete compiled certificate, whose clauses can be
-compared with `--program` output.
+The verdict is **checked**: the claims follow from the compiled program and
+are every answer of its original questions. The saved proof can be compared
+with `--program` output, whose clause numbers its steps cite.
 
 ---
 
@@ -107,8 +110,8 @@ compared with `--program` output.
 
 ```sh
 node bin/eyemind.js examples/restricted-chase-n3.n3
-node bin/eyemind.js --strict-proof -c examples/restricted-chase-n3.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/restricted-chase-n3.js examples/restricted-chase-n3.n3
+node bin/eyemind.js -c examples/restricted-chase-n3.n3
+node bin/eyemind.js --check-proof examples/proof/restricted-chase-n3.js examples/restricted-chase-n3.n3
 ```
 
 Add `:ann :knownFather :alice .` to a copy. Alice is reused, and no father

@@ -95,40 +95,7 @@ append(['a', 'b'], ['c', 'd'], ['a', 'b', 'c', 'd'])
 squares([1, 2, 3, 4], [1, 4, 9, 16])
 sum([1, 2, 3, 4], 10)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(append([], Ys, Ys)))
-clause(2, implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs)))
-clause(3, fact(squares([], [])))
-clause(4, implied_by(squares([X, ...Xs], [Y, ...Ys]), [is(Y, mul(X, X)), squares(Xs, Ys)]))
-clause(5, fact(sum([], 0)))
-clause(6, implied_by(sum([X, ...Xs], Total), [sum(Xs, Rest), is(Total, add(X, Rest))]))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(append(['a', 'b'], ['c', 'd'], ['a', 'b', 'c', 'd']), clause(2), {X: 'a', Xs: ['b'], Ys: ['c', 'd'], Zs: ['b', 'c', 'd']}, [append(['b'], ['c', 'd'], ['b', 'c', 'd'])])
-step(append(['b'], ['c', 'd'], ['b', 'c', 'd']), clause(2), {X: 'b', Xs: [], Ys: ['c', 'd'], Zs: ['c', 'd']}, [append([], ['c', 'd'], ['c', 'd'])])
-step(append([], ['c', 'd'], ['c', 'd']), clause(1), {Ys: ['c', 'd']}, [])
-step(squares([1, 2, 3, 4], [1, 4, 9, 16]), clause(4), {X: 1, Xs: [2, 3, 4], Y: 1, Ys: [4, 9, 16]}, [is(1, mul(1, 1)), squares([2, 3, 4], [4, 9, 16])])
-step(is(1, mul(1, 1)), 'builtin', {}, [])
-step(squares([2, 3, 4], [4, 9, 16]), clause(4), {X: 2, Xs: [3, 4], Y: 4, Ys: [9, 16]}, [is(4, mul(2, 2)), squares([3, 4], [9, 16])])
-step(is(4, mul(2, 2)), 'builtin', {}, [])
-step(squares([3, 4], [9, 16]), clause(4), {X: 3, Xs: [4], Y: 9, Ys: [16]}, [is(9, mul(3, 3)), squares([4], [16])])
-step(is(9, mul(3, 3)), 'builtin', {}, [])
-step(squares([4], [16]), clause(4), {X: 4, Xs: [], Y: 16, Ys: []}, [is(16, mul(4, 4)), squares([], [])])
-step(is(16, mul(4, 4)), 'builtin', {}, [])
-step(squares([], []), clause(3), {}, [])
-step(sum([1, 2, 3, 4], 10), clause(6), {X: 1, Xs: [2, 3, 4], Total: 10, Rest: 9}, [sum([2, 3, 4], 9), is(10, add(1, 9))])
-step(sum([2, 3, 4], 9), clause(6), {X: 2, Xs: [3, 4], Total: 9, Rest: 7}, [sum([3, 4], 7), is(9, add(2, 7))])
-step(sum([3, 4], 7), clause(6), {X: 3, Xs: [4], Total: 7, Rest: 4}, [sum([4], 4), is(7, add(3, 4))])
-step(sum([4], 4), clause(6), {X: 4, Xs: [], Total: 4, Rest: 0}, [sum([], 0), is(4, add(4, 0))])
-step(sum([], 0), clause(5), {}, [])
-step(is(4, add(4, 0)), 'builtin', {}, [])
-step(is(7, add(3, 4)), 'builtin', {}, [])
-step(is(9, add(2, 7)), 'builtin', {}, [])
-step(is(10, add(1, 9)), 'builtin', {}, [])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 called(append(['a', 'b'], ['c', 'd'], A), [append(['a', 'b'], ['c', 'd'], ['a', 'b', 'c', 'd'])])
 called(append(['b'], ['c', 'd'], B), [append(['b'], ['c', 'd'], ['b', 'c', 'd'])])
 called(append([], ['c', 'd'], C), [append([], ['c', 'd'], ['c', 'd'])])
@@ -144,55 +111,43 @@ called(sum([4], L), [sum([4], 4)])
 called(sum([], M), [sum([], 0)])
 ```
 
-It has three parts:
+It has two parts:
 
 - **The claims**: the three answers the proof is about.
-- **The clauses**: the program's three facts and three rules, numbered 1 to 6
-  in the order they appear in the program.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`. The values in curly
-  braces say what each variable stood for.
+- **The certificate**: one *call table* per call the three questions make,
+  directly or inside another call's search. A table reads
+  `called(call, answers)`: the call as it was made, with its open places
+  shown as variables `A`, `B`, ..., and every answer it gave.
 
-Read the 21 steps as sentences. Joining:
+There are no steps. Steps record the firings of forward rules, and this
+program has none: `append`, `squares` and `sum` are backward rules, so every
+call is answered by its table, and the tables are checked against the rules
+directly. The program's clauses are numbered 1 to 6 in the order they
+appear: the empty `append` fact and its rule, the empty `squares` fact and
+its rule, the empty `sum` fact and its rule.
 
-1. *`['a', 'b']` joined to `['c', 'd']` is `['a', 'b', 'c', 'd']`* — by rule
-   2, with `X` = 'a' and the rest `Xs` = `['b']`, because `['b']` joined to
-   `['c', 'd']` is `['b', 'c', 'd']`.
-2. *`['b']` joined to `['c', 'd']` is `['b', 'c', 'd']`* — by rule 2, with
-   `X` = 'b' and `Xs` empty, because `[]` joined to `['c', 'd']` is
-   `['c', 'd']`.
-3. *`[]` joined to `['c', 'd']` is `['c', 'd']`* — fact 1; it uses nothing.
+Read the 13 tables as sentences. Joining:
+
+1. *`['a', 'b']` joined to `['c', 'd']` gives exactly one list,
+   `['a', 'b', 'c', 'd']`*.
+2. *`['b']` joined to `['c', 'd']` gives exactly `['b', 'c', 'd']`*: the
+   call rule 2 makes for the rest of the first list.
+3. *`[]` joined to `['c', 'd']` gives exactly `['c', 'd']`*: fact 1.
 
 Squaring:
 
-4. *The squares of `[1, 2, 3, 4]` are `[1, 4, 9, 16]`* — by rule 4, because
-   1 is 1 × 1 and the squares of `[2, 3, 4]` are `[4, 9, 16]`.
-5. *1 is 1 × 1* — `'builtin'`: a calculation, which anyone checking the
-   proof simply redoes.
-6. *The squares of `[2, 3, 4]` are `[4, 9, 16]`* — by rule 4, because 4 is
-   2 × 2 and so on for the rest.
-7. *4 is 2 × 2* — `'builtin'`.
-8. *The squares of `[3, 4]` are `[9, 16]`* — by rule 4.
-9. *9 is 3 × 3* — `'builtin'`.
-10. *The squares of `[4]` are `[16]`* — by rule 4.
-11. *16 is 4 × 4* — `'builtin'`.
-12. *The squares of `[]` are `[]`* — fact 3; it uses nothing.
+4. *The squares of `[1, 2, 3, 4]` are exactly `[1, 4, 9, 16]`*.
+5. to 8. *The squares of `[2, 3, 4]`, `[3, 4]`, `[4]` and `[]` are
+   `[4, 9, 16]`, `[9, 16]`, `[16]` and `[]`*: rule 4 squares one item and
+   calls itself on the rest, down to fact 3.
 
 Adding up:
 
-13. *The sum of `[1, 2, 3, 4]` is 10* — by rule 6, with `Rest` = 9, because
-    the sum of `[2, 3, 4]` is 9 and 10 is 1 + 9.
-14. *The sum of `[2, 3, 4]` is 9* — by rule 6, because the sum of `[3, 4]`
-    is 7 and 9 is 2 + 7.
-15. *The sum of `[3, 4]` is 7* — by rule 6, because the sum of `[4]` is 4 and
-    7 is 3 + 4.
-16. *The sum of `[4]` is 4* — by rule 6, because the sum of `[]` is 0 and 4
-    is 4 + 0.
-17. *The sum of `[]` is 0* — fact 5; it uses nothing.
-18. to 21. *4 is 4 + 0*, *7 is 3 + 4*, *9 is 2 + 7* and *10 is 1 + 9* — each
-    `'builtin'`.
+9. *The sum of `[1, 2, 3, 4]` is exactly 10*.
+10. to 13. *The sums of `[2, 3, 4]`, `[3, 4]`, `[4]` and `[]` are 9, 7, 4
+    and 0*: rule 6 sums the rest and adds the first item, down to fact 5.
 
-Each answer works through its list one item per step, down to the empty
+Each answer works through its list one item per table, down to the empty
 list.
 
 ---
@@ -201,66 +156,34 @@ list.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the questions.** It expands each of the three queries one
+  level against the program, with every inner call answered from its table.
+  For `sum([1, 2, 3, 4], X)`, rule 6 calls `sum([2, 3, 4], Rest)`, answered
+  from table 10 as 9, and the checker computes 1 + 9 = 10: the answer of
+  table 9.
+- **It checks each table the same way.** Each table must equal its own
+  expansion, answer for answer: the squares and sums are computed, and
+  `append([], ['c', 'd'], C)` matches fact 1 and nothing else. No table may
+  rest on itself.
+- **It compares the claims with the answers.** The three claims are exactly
+  the answers of the three queries, and every table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 append(['a', 'b'], ['c', 'd'], ['a', 'b', 'c', 'd'])
 squares([1, 2, 3, 4], [1, 4, 9, 16])
 sum([1, 2, 3, 4], 10)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 13)
-condition('C2', 'well_founded', 'ok', 21)
-condition('C3', 'justification', 'ok', 21)
-condition('C4', 'coverage', 'ok', 21)
-condition('C5', 're_decision', 'ok', 8)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 24)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 6)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(21)
-verified(13)
-recomputed(8)
-composed(0)
-trusted(0)
-claims(3)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (13)**: the 13 steps that cite a rule or fact (3 for
-  joining, 5 for squaring, 5 for adding up) really are instances of it with
-  the values shown.
-- **C2 well-founded (21)**: none of the 21 steps depends on itself, even
-  indirectly.
-- **C3 justification (21)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (21)**: the 3 claims and the 18 things the steps use are each
-  backed by a step.
-- **C5 re-decision (8)**: the 8 calculations, four squares and four
-  additions, were redone by the checker and agree.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (24)**: the 3 claims answer the three queries, and all 21
-  steps serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 21 steps, 13 verified against the program, 8
-recomputed, none taken on trust. The verdict is **checked**: all three
-answers follow from the program, and they are every answer of the original questions.
+The verdict is **checked**: all three answers follow from the program, and
+they are every answer of the original questions.
 
 ---
 

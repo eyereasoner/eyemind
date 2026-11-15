@@ -13,8 +13,7 @@ function programFrom(name, extra = '') {
 function strictly(name, extra = '') {
   const program = programFrom(name, extra);
   const result = run(program, { proof: true });
-  assert.deepEqual(result.proofReport.trusted, []);
-  assert.ok(checkProof(program, result.proof, { allowTrusted: false }).valid);
+  assert.ok(checkProof(program, result.proof).valid);
   return result.conclusions;
 }
 
@@ -97,8 +96,6 @@ export const tests = {
     const delivery = iri(run(program).conclusions[0].args[2]);
     const altered = certificate.replaceAll(delivery, 'https://example.org/invented');
     assert.notEqual(altered, certificate);
-    const report = checkProof(program, altered, { allowTrusted: false });
-    assert.ok(!report.valid);
-    assert.ok(report.failures.some(({ condition }) => condition === 'C5'));
+    assert.ok(!checkProof(program, altered).valid);
   },
 };

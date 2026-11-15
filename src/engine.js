@@ -3,7 +3,7 @@ import { PRIMITIVE_KEYS, STATE_TESTS, primitive } from './builtins.js';
 import { Reliance, Settler, Unsettled } from './closure.js';
 import { freshClause, matchHead, renaming, text, variant } from './common.js';
 import { goalTerm, subgoals } from './goals.js';
-import { callQuestions, replayed } from './fidelity.js';
+import { callQuestions, replayer } from './fidelity.js';
 import { INSPECTION_KEYS } from './inspection.js';
 import { checkRendered, clauseDisplay, renderProof } from './proof.js';
 import { CONTROL_KEYS, Program } from './program.js';
@@ -1078,13 +1078,16 @@ export function skolemTerms(clause, head, unresolved, env, context = null) {
   return [...unresolved.keys()].map((name) => new Struct('skolem', [BigInt(clause.id), named.get(name), argumentsList]));
 }
 
-// The search certificate of a run's negations and collections. Each call
-// their searches make is answered by expanding it one level, every inner call
-// by its own table, so the tables cost what the searches did; the checker
-// then checks each table again, and each boundary against what the run found.
-// A boundary the certificate cannot settle stays an obligation; one the run
-// and its certificate disagree on is an error, since a proof must not hide it.
-function certify(solver, boundaries, operational = false) {
+// The certificate of a run's answers: a call table for every call its
+// original questions make, each answered by expanding the call one level,
+// every inner call by its own table, so the tables cost what the searches
+// did; and the listings of derived facts those searches consult. Every listed
+// fact must replay its recorded firing, which consults further tables for its
+// negations and collections. firings are the nodes of a halted run's claims,
+// which are replayed instead. What the certificate cannot establish is left
+// out, and checking the proof then fails; an invalid one is an error, since a
+// proof must not hide it.
+function certify(solver, questions, firings) {
   const program = solver.program;
   const computed = new Map();
   const met = new Map();
@@ -1093,8 +1096,9 @@ function certify(solver, boundaries, operational = false) {
   let budget = 0;
   let depth = 0;
   let volume = 0;
-  const limit = operational ? Math.min(solver.maxInferences, 500000) : solver.maxInferences;
-  const callKeyOf = (call) => variant(call, operational);
+  const limit = Math.min(solver.maxInferences, 500000);
+  const callKeyOf = (call) => variant(call, true);
+  let recorded = null;
   const settler = new Settler(program, {
     answers(call) {
       const callKey = callKeyOf(call);
@@ -1115,14 +1119,14 @@ function certify(solver, boundaries, operational = false) {
           if (++budget > limit) throw new Unsettled();
           // Each answer is written with variables of its own.
           const answer = freshTerm(copyResolved(term, env), `answer${++settler.serial}`);
-          if (operational && (volume += text(answer).length) > 8 * 1024 * 1024) throw new Unsettled();
+          if ((volume += text(answer).length) > 8 * 1024 * 1024) throw new Unsettled();
           answers.push(answer);
         }
         computed.set(callKey, answers);
         return answers;
       } catch (error) {
         // A full table can search past where the run stopped, as under once/1,
-        // and meet an error the run never did: such a boundary stays trusted.
+        // and meet an error the run never did.
         if (error instanceof EyemindError) throw new Unsettled();
         throw error;
       } finally {
@@ -1133,10 +1137,10 @@ function certify(solver, boundaries, operational = false) {
     facts(goalKey) {
       const nodes = solver.facts.get(goalKey) || NO_NODES;
       listed.set(goalKey, nodes);
+      recorded = null;
       return nodes.map((node) => node.goal);
     },
-    supported: () => true,
-  }, operational);
+  });
   // Answer a call too deep to reach directly, and the deeper calls it needs.
   function ensure(start) {
     const pending = [start];
@@ -1155,57 +1159,66 @@ function certify(solver, boundaries, operational = false) {
       }
     }
   }
-  // The recorded derivation of a listed fact or one of its premises, for the
-  // replay that supports the original calls.
-  let recorded = null;
-  const stepOf = (goal) => {
-    if (recorded === null) {
-      recorded = new Map();
-      const pending = [...listed.values()].flat();
-      while (pending.length) {
-        const node = pending.pop();
-        const goalText = text(node.goal);
-        if (recorded.has(goalText)) continue;
-        recorded.set(goalText, { by: node.by, uses: node.children.map((child) => child.goal) });
-        pending.push(...node.children);
-      }
-    }
-    return recorded.get(text(goal));
-  };
-  const tables = new Set();
-  const listings = new Set();
-  for (const boundary of boundaries) {
-    recorded = null;
-    let outcome = null;
-    budget = 0;
-    volume = 0;
-    while (outcome === null) {
+  // Run work to its end, making the tables too deep for it first; null when
+  // the certificate cannot be made.
+  function attempt(work) {
+    for (;;) {
       try {
-        outcome = operational ? settler.answers(boundary) : settler.settle(boundary);
+        return work();
       } catch (error) {
         if (!(error instanceof Missing)) throw error;
         try {
           ensure(error.call);
         } catch (failure) {
           if (!(failure instanceof Unsettled)) throw failure;
-          outcome = { status: 'unsettled' };
+          return null;
         }
       }
     }
-    if (outcome.status === 'settled' && (!operational || replayed(program, settler, outcome.listings, stepOf))) {
-      for (const item of outcome.tables) tables.add(item);
-      for (const item of outcome.listings) listings.add(item);
-    } else if (outcome.status === 'failed' && solver.haltCode === null) {
-      throw new EyemindError(`cannot certify this result: ${outcome.failures[0]?.[0] ?? 'its search certificate fails'}`);
-    }
-    // A halted run stopped before its fixpoint, so its derived facts need not
-    // be closed under the rules; a boundary they cannot settle stays trusted.
   }
+  // The recorded derivation of a listed fact or a halted claim and of its
+  // premises, for the replay of its firing; followed keeps the goals whose
+  // steps a replay followed, the steps the proof holds.
+  const followed = new Set();
+  const stepOf = (goal) => {
+    if (recorded === null) {
+      recorded = new Map();
+      const pending = [...[...listed.values()].flat(), ...firings];
+      while (pending.length) {
+        const node = pending.pop();
+        const goalText = text(node.goal);
+        if (recorded.has(goalText)) continue;
+        recorded.set(goalText, { by: node.by, bindings: node.bindings, uses: node.children.map((child) => child.goal) });
+        pending.push(...node.children);
+      }
+    }
+    const step = recorded.get(text(goal));
+    if (step) followed.add(text(goal));
+    return step;
+  };
+  const used = { tables: new Set(), listings: new Set() };
+  const replays = replayer(program, settler, stepOf, used);
+  for (const question of questions) {
+    budget = 0;
+    volume = 0;
+    const outcome = attempt(() => settler.answers(question));
+    if (outcome === null || outcome.status === 'unsettled') continue;
+    if (outcome.status === 'failed') {
+      throw new EyemindError(`cannot certify this result: ${outcome.failures[0]?.[0] ?? 'its certificate fails'}`);
+    }
+    for (const item of outcome.tables) used.tables.add(item);
+    for (const item of outcome.listings) used.listings.add(item);
+    for (const goalKey of outcome.listings) {
+      for (const fact of settler.listings.get(goalKey).facts) attempt(() => replays(fact));
+    }
+  }
+  for (const node of firings) attempt(() => replays(node.goal));
   return {
     // Tables in the order their calls were first met.
-    tables: [...settler.tables].filter(([callKey]) => tables.has(callKey))
+    tables: [...settler.tables].filter(([callKey]) => used.tables.has(callKey))
       .sort(([a], [b]) => met.get(a) - met.get(b)).map(([, entry]) => [entry.call, entry.answers]),
-    listings: [...settler.listings.keys()].filter((goalKey) => listings.has(goalKey)).map((goalKey) => [goalKey, listed.get(goalKey)]),
+    listings: [...settler.listings.keys()].filter((goalKey) => used.listings.has(goalKey)).map((goalKey) => [goalKey, listed.get(goalKey)]),
+    followed,
   };
 }
 
@@ -1322,12 +1335,12 @@ function reason(program, goalInputs, options) {
   let answers = null;
   let answerBindings = null;
   let stdout = null;
+  // A halted run's claims are replayed from their firings; the questions of
+  // any other run are answered by the certificate.
+  const firings = solver.haltCode !== null ? roots : [];
   const rendered = options.proof
-    ? renderProof(program, claims, roots, true, heading, (boundaries) => {
-      const ordinary = certify(solver, boundaries);
-      const calls = certify(solver, callQuestions(program, goalInputs, claims), true);
-      return { ...ordinary, calls: calls.tables, listings: [...new Map([...ordinary.listings, ...calls.listings])] };
-    }) : null;
+    ? renderProof(program, claims, certify(solver, callQuestions(program, goalInputs, claims), firings), firings, true, heading)
+    : null;
   const document = rendered !== null ? rendered[0] : null;
   // A rule that reports a claim is used by it, though a proof records only
   // the claim's support.

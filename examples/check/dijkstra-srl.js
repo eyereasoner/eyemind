@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 inf(iri('http://example.org/dijkstra#abc'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/dijkstra#Path'))
 inf(iri('http://example.org/dijkstra#abc'), iri('http://example.org/dijkstra#cost'), 3)
 inf(iri('http://example.org/dijkstra#abd'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/dijkstra#Path'))
@@ -46,26 +46,4 @@ inf(iri('http://example.org/dijkstra#abcd'), iri('http://example.org/dijkstra#to
 inf(iri('http://example.org/dijkstra#abcd'), iri('http://example.org/dijkstra#leftCost'), 2)
 inf(iri('http://example.org/dijkstra#abcd'), iri('http://example.org/dijkstra#rightCost'), 3)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 140)
-condition('C2', 'well_founded', 'ok', 175)
-condition('C3', 'justification', 'ok', 175)
-condition('C4', 'coverage', 'ok', 327)
-condition('C5', 're_decision', 'ok', 32)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 221)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 3)
-condition('C10', 'call_fidelity', 'ok', 47)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(175)
-verified(140)
-recomputed(20)
-composed(12)
-trusted(0)
-claims(46)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

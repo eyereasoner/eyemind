@@ -54,7 +54,7 @@ naming keys contain different people.
 The check report writes the claims as terms:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 rdf(iri('http://example.org/tom'), iri('http://example.org/hasMother'), iri('https://eyereasoner.github.io/.well-known/genid/eb905bc2bb59e8e75a63d7c627a41516259fdb628ba0182bbe266c6adb9542e4'))
 rdf(iri('http://example.org/ann'), iri('http://example.org/hasMother'), iri('https://eyereasoner.github.io/.well-known/genid/62678041c8482f38e049ccd244e1f97de558aabb64c58999bbe309f1d5c6291d'))
 ```
@@ -63,14 +63,20 @@ rdf(iri('http://example.org/ann'), iri('http://example.org/hasMother'), iri('htt
 
 ## What the proof establishes
 
-C5 verifies the computed names, and C10 verifies both the original calls
-and that every answer is claimed. No assumption about a restricted rule's
-firing order is needed, because both conclusion variables were bound by
-the premise.
+The proof cites the program compiled from the N3 rule: each `:hasMother`
+triple has a step citing the rule, with the person's `:Human` triple and the
+computed name as its uses. The call tables hold every answer of the calls
+the question makes, including one `log:skolem` call per person with the IRI
+it names. No assumption about a rule's firing order is needed, because both
+conclusion variables are bound by the premise.
 
-The verdict is **checked**, with zero obligations. The saved native N3
-proof carries the complete compiled certificate, whose clauses can be
-compared with `--program` output.
+The checker follows the certificate without invoking the reasoning engine:
+it checks each call table by applying the compiled program one level,
+computing the names itself, requires the listing to be closed under the rule,
+and replays each listed triple's firing. The verdict is **checked**: the
+claims follow from the program and are every answer of its question. The
+proof cites the clauses of the compiled program, which `--program` writes
+out.
 
 ---
 
@@ -78,8 +84,8 @@ compared with `--program` output.
 
 ```sh
 node bin/eyemind.js examples/explicit-existential-rule-n3.n3
-node bin/eyemind.js --strict-proof -c examples/explicit-existential-rule-n3.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/explicit-existential-rule-n3.js examples/explicit-existential-rule-n3.n3
+node bin/eyemind.js -c examples/explicit-existential-rule-n3.n3
+node bin/eyemind.js --check-proof examples/proof/explicit-existential-rule-n3.js examples/explicit-existential-rule-n3.n3
 ```
 
 Add `:bob a :Human .` to a copy. The same universally quantified rule

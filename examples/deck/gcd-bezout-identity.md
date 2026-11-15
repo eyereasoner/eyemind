@@ -126,10 +126,10 @@ adjusted to the signs of the original inputs. Zero contributes zero, so
 
 ## The proof, line by line
 
-`eyemind --proof` writes down how it reached each answer. The full proof has
-236 steps and is 25 KB ([read it all](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/gcd-bezout-identity.js)).
-Below are its claims, all its clauses, and the complete chains for the
-first pair, 48 and 18: its certificate and its identity check, verbatim:
+`eyemind --proof` writes down how it reached each answer. The full proof is
+97 lines ([read it all](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/gcd-bezout-identity.js)).
+Below are its claims and everything it records for the first pair, 48 and
+18: its certificate and its identity check, verbatim:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -148,111 +148,62 @@ identity_holds('larger')
 identity_holds('negative')
 identity_holds('large')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(pair('common_factor', 48, 18)))
-clause(2, fact(pair('coprime', 101, 462)))
-clause(3, fact(pair('zero_left', 0, 5)))
-clause(4, fact(pair('zero_right', 5, 0)))
-clause(5, fact(pair('larger', 270, 192)))
-clause(6, fact(pair('negative', -27, 36)))
-clause(7, fact(pair('large', 123456, 7890)))
-clause(8, implied_by(sign(N, 1), gt(N, 0)))
-clause(9, fact(sign(0, 0)))
-clause(10, implied_by(sign(N, -1), lt(N, 0)))
-clause(11, fact(euclid(R0, 0, S0, _0, T0, _1, R0, S0, T0)))
-clause(12, implied_by(euclid(R0, R1, S0, S1, T0, T1, G, S, T), [gt(R1, 0), is(Q, floordiv(R0, R1)), is(R2, sub(R0, mul(Q, R1))), is(S2, sub(S0, mul(Q, S1))), is(T2, sub(T0, mul(Q, T1))), euclid(R1, R2, S1, S2, T1, T2, G, S, T)]))
-clause(13, implied_by(bezout(A, B, G, S, T), [is(R0, abs(A)), is(R1, abs(B)), is(Total, add(R0, R1)), gt(Total, 0), euclid(R0, R1, 1, 0, 0, 1, G, U, V), sign(A, AS), sign(B, BS), is(S, mul(AS, U)), is(T, mul(BS, V))]))
-clause(14, implies([pair(Name, A, B), bezout(A, B, G, S, T)], certificate(Name, G, S, T)))
-clause(15, implies([pair(Name, A, B), certificate(Name, G, S, T), is(G, add(mul(A, S), mul(B, T))), is(G, gcd(A, B))], identity_holds(Name)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(certificate('common_factor', 6, -1, 3), clause(14), {Name: 'common_factor', A: 48, B: 18, G: 6, S: -1, T: 3}, [pair('common_factor', 48, 18), bezout(48, 18, 6, -1, 3)])
-step(pair('common_factor', 48, 18), clause(1), {}, [])
-step(bezout(48, 18, 6, -1, 3), clause(13), {A: 48, B: 18, G: 6, S: -1, T: 3, R0: 48, R1: 18, Total: 66, U: -1, V: 3, AS: 1, BS: 1}, [is(48, abs(48)), is(18, abs(18)), is(66, add(48, 18)), gt(66, 0), euclid(48, 18, 1, 0, 0, 1, 6, -1, 3), sign(48, 1), sign(18, 1), is(-1, mul(1, -1)), is(3, mul(1, 3))])
-step(is(48, abs(48)), 'builtin', {}, [])
-step(is(18, abs(18)), 'builtin', {}, [])
-step(is(66, add(48, 18)), 'builtin', {}, [])
-step(gt(66, 0), 'builtin', {}, [])
-step(euclid(48, 18, 1, 0, 0, 1, 6, -1, 3), clause(12), {R0: 48, R1: 18, S0: 1, S1: 0, T0: 0, T1: 1, G: 6, S: -1, T: 3, Q: 2, R2: 12, S2: 1, T2: -2}, [gt(18, 0), is(2, floordiv(48, 18)), is(12, sub(48, mul(2, 18))), is(1, sub(1, mul(2, 0))), is(-2, sub(0, mul(2, 1))), euclid(18, 12, 0, 1, 1, -2, 6, -1, 3)])
-step(gt(18, 0), 'builtin', {}, [])
-step(is(2, floordiv(48, 18)), 'builtin', {}, [])
-step(is(12, sub(48, mul(2, 18))), 'builtin', {}, [])
-step(is(1, sub(1, mul(2, 0))), 'builtin', {}, [])
-step(is(-2, sub(0, mul(2, 1))), 'builtin', {}, [])
-step(euclid(18, 12, 0, 1, 1, -2, 6, -1, 3), clause(12), {R0: 18, R1: 12, S0: 0, S1: 1, T0: 1, T1: -2, G: 6, S: -1, T: 3, Q: 1, R2: 6, S2: -1, T2: 3}, [gt(12, 0), is(1, floordiv(18, 12)), is(6, sub(18, mul(1, 12))), is(-1, sub(0, mul(1, 1))), is(3, sub(1, mul(1, -2))), euclid(12, 6, 1, -1, -2, 3, 6, -1, 3)])
-step(gt(12, 0), 'builtin', {}, [])
-step(is(1, floordiv(18, 12)), 'builtin', {}, [])
-step(is(6, sub(18, mul(1, 12))), 'builtin', {}, [])
-step(is(-1, sub(0, mul(1, 1))), 'builtin', {}, [])
-step(is(3, sub(1, mul(1, -2))), 'builtin', {}, [])
-step(euclid(12, 6, 1, -1, -2, 3, 6, -1, 3), clause(12), {R0: 12, R1: 6, S0: 1, S1: -1, T0: -2, T1: 3, G: 6, S: -1, T: 3, Q: 2, R2: 0, S2: 3, T2: -8}, [gt(6, 0), is(2, floordiv(12, 6)), is(0, sub(12, mul(2, 6))), is(3, sub(1, mul(2, -1))), is(-8, sub(-2, mul(2, 3))), euclid(6, 0, -1, 3, 3, -8, 6, -1, 3)])
-step(gt(6, 0), 'builtin', {}, [])
-step(is(2, floordiv(12, 6)), 'builtin', {}, [])
-step(is(0, sub(12, mul(2, 6))), 'builtin', {}, [])
-step(is(3, sub(1, mul(2, -1))), 'builtin', {}, [])
-step(is(-8, sub(-2, mul(2, 3))), 'builtin', {}, [])
-step(euclid(6, 0, -1, 3, 3, -8, 6, -1, 3), clause(11), {R0: 6, S0: -1, _0: 3, T0: 3, _1: -8}, [])
-step(sign(48, 1), clause(8), {N: 48}, [gt(48, 0)])
-step(gt(48, 0), 'builtin', {}, [])
-step(sign(18, 1), clause(8), {N: 18}, [gt(18, 0)])
-step(is(-1, mul(1, -1)), 'builtin', {}, [])
-step(is(3, mul(1, 3)), 'builtin', {}, [])
-// … steps 32-215: the certificates of the other six pairs
+// … the certificates of the other six pairs
 step(identity_holds('common_factor'), clause(15), {Name: 'common_factor', A: 48, B: 18, G: 6, S: -1, T: 3}, [pair('common_factor', 48, 18), certificate('common_factor', 6, -1, 3), is(6, add(mul(48, -1), mul(18, 3))), is(6, gcd(48, 18))])
-step(is(6, add(mul(48, -1), mul(18, 3))), 'builtin', {}, [])
-step(is(6, gcd(48, 18)), 'builtin', {}, [])
-// … steps 219-236: the identity checks of the other six pairs; 236 steps in all.
+// … the identity checks of the other six pairs
+
+// Certificate: the derived facts and every answer of each call the questions make.
+// … the listings, and the tables of the two questions
+called(bezout(48, 18, E, F, G), [bezout(48, 18, 6, -1, 3)])
+called(euclid(48, 18, 1, 0, 0, 1, H, I, J), [euclid(48, 18, 1, 0, 0, 1, 6, -1, 3)])
+called(euclid(18, 12, 0, 1, 1, -2, K, L, M), [euclid(18, 12, 0, 1, 1, -2, 6, -1, 3)])
+called(euclid(12, 6, 1, -1, -2, 3, N, O, P), [euclid(12, 6, 1, -1, -2, 3, 6, -1, 3)])
+called(euclid(6, 0, -1, 3, 3, -8, Q, R, S), [euclid(6, 0, -1, 3, 3, -8, 6, -1, 3)])
+called(sign(48, T), [sign(48, 1)])
+called(sign(18, U), [sign(18, 1)])
+// … the tables of the other six pairs
+called(certificate('common_factor', P4, Q4, R4), [certificate('common_factor', 6, -1, 3)])
+// … and one such table for each of the other six pairs
 ```
 
 It has three parts:
 
 - **The claims**: the 14 answers the proof is about.
-- **The clauses**: all 15 program clauses, numbered as above. Each
-  don't-care `_` gets a name (`_0`, `_1`) so a step can say what it stood
-  for.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`.
+- **The steps**: one for each fact the two forward rules derived. A step
+  reads `step(what, by which clause, with which values, using what)`.
+  Clauses are numbered in program order: the seven `pair` facts are 1 to 7,
+  rules 14 and 15 make the certificates and the identity checks.
+- **The certificate**: two **listings**, `derived(Pattern, Facts)`, give
+  every `certificate` and `identity_holds` fact the rules derived, and the
+  **call tables**, `called(Call, Answers)`, give every answer of each call
+  made while answering the questions.
 
-Two kinds of justification occur:
+Read the shown records as sentences:
 
-- `clause(N)`: the step is an instance of program clause N, with the
-  variables standing for the values shown.
-- `'builtin'`: a calculation by a built-in operation, such as
-  `is(2, floordiv(48, 18))`. It cites no clause and uses nothing; the
-  checker simply calculates it again.
+- **Step 1**: *The certificate for `common_factor` is G = 6, S = −1, T = 3*:
+  by rule 14, because the pair is 48 and 18 and `bezout` gives those values.
+- **Step 8**: *The identity holds for `common_factor`*: by rule 15, because
+  of the pair, its certificate, and two calculations:
+  48 × (−1) + 18 × 3 = 6, and gcd(48, 18) = 6, computed independently of
+  Euclid.
+- **`bezout(48, 18)` gives exactly 6, −1, 3**: rule 13 takes the absolute
+  values, checks that one is not zero, and asks Euclid.
+- **Euclid on 48 and 18, then 18 and 12, then 12 and 6, then 6 and 0**: each
+  table gives exactly 6, −1, 3. Rule 12 divides (48 ÷ 18 rounds down to 2,
+  48 − 2 × 18 = 12) and updates the coefficients; at remainder 0, fact 11
+  says 6 is the gcd and −1 and 3 are its coefficients.
+- **The signs of 48 and 18 are both 1**: by rule 8, so the coefficients keep
+  their signs.
+- **Asking for `common_factor`'s certificate gives exactly one**: rule 15
+  asks this while firing.
 
-Read the shown steps as sentences:
-
-- **Step 1**: *The certificate for `common_factor` is G = 6, S = −1, T = 3*: by rule
-  14, because the pair is 48 and 18 and `bezout` gives those values.
-- **Step 2**: *`common_factor` is the pair 48, 18*: fact 1.
-- **Step 3**: *`bezout(48, 18)` gives 6, −1, 3*: by rule 13, with R0 = 48, R1 = 18,
-  U = −1, V = 3 and both signs 1, because of the steps below.
-- **Steps 4 to 7**: *|48| = 48, |18| = 18, 48 + 18 = 66 and 66 > 0*: built-in
-  calculations (at least one input is not zero).
-- **Step 8**: *Euclid on 48 and 18 gives 6, −1, 3*: by rule 12, with Q = 2 and
-  R2 = 12, because 18 > 0, 48 ÷ 18 rounds down to 2, 48 − 2 × 18 = 12, the
-  new coefficients are 1 and −2, and Euclid on 18 and 12 gives the same
-  answer.
-- **Steps 9 to 13**: Those five built-in calculations.
-- **Step 14**: *Euclid on 18 and 12 gives 6, −1, 3*: by rule 12, with Q = 1 and R2 = 6.
-- **Steps 15 to 19**: Its five built-in calculations; the coefficients become −1 and 3.
-- **Step 20**: *Euclid on 12 and 6 gives 6, −1, 3*: by rule 12, with Q = 2 and R2 = 0.
-- **Steps 21 to 25**: Its five built-in calculations.
-- **Step 26**: *Euclid on 6 and 0 gives 6, −1, 3*: fact 11. The remainder is 0, so 6
-  is the gcd and −1 and 3 are its coefficients.
-- **Step 27**: *The sign of 48 is 1*: by rule 8, because 48 > 0 (step 28).
-- **Step 29**: *The sign of 18 is 1*: by rule 8, reusing 18 > 0 from step 9.
-- **Steps 30 and 31**: *1 × (−1) = −1 and 1 × 3 = 3*: built-in calculations restoring
-  the signs.
-- **Step 216**: *The identity holds for `common_factor`*: by rule 15, because of the
-  pair, its certificate (step 1), and the next two calculations.
-- **Step 217**: *48 × (−1) + 18 × 3 = 6*: a built-in calculation.
-- **Step 218**: *gcd(48, 18) = 6*: a built-in calculation, independent of Euclid's
-  steps.
-
-The other six pairs go the same way, with more or fewer division rounds.
+The calculations themselves (divisions, subtractions, comparisons, the final
+substitutions and the independent `gcd`) are not written down: the checker
+computes them itself. The other six pairs go the same way, with more or
+fewer division rounds.
 
 ---
 
@@ -260,11 +211,17 @@ The other six pairs go the same way, with more or fewer division rounds.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It checks each call table
+by applying the program's rules to its call one level, taking inner answers
+from the other tables and computing every calculation, so a wrong table
+shows up as a disagreement. It requires the two listings to be closed under
+the rules, so no certificate can be left out. It replays each step from its
+rule, redoing 48 × (−1) + 18 × 3 and gcd(48, 18) itself. And it requires the
+claims to be exactly the answers. A step, table or listing the check does
+not use fails it. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 certificate('common_factor', 6, -1, 3)
 certificate('coprime', 1, 215, -47)
 certificate('zero_left', 5, 0, 1)
@@ -280,68 +237,14 @@ identity_holds('larger')
 identity_holds('negative')
 identity_holds('large')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 73)
-condition('C2', 'well_founded', 'ok', 236)
-condition('C3', 'justification', 'ok', 236)
-condition('C4', 'coverage', 'ok', 286)
-condition('C5', 're_decision', 'ok', 163)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 250)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 16)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(236)
-verified(73)
-recomputed(163)
-composed(0)
-trusted(0)
-claims(14)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (73)**: the 73 clause steps really are instances of the
-  clauses they cite, with the values shown: every division round, every
-  sign and every certificate.
-- **C2 well-founded (236)**: none of the 236 steps depends on itself, even
-  indirectly.
-- **C3 justification (236)**: all 236 steps say how they were justified, in
-  a form the checker understands.
-- **C4 coverage (286)**: the 14 claims and the 272 things the steps use are
-  each backed by a step: nothing is taken for granted.
-- **C5 re-decision (163)**: the 163 built-in calculations (divisions,
-  subtractions, comparisons, the final substitutions and the independent
-  `gcd` values) were calculated again by the checker itself, and they
-  agree.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (250)**: the 14 claims answer the queries, and all 236
-  steps serve them. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 236 steps, 73 verified against the program, 163
-recomputed, no boundary steps taken on trust. The verdict is **checked**: all seven
-certificates and identities follow from the program. As the last comment
-says, they are also every answer of the original questions.
+The verdict is **checked**: all seven certificates and identities follow from
+the program, and they are every answer of the original questions.
 
 The certificate establishes these particular identities. It is not a
 general induction proof of the extended Euclidean algorithm.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
 
 ---
 

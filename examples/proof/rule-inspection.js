@@ -1,16 +1,10 @@
 // Answers: each instance of a query() that holds.
 test(a(A), c(A))
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(2, implies(a(X), c(X)))
-clause(3, implies(implies(X, Y), test(X, Y)))
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
+step(test(a(B), c(B)), clause(3), {X: a(B), Y: c(B)}, [implies(a(B), c(B))])
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(test(a(A), c(A)), clause(3), {X: a(A), Y: c(A)}, [implies(a(A), c(A))])
-step(implies(a(A), c(A)), source(2), {}, [])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-derived(test(B, C), [test(a(D), c(D))])
+// Certificate: the derived facts and every answer of each call the questions make.
+derived(test(C, D), [test(a(B), c(B))])
 called(test(A, B), [test(a(C), c(C))])

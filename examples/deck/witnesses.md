@@ -70,13 +70,15 @@ impossible to mix up with Bob's.
 If a rule's conclusion mentions a variable its premise never fills in, say
 `has_record(Name, R)`, eyemind invents a name for `R` itself. That invented
 name is called a *Skolem term* and looks like `skolem(3, 'R', ['alice'])`:
-*"the `R` that rule 3 made for Alice."* The checker then verifies, under C8,
-that each such name is exactly the one that firing must produce.
+*"the `R` that rule 3 made for Alice."* When it replays the firing, the checker
+recomputes each such name and requires exactly the one that firing must
+produce.
 
 Writing the witness out, as this program does, has the same effect with a
 name you choose: it says which rule made it and for whom, it is stable
 across runs, and firing the rule twice for Alice still gives one record, not
-two. Because nothing is invented, there is nothing for C8 to check here.
+two. Because nothing is invented, the checker has no Skolem term to recompute
+here.
 
 ---
 
@@ -92,22 +94,14 @@ record_owner(record('person_rule', 'alice'), 'alice')
 has_record('bob', record('person_rule', 'bob'))
 record_owner(record('person_rule', 'bob'), 'bob')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(person('alice')))
-clause(2, fact(person('bob')))
-clause(3, implies(person(Name), [has_record(Name, record('person_rule', Name)), record_owner(record('person_rule', Name), Name)]))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(has_record('alice', record('person_rule', 'alice')), clause(3), {Name: 'alice'}, [person('alice')])
-step(person('alice'), clause(1), {}, [])
-step(record_owner(record('person_rule', 'alice'), 'alice'), clause(3), {Name: 'alice'}, [person('alice')])
 step(has_record('bob', record('person_rule', 'bob')), clause(3), {Name: 'bob'}, [person('bob')])
-step(person('bob'), clause(2), {}, [])
+step(record_owner(record('person_rule', 'alice'), 'alice'), clause(3), {Name: 'alice'}, [person('alice')])
 step(record_owner(record('person_rule', 'bob'), 'bob'), clause(3), {Name: 'bob'}, [person('bob')])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(has_record(A, B), [has_record('alice', record('person_rule', 'alice')), has_record('bob', record('person_rule', 'bob'))])
 derived(record_owner(A, B), [record_owner(record('person_rule', 'alice'), 'alice'), record_owner(record('person_rule', 'bob'), 'bob')])
 called(has_record(A, record('person_rule', A)), [has_record('alice', record('person_rule', 'alice')), has_record('bob', record('person_rule', 'bob'))])
@@ -117,25 +111,31 @@ called(record_owner(record('person_rule', B), B), [record_owner(record('person_r
 It has three parts:
 
 - **The claims**: the four conclusions the proof is about.
-- **The clauses**: the two facts and the rule, numbered as in the program.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
+- **The steps**: one per derived fact. A step reads
+  `step(what, by which clause, with which values, using what)`; clause 3 is
+  the rule, after the two facts.
+- **The certificate**: a *listing*, `derived(...)`, of every fact the rule
+  derived for each of its two relations, and a *call table*, `called(...)`,
+  for each original question. With no `query()`, the questions are the
+  rule's two heads, `has_record(Name, record('person_rule', Name))` and
+  `record_owner(record('person_rule', Name), Name)`, with their variables
+  renamed.
 
 Read the steps as sentences:
 
 1. *Alice has the record `record('person_rule', 'alice')`* — by rule 3, with
    `Name` being Alice, because Alice is a person.
-2. *Alice is a person* — fact 1; it uses nothing.
-3. *That record's owner is Alice* — rule 3 again, with the same value for
-   `Name`, because Alice is a person.
-4. *Bob has the record `record('person_rule', 'bob')`* — by rule 3, with
+2. *Bob has the record `record('person_rule', 'bob')`* — by rule 3, with
    `Name` being Bob, because Bob is a person.
-5. *Bob is a person* — fact 2; it uses nothing.
-6. *That record's owner is Bob* — rule 3 again, same value, because Bob is a
-   person.
+3. *That first record's owner is Alice* — rule 3 again, with the same value
+   for `Name`, because Alice is a person.
+4. *That second record's owner is Bob* — rule 3 again, same value, because
+   Bob is a person.
 
 The two facts a single firing concludes show up as two steps citing the same
-rule with the same value for `Name`.
+rule with the same value for `Name`. `person` comes only from stated facts,
+so the program itself answers those uses and they need no steps of their
+own.
 
 ---
 
@@ -143,66 +143,28 @@ rule with the same value for `Name`.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure. It
+answers each question one level against the program, which gives exactly
+the two answers of each call table. It checks that both listings are closed:
+firing rule 3 for each person gives only listed facts. It replays each
+listed fact from scratch against its step: `person(Name)` is answered from
+facts 1 and 2, and the heads come out exactly as recorded. Finally, the
+claims must be exactly the answers, and every step, listing and table must
+have been used. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 has_record('alice', record('person_rule', 'alice'))
 record_owner(record('person_rule', 'alice'), 'alice')
 has_record('bob', record('person_rule', 'bob'))
 record_owner(record('person_rule', 'bob'), 'bob')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 6)
-condition('C2', 'well_founded', 'ok', 6)
-condition('C3', 'justification', 'ok', 6)
-condition('C4', 'coverage', 'ok', 8)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 10)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 6)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(6)
-verified(6)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(4)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (6)**: each of the 6 steps really is an instance of the
-  rule or fact it cites: four are rule 3 (twice with `Name` = Alice, twice
-  with Bob) and two are the facts.
-- **C2 well-founded (6)**: no step depends on itself, even indirectly.
-- **C3 justification (6)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (8)**: the 4 claims and the 4 things the steps use (each
-  rule step uses one `person(...)` fact) are each backed by a step.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (10)**: the 4 claims are what the program derives, and all
-  6 steps serve them.
-- **C8 witness integrity (0)**: no invented Skolem names, because the
-  program writes its witnesses out itself.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 6 steps, all 6 verified against the program,
-none taken on trust. The verdict is **checked**: all four facts follow from
-the program, and they are every answer of the original questions.
+The verdict is **checked**: all four facts follow from the program, and they
+are every answer of the original questions.
 
 ---
 
@@ -218,8 +180,8 @@ Add `fact(person('carol'))`: two more facts appear, with the witness
 the output stays the same four facts, because Alice's record has one name.
 Replace both `record('person_rule', Name)` with a bare variable `R`: eyemind
 invents the names itself, `skolem(3, 'R', ['alice'])` and
-`skolem(3, 'R', ['bob'])`, and the check report's C8 line now counts 4 such
-names.
+`skolem(3, 'R', ['bob'])`, which the checker recomputes from `Name` when
+it replays each firing.
 
 ---
 

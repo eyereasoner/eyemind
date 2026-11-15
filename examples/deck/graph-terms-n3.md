@@ -88,11 +88,15 @@ Bob says is true.
 
 ## What the proof establishes
 
-The report ends with `verdict('checked')`. C1 checks each step against the
-compiled rules, including the unquoting rule and the matching of graph
-terms. C10 replays the firings that use the graph matching and unquoting
-helpers in source order, so the claims are every answer, with no
-obligations left.
+The proof cites the clauses of the compiled program. Its 14 steps record the
+firings behind the derived triples, including the unquoting rule and the
+matching of graph terms; its certificate holds 2 `derived` listings and 65
+`called` tables, every answer of each call the questions make. The checker
+answers the questions from those tables, expanding each call one level
+against the compiled clauses, and replays each derived triple's firing, so
+the graph matching and unquoting helpers run again in source order. The
+report ends with `verdict('checked')`: the claims follow from the rules and
+are every answer of their questions.
 
 ---
 

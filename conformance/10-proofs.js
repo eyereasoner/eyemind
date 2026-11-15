@@ -14,19 +14,12 @@ conformance("fact and rule steps, with bindings in the clause's variable order",
     "type('socrates', 'mortal')",
     "type('socrates', 'human')",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    "clause(1, fact(type('socrates', 'human')))",
-    "clause(2, fact(subclass_of('human', 'mortal')))",
-    'clause(3, implies([type(S, A), subclass_of(A, B)], type(S, B)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     "step(type('socrates', 'mortal'), clause(3), {S: 'socrates', A: 'human', B: 'mortal'}, [type('socrates', 'human'), subclass_of('human', 'mortal')])",
     "step(type('socrates', 'human'), clause(1), {}, [])",
-    "step(subclass_of('human', 'mortal'), clause(2), {}, [])",
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     "derived(type(A, B), [type('socrates', 'mortal')])",
     "called(type(A, B), [type('socrates', 'mortal'), type('socrates', 'human')])",
   ]),
@@ -41,17 +34,10 @@ conformance("a proof of a goal claims the goal's answers", [
   stdout([
     '// Answers: each instance of a goal that holds.',
     'p(1)',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(1), clause(1), {}, [])',
   ]),
 ])
 
-conformance('a fact with variables binds them', [
+conformance('a goal answered by source facts alone needs no call table', [
   spec('10.3'),
   args("--proof --goal 'same(1, 1)' program.js"),
   file('program.js', [
@@ -60,18 +46,11 @@ conformance('a fact with variables binds them', [
   stdout([
     '// Answers: each instance of a goal that holds.',
     'same(1, 1)',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(same(X, X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(same(1, 1), clause(1), {X: 1}, [])',
   ]),
 ])
 
-conformance('only the clauses a proof cites are displayed, by number', [
-  spec('10.1'),
+conformance('a backward answer resting on source facts has a call table but no step', [
+  spec('10.2, 10.3'),
   args("--proof --goal 'big(X)' program.js"),
   file('program.js', [
     'fact(n(1), n(3))',
@@ -81,90 +60,97 @@ conformance('only the clauses a proof cites are displayed, by number', [
     '// Answers: each instance of a goal that holds.',
     'big(3)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(2, fact(n(3)))',
-    'clause(3, implied_by(big(X), [n(X), gt(X, 2)]))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(big(3), clause(3), {X: 3}, [n(3), gt(3, 2)])',
-    'step(n(3), clause(2), {}, [])',
-    "step(gt(3, 2), 'builtin', {}, [])",
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'called(big(A), [big(3)])',
   ]),
 ])
 
-conformance('call and once are control steps', [
-  spec('10.3'),
-  args("--proof --goal 'call(p(1))' --goal 'once(q(Y))' program.js"),
+conformance('call in a firing over a derived fact is a control step, once is not', [
+  spec('10.2, 10.3'),
+  args('--proof program.js'),
   file('program.js', [
-    'fact(p(1), q(2), q(3))',
+    'fact(a(1))',
+    'implies(a(X), b(X))',
+    'implies([a(X), call(b(X)), once(b(X))], c(X))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'call(p(1))',
-    'once(q(2))',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'b(1)',
+    'c(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, fact(q(2)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(b(1), clause(2), {X: 1}, [a(1)])',
+    'step(c(1), clause(3), {X: 1}, [a(1), call(b(1)), once(b(1))])',
+    "step(call(b(1)), 'control', {}, [b(1)])",
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(call(p(1)), 'control', {}, [p(1)])",
-    'step(p(1), clause(1), {}, [])',
-    "step(once(q(2)), 'control', {}, [q(2)])",
-    'step(q(2), clause(2), {}, [])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(b(A), [b(1)])',
+    'derived(c(A), [c(1)])',
+    'called(b(A), [b(1)])',
+    'called(c(B), [c(1)])',
+    'called(b(1), [b(1)])',
   ]),
 ])
 
 conformance('a disjunction is a control step with the side that held', [
-  spec('10.3'),
-  args("--proof --goal 'or(p(2), p(1))' program.js"),
+  spec('10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    'fact(p(1))',
+    'fact(a(1))',
+    'implies(a(X), b(X))',
+    'implies([a(X), or(q(X), b(X))], c(X))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'or(p(2), p(1))',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'b(1)',
+    'c(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(b(1), clause(2), {X: 1}, [a(1)])',
+    'step(c(1), clause(3), {X: 1}, [a(1), or(q(1), b(1))])',
+    "step(or(q(1), b(1)), 'control', {}, [b(1)])",
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(or(p(2), p(1)), 'control', {}, [p(1)])",
-    'step(p(1), clause(1), {}, [])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(b(A), [b(1)])',
+    'derived(c(A), [c(1)])',
+    'called(b(A), [b(1)])',
+    'called(c(B), [c(1)])',
+    'called(b(1), [b(1)])',
   ]),
 ])
 
 conformance('a conjunction inside a control step is split into uses', [
-  spec('10.3'),
-  args("--proof --goal 'call(and(p(1), q(1)))' program.js"),
+  spec('10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    'fact(p(1), q(1))',
+    'fact(a(1))',
+    'implies(a(X), b(X))',
+    'implies([a(X), call(and(b(X), a(X)))], c(X))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'call(and(p(1), q(1)))',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'b(1)',
+    'c(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, fact(q(1)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(b(1), clause(2), {X: 1}, [a(1)])',
+    'step(c(1), clause(3), {X: 1}, [a(1), call(and(b(1), a(1)))])',
+    "step(call(and(b(1), a(1))), 'control', {}, [b(1), a(1)])",
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(call(and(p(1), q(1))), 'control', {}, [p(1), q(1)])",
-    'step(p(1), clause(1), {}, [])',
-    'step(q(1), clause(2), {}, [])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(b(A), [b(1)])',
+    'derived(c(A), [c(1)])',
+    'called(b(A), [b(1)])',
+    'called(c(B), [c(1)])',
+    'called(b(1), [b(1)])',
   ]),
 ])
 
-conformance('a negation is an absent step', [
-  spec('10.3'),
+conformance('a negation in a firing is a use without a step', [
+  spec('10.2, 10.3'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1))',
@@ -174,25 +160,18 @@ conformance('a negation is an absent step', [
     '// Conclusions: the facts the program derives, in the order derived.',
     'ok(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, implies([p(X), not(q(X))], ok(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(ok(1), clause(2), {X: 1}, [p(1), not(q(1))])',
-    'step(p(1), clause(1), {}, [])',
-    "step(not(q(1)), 'absent', {}, [])",
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'derived(ok(A), [ok(1)])',
     'called(ok(A), [ok(1)])',
   ]),
 ])
 
-conformance('a findall is a collected step', [
-  spec('10.3'),
+conformance('a findall in a firing is a use without a step', [
+  spec('10.2'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1), p(2))',
@@ -202,16 +181,11 @@ conformance('a findall is a collected step', [
     '// Conclusions: the facts the program derives, in the order derived.',
     'all_of([1, 2])',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(3, implies(findall(X, p(X), L), all_of(L)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(all_of([1, 2]), clause(3), {X: A, L: [1, 2]}, [findall(A, p(A), [1, 2])])',
-    "step(findall(A, p(A), [1, 2]), 'collected', {}, [])",
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'derived(all_of(B), [all_of([1, 2])])',
     'called(all_of(A), [all_of([1, 2])])',
   ]),
@@ -227,53 +201,65 @@ conformance("a query's claims are the instances of its body", [
   stdout([
     '// Answers: each instance of a query() that holds.',
     'and(p(1), q(1))',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, fact(q(1)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(1), clause(1), {}, [])',
-    'step(q(1), clause(2), {}, [])',
   ]),
 ])
 
 conformance('a goal used twice has one step', [
-  spec('10.3'),
+  spec('10.2, 10.3'),
   args('--proof program.js'),
   file('program.js', [
-    'fact(p(1))',
+    'fact(s(1))',
+    'implies(s(X), p(X))',
     'implies(p(1), a)',
     'implies(p(1), b)',
   ]),
   stdout([
     '// Conclusions: the facts the program derives, in the order derived.',
+    'p(1)',
     "'a'",
     "'b'",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    "clause(2, implies(p(1), 'a'))",
-    "clause(3, implies(p(1), 'b'))",
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(p(1), clause(2), {X: 1}, [s(1)])',
+    "step('a', clause(3), {}, [p(1)])",
+    "step('b', clause(4), {}, [p(1)])",
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step('a', clause(2), {}, [p(1)])",
-    'step(p(1), clause(1), {}, [])',
-    "step('b', clause(3), {}, [p(1)])",
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(p(A), [p(1)])',
     "derived('a', ['a'])",
     "derived('b', ['b'])",
+    'called(p(A), [p(1)])',
     "called('a', ['a'])",
+    'called(p(1), [p(1)])',
     "called('b', ['b'])",
   ]),
 ])
 
-conformance('steps follow a depth-first walk from the claims', [
+conformance('a relation of arity 0 is listed by its name alone', [
   spec('10.3'),
+  args('--proof program.js'),
+  file('program.js', [
+    'fact(p(1))',
+    "implies(p(X), 'ready')",
+    "query('ready')",
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "'ready'",
+    '',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    "step('ready', clause(2), {X: 1}, [p(1)])",
+    '',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    "derived('ready', ['ready'])",
+    "called('ready', ['ready'])",
+  ]),
+])
+
+conformance('steps follow a depth-first walk from the listed facts', [
+  spec('10.2'),
   args('--proof program.js'),
   file('program.js', [
     'fact(a(1))',
@@ -285,19 +271,12 @@ conformance('steps follow a depth-first walk from the claims', [
     '// Answers: each instance of a query() that holds.',
     'c(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(a(1)))',
-    'clause(2, implies(a(X), b(X)))',
-    'clause(3, implies([b(X), a(X)], c(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(c(1), clause(3), {X: 1}, [b(1), a(1)])',
     'step(b(1), clause(2), {X: 1}, [a(1)])',
-    'step(a(1), clause(1), {}, [])',
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'derived(c(A), [c(1)])',
     'derived(b(A), [b(1)])',
     'called(c(A), [c(1)])',
@@ -306,7 +285,7 @@ conformance('steps follow a depth-first walk from the claims', [
 ])
 
 conformance('a derived fact used by a backward rule cites its forward rule', [
-  spec('10.3'),
+  spec('10.2'),
   args("--proof --goal 'r(X)' program.js"),
   file('program.js', [
     'fact(p(1))',
@@ -317,19 +296,11 @@ conformance('a derived fact used by a backward rule cites its forward rule', [
     '// Answers: each instance of a goal that holds.',
     'r(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, implies(p(X), q(X)))',
-    'clause(3, implied_by(r(X), q(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(r(1), clause(3), {X: 1}, [q(1)])',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(q(1), clause(2), {X: 1}, [p(1)])',
-    'step(p(1), clause(1), {}, [])',
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'derived(q(A), [q(1)])',
     'called(r(A), [r(1)])',
     'called(q(B), [q(1)])',
@@ -348,43 +319,34 @@ conformance("a halted run's proof claims what it derived and false", [
     "// Halted: a contradiction() holds; the facts derived until then, ending with 'false'.",
     "'false'",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    "clause(1, fact(account('bob', -5)))",
-    'clause(2, contradiction(account(O, B), lt(B, 0)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     "step('false', clause(2), {O: 'bob', B: -5}, [account('bob', -5), lt(-5, 0)])",
-    "step(account('bob', -5), clause(1), {}, [])",
-    "step(lt(-5, 0), 'builtin', {}, [])",
   ]),
 ])
 
 conformance('arithmetic in a step is the instance of the clause', [
-  spec('10.3'),
-  args("--proof --goal 'double(4, Y)' program.js"),
+  spec('10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    'implied_by(double(X, Y), is(Y, mul(X, 2)))',
+    'fact(n(4))',
+    'implies([n(X), is(Y, mul(X, 2))], double(X, Y))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
+    '// Conclusions: the facts the program derives, in the order derived.',
     'double(4, 8)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, implied_by(double(X, Y), is(Y, mul(X, 2))))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(double(4, 8), clause(2), {X: 4, Y: 8}, [n(4), is(8, mul(4, 2))])',
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(double(4, 8), clause(1), {X: 4, Y: 8}, [is(8, mul(4, 2))])',
-    "step(is(8, mul(4, 2)), 'builtin', {}, [])",
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
-    'called(double(4, A), [double(4, 8)])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(double(A, B), [double(4, 8)])',
+    'called(double(A, B), [double(4, 8)])',
   ]),
 ])
 
-conformance('a run with no conclusions has a proof of its comment and two empty lines', [
+conformance('a run with no questions has a proof of only its comment', [
   spec('8.6, 10.1'),
   args('--proof program.js'),
   file('program.js', [
@@ -392,13 +354,11 @@ conformance('a run with no conclusions has a proof of its comment and two empty 
   ]),
   stdout([
     '// No conclusions: the program derives no facts.',
-    '',
-    '',
   ]),
 ])
 
 conformance('inspection evidence cites the source rule without solving its premise', [
-  spec('6.3, 10.3, 11.4'),
+  spec('6.3, 10.2, 11.4'),
   args('--proof program.js'),
   file('program.js', [
     "fact(a('b'))",
@@ -410,51 +370,35 @@ conformance('inspection evidence cites the source rule without solving its premi
     '// Answers: each instance of a query() that holds.',
     'test(a(A), c(A))',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(2, implies(a(X), c(X)))',
-    'clause(3, implies(implies(X, Y), test(X, Y)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(test(a(B), c(B)), clause(3), {X: a(B), Y: c(B)}, [implies(a(B), c(B))])',
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(test(a(A), c(A)), clause(3), {X: a(A), Y: c(A)}, [implies(a(A), c(A))])',
-    'step(implies(a(A), c(A)), source(2), {}, [])',
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
-    'derived(test(B, C), [test(a(D), c(D))])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(test(C, D), [test(a(B), c(B))])',
     'called(test(A, B), [test(a(C), c(C))])',
   ]),
 ])
 
-// Structure: proofs without clauses, without steps or without claims.
+// Structure: proofs without steps, without a certificate or without claims.
 
-conformance('a proof citing no clause has two empty lines before its steps', [
-  spec('10.1, 10.3'),
-  args("--proof --goal 'is(X, add(1, 2))'"),
+conformance('a proof without steps or certificate is the output of the run', [
+  spec('10.1'),
+  args("--proof --goal \"atom_length('abc', N)\""),
   stdin([]),
   stdout([
     '// Answers: each instance of a goal that holds.',
-    'is(3, add(1, 2))',
-    '',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(is(3, add(1, 2)), 'builtin', {}, [])",
+    "atom_length('abc', 3)",
   ]),
 ])
 
-conformance("the goal 'true' is a builtin step", [
-  spec('4.3, 10.3'),
+conformance("the goal 'true' needs no evidence", [
+  spec('4.3, 10.1'),
   args("--proof --goal \"'true'\""),
   stdin([]),
   stdout([
     '// Answers: each instance of a goal that holds.',
     "'true'",
-    '',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step('true', 'builtin', {}, [])",
   ]),
 ])
 
@@ -466,8 +410,6 @@ conformance('a proof for goals without answers has no claims', [
   ]),
   stdout([
     '// No answers: no instance of a goal holds.',
-    '',
-    '',
   ]),
 ])
 
@@ -480,13 +422,27 @@ conformance('a proof for queries without answers has no claims', [
   ]),
   stdout([
     '// No answers: no query() instance holds.',
+  ]),
+])
+
+conformance('a proof without claims holds the call tables of its questions', [
+  spec('8.7, 10.1, 10.3'),
+  args('--proof program.js'),
+  file('program.js', [
+    "fact(p('a'), p('b'))",
+    'implied_by(r(X), p(X))',
+    "query(r('c'))",
+  ]),
+  stdout([
+    '// No answers: no query() instance holds.',
     '',
-    '',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    "called(r('c'), [])",
   ]),
 ])
 
 conformance("a halted run's proof claims the facts derived before 'false'", [
-  spec('8.6, 10.1, 10.3'),
+  spec('8.6, 10.1, 10.2'),
   args('--proof program.js'),
   exit(65),
   file('program.js', [
@@ -499,21 +455,15 @@ conformance("a halted run's proof claims the facts derived before 'false'", [
     'q(1)',
     "'false'",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, implies(p(X), q(X)))',
-    'clause(3, contradiction(q(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(q(1), clause(2), {X: 1}, [p(1)])',
-    'step(p(1), clause(1), {}, [])',
     "step('false', clause(3), {X: 1}, [q(1)])",
   ]),
 ])
 
 conformance('a conjunctive goal claims its instance and has no step of its own', [
-  spec('10.1, 10.3'),
+  spec('10.1, 10.2'),
   args("--proof --goal '[p(X), q(X)]' program.js"),
   file('program.js', [
     'fact(p(1), p(2), q(2))',
@@ -521,21 +471,12 @@ conformance('a conjunctive goal claims its instance and has no step of its own',
   stdout([
     '// Answers: each instance of a goal that holds.',
     'and(p(2), q(2))',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(2, fact(p(2)))',
-    'clause(3, fact(q(2)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(2), clause(2), {}, [])',
-    'step(q(2), clause(3), {}, [])',
   ]),
 ])
 
-conformance('a goal shared by two claims has one step, under the first', [
+conformance('identical calls share one call table', [
   spec('10.3'),
-  args("--proof --goal 'q(1)' --goal 'p(1)' program.js"),
+  args("--proof --goal 'q(1)' --goal '[p(1), q(1)]' program.js"),
   file('program.js', [
     'fact(p(1))',
     'implied_by(q(X), p(X))',
@@ -543,25 +484,15 @@ conformance('a goal shared by two claims has one step, under the first', [
   stdout([
     '// Answers: each instance of a goal that holds.',
     'q(1)',
-    'p(1)',
+    'and(p(1), q(1))',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, implied_by(q(X), p(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(q(1), clause(2), {X: 1}, [p(1)])',
-    'step(p(1), clause(1), {}, [])',
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'called(q(1), [q(1)])',
   ]),
 ])
 
 conformance("a query's claim with a primitive in its body", [
-  spec('10.1, 10.3'),
+  spec('10.1'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(-1), p(1))',
@@ -570,19 +501,11 @@ conformance("a query's claim with a primitive in its body", [
   stdout([
     '// Answers: each instance of a query() that holds.',
     'and(p(1), gt(1, 0))',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(2, fact(p(1)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(1), clause(2), {}, [])',
-    "step(gt(1, 0), 'builtin', {}, [])",
   ]),
 ])
 
-conformance('a query of one disjunction claims it and proves it by a control step', [
-  spec('10.1, 10.3'),
+conformance('a query of one disjunction claims it', [
+  spec('10.1'),
   args('--proof program.js'),
   file('program.js', [
     'fact(q(1))',
@@ -591,21 +514,13 @@ conformance('a query of one disjunction claims it and proves it by a control ste
   stdout([
     '// Answers: each instance of a query() that holds.',
     'or(p(1), q(1))',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(q(1)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(or(p(1), q(1)), 'control', {}, [q(1)])",
-    'step(q(1), clause(1), {}, [])',
   ]),
 ])
 
-// Clause displays.
+// Canonical text, repeated answers and binding order.
 
-conformance('a contradiction with a conjunctive array body is displayed with separate goals', [
-  spec('10.2'),
+conformance("a contradiction's step uses each goal of its array body", [
+  spec('8.5, 10.2'),
   args('--proof program.js'),
   exit(65),
   file('program.js', [
@@ -616,52 +531,14 @@ conformance('a contradiction with a conjunctive array body is displayed with sep
     "// Halted: a contradiction() holds; the facts derived until then, ending with 'false'.",
     "'false'",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, fact(q(1)))',
-    'clause(3, contradiction(p(X), q(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     "step('false', clause(3), {X: 1}, [p(1), q(1)])",
-    'step(p(1), clause(1), {}, [])',
-    'step(q(1), clause(2), {}, [])',
   ]),
 ])
 
-conformance('a nested array body is displayed flattened', [
-  spec('3.5, 10.2'),
-  args('--proof program.js'),
-  file('program.js', [
-    'fact(p(1), q(1), s(1))',
-    'implies([[p(X), q(X)], s(X)], r(X))',
-  ]),
-  stdout([
-    '// Conclusions: the facts the program derives, in the order derived.',
-    'r(1)',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, fact(q(1)))',
-    'clause(3, fact(s(1)))',
-    'clause(4, implies([p(X), q(X), s(X)], r(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(r(1), clause(4), {X: 1}, [p(1), q(1), s(1)])',
-    'step(p(1), clause(1), {}, [])',
-    'step(q(1), clause(2), {}, [])',
-    'step(s(1), clause(3), {}, [])',
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
-    'derived(r(A), [r(1)])',
-    'called(r(A), [r(1)])',
-  ]),
-])
-
-conformance('clause displays use canonical text', [
-  spec('9.2, 9.3, 10.2'),
+conformance('claims are written in canonical text', [
+  spec('9.2, 9.3, 10.1'),
   args("--proof --goal 't(X, Y, Z)' program.js"),
   file('program.js', [
     "fact(t('a\\'b', float(0.5), struct('class', 1)))",
@@ -669,18 +546,11 @@ conformance('clause displays use canonical text', [
   stdout([
     '// Answers: each instance of a goal that holds.',
     "t('a\\'b', 0.5, struct('class', 1))",
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    "clause(1, fact(t('a\\'b', 0.5, struct('class', 1))))",
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(t('a\\'b', 0.5, struct('class', 1)), clause(1), {}, [])",
   ]),
 ])
 
 conformance('only the first of two forward rules deriving a fact is cited', [
-  spec('8.7, 10.1'),
+  spec('8.7, 10.2'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1), r(1))',
@@ -691,24 +561,18 @@ conformance('only the first of two forward rules deriving a fact is cited', [
     '// Conclusions: the facts the program derives, in the order derived.',
     'q(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(3, implies(p(X), q(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(q(1), clause(3), {X: 1}, [p(1)])',
-    'step(p(1), clause(1), {}, [])',
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'derived(q(A), [q(1)])',
     'called(q(A), [q(1)])',
   ]),
 ])
 
-conformance('only the first of two backward rules answering a goal is cited', [
-  spec('8.4, 8.7, 10.1'),
+conformance('a call table keeps repeated answers', [
+  spec('8.1, 10.3'),
   args("--proof --goal 'q(1)' program.js"),
   file('program.js', [
     'fact(p(1), r(1))',
@@ -719,22 +583,42 @@ conformance('only the first of two backward rules answering a goal is cited', [
     '// Answers: each instance of a goal that holds.',
     'q(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(3, implied_by(q(X), p(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(q(1), clause(3), {X: 1}, [p(1)])',
-    'step(p(1), clause(1), {}, [])',
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'called(q(1), [q(1), q(1)])',
   ]),
 ])
 
-conformance('a backward rule binds its variables in display order, the head first', [
+conformance('a backward rule binds its variables in order of first occurrence, the head first', [
+  spec('10.2'),
+  args('--proof program.js'),
+  file('program.js', [
+    'fact(e(1))',
+    'implies(e(X), d(X, 2))',
+    'implied_by(b(Z, X), d(X, Z))',
+    'implies(b(Z, X), c(X))',
+  ]),
+  stdout([
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'd(1, 2)',
+    'c(1)',
+    '',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(d(1, 2), clause(2), {X: 1}, [e(1)])',
+    'step(c(1), clause(4), {Z: 2, X: 1}, [b(2, 1)])',
+    'step(b(2, 1), clause(3), {Z: 2, X: 1}, [d(1, 2)])',
+    '',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(d(A, B), [d(1, 2)])',
+    'derived(c(A), [c(1)])',
+    'called(d(A, 2), [d(1, 2)])',
+    'called(c(B), [c(1)])',
+    'called(b(C, D), [b(2, 1)])',
+    'called(d(E, F), [d(1, 2)])',
+  ]),
+])
+
+conformance('a recursive backward rule has a call table for each call it makes', [
   spec('10.3'),
   args("--proof --goal \"anc('a', 'c')\" program.js"),
   file('program.js', [
@@ -746,29 +630,15 @@ conformance('a backward rule binds its variables in display order, the head firs
     '// Answers: each instance of a goal that holds.',
     "anc('a', 'c')",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    "clause(1, fact(parent('a', 'b')))",
-    "clause(2, fact(parent('b', 'c')))",
-    'clause(3, implied_by(anc(X, Y), parent(X, Y)))',
-    'clause(4, implied_by(anc(X, Z), [parent(X, Y), anc(Y, Z)]))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(anc('a', 'c'), clause(4), {X: 'a', Z: 'c', Y: 'b'}, [parent('a', 'b'), anc('b', 'c')])",
-    "step(parent('a', 'b'), clause(1), {}, [])",
-    "step(anc('b', 'c'), clause(3), {X: 'b', Y: 'c'}, [parent('b', 'c')])",
-    "step(parent('b', 'c'), clause(2), {}, [])",
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     "called(anc('a', 'c'), [anc('a', 'c')])",
     "called(anc('b', 'c'), [anc('b', 'c')])",
     "called(anc('c', 'c'), [])",
   ]),
 ])
 
-conformance('a forward rule binds its variables in display order, the premise first', [
-  spec('10.3'),
+conformance('a forward rule binds its variables in order of first occurrence, the body first', [
+  spec('10.2'),
   args('--proof program.js'),
   file('program.js', [
     'fact(q(2, 1))',
@@ -778,23 +648,17 @@ conformance('a forward rule binds its variables in display order, the premise fi
     '// Conclusions: the facts the program derives, in the order derived.',
     'p(1, 2)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(q(2, 1)))',
-    'clause(2, implies(q(Y, X), p(X, Y)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(p(1, 2), clause(2), {Y: 2, X: 1}, [q(2, 1)])',
-    'step(q(2, 1), clause(1), {}, [])',
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'derived(p(A, B), [p(1, 2)])',
     'called(p(A, B), [p(1, 2)])',
   ]),
 ])
 
-conformance('a unification solved with an unbound variable is stepped as its final instance', [
+conformance('a call table shows its call before later bindings', [
   spec('10.3'),
   args("--proof --goal 'p(Y)' program.js"),
   file('program.js', [
@@ -804,22 +668,29 @@ conformance('a unification solved with an unbound variable is stepped as its fin
     '// Answers: each instance of a goal that holds.',
     'p(6)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, implied_by(p(Y), unify(Y, 6)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(6), clause(1), {Y: 6}, [unify(6, 6)])',
-    "step(unify(6, 6), 'builtin', {}, [])",
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'called(p(A), [p(6)])',
   ]),
 ])
 
+conformance('a call table keeps anonymous variables apart from named ones', [
+  spec('9.4, 10.3'),
+  args("--proof --goal 'p(X)' --goal 'p(_)' program.js"),
+  file('program.js', [
+    "implied_by(p(_), 'true')",
+  ]),
+  stdout([
+    '// Answers: each instance of a goal that holds.',
+    'p(A)',
+    '',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'called(p(A), [p(_1)])',
+    'called(p(_2), [p(_3)])',
+  ]),
+])
+
 conformance('a witness is the value of its head variable in the bindings', [
-  spec('8.2, 10.3'),
+  spec('8.2, 10.2'),
   args('--proof program.js'),
   file('program.js', [
     "fact(person('ann'))",
@@ -829,24 +700,18 @@ conformance('a witness is the value of its head variable in the bindings', [
     '// Conclusions: the facts the program derives, in the order derived.',
     "has('ann', skolem(2, 'T', ['ann']))",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    "clause(1, fact(person('ann')))",
-    'clause(2, implies(person(X), has(X, T)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     "step(has('ann', skolem(2, 'T', ['ann'])), clause(2), {X: 'ann', T: skolem(2, 'T', ['ann'])}, [person('ann')])",
-    "step(person('ann'), clause(1), {}, [])",
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     "derived(has(A, B), [has('ann', skolem(2, 'T', ['ann']))])",
     "called(has(A, B), [has('ann', skolem(2, 'T', ['ann']))])",
   ]),
 ])
 
 conformance('heads sharing a witness have a step each with the same bindings', [
-  spec('8.2, 10.3'),
+  spec('8.2, 10.2'),
   args('--proof program.js'),
   file('program.js', [
     "fact(person('ann'))",
@@ -857,18 +722,12 @@ conformance('heads sharing a witness have a step each with the same bindings', [
     "has('ann', skolem(2, 'T', ['ann']))",
     "owns(skolem(2, 'T', ['ann']), 'ann')",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    "clause(1, fact(person('ann')))",
-    'clause(2, implies(person(X), [has(X, T), owns(T, X)]))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     "step(has('ann', skolem(2, 'T', ['ann'])), clause(2), {X: 'ann', T: skolem(2, 'T', ['ann'])}, [person('ann')])",
-    "step(person('ann'), clause(1), {}, [])",
     "step(owns(skolem(2, 'T', ['ann']), 'ann'), clause(2), {X: 'ann', T: skolem(2, 'T', ['ann'])}, [person('ann')])",
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     "derived(has(A, B), [has('ann', skolem(2, 'T', ['ann']))])",
     "derived(owns(A, B), [owns(skolem(2, 'T', ['ann']), 'ann')])",
     "called(has(A, B), [has('ann', skolem(2, 'T', ['ann']))])",
@@ -876,34 +735,31 @@ conformance('heads sharing a witness have a step each with the same bindings', [
   ]),
 ])
 
-conformance('a variable used as a goal is stepped as the goal it was bound to', [
+conformance('a variable used as a goal has the call table of the goal it is bound to', [
   spec('4.1, 10.3'),
   args("--proof --goal 'run(p(X))' program.js"),
   file('program.js', [
-    'fact(p(1))',
+    'fact(a(1))',
+    'implies(a(X), p(X))',
     'implied_by(run(G), G)',
   ]),
   stdout([
     '// Answers: each instance of a goal that holds.',
     'run(p(1))',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, implied_by(run(G), G))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(p(1), clause(2), {X: 1}, [a(1)])',
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(run(p(1)), clause(2), {G: p(1)}, [p(1)])',
-    'step(p(1), clause(1), {}, [])',
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(p(A), [p(1)])',
     'called(run(p(A)), [run(p(1))])',
+    'called(p(B), [p(1)])',
   ]),
 ])
 
-conformance('a forward rule over a backward rule cites both', [
-  spec('10.3'),
+conformance('a forward rule over a backward rule on source facts has one step', [
+  spec('10.2, 10.3'),
   args('--proof program.js'),
   file('program.js', [
     'fact(a(1))',
@@ -914,19 +770,11 @@ conformance('a forward rule over a backward rule cites both', [
     '// Conclusions: the facts the program derives, in the order derived.',
     'c(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(a(1)))',
-    'clause(2, implied_by(b(X), a(X)))',
-    'clause(3, implies(b(X), c(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(c(1), clause(3), {X: 1}, [b(1)])',
-    'step(b(1), clause(2), {X: 1}, [a(1)])',
-    'step(a(1), clause(1), {}, [])',
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'derived(c(A), [c(1)])',
     'called(c(A), [c(1)])',
     'called(b(B), [b(1)])',
@@ -934,7 +782,7 @@ conformance('a forward rule over a backward rule cites both', [
 ])
 
 conformance('a goal answered by a derived fact cites the forward rule', [
-  spec('8.1, 10.3'),
+  spec('8.1, 10.2'),
   args("--proof --goal 'q(X)' program.js"),
   file('program.js', [
     'fact(p(1))',
@@ -944,50 +792,39 @@ conformance('a goal answered by a derived fact cites the forward rule', [
     '// Answers: each instance of a goal that holds.',
     'q(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, implies(p(X), q(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(q(1), clause(2), {X: 1}, [p(1)])',
-    'step(p(1), clause(1), {}, [])',
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'derived(q(A), [q(1)])',
     'called(q(A), [q(1)])',
   ]),
 ])
 
-conformance('each primitive of a body is a builtin step of its own', [
-  spec('10.3'),
-  args("--proof --goal 't(O, N)' program.js"),
+conformance('primitives in a firing are uses without steps', [
+  spec('10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    "implied_by(t(O, N), [compare(O, 1, float(2)), atom_length('abc', N), is_atom('abc')])",
+    'fact(go(1))',
+    "implies([go(N), compare(O, 1, float(2)), atom_length('abc', L), is_atom('abc')], t(O, L))",
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
+    '// Conclusions: the facts the program derives, in the order derived.',
     "t('<', 3)",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    "clause(1, implied_by(t(O, N), [compare(O, 1, 2.0), atom_length('abc', N), is_atom('abc')]))",
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    "step(t('<', 3), clause(2), {N: 1, O: '<', L: 3}, [go(1), compare('<', 1, 2.0), atom_length('abc', 3), is_atom('abc')])",
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(t('<', 3), clause(1), {O: '<', N: 3}, [compare('<', 1, 2.0), atom_length('abc', 3), is_atom('abc')])",
-    "step(compare('<', 1, 2.0), 'builtin', {}, [])",
-    "step(atom_length('abc', 3), 'builtin', {}, [])",
-    "step(is_atom('abc'), 'builtin', {}, [])",
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    "derived(t(A, B), [t('<', 3)])",
     "called(t(A, B), [t('<', 3)])",
   ]),
 ])
 
-conformance('each solution of atom_concat is a claim with a builtin step', [
-  spec('4.3, 10.3'),
+conformance('each solution of atom_concat is a claim', [
+  spec('4.3, 10.1'),
   args("--proof --goal \"atom_concat(A, B, 'ab')\""),
   stdin([]),
   stdout([
@@ -995,103 +832,126 @@ conformance('each solution of atom_concat is a claim with a builtin step', [
     "atom_concat('', 'ab', 'ab')",
     "atom_concat('a', 'b', 'ab')",
     "atom_concat('ab', '', 'ab')",
-    '',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(atom_concat('', 'ab', 'ab'), 'builtin', {}, [])",
-    "step(atom_concat('a', 'b', 'ab'), 'builtin', {}, [])",
-    "step(atom_concat('ab', '', 'ab'), 'builtin', {}, [])",
   ]),
 ])
 
 // Steps: controls.
 
 conformance('a call of a call is two control steps', [
-  spec('10.3'),
-  args("--proof --goal 'call(call(p(1)))' program.js"),
+  spec('10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    'fact(p(1))',
+    'fact(a(1))',
+    'implies(a(X), b(X))',
+    'implies([a(X), call(call(b(X)))], c(X))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'call(call(p(1)))',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'b(1)',
+    'c(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(b(1), clause(2), {X: 1}, [a(1)])',
+    'step(c(1), clause(3), {X: 1}, [a(1), call(call(b(1)))])',
+    "step(call(call(b(1))), 'control', {}, [call(b(1))])",
+    "step(call(b(1)), 'control', {}, [b(1)])",
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(call(call(p(1))), 'control', {}, [call(p(1))])",
-    "step(call(p(1)), 'control', {}, [p(1)])",
-    'step(p(1), clause(1), {}, [])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(b(A), [b(1)])',
+    'derived(c(A), [c(1)])',
+    'called(b(A), [b(1)])',
+    'called(c(B), [c(1)])',
+    'called(b(1), [b(1)])',
   ]),
 ])
 
 conformance('a disjunction whose left side holds uses that side', [
-  spec('10.3'),
-  args("--proof --goal 'or(p(1), p(2))' program.js"),
+  spec('10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    'fact(p(1), p(2))',
+    'fact(a(1))',
+    'implies(a(X), b(X))',
+    'implies([a(X), or(b(X), q(X))], c(X))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'or(p(1), p(2))',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'b(1)',
+    'c(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(b(1), clause(2), {X: 1}, [a(1)])',
+    'step(c(1), clause(3), {X: 1}, [a(1), or(b(1), q(1))])',
+    "step(or(b(1), q(1)), 'control', {}, [b(1)])",
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(or(p(1), p(2)), 'control', {}, [p(1)])",
-    'step(p(1), clause(1), {}, [])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(b(A), [b(1)])',
+    'derived(c(A), [c(1)])',
+    'called(b(A), [b(1)])',
+    'called(c(B), [c(1)])',
+    'called(b(1), [b(1)])',
   ]),
 ])
 
-conformance('a chain of disjunctions solved by its last side uses that side', [
-  spec('4.2, 10.3'),
-  args("--proof --goal 'or(p(3), p(2), p(1))' program.js"),
+conformance('a chain of disjunctions solved by its last side uses that side directly', [
+  spec('4.2, 10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    'fact(p(1))',
+    'fact(a(1))',
+    'implies(a(X), b(X))',
+    'implies([a(X), or(or(q(X), r(X)), b(X))], c(X))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'or(p(3), p(2), p(1))',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'b(1)',
+    'c(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(b(1), clause(2), {X: 1}, [a(1)])',
+    'step(c(1), clause(3), {X: 1}, [a(1), or(q(1), r(1), b(1))])',
+    "step(or(q(1), r(1), b(1)), 'control', {}, [b(1)])",
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(or(p(3), p(2), p(1)), 'control', {}, [p(1)])",
-    'step(p(1), clause(1), {}, [])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(b(A), [b(1)])',
+    'derived(c(A), [c(1)])',
+    'called(b(A), [b(1)])',
+    'called(c(B), [c(1)])',
+    'called(b(1), [b(1)])',
   ]),
 ])
 
 conformance('a disjunction solved by a conjunction uses its goals', [
-  spec('10.3'),
-  args("--proof --goal 'or(and(p(1), q(1)), r(1))' program.js"),
+  spec('10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    'fact(p(1), q(1))',
+    'fact(a(1))',
+    'implies(a(X), b(X))',
+    'implies([a(X), or(and(b(X), a(X)), q(X))], c(X))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'or(and(p(1), q(1)), r(1))',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'b(1)',
+    'c(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, fact(q(1)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(b(1), clause(2), {X: 1}, [a(1)])',
+    'step(c(1), clause(3), {X: 1}, [a(1), or(and(b(1), a(1)), q(1))])',
+    "step(or(and(b(1), a(1)), q(1)), 'control', {}, [b(1), a(1)])",
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(or(and(p(1), q(1)), r(1)), 'control', {}, [p(1), q(1)])",
-    'step(p(1), clause(1), {}, [])',
-    'step(q(1), clause(2), {}, [])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(b(A), [b(1)])',
+    'derived(c(A), [c(1)])',
+    'called(b(A), [b(1)])',
+    'called(c(B), [c(1)])',
+    'called(b(1), [b(1)])',
   ]),
 ])
 
-conformance('once of a conjunction uses the goals of its first solution', [
-  spec('10.3'),
+conformance('once of a conjunction claims its first solution', [
+  spec('4.2, 10.1'),
   args("--proof --goal 'once(and(p(X), q(X)))' program.js"),
   file('program.js', [
     'fact(p(1), p(2), q(2), p(3), q(3))',
@@ -1099,21 +959,11 @@ conformance('once of a conjunction uses the goals of its first solution', [
   stdout([
     '// Answers: each instance of a goal that holds.',
     'once(and(p(2), q(2)))',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(2, fact(p(2)))',
-    'clause(3, fact(q(2)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(once(and(p(2), q(2))), 'control', {}, [p(2), q(2)])",
-    'step(p(2), clause(2), {}, [])',
-    'step(q(2), clause(3), {}, [])',
   ]),
 ])
 
-conformance('a disjunction in a rule body has a control step of its own', [
-  spec('10.3'),
+conformance('a disjunction over source facts in a firing needs no control step', [
+  spec('10.2'),
   args('--proof program.js'),
   file('program.js', [
     'fact(p(1), r(1))',
@@ -1123,73 +973,38 @@ conformance('a disjunction in a rule body has a control step of its own', [
     '// Conclusions: the facts the program derives, in the order derived.',
     's(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, fact(r(1)))',
-    'clause(3, implies([p(X), or(q(X), r(X))], s(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(s(1), clause(3), {X: 1}, [p(1), or(q(1), r(1))])',
-    'step(p(1), clause(1), {}, [])',
-    "step(or(q(1), r(1)), 'control', {}, [r(1)])",
-    'step(r(1), clause(2), {}, [])',
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'derived(s(A), [s(1)])',
     'called(s(A), [s(1)])',
   ]),
 ])
 
-conformance('a negation asked as a goal is an absent step', [
-  spec('10.3'),
+conformance('a negation asked as a goal is claimed without steps', [
+  spec('10.1'),
   args("--proof --goal 'not(q(1))'"),
   stdin([]),
   stdout([
     '// Answers: each instance of a goal that holds.',
     'not(q(1))',
-    '',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(not(q(1)), 'absent', {}, [])",
   ]),
 ])
 
-conformance('a negation with an anonymous variable keeps it in its step', [
-  spec('4.2, 9.4, 10.3'),
+conformance('a negation with an anonymous variable keeps it in its claim', [
+  spec('4.2, 9.4, 10.1'),
   args("--proof --goal 'not(q(1, _))'"),
   stdin([]),
   stdout([
     '// Answers: each instance of a goal that holds.',
     'not(q(1, A))',
-    '',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(not(q(1, A)), 'absent', {}, [])",
   ]),
 ])
 
-conformance('a negation inside a call is an absent step used by a control step', [
-  spec('10.3'),
-  args("--proof --goal 'call(not(q(1)))'"),
-  stdin([]),
-  stdout([
-    '// Answers: each instance of a goal that holds.',
-    'call(not(q(1)))',
-    '',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(call(not(q(1))), 'control', {}, [not(q(1))])",
-    "step(not(q(1)), 'absent', {}, [])",
-  ]),
-])
-
-conformance('a findall asked as a goal is a collected step', [
-  spec('10.3'),
+conformance('a findall asked as a goal claims its collection', [
+  spec('10.1'),
   args("--proof --goal 'findall(X, p(X), L)' program.js"),
   file('program.js', [
     'fact(p(1), p(2))',
@@ -1197,56 +1012,58 @@ conformance('a findall asked as a goal is a collected step', [
   stdout([
     '// Answers: each instance of a goal that holds.',
     'findall(A, p(A), [1, 2])',
-    '',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(findall(A, p(A), [1, 2]), 'collected', {}, [])",
   ]),
 ])
 
-conformance('a findall collecting nothing is a collected step', [
-  spec('10.3'),
+conformance('a findall collecting nothing claims the empty list', [
+  spec('10.1'),
   args("--proof --goal 'findall(X, q(X), L)'"),
   stdin([]),
   stdout([
     '// Answers: each instance of a goal that holds.',
     'findall(A, q(A), [])',
-    '',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(findall(A, q(A), []), 'collected', {}, [])",
   ]),
 ])
 
-conformance("a findall in a backward rule binds the collection's variable to a fresh one", [
-  spec('10.3'),
+conformance('a sorted collection over derived facts has its call table and listing', [
+  spec('10.3, 11.3'),
   args("--proof --goal 'all(L)' program.js"),
   file('program.js', [
-    'fact(p(1), p(2))',
-    'implied_by(all(L), findall(X, p(X), L))',
+    'fact(s(2), s(1))',
+    'implies(s(X), p(X))',
+    'implied_by(all(L), findall_sorted(X, p(X), L))',
   ]),
   stdout([
     '// Answers: each instance of a goal that holds.',
     'all([1, 2])',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(3, implied_by(all(L), findall(X, p(X), L)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(p(2), clause(3), {X: 2}, [s(2)])',
+    'step(p(1), clause(3), {X: 1}, [s(1)])',
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(all([1, 2]), clause(3), {L: [1, 2], X: A}, [findall(A, p(A), [1, 2])])',
-    "step(findall(A, p(A), [1, 2]), 'collected', {}, [])",
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(p(A), [p(2), p(1)])',
     'called(all(A), [all([1, 2])])',
+    'called(p(B), [p(2), p(1)])',
   ]),
 ])
 
-conformance('a contradiction with a negation cites an absent step', [
-  spec('8.5, 10.3'),
+conformance('a proof is refused when a findall order rests on derived facts', [
+  spec('8.7, 11.1, 11.3'),
+  args("--proof --goal 'all(L)' program.js"),
+  exit(1),
+  stderr('nonempty'),
+  file('program.js', [
+    'fact(s(1), s(2))',
+    'implies(s(X), p(X))',
+    'implied_by(all(L), findall(X, p(X), L))',
+  ]),
+  stdout([]),
+])
+
+conformance("a halted proof's step keeps a negation as a use", [
+  spec('8.5, 10.2'),
   args('--proof program.js'),
   exit(65),
   file('program.js', [
@@ -1257,22 +1074,16 @@ conformance('a contradiction with a negation cites an absent step', [
     "// Halted: a contradiction() holds; the facts derived until then, ending with 'false'.",
     "'false'",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    "clause(1, fact(order('o1')))",
-    'clause(2, contradiction(order(O), not(paid(O))))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     "step('false', clause(2), {O: 'o1'}, [order('o1'), not(paid('o1'))])",
-    "step(order('o1'), clause(1), {}, [])",
-    "step(not(paid('o1')), 'absent', {}, [])",
   ]),
 ])
 
 // Steps: source inspection.
 
-conformance('inspecting a backward rule cites it as a source step', [
-  spec('6.3, 10.3'),
+conformance('inspecting a backward rule gives a derived pattern', [
+  spec('6.3, 10.2'),
   args('--proof program.js'),
   file('program.js', [
     'implied_by(r(X), s(X))',
@@ -1283,25 +1094,19 @@ conformance('inspecting a backward rule cites it as a source step', [
     '// Answers: each instance of a query() that holds.',
     'rule(r(A), s(A))',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, implied_by(r(X), s(X)))',
-    'clause(2, implies(implied_by(H, B), rule(H, B)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(rule(r(B), s(B)), clause(2), {H: r(B), B: s(B)}, [implied_by(r(B), s(B))])',
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(rule(r(A), s(A)), clause(2), {H: r(A), B: s(A)}, [implied_by(r(A), s(A))])',
-    'step(implied_by(r(A), s(A)), source(1), {}, [])',
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
-    'derived(rule(B, C), [rule(r(D), s(D))])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(rule(C, D), [rule(r(B), s(B))])',
     'called(rule(A, B), [rule(r(C), s(C))])',
   ]),
 ])
 
-// Proof generation that must be refused.
+// State tests.
 
-conformance('a mode test a later clause binds is recorded as it was called', [
+conformance('a state test in a backward rule is answered through its call table', [
   spec('8.7, 10.3'),
   args("--proof --goal 'p(X)' program.js"),
   file('program.js', [
@@ -1312,176 +1117,67 @@ conformance('a mode test a later clause binds is recorded as it was called', [
     '// Answers: each instance of a goal that holds.',
     'p(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(q(1)))',
-    'clause(2, implied_by(p(X), [is_var(X), q(X)]))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(1), clause(2), {X: 1}, [is_var(1), q(1)])',
-    'step(is_var(1), called(is_var(A)), {}, [])',
-    'step(q(1), clause(1), {}, [])',
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'called(p(A), [p(1)])',
   ]),
 ])
 
-// Behaviors the specification settles explicitly (resolved gaps).
+// Disjunction chains and conjunctions in bodies.
 
 conformance('a disjunction chain solved on its left has a step for each level', [
-  spec('10.3'),
+  spec('4.2, 10.2'),
   args('--proof program.js'),
   file('program.js', [
-    'fact(a)',
-    'implied_by(r, or(or(a, b), c))',
-    'query(r)',
-  ]),
-  stdout([
-    '// Answers: each instance of a query() that holds.',
-    '\'r\'',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(\'a\'))',
-    'clause(2, implied_by(\'r\', or(\'a\', \'b\', \'c\')))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(\'r\', clause(2), {}, [or(\'a\', \'b\', \'c\')])',
-    'step(or(\'a\', \'b\', \'c\'), \'control\', {}, [or(\'a\', \'b\')])',
-    'step(or(\'a\', \'b\'), \'control\', {}, [\'a\'])',
-    'step(\'a\', clause(1), {}, [])',
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
-    "called('r', ['r'])",
-  ]),
-])
-
-conformance('a disjunction chain solved on its right uses that side directly', [
-  spec('10.3'),
-  args('--proof program.js'),
-  file('program.js', [
-    'fact(c)',
-    'implied_by(r, or(or(a, b), c))',
-    'query(r)',
-  ]),
-  stdout([
-    '// Answers: each instance of a query() that holds.',
-    '\'r\'',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(\'c\'))',
-    'clause(2, implied_by(\'r\', or(\'a\', \'b\', \'c\')))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(\'r\', clause(2), {}, [or(\'a\', \'b\', \'c\')])',
-    'step(or(\'a\', \'b\', \'c\'), \'control\', {}, [\'c\'])',
-    'step(\'c\', clause(1), {}, [])',
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
-    "called('r', ['r'])",
-  ]),
-])
-
-conformance('an and in a body is displayed flattened', [
-  spec('10.2'),
-  args('--proof program.js'),
-  file('program.js', [
-    'fact(a)',
-    'fact(b)',
-    'implied_by(r, and(a, b))',
-    'query(r)',
-  ]),
-  stdout([
-    '// Answers: each instance of a query() that holds.',
-    '\'r\'',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(\'a\'))',
-    'clause(2, fact(\'b\'))',
-    'clause(3, implied_by(\'r\', [\'a\', \'b\']))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(\'r\', clause(3), {}, [\'a\', \'b\'])',
-    'step(\'a\', clause(1), {}, [])',
-    'step(\'b\', clause(2), {}, [])',
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
-    "called('r', ['r'])",
-  ]),
-])
-
-conformance('a binding key that is not a plain name is a string', [
-  spec('10.3'),
-  args('--proof program.js'),
-  file('program.js', [
-    'facts_from(\'data.js\')',
-    'implies(p(X), q(X))',
-  ]),
-  file('data.js', [
-    'p(VAR_A_2d_B)',
+    'fact(a(1))',
+    'implies(a(X), b(X))',
+    'implies([a(X), or(or(b(X), q(X)), r(X))], c(X))',
   ]),
   stdout([
     '// Conclusions: the facts the program derives, in the order derived.',
-    'q(skolem(2, \'X\', []))',
+    'b(1)',
+    'c(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(VAR_A_2d_B)))',
-    'clause(2, implies(p(X), q(X)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(b(1), clause(2), {X: 1}, [a(1)])',
+    'step(c(1), clause(3), {X: 1}, [a(1), or(b(1), q(1), r(1))])',
+    "step(or(b(1), q(1), r(1)), 'control', {}, [or(b(1), q(1))])",
+    "step(or(b(1), q(1)), 'control', {}, [b(1)])",
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(q(skolem(2, \'X\', [])), clause(2), {X: skolem(2, \'X\', [])}, [p(skolem(2, \'X\', []))])',
-    'step(p(skolem(2, \'X\', [])), clause(1), {\'A-B\': skolem(2, \'X\', [])}, [])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(b(A), [b(1)])',
+    'derived(c(A), [c(1)])',
+    'called(b(A), [b(1)])',
+    'called(c(B), [c(1)])',
+    'called(b(1), [b(1)])',
   ]),
 ])
 
-conformance('a halted run keeps a boundary its unfinished listings cannot settle trusted', [
-  spec('8.5, 8.7'),
-  args("--prove-and-check program.js"),
-  exit(65),
+conformance('an and in a body is used as its goals', [
+  spec('4.1, 10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    'fact(p(1))',
-    "implies([p(X), not(r(X, 'b'))], t(X))",
-    'implies([p(X), findall(Y, t(Y), L)], r(X, n(L)))',
-    'contradiction(t(1))',
+    'fact(a)',
+    'implies(a, b)',
+    'implied_by(r, and(a, b))',
+    'implies(r, s)',
   ]),
   stdout([
-    '// Answers checked subject to the obligations below.',
-    't(1)',
-    "'false'",
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "'b'",
+    "'s'",
     '',
-    '// C1-C10: resolution, acyclicity, justification, coverage, re-decision,',
-    '// boundary consistency, relevance, witness integrity, search closure and call fidelity.',
-    "condition('C1', 'resolution', 'ok', 3)",
-    "condition('C2', 'well_founded', 'ok', 4)",
-    "condition('C3', 'justification', 'ok', 4)",
-    "condition('C4', 'coverage', 'ok', 5)",
-    "condition('C5', 're_decision', 'ok', 0)",
-    "condition('C6', 'boundary_consistency', 'ok', 0)",
-    "condition('C7', 'relevance', 'ok', 6)",
-    "condition('C8', 'witness_integrity', 'ok', 0)",
-    "condition('C9', 'search_closure', 'ok', 0)",
-    "condition('C10', 'call_fidelity', 'ok', 0)",
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    "step('b', clause(2), {}, ['a'])",
+    "step('s', clause(4), {}, ['r'])",
+    "step('r', clause(3), {}, ['a', 'b'])",
     '',
-    '// Obligations: absence, collection, original-call or all-answers evidence remains unproved.',
-    "obligation('absent', 'theory_scoped', not(r(1, 'b')))",
-    '',
-    '// Proof statistics: recorded steps and how they were checked.',
-    'steps(4)',
-    'verified(3)',
-    'recomputed(0)',
-    'composed(0)',
-    'trusted(1)',
-    'claims(2)',
-    '',
-    '// This verdict applies to the claims above; it does not establish that they are every answer.',
-    "verdict('checked_with_obligations')",
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    "derived('b', ['b'])",
+    "derived('s', ['s'])",
+    "called('b', ['b'])",
+    "called('s', ['s'])",
+    "called('r', ['r'])",
   ]),
 ])

@@ -192,42 +192,42 @@ Two kinds of conclusion cannot be shown by pointing at a fact:
 
 - **An absence**, such as `not(anchored('value_share'))`: *no provision
   anchors the value share*. eyemind concluded it because a search found
-  nothing. The proof records such a step as **`'absent'`**.
+  nothing.
 - **A collected list**, such as the provisions anchoring a component, or the
-  objections to an option. eyemind gathered it by searching everything. The
-  proof records it as **`'collected'`**.
+  objections to an option. eyemind gathered it by searching everything.
 
 The checker never searches by itself. Instead the proof ends with a
-**search certificate**: `derived(Pattern, Facts)` lists every fact the
-forward rules derived for one relation, each with steps of its own, and
-`searched(Call, Answers)` records one search with every answer it gave. The
-checker verifies each `searched` line by expanding its call one level
-against the program, as a search would, answering every inner call from
-that call's own line, from the `derived` listings, or from the facts, so
-no line vouches for itself. A boundary that passes is **settled**, not
-taken on trust.
+**certificate**: `derived(Pattern, Facts)` lists every fact the forward
+rules derived for one relation, each with a step of its own, and
+`called(Call, Answers)` records one call with every answer it gave. The
+checker verifies each `called` table by expanding its call one level against
+the program, as a search would, answering every inner call from that call's
+own table, from the `derived` listings, or from the facts, so no table
+vouches for itself. It requires each listing to be closed under the forward
+rules, so a fact the rules would derive cannot be left out. An absence is
+then an empty table, such as `called(anchored('value_share'), [])`, and a
+collected list is the answers of its goal's table, both decided at the
+bindings they had when the rule ran.
 
-That settles every absence here and every collected list, including those
-gathered from facts that forward rules derived, such as an option's
-objections. A `derived` listing proves *which* facts were derived, not in
-what order. A plain `findall` list gives its items in the order they were
-found, so over derived facts it would stay an **obligation**: a point taken
-on trust. `findall_sorted` sorts its list, and these items contain no
+A `derived` listing proves *which* facts were derived, not in what order. A
+plain `findall` list gives its items in the order they were found, so over
+derived facts it could not be certified, and `--proof` would report an
+error. `findall_sorted` sorts its list, and these items contain no
 variables, so the list depends only on which facts there are, and the
 certificate settles it. If, say, the program had an `anchor` fact for the
-value share, the `searched` line for its anchoring could not be confirmed,
-and the absence and the empty list would be rejected.
+value share, the empty table for its anchoring would disagree with the
+expansion, and the check would fail.
 
 ---
 
 ## The proof, line by line
 
-`eyemind --proof` writes down how it reached each conclusion. The proof has
-108 steps and a search certificate, and is too long to show whole ([full file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/data-value-right.js)).
-Below are its claims, all its clauses, and two complete chains: the analysis
-of the value share, and the evaluation and recommendation of the autonomous
-right, followed by a few lines of the certificate. Comment lines starting
-with `// …` mark what is left out:
+`eyemind --proof` writes down how it reached each conclusion. The proof is
+154 lines: the 13 claims, 55 steps, 11 listings and 69 call tables, too long
+to show whole ([full file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/data-value-right.js)).
+Below are its claims, the steps of two chains, the analysis of the value
+share and the recommendation of the autonomous right, and a few of the call
+tables. Comment lines starting with `// …` mark what is left out:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -245,100 +245,46 @@ evaluation('data_ownership', ['individual_enforcement', 'use_control', 'value_mo
 evaluation('autonomous_right', ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency'], [])
 recommended('autonomous_right')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(component('value_transparency', 'knowing that and how one\'s data creates value, including in AI training')))
-clause(2, fact(component('use_control', 'deciding on the uses through which one\'s data creates value')))
-clause(3, fact(component('value_mobility', 'taking one\'s data elsewhere, to have value created there')))
-clause(4, fact(component('value_recognition', 'the law acknowledging that personal data has economic value')))
-clause(5, fact(component('collective_exercise', 'exercising the right together, through an intermediary')))
-clause(6, fact(component('individual_enforcement', 'enforcing the right oneself, before a court')))
-clause(7, fact(component('value_share', 'receiving a share of the value one\'s data creates')))
-clause(8, fact(anchor('GDPR art. 13-15', 'value_transparency', 'partial', 'information on purposes and recipients, not on the value created')))
-clause(10, fact(anchor('GDPR art. 7(3)', 'use_control', 'partial', 'consent can be withdrawn at any time, where processing rests on consent')))
-clause(12, fact(anchor('GDPR art. 20', 'value_mobility', 'partial', 'portability of data the data subject provided, on consent or contract')))
-clause(14, fact(anchor('Directive 2019/770 art. 3(1)', 'value_recognition', 'full', 'personal data recognized as what a consumer may provide in exchange for digital content')))
-clause(15, fact(anchor('DGA ch. III', 'collective_exercise', 'partial', 'data intermediation services, without bargaining over value')))
-clause(16, fact(anchor('GDPR art. 79 and 82', 'individual_enforcement', 'full', 'a judicial remedy and compensation for the data subject')))
-clause(17, fact(option('interpret_existing_law', 'right')))
-clause(18, fact(option('extend_portability', 'right')))
-clause(21, fact(option('data_dividend', 'levy')))
-clause(24, fact(option('data_ownership', 'property')))
-clause(29, fact(option('autonomous_right', 'inalienable_right')))
-clause(40, fact(commodifies('property')))
-clause(41, implies(anchor(P, C, D, W), anchored(C)))
-clause(42, implies(anchor(P, C, 'full', W), fully_anchored(C)))
-clause(43, implies([component(C, Description), not(anchored(C))], gap(C)))
-clause(44, implies(fully_anchored(C), fit(C, 'in existing law')))
-clause(45, implies([anchored(C), not(fully_anchored(C))], fit(C, 'by interpretation')))
-clause(46, implies(gap(C), fit(C, 'needs an autonomous right')))
-clause(47, implies([component(C, Meaning), fit(C, How), findall_sorted(P, anchor(P, C, D, W), Provisions)], analysis(C, Meaning, How, Provisions)))
-clause(49, implies(anchored(C), delivers('interpret_existing_law', C)))
-clause(50, implies([component(C, Meaning), not(fully_anchored(C))], needs_development(C)))
-clause(51, implies([option(O, F), needs_development(C), not(delivers(O, C))], objection(O, unaddressed(C))))
-clause(52, implies([option(O, F), commodifies(F)], objection(O, 'treats personal data as a commodity')))
-clause(53, implies([option(O, F), not(own_claim(F))], objection(O, 'gives the data subject no claim of their own')))
-clause(54, implies(objection(O, Why), objectionable(O)))
-clause(55, implies([option(O, F), not(objectionable(O))], recommended(O)))
-clause(56, implies([option(O, F), findall_sorted(C, delivers(O, C), Delivered), findall_sorted(Why, objection(O, Why), Objections)], evaluation(O, Delivered, Objections)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-// … the proof has 108 steps; 12 are shown. Left out here: 40 steps for the
-// first six analyses, which follow the same pattern per component.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
+// … 18 steps for the first six analyses
 step(analysis('value_share', 'receiving a share of the value one\'s data creates', 'needs an autonomous right', []), clause(47), {C: 'value_share', Meaning: 'receiving a share of the value one\'s data creates', How: 'needs an autonomous right', P: A, D: B, W: C, Provisions: []}, [component('value_share', 'receiving a share of the value one\'s data creates'), fit('value_share', 'needs an autonomous right'), findall_sorted(A, anchor(A, 'value_share', B, C), [])])
-step(component('value_share', 'receiving a share of the value one\'s data creates'), clause(7), {}, [])
 step(fit('value_share', 'needs an autonomous right'), clause(46), {C: 'value_share'}, [gap('value_share')])
 step(gap('value_share'), clause(43), {C: 'value_share', Description: 'receiving a share of the value one\'s data creates'}, [component('value_share', 'receiving a share of the value one\'s data creates'), not(anchored('value_share'))])
-step(not(anchored('value_share')), 'absent', {}, [])
-step(findall_sorted(A, anchor(A, 'value_share', B, C), []), 'collected', {}, [])
-// … 16 steps for the evaluations of the other four options
+// … 6 steps for the anchored components and the first four evaluations
 step(evaluation('autonomous_right', ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency'], []), clause(56), {O: 'autonomous_right', F: 'inalienable_right', C: D, Delivered: ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency'], Why: E, Objections: []}, [option('autonomous_right', 'inalienable_right'), findall_sorted(D, delivers('autonomous_right', D), ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency']), findall_sorted(E, objection('autonomous_right', E), [])])
-step(option('autonomous_right', 'inalienable_right'), clause(29), {}, [])
-step(findall_sorted(D, delivers('autonomous_right', D), ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency']), 'collected', {}, [])
-step(findall_sorted(E, objection('autonomous_right', E), []), 'collected', {}, [])
+// … 22 steps for delivers, objection and needs_development facts
 step(recommended('autonomous_right'), clause(55), {O: 'autonomous_right', F: 'inalienable_right'}, [option('autonomous_right', 'inalienable_right'), not(objectionable('autonomous_right'))])
-step(not(objectionable('autonomous_right')), 'absent', {}, [])
-// … 40 more steps prove the facts the search certificate lists: the
-// remaining anchored and delivers facts, every objection and objectionable
+// … 4 steps for objectionable facts
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-// … eleven derived(...) listings: for fully_anchored, anchored, delivers,
-// objection, needs_development and objectionable, and for the relations of
-// the claims and their premises: analysis, fit, gap, evaluation, recommended
-// … 4 searched lines
-searched(anchored('value_share'), [])
-// … 39 searched lines
-searched(objection('autonomous_right', U), [])
-searched(objectionable('autonomous_right'), [])
-// … 1 more searched line, and 69 called(...) tables for the
-// original questions
+// Certificate: the derived facts and every answer of each call the questions make.
+// … 11 derived(...) listings, and 7 call tables
+called(fit('value_share', E), [fit('value_share', 'needs an autonomous right')])
+// … 8 call tables
+called(gap(H), [gap('value_share')])
+// … 6 call tables
+called(anchored('value_share'), [])
+// … 9 call tables
+called(delivers('autonomous_right', L), [delivers('autonomous_right', 'value_transparency'), delivers('autonomous_right', 'use_control'), delivers('autonomous_right', 'value_mobility'), delivers('autonomous_right', 'value_recognition'), delivers('autonomous_right', 'collective_exercise'), delivers('autonomous_right', 'individual_enforcement'), delivers('autonomous_right', 'value_share')])
+called(objection('autonomous_right', M), [])
+// … 27 call tables
+called(recommended(O), [recommended('autonomous_right')])
+// … 4 call tables
+called(objectionable('autonomous_right'), [])
+// … 1 more call table
 ```
 
-It has four parts:
+It has three parts:
 
 - **The claims**: the 13 conclusions the proof is about.
-- **The clauses**: the program facts and rules the steps cite, numbered in
-  program order (the loops' facts come first, then the rules; the queries
-  count too). Many numbers are skipped. Only one anchoring provision per
-  component is cited, because one is enough to make it *anchored*; the
-  others, such as the AI Act, appear only inside collected lists. The
-  `delivers` facts are skipped for the same reason. The objection rules
-  (51–54) and the `delivers` rule (49) are cited, by the steps behind the
-  search certificate.
-- **The steps**: one per thing established. A step reads
-  `step(what, justified by, with which values, using what)`.
-- **The search certificate**: the facts and searches behind the absences
-  and lists, explained in the previous card, and the `called` tables of the
-  original questions. For example, `searched(anchored('value_share'), [])`:
-  the search for an anchoring of the value share found none.
-
-Three kinds of justification occur:
-
-- `clause(N)`: an instance of program clause N, with the values in `{...}`.
-  A fact cites itself and uses nothing.
-- `'absent'`: concluded because a search found nothing.
-- `'collected'`: a list gathered by searching.
+- **The steps**: one per fact the forward rules derived, as the listings
+  show it. A step reads `step(what, by which rule, with which values, using
+  what)`; `clause(N)` is program clause N, numbered in program order (the
+  loops' facts come first, then the rules; the queries count too). The
+  provision and component facts get no step: the checker reads them from
+  the program.
+- **The certificate**: the listings and call tables explained in the
+  previous card.
 
 In the values, letters such as `A`, `B`, `C`, `D` and `E` stand for "any
 value": `findall_sorted(A, anchor(A, 'value_share', B, C), [])` reads *the
@@ -349,37 +295,29 @@ Read the two chains as sentences:
 
 1. *The value share needs an autonomous right, with no provisions* — by rule
    47, because it is a component, its fit is "needs an autonomous right", and
-   the collected list of its provisions is empty.
-2. *The value share is a component* — fact 7.
-3. *Its fit is "needs an autonomous right"* — by rule 46, because it is a
+   the sorted list of its provisions is empty.
+2. *Its fit is "needs an autonomous right"* — by rule 46, because it is a
    gap.
-4. *The value share is a gap* — by rule 43, because it is a component and
-   it is not anchored.
-5. *No provision anchors the value share* — absent.
-6. *Its provisions are `[]`* — collected.
-7. *The autonomous right delivers all seven components and meets no
+3. *The value share is a gap* — by rule 43, because it is a component and
+   `not(anchored('value_share'))` holds.
+4. *The autonomous right delivers all seven components and meets no
    objection* — by rule 56, because it is an option framed as an inalienable
-   right, the collected list of what it delivers has all seven components,
-   and the collected list of its objections is empty.
-8. *The autonomous right is an option, framed as an inalienable right* — fact
-   29.
-9. *What it delivers* — collected.
-10. *Its objections: none* — collected.
-11. *The autonomous right is recommended* — by rule 55, because it is an
-    option and it is not objectionable.
-12. *The autonomous right is not objectionable* — absent.
+   right, the sorted list of what it delivers has all seven components, and
+   the sorted list of its objections is empty.
+5. *The autonomous right is recommended* — by rule 55, because it is an
+   option and `not(objectionable('autonomous_right'))` holds.
 
-The left-out steps follow the same patterns: for each other component, an
-`anchored` or `fully_anchored` step resting on one provision fact, an absence
-where the component is not fully anchored, and a collected list of its
-provisions; for each other option, its fact and two collected lists.
+The call tables say what the searches found: the only fit of the value share
+is "needs an autonomous right"; the only gap is the value share; nothing
+anchors the value share (`[]`); the autonomous right delivers seven
+components and meets no objection (`[]`); only the autonomous right is
+recommended; and it is not objectionable (`[]`).
 
-The last 40 steps answer no question. They prove the facts the certificate
-lists, such as each objection: `objection('extend_portability',
+Many steps answer no question directly. They derive the facts the listings
+hold, such as each objection: `objection('extend_portability',
 unaddressed('use_control'))` holds because use control needs development
-and extending portability does not deliver it, an absence of its own. So
-every individual objection has steps, and the `derived` listings they back
-let the checker confirm that each option's lists of deliveries and
+and extending portability does not deliver it. Every listed fact has its
+step, so the checker can confirm that each option's lists of deliveries and
 objections are complete.
 
 ---
@@ -388,11 +326,11 @@ objections are complete.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it follows the
+certificate. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 analysis('value_transparency', 'knowing that and how one\'s data creates value, including in AI training', 'by interpretation', ['AI Act art. 53(1)(d)', 'GDPR art. 13-15'])
 analysis('use_control', 'deciding on the uses through which one\'s data creates value', 'by interpretation', ['GDPR art. 21', 'GDPR art. 7(3)'])
 analysis('value_mobility', 'taking one\'s data elsewhere, to have value created there', 'by interpretation', ['DMA art. 6(9)', 'GDPR art. 20'])
@@ -407,79 +345,33 @@ evaluation('data_ownership', ['individual_enforcement', 'use_control', 'value_mo
 evaluation('autonomous_right', ['collective_exercise', 'individual_enforcement', 'use_control', 'value_mobility', 'value_recognition', 'value_share', 'value_transparency'], [])
 recommended('autonomous_right')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 74)
-condition('C2', 'well_founded', 'ok', 108)
-condition('C3', 'justification', 'ok', 108)
-condition('C4', 'coverage', 'ok', 123)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 121)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 34)
-condition('C10', 'call_fidelity', 'ok', 16)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(108)
-verified(74)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(13)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
+The checker answered the three queries from the call tables, expanding each
+call one level against the program, and checked every table it consulted the
+same way. It required the 11 listings to be closed under the forward rules,
+and replayed each listed fact: each step's rule was run again from
+no bindings, its negations and sorted lists taken from the tables at the
+bindings they had at that point. The 7 lists of anchoring provisions are
+read from the `anchor` facts; the lists of what each option delivers and the
+objections it meets rest on facts that forward rules derived, and are
+settled because they are sorted. A step, table or listing the check did not
+use would have failed it.
 
-- **C1 resolution (74)**: the 74 steps that cite a clause really are
-  instances of it with the values shown; for example, the gap step is rule
-  43 with `C` = the value share.
-- **C2 well-founded (108)**: none of the 108 steps depends on itself, even
-  indirectly.
-- **C3 justification (108)**: every step says how it was justified, in a
-  form the checker understands.
-- **C4 coverage (123)**: the 13 claims and the 110 things the steps use are
-  each backed by a step: nothing is taken for granted silently.
-- **C5 re-decision (0)**: there is no arithmetic or other built-in
-  calculation to recompute.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled all 34.
-- **C7 relevance (121)**: the 13 claims each answer one of the program's
-  queries, and all 108 steps serve a claim.
-- **C8 witness integrity (0)**: no rule invents a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (34)**: the search certificate settled all 34
-  boundary steps: the 17 absences and the 17 collected lists, checked
-  against their `searched` lines and the `derived` listings. The 7 lists of
-  anchoring provisions are read from the `anchor` facts; the 10 lists of
-  what each option delivers and meets as objections rest on `delivers` and
-  `objection` facts that forward rules derived, and are settled because
-  they are sorted.
-- **C10 call fidelity (16)**: the 13 claims and the 3 original questions,
-  one per `query`, were checked against the `called` tables.
-
-The statistics: 108 steps, 74 verified against the program, 34 settled by
-the certificate, none recomputed, composed or trusted; 13 claims.
-
-Settled, and so not obligations: four components are *not fully anchored*,
-the value share is *not anchored at all*, the autonomous right is *not
-objectionable*, each option leaves the listed components undelivered, the
-7 lists of provisions per component are complete, and for each of the five
-options, so are the list of what it delivers and the list of objections it
-meets. Each is meant relative to this program.
+So these are settled, each relative to this program: four components are
+*not fully anchored*, the value share is *not anchored at all*, the
+autonomous right is *not objectionable*, each option leaves the listed
+components undelivered, the 7 lists of provisions per component are
+complete, and for each of the five options, so are the list of what it
+delivers and the list of objections it meets.
 
 `eyemind --unused` lists nothing for this program: every provision,
 component and rule makes a difference to some conclusion. Nothing in the
 model is decoration.
 
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer of the three queries. The verdict is **checked**,
-also under `--strict-proof`: every claim follows from the program.
-
+The verdict is **checked**: every claim follows from the program, and the
+claims are every answer of the three queries.
 
 ---
 

@@ -7,7 +7,7 @@
   {
     "file": "04-programs.js",
     "spec": "3, 6",
-    "topic": "Statements, clause numbering, names a program leaves undefined, rejected clauses, stratification"
+    "topic": "Statements, clause numbering, names a program leaves undefined, reserved heads, rejected clauses, stratification"
   },
   {
     "file": "05-controls-and-primitives.js",
@@ -37,17 +37,17 @@
   {
     "file": "10-proofs.js",
     "spec": "10",
-    "topic": "Proof documents for every kind of justification, step order and sharing"
+    "topic": "Proof documents: claims, steps of firings and controls, call tables and listings, their order and sharing"
   },
   {
     "file": "11-checking.js",
-    "spec": "10.4, 11, 12",
-    "topic": "Valid proofs, search certificates, and proofs tampered with to break each of C1-C9, with their exact reports"
+    "spec": "11, 11.3, 11.4, 11.6, 12, README.json-check-reports",
+    "topic": "Reading proofs, answering calls from call tables, replaying derived facts, nothing unused, and check reports"
   },
   {
     "file": "12-fidelity.js",
-    "spec": "10.5, 11.13, README.command-line",
-    "topic": "C10 call fidelity: original bindings, ordered answers, closed call certificates and unsupported evidence"
+    "spec": "11.1, 11.2, 11.5",
+    "topic": "Original questions and deciding the claims: every claim an answer, every answer claimed, halted proofs"
   },
   {
     "file": "13-unused.js",

@@ -94,55 +94,30 @@ label('alice', 'hello_alice')
 characters('café', ['c', 'a', 'f', 'é'], 4)
 unicode_codes('😀', [128512])
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, implied_by(label(Name, Label), atom_concat('hello_', Name, Label)))
-clause(2, implied_by(characters(Text, Chars, Length), [atom_chars(Text, Chars), atom_length(Text, Length)]))
-clause(3, implied_by(unicode_codes(Text, Codes), atom_codes(Text, Codes)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(label('alice', 'hello_alice'), clause(1), {Name: 'alice', Label: 'hello_alice'}, [atom_concat('hello_', 'alice', 'hello_alice')])
-step(atom_concat('hello_', 'alice', 'hello_alice'), 'builtin', {}, [])
-step(characters('café', ['c', 'a', 'f', 'é'], 4), clause(2), {Text: 'café', Chars: ['c', 'a', 'f', 'é'], Length: 4}, [atom_chars('café', ['c', 'a', 'f', 'é']), atom_length('café', 4)])
-step(atom_chars('café', ['c', 'a', 'f', 'é']), 'builtin', {}, [])
-step(atom_length('café', 4), 'builtin', {}, [])
-step(unicode_codes('😀', [128512]), clause(3), {Text: '😀', Codes: [128512]}, [atom_codes('😀', [128512])])
-step(atom_codes('😀', [128512]), 'builtin', {}, [])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 called(label('alice', A), [label('alice', 'hello_alice')])
 called(characters('café', B, C), [characters('café', ['c', 'a', 'f', 'é'], 4)])
 called(unicode_codes('😀', D), [unicode_codes('😀', [128512])])
 ```
 
-It has three parts:
+It has two parts:
 
 - **The claims**: the three answers the proof is about.
-- **The clauses**: the three program rules, numbered as in the program.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`.
+- **The certificate**: one **call table** per query. A table reads
+  `called(question, every answer)`; its variables are renamed `A`, `B`, …
+  in order. `called(characters('café', B, C), [...])` says: asked for the
+  characters and length of `café`, there is exactly one answer.
 
-Two kinds of justification occur:
+There are no `step(...)` lines. Steps record how forward rules derived
+facts; this program has only backward rules and built-ins, so each table can
+be confirmed directly from the program:
 
-- `clause(N)`: the step is an instance of program rule N, with the
-  variables standing for the values shown.
-- `'builtin'`: the step is a calculation by a built-in operation. It cites
-  no rule and uses nothing; the checker simply does the calculation again.
-
-Read the steps as sentences:
-
-1. *The label of alice is `hello_alice`*: by rule 1, with `Name` being
-   alice and `Label` being `hello_alice`, because joining `hello_` and
-   `alice` gives `hello_alice`.
-2. *Joining `hello_` and `alice` gives `hello_alice`*: a built-in
-   calculation.
-3. *`café` has the characters c, a, f, é and length 4*: by rule 2, because
-   of the next two steps.
-4. *`café` splits into c, a, f, é*: a built-in calculation.
-5. *`café` has length 4*: a built-in calculation.
-6. *The codes of 😀 are [128512]*: by rule 3, because of the next step.
-7. *The code point of 😀 is 128512*: a built-in calculation.
+1. *The label of alice has one answer, `hello_alice`*: by rule 1, because
+   joining `hello_` and `alice` gives `hello_alice`.
+2. *`café` has one answer: the characters c, a, f, é and length 4*: by rule
+   2, splitting the text and measuring it.
+3. *The codes of 😀 have one answer, [128512]*: by rule 3, from its code
+   point.
 
 ---
 
@@ -150,67 +125,28 @@ Read the steps as sentences:
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the rules from
+the program and confirms each call table by expanding its call one level.
+
+For `characters('café', Chars, Length)` it runs rule 2's body itself:
+`atom_chars` and `atom_length` are **computed** by the checker, not taken
+from the proof, and they give exactly the one answer the table lists. So
+`café` really is 4 characters, counted independently. The other two tables
+are confirmed the same way. Then the claims are compared with the answers:
+each claim is an answer, no answer is left out, and every table was used.
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 label('alice', 'hello_alice')
 characters('café', ['c', 'a', 'f', 'é'], 4)
 unicode_codes('😀', [128512])
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 3)
-condition('C2', 'well_founded', 'ok', 7)
-condition('C3', 'justification', 'ok', 7)
-condition('C4', 'coverage', 'ok', 7)
-condition('C5', 're_decision', 'ok', 4)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 10)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 6)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(7)
-verified(3)
-recomputed(4)
-composed(0)
-trusted(0)
-claims(3)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (3)**: the 3 rule steps (1, 3 and 6) really are instances
-  of the rules they cite, with the values shown.
-- **C2 well-founded (7)**: none of the 7 steps depends on itself, even
-  indirectly.
-- **C3 justification (7)**: all 7 steps say how they were justified, in a
-  form the checker understands.
-- **C4 coverage (7)**: the 3 claims and the 4 things the rule steps use are
-  each backed by a step: nothing is taken for granted.
-- **C5 re-decision (4)**: the 4 built-in text calculations were
-  **recomputed** by the checker itself, and they agree. So `café` really is
-  4 characters, counted independently.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (10)**: the 3 claims answer the queries, and all 7 steps
-  serve them. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 7 steps, 3 verified against the rules, 4
-recomputed, none taken on trust. The verdict is **checked**: all three
-answers follow from the program. As the last comment says, they are also
-every answer of the original questions.
+The verdict is **checked**: all three answers follow from the program, and
+they are every answer of its queries.
 
 ---
 

@@ -9,7 +9,7 @@ export { Result, run, unusedClauses } from './engine.js';
 export { readGoal } from './goals.js';
 export { FloatLiteral, build, loadSources, loadText, toTerm } from './lang.js';
 export { Program } from './program.js';
-export { checkProof, checkReport, publicReport, strict, verdictText } from './proof.js';
+export { checkProof, checkReport, publicReport, verdictText } from './proof.js';
 export { readTerm, readTerms } from './reader.js';
 export { EyemindError, Struct, Var } from './terms.js';
 export { write } from './writer.js';

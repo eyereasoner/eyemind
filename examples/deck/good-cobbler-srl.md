@@ -65,14 +65,19 @@ inf(iri('http://example.org/good-cobbler#joe'), iri('http://example.org/good-cob
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
-C1 checks inference steps against the compiled source clauses; C5 checks
-primitive computations; C8 checks fresh witnesses; C10 checks the original
-questions against the recorded call tables. The checker follows the
-certificate without calling the reasoning engine.
+The proof is a JavaScript document over the compiled program. Its claims are
+the inferred triples, written `inf(S, P, O)`; 9 steps record the firings
+of the compiled rules behind the derived triples; and its certificate holds
+2 `derived` listings, every fact the rules derived, and 6 `called`
+tables, every answer of each call the questions make. The checker answers
+the questions from those tables, expanding each call one level against the
+compiled clauses, requires each listing to be closed under the rules, and
+replays each listed triple's recorded firing, recomputing primitives. It
+follows the certificate without calling the reasoning engine, and a step,
+table or listing it does not use fails the check.
 
-The verdict describes the displayed claims and any listed obligations. It
-does not assert that an arbitrary certificate lists every possible answer.
+The saved report ends with `verdict('checked')`: the claims follow from the
+rules and data, and they are every answer of the rule set's questions.
 
 ---
 

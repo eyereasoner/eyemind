@@ -38,10 +38,10 @@ The N3 output is empty because false is a contradiction, not an RDF triple.
 
 The conjunction holds, so the inference fuse concludes false and the command exits with status 65. The proof records that contradiction; the native N3 writer emits no triple for false.
 
-The check report records the corresponding claims as JavaScript expressions:
+The check report records the corresponding claim as a JavaScript expression:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked claims: these follow from the input program, which halted.
 'false'
 ```
 
@@ -49,14 +49,21 @@ The check report records the corresponding claims as JavaScript expressions:
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
-C1 checks each inference against the compiled source clauses, C5 re-decides
-primitive computations, C8 checks any fresh witness, and C10 checks the
-original questions against the proof's call tables. The checker follows the
-certificate without calling the reasoning engine.
+The run halted, so the proof holds its one claim, `'false'`, and one step:
 
-The verdict certifies the displayed claims; it does not assert that an
-arbitrary proof lists every possible answer.
+```js
+step('false', clause(3), {D: iri('http://example.org/door#door')}, [rdf(iri('http://example.org/door#door'), iri('http://example.org/door#state'), iri('http://example.org/door#locked')), rdf(iri('http://example.org/door#door'), iri('http://example.org/door#state'), iri('http://example.org/door#open'))])
+```
+
+It reads: *`'false'` holds by clause 3 of the compiled program, the fuse,
+with `D` the door, because the door is both locked and open.* The checker
+replays that firing against the source program: it runs the fuse from no
+bindings, finds both state triples among the program's facts, and obtains
+`'false'` again. The saved report ends with `verdict('checked')`.
+
+For a halted run this establishes that its claim follows from the program,
+not that the claims are every answer: the run stopped at the contradiction,
+so there are no questions to answer.
 
 ---
 

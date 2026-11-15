@@ -2,18 +2,11 @@
 type('socrates', 'mortal')
 type('socrates', 'human')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(type('socrates', 'human')))
-clause(2, fact(subclass_of('human', 'mortal')))
-clause(3, implies([type(S, A), subclass_of(A, B)], type(S, B)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(type('socrates', 'mortal'), clause(3), {S: 'socrates', A: 'human', B: 'mortal'}, [type('socrates', 'human'), subclass_of('human', 'mortal')])
 step(type('socrates', 'human'), clause(1), {}, [])
-step(subclass_of('human', 'mortal'), clause(2), {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(type(A, B), [type('socrates', 'mortal')])
 called(type(A, B), [type('socrates', 'mortal'), type('socrates', 'human')])

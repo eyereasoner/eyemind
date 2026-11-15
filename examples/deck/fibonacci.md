@@ -111,11 +111,11 @@ a float holds. `golden_ratio(1,
 
 ## The proof, line by line
 
-`eyemind --proof` writes down how it reached each answer. The proof has 314
-steps and is 230 KB, because the big numbers appear in full; the
+`eyemind --proof` writes down how it reached each answer. The proof is 97
+lines and 49 KB, mostly because of the two giant numbers; the
 [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/fibonacci.js)
-is linked above. Here are its claims (two shortened), all its clauses, and
-its first 42 steps: the complete chains for F(0), F(1) and F(10).
+is linked above. Here are its claims (two shortened) and the start of its
+certificate: the complete call tables for F(0), F(1) and F(10).
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -130,110 +130,58 @@ golden_ratio(10, 1.6181818181818182)
 golden_ratio(100, 1.618033988749895)
 golden_ratio(1000, 1.618033988749895)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, implied_by(fib(N, F), [ge(N, 0), fib_pair(N, F, _0)]))
-clause(2, fact(fib_pair(0, 0, 1)))
-clause(3, implied_by(fib_pair(N, A, B), [gt(N, 0), is(Half, floordiv(N, 2)), fib_pair(Half, X, Y), is(C, mul(X, sub(mul(2, Y), X))), is(D, add(mul(X, X), mul(Y, Y))), parity_pair(N, C, D, A, B)]))
-clause(4, implied_by(parity_pair(N, C, D, A, B), [eq(0, mod(N, 2)), unify(A, C), unify(B, D)]))
-clause(5, implied_by(parity_pair(N, C, D, A, B), [eq(1, mod(N, 2)), unify(A, D), is(B, add(C, D))]))
-clause(6, implied_by(golden_ratio(N, Ratio), [fib(N, A), gt(A, 0), is(Next, add(N, 1)), fib(Next, B), is(Ratio, div(B, A))]))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(fib(0, 0), clause(1), {N: 0, F: 0, _0: 1}, [ge(0, 0), fib_pair(0, 0, 1)])
-step(ge(0, 0), 'builtin', {}, [])
-step(fib_pair(0, 0, 1), clause(2), {}, [])
-step(fib(1, 1), clause(1), {N: 1, F: 1, _0: 1}, [ge(1, 0), fib_pair(1, 1, 1)])
-step(ge(1, 0), 'builtin', {}, [])
-step(fib_pair(1, 1, 1), clause(3), {N: 1, A: 1, B: 1, Half: 0, X: 0, Y: 1, C: 0, D: 1}, [gt(1, 0), is(0, floordiv(1, 2)), fib_pair(0, 0, 1), is(0, mul(0, sub(mul(2, 1), 0))), is(1, add(mul(0, 0), mul(1, 1))), parity_pair(1, 0, 1, 1, 1)])
-step(gt(1, 0), 'builtin', {}, [])
-step(is(0, floordiv(1, 2)), 'builtin', {}, [])
-step(is(0, mul(0, sub(mul(2, 1), 0))), 'builtin', {}, [])
-step(is(1, add(mul(0, 0), mul(1, 1))), 'builtin', {}, [])
-step(parity_pair(1, 0, 1, 1, 1), clause(5), {N: 1, C: 0, D: 1, A: 1, B: 1}, [eq(1, mod(1, 2)), unify(1, 1), is(1, add(0, 1))])
-step(eq(1, mod(1, 2)), 'builtin', {}, [])
-step(unify(1, 1), 'builtin', {}, [])
-step(is(1, add(0, 1)), 'builtin', {}, [])
-step(fib(10, 55), clause(1), {N: 10, F: 55, _0: 89}, [ge(10, 0), fib_pair(10, 55, 89)])
-step(ge(10, 0), 'builtin', {}, [])
-step(fib_pair(10, 55, 89), clause(3), {N: 10, A: 55, B: 89, Half: 5, X: 5, Y: 8, C: 55, D: 89}, [gt(10, 0), is(5, floordiv(10, 2)), fib_pair(5, 5, 8), is(55, mul(5, sub(mul(2, 8), 5))), is(89, add(mul(5, 5), mul(8, 8))), parity_pair(10, 55, 89, 55, 89)])
-step(gt(10, 0), 'builtin', {}, [])
-step(is(5, floordiv(10, 2)), 'builtin', {}, [])
-step(fib_pair(5, 5, 8), clause(3), {N: 5, A: 5, B: 8, Half: 2, X: 1, Y: 2, C: 3, D: 5}, [gt(5, 0), is(2, floordiv(5, 2)), fib_pair(2, 1, 2), is(3, mul(1, sub(mul(2, 2), 1))), is(5, add(mul(1, 1), mul(2, 2))), parity_pair(5, 3, 5, 5, 8)])
-step(gt(5, 0), 'builtin', {}, [])
-step(is(2, floordiv(5, 2)), 'builtin', {}, [])
-step(fib_pair(2, 1, 2), clause(3), {N: 2, A: 1, B: 2, Half: 1, X: 1, Y: 1, C: 1, D: 2}, [gt(2, 0), is(1, floordiv(2, 2)), fib_pair(1, 1, 1), is(1, mul(1, sub(mul(2, 1), 1))), is(2, add(mul(1, 1), mul(1, 1))), parity_pair(2, 1, 2, 1, 2)])
-step(gt(2, 0), 'builtin', {}, [])
-step(is(1, floordiv(2, 2)), 'builtin', {}, [])
-step(is(1, mul(1, sub(mul(2, 1), 1))), 'builtin', {}, [])
-step(is(2, add(mul(1, 1), mul(1, 1))), 'builtin', {}, [])
-step(parity_pair(2, 1, 2, 1, 2), clause(4), {N: 2, C: 1, D: 2, A: 1, B: 2}, [eq(0, mod(2, 2)), unify(1, 1), unify(2, 2)])
-step(eq(0, mod(2, 2)), 'builtin', {}, [])
-step(unify(2, 2), 'builtin', {}, [])
-step(is(3, mul(1, sub(mul(2, 2), 1))), 'builtin', {}, [])
-step(is(5, add(mul(1, 1), mul(2, 2))), 'builtin', {}, [])
-step(parity_pair(5, 3, 5, 5, 8), clause(5), {N: 5, C: 3, D: 5, A: 5, B: 8}, [eq(1, mod(5, 2)), unify(5, 5), is(8, add(3, 5))])
-step(eq(1, mod(5, 2)), 'builtin', {}, [])
-step(unify(5, 5), 'builtin', {}, [])
-step(is(8, add(3, 5)), 'builtin', {}, [])
-step(is(55, mul(5, sub(mul(2, 8), 5))), 'builtin', {}, [])
-step(is(89, add(mul(5, 5), mul(8, 8))), 'builtin', {}, [])
-step(parity_pair(10, 55, 89, 55, 89), clause(4), {N: 10, C: 55, D: 89, A: 55, B: 89}, [eq(0, mod(10, 2)), unify(55, 55), unify(89, 89)])
-step(eq(0, mod(10, 2)), 'builtin', {}, [])
-step(unify(55, 55), 'builtin', {}, [])
-step(unify(89, 89), 'builtin', {}, [])
-// … steps 43–314: F(100), F(1000), F(10000) and the four ratios
+called(fib(0, A), [fib(0, 0)])
+called(fib_pair(0, B, _2), [fib_pair(0, 0, 1)])
+called(fib(1, D), [fib(1, 1)])
+called(fib_pair(1, E, _5), [fib_pair(1, 1, 1)])
+called(fib_pair(0, G, H), [fib_pair(0, 0, 1)])
+called(parity_pair(1, 0, 1, I, J), [parity_pair(1, 0, 1, 1, 1)])
+called(fib(10, K), [fib(10, 55)])
+called(fib_pair(10, L, _12), [fib_pair(10, 55, 89)])
+called(fib_pair(5, N, O), [fib_pair(5, 5, 8)])
+called(fib_pair(2, P, Q), [fib_pair(2, 1, 2)])
+called(fib_pair(1, R, S), [fib_pair(1, 1, 1)])
+called(parity_pair(2, 1, 2, T, U), [parity_pair(2, 1, 2, 1, 2)])
+called(parity_pair(5, 3, 5, V, W), [parity_pair(5, 3, 5, 5, 8)])
+called(parity_pair(10, 55, 89, X, Y), [parity_pair(10, 55, 89, 55, 89)])
+called(fib(100, Z), [fib(100, 354224848179261915075)])
+// … 70 more tables: F(100), F(1000), F(10000) and the four ratios
 ```
 
-It has three parts:
+It has two parts:
 
 - **The claims**: the 10 answers.
-- **The clauses**: the program's six lines, numbered by position. The `_`
-  placeholder is named `_0` so a step can say what it stood for.
-- **The steps**: one per thing established. A step reads
-  `step(what, justified by, with which values, using what)`. A `'builtin'`
-  step is a calculation, comparison or `unify` that the checker redoes
-  itself.
+- **The certificate**: here only **call tables**. `called(Call, Answers)`
+  says: *this call, made while answering the questions, has exactly these
+  answers*. The variables in a call are the unknowns still open when it was
+  made; `_2` and the like stand for the `_` placeholder of rule 1.
 
-Read the steps as sentences:
+Every rule is a backward rule, worked out only when asked, so the proof has
+no `step(...)` records: those describe facts derived by forward rules. Read
+the tables as sentences:
 
-1. *F(0) = 0* — by rule 1, because 0 ≥ 0 (step 2) and the pair at 0 is
-   (0, 1) (step 3).
-2. *0 ≥ 0* — builtin.
-3. *The pair at 0 is (0, 1)* — fact 2.
-4. *F(1) = 1* — by rule 1, because 1 ≥ 0 (step 5) and the pair at 1 is
-   (1, 1) (step 6).
-5. *1 ≥ 0* — builtin.
-6. *The pair at 1 is (1, 1)* — by rule 3, with `Half` = 0: from the pair
-   (0, 1), F(0) = 0 × (2 × 1 − 0) = 0 and F(1) = 0² + 1² = 1, and since 1 is
-   odd the pair moves one step on.
-7. –10. *1 > 0, 1 // 2 = 0, 0 × (2 × 1 − 0) = 0, 0² + 1² = 1* — builtins.
-11. *For odd 1 the pair is (1, 0 + 1)* — by rule 5, because 1 mod 2 = 1,
-    `unify(1, 1)` and 0 + 1 = 1 (steps 12–14, builtins).
-15. *F(10) = 55* — by rule 1, because 10 ≥ 0 and the pair at 10 is
-    (55, 89).
-16. *10 ≥ 0* — builtin.
-17. *The pair at 10 is (55, 89)* — by rule 3, with `Half` = 5 and the pair
-    at 5 being (5, 8): 5 × (2 × 8 − 5) = 55 and 5² + 8² = 89, and 10 is
-    even.
-18. –19. *10 > 0, 10 // 2 = 5* — builtins.
-20. *The pair at 5 is (5, 8)* — by rule 3, with `Half` = 2 and the pair at
-    2 being (1, 2): 1 × (2 × 2 − 1) = 3 and 1² + 2² = 5, and since 5 is odd,
-    the pair is (5, 3 + 5).
-21. –22. *5 > 0, 5 // 2 = 2* — builtins.
-23. *The pair at 2 is (1, 2)* — by rule 3, with `Half` = 1 and the pair at
-    1 being (1, 1), already proved in step 6 and reused here.
-24. –27. *2 > 0, 2 // 2 = 1, 1 × (2 × 1 − 1) = 1, 1² + 1² = 2* — builtins.
-28. *For even 2 the pair is (1, 2)* — by rule 4, because 2 mod 2 = 0
-    (step 29), `unify(1, 1)` (reused from step 13) and `unify(2, 2)`
-    (step 30).
-31. –32. *1 × (2 × 2 − 1) = 3, 1² + 2² = 5* — builtins.
-33. *For odd 5 the pair is (5, 8)* — by rule 5, with steps 34–36.
-37. –38. *5 × (2 × 8 − 5) = 55, 5² + 8² = 89* — builtins.
-39. *For even 10 the pair is (55, 89)* — by rule 4, with steps 40–42.
+1. *F(0) is exactly 0* — by rule 1, from the pair at 0.
+2. *The pair at 0 is (0, 1)* — fact 2.
+3. *F(1) is exactly 1* — by rule 1, from the pair at 1.
+4. *The pair at 1 is (1, 1)* — by rule 3, which halves 1 to 0, takes the
+   pair at 0 and computes 0 × (2 × 1 − 0) = 0 and 0² + 1² = 1.
+5. *The pair at 0 is (0, 1)* — asked again by rule 3, now with both numbers
+   unknown, so it has a table of its own.
+6. *For odd 1 the pair moves one step on*, to (1, 0 + 1) — by rule 5.
+7. *F(10) is exactly 55* — by rule 1, from the pair at 10.
+8. *The pair at 10 is (55, 89)* — by rule 3, from the pair at 5.
+9. *The pair at 5 is (5, 8)* — from the pair at 2.
+10. *The pair at 2 is (1, 2)* — from the pair at 1.
+11. *The pair at 1 is (1, 1)* — as in line 4, now asked with both numbers
+    unknown.
+12. –14. *The parity rules for 2, 5 and 10*: even 2 keeps (1, 2); odd 5
+    turns (3, 5) into (5, 8); even 10 keeps (55, 89), since
+    5 × (2 × 8 − 5) = 55 and 5² + 8² = 89.
 
-The later answers repeat this pattern with larger numbers; a golden ratio
-step uses two `fib` answers and one builtin division.
+The halvings, products, sums and parity tests in between are not written
+down: the checker computes them itself. The later answers repeat this
+pattern with larger numbers; a golden ratio asks for two neighbouring
+Fibonacci numbers and divides them.
 
 ---
 
@@ -241,12 +189,16 @@ step uses two `fib` answers and one builtin division.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report, with the two giant numbers
-shortened:
+a saved proof. The checker never reasons by itself. It answers each question
+by applying the program's rules one level at a time, taking the answer of
+every inner call from its table and computing every builtin itself,
+including multiplications of numbers over a thousand digits long. Each table
+it consults is checked the same way, so a wrong table shows up as a
+disagreement, and a table the check does not use fails it. This is the
+complete report, with the two giant numbers shortened:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 fib(0, 0)
 fib(1, 1)
 fib(10, 55)
@@ -258,56 +210,11 @@ golden_ratio(10, 1.6181818181818182)
 golden_ratio(100, 1.618033988749895)
 golden_ratio(1000, 1.618033988749895)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 81)
-condition('C2', 'well_founded', 'ok', 314)
-condition('C3', 'justification', 'ok', 314)
-condition('C4', 'coverage', 'ok', 347)
-condition('C5', 're_decision', 'ok', 233)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 324)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 20)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(314)
-verified(81)
-recomputed(233)
-composed(0)
-trusted(0)
-claims(10)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (81)**: the 81 steps that cite a program line really are
-  instances of it with the values shown.
-- **C2 well-founded (314)**: none of the 314 steps depends on itself, even
-  indirectly: every halving rests on a smaller position, down to fact 2.
-- **C3 justification (314)**: every step says how it was justified, in a
-  form the checker understands.
-- **C4 coverage (347)**: the 10 claims and the 337 things the steps use are
-  each backed by a step.
-- **C5 re-decision (233)**: the checker **recomputed** all 233 builtin
-  steps, including multiplications of numbers over a thousand digits long,
-  and got the same results.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of something, so there is nothing to confront.
-- **C7 relevance (324)**: the 10 claims answer the queries, and all 314
-  steps serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 314 steps, 81 verified against the program, 233
-recomputed, none taken on trust. The verdict is **checked**: all ten
-answers follow from the program, and they are every answer of the original questions.
+The verdict is **checked**: all ten answers follow from the program, and they
+are every answer of the original questions.
 
 ---
 

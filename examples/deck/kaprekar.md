@@ -120,133 +120,98 @@ A proof normally shows *how* something was found: this rule, these facts,
 this calculation. But "there is no counterexample" is about something that
 was *not* found. There is nothing to point at.
 
-eyemind records such a conclusion as an **absence**: a step marked
-`'absent'`. It says: "I looked for this, the search finished, and it was not
-there." To back it, the proof ends with a **search certificate**: every call
-that search made, each written `searched(call, answers)` with every answer
-it gave. The checker never redoes the search. It checks each line by
-expanding its call one level against the program, as a search would, and
-answering every inner call from that call's own line, so no line vouches
-for itself. If all lines agree, the absence is **settled**: checked, not
-taken on trust.
+eyemind backs such a conclusion with **call tables**. A table
+`called(call, answers)` lists every answer a call gives: for the negation,
+`called('counterexample', [])` says the search for a counterexample gave
+none. The search behind it made many more calls, one per multiset and per
+Kaprekar step, and each gets its own table. The checker never redoes the
+search. It checks each table by expanding its call one level against the
+program, as a search would, and answering every inner call from that call's
+own table, so no table vouches for itself. If every table agrees with its
+expansion, the absence is checked, not taken on trust.
 
 ---
 
 ## The proof, line by line
 
-This is the proof, with all its claims, clauses and steps; its search
-certificate has 13,555 lines, of which only the first is shown:
+This is the proof, with its claim and the start of its certificate; the
+certificate has 13,556 call tables, of which three are shown:
 
 ```js
 // Answers: each instance of a query() that holds.
 kaprekar_verified(6174, 7)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(19, implied_by(kaprekar_verified(6174, 7), not('counterexample')))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(kaprekar_verified(6174, 7), clause(19), {}, [not('counterexample')])
-step(not('counterexample'), 'absent', {}, [])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-searched('counterexample', [])
-// … 13554 more searched lines: the 705 multisets, and every Kaprekar step they take
+// Certificate: the derived facts and every answer of each call the questions make.
+called(kaprekar_verified(6174, 7), [kaprekar_verified(6174, 7)])
+called('counterexample', [])
+// … the table for digit_multiset(A): the 705 representative numbers
+called(in_range(0, 9, B), [in_range(0, 9, 0), in_range(0, 9, 1), in_range(0, 9, 2), in_range(0, 9, 3), in_range(0, 9, 4), in_range(0, 9, 5), in_range(0, 9, 6), in_range(0, 9, 7), in_range(0, 9, 8), in_range(0, 9, 9)])
+// … 13552 more call tables: every Kaprekar step the multisets take
 ```
 
-It has four parts:
+It has two parts:
 
 - **The claim**: the answer the proof is about.
-- **The clauses**: only the program lines the steps cite. The program has 19
-  rules and facts; this proof needs only the last one, clause 19.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`.
-- **The search certificate**: the search behind the absence. Its first line
-  says the search for a counterexample gave no answers; the rest record the
-  calls that search made, from the digit multisets down to each Kaprekar
-  step, with their answers.
+- **The certificate**: one call table per call the question makes, directly
+  or inside another call's search. It starts with the question itself,
+  which has the one answer `kaprekar_verified(6174, 7)`, then the negated
+  call `'counterexample'`, which has none. Below those come the calls that
+  search made, from the digit multisets down to each Kaprekar step, each
+  with its answers.
 
-Read the steps as sentences:
+There are no steps. Steps record the firings of forward rules, and this
+program has none: every rule is a backward rule, so every call is answered
+by its table, and the tables are checked against the rules directly.
 
-1. *Kaprekar's claim is verified* — by clause 19, with no variables to fill
-   in, because there is no counterexample.
-2. *There is no counterexample* — `'absent'`: eyemind searched for one and
-   found none. It uses nothing.
+Read the first lines as sentences:
 
-The whole exhaustive search sits behind that second step: all 705 multisets
-and every Kaprekar step they take. The steps list what *was* found; the
-certificate lists the search that found nothing, so that it can be checked
-too.
+1. *The question `kaprekar_verified(6174, 7)` has exactly one answer*: the
+   claim.
+2. *There is no counterexample*: the call `'counterexample'` has no answers.
+3. *The digit multisets are exactly the 705 numbers listed*.
+4. *Counting from 0 to 9 gives 0, 1, …, 9*, used to build those multisets.
+
+The whole exhaustive search sits behind the second line: all 705 multisets
+and every Kaprekar step they take. The certificate records what each call
+answered, including the calls that answered nothing, so that the search can
+be checked too.
 
 ---
 
 ## Checked: what the report says
 
 `eyemind -c` generates the proof and checks it against the program;
-`--check-proof` checks a saved proof. The checker never reasons by itself: it
-only confirms each step against the program. This is the complete report:
+`--check-proof` checks a saved proof. The checker never reasons by itself:
+it reads the clauses from the program and confirms the proof against them
+in one procedure:
+
+- **It answers the question.** Expanding `kaprekar_verified(6174, 7)` one
+  level reaches clause 19, whose `not('counterexample')` is decided from the
+  `'counterexample'` table: no answers, so the negation holds and the
+  question has its one answer.
+- **It checks every table it consults.** `'counterexample'` expands to the
+  rule that tries each digit multiset, with `digit_multiset(A)` answered from
+  its table and each `reaches_6174(A, 0)` from its own. Each of those
+  expands in turn to Kaprekar steps, whose digit sorting and arithmetic the
+  checker computes. Every table must equal its expansion, answer for answer,
+  and no table may rest on itself.
+- **It compares the claims with the answers.** The claim is the only answer,
+  and every table in the proof was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 kaprekar_verified(6174, 7)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 1)
-condition('C2', 'well_founded', 'ok', 2)
-condition('C3', 'justification', 'ok', 2)
-condition('C4', 'coverage', 'ok', 2)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 3)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(2)
-verified(1)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (1)**: the 1 step that cites a clause really is an
-  instance of clause 19.
-- **C2 well-founded (2)**: neither of the 2 steps depends on itself.
-- **C3 justification (2)**: both steps say how they are justified in a
-  well-formed way; in particular the `'absent'` step has no values and uses
-  nothing, as an absence must.
-- **C4 coverage (2)**: the 1 claim and the 1 thing used (`not('counterexample')`)
-  are each backed by a step.
-- **C5 re-decision (0)**: no built-in calculation appears in the proof, so
-  nothing needed recomputing.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled the only absence.
-- **C7 relevance (3)**: the 1 claim answers the query, and both steps
-  serve it.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
-- **C9 search closure (1)**: the 1 absence was settled by the search
-  certificate, `searched('counterexample', [])` and the lines that answer
-  its inner calls: no counterexample.
-
-There is no obligation line: *"there is no counterexample"* was checked
-against the certificate, and it is true relative to this program, that is,
-as far as these rules and facts can show. The statistics say the same: 2
-steps, 1 verified against the program and the absence settled by the
-certificate, none trusted.
-
-The verdict is **checked**: the claim follows from the program, and it is
-every answer of the question. The checker did not re-run the search: it
-confirmed the record of it, line by line.
+*"There is no counterexample"* is true relative to this program, that is,
+as far as these rules and facts can show. The verdict is **checked**: the
+claim follows from the program, and it is every answer of the question. The
+checker did not re-run the search: it confirmed the record of it, table by
+table.
 
 ---
 
@@ -255,9 +220,8 @@ confirmed the record of it, line by line.
 The claim *is* a claim about absence: no number fails. A checker could
 redo the whole search, or take it on trust. eyemind's checker does neither:
 it checks the written record of the search, one call at a time, and never
-searches itself. The record is large, 13,555 lines, but each line is a
-small check. Because nothing is taken on trust, `--strict-proof`, which
-rejects any proof with trusted steps, accepts this one.
+searches itself. The record is large, 13,556 tables, but each table is a
+small check: one level of search, with every inner call looked up.
 
 ---
 
@@ -283,6 +247,6 @@ The `--goal` line asks for one step of the routine: it answers
 
 ## Takeaway
 
-eyemind checked a famous number fact case by case, and its search
-certificate turns "we searched and found nothing" into something a checker
+eyemind checked a famous number fact case by case, and its call
+tables turn "we searched and found nothing" into something a checker
 can confirm.

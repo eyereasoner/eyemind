@@ -96,10 +96,10 @@ of all three: 1 × 2 = 2, 2 + 3 = 5, and 5! is the long tail of `s(s(s(…`:
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each answer. The whole proof
-has 198 steps and is about 190 KB, because the factorial writes out numbers
-up to 120 in full; see the [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/peano.js).
-Here are its claims, its clauses, and the first 10 steps, which prove the
-first four answers completely:
+holds 197 call tables and is about 90 KB, because the factorial writes out
+numbers up to 120 in full; see the [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/peano.js).
+Here are its claims and its first seven tables, which settle the first
+question completely and start on the second:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -109,58 +109,43 @@ add(s('zero'), s(s('zero')), s(s(s('zero'))))
 add('zero', s(s(s('zero'))), s(s(s('zero'))))
 and(multiply(s('zero'), s(s('zero')), s(s('zero'))), add(s(s('zero')), s(s(s('zero'))), s(s(s(s(s('zero')))))), factorial(s(s(s(s(s('zero'))))), s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s('zero'))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(add(A, 'zero', A)))
-clause(2, implied_by(add(A, s(B), s(C)), add(A, B, C)))
-clause(3, fact(multiply(_0, 'zero', 'zero')))
-clause(4, implied_by(multiply(A, s(B), C), [multiply(A, B, D), add(A, D, C)]))
-clause(5, fact(factorial('zero', s('zero'))))
-clause(6, implied_by(factorial(s(N), F), [factorial(N, Before), multiply(s(N), Before, F)]))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(add(s(s(s('zero'))), 'zero', s(s(s('zero')))), clause(1), {A: s(s(s('zero')))}, [])
-step(add(s(s('zero')), s('zero'), s(s(s('zero')))), clause(2), {A: s(s('zero')), B: 'zero', C: s(s('zero'))}, [add(s(s('zero')), 'zero', s(s('zero')))])
-step(add(s(s('zero')), 'zero', s(s('zero'))), clause(1), {A: s(s('zero'))}, [])
-step(add(s('zero'), s(s('zero')), s(s(s('zero')))), clause(2), {A: s('zero'), B: s('zero'), C: s(s('zero'))}, [add(s('zero'), s('zero'), s(s('zero')))])
-step(add(s('zero'), s('zero'), s(s('zero'))), clause(2), {A: s('zero'), B: 'zero', C: s('zero')}, [add(s('zero'), 'zero', s('zero'))])
-step(add(s('zero'), 'zero', s('zero')), clause(1), {A: s('zero')}, [])
-step(add('zero', s(s(s('zero'))), s(s(s('zero')))), clause(2), {A: 'zero', B: s(s('zero')), C: s(s('zero'))}, [add('zero', s(s('zero')), s(s('zero')))])
-step(add('zero', s(s('zero')), s(s('zero'))), clause(2), {A: 'zero', B: s('zero'), C: s('zero')}, [add('zero', s('zero'), s('zero'))])
-step(add('zero', s('zero'), s('zero')), clause(2), {A: 'zero', B: 'zero', C: 'zero'}, [add('zero', 'zero', 'zero')])
-step(add('zero', 'zero', 'zero'), clause(1), {A: 'zero'}, [])
-// … 188 more steps, 198 in total, prove the fifth answer: 1 × 2 = 2,
-// 2 + 3 = 5, and 5! = 120, made of multiplication steps that are in turn
-// made of addition steps.
+// Certificate: the derived facts and every answer of each call the questions make.
+called(add(A, B, s(s(s('zero')))), [add(s(s(s('zero'))), 'zero', s(s(s('zero')))), add(s(s('zero')), s('zero'), s(s(s('zero')))), add(s('zero'), s(s('zero')), s(s(s('zero')))), add('zero', s(s(s('zero'))), s(s(s('zero'))))])
+called(add(C, D, s(s('zero'))), [add(s(s('zero')), 'zero', s(s('zero'))), add(s('zero'), s('zero'), s(s('zero'))), add('zero', s(s('zero')), s(s('zero')))])
+called(add(E, F, s('zero')), [add(s('zero'), 'zero', s('zero')), add('zero', s('zero'), s('zero'))])
+called(add(G, H, 'zero'), [add('zero', 'zero', 'zero')])
+called(multiply(s('zero'), s(s('zero')), I), [multiply(s('zero'), s(s('zero')), s(s('zero')))])
+called(multiply(s('zero'), s('zero'), J), [multiply(s('zero'), s('zero'), s('zero'))])
+called(multiply(s('zero'), 'zero', K), [multiply(s('zero'), 'zero', 'zero')])
 ```
 
-It has three parts:
+It has two parts:
 
 - **The claims**: the five answers the proof is about.
-- **The clauses**: all six lines of the program, numbered in order (the
-  queries are questions, not reasons). The `_` of the program is shown as
-  `_0`, so it can be given a value like any other variable.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`. The values
-  in curly braces say what each variable of the cited line stood for.
+- **The certificate**: *call tables*. A table `called(Call, Answers)` lists
+  every answer of one call, in order, with the call as it stood when the
+  search made it. The tables' variables are renamed `A`, `B`, ... in the
+  order they first occur.
 
-Reading numbers as digits, the 10 steps say:
+There are no steps: the program has only facts and backward rules, so no
+answer rests on a fact a forward rule derived, and the tables alone record
+what each call returned.
 
-1. *3 + 0 = 3* — fact 1, with `A` = 3.
-2. *2 + 1 = 3* — by rule 2, with `A` = 2, `B` = 0 and `C` = 2, because
-   2 + 0 = 2.
-3. *2 + 0 = 2* — fact 1.
-4. *1 + 2 = 3* — by rule 2, because 1 + 1 = 2.
-5. *1 + 1 = 2* — by rule 2, because 1 + 0 = 1.
-6. *1 + 0 = 1* — fact 1.
-7. *0 + 3 = 3* — by rule 2, because 0 + 2 = 2.
-8. *0 + 2 = 2* — by rule 2, because 0 + 1 = 1.
-9. *0 + 1 = 1* — by rule 2, because 0 + 0 = 0.
-10. *0 + 0 = 0* — fact 1.
+Reading numbers as digits, the first seven tables say:
+
+1. *The ways to split 3 as A + B are exactly 3 + 0, 2 + 1, 1 + 2 and
+   0 + 3* — the first question's own call. Fact 1 gives `3 + 0`; rule 2
+   gives the rest from the next table.
+2. *The ways to split 2 are exactly 2 + 0, 1 + 1 and 0 + 2.*
+3. *The ways to split 1 are exactly 1 + 0 and 0 + 1.*
+4. *The only way to split 0 is 0 + 0.*
+5. *1 × 2 has exactly one product, 2* — the start of the second question.
+6. *1 × 1 has exactly one product, 1.*
+7. *1 × 0 has exactly one product, 0.*
 
 Each use of rule 2 peels one `s` off the second number and the sum, until
-fact 1 ends the chain. The remaining 188 steps work the same way, with rules
-4 and 6 and facts 3 and 5 for multiplication and factorial.
+fact 1 ends the chain. The remaining 190 tables work the same way for the
+additions, multiplications and factorials the second question needs.
 
 ---
 
@@ -168,67 +153,36 @@ fact 1 ends the chain. The remaining 188 steps work the same way, with rules
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the questions.** It expands each query one level against
+  the program, answering each inner call from its table. For the first
+  question, fact 1 gives `add(3, 0, 3)`, and rule 2 turns each answer of the
+  table for splitting 2 into a split of 3. The result must equal the table,
+  answer by answer and in order.
+- **It checks every table it consults the same way**, down to `0 + 0`. A
+  table cannot justify itself through a cycle, so the chains must bottom out
+  in the facts.
+- **It compares the claims with the answers.** Every claim is an answer, and
+  every answer is claimed. Every table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 add(s(s(s('zero'))), 'zero', s(s(s('zero'))))
 add(s(s('zero')), s('zero'), s(s(s('zero'))))
 add(s('zero'), s(s('zero')), s(s(s('zero'))))
 add('zero', s(s(s('zero'))), s(s(s('zero'))))
 and(multiply(s('zero'), s(s('zero')), s(s('zero'))), add(s(s('zero')), s(s(s('zero'))), s(s(s(s(s('zero')))))), factorial(s(s(s(s(s('zero'))))), s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s('zero'))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 198)
-condition('C2', 'well_founded', 'ok', 198)
-condition('C3', 'justification', 'ok', 198)
-condition('C4', 'coverage', 'ok', 231)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 203)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 7)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(198)
-verified(198)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(5)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (198)**: every one of the 198 steps really is an instance
-  of the line it cites, with the values shown.
-- **C2 well-founded (198)**: no step depends on itself, even indirectly.
-- **C3 justification (198)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (231)**: the 5 claims and the 226 things the steps use are
-  each backed by a step.
-- **C5 re-decision (0)**: there was no calculation to redo: there is no
-  built-in arithmetic here, only rules.
-- **C6 boundary consistency (0)**: nothing was concluded from the absence of
-  a fact, so there is nothing to confront.
-- **C7 relevance (203)**: the 5 claims answer the queries, and all 198 steps
-  serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics: 198 steps, all 198 verified against the program, none taken
-on trust, 5 claims. The verdict is **checked**: all five answers follow from
-the program. As the last comment says, this confirms the claims; it does not
-by itself say that the four splits of 3 are the only ones.
+The verdict is **checked**: all five answers follow from the program, and
+they are every answer of its questions. In particular, the four splits of 3
+are the only ones.
 
 ---
 

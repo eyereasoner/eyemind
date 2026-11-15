@@ -1,26 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 once(queens(8, [1, 5, 8, 6, 3, 7, 2, 4]))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 77)
-condition('C2', 'well_founded', 'ok', 153)
-condition('C3', 'justification', 'ok', 153)
-condition('C4', 'coverage', 'ok', 181)
-condition('C5', 're_decision', 'ok', 76)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 154)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(153)
-verified(77)
-recomputed(75)
-composed(1)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

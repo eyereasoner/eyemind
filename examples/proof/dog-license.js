@@ -3,40 +3,13 @@ dog_count('alice', 5)
 dog_count('bob', 2)
 requires('alice', 'dog_license')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(8, fact(owner('alice')))
-clause(9, fact(owner('bob')))
-clause(10, fact(length([], 0)))
-clause(11, implied_by(length([_0, ...Xs], N), [length(Xs, Before), is(N, add(Before, 1))]))
-clause(12, implies([owner(Owner), findall(Dog, owns(Owner, Dog), Dogs), length(Dogs, N)], dog_count(Owner, N)))
-clause(13, implies([dog_count(Owner, N), gt(N, 4)], requires(Owner, 'dog_license')))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(dog_count('alice', 5), clause(12), {Owner: 'alice', Dog: A, Dogs: ['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], N: 5}, [owner('alice'), findall(A, owns('alice', A), ['dog1', 'dog2', 'dog3', 'dog4', 'dog5']), length(['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], 5)])
-step(owner('alice'), clause(8), {}, [])
-step(findall(A, owns('alice', A), ['dog1', 'dog2', 'dog3', 'dog4', 'dog5']), 'collected', {}, [])
-step(length(['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], 5), clause(11), {_0: 'dog1', Xs: ['dog2', 'dog3', 'dog4', 'dog5'], N: 5, Before: 4}, [length(['dog2', 'dog3', 'dog4', 'dog5'], 4), is(5, add(4, 1))])
-step(length(['dog2', 'dog3', 'dog4', 'dog5'], 4), clause(11), {_0: 'dog2', Xs: ['dog3', 'dog4', 'dog5'], N: 4, Before: 3}, [length(['dog3', 'dog4', 'dog5'], 3), is(4, add(3, 1))])
-step(length(['dog3', 'dog4', 'dog5'], 3), clause(11), {_0: 'dog3', Xs: ['dog4', 'dog5'], N: 3, Before: 2}, [length(['dog4', 'dog5'], 2), is(3, add(2, 1))])
-step(length(['dog4', 'dog5'], 2), clause(11), {_0: 'dog4', Xs: ['dog5'], N: 2, Before: 1}, [length(['dog5'], 1), is(2, add(1, 1))])
-step(length(['dog5'], 1), clause(11), {_0: 'dog5', Xs: [], N: 1, Before: 0}, [length([], 0), is(1, add(0, 1))])
-step(length([], 0), clause(10), {}, [])
-step(is(1, add(0, 1)), 'builtin', {}, [])
-step(is(2, add(1, 1)), 'builtin', {}, [])
-step(is(3, add(2, 1)), 'builtin', {}, [])
-step(is(4, add(3, 1)), 'builtin', {}, [])
-step(is(5, add(4, 1)), 'builtin', {}, [])
 step(dog_count('bob', 2), clause(12), {Owner: 'bob', Dog: A, Dogs: ['dog6', 'dog7'], N: 2}, [owner('bob'), findall(A, owns('bob', A), ['dog6', 'dog7']), length(['dog6', 'dog7'], 2)])
-step(owner('bob'), clause(9), {}, [])
-step(findall(A, owns('bob', A), ['dog6', 'dog7']), 'collected', {}, [])
-step(length(['dog6', 'dog7'], 2), clause(11), {_0: 'dog6', Xs: ['dog7'], N: 2, Before: 1}, [length(['dog7'], 1), is(2, add(1, 1))])
-step(length(['dog7'], 1), clause(11), {_0: 'dog7', Xs: [], N: 1, Before: 0}, [length([], 0), is(1, add(0, 1))])
 step(requires('alice', 'dog_license'), clause(13), {Owner: 'alice', N: 5}, [dog_count('alice', 5), gt(5, 4)])
-step(gt(5, 4), 'builtin', {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(dog_count(B, C), [dog_count('alice', 5), dog_count('bob', 2)])
 derived(requires(B, C), [requires('alice', 'dog_license')])
 called(dog_count(A, B), [dog_count('alice', 5), dog_count('bob', 2)])

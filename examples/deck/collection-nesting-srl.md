@@ -80,14 +80,26 @@ inf(iri('http://example.org/collection-nesting#test'), iri('http://example.org/c
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
-C1 checks inference steps against the compiled source clauses; C5 checks
-primitive computations; C8 checks fresh witnesses; C10 checks the original
-questions against the recorded call tables. The checker follows the
-certificate without calling the reasoning engine.
+The rule set is compiled to an eyemind program, and its proof cites that
+program's clauses, with each triple written `rdf(S, P, O)` and each inference
+`inf(S, P, O)`. After the claims come the steps: one `step(Goal, clause(N),
+Bindings, Uses)` per inferred triple, naming the compiled rule, the values of
+its variables (`V__path0`, `V__path1`, … are the list nodes the property
+paths pass through) and the triples it used, and one for each data triple
+those uses rest on, citing its source clause. Then comes the certificate:
+the `derived(Pattern, Facts)` listings of every `inf` and `rdf` triple the
+rules derived, and one `called(Call, Answers)` table per call, such as the
+call that follows `rdf:first` from `_:b2` to the blank node whose `p` is
+`q`.
 
-The verdict describes the displayed claims and any listed obligations. It
-does not assert that an arbitrary certificate lists every possible answer.
+The checker follows that certificate without calling the reasoning engine:
+it answers the original questions from the call tables, expanding each call
+one level against the compiled program, requires each listing to be closed
+under the rules, replays each listed triple's recorded firing, and requires
+the claims to be exactly the answers. A step, table or listing the check
+does not use fails it. The saved report ends with `verdict('checked')`: the
+claims follow from the rule set and its data, and they are every answer of
+its questions.
 
 ---
 

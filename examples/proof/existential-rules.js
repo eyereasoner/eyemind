@@ -11,45 +11,23 @@ meeting(skolem(13, 'M', ['ann', 'dora']))
 attends(skolem(13, 'M', ['ann', 'dora']), 'ann')
 attends(skolem(13, 'M', ['ann', 'dora']), 'dora')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(person('ann')))
-clause(2, fact(person('bob')))
-clause(3, implies(person(X), has_parent(X, P)))
-clause(4, fact(has_parent('dan', 'eve')))
-clause(5, fact(has_parent('fay', 'eve')))
-clause(6, implies([has_parent(X, P), has_parent(Y, P), not_identical(X, Y)], sibling(X, Y)))
-clause(7, fact(ordered('carl', 'lamp')))
-clause(9, fact(ordered('dora', 'chair')))
-clause(10, implies(ordered(C, Item), invoice_for(C, I)))
-clause(11, implies(invoice_for(C, I), sent(I)))
-clause(12, fact(colleagues('ann', 'dora')))
-clause(13, implies(colleagues(X, Y), [meeting(M), attends(M, X), attends(M, Y)]))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(has_parent('ann', skolem(3, 'P', ['ann'])), clause(3), {X: 'ann', P: skolem(3, 'P', ['ann'])}, [person('ann')])
-step(person('ann'), clause(1), {}, [])
 step(has_parent('bob', skolem(3, 'P', ['bob'])), clause(3), {X: 'bob', P: skolem(3, 'P', ['bob'])}, [person('bob')])
-step(person('bob'), clause(2), {}, [])
 step(sibling('dan', 'fay'), clause(6), {X: 'dan', P: 'eve', Y: 'fay'}, [has_parent('dan', 'eve'), has_parent('fay', 'eve'), not_identical('dan', 'fay')])
 step(has_parent('dan', 'eve'), clause(4), {}, [])
 step(has_parent('fay', 'eve'), clause(5), {}, [])
-step(not_identical('dan', 'fay'), 'builtin', {}, [])
 step(sibling('fay', 'dan'), clause(6), {X: 'fay', P: 'eve', Y: 'dan'}, [has_parent('fay', 'eve'), has_parent('dan', 'eve'), not_identical('fay', 'dan')])
-step(not_identical('fay', 'dan'), 'builtin', {}, [])
 step(invoice_for('carl', skolem(10, 'I', ['carl'])), clause(10), {C: 'carl', Item: 'lamp', I: skolem(10, 'I', ['carl'])}, [ordered('carl', 'lamp')])
-step(ordered('carl', 'lamp'), clause(7), {}, [])
 step(invoice_for('dora', skolem(10, 'I', ['dora'])), clause(10), {C: 'dora', Item: 'chair', I: skolem(10, 'I', ['dora'])}, [ordered('dora', 'chair')])
-step(ordered('dora', 'chair'), clause(9), {}, [])
 step(sent(skolem(10, 'I', ['carl'])), clause(11), {C: 'carl', I: skolem(10, 'I', ['carl'])}, [invoice_for('carl', skolem(10, 'I', ['carl']))])
 step(sent(skolem(10, 'I', ['dora'])), clause(11), {C: 'dora', I: skolem(10, 'I', ['dora'])}, [invoice_for('dora', skolem(10, 'I', ['dora']))])
 step(meeting(skolem(13, 'M', ['ann', 'dora'])), clause(13), {X: 'ann', Y: 'dora', M: skolem(13, 'M', ['ann', 'dora'])}, [colleagues('ann', 'dora')])
-step(colleagues('ann', 'dora'), clause(12), {}, [])
 step(attends(skolem(13, 'M', ['ann', 'dora']), 'ann'), clause(13), {X: 'ann', Y: 'dora', M: skolem(13, 'M', ['ann', 'dora'])}, [colleagues('ann', 'dora')])
 step(attends(skolem(13, 'M', ['ann', 'dora']), 'dora'), clause(13), {X: 'ann', Y: 'dora', M: skolem(13, 'M', ['ann', 'dora'])}, [colleagues('ann', 'dora')])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(has_parent(A, B), [has_parent('ann', skolem(3, 'P', ['ann'])), has_parent('bob', skolem(3, 'P', ['bob']))])
 derived(sibling(A, B), [sibling('dan', 'fay'), sibling('fay', 'dan')])
 derived(invoice_for(A, B), [invoice_for('carl', skolem(10, 'I', ['carl'])), invoice_for('dora', skolem(10, 'I', ['dora']))])

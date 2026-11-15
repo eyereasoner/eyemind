@@ -26,7 +26,7 @@ thousand steps be shown and checked?**
 This is the *deep-taxonomy benchmark*, a standard stress test for reasoners.
 The collection has it at five depths:
 
-| Example | Levels | Proof steps |
+| Example | Levels | Call tables |
 | --- | --- | --- |
 | deep-taxonomy-10 | 10 | 11 |
 | deep-taxonomy-100 | 100 | 101 |
@@ -82,59 +82,50 @@ be in `n999`, be in `n998`; … all the way up to the fact we gave.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached the answer. The full proof is
-2009 lines (about 130 KB) with 1001 steps, so here is its opening, the first
-and last of its clauses, and the start and end of its single chain of steps.
-The [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-1000.js)
+1005 lines (about 48 KB) with 1001 call tables, so here is its opening and the
+start and end of its certificate. The
+[full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-1000.js)
 is online.
 
 ```js
 // Answers: each instance of a query() that holds.
 type('ind', 'n1000')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(type('ind', 'n0')))
-clause(2, implied_by(type(X, 'n1'), type(X, 'n0')))
-clause(5, implied_by(type(X, 'n2'), type(X, 'n1')))
-clause(8, implied_by(type(X, 'n3'), type(X, 'n2')))
-// … 995 more clauses, one per level
-clause(2996, implied_by(type(X, 'n999'), type(X, 'n998')))
-clause(2999, implied_by(type(X, 'n1000'), type(X, 'n999')))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(type('ind', 'n1000'), clause(2999), {X: 'ind'}, [type('ind', 'n999')])
-step(type('ind', 'n999'), clause(2996), {X: 'ind'}, [type('ind', 'n998')])
-step(type('ind', 'n998'), clause(2993), {X: 'ind'}, [type('ind', 'n997')])
-// … 993 more steps, one per level from n997 down to n5
-step(type('ind', 'n4'), clause(11), {X: 'ind'}, [type('ind', 'n3')])
-step(type('ind', 'n3'), clause(8), {X: 'ind'}, [type('ind', 'n2')])
-step(type('ind', 'n2'), clause(5), {X: 'ind'}, [type('ind', 'n1')])
-step(type('ind', 'n1'), clause(2), {X: 'ind'}, [type('ind', 'n0')])
-step(type('ind', 'n0'), clause(1), {}, [])
+// Certificate: the derived facts and every answer of each call the questions make.
+called(type(A, 'n1000'), [type('ind', 'n1000')])
+called(type(B, 'n999'), [type('ind', 'n999')])
+called(type(C, 'n998'), [type('ind', 'n998')])
+// … 993 more tables, one per level from n997 down to n5
+called(type(I38, 'n4'), [type('ind', 'n4')])
+called(type(J38, 'n3'), [type('ind', 'n3')])
+called(type(K38, 'n2'), [type('ind', 'n2')])
+called(type(L38, 'n1'), [type('ind', 'n1')])
+called(type(M38, 'n0'), [type('ind', 'n0')])
 ```
 
-It has three parts:
+It has two parts:
 
 - **The claim**: the answer the proof is about.
-- **The clauses**: the program's rules and facts, numbered in the order they
-  appear in the program. The fact is clause 1; level K's three rules are
-  clauses 3K − 1, 3K and 3K + 1, so the `n` rules are 2, 5, 8, … 2999. Only
-  the 1001 clauses some step needs are listed: the `i` and `j` side branches
-  never appear, because they do not help answer the question.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
+- **The certificate**: one **call table** per question asked along the way.
+  `called(Call, Answers)` says: *this call has exactly these answers*. The
+  variable in each call (`A`, `B`, …, `M38`) is the unknown still open when
+  the call was made. Only the 1001 calls the search makes have a table: the
+  `i` and `j` side branches never appear, because no question calls them.
 
-Read the steps as sentences:
+A proof can also hold `step(...)` records, for facts that forward rules
+derive. Every rule here is a backward rule, worked out only when asked, so
+this proof has none.
 
-1. *`ind` is in n1000* — by rule 2999, with `X` being `ind`, because `ind` is
-   in n999.
-2. *`ind` is in n999* — by rule 2996, because `ind` is in n998.
-3. *`ind` is in n998* — by rule 2993, because `ind` is in n997.
-4. … one step per level, each with `X` being `ind` …
-5. *`ind` is in n1* — by rule 2, because `ind` is in n0.
-6. *`ind` is in n0* — fact 1; it uses nothing.
+Read the tables as sentences:
 
-Every step leans only on the step below it, down to the one fact.
+1. *Who is in n1000? Exactly `ind`.* Rule 2999 asks this of n999.
+2. *Who is in n999? Exactly `ind`.* Rule 2996 asks this of n998.
+3. *Who is in n998? Exactly `ind`.* Rule 2993 asks this of n997.
+4. … one table per level, each with the answer `ind` …
+5. *Who is in n1? Exactly `ind`.* Rule 2 asks this of n0.
+6. *Who is in n0? Exactly `ind`*: fact 1.
+
+Every table rests only on the one below it, down to the one fact.
 
 ---
 
@@ -142,63 +133,22 @@ Every step leans only on the step below it, down to the one fact.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers the query by
+applying the program's rules one level at a time, taking the answer of every
+inner call from its table, and checks each of the 1001 tables it consults the
+same way, down to the fact. A wrong or missing table shows up as a
+disagreement, and a table the check does not use fails it too. This is the
+complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 type('ind', 'n1000')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 1001)
-condition('C2', 'well_founded', 'ok', 1001)
-condition('C3', 'justification', 'ok', 1001)
-condition('C4', 'coverage', 'ok', 1001)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 1002)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(1001)
-verified(1001)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (1001)**: each of the 1001 steps really is an instance of
-  the rule or fact it cites, with `X` being `ind`.
-- **C2 well-founded (1001)**: none of the 1001 steps depends on itself, even
-  indirectly: the chain never loops back.
-- **C3 justification (1001)**: every step says how it was justified, in a
-  form the checker understands.
-- **C4 coverage (1001)**: the 1 claim and the 1000 things the steps use (each
-  level's category, from n999 up to n0) are each backed by a step.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (1002)**: the 1 claim answers the query, and all 1001 steps
-  serve it. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 1001 steps, all 1001 verified against the
-program, none taken on trust. The verdict is **checked**: `ind` is in n1000.
-It confirms that answer, and that it is every answer of the original questions.
+The verdict is **checked**: `ind` is in n1000. It confirms that answer, and
+that it is every answer of the original question.
 
 ---
 
@@ -214,8 +164,8 @@ Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/
 
 Change the last line to `query(type(X, 'i500'))` and run with `--stats`
 again: the answer is `type('ind', 'i500')`, reached in 501 inferences, and
-its proof has 501 steps: one into the side branch i500, then 500 for the
-categories n499, n498, … n0 above it.
+its proof has 501 call tables: one for the side branch i500, then 500 for
+the categories n499, n498, … n0 above it.
 
 ---
 

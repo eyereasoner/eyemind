@@ -53,7 +53,7 @@ each order. Each pair shares one IRI, and the two orders use different IRIs.
 The check report writes the claims as terms:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 rdf(iri('https://example.org/delivery#order1'), iri('https://example.org/delivery#delivery'), iri('https://eyereasoner.github.io/.well-known/genid/3213a0e029482d0ca0c2d0d6677d39ca7acaacb155b42de122a869757d2ef2a6'))
 rdf(iri('https://eyereasoner.github.io/.well-known/genid/3213a0e029482d0ca0c2d0d6677d39ca7acaacb155b42de122a869757d2ef2a6'), iri('https://example.org/delivery#status'), iri('https://example.org/delivery#ready'))
 rdf(iri('https://example.org/delivery#order2'), iri('https://example.org/delivery#delivery'), iri('https://eyereasoner.github.io/.well-known/genid/5db2153099ad05a8d82608bdfa7738f98bd3a827616c8bec408caff1259c0c71'))
@@ -64,15 +64,14 @@ rdf(iri('https://eyereasoner.github.io/.well-known/genid/5db2153099ad05a8d82608b
 
 ## What the proof establishes
 
-C5 re-decides the term text, SHA-256 computation and IRI construction.
-Changing a generated IRI consistently throughout a forged proof still fails
-those computations. C10 establishes that the claims are every answer of the
-original questions. No C8 witness is needed: the name was computed in the
-premise.
+Replaying each firing computes the term text, SHA-256 hash and IRI
+construction again. Changing a generated IRI consistently throughout a forged
+proof still fails those computations. The name is computed in the premise,
+so the rule has no witness of its own.
 
-The verdict is **checked**, with zero obligations. The saved native N3
-proof carries the complete compiled certificate, whose clauses can be
-compared with `--program` output.
+The verdict is **checked**: the claims follow from the compiled program and
+are every answer of its original questions. The saved proof can be compared
+with `--program` output, whose clause numbers its steps cite.
 
 ---
 
@@ -80,8 +79,8 @@ compared with `--program` output.
 
 ```sh
 node bin/eyemind.js examples/witnesses-n3.n3
-node bin/eyemind.js --strict-proof -c examples/witnesses-n3.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/witnesses-n3.js examples/witnesses-n3.n3
+node bin/eyemind.js -c examples/witnesses-n3.n3
+node bin/eyemind.js --check-proof examples/proof/witnesses-n3.js examples/witnesses-n3.n3
 ```
 
 Add `:order3 :status :paid .` to a copy. It receives a third delivery IRI,

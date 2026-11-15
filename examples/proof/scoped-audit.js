@@ -2,35 +2,14 @@
 consented('approved', 'alice')
 needs_review('incomplete', 'bob')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(context('approved', graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]))))
-clause(2, fact(context('incomplete', graph([triple('bob', 'role', 'editor')]))))
-clause(3, fact(member(X, [X, ..._0])))
-clause(4, implied_by(member(X, [_0, ...Xs]), member(X, Xs)))
-clause(5, implied_by(includes(graph(Triples), Triple), member(Triple, Triples)))
-clause(6, implies([context(Context, Graph), includes(Graph, triple(Person, 'consent', 'yes'))], consented(Context, Person)))
-clause(7, implies([context(Context, Graph), includes(Graph, triple(Person, 'role', 'editor')), not(includes(Graph, triple(Person, 'consent', 'yes')))], needs_review(Context, Person)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(consented('approved', 'alice'), clause(6), {Context: 'approved', Graph: graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), Person: 'alice'}, [context('approved', graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])), includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple('alice', 'consent', 'yes'))])
-step(context('approved', graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])), clause(1), {}, [])
-step(includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple('alice', 'consent', 'yes')), clause(5), {Triples: [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')], Triple: triple('alice', 'consent', 'yes')}, [member(triple('alice', 'consent', 'yes'), [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])])
-step(member(triple('alice', 'consent', 'yes'), [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), clause(4), {X: triple('alice', 'consent', 'yes'), _0: triple('alice', 'role', 'editor'), Xs: [triple('alice', 'consent', 'yes')]}, [member(triple('alice', 'consent', 'yes'), [triple('alice', 'consent', 'yes')])])
-step(member(triple('alice', 'consent', 'yes'), [triple('alice', 'consent', 'yes')]), clause(3), {X: triple('alice', 'consent', 'yes'), _0: []}, [])
 step(needs_review('incomplete', 'bob'), clause(7), {Context: 'incomplete', Graph: graph([triple('bob', 'role', 'editor')]), Person: 'bob'}, [context('incomplete', graph([triple('bob', 'role', 'editor')])), includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'role', 'editor')), not(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes')))])
-step(context('incomplete', graph([triple('bob', 'role', 'editor')])), clause(2), {}, [])
-step(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'role', 'editor')), clause(5), {Triples: [triple('bob', 'role', 'editor')], Triple: triple('bob', 'role', 'editor')}, [member(triple('bob', 'role', 'editor'), [triple('bob', 'role', 'editor')])])
-step(member(triple('bob', 'role', 'editor'), [triple('bob', 'role', 'editor')]), clause(3), {X: triple('bob', 'role', 'editor'), _0: []}, [])
-step(not(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes'))), 'absent', {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(consented(A, B), [consented('approved', 'alice')])
 derived(needs_review(A, B), [needs_review('incomplete', 'bob')])
-searched(includes(graph([triple('bob', 'role', 'editor')]), triple('bob', 'consent', 'yes')), [])
-searched(member(triple('bob', 'consent', 'yes'), [triple('bob', 'role', 'editor')]), [])
-searched(member(triple('bob', 'consent', 'yes'), []), [])
 called(consented(A, B), [consented('approved', 'alice')])
 called(includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple(C, 'consent', 'yes')), [includes(graph([triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), triple('alice', 'consent', 'yes'))])
 called(member(triple(D, 'consent', 'yes'), [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')]), [member(triple('alice', 'consent', 'yes'), [triple('alice', 'role', 'editor'), triple('alice', 'consent', 'yes')])])

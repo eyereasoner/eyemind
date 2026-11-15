@@ -99,23 +99,13 @@ complete proof:
 type('Socrates', 'Mortal')
 t('test', 'is', 'true')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, implies('true', [implied_by(type('Socrates', 'Human'), 'true'), implied_by(subclass_of('Human', 'Mortal'), 'true')]))
-clause(2, implies([type(S, A), subclass_of(A, B)], type(S, B)))
-clause(3, implies(type('Socrates', 'Mortal'), t('test', 'is', 'true')))
-clause(4, implied_by(type('Socrates', 'Human'), ['true', 'true']))
-clause(5, implied_by(subclass_of('Human', 'Mortal'), ['true', 'true']))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(type('Socrates', 'Mortal'), clause(2), {S: 'Socrates', A: 'Human', B: 'Mortal'}, [type('Socrates', 'Human'), subclass_of('Human', 'Mortal')])
 step(type('Socrates', 'Human'), clause(4), {}, ['true', 'true'])
-step('true', 'builtin', {}, [])
-step(subclass_of('Human', 'Mortal'), clause(5), {}, ['true', 'true'])
 step(t('test', 'is', 'true'), clause(3), {}, [type('Socrates', 'Mortal')])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(type(A, B), [type('Socrates', 'Mortal')])
 derived(t(A, B, C), [t('test', 'is', 'true')])
 called(type(A, B), [type('Socrates', 'Mortal'), type('Socrates', 'Human')])
@@ -128,9 +118,14 @@ called(type('Socrates', 'Mortal'), [type('Socrates', 'Mortal')])
 It has three parts:
 
 - **The claims**: the two conclusions the proof is about.
-- **The clauses**: the five rules the proof relies on, numbered as above.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
+- **The steps**: the firings behind the derived facts. A step reads
+  `step(what, by which clause, with which values, using what)`, citing the
+  rules by the numbers above.
+- **The certificate**: the **listings** `derived(Pattern, Facts)` hold every
+  fact forward rules derived for `type` and `t`, and each **call table**
+  `called(Call, Answers)` every answer of a call made while answering the
+  questions. `called(subclass_of('Mortal', C), [])` says that Mortal is a
+  subclass of nothing, so the class rule has nothing more to add.
 
 Read the steps as sentences:
 
@@ -138,11 +133,12 @@ Read the steps as sentences:
    a subclass of Mortal.
 2. *Socrates is human*: by rule 4, using the generator's `true` premise and
    the inner rule's `true` premise.
-3. *`true` holds*: the primitive succeeds, and the checker decides it again.
-4. *Human is a subclass of Mortal*: by rule 5, using the same two premises.
-5. *The test is true*: by rule 3, because Socrates is mortal.
+3. *The test is true*: by rule 3, because Socrates is mortal.
 
-The `true` step is written once and serves every use of that primitive.
+`type` is a relation forward rules conclude, so the call that found
+*Socrates is human* rests on derived facts, and its goal gets a step.
+`subclass_of` is defined by rule 5 alone; its call table answers it, and the
+checker re-runs `true` itself.
 
 ---
 
@@ -150,63 +146,25 @@ The `true` step is written once and serves every use of that primitive.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers the two
+questions, the heads of rules 2 and 3, from their call tables, checks each
+table by applying the program one level, requires both listings to be closed
+under the forward rules, and replays the step of each listed fact against
+the source rules. A step or table the check does not use fails it. This is
+the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 type('Socrates', 'Mortal')
 t('test', 'is', 'true')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 4)
-condition('C2', 'well_founded', 'ok', 5)
-condition('C3', 'justification', 'ok', 5)
-condition('C4', 'coverage', 'ok', 9)
-condition('C5', 're_decision', 'ok', 1)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 7)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 4)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(5)
-verified(4)
-recomputed(1)
-composed(0)
-trusted(0)
-claims(2)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each condition reports what the checker verified:
-
-- **C1 resolution (4)**: each rule or fact step matches the compiled
-  source clause, including every generating premise.
-- **C2 well-foundedness (5)**: no step depends on itself.
-- **C3 justification (5)**: each step uses a recognized justification.
-- **C4 coverage (9)**: all 2 claims and 7 premise uses have evidence.
-- **C5 re-decision (1)**: the primitive `true` is decided again.
-- **C6 boundary consistency (0)**: no absence or collection is taken on trust.
-- **C7 relevance (7)**: the 2 claims answer the program and all 5 steps
-  serve those claims.
-- **C8 witness integrity (0)**: this example introduces no existential witness.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle; the search certificate serves the original questions (C10).
-
-The report records 5 steps, 4 verified against program clauses and one
-primitive recomputed. The verdict is **checked**: the recorded claims follow from the source
-program, and they are every answer of the original questions.
-
-C10 checks the original questions through the derived rule's instances:
-each instance comes from a solution of its generating premises, so every
-claim is an answer and the claims are every answer. The verdict is
-**checked**, also under `--strict-proof`.
-
+The verdict is **checked**: the recorded claims follow from the source
+program, and they are every answer of the original questions. Rules 4 and 5
+are read from the program, so each answers only through a solution of its
+generating premise.
 
 ---
 

@@ -310,7 +310,7 @@ conformance("a source rule an inspection cites is used", [
 ])
 
 conformance("unused clauses are displayed in normalized statement form", [
-  spec("10.2, README.unused-clauses"),
+  spec("3.5, README.unused-clauses"),
   args("--unused program.js"),
   file("program.js", [
     "fact(p(1))",

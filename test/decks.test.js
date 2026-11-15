@@ -17,7 +17,9 @@ const PROSE_GOALS = new Set(['gcd-bezout-identity', 'pell-equation', 'binomial-v
 const read = (path) => readFileSync(join(ROOT, 'examples', path), 'utf8');
 const deck = (name) => read(`deck/${name}.md`);
 const terms = (text) => readTerms(text).map(([term]) => term);
-const output = (name) => terms(read(`check/${name}.js`).split('\n// C1-C10:')[0]);
+// The answers of a check report: what comes before its final verdict.
+const before = (text) => text.slice(0, text.lastIndexOf('\nverdict('));
+const output = (name) => terms(before(read(`check/${name}.js`)));
 const answers = (name) => output(name).map((term) => write(term));
 
 function section(text, heading) {
@@ -377,18 +379,8 @@ for (const entry of MANIFEST) {
           for (const key of ['inferences', 'rounds', 'derived']) assert.ok(Number.isSafeInteger(stats[key]) && stats[key] >= 0);
         } else assert.equal(result.stderr, '');
         if (check) {
-          const report = terms(result.stdout);
-          const trusted = report.find((term) => term.name === 'trusted').args[0];
-          const strict = args.includes('--strict-proof');
-          assert.equal(result.code, strict && trusted > 0n ? 2 : proveAndCheck ? entry.halt_code ?? 0 : 0);
-          if (strict) {
-            const failures = report.filter((term) => term.name === 'failure');
-            assert.equal(BigInt(failures.length), trusted);
-            for (const failure of failures) {
-              assert.ok(['C5', 'C10'].includes(failure.args[0]));
-              assert.match(failure.args[2], /^(?:trusted boundary forbidden:|call fidelity remains unproved:|answer completeness remains unproved:)/);
-            }
-          } else assert.equal(result.stdout, read(`check/${name}.js`));
+          assert.equal(result.code, proveAndCheck ? entry.halt_code ?? 0 : 0);
+          assert.equal(result.stdout, read(`check/${name}.js`));
         } else {
           assert.equal(result.code, args.includes('--unused') ? 0 : entry.halt_code ?? 0, result.stderr);
           if (args.includes('--unused')) assert.equal(result.stdout, '');

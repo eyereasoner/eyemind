@@ -136,62 +136,15 @@ sdcoding(1, 1)
 sdcoding(2, 2)
 sdcoding(3, 3)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(29, fact(message(0)))
-clause(30, fact(message(1)))
-clause(31, fact(message(2)))
-clause(32, fact(message(3)))
-clause(33, fact(odd([_0])))
-clause(35, implies([message(N), message(M), findall(Path, path(N, M, Path), Paths), odd(Paths)], sdcoding(N, M)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(sdcoding(0, 0), clause(35), {N: 0, M: 0, Path: A, Paths: [['true', 'true', 'true']]}, [message(0), message(0), findall(A, path(0, 0, A), [['true', 'true', 'true']]), odd([['true', 'true', 'true']])])
-step(message(0), clause(29), {}, [])
-step(findall(A, path(0, 0, A), [['true', 'true', 'true']]), 'collected', {}, [])
-step(odd([['true', 'true', 'true']]), clause(33), {_0: ['true', 'true', 'true']}, [])
 step(sdcoding(1, 1), clause(35), {N: 1, M: 1, Path: A, Paths: [['false', 'false', 'true']]}, [message(1), message(1), findall(A, path(1, 1, A), [['false', 'false', 'true']]), odd([['false', 'false', 'true']])])
-step(message(1), clause(30), {}, [])
-step(findall(A, path(1, 1, A), [['false', 'false', 'true']]), 'collected', {}, [])
-step(odd([['false', 'false', 'true']]), clause(33), {_0: ['false', 'false', 'true']}, [])
 step(sdcoding(2, 2), clause(35), {N: 2, M: 2, Path: A, Paths: [['true', 'true', 'false']]}, [message(2), message(2), findall(A, path(2, 2, A), [['true', 'true', 'false']]), odd([['true', 'true', 'false']])])
-step(message(2), clause(31), {}, [])
-step(findall(A, path(2, 2, A), [['true', 'true', 'false']]), 'collected', {}, [])
-step(odd([['true', 'true', 'false']]), clause(33), {_0: ['true', 'true', 'false']}, [])
 step(sdcoding(3, 3), clause(35), {N: 3, M: 3, Path: A, Paths: [['false', 'false', 'false']]}, [message(3), message(3), findall(A, path(3, 3, A), [['false', 'false', 'false']]), odd([['false', 'false', 'false']])])
-step(message(3), clause(32), {}, [])
-step(findall(A, path(3, 3, A), [['false', 'false', 'false']]), 'collected', {}, [])
-step(odd([['false', 'false', 'false']]), clause(33), {_0: ['false', 'false', 'false']}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(sdcoding(B, C), [sdcoding(0, 0), sdcoding(1, 1), sdcoding(2, 2), sdcoding(3, 3)])
-searched(path(0, 0, D), [path(0, 0, ['true', 'true', 'true'])])
-searched(alice(0, ['false', E]), [alice(0, ['false', 'false'])])
-searched(bob(['false', 'false'], 0), [])
-searched(gk('false', 'false'), [])
-searched(alice(0, ['true', E]), [alice(0, ['true', 'true'])])
-searched(bob(['true', 'true'], 0), [bob(['true', 'true'], 0)])
-searched(gk('true', 'true'), [gk('true', 'true')])
-searched(path(1, 1, F), [path(1, 1, ['false', 'false', 'true'])])
-searched(alice(1, ['false', G]), [alice(1, ['false', 'true'])])
-searched(bob(['true', 'false'], 1), [bob(['true', 'false'], 1)])
-searched(alice(1, ['true', G]), [alice(1, ['true', 'false'])])
-searched(bob(['false', 'true'], 1), [])
-searched(path(2, 2, H), [path(2, 2, ['true', 'true', 'false'])])
-searched(alice(2, ['false', I]), [alice(2, ['false', 'false'])])
-searched(bob(['false', 'false'], 2), [])
-searched(alice(2, ['true', I]), [alice(2, ['true', 'false']), alice(2, ['true', 'true'])])
-searched(bob(['false', 'true'], 2), [bob(['false', 'true'], 2)])
-searched(bob(['true', 'true'], 2), [])
-searched(path(3, 3, J), [path(3, 3, ['false', 'false', 'false'])])
-searched(alice(3, ['false', K]), [alice(3, ['false', 'false']), alice(3, ['false', 'true'])])
-searched(kg('false', L), [kg('false', 'false'), kg('false', 'true')])
-searched(bob(['false', 'false'], 3), [bob(['false', 'false'], 3)])
-searched(bob(['true', 'false'], 3), [])
-searched(alice(3, ['true', K]), [alice(3, ['true', 'false'])])
-searched(kg('true', M), [kg('true', 'false')])
-searched(bob(['false', 'true'], 3), [])
 called(sdcoding(_0, _1), [sdcoding(0, 0), sdcoding(1, 1), sdcoding(2, 2), sdcoding(3, 3)])
 called(path(0, 0, C), [path(0, 0, ['true', 'true', 'true'])])
 called(alice(0, ['false', D]), [alice(0, ['false', 'false'])])
@@ -253,43 +206,34 @@ called(odd([['false', 'false', 'false']]), [odd([['false', 'false', 'false']])])
 It has three parts:
 
 - **The claims**: the four answers.
-- **The clauses**: the program lines the steps cite, by their number: the
-  four messages (29–32), the odd fact (33) and the forward rule (35). The
-  `_` of fact 33 is shown as `_0` so a step can name it.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
-- **The search certificate**: every search that the four collections made,
-  each written `searched(call, answers)` with every answer it gave, in the
-  order the calls were first met.
+- **The steps**: one per fact the forward rule derived. A step reads
+  `step(what, by which clause, with which values, using what)`, citing the
+  program line by its number: here always rule 35.
+- **The certificate**: a **listing**, `derived(...)`, of every `sdcoding`
+  fact rule 35 derived, and **call tables**, `called(call, answers)`, each
+  giving every answer of one call, in the order the calls were first met.
+  The question's `_` blanks are written `_0` and `_1`.
 
-Read the steps for message 0 as sentences:
+Read the step for message 0 as a sentence: *message 0 arrives as 0*, by rule
+35 with `N` = 0, `M` = 0 and `Paths` = a list of one way,
+`[['true', 'true', 'true']]`, because 0 is a message (twice, as sender's and
+as reader's message), the list of all ways from 0 to 0 is that list, and it
+is odd. (`Path: A` just says the collecting variable stays a blank.) The
+other three steps say the same for messages 1, 2 and 3, each with exactly
+one way: `['false', 'false', 'true']`, `['true', 'true', 'false']` and
+`['false', 'false', 'false']`.
 
-1. *Message 0 arrives as 0*: by rule 35 with `N` = 0, `M` = 0 and `Paths` =
-   a list of one way, `[['true', 'true', 'true']]`, because 0 is a message
-   (twice, as sender's and as reader's message), the list of all ways from 0
-   to 0 is that list, and it is odd. (`Path: A` just says the collecting
-   variable stays a blank.)
-2. *0 is a message*: fact 29.
-3. *All the ways from 0 to 0 are `[['true', 'true', 'true']]`*: justified as
-   `'collected'`. This step is not derived from the program within the
-   proof. eyemind ran the search and recorded the resulting list, and the
-   search certificate records the search itself, so the checker can confirm
-   that these are the ways, and that there are no others.
-4. *A list of one item is odd*: fact 33, with `_0` = the one way.
-
-Steps 5–8, 9–12 and 13–16 say the same for messages 1, 2 and 3, each with
-exactly one way: `['false', 'false', 'true']`, `['true', 'true', 'false']`
-and `['false', 'false', 'false']`.
-
-The certificate's first seven lines are the search behind step 3. The way
-from 0 to 0 needs a shared pair `[X, Y]`, Alice's operation for message 0
-on X, and Bob's reading 0 of the result. With X false, Alice gives
+The call tables hold the searches behind the collections. The first, for
+the question, lists all four answers. The next seven are the search for the
+ways from 0 to 0. A way needs a shared pair `[X, Y]`, Alice's operation for
+message 0 on X, and Bob's reading 0 of the result. With X false, Alice gives
 `['false', 'false']`, but Bob cannot read `['false', 'false']` as 0
 (`gk('false', 'false')` has no answers). With X true, Alice gives
-`['true', 'true']`, and Bob does read that as 0. So the search gives
-exactly one way, `path(0, 0, ['true', 'true', 'true'])`. The other lines do
-the same for messages 1, 2 and 3. No `derived` line is needed: no forward
-rule concludes anything these searches consult.
+`['true', 'true']`, and Bob does read that as 0. So the table
+`called(path(0, 0, C), ...)` has exactly one way. The tables for the other
+pairs show why no other message-reading pair comes out: `path(0, 1, C)` has
+two ways, and `odd` of a two-item list has no answers, while `path(0, 2,
+C)` has none.
 
 ---
 
@@ -297,84 +241,40 @@ rule concludes anything these searches consult.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the rules from
+the program and confirms the proof against them in one procedure:
+
+- **It checks every table.** Each call is expanded one level against the
+  program, with every inner call answered from its own table, or from the
+  facts when only facts define the relation. So no table vouches for itself,
+  and a list of ways with one missing or added would disagree with the
+  expansion and fail the check. That matters here more than usual: a single
+  missing or extra way would flip an odd count to even, and the answer would
+  change.
+- **It checks the listing is closed.** Applying rule 35 to all sixteen
+  message pairs, with each `findall` taken from its table, gives only the
+  four listed facts.
+- **It replays each listed fact.** Each step's firing of rule 35 is re-run
+  from scratch, the collection taken from the table of its call at the
+  values `N` and `M` had then, and it gives exactly the recorded step.
+- **It compares the claims with the answers.** The four claims are exactly
+  the question's answers, and every step, listing and table was used.
+
+"All the ways" means all within this program. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 sdcoding(0, 0)
 sdcoding(1, 1)
 sdcoding(2, 2)
 sdcoding(3, 3)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 12)
-condition('C2', 'well_founded', 'ok', 16)
-condition('C3', 'justification', 'ok', 16)
-condition('C4', 'coverage', 'ok', 20)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 20)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 4)
-condition('C10', 'call_fidelity', 'ok', 5)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(16)
-verified(12)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(4)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (12)**: the 12 steps that cite a program line really are
-  instances of it. Step 1 is rule 35 with `N` = 0 and `M` = 0.
-- **C2 well-founded (16)**: none of the 16 steps depends on itself, even
-  indirectly.
-- **C3 justification (16)**: every step says how it was justified, in a form
-  the checker understands. The 4 `'collected'` steps, as required, have no
-  values and use nothing.
-- **C4 coverage (20)**: the 4 answers and the 16 things the steps use are
-  each backed by a step.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled all four collections.
-- **C7 relevance (20)**: the 4 claims answer the question, and all 16 steps
-  serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (4)**: the 4 collected lists were settled by the
-  search certificate: each list holds exactly the ways the searches found,
-  in the same order.
-
-The collections are settled by their search certificates. The checker verifies each `searched` line
-without searching itself: it expands the call one level against the
-program, as a search would, and answers every inner call from that call's
-own line, or from the facts when only facts define the relation. So no line
-vouches for itself, and a list with a way missing or added would disagree
-with the expansion and fail the check. That matters here more than usual: a
-single missing or extra way would flip an odd count to even, and the answer
-would change. "All the ways" means all within this program. The
-statistics: 16 steps, 12 verified against the program and the 4
-collections settled by the certificate, no boundary steps trusted, for 4 claims.
-
 The verdict is **checked**: each answer follows from the program, and the
-answers are every answer of the original questions, so no message arrives as
-a *different* one.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+answers are every answer of the question, so no message arrives as a
+*different* one.
 
 ---
 
@@ -406,4 +306,4 @@ protocol, quantum teleportation, in the same theory with the same relations.
 
 Quantum interference can be expressed as ordinary rules plus one twist:
 count the ways, keep the odd ones. eyemind shows each answer's ways, and its
-search certificate lets the checker confirm that these are all the ways.
+call tables let the checker confirm that these are all the ways.

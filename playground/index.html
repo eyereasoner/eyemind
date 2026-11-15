@@ -198,7 +198,6 @@
             <label class="field" for="max-inferences"><span>--max-inferences N</span><input id="max-inferences" type="number" min="1" step="1" placeholder="1000000 (default)" /></label>
           </div>
           <div class="row flags">
-            <label class="toggle" title="With either checking mode, reject unresolved obligations, including call fidelity"><input id="strict-proof" type="checkbox" /><span><code>--strict-proof</code></span></label>
             <label class="toggle" title="With either checking mode, print the report as JSON"><input id="json" type="checkbox" /><span><code>--json</code></span></label>
             <label class="toggle" title="Print reasoning statistics"><input id="stats" type="checkbox" /><span><code>--stats</code></span></label>
           </div>
@@ -412,7 +411,6 @@
           args.push(proofName);
         }
         if (mode === '--check-proof' || mode === '--prove-and-check') {
-          if (byId('strict-proof').checked) args.push('--strict-proof');
           if (byId('json').checked) args.push('--json');
         }
         if (byId('stats').checked && mode !== '--check-proof') args.push('--stats');
@@ -433,14 +431,14 @@
         const mode = byId('mode').value;
         const checking = mode === '--check-proof' || mode === '--prove-and-check';
         byId('proof-panel').hidden = mode !== '--check-proof';
-        byId('strict-proof').disabled = byId('json').disabled = busy || !checking;
+        byId('json').disabled = busy || !checking;
         byId('command').textContent = 'eyemind ' + argumentsForRun().map(quoteArgument).join(' ');
         scheduleSave();
       }
 
       function state() {
         return { v: 1, source, mode: byId('mode').value, goal: byId('goal').value,
-          strictProof: byId('strict-proof').checked, json: byId('json').checked, stats: byId('stats').checked,
+          json: byId('json').checked, stats: byId('stats').checked,
           maxDepth: byId('max-depth').value, maxInferences: byId('max-inferences').value,
           proof: { name: proofName, text: proof.getValue() }, example: byId('examples').value };
       }
@@ -486,7 +484,7 @@
         }
         const mode = raw.mode ?? '';
         if (!modes.includes(mode)) throw new Error('Unknown shared output mode.');
-        for (const key of ['strictProof', 'json', 'stats']) {
+        for (const key of ['json', 'stats']) {
           if (raw[key] !== undefined && typeof raw[key] !== 'boolean') throw new Error(`Invalid shared option: ${key}.`);
         }
         for (const key of ['goal', 'maxDepth', 'maxInferences']) {
@@ -496,7 +494,7 @@
         const source = { name: raw.source.name, text: raw.source.text };
         if (companions?.length) source.companions = companions.map(({ name, text }) => ({ name, text }));
         return { v: 1, source, mode, goal: raw.goal ?? '',
-          strictProof: raw.strictProof ?? false, json: raw.json ?? false, stats: raw.stats ?? false,
+          json: raw.json ?? false, stats: raw.stats ?? false,
           maxDepth: raw.maxDepth ?? '', maxInferences: raw.maxInferences ?? '',
           proof: raw.proof ?? { name: 'proof.js', text: '' }, example: exampleNamed(raw.example)?.name ?? '' };
       }
@@ -506,7 +504,6 @@
         source = saved.source;
         byId('mode').value = saved.mode;
         byId('goal').value = saved.goal;
-        byId('strict-proof').checked = saved.strictProof;
         byId('json').checked = saved.json;
         byId('stats').checked = saved.stats;
         byId('max-depth').value = saved.maxDepth;
@@ -850,7 +847,7 @@
       }
       input.on('change', () => { if (!restoring) { source.text = input.getValue(); scheduleSave(); } });
       proof.on('change', scheduleSave);
-      for (const id of ['mode', 'goal', 'strict-proof', 'json', 'stats', 'max-depth', 'max-inferences']) {
+      for (const id of ['mode', 'goal', 'json', 'stats', 'max-depth', 'max-inferences']) {
         byId(id).addEventListener('input', updateOptions);
       }
       byId('mode').addEventListener('change', () => {

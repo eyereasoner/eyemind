@@ -117,13 +117,14 @@ The full street, as recorded in the proof:
 
 ## What the proof establishes
 
-The derivation records the completed street and checks every clue against it.
-The proof also supplies closed tables for the original question and the calls
-it depends on. These establish that the recorded claim is every answer of
-`zebra(_, _)`, rather than just a street satisfying the clues. The checker
-validates the tables one level at a time against the source program.
+`zebra` is a backward rule, so the proof has no steps: everything rests on
+call tables. The table for `zebra(_, _)` holds the one answer, and the
+tables for the calls its search makes record the partial streets tried and
+the completed one. The checker validates each table one level at a time
+against the source program, so together they establish that the claim is
+every answer of `zebra(_, _)`, not just a street satisfying the clues.
 
-The verdict is **checked**, with zero obligations.
+The verdict is **checked**.
 
 ---
 
@@ -131,7 +132,7 @@ The verdict is **checked**, with zero obligations.
 
 ```sh
 eyemind examples/zebra.js
-eyemind --strict-proof -c examples/zebra.js
+eyemind -c examples/zebra.js
 ```
 
 In the playground, remove the Norwegian's blue-neighbour clue. The program

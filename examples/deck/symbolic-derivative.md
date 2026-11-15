@@ -116,56 +116,14 @@ derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num
 derivative('nested_log', divide(divide(num(1), sym('x')), log(sym('x'))))
 d(divide(sym('y'), sub(sym('x'), num(1))), 'x', divide(sub(mul(num(0), sub(sym('x'), num(1))), mul(sym('y'), sub(num(1), num(0)))), pow(sub(sym('x'), num(1)), 2)))
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(expr('square', mul(sym('x'), sym('x')))))
-clause(2, fact(expr('linear_plus_const', add(sym('x'), num(3)))))
-clause(3, fact(expr('product', mul(add(sym('x'), num(1)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))))))
-clause(4, fact(expr('nested_log', log(log(sym('x'))))))
-clause(5, fact(d(num(_0), _1, num(0))))
-clause(6, fact(d(sym(X), X, num(1))))
-clause(7, implied_by(d(sym(Y), X, num(0)), not_identical(X, Y)))
-clause(8, implied_by(d(add(U, V), X, add(Du, Dv)), [d(U, X, Du), d(V, X, Dv)]))
-clause(9, implied_by(d(sub(U, V), X, sub(Du, Dv)), [d(U, X, Du), d(V, X, Dv)]))
-clause(10, implied_by(d(mul(U, V), X, add(mul(Du, V), mul(U, Dv))), [d(U, X, Du), d(V, X, Dv)]))
-clause(11, implied_by(d(divide(U, V), X, divide(sub(mul(Du, V), mul(U, Dv)), pow(V, 2))), [d(U, X, Du), d(V, X, Dv)]))
-clause(12, implied_by(d(pow(U, N), X, mul(mul(num(N), pow(U, N1)), Du)), [is(N1, sub(N, 1)), d(U, X, Du)]))
-clause(13, implied_by(d(log(U), X, divide(Du, U)), d(U, X, Du)))
-clause(14, implies([expr(Name, Formula), d(Formula, 'x', Derivative)], derivative(Name, Derivative)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1)))), clause(14), {Name: 'square', Formula: mul(sym('x'), sym('x')), Derivative: add(mul(num(1), sym('x')), mul(sym('x'), num(1)))}, [expr('square', mul(sym('x'), sym('x'))), d(mul(sym('x'), sym('x')), 'x', add(mul(num(1), sym('x')), mul(sym('x'), num(1))))])
-step(expr('square', mul(sym('x'), sym('x'))), clause(1), {}, [])
-step(d(mul(sym('x'), sym('x')), 'x', add(mul(num(1), sym('x')), mul(sym('x'), num(1)))), clause(10), {U: sym('x'), V: sym('x'), X: 'x', Du: num(1), Dv: num(1)}, [d(sym('x'), 'x', num(1)), d(sym('x'), 'x', num(1))])
-step(d(sym('x'), 'x', num(1)), clause(6), {X: 'x'}, [])
 step(derivative('linear_plus_const', add(num(1), num(0))), clause(14), {Name: 'linear_plus_const', Formula: add(sym('x'), num(3)), Derivative: add(num(1), num(0))}, [expr('linear_plus_const', add(sym('x'), num(3))), d(add(sym('x'), num(3)), 'x', add(num(1), num(0)))])
-step(expr('linear_plus_const', add(sym('x'), num(3))), clause(2), {}, [])
-step(d(add(sym('x'), num(3)), 'x', add(num(1), num(0))), clause(8), {U: sym('x'), V: num(3), X: 'x', Du: num(1), Dv: num(0)}, [d(sym('x'), 'x', num(1)), d(num(3), 'x', num(0))])
-step(d(num(3), 'x', num(0)), clause(5), {_0: 3, _1: 'x'}, [])
 step(derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))))))), clause(14), {Name: 'product', Formula: mul(add(sym('x'), num(1)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), Derivative: add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))))))}, [expr('product', mul(add(sym('x'), num(1)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3))))), d(mul(add(sym('x'), num(1)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), 'x', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0)))))))])
-step(expr('product', mul(add(sym('x'), num(1)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3))))), clause(3), {}, [])
-step(d(mul(add(sym('x'), num(1)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), 'x', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))))))), clause(10), {U: add(sym('x'), num(1)), V: mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3))), X: 'x', Du: add(num(1), num(0)), Dv: add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))))}, [d(add(sym('x'), num(1)), 'x', add(num(1), num(0))), d(mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3))), 'x', add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0)))))])
-step(d(add(sym('x'), num(1)), 'x', add(num(1), num(0))), clause(8), {U: sym('x'), V: num(1), X: 'x', Du: num(1), Dv: num(0)}, [d(sym('x'), 'x', num(1)), d(num(1), 'x', num(0))])
-step(d(num(1), 'x', num(0)), clause(5), {_0: 1, _1: 'x'}, [])
-step(d(mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3))), 'x', add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))))), clause(10), {U: add(pow(sym('x'), 2), num(2)), V: add(pow(sym('x'), 3), num(3)), X: 'x', Du: add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), Dv: add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))}, [d(add(pow(sym('x'), 2), num(2)), 'x', add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0))), d(add(pow(sym('x'), 3), num(3)), 'x', add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0)))])
-step(d(add(pow(sym('x'), 2), num(2)), 'x', add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0))), clause(8), {U: pow(sym('x'), 2), V: num(2), X: 'x', Du: mul(mul(num(2), pow(sym('x'), 1)), num(1)), Dv: num(0)}, [d(pow(sym('x'), 2), 'x', mul(mul(num(2), pow(sym('x'), 1)), num(1))), d(num(2), 'x', num(0))])
-step(d(pow(sym('x'), 2), 'x', mul(mul(num(2), pow(sym('x'), 1)), num(1))), clause(12), {U: sym('x'), N: 2, X: 'x', N1: 1, Du: num(1)}, [is(1, sub(2, 1)), d(sym('x'), 'x', num(1))])
-step(is(1, sub(2, 1)), 'builtin', {}, [])
-step(d(num(2), 'x', num(0)), clause(5), {_0: 2, _1: 'x'}, [])
-step(d(add(pow(sym('x'), 3), num(3)), 'x', add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))), clause(8), {U: pow(sym('x'), 3), V: num(3), X: 'x', Du: mul(mul(num(3), pow(sym('x'), 2)), num(1)), Dv: num(0)}, [d(pow(sym('x'), 3), 'x', mul(mul(num(3), pow(sym('x'), 2)), num(1))), d(num(3), 'x', num(0))])
-step(d(pow(sym('x'), 3), 'x', mul(mul(num(3), pow(sym('x'), 2)), num(1))), clause(12), {U: sym('x'), N: 3, X: 'x', N1: 2, Du: num(1)}, [is(2, sub(3, 1)), d(sym('x'), 'x', num(1))])
-step(is(2, sub(3, 1)), 'builtin', {}, [])
 step(derivative('nested_log', divide(divide(num(1), sym('x')), log(sym('x')))), clause(14), {Name: 'nested_log', Formula: log(log(sym('x'))), Derivative: divide(divide(num(1), sym('x')), log(sym('x')))}, [expr('nested_log', log(log(sym('x')))), d(log(log(sym('x'))), 'x', divide(divide(num(1), sym('x')), log(sym('x'))))])
-step(expr('nested_log', log(log(sym('x')))), clause(4), {}, [])
-step(d(log(log(sym('x'))), 'x', divide(divide(num(1), sym('x')), log(sym('x')))), clause(13), {U: log(sym('x')), X: 'x', Du: divide(num(1), sym('x'))}, [d(log(sym('x')), 'x', divide(num(1), sym('x')))])
-step(d(log(sym('x')), 'x', divide(num(1), sym('x'))), clause(13), {U: sym('x'), X: 'x', Du: num(1)}, [d(sym('x'), 'x', num(1))])
-step(d(divide(sym('y'), sub(sym('x'), num(1))), 'x', divide(sub(mul(num(0), sub(sym('x'), num(1))), mul(sym('y'), sub(num(1), num(0)))), pow(sub(sym('x'), num(1)), 2))), clause(11), {U: sym('y'), V: sub(sym('x'), num(1)), X: 'x', Du: num(0), Dv: sub(num(1), num(0))}, [d(sym('y'), 'x', num(0)), d(sub(sym('x'), num(1)), 'x', sub(num(1), num(0)))])
-step(d(sym('y'), 'x', num(0)), clause(7), {Y: 'y', X: 'x'}, [not_identical('x', 'y')])
-step(not_identical('x', 'y'), 'builtin', {}, [])
-step(d(sub(sym('x'), num(1)), 'x', sub(num(1), num(0))), clause(9), {U: sym('x'), V: num(1), X: 'x', Du: num(1), Dv: num(0)}, [d(sym('x'), 'x', num(1)), d(num(1), 'x', num(0))])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(derivative(A, B), [derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1)))), derivative('linear_plus_const', add(num(1), num(0))), derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))))))), derivative('nested_log', divide(divide(num(1), sym('x')), log(sym('x'))))])
 called(derivative(A, B), [derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1)))), derivative('linear_plus_const', add(num(1), num(0))), derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0))))))), derivative('nested_log', divide(divide(num(1), sym('x')), log(sym('x'))))])
 called(d(mul(sym('x'), sym('x')), 'x', C), [d(mul(sym('x'), sym('x')), 'x', add(mul(num(1), sym('x')), mul(sym('x'), num(1))))])
@@ -191,52 +149,35 @@ called(d(sub(sym('x'), num(1)), 'x', Q), [d(sub(sym('x'), num(1)), 'x', sub(num(
 It has three parts:
 
 - **The claims**: the five answers the proof is about.
-- **The clauses**: the program's four formulas (1 to 4), its calculus rules
-  (5 to 13) and the rule that names the results (14). The nameless `_` are
-  written `_0` and `_1`, so the steps can say what they matched.
-- **The steps**: 29 of them, one per thing established. A step reads
-  `step(what, by what, with which values, using what)`.
+- **The steps**: one per derived fact. Only rule 14, which names the
+  results, is a forward rule, so the four `derivative` facts are the only
+  derived facts. Clauses are numbered in program order: the four formulas
+  (1 to 4), the calculus (5 to 13) and rule 14. A step reads
+  `step(what, by which clause, with which values, using what)`.
+- **The certificate**: the *listing* `derived(derivative(A, B), ...)` of the
+  four facts rule 14 derived, and a *call table* `called(Call, Answers)`
+  for every call the two questions make into the backward calculus, each
+  with every answer that call has.
 
-A piece seen once, such as "the derivative of x is 1", gets one step and is
-reused wherever it is needed. Read the steps as sentences:
+Read the lines as sentences:
 
 1. *The derivative of `square` is 1·x + x·1* — by rule 14, because `square`
-   is x × x and the derivative of x × x is 1·x + x·1.
-2. *`square` is x × x* — fact 1.
-3. *The derivative of x × x is 1·x + x·1* — by the product rule, rule 10,
-   with U = V = x and Du = Dv = 1.
-4. *The derivative of x is 1* — fact 6, with `X` = x.
-5. *The derivative of `linear_plus_const` is 1 + 0* — by rule 14.
-6. *`linear_plus_const` is x + 3* — fact 2.
-7. *The derivative of x + 3 is 1 + 0* — by the sum rule, rule 8.
-8. *The derivative of the number 3 is 0* — fact 5, with `_0` = 3.
-9. *The derivative of `product` is the long expansion* — by rule 14.
-10. *`product` is (x + 1)(x² + 2)(x³ + 3)* — fact 3.
-11. *Its derivative is (x + 1)' times the rest, plus (x + 1) times the rest's
-    derivative* — by the product rule, rule 10.
-12. *The derivative of x + 1 is 1 + 0* — rule 8.
-13. *The derivative of the number 1 is 0* — fact 5.
-14. *The derivative of (x² + 2)(x³ + 3)* — by the product rule again.
-15. *The derivative of x² + 2 is 2·x¹·1 + 0* — rule 8.
-16. *The derivative of x² is 2·x¹·1* — by the power rule, rule 12, with
-    N = 2 and N1 = 1.
-17. *1 is 2 − 1* — `'builtin'`: a calculation, which anyone checking the
-    proof simply redoes.
-18. *The derivative of the number 2 is 0* — fact 5.
-19. *The derivative of x³ + 3 is 3·x²·1 + 0* — rule 8.
-20. *The derivative of x³ is 3·x²·1* — rule 12, with N = 3 and N1 = 2.
-21. *2 is 3 − 1* — `'builtin'`.
-22. *The derivative of `nested_log` is (1/x) / log(x)* — by rule 14.
-23. *`nested_log` is log(log(x))* — fact 4.
-24. *The derivative of log(log(x)) is (1/x) / log(x)* — by the logarithm
-    rule, rule 13, with U = log(x).
-25. *The derivative of log(x) is 1/x* — rule 13 again, with U = x.
-26. *The derivative of y / (x − 1)* — by the quotient rule, rule 11, with
-    U = y and V = x − 1.
-27. *The derivative of y with respect to x is 0* — rule 7, because x and y
-    are different names.
-28. *x and y are different* — `'builtin'`.
-29. *The derivative of x − 1 is 1 − 0* — by the difference rule, rule 9.
+   is x × x and the derivative of x × x is 1·x + x·1. The other three steps
+   say the same for `linear_plus_const`, `product` and `nested_log`.
+2. *The derivative of x × x has exactly one answer, 1·x + x·1* — the table
+   for `d(mul(sym('x'), sym('x')), 'x', C)`. The product rule (rule 10)
+   derives it from the table for `d(sym('x'), 'x', D)`: the derivative of x
+   is 1.
+3. The tables below it break each formula down the same way, one rule at a
+   time: the sum rule for x + 3 and x + 1, the product rule again for
+   (x² + 2)(x³ + 3), the power rule for x² and x³, the logarithm rule twice
+   for log(log(x)), and fact 5 for every number.
+4. The last three tables answer the second question, the quotient rule on
+   y / (x − 1): the derivative of y with respect to x is 0, because x and
+   y are different names, and the derivative of x − 1 is 1 − 0.
+
+A piece needed twice, such as "the derivative of x is 1", has one table,
+consulted wherever it is needed.
 
 ---
 
@@ -244,76 +185,40 @@ reused wherever it is needed. Read the steps as sentences:
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the questions from the tables.** It expands each call one
+  level against the calculus rules, answering inner calls from their own
+  tables, and requires the result to equal the table. Expanding
+  `d(pow(sym('x'), 2), 'x', J)` with the power rule, it computes 2 − 1 = 1
+  itself; for `d(sym('y'), 'x', P)` it decides itself that x and y are
+  different names. A table with a wrong derivative, or a missing or extra
+  answer, disagrees with its expansion.
+- **It checks the listing is closed.** Firing rule 14 on every formula gives
+  exactly the four listed `derivative` facts.
+- **It replays each listed fact.** It re-runs rule 14 from scratch against
+  each step: `expr(Name, Formula)` from the facts, the derivative from its
+  table.
+- **It compares the claims with the answers.** Every claim is an answer and
+  every answer is claimed; every step, listing and table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 derivative('square', add(mul(num(1), sym('x')), mul(sym('x'), num(1))))
 derivative('linear_plus_const', add(num(1), num(0)))
 derivative('product', add(mul(add(num(1), num(0)), mul(add(pow(sym('x'), 2), num(2)), add(pow(sym('x'), 3), num(3)))), mul(add(sym('x'), num(1)), add(mul(add(mul(mul(num(2), pow(sym('x'), 1)), num(1)), num(0)), add(pow(sym('x'), 3), num(3))), mul(add(pow(sym('x'), 2), num(2)), add(mul(mul(num(3), pow(sym('x'), 2)), num(1)), num(0)))))))
 derivative('nested_log', divide(divide(num(1), sym('x')), log(sym('x'))))
 d(divide(sym('y'), sub(sym('x'), num(1))), 'x', divide(sub(mul(num(0), sub(sym('x'), num(1))), mul(sym('y'), sub(num(1), num(0)))), pow(sub(sym('x'), num(1)), 2)))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 26)
-condition('C2', 'well_founded', 'ok', 29)
-condition('C3', 'justification', 'ok', 29)
-condition('C4', 'coverage', 'ok', 38)
-condition('C5', 're_decision', 'ok', 3)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 34)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 7)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(29)
-verified(26)
-recomputed(3)
-composed(0)
-trusted(0)
-claims(5)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-The report first repeats the five answers it confirmed. Each `condition`
-line then names a check, says `'ok'`, and counts what it looked at:
-
-- **C1 resolution (26)**: the 26 steps that cite a rule or fact really are
-  instances of it with the values shown: filling rule 10 with U = V = x and
-  Du = Dv = 1 gives exactly step 3.
-- **C2 well-founded (29)**: none of the 29 steps depends on itself, even
-  indirectly.
-- **C3 justification (29)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (38)**: the 5 claims and the 33 things the steps use are
-  each backed by a step.
-- **C5 re-decision (3)**: the 3 built-in steps were redone by the checker:
-  the exponents 2 − 1 = 1 and 3 − 1 = 2, and that x and y are different
-  names.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (34)**: the 5 claims answer the two queries, and all 29
-  steps serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 29 steps, 26 verified against the program, 3
-recomputed, no boundary steps taken on trust. The verdict is **checked**: the five
-derivatives follow from the program's rules of calculus, and they are
-every answer of the original questions. It does not judge whether
-the calculus rules themselves are written correctly.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+The verdict is **checked**: the five derivatives follow from the program's
+rules of calculus, and they are every answer of the original questions. It
+does not judge whether the calculus rules themselves are written correctly.
 
 ---
 

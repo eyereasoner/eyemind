@@ -107,37 +107,20 @@ classification('nixon', 'republican')
 classification('nixon', 'nonpacifist')
 classification('ada', 'pacifist')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(quaker('nixon')))
-clause(2, fact(republican('nixon')))
-clause(3, fact(quaker('ada')))
-clause(4, implies([quaker(Person), not(nonpacifist(Person))], pacifist(Person)))
-clause(5, implies(republican(Person), nonpacifist(Person)))
-clause(6, implies(quaker(Person), classification(Person, 'quaker')))
-clause(7, implies(republican(Person), classification(Person, 'republican')))
-clause(8, implies(pacifist(Person), classification(Person, 'pacifist')))
-clause(9, implies(nonpacifist(Person), classification(Person, 'nonpacifist')))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(classification('nixon', 'quaker'), clause(6), {Person: 'nixon'}, [quaker('nixon')])
-step(quaker('nixon'), clause(1), {}, [])
 step(classification('ada', 'quaker'), clause(6), {Person: 'ada'}, [quaker('ada')])
-step(quaker('ada'), clause(3), {}, [])
 step(classification('nixon', 'republican'), clause(7), {Person: 'nixon'}, [republican('nixon')])
-step(republican('nixon'), clause(2), {}, [])
 step(classification('nixon', 'nonpacifist'), clause(9), {Person: 'nixon'}, [nonpacifist('nixon')])
 step(nonpacifist('nixon'), clause(5), {Person: 'nixon'}, [republican('nixon')])
 step(classification('ada', 'pacifist'), clause(8), {Person: 'ada'}, [pacifist('ada')])
 step(pacifist('ada'), clause(4), {Person: 'ada'}, [quaker('ada'), not(nonpacifist('ada'))])
-step(not(nonpacifist('ada')), 'absent', {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-derived(nonpacifist(A), [nonpacifist('nixon')])
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(classification(A, B), [classification('nixon', 'quaker'), classification('ada', 'quaker'), classification('nixon', 'republican'), classification('nixon', 'nonpacifist'), classification('ada', 'pacifist')])
 derived(pacifist(A), [pacifist('ada')])
-searched(nonpacifist('ada'), [])
+derived(nonpacifist(A), [nonpacifist('nixon')])
 called(classification(A, B), [classification('nixon', 'quaker'), classification('ada', 'quaker'), classification('nixon', 'republican'), classification('nixon', 'nonpacifist'), classification('ada', 'pacifist')])
 called(pacifist(C), [pacifist('ada')])
 called(nonpacifist(D), [nonpacifist('nixon')])
@@ -145,54 +128,40 @@ called(nonpacifist('nixon'), [nonpacifist('nixon')])
 called(nonpacifist('ada'), [])
 ```
 
-It has four parts:
+It has three parts:
 
 - **The claims**: the five answers the proof is about.
-- **The clauses**: the program's facts and rules, numbered in program order.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`. The values say who
-  `Person` stood for; *using what* lists the things the step needs, each with
-  a step of its own.
-- **The search certificate**: what eyemind found when it looked for
-  something and came up empty, written down so the checker can verify it.
-
-Two kinds of justification occur:
-
-- `clause(N)`: the step is an instance of fact or rule N.
-- `'absent'`: the step says that something could **not** be found. Nothing
-  can be shown for a missing fact, so the step leans on the search
-  certificate instead.
+- **The steps**: one per derived fact. A step reads
+  `step(what, by which clause, with which values, using what)`, with the
+  clauses numbered in program order: facts 1–3, then rules 4–9. The values
+  say who `Person` stood for. The stated facts `quaker(...)` and
+  `republican(...)` need no steps: the program itself answers them.
+- **The certificate**: *listings*, `derived(...)`, of every fact the rules
+  derived for `classification`, `pacifist` and `nonpacifist`, and *call
+  tables*, `called(...)`, of every answer of each call the question makes.
 
 Read the steps as sentences:
 
 1. *Nixon is classified as a Quaker* — by rule 6, with `Person` = nixon,
-   because Nixon is a Quaker.
-2. *Nixon is a Quaker* — fact 1.
-3. *Ada is classified as a Quaker* — by rule 6, with `Person` = ada, because
-   Ada is a Quaker.
-4. *Ada is a Quaker* — fact 3.
-5. *Nixon is classified as a Republican* — by rule 7, because Nixon is a
-   Republican.
-6. *Nixon is a Republican* — fact 2.
-7. *Nixon is classified as a nonpacifist* — by rule 9, because Nixon is a
+   because Nixon is a Quaker (fact 1).
+2. *Ada is classified as a Quaker* — by rule 6, with `Person` = ada, because
+   Ada is a Quaker (fact 3).
+3. *Nixon is classified as a Republican* — by rule 7, because Nixon is a
+   Republican (fact 2).
+4. *Nixon is classified as a nonpacifist* — by rule 9, because Nixon is a
    nonpacifist.
-8. *Nixon is a nonpacifist* — by rule 5, because Nixon is a Republican
-   (step 6).
-9. *Ada is classified as a pacifist* — by rule 8, because Ada is a pacifist.
-10. *Ada is a pacifist* — by the default, rule 4, because Ada is a Quaker
-    (step 4) and nothing says she is a nonpacifist.
-11. *Nothing says Ada is a nonpacifist* — absent: eyemind looked, after the
-    nonpacifist rule had finished, and found nothing.
+5. *Nixon is a nonpacifist* — by rule 5, because Nixon is a Republican.
+6. *Ada is classified as a pacifist* — by rule 8, because Ada is a pacifist.
+7. *Ada is a pacifist* — by the default, rule 4, because Ada is a Quaker and
+   nothing says she is a nonpacifist.
 
 There is no step for "Nixon is a pacifist": the default could not fire for
-him, because step 8 makes him a nonpacifist.
+him, because step 5 makes him a nonpacifist.
 
-The search certificate backs step 11 with two lines:
-
-- `searched(nonpacifist('ada'), [])`: the search for *Ada is a
-  nonpacifist* returned no answers at all.
-- `derived(nonpacifist(A), [nonpacifist('nixon')])`: the only nonpacifist
-  fact the rules derived is Nixon's.
+The negation in step 7 has no step of its own. It is settled by the call
+table `called(nonpacifist('ada'), [])`: the call *Ada is a nonpacifist* has
+no answers at all. The listing `derived(nonpacifist(A), [nonpacifist('nixon')])`
+says the only nonpacifist the rules derived is Nixon.
 
 ---
 
@@ -200,90 +169,47 @@ The search certificate backs step 11 with two lines:
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the question.** It expands `classification(X, Y)` one level
+  against the program: the listed facts, then rules 6–9, whose calls are
+  answered from their tables. The answers match the table in number and
+  order. Each consulted table is checked the same way: expanding
+  `nonpacifist('ada')` matches it against the listed `nonpacifist('nixon')`,
+  which is not Ada, and no fact or backward rule adds more, so the table
+  rightly has no answers.
+- **It checks the listings are closed.** Rule 5 derives a nonpacifist for
+  each Republican; only Nixon is one, and his fact is listed. Rule 4 makes
+  each Quaker without a nonpacifist fact a pacifist: only Ada, listed. Rules
+  6–9 give exactly the five listed classifications.
+- **It replays each listed fact.** It re-runs each step's rule from no
+  bindings. For step 7, `quaker(Person)` is answered from the facts, and
+  `not(nonpacifist('ada'))` is decided from the table of that call as it
+  stood when the negation ran: no answers, so the negation holds.
+- **It compares the claims with the answers.** Every claim is an answer and
+  every answer is claimed, and every step, listing and table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 classification('nixon', 'quaker')
 classification('ada', 'quaker')
 classification('nixon', 'republican')
 classification('nixon', 'nonpacifist')
 classification('ada', 'pacifist')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 10)
-condition('C2', 'well_founded', 'ok', 11)
-condition('C3', 'justification', 'ok', 11)
-condition('C4', 'coverage', 'ok', 13)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 16)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 1)
-condition('C10', 'call_fidelity', 'ok', 6)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(11)
-verified(10)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(5)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (10)**: the 10 steps that cite a clause really are
-  instances of it. Step 10, for example, is rule 4 with `Person` = ada.
-- **C2 well-founded (11)**: none of the 11 steps depends on itself, even
-  indirectly.
-- **C3 justification (11)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (13)**: the 5 claims and the 8 things the steps use are each
-  backed by a step.
-- **C5 re-decision (0)**: there was no calculation or built-in test to redo.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled the only absence.
-- **C7 relevance (16)**: each of the 5 claims answers the question, and all
-  11 steps serve a claim.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (1)**: the 1 absence, *nothing says Ada is a
-  nonpacifist*, was settled by the search certificate, as explained below.
-
-The absence is not taken on trust: the checker settles it from the search
-certificate, without searching itself. It expands `nonpacifist('ada')` one
-level against the program, as a search would: a forward rule derives
-`nonpacifist` facts, so the call is matched against the listed ones, and
-`nonpacifist('nixon')` is not Ada; no fact or backward rule adds more. So the
-call has no answers, just as `searched(nonpacifist('ada'), [])` claims. It
-accepts the `derived` listing because `nonpacifist('nixon')` has a step of
-its own, and because the listing is closed: rule 5 derives a nonpacifist for
-each Republican, only Nixon is one, and his fact is listed. A wrong certificate would show up as a disagreement
-and fail the check. The absence is still relative to this program: with
-these facts and rules, nothing makes Ada a nonpacifist. A different rulebook
-could.
-
-The statistics: 11 steps, 10 verified against the program and the absence
-settled by the certificate, so no boundary steps are trusted.
-The verdict is **checked**: every answer follows from the program. As the
-last comment says, the verdict also establishes that these are every answer
-of the original questions: the program derives no other classification.
-
-C10 checks the original questions too. The search certificate lists every
-fact the rules derive for each relation the answers rest on, each with
-steps of its own, and no rule derives one the lists leave out. The
-negations are decided by those listed facts alone, and this program has
-only one such set of facts, so all five claims are what its questions
-return. The verdict is **checked**, with no obligations, and
-`--strict-proof` accepts it.
-
+The verdict is **checked**: every answer follows from the program, and these
+are every answer of its question: the program derives no other
+classification. The negation is decided by the listed facts, which are
+supported by replayed firings and closed under the rules; this program has
+only one such set of facts, so the absence holds for it. It is still
+relative to this program: with these facts and rules, nothing makes Ada a
+nonpacifist. A different rulebook could.
 
 ---
 
@@ -297,15 +223,15 @@ eyemind -c examples/nixon-diamond.js
 ```
 
 Delete the line `fact(republican('nixon'))` and run again: nothing blocks the
-default any more, and Nixon is classified as a pacifist, like Ada. C9 now
-counts two absences, one for each of them, both settled by the search
-certificate.
+default any more, and Nixon is classified as a pacifist, like Ada. The
+proof now settles two negations, one for each of them, each by an empty call
+table.
 
 Or remove the guard: replace the default with
 `implies(quaker(Person), pacifist(Person))`. Nixon is then classified as
 both a pacifist and a nonpacifist. eyemind does not object to the clash,
 because nothing in the program says the two cannot go together; with no
-absence left, the proof needs no search certificate at all.
+negation left, the proof needs no empty call table to settle one.
 
 ---
 

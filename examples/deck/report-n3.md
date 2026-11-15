@@ -51,7 +51,7 @@ Both the apples and pears cost 3.00. string:format constructs each line; log:out
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program and are every answer of its questions.
 rdf(literal('http://example.org/shop#apple', datatype('http://www.w3.org/2001/XMLSchema#string')), iri('http://www.w3.org/2000/10/swap/log#outputString'), literal('- http://example.org/shop#apple: 6 x 0.50 = 3.00\n', datatype('http://www.w3.org/2001/XMLSchema#string')))
 rdf(literal('http://example.org/shop#pear', datatype('http://www.w3.org/2001/XMLSchema#string')), iri('http://www.w3.org/2000/10/swap/log#outputString'), literal('- http://example.org/shop#pear: 4 x 0.75 = 3.00\n', datatype('http://www.w3.org/2001/XMLSchema#string')))
 ```
@@ -60,14 +60,18 @@ rdf(literal('http://example.org/shop#pear', datatype('http://www.w3.org/2001/XML
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. C10 certifies the original questions, so the claims are every answer, and strict checking accepts the proof.
-C1 checks each inference against the compiled source clauses, C5 re-decides
-primitive computations, C8 checks any fresh witness, and C10 checks the
-original questions against the proof's call tables. The checker follows the
-certificate without calling the reasoning engine.
+The saved report ends with `verdict('checked')`.
 
-The verdict certifies the displayed claims; it does not assert that an
-arbitrary proof lists every possible answer.
+The checker reads the clauses from the compiled program, not from the
+proof, and never calls the reasoning engine. It answers the original
+questions from the proof's call tables, checking each table by expanding its
+call one level against the program; it requires each `derived` listing to be
+closed under the forward rules; and it replays the recorded firing of each
+listed fact, computing primitives again. A step, table or listing the check
+does not use fails it.
+
+The verdict establishes that the displayed claims follow from the compiled
+program and are every answer of its original questions.
 
 ---
 

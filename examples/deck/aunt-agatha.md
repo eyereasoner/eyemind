@@ -153,12 +153,11 @@ than Agatha and whether Charles hates the butler.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each conclusion. The full proof
-has 52 steps and a 52-line search certificate, and is too long to show here: see the
+has 5 steps, 3 listings and 64 call tables, and is too long to show here: see the
 [proof file](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/aunt-agatha.js).
-Below are its claims, its clauses, and the complete chain of 20 steps behind
-the main claim, `entailed(killed('agatha', 'agatha'))`. The `// …` lines mark
-what is left out: the 32 steps that check the witness model, clue by clue,
-and all but two lines of the certificate.
+Below are its claims, the steps behind the main claim,
+`entailed(killed('agatha', 'agatha'))`, and the call tables that matter most.
+The `// …` lines mark what is left out.
 
 ```js
 // Conclusions: the facts the program derives, in the order derived.
@@ -168,124 +167,64 @@ models('butler', 0)
 models('charles', 0)
 entailed(killed('agatha', 'agatha'))
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, implied_by(model(Killer, world(Richer, Hates)), [unify(Richer, richer(RA, RB, RC)), unify(Hates, hates(AA, AB, AC, BA, BB, BC, CA, CB, CC)), resident(Killer), hates(Hates, Killer, 'agatha', 'yes'), richer(Richer, Killer, 'no'), if_then_not(AA, CA), if_then_not(AB, CB), if_then_not(AC, CC), unify(AA, 'yes'), unify(AC, 'yes'), unless(RA, BA), unless(RB, BB), unless(RC, BC), if_then(AA, BA), if_then(AB, BB), if_then(AC, BC), label([RA, RB, RC, AA, AB, AC, BA, BB, BC, CA, CB, CC]), some_no(AA, AB, AC), some_no(BA, BB, BC), some_no(CA, CB, CC)]))
-clause(2, fact(resident('agatha')))
-clause(3, fact(resident('butler')))
-clause(4, fact(resident('charles')))
-clause(5, fact(hates(hates(V, _0, _1, _2, _3, _4, _5, _6, _7), 'agatha', 'agatha', V)))
-clause(14, fact(richer(richer(V, _0, _1), 'agatha', V)))
-clause(17, fact(truth('yes')))
-clause(18, fact(truth('no')))
-clause(19, fact(label([])))
-clause(20, implied_by(label([V, ...Vs]), [truth(V), label(Vs)]))
-clause(21, fact(if_then('no', _0)))
-clause(22, fact(if_then('yes', 'yes')))
-clause(23, fact(if_then_not('no', _0)))
-clause(24, fact(if_then_not('yes', 'no')))
-clause(25, fact(unless('yes', _0)))
-clause(26, fact(unless('no', 'yes')))
-clause(27, fact(some_no('no', _0, _1)))
-clause(28, fact(some_no('yes', 'no', _0)))
-clause(30, fact(count([], 0)))
-clause(31, implied_by(count([_0, ...Xs], N), [count(Xs, M), is(N, add(M, 1))]))
-clause(32, implies([resident(Suspect), findall(W, model(Suspect, W), Ws), count(Ws, N)], models(Suspect, N)))
-clause(33, implies([models('agatha', N), gt(N, 0), models('butler', 0), models('charles', 0)], entailed(killed('agatha', 'agatha'))))
-clause(34, implies(once(model(Killer, W)), witness(Killer, W)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-// … 5 steps left out
-step(resident('agatha'), clause(2), {}, [])
-// … 27 steps left out
-step(models('agatha', 4), clause(32), {Suspect: 'agatha', W: A, Ws: [world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))], N: 4}, [resident('agatha'), findall(A, model('agatha', A), [world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))]), count([world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))], 4)])
-step(findall(A, model('agatha', A), [world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))]), 'collected', {}, [])
-step(count([world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))], 4), clause(31), {_0: world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), Xs: [world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))], N: 4, M: 3}, [count([world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))], 3), is(4, add(3, 1))])
-step(count([world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))], 3), clause(31), {_0: world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')), Xs: [world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))], N: 3, M: 2}, [count([world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))], 2), is(3, add(2, 1))])
-step(count([world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))], 2), clause(31), {_0: world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')), Xs: [world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))], N: 2, M: 1}, [count([world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))], 1), is(2, add(1, 1))])
-step(count([world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))], 1), clause(31), {_0: world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')), Xs: [], N: 1, M: 0}, [count([], 0), is(1, add(0, 1))])
-step(count([], 0), clause(30), {}, [])
-step(is(1, add(0, 1)), 'builtin', {}, [])
-step(is(2, add(1, 1)), 'builtin', {}, [])
-step(is(3, add(2, 1)), 'builtin', {}, [])
-step(is(4, add(3, 1)), 'builtin', {}, [])
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
+// … the step for models('agatha', 4)
 step(models('butler', 0), clause(32), {Suspect: 'butler', W: A, Ws: [], N: 0}, [resident('butler'), findall(A, model('butler', A), []), count([], 0)])
-step(resident('butler'), clause(3), {}, [])
-step(findall(A, model('butler', A), []), 'collected', {}, [])
 step(models('charles', 0), clause(32), {Suspect: 'charles', W: A, Ws: [], N: 0}, [resident('charles'), findall(A, model('charles', A), []), count([], 0)])
-step(resident('charles'), clause(4), {}, [])
-step(findall(A, model('charles', A), []), 'collected', {}, [])
 step(entailed(killed('agatha', 'agatha')), clause(33), {N: 4}, [models('agatha', 4), gt(4, 0), models('butler', 0), models('charles', 0)])
-step(gt(4, 0), 'builtin', {}, [])
+// … the step for the witness
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-// … 46 lines for the search behind Agatha's list: model('agatha', B) and its label calls
-searched(model('butler', J1), [])
-// … 4 label calls
-searched(model('charles', L1), [])
+// Certificate: the derived facts and every answer of each call the questions make.
+derived(models(B, C), [models('agatha', 4), models('butler', 0), models('charles', 0)])
+derived(entailed(B), [entailed(killed('agatha', 'agatha'))])
+derived(witness(B, C), [witness('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')))])
+called(models(A, B), [models('agatha', 4), models('butler', 0), models('charles', 0)])
+called(model('agatha', C), [model('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no'))), model('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no'))), model('agatha', world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no'))), model('agatha', world(richer('no', 'yes', 'no'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'no')))])
+// … 50 tables for the label and count calls behind Agatha's four models
+called(model('butler', C), [])
+// … 4 label tables
+called(model('charles', C), [])
+called(entailed(killed('agatha', 'agatha')), [entailed(killed('agatha', 'agatha'))])
+called(models('agatha', Q1), [models('agatha', 4)])
+called(models('butler', 0), [models('butler', 0)])
+called(models('charles', 0), [models('charles', 0)])
+// … 2 tables for the witness
 ```
 
-It has four parts:
+It has three parts:
 
 - **The claims**: the five conclusions the proof is about.
-- **The clauses**: the program lines the steps cite, by their number. A `_`
-  in the program, a blank nobody cares about, is shown as `_0`, `_1`, ... so
-  a step can name it.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
-- **The search certificate**: every search behind the three collections,
-  each written `searched(call, answers)` with every answer it gave. The
-  search for Agatha's models gives the four worlds; the label calls inside
-  it record how the open answers were filled in. The searches for models
-  with the butler or Charles as killer give none.
+- **The steps**: one for each fact a forward rule derived. A step reads
+  `step(what, by which clause, with which values, using what)`; clause 32 is
+  the `models` rule, 33 the `entailed` rule and 34 the `witness` rule, each
+  numbered by its position in the program.
+- **The certificate**: the **listings**, `derived(Pattern, Facts)`, give
+  every fact the forward rules derived for each relation; the **call
+  tables**, `called(Call, Answers)`, give every answer of each call made
+  while answering the questions. The table for `model('agatha', C)` holds
+  the four worlds; the label calls below it record how the open answers were
+  filled in. The tables for the butler and Charles hold no answers at all.
 
-Read the chain as sentences, in the order shown:
+Read the steps as sentences:
 
-1. *Agatha lives in the mansion*: fact 2.
-2. *Agatha is the killer in 4 models*: by rule 32 with `Suspect` = agatha,
-   `Ws` = the list of four models and `N` = 4, because she is a resident,
-   the list of all her models is those four, and that list counts 4.
-   (`W: A` says the collecting variable stays a blank.)
-3. *All the models with Agatha as killer are these four*: justified as
-   `'collected'`. eyemind ran the search and recorded the resulting list;
-   the search certificate records the search, so the checker can confirm
-   both that each item is a model and that there are no others.
-4. *The four-model list counts 4*: by rule 31, because its last three count
-   3 and 3 + 1 = 4.
-5. *The last three count 3*: rule 31, because the last two count 2 and
-   2 + 1 = 3.
-6. *The last two count 2*: rule 31, because the last one counts 1 and
-   1 + 1 = 2.
-7. *The last one counts 1*: rule 31, because the empty list counts 0 and
-   0 + 1 = 1.
-8. *The empty list counts 0*: fact 30.
-9. *1 is 0 + 1*: justified as `'builtin'`, a calculation the checker does
-   again itself.
-10. *2 is 1 + 1*: `'builtin'`.
-11. *3 is 2 + 1*: `'builtin'`.
-12. *4 is 3 + 1*: `'builtin'`.
-13. *The butler is the killer in 0 models*: by rule 32, because he is a
-    resident, the list of his models is empty, and it counts 0.
-14. *The butler lives in the mansion*: fact 3.
-15. *There are no models with the butler as killer*: `'collected'`, backed
-    by `searched(model('butler', J1), [])`.
-16. *Charles is the killer in 0 models*: by rule 32, the same way.
-17. *Charles lives in the mansion*: fact 4.
-18. *There are no models with Charles as killer*: `'collected'`, backed by
-    `searched(model('charles', L1), [])`.
-19. *Agatha's killing herself is entailed*: by rule 33 with `N` = 4, because
-    Agatha has 4 models, 4 is greater than 0, and the butler and Charles have
-    none.
-20. *4 is greater than 0*: `'builtin'`.
+1. *The butler is the killer in 0 models*: by rule 32 with `Suspect` =
+   butler, `Ws` = the empty list and `N` = 0, because he is a resident, the
+   list of all models with him as killer is empty, and it counts 0. (`W: A`
+   says the collecting variable stays a blank.) That the list is empty is
+   not taken on trust: the table `called(model('butler', C), [])` says the
+   search has no answers, and the checker confirms it.
+2. *Charles is the killer in 0 models*: by rule 32, the same way.
+3. *Agatha's killing herself is entailed*: by rule 33 with `N` = 4, because
+   Agatha has 4 models, 4 is greater than 0, and the butler and Charles have
+   none.
 
-The left-out steps prove the witness: by rule 34 it rests on
-`once(model(...))`, which is justified as `'control'`: `once` is part of the
-language, not a program line, and the checker rebuilds it from its one part,
-the model itself. The model step is rule 1 with all twelve answers filled
-in, and the following steps show each clue holding in it, from
-`resident('agatha')` through the `label` steps down to the two `some_no`
-facts.
+The step for Agatha's own count works the same way: rule 32 collects the
+four worlds from the table for `model('agatha', C)` and counts them. The
+witness step rests on `once(model(...))`, the first answer of the table for
+`model(T1, U1)`. The counting itself, `count` down to the empty list with
+three additions, needs no steps: those are backward rules and builtins,
+answered from their call tables and recomputed.
 
 ---
 
@@ -293,90 +232,38 @@ facts.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers each original
+question from the call tables, expanding each call one level against the
+program and taking the answer of every inner call from its own table, so a
+wrong table shows up as a disagreement. It requires each listing to be closed
+under the forward rules, and **replays** each listed fact's step: it re-runs
+the cited rule with the builtins computed and each `findall` and `once` taken
+from the tables at the bindings it had when it ran. A step, table or listing
+the check does not use fails it. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 witness('agatha', world(richer('no', 'yes', 'yes'), hates('yes', 'no', 'yes', 'yes', 'no', 'yes', 'no', 'yes', 'no')))
 models('agatha', 4)
 models('butler', 0)
 models('charles', 0)
 entailed(killed('agatha', 'agatha'))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 40)
-condition('C2', 'well_founded', 'ok', 52)
-condition('C3', 'justification', 'ok', 52)
-condition('C4', 'coverage', 'ok', 72)
-condition('C5', 're_decision', 'ok', 9)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 57)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 3)
-condition('C10', 'call_fidelity', 'ok', 8)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(52)
-verified(40)
-recomputed(8)
-composed(1)
-trusted(0)
-claims(5)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
+The report lists the five claims and ends with the verdict. The tables are
+what make the collections trustworthy: that Agatha's list holds all her
+models, and that the butler's and Charles's lists, both empty, are complete,
+is checked by expanding `model('butler', C)` against rule 1. For the butler,
+the clues leave no way to fill in the open answers, and the expansion agrees
+with the empty table. "All" means all within this program.
 
-- **C1 resolution (40)**: the 40 steps that cite a program line really are
-  instances of it. The model step, for example, is rule 1 with all twelve
-  answers filled in, and the clue steps below it are the matching table
-  facts.
-- **C2 well-founded (52)**: none of the 52 steps depends on itself, even
-  indirectly.
-- **C3 justification (52)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (72)**: the 5 claims and the 67 things the steps use are
-  each backed by a step.
-- **C5 re-decision (9)**: the 8 built-in steps (three `unify` checks, four
-  additions and 4 > 0) were decided again by the checker, and the 1 `once`
-  step was rebuilt from its part.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled all three collections.
-- **C7 relevance (57)**: the 5 claims are conclusions of the program, and all
-  52 steps serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify. (The `witness` conclusion is a model
-  shown as an example, which is something else.)
-- **C9 search closure (3)**: the 3 collected lists, Agatha's models and the
-  empty lists for the butler and Charles, were settled by the search
-  certificate, as explained below.
-
-The collections are settled by their search certificates. That Agatha's list holds all her models, and
-that the butler's and Charles's lists, both empty, are complete, is checked
-from the search certificate. The checker never searches: it expands each
-`searched` call one level against the program, as a search would, and
-answers every inner call from that call's own line, so no line vouches for
-itself. For the butler, the clues leave no way to fill in the open answers,
-and the expansion agrees with `searched(model('butler', J1), [])`. "All"
-means all within this program. The statistics: 52 steps, 40 verified, 8
-recomputed, 1 composed and the 3 collections settled by the certificate,
-no boundary steps trusted, for 5 claims.
-
-The verdict is **checked**: every step follows from the program. That is the
-heart of the argument: "no model has the butler as killer" is exactly what
-makes Agatha's guilt entailed, and the checker confirms it from the record
-of eyemind's exhaustive search. As the last comment says, the claims are
-also every answer of the original questions.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+The verdict is **checked**: every claim follows from the program, and the
+claims are every answer of the original questions. That is the heart of the
+argument: "no model has the butler as killer" is exactly what makes Agatha's
+guilt entailed, and the checker confirms it from the record of eyemind's
+exhaustive search.
 
 ---
 

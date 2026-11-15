@@ -75,7 +75,7 @@ Message 1 links stationA to the readings graph at 24 degrees. Message 2 links st
 The check report records these claims as terms:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program and are every answer of its questions.
 rdf(iri('urn:eyemind:message-log:message-provenance-n3.trig#message1'), iri('https://example.org/provenance#reportedBy'), iri('https://example.org/provenance#stationA'))
 rdf(iri('urn:eyemind:message-log:message-provenance-n3.trig#message1'), iri('https://example.org/provenance#graph'), iri('https://example.org/provenance#readings'))
 rdf(iri('urn:eyemind:message-log:message-provenance-n3.trig#message1'), iri('https://example.org/provenance#temperature'), 24)
@@ -101,11 +101,14 @@ and its [interoperability cases](https://w3c-cg.github.io/rsp/spec/messages-test
 
 ## What the proof establishes
 
-The report ends with `verdict('checked')`, with no obligations; strict
-checking accepts it.
-C1 checks the steps against the compiled source, C5 re-decides the primitive
-calls, and C10 checks support for the original questions. The checker follows
-the certificate without running the reasoning engine.
+The report ends with `verdict('checked')`. The checker reads the clauses from
+the compiled program and never runs the reasoning engine: it answers the
+original questions from the proof's call tables, checking each by expanding
+its call one level against the program, requires each `derived` listing to be
+closed, and replays the recorded firing of each listed fact, computing its
+primitives again. The verdict establishes
+that the claims follow from the compiled program and are every answer of its
+original questions.
 
 The saved proof is for whole-log replay. Streaming runs each message
 independently; use replay when generating or checking a proof.

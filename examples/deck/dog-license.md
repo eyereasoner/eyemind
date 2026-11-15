@@ -85,40 +85,13 @@ dog_count('alice', 5)
 dog_count('bob', 2)
 requires('alice', 'dog_license')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(8, fact(owner('alice')))
-clause(9, fact(owner('bob')))
-clause(10, fact(length([], 0)))
-clause(11, implied_by(length([_0, ...Xs], N), [length(Xs, Before), is(N, add(Before, 1))]))
-clause(12, implies([owner(Owner), findall(Dog, owns(Owner, Dog), Dogs), length(Dogs, N)], dog_count(Owner, N)))
-clause(13, implies([dog_count(Owner, N), gt(N, 4)], requires(Owner, 'dog_license')))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(dog_count('alice', 5), clause(12), {Owner: 'alice', Dog: A, Dogs: ['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], N: 5}, [owner('alice'), findall(A, owns('alice', A), ['dog1', 'dog2', 'dog3', 'dog4', 'dog5']), length(['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], 5)])
-step(owner('alice'), clause(8), {}, [])
-step(findall(A, owns('alice', A), ['dog1', 'dog2', 'dog3', 'dog4', 'dog5']), 'collected', {}, [])
-step(length(['dog1', 'dog2', 'dog3', 'dog4', 'dog5'], 5), clause(11), {_0: 'dog1', Xs: ['dog2', 'dog3', 'dog4', 'dog5'], N: 5, Before: 4}, [length(['dog2', 'dog3', 'dog4', 'dog5'], 4), is(5, add(4, 1))])
-step(length(['dog2', 'dog3', 'dog4', 'dog5'], 4), clause(11), {_0: 'dog2', Xs: ['dog3', 'dog4', 'dog5'], N: 4, Before: 3}, [length(['dog3', 'dog4', 'dog5'], 3), is(4, add(3, 1))])
-step(length(['dog3', 'dog4', 'dog5'], 3), clause(11), {_0: 'dog3', Xs: ['dog4', 'dog5'], N: 3, Before: 2}, [length(['dog4', 'dog5'], 2), is(3, add(2, 1))])
-step(length(['dog4', 'dog5'], 2), clause(11), {_0: 'dog4', Xs: ['dog5'], N: 2, Before: 1}, [length(['dog5'], 1), is(2, add(1, 1))])
-step(length(['dog5'], 1), clause(11), {_0: 'dog5', Xs: [], N: 1, Before: 0}, [length([], 0), is(1, add(0, 1))])
-step(length([], 0), clause(10), {}, [])
-step(is(1, add(0, 1)), 'builtin', {}, [])
-step(is(2, add(1, 1)), 'builtin', {}, [])
-step(is(3, add(2, 1)), 'builtin', {}, [])
-step(is(4, add(3, 1)), 'builtin', {}, [])
-step(is(5, add(4, 1)), 'builtin', {}, [])
 step(dog_count('bob', 2), clause(12), {Owner: 'bob', Dog: A, Dogs: ['dog6', 'dog7'], N: 2}, [owner('bob'), findall(A, owns('bob', A), ['dog6', 'dog7']), length(['dog6', 'dog7'], 2)])
-step(owner('bob'), clause(9), {}, [])
-step(findall(A, owns('bob', A), ['dog6', 'dog7']), 'collected', {}, [])
-step(length(['dog6', 'dog7'], 2), clause(11), {_0: 'dog6', Xs: ['dog7'], N: 2, Before: 1}, [length(['dog7'], 1), is(2, add(1, 1))])
-step(length(['dog7'], 1), clause(11), {_0: 'dog7', Xs: [], N: 1, Before: 0}, [length([], 0), is(1, add(0, 1))])
 step(requires('alice', 'dog_license'), clause(13), {Owner: 'alice', N: 5}, [dog_count('alice', 5), gt(5, 4)])
-step(gt(5, 4), 'builtin', {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(dog_count(B, C), [dog_count('alice', 5), dog_count('bob', 2)])
 derived(requires(B, C), [requires('alice', 'dog_license')])
 called(dog_count(A, B), [dog_count('alice', 5), dog_count('bob', 2)])
@@ -136,45 +109,33 @@ called(requires(J, 'dog_license'), [requires('alice', 'dog_license')])
 It has three parts:
 
 - **The claims**: the three conclusions the proof is about.
-- **The clauses**: the program lines the steps cite, numbered by their place
-  in the program (the seven `owns` facts are lines 1 to 7, which no step
-  cites: see below). The `_` of the program is shown as `_0`, so that it can
-  be given a value like any other variable.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`. The values in curly
-  braces say what each variable of the cited line stood for. The `A` in the
-  collection steps is not a value: it is the open placeholder, "any dog".
+- **The steps**: one per derived fact, recording the firing behind it. A
+  step reads `step(what, by which rule, with which values, using what)`.
+  Rules are cited by their place in the program: the seven `owns` facts are
+  lines 1 to 7, the owners 8 and 9, the `length` lines 10 and 11, and the two
+  forward rules 12 and 13. The values in curly braces say what each variable
+  of the rule stood for. The `A` in the collections is not a value: it is the
+  open placeholder, "any dog".
+- **The certificate**: the **listings** `derived(Pattern, Facts)` hold every
+  `dog_count` and `requires` fact the forward rules derived, and the **call
+  tables** `called(Call, Answers)` every answer of each call made while
+  answering the questions: the counts, the license question and each
+  `length` call, one dog shorter each time.
 
 Read the steps as sentences:
 
 - **Step 1.** *Alice has 5 dogs* — by rule 12, because Alice is an owner,
   her collected dogs are `dog1` to `dog5`, and that list has length 5.
-- **Step 2.** *Alice is an owner* — fact 8.
-- **Step 3.** *Alice's dogs are exactly `dog1` to `dog5`* — **collected**:
-  the list of every dog eyemind found for her. The checker confirms it is
-  complete (see below).
-- **Steps 4 to 8.** *The list of five dogs has length 5*, *of four has
-  length 4*, and so on down to *the list of one dog has length 1* — each by
-  rule 11, one dog shorter each time, and each using an addition of 1.
-- **Step 9.** *The empty list has length 0* — fact 10.
-- **Steps 10 to 14.** *0 + 1 = 1*, *1 + 1 = 2*, *2 + 1 = 3*, *3 + 1 = 4*,
-  *4 + 1 = 5* — **builtin**: calculations, which the checker redoes itself.
-- **Step 15.** *Bob has 2 dogs* — by rule 12, in the same way as Alice.
-- **Step 16.** *Bob is an owner* — fact 9.
-- **Step 17.** *Bob's dogs are exactly `dog6` and `dog7`* — collected, and
-  confirmed the same way.
-- **Steps 18 and 19.** *Bob's list has length 2*, and *its last dog alone has
-  length 1* — by rule 11. They reuse steps 9, 10 and 11 (the empty list,
-  0 + 1 and 1 + 1), which are not repeated.
-- **Step 20.** *Alice requires a dog license* — by rule 13, because she has
+- **Step 2.** *Bob has 2 dogs* — by rule 12, in the same way.
+- **Step 3.** *Alice requires a dog license* — by rule 13, because she has
   5 dogs and 5 is greater than 4.
-- **Step 21.** *5 > 4* — builtin.
 
-Why do no steps cite the `owns` facts? A `'collected'` step stands for the
-whole search behind a `findall`. Its list could be checked dog by dog, but
-the part that matters, "there are no other dogs", can only come from having
-searched everything. A proof cannot point at a missing dog, but here the
-checker does not need one: `owns` is defined only by facts, so the checker
+The owners, the collections, the lengths and the comparison have no steps of
+their own. Owners are stated facts. Each `length` call is answered by its
+table, and the additions of 1 in between are computed by the checker. The
+collection is the interesting part: "Alice's dogs are exactly `dog1` to
+`dog5`" includes "there are no other dogs", which no list of steps could
+show. Here none is needed: `owns` is defined only by facts, so the checker
 scans those facts itself and finds exactly the dogs in the list, in the same
 order.
 
@@ -184,77 +145,29 @@ order.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers each question
+from its call table and checks each table by applying the program one level,
+computing the additions itself. It requires each listing to be closed under
+the forward rules: every count and license the rules give must be listed.
+And it replays each listed fact's step from its rule, re-running the
+`findall` over the `owns` facts and the test 5 > 4. A step, table or listing
+the check does not use fails it. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 dog_count('alice', 5)
 dog_count('bob', 2)
 requires('alice', 'dog_license')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 13)
-condition('C2', 'well_founded', 'ok', 21)
-condition('C3', 'justification', 'ok', 21)
-condition('C4', 'coverage', 'ok', 25)
-condition('C5', 're_decision', 'ok', 6)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 24)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 2)
-condition('C10', 'call_fidelity', 'ok', 5)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(21)
-verified(13)
-recomputed(6)
-composed(0)
-trusted(0)
-claims(3)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (13)**: the 13 steps that cite a program line really are
-  instances of that line with the values shown.
-- **C2 well-founded (21)**: none of the 21 steps depends on itself, even
-  indirectly.
-- **C3 justification (21)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (25)**: the 3 claims and the 22 things the steps use are each
-  backed by a step.
-- **C5 re-decision (6)**: the checker redid the 5 additions and the test
-  5 > 4, and got the same results.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled both collections.
-- **C7 relevance (24)**: the 3 claims are conclusions of the program, and all
-  21 steps serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (2)**: both collected lists were settled by scanning
-  the `owns` facts, which give exactly these lists, so no dog of Alice or
-  Bob is missing.
-
-The statistics: 21 steps, 13 verified against the program, 6 recomputed and
-the 2 collections settled from the facts, no boundary steps trusted, 3 claims.
-
-Neither collection is taken on trust. Because only facts define `owns`, the
-proof needs no search certificate: the checker reads the facts and confirms
-that Alice's dogs are exactly `dog1` to `dog5`, and Bob's exactly `dog6` and
-`dog7`. "Complete" means complete with respect to this program: add a dog
-and the list changes. The verdict is **checked**: the conclusions follow
-from the program, and they are every answer of the original questions.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+Neither collection is taken on trust: the checker reads the facts and
+confirms that Alice's dogs are exactly `dog1` to `dog5`, and Bob's exactly
+`dog6` and `dog7`. "Complete" means complete with respect to this program:
+add a dog and the list changes. The verdict is **checked**: the conclusions
+follow from the program, and they are every answer of the original
+questions.
 
 ---
 
@@ -262,11 +175,11 @@ claims are every answer. The verdict is **checked**, also under
 
 ```sh
 eyemind examples/dog-license.js
-eyemind --strict-proof --check-proof examples/proof/dog-license.js examples/dog-license.js
+eyemind --check-proof examples/proof/dog-license.js examples/dog-license.js
 ```
 
-The second command accepts this proof: its collections are settled and C10
-certifies the original questions, so no obligation remains.
+The second command checks the saved proof and prints the report above,
+ending with `verdict('checked')`.
 
 Or open it in the [playground](https://eyereasoner.github.io/eyemind/playground/#example=dog-license).
 Add `fact(owns('bob', 'dog8'))`, `fact(owns('bob', 'dog9'))` and

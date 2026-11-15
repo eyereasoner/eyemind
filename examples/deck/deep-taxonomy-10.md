@@ -73,35 +73,7 @@ complete proof:
 // Answers: each instance of a query() that holds.
 type('ind', 'n10')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(type('ind', 'n0')))
-clause(2, implied_by(type(X, 'n1'), type(X, 'n0')))
-clause(5, implied_by(type(X, 'n2'), type(X, 'n1')))
-clause(8, implied_by(type(X, 'n3'), type(X, 'n2')))
-clause(11, implied_by(type(X, 'n4'), type(X, 'n3')))
-clause(14, implied_by(type(X, 'n5'), type(X, 'n4')))
-clause(17, implied_by(type(X, 'n6'), type(X, 'n5')))
-clause(20, implied_by(type(X, 'n7'), type(X, 'n6')))
-clause(23, implied_by(type(X, 'n8'), type(X, 'n7')))
-clause(26, implied_by(type(X, 'n9'), type(X, 'n8')))
-clause(29, implied_by(type(X, 'n10'), type(X, 'n9')))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(type('ind', 'n10'), clause(29), {X: 'ind'}, [type('ind', 'n9')])
-step(type('ind', 'n9'), clause(26), {X: 'ind'}, [type('ind', 'n8')])
-step(type('ind', 'n8'), clause(23), {X: 'ind'}, [type('ind', 'n7')])
-step(type('ind', 'n7'), clause(20), {X: 'ind'}, [type('ind', 'n6')])
-step(type('ind', 'n6'), clause(17), {X: 'ind'}, [type('ind', 'n5')])
-step(type('ind', 'n5'), clause(14), {X: 'ind'}, [type('ind', 'n4')])
-step(type('ind', 'n4'), clause(11), {X: 'ind'}, [type('ind', 'n3')])
-step(type('ind', 'n3'), clause(8), {X: 'ind'}, [type('ind', 'n2')])
-step(type('ind', 'n2'), clause(5), {X: 'ind'}, [type('ind', 'n1')])
-step(type('ind', 'n1'), clause(2), {X: 'ind'}, [type('ind', 'n0')])
-step(type('ind', 'n0'), clause(1), {}, [])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 called(type(A, 'n10'), [type('ind', 'n10')])
 called(type(B, 'n9'), [type('ind', 'n9')])
 called(type(C, 'n8'), [type('ind', 'n8')])
@@ -115,34 +87,27 @@ called(type(J, 'n1'), [type('ind', 'n1')])
 called(type(K, 'n0'), [type('ind', 'n0')])
 ```
 
-It has three parts:
+It has two parts:
 
 - **The claim**: the answer the proof is about, `type('ind', 'n10')`.
-- **The clauses**: the 11 program lines the proof relies on, with their
-  numbers in the program. Only the `n` rules appear (clauses 2, 5, 8, …,
-  29); the 20 side-branch rules are left out because no step uses them.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`. The values,
-  such as `{X: 'ind'}`, say what each variable of the cited clause stood for.
+- **The certificate**: one **call table** per question asked along the way.
+  `called(Call, Answers)` says: *this call has exactly these answers*. The
+  variable in each call (`A`, `B`, …) is the unknown still open when the
+  call was made.
 
-Read the steps as sentences:
+A proof can also hold `step(...)` records, for facts that forward rules
+derive. Every rule here is a backward rule, worked out only when asked, so
+this proof has none.
 
-1. *`ind` is an `n10`*: by clause 29, with `X` being `ind`, because `ind` is
-   an `n9`.
-2. *`ind` is an `n9`*: by clause 26, because `ind` is an `n8`.
-3. *`ind` is an `n8`*: by clause 23, because `ind` is an `n7`.
-4. *`ind` is an `n7`*: by clause 20, because `ind` is an `n6`.
-5. *`ind` is an `n6`*: by clause 17, because `ind` is an `n5`.
-6. *`ind` is an `n5`*: by clause 14, because `ind` is an `n4`.
-7. *`ind` is an `n4`*: by clause 11, because `ind` is an `n3`.
-8. *`ind` is an `n3`*: by clause 8, because `ind` is an `n2`.
-9. *`ind` is an `n2`*: by clause 5, because `ind` is an `n1`.
-10. *`ind` is an `n1`*: by clause 2, because `ind` is an `n0`.
-11. *`ind` is an `n0`*: fact 1; it uses nothing.
+Read the tables as sentences:
 
-Every step is justified by a clause of the program, and each leans only on
-the step below it, down to the one fact: a straight ladder of ten rule steps
-plus one fact.
+1. *Which X are `n10`? Exactly `ind`.* Clause 29 asks this of `n9`.
+2. *Which X are `n9`? Exactly `ind`.* Clause 26 asks this of `n8`.
+3. –10. The same, one level lower each time, by clauses 23, 20, …, 2.
+11. *Which X are `n0`? Exactly `ind`*: fact 1.
+
+Only the `n` rules lead to a table. The side branches `i` and `j` conclude
+other categories, so none of the questions ever calls them.
 
 ---
 
@@ -150,65 +115,25 @@ plus one fact.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers the query by
+applying the program's clauses one level at a time, taking the answer of
+every inner call from its table, and checks each table it consults the same
+way: `type(X, 'n1')` must give exactly what clause 2 gives from the answers
+of `type(X, 'n0')`, and so on up the ladder. A wrong or missing table shows
+up as a disagreement, and a table the check does not use fails it too. This
+is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 type('ind', 'n10')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 11)
-condition('C2', 'well_founded', 'ok', 11)
-condition('C3', 'justification', 'ok', 11)
-condition('C4', 'coverage', 'ok', 11)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 12)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(11)
-verified(11)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (11)**: each of the 11 steps really is an instance of the
-  clause it cites, with the values shown. Step 1 is clause 29 with `X` =
-  `ind`, and so on down the ladder.
-- **C2 well-founded (11)**: no step depends on itself, even indirectly; the
-  ladder has a bottom.
-- **C3 justification (11)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (11)**: the 1 claim and the 10 things the steps use are each
-  backed by a step: nothing is taken for granted.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (12)**: the 1 claim answers the query, and all 11 steps
-  serve it. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 11 steps, all 11 verified against the program,
-none recomputed, composed or taken on trust. The verdict is **checked**:
-`ind` is an `n10` follows from the program. As the last comment says, this
-confirms the claim, and that it is every answer of the original questions.
+The verdict is **checked**: `ind` is an `n10` follows from the program, and
+it is every answer of the original question. A wrong claim, or a left-out
+answer, would instead be listed as a `failure(...)` and end the report with
+`verdict(failed(N))`.
 
 ---
 
@@ -221,8 +146,8 @@ eyemind ships at five sizes:
 
 eyemind answers by working backward from the question, one step per level,
 so the benchmark tests how deep goal-directed search, and its proof, can go.
-Each size costs exactly one step per level, plus one for the fact. The
-hundred-thousand-level version verifies 100001 steps. Time, proof size and
+Each size costs exactly one call table per level, plus one for the fact. The
+hundred-thousand-level version checks 100001 tables. Time, proof size and
 checking all grow in proportion to the depth, so a longer chain costs
 more, but never disproportionately more.
 
@@ -242,8 +167,7 @@ eyemind --check-proof examples/proof/deep-taxonomy-10.js examples/deep-taxonomy-
 ladder. In the [playground](https://eyereasoner.github.io/eyemind/playground/#example=deep-taxonomy-10),
 change the last line to `query(type(X, 'j7'))` and the answer becomes
 `type('ind', 'j7')`: a side branch, reached by climbing six levels first. Its
-proof has 8 steps: the `j7` rule, the six `n` rules from `n6` down to `n1`,
-and the fact.
+proof has 8 call tables: for `j7`, and for `n6` down to `n0`.
 
 ---
 

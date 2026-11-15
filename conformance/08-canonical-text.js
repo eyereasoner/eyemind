@@ -82,44 +82,38 @@ conformance('floats are written in their shortest round-trip form', [
 ])
 
 conformance('a variable is written as its name', [
-  spec('9.2'),
-  args('--proof'),
-  stdin([
-    "const [Lower, Kw] = vars('lowercase struct')",
-    'fact(p(Some_Var1, Lower, Kw))',
+  spec('9.2, 12'),
+  args('--check-proof proof.js program.js'),
+  file('program.js', [
+    'fact(p(X, Y, Z))',
     'query(p(A, B, C))',
   ]),
+  file('proof.js', [
+    'p(VAR_Some__Var1, VAR_lowercase, Kw)',
+  ]),
   stdout([
-    '// Answers: each instance of a query() that holds.',
-    'p(A, B, C)',
+    '// Checked answers: these follow from the input program and are every answer of its questions.',
+    'p(Some_Var1, lowercase, Kw)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(Some_Var1, lowercase, struct)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(A, B, C), clause(1), {Some_Var1: A, lowercase: B, struct: C}, [])',
+    "verdict('checked')",
   ]),
 ])
 
 conformance('a variable name starting with VAR_ is encoded', [
-  spec('9.2'),
-  args('--proof'),
-  stdin([
-    "const Odd = vars('VAR_X')",
-    'fact(p(Odd))',
+  spec('9.2, 12'),
+  args('--check-proof proof.js program.js'),
+  file('program.js', [
+    'fact(p(X))',
     'query(p(A))',
   ]),
+  file('proof.js', [
+    'p(VAR_VAR__X)',
+  ]),
   stdout([
-    '// Answers: each instance of a query() that holds.',
-    'p(A)',
+    '// Checked answers: these follow from the input program and are every answer of its questions.',
+    'p(VAR_VAR__X)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(VAR_VAR__X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(A), clause(1), {VAR_X: A}, [])',
+    "verdict('checked')",
   ]),
 ])
 
@@ -164,18 +158,11 @@ conformance('each _ of a clause is a variable named _0, _1, ... skipping names t
     '// Conclusions: the facts the program derives, in the order derived.',
     "q(1, skolem(2, '_2', [1]), [1, ...skolem(2, '_3', [1])])",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, implies([p(X), unify(_0, _1)], q(X, _2, [X, ..._3])))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     "step(q(1, skolem(2, '_2', [1]), [1, ...skolem(2, '_3', [1])]), clause(2), {X: 1, _0: A, _1: A, _2: skolem(2, '_2', [1]), _3: skolem(2, '_3', [1])}, [p(1), unify(A, A)])",
-    'step(p(1), clause(1), {}, [])',
-    "step(unify(A, A), 'builtin', {}, [])",
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     "derived(q(B, C, D), [q(1, skolem(2, '_2', [1]), [1, ...skolem(2, '_3', [1])])])",
     "called(q(A, _1, [A, ..._2]), [q(1, skolem(2, '_2', [1]), [1, ...skolem(2, '_3', [1])])])",
   ]),
@@ -710,68 +697,56 @@ conformance('open lists nested in a list keep their own tails', [
 // in clause displays, which keep the program's names.
 
 conformance('a variable name with other characters is encoded with their hexadecimal code points', [
-  spec('9.2, 9.1, 10.2'),
-  args("--proof --goal 'p(X, Y)' program.js"),
+  spec('9.2, 9.1, 12'),
+  args('--check-proof proof.js program.js'),
   file('program.js', [
-    "facts_from('data.js')",
+    'fact(p(X, Y))',
+    'query(p(A, B))',
   ]),
-  file('data.js', [
+  file('proof.js', [
     'p(VAR_A_2d_B, VAR_a_20_b)',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'p(A, B)',
+    '// Checked answers: these follow from the input program and are every answer of its questions.',
+    'p(VAR_A_2d_B, VAR_a_20_b)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(VAR_A_2d_B, VAR_a_20_b)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(A, B), clause(1), …, [])',
+    "verdict('checked')",
   ]),
 ])
 
 conformance('a variable named by a reserved word is encoded', [
-  spec('9.2, 9.1, 10.2'),
-  args("--proof --goal 'p(X, Y)' program.js"),
+  spec('9.2, 9.1, 12'),
+  args('--check-proof proof.js program.js'),
   file('program.js', [
-    "facts_from('data.js')",
+    'fact(p(X, Y))',
+    'query(p(A, B))',
   ]),
-  file('data.js', [
+  file('proof.js', [
     'p(VAR_class, VAR_if)',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'p(A, B)',
+    '// Checked answers: these follow from the input program and are every answer of its questions.',
+    'p(VAR_class, VAR_if)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(VAR_class, VAR_if)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(A, B), clause(1), …, [])',
+    "verdict('checked')",
   ]),
 ])
 
 conformance('variable names with non-ASCII characters, a leading digit or an underscore are encoded', [
-  spec('9.2, 9.1, 10.2'),
-  args("--proof --goal 'p(W, X, Y, Z)' program.js"),
+  spec('9.2, 9.1, 12'),
+  args('--check-proof proof.js program.js'),
   file('program.js', [
-    "facts_from('data.js')",
+    'fact(p(W, X, Y, Z))',
+    'query(p(A, B, C, D))',
   ]),
-  file('data.js', [
+  file('proof.js', [
     'p(VAR_caf_e9_, VAR__1f600_, VAR_1x, VAR_a__b_2d_c)',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'p(A, B, C, D)',
+    '// Checked answers: these follow from the input program and are every answer of its questions.',
+    'p(VAR_caf_e9_, VAR__1f600_, VAR_1x, VAR_a__b_2d_c)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(VAR_caf_e9_, VAR__1f600_, VAR_1x, VAR_a__b_2d_c)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(A, B, C, D), clause(1), …, [])',
+    "verdict('checked')",
   ]),
 ])
 
@@ -936,48 +911,47 @@ conformance('variables of different query answers have different names', [
   ]),
 ])
 
-conformance('clause displays keep the program names while claims and steps are renamed', [
-  spec('9.4, 10.2, 10.3'),
-  args("--proof --goal 'p(X, Y)' program.js"),
+conformance('bindings keep the program names while their values are renamed', [
+  spec('9.4, 10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    'fact(p(B, A))',
+    'fact(r(1))',
+    'fact(p(X, Y))',
+    'implies([r(N), p(B, A)], q(N))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'p(A, B)',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'q(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(B, A)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(q(1), clause(3), {N: 1, B: A, A: B}, [r(1), p(A, B)])',
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(A, B), clause(1), {B: A, A: B}, [])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(q(C), [q(1)])',
+    'called(q(A), [q(1)])',
   ]),
 ])
 
 conformance('a variable first shown in a step is named after those of the conclusions', [
-  spec('9.4, 10.3'),
-  args("--proof --goal 'q(Y)' program.js"),
+  spec('9.4, 10.2'),
+  args('--proof program.js'),
   file('program.js', [
     'fact(p(X))',
-    'implied_by(q(X), [p(X), p(Z)])',
+    'fact(r(1))',
+    'implies([r(N), p(Z)], s(N))',
+    'query(p(W), s(N))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'q(A)',
+    '// Answers: each instance of a query() that holds.',
+    'and(p(A), s(1))',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(X)))',
-    'clause(2, implied_by(q(X), [p(X), p(Z)]))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(s(1), clause(3), {N: 1, Z: B}, [r(1), p(B)])',
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(q(A), clause(2), {X: A, Z: B}, [p(A), p(B)])',
-    'step(p(A), clause(1), {X: A}, [])',
-    'step(p(B), clause(1), {X: B}, [])',
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
-    'called(q(A), [q(B)])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(s(C), [s(1)])',
+    'called(s(A), [s(1)])',
   ]),
 ])

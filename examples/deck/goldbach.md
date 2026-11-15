@@ -108,14 +108,20 @@ factor. Testing cases illustrates the conjecture; it does not prove it.
 
 ## What the proof establishes
 
-The recorded steps justify each split and its primality tests. Search tables
-settle the negations and the original forward-rule calls, including every
-answer. The checker expands the supplied tables against the source clauses;
-it never calls the reasoning engine to supply missing evidence.
+The proof records one step per derived split: the firing of the rule that
+found it. Its certificate lists the 24 derived `goldbach` facts and holds
+11,432 call tables, one per call the search made, each with every answer:
+the primality tests and the negations that rule out smaller primes among
+them. The checker answers each question by expanding its call one level
+against the source clauses, with every inner call answered from its table,
+and checks each consulted table the same way; it replays each split's firing,
+recomputing the arithmetic. It never calls the reasoning engine to supply
+missing evidence.
 
 The explicit stopping conditions keep those tables finite for all 24 inputs.
-The verdict is **checked**, with zero obligations. This establishes every
-answer of this program, without proving Goldbach's conjecture for other numbers.
+The verdict is **checked**: the 24 splits follow from the program and are
+every answer of its questions. This does not prove Goldbach's conjecture for
+other numbers.
 
 ---
 
@@ -123,7 +129,7 @@ answer of this program, without proving Goldbach's conjecture for other numbers.
 
 ```sh
 eyemind examples/goldbach.js
-eyemind --strict-proof -c examples/goldbach.js
+eyemind -c examples/goldbach.js
 ```
 
 Open the playground to inspect the rules, proof and check report. Increasing

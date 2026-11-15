@@ -40,7 +40,7 @@ import { loadText, statementSources } from './lang.js';
 import { Program, Source } from './program.js';
 import { DEFAULT_GRAPH } from './rdf.js';
 import { readTerms } from './reader.js';
-import { Struct, Var, conjunction, identity, isGround } from './terms.js';
+import { Env, Struct, Var, conjunction, identity, isGround, properListItems } from './terms.js';
 import { write } from './writer.js';
 
 export class SrlError extends Error {}
@@ -154,7 +154,9 @@ export function compileRuleSet(ruleSet, { data = [], source = '<input>', context
   });
   if (needed.has('srl_now') || needed.has('srl_uuid')) {
     context = executionContext(context);
-    parts.push(`fact(srl_execution(${q(context.now)}, ${q(context.seed)}))`);
+    // A rule rather than a fact, so that a proof using the context holds its
+    // call table, from which a later check recompiles the same program.
+    parts.push(`implied_by(srl_execution(${q(context.now)}, ${q(context.seed)}), 'true')`);
   }
   parts.push('query(inf(S, P, O))');
   const library = libraryText(needed);
@@ -206,17 +208,17 @@ function executionContext(context) {
 
 export function srlContextFromProof(document) {
   try {
+    // The proof records the execution context as the answer of the call
+    // table of srl_execution/2 that the firings using it consult.
     const contexts = readTerms(document).map(([term]) => term)
-      .filter((t) => t instanceof Struct && t.name === 'clause' && t.args.length === 2)
-      .map((t) => t.args[1])
-      .filter((t) => t instanceof Struct && t.name === 'fact' && t.args.length === 1)
-      .map((t) => t.args[0])
+      .filter((t) => t instanceof Struct && t.name === 'called' && t.args.length === 2 &&
+        t.args[0] instanceof Struct && t.args[0].name === 'srl_execution' && t.args[0].args.length === 2)
+      .flatMap((t) => properListItems(t.args[1], new Env()) ?? [])
       .filter((t) => t instanceof Struct && t.name === 'srl_execution' && t.args.length === 2);
-    if (contexts.length !== 1) return null;
+    if (new Set(contexts.map((t) => identity(t))).size !== 1) return null;
     return executionContext({ now: contexts[0].args[0], seed: contexts[0].args[1] });
   } catch {
-    // The ordinary checker reports malformed certificates, including native
-    // displays that disagree with their complete encoded records.
+    // The ordinary checker reports malformed proofs.
     return null;
   }
 }

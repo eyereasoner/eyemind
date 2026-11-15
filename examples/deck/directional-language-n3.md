@@ -52,7 +52,7 @@ The rule passes the entire literal through. Both the language and the rtl or ltr
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 rdf(iri('https://example.org/welcome'), iri('https://example.org/displayLabel'), literal('مرحبا', lang('ar', 'rtl')))
 rdf(iri('https://example.org/welcome'), iri('https://example.org/displayLabel'), literal('Welcome', lang('en', 'ltr')))
 ```
@@ -61,14 +61,20 @@ rdf(iri('https://example.org/welcome'), iri('https://example.org/displayLabel'),
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
-C1 checks each inference against the compiled source clauses, C5 re-decides
-primitive computations, C8 checks any fresh witness, and C10 checks the
-original questions against the proof's call tables. The checker follows the
-certificate without calling the reasoning engine.
+The saved report ends with `verdict('checked')`. The proof cites the program
+compiled from the data and the N3 rule: clauses 1 and 2 are the two label
+triples and clause 3 the display rule. Each display label has a step citing
+clause 3, with the literal bound whole, language and direction included,
+and each label it uses has a step citing its data triple, since the call on
+`rdf` rests on derived triples. The listing `derived(rdf(A, B, C), [...])`
+holds both derived triples, and the call tables every answer of the calls
+on `:displayLabel` and `:label`.
 
-The verdict certifies the displayed claims; it does not assert that an
-arbitrary proof lists every possible answer.
+The checker follows this certificate without calling the reasoning engine.
+It checks each call table by applying the compiled program one level,
+requires the listing to be closed under the rule, and replays each listed
+triple's firing from the source. The verdict establishes that both display
+labels follow from the program and are every answer of its question.
 
 ---
 

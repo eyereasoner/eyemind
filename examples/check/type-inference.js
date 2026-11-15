@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 type_answer('id', fun('t0', 't0'))
 type_answer('const', fun('t0', fun('t1', 't0')))
 type_answer('apply_id', 'int')
@@ -8,26 +8,4 @@ type_answer('first_of_pair', 'bool')
 type_reason('compose', 'application unifies f with t1 -> t2 and g with t0 -> t1')
 type_reason('apply_id', 'the identity function\'s parameter type is unified with int')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 49)
-condition('C2', 'well_founded', 'ok', 53)
-condition('C3', 'justification', 'ok', 53)
-condition('C4', 'coverage', 'ok', 57)
-condition('C5', 're_decision', 'ok', 4)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 61)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 10)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(53)
-verified(49)
-recomputed(4)
-composed(0)
-trusted(0)
-claims(8)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

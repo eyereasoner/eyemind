@@ -57,7 +57,7 @@ The first rule turns each parent link into ancestry. The recursive rule extends 
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 inf(iri('http://example.org/family#ann'), iri('http://example.org/family#ancestorOf'), iri('http://example.org/family#bob'))
 inf(iri('http://example.org/family#bob'), iri('http://example.org/family#ancestorOf'), iri('http://example.org/family#cid'))
 inf(iri('http://example.org/family#cid'), iri('http://example.org/family#ancestorOf'), iri('http://example.org/family#dee'))
@@ -73,14 +73,30 @@ inf(iri('http://example.org/family#ann'), iri('http://example.org/family#ancesto
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
-C1 checks each inference against the compiled source clauses, C5 re-decides
-primitive computations, C8 checks any fresh witness, and C10 checks the
-original questions against the proof's call tables. The checker follows the
-certificate without calling the reasoning engine.
+The proof holds the nine claims, 15 steps and a certificate. The rules are
+forward rules, so each derived fact has a step citing the clause of the
+compiled program that fired. A DATA triple is clause 1, 3 or 5 and rests on
+nothing; Ann's ancestry of Cid comes from the recursive rule, clause 8:
 
-The verdict certifies the displayed claims; it does not assert that an
-arbitrary proof lists every possible answer.
+```js
+step(rdf(iri('http://example.org/family#ann'), iri('http://example.org/family#parentOf'), iri('http://example.org/family#bob')), clause(1), {}, [])
+step(inf(iri('http://example.org/family#ann'), iri('http://example.org/family#ancestorOf'), iri('http://example.org/family#cid')), clause(8), {X: iri('http://example.org/family#ann'), Y: iri('http://example.org/family#bob'), Z: iri('http://example.org/family#cid')}, [rdf(iri('http://example.org/family#ann'), iri('http://example.org/family#parentOf'), iri('http://example.org/family#bob')), rdf(iri('http://example.org/family#bob'), iri('http://example.org/family#ancestorOf'), iri('http://example.org/family#cid'))])
+```
+
+The certificate has two **listings**, `derived(inf(A, B, C), [...])` and
+`derived(rdf(A, B, C), [...])`, every fact the rules derived, and five
+**call tables**, such as the one showing that Dee is an ancestor of no one:
+
+```js
+called(rdf(iri('http://example.org/family#dee'), iri('http://example.org/family#ancestorOf'), F), [])
+```
+
+The checker requires each listing to be closed under the rules, replays the
+step of every listed fact from its source rule, checks each table by
+expanding its call one level, and requires the claims to be exactly the
+answers. It never calls the reasoner. The saved report ends with
+`verdict('checked')`: the nine triples follow from the rules, and they are
+every answer of the program's questions.
 
 ---
 

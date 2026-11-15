@@ -64,10 +64,10 @@ rdf(iri('http://example.org/liz'), iri('http://example.org/beloved'), bnode('n3'
 
 ## What the proof establishes
 
-The report ends with `verdict('checked')`. C1 checks both forward steps
-and the backward rule instances they use. C10 checks the original questions
-through their call tables, so the claims are every answer, with no
-obligations left.
+The report ends with `verdict('checked')`. The checker replays both forward
+firings, following the steps of the backward rule instances they use, and
+answers the original questions through their call tables, so the claims
+follow from the compiled program and are every answer of its questions.
 
 ---
 

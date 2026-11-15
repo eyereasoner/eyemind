@@ -6,8 +6,8 @@ Version:    eyemind 0.5.32
 ```
 
 This document specifies the syntax and meaning of eyemind programs and data
-documents, their observable evaluation, and the conditions for checking a
-proof.
+documents, their observable evaluation, their proofs, and how a proof is
+checked.
 
 ## Table of Contents
 
@@ -62,25 +62,15 @@ proof.
   - [9.4 Variable scope in output](#94-variable-scope-in-output)
 - [10. Proof Documents](#10-proof-documents)
   - [10.1 Structure](#101-structure)
-  - [10.2 Clause displays](#102-clause-displays)
-  - [10.3 Steps](#103-steps)
-  - [10.4 Search certificates](#104-search-certificates)
-  - [10.5 Call-fidelity certificates](#105-call-fidelity-certificates)
+  - [10.2 Steps](#102-steps)
+  - [10.3 Certificate](#103-certificate)
 - [11. Proof Checking](#11-proof-checking)
-  - [11.1 Scope of a valid proof](#111-scope-of-a-valid-proof)
-  - [11.2 Operational query fidelity](#112-operational-query-fidelity)
-  - [11.3 Reading the document](#113-reading-the-document)
-  - [11.4 C1 Resolution](#114-c1-resolution)
-  - [11.5 C2 Well-foundedness](#115-c2-well-foundedness)
-  - [11.6 C3 Justification](#116-c3-justification)
-  - [11.7 C4 Coverage](#117-c4-coverage)
-  - [11.8 C5 Re-decision](#118-c5-re-decision)
-  - [11.9 C6 Boundary consistency](#119-c6-boundary-consistency)
-  - [11.10 C7 Relevance](#1110-c7-relevance)
-  - [11.11 C8 Witness integrity](#1111-c8-witness-integrity)
-  - [11.12 C9 Search closure](#1112-c9-search-closure)
-  - [11.13 C10 Call fidelity](#1113-c10-call-fidelity)
-  - [11.14 Counts and validity](#1114-counts-and-validity)
+  - [11.1 What a checked proof establishes](#111-what-a-checked-proof-establishes)
+  - [11.2 Original questions](#112-original-questions)
+  - [11.3 Answering calls](#113-answering-calls)
+  - [11.4 Replaying derived facts](#114-replaying-derived-facts)
+  - [11.5 Deciding the claims](#115-deciding-the-claims)
+  - [11.6 Nothing unused](#116-nothing-unused)
 - [12. Check Reports](#12-check-reports)
 - [13. Conformance](#13-conformance)
 - [14. Security](#14-security)
@@ -104,7 +94,7 @@ structures or execution architecture. Observable behavior is specified
 independently of those choices.
 
 Command-line options, exit codes, library APIs, browser interfaces,
-additional input formats and proof encodings, installation and release
+additional input formats, installation and release
 procedures are outside this specification. [Section 1.3](#13-terminology)
 defines the terms used throughout.
 
@@ -198,41 +188,25 @@ Proofs:
 
 - **Proof document**: a document recording how a run's conclusions follow
   from the program ([Section 10](#10-proof-documents)). Its **claims** are its statements other
-  than `clause/2`, `step/4`, `searched/2`, `derived/2` and `called/2`
-  ([Section 10.1](#101-structure)).
-- **Clause display**: `clause(N, Display)`, clause `N` in normalized form
-  ([Section 10.2](#102-clause-displays)).
-- **Step**: `step(Goal, By, Bindings, Uses)`, the justification of one goal
-  by a clause, a primitive, a control, an absence or a collection; its
-  **uses** are the goals that justify it ([Section 10.3](#103-steps)).
-- **Boundary**: a negation or collection that a proof justifies by an
-  `'absent'` or `'collected'` step ([Section 11.9](#119-c6-boundary-consistency)).
-- **Search certificate**: the tables and listings that record the searches
-  behind a proof's boundaries ([Section 10.4](#104-search-certificates)).
-- **Table**: `searched(Call, Answers)`, every answer of one call, in order
-  ([Section 10.4](#104-search-certificates)).
+  than `step/4`, `derived/2` and `called/2` ([Section 10.1](#101-structure)).
+- **Step**: `step(Goal, By, Bindings, Uses)`, the firing of a rule, or the
+  solution of a control, that justifies one goal; its **uses** are the goals
+  that justify it ([Section 10.2](#102-steps)).
+- **Call table**: `called(Call, Answers)`, every answer of one call, in order
+  ([Section 10.3](#103-certificate)).
 - **Listing**: `derived(Pattern, Facts)`, every fact a run derived for one
-  relation, in order ([Section 10.4](#104-search-certificates)).
-- **Call table**: `called(Call, Answers)`, a table of a call made while
-  answering an original question, kept apart from the tables of the search
-  certificate and checked by C10 ([Section 10.5](#105-call-fidelity-certificates)).
+  relation, in order ([Section 10.3](#103-certificate)).
+- **Certificate**: the call tables and listings of a proof ([Section 10.3](#103-certificate)).
 - **Original question**: each external goal; without external goals, the
-  body of each query; without queries, each ordinary forward head. C10
-  checks that the claims are exactly their answers ([Section 11.13](#1113-c10-call-fidelity)).
-- **Answer completeness**: of a proof, that its claims include every answer
-  of every original question; an unconditional `checked` verdict
-  establishes it ([Section 11.1](#111-scope-of-a-valid-proof)).
-- **Settled**: established by its search certificate, as a boundary is when
-  C9 accepts that certificate ([Section 11.12](#1112-c9-search-closure)).
-- **Trusted boundary**: a boundary that is not settled. A valid proof
-  assumes it, and its check report lists it as an **obligation**, as it
-  lists each claim whose call fidelity and each question whose answer
-  completeness remains unproved (Sections [11.9](#119-c6-boundary-consistency),
-  [11.13](#1113-c10-call-fidelity) and [12](#12-check-reports)).
-- **Check report**: what a checker writes: the claims, the outcome of each
-  of C1–C10, failures, obligations, counts and a verdict ([Section 12](#12-check-reports)).
-- **Valid**: of a proof, failing no condition; a valid proof with
-  obligations is valid conditional on them ([Section 11.14](#1114-counts-and-validity)).
+  body of each query; without queries, each ordinary forward head
+  ([Section 11.2](#112-original-questions)).
+- **Replay**: re-executing the firing a step records, from its source rule,
+  with the bindings of each point of the search ([Section 11.4](#114-replaying-derived-facts)).
+- **Checks**: of a proof, that the checker finds no failure; its claims are
+  then exactly the answers of the original questions, or for a halted run
+  follow from the program ([Section 11.1](#111-what-a-checked-proof-establishes)).
+- **Check report**: what a checker writes: the claims, any failures and a
+  verdict ([Section 12](#12-check-reports)).
 
 ## 2. Terms
 
@@ -351,8 +325,8 @@ itself rather than an array.
 `preds` and `vars` take a string of names separated by spaces or commas.
 Each name MUST be an ASCII identifier and MUST NOT be a reserved JavaScript
 word. `preds` MUST also reject control and primitive names and the reserved
-names `step`, `clause`, `activated`, `forward`, `backward`, `struct`,
-`implies` and `implied_by`.
+names `step`, `derived`, `called`, `activated`, `forward`, `backward`,
+`struct`, `implies` and `implied_by`.
 
 A top-level expression statement that calls a predicate supplied by rule 4,
 such as a misspelled `fcat(p(1))`, states nothing; a loader MUST report it as
@@ -397,8 +371,7 @@ tail term without executing a JavaScript spread.
 
 Each occurrence of `_` in a clause is a distinct anonymous variable.
 Anonymous occurrences are named `_0`, `_1`, ... in textual order, skipping
-names already used in the clause. Clause displays and proof bindings use
-these names. Programs SHOULD NOT give their own variables names consisting
+names already used in the clause. Proof bindings use these names. Programs SHOULD NOT give their own variables names consisting
 of `_` followed by digits, which negation treats as anonymous.
 
 Operators do not construct logical terms. An operator applied to a variable,
@@ -470,8 +443,8 @@ A clause MUST be rejected when:
 - a head is not an atom or compound, or is a list, the atom `'[]'` or a
   `'.'/2` compound, which as a goal would be a conjunction ([Section 4.1](#41-goal-syntax)) and
   could never call the clause;
-- a head uses `step/4`, `clause/2`, `searched/2`, `derived/2`, `called/2`, reserved
-  for proof documents, or explicitly states the reserved predicate
+- a head uses `step/4`, `derived/2` or `called/2`, reserved for proof
+  documents, or explicitly states the reserved predicate
   `activated/2`;
 - a head is a primitive or control, except the head `'true'` of a query or
   `'false'` of a contradiction; `implies` MUST NOT conclude either atom;
@@ -612,8 +585,8 @@ optionally signed decimal with an optional exponent, `'INF'`, `'+INF'`,
 `'-INF'` or `'NaN'`, optionally surrounded by XML whitespace. Parsing rounds
 once to binary64 and allows overflow and underflow. An invalid lexical
 form or operand fails; another `Op` raises an error. Finite numeric results
-are floats; exceptional results are the atoms above. C5 re-decides these
-operations, including signed zeros and exceptional results.
+are floats; exceptional results are the atoms above. A checker recomputes
+these operations, including signed zeros and exceptional results.
 
 A regular expression `P` is an atom read as an ECMAScript pattern
 (ECMA-262, the `RegExp` pattern grammar and matching semantics) with only the
@@ -785,19 +758,19 @@ template's body; its head and direction are those of the template. A forward
 template keeps its head conjunction; a backward template appends one clause
 per head. Continue processing appended clauses in order, compiling nested
 forward templates in the same way. Original clause numbers are kept;
-appended clauses are numbered consecutively. `forward` and `backward` are
-displayed as `implies` and `implied_by`. The original generating clause
-retains its template heads.
+appended clauses are numbered consecutively. `forward` and `backward` stand
+for `implies` and `implied_by`. The original generating clause retains its
+template heads.
 
 For example, `implies(cat(X), implies(dog(Y), test('yes')))` as the only
-stated clause has these displays:
+stated clause has these clauses:
 
 ```js
-clause(1, implies(cat(X), implies(dog(Y), test('yes'))))
-clause(2, implies([cat(X), dog(Y)], test('yes')))
+implies(cat(X), implies(dog(Y), test('yes')))   // clause 1
+implies([cat(X), dog(Y)], test('yes'))          // clause 2, appended
 ```
 
-The appended body describes the premises a certificate must justify. It is
+The appended body describes the premises a step of the rule uses. It is
 not a prescription to reevaluate the generator when the appended rule is
 called. During forward evaluation, each solution of the generator creates a
 rule instance with its captures bound to that solution and its generator's
@@ -805,7 +778,7 @@ evidence retained. Identical captures of the same template create one
 instance. The rule instance searches only the template's own body; a
 backward caller cannot change how the generator's body was evaluated.
 Template-local variables remain universal and are renamed apart on each use.
-The run derives no synthetic enabling facts, and certificates have no
+The run derives no synthetic enabling facts, and proofs have no
 intermediate enabling steps: the generator's premises are direct uses of
 the derived rule's step. A nested instance retains all enclosing premises.
 
@@ -855,11 +828,11 @@ at every use. Unrelated unbound variables keep [Section 8.2](#82-forward-evaluat
 When inspection variables remain free in a conclusion or its captured
 template context, that firing MUST NOT introduce head-only existential
 witnesses: it MUST fail with an error requiring the inspection variables to
-be bound first. [Section 11.11](#1111-c8-witness-integrity) rejects certificates that bypass this boundary.
+be bound first. Such a firing does not replay ([Section 11.4](#114-replaying-derived-facts)).
 
 Inspection uses a fixed source catalogue, so its own results do not depend on
 forward rounds. Other goals using derived patterns still participate in
-stratification. Negation and collection keep their own justifications ([Section 10.3](#103-steps)).
+stratification.
 
 ### 6.4 Chain stratification
 
@@ -999,9 +972,9 @@ the heads' other variables in order of first occurrence. The guard holds when
 nothing but the firing's own witnesses satisfies its heads. Before a
 firing, that is when no known values satisfy them, so a satisfied rule does
 not invent new values, as the restricted chase does; after it, that is when
-the firing's witnesses are needed, which the search certificate shows like
-any negation. A restricted rule without head-only variables has no guard and
-behaves as `implies`. For example:
+the firing's witnesses are needed. A proof cannot establish a firing of a
+restricted rule with a guard ([Section 11.1](#111-what-a-checked-proof-establishes)). A restricted rule without
+head-only variables has no guard and behaves as `implies`. For example:
 
 ```js
 fact(human('jo'), father('jo', 'bob'))
@@ -1010,8 +983,7 @@ implies(father(X, Y), man(Y))
 ```
 
 concludes `man('bob')` and invents no father for `'jo'`, since `'bob'`
-already satisfies the heads once the third rule has run. A restricted
-rule's display omits its guard ([Section 10.2](#102-clause-displays)).
+already satisfies the heads once the third rule has run.
 
 A `restricted` call states a clause and is no rule value: a `restricted`
 call nested in another statement MUST be rejected. Its premise MUST bind
@@ -1101,11 +1073,9 @@ infinite closure. A finite model does not ensure search termination:
 `implied_by(p(X), p(X))` has an empty least model, but searching `p('a')`
 recurs indefinitely. Exceeding a resource bound raises an error ([Section
 8.3](#83-resource-bounds)). Contradictions halt without completing the closure ([Section 8.5](#85-contradictions)).
-A valid proof establishes its claims subject to its obligations and, when
-it checks without obligations, that they are every answer of the original
-questions ([Section 11.1](#111-scope-of-a-valid-proof)); it does not
-establish termination of the whole program. Its search
-certificate settles the negations and collections it can ([Section 10.4](#104-search-certificates)).
+A proof that checks establishes that its claims are every answer of the
+original questions ([Section 11.1](#111-what-a-checked-proof-establishes)); it does not establish termination of the
+whole program.
 
 ## 8. Evaluation and Conclusions
 
@@ -1157,7 +1127,7 @@ and `p(2)` publishes `a(1)`, `b(1)`, `a(2)`, `b(2)`. For each head:
   free, in order of first occurrence in the heads. A rule that keeps meeting new firings does
   not terminate ([Section 8.3](#83-resource-bounds)). Derived facts other than scoped inspection
   patterns ([Section 6.3](#63-source-rule-inspection)) are therefore ground. A
-  checker verifies the Skolem terms of a proof (C8, [Section 11.11](#1111-c8-witness-integrity));
+  checker recomputes the Skolem terms of a proof ([Section 11.4](#114-replaying-derived-facts));
 - a head `'true'` reports the instance of the rule's body, as a conjunction,
   once per distinct instance (by identity of canonical text);
 - a head `'false'` records the conclusion `'false'` and stops all reasoning;
@@ -1285,25 +1255,18 @@ When a proof is requested, each solution records how each of its goals was
 justified: by a fact or rule of the program, by a derived fact (whose own
 record is kept), by a primitive, by a control, by an absence (a negation) or
 by a collection. For each conclusion the first derivation found is
-recorded. Each original question gets call-fidelity evidence (Sections [10.5](#105-call-fidelity-certificates) and [11.13](#1113-c10-call-fidelity)),
-when supported. Each negation and collection of a proof gets the search certificate
-that settles it (Sections [10.4](#104-search-certificates) and [11.12](#1112-c9-search-closure)) whenever [Section 11.12](#1112-c9-search-closure) allows one. A
-table holds every answer of its call, so it can search beyond where the run
-stopped, as under `once`; a boundary whose tables would meet an error, or
-exceed the inference bound while recording calls and answers
-([Section 8.3](#83-resource-bounds)), stays trusted. So does a
-boundary of a halted run ([Section 8.5](#85-contradictions)) whose listings a rule of a later stratum
-would extend: the run stopped before its fixpoint, so its derived facts need
-not be closed under the rules. A
-reasoner MUST check every proof it generates ([Section 11](#11-proof-checking)) before returning it,
-and MUST fail with an error rather than return a proof that does not pass. A
-run without conclusions has a proof without claims; its call tables, when
-they settle, certify that the original questions have no answers.
-
-A **state test** is `is_var/1`, `not_identical/2` or `compare/3`: a test a
-later binding can make false. A goal such as `is_var(X)` followed by
-`unify(X, 'a')` holds when it runs, but its final instance `is_var('a')` does
-not, so the proof records it as it was called ([Section 10.3](#103-steps)).
+recorded. The proof ([Section 10](#10-proof-documents)) holds a call table for every call its
+original questions make, with every answer of the call, so a table can
+search beyond where the run stopped, as under `once`; the listings those
+searches consult; and the steps that replay the listed facts. A halted run's
+proof replays its claims instead. A reasoner MUST check every proof it
+generates ([Section 11](#11-proof-checking)) before returning it, and MUST fail with an error
+rather than return a proof that does not check, as for results the format
+cannot establish ([Section 11.1](#111-what-a-checked-proof-establishes)) or a table that would meet an error. It
+MAY bound the work of making tables; exceeding the bound is such an error
+and MUST NOT change the run's answers. A run without conclusions has a proof
+without claims, whose call tables show that the original questions have no
+answers.
 
 ## 9. Document Syntax and Canonical Text
 
@@ -1424,10 +1387,9 @@ The conclusions a run writes, its proof documents ([Section 10](#10-proof-docume
 reports ([Section 12](#12-check-reports)) use the following variable names. In
 the conclusions of a run and in a proof document, the variables are named
 `A`, `B`, ..., `Z`, `A1`, ..., `Z1`, `A2`, ... in the order the document
-first shows them, across the whole document, the conclusions written first;
-the clause displays of a proof keep the program's names. A check report
-names the variables of each fact anew ([Section 12](#12-check-reports)).
-The call tables of a proof (`called/2`, [Section 10.5](#105-call-fidelity-certificates)) name their variables
+first shows them, across the whole document, the conclusions written first.
+A check report keeps the names of the proof ([Section 12](#12-check-reports)). The call tables
+of a proof (`called/2`, [Section 10.3](#103-certificate)) name their variables
 in a scope of their own, keeping anonymous variables distinct from named
 ones.
 
@@ -1439,266 +1401,105 @@ A proof document is a document ([Section 9.1](#91-accepted-document-syntax)) hol
 
 1. the output of the run ([Section 8.6](#86-reported-conclusions)): its comment line, then its
    conclusions, one per line;
-2. an empty line;
-3. when the proof cites any clause, a comment line introducing the clauses,
-   then one `clause(N, Display)` per program clause the proof cites, by
-   increasing `N`;
-4. an empty line;
-5. when there are steps, comment lines saying what a step records, then one
-   `step(Goal, By, Bindings, Uses)` per justified goal;
-6. when it has a search certificate ([Section 10.4](#104-search-certificates)), an empty line, comment
-   lines introducing it, then one `derived(Pattern, Facts)` per listed
-   relation, then one `searched(Call, Answers)` per table;
-7. then any `called(Call, Answers)` tables ([Section 10.5](#105-call-fidelity-certificates)), in first-consulted
-   order and with their own variable naming scope.
+2. when there are steps ([Section 10.2](#102-steps)), an empty line, comment
+   lines saying what a step records, then one `step(Goal, By, Bindings, Uses)`
+   per recorded inference;
+3. when there is a certificate ([Section 10.3](#103-certificate)), an empty
+   line, a comment line introducing it, then one `derived(Pattern, Facts)` per
+   listing, in the order first consulted, then one `called(Call, Answers)`
+   per call table, in the order their calls are first met.
 
 Comments are informative and MAY be worded differently; they are ignored when
-the document is read.
+the document is read. Every statement that is neither `step/4`, `derived/2`
+nor `called/2` is a **claim**, whatever its position.
 
-A checker MUST treat every statement that is neither `clause/2`, `step/4`,
-`searched/2`, `derived/2` nor `called/2` as a claim, whatever its position.
+A proof answers the run's original questions ([Section 11.2](#112-original-questions))
+by its certificate: the call tables show every answer of every call those
+questions make, and the steps show how each derived fact the answers rest on
+was derived.
 
-### 10.2 Clause displays
+### 10.2 Steps
 
-`Display` shows clause `N` in normalized statement form: `fact(Head)`,
-`implies(Body, Head)`, `restricted(Body, Head)`, `implied_by(Head, Body)`,
-`query(G1, ...)` or `contradiction(G1, ...)`, where `Body` is the clause's
-one body goal without a restricted rule's guard, or the
-array of its body goals when it has several, `Head` likewise the head or the
-array of heads, and `G1, ...` are the body goals themselves. Displays are not
-authority: a checker MUST compare each with the program it checks against.
-
-Each argument of a multi-argument `fact` has its own `fact(Head)` display.
-A body is displayed with its conjunctions flattened ([Section 3.5](#35-clause-constraints-and-numbering)), whether
-the program wrote them as arrays or with `and`: `implied_by(r, and(a, b))`
-has display `implied_by('r', ['a', 'b'])`.
-Conjunctive query and contradiction bodies are displayed as separate goal
-arguments: `query([p(X), q(X)])` has display `query(p(X), q(X))`.
-
-For a program with templates, displays show the original generators and the
-potential appended clauses of [Section 6.2](#62-inline-rule-templates). A derived rule's body includes all
-enclosing generator premises. The source program is the authority for its
-origin, captures and scope projections; a display cannot introduce a new
-rule. A reasoner displays the enclosing generators as well as the clauses its
-steps cite. Each derived rule step lists its generator's premise evidence
-before its own body evidence, with no intermediate enabling step.
-
-### 10.3 Steps
-
-`Goal` is the justified goal as it stands once the whole solution is found:
-the goal with every variable the solution bound replaced by its value. The
-program's goal `unify(Y, 6)`, solved with `Y` unbound, thus has the step
-`step(unify(6, 6), 'builtin', {}, [])`; the value `Y` received is recorded in
-the bindings of the step that cites the clause, as `{Y: 6}`. Steps appear
-in the order a depth-first walk
-from the claims first meets each goal, and each distinct goal (by canonical
-text) has one step. `Uses` is the list of the goals that justify `Goal`, in
-order. `By` is one of:
+A step records the firing behind a derived fact, and how its uses were
+solved where the call tables cannot show it. `Goal` is the derived goal as it
+stands once the whole solution is found: the goal with every variable the
+solution bound replaced by its value. `Uses` is the list of the goals that
+justify `Goal`, in order. `By` is one of:
 
 | `By` | Meaning | `Bindings` | `Uses` |
 | --- | --- | --- | --- |
-| `clause(N)` | `Goal` is an instance of a head of clause `N`, a fact or a rule, whose body instance is `Uses`. | the clause's variables | the body instance, empty for a fact |
-| `source(N)` | `Goal` is an instance of the inspectable source rule `N` as `implies(Body, Head)` or `implied_by(Head, Body)`. | empty | empty |
-| `'builtin'` | `Goal` is a primitive that holds. | empty | empty |
-| `called(Called)` | `Goal` is a state test ([Section 8.7](#87-proof-generation)) that held as `Called`, the goal when it ran, its then unbound variables written as variables. | empty | empty |
-| `'control'` | `Goal` is `call`, `once` or a disjunction, solved by `Uses`. | empty | the solved goals; for a disjunction, the side that was solved, so `or(or(A, B), C)` solved by `A` uses `or(A, B)`, which has a step of its own |
-| `'absent'` | `Goal` is a negation, settled by the search certificate or taken on trust. | empty | empty |
-| `'collected'` | `Goal` is a collection, settled by the search certificate or taken on trust. | empty | empty |
+| `clause(N)` | `Goal` is an instance of a head of rule `N`, whose body instance is `Uses`. For a rule appended by a template, the body is its full body, the generators' premises first ([Section 6.2](#62-inline-rule-templates)). | the rule's variables | the body instance |
+| `'control'` | `Goal` is `call(G)` or a disjunction, solved by `Uses`. | empty | the conjuncts of `G` or of the side that was solved, so `or(or(A, B), C)` solved by `A` uses `or(A, B)` |
 
-`Bindings` is an object from each variable name of the cited clause, as
-the program wrote it, to its value in this step: `{X: 'socrates'}`. A key
-that is a plain name of [Section 9.2](#92-canonical-atoms-numbers-variables-and-lists) is written bare, and any other name as a
-string, such as `{'A-B': 1}`. A
-reasoner writes every variable of the clause, in the order the clause display
-first shows them (for `implies`, the premise first);
-a checker MUST accept partial bindings when the goal and uses determine the
-omitted values needed by C1 and C8. Values needed only by an enclosing
-witness scope must be supplied when those terms do not determine them.
-A primitive has no variables of its own, so `'builtin'` and `called`
-steps have empty bindings. A reasoner writes `called(Called)` exactly for a
-state test whose goal, when it held, had a variable the solution later
-bound; `Called` is that goal after the test, so `compare(O, X, 'b')` run
-with `X` unbound is written `called(compare('<', A, 'b'))`. Every other
-primitive step, and a state test no later binding changed, is `'builtin'`:
+`Bindings` is an object from variable names of the cited rule, as the
+program wrote them, to their values in this step: `{X: 'socrates'}`. A key
+that is an ASCII identifier (letters, digits and `_`, not starting with a
+digit) is written bare, and any other name as a string, such as `{'A-B': 1}`. A reasoner writes every variable of the rule,
+in order of first occurrence in the rule, a forward rule's body first.
+Bindings explain a step; a checker requires only that they agree with it
+([Section 11.4](#114-replaying-derived-facts)).
 
-```js
-implied_by(p(X), [is_var(X), unify(X, 'a')])
-// step(is_var('a'), called(is_var(A)), {}, [])
-``` A derived clause's bindings also include variables of its
-enclosing generators' scope projections, so their witnesses can be checked.
-These variables are renamed together with the clause's head and full body.
+A proof holds exactly the steps its check follows ([Section 11.4](#114-replaying-derived-facts)): the
+step of each listed fact and, for a halted run, of each claim; and, within
+the firings they record, the step of each use whose call the tables answer
+only through derived facts, recursively. Each distinct goal (by canonical
+text) has at most one step; a derived pattern ([Section 6.3](#63-source-rule-inspection)) has one up to
+the renaming of its variables. Steps appear in the order of a depth-first
+walk from the listed facts, in listing order, and then from a halted run's
+claims.
 
-### 10.4 Search certificates
+### 10.3 Certificate
 
-No step can show that a goal has no solution, or that a list holds every
-solution. A search certificate shows it by recording the searches behind a
-proof's negations and collections:
-
-- `searched(Call, Answers)` is a **table**: `Call` is a goal as one of those
-  searches called it, and `Answers` the array of its answers, each the
-  instance of `Call` that one solution gave, in the order of [Section 8.1](#81-goal-search),
-  repetitions included. Each answer's variables are its own: they are shared
-  neither with `Call` nor with another answer.
+- `called(Call, Answers)` is a **call table**: `Call` is a goal as a search
+  called it, before any later binding, and `Answers` the array of its
+  answers, each the instance of `Call` that one solution gave, in the order
+  of [Section 8.1](#81-goal-search), repetitions included. Each answer's variables are its own:
+  they are shared neither with `Call` nor with another answer.
 - `derived(Pattern, Facts)` is a **listing**: `Pattern` is the name of a
   relation that forward rules conclude, applied to distinct variables, or the
-  name alone for arity 0, and `Facts` the array of every fact the run derived
-  for that relation, in the order derived ([Section 8.2](#82-forward-evaluation-and-witnesses)). Each listed fact has
-  steps of its own.
+  name alone for arity 0; the `i`-th argument of every listing's pattern is
+  one and the same variable, named with the rest of the document
+  ([Section 9.4](#94-variable-scope-in-output)), and `Facts` the array of every fact the run derived
+  for that relation, in the order derived ([Section 8.2](#82-forward-evaluation-and-witnesses)).
 
-A table exists for each call to a relation that a backward rule defines or
-forward rules conclude, made by those searches or by the closure checks of
-[Section 11.12](#1112-c9-search-closure); a call to a relation defined by facts alone needs none. A
-listing exists for each relation forward rules conclude that a table or a
-closure check consults. A reasoner writes only the tables and listings of
-the boundaries it settles: listings first, in the order first consulted,
-then tables, in the order their calls are first met. For example:
-
-```js
-derived(nonpacifist(A), [nonpacifist('nixon')])
-searched(nonpacifist('ada'), [])
-```
-
-### 10.5 Call-fidelity certificates
-
-`called(Call, Answers)` is a **call table**. Its shape and answer ordering
-are those of `searched/2` ([Section 10.4](#104-search-certificates)), but it records a call made while
-answering an original question, for C10 ([Section 11.13](#1113-c10-call-fidelity)). External goals
-remain inputs to the checker: a call table cannot supply or specialize the
-question a claim must answer.
+A call table exists for each call to a relation that a backward rule defines
+or forward rules conclude, made by the searches and replays of Sections
+[11.3](#113-answering-calls) and [11.4](#114-replaying-derived-facts); a call to a relation defined by facts alone needs
+none. A listing exists for each
+relation forward rules conclude that those searches consult.
 
 Two calls identify the same call table only when they are identical up to
 renaming **that preserves anonymous-variable status** ([Section 4.2](#42-controls)), including
-inside nested compounds. There MUST NOT be two such tables. An anonymous
-variable cannot be renamed to a named one, or vice versa, when comparing
-call-table answers either. These restrictions matter because a named unbound
-variable makes a negation an error. A malformed or duplicate call table
-fails C3 as a malformed or duplicate search table does.
-
-Call-table variables have their own naming scope. Writers name named
-variables `A`, `B`, ..., counting variables in first-occurrence order, and
-anonymous ones `_0`, `_1`, ... using their position in the same order.
-For example, a named call returning an anonymous parameter may be:
+inside nested compounds; there MUST NOT be two such tables. Answers are
+compared the same way. These restrictions matter because a named unbound
+variable makes a negation an error. The call tables of a proof share a
+variable naming scope of their own: writers name named variables `A`, `B`,
+..., counting variables in first-occurrence order across the tables, and
+anonymous ones `_0`, `_1`, ... using their position in the same order. For example, a named call returning an anonymous
+parameter may be:
 
 ```js
 called(p(A), [p(_1)])
 ```
 
-Each answer is freshened separately when used, as in [Section 10.4](#104-search-certificates). C10 call
-tables and C9 search tables are distinct, even for textually identical calls.
-They share any applicable `derived/2` listings, whose facts require steps.
-
 ## 11. Proof Checking
 
-A checker establishes whether the proof's claimed answers follow from the
-source program, with any assumptions reported as obligations. Its inputs
-are the program, the proof document and, when the proof answers goals asked
-from outside the program, those original goals. The source program is the
-authority for clauses and questions; the proof supplies evidence to check.
+A checker establishes whether the claims of a proof are exactly the answers
+of the original questions of the source program. Its inputs are the program,
+the proof document and, when the proof answers goals asked from outside the
+program, those goals. The source program is the authority for clauses and
+questions; the proof supplies evidence to check. The outcome is `checked`
+or a list of failures.
 
-There are three parts to that evidence:
+The checker MUST NOT call a reasoner to supply missing evidence. It runs
+primitives, expands a call one level against the source program, answering
+inner calls from the call tables, and replays recorded firings. Each
+consulted table is itself checked by this expansion, and tables cannot
+justify themselves through a cycle.
 
-| Evidence in the proof | What the checker establishes |
-| --- | --- |
-| `step(Goal, By, Bindings, Uses)` | Each recorded inference follows from its cited source clause, primitive or control, with justified premises and correct witnesses. |
-| `searched(Call, Answers)` and `derived(Pattern, Facts)` | A negation's search has no solution, or a collection contains all its search results (C9). |
-| `called(Call, Answers)`, sharing applicable `derived/2` listings | A claimed answer can result from the original question with its actual call-time bindings and control choices (C10). |
-
-The tables and listings are statements **inside the proof document**, after
-its steps ([Section 10.1](#101-structure)). They are checked claims about
-search, not authority to invent answers. The `called/2` table used by C10
-is distinct from the `called(Called)` justification of a state-test step
-([Section 10.3](#103-steps)).
-
-The checker MUST NOT call a reasoner to supply missing evidence. It MAY
-recompute primitives and expand a call one level against the source
-program, answering inner relation calls from the certificate. Each
-consulted table is itself checked by this expansion; tables cannot justify
-themselves through a cycle. Sections [11.12](#1112-c9-search-closure) and
-[11.13](#1113-c10-call-fidelity) specify these checks.
-
-The ten conditions answer different questions:
-
-| Condition | Question |
-| --- | --- |
-| [C1 Resolution](#114-c1-resolution) | Is this step an instance of the source clause it cites? |
-| [C2 Well-foundedness](#115-c2-well-foundedness) | Are the steps free of circular justification through their uses? |
-| [C3 Justification](#116-c3-justification) | Is each statement and justification well formed? |
-| [C4 Coverage](#117-c4-coverage) | Does every claim and premise have evidence? |
-| [C5 Re-decision](#118-c5-re-decision) | Do primitives hold, and do control steps compose from their uses? |
-| [C6 Boundary consistency](#119-c6-boundary-consistency) | Does available evidence contradict an unsettled negation or collection? |
-| [C7 Relevance](#1110-c7-relevance) | Does the evidence serve the claimed answers to the program's questions? |
-| [C8 Witness integrity](#1111-c8-witness-integrity) | Does each existential witness identify the correct rule firing? |
-| [C9 Search closure](#1112-c9-search-closure) | Does the certificate establish the recorded negation or collection? |
-| [C10 Call fidelity](#1113-c10-call-fidelity) | Can the original question return this answer, and is each of its answers claimed? |
-
-C9 checks the search behind a recorded step; C10 checks the original call
-before the proof's final bindings. This distinction matters for negation,
-collection, `once` and tests of variable state. A specialized goal can
-succeed even when the original open question would not return it
-([Section 11.2](#112-operational-query-fidelity)). Every proof check
-includes C10.
-
-The checker records each failure with its condition, a detail and, where
-there is one, the term concerned. Missing or unsupported search evidence
-can instead leave an obligation. The verdict distinguishes these outcomes:
-
-| Verdict | Meaning |
-| --- | --- |
-| `checked` | No condition failed and no obligation remains. |
-| `checked_with_obligations` | No condition failed, but the claims depend on the reported obligations. |
-| `failed(N)` | The checker recorded `N` failures. |
-
-Strict checking forbids unresolved obligations. A `checked` verdict
-establishes the claimed answers and that they are every answer of the
-original questions, but not that the whole program terminates
-([Section 11.1](#111-scope-of-a-valid-proof)).
-
-### 11.1 Scope of a valid proof
-
-A valid proof establishes that each claim follows from the source program
-by the recorded steps, conditional on any reported obligations. A settled
-boundary is established by its search certificate. An unconditional
-`checked` verdict also establishes operational query fidelity
-([Section 11.2](#112-operational-query-fidelity)) and **answer
-completeness**: the claims include every answer of every original question
-([Section 11.13](#1113-c10-call-fidelity)). Every question asked has a
-certified answer set, and every answer in it is claimed.
-
-For a program with negation, "follows" is relative to the facts the
-certificate lists: C9 establishes that they are supported by steps, closed
-under the forward rules and consistent with every settled negation. Under
-the call-fidelity requirements of [Section 11.13](#1113-c10-call-fidelity),
-a stratified or chain-stratified program has only one such result ([Section 7.4](#74-negation-and-collection)). With restricted
-witnesses, different lean results can have these properties. A claim whose
-forward dependency closure includes a restricted rule with head-only
-variables therefore retains a call-fidelity obligation, and a strict check
-rejects it. Independent claims may still check strictly.
-
-It does not establish:
-
-- answer completeness for a halted proof, whose claims contain `'false'`;
-- that the program derives no `'false'`;
-- that execution of the whole program terminates or reaches every question;
-- that the supplied program expresses the author's intended model.
-
-A run's own proof contains exactly that run's conclusions. A proof that
-omits an answer its certificate establishes fails C10. One without the
-certificate to show its answers complete is valid only conditionally: an
-empty proof establishes no answers and leaves each original question whose
-answers need a call table as an obligation.
-
-### 11.2 Operational query fidelity
-
-**Operational query fidelity** means that the original question can return
-the claimed answer under [Section 8](#8-evaluation-and-conclusions), with
-the bindings, control choices and forward state applicable at its calls.
-C10 checks this property. It concerns each claimed answer's reachability
-in that question's ordered search, not whether the proof includes every
-answer or whether execution reaches the question at all.
-
-Proof steps show goals after the whole solution's bindings have been
-applied ([Section 10.3](#103-steps)). Those final instances can hide a
-different result at the original call. For example:
+The searches of a check start from the original questions, with the
+bindings each call has when it runs, not from the final instances that steps
+show. Those final instances can hide a different result. For example:
 
 ```js
 fact(value('a'), value('b'))
@@ -1707,738 +1508,249 @@ implied_by(q(X), once(p(X)))
 ```
 
 For the external question `q(X)`, `once(p(X))` selects `'a'`, so the only
-answer is `q('a')`. But if the checker starts from the final instance
-`q('b')`, the specialized call `once(p('b'))` succeeds. A derivation of
-that specialized call can pass C1–C9 without showing that the original
-question could return it.
+answer is `q('a')`, although the specialized call `once(p('b'))` succeeds.
+Likewise, with `fact(p('a'))` and `implied_by(q(X), [not(p(X)), unify(X, 'b')])`,
+the question `q(X)` raises an error, because `X` is unbound when the
+negation runs, though `q('b')` succeeds. Tests of variable state and
+collections depend on their actual calls in the same way ([Section 7.5](#75-sets-and-operational-behavior)).
 
-Negation has the same problem with call-time bindings. Consider a separate
-program:
+The document MUST be read as data using [Section 9.1](#91-accepted-document-syntax), without executing it.
+The check fails when it cannot be read, when a step's bindings are not an
+object or its uses not an array, when two steps have identical goals, when a
+call table's answers or a listing's facts are not an array, when a listing's
+pattern is not a name applied to distinct variables, when two call tables or
+two listings coincide ([Section 10.3](#103-certificate)), and when a variable's name contains
+`#`, which no writer gives a variable ([Section 9.4](#94-variable-scope-in-output)).
 
-```js
-fact(p('a'))
-implied_by(q(X), [not(p(X)), unify(X, 'b')])
-```
+### 11.1 What a checked proof establishes
 
-The external question `q(X)` raises an error: `X` is still a named unbound
-variable when `not(p(X))` runs. The specialized call `q('b')` succeeds,
-but the later `unify` cannot retroactively bind the original negation.
-Tests of variable state and collection likewise depend on their actual
-calls ([Section 7.5](#75-sets-and-operational-behavior)).
+A proof **checks** when the checker finds no failure. Then its claims follow
+from the source program, and, unless the run halted, they are exactly the
+answers of its original questions, up to the renaming of their variables:
+every claim is an answer and every answer is claimed. A proof without claims
+then establishes that the original questions have none.
 
-A checker MUST NOT treat C7's instance test or C5's composition of a
-`once` step as establishing the original call's result. To establish
-operational query fidelity, it MUST validate the original call state,
-propagation of bindings between ordered premises, freshening and scope,
-and any first-solution choice or required search closure. These must follow
-from the original question, source clauses and checked evidence. Generator
-captures MUST remain independent of later caller bindings. The checker
-MUST NOT invoke the reasoner to fill gaps.
+For a program with negation, "follows" is relative to the facts the
+listings hold: the check establishes that they are supported by replayed
+firings, closed under the forward rules and consistent with every negation
+decided from them. A stratified or chain-stratified program has exactly one
+such set of facts ([Section 7.4](#74-negation-and-collection)), its result, so the listings are the facts the
+original calls consult.
 
-C10 supplies this certificate check in [Section 11.13](#1113-c10-call-fidelity).
-A C1–C9 verdict alone MUST NOT be presented as establishing operational
-query fidelity. Fidelity alone does not establish answer completeness,
-which C10 checks separately, avoidance of an earlier contradiction, or
-termination of preceding questions.
+A checked proof does not establish:
 
-### 11.3 Reading the document
+- that the claims of a halted proof, which contain `'false'`, are every
+  answer;
+- that the program derives no `'false'`;
+- that execution of the whole program terminates or reaches every question;
+- that the supplied program expresses the author's intended model.
 
-The document MUST be read as data using [Section 9.1](#91-accepted-document-syntax),
-without executing it. If it cannot be read, C3 fails and the document has no
-claims and no steps. The reader classifies its statements as follows:
+Some results cannot be established by this proof format, and their proofs
+do not check: a first answer or a collection whose order rests on several
+derived facts, whose publication order the format does not show; a firing of a
+restricted rule, whose guard held before the firing but not in the final
+facts ([Section 7.2](#72-variables-and-witnesses)); a comparison `compare/3` of terms that are not ground,
+since renaming a table need not preserve the order of variable names; and a
+search whose table would not close.
 
-| Statement | Requirement | Failure |
-| --- | --- | --- |
-| `clause(N, Display)` | `N` names a source clause whose display is identical to `Display`, including variable names ([Section 10.2](#102-clause-displays)). | C1 |
-| `step(Goal, By, Bindings, Uses)` | Bindings read as a list of `'='/2` pairs, as an object literal does; uses form a list; no other step has an identical goal. | C3; set the step aside |
-| `searched(Call, Answers)` | `Call` is callable and `Answers` is an array; no other search table has the same call up to variable renaming. | C3; set the statement aside |
-| `derived(Pattern, Facts)` | `Pattern` is callable and `Facts` is an array; no other listing names the same relation. | C3; set the statement aside |
-| `called(Call, Answers)` | The call-table requirements of [Section 10.5](#105-call-fidelity-certificates) hold, including preservation of anonymous-variable status when detecting duplicates. | C3; set the statement aside |
+### 11.2 Original questions
 
-Every other statement is a claim, wherever it occurs in the document
-([Section 10.1](#101-structure)). Renaming variables in a clause display
-does not make it identical to the source display.
+The **original questions** are the external goals, if any; otherwise, if any
+forward rule has the head `'true'`, those rules' bodies as conjunctions;
+otherwise the ordinary forward heads other than `'false'`. Questions
+identical up to renaming that preserves anonymous-variable status count once.
+They are not instantiated with the proof's final bindings.
 
-### 11.4 C1 Resolution
+A proof whose claims contain `'false'` is **halted** and has no original
+questions ([Section 11.5](#115-deciding-the-claims)).
 
-C1 checks that the displayed inference is an instance of the source
-clause. For a `clause(N)` step:
+### 11.3 Answering calls
 
-1. `N` MUST identify a clause of the program. A value such as `'x'` or
-   `1.0` that is not a clause number fails C1.
-2. Rename the source clause apart. Each binding MUST name a distinct
-   variable of that clause and unify it with its displayed value.
-3. One head of the clause MUST unify with `Goal`. For a forward rule,
-   consider each conjunct of its head separately. The body MUST have the
-   same length as `Uses` and unify with it pairwise, in order.
-4. After these unifications, the head MUST be identical to `Goal`, and
-   each body goal to its corresponding use. The step's own terms MUST NOT
-   require further instantiation.
+Each original question is answered by searching it according to [Section 8.1](#81-goal-search),
+with these changes:
 
-For example, a source clause `same(X, X)` cannot justify `same('a', 'b')`.
-Identity also keeps the sign of zero: a fact `z(0.0)` cannot justify
-`z(-0.0)`.
-
-For a derived clause step, each enclosing generator MUST belong to the
-program. Its bindings may name variables of those generators' scope
-projections as well as of the clause itself. The checker renames these
-projections together with the clause before applying the bindings.
-
-For a `source(N)` step, `N` MUST identify an eligible source rule of [Section
-6.3](#63-source-rule-inspection). Bindings and uses MUST both be empty. The rule's inspection term,
-renamed apart, MUST unify with `Goal` and resolve exactly
-to it without instantiating the step's own terms. This checks variable
-sharing as well as the rule's direction and structure. The source rule is
-read as data; its body is not derived by the checker. These steps count as
-verified C1 steps and cite the usual source clause display.
-
-### 11.5 C2 Well-foundedness
-
-No step MAY depend on itself through the uses of steps. Even individually
-valid clause instances cannot justify each other in a circle.
-
-To find these dependencies, perform a depth-first walk starting from each
-step not yet visited, in document order. Follow its uses in order to the
-steps with those goals, following each conjunct of a conjunctive use
-separately. Each use that leads back to a step on the current path is one
-C2 failure, whose conclusion is the goal of that step. Circular search
-tables are checked separately by C9 and C10.
-
-### 11.6 C3 Justification
-
-`By` MUST be one of the forms of [Section 10.3](#103-steps). The following
-forms MUST have no bindings and no uses:
-
-| `By` | Required goal |
-| --- | --- |
-| `'builtin'` | A primitive |
-| `called(Called)` | A state test |
-| `'absent'` | A negation `not(G)` |
-| `'collected'` | A collection `findall(T, G, L)` or `findall_sorted(T, G, L)` |
-
-A well-formed negation or collection step is called a **boundary**. A step
-that fails C3 is not a trusted boundary: it counts in neither `trusted`, C6
-nor C9. The checks for clause and source justifications are in C1; control
-composition is checked by C5.
-
-### 11.7 C4 Coverage
-
-C4 checks that the proof has no missing premises:
-
-- Each conjunct of each claim MUST have a step.
-- Each use, and each conjunct of a use, MUST have a step or be identical to
-  an instance of a source fact. Source facts can therefore serve directly
-  as premises, but claims still require steps.
-
-For a missing use, the failure's conclusion is the goal of the step that
-uses it. A document without claims establishes no answers; it is valid if
-no condition fails, and C10 decides whether it shows that the original
-questions have none.
-
-### 11.8 C5 Re-decision
-
-C5 recomputes primitives and checks how control steps use their premises:
-
-- **Primitive.** A `'builtin'` step's goal, solved as a primitive with no
-  prior bindings, MUST succeed without binding anything.
-- **State test.** For `called(Called)`, `Called` MUST have the goal's name
-  and arity. Rename `Called` apart and solve it as a primitive with no
-  prior bindings; it MUST succeed without binding anything. The displayed
-  goal MUST be an instance of `Called`, so only variables the test leaves
-  unbound may differ.
-- **Control.** A `'control'` step MUST have no bindings. Its uses MUST be
-  identical, in order, to the conjuncts of the argument of `call` or
-  `once`, or of one side of a disjunction.
-- **Strict checking.** When trusted boundaries are forbidden, each
-  `'absent'` or `'collected'` step that C9 did not settle fails C5.
-
-C5 checks the displayed primitive or chosen control branch. Whether a
-state test actually ran with the claimed bindings, or `once` selected that
-answer from the original open call, is checked by C10
-([Section 11.13](#1113-c10-call-fidelity)).
-
-Host math is the one exception to identical re-decision. A `'builtin'` step
-`is(V, E)`, where `V` is a float and `E` applies `exp`, `log`, `log2`,
-`log10`, a trigonometric or hyperbolic function, or `pow`, also passes C5
-when `E` evaluates to a float at most 4 units in the last place from `V`,
-that is, with at most 3 floats between them. Such results may differ between
-conforming implementations ([Section 13](#13-conformance)). C5 therefore accepts this bounded
-variation. C10 still compares actual answers of the original question;
-when those answers depend on host math, a proof MAY fail C10 on another
-implementation even when its primitive steps pass C5. Every other recomputed result MUST be identical; a difference
-that grows beyond this bound, for example through cancellation, MAY make a
-proof fail on an implementation other than the one that made it.
-
-### 11.9 C6 Boundary consistency
-
-C6 can refute an unsettled boundary using evidence already at hand. It
-cannot establish that a search is complete. C9 checks boundaries whose
-certificates settle or refute them; C6 checks the other well-formed
-boundary steps ([Section 11.12](#1112-c9-search-closure)).
-
-For a ground primitive, recompute whether it holds: the evidence is the
-goal itself when it holds, and otherwise the fact that it fails. Controls
-provide no evidence for this check and leave the boundary undecided. For
-other goals, use the source facts and the document's step goals with the
-same name and arity. Such a goal **has evidence** only if at least one
-such fact or step exists. No evidence leaves the boundary undecided;
-it does not establish absence.
-
-- An absence `not(G)` is decided when `G` is a single goal, or a ground
-  conjunction, whose every goal has evidence. It fails C6 when every goal of
-  `G` unifies with some of its evidence; the anonymous variables of `G`
-  unify with anything.
-- A collection `findall(T, G, L)` or `findall_sorted(T, G, L)` fails C6 when `L` is not a list, and is
-  decided when `G` is a single goal with evidence. It fails C6 when an
-  instance of `T` for some evidence of `G` unifies with no element of `L`.
-
-For example, evidence of `p('a')` refutes `not(p('a'))` and refutes
-`findall(X, p(X), [])`. Merely failing to find evidence of `p('b')` does
-not prove `not(p('b'))` by C6.
-
-A trusted boundary that is not refuted remains an obligation. Even a
-boundary that C6 has decided without finding a contradiction remains
-conditional until C9 settles it ([Section 12](#12-check-reports)).
-
-### 11.10 C7 Relevance
-
-C7 checks that claims answer relevant questions and that evidence serves
-those claims. When external goals were given and no claim is `'false'`,
-the questions are those goals. Otherwise take, for each forward rule:
-
-- each ordinary head other than `'true'`;
-- its body as a conjunction when one head is `'true'` and no claim is
-  `'false'`.
-
-Each claim MUST be an instance of a question. This instance test alone
-does not establish that an original question returns the claim; C10 checks
-that separately.
-
-Each step MUST be reachable from a conjunct of a claim through the
-conjuncts of uses or, from a settled boundary, through facts in the listings
-it rests on. Each table and listing MUST be consulted by a boundary's
-search or closure check, or by the C10 check of a claim. Facts in listings
-consulted by C10 are reachable through that evidence
-([Section 11.13](#1113-c10-call-fidelity)).
-
-### 11.11 C8 Witness integrity
-
-A forward rule's head MAY contain variables its body does not contain.
-Each such variable asserts existence and receives a Skolem term identifying
-the firing ([Section 8.2](#82-forward-evaluation-and-witnesses)). C1 alone
-would accept an arbitrary value for it. C8 checks that the value is the
-specified witness and that its arguments come from the firing's evidence.
-
-**Witness shape.** For a `clause(N)` step citing a forward rule, under the
-substitution of C1, each head-only variable `V` MUST be bound to
-`skolem(N, Name, Args)`, where:
-
-- `Name` is the name of `V` as the program writes it ([Section 8.2](#82-forward-evaluation-and-witnesses));
-- `Args` is the same for every such variable of the step, and is the list of
-  the values of the heads' variables, in order of their first occurrence in
-  the heads, omitting a value only when it holds a fresh parameter of this
-  firing, as established below. The spelling of a Skolem term alone MUST
-  NOT establish that it is fresh.
-
-**Which values belong in `Args`.** A value containing
-`skolem(N, _, Args)` is a **candidate** for omission.
-Values of variables occurring only in the head hold the witnesses checked
-above. If any other head variable's value is omitted, the checker MUST
-establish its **parametric provenance**:
-
-1. In the instantiated full head and premises, replace each distinct term
-   `skolem(N, Name, Args)` by one fresh variable, using the same replacement
-   throughout. Distinct such terms receive distinct variables, disjoint
-   from all source and document variables. The abstracted head and premises
-   together MUST still be an instance of the source clause, with all
-   variable sharing preserved and without further instantiating their terms.
-   A literal Skolem-shaped constant of the source is therefore fixed data,
-   not a parameter the proof may abstract.
-2. Each affected premise MUST have evidence under this same abstraction.
-   Follow the recorded uses: backward clauses MUST still satisfy C1,
-   inspection steps the source-instance check of C1, primitives C5, and
-   controls the composition check of C5. An unrecorded source fact is
-   available as in C4. A previously derived forward fact is fixed evidence:
-   the abstracted premise MUST be an instance of that fact, allowing only
-   its existing universal variables to be instantiated. Its ground terms
-   MUST NOT be generalized. Each original step remains subject to its own
-   checks, including C8 and C2; this traversal supplies no missing derivation.
-3. Captured values and enclosing generator projections of a premise's
-   derived backward rule instance are fixed before its use and MUST NOT
-   change under abstraction. Likewise, this firing's captures MUST NOT
-   change. A backward caller cannot make an earlier firing's data fresh.
-4. An unchanged boundary may use its original evidence or obligation. A
-   changed boundary MUST already be settled in its original form, and its
-   abstracted form MUST also be settled by [Section 11.12](#1112-c9-search-closure), consulting only
-   tables and listings the original boundary rests on. A missing or
-   incomplete certificate fails provenance; an obligation for a specific
-   boundary MUST NOT silently become an obligation for a stronger one.
-
-Failure of this provenance check is C8, not C1: the original step may be a
-valid clause instance while proposing the wrong witness context. Provenance
-rechecks do not add steps or change the C1, C5 or C9 counts. They establish
-that the displayed firing's evidence permits fresh parameters, not that the
-firing is the one an original open call would select ([Section 11.2](#112-operational-query-fidelity)).
-
-**Groundness.** When a forward clause has head-only variables, its full
-head under the step's substitution MUST be ground. A step that leaves such
-a variable unbound, or bound to anything but its Skolem term, fails C8
-rather than C1. A generic inspection pattern cannot share one existential
-witness across all its instances ([Section 6.3](#63-source-rule-inspection)).
-
-**Generators and captures.** For a generator, use its scope projection
-([Section 6.2](#62-inline-rule-templates)) as the head for this
-check. For every derived clause step, including a backward clause step, the
-checker MUST also perform C8 for each enclosing generator under the same
-substitution. A forged outer witness cannot be authorized by using it in a
-backward conclusion. Variables supplied by the instance's captures are not
-new witnesses of the derived clause.
-
-For an appended forward clause of [Section 6.2](#62-inline-rule-templates), prepend the capture list,
-instantiated under the step's substitution, as one element of `Args`, as
-required by [Section 8.2](#82-forward-evaluation-and-witnesses). The checker MUST compute this from the source
-template's capture list and the substitution, not from the witness term.
-
-**Coverage.** A variable of the head that also occurs in the body is not
-checked by C8, even when the body leaves it unbound; its value comes from
-the uses, which other conditions check. Its effect on a head-only
-variable's witness context is nevertheless subject to the provenance check
-above. A step with no witnesses in its own forward head or enclosing
-generators is not covered by C8.
-
-### 11.12 C9 Search closure
-
-C9 establishes that a recorded negation or collection has the stated search
-result. A step's uses alone cannot show that nothing matches, or that no
-result was omitted. The **search certificate** supplies complete answer
-tables and forward-fact listings for the checker to validate
-([Section 10.4](#104-search-certificates)):
-
-| Statement in the proof | Claim to check |
-| --- | --- |
-| `searched(Call, Answers)` | These are all answers to this call, in search order, repetitions included. |
-| `derived(Pattern, Facts)` | These are the forward-derived facts for this relation; each has evidence, and none required by closure is omitted. |
-
-A boundary is **settled** only when the certificate is supported, complete
-for its search, applicable under the restrictions below, and agrees with
-the boundary's result. C9 checks the goal as displayed in the step. C10
-separately checks the bindings with which the original question called it.
-
-**Answering calls from the certificate.** Search the boundary's inner goal
-`G` according to [Section 8.1](#81-goal-search), with these changes:
-
-- Answer a relation defined by backward rules or concluded by forward
-  rules from the `searched/2` table whose call is identical up to variable
-  renaming. Rename each answer apart before using it.
-- Answer a relation defined by source facts alone from those facts, in
-  clause order; it needs no table.
-- Answer an inspection goal from the catalogue of [Section 6.3](#63-source-rule-inspection),
+- A call to a relation defined by backward rules or concluded by forward
+  rules is answered from the call table whose call is identical to it up to
+  renaming that preserves anonymous-variable status. Each answer is renamed
+  apart before it is used. A call without a table cannot be established.
+- A call to a relation defined by source facts alone is answered from those
+  facts, in clause order; it needs no table.
+- An inspection goal is answered from the catalogue of [Section 6.3](#63-source-rule-inspection),
   in source order, each rule renamed apart; it needs no table.
-- Use a listed derived pattern ([Section 6.3](#63-source-rule-inspection))
-  renamed apart, as it is freshened at every use.
-- Inside this search, negation treats unbound variables as anonymous.
-  This does not establish that a named variable was bound at the original
-  call; that is a C10 requirement.
+- Primitives run as [Section 4.3](#43-primitives) specifies, and `not`, `once` and the
+  collections keep their meanings of [Section 4.2](#42-controls), including the error for a
+  negation with an unbound named variable. A comparison `compare/3` with
+  either compared term not ground cannot be established. A search that
+  raises an error fails the check.
 
-**Expanding and checking tables.** The **expansion** of a call is one level
-of the search of [Section 8.1](#81-goal-search): try its relation's listed
-forward facts in listing order, then source facts and backward rules in
-clause order. Search each rule's body in its place, answering inner calls
-as above. Each table MUST equal its expansion: the same number of answers,
-each identical up to variable renaming to the answer in the same position.
+The **expansion** of a call is one level of the search of [Section 8.1](#81-goal-search):
+try its relation's listed facts in listing order, each derived pattern
+renamed apart, then source facts and backward rules in clause order,
+searching each rule's body in its place and answering inner calls as above.
+Each consulted call table MUST equal its expansion: the same number of
+answers, each identical up to renaming that preserves anonymous-variable
+status to the answer in the same position.
 
-A backward rule appended by a template ([Section 6.2](#62-inline-rule-templates))
-answers through its instances. A rule whose enclosing generators are not
-all in the program has none. Otherwise, search the generator's part of its
-body first, with none of the call's bindings, and take its solutions in
-order, skipping a solution whose captured values are identical to an
-earlier one's. For each, unify the call with the head and search the
-template's part of the body. This is the order in which the run made the
-instances only when the generator's search consults no table and no
-listing, and its generators have no guard and introduce no witnesses;
-otherwise the search is unsettled. Captured values that are not ground
-also leave it unsettled.
+A backward rule appended by a template ([Section 6.2](#62-inline-rule-templates)) answers through its
+instances. A rule whose enclosing generators are not all in the program has
+none. Otherwise, search the generator's part of its body first, with none of
+the call's bindings, and take its solutions in order, skipping a solution
+whose captured values are identical to an earlier one's. For each, unify the
+call with the head and search the template's part of the body. This is the
+order in which the run made the instances only when the generator's search
+consults no table and no listing, and its generators have no guard and
+introduce no witnesses; otherwise the search cannot be established. Captured
+values that are not ground cannot be established either.
 
-The boundary **rests on** every table and listing its search consults,
-including those consulted transitively by table expansions and listing
-closure checks. No table it rests on may depend on itself through the
-tables consulted by its expansion.
+The tables a search consults, directly or through the expansions of other
+tables and the closure of listings, MUST NOT depend on themselves. A table
+has **certified answer order** exactly when it has at most one distinct
+answer, or its expansion consults no listing and every table it depends on
+has certified answer order. A search
+whose `once`, `findall`, or `findall_sorted` with a result that is not
+ground, consults a table without certified answer order cannot be
+established: support and closure do not establish the order in which forward
+facts were published. A `findall_sorted` of ground items depends on the
+solutions and how often each occurs, not on their order.
 
-The same dependency graph establishes **answer order**. A table has
-certified answer order exactly when its expansion consults no forward
-listing and every table it depends on has certified answer order.
+Every consulted listing MUST be closed. Each of its facts has its relation's
+name and arity and is ground, unless the program inspects source rules and
+the fact is a derived pattern. A listing is **closed** when, for every
+forward rule with a head of its relation, each solution of the rule's body
+under the certificate gives head instances that are listed (a pattern up to
+the renaming of its variables) or are ground source facts. Bind the rule's
+witnesses to their Skolem terms when checking this ([Section 8.2](#82-forward-evaluation-and-witnesses)). A head
+instance that is not ground cannot be established unless the program inspects
+source rules; it is then a derived pattern the listing must hold, and its
+replay decides whether an inspection supplied its variables. A rule appended by a template
+searches its whole body, generator's part first; one whose enclosing
+generators are not all in the program never fires and is skipped. A rule
+within a template's scope that introduces witnesses, or whose generators
+have a guard or introduce witnesses, cannot be established.
 
-**Supporting and closing listings.** Every listed fact MUST have a step,
-have the listing's name and arity, and be ground, unless the program
-inspects source rules and the fact is a derived pattern
-([Section 6.3](#63-source-rule-inspection)): its step is then the step of a
-pattern identical to it up to the renaming of its variables. Its step is
-subject to the other proof conditions. A listing is **closed** when, for
-every forward rule with a head of its relation, each solution of the body
-under the certificate gives head instances that are listed, a pattern up to
-the renaming of its variables, or are ground source facts. Bind the rule's
-witnesses to their specified Skolem terms when checking this closure
-([Section 8.2](#82-forward-evaluation-and-witnesses)). A head instance that
-keeps a variable no inspection or listed pattern supplied leaves the
-boundary unsettled: the run would have bound it to a Skolem term.
-
-Support rules out invented facts; closure rules out omitted facts. For
-example, an empty answer table is insufficient if a forward rule could
-derive a matching fact left out of the listing.
-
-**Comparing the result.** With all relied-on evidence checked, settlement
-requires:
-
-- For `not(G)`, `G` has no solution.
-- For `findall(T, G, L)`, `L` is an instance of the list of instances of
-  `T`, one per solution of `G`, in order, each renamed apart. Repeated
-  solutions remain repeated list elements. The instance test allows later
-  goals to have bound variables in the copied results.
-- For `findall_sorted(T, G, L)`, `L` is an instance of that list sorted as
-  [Section 4.2](#42-controls) specifies.
-
-**Certificate limits.** Settlement also requires all of the following:
-
-- Every table used by `findall` or `once`, or by `findall_sorted` whose
-  results include a nonground item, MUST have certified answer order. This
-  applies in the boundary's search, relied-on tables and closure checks.
-  Support and closure do not establish the publication order of forward
-  facts. A `findall_sorted` of ground items depends on the solutions and
-  how often each occurs, not on their order.
-- No consulted listing's relation is concluded by a forward rule within a
-  template's scope ([Section 6.2](#62-inline-rule-templates)) that
-  introduces witnesses, or whose generators have a guard or introduce
-  witnesses. A rule appended by a template fires once for each instance, so
-  closure searches its whole body, generator's part first. A rule whose
-  enclosing generators are not all in the program never fires, and closure
-  skips it.
-
-For example, a proof of a negation can contain this step and certificate:
+For example, with `fact(p('a'), p('b'))`, `implied_by(r(X), p(X))` and the
+question `r(X)`, the certificate holds the call table:
 
 ```js
-step(not(nonpacifist('ada')), 'absent', {}, [])
-
-derived(nonpacifist(A), [nonpacifist('nixon')])
-searched(nonpacifist('ada'), [])
+called(r(A), [r('a'), r('b')])
 ```
 
-The table expands to no answers: the listed fact does not match Ada and no
-backward rule defines `nonpacifist/1`. The only forward rule for that
-relation derives Nixon's fact, which is listed and has a step elsewhere in
-the proof. Thus the listing is supported and closed, and the negation is
-settled. Replacing the listing with `[]` would fail closure.
+The checker expands `r(X)` against its source definition: the call `p(X)`
+is answered from the facts, giving `r('a')` and `r('b')`, which equal the
+table. A table that left out `r('b')` or listed `r('c')` fails.
 
-For a backward-defined relation `p/1` whose ordered answers are `p('a')`
-and `p('b')`, a collection can instead have these entries:
+### 11.4 Replaying derived facts
 
-```js
-step(findall(A, p(A), ['a', 'b']), 'collected', {}, [])
+Support and closure show which facts a listing must hold, but not that each
+was derived by a firing the run could make. Every fact of every consulted
+listing MUST therefore **replay** the firing its step records, and so MUST
+each claim of a halted proof.
 
-searched(p(B), [p('a'), p('b')])
-```
-
-The checker expands `p(B)` against its source definition to validate the
-table, then copies the template once per answer and compares the resulting
-`['a', 'b']` with the step's list.
-
-**Failures and obligations.** The checker distinguishes a false certificate
-from evidence that cannot settle the boundary:
-
-| Finding | Result |
-| --- | --- |
-| A table differs from its expansion; a listed fact lacks a step or has the wrong name or arity; a listing is not closed; tables are circular; the certificate's search raises an error; or the checked search finds a solution to a negated goal. | C9 fails. |
-| A needed table or listing is missing, evidence is incomplete, or a certificate limit above applies. | The boundary is not settled. |
-| A collection's list disagrees with the certificate's search results. | The boundary is not settled; C6 may refute it from available evidence. |
-| A listing contains a nonground fact, and the program inspects no source rules. | At the first such fact in listing order, leave the boundary unsettled rather than fail it. |
-
-An incorrect table or listing is reported once, for the first boundary
-resting on it. Any boundary C9 did not settle counts as trusted, including
-one that failed C9; this count does not cancel the failure. C6 confronts
-boundaries C9 neither settled nor refuted. An unresolved boundary remains
-an obligation, and strict checking rejects it.
-
-A collection mismatch alone is left unsettled because a step shows the
-goal after the whole solution's substitution; later bindings may have
-specialized the goal that was actually searched. C10 checks collection
-against the original call and cannot use that final substitution to
-specialize the question.
-
-### 11.13 C10 Call fidelity
-
-C10 checks that the original question can return each claimed answer. It
-uses `called(Call, Answers)` tables in the proof, distinct from C9's
-`searched/2` tables. Both checks share applicable `derived/2` listings.
-Every proof check includes C10; unresolved evidence leaves a call-fidelity
-obligation rather than an unconditional `checked` verdict.
-
-**Selecting the original questions.** Use the external goals, if any.
-Otherwise, if any forward rule has a head `'true'`, use those rules' bodies
-as conjunctions. Otherwise use the ordinary forward heads, excluding
-`'false'`. Do not instantiate these questions with the proof's final
-bindings. Every question needs a certificate, including one of which no
-claim is an instance: its answers must still be shown to be claimed.
-
-When the claims contain `'false'`, C10 is inapplicable: it covers no
-answers and adds no call-fidelity obligations for that halted proof.
-A proof without claims certifies that a question has no answers only
-through that question's certificate.
-
-**Checking calls.** For each relevant original question, use the one-level
-expansion and closure checks of [Section 11.12](#1112-c9-search-closure),
-with these differences:
-
-1. Inner relation calls use `called/2` rather than `searched/2`. Call and
-   answer comparison preserves anonymous-variable status ([Section 10.5](#105-call-fidelity-certificates)).
-   Facts alone and primitives need no table, as in C9. Source clauses,
-   freshened apart, determine the bindings passed between ordered premises;
-   the final values displayed by a logical step are not inputs to that search.
-2. Negation MUST enforce [Section 4.2](#42-controls)'s binding restriction at the actual
-   call. C9's treatment of an unbound named variable as anonymous MUST NOT
-   be used. A source search that raises an error fails its certificate.
-3. `once` and the collections keep their [Section 4.2](#42-controls) meanings, so the first answer
-   or collected answers come from the actual inner call. [Section 11.12](#1112-c9-search-closure)'s
-   restriction on order-sensitive uses of derived listings still applies.
-   The order of unrelated answers of an ordinary question need not be
-   established to check membership of a claim.
-4. A comparison `compare/3` with either compared term nonground is not
-   supported by this certificate format: alpha renaming of a table need
-   not preserve the order of variable names. Such a search leaves call fidelity unproved.
-5. Each fact of every consulted forward listing MUST replay its recorded
-   firing as specified below. Support and closure alone MUST NOT certify
-   bindings or control choices that the recorded firing never makes.
-
-For the `once` example in [Section 11.2](#112-operational-query-fidelity),
-the call certificate contains:
-
-```js
-called(q(A), [q('a')])
-called(p(B), [p('a'), p('b')])
-```
-
-The checker validates the first table by expanding the original question
-`q(X)` using the source rule. Its inner call is `p(X)` with `X` unbound.
-The second table, checked against `p`'s source definition, supplies `'a'`
-first, and `once` selects it. Thus `q('a')` is an answer and `q('b')` is
-excluded. Substituting `called(p('b'), [p('b')])` cannot establish the
-different call `p(X)`.
-
-**Replaying forward listings.** In addition to the support and closure
-checks of C9, every fact of every consulted listing MUST replay. Replay
-follows the source rule and the step's uses in order, starting with no
-bindings. It checks the bindings at each premise, rather than assuming
-the proof's final substitution was already available. It MUST NOT call a
-reasoner or supply a missing derivation.
-
-A listing with a fact that does not replay is unsupported for C10 and
-leaves the obligations specified below. C1–C9 still check its steps normally.
-
-A fact's step MUST cite a forward rule that is not restricted and introduces
-no witnesses within a template's scope. For a rule appended by a template,
+A fact's step MUST cite a forward rule that has no guard and introduces no
+witnesses within a template's scope. For a rule appended by a template,
 every enclosing generator MUST belong to the program and have no guard or
-witnesses. Replay checks each body goal against the step's corresponding
-use as follows:
+witnesses. Rename the rule apart and replay each body goal, in order and
+starting with no bindings, against the step's corresponding use:
 
-- A primitive runs on the bindings of that point of the search. Its first
-  solution under which the goal can still unify with the use is taken.
-  `compare/3` with a nonground compared term does not replay.
-- `once/1`, `not/1`, `findall/3` and `findall_sorted/3` take the answers of the goal, as it
-  stands at that point, from the call tables and listings, as in checking
-  the original calls. A negation with an unbound named variable does not
-  replay, and neither does a first answer or a collection whose order rests
-  on a listing. The first answer is taken, and the goal MUST still unify
-  with the use.
-- `call/1` and a disjunction replay the goals their `'control'` step uses,
-  for a disjunction from the side those uses form.
-- A call to an ordinary relation follows the use's step, whose rule MUST
-  meet the conditions above other than direction. A forward rule's
-  conclusion MUST itself replay, and is then unified with the goal. A
-  source fact, renamed apart, is unified with the goal. A backward rule,
-  renamed apart, has its head unified with the goal and its body replayed
-  against its step's uses. For a backward rule appended by a template, the
-  generator's part of the body replays first, before the head meets the
-  goal, and the template's part after. A use with no step is unified with a source fact
-  of the relation, renamed apart. A cycle through recorded uses does not
-  replay, as required by C2.
-- An inspection follows its use's `source(N)` step: rule `N` of the
-  catalogue, renamed apart, is unified with the goal.
+- A primitive runs on the bindings of that point. Its first solution under
+  which the goal can still unify with the use is taken. `compare/3` with a
+  compared term that is not ground does not replay.
+- `once/1`, `not/1`, `findall/3` and `findall_sorted/3` take the answers of
+  the goal, as it stands at that point, from the certificate, as in
+  [Section 11.3](#113-answering-calls). A negation with an unbound named variable does not replay,
+  and neither does a first answer or a collection whose order rests on a
+  listing. The first answer is taken, and the goal MUST still unify with the
+  use.
+- Any other goal, as it stands at that point, is answered from the
+  certificate as in [Section 11.3](#113-answering-calls), when that search consults no listing:
+  the answer identical to the use up to renaming is taken, or else the first
+  answer under which the goal can still unify with the use. An answer's
+  variables are a derived pattern's only when its search read the catalogue
+  of [Section 6.3](#63-source-rule-inspection) or a listed pattern.
+- Otherwise the goal follows the use's step. A call to a relation whose step
+  cites a forward rule replays that rule's fact in turn, which is then unified
+  with the goal. One citing a backward rule, renamed apart, has its head
+  unified with the goal and its body replayed against the step's uses; for
+  a backward rule appended by a template, the generator's part of the body
+  replays first, before the head meets the goal, and the template's part
+  after. `call/1` and a disjunction replay the goals their `'control'` step
+  uses, for a disjunction from the side those uses form. A step whose replay
+  meets the same step again does not replay, so derived facts support each
+  other only without a cycle.
 - After each goal, the goal MUST still unify with its use, since a step
   shows its goals after the whole solution's bindings.
 
-Each witness is then bound to its Skolem term
-([Section 8.2](#82-forward-evaluation-and-witnesses)), and the fact MUST be
-identical to an instance of one of the rule's heads, or for a derived
-pattern identical up to the renaming of its variables, every one of which an
-inspection or a listed pattern supplied. Replay re-executes each
-recorded firing, so a test of whether a variable is bound sees what a search
-sees, a first answer is the search's first answer, and host math is
-computed rather than accepted within a tolerance. C2 keeps the steps a
-replay follows acyclic.
+Each witness is then bound to its Skolem term ([Section 8.2](#82-forward-evaluation-and-witnesses)), computed from the
+values of the heads' other variables, which MUST be ground. Once the whole
+firing has replayed, the fact with the rule's body instance MUST be one of
+the rule's heads with its body, and each step followed within the firing its
+rule's head with its body, identical up to the renaming of variables; a
+derived pattern's variables are all supplied by an inspection or a listed
+pattern. Each step's bindings MUST name distinct variables of its rule,
+whose values unify with what the replay gave them.
 
-Supported facts and closed listings then establish the least ground
-closure and, with negations, a set of facts that is supported, closed under
-the rules and consistent with each negation, every negation being decided
-by the listed facts alone. A stratified or chain-stratified program has
-exactly one such set ([Section 7.4](#74-negation-and-collection)), its
-result, so the listings are the facts the original calls consult. A
-collection or first answer over facts that forward rules derive depends on
-their publication order, which this format does not establish, and a
-restricted rule's firings can depend on the order of rule applications:
-both leave call fidelity unproved.
+Replay re-executes each recorded firing, so a test of whether a variable is
+bound sees what a search sees, a first answer is the search's first answer,
+and arithmetic is computed rather than accepted.
 
-**Deciding claims.** Every relevant call certificate MUST be valid. Each
-claim MUST be identical, up to variable renaming, to an answer of at least
-one corresponding original question. Being an instance of a more general
-answer is insufficient: a claim `p('a')` cannot replace an original call's
-actual universal answer `p(A)`.
+### 11.5 Deciding the claims
 
-For each claim, apply these outcomes:
+For a proof that is not halted:
 
-| Evidence for matching original questions | C10 result |
-| --- | --- |
-| Any corresponding question has a false certificate. | Fail the claim once. |
-| No corresponding certificate is false, and at least one complete certificate returns the claim up to renaming. | Establish call fidelity for the claim. |
-| Every matching question has a complete certificate, and all exclude the claim. | Fail the claim once. |
-| No certificate establishes the claim, and an applicable certificate is missing, incomplete or unsupported. | Leave `obligation('call_fidelity', 'original_call', Claim)`. |
-
-An unresolved alternative question leaves an obligation unless another
-question certifies the answer. With no applicable complete certificate,
-call fidelity also remains an obligation. When trusted obligations are
-forbidden, each such obligation fails C10. C10 does not discharge C6/C9
-obligations: both the recorded boundary and the original call need their
-respective evidence.
-
-**Answer completeness.** A valid certificate for an original question
-gives all of its answers, so C10 also checks the converse: each answer is
-claimed. The **required answers** of a question are its certificate's
-answers when the conclusions answer goals or `query()` rules. When the
-conclusions are the derived facts ([Section 8.6](#86-reported-conclusions)),
-they are the facts of the question's relation in its consulted listing
-that are instances of the question, since a source fact or a backward
-answer is no derived fact. For each original question, in question order:
-
-| Evidence for the question | C10 result |
-| --- | --- |
-| Its certificate is false. | Fail the question once, unless a claim that is an instance of it already failed for that certificate. |
-| Its certificate is valid and complete, and every required answer is identical, up to renaming, to a claim. | Establish answer completeness for the question. |
-| Its certificate is valid and complete, and a required answer is not claimed. | Fail once for each required answer not claimed. |
-| Its certificate is missing, incomplete or unsupported. | Leave `obligation('call_fidelity', 'all_answers', Question)`. |
+- Each original question MUST be answered by its certificate
+  ([Section 11.3](#113-answering-calls)), and every fact of the listings its search consults MUST
+  replay.
+- Each claim MUST be an instance of an original question, and identical, up
+  to renaming, to an answer of such a question. Being an instance of a more
+  general answer is insufficient: a claim `p('a')` cannot replace an
+  answer `p(A)`.
+- Every **required answer** of each question MUST be identical, up to
+  renaming, to a claim. The required answers are the question's answers when
+  the conclusions answer goals or `query()` rules. When the conclusions are
+  the derived facts ([Section 8.6](#86-reported-conclusions)), they are the facts of the question's
+  relation in its listing that are instances of the question, since a source
+  fact or a backward answer is no derived fact.
 
 For example, with `fact(p('a'), p('b'))` and `query(p(X))`, a proof that
-claims only `p('a')` fails C10 for `p('b')`, though `p('a')` follows. With
+claims only `p('a')` fails, though `p('a')` follows. With
 `implied_by(r(X), p(X))` and `query(r('c'))`, the proof without claims
-holding `called(r('c'), [])` establishes that the question has no answers;
-an empty document leaves `r('c')` as an obligation. A question answered
-from source facts alone needs no table, so its required answers come from
-the facts.
+holding `called(r('c'), [])` establishes that the question has no answers.
 
-**Limits and production of certificates.** The certificate format requires
-complete tables, even for a relation called under `once`. Later recursion
-or an error may prevent a table from closing although `once` itself
-terminates. A certificate for just the searched prefix is not defined, so
-call fidelity then remains unproved.
+A halted run stopped before its fixpoint, so its questions have no certified
+answers. For a halted proof, each claim, `'false'` included, MUST replay as a
+derived fact ([Section 11.4](#114-replaying-derived-facts)), its step citing the forward rule or
+`contradiction` that concluded it. A listing its replays consult MUST still
+be closed, so a negation or collection over a relation the halt left
+unfinished cannot be established.
 
-A reasoner MUST attempt call-fidelity certification for every proof it
-generates ([Section 8.7](#87-proof-generation)). It MAY bound this auxiliary
-production. Exceeding that bound leaves an obligation and MUST NOT change
-the run's answers. The bounds are implementation-defined, so conforming
-reasoners may differ in which generated claims carry call-fidelity
-obligations. A checker MUST
-decide each supplied certificate from its contents and the source program,
-without assuming the limits or decisions of the processor that produced it.
+### 11.6 Nothing unused
 
-**Relevance and counts.** Call tables and their supporting listings serve
-the claims for C7; their listed facts are reachable through that evidence.
-C10 does not change C1–C9 covered counts. Its own covered count includes
-claims whose call fidelity is established or refuted and questions whose
-answer completeness is established or refuted, excluding unresolved ones.
-Report failures in claim order, then in question order, after checking
-boundaries and before C7 and C2 ([Section 12](#12-check-reports)).
-
-These checks establish that the claims are exactly the answers of the
-original questions, up to renaming. They do not establish that preceding
-distinct questions terminated.
-
-### 11.14 Counts and validity
-
-The report distinguishes how many items a condition covered from how many
-failures it found. A zero failure count does not by itself establish a
-negation, collection or original call that remains an obligation.
-
-| Condition | Covered |
-| --- | --- |
-| C1 resolution | `clause` and `source` steps that passed C1 |
-| C2 well_founded | steps |
-| C3 justification | steps |
-| C4 coverage | claims plus uses |
-| C5 re_decision | `'builtin'`, `called(Called)` and `'control'` steps that passed C5 |
-| C6 boundary_consistency | boundaries not settled that the evidence decided |
-| C7 relevance | claims plus steps |
-| C8 witness_integrity | `clause` steps with witnesses in their forward head or enclosing generators that passed C8 |
-| C9 search_closure | boundaries their search certificate settled or refuted |
-| C10 call_fidelity | claims whose call fidelity, and questions whose answer completeness, is established or refuted |
-
-A check also records these totals:
-
-- **steps**: the steps it read;
-- **claims**: the claims it read;
-- **verified**: the `clause` and `source` inspection steps verified by C1;
-- **recomputed**: the `'builtin'` and `called(Called)` steps that passed C5;
-- **composed**: the `'control'` steps that passed C5;
-- **trusted**: the `'absent'` and `'collected'` steps C9 did not settle,
-  plus each claim whose call fidelity and each question whose answer
-  completeness remains unproved by C10.
-
-A proof is **valid** when no condition failed. It is valid *conditional on*
-any obligations that remain. Section [12](#12-check-reports) specifies the
-report format and verdict; strict checking forbids those obligations.
+Every statement of a proof MUST be used by its check: each step followed by
+a replay, each call table consulted by a search, an expansion, a closure or a
+replay, and each listing consulted by one of those. A step, table or listing
+the check does not use fails it, so a proof carries no evidence that goes
+unchecked.
 
 ## 12. Check Reports
 
-A check report is a document ([Section 9.1](#91-accepted-document-syntax)) beginning with the proof's claims,
-in proof order, in canonical text, one per line, followed by a blank line and
-the following report facts, one per line:
+A check report is a document ([Section 9.1](#91-accepted-document-syntax)) holding:
 
-1. `condition(Id, Name, Outcome, Covered)` for C1 to C10, where `Outcome` is
-   `'ok'` or `failed(N)`, `N` the number of that condition's failures;
-2. `failure(Condition, Subject, Detail)` per failure, where `Subject` is the
-   term concerned or `'proof_document'`, and `Detail` an atom;
-3. `obligation(Kind, 'theory_scoped', Goal)` per trusted boundary, in step
-   order, where `Kind` is `'absent'` or `'collected'`, followed by
-   `obligation('call_fidelity', 'original_call', Claim)` per unresolved claim,
-   in claim order, then `obligation('call_fidelity', 'all_answers', Question)`
-   per question whose answer completeness is unresolved, in question order;
-4. `steps(N)`, `verified(N)`, `recomputed(N)`, `composed(N)`, `trusted(N)`,
-   `claims(N)`, the counts of [Section 11.14](#1114-counts-and-validity);
-5. `verdict(V)`, where `V` is `failed(N)` when `N` failures were recorded,
-   otherwise `'checked_with_obligations'` when there are obligations,
-   otherwise `'checked'`.
+1. a comment line, then the proof's claims, in proof order, in canonical
+   text, one per line, keeping the variable names of the proof;
+2. an empty line;
+3. when the check failed, a comment line, then one `failure(Detail)` per
+   failure, where `Detail` is an atom, then an empty line;
+4. `verdict('checked')`, or `verdict(failed(N))` where `N`, at least 1, is
+   the number of failure lines.
 
-Comments MUST identify these initial terms as checked answers only when the
-report is valid with no obligations. A valid report with obligations MUST
-label them as conditional on those obligations. A failed report MUST label
-them as unverified claims; their inclusion does not validate them. A valid
-report with no claims MUST say it establishes no conclusions, unless it is
-valid with no obligations: it then establishes that the original questions
-have no answers. Comments also explain the C1-C10 order, failures and
-obligations when present, the statistics, and whether the verdict
-establishes that the claims are every answer. Comments are informative
-and MAY be worded differently. They are ignored when the document is read.
-
-Failures are listed in the order they are found: those of reading the
-document ([Section 11.3](#113-reading-the-document)), in document order; C4 for each claim, in claim
-order; then for each step, in document order, C4 for its uses and the C1, C3,
-C5 or C8 failure of its justification; for each boundary, in step order, the
-C9 failures of its search certificate in the order found, or else its C6
-failure; C10 for each claim, then for each question; C7 for each claim, then
-for each step, then for each table and listing, in document order; and C2.
-
-`Detail` is informative text identifying what failed; its wording is not
-specified. It MUST NOT affect validity, counts or the condition reported.
-
-The initial answers keep the variable names of the proof. The variables of
-each subsequent report fact are renamed `A`, `B`, ..., `Z`, `A1`, ... in order
-of first occurrence. A report is ordinary data: `facts_from` ([Section 3.4](#34-statements))
-states it as facts.
+The comment MUST identify the claims as checked answers only when the proof
+checks, as following from a halted program when it checks and is halted, and
+as unverified claims when it fails; a proof without claims that checks MUST
+be said to establish that the original questions have no answers. Comments
+are informative and MAY be worded differently. The wording of `Detail`, and
+the number and order of failures, are informative: a conforming checker
+agrees on the verdict `checked` or failed. A report is ordinary data:
+`facts_from` ([Section 3.4](#34-statements)) states it as facts.
 
 ## 13. Conformance
 
@@ -2450,12 +1762,12 @@ without invoking a reasoner to complete the certificate. Conformance does
 not require a particular command-line interface, library API, browser
 interface or test runner.
 
-Canonical term spelling, conclusion order, proof contents and report counts
-are required as specified. Comment wording and failure `Detail` text are
-informative. Fresh variable names are unspecified where [Section 2.4](#24-standard-order) says
-so. Float results of `exp`, logarithms, trigonometric and hyperbolic
-functions, and `pow` with floats MAY differ by one unit in the last place,
-and C5 accepts a result of such a function within 4 units ([Section 11.8](#118-c5-re-decision)).
+Canonical term spelling, conclusion order, proof contents and the verdict
+are required as specified. Comment wording and failures are informative.
+Fresh variable names are unspecified where [Section 2.4](#24-standard-order) says so. Float results
+of `exp`, logarithms, trigonometric and hyperbolic functions, and `pow` with
+floats MAY differ by one unit in the last place; a proof whose answers rest
+on such a result MAY therefore not check on another implementation.
 
 Tests and example documents can provide evidence of conformance. Passing
 a test suite does not replace these requirements, and the behavior of an
@@ -2470,8 +1782,8 @@ without executing code. A deployment accepting untrusted documents SHOULD
 bound their size, nesting depth, processing time and memory, in addition to
 the reasoning bounds of [Section 8.3](#83-resource-bounds). A regular expression can take time exponential in
 the length of the text it searches ([Section 4.3](#43-primitives)), and no reasoning bound counts
-that time, so a deployment running untrusted programs SHOULD also bound it. A valid proof establishes only the
-claims and assumptions described in [Section 11.1](#111-scope-of-a-valid-proof).
+that time, so a deployment running untrusted programs SHOULD also bound it. A proof that checks establishes only the
+claims described in [Section 11.1](#111-what-a-checked-proof-establishes).
 
 ## Appendix A. Document Grammar
 
@@ -2535,19 +1847,12 @@ Its proof document ([Section 10](#10-proof-documents)):
 type('socrates', 'mortal')
 type('socrates', 'human')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(type('socrates', 'human')))
-clause(2, fact(subclass_of('human', 'mortal')))
-clause(3, implies([type(S, A), subclass_of(A, B)], type(S, B)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(type('socrates', 'mortal'), clause(3), {S: 'socrates', A: 'human', B: 'mortal'}, [type('socrates', 'human'), subclass_of('human', 'mortal')])
 step(type('socrates', 'human'), clause(1), {}, [])
-step(subclass_of('human', 'mortal'), clause(2), {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(type(A, B), [type('socrates', 'mortal')])
 called(type(A, B), [type('socrates', 'mortal'), type('socrates', 'human')])
 ```
@@ -2555,31 +1860,9 @@ called(type(A, B), [type('socrates', 'mortal'), type('socrates', 'human')])
 Its check report ([Section 12](#12-check-reports)):
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 type('socrates', 'mortal')
 type('socrates', 'human')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 3)
-condition('C2', 'well_founded', 'ok', 3)
-condition('C3', 'justification', 'ok', 3)
-condition('C4', 'coverage', 'ok', 4)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 5)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 3)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(3)
-verified(3)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(2)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```

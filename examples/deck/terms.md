@@ -131,23 +131,12 @@ complete proof:
 found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))
 witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])]))
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(quoted(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]))))
-clause(2, fact(member_of(X, [X, ..._0])))
-clause(4, implied_by(includes(graph(Triples), Triple), member_of(Triple, Triples)))
-clause(5, implies([quoted(G), includes(G, T)], found(T)))
-clause(6, implies(quoted(X), witness(X, W)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))), clause(5), {G: graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), T: triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))}, [quoted(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])), includes(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))])
-step(quoted(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])), clause(1), {}, [])
-step(includes(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))), clause(4), {Triples: [triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))], Triple: triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))}, [member_of(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))), [triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])])
-step(member_of(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))), [triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), clause(2), {X: triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))), _0: []}, [])
 step(witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])])), clause(6), {X: graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), W: skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])])}, [quoted(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]))])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(found(A), [found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))])
 derived(witness(A, B), [witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])]))])
 called(found(A), [found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))])
@@ -161,27 +150,29 @@ The lines are long because the whole triple is written out each time. It has
 three parts:
 
 - **The claims**: the two conclusions the proof is about.
-- **The clauses**: the program lines the steps cite, numbered by their place
-  in the program. Line 3 (the second `member_of` line) is not needed, because
-  the triple is the first item of its list. The `_` of the program is shown
-  as `_0`, so it can be given a value like any other variable.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`. The values in curly
-  braces say what each variable of the cited line stood for.
+- **The steps**: one per derived fact. A step reads
+  `step(what, by which clause, with which values, using what)`, citing a
+  program line by its place in the program. The values in curly braces say
+  what each variable of the cited line stood for.
+- **The certificate**: a *listing*, `derived(...)`, of the facts each forward
+  rule derived, and the *call tables*, `called(call, answers)`, each with
+  every answer of that call. With no `query()`, the questions are the forward
+  rules' heads, `found(T)` and `witness(X, W)`; the tables in between answer
+  the calls rule 5 makes to `includes` and `member_of`.
 
 Write *the graph* for the quoted graph and *the triple* for the "hello"
-triple, and the steps read:
+triple, and the lines read:
 
 1. *The triple is found* — by rule 5, with `G` = the graph and `T` = the
    triple, because the graph is quoted and includes the triple.
-2. *The graph is quoted* — fact 1.
-3. *The graph includes the triple* — by rule 4, because the triple is a
-   member of the graph's list.
-4. *The triple is a member of that list* — fact 2: it is the first item, and
-   the rest of the list (`_0`) is empty, `[]`.
-5. *There is a witness for the graph, named `skolem(6, 'W', [the graph])`* —
+2. *There is a witness for the graph, named `skolem(6, 'W', [the graph])`* —
    by rule 6, with `X` = the graph and `W` = that invented name, because the
-   graph is quoted (step 2, reused).
+   graph is quoted.
+3. *The graph includes exactly one triple, the triple* — the table for
+   `includes(the graph, B)`, answered by rule 4 from the table below it.
+4. *The triple is the only member of the graph's list* — the first item
+   matches line 2 of the program, and line 3 looks in the rest of the list,
+   `[]`, which has no members: its table is empty.
 
 ---
 
@@ -189,69 +180,34 @@ triple, and the steps read:
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the questions from the tables.** It expands each call one
+  level against the program, answering inner calls from their own tables, and
+  requires the result to equal the table: `member_of(D, [])` matches no line,
+  so its empty table is right.
+- **It checks the listings are closed.** Firing rules 5 and 6 on everything
+  known gives only the listed facts.
+- **It replays each listed fact.** It re-runs each rule from scratch against
+  its step. For step 2 it rebuilds `skolem(6, 'W', [the graph])` itself from
+  rule 6 and the graph, and the name matches; a proof could not slip in some
+  other name there.
+- **It compares the claims with the answers.** Every claim is an answer and
+  every answer is claimed; every step, listing and table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 found(triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en'))))
 witness(graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))]), skolem(6, 'W', [graph([triple(iri('https://example.org/s'), iri('https://example.org/p'), literal('hello', lang('en')))])]))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 5)
-condition('C2', 'well_founded', 'ok', 5)
-condition('C3', 'justification', 'ok', 5)
-condition('C4', 'coverage', 'ok', 6)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 7)
-condition('C8', 'witness_integrity', 'ok', 1)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 4)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(5)
-verified(5)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(2)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (5)**: each of the 5 steps really is an instance of the
-  program line it cites, with the values shown.
-- **C2 well-founded (5)**: no step depends on itself, even indirectly.
-- **C3 justification (5)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (6)**: the 2 claims and the 4 things the steps use are each
-  backed by a step.
-- **C5 re-decision (0)**: there was no calculation to redo.
-- **C6 boundary consistency (0)**: nothing was concluded from the absence of
-  a fact, so there is nothing to confront.
-- **C7 relevance (7)**: the 2 claims are conclusions of the program, and all
-  5 steps serve them.
-- **C8 witness integrity (1)**: the 1 firing of a rule that invents a name
-  (step 5) uses exactly the name that firing must produce. The checker
-  rebuilt `skolem(6, 'W', [the graph])` itself from rule 6 and the graph, and
-  it matches; a proof could not slip in some other name there.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics: 5 steps, all 5 verified against the program, none taken on
-trust, 2 claims. The verdict is **checked**: both conclusions follow from the
-program. As the last comment says, they are also every answer of the original questions.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+The verdict is **checked**: both conclusions follow from the program, and
+they are every answer of the original questions.
 
 ---
 

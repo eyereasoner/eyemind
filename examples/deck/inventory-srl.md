@@ -73,7 +73,7 @@ Grouping counts distinct locations and computes SUM, MIN and MAX. Bolts total 20
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#locations'), 2)
 inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#total'), 200)
 inf(iri('http://example.org/inventory#bolt'), iri('http://example.org/inventory#smallest'), 80)
@@ -100,19 +100,23 @@ inf(iri('http://example.org/inventory#s3'), iri('http://example.org/inventory#qu
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
+The saved report ends with `verdict('checked')`.
 `GROUP BY` compiles to `findall_sorted`, so the aggregates do not depend on
-the order in which the stock records were derived. C9 settles each grouped
-list from the proof's search certificate: the certificate lists the facts
-the grouping searches, and the sorted list does not depend on derivation
-order.
-C1 checks each inference against the compiled source clauses, C5 re-decides
-primitive computations, C8 checks any fresh witness, and C10 checks the
-original questions against the proof's call tables. The checker follows the
-certificate without calling the reasoning engine.
+the order in which the stock records were derived. When a firing is
+replayed, each grouped list is taken from the proof's call tables for the
+search as it stood when the grouping ran; the sorted list of ground items
+depends only on which records there are, which the listings establish.
 
-The verdict also establishes that the displayed claims are every answer of
-the original questions, and `--strict-proof` accepts the proof.
+The checker reads the clauses from the compiled program, not from the
+proof, and never calls the reasoning engine. It answers the original
+questions from the proof's call tables, checking each table by expanding its
+call one level against the program; it requires each `derived` listing to be
+closed under the forward rules; and it replays the recorded firing of each
+listed fact, computing primitives again. A step, table or listing the check
+does not use fails it.
+
+The verdict establishes that the displayed claims follow from the compiled
+program and are every answer of its original questions.
 
 ---
 

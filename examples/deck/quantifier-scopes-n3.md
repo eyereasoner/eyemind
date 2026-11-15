@@ -74,11 +74,12 @@ The rumor's waver is no known astronomer, so nothing follows about it.
 
 ## What the proof establishes
 
-The report ends with `verdict('checked')`. C1 matches the step's premises
-against the source facts, which share the term `bnode('n3', 'someone')`; the
-graph term is matched by a helper that answers through backward search. C10
-replays that firing in source order, so the claims are every answer, with
-no obligations left.
+The report ends with `verdict('checked')`. The proof's one derived fact
+replays its firing: the premises are the source facts, which share the term
+`bnode('n3', 'someone')`, and the graph term is matched by a helper whose
+backward search the proof's call tables answer. Those tables also show that
+the rumor's graph matches nothing and that no `:wavingAstronomer` triple
+holds, so the claims are every answer of the original questions.
 
 ---
 

@@ -24,13 +24,14 @@ goals, and keep error messages specific and user-facing text direct.
     `templates.js`: potential derived clauses, scopes and generator links.
     `builtins.js`, `arith.js`: primitives and arithmetic.
   - `engine.js`: backward search as an explicit machine, semi-naive forward
-    rounds, Skolem terms, proof recording, search certificates, unused
-    clauses.
-  - `proof.js`: proof rendering and the C1–C10 checker, which never calls
-    the engine. `closure.js`: settling negations and collections by their
-    search certificate, one call expanded one level at a time. `fidelity.js`:
-    C10 original questions, call tables, supported forward dependencies and
-    the replay of recorded firings.
+    rounds, Skolem terms, proof recording, making a proof's certificate,
+    unused clauses.
+  - `proof.js`: proof rendering, reading and check reports; the checker
+    never calls the engine. `closure.js`: answering calls from a proof's
+    call tables, each expanded one level against the program, and the
+    closure of its listings. `fidelity.js`: the check itself: the original
+    questions, their answers against the claims, and the replay of recorded
+    firings.
   - `cli.js`: the command line, with no Node imports so the playground's
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
     library API. `version.js`: the version, synced from `package.json`.
@@ -56,7 +57,7 @@ goals, and keep error messages specific and user-facing text direct.
   renders the Markdown documents with one masthead (Playground,
   Specification, Conformance, Repository; the logo links home), the same nav the playground shows.
 - `examples/`: runnable examples, listed in `examples/manifest.json` with
-  their description, halt code and proof obligations. An entry can list its
+  their description and halt code. An entry can list its
   source files in order. RDF examples pair Turtle or TriG data in
   `examples/data/` with companion N3 rules directly in `examples/`.
   `examples/output/`,
@@ -96,7 +97,7 @@ goals, and keep error messages specific and user-facing text direct.
 - `README.md` (the guide: why eyemind, running, writing programs, proofs,
   playground, CLI, library, development), served by Pages as the site root;
   `SPEC.md` (RFC-style specification: terms, programs, arithmetic,
-  reasoning, canonical text, proof documents and the C1–C10 checks).
+  reasoning, canonical text, proof documents and proof checking).
 - `release`, `.github/workflows/`, `.zenodo.json`: releases, CI, Pages,
   GitHub releases, npm publishing and Zenodo archiving.
 - `reports/`: RDF and SPARQL RL EARL reports, refreshed from the complete
@@ -176,33 +177,31 @@ patching its output.
 Derived rule instances carry their generator's captured values and evidence;
 never reevaluate a generator under a backward caller's bindings. Analyze all
 potential rules and their generator dependencies before evaluating negation
-or collection, including rules whose generator never succeeds. Certificates
-cite generator premises directly and check witnesses in every enclosing scope.
+or collection, including rules whose generator never succeeds. Steps cite
+generator premises directly.
 
 Proof checking must stay sound: a forged proof must never report `checked`.
-The checker follows the certificate and never calls the engine to fill a gap;
-the source program, not a proof's clause displays, is the authority.
-Primitives are re-decided (C5); absences and collections are settled by the
-proof's search certificate, whose tables the checker expands one level each
-and whose listings must be closed (C9), or else stay obligations that
-evidence may refute (C6); a variable only a rule's conclusion mentions must
-be the Skolem term of that firing, recomputed from its uses (C8). C10 always
-checks the original questions using separate `called/2` tables, both ways:
-each claim is an answer, and each answer is claimed, so a strict `checked`
-establishes that the claims are every answer. Missing or unsupported
-evidence leaves a call-fidelity or all-answers obligation, rejected by
-strict checking. A restricted rule's guard is an ordinary negation of its
-clause, so C6 and C9 settle that each of its witnesses is needed; the engine
-fails a run whose witness later facts make unneeded, and a proof with a
-restricted witness never checks strictly. The checker accepts any supported,
-closed set of facts consistent with its negations, so chain stratification
-must only accept programs with one stable model: `test/properties.test.js`
-searches random chases for another. Every proof the engine generates is checked before
-it is returned. For every new check, add a forged proof the checker rejects,
-and confirm that all saved example proofs still check. `test/properties.test.js`
-forges proofs at random and catches a checker with C1, C2, C4, C5 or C8
-switched off; after changing the checker, run it with a larger
-`EYEMIND_PROPERTY_SCALE`.
+The checker follows the proof and never calls the engine to fill a gap; the
+source program is the authority, and a proof cites its clauses by number.
+Checking is one procedure, with no conditions: the original questions are
+answered from the proof's call tables, each checked by expanding its call one
+level against the program; every consulted listing of derived facts is
+closed under the forward rules, and each listed fact replays the firing its
+step records, from no bindings, so primitives, negations, collections, first
+answers and Skolem witnesses are decided as the search decided them. A call
+whose search rests on derived facts follows its step instead, never in a
+cycle. The claims must be exactly the answers, and a step, table or listing
+the check does not use fails it. What the format cannot establish (an order
+resting on derived facts, a restricted firing, `compare/3` on nonground
+terms, a table beyond its bound) fails, and the reasoner then refuses to
+certify rather than return an unchecked proof. The checker accepts any
+supported, closed set of facts consistent with its negations, so chain
+stratification must only accept programs with one stable model:
+`test/properties.test.js` searches random chases for another. Every proof the
+engine generates is checked before it is returned. For every new check, add a
+forged proof the checker rejects, and confirm that all saved example proofs
+still check. `test/properties.test.js` forges proofs at random; after changing
+the checker, run it with a larger `EYEMIND_PROPERTY_SCALE`.
 
 SPEC.md and the conformance suite are written for implementations by
 independent parties: interoperability comes from them, not from keeping
@@ -211,7 +210,8 @@ specification, keep the suite free of anything only eyemind can run, and put
 what another implementer needs in SPEC.md rather than only in eyemind's code.
 Floats from a host's math library (`exp`, `log`, trigonometry, `pow`) may
 differ in the last place between implementations; SPEC Section 13 allows it,
-and C5 accepts such a result within 4 units (Section 11.8).
+and a proof whose answers rest on such a result may then not check on
+another implementation.
 
 Run focused tests while working, then the full suite before finishing code
 changes. Add a regression test for each behavior change, in the style of the

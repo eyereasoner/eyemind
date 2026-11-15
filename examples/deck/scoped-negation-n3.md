@@ -58,7 +58,7 @@ different ranks. A dependency cycle through negation would be rejected.
 The check report records these answers as terms:
 
 ```js
-// Conclusions: the facts the program derives, in the order derived.
+// Checked answers: these follow from the input program and are every answer of its questions.
 rdf(iri('https://example.org/orders#order2'), iri('https://example.org/orders#hold'), iri('https://example.org/orders#addressCheck'))
 rdf(iri('https://example.org/orders#order1'), iri('https://example.org/orders#action'), iri('https://example.org/orders#ship'))
 ```
@@ -80,15 +80,16 @@ That absence is relative to this document and its rules.
 
 ## What the proof establishes
 
-C9 settles the recorded absence for order 1 using the proof's `searched/2`
-tables and `derived/2` listing. It checks the listing's fact evidence and
-closure, including the rule that derives the hold for order 2. Simply
-omitting that hold from the certificate would not pass closure.
+Order 1 ships because no hold is recorded for it. Replaying that firing
+takes the absence from the proof's call table for the search, as it stood
+when the negation ran; the call table is itself checked against the
+`derived/2` listing of `rdf/3`. The listing must be closed under the forward
+rules, including the rule that derives the hold for order 2, so simply
+omitting that hold from the certificate fails the check.
 
-The report ends with `verdict('checked')`, with no obligations. C10 checks
-the original questions too: the `rdf/3` listing is supported and closed,
-and the rule's negation is decided by the listed facts alone, so the
-claims are exactly what the questions return. `--strict-proof` accepts the proof.
+The report ends with `verdict('checked')`. The listing is supported by
+replayed firings and closed, and the rule's negation is decided by the
+listed facts alone, so the claims are exactly what the questions return.
 
 ---
 

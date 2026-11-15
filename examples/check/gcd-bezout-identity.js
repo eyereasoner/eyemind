@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 certificate('common_factor', 6, -1, 3)
 certificate('coprime', 1, 215, -47)
 certificate('zero_left', 5, 0, 1)
@@ -14,26 +14,4 @@ identity_holds('larger')
 identity_holds('negative')
 identity_holds('large')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 73)
-condition('C2', 'well_founded', 'ok', 236)
-condition('C3', 'justification', 'ok', 236)
-condition('C4', 'coverage', 'ok', 286)
-condition('C5', 're_decision', 'ok', 163)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 250)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 16)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(236)
-verified(73)
-recomputed(163)
-composed(0)
-trusted(0)
-claims(14)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

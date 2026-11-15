@@ -46,7 +46,7 @@ Order o1 is paid and has no hold. Order o2 has an address-check hold; order o3 i
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program and are every answer of its questions.
 rdf(iri('http://example.org/orders#o1'), iri('http://example.org/orders#action'), iri('http://example.org/orders#ship'))
 ```
 
@@ -54,14 +54,17 @@ rdf(iri('http://example.org/orders#o1'), iri('http://example.org/orders#action')
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
-C1 checks each inference against the compiled source clauses, C5 re-decides
-primitive computations, C8 checks any fresh witness, and C10 checks the
-original questions against the proof's call tables. The checker follows the
-certificate without calling the reasoning engine.
+The saved report ends with `verdict('checked')`. The proof has a step for the
+derived shipping triple, citing the compiled rule with o1 bound, and a
+certificate: the listing of derived triples and four call tables. The scoped
+negation rests on two of them: asking for a hold on o1 gives no answer,
+while asking for a hold on o2 gives the address check. The checker expands
+each table against the compiled program, replays the step with the negation
+taken from the table at its actual call, and requires the claims to be
+exactly the answers. It never calls the reasoning engine.
 
-The verdict certifies the displayed claims; it does not assert that an
-arbitrary proof lists every possible answer.
+The verdict establishes the displayed claim and that it is every answer of
+the original question.
 
 ---
 

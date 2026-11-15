@@ -60,7 +60,7 @@ The program implements these stated schema rules.
 The check report records these answers as terms:
 
 ```js
-// Answers: each instance of a query() that holds.
+// Checked answers: these follow from the input program and are every answer of its questions.
 result(iri('https://example.org/french-cities#angers'), iri('https://example.org/french-cities#canReach'), iri('https://example.org/french-cities#nantes'))
 result(iri('https://example.org/french-cities#lemans'), iri('https://example.org/french-cities#canReach'), iri('https://example.org/french-cities#nantes'))
 result(iri('https://example.org/french-cities#chartres'), iri('https://example.org/french-cities#canReach'), iri('https://example.org/french-cities#nantes'))
@@ -102,11 +102,24 @@ Bourges, Blois and Tours. For example:
 If a path from one of those cities to Nantes is derived, the run halts.
 None of these fuses fires for the supplied graph.
 
-The saved report ends with `verdict('checked')`, with four claims and no
-obligations. C1 checks the path derivations; C10 checks the original query
-against the positive forward closure. The verdict certifies the four
-reported positive answers, and that they are every answer of the query: no
-other city is reachable.
+The proof holds the four claims, 37 steps and a certificate. Every path is
+derived by forward rules, so each derived `:path` triple has a step citing
+the subproperty or transitivity rule that concluded it, and each answer one
+citing the query rule, clause 24. The certificate lists the derived `result`
+and `rdf` facts and holds a call table for each search the questions make.
+The tables for the cities without a way onward are empty, for example:
+
+```js
+called(rdf(iri('https://example.org/french-cities#amiens'), iri('https://example.org/french-cities#path'), M), [])
+called(rdf(iri('https://example.org/french-cities#nantes'), iri('https://example.org/french-cities#path'), M), [])
+```
+
+The checker requires both listings to be closed under the rules, so no path
+can be left out; replays every listed fact's step from its source rule;
+checks each table by expanding its call one level; and requires the claims
+to be exactly the answers. The saved report ends with `verdict('checked')`:
+the four answers follow from the N3 source, and they are every answer of the
+query, so no other city reaches Nantes.
 
 ---
 
@@ -115,7 +128,7 @@ other city is reachable.
 ```sh
 node bin/eyemind.js examples/french-cities-n3.n3
 node bin/eyemind.js --to eyemind examples/french-cities-n3.n3
-node bin/eyemind.js --strict-proof --check-proof examples/proof/french-cities-n3.js examples/french-cities-n3.n3
+node bin/eyemind.js --check-proof examples/proof/french-cities-n3.js examples/french-cities-n3.n3
 ```
 
 To inspect the compilation:

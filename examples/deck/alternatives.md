@@ -94,58 +94,27 @@ route('paris', 'lille')
 or(train('paris', 'brussels'), bus('paris', 'lille'))
 once(route('paris', 'brussels'))
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(train('paris', 'brussels')))
-clause(2, fact(bus('paris', 'lille')))
-clause(3, implied_by(route(From, To), train(From, To)))
-clause(4, implied_by(route(From, To), bus(From, To)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(route('paris', 'brussels'), clause(3), {From: 'paris', To: 'brussels'}, [train('paris', 'brussels')])
-step(train('paris', 'brussels'), clause(1), {}, [])
-step(route('paris', 'lille'), clause(4), {From: 'paris', To: 'lille'}, [bus('paris', 'lille')])
-step(bus('paris', 'lille'), clause(2), {}, [])
-step(or(train('paris', 'brussels'), bus('paris', 'lille')), 'control', {}, [train('paris', 'brussels')])
-step(once(route('paris', 'brussels')), 'control', {}, [route('paris', 'brussels')])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 called(route('paris', A), [route('paris', 'brussels'), route('paris', 'lille')])
 ```
 
-It has three parts:
+It has two parts:
 
 - **The claims**: the four answers the proof is about.
-- **The clauses**: the program's facts and rules that the steps rely on,
-  numbered in program order (the questions are not clauses).
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`. The values say what
-  each variable stood for; *using what* lists the things this step needs,
-  each of which has its own step.
+- **The certificate**: here a single **call table**. `called(Call, Answers)`
+  says: *this call, made while answering the questions, has exactly these
+  answers, in this order*. `A` is the destination still unknown when the
+  call was made.
 
-Two kinds of justification occur:
+Read the table as a sentence: *asking for a route from Paris gives Brussels
+first, then Lille, and nothing else.* Two questions make that call: the
+query for every route from Paris, and the `once` inside the last query,
+which takes its first answer, Brussels.
 
-- `clause(N)`: the step is an instance of fact or rule N.
-- `'control'`: the step is an `or` or a `once`, justified by the part it is
-  built from. It cites no clause, because `or` and `once` are part of the
-  language itself.
-
-Read the steps as sentences:
-
-1. *There is a route from Paris to Brussels* — by rule 3 (the train
-   alternative), with `From` being Paris and `To` Brussels, because there is
-   a train from Paris to Brussels.
-2. *There is a train from Paris to Brussels* — fact 1; it uses nothing.
-3. *There is a route from Paris to Lille* — by rule 4 (the bus alternative),
-   with `From` being Paris and `To` Lille, because there is a bus from Paris
-   to Lille.
-4. *There is a bus from Paris to Lille* — fact 2; it uses nothing.
-5. *Train to Brussels or bus to Lille* — a control step: it holds because
-   its first side, the train to Brussels, holds (step 2). The second side is
-   not needed.
-6. *Once, a route from Paris: Brussels* — a control step: the first route
-   found is the one to Brussels (step 1).
+The other question, *train to Brussels or bus to Lille*, needs no table: it
+asks only about stated facts, which the checker reads from the program
+itself. A proof can also hold `step(...)` records of how forward rules
+derived facts; this program has none, so neither has its proof.
 
 ---
 
@@ -153,70 +122,28 @@ Read the steps as sentences:
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers each question
+by applying the program one level at a time, taking every inner call's
+answers from its table, and it checks the table the same way: rule 3 (the
+train alternative) gives Brussels and rule 4 (the bus alternative) gives
+Lille, in that order, exactly as the table says. `or` and `once` keep their
+meaning: the `or` holds by its first side, and `once` takes the first answer
+of the table. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 route('paris', 'brussels')
 route('paris', 'lille')
 or(train('paris', 'brussels'), bus('paris', 'lille'))
 once(route('paris', 'brussels'))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 4)
-condition('C2', 'well_founded', 'ok', 6)
-condition('C3', 'justification', 'ok', 6)
-condition('C4', 'coverage', 'ok', 8)
-condition('C5', 're_decision', 'ok', 2)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 10)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 7)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(6)
-verified(4)
-recomputed(0)
-composed(2)
-trusted(0)
-claims(4)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (4)**: the 4 steps that cite a clause really are instances
-  of it. Step 1 is rule 3 with `From` = Paris and `To` = Brussels; step 3 is
-  rule 4 with `To` = Lille; steps 2 and 4 are the two facts.
-- **C2 well-founded (6)**: none of the 6 steps depends on itself, even
-  indirectly.
-- **C3 justification (6)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (8)**: the 4 claims and the 4 things the steps use are each
-  backed by a step: nothing is taken for granted.
-- **C5 re-decision (2)**: the 2 control steps were rebuilt from their parts.
-  The checker confirms that the train to Brussels really is one side of the
-  `or`, and that the Brussels route really is an answer to the question
-  inside `once`.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (10)**: each of the 4 claims answers one of the questions,
-  and all 6 steps serve a claim. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 6 steps, 4 verified against the program and 2
-composed from their parts, none taken on trust. The verdict is **checked**:
-all four answers follow from the program. As the last comment says, they
-are also every answer of the original questions.
+The verdict is **checked**: all four answers follow from the program, and
+they are every answer of the original questions. A table that left out
+Lille, or listed Lille first, would disagree with the program and fail the
+check.
 
 ---
 
@@ -237,13 +164,13 @@ because the train rule is tried first. `once` still answers Brussels,
 because that train fact still comes first.
 
 Delete the train fact instead. Only the Lille route is left, and `once` now
-answers Lille. The `or` question still holds: in the proof its control step
-now rests on the bus to Lille, the other side.
+answers Lille. The `or` question still holds, now by its other side, the
+bus to Lille.
 
 ---
 
 ## Takeaway
 
 "All of them", "at least one" and "just the first" are different questions.
-eyemind lets you say which one you mean, and its proof shows exactly which
-option answered.
+eyemind lets you say which one you mean, and its checked proof shows every
+option that answered, in the order it was found.

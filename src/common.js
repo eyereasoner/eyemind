@@ -1,5 +1,5 @@
 // Helpers shared by the engine and the proof checker.
-import { Struct, Var, deref, freshTerm, isAnonymous, unify } from './terms.js';
+import { Env, Struct, Var, deref, freshTerm, isAnonymous, unify } from './terms.js';
 import { write } from './writer.js';
 
 // The canonical spelling of a term, which also serves as its identity.
@@ -241,4 +241,39 @@ export function variant(term, anonymous = false) {
     }
   }
   return out.join('\u0001');
+}
+
+export function sameValue(a, b) {
+  // Identical means the same canonical text: 0.0 and -0.0 differ.
+  return typeof a === 'number' ? Object.is(a, b) : a === b;
+}
+
+// Whether term, read through env, is exactly target, variables included.
+export function resolvesTo(term, env, target) {
+  const pending = [term, target];
+  while (pending.length) {
+    const expected = pending.pop();
+    let actual = pending.pop();
+    if (actual instanceof Var) actual = deref(actual, env);
+    if (actual instanceof Struct) {
+      if (!(expected instanceof Struct) || actual.name !== expected.name || actual.args.length !== expected.args.length) {
+        return false;
+      }
+      for (let i = actual.args.length - 1; i >= 0; i--) pending.push(actual.args[i], expected.args[i]);
+    } else if (actual instanceof Var) {
+      if (!(expected instanceof Var) || actual.name !== expected.name) return false;
+    } else if (expected instanceof Struct || expected instanceof Var || typeof actual !== typeof expected ||
+               !sameValue(actual, expected)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Whether goal is an instance of pattern: a copy of pattern renamed with
+// suffix matches goal without binding any variable of goal.
+export function isInstance(goal, pattern, suffix) {
+  const renamed = freshTerm(pattern, suffix);
+  const env = new Env();
+  return unify(renamed, goal, env) && resolvesTo(renamed, env, goal);
 }

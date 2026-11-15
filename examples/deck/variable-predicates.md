@@ -85,24 +85,14 @@ complete proof:
 t('alice', 'name', 'Alice')
 t('alice', 'age', 30)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(t('alice', 'source_name', 'Alice')))
-clause(2, fact(t('alice', 'source_age', 30)))
-clause(3, fact(maps('source_name', 'name')))
-clause(4, fact(maps('source_age', 'age')))
-clause(5, implies([t(S, Source, O), maps(Source, Target)], t(S, Target, O)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(t('alice', 'name', 'Alice'), clause(5), {S: 'alice', Source: 'source_name', O: 'Alice', Target: 'name'}, [t('alice', 'source_name', 'Alice'), maps('source_name', 'name')])
 step(t('alice', 'source_name', 'Alice'), clause(1), {}, [])
-step(maps('source_name', 'name'), clause(3), {}, [])
 step(t('alice', 'age', 30), clause(5), {S: 'alice', Source: 'source_age', O: 30, Target: 'age'}, [t('alice', 'source_age', 30), maps('source_age', 'age')])
 step(t('alice', 'source_age', 30), clause(2), {}, [])
-step(maps('source_age', 'age'), clause(4), {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(t(A, B, C), [t('alice', 'name', 'Alice'), t('alice', 'age', 30)])
 called(t('alice', 'name', A), [t('alice', 'name', 'Alice')])
 called(t(B, C, D), [t('alice', 'name', 'Alice'), t('alice', 'age', 30), t('alice', 'source_name', 'Alice'), t('alice', 'source_age', 30)])
@@ -112,25 +102,32 @@ called(t('alice', 'age', E), [t('alice', 'age', 30)])
 It has three parts:
 
 - **The claims**: the two answers the proof is about.
-- **The clauses**: the program's four facts and one rule, numbered 1 to 5 in
-  the order they appear in the program.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
+- **The steps**: one per derived fact, and for each use of `t` the rule
+  rests on. A step reads
+  `step(what, by which clause, with which values, using what)`. Clauses are
+  numbered in program order: the four facts 1 to 4 and the rule as clause 5.
+- **The certificate**: the *listing* `derived(t(A, B, C), ...)` of every `t`
+  fact the rule derived, and three *call tables*, each with every answer of
+  its call: the two queries, and the call `t(S, Source, O)` the rule's body
+  makes when the checker closes the listing.
 
-Read the steps as sentences:
+Read the lines as sentences:
 
 1. *alice has name 'Alice'* — by rule 5, with `S` = alice, `Source` =
    source_name, `O` = 'Alice' and `Target` = name, because alice has
    source_name 'Alice' and source_name maps to name.
-2. *alice has source_name 'Alice'* — fact 1; it uses nothing.
-3. *source_name maps to name* — fact 3; it uses nothing.
-4. *alice has age 30* — by rule 5 again, now with `Source` = source_age and
+2. *alice has source_name 'Alice'* — fact 1. It gets a step because the rule
+   concludes `t` facts, so a `t` goal it uses is followed to how it was
+   established. `maps` comes only from facts, so it needs no step.
+3. *alice has age 30* — by rule 5 again, now with `Source` = source_age and
    `Target` = age, because alice has source_age 30 and source_age maps to
    age.
-5. *alice has source_age 30* — fact 2; it uses nothing.
-6. *source_age maps to age* — fact 4; it uses nothing.
+4. *alice has source_age 30* — fact 2.
+5. *The rule derived exactly two `t` facts*, and *each query has exactly one
+   answer*. The table for `t(B, C, D)` lists all four `t` facts: the two
+   derived ones first, then the two stated ones.
 
-The values in steps 1 and 4 show which mapping row produced each answer.
+The values in steps 1 and 3 show which mapping row produced each answer.
 
 ---
 
@@ -138,64 +135,27 @@ The values in steps 1 and 4 show which mapping row produced each answer.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure. It
+answers each query one level against the program: the listed facts, then
+facts 1 and 2. It checks that the listing is closed: applying rule 5 to
+every `t` fact in the table for `t(B, C, D)` and every mapping gives only
+the two listed facts, because no mapping applies to `name` or `age`. It
+replays each listed fact, re-running rule 5 from scratch against its step;
+filling it with the values of step 1 gives exactly *alice has name 'Alice'*.
+Finally the claims must be exactly the answers, and every step, listing and
+table must have been used. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 t('alice', 'name', 'Alice')
 t('alice', 'age', 30)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 6)
-condition('C2', 'well_founded', 'ok', 6)
-condition('C3', 'justification', 'ok', 6)
-condition('C4', 'coverage', 'ok', 6)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 8)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 4)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(6)
-verified(6)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(2)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (6)**: each of the 6 steps really is an instance of the
-  rule or fact it cites; filling rule 5 with the values of step 1 gives
-  exactly *alice has name 'Alice'* from the two facts it uses.
-- **C2 well-founded (6)**: no step depends on itself, even indirectly.
-- **C3 justification (6)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (6)**: the 2 claims and the 4 facts the two rule steps use
-  are each backed by a step.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (8)**: the 2 claims answer the two queries, and all 6 steps
-  serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 6 steps, all 6 verified against the program,
-none taken on trust. The verdict is **checked**: both answers follow from the
-program, and they are every answer of the original questions.
+The verdict is **checked**: both answers follow from the program, and they
+are every answer of the original questions.
 
 ---
 

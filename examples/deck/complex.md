@@ -123,8 +123,9 @@ The first line is a comment saying what follows. In plain words:
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached each conclusion. The full proof
-is 295 lines with 215 steps, so here is its opening, a selection of its
-clauses, and the complete steps for the first two conclusions. The
+is 149 lines: the 23 conclusions, 23 steps and a certificate of 17 listings
+and 80 call tables. Here is its opening, the steps and listings for the
+first two conclusions, and the call tables they rest on. The
 [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/complex.js)
 is online.
 
@@ -134,65 +135,52 @@ sum(complex(4, 6))
 product(complex(-5, 10))
 // … 21 more conclusions
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, implied_by(complex_add(complex(A, B), complex(C, D), complex(R, I)), [is(R, add(A, C)), is(I, add(B, D))]))
-// … clause 2
-clause(3, implied_by(complex_mul(complex(A, B), complex(C, D), complex(R, I)), [is(R, sub(mul(A, C), mul(B, D))), is(I, add(mul(A, D), mul(B, C)))]))
-// … clauses 4 to 11
-clause(12, fact(point('z', complex(3, 4))))
-clause(13, fact(point('w', complex(1, 2))))
-// … clauses 14 and 15
-clause(16, implies([point('z', Z), point('w', W), complex_add(Z, W, Sum)], sum(Sum)))
-clause(17, implies([point('z', Z), point('w', W), complex_mul(Z, W, Product)], product(Product)))
-// … clauses 18 to 53, without 29 and 30, which no step needs
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(sum(complex(4, 6)), clause(16), {Z: complex(3, 4), W: complex(1, 2), Sum: complex(4, 6)}, [point('z', complex(3, 4)), point('w', complex(1, 2)), complex_add(complex(3, 4), complex(1, 2), complex(4, 6))])
-step(point('z', complex(3, 4)), clause(12), {}, [])
-step(point('w', complex(1, 2)), clause(13), {}, [])
-step(complex_add(complex(3, 4), complex(1, 2), complex(4, 6)), clause(1), {A: 3, B: 4, C: 1, D: 2, R: 4, I: 6}, [is(4, add(3, 1)), is(6, add(4, 2))])
-step(is(4, add(3, 1)), 'builtin', {}, [])
-step(is(6, add(4, 2)), 'builtin', {}, [])
 step(product(complex(-5, 10)), clause(17), {Z: complex(3, 4), W: complex(1, 2), Product: complex(-5, 10)}, [point('z', complex(3, 4)), point('w', complex(1, 2)), complex_mul(complex(3, 4), complex(1, 2), complex(-5, 10))])
-step(complex_mul(complex(3, 4), complex(1, 2), complex(-5, 10)), clause(3), {A: 3, B: 4, C: 1, D: 2, R: -5, I: 10}, [is(-5, sub(mul(3, 1), mul(4, 2))), is(10, add(mul(3, 2), mul(4, 1)))])
-step(is(-5, sub(mul(3, 1), mul(4, 2))), 'builtin', {}, [])
-step(is(10, add(mul(3, 2), mul(4, 1))), 'builtin', {}, [])
-// … 205 more steps, 215 in total
+// … 21 more steps, one per conclusion
+
+// Certificate: the derived facts and every answer of each call the questions make.
+derived(sum(A), [sum(complex(4, 6))])
+derived(product(A), [product(complex(-5, 10))])
+// … 15 more listings
+called(sum(A), [sum(complex(4, 6))])
+called(complex_add(complex(3, 4), complex(1, 2), B), [complex_add(complex(3, 4), complex(1, 2), complex(4, 6))])
+called(product(C), [product(complex(-5, 10))])
+called(complex_mul(complex(3, 4), complex(1, 2), D), [complex_mul(complex(3, 4), complex(1, 2), complex(-5, 10))])
+// … 76 more call tables
 ```
 
 It has three parts:
 
 - **The claims**: the 23 conclusions the proof is about.
-- **The clauses**: the program's rules and facts, numbered in the order they
-  appear in the program. Only the ones some step needs are listed. Clauses 29
-  and 30 handle angles in the lower half of the plane, which no calculation
-  here reaches.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`. The values in curly
-  braces say what each variable stood for.
+- **The steps**: one per conclusion, since each is a fact a forward rule
+  derived. A step reads `step(what, by which rule, with which values, using
+  what)`. The values in curly braces say what each variable stood for.
+- **The certificate**: the `derived(Pattern, Facts)` **listings** give every
+  fact the rules derived for a relation, and the `called(Call, Answers)`
+  **call tables** give every answer of each call made while answering the
+  questions.
 
-Read the ten steps above as sentences:
+Read the lines above as sentences:
 
 1. *z + w is 4 + 6i* — by rule 16, with `Z` = 3 + 4i, `W` = 1 + 2i, because
    z is 3 + 4i, w is 1 + 2i, and (3 + 4i) + (1 + 2i) = 4 + 6i.
-2. *z is 3 + 4i* — fact 12; it uses nothing.
-3. *w is 1 + 2i* — fact 13; it uses nothing.
-4. *(3 + 4i) + (1 + 2i) = 4 + 6i* — by rule 1, with A = 3, B = 4, C = 1,
-   D = 2, because 4 is 3 + 1 and 6 is 4 + 2.
-5. *4 is 3 + 1* — `'builtin'`: a calculation, which anyone checking the proof
-   simply redoes.
-6. *6 is 4 + 2* — `'builtin'`, likewise.
-7. *z × w is −5 + 10i* — by rule 17, because z and w are as above (steps 2
-   and 3 serve again) and (3 + 4i) × (1 + 2i) = −5 + 10i.
-8. *(3 + 4i) × (1 + 2i) = −5 + 10i* — by rule 3, with A = 3, B = 4, C = 1,
-   D = 2, because −5 is 3·1 − 4·2 and 10 is 3·2 + 4·1.
-9. *−5 is 3·1 − 4·2* — `'builtin'`.
-10. *10 is 3·2 + 4·1* — `'builtin'`.
+2. *z × w is −5 + 10i* — by rule 17, because z and w are as above and
+   (3 + 4i) × (1 + 2i) = −5 + 10i.
+3. *The only sum derived is 4 + 6i*, and *the only product is −5 + 10i*:
+   the listings.
+4. *Asking for a sum gives exactly 4 + 6i.*
+5. *Adding 3 + 4i and 1 + 2i gives exactly 4 + 6i*: rule 1, the backward
+   rule for addition, computes 3 + 1 and 4 + 2.
+6. *Asking for a product gives exactly −5 + 10i.*
+7. *Multiplying 3 + 4i by 1 + 2i gives exactly −5 + 10i*: rule 3 computes
+   3·1 − 4·2 and 3·2 + 4·1.
 
-Every one of the 23 conclusions has a trail like this, ending in facts and
-calculations. A fact used by several conclusions gets one step, which they
-all share.
+The facts z and w and the calculations themselves are not written down: the
+checker looks up the one and redoes the other. Every one of the 23
+conclusions has a trail like this, ending in facts and calculations.
 
 ---
 
@@ -200,11 +188,18 @@ all share.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it follows the
+certificate. It answers each question one level at a time from the call
+tables, checking each table the same way, so a wrong table shows up as a
+disagreement. It requires each listing to be closed under the rules, and
+replays each listed conclusion's step: it runs the rule again from no
+bindings and redoes every calculation, every comparison and every part of
+every number, rounding included. The claims must be exactly the answers, and
+a step, table or listing the check does not use fails it. This is the
+complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 sum(complex(4, 6))
 product(complex(-5, 10))
 quotient(complex(3.0, 4.0))
@@ -229,65 +224,12 @@ cosine(complex(1.9999999999999998, 0.0))
 arctangent(complex(1.3389725222944935, 0.402359478108525))
 tangent(complex(1.0, 1.9999999999999996))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 93)
-condition('C2', 'well_founded', 'ok', 215)
-condition('C3', 'justification', 'ok', 215)
-condition('C4', 'coverage', 'ok', 255)
-condition('C5', 're_decision', 'ok', 122)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 238)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 41)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(215)
-verified(93)
-recomputed(122)
-composed(0)
-trusted(0)
-claims(23)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-The report first repeats the 23 conclusions it confirmed. Each `condition`
-line then names a check, says `'ok'`, and counts what it looked at:
-
-- **C1 resolution (93)**: the 93 steps that cite a rule or fact really are
-  instances of it with the values shown, such as step 8 being rule 3 with
-  A = 3, B = 4, C = 1, D = 2.
-- **C2 well-founded (215)**: none of the 215 steps depends on itself, even
-  indirectly.
-- **C3 justification (215)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (255)**: the 23 claims and the 232 things the steps use are
-  each backed by a step: nothing is taken for granted.
-- **C5 re-decision (122)**: all 122 calculation steps were redone by the
-  checker itself, every comparison and every part of every number, and gave
-  the same results, rounding included.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (238)**: the 23 claims answer what the program asks, and all
-  215 steps serve one of them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 215 steps, 93 verified against the program, 122
-recomputed, no boundary steps taken on trust. The verdict is **checked**: all 23
-conclusions follow from the program. It confirms those conclusions; it does
-not say the program has no others, nor that the decimals are free of
-rounding.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+The report repeats the 23 conclusions it confirmed. The verdict is
+**checked**: all 23 conclusions follow from the program, and they are every
+answer of its questions. It does not say the decimals are free of rounding.
 
 ---
 
@@ -310,5 +252,5 @@ The two questions give `complex(256, 0)` and `complex(0.0, -1.0)` (so
 ## Takeaway
 
 A new kind of number is just a handful of rules. Because every calculation is
-recorded and redone by the checker, you can see exactly where results stay
+redone by the checker, you can see exactly where results stay
 exact and where decimals creep in.

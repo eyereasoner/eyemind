@@ -122,35 +122,15 @@ violation('alice', prohibited_action('share_record'))
 compensation('alice', compensation('share_record', 'notify_dpo'))
 status('alice', 'requires_review')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(obliged('alice', 'obtain_consent')))
-clause(2, fact(prohibited('alice', 'share_record')))
-clause(3, fact(compensates('share_record', 'notify_dpo')))
-clause(4, fact(performed('alice', 'share_record')))
-clause(5, fact(performed('alice', 'notify_dpo')))
-clause(6, fact(not_performed('alice', 'obtain_consent')))
-clause(8, implies([obliged(Actor, Action), not_performed(Actor, Action)], violation(Actor, missed_obligation(Action))))
-clause(9, implies([prohibited(Actor, Action), performed(Actor, Action)], violation(Actor, prohibited_action(Action))))
-clause(10, implies([violation(Actor, prohibited_action(Action)), compensates(Action, Compensation), performed(Actor, Compensation)], compensation(Actor, compensation(Action, Compensation))))
-clause(11, implies(violation(Actor, missed_obligation(Action)), uncompensated_violation(Actor, missed_obligation(Action))))
-clause(13, implies(uncompensated_violation(Actor, _0), status(Actor, 'requires_review')))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(violation('alice', missed_obligation('obtain_consent')), clause(8), {Actor: 'alice', Action: 'obtain_consent'}, [obliged('alice', 'obtain_consent'), not_performed('alice', 'obtain_consent')])
-step(obliged('alice', 'obtain_consent'), clause(1), {}, [])
-step(not_performed('alice', 'obtain_consent'), clause(6), {}, [])
 step(violation('alice', prohibited_action('share_record')), clause(9), {Actor: 'alice', Action: 'share_record'}, [prohibited('alice', 'share_record'), performed('alice', 'share_record')])
-step(prohibited('alice', 'share_record'), clause(2), {}, [])
-step(performed('alice', 'share_record'), clause(4), {}, [])
 step(compensation('alice', compensation('share_record', 'notify_dpo')), clause(10), {Actor: 'alice', Action: 'share_record', Compensation: 'notify_dpo'}, [violation('alice', prohibited_action('share_record')), compensates('share_record', 'notify_dpo'), performed('alice', 'notify_dpo')])
-step(compensates('share_record', 'notify_dpo'), clause(3), {}, [])
-step(performed('alice', 'notify_dpo'), clause(5), {}, [])
 step(status('alice', 'requires_review'), clause(13), {Actor: 'alice', _0: missed_obligation('obtain_consent')}, [uncompensated_violation('alice', missed_obligation('obtain_consent'))])
 step(uncompensated_violation('alice', missed_obligation('obtain_consent')), clause(11), {Actor: 'alice', Action: 'obtain_consent'}, [violation('alice', missed_obligation('obtain_consent'))])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(violation(A, B), [violation('alice', missed_obligation('obtain_consent')), violation('alice', prohibited_action('share_record'))])
 derived(compensation(A, B), [compensation('alice', compensation('share_record', 'notify_dpo'))])
 derived(status(A, B), [status('alice', 'requires_review')])
@@ -167,35 +147,40 @@ called(compensation('alice', compensation('share_record', _12)), [compensation('
 It has three parts:
 
 - **The claims**: the four answers the proof is about.
-- **The clauses**: the program clauses the proof relies on, by number.
-  Clause 7 (the copy not deleted) and clause 12 (the rule with `not`) are
-  missing because no step needs them. The don't-care `_` of rule 13 gets a
-  name, `_0`, so a step can say what it stood for.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
+- **The steps**: one for each fact a rule derived. A step reads
+  `step(what, by which clause, with which values, using what)`. The values
+  say what each variable of the cited rule stood for; the don't-care `_` of
+  rule 13 gets a name, `_0`, so a step can say what it stood for. The facts
+  the rules use, such as `obliged('alice', 'obtain_consent')`, are stated
+  in the program and need no step.
+- **The certificate**: the **listings**, `derived(Pattern, Facts)`, give
+  every fact the rules derived for each relation: two violations, one
+  compensation, one status and one uncompensated violation. The **call
+  tables**, `called(Call, Answers)`, give every answer of each call made
+  while checking: the three queries, and the calls the rules' bodies make.
 
 Read the steps as sentences:
 
 1. *Alice missed the obligation to obtain consent*: by rule 8, with `Actor`
-   = Alice and `Action` = obtain consent, because of the next two facts.
-2. *Alice was obliged to obtain consent*: fact 1.
-3. *Alice was observed not obtaining consent*: fact 6.
-4. *Alice took the prohibited action of sharing the record*: by rule 9,
-   because of the next two facts.
-5. *Sharing the record was prohibited for Alice*: fact 2.
-6. *Alice shared the record*: fact 4.
-7. *Her sharing is compensated by notifying the DPO*: by rule 10, with
-   `Compensation` = notify DPO, because of step 4 and the next two facts.
-8. *Notifying the DPO compensates sharing*: fact 3.
-9. *Alice notified the DPO*: fact 5.
-10. *Alice's case requires review*: by rule 13, with `_0` being the missed
-    obligation, because of the next step.
-11. *The missed consent is an uncompensated violation*: by rule 11, because
-    of step 1.
+   = Alice and `Action` = obtain consent, because she was obliged to (fact
+   1) and was observed not doing it (fact 6).
+2. *Alice took the prohibited action of sharing the record*: by rule 9,
+   because sharing was prohibited for her (fact 2) and she shared it (fact
+   4).
+3. *Her sharing is compensated by notifying the DPO*: by rule 10, with
+   `Compensation` = notify DPO, because of step 2, fact 3 (notifying the DPO
+   compensates sharing) and fact 5 (she notified the DPO).
+4. *Alice's case requires review*: by rule 13, with `_0` being the missed
+   obligation, because of the next step.
+5. *The missed consent is an uncompensated violation*: by rule 11, because
+   of step 1.
 
-Every step is justified by a clause of the program. The review rests on the
-missed consent, which is positive evidence, so the proof never needs rule 12
-and its "nothing found".
+The review rests on the missed consent, which is positive evidence, so no
+step needs rule 12 and its "nothing found". Rule 12 still matters to the
+check: the last table, `compensation('alice', compensation('share_record',
+_12))`, is the search its `not` makes for the shared record. It has an
+answer, so rule 12 does not fire there, and the listing of uncompensated
+violations rightly leaves the sharing out.
 
 ---
 
@@ -203,76 +188,28 @@ and its "nothing found".
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers each query
+from its call table, and checks each table it consults by applying the
+program's clauses one level at a time. Each listing must be closed: every
+rule, applied to the listed and stated facts, gives only facts that are
+listed, and a `not` is decided from the table of the call as it was made.
+Each listed fact must replay the firing its step records. A step, table or
+listing the check does not use fails it. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 violation('alice', missed_obligation('obtain_consent'))
 violation('alice', prohibited_action('share_record'))
 compensation('alice', compensation('share_record', 'notify_dpo'))
 status('alice', 'requires_review')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 11)
-condition('C2', 'well_founded', 'ok', 11)
-condition('C3', 'justification', 'ok', 11)
-condition('C4', 'coverage', 'ok', 13)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 15)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 7)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(11)
-verified(11)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(4)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (11)**: each of the 11 steps really is an instance of the
-  clause it cites, with the values shown.
-- **C2 well-founded (11)**: no step depends on itself, even indirectly.
-- **C3 justification (11)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (13)**: the 4 claims and the 9 things the rule steps use
-  are each backed by a step: nothing is taken for granted.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (15)**: the 4 claims answer the queries, and all 11 steps
-  serve them. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to settle.
-- **C10 call fidelity (4)**: the 4 claims are what the original questions
-  return.
-
-The statistics repeat this: 11 steps, all 11 verified against the program,
-no boundary steps taken on trust. The verdict is **checked**: all four answers follow
-from the program. As the last comment says, they are also every answer of
-the original questions.
-
-C10 checks the original questions too. The search certificate lists every
-fact the rules derive for each relation the answers rest on, each with
-steps of its own, and no rule derives one the lists leave out. The
-negations are decided by those listed facts alone, and this program has
-only one such set of facts, so all four claims are what its questions
-return. The verdict is **checked**, with no obligations, and
-`--strict-proof` accepts it.
-
+The verdict is **checked**: all four answers follow from the program, and
+they are every answer of its queries. The negation in rule 12 is decided by
+the listed facts alone, and this stratified program has only one such set
+of facts, so the four claims are exactly what its questions return.
 
 ---
 

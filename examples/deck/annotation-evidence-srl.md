@@ -82,14 +82,17 @@ inf(iri('http://example.org/annotation-evidence#test'), iri('http://example.org/
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
-C1 checks inference steps against the compiled source clauses; C5 checks
-primitive computations; C8 checks fresh witnesses; C10 checks the original
-questions against the recorded call tables. The checker follows the
+The saved report ends with `verdict('checked')`. The proof holds the eight
+claims, 12 steps recording which compiled rule derived each inferred triple
+and from which triples, and a certificate: `derived(...)` listings of the
+facts the rules derived and a `called(...)` table of every answer of the
+question. The checker answers the question from that table, expanding it one
+level against the compiled program, requires each listing to be closed under
+the rules, and replays each listed fact's recorded firing. It follows the
 certificate without calling the reasoning engine.
 
-The verdict describes the displayed claims and any listed obligations. It
-does not assert that an arbitrary certificate lists every possible answer.
+The verdict **checked** establishes that the claims follow from the rules
+and are every answer of the question.
 
 ---
 

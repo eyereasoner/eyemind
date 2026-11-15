@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 assessment('directive_2015', 'r7', refused_by_terms([unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)]), basis(['ex:terms']))
 assessment('directive_2015', 'r8', refused_by_terms([unmet('ex:byLeadTraveller', 'ex:requesterRole', 'ex:otherPerson', 'odrl:eq', 'ex:leadTraveller')]), basis(['ex:terms']))
 assessment('revised_2026', 'r7', refused_by_terms([unmet('ex:beforeDeparture', 'ex:daysBeforeDeparture', -2, 'odrl:gt', 0)]), basis(['ex:terms']))
@@ -24,26 +24,4 @@ changed(cancellation('r6'), from(voucher(value(1600), terms('as_agreed'))), to(v
 changed(complaint('k1'), from(deadlines('set_by_national_law')), to(deadlines(acknowledge(within_days(7)), reasoned_reply(within_days(60)))))
 changed(complaint('k2'), from(deadlines('set_by_national_law')), to(deadlines(acknowledge(within_days(7)), reasoned_reply(within_days(60)))))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 185)
-condition('C2', 'well_founded', 'ok', 218)
-condition('C3', 'justification', 'ok', 218)
-condition('C4', 'coverage', 'ok', 419)
-condition('C5', 're_decision', 'ok', 33)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 242)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 30)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(218)
-verified(185)
-recomputed(33)
-composed(0)
-trusted(0)
-claims(24)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

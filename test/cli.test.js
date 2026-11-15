@@ -39,12 +39,11 @@ export const tests = {
     assert.equal(generated.code, 0, generated.stderr);
     const checked = command(['--check-proof', '-', 'examples/socrates.js'], generated.stdout);
     assert.equal(checked.code, 0, checked.stderr);
-    assert.ok(checked.stdout.includes("condition('C1', 'resolution', 'ok', 3)\n"));
-    assert.ok(checked.stdout.includes("verdict('checked')\n"));
+    assert.ok(checked.stdout.endsWith("\n\nverdict('checked')\n"));
     const asJson = cli(['--json', '--check-proof', '-', 'examples/socrates.js'], generated.stdout);
     assert.equal(asJson.code, 0);
     assert.ok(JSON.parse(asJson.stdout).valid);
-    assert.equal(JSON.parse(asJson.stdout).conditions.length, 10);
+    assert.deepEqual(JSON.parse(asJson.stdout).failures, []);
     assert.equal(cli(['--check-proof', '-', 'examples/socrates.js'], `${generated.stdout}bogus()\n`).code, 2);
   },
 
@@ -55,7 +54,7 @@ export const tests = {
       [[], "fact(p('a'))\nquery(p(X))"],
       [['examples/socrates.js', '--json'], ''],
       [['examples/socrates.js', '--goal', "type(X, 'mortal')"], ''],
-      [['examples/witnesses-n3.n3', '--strict-proof'], ''],
+      [['examples/witnesses-n3.n3'], ''],
     ]) assert.deepEqual(cli(['-c', ...args], stdin), cli(['--prove-and-check', ...args], stdin));
     assert.equal(command(['-c', 'examples/socrates.js']).code, 0);
     assert.equal(cli(['-c', 'examples/socrates.js']).stdout,
@@ -66,8 +65,9 @@ export const tests = {
     assert.equal(cli(['-c'], "fact(p('a'))\nquery(p(X))").code, 0);
     assert.deepEqual(JSON.parse(cli(['-c', '--json', 'examples/socrates.js']).stdout).answers,
       ["type('socrates', 'mortal')", "type('socrates', 'human')"]);
-    assert.equal(cli(['-c', '--strict-proof', 'examples/witnesses-n3.n3']).code, 0);
-    assert.equal(cli(['-c', '--strict-proof'], "fact(p('a'))\nrestricted(p(X), q(X, W))").code, 2);
+    assert.equal(cli(['-c', 'examples/witnesses-n3.n3']).code, 0);
+    // A restricted firing cannot be certified, so no proof is made.
+    assert.equal(cli(['-c'], "fact(p('a'))\nrestricted(p(X), q(X, W))").code, 1);
     assert.equal(cli(['-c', 'examples/integrity.js']).code, 65);
     assert.equal(JSON.parse(cli(['-c', '--stats', 'examples/socrates.js']).stderr).derived, 1);
     for (const args of [['-p'], ['--check-proof', 'examples/proof/socrates.js'], ['--unused']]) {
@@ -81,7 +81,7 @@ export const tests = {
     assert.equal(help.code, 0);
     assert.equal(help.stderr, '');
     assert.deepEqual([...help.stdout.matchAll(/^(?:  -[a-z], |      )(--[a-z-]+)/gm)].map((match) => match[1]), [
-      '--proof', '--prove-and-check', '--check-proof', '--json', '--goal', '--strict-proof', '--unused', '--stats',
+      '--proof', '--prove-and-check', '--check-proof', '--json', '--goal', '--unused', '--stats',
       '--max-depth', '--max-iterations', '--max-inferences', '--to', '--all', '--program', '--base', '--stream-messages', '--version', '--help',
     ]);
     for (const [short, long] of [['-p', '--proof'], ['-c', '--prove-and-check'], ['-v', '--version'], ['-h', '--help']]) {
@@ -89,31 +89,31 @@ export const tests = {
     }
   },
 
-  'call fidelity generates a C10 certificate and checks it automatically'() {
+  'a generated proof is checked with its call tables'() {
     const generated = cli(['--proof', 'examples/socrates.js']);
     assert.equal(generated.code, 0, generated.stderr);
     const checked = cli(['--json', '--check-proof', '-', 'examples/socrates.js'], generated.stdout);
     assert.equal(checked.code, 0, checked.stderr);
-    assert.equal(JSON.parse(checked.stdout).conditions.at(-1).id, 'C10');
+    assert.ok(JSON.parse(checked.stdout).valid);
     const direct = cli(['--prove-and-check', '--json', 'examples/socrates.js']);
     assert.deepEqual(JSON.parse(direct.stdout), JSON.parse(checked.stdout));
-    const legacy = readFileSync(join(ROOT, 'examples/proof/socrates.js'), 'utf8').split('\n').filter((line) => !line.startsWith('called(')).join('\n');
-    const missing = cli(['--strict-proof', '--check-proof', '-', 'examples/socrates.js'], legacy);
+    const without = readFileSync(join(ROOT, 'examples/proof/socrates.js'), 'utf8').split('\n').filter((line) => !line.startsWith('called(')).join('\n');
+    const missing = cli(['--check-proof', '-', 'examples/socrates.js'], without);
     assert.equal(missing.code, 2);
-    assert.match(missing.stdout, /failure\('C10'/);
+    assert.match(missing.stdout, /failure\('the certificate cannot establish the answers of type\(X, Y\)'\)/);
   },
 
   'a proof document given as a program says how to check it'() {
     const ran = cli(['examples/proof/socrates.js']);
     assert.equal(ran.code, 1);
     assert.ok(ran.stderr.includes('this is a proof document, not a program: check it with --check-proof PROOF PROGRAM'), ran.stderr);
-    assert.ok(cli([], "fact(struct('clause', 'a', 'b'))\n").stderr.includes('reserved head clause/2'));
+    assert.ok(cli([], "fact(struct('derived', 'a', 'b'))\n").stderr.includes('reserved head derived/2'));
   },
 
   'an option written where a value belongs says the value is missing'() {
     const proof = 'examples/proof/socrates.js';
     for (const [args, message] of [
-      [['--check-proof', '--strict-proof', proof, 'examples/socrates.js'], '--check-proof needs a value right after it, not the option --strict-proof'],
+      [['--check-proof', '--json', proof, 'examples/socrates.js'], '--check-proof needs a value right after it, not the option --json'],
       [['--goal', '-p', 'examples/socrates.js'], '--goal needs a value right after it, not the option -p'],
       [['--max-depth', '--stats', 'examples/socrates.js'], '--max-depth needs a value right after it, not the option --stats'],
     ]) {
@@ -122,8 +122,8 @@ export const tests = {
       assert.ok(ran.stderr.includes(message), ran.stderr);
     }
     // Standard input stays a value, and the options work in either order.
-    assert.equal(cli(['--strict-proof', '--check-proof', proof, 'examples/socrates.js']).code, 0);
-    assert.equal(cli(['--check-proof', proof, '--strict-proof', 'examples/socrates.js']).code, 0);
+    assert.equal(cli(['--json', '--check-proof', proof, 'examples/socrates.js']).code, 0);
+    assert.equal(cli(['--check-proof', proof, '--json', 'examples/socrates.js']).code, 0);
   },
 
   'prints the version'() {
@@ -170,20 +170,14 @@ export const tests = {
     }
   },
 
-  'failed and strict checks print verdicts and exit unsuccessfully'() {
-    const failed = cli(['--check-proof', '-', '--goal', 'is(7, add(2, 3))', 'examples/socrates.js'],
-      "is(7, add(2, 3))\nstep(is(7, add(2, 3)), 'builtin', {}, [])\n");
+  'failed checks print their failures and verdict and exit unsuccessfully'() {
+    const failed = cli(['--check-proof', '-', '--goal', 'is(X, add(2, 3))', 'examples/socrates.js'], 'is(7, add(2, 3))\n');
     assert.equal(failed.code, 2);
     assert.equal(failed.stderr, '');
-    assert.ok(failed.stdout.includes("condition('C5', 're_decision', failed(1), 0)\n"));
-    assert.ok(failed.stdout.includes("failure('C5', is(7, add(2, 3)),"));
-    assert.ok(failed.stdout.includes('verdict(failed(2))\n'));
-    const incomplete = readFileSync(join(ROOT, 'examples/proof/socrates.js'), 'utf8')
-      .replace(/^(?:called|derived)\(.*\n/gm, '');
-    const strictly = cli(['--strict-proof', '--check-proof', '-', 'examples/socrates.js'], incomplete);
-    assert.equal(strictly.code, 2);
-    assert.ok(strictly.stdout.includes("obligation('call_fidelity', 'original_call',"));
-    assert.ok(strictly.stdout.includes('verdict(failed('));
+    assert.ok(failed.stdout.includes("failure('the question does not return this answer: is(7, add(2, 3))')\n"));
+    assert.ok(failed.stdout.includes("failure('the proof omits an answer of is(X, add(2, 3)): is(5, add(2, 3))')\n"));
+    assert.ok(failed.stdout.endsWith('verdict(failed(2))\n'));
     assert.equal(cli(['--json', 'examples/socrates.js']).code, 1);
+    assert.equal(cli(['--strict-proof', '-c', 'examples/socrates.js']).code, 1);
   },
 };

@@ -4,17 +4,8 @@ rdf(iri('http://example.org/c1'), iri('http://example.org/staff'), iri('http://e
 rdf(iri('http://example.org/c1'), iri('http://example.org/staff'), iri('http://example.org/tim'))
 rdf(iri('http://example.org/c1'), iri('http://example.org/examiner'), iri('http://example.org/tim'))
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(rdf(iri('http://example.org/c1'), iri('http://example.org/participant'), iri('http://example.org/ann'))))
-clause(2, fact(rdf(iri('http://example.org/c1'), iri('http://example.org/teacher'), iri('http://example.org/ann'))))
-clause(3, fact(rdf(iri('http://example.org/c1'), iri('http://example.org/teacher'), iri('http://example.org/tim'))))
-clause(4, fact(rdf(iri('http://example.org/teacher'), iri('http://www.w3.org/2000/01/rdf-schema#subPropertyOf'), iri('http://example.org/staff'))))
-clause(12, implies(rdf(C, iri('http://example.org/participant'), P), rdf(P, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student'))))
-clause(13, implies([rdf(C, iri('http://example.org/teacher'), P), not(rdf(P, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student')))], rdf(C, iri('http://example.org/examiner'), P)))
-clause(15, implies([rdf(P, iri('http://www.w3.org/2000/01/rdf-schema#subPropertyOf'), Q), rdf(X, P, Y)], rdf(X, Q, Y)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(rdf(iri('http://example.org/ann'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student')), clause(12), {C: iri('http://example.org/c1'), P: iri('http://example.org/ann')}, [rdf(iri('http://example.org/c1'), iri('http://example.org/participant'), iri('http://example.org/ann'))])
 step(rdf(iri('http://example.org/c1'), iri('http://example.org/participant'), iri('http://example.org/ann')), clause(1), {}, [])
 step(rdf(iri('http://example.org/c1'), iri('http://example.org/staff'), iri('http://example.org/ann')), clause(15), {P: iri('http://example.org/teacher'), Q: iri('http://example.org/staff'), X: iri('http://example.org/c1'), Y: iri('http://example.org/ann')}, [rdf(iri('http://example.org/teacher'), iri('http://www.w3.org/2000/01/rdf-schema#subPropertyOf'), iri('http://example.org/staff')), rdf(iri('http://example.org/c1'), iri('http://example.org/teacher'), iri('http://example.org/ann'))])
@@ -23,17 +14,9 @@ step(rdf(iri('http://example.org/c1'), iri('http://example.org/teacher'), iri('h
 step(rdf(iri('http://example.org/c1'), iri('http://example.org/staff'), iri('http://example.org/tim')), clause(15), {P: iri('http://example.org/teacher'), Q: iri('http://example.org/staff'), X: iri('http://example.org/c1'), Y: iri('http://example.org/tim')}, [rdf(iri('http://example.org/teacher'), iri('http://www.w3.org/2000/01/rdf-schema#subPropertyOf'), iri('http://example.org/staff')), rdf(iri('http://example.org/c1'), iri('http://example.org/teacher'), iri('http://example.org/tim'))])
 step(rdf(iri('http://example.org/c1'), iri('http://example.org/teacher'), iri('http://example.org/tim')), clause(3), {}, [])
 step(rdf(iri('http://example.org/c1'), iri('http://example.org/examiner'), iri('http://example.org/tim')), clause(13), {C: iri('http://example.org/c1'), P: iri('http://example.org/tim')}, [rdf(iri('http://example.org/c1'), iri('http://example.org/teacher'), iri('http://example.org/tim')), not(rdf(iri('http://example.org/tim'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student')))])
-step(not(rdf(iri('http://example.org/tim'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student'))), 'absent', {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(rdf(A, B, C), [rdf(iri('http://example.org/ann'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student')), rdf(iri('http://example.org/c1'), iri('http://example.org/staff'), iri('http://example.org/ann')), rdf(iri('http://example.org/c1'), iri('http://example.org/staff'), iri('http://example.org/tim')), rdf(iri('http://example.org/c1'), iri('http://example.org/examiner'), iri('http://example.org/tim'))])
-searched(rdf(iri('http://example.org/tim'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student')), [])
-searched(rdf(D, iri('http://example.org/participant'), E), [rdf(iri('http://example.org/c1'), iri('http://example.org/participant'), iri('http://example.org/ann'))])
-searched(rdf(F, iri('http://example.org/teacher'), G), [rdf(iri('http://example.org/c1'), iri('http://example.org/teacher'), iri('http://example.org/ann')), rdf(iri('http://example.org/c1'), iri('http://example.org/teacher'), iri('http://example.org/tim'))])
-searched(rdf(iri('http://example.org/ann'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student')), [rdf(iri('http://example.org/ann'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student'))])
-searched(rdf(H, iri('http://www.w3.org/2000/01/rdf-schema#subPropertyOf'), I), [rdf(iri('http://example.org/teacher'), iri('http://www.w3.org/2000/01/rdf-schema#subPropertyOf'), iri('http://example.org/staff'))])
-searched(rdf(iri('http://example.org/staff'), iri('http://www.w3.org/2000/01/rdf-schema#subPropertyOf'), J), [])
 called(rdf(A, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student')), [rdf(iri('http://example.org/ann'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/Student'))])
 called(rdf(B, iri('http://example.org/participant'), C), [rdf(iri('http://example.org/c1'), iri('http://example.org/participant'), iri('http://example.org/ann'))])
 called(rdf(D, iri('http://example.org/teacher'), E), [rdf(iri('http://example.org/c1'), iri('http://example.org/teacher'), iri('http://example.org/ann')), rdf(iri('http://example.org/c1'), iri('http://example.org/teacher'), iri('http://example.org/tim'))])

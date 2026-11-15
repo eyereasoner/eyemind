@@ -12,20 +12,11 @@ conformance('an inline forward template has local universal variables and direct
     '// Conclusions: the facts the program derives, in the order derived.',
     "test('yes')",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    "clause(1, fact(cat('minka')))",
-    "clause(2, fact(dog('charly')))",
-    "clause(3, implies(cat(X), implies(dog(Y), test('yes'))))",
-    "clause(4, implies([cat(X), dog(Y)], test('yes')))",
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     "step(test('yes'), clause(4), {X: 'minka', Y: 'charly'}, [cat('minka'), dog('charly')])",
-    "step(cat('minka'), clause(1), {}, [])",
-    "step(dog('charly'), clause(2), {}, [])",
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     "derived(test(A), [test('yes')])",
     "called(test('yes'), [test('yes')])",
   ]),
@@ -202,20 +193,12 @@ conformance('fact states one fact per argument, numbered in order', [
     'q(1)',
     'q(2)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, fact(p(2)))',
-    'clause(3, implies(p(X), q(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(q(1), clause(3), {X: 1}, [p(1)])',
-    'step(p(1), clause(1), {}, [])',
     'step(q(2), clause(3), {X: 2}, [p(2)])',
-    'step(p(2), clause(2), {}, [])',
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'derived(q(A), [q(1), q(2)])',
     'called(q(A), [q(1), q(2)])',
   ]),
@@ -233,18 +216,12 @@ conformance('a forward rule may conclude several heads joined with &', [
     'a(1)',
     'b(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, implies(p(X), [a(X), b(X)]))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(a(1), clause(2), {X: 1}, [p(1)])',
-    'step(p(1), clause(1), {}, [])',
     'step(b(1), clause(2), {X: 1}, [p(1)])',
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'derived(a(A), [a(1)])',
     'derived(b(A), [b(1)])',
     'called(a(A), [a(1)])',
@@ -252,50 +229,62 @@ conformance('a forward rule may conclude several heads joined with &', [
   ]),
 ])
 
-conformance('a backward rule without a body is a fact', [
-  spec('3.4'),
-  args("--proof --goal 'p(X)' program.js"),
+conformance('a fact is a clause without a body', [
+  spec('3.4, 10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    'fact(p(1))',
+    'fact(p(1), r(2))',
+    'implies(r(X), p(X))',
+    'implies(p(X), q(X))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'p(1)',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'p(2)',
+    'q(2)',
+    'q(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(p(2), clause(3), {X: 2}, [r(2)])',
+    'step(q(2), clause(4), {X: 2}, [p(2)])',
+    'step(q(1), clause(4), {X: 1}, [p(1)])',
     'step(p(1), clause(1), {}, [])',
+    '',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(p(A), [p(2)])',
+    'derived(q(A), [q(2), q(1)])',
+    'called(p(A), [p(2), p(1)])',
+    'called(q(B), [q(2), q(1)])',
   ]),
 ])
 
 conformance('a body conjunction is split into its goals', [
-  spec('3.4, 3.5'),
-  args("--proof --goal 'r(X)' program.js"),
+  spec('3.4, 3.5, 10.2'),
+  args('--proof program.js'),
   file('program.js', [
-    'fact(p(1), q(1))',
+    'fact(p(1))',
+    'implies(p(X), q(X))',
     'implied_by(r(X), [p(X), q(X)])',
+    'implies(r(X), s(X))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'r(1)',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    'q(1)',
+    's(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, fact(q(1)))',
-    'clause(3, implied_by(r(X), [p(X), q(X)]))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    'step(q(1), clause(2), {X: 1}, [p(1)])',
+    'step(s(1), clause(4), {X: 1}, [r(1)])',
     'step(r(1), clause(3), {X: 1}, [p(1), q(1)])',
-    'step(p(1), clause(1), {}, [])',
-    'step(q(1), clause(2), {}, [])',
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
-    'called(r(A), [r(1)])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(q(A), [q(1)])',
+    'derived(s(A), [s(1)])',
+    'called(q(A), [q(1)])',
+    'called(s(B), [s(1)])',
+    'called(r(C), [r(1)])',
+    'called(q(1), [q(1)])',
   ]),
 ])
 
@@ -368,17 +357,11 @@ conformance('several program files form one program, numbered in order', [
     '// Conclusions: the facts the program derives, in the order derived.',
     'q(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, implies(p(X), q(X)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(q(1), clause(2), {X: 1}, [p(1)])',
-    'step(p(1), clause(1), {}, [])',
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
     'derived(q(A), [q(1)])',
     'called(q(A), [q(1)])',
   ]),
@@ -603,14 +586,36 @@ conformance('a head of step/4 is reserved', [
   stdout([]),
 ])
 
-conformance('a head of clause/2 is reserved', [
+conformance('a head of derived/2 is reserved', [
   spec('3.4, 3.5'),
   exit(1),
   stderr('nonempty'),
   file('program.js', [
-    "fact(struct('clause', 1, 2))",
+    "fact(struct('derived', 1, 2))",
   ]),
   stdout([]),
+])
+
+conformance('a head of called/2 is reserved', [
+  spec('3.4, 3.5'),
+  exit(1),
+  stderr('nonempty'),
+  file('program.js', [
+    "fact(struct('called', 1, 2))",
+  ]),
+  stdout([]),
+])
+
+conformance('clause/2 is an ordinary relation', [
+  spec('3.5'),
+  file('program.js', [
+    'fact(clause(1, 2))',
+    'query(clause(X, Y))',
+  ]),
+  stdout([
+    '// …',
+    'clause(1, 2)',
+  ]),
 ])
 
 conformance('a primitive cannot be a head', [
@@ -872,12 +877,23 @@ conformance("explicit predicate names reject the reserved name step", [
   ]),
 ])
 
-conformance("explicit predicate names reject the reserved name clause", [
+conformance("explicit predicate names reject the reserved name derived", [
   spec("3.2"),
   exit(1),
   stderr(prefix('eyemind:')),
   file('program.js', [
-    "preds('clause')",
+    "preds('derived')",
+  ]),
+  stdout([
+  ]),
+])
+
+conformance("explicit predicate names reject the reserved name called", [
+  spec("3.2"),
+  exit(1),
+  stderr(prefix('eyemind:')),
+  file('program.js', [
+    "preds('called')",
   ]),
   stdout([
   ]),
@@ -1117,46 +1133,32 @@ conformance("an inactive nested generator cannot hide a collection dependency cy
 // Scripts (3.1).
 
 conformance('clauses are numbered in the order their statement calls run', [
-  spec('3.1, 3.5'),
-  args("--proof --goal 'p(2)' program.js"),
+  spec('3.1, 3.5, 8.2'),
   file('program.js', [
-    'function later() { fact(p(2)) }',
+    'function later() { implies(p(X), w(X, V)) }',
     'fact(p(1))',
     'later()',
     'fact(p(3))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'p(2)',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(2, fact(p(2)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(2), clause(2), {}, [])',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "w(1, skolem(2, 'V', [1]))",
+    "w(3, skolem(2, 'V', [3]))",
   ]),
 ])
 
 conformance('scripts are processed in command-line order, not by name', [
-  spec('3.1, 3.5'),
-  args("--proof --goal 'p(X)' b.js a.js"),
+  spec('3.1, 3.5, 8.2'),
+  args('b.js a.js'),
   file('a.js', [
-    'fact(p(1))',
-  ]),
-  file('b.js', [
     'fact(q(1))',
   ]),
+  file('b.js', [
+    'implies(q(X), w(X, V))',
+  ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'p(1)',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(2, fact(p(1)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(p(1), clause(2), {}, [])',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "w(1, skolem(1, 'V', [1]))",
   ]),
 ])
 
@@ -1555,28 +1557,23 @@ conformance('a spread compound supplies the tail', [
 ])
 
 conformance('anonymous variable names restart in every clause', [
-  spec('3.3, 10.2, 10.3'),
-  args("--proof --goal 'q(1)' program.js"),
+  spec('3.3, 8.2, 10.2'),
+  args('--proof program.js'),
   file('program.js', [
     "fact(p(_, 'x'))",
-    'implied_by(q(_), p(_, _))',
+    'implies(p(_, _), q(_))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'q(1)',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "q(skolem(2, '_2', []))",
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    "clause(1, fact(p(_0, 'x')))",
-    'clause(2, implied_by(q(_0), p(_1, _2)))',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
+    "step(q(skolem(2, '_2', [])), clause(2), {_0: A, _1: 'x', _2: skolem(2, '_2', [])}, [p(A, 'x')])",
     '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    "step(q(1), clause(2), {_0: 1, _1: A, _2: 'x'}, [p(A, 'x')])",
-    "step(p(A, 'x'), clause(1), {_0: A}, [])",
-    '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
-    'called(q(1), [q(1)])',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    "derived(q(B), [q(skolem(2, '_2', []))])",
+    "called(q(_0), [q(skolem(2, '_2', []))])",
   ]),
 ])
 
@@ -1727,64 +1724,41 @@ conformance('facts_from reads an object literal as a list of pairs', [
 // Clause constraints and numbering (3.5).
 
 conformance('a query takes a clause number', [
-  spec('3.5'),
-  args("--proof --goal 'q(X)' program.js"),
+  spec('3.5, 8.2'),
   file('program.js', [
     'fact(p(1))',
-    'query(p(X))',
-    'fact(q(1))',
+    'query(w(X, Y))',
+    'implies(p(X), w(X, V))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'q(1)',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(3, fact(q(1)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(q(1), clause(3), {}, [])',
+    '// Answers: each instance of a query() that holds.',
+    "w(1, skolem(3, 'V', [1]))",
   ]),
 ])
 
 conformance('an embedded rule call takes no clause number', [
-  spec('3.5, 6.2'),
-  args("--proof --goal 'q(X)' program.js"),
+  spec('3.5, 6.2, 8.2'),
   file('program.js', [
     'implies(p(X), implies(q(Y), r(Y)))',
     'fact(q(2))',
+    'implies(q(X), w(X, V))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'q(2)',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(2, fact(q(2)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(q(2), clause(2), {}, [])',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "w(2, skolem(3, 'V', [2]))",
   ]),
 ])
 
 conformance('facts read by facts_from are numbered where the call stands', [
-  spec('3.4, 3.5'),
-  args("--proof --goal 'c(X)' program.js"),
+  spec('3.4, 3.5, 8.2'),
   file('program.js', [
     'fact(a(1))',
     "facts_from({text: 'b(1)\\nb(2)'})",
-    'fact(c(1))',
+    'implies(a(X), w(X, V))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
-    'c(1)',
-    '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(4, fact(c(1)))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
-    'step(c(1), clause(4), {}, [])',
+    '// Conclusions: the facts the program derives, in the order derived.',
+    "w(1, skolem(4, 'V', [1]))",
   ]),
 ])
 
@@ -1907,30 +1881,21 @@ conformance('an empty array inside not is not a goal', [
 
 conformance('nested conjunction arrays in a body are flattened', [
   spec('3.5, 10.2'),
-  args("--proof --goal 'r(X)' program.js"),
+  args('--proof program.js'),
   file('program.js', [
     'fact(p(1), q(1), s(1))',
-    'implied_by(r(X), [[p(X), q(X)], s(X)])',
+    'implies([[p(X), q(X)], s(X)], r(X))',
   ]),
   stdout([
-    '// Answers: each instance of a goal that holds.',
+    '// Conclusions: the facts the program derives, in the order derived.',
     'r(1)',
     '',
-    '// Clauses: the program clauses the steps cite, by clause number.',
-    'clause(1, fact(p(1)))',
-    'clause(2, fact(q(1)))',
-    'clause(3, fact(s(1)))',
-    'clause(4, implied_by(r(X), [p(X), q(X), s(X)]))',
-    '',
-    '// Steps: each goal, what justifies it (a clause, a builtin, a control, an',
-    '// absence or a collection), the bindings and the goals it uses.',
+    '// Steps: each derived fact and what it rests on: the clause or control that',
+    '// justifies it, the bindings and the goals it uses.',
     'step(r(1), clause(4), {X: 1}, [p(1), q(1), s(1)])',
-    'step(p(1), clause(1), {}, [])',
-    'step(q(1), clause(2), {}, [])',
-    'step(s(1), clause(3), {}, [])',
     '',
-    '// Search certificate: derived facts and complete answers used to check',
-    '// negations, collections and the original questions.',
+    '// Certificate: the derived facts and every answer of each call the questions make.',
+    'derived(r(A), [r(1)])',
     'called(r(A), [r(1)])',
   ]),
 ])

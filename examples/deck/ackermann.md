@@ -102,113 +102,56 @@ computed in full. Note that A(4, 1) and A(5, 0) are both 65,533.
 
 ## The proof, line by line
 
-`eyemind --proof` writes down how it reached each answer. The proof has 74
-steps and is 322 KB, mostly because the 19,729-digit number appears in
-several steps; the [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/ackermann.js)
-is linked above. Here are its claims (one shortened), all its clauses, and
-the complete chain for A(4, 0) = 13 and A(4, 1) = 65533, which are steps
-34–61 of the 74:
+`eyemind --proof` writes down how it reached each answer. The proof is 47
+lines and 81 KB, mostly because the 19,729-digit number appears in four of
+them; the [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/ackermann.js)
+is linked above. After the 11 claims comes the certificate. Here are the call
+tables behind A(4, 0) = 13 and A(4, 1) = 65533:
 
 ```js
-// Answers: each instance of a query() that holds.
-ackermann([0, 6], 7)
-ackermann([1, 2], 4)
-ackermann([1, 7], 9)
-ackermann([2, 2], 7)
-ackermann([2, 9], 21)
-ackermann([3, 4], 125)
-ackermann([3, 14], 131069)
-ackermann([4, 0], 13)
-ackermann([4, 1], 65533)
-ackermann([4, 2], 2003529930406846464979072351560255750447…) // … 19,729 digits
-ackermann([5, 0], 65533)
-
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, implied_by(ackermann([X, Y], A), [is(B, add(Y, 3)), hyper(X, B, 2, C), is(A, sub(C, 3))]))
-clause(2, implied_by(hyper(0, Y, _0, A), is(A, add(Y, 1))))
-clause(3, implied_by(hyper(1, Y, Z, A), is(A, add(Y, Z))))
-clause(4, implied_by(hyper(2, Y, Z, A), is(A, mul(Y, Z))))
-clause(5, implied_by(hyper(3, Y, Z, A), is(A, pow(Z, Y))))
-clause(6, implied_by(hyper(X, 0, _0, 1), gt(X, 3)))
-clause(7, implied_by(hyper(X, Y, Z, A), [gt(X, 3), gt(Y, 0), is(B, sub(Y, 1)), hyper(X, B, Z, C), is(D, sub(X, 1)), hyper(D, C, Z, A)]))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-// … steps 1–33: the answers for levels 0 to 3
-step(ackermann([4, 0], 13), clause(1), {X: 4, Y: 0, A: 13, B: 3, C: 16}, [is(3, add(0, 3)), hyper(4, 3, 2, 16), is(13, sub(16, 3))])
-step(is(3, add(0, 3)), 'builtin', {}, [])
-step(hyper(4, 3, 2, 16), clause(7), {X: 4, Y: 3, Z: 2, A: 16, B: 2, C: 4, D: 3}, [gt(4, 3), gt(3, 0), is(2, sub(3, 1)), hyper(4, 2, 2, 4), is(3, sub(4, 1)), hyper(3, 4, 2, 16)])
-step(gt(4, 3), 'builtin', {}, [])
-step(gt(3, 0), 'builtin', {}, [])
-step(is(2, sub(3, 1)), 'builtin', {}, [])
-step(hyper(4, 2, 2, 4), clause(7), {X: 4, Y: 2, Z: 2, A: 4, B: 1, C: 2, D: 3}, [gt(4, 3), gt(2, 0), is(1, sub(2, 1)), hyper(4, 1, 2, 2), is(3, sub(4, 1)), hyper(3, 2, 2, 4)])
-step(gt(2, 0), 'builtin', {}, [])
-step(is(1, sub(2, 1)), 'builtin', {}, [])
-step(hyper(4, 1, 2, 2), clause(7), {X: 4, Y: 1, Z: 2, A: 2, B: 0, C: 1, D: 3}, [gt(4, 3), gt(1, 0), is(0, sub(1, 1)), hyper(4, 0, 2, 1), is(3, sub(4, 1)), hyper(3, 1, 2, 2)])
-step(gt(1, 0), 'builtin', {}, [])
-step(is(0, sub(1, 1)), 'builtin', {}, [])
-step(hyper(4, 0, 2, 1), clause(6), {X: 4, _0: 2}, [gt(4, 3)])
-step(is(3, sub(4, 1)), 'builtin', {}, [])
-step(hyper(3, 1, 2, 2), clause(5), {Y: 1, Z: 2, A: 2}, [is(2, pow(2, 1))])
-step(is(2, pow(2, 1)), 'builtin', {}, [])
-step(hyper(3, 2, 2, 4), clause(5), {Y: 2, Z: 2, A: 4}, [is(4, pow(2, 2))])
-step(is(4, pow(2, 2)), 'builtin', {}, [])
-step(hyper(3, 4, 2, 16), clause(5), {Y: 4, Z: 2, A: 16}, [is(16, pow(2, 4))])
-step(is(16, pow(2, 4)), 'builtin', {}, [])
-step(is(13, sub(16, 3)), 'builtin', {}, [])
-step(ackermann([4, 1], 65533), clause(1), {X: 4, Y: 1, A: 65533, B: 4, C: 65536}, [is(4, add(1, 3)), hyper(4, 4, 2, 65536), is(65533, sub(65536, 3))])
-step(is(4, add(1, 3)), 'builtin', {}, [])
-step(hyper(4, 4, 2, 65536), clause(7), {X: 4, Y: 4, Z: 2, A: 65536, B: 3, C: 16, D: 3}, [gt(4, 3), gt(4, 0), is(3, sub(4, 1)), hyper(4, 3, 2, 16), is(3, sub(4, 1)), hyper(3, 16, 2, 65536)])
-step(gt(4, 0), 'builtin', {}, [])
-step(hyper(3, 16, 2, 65536), clause(5), {Y: 16, Z: 2, A: 65536}, [is(65536, pow(2, 16))])
-step(is(65536, pow(2, 16)), 'builtin', {}, [])
-step(is(65533, sub(65536, 3)), 'builtin', {}, [])
-// … steps 62–74: A(4, 2) and A(5, 0), 74 steps in total
+called(ackermann([4, 0], _14), [ackermann([4, 0], 13)])
+called(hyper(4, 3, 2, P), [hyper(4, 3, 2, 16)])
+called(hyper(4, 2, 2, Q), [hyper(4, 2, 2, 4)])
+called(hyper(4, 1, 2, R), [hyper(4, 1, 2, 2)])
+called(hyper(4, 0, 2, S), [hyper(4, 0, 2, 1)])
+called(hyper(3, 1, 2, T), [hyper(3, 1, 2, 2)])
+called(hyper(3, 2, 2, U), [hyper(3, 2, 2, 4)])
+called(hyper(3, 4, 2, V), [hyper(3, 4, 2, 16)])
+called(ackermann([4, 1], _22), [ackermann([4, 1], 65533)])
+called(hyper(4, 4, 2, X), [hyper(4, 4, 2, 65536)])
+called(hyper(3, 16, 2, Y), [hyper(3, 16, 2, 65536)])
 ```
 
-It has three parts:
+A proof has up to three parts:
 
-- **The claims**: the 11 answers.
-- **The clauses**: the seven program rules, numbered by their position in
-  the program. The `_` placeholder is named `_0` so a step can say what it
-  stood for.
-- **The steps**: one per thing established. A step reads
-  `step(what, justified by, with which values, using what)`. A `'builtin'`
-  step is a calculation or comparison the checker redoes itself.
+- **The claims**: the 11 answers, exactly as the run printed them.
+- **The steps**: `step(...)` records of how forward rules derived facts.
+  Every rule here is a backward rule, worked out only when asked, so this
+  proof has none.
+- **The certificate**: here only **call tables**. `called(Call, Answers)`
+  says: *this call, made while answering the questions, has exactly these
+  answers*. The variables in the calls (`_14`, `P`, `Q`, …) are the
+  unknowns still open when the call was made.
 
-Read the A(4, 0) and A(4, 1) chain as sentences, numbered here from 1:
+Read the tables above as sentences:
 
-1. *A(4, 0) = 13* — by rule 1, with `X` = 4, `Y` = 0, `B` = 3 and `C` = 16:
-   shift 0 up to 3, apply level 4 to get 16, subtract 3.
-2. *0 + 3 = 3* — builtin.
-3. *Level 4 applied 3 times (base 2) gives 16* — by rule 7: level 3
-   applied to the result of level 4 applied 2 times.
-4. *4 > 3* and 5. *3 > 0* — builtins: rule 7 applies only above level 3,
-   and only to a count above 0.
-6. *3 − 1 = 2* — builtin.
-7. *Level 4 applied 2 times gives 4* — by rule 7 again, one count lower.
-8. *2 > 0* and 9. *2 − 1 = 1* — builtins.
-10. *Level 4 applied once gives 2* — by rule 7 again.
-11. *1 > 0* and 12. *1 − 1 = 0* — builtins.
-13. *Level 4 applied 0 times gives 1* — by rule 6, the bottom of the
-    ladder; it uses `gt(4, 3)` from step 4.
-14. *4 − 1 = 3* — builtin: the level below 4 is 3.
-15. –20. *2¹ = 2, 2² = 4, 2⁴ = 16* — by rule 5 (level 3 is a power) and
-    three builtin powers. So the tower grows 1 → 2 → 4 → 16.
-21. *16 − 3 = 13* — builtin. That is A(4, 0).
-22. *A(4, 1) = 65533* — by rule 1, with `B` = 4 and `C` = 65536.
-23. *1 + 3 = 4* — builtin.
-24. *Level 4 applied 4 times gives 65536* — by rule 7, as level 3 applied to
-    16. The 16 is *level 4 applied 3 times*, already proved in step 3, so
-    it is reused, not repeated.
-25. *4 > 0* — builtin.
-26. –27. *Level 3 applied to 16 gives 65536*, because *2¹⁶ = 65536* — rule
-    5 and a builtin.
-28. *65536 − 3 = 65533* — builtin. That is A(4, 1).
+1. *Asking A(4, 0) gives exactly one answer, 13.*
+2. *Asking level 4 applied 3 times (base 2) gives exactly 16.* Rule 1 asks
+   this after shifting 0 up to 3.
+3. –5. *Level 4 applied 2, 1 and 0 times gives 4, 2 and 1.* Rule 7 asks each
+   in turn, one count lower, until rule 6 reaches the bottom of the ladder.
+6. –8. *Level 3 applied 1, 2 and 4 times gives 2, 4 and 16*: the powers
+   2¹, 2² and 2⁴, by rule 5. So the tower grows 1 → 2 → 4 → 16.
+9. *Asking A(4, 1) gives exactly 65533.*
+10. *Level 4 applied 4 times gives 65536*: rule 7 asks for level 4 applied 3
+    times, already in the table of line 2, so it is not repeated.
+11. *Level 3 applied to 16 gives 65536*, that is 2¹⁶.
 
-The left-out steps work the same way. A(4, 2) reuses the 65,536 just
-proved and computes 2⁶⁵⁵³⁶ in one builtin step; A(5, 0) climbs level 5,
-which comes back down to level 4 and reuses the earlier steps.
+The sums, differences, comparisons and powers in between are not written
+down at all: the checker computes them itself. The left-out tables work the
+same way. A(4, 2) reuses the 65,536 just found and asks for 2⁶⁵⁵³⁶; A(5, 0)
+climbs level 5, which comes back down to level 4 and reuses the earlier
+tables.
 
 ---
 
@@ -216,12 +159,16 @@ which comes back down to level 4 and reuses the earlier steps.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report, with the one 19,729-digit
-number shortened:
+a saved proof. The checker never reasons by itself. It answers each question
+by applying the program's rules one level at a time, taking the answer of
+every inner call from its table, and computing every builtin itself. Each
+table it consults is checked the same way, so a wrong table shows up as a
+disagreement: 2⁶⁵⁵³⁶ is recomputed with all 19,729 digits. A table the check
+does not use fails it too. This is the complete report, with the one
+19,729-digit number shortened:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 ackermann([0, 6], 7)
 ackermann([1, 2], 4)
 ackermann([1, 7], 9)
@@ -234,58 +181,13 @@ ackermann([4, 1], 65533)
 ackermann([4, 2], 2003529930406846464979072351560255750447…) // … 19,729 digits
 ackermann([5, 0], 65533)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 33)
-condition('C2', 'well_founded', 'ok', 74)
-condition('C3', 'justification', 'ok', 74)
-condition('C4', 'coverage', 'ok', 106)
-condition('C5', 're_decision', 'ok', 41)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 85)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 22)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(74)
-verified(33)
-recomputed(41)
-composed(0)
-trusted(0)
-claims(11)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (33)**: the 33 steps that cite a rule really are
-  instances of it with the values shown: 11 uses of rule 1 and 22 of the
-  `hyper` rules.
-- **C2 well-founded (74)**: none of the 74 steps depends on itself, even
-  indirectly. For a recursive rule like rule 7 this matters: the chain must
-  come down to the bottom of the ladder, not go round in a circle.
-- **C3 justification (74)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (106)**: the 11 claims and the 95 things the steps use are
-  each backed by a step.
-- **C5 re-decision (41)**: the checker **recomputed** all 41 builtin
-  steps, including 2⁶⁵⁵³⁶ with all 19,729 digits, and got the same results.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of something, so there is nothing to confront.
-- **C7 relevance (85)**: the 11 claims answer the queries, and all 74 steps
-  serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 74 steps, 33 verified against the program, 41
-recomputed, none taken on trust. The verdict is **checked**: all 11 values,
-down to the last digit, follow from the rules, and they are
-every answer of the original questions.
+The verdict is **checked**: all 11 values, down to the last digit, follow
+from the rules, and they are every answer of the original questions. Had the
+proof claimed a wrong value, or left one out, the report would list each
+`failure(...)` and end with `verdict(failed(N))`.
 
 ---
 

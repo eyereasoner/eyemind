@@ -123,19 +123,40 @@ colour choices when needed and returns this first complete solution.
 
 ## What the proof establishes
 
-The collection certificate accounts for every country. For each chosen
-colour, search tables establish that no already-coloured neighbour conflicts.
-The recorded success/failure calls also justify the search's first complete
-result, including failed attempts that lead to another colour choice.
+Every rule is a backward rule, so the proof is the claim and a certificate of
+1,187 **call tables**, 568 KB in all: `called(Call, Answers)` says that a
+call the search made has exactly these answers. Most are `member` and
+`conflict` calls. These tables record the first two choices, from the end of
+the list: Croatia meets no coloured neighbour, so red is free; Romania's
+neighbours Hungary and Bulgaria are not Croatia, so red is free for Romania
+too:
 
-C10 checks both that the claim answers the original query and that every
-answer of that query is claimed. The program deliberately returns one
-colouring; it does not enumerate every valid colouring of the map. The
-checker follows the certificate against the source clauses without running
-the search itself.
+```js
+called(conflict('red', [], ['Slovenia', 'Hungary']), [])
+called(member([F1, 'red'], []), [])
+called(conflict('red', [['Croatia', 'red']], ['Hungary', 'Bulgaria']), [])
+called(member([I1, 'red'], [['Croatia', 'red']]), [member(['Croatia', 'red'], [['Croatia', 'red']])])
+called(member('Croatia', ['Hungary', 'Bulgaria']), [])
+called(member('Croatia', ['Bulgaria']), [])
+called(member('Croatia', []), [])
+```
 
-The verdict is **checked**, with zero obligations. This checks one map; the
-[four colour theorem](https://en.wikipedia.org/wiki/Four_color_theorem)
+An empty table is how the proof says *no answer*: `not(conflict(...))` holds
+because its table is empty, and a failed attempt shows up as a `try_colors`
+table whose answer is `'failed'`, followed by the next colour.
+
+The checker never runs the search itself. It answers the query by applying
+the program's rules one level at a time, collecting the countries from the
+`neighbours` facts and taking every inner answer from its table, and checks
+each table it consults the same way, so a wrong table shows up as a
+disagreement. `once`, `not` and the `findall` take the answers of their
+tables at the bindings they had when the search ran. A table the check does
+not use fails it.
+
+The verdict is **checked**: the colouring follows from the program and is
+the only answer of its query, which asks for the first complete colouring;
+the program does not enumerate every valid colouring of the map. This checks
+one map; the [four colour theorem](https://en.wikipedia.org/wiki/Four_color_theorem)
 concerns all planar maps.
 
 ---
@@ -144,7 +165,7 @@ concerns all planar maps.
 
 ```sh
 eyemind examples/four-color.js
-eyemind --strict-proof -c examples/four-color.js
+eyemind -c examples/four-color.js
 ```
 
 In a copy, change the palette in `try_colors` to explore fewer colours or a

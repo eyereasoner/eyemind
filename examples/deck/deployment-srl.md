@@ -72,7 +72,7 @@ Dependency rules carry the ledger vulnerability through payments to the shop. Th
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program and are every answer of its questions.
 inf(iri('http://example.org/deployment#shop'), iri('http://example.org/deployment#dependsOn'), iri('http://example.org/deployment#payments'))
 inf(iri('http://example.org/deployment#payments'), iri('http://example.org/deployment#dependsOn'), iri('http://example.org/deployment#ledger'))
 inf(iri('http://example.org/deployment#ledger'), iri('http://example.org/deployment#exposedTo'), iri('http://example.org/deployment#cve1'))
@@ -96,14 +96,33 @@ inf(iri('http://example.org/deployment#cve1'), iri('http://example.org/deploymen
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. C10 certifies the original questions, so the claims are every answer, and strict checking accepts the proof.
-C1 checks each inference against the compiled source clauses, C5 re-decides
-primitive computations, C8 checks any fresh witness, and C10 checks the
-original questions against the proof's call tables. The checker follows the
-certificate without calling the reasoning engine.
+The rule set compiles to an eyemind program: each data triple becomes the
+facts `rdf(S, P, O)` and `inf(S, P, O)`, each `RULE` a forward rule, and
+`NOT { ... }` a negation of a helper relation, here `srl_not_6_1`. The proof
+cites that program's clauses. It holds the 17 claims, 23 steps, and a
+certificate of 2 listings and 45 call tables. The steps record the firing
+behind each derived triple; the **listings**, `derived(inf(A, B, C), ...)`
+and `derived(rdf(A, B, C), ...)`, give every triple the rules derived; the
+**call tables**, `called(Call, Answers)`, give every answer of each call
+made while answering the query, including the decimal comparison
+`9.8 >= 9.0` worked out by the compiled filter functions.
 
-The verdict certifies the displayed claims; it does not assert that an
-arbitrary proof lists every possible answer.
+The logger's step and the two tables behind its `NOT`:
+
+```js
+step(inf(iri('http://example.org/deployment#logger'), iri('http://example.org/deployment#status'), iri('http://example.org/deployment#safeToDeploy')), clause(23), {X: iri('http://example.org/deployment#logger')}, [rdf(iri('http://example.org/deployment#logger'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/deployment#Component')), not(srl_not_6_1(iri('http://example.org/deployment#logger')))])
+called(srl_not_6_1(iri('http://example.org/deployment#logger')), [])
+called(rdf(iri('http://example.org/deployment#logger'), iri('http://example.org/deployment#status'), iri('http://example.org/deployment#critical')), [])
+```
+
+The logger is safe to deploy because the search for its critical status has
+no answers. The checker verifies each table it consults by applying the
+program's clauses one level at a time, requires each listing to be closed
+under the rules, and replays each listed triple's firing, deciding the
+negation from the table of its call. It follows the certificate without
+calling the reasoning engine. The saved report ends with
+`verdict('checked')`: the claims follow from the rule set and are every
+answer of its query.
 
 ---
 

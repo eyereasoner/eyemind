@@ -87,26 +87,15 @@ classified_as('joe', 'cobbler')
 classified_as('jane', 'carpenter')
 classified_as('sam', 'cobbler')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(description('joe', ['good', 'cobbler'])))
-clause(2, fact(description('jane', ['good', 'carpenter'])))
-clause(3, fact(description('sam', ['novice', 'cobbler'])))
-clause(4, implies(description(Person, [_0, Trade]), classified_as(Person, Trade)))
-clause(5, implies(description(Person, ['good', Trade]), good_at(Person, Trade)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(good_at('joe', 'cobbler'), clause(5), {Person: 'joe', Trade: 'cobbler'}, [description('joe', ['good', 'cobbler'])])
-step(description('joe', ['good', 'cobbler']), clause(1), {}, [])
 step(good_at('jane', 'carpenter'), clause(5), {Person: 'jane', Trade: 'carpenter'}, [description('jane', ['good', 'carpenter'])])
-step(description('jane', ['good', 'carpenter']), clause(2), {}, [])
 step(classified_as('joe', 'cobbler'), clause(4), {Person: 'joe', _0: 'good', Trade: 'cobbler'}, [description('joe', ['good', 'cobbler'])])
 step(classified_as('jane', 'carpenter'), clause(4), {Person: 'jane', _0: 'good', Trade: 'carpenter'}, [description('jane', ['good', 'carpenter'])])
 step(classified_as('sam', 'cobbler'), clause(4), {Person: 'sam', _0: 'novice', Trade: 'cobbler'}, [description('sam', ['novice', 'cobbler'])])
-step(description('sam', ['novice', 'cobbler']), clause(3), {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(good_at(A, B), [good_at('joe', 'cobbler'), good_at('jane', 'carpenter')])
 derived(classified_as(A, B), [classified_as('joe', 'cobbler'), classified_as('jane', 'carpenter'), classified_as('sam', 'cobbler')])
 called(good_at(A, B), [good_at('joe', 'cobbler'), good_at('jane', 'carpenter')])
@@ -116,31 +105,30 @@ called(classified_as(C, D), [classified_as('joe', 'cobbler'), classified_as('jan
 It has three parts:
 
 - **The claims**: the five answers the proof is about.
-- **The clauses**: the program's three facts and two rules, numbered in the
-  order they appear in the program. The nameless `_` is written `_0`, so the
-  steps can say what it matched.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
+- **The steps**: one per derived fact. A step reads
+  `step(what, by which clause, with which values, using what)`. Clauses are
+  numbered in the order they appear in the program: facts 1–3 are the
+  descriptions, rules 4 and 5 derive the answers. The nameless `_` is
+  written `_0`, so the steps can say what it matched.
+- **The certificate**: the `derived` **listings** say which facts each
+  forward rule's relation holds, all of them; the `called` **call tables**
+  say which answers each question has, all of them.
 
 Read the steps as sentences:
 
 1. *Joe is good at cobbling* — by rule 5, with `Person` being Joe and `Trade`
-   being cobbler, because Joe is described as a good cobbler.
-2. *Joe is described as a good cobbler* — fact 1; it uses nothing.
-3. *Jane is good at carpentry* — by rule 5, because Jane is described as a
-   good carpenter.
-4. *Jane is described as a good carpenter* — fact 2; it uses nothing.
-5. *Joe is classified as a cobbler* — by rule 4, with the quality `_0` being
-   'good', from the same description as step 2.
-6. *Jane is classified as a carpenter* — by rule 4, with `_0` being 'good',
-   from the description in step 4.
-7. *Sam is classified as a cobbler* — by rule 4, with `_0` being 'novice',
-   because Sam is described as a novice cobbler.
-8. *Sam is described as a novice cobbler* — fact 3; it uses nothing.
+   being cobbler, because Joe is described as a good cobbler (fact 1).
+2. *Jane is good at carpentry* — by rule 5, because Jane is described as a
+   good carpenter (fact 2).
+3. *Joe is classified as a cobbler* — by rule 4, with the quality `_0` being
+   'good', from the same description.
+4. *Jane is classified as a carpenter* — by rule 4, with `_0` being 'good'.
+5. *Sam is classified as a cobbler* — by rule 4, with `_0` being 'novice',
+   because Sam is described as a novice cobbler (fact 3).
 
-Eight steps in all: five answers and the three facts they rest on. No step
-makes Sam good at anything: rule 5 needs the word `'good'`, and Sam's
-description does not have it.
+The descriptions are facts of the program, so they need no step: the
+checker reads them from the program. No step makes Sam good at anything:
+rule 5 needs the word `'good'`, and Sam's description does not have it.
 
 ---
 
@@ -148,69 +136,30 @@ description does not have it.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it follows the
+certificate. It answers the two questions `good_at(A, B)` and
+`classified_as(C, D)` from the listings and checks that each table agrees.
+It requires the listings to be closed: applied to the three descriptions,
+rules 4 and 5 derive nothing the listings leave out. It replays each listed
+fact's step, running its rule again from the program, and compares the
+claims with the answers. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 good_at('joe', 'cobbler')
 good_at('jane', 'carpenter')
 classified_as('joe', 'cobbler')
 classified_as('jane', 'carpenter')
 classified_as('sam', 'cobbler')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 8)
-condition('C2', 'well_founded', 'ok', 8)
-condition('C3', 'justification', 'ok', 8)
-condition('C4', 'coverage', 'ok', 10)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 13)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 7)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(8)
-verified(8)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(5)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (8)**: each of the 8 steps really is an instance of the
-  rule or fact it cites. For step 7, rule 4 with `Person` = Sam, `_0` =
-  novice and `Trade` = cobbler gives exactly *Sam is classified as a
-  cobbler*.
-- **C2 well-founded (8)**: no step depends on itself, even indirectly.
-- **C3 justification (8)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (10)**: the 5 claims and the 5 descriptions the steps use are
-  each backed by a step.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (13)**: the 5 claims answer the two questions asked, and all
-  8 steps serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 8 steps, all 8 verified against the program, none
-taken on trust. The verdict is **checked**: the five answers follow from the
-descriptions. It confirms those answers; on its own it does not prove that
-Sam is *not* good at cobbling, only that nothing here says he is.
+The verdict is **checked**: the five answers follow from the descriptions,
+and they are every answer of the two questions. A proof that also claimed
+`good_at('sam', 'cobbler')` would fail: no firing of rule 5 derives it, and
+the closed listing has no such fact. So the check does show that nothing
+here says Sam is good at cobbling.
 
 ---
 

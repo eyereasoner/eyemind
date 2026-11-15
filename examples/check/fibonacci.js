@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 fib(0, 0)
 fib(1, 1)
 fib(10, 55)
@@ -10,26 +10,4 @@ golden_ratio(10, 1.6181818181818182)
 golden_ratio(100, 1.618033988749895)
 golden_ratio(1000, 1.618033988749895)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 81)
-condition('C2', 'well_founded', 'ok', 314)
-condition('C3', 'justification', 'ok', 314)
-condition('C4', 'coverage', 'ok', 347)
-condition('C5', 're_decision', 'ok', 233)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 324)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 20)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(314)
-verified(81)
-recomputed(233)
-composed(0)
-trusted(0)
-claims(10)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

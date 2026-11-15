@@ -147,137 +147,84 @@ unchanged, provided frontend still finishes by 15. The same holds for auth
 
 ## The proof, line by line
 
-`eyemind --proof` writes down how it reached each answer. The whole proof
-has 78 steps; see the [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/critical-path-schedule.js).
-Here are its claims, all its clauses, and the complete chain of 24 steps
-behind `schedule('backend', 9, 15)`, which also proves the schedules of the
-four tasks before it:
+`eyemind --proof` writes down how it reached each answer. The whole proof is
+99 lines: the 19 claims, 8 steps, 2 listings and 64 call tables; see the
+[full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/critical-path-schedule.js).
+Here are its steps and listings, and the call tables behind
+`schedule('backend', 9, 15)` and behind integration's critical predecessor:
 
 ```js
-// Answers: each instance of a query() that holds.
-schedule('requirements', 0, 2)
-schedule('architecture', 2, 5)
-schedule('api_design', 2, 4)
-schedule('database', 5, 9)
-schedule('backend', 9, 15)
-schedule('frontend', 4, 9)
-schedule('auth', 5, 8)
-schedule('integration', 15, 19)
-schedule('security_review', 19, 22)
-schedule('load_test', 19, 21)
-schedule('launch', 22, 23)
-project_finish(23)
-critical_task('launch')
-critical_task('security_review')
-critical_task('integration')
-critical_task('backend')
-critical_task('database')
-critical_task('architecture')
-critical_task('requirements')
+// … the 19 claims
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(task('requirements', 2, [])))
-clause(2, fact(task('architecture', 3, ['requirements'])))
-clause(3, fact(task('api_design', 2, ['requirements'])))
-clause(4, fact(task('database', 4, ['architecture'])))
-clause(5, fact(task('backend', 6, ['api_design', 'database'])))
-clause(6, fact(task('frontend', 5, ['api_design'])))
-clause(7, fact(task('auth', 3, ['architecture'])))
-clause(8, fact(task('integration', 4, ['backend', 'frontend', 'auth'])))
-clause(9, fact(task('security_review', 3, ['integration'])))
-clause(10, fact(task('load_test', 2, ['integration'])))
-clause(11, fact(task('launch', 1, ['security_review', 'load_test'])))
-clause(12, fact(project_end('launch')))
-clause(13, fact(member(X, [X, ..._0])))
-clause(14, implied_by(member(X, [_0, ...Rest]), member(X, Rest)))
-clause(15, fact(latest_finish([], 0)))
-clause(16, implied_by(latest_finish([Task, ...Rest], Latest), [schedule(Task, _0, Finish), latest_finish(Rest, Remaining), is(Latest, max(Finish, Remaining))]))
-clause(17, implied_by(schedule(Task, Start, Finish), [task(Task, Duration, Parents), latest_finish(Parents, Start), is(Finish, add(Start, Duration))]))
-clause(18, implied_by(critical_predecessor(Task, Parent), [task(Task, _0, Parents), member(Parent, Parents), schedule(Parent, _1, Finish), schedule(Task, Finish, _2)]))
-clause(19, implies([project_end(Task), schedule(Task, _0, Finish)], project_finish(Finish)))
-clause(20, implies(project_end(Task), critical_task(Task)))
-clause(21, implies([critical_task(Task), critical_predecessor(Task, Parent)], critical_task(Parent)))
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
+step(project_finish(23), clause(19), {Task: 'launch', _0: 22, Finish: 23}, [project_end('launch'), schedule('launch', 22, 23)])
+step(critical_task('launch'), clause(20), {Task: 'launch'}, [project_end('launch')])
+step(critical_task('security_review'), clause(21), {Task: 'launch', Parent: 'security_review'}, [critical_task('launch'), critical_predecessor('launch', 'security_review')])
+step(critical_task('integration'), clause(21), {Task: 'security_review', Parent: 'integration'}, [critical_task('security_review'), critical_predecessor('security_review', 'integration')])
+step(critical_task('backend'), clause(21), {Task: 'integration', Parent: 'backend'}, [critical_task('integration'), critical_predecessor('integration', 'backend')])
+step(critical_task('database'), clause(21), {Task: 'backend', Parent: 'database'}, [critical_task('backend'), critical_predecessor('backend', 'database')])
+step(critical_task('architecture'), clause(21), {Task: 'database', Parent: 'architecture'}, [critical_task('database'), critical_predecessor('database', 'architecture')])
+step(critical_task('requirements'), clause(21), {Task: 'architecture', Parent: 'requirements'}, [critical_task('architecture'), critical_predecessor('architecture', 'requirements')])
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(schedule('requirements', 0, 2), clause(17), {Task: 'requirements', Start: 0, Finish: 2, Duration: 2, Parents: []}, [task('requirements', 2, []), latest_finish([], 0), is(2, add(0, 2))])
-step(task('requirements', 2, []), clause(1), {}, [])
-step(latest_finish([], 0), clause(15), {}, [])
-step(is(2, add(0, 2)), 'builtin', {}, [])
-step(schedule('architecture', 2, 5), clause(17), {Task: 'architecture', Start: 2, Finish: 5, Duration: 3, Parents: ['requirements']}, [task('architecture', 3, ['requirements']), latest_finish(['requirements'], 2), is(5, add(2, 3))])
-step(task('architecture', 3, ['requirements']), clause(2), {}, [])
-step(latest_finish(['requirements'], 2), clause(16), {Task: 'requirements', Rest: [], Latest: 2, _0: 0, Finish: 2, Remaining: 0}, [schedule('requirements', 0, 2), latest_finish([], 0), is(2, max(2, 0))])
-step(is(2, max(2, 0)), 'builtin', {}, [])
-step(is(5, add(2, 3)), 'builtin', {}, [])
-step(schedule('api_design', 2, 4), clause(17), {Task: 'api_design', Start: 2, Finish: 4, Duration: 2, Parents: ['requirements']}, [task('api_design', 2, ['requirements']), latest_finish(['requirements'], 2), is(4, add(2, 2))])
-step(task('api_design', 2, ['requirements']), clause(3), {}, [])
-step(is(4, add(2, 2)), 'builtin', {}, [])
-step(schedule('database', 5, 9), clause(17), {Task: 'database', Start: 5, Finish: 9, Duration: 4, Parents: ['architecture']}, [task('database', 4, ['architecture']), latest_finish(['architecture'], 5), is(9, add(5, 4))])
-step(task('database', 4, ['architecture']), clause(4), {}, [])
-step(latest_finish(['architecture'], 5), clause(16), {Task: 'architecture', Rest: [], Latest: 5, _0: 2, Finish: 5, Remaining: 0}, [schedule('architecture', 2, 5), latest_finish([], 0), is(5, max(5, 0))])
-step(is(5, max(5, 0)), 'builtin', {}, [])
-step(is(9, add(5, 4)), 'builtin', {}, [])
-step(schedule('backend', 9, 15), clause(17), {Task: 'backend', Start: 9, Finish: 15, Duration: 6, Parents: ['api_design', 'database']}, [task('backend', 6, ['api_design', 'database']), latest_finish(['api_design', 'database'], 9), is(15, add(9, 6))])
-step(task('backend', 6, ['api_design', 'database']), clause(5), {}, [])
-step(latest_finish(['api_design', 'database'], 9), clause(16), {Task: 'api_design', Rest: ['database'], Latest: 9, _0: 2, Finish: 4, Remaining: 9}, [schedule('api_design', 2, 4), latest_finish(['database'], 9), is(9, max(4, 9))])
-step(latest_finish(['database'], 9), clause(16), {Task: 'database', Rest: [], Latest: 9, _0: 5, Finish: 9, Remaining: 0}, [schedule('database', 5, 9), latest_finish([], 0), is(9, max(9, 0))])
-step(is(9, max(9, 0)), 'builtin', {}, [])
-step(is(9, max(4, 9)), 'builtin', {}, [])
-step(is(15, add(9, 6)), 'builtin', {}, [])
-// … 54 more steps, 78 in total, schedule the remaining tasks, prove the
-// finish time, and trace the critical tasks back from the launch.
+// Certificate: the derived facts and every answer of each call the questions make.
+derived(project_finish(A), [project_finish(23)])
+derived(critical_task(A), [critical_task('launch'), critical_task('security_review'), critical_task('integration'), critical_task('backend'), critical_task('database'), critical_task('architecture'), critical_task('requirements')])
+// … the table of every schedule, and those of requirements and architecture
+called(latest_finish(['api_design', 'database'], D), [latest_finish(['api_design', 'database'], 9)])
+called(schedule('api_design', _8, J), [schedule('api_design', 2, 4)])
+called(latest_finish(['database'], K), [latest_finish(['database'], 9)])
+called(schedule('database', _11, M), [schedule('database', 5, 9)])
+called(latest_finish(['api_design'], D), [latest_finish(['api_design'], 4)])
+// … the tables for the later tasks and the critical tasks before integration
+called(critical_predecessor('integration', G1), [critical_predecessor('integration', 'backend')])
+called(member(N1, ['backend', 'frontend', 'auth']), [member('backend', ['backend', 'frontend', 'auth']), member('frontend', ['backend', 'frontend', 'auth']), member('auth', ['backend', 'frontend', 'auth'])])
+called(member(O1, ['frontend', 'auth']), [member('frontend', ['frontend', 'auth']), member('auth', ['frontend', 'auth'])])
+called(member(P1, ['auth']), [member('auth', ['auth'])])
+called(schedule('integration', 15, _42), [schedule('integration', 15, 19)])
+called(latest_finish(['backend', 'frontend', 'auth'], 15), [latest_finish(['backend', 'frontend', 'auth'], 15)])
+called(schedule('integration', 9, _42), [])
+called(latest_finish(['backend', 'frontend', 'auth'], 9), [])
+called(schedule('integration', 8, _42), [])
+called(latest_finish(['backend', 'frontend', 'auth'], 8), [])
+// … the tables for the critical predecessors of backend, database, architecture and requirements
 ```
 
 It has three parts:
 
 - **The claims**: the 19 answers.
-- **The clauses**: every line of the program, numbered 1 to 21 in order. The
-  `_` marks are shown as `_0`, `_1` and `_2`, so they can be given values
-  like any other variable.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`. The values in curly
-  braces say what each variable of the cited line stood for. `clause(N)`
-  means "by line N of the program"; `'builtin'` means a calculation that the
-  checker redoes itself rather than trusting.
+- **The steps**: one per fact a forward rule derived, here the finish time
+  and the seven critical tasks. A step reads
+  `step(what, by which rule, with which values, using what)`; `clause(N)`
+  means "by line N of the program", and the values in curly braces say what
+  each variable of that line stood for.
+- **The certificate**: the `derived(Pattern, Facts)` **listings** give every
+  fact the forward rules derived, and the `called(Call, Answers)` **call
+  tables** give every answer of each call made while answering the queries.
+  The schedules come from backward rules, worked out on demand, so they
+  appear only in call tables.
 
-The 24 steps say:
+The steps say:
 
-1. *Requirements runs from 0 to 2* — by rule 17: it takes 2 (fact 1), it has
-   no prerequisites so it starts at 0 (fact 15), and 0 + 2 = 2.
-2. *Requirements takes 2 and needs nothing* — fact 1.
-3. *The latest finish of no tasks is 0* — fact 15.
-4. *0 + 2 = 2* — builtin.
-5. *Architecture runs from 2 to 5* — by rule 17: it waits for requirements.
-6. *Architecture takes 3 and needs requirements* — fact 2.
-7. *The latest finish of `['requirements']` is 2* — by rule 16: requirements
-   finishes at 2, nothing else is in the list, and the larger of 2 and 0 is
-   2.
-8. *max(2, 0) = 2* — builtin.
-9. *2 + 3 = 5* — builtin.
-10. *API design runs from 2 to 4* — by rule 17, also waiting for
-    requirements (step 7, reused).
-11. *API design takes 2 and needs requirements* — fact 3.
-12. *2 + 2 = 4* — builtin.
-13. *Database runs from 5 to 9* — by rule 17: it waits for architecture.
-14. *Database takes 4 and needs architecture* — fact 4.
-15. *The latest finish of `['architecture']` is 5* — by rule 16.
-16. *max(5, 0) = 5* — builtin.
-17. *5 + 4 = 9* — builtin.
-18. *Backend runs from 9 to 15* — by rule 17: it waits for API design and
-    database.
-19. *Backend takes 6 and needs API design and database* — fact 5.
-20. *The latest finish of `['api_design', 'database']` is 9* — by rule 16:
-    API design finishes at 4, the rest of the list at 9, and the larger is 9.
-21. *The latest finish of `['database']` is 9* — by rule 16.
-22. *max(9, 0) = 9* — builtin.
-23. *max(4, 9) = 9* — builtin.
-24. *9 + 6 = 15* — builtin.
+1. *The project finishes at 23* — by rule 19: the launch is the project end
+   and runs from 22 to 23.
+2. *The launch is critical* — by rule 20: it is the project end.
+3. –8. *Security review, integration, backend, database, architecture and
+   requirements are critical* — each by rule 21, because the task before it
+   in this list is critical and it is that task's critical predecessor.
 
-The remaining steps work the same way. The critical tasks are traced
-backward with rules 20, 21 and 18: the launch is critical (it is the project
-end); the security review is a critical predecessor of the launch, because it
-is in the launch's list (fact 13) and finishes at 22, exactly when the launch
-starts; and so on, back to requirements.
+The call tables behind backend's schedule say: *the latest finish of
+`['api_design', 'database']` is 9*; *API design runs from 2 to 4*; *the latest finish of `['database']` is 9*; *database runs from 5 to 9*;
+*the latest finish of `['api_design']` is 4*. Rule 16 takes the larger of
+the finish times, so backend waits until 9, and rule 17 adds its duration 6
+to finish at 15.
+
+The tables behind integration's critical predecessor say: integration has
+three prerequisites, backend, frontend and auth (the `member` tables);
+integration starts at 15, when backend finishes, so
+`schedule('integration', 15, _42)` has an answer; but it does not start at
+9, when frontend finishes, nor at 8, when auth does, so those tables are
+empty. Only backend is a critical predecessor of integration.
 
 ---
 
@@ -285,11 +232,18 @@ starts; and so on, back to requirements.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it follows the
+certificate. It answers the three queries one level at a time from the call
+tables, and checks each table the same way, redoing the 11 additions and 11
+maxima itself, so a wrong start or finish time shows up as a disagreement. It
+requires the listing of critical tasks to be closed: rule 21, run over the
+listed tasks, finds no critical predecessor that is not listed, and
+requirements has none at all. It replays each step's rule from no bindings.
+The claims must be exactly the answers, and a step, table or listing the
+check does not use fails it. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 schedule('requirements', 0, 2)
 schedule('architecture', 2, 5)
 schedule('api_design', 2, 4)
@@ -310,66 +264,14 @@ critical_task('database')
 critical_task('architecture')
 critical_task('requirements')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 56)
-condition('C2', 'well_founded', 'ok', 78)
-condition('C3', 'justification', 'ok', 78)
-condition('C4', 'coverage', 'ok', 125)
-condition('C5', 're_decision', 'ok', 22)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 97)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 22)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(78)
-verified(56)
-recomputed(22)
-composed(0)
-trusted(0)
-claims(19)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (56)**: the 56 steps that cite a program line really are
-  instances of that line with the values shown.
-- **C2 well-founded (78)**: none of the 78 steps depends on itself, even
-  indirectly.
-- **C3 justification (78)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (125)**: the 19 claims and the 106 things the steps use are
-  each backed by a step.
-- **C5 re-decision (22)**: the checker redid the 22 calculations (11
-  additions and 11 maxima over the prerequisite lists) and got the same
-  results.
-- **C6 boundary consistency (0)**: nothing was concluded from the absence of
-  a fact, so there is nothing to confront.
-- **C7 relevance (97)**: the 19 claims answer the queries, and all 78 steps
-  serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics: 78 steps, 56 verified against the program, 22 recomputed,
-no boundary steps taken on trust, 19 claims. The verdict is **checked**: the schedule,
-the finish time and the seven critical tasks follow from the program. As the
-last comment says, they are also every answer of the original questions. It establishes only the
-supplied precedence
-schedule: shared staffing limits, calendar dates and uncertainty in durations
-are outside this model.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+The verdict is **checked**: the schedule, the finish time and the seven
+critical tasks follow from the program, and they are every answer of the
+original questions. It establishes only the supplied precedence schedule:
+shared staffing limits, calendar dates and uncertainty in durations are
+outside this model.
 
 ---
 
@@ -392,5 +294,5 @@ backend, database and architecture are no longer critical.
 ## Takeaway
 
 A deadline is set by the longest chain of tasks that wait on each other.
-Showing that chain step by step tells you which tasks to watch, and which
+Showing that chain, and checking it, tells you which tasks to watch, and which
 ones have room to slip.

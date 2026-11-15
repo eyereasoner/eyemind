@@ -24,7 +24,7 @@ computer show all ten thousand steps, and have them checked?
 This is the *deep-taxonomy benchmark*, a standard stress test for reasoners.
 The collection has it at five depths:
 
-| Example | Levels | Proof steps |
+| Example | Levels | Call tables |
 | --- | --- | --- |
 | deep-taxonomy-10 | 10 | 11 |
 | deep-taxonomy-100 | 100 | 101 |
@@ -83,7 +83,7 @@ calls, so ten thousand levels deep is no problem.
 ## The proof, line by line
 
 `eyemind --proof` writes down how it reached the answer. The proof is about
-1.4 MB: 10,001 clause lines and 10,001 steps, one per level. Here is its
+515 KB: the claim and 10,001 call tables, one per level. Here is its
 beginning and its end, with the middle left out; the
 [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/deep-taxonomy-10000.js)
 is linked above.
@@ -92,49 +92,43 @@ is linked above.
 // Answers: each instance of a query() that holds.
 type('ind', 'n10000')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(type('ind', 'n0')))
-clause(2, implied_by(type(X, 'n1'), type(X, 'n0')))
-clause(5, implied_by(type(X, 'n2'), type(X, 'n1')))
-clause(8, implied_by(type(X, 'n3'), type(X, 'n2')))
-// … clauses 11 to 29993: one per level, every third clause number
-clause(29996, implied_by(type(X, 'n9999'), type(X, 'n9998')))
-clause(29999, implied_by(type(X, 'n10000'), type(X, 'n9999')))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(type('ind', 'n10000'), clause(29999), {X: 'ind'}, [type('ind', 'n9999')])
-step(type('ind', 'n9999'), clause(29996), {X: 'ind'}, [type('ind', 'n9998')])
-step(type('ind', 'n9998'), clause(29993), {X: 'ind'}, [type('ind', 'n9997')])
-step(type('ind', 'n9997'), clause(29990), {X: 'ind'}, [type('ind', 'n9996')])
-// … steps 5 to 9997: one per level, from n9996 down to n4
-step(type('ind', 'n3'), clause(8), {X: 'ind'}, [type('ind', 'n2')])
-step(type('ind', 'n2'), clause(5), {X: 'ind'}, [type('ind', 'n1')])
-step(type('ind', 'n1'), clause(2), {X: 'ind'}, [type('ind', 'n0')])
-step(type('ind', 'n0'), clause(1), {}, [])
+// Certificate: the derived facts and every answer of each call the questions make.
+called(type(A, 'n10000'), [type('ind', 'n10000')])
+called(type(B, 'n9999'), [type('ind', 'n9999')])
+called(type(C, 'n9998'), [type('ind', 'n9998')])
+called(type(D, 'n9997'), [type('ind', 'n9997')])
+// … tables 5 to 9997: one per level, from n9996 down to n4
+called(type(N384, 'n3'), [type('ind', 'n3')])
+called(type(O384, 'n2'), [type('ind', 'n2')])
+called(type(P384, 'n1'), [type('ind', 'n1')])
+called(type(Q384, 'n0'), [type('ind', 'n0')])
 ```
 
-It has three parts:
+It has two parts:
 
 - **The claim**: the answer.
-- **The clauses**: the fact (clause 1) and the 10,000 rules of the main
-  chain, numbered by position in the program. Each level states three rules,
-  so the chain rules are clauses 2, 5, 8, …, 29999. The 20,000 side-branch
-  rules (`i` and `j`) are not listed: they do not help answer the question.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
+- **The certificate**: one **call table** per question asked along the way.
+  `called(Call, Answers)` says: *this call has exactly these answers*. The
+  variable in each call (`A`, `B`, …, `Q384`) is the unknown still open when
+  the call was made. The 20,000 side-branch rules (`i` and `j`) lead to no
+  table: no question calls them.
 
-Read the steps as sentences:
+A proof can also hold `step(...)` records, for facts that forward rules
+derive. Every rule here is a backward rule, worked out only when asked, so
+this proof has none.
 
-1. *`'ind'` is in `'n10000'`* — by rule 29999, with `X` being `'ind'`,
-   because `'ind'` is in `'n9999'`.
-2. *`'ind'` is in `'n9999'`* — by rule 29996, because `'ind'` is in
+Read the tables as sentences:
+
+1. *Who is in `'n10000'`? Exactly `'ind'`.* Rule 29999 asks this of
+   `'n9999'`.
+2. *Who is in `'n9999'`? Exactly `'ind'`.* Rule 29996 asks this of
    `'n9998'`.
-3. … one step per level, each citing the rule three clause numbers lower …
-4. *`'ind'` is in `'n1'`* — by rule 2, because `'ind'` is in `'n0'`.
-5. *`'ind'` is in `'n0'`* — fact 1; it uses nothing.
+3. … one table per level, each call made by the rule three clause numbers
+   higher …
+4. *Who is in `'n1'`? Exactly `'ind'`.* Rule 2 asks this of `'n0'`.
+5. *Who is in `'n0'`? Exactly `'ind'`*: fact 1.
 
-Every step leans only on the step listed right below it, down to the fact.
+Every table rests only on the one listed right below it, down to the fact.
 
 ---
 
@@ -142,65 +136,25 @@ Every step leans only on the step listed right below it, down to the fact.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers the query by
+applying the program's rules one level at a time, taking the answer of every
+inner call from its table, and checks each of the 10,001 tables it consults
+the same way, down to the fact. A wrong or missing table shows up as a
+disagreement, and a table the check does not use fails it too. This is the
+complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 type('ind', 'n10000')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 10001)
-condition('C2', 'well_founded', 'ok', 10001)
-condition('C3', 'justification', 'ok', 10001)
-condition('C4', 'coverage', 'ok', 10001)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 10002)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(10001)
-verified(10001)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
+The verdict is **checked**: `'ind'` is in `'n10000'` follows from the
+program, and it is every answer of the original questions.
 
-- **C1 resolution (10001)**: each of the 10,001 steps really is an instance
-  of the rule or fact it cites, with `X` being `'ind'`.
-- **C2 well-founded (10001)**: no step depends on itself, even indirectly:
-  the chain runs straight down to the fact without looping back.
-- **C3 justification (10001)**: every step says how it was justified, in a
-  form the checker understands.
-- **C4 coverage (10001)**: the 1 claim and the 10,000 things the steps use
-  are each backed by a step.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (10002)**: the 1 claim answers the query, and all 10,001
-  steps serve it. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 10,001 steps, all verified against the program,
-none taken on trust. The verdict is **checked**: `'ind'` is in `'n10000'`
-follows from the program, and it is every answer of the original questions.
-
-The program is a few lines and its proof about 1.4 MB: a proof records every
-step it claims.
+The program is a few lines and its proof about 515 KB: a proof records every
+call its answer rests on.
 
 ---
 

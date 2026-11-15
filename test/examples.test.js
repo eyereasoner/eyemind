@@ -2,7 +2,7 @@
 // check report, its saved proof checks from disk, and a tampered one does not.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, join, relative } from 'node:path';
-import { checkProof, checkReport, publicReport, readTerms, run, strict, write } from '../src/index.js';
+import { checkProof, checkReport, publicReport, readTerms, run, write } from '../src/index.js';
 import { KINDS, artifactPath, certify, loadExampleInputs, outputText, readManifest, sourceFiles } from '../tools/corpus.js';
 import { ROOT, assert, cachedCli, cli } from './helpers.js';
 
@@ -21,7 +21,7 @@ const large = (entry) => statSync(artifactPath('proof', entry)).size > LARGE;
 // Each example is three tests, so their times show where it spends them: its
 // output (loading and a plain run), its proof (a certified run, whose proof
 // the engine checks before returning it) and its check report (the saved
-// proof checked from disk, strictly and tampered with). They share what an
+// proof checked from disk, and tampered with). They share what an
 // earlier one worked out, and work it out themselves when run alone.
 const states = new Map();
 
@@ -59,13 +59,9 @@ function checkCheck(entry) {
     const proved = provedOf(entry);
     const saved = read(artifactPath('proof', entry));
     assert.equal(checkReport(proved.proofReport), read(artifactPath('check', entry)), CHANGED('check'));
-    // The saved certificate, checked from scratch and strictly. A strict check
-    // of a valid proof differs from the normal one only by a C5 failure for
-    // each trusted boundary, which strict() derives from the normal report.
-    const strictly = checkProof(program, saved, { allowTrusted: false });
-    const derived = strict(proved.proofReport);
-    assert.deepEqual(publicReport(strictly), publicReport(derived));
-    assert.equal(checkReport(strictly), checkReport(derived));
+    // The saved proof, checked from scratch, gives the same report.
+    const again = checkProof(program, saved);
+    assert.deepEqual(publicReport(again), publicReport(proved.proofReport));
     if (!large(entry)) assert.ok(!checkProof(program, `${saved}\nunjustified_example_claim()\n`).valid);
   } finally {
     // The last of the three: what they shared, a large proof among it, goes.
@@ -112,9 +108,9 @@ for (const entry of MANIFEST) {
   tests[`${source} check`] = () => checkCheck(entry);
   tests[`examples/check/${entry.name}.js checked answers and prove-and-check output`] = () => {
     const saved = read(artifactPath('check', entry));
-    const answers = saved.split('\n// C1-C10:')[0];
+    const answers = saved.slice(0, saved.lastIndexOf('\nverdict('));
     const claims = readTerms(read(artifactPath('proof', entry))).map(([term]) => term)
-      .filter((term) => !['clause', 'step', 'derived', 'searched', 'called'].includes(term.name));
+      .filter((term) => !['step', 'derived', 'called'].includes(term.name));
     assert.deepEqual(readTerms(answers).map(([term]) => write(term)), claims.map((term) => write(term)));
     const output = read(artifactPath('output', entry));
     if (artifactPath('output', entry).endsWith('.js')) {

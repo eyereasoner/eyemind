@@ -1,324 +1,260 @@
 [
   {
     "name": "socrates",
-    "description": "Class membership derived through a subclass rule",
-    "trusted": []
+    "description": "Class membership derived through a subclass rule"
   },
   {
     "name": "deep-taxonomy-10",
-    "description": "A ten-level subclass chain with branches that lead nowhere",
-    "trusted": []
+    "description": "A ten-level subclass chain with branches that lead nowhere"
   },
   {
     "name": "deep-taxonomy-100",
-    "description": "The same taxonomy benchmark at a hundred levels",
-    "trusted": []
+    "description": "The same taxonomy benchmark at a hundred levels"
   },
   {
     "name": "deep-taxonomy-1000",
-    "description": "The same taxonomy benchmark at a thousand levels",
-    "trusted": []
+    "description": "The same taxonomy benchmark at a thousand levels"
   },
   {
     "name": "deep-taxonomy-10000",
-    "description": "The same taxonomy benchmark at ten thousand levels",
-    "trusted": []
+    "description": "The same taxonomy benchmark at ten thousand levels"
   },
   {
     "name": "deep-taxonomy-100000",
-    "description": "The same taxonomy benchmark at a hundred thousand levels",
-    "trusted": []
+    "description": "The same taxonomy benchmark at a hundred thousand levels"
   },
   {
     "name": "backward",
-    "description": "Backward definitions inside forward bodies",
-    "trusted": []
+    "description": "Backward definitions inside forward bodies"
   },
   {
     "name": "fibonacci",
-    "description": "Fast doubling for exact Fibonacci numbers, and the golden ratio",
-    "trusted": []
+    "description": "Fast doubling for exact Fibonacci numbers, and the golden ratio"
   },
   {
     "name": "graphs",
-    "description": "Base data, negation and collection",
-    "trusted": []
+    "description": "Base data, negation and collection"
   },
   {
     "name": "terms",
-    "description": "Quoted graphs, triple terms and residual witnesses",
-    "trusted": []
+    "description": "Quoted graphs, triple terms and residual witnesses"
   },
   {
     "name": "existential-rules",
-    "description": "Existential rules: a fresh witness per activation, never a clash",
-    "trusted": []
+    "description": "Existential rules: a fresh witness per activation, never a clash"
   },
   {
     "name": "reachability",
-    "description": "Finite closure in a graph containing a cycle",
-    "trusted": []
+    "description": "Finite closure in a graph containing a cycle"
   },
   {
     "name": "shortest-path",
-    "description": "Weighted paths and stratified minimum selection",
-    "trusted": []
+    "description": "Weighted paths and stratified minimum selection"
   },
   {
     "name": "path-discovery",
-    "description": "Full airport network with configurable endpoints and maximum stopovers",
-    "trusted": []
+    "description": "Full airport network with configurable endpoints and maximum stopovers"
   },
   {
     "name": "lists",
-    "description": "Concatenation, mapping and summation",
-    "trusted": []
+    "description": "Concatenation, mapping and summation"
   },
   {
     "name": "strings",
-    "description": "Text construction and Unicode inspection",
-    "trusted": []
+    "description": "Text construction and Unicode inspection"
   },
   {
     "name": "inventory",
-    "description": "An invoice from collected line totals",
-    "trusted": []
+    "description": "An invoice from collected line totals"
   },
   {
     "name": "permissions",
-    "description": "Role permissions with exclusions",
-    "trusted": []
+    "description": "Role permissions with exclusions"
   },
   {
     "name": "witnesses",
-    "description": "Structured witnesses and shared multi-head conclusions",
-    "trusted": []
+    "description": "Structured witnesses and shared multi-head conclusions"
   },
   {
     "name": "state-transitions",
-    "description": "Account balances from an ordered event log",
-    "trusted": []
+    "description": "Account balances from an ordered event log"
   },
   {
     "name": "integrity",
     "description": "A provable integrity violation",
-    "halt_code": 65,
-    "trusted": []
+    "halt_code": 65
   },
   {
     "name": "alternatives",
-    "description": "Alternative routes, disjunction and once",
-    "trusted": []
+    "description": "Alternative routes, disjunction and once"
   },
   {
     "name": "unification",
-    "description": "Open lists and repeated-variable constraints",
-    "trusted": []
+    "description": "Open lists and repeated-variable constraints"
   },
   {
     "name": "schema-inference",
-    "description": "Subclasses, subproperties, domains and ranges",
-    "trusted": []
+    "description": "Subclasses, subproperties, domains and ranges"
   },
   {
     "name": "family-cousins",
-    "description": "Generations, family branches and cousin relationships",
-    "trusted": []
+    "description": "Generations, family branches and cousin relationships"
   },
   {
     "name": "dog-license",
-    "description": "A licensing threshold based on collected dog counts",
-    "trusted": []
+    "description": "A licensing threshold based on collected dog counts"
   },
   {
     "name": "hanoi",
-    "description": "Recursive construction of a disk-move sequence",
-    "trusted": []
+    "description": "Recursive construction of a disk-move sequence"
   },
   {
     "name": "collatz",
-    "description": "Parity-based recursive trajectories over a range of starts",
-    "trusted": []
+    "description": "Parity-based recursive trajectories over a range of starts"
   },
   {
     "name": "flat-map",
-    "description": "Predicate-based mapping with multiple or missing values",
-    "trusted": []
+    "description": "Predicate-based mapping with multiple or missing values"
   },
   {
     "name": "paraconsistent-animals",
-    "description": "Local summaries of conflicting observations",
-    "trusted": []
+    "description": "Local summaries of conflicting observations"
   },
   {
     "name": "scoped-audit",
-    "description": "Presence and absence within separate quoted graphs",
-    "trusted": []
+    "description": "Presence and absence within separate quoted graphs"
   },
   {
     "name": "control-system",
-    "description": "Feedforward and nonlinear feedback commands for two actuators",
-    "trusted": []
+    "description": "Feedforward and nonlinear feedback commands for two actuators"
   },
   {
     "name": "lldm",
-    "description": "Leg length discrepancy measured from radiograph landmarks, with an alarm and its reason",
-    "trusted": []
+    "description": "Leg length discrepancy measured from radiograph landmarks, with an alarm and its reason"
   },
   {
     "name": "variable-predicates",
-    "description": "Relations selected and renamed through data bindings",
-    "trusted": []
+    "description": "Relations selected and renamed through data bindings"
   },
   {
     "name": "good-cobbler",
-    "description": "Trade-specific classification from structured descriptions",
-    "trusted": []
+    "description": "Trade-specific classification from structured descriptions"
   },
   {
     "name": "peano",
-    "description": "Symbolic arithmetic, relational addition and a chained derivation",
-    "trusted": []
+    "description": "Symbolic arithmetic, relational addition and a chained derivation"
   },
   {
     "name": "expression-eval",
-    "description": "Recursive expression graphs used in forward inference",
-    "trusted": []
+    "description": "Recursive expression graphs used in forward inference"
   },
   {
     "name": "complex",
-    "description": "Complex arithmetic, exact over Gaussian integers and polar beyond them",
-    "trusted": []
+    "description": "Complex arithmetic, exact over Gaussian integers and polar beyond them"
   },
   {
     "name": "polynomial",
-    "description": "Complex roots of polynomials up to degree 4 by Cardan and Lagrange",
-    "trusted": []
+    "description": "Complex roots of polynomials up to degree 4 by Cardan and Lagrange"
   },
   {
     "name": "interval-relations",
-    "description": "All thirteen interval relations and endpoint completion",
-    "trusted": []
+    "description": "All thirteen interval relations and endpoint completion"
   },
   {
     "name": "bayes-diagnosis",
-    "description": "Normalized probabilities for illustrative printer faults",
-    "trusted": []
+    "description": "Normalized probabilities for illustrative printer faults"
   },
   {
     "name": "policy-risk",
-    "description": "Ranked findings with explanations and suggested mitigations",
-    "trusted": []
+    "description": "Ranked findings with explanations and suggested mitigations"
   },
   {
     "name": "research-portal",
-    "description": "A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans",
-    "trusted": []
+    "description": "A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans"
   },
   {
     "name": "package-holiday",
-    "description": "Package holiday cancellations under the tour operator's ODRL terms and the 2015 and revised EU Package Travel Directive",
-    "trusted": []
+    "description": "Package holiday cancellations under the tour operator's ODRL terms and the 2015 and revised EU Package Travel Directive"
   },
   {
     "name": "delfour",
-    "description": "A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes",
-    "trusted": []
+    "description": "A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes"
   },
   {
     "name": "queens",
-    "description": "Configurable N-queens search with diagonal constraints",
-    "trusted": []
+    "description": "Configurable N-queens search with diagonal constraints"
   },
   {
     "name": "age",
-    "description": "Calendar-year and elapsed-day age checks at an explicit reference date",
-    "trusted": []
+    "description": "Calendar-year and elapsed-day age checks at an explicit reference date"
   },
   {
     "name": "ackermann",
-    "description": "The Ackermann function through the hyperoperation sequence, exactly",
-    "trusted": []
+    "description": "The Ackermann function through the hyperoperation sequence, exactly"
   },
   {
     "name": "peasant",
-    "description": "Peasant multiplication and exponentiation by halving and doubling",
-    "trusted": []
+    "description": "Peasant multiplication and exponentiation by halving and doubling"
   },
   {
     "name": "sieve",
-    "description": "The sieve of Eratosthenes over an explicit list of integers",
-    "trusted": []
+    "description": "The sieve of Eratosthenes over an explicit list of integers"
   },
   {
     "name": "goldbach",
-    "description": "Goldbach splits of every power of two up to 2^25",
-    "trusted": []
+    "description": "Goldbach splits of every power of two up to 2^25"
   },
   {
     "name": "kaprekar",
-    "description": "Every four-digit Kaprekar routine reaches 6174 within seven steps",
-    "trusted": []
+    "description": "Every four-digit Kaprekar routine reaches 6174 within seven steps"
   },
   {
     "name": "easter",
-    "description": "Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050",
-    "trusted": []
+    "description": "Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050"
   },
   {
     "name": "turing",
-    "description": "A Turing machine interpreter running a binary incrementer",
-    "trusted": []
+    "description": "A Turing machine interpreter running a binary incrementer"
   },
   {
     "name": "zebra",
-    "description": "The zebra puzzle solved by narrowing five partially known houses",
-    "trusted": []
+    "description": "The zebra puzzle solved by narrowing five partially known houses"
   },
   {
     "name": "aunt-agatha",
-    "description": "Who killed Aunt Agatha? A conclusion entailed by holding in every model of the premises",
-    "trusted": []
+    "description": "Who killed Aunt Agatha? A conclusion entailed by holding in every model of the premises"
   },
   {
     "name": "four-color",
-    "description": "Four-colouring the map of the European Union",
-    "trusted": []
+    "description": "Four-colouring the map of the European Union"
   },
   {
     "name": "wolf-goat-cabbage",
-    "description": "The river crossing, with seven crossings shown to be minimal",
-    "trusted": []
+    "description": "The river crossing, with seven crossings shown to be minimal"
   },
   {
     "name": "monkey-bananas",
-    "description": "Every plan of up to five moves that gets the monkey the bananas",
-    "trusted": []
+    "description": "Every plan of up to five moves that gets the monkey the bananas"
   },
   {
     "name": "gps",
-    "description": "Goal-driven parallel sequences: routes to a goal state within duration, cost, belief and comfort limits",
-    "trusted": []
+    "description": "Goal-driven parallel sequences: routes to a goal state within duration, cost, belief and comfort limits"
   },
   {
     "name": "superdense-coding",
-    "description": "Superdense coding in discrete quantum theory, with interference as odd path counts",
-    "trusted": []
+    "description": "Superdense coding in discrete quantum theory, with interference as odd path counts"
   },
   {
     "name": "teleportation",
-    "description": "Quantum teleportation in discrete quantum theory, checked for every state and outcome",
-    "trusted": []
+    "description": "Quantum teleportation in discrete quantum theory, checked for every state and outcome"
   },
   {
     "name": "audited-grants",
-    "description": "A grant policy whose own proof and check report are read back as facts and audited, in the same language",
-    "trusted": []
+    "description": "A grant policy whose own proof and check report are read back as facts and audited, in the same language"
   },
   {
     "name": "data-value-right",
-    "description": "A right to the value of personal data in the age of AI: how it fits existing EU law, and how it could become an autonomous right",
-    "trusted": []
+    "description": "A right to the value of personal data in the age of AI: how it fits existing EU law, and how it could become an autonomous right"
   },
   {
     "name": "triple-term-n3",
@@ -326,8 +262,7 @@
       "data/triple-term-n3.ttl",
       "triple-term-n3.n3"
     ],
-    "description": "An RDF 1.2 triple term: a claim names a triple without asserting it, and accepting the claim asserts it",
-    "trusted": []
+    "description": "An RDF 1.2 triple term: a claim names a triple without asserting it, and accepting the claim asserts it"
   },
   {
     "name": "nested-triple-term-n3",
@@ -335,8 +270,7 @@
       "data/nested-triple-term-n3.ttl",
       "nested-triple-term-n3.n3"
     ],
-    "description": "Nested RDF 1.2 triple terms: one pattern reaches the triple inside a claim inside a review",
-    "trusted": []
+    "description": "Nested RDF 1.2 triple terms: one pattern reaches the triple inside a claim inside a review"
   },
   {
     "name": "annotation-n3",
@@ -344,8 +278,7 @@
       "data/annotation-n3.ttl",
       "annotation-n3.n3"
     ],
-    "description": "An RDF 1.2 annotation: an asserted triple recovered with the reifier that records who stated it and when",
-    "trusted": []
+    "description": "An RDF 1.2 annotation: an asserted triple recovered with the reifier that records who stated it and when"
   },
   {
     "name": "annotated-claims-n3",
@@ -353,8 +286,7 @@
       "data/annotated-claims-n3.ttl",
       "annotated-claims-n3.n3"
     ],
-    "description": "Conflicting RDF 1.2 annotated claims ranked by confidence and trust, with typed literals read as numbers",
-    "trusted": []
+    "description": "Conflicting RDF 1.2 annotated claims ranked by confidence and trust, with typed literals read as numbers"
   },
   {
     "name": "directional-language-n3",
@@ -362,8 +294,7 @@
       "data/directional-language-n3.ttl",
       "directional-language-n3.n3"
     ],
-    "description": "RDF 1.2 directional language strings keep their base direction through a display rule",
-    "trusted": []
+    "description": "RDF 1.2 directional language strings keep their base direction through a display rule"
   },
   {
     "name": "trig-named-graph-n3",
@@ -371,8 +302,7 @@
       "data/trig-named-graph-n3.trig",
       "trig-named-graph-n3.n3"
     ],
-    "description": "Ancestors derived within a TriG named graph, each conclusion kept in its named-graph formula",
-    "trusted": []
+    "description": "Ancestors derived within a TriG named graph, each conclusion kept in its named-graph formula"
   },
   {
     "name": "trig-triple-term-n3",
@@ -380,8 +310,7 @@
       "data/trig-triple-term-n3.trig",
       "trig-triple-term-n3.n3"
     ],
-    "description": "A triple term inside a named graph, asserted in a formula named for the graph that holds the claim",
-    "trusted": []
+    "description": "A triple term inside a named graph, asserted in a formula named for the graph that holds the claim"
   },
   {
     "name": "trig-graph-join-n3",
@@ -389,246 +318,207 @@
       "data/trig-graph-join-n3.trig",
       "trig-graph-join-n3.n3"
     ],
-    "description": "Data about a named graph in the default graph joined with data inside that graph",
-    "trusted": []
+    "description": "Data about a named graph in the default graph joined with data inside that graph"
   },
   {
     "name": "family-n3",
     "files": [
       "family-n3.n3"
     ],
-    "description": "Notation3 backward ancestry and log:query compiled to eyemind",
-    "trusted": []
+    "description": "Notation3 backward ancestry and log:query compiled to eyemind"
   },
   {
     "name": "scoped-negation-n3",
     "files": [
       "scoped-negation-n3.n3"
     ],
-    "description": "Notation3 scoped negation waits for a derived order hold",
-    "trusted": []
+    "description": "Notation3 scoped negation waits for a derived order hold"
   },
   {
     "name": "invoice-n3",
     "files": [
       "invoice-n3.n3"
     ],
-    "description": "Notation3 collection totals invoices, including an empty invoice",
-    "trusted": []
+    "description": "Notation3 collection totals invoices, including an empty invoice"
   },
   {
     "name": "french-cities-n3",
     "files": [
       "french-cities-n3.n3"
     ],
-    "description": "French cities that can reach Nantes through one-way links and explicit schema rules",
-    "trusted": []
+    "description": "French cities that can reach Nantes through one-way links and explicit schema rules"
   },
   {
     "name": "witnesses-n3",
     "files": [
       "witnesses-n3.n3"
     ],
-    "description": "Deterministic Skolem IRIs give each paid order its own ready delivery record",
-    "trusted": []
+    "description": "Deterministic Skolem IRIs give each paid order its own ready delivery record"
   },
   {
     "name": "dijkstra",
-    "description": "Dijkstra's shortest route over a cost-ordered queue, with every step checked",
-    "trusted": []
+    "description": "Dijkstra's shortest route over a cost-ordered queue, with every step checked"
   },
   {
     "name": "knapsack-optimization",
-    "description": "The 0/1 knapsack problem: the most valuable pack within a weight limit",
-    "trusted": []
+    "description": "The 0/1 knapsack problem: the most valuable pack within a weight limit"
   },
   {
     "name": "owl-property-chain",
-    "description": "A property chain declared as data, followed by one general rule",
-    "trusted": []
+    "description": "A property chain declared as data, followed by one general rule"
   },
   {
     "name": "type-inference",
-    "description": "Typing rules for a small expression language, run as a checker",
-    "trusted": []
+    "description": "Typing rules for a small expression language, run as a checker"
   },
   {
     "name": "deontic-logic",
-    "description": "Obligations, prohibitions and compensation that does not erase a violation",
-    "trusted": []
+    "description": "Obligations, prohibitions and compensation that does not erase a violation"
   },
   {
     "name": "nixon-diamond",
-    "description": "A default guarded by negation, so a contrary rule takes priority",
-    "trusted": []
+    "description": "A default guarded by negation, so a contrary rule takes priority"
   },
   {
     "name": "symbolic-derivative",
-    "description": "Symbolic differentiation of structured formulas by the sum, product, quotient, power and chain rules",
-    "trusted": []
+    "description": "Symbolic differentiation of structured formulas by the sum, product, quotient, power and chain rules"
   },
   {
     "name": "group-inverse-uniqueness",
-    "description": "Uniqueness of group inverses derived from the associativity, identity and inverse laws",
-    "trusted": []
+    "description": "Uniqueness of group inverses derived from the associativity, identity and inverse laws"
   },
   {
     "name": "service-outage-recovery",
-    "description": "Least-cost repairs that restore checkout through redundant providers and a dependency cycle",
-    "trusted": []
+    "description": "Least-cost repairs that restore checkout through redundant providers and a dependency cycle"
   },
   {
     "name": "critical-path-schedule",
-    "description": "Earliest task times and every critical predecessor in a launch schedule",
-    "trusted": []
+    "description": "Earliest task times and every critical predecessor in a launch schedule"
   },
   {
     "name": "battery-dispatch",
-    "description": "Cheapest four-slot battery schedule under energy and power limits",
-    "trusted": []
+    "description": "Cheapest four-slot battery schedule under energy and power limits"
   },
   {
     "name": "cold-chain-recall",
-    "description": "Conflicting temperature evidence, checkpoint filtering and a witnessed inspection task",
-    "trusted": []
+    "description": "Conflicting temperature evidence, checkpoint filtering and a witnessed inspection task"
   },
   {
     "name": "school-placement-audit",
-    "description": "Walking-route and preference scores audit provisional school placements",
-    "trusted": []
+    "description": "Walking-route and preference scores audit provisional school placements"
   },
   {
     "name": "gcd-bezout-identity",
-    "description": "Exact extended Euclidean certificates for positive, negative and zero inputs",
-    "trusted": []
+    "description": "Exact extended Euclidean certificates for positive, negative and zero inputs"
   },
   {
     "name": "pell-equation",
-    "description": "Exact Pell solutions through step 50, checked against the defining equation",
-    "trusted": []
+    "description": "Exact Pell solutions through step 50, checked against the defining equation"
   },
   {
     "name": "binomial-vandermonde",
-    "description": "Exact binomial coefficients and finite checks of Vandermonde and Pascal row sums",
-    "trusted": []
+    "description": "Exact binomial coefficients and finite checks of Vandermonde and Pascal row sums"
   },
   {
     "name": "least-squares-regression",
-    "description": "Straight-line fits from exact sufficient statistics, with explicit degenerate cases",
-    "trusted": []
+    "description": "Straight-line fits from exact sufficient statistics, with explicit degenerate cases"
   },
   {
     "name": "hamming-code",
-    "description": "Parity syndromes and correction of a single flipped bit in Hamming(7,4)",
-    "trusted": []
+    "description": "Parity syndromes and correction of a single flipped bit in Hamming(7,4)"
   },
   {
     "name": "derived-rule",
-    "description": "An inline forward rule enabled by a cat and applied to a dog",
-    "trusted": []
+    "description": "An inline forward rule enabled by a cat and applied to a dog"
   },
   {
     "name": "derived-backward-rule",
-    "description": "A captured inverse pair enables a reusable backward rule",
-    "trusted": []
+    "description": "A captured inverse pair enables a reusable backward rule"
   },
   {
     "name": "derived-backward-rule-2",
-    "description": "A conjunction of backward templates supplies premises for forward reasoning",
-    "trusted": []
+    "description": "A conjunction of backward templates supplies premises for forward reasoning"
   },
   {
     "name": "rule-inspection",
-    "description": "Inspecting a source rule as data while preserving its shared variable",
-    "trusted": []
+    "description": "Inspecting a source rule as data while preserving its shared variable"
   },
   {
     "name": "closed-world-n3",
     "files": [
       "closed-world-n3.n3"
     ],
-    "description": "Paid orders ship when no hold is on record",
-    "trusted": []
+    "description": "Paid orders ship when no hold is on record"
   },
   {
     "name": "derived-rule-n3",
     "files": [
       "derived-rule-n3.n3"
     ],
-    "description": "An active policy derives and reports a membership rule",
-    "trusted": []
+    "description": "An active policy derives and reports a membership rule"
   },
   {
     "name": "existential-n3",
     "files": [
       "existential-n3.n3"
     ],
-    "description": "Skolem mother IRIs and reciprocal child relations for each person",
-    "trusted": []
+    "description": "Skolem mother IRIs and reciprocal child relations for each person"
   },
   {
     "name": "universal-instances-n3",
     "files": [
       "universal-instances-n3.n3"
     ],
-    "description": "@forAll statements hold of every individual, and @forSome inside them gives each its own witness",
-    "trusted": []
+    "description": "@forAll statements hold of every individual, and @forSome inside them gives each its own witness"
   },
   {
     "name": "shared-existential-n3",
     "files": [
       "shared-existential-n3.n3"
     ],
-    "description": "A top-level @forSome witness is the one individual a universal conclusion talks about",
-    "trusted": []
+    "description": "A top-level @forSome witness is the one individual a universal conclusion talks about"
   },
   {
     "name": "explicit-existential-rule-n3",
     "files": [
       "explicit-existential-rule-n3.n3"
     ],
-    "description": "Explicit @forAll variables and a computed Skolem mother IRI for each human",
-    "trusted": []
+    "description": "Explicit @forAll variables and a computed Skolem mother IRI for each human"
   },
   {
     "name": "quantifier-scopes-n3",
     "files": [
       "quantifier-scopes-n3.n3"
     ],
-    "description": "An @forSome of the document reaches into quoted formulas, and an inner declaration shadows it",
-    "trusted": []
+    "description": "An @forSome of the document reaches into quoted formulas, and an inner declaration shadows it"
   },
   {
     "name": "chain-stratification-n3",
     "files": [
       "chain-stratification-n3.n3"
     ],
-    "description": "Rules with no strata, whose negation every chain of rule applications reaching it breaks a constraint for",
-    "trusted": []
+    "description": "Rules with no strata, whose negation every chain of rule applications reaching it breaks a constraint for"
   },
   {
     "name": "restricted-chase-n3",
     "files": [
       "restricted-chase-n3.n3"
     ],
-    "description": "Reuse supplied fathers and generate a Skolem father IRI only where none is supplied",
-    "trusted": []
+    "description": "Reuse supplied fathers and generate a Skolem father IRI only where none is supplied"
   },
   {
     "name": "graph-terms-n3",
     "files": [
       "graph-terms-n3.n3"
     ],
-    "description": "Quoted formulas as opaque graph terms: unquoting, identity up to renaming, and universals inside quotes",
-    "trusted": []
+    "description": "Quoted formulas as opaque graph terms: unquoting, identity up to renaming, and universals inside quotes"
   },
   {
     "name": "family-recursion-n3",
     "files": [
       "family-recursion-n3.n3"
     ],
-    "description": "Recursive backward ancestry selected by a query",
-    "trusted": []
+    "description": "Recursive backward ancestry selected by a query"
   },
   {
     "name": "fuse-n3",
@@ -636,7 +526,6 @@
       "fuse-n3.n3"
     ],
     "description": "A locked and open door triggers an integrity violation",
-    "trusted": [],
     "halt_code": 65
   },
   {
@@ -644,8 +533,7 @@
     "files": [
       "invoice-totals-n3.n3"
     ],
-    "description": "Collected line amounts produce invoice totals and a large-invoice classification",
-    "trusted": []
+    "description": "Collected line amounts produce invoice totals and a large-invoice classification"
   },
   {
     "name": "report-n3",
@@ -653,7 +541,6 @@
       "report-n3.n3"
     ],
     "description": "A formatted text report of fruit quantities, prices and costs",
-    "trusted": [],
     "output": "txt"
   },
   {
@@ -661,16 +548,14 @@
     "files": [
       "socrates-n3.n3"
     ],
-    "description": "Class membership follows the subclass hierarchy in Notation3",
-    "trusted": []
+    "description": "Class membership follows the subclass hierarchy in Notation3"
   },
   {
     "name": "deployment-srl",
     "files": [
       "deployment-srl.srl"
     ],
-    "description": "Service dependencies propagate severe vulnerabilities and safe deployment decisions",
-    "trusted": []
+    "description": "Service dependencies propagate severe vulnerabilities and safe deployment decisions"
   },
   {
     "name": "distances-srl",
@@ -678,120 +563,105 @@
       "distances-srl.srl",
       "data/distances-srl.ttl"
     ],
-    "description": "Missing kilometre distances are converted from miles without replacing base data",
-    "trusted": []
+    "description": "Missing kilometre distances are converted from miles without replacing base data"
   },
   {
     "name": "family-srl",
     "files": [
       "family-srl.srl"
     ],
-    "description": "Recursive forward ancestry over a three-generation family tree",
-    "trusted": []
+    "description": "Recursive forward ancestry over a three-generation family tree"
   },
   {
     "name": "inventory-srl",
     "files": [
       "inventory-srl.srl"
     ],
-    "description": "Grouped stock records yield location counts, totals, minimums and maximums",
-    "trusted": []
+    "description": "Grouped stock records yield location counts, totals, minimums and maximums"
   },
   {
     "name": "orders-srl",
     "files": [
       "orders-srl.srl"
     ],
-    "description": "Each order gets its own invoice with a customer and total",
-    "trusted": []
+    "description": "Each order gets its own invoice with a customer and total"
   },
   {
     "name": "provenance-srl",
     "files": [
       "provenance-srl.srl"
     ],
-    "description": "Strong annotated links yield connections and source-attributed triple terms",
-    "trusted": []
+    "description": "Strong annotated links yield connections and source-attributed triple terms"
   },
   {
     "name": "socrates-srl",
     "files": [
       "socrates-srl.srl"
     ],
-    "description": "Class membership follows the subclass hierarchy in SPARQL 1.2 RL",
-    "trusted": []
+    "description": "Class membership follows the subclass hierarchy in SPARQL 1.2 RL"
   },
   {
     "name": "strings-srl",
     "files": [
       "strings-srl.srl"
     ],
-    "description": "Directory listings, initials and language information from Unicode names",
-    "trusted": []
+    "description": "Directory listings, initials and language information from Unicode names"
   },
   {
     "name": "property-paths-srl",
     "files": [
       "property-paths-srl.srl"
     ],
-    "description": "Sequential and inverse property paths derive grandparent and child-to-parent links",
-    "trusted": []
+    "description": "Sequential and inverse property paths derive grandparent and child-to-parent links"
   },
   {
     "name": "collection-nesting-srl",
     "files": [
       "collection-nesting-srl.srl"
     ],
-    "description": "Property paths read nested RDF lists and a blank node property",
-    "trusted": []
+    "description": "Property paths read nested RDF lists and a blank node property"
   },
   {
     "name": "annotation-evidence-srl",
     "files": [
       "annotation-evidence-srl.srl"
     ],
-    "description": "A named reifier links an asserted statement to its author and recording date",
-    "trusted": []
+    "description": "A named reifier links an asserted statement to its author and recording date"
   },
   {
     "name": "cat-koko-srl",
     "files": [
       "cat-koko-srl.srl"
     ],
-    "description": "Separate head blank nodes create distinct witnesses that pass an identity filter",
-    "trusted": []
+    "description": "Separate head blank nodes create distinct witnesses that pass an identity filter"
   },
   {
     "name": "good-cobbler-srl",
     "files": [
       "good-cobbler-srl.srl"
     ],
-    "description": "RDF list patterns extract a trade from a structured description",
-    "trusted": []
+    "description": "RDF list patterns extract a trade from a structured description"
   },
   {
     "name": "graph-term-emulation-srl",
     "files": [
       "graph-term-emulation-srl.srl"
     ],
-    "description": "Closed lists of quoted triples yield graph metadata through recursive list traversal",
-    "trusted": []
+    "description": "Closed lists of quoted triples yield graph metadata through recursive list traversal"
   },
   {
     "name": "family-cousins-srl",
     "files": [
       "family-cousins-srl.srl"
     ],
-    "description": "Bounded generations and inherited branch labels identify cousins across a family tree",
-    "trusted": []
+    "description": "Bounded generations and inherited branch labels identify cousins across a family tree"
   },
   {
     "name": "dijkstra-srl",
     "files": [
       "dijkstra-srl.srl"
     ],
-    "description": "Listed candidate routes receive total costs and the cheapest alternatives survive stratified negation",
-    "trusted": []
+    "description": "Listed candidate routes receive total costs and the cheapest alternatives survive stratified negation"
   },
   {
     "name": "message-boundaries-n3",
@@ -799,8 +669,7 @@
       "message-boundaries-n3.n3",
       "data/message-boundaries-n3.trig"
     ],
-    "description": "Ordered RDF Messages preserve an empty heartbeat and distinguish reused blank-node labels",
-    "trusted": []
+    "description": "Ordered RDF Messages preserve an empty heartbeat and distinguish reused blank-node labels"
   },
   {
     "name": "message-alerts-n3",
@@ -808,8 +677,7 @@
       "message-alerts-n3.n3",
       "data/message-alerts-n3.nt"
     ],
-    "description": "Independent sensor messages raise an alert only for the observation above the temperature threshold",
-    "trusted": []
+    "description": "Independent sensor messages raise an alert only for the observation above the temperature threshold"
   },
   {
     "name": "message-provenance-n3",
@@ -817,8 +685,7 @@
       "message-provenance-n3.n3",
       "data/message-provenance-n3.trig"
     ],
-    "description": "Reporters and named-graph readings join within each message without crossing its boundary",
-    "trusted": []
+    "description": "Reporters and named-graph readings join within each message without crossing its boundary"
   },
   {
     "name": "execution-identifiers-srl",
@@ -826,7 +693,6 @@
       "execution-identifiers-srl.srl"
     ],
     "description": "Orders share one execution time and receive distinct UUID IRIs and strings",
-    "trusted": [],
     "srlContext": {
       "now": "2026-11-12T00:00:00.000Z",
       "seed": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
@@ -837,7 +703,6 @@
     "files": [
       "exact-decimals-srl.srl"
     ],
-    "description": "Exact decimal invoice totals and division alongside binary64 double arithmetic",
-    "trusted": []
+    "description": "Exact decimal invoice totals and division alongside binary64 double arithmetic"
   }
 ]

@@ -118,7 +118,7 @@ Confidence times trust gives the authority 9310 and the anonymous post 700. Coll
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 result(iri('https://example.org/bridge'), iri('https://example.org/decision'), iri('https://example.org/avoid_bridge'))
 result(iri('https://example.org/bridge'), iri('https://example.org/trustedSource'), iri('https://example.org/transportAuthority'))
 result(iri('https://example.org/bridge'), iri('https://example.org/score'), 9310)
@@ -134,20 +134,30 @@ result(iri('https://example.org/open'), iri('https://example.org/score'), 700)
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
+The saved report ends with `verdict('checked')`. The proof holds the nine
+claims, 26 steps recording the firings behind the derived facts, and a
+certificate: `derived(...)` listings of the facts the forward rules derived
+and `called(...)` tables of every answer of each call the questions make.
+
 The collected list of higher scores is used only by `list:length`, and
 counting does not depend on order, so `log:collectAllIn` compiles to
-`findall_sorted`. C9 settles that sorted list from the proof's search
-certificate, even though the scores are facts forward rules derived: the
-certificate lists those facts, and the sorted list does not depend on the
-order in which they were derived.
-C1 checks each inference against the compiled source clauses, C5 re-decides
-primitive computations, C8 checks any fresh witness, and C10 checks the
-original questions against the proof's call tables. The checker follows the
-certificate without calling the reasoning engine.
+`findall_sorted`. Its answers come from the call tables, at the bindings the
+collection had when it ran. No score is higher than the authority's:
 
-The verdict also establishes that the displayed claims are every answer of
-the original questions, and `--strict-proof` accepts the proof.
+```js
+called(rdf([9310, O1], iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('https://example.org/HigherScore')), [])
+```
+
+The scores are facts forward rules derived, so the table rests on a listing,
+which the checker requires to be closed under the rules; the sorted list does
+not depend on the order in which those facts were derived. The checker
+answers each question from the tables, expanding every call one level against
+the compiled program, computes the arithmetic itself, and replays each listed
+fact's recorded firing. It follows the certificate without calling the
+reasoning engine.
+
+The verdict **checked** establishes that the nine claims follow from the
+program and are every answer of its questions.
 
 ---
 

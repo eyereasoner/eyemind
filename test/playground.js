@@ -164,7 +164,7 @@ export const tests = [
     await p.open(`${base}#example=message-alerts-n3`, 390, true);
     await p.select('mode', '--stream-messages');
     assert.match(await page.evaluate("document.getElementById('command').textContent"), /^eyemind --stream-messages /);
-    assert.ok(await page.evaluate("document.getElementById('strict-proof').disabled"));
+    assert.ok(await page.evaluate("document.getElementById('json').disabled"));
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
     assert.equal(await p.output(), output);
@@ -221,7 +221,6 @@ export const tests = [
       await p.type('proof-input', proof);
       await p.run();
       assert.match(await p.output(), /verdict\('checked'\)/);
-      assert.doesNotMatch(await p.output(), /obligation\(/);
     }
     await p.select('mode', '');
   }],
@@ -233,12 +232,11 @@ export const tests = [
     assert.equal(await p.output(), '// Answers: each instance of a query() that holds.\ntest(a(A), c(A))\n');
     await p.select('mode', '--proof');
     await p.run();
-    assert.match(await p.output(), /source\(2\)/);
+    assert.match(await p.output(), /\[implies\(a\(B\), c\(B\)\)\]/);
     await p.select('mode', '--prove-and-check');
     await p.run();
     assert.match(await p.output(), /test\(a\(A\), c\(A\)\)/);
     assert.match(await p.output(), /verdict\('checked'\)/);
-    assert.doesNotMatch(await p.output(), /obligation\(/);
     await p.select('mode', '');
   }],
 
@@ -272,7 +270,7 @@ query(or(q(X), r(X)))`);
     await p.select('mode', '');
   }],
 
-  ['prove-and-check shows checked answers and supports strict and JSON output', async (page, base) => {
+  ['prove-and-check shows checked answers and supports JSON output', async (page, base) => {
     const p = driver(page);
     await p.open(`${base}#example=socrates`);
     await p.select('mode', '--prove-and-check');
@@ -283,46 +281,37 @@ query(or(q(X), r(X)))`);
     await page.evaluate("document.getElementById('json').click()");
     await p.run();
     assert.deepEqual(JSON.parse(await p.output()).answers, ["type('socrates', 'mortal')", "type('socrates', 'human')"]);
+    await page.evaluate("document.getElementById('json').click()");
     await p.open(`${base}#example=witnesses-n3`);
     await p.select('mode', '--prove-and-check');
-    await page.evaluate("document.getElementById('strict-proof').click()");
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
-    assert.match(await p.output(), /trusted\(0\)/);
     assert.match(await p.output(), /verdict\('checked'\)/);
-    // Native conclusion blank nodes still require restricted firing evidence.
+    // A conclusion blank node makes a restricted rule, whose firing a proof
+    // cannot establish: the reasoner refuses to certify it.
     await p.type('input', '@prefix : <http://example.org/>.\n:a :p :b.\n{ ?x :p ?y } => { ?x :q _:w }.');
     await p.run();
-    assert.match(await p.status(), /^Proof not valid · exit 2/);
-    assert.match(await p.output(), /^\/\/ Unverified claims:/);
+    assert.match(await p.status(), /^Failed · exit 1/);
     await p.select('mode', '');
   }],
 
-  ['C10 call fidelity certifies original questions and rejects a later once answer', async (page, base) => {
+  ['checking certifies the original questions and rejects a later once answer', async (page, base) => {
     const p = driver(page);
     await p.open(`${base}#example=socrates`);
     await p.select('mode', '--prove-and-check');
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
-    assert.match(await p.output(), /condition\('C10', 'call_fidelity', 'ok', 3\)/);
-    assert.match(await p.output(), /every answer of the original questions/);
+    assert.match(await p.output(), /every answer of its questions/);
     await p.type('input', "fact(p('a'), p('b'))\nimplied_by(q(X), once(p(X)))\nquery(q(X))");
-    await p.type('proof-input', "q('b')\nstep(q('b'), clause(3), {}, [once(p('b'))])\n" +
-      "step(once(p('b')), 'control', {}, [p('b')])\ncalled(q(A), [q('a')])\n");
+    await p.type('proof-input', "q('b')\ncalled(q(A), [q('a')])\n");
     await p.select('mode', '--check-proof');
     await p.run();
     assert.match(await p.status(), /^Proof not valid · exit 2/);
-    assert.match(await p.output(), /failure\('C10'/);
-    await page.evaluate("(() => { const el = document.getElementById('strict-proof'); if (el.checked) el.click(); })()");
-    await p.type('proof-input', "q('b')\nstep(q('b'), clause(3), {}, [once(p('b'))])\n" +
-      "step(once(p('b')), 'control', {}, [p('b')])\n");
+    assert.match(await p.output(), /failure\('the question does not return this answer: q\(\\'b\\'\)'\)/);
+    await p.type('proof-input', "q('a')\ncalled(q(A), [q('a')])\n");
     await p.run();
-    assert.match(await p.output(), /verdict\('checked_with_obligations'\)/);
-    assert.match(await page.evaluate("document.getElementById('strict-proof').parentElement.title"), /call fidelity/);
-    await page.evaluate("document.getElementById('strict-proof').click()");
-    await p.run();
-    assert.match(await p.output(), /failure\('C10'/);
-    await page.evaluate("document.getElementById('strict-proof').click()");
+    assert.match(await p.status(), /^Done · exit 0/);
+    assert.match(await p.output(), /verdict\('checked'\)/);
     await p.select('mode', '');
   }],
 
@@ -400,7 +389,7 @@ query(or(q(X), r(X)))`);
     assert.equal(await page.evaluate("document.querySelector('nav [aria-current=page]').textContent"), 'Conformance');
     assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].some(node => node.textContent.includes('README.command-line'))"));
     assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].every(node => node.textContent.startsWith('References: '))"));
-    await p.type('filter', 'C8');
+    await p.type('filter', 'replay');
     const filtered = await page.evaluate("document.querySelectorAll('.cases > li:not(.hidden)').length");
     assert.ok(filtered > 0 && filtered < count);
     await p.type('filter', '');

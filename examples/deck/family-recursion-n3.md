@@ -50,7 +50,7 @@ Backward ancestry first finds Bob directly, then Cat and Dan recursively. log:qu
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 result(iri('http://example.org/family#ann'), iri('http://example.org/family#ancestor'), iri('http://example.org/family#bob'))
 result(iri('http://example.org/family#ann'), iri('http://example.org/family#ancestor'), iri('http://example.org/family#cat'))
 result(iri('http://example.org/family#ann'), iri('http://example.org/family#ancestor'), iri('http://example.org/family#dan'))
@@ -60,14 +60,23 @@ result(iri('http://example.org/family#ann'), iri('http://example.org/family#ance
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
-C1 checks each inference against the compiled source clauses, C5 re-decides
-primitive computations, C8 checks any fresh witness, and C10 checks the
-original questions against the proof's call tables. The checker follows the
-certificate without calling the reasoning engine.
+The proof holds the three claims, one step for each, and a certificate. A
+step records how the query rule, clause 6 of the compiled program, concluded
+an answer from an ancestry triple. The certificate lists the derived
+`result` facts and holds a call table for every ancestry and parent search
+the backward rules make, down to Dan, who has no descendants:
 
-The verdict certifies the displayed claims; it does not assert that an
-arbitrary proof lists every possible answer.
+```js
+called(rdf(iri('http://example.org/family#cat'), iri('http://example.org/family#parent'), I), [rdf(iri('http://example.org/family#cat'), iri('http://example.org/family#parent'), iri('http://example.org/family#dan'))])
+called(rdf(iri('http://example.org/family#dan'), iri('http://example.org/family#ancestor'), J), [])
+```
+
+The checker never calls the reasoner. It expands each call one level against
+the two backward rules, taking inner answers from their tables, so a wrong or
+incomplete table shows up as a disagreement; it replays the three steps and
+requires the claims to be exactly the answers. The saved report ends with
+`verdict('checked')`: Bob, Cat and Dan follow from the source, and they are
+every answer of the query.
 
 ---
 

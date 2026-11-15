@@ -69,7 +69,7 @@ The query joins the asserted triple with its reifier, source and date. It report
 The check report records the corresponding claims as JavaScript expressions:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 result(iri('https://example.org/alice'), iri('https://example.org/name'), literal('Alice', datatype('http://www.w3.org/2001/XMLSchema#string')))
 result(iri('https://example.org/claim1'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies'), triple(iri('https://example.org/alice'), iri('https://example.org/name'), literal('Alice', datatype('http://www.w3.org/2001/XMLSchema#string'))))
 result(iri('https://example.org/claim1'), iri('https://example.org/statedBy'), iri('https://example.org/carol'))
@@ -80,14 +80,16 @@ result(iri('https://example.org/claim1'), iri('https://example.org/recorded'), l
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
-C1 checks each inference against the compiled source clauses, C5 re-decides
-primitive computations, C8 checks any fresh witness, and C10 checks the
-original questions against the proof's call tables. The checker follows the
+The saved report ends with `verdict('checked')`. The proof holds the four
+claims, four steps recording the firing of the query rule behind each one,
+a `derived(...)` listing of those facts and a `called(...)` table of every
+answer of the question. The checker answers the question from that table,
+expanding it one level against the compiled program, requires the listing to
+be closed under the rules, and replays each recorded firing. It follows the
 certificate without calling the reasoning engine.
 
-The verdict certifies the displayed claims; it does not assert that an
-arbitrary proof lists every possible answer.
+The verdict **checked** establishes that the four claims follow from the
+program and are every answer of its question.
 
 ---
 

@@ -107,49 +107,11 @@ proof:
 // Answers: each instance of a query() that holds.
 result('example', 12)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(literal('n2', 2)))
-clause(2, fact(literal('n3', 3)))
-clause(3, fact(literal('n10', 10)))
-clause(4, fact(literal('n4', 4)))
-clause(5, fact(expression('product', 'mul', 'n2', 'n3')))
-clause(6, fact(expression('difference', 'sub', 'n10', 'n4')))
-clause(7, fact(expression('total', 'add', 'product', 'difference')))
-clause(8, fact(root('example', 'total')))
-clause(9, implied_by(value(Node, Value), literal(Node, Value)))
-clause(10, implied_by(value(Node, Value), [expression(Node, Operation, Left, Right), value(Left, L), value(Right, R), calculate(Operation, L, R, Value)]))
-clause(11, implied_by(calculate('add', L, R, Value), is(Value, add(L, R))))
-clause(12, implied_by(calculate('sub', L, R, Value), is(Value, sub(L, R))))
-clause(13, implied_by(calculate('mul', L, R, Value), is(Value, mul(L, R))))
-clause(14, implies([root(Name, Node), value(Node, Value)], result(Name, Value)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(result('example', 12), clause(14), {Name: 'example', Node: 'total', Value: 12}, [root('example', 'total'), value('total', 12)])
-step(root('example', 'total'), clause(8), {}, [])
-step(value('total', 12), clause(10), {Node: 'total', Value: 12, Operation: 'add', Left: 'product', Right: 'difference', L: 6, R: 6}, [expression('total', 'add', 'product', 'difference'), value('product', 6), value('difference', 6), calculate('add', 6, 6, 12)])
-step(expression('total', 'add', 'product', 'difference'), clause(7), {}, [])
-step(value('product', 6), clause(10), {Node: 'product', Value: 6, Operation: 'mul', Left: 'n2', Right: 'n3', L: 2, R: 3}, [expression('product', 'mul', 'n2', 'n3'), value('n2', 2), value('n3', 3), calculate('mul', 2, 3, 6)])
-step(expression('product', 'mul', 'n2', 'n3'), clause(5), {}, [])
-step(value('n2', 2), clause(9), {Node: 'n2', Value: 2}, [literal('n2', 2)])
-step(literal('n2', 2), clause(1), {}, [])
-step(value('n3', 3), clause(9), {Node: 'n3', Value: 3}, [literal('n3', 3)])
-step(literal('n3', 3), clause(2), {}, [])
-step(calculate('mul', 2, 3, 6), clause(13), {L: 2, R: 3, Value: 6}, [is(6, mul(2, 3))])
-step(is(6, mul(2, 3)), 'builtin', {}, [])
-step(value('difference', 6), clause(10), {Node: 'difference', Value: 6, Operation: 'sub', Left: 'n10', Right: 'n4', L: 10, R: 4}, [expression('difference', 'sub', 'n10', 'n4'), value('n10', 10), value('n4', 4), calculate('sub', 10, 4, 6)])
-step(expression('difference', 'sub', 'n10', 'n4'), clause(6), {}, [])
-step(value('n10', 10), clause(9), {Node: 'n10', Value: 10}, [literal('n10', 10)])
-step(literal('n10', 10), clause(3), {}, [])
-step(value('n4', 4), clause(9), {Node: 'n4', Value: 4}, [literal('n4', 4)])
-step(literal('n4', 4), clause(4), {}, [])
-step(calculate('sub', 10, 4, 6), clause(12), {L: 10, R: 4, Value: 6}, [is(6, sub(10, 4))])
-step(is(6, sub(10, 4)), 'builtin', {}, [])
-step(calculate('add', 6, 6, 12), clause(11), {L: 6, R: 6, Value: 12}, [is(12, add(6, 6))])
-step(is(12, add(6, 6)), 'builtin', {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(result(A, B), [result('example', 12)])
 called(result(A, B), [result('example', 12)])
 called(value('total', C), [value('total', 12)])
@@ -167,41 +129,31 @@ called(calculate('add', 6, 6, L), [calculate('add', 6, 6, 12)])
 It has three parts:
 
 - **The claim**: the one answer the proof is about.
-- **The clauses**: the 14 program lines the proof relies on, numbered as
-  above.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
+- **The step**: `result` is concluded by a forward rule, so its one fact has
+  a step. It reads `step(what, by which clause, with which values, using
+  what)`: *the formula `example` is 12, by rule 14 (the 14th clause of the
+  program), with `Node` = total and `Value` = 12, because the root of
+  `example` is `total` and `total` is 12.*
+- **The certificate**: the **listing** `derived(result(A, B), [...])` says
+  that `result('example', 12)` is every `result` fact the forward rules
+  derived. Each **call table** `called(Call, Answers)` says that a call made
+  while answering the question has exactly these answers.
 
-The steps follow the tree from the top down. Read them as sentences:
+Read the call tables as sentences, top down through the tree:
 
-1. *The formula `example` is 12*: by rule 14, because its root is `total`
-   and `total` is 12.
-2. *The root of `example` is `total`*: fact 8.
-3. *`total` is 12*: by rule 10 with `Operation` = add, `Left` = product,
-   `Right` = difference, `L` = 6 and `R` = 6, because `total` adds
-   `product` and `difference`, both are 6, and adding 6 and 6 gives 12.
-4. *`total` adds `product` and `difference`*: fact 7.
-5. *`product` is 6*: by rule 10, because it multiplies `n2` and `n3`, they
-   are 2 and 3, and multiplying gives 6.
-6. *`product` multiplies `n2` and `n3`*: fact 5.
-7. *`n2` is 2*: by rule 9, because of its number.
-8. *`n2` holds the number 2*: fact 1.
-9. *`n3` is 3*: by rule 9.
-10. *`n3` holds the number 3*: fact 2.
-11. *Multiplying 2 and 3 gives 6*: by rule 13, because 6 is 2 × 3.
-12. *6 is 2 × 3*: justified as `'builtin'`. This is a calculation, not a
-    program line, and the checker does it again itself.
-13. *`difference` is 6*: by rule 10, because it subtracts `n4` from `n10`,
-    they are 10 and 4, and subtracting gives 6.
-14. *`difference` subtracts `n4` from `n10`*: fact 6.
-15. *`n10` is 10*: by rule 9.
-16. *`n10` holds the number 10*: fact 3.
-17. *`n4` is 4*: by rule 9.
-18. *`n4` holds the number 4*: fact 4.
-19. *Subtracting 4 from 10 gives 6*: by rule 12.
-20. *6 is 10 − 4*: `'builtin'`, recomputed by the checker.
-21. *Adding 6 and 6 gives 12*: by rule 11.
-22. *12 is 6 + 6*: `'builtin'`, recomputed by the checker.
+1. *Asking for any `result` gives exactly `result('example', 12)`.*
+2. *Asking for the value of `total` gives exactly 12.* Rule 10 asks this
+   while firing rule 14.
+3. *`product` is 6*, by rule 10: it multiplies `n2` and `n3`.
+4. –5. *`n2` is 2 and `n3` is 3*, by rule 9 from their numbers.
+6. *Multiplying 2 and 3 gives 6*, by rule 13.
+7. –10. *`difference` is 6*: `n10` is 10, `n4` is 4, and subtracting 4 from
+   10 gives 6, by rule 12.
+11. *Adding 6 and 6 gives 12*, by rule 11.
+
+The facts of the tree (`literal`, `expression`, `root`) need no table: the
+checker reads them from the program. The calculations 2 × 3, 10 − 4 and
+6 + 6 are not written down at all: the checker computes them itself.
 
 ---
 
@@ -209,70 +161,26 @@ The steps follow the tree from the top down. Read them as sentences:
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers the question
+by applying the program's rules one level at a time, taking the answer of
+every inner call from its table and computing every calculation itself, and
+checks each table it consults the same way, so a wrong table shows up as a
+disagreement. It requires the listing to be closed under the forward rule and
+replays the step: rule 14 is run again from no bindings, and must give
+`result('example', 12)`. A step, table or listing the check does not use
+fails it. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 result('example', 12)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 19)
-condition('C2', 'well_founded', 'ok', 22)
-condition('C3', 'justification', 'ok', 22)
-condition('C4', 'coverage', 'ok', 22)
-condition('C5', 're_decision', 'ok', 3)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 23)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(22)
-verified(19)
-recomputed(3)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (19)**: the 19 steps that cite a program line really are
-  instances of it. Step 3, for example, is rule 10 with the seven values
-  shown filled in.
-- **C2 well-founded (22)**: none of the 22 steps depends on itself, even
-  indirectly. The recursion of rule 10 always moves down the tree.
-- **C3 justification (22)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (22)**: the 1 answer and the 21 things the steps use are
-  each backed by a step.
-- **C5 re-decision (3)**: the 3 calculations, 2 × 3 = 6, 10 − 4 = 6 and
-  6 + 6 = 12, were done again by the checker, with the same results.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (23)**: the 1 answer answers the question, and all 22 steps
-  serve it.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 22 steps, 19 verified against the program and 3
-recomputed, no boundary steps taken on trust, for 1 claim. The verdict is **checked**: the
-formula's value 12 follows from the program. As the last comment says, it
-confirms this answer; it does not by itself say there is no other.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+The verdict is **checked**: the formula's value 12 follows from the program,
+and it is every answer of the question. Had the proof claimed
+`result('example', 13)`, or left the answer out, the report would list each
+`failure(...)` and end with `verdict(failed(N))`.
 
 ---
 
@@ -297,6 +205,6 @@ the difference becomes 9 and the answer `result('example', 15)`. Change
 
 ## Takeaway
 
-Even simple arithmetic is a chain of small steps. When each one is written
-down and rechecked, a wrong input is easy to find, and a right answer is
+Even simple arithmetic is a chain of small steps. When each intermediate
+result is written down and rechecked, a wrong input is easy to find, and a right answer is
 easy to trust.

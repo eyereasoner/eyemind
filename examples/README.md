@@ -39,7 +39,7 @@ eyemind --check-proof examples/proof/socrates.js examples/socrates.js
 ```
 
 Each program has a matching conclusion file in `output/`, a certificate in
-`proof/`, and a C1-C10 verification report in `check/`. JavaScript examples
+`proof/`, and its check report in `check/`. JavaScript examples
 save term documents as `.js`; N3 examples save `.n3` output, SRL examples
 save Turtle as `.ttl`, and the text report saves `.txt`. Proofs and check
 reports are JavaScript expressions read as data, saved as `.js` for every
@@ -211,35 +211,32 @@ are all the same terms, so the audit needs no export format, no parser and no
 second tool, and its own conclusions come with a checked proof too.
 
 `integrity.js` intentionally exits with code 65 because it concludes `false`.
-Its proof-check report is valid: the certificate explains why the constraint was
-violated. A proof with negations or collections carries a search certificate
-after its steps: `searched(Call, Answers)` records every answer of one call
-the search behind a negation or collection made, and `derived(Pattern, Facts)`
-every fact the forward rules derived for one relation it consulted. The
-checker uses it to settle `absent` and `collected` steps without searching
-itself (C9, search closure); calls over relations only facts define, and
-ground primitives, need no table, since the checker scans those facts or
-recomputes the primitive. A collection over facts that forward rules derived
-stays an obligation in the check report, because the order in which derived
-facts arose cannot be checked this way; C6 (boundary consistency) confronts
-such obligations with the evidence at hand, and `--strict-proof` rejects
-them.
-Every proof also attempts to certify the original questions with `called(Call, Answers)`
-tables. C10 checks their answers under the original bindings and control
-choices. Missing or unsupported evidence leaves an explicit call-fidelity
-obligation; deleting call tables cannot produce an unconditional verdict.
+Its proof-check report is valid: the proof shows the firings that make the
+constraint fail. A halted run's proof establishes that its claims follow, not
+that they are every answer.
 
-Every check file includes `condition(...)` facts for C1-C10, verification counts and
-a `verdict(...)` fact. Reports with failures include `failure(...)`; reports with
-unresolved absences, collections or call fidelity include `obligation(...)`. Add `--json` to the check command
-for JSON output instead.
+A proof ends with its certificate: `called(Call, Answers)` records every
+answer of one call the original questions make, and `derived(Pattern, Facts)`
+every fact the forward rules derived for one relation those searches
+consulted. The checker answers each question by expanding it one level
+against the program, with every inner call answered from its table, checks
+each table the same way, and requires each listing to be closed under the
+rules; calls over relations only facts define need no table. Each listed fact
+replays the firing its step records, so negations, collections and first
+answers are decided as the search decided them. The claims must then be
+exactly the answers: a check establishes that they follow from the program
+and that none is missing.
+
+Every check file lists the claims and ends with a `verdict(...)` fact; a
+failed check also lists its `failure(...)` facts. Add `--json` to the check
+command for JSON output instead.
 
 `fibonacci.js` answers F(0), F(1), F(10), F(100), F(1000) and F(10000), the
 last a 2090-digit integer, then divides successive values to watch the ratio
 converge on the golden ratio. It uses fast doubling, which halves the index at
 each recursive step and fits within the default reasoning limits. Its saved
-proof records the arithmetic and recursive clause instances without trusted
-obligations.
+proof is checked by recomputing that arithmetic as the call tables are
+expanded.
 
 The `deep-taxonomy` examples are the deep-taxonomy benchmark: one individual, a
 chain of subclass rules, and two sibling branches at every level that lead
@@ -269,7 +266,7 @@ limit with `path_discovery(From, To, MaxStopovers, Path)`:
 eyemind --goal "path_discovery('Liège Airport', 'Václav Havel Airport Prague', 1, Path)" examples/path-discovery.js
 goal="path_discovery('Ostend-Bruges International Airport', 'Liège Airport', 0, Path)"
 eyemind --proof --goal "$goal" examples/path-discovery.js > /tmp/route-proof.js
-eyemind --strict-proof --check-proof /tmp/route-proof.js --goal "$goal" examples/path-discovery.js
+eyemind --check-proof /tmp/route-proof.js --goal "$goal" examples/path-discovery.js
 ```
 
 `--goal` replaces the default goal, so checking that proof names the same goal. Zero stopovers allows only direct flights;
@@ -279,7 +276,7 @@ routes. Negative or noninteger limits also return no routes. You can leave
 `From` or `To` as a variable to discover endpoints; keep `MaxStopovers` bound.
 List the available names with `--goal "airport(Id, Name)"`. These are historical
 network records, rather than current flight schedules. The search uses explicit
-disequalities to prevent cycles, so its proofs have no trusted obligations.
+disequalities to prevent cycles.
 Large bounds on a dense network may still reach the configured reasoning limits.
 
 `peano.js` represents natural numbers as `'zero'`, `s('zero')`, and so on. Its
@@ -305,9 +302,8 @@ raised to a complex power. The square root of -1 is `i`, `e` to the power `i*pi`
 is -1, `i` to the power `i` is the real number 0.20787957635076193, and the
 inverse sine and cosine of 2 are complex. Logarithm, sine, cosine, tangent and
 arctangent follow, each applied to the answer of its own inverse so the
-round trip is visible: the sine of the arcsine of 2 comes back as 2. The example
-has each primitive calculation recomputed by the checker. Call fidelity for
-its forward conclusions remains an explicit obligation:
+round trip is visible: the sine of the arcsine of 2 comes back as 2. The
+checker recomputes each primitive calculation of its proof:
 
 ```sh
 eyemind --goal "complex_power(complex(1, 1), 16, Result)" examples/complex.js
@@ -324,10 +320,9 @@ up to rounding. The original evaluates expressions by building calls with
 numbers instead of cutting. Lagrange's step collects the roots of a cubic with
 a predicate of its own, so that collection depends only on a lower degree.
 
-A list of all roots is a completed collection, so the default certificate is
-small: four steps, with the arithmetic inside two `collected` steps that its
-search certificate settles. Ask for one root at a time and every arithmetic
-step is in the steps instead. For a cubic it passes strict checking:
+A list of all roots is a completed collection, so the default proof has no
+steps: its call tables answer the goals, and the checker recomputes the
+arithmetic as it expands them. One root at a time can be proved too:
 
 ```sh
 eyemind --proof --goal "racine([[1, 0], [-6, 0], [11, 0], [-6, 0]], Z)" examples/polynomial.js
@@ -362,7 +357,7 @@ threshold the measured legs, 21.55 cm and 23.46 cm, raise an alarm, printed
 with the lengths, the discrepancy, the threshold and the reason. The reason
 names the side of the threshold that fired; the version this was adapted from
 gave the same reason for both. Every intermediate value is a separate `val/3`
-clause, so the strict certificate recomputes each one.
+clause, so checking its proof recomputes each one.
 
 `bayes-diagnosis.js` models printer faults using illustrative priors and two
 conditionally independent observations. It keeps exact integer likelihood
@@ -370,9 +365,9 @@ weights and their collected total alongside a floating-point probability.
 `policy-risk.js` reports a rank, clause, clamped score, severity, reason and
 mitigation. Rank 1 has the highest score; equal scores share a rank. Output
 follows inference order, with ranks recorded explicitly. Adding the missing
-safeguards removes the affected findings. Both examples expose their collection
-obligations, collections over derived facts; the absences behind the policy
-findings are settled by the checker.
+safeguards removes the affected findings. The checker decides their
+collections, and the absences behind the policy findings, from the proofs'
+call tables.
 
 `research-portal.js` evaluates a hospital research portal under two rulebooks.
 An ODRL/DPV policy decides research access first, then the baseline or
@@ -391,8 +386,8 @@ the money comes back. Eight cancellations and two complaints are decided
 under both versions, with fees and refunds computed in euro. The revision
 makes a cancellation free when floods close the departure airport, gives
 accepted vouchers statutory guarantees, and sets complaint deadlines. Every
-condition of the terms has its derivation checked. Its forward call fidelity
-remains an explicit obligation, so strict checking rejects the proof.
+condition of the terms has its derivation checked, and the check establishes
+that the decisions are every answer.
 
 `delfour.js` shares a conclusion instead of the data behind it, in the
 scenario of Ruben Verborgh's
@@ -406,8 +401,8 @@ the 12 g biscuits against the 10 g threshold, and suggests the 3 g biscuits
 in aisle 7. Ten checks pass, among them
 that the shared text names no condition, found by searching it with
 `atom_concat`. That no other biscuit has less sugar and that the text holds
-neither "diabetes" nor "medical" are absences, which the proof's search
-certificate settles. The
+neither "diabetes" nor "medical" are absences, which the proof's call tables
+decide. The
 signature is accepted because the input says it was verified upstream; the
 rules do not recompute the HMAC.
 
@@ -417,17 +412,17 @@ did and, explicitly, what she did not do; a missed obligation is read only
 from an explicit `not_performed` fact, never from a missing observation.
 Notifying the data protection officer compensates the sharing, but the
 violation stays on record. Nothing compensates the missed consent, so alice's
-status is `requires_review`. Its rule instances are checked, while call
-fidelity for the forward conclusions remains an explicit obligation.
+status is `requires_review`. Its proof checks: every status
+follows from the program, and none is missing.
 
 `nixon-diamond.js` sets two defaults against each other: Quakers are pacifists
 and Republicans are nonpacifists, and nixon is both. The pacifist default is
 guarded by `not(nonpacifist(Person))`, so the Republican rule takes priority,
 and stratification runs the default only after the nonpacifist rule has
 finished. nixon is classified as a nonpacifist and not as a pacifist, while
-ada, only a Quaker, gets the default. The proof rests on one `absent` step,
-that nothing concludes ada is a nonpacifist, which its search certificate
-settles.
+ada, only a Quaker, gets the default. The proof rests on one negation, that
+nothing concludes ada is a nonpacifist, which its call tables and the closed
+listing of nonpacifists decide.
 
 `owl-property-chain.js` defines grandparent as a chain of two parent links,
 stored as a plain list of property names next to the triples. One forward rule
@@ -452,7 +447,7 @@ following day. A February 29 anniversary falls on February 28 in a non-leap
 year. Elapsed days follow the Gregorian calendar, including century leap-year
 rules. Invalid dates, future births, unknown people, and negative or noninteger
 thresholds return no answers. Reference dates are explicit source data rather
-than clock readings, and the example passes strict proof checking.
+than clock readings, so its proof checks the same on any day.
 
 The classics from `ackermann.js` to `teleportation.js` are written without a
 library. Relations such as `between`, `member` or `length` are defined in
@@ -497,7 +492,7 @@ Brugge and the longer one through Kortrijk. The original keeps the current
 state in the database, reading transitions with `clause/2` and asserting and
 retracting fluents as it moves; here the state is a list of fluents passed
 along the search, so every step is an ordinary clause instance and the
-certificate passes strict checking. Stages are counted as changes of map plus
+proof checks. Stages are counted as changes of map plus
 one, where the original stops counting at two.
 
 `superdense-coding.js` sends two classical bits through one qubit in discrete
@@ -508,8 +503,8 @@ each of Alice's messages N and Bob's readings M collects its ways through the
 shared entangled pair and keeps the pair when their number is odd. Every
 message arrives as itself by exactly one way, and every wrong reading by two
 ways that cancel or by none, so Bob reads 0 to 3 exactly as Alice sent them.
-The parity depends on all the ways, so the proof's search certificate records
-the four collections behind its answers, and the checker settles them.
+The parity depends on all the ways, so the proof's call tables record the
+collections behind its answers, and the checker decides them.
 
 `teleportation.js` runs the companion protocol in the same theory, with the
 same relations. Alice measures the qubit to send together with her half of the
@@ -519,15 +514,14 @@ turns out to be one of Alice's four operations from superdense coding, to his
 half. For each of the three nonzero states over the two-element field and each
 of the four outcomes, Bob ends up holding exactly the state Alice sent, and a
 `contradiction(...)` rule would stop the run with exit code 65 if he did not. The
-protocol was written for this collection, not taken from a sibling project.
+protocol was written for this collection.
 
 Proofs that lean on a completed search write that search down. In
-`kaprekar.js` the whole verification sits inside one negation, so its proof is
-two steps plus an `absent` step, backed by a search certificate of 13,555
-lines: the exhaustive check over 705 digit multisets, which the checker
-confirms line by line. `four-color.js` collects the countries with `findall`
-and rules out conflicts with negation, so it carries both kinds, and both
-are settled.
+`kaprekar.js` the whole verification sits inside one negation, so its proof
+is 13,556 call tables: the exhaustive check over 705 digit multisets, which
+the checker confirms table by table. `four-color.js` collects the countries
+with `findall` and rules out conflicts with negation, and its call tables
+decide both.
 
 Run `npm test` for the full suite, or `npm test -- examples` for this corpus;
 `npm test -- -k socrates` limits it to the tests that mention socrates. Every example
@@ -549,8 +543,8 @@ rule lists all 256 subsets and a forward rule keeps the 113 that fit;
 `findall` gathers their values into one list, whose length is the number of
 packs that fit and whose maximum, 40, is the best value. The only pack worth
 40 takes the atlas, battery, camera, medkit and sensor, weighing exactly 15.
-The proof recomputes every sum and comparison and trusts one thing: that the
-collected list of values is complete.
+Checking the proof recomputes every sum and comparison, and its call tables
+show that the collected list of values is complete.
 
 `type-inference.js` works out the types of six small programs written as
 syntax trees: functions with typed parameters, calls, integer addition,
@@ -577,5 +571,5 @@ proof is the textbook chain i = (j·x)·i = j·(x·i) = j·e = j.
 
 After an intentional behavior change, run `node tools/update-examples.js` and review
 the source and artifact changes together. When adding an example, register its
-name, description, expected halt code (if any) and proof obligations in
+name, description and expected halt code (if any) in
 [manifest.json](https://github.com/eyereasoner/eyemind/blob/main/examples/manifest.json), then generate its artifacts.

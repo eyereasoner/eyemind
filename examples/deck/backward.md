@@ -66,7 +66,8 @@ indeed_more_interesting(5, 3)
 
 The first line is a comment saying what follows. There is one new fact,
 produced by the forward rule. The backward definition did its work behind the
-scenes: it is not itself listed as a conclusion, but it appears in the proof.
+scenes: it is not itself listed as a conclusion, but its answer appears in
+the proof.
 
 ---
 
@@ -79,18 +80,11 @@ complete proof:
 // Conclusions: the facts the program derives, in the order derived.
 indeed_more_interesting(5, 3)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, implied_by(more_interesting(X, Y), gt(X, Y)))
-clause(2, implies(more_interesting(5, 3), indeed_more_interesting(5, 3)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(indeed_more_interesting(5, 3), clause(2), {}, [more_interesting(5, 3)])
-step(more_interesting(5, 3), clause(1), {X: 5, Y: 3}, [gt(5, 3)])
-step(gt(5, 3), 'builtin', {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(indeed_more_interesting(A, B), [indeed_more_interesting(5, 3)])
 called(indeed_more_interesting(5, 3), [indeed_more_interesting(5, 3)])
 called(more_interesting(5, 3), [more_interesting(5, 3)])
@@ -99,23 +93,30 @@ called(more_interesting(5, 3), [more_interesting(5, 3)])
 It has three parts:
 
 - **The claim**: the conclusion the proof is about.
-- **The clauses**: the program's two rules, numbered 1 and 2 in the order
-  they appear in the program.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`. `{X: 5, Y: 3}` lists
-  the values the variables took; `{}` means there were none to fill in.
+- **The step**: one for the fact the forward rule derived. A step reads
+  `step(what, by what, with which values, using what)`. `clause(2)` is the
+  program's second rule, the forward one; `{}` means there were no variables
+  to fill in.
+- **The certificate**: the **listing** `derived(...)` gives every fact the
+  forward rules derived for `indeed_more_interesting`, and each **call
+  table** `called(Call, Answers)` gives every answer of one call made while
+  answering the program's question.
 
-Read the steps as sentences:
+Read them as sentences:
 
 1. *5 is indeed more interesting than 3* — by rule 2, because 5 is more
    interesting than 3.
-2. *5 is more interesting than 3* — by rule 1, with `X` being 5 and `Y` being
-   3, because 5 > 3.
-3. *5 > 3* — justified by `'builtin'`: a calculation, which anyone checking
-   the proof simply redoes. It uses nothing.
+2. *The forward rules derived exactly one `indeed_more_interesting` fact*,
+   for 5 and 3.
+3. *Asking whether 5 is indeed more interesting than 3 gives one answer:
+   yes.*
+4. *Asking whether 5 is more interesting than 3 gives one answer: yes.* This
+   call is answered by the backward rule 1, `gt(5, 3)`; the comparison is not
+   written down, because anyone checking the proof simply redoes it.
 
-The forward step (1) and the backward steps (2 and 3) sit in one chain, and
-every step leans only on steps listed below it.
+The forward step and the backward call meet in one chain: the step uses
+`more_interesting(5, 3)`, and its call table shows that the backward
+definition answers it.
 
 ---
 
@@ -123,69 +124,25 @@ every step leans only on steps listed below it.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers the question
+by expanding each call one level against the program, taking inner answers
+from their tables, so `more_interesting(5, 3)` is checked against rule 1 and
+`gt(5, 3)` is recomputed: 5 really is greater than 3. It requires the listing
+to be closed under the forward rule, and **replays** the step: it re-runs
+rule 2 and gets `indeed_more_interesting(5, 3)` again. A step, table or listing
+the check does not use fails it. This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 indeed_more_interesting(5, 3)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 2)
-condition('C2', 'well_founded', 'ok', 3)
-condition('C3', 'justification', 'ok', 3)
-condition('C4', 'coverage', 'ok', 3)
-condition('C5', 're_decision', 'ok', 1)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 4)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(3)
-verified(2)
-recomputed(1)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (2)**: the 2 steps that cite a rule really are instances of
-  it: step 1 is rule 2 as written, and step 2 is rule 1 with `X` = 5 and
-  `Y` = 3.
-- **C2 well-founded (3)**: none of the 3 steps depends on itself, even
-  indirectly.
-- **C3 justification (3)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (3)**: the 1 claim and the 2 things the steps use
-  (`more_interesting(5, 3)` and `gt(5, 3)`) are each backed by a step.
-- **C5 re-decision (1)**: the one built-in step, `gt(5, 3)`, was recomputed,
-  and 5 really is greater than 3.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (4)**: the 1 claim answers what the program asks, and all 3
-  steps serve it.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 3 steps, 2 verified against the program, 1
-recomputed, no boundary steps taken on trust. The verdict is **checked**: the conclusion
-follows from the program, and it is every answer of the original questions.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+The verdict is **checked**: the conclusion follows from the program, and it
+is every answer of the original questions. Had the proof claimed
+`indeed_more_interesting(3, 5)`, the report would list each `failure(...)`
+and end with `verdict(failed(N))`.
 
 ---
 
@@ -208,5 +165,5 @@ first line and both pairs to `(5, 5)`: now the rule fires and concludes
 ## Takeaway
 
 Forward rules build up what is known; backward definitions answer questions
-on demand. eyemind lets you mix them freely, and the proof stitches both into
-one readable chain of reasons.
+on demand. eyemind lets you mix them freely, and the proof records both: the
+step of the forward rule and the answer of the backward definition.

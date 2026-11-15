@@ -5,25 +5,7 @@ append(['a', 'b'], [], ['a', 'b'])
 matching_pair(pair('same', 'same'))
 head_tail(['a', 'b', 'c'], 'a', ['b', 'c'])
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(append([], Ys, Ys)))
-clause(2, implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs)))
-clause(3, fact(matching_pair(pair(X, X))))
-clause(4, fact(head_tail([Head, ...Tail], Head, Tail)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(append([], ['a', 'b'], ['a', 'b']), clause(1), {Ys: ['a', 'b']}, [])
-step(append(['a'], ['b'], ['a', 'b']), clause(2), {X: 'a', Xs: [], Ys: ['b'], Zs: ['b']}, [append([], ['b'], ['b'])])
-step(append([], ['b'], ['b']), clause(1), {Ys: ['b']}, [])
-step(append(['a', 'b'], [], ['a', 'b']), clause(2), {X: 'a', Xs: ['b'], Ys: [], Zs: ['b']}, [append(['b'], [], ['b'])])
-step(append(['b'], [], ['b']), clause(2), {X: 'b', Xs: [], Ys: [], Zs: []}, [append([], [], [])])
-step(append([], [], []), clause(1), {Ys: []}, [])
-step(matching_pair(pair('same', 'same')), clause(3), {X: 'same'}, [])
-step(head_tail(['a', 'b', 'c'], 'a', ['b', 'c']), clause(4), {Head: 'a', Tail: ['b', 'c']}, [])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 called(append(A, B, ['a', 'b']), [append([], ['a', 'b'], ['a', 'b']), append(['a'], ['b'], ['a', 'b']), append(['a', 'b'], [], ['a', 'b'])])
 called(append(C, D, ['b']), [append([], ['b'], ['b']), append(['b'], [], ['b'])])
 called(append(E, F, []), [append([], [], [])])

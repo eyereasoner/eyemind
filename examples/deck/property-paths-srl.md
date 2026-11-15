@@ -64,14 +64,18 @@ inf(iri('http://example.org/property-paths#carol'), iri('http://example.org/prop
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`. The report has no remaining obligations.
-C1 checks inference steps against the compiled source clauses; C5 checks
-primitive computations; C8 checks fresh witnesses; C10 checks the original
-questions against the recorded call tables. The checker follows the
-certificate without calling the reasoning engine.
+The saved report ends with `verdict('checked')`.
 
-The verdict describes the displayed claims and any listed obligations. It
-does not assert that an arbitrary certificate lists every possible answer.
+The checker reads the clauses from the compiled program, not from the
+proof, and never calls the reasoning engine. It answers the original
+questions from the proof's call tables, checking each table by expanding its
+call one level against the program; it requires each `derived` listing to be
+closed under the forward rules; and it replays the recorded firing of each
+listed fact, computing primitives again. A step, table or listing the check
+does not use fails it.
+
+The verdict establishes that the displayed claims follow from the compiled
+program and are every answer of its original questions.
 
 ---
 

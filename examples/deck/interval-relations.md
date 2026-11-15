@@ -120,12 +120,12 @@ are among them, and a equals e, since both run 10:00–12:00.
 
 ## The proof, line by line
 
-`eyemind --proof` writes down how it reached each answer. The proof has 214
-steps and is about 31 KB; the
+`eyemind --proof` writes down how it reached each answer. The proof has 176
+steps and is about 40 KB; the
 [full proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/interval-relations.js)
-is linked above. Here are its opening comment and first claims, its
-clauses, the complete chain for `relation('a', 'before', 'i')` (steps
-1–12), and the step for its reverse:
+is linked above. Here are its opening comment and first claims, the
+complete chain for `relation('a', 'before', 'i')`, the step for its reverse,
+and part of its certificate:
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -134,61 +134,41 @@ relation('a', 'before', 'j')
 relation('a', 'before', 'b')
 // … 97 more claims, 100 in all
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(interval('a', 600, 720)))
-clause(2, fact(interval('b', 780, 900)))
-clause(3, fact(interval('c', 720, 840)))
-clause(4, fact(interval('d', 660, 780)))
-clause(5, fact(interval('e', 600, 720)))
-clause(6, fact(interval('f', 600, 660)))
-clause(7, fact(interval('g', 660, 720)))
-clause(8, fact(interval('h', 540, 960)))
-clause(9, fact(start_duration('i', 960, 120)))
-clause(10, fact(end_duration('j', 960, 60)))
-clause(11, implies([start_duration(I, S, D), gt(D, 0), is(E, add(S, D))], interval(I, S, E)))
-clause(12, implies([end_duration(I, E, D), gt(D, 0), is(S, sub(E, D))], interval(I, S, E)))
-clause(13, implied_by(valid_interval(I, S, E), [interval(I, S, E), lt(S, E)]))
-clause(14, implied_by(pair(I, J, SI, EI, SJ, EJ), [valid_interval(I, SI, EI), valid_interval(J, SJ, EJ)]))
-clause(15, implies([pair(I, J, SI, EI, SJ, EJ), lt(EI, SJ)], relation(I, 'before', J)))
-clause(16, implies([pair(I, J, SI, EI, SJ, EJ), eq(EI, SJ)], relation(I, 'meets', J)))
-clause(17, implies([pair(I, J, SI, EI, SJ, EJ), lt(SI, SJ), lt(SJ, EI), lt(EI, EJ)], relation(I, 'overlaps', J)))
-clause(18, implies([pair(I, J, SI, EI, SJ, EJ), eq(SI, SJ), lt(EI, EJ)], relation(I, 'starts', J)))
-clause(19, implies([pair(I, J, SI, EI, SJ, EJ), lt(SJ, SI), lt(EI, EJ)], relation(I, 'during', J)))
-clause(20, implies([pair(I, J, SI, EI, SJ, EJ), lt(SJ, SI), eq(EI, EJ)], relation(I, 'finishes', J)))
-clause(21, implies([pair(I, J, SI, EI, SJ, EJ), eq(SI, SJ), eq(EI, EJ)], relation(I, 'equals', J)))
-clause(22, implies(relation(I, 'before', J), relation(J, 'after', I)))
-clause(23, implies(relation(I, 'meets', J), relation(J, 'met_by', I)))
-clause(24, implies(relation(I, 'overlaps', J), relation(J, 'overlapped_by', I)))
-clause(25, implies(relation(I, 'starts', J), relation(J, 'started_by', I)))
-clause(26, implies(relation(I, 'during', J), relation(J, 'contains', I)))
-clause(27, implies(relation(I, 'finishes', J), relation(J, 'finished_by', I)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(relation('a', 'before', 'i'), clause(15), {I: 'a', J: 'i', SI: 600, EI: 720, SJ: 960, EJ: 1080}, [pair('a', 'i', 600, 720, 960, 1080), lt(720, 960)])
 step(pair('a', 'i', 600, 720, 960, 1080), clause(14), {I: 'a', J: 'i', SI: 600, EI: 720, SJ: 960, EJ: 1080}, [valid_interval('a', 600, 720), valid_interval('i', 960, 1080)])
 step(valid_interval('a', 600, 720), clause(13), {I: 'a', S: 600, E: 720}, [interval('a', 600, 720), lt(600, 720)])
 step(interval('a', 600, 720), clause(1), {}, [])
-step(lt(600, 720), 'builtin', {}, [])
 step(valid_interval('i', 960, 1080), clause(13), {I: 'i', S: 960, E: 1080}, [interval('i', 960, 1080), lt(960, 1080)])
 step(interval('i', 960, 1080), clause(11), {I: 'i', S: 960, D: 120, E: 1080}, [start_duration('i', 960, 120), gt(120, 0), is(1080, add(960, 120))])
-step(start_duration('i', 960, 120), clause(9), {}, [])
-step(gt(120, 0), 'builtin', {}, [])
-step(is(1080, add(960, 120)), 'builtin', {}, [])
-step(lt(960, 1080), 'builtin', {}, [])
-step(lt(720, 960), 'builtin', {}, [])
-// … steps 13–170
+// … the steps of the other answers
 step(relation('i', 'after', 'a'), clause(22), {I: 'a', J: 'i'}, [relation('a', 'before', 'i')])
-// … steps 172–214
+// … 43 more steps
+
+// Certificate: the derived facts and every answer of each call the questions make.
+// … the listing and call table for relation/3, 100 facts each
+derived(interval(A, B, C), [interval('i', 960, 1080), interval('j', 900, 960)])
+// … the tables for pair/6, valid_interval/3, interval/3, before and meets
+called(relation(T, 'overlaps', U), [relation('a', 'overlaps', 'd'), relation('c', 'overlaps', 'b'), relation('d', 'overlaps', 'c'), relation('e', 'overlaps', 'd')])
+called(relation(V, 'starts', W), [relation('f', 'starts', 'a'), relation('f', 'starts', 'e'), relation('g', 'starts', 'd')])
+called(relation(X, 'during', Y), [relation('a', 'during', 'h'), relation('b', 'during', 'h'), relation('c', 'during', 'h'), relation('d', 'during', 'h'), relation('e', 'during', 'h'), relation('f', 'during', 'h'), relation('g', 'during', 'h')])
+called(relation(Z, 'finishes', A1), [relation('j', 'finishes', 'h'), relation('g', 'finishes', 'a'), relation('g', 'finishes', 'e')])
 ```
 
 It has three parts:
 
 - **The claims**: the 100 answers.
-- **The clauses**: the program's 27 lines, numbered by position.
-- **The steps**: one per thing established. A step reads
-  `step(what, justified by, with which values, using what)`. A `'builtin'`
-  step is a calculation or comparison the checker redoes itself.
+- **The steps**: one per derived fact the answers rest on, and one for each
+  goal a firing uses whose answer rests on derived facts. A step reads
+  `step(what, by which clause, with which values, using what)`; clauses are
+  numbered by their position in the program, facts included.
+- **The certificate**: two *listings*, `derived(...)`, of every `relation`
+  and every `interval` fact the forward rules derived, and ten *call
+  tables*, `called(...)`, of every answer of a call: the query
+  `relation(X, Y, Z)` itself, the `pair`, `valid_interval` and `interval`
+  calls beneath it, and the call each of the reverse rules 22–27 makes, such
+  as `relation(I, 'overlaps', J)`.
 
 Read the chain as sentences:
 
@@ -196,20 +176,21 @@ Read the chain as sentences:
    because (a, i) is a valid pair and 720 < 960.
 2. *(a, i) is a pair of valid slots* — by rule 14, because both are valid.
 3. *a is valid* — by rule 13, because a runs 600–720 and 600 < 720.
-4. *a runs 600–720* — fact 1.
-5. *600 < 720* — builtin.
-6. *i is valid* — by rule 13, because i runs 960–1080 and 960 < 1080.
-7. *i runs 960–1080* — by rule 11, because i starts at 960 and lasts 120,
+4. *a runs 600–720* — fact 1. It has a step because rules 11 and 12 also
+   conclude `interval` facts, so an `interval` goal is followed to how it
+   was established.
+5. *i is valid* — by rule 13, because i runs 960–1080 and 960 < 1080.
+6. *i runs 960–1080* — by rule 11, because i starts at 960 and lasts 120,
    120 > 0, and 960 + 120 = 1080.
-8. *i starts at 960 and lasts 120* — fact 9.
-9. *120 > 0* — builtin.
-10. *960 + 120 = 1080* — builtin.
-11. *960 < 1080* — builtin.
-12. *720 < 960* — builtin: a ends before i starts.
 
-And step 171: *i is after a* — by rule 22, the reverse of *before*, because
-a is before i (step 1). Each later answer reuses what is already proved:
-a's and i's validity are shown once and cited again.
+The comparisons and the sum have no steps: the checker computes them
+itself. `start_duration('i', 960, 120)` has none either: it comes only from
+a stated fact, so the program answers it directly.
+
+The step for `relation('i', 'after', 'a')` reads: *i is after a* — by rule
+22, the reverse of *before*, because a is before i. Each later answer reuses
+what is already proved: a's and i's validity are shown once and cited
+again.
 
 ---
 
@@ -217,11 +198,27 @@ a's and i's validity are shown once and cited again.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the query.** It searches `relation(X, Y, Z)` one level against
+  the program, with every inner call answered from its call table, and
+  checks each table the same way. Searching rule 14 for `pair`, for
+  instance, must give exactly the 100 pairs of its table, in order.
+- **It checks the listings are closed.** Applying rules 11–12 and 15–27 to
+  everything the certificate holds gives only `interval` and `relation`
+  facts that are listed: no relation is missing.
+- **It replays each listed fact.** For every listed relation and interval, it
+  re-runs the rule its step cites from no bindings: comparisons and the
+  endpoint sums are computed, and every other goal comes from the tables or
+  from the step of the goal it uses. The result must be the recorded step.
+- **It compares the claims with the answers.** Every claim is an answer, and
+  every answer is claimed. Every step, listing and table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 relation('a', 'before', 'i')
 relation('a', 'before', 'j')
 relation('a', 'before', 'b')
@@ -323,63 +320,11 @@ relation('h', 'finished_by', 'j')
 relation('a', 'finished_by', 'g')
 relation('e', 'finished_by', 'g')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 178)
-condition('C2', 'well_founded', 'ok', 214)
-condition('C3', 'justification', 'ok', 214)
-condition('C4', 'coverage', 'ok', 427)
-condition('C5', 're_decision', 'ok', 36)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 314)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 101)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(214)
-verified(178)
-recomputed(36)
-composed(0)
-trusted(0)
-claims(100)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (178)**: the 178 steps that cite a program line really are
-  instances of it with the values shown.
-- **C2 well-founded (214)**: none of the 214 steps depends on itself, even
-  indirectly: the reverse relations rest on the forward ones, never the
-  other way round.
-- **C3 justification (214)**: every step says how it was justified, in a
-  form the checker understands.
-- **C4 coverage (427)**: the 100 claims and the 327 things the steps use are
-  each backed by a step.
-- **C5 re-decision (36)**: the checker **recomputed** all 36 builtin steps,
-  the two endpoint sums and every comparison of times, and got the same
-  results.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of something, so there is nothing to confront.
-- **C7 relevance (314)**: the 100 claims answer the query, and all 214 steps
-  serve them.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 214 steps, 178 verified against the program, 36
-recomputed, no boundary steps taken on trust. The verdict is **checked**: all 100
-relations follow from the times given, and the list is complete: they are
-every answer of the original questions.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+The verdict is **checked**: all 100 relations follow from the times given,
+and the list is complete: they are every answer of the query.
 
 ---
 

@@ -72,14 +72,19 @@ inf(iri('https://eyereasoner.github.io/ns#test'), iri('https://eyereasoner.githu
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`, with no obligations, and strict checking accepts it.
-C1 checks inference steps against the compiled source clauses; C5 checks
-primitive computations; C8 checks fresh witnesses; C10 checks the original
-questions against the recorded call tables. The checker follows the
-certificate without calling the reasoning engine.
+The saved report ends with `verdict('checked')`. The proof holds the claims,
+a step for each fact the rules derived, and a certificate: one listing per
+derived relation and a call table for every call the questions make. The
+steps for the Cat and BritishShortHair facts cite their rules with `Bcat` and
+`Bbsh` bound to Skolem terms such as `skolem(3, 'Bcat', [])`; the checker
+replays each firing and recomputes those terms itself, so a proof cannot name
+an invented node of its own choosing. The FILTER rests on call tables:
+`srl_ne` of the two Skolem terms gives true, because `srl_equal` gives false.
+The checker expands each table one level against the compiled program and
+computes the primitives itself, without calling the reasoning engine.
 
-The verdict establishes the displayed claims and that they are
-every answer of the original questions.
+The verdict establishes the displayed claims and that they are every answer
+of the original questions.
 
 ---
 

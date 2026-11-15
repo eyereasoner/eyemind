@@ -149,28 +149,24 @@ straight line but 3600 m on foot, a detour of 3000 m. Clara's Haga adds only
 A conclusion like `provisional('ada', 'centrum')` rests on
 `not(better_map_option('ada', 'centrum'))`: no nearer school was found. A
 proof cannot point at a fact that shows something is missing. So the proof
-records such a step as **`'absent'`**: "this was concluded because a search
-found nothing".
+writes the search down instead, in its **certificate**:
 
-The checker never re-runs that search: it never reasons by itself. Instead
-the proof ends with a **search certificate** that writes the search down:
+- `derived(Pattern, Facts)` is a **listing**: every fact the forward rules
+  derived for one relation, such as every `better_map_option` there is.
+  Each listed fact has a step of its own.
+- `called(Call, Answers)` is a **call table**: one call and every answer it
+  has. `called(better_map_option('ada', 'centrum'), [])` says no better map
+  option for Ada's Centrum exists.
 
-- `derived(Pattern, Facts)` lists every fact the forward rules derived for
-  one relation, such as every `better_map_option` there is. Each listed
-  fact has steps of its own.
-- `searched(Call, Answers)` records one search and every answer it gave;
-  `searched(better_map_option('ada', 'centrum'), [])` says no better map
-  option for Ada's Centrum was found.
-
-The checker verifies each `searched` line by expanding its call one level
-against the program, as a search would, and answering every inner call
-from that call's own line or from the `derived` listings, so no line
-vouches for itself. It accepts a `derived` listing because each listed fact
-has its own steps and, given the listings, no rule derives a fact they
-leave out. An absence that passes is **settled**: checked, not taken on
-trust. It also confronts each absence with the evidence the proof itself
-contains: if some step had established `better_map_option('ada',
-'centrum')`, the proof would be rejected.
+The checker never re-runs the reasoner: it never reasons by itself. It
+verifies each table by expanding its call one level against the program,
+as a search would, answering every inner call from its own table or from
+the listings, so no table vouches for itself. It accepts a listing only
+when it is **closed**, when no rule, applied to the listed facts, derives
+a fact the listing leaves out, and when each listed fact replays its
+recorded firing. A negation is then decided from the table of its call: if
+the listings held `better_map_option('ada', 'centrum')`, its table could not
+be empty, and the proof would be rejected.
 
 ---
 
@@ -200,136 +196,48 @@ audit_flag('ada', 'assignment_differs')
 audit_flag('bjorn', 'assignment_differs')
 audit_flag('davi', 'assignment_differs')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(max_walking_meters(2500)))
-clause(2, fact(preference_penalty_meters(600)))
-clause(3, fact(candidate('ada', 'centrum', 600, 3600, 2)))
-clause(4, fact(candidate('ada', 'lindholmen', 1200, 1800, 1)))
-clause(5, fact(candidate('ada', 'haga', 1800, 2200, 3)))
-clause(6, fact(candidate('bjorn', 'centrum', 1100, 3100, 1)))
-clause(7, fact(candidate('bjorn', 'backa', 1400, 2000, 2)))
-clause(8, fact(candidate('clara', 'haga', 650, 800, 1)))
-clause(9, fact(candidate('clara', 'centrum', 900, 1400, 2)))
-clause(10, fact(candidate('davi', 'centrum', 1000, 2800, 2)))
-clause(11, fact(candidate('davi', 'haga', 1300, 1600, 1)))
-clause(12, implies([candidate(Student, School, Straight, _0, _1), candidate(Student, _2, Other, _3, _4), lt(Other, Straight)], better_map_option(Student, School)))
-clause(14, implies([candidate(Student, School, _0, _1, _2), not(better_map_option(Student, School))], provisional(Student, School)))
-clause(15, implies([candidate(Student, School, _0, Walking, Rank), max_walking_meters(Limit), le(Walking, Limit), preference_penalty_meters(Penalty), is(Score, add(Walking, mul(Penalty, sub(Rank, 1))))], route_score(Student, School, Score)))
-clause(16, implies([route_score(Student, School, Score), route_score(Student, _0, Other), lt(Other, Score)], better_route_option(Student, School)))
-clause(17, implies([route_score(Student, School, Score), not(better_route_option(Student, School))], recommended(Student, School, Score)))
-clause(18, implies([provisional(Student, School), candidate(Student, School, _0, Walking, _1), max_walking_meters(Limit), gt(Walking, Limit)], audit_flag(Student, 'walking_limit_exceeded')))
-clause(19, implies([provisional(Student, School), recommended(Student, _0, _1), not(recommended(Student, School, _2))], audit_flag(Student, 'assignment_differs')))
-clause(20, implies([provisional(Student, School), candidate(Student, School, Straight, Walking, _0), is(Detour, sub(Walking, Straight))], hidden_detour(Student, Detour)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(provisional('ada', 'centrum'), clause(14), {Student: 'ada', School: 'centrum', _0: 600, _1: 3600, _2: 2}, [candidate('ada', 'centrum', 600, 3600, 2), not(better_map_option('ada', 'centrum'))])
-step(candidate('ada', 'centrum', 600, 3600, 2), clause(3), {}, [])
-step(not(better_map_option('ada', 'centrum')), 'absent', {}, [])
 step(provisional('bjorn', 'centrum'), clause(14), {Student: 'bjorn', School: 'centrum', _0: 1100, _1: 3100, _2: 1}, [candidate('bjorn', 'centrum', 1100, 3100, 1), not(better_map_option('bjorn', 'centrum'))])
-step(candidate('bjorn', 'centrum', 1100, 3100, 1), clause(6), {}, [])
-step(not(better_map_option('bjorn', 'centrum')), 'absent', {}, [])
 step(provisional('clara', 'haga'), clause(14), {Student: 'clara', School: 'haga', _0: 650, _1: 800, _2: 1}, [candidate('clara', 'haga', 650, 800, 1), not(better_map_option('clara', 'haga'))])
-step(candidate('clara', 'haga', 650, 800, 1), clause(8), {}, [])
-step(not(better_map_option('clara', 'haga')), 'absent', {}, [])
 step(provisional('davi', 'centrum'), clause(14), {Student: 'davi', School: 'centrum', _0: 1000, _1: 2800, _2: 2}, [candidate('davi', 'centrum', 1000, 2800, 2), not(better_map_option('davi', 'centrum'))])
-step(candidate('davi', 'centrum', 1000, 2800, 2), clause(10), {}, [])
-step(not(better_map_option('davi', 'centrum')), 'absent', {}, [])
+step(better_map_option('ada', 'lindholmen'), clause(12), {Student: 'ada', School: 'lindholmen', Straight: 1200, _0: 1800, _1: 1, _2: 'centrum', Other: 600, _3: 3600, _4: 2}, [candidate('ada', 'lindholmen', 1200, 1800, 1), candidate('ada', 'centrum', 600, 3600, 2), lt(600, 1200)])
+step(better_map_option('ada', 'haga'), clause(12), {Student: 'ada', School: 'haga', Straight: 1800, _0: 2200, _1: 3, _2: 'centrum', Other: 600, _3: 3600, _4: 2}, [candidate('ada', 'haga', 1800, 2200, 3), candidate('ada', 'centrum', 600, 3600, 2), lt(600, 1800)])
+step(better_map_option('bjorn', 'backa'), clause(12), {Student: 'bjorn', School: 'backa', Straight: 1400, _0: 2000, _1: 2, _2: 'centrum', Other: 1100, _3: 3100, _4: 1}, [candidate('bjorn', 'backa', 1400, 2000, 2), candidate('bjorn', 'centrum', 1100, 3100, 1), lt(1100, 1400)])
+step(better_map_option('clara', 'centrum'), clause(12), {Student: 'clara', School: 'centrum', Straight: 900, _0: 1400, _1: 2, _2: 'haga', Other: 650, _3: 800, _4: 1}, [candidate('clara', 'centrum', 900, 1400, 2), candidate('clara', 'haga', 650, 800, 1), lt(650, 900)])
+step(better_map_option('davi', 'haga'), clause(12), {Student: 'davi', School: 'haga', Straight: 1300, _0: 1600, _1: 1, _2: 'centrum', Other: 1000, _3: 2800, _4: 2}, [candidate('davi', 'haga', 1300, 1600, 1), candidate('davi', 'centrum', 1000, 2800, 2), lt(1000, 1300)])
 step(recommended('ada', 'lindholmen', 1800), clause(17), {Student: 'ada', School: 'lindholmen', Score: 1800}, [route_score('ada', 'lindholmen', 1800), not(better_route_option('ada', 'lindholmen'))])
 step(route_score('ada', 'lindholmen', 1800), clause(15), {Student: 'ada', School: 'lindholmen', _0: 1200, Walking: 1800, Rank: 1, Limit: 2500, Penalty: 600, Score: 1800}, [candidate('ada', 'lindholmen', 1200, 1800, 1), max_walking_meters(2500), le(1800, 2500), preference_penalty_meters(600), is(1800, add(1800, mul(600, sub(1, 1))))])
-step(candidate('ada', 'lindholmen', 1200, 1800, 1), clause(4), {}, [])
-step(max_walking_meters(2500), clause(1), {}, [])
-step(le(1800, 2500), 'builtin', {}, [])
-step(preference_penalty_meters(600), clause(2), {}, [])
-step(is(1800, add(1800, mul(600, sub(1, 1)))), 'builtin', {}, [])
-step(not(better_route_option('ada', 'lindholmen')), 'absent', {}, [])
 step(recommended('bjorn', 'backa', 2600), clause(17), {Student: 'bjorn', School: 'backa', Score: 2600}, [route_score('bjorn', 'backa', 2600), not(better_route_option('bjorn', 'backa'))])
 step(route_score('bjorn', 'backa', 2600), clause(15), {Student: 'bjorn', School: 'backa', _0: 1400, Walking: 2000, Rank: 2, Limit: 2500, Penalty: 600, Score: 2600}, [candidate('bjorn', 'backa', 1400, 2000, 2), max_walking_meters(2500), le(2000, 2500), preference_penalty_meters(600), is(2600, add(2000, mul(600, sub(2, 1))))])
-step(candidate('bjorn', 'backa', 1400, 2000, 2), clause(7), {}, [])
-step(le(2000, 2500), 'builtin', {}, [])
-step(is(2600, add(2000, mul(600, sub(2, 1)))), 'builtin', {}, [])
-step(not(better_route_option('bjorn', 'backa')), 'absent', {}, [])
 step(recommended('clara', 'haga', 800), clause(17), {Student: 'clara', School: 'haga', Score: 800}, [route_score('clara', 'haga', 800), not(better_route_option('clara', 'haga'))])
 step(route_score('clara', 'haga', 800), clause(15), {Student: 'clara', School: 'haga', _0: 650, Walking: 800, Rank: 1, Limit: 2500, Penalty: 600, Score: 800}, [candidate('clara', 'haga', 650, 800, 1), max_walking_meters(2500), le(800, 2500), preference_penalty_meters(600), is(800, add(800, mul(600, sub(1, 1))))])
-step(le(800, 2500), 'builtin', {}, [])
-step(is(800, add(800, mul(600, sub(1, 1)))), 'builtin', {}, [])
-step(not(better_route_option('clara', 'haga')), 'absent', {}, [])
 step(recommended('davi', 'haga', 1600), clause(17), {Student: 'davi', School: 'haga', Score: 1600}, [route_score('davi', 'haga', 1600), not(better_route_option('davi', 'haga'))])
 step(route_score('davi', 'haga', 1600), clause(15), {Student: 'davi', School: 'haga', _0: 1300, Walking: 1600, Rank: 1, Limit: 2500, Penalty: 600, Score: 1600}, [candidate('davi', 'haga', 1300, 1600, 1), max_walking_meters(2500), le(1600, 2500), preference_penalty_meters(600), is(1600, add(1600, mul(600, sub(1, 1))))])
-step(candidate('davi', 'haga', 1300, 1600, 1), clause(11), {}, [])
-step(le(1600, 2500), 'builtin', {}, [])
-step(is(1600, add(1600, mul(600, sub(1, 1)))), 'builtin', {}, [])
-step(not(better_route_option('davi', 'haga')), 'absent', {}, [])
-step(hidden_detour('ada', 3000), clause(20), {Student: 'ada', School: 'centrum', Straight: 600, Walking: 3600, _0: 2, Detour: 3000}, [provisional('ada', 'centrum'), candidate('ada', 'centrum', 600, 3600, 2), is(3000, sub(3600, 600))])
-step(is(3000, sub(3600, 600)), 'builtin', {}, [])
-step(hidden_detour('bjorn', 2000), clause(20), {Student: 'bjorn', School: 'centrum', Straight: 1100, Walking: 3100, _0: 1, Detour: 2000}, [provisional('bjorn', 'centrum'), candidate('bjorn', 'centrum', 1100, 3100, 1), is(2000, sub(3100, 1100))])
-step(is(2000, sub(3100, 1100)), 'builtin', {}, [])
-step(hidden_detour('clara', 150), clause(20), {Student: 'clara', School: 'haga', Straight: 650, Walking: 800, _0: 1, Detour: 150}, [provisional('clara', 'haga'), candidate('clara', 'haga', 650, 800, 1), is(150, sub(800, 650))])
-step(is(150, sub(800, 650)), 'builtin', {}, [])
-step(hidden_detour('davi', 1800), clause(20), {Student: 'davi', School: 'centrum', Straight: 1000, Walking: 2800, _0: 2, Detour: 1800}, [provisional('davi', 'centrum'), candidate('davi', 'centrum', 1000, 2800, 2), is(1800, sub(2800, 1000))])
-step(is(1800, sub(2800, 1000)), 'builtin', {}, [])
-step(audit_flag('ada', 'walking_limit_exceeded'), clause(18), {Student: 'ada', School: 'centrum', _0: 600, Walking: 3600, _1: 2, Limit: 2500}, [provisional('ada', 'centrum'), candidate('ada', 'centrum', 600, 3600, 2), max_walking_meters(2500), gt(3600, 2500)])
-step(gt(3600, 2500), 'builtin', {}, [])
-step(audit_flag('bjorn', 'walking_limit_exceeded'), clause(18), {Student: 'bjorn', School: 'centrum', _0: 1100, Walking: 3100, _1: 1, Limit: 2500}, [provisional('bjorn', 'centrum'), candidate('bjorn', 'centrum', 1100, 3100, 1), max_walking_meters(2500), gt(3100, 2500)])
-step(gt(3100, 2500), 'builtin', {}, [])
-step(audit_flag('davi', 'walking_limit_exceeded'), clause(18), {Student: 'davi', School: 'centrum', _0: 1000, Walking: 2800, _1: 2, Limit: 2500}, [provisional('davi', 'centrum'), candidate('davi', 'centrum', 1000, 2800, 2), max_walking_meters(2500), gt(2800, 2500)])
-step(gt(2800, 2500), 'builtin', {}, [])
-step(audit_flag('ada', 'assignment_differs'), clause(19), {Student: 'ada', School: 'centrum', _0: 'lindholmen', _1: 1800, _2: A}, [provisional('ada', 'centrum'), recommended('ada', 'lindholmen', 1800), not(recommended('ada', 'centrum', A))])
-step(not(recommended('ada', 'centrum', A)), 'absent', {}, [])
-step(audit_flag('bjorn', 'assignment_differs'), clause(19), {Student: 'bjorn', School: 'centrum', _0: 'backa', _1: 2600, _2: A}, [provisional('bjorn', 'centrum'), recommended('bjorn', 'backa', 2600), not(recommended('bjorn', 'centrum', A))])
-step(not(recommended('bjorn', 'centrum', A)), 'absent', {}, [])
-step(audit_flag('davi', 'assignment_differs'), clause(19), {Student: 'davi', School: 'centrum', _0: 'haga', _1: 1600, _2: A}, [provisional('davi', 'centrum'), recommended('davi', 'haga', 1600), not(recommended('davi', 'centrum', A))])
-step(not(recommended('davi', 'centrum', A)), 'absent', {}, [])
-step(better_map_option('ada', 'lindholmen'), clause(12), {Student: 'ada', School: 'lindholmen', Straight: 1200, _0: 1800, _1: 1, _2: 'centrum', Other: 600, _3: 3600, _4: 2}, [candidate('ada', 'lindholmen', 1200, 1800, 1), candidate('ada', 'centrum', 600, 3600, 2), lt(600, 1200)])
-step(lt(600, 1200), 'builtin', {}, [])
-step(better_map_option('ada', 'haga'), clause(12), {Student: 'ada', School: 'haga', Straight: 1800, _0: 2200, _1: 3, _2: 'centrum', Other: 600, _3: 3600, _4: 2}, [candidate('ada', 'haga', 1800, 2200, 3), candidate('ada', 'centrum', 600, 3600, 2), lt(600, 1800)])
-step(candidate('ada', 'haga', 1800, 2200, 3), clause(5), {}, [])
-step(lt(600, 1800), 'builtin', {}, [])
-step(better_map_option('bjorn', 'backa'), clause(12), {Student: 'bjorn', School: 'backa', Straight: 1400, _0: 2000, _1: 2, _2: 'centrum', Other: 1100, _3: 3100, _4: 1}, [candidate('bjorn', 'backa', 1400, 2000, 2), candidate('bjorn', 'centrum', 1100, 3100, 1), lt(1100, 1400)])
-step(lt(1100, 1400), 'builtin', {}, [])
-step(better_map_option('clara', 'centrum'), clause(12), {Student: 'clara', School: 'centrum', Straight: 900, _0: 1400, _1: 2, _2: 'haga', Other: 650, _3: 800, _4: 1}, [candidate('clara', 'centrum', 900, 1400, 2), candidate('clara', 'haga', 650, 800, 1), lt(650, 900)])
-step(candidate('clara', 'centrum', 900, 1400, 2), clause(9), {}, [])
-step(lt(650, 900), 'builtin', {}, [])
-step(better_map_option('davi', 'haga'), clause(12), {Student: 'davi', School: 'haga', Straight: 1300, _0: 1600, _1: 1, _2: 'centrum', Other: 1000, _3: 2800, _4: 2}, [candidate('davi', 'haga', 1300, 1600, 1), candidate('davi', 'centrum', 1000, 2800, 2), lt(1000, 1300)])
-step(lt(1000, 1300), 'builtin', {}, [])
-step(better_route_option('ada', 'haga'), clause(16), {Student: 'ada', School: 'haga', Score: 3400, _0: 'lindholmen', Other: 1800}, [route_score('ada', 'haga', 3400), route_score('ada', 'lindholmen', 1800), lt(1800, 3400)])
 step(route_score('ada', 'haga', 3400), clause(15), {Student: 'ada', School: 'haga', _0: 1800, Walking: 2200, Rank: 3, Limit: 2500, Penalty: 600, Score: 3400}, [candidate('ada', 'haga', 1800, 2200, 3), max_walking_meters(2500), le(2200, 2500), preference_penalty_meters(600), is(3400, add(2200, mul(600, sub(3, 1))))])
-step(le(2200, 2500), 'builtin', {}, [])
-step(is(3400, add(2200, mul(600, sub(3, 1)))), 'builtin', {}, [])
-step(lt(1800, 3400), 'builtin', {}, [])
-step(better_route_option('clara', 'centrum'), clause(16), {Student: 'clara', School: 'centrum', Score: 2000, _0: 'haga', Other: 800}, [route_score('clara', 'centrum', 2000), route_score('clara', 'haga', 800), lt(800, 2000)])
 step(route_score('clara', 'centrum', 2000), clause(15), {Student: 'clara', School: 'centrum', _0: 900, Walking: 1400, Rank: 2, Limit: 2500, Penalty: 600, Score: 2000}, [candidate('clara', 'centrum', 900, 1400, 2), max_walking_meters(2500), le(1400, 2500), preference_penalty_meters(600), is(2000, add(1400, mul(600, sub(2, 1))))])
-step(le(1400, 2500), 'builtin', {}, [])
-step(is(2000, add(1400, mul(600, sub(2, 1)))), 'builtin', {}, [])
-step(lt(800, 2000), 'builtin', {}, [])
+step(better_route_option('ada', 'haga'), clause(16), {Student: 'ada', School: 'haga', Score: 3400, _0: 'lindholmen', Other: 1800}, [route_score('ada', 'haga', 3400), route_score('ada', 'lindholmen', 1800), lt(1800, 3400)])
+step(better_route_option('clara', 'centrum'), clause(16), {Student: 'clara', School: 'centrum', Score: 2000, _0: 'haga', Other: 800}, [route_score('clara', 'centrum', 2000), route_score('clara', 'haga', 800), lt(800, 2000)])
+step(audit_flag('ada', 'walking_limit_exceeded'), clause(18), {Student: 'ada', School: 'centrum', _0: 600, Walking: 3600, _1: 2, Limit: 2500}, [provisional('ada', 'centrum'), candidate('ada', 'centrum', 600, 3600, 2), max_walking_meters(2500), gt(3600, 2500)])
+step(audit_flag('bjorn', 'walking_limit_exceeded'), clause(18), {Student: 'bjorn', School: 'centrum', _0: 1100, Walking: 3100, _1: 1, Limit: 2500}, [provisional('bjorn', 'centrum'), candidate('bjorn', 'centrum', 1100, 3100, 1), max_walking_meters(2500), gt(3100, 2500)])
+step(audit_flag('davi', 'walking_limit_exceeded'), clause(18), {Student: 'davi', School: 'centrum', _0: 1000, Walking: 2800, _1: 2, Limit: 2500}, [provisional('davi', 'centrum'), candidate('davi', 'centrum', 1000, 2800, 2), max_walking_meters(2500), gt(2800, 2500)])
+step(audit_flag('ada', 'assignment_differs'), clause(19), {Student: 'ada', School: 'centrum', _0: 'lindholmen', _1: 1800, _2: A}, [provisional('ada', 'centrum'), recommended('ada', 'lindholmen', 1800), not(recommended('ada', 'centrum', A))])
+step(audit_flag('bjorn', 'assignment_differs'), clause(19), {Student: 'bjorn', School: 'centrum', _0: 'backa', _1: 2600, _2: A}, [provisional('bjorn', 'centrum'), recommended('bjorn', 'backa', 2600), not(recommended('bjorn', 'centrum', A))])
+step(audit_flag('davi', 'assignment_differs'), clause(19), {Student: 'davi', School: 'centrum', _0: 'haga', _1: 1600, _2: A}, [provisional('davi', 'centrum'), recommended('davi', 'haga', 1600), not(recommended('davi', 'centrum', A))])
+step(hidden_detour('ada', 3000), clause(20), {Student: 'ada', School: 'centrum', Straight: 600, Walking: 3600, _0: 2, Detour: 3000}, [provisional('ada', 'centrum'), candidate('ada', 'centrum', 600, 3600, 2), is(3000, sub(3600, 600))])
+step(hidden_detour('bjorn', 2000), clause(20), {Student: 'bjorn', School: 'centrum', Straight: 1100, Walking: 3100, _0: 1, Detour: 2000}, [provisional('bjorn', 'centrum'), candidate('bjorn', 'centrum', 1100, 3100, 1), is(2000, sub(3100, 1100))])
+step(hidden_detour('clara', 150), clause(20), {Student: 'clara', School: 'haga', Straight: 650, Walking: 800, _0: 1, Detour: 150}, [provisional('clara', 'haga'), candidate('clara', 'haga', 650, 800, 1), is(150, sub(800, 650))])
+step(hidden_detour('davi', 1800), clause(20), {Student: 'davi', School: 'centrum', Straight: 1000, Walking: 2800, _0: 2, Detour: 1800}, [provisional('davi', 'centrum'), candidate('davi', 'centrum', 1000, 2800, 2), is(1800, sub(2800, 1000))])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-derived(better_map_option(B, C), [better_map_option('ada', 'lindholmen'), better_map_option('ada', 'haga'), better_map_option('bjorn', 'backa'), better_map_option('clara', 'centrum'), better_map_option('davi', 'haga')])
-derived(better_route_option(B, C), [better_route_option('ada', 'haga'), better_route_option('clara', 'centrum')])
-derived(route_score(B, C, D), [route_score('ada', 'lindholmen', 1800), route_score('ada', 'haga', 3400), route_score('bjorn', 'backa', 2600), route_score('clara', 'haga', 800), route_score('clara', 'centrum', 2000), route_score('davi', 'haga', 1600)])
-derived(recommended(B, C, D), [recommended('ada', 'lindholmen', 1800), recommended('bjorn', 'backa', 2600), recommended('clara', 'haga', 800), recommended('davi', 'haga', 1600)])
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(provisional(B, C), [provisional('ada', 'centrum'), provisional('bjorn', 'centrum'), provisional('clara', 'haga'), provisional('davi', 'centrum')])
+derived(better_map_option(B, C), [better_map_option('ada', 'lindholmen'), better_map_option('ada', 'haga'), better_map_option('bjorn', 'backa'), better_map_option('clara', 'centrum'), better_map_option('davi', 'haga')])
+derived(recommended(B, C, D), [recommended('ada', 'lindholmen', 1800), recommended('bjorn', 'backa', 2600), recommended('clara', 'haga', 800), recommended('davi', 'haga', 1600)])
+derived(route_score(B, C, D), [route_score('ada', 'lindholmen', 1800), route_score('ada', 'haga', 3400), route_score('bjorn', 'backa', 2600), route_score('clara', 'haga', 800), route_score('clara', 'centrum', 2000), route_score('davi', 'haga', 1600)])
+derived(better_route_option(B, C), [better_route_option('ada', 'haga'), better_route_option('clara', 'centrum')])
 derived(audit_flag(B, C), [audit_flag('ada', 'walking_limit_exceeded'), audit_flag('bjorn', 'walking_limit_exceeded'), audit_flag('davi', 'walking_limit_exceeded'), audit_flag('ada', 'assignment_differs'), audit_flag('bjorn', 'assignment_differs'), audit_flag('davi', 'assignment_differs')])
 derived(hidden_detour(B, C), [hidden_detour('ada', 3000), hidden_detour('bjorn', 2000), hidden_detour('clara', 150), hidden_detour('davi', 1800)])
-searched(better_map_option('ada', 'centrum'), [])
-searched(better_map_option('bjorn', 'centrum'), [])
-searched(better_map_option('clara', 'haga'), [])
-searched(better_map_option('davi', 'centrum'), [])
-searched(better_route_option('ada', 'lindholmen'), [])
-searched(route_score(E, F, G), [route_score('ada', 'lindholmen', 1800), route_score('ada', 'haga', 3400), route_score('bjorn', 'backa', 2600), route_score('clara', 'haga', 800), route_score('clara', 'centrum', 2000), route_score('davi', 'haga', 1600)])
-searched(route_score('ada', H, I), [route_score('ada', 'lindholmen', 1800), route_score('ada', 'haga', 3400)])
-searched(route_score('bjorn', H, I), [route_score('bjorn', 'backa', 2600)])
-searched(route_score('clara', H, I), [route_score('clara', 'haga', 800), route_score('clara', 'centrum', 2000)])
-searched(route_score('davi', H, I), [route_score('davi', 'haga', 1600)])
-searched(better_route_option('bjorn', 'backa'), [])
-searched(better_route_option('clara', 'haga'), [])
-searched(better_route_option('davi', 'haga'), [])
-searched(recommended('ada', 'centrum', J), [])
-searched(better_route_option('ada', 'haga'), [better_route_option('ada', 'haga')])
-searched(better_route_option('clara', 'centrum'), [better_route_option('clara', 'centrum')])
-searched(recommended('bjorn', 'centrum', K), [])
-searched(recommended('davi', 'centrum', L), [])
 called(provisional(A, B), [provisional('ada', 'centrum'), provisional('bjorn', 'centrum'), provisional('clara', 'haga'), provisional('davi', 'centrum')])
 called(better_map_option('ada', 'centrum'), [])
 called(better_map_option('ada', 'lindholmen'), [better_map_option('ada', 'lindholmen')])
@@ -364,65 +272,52 @@ called(recommended('davi', 'centrum', _14), [])
 called(hidden_detour(P, Q), [hidden_detour('ada', 3000), hidden_detour('bjorn', 2000), hidden_detour('clara', 150), hidden_detour('davi', 1800)])
 ```
 
-It has four parts:
+It has three parts:
 
 - **The claims**: the 18 conclusions the proof is about.
-- **The clauses**: the program facts and rules the steps cite, numbered by
-  their position in the program. Numbers are missing where a clause is never
-  cited: the second `better_map_option` rule (13), for example, derives
-  nothing here, so no step uses it. In the displays the program's lone `_` placeholders are given
-  distinct names `_0`, `_1`, `_2`, so each can be shown with its value.
-- **The steps**: one per thing established. A step reads
-  `step(what, justified by, with which values, using what)`.
-- **The search certificate**: the facts and searches behind the 11 absences,
-  explained in the previous card.
-
-Four kinds of justification occur:
-
-- `clause(N)`: an instance of program clause N, with the values in `{...}`.
-  A fact cites itself and uses nothing.
-- `'builtin'`: a comparison or calculation, such as `le(1800, 2500)` or
-  `is(2600, add(2000, mul(600, sub(2, 1))))`. The checker recomputes it.
-- `'absent'`: something concluded because a search found nothing, explained
-  in the previous card. In the last three steps, `A` stands for "any score":
-  no recommendation for that child at Centrum exists with any score at all.
+- **The steps**: one per fact the forward rules derived that the checks
+  consult. A step reads `step(what, by which clause, with which values,
+  using what)`, citing the clause by its position in the program. The
+  program's lone `_` placeholders are given distinct names `_0`, `_1`, `_2`,
+  so each can be shown with its value.
+- **The certificate**: the listings and call tables explained in the
+  previous card. With no `query()` in the program, the questions are the
+  rules' conclusions: `provisional(A, B)`, `recommended(C, D, E)`,
+  `audit_flag(K, L)` and `hidden_detour(P, Q)`, each with its table.
 
 Read Ada's steps as sentences:
 
 1. *Ada is provisionally placed at Centrum* — by rule 14, because Centrum is
-   one of her candidates (600 m on the map, 3600 m on foot, rank 2) and no
-   better map option was found.
-2. *Centrum is Ada's candidate* — fact 3.
-3. *No school beats Centrum on the map for Ada* — absent: nothing nearer
-   (Lindholmen is 1200 m, Haga 1800 m) and nothing equally near.
-4. *The audit recommends Lindholmen for Ada, score 1800* — by rule 17,
-   because Lindholmen's route score is 1800 and nothing scores lower.
-5. *Lindholmen's route score is 1800* — by rule 15: it is her candidate
-   (fact 4), the walking limit is 2500 (fact 1), 1800 ≤ 2500 (recomputed),
-   the penalty is 600 (fact 2), and 1800 + 600 × (1 − 1) = 1800
-   (recomputed).
-6. *No school beats Lindholmen on route score* — absent. Centrum is not even
-   walkable (3600 m), and Haga scores 2200 + 600 × 2 = 3400.
-7. *Ada's hidden detour is 3000 m* — by rule 20, from her placement at
-   Centrum and 3600 − 600 = 3000.
-8. *Ada's placement exceeds the walking limit* — by rule 18: she is placed at
+   one of her candidates (600 m on the map, 3600 m on foot, rank 2) and
+   `not(better_map_option('ada', 'centrum'))` holds: its table is empty.
+   Nothing is nearer (Lindholmen is 1200 m, Haga 1800 m).
+2. *The audit recommends Lindholmen for Ada, score 1800* — by rule 17,
+   because Lindholmen's route score is 1800 and the table for
+   `better_route_option('ada', 'lindholmen')` is empty.
+3. *Lindholmen's route score is 1800* — by rule 15: it is her candidate,
+   the walking limit is 2500, 1800 ≤ 2500, the penalty is 600, and
+   1800 + 600 × (1 − 1) = 1800.
+4. *Ada's placement exceeds the walking limit* — by rule 18: she is placed at
    Centrum, walks 3600 m there, and 3600 > 2500.
-9. *Ada's placement differs from the audit* — by rule 19: she is placed at
+5. *Ada's placement differs from the audit* — by rule 19: she is placed at
    Centrum, Lindholmen is recommended, and no recommendation for Centrum
-   exists with any score (absent).
+   exists with any score: `called(recommended('ada', 'centrum', _14), [])`.
+   In the step, `A` stands for "any score".
+6. *Ada's hidden detour is 3000 m* — by rule 20, from her placement at
+   Centrum and 3600 − 600 = 3000.
 
 Bjorn, Clara and Davi follow the same pattern. Clara has no flag steps
 because no rule produces a flag for her: her walk to Haga is 800 m, and Haga
-is also her recommendation. Facts used again later (the walking limit, the
-penalty, a candidate already shown) are established once and reused.
+is also her recommendation. The candidates, the walking limit and the
+penalty are stated facts, and the comparisons and sums are computed again
+by the checker, so none of them needs a step.
 
-The last 22 steps answer no question. They prove the facts the certificate
-lists: the five better map options (Centrum beats Lindholmen and Haga for
+Some steps answer no question. They derive the other facts the listings
+hold: the five better map options (Centrum beats Lindholmen and Haga for
 Ada, for example), the two better route options, and the route scores they
-need, such as Haga's 3400 for Ada. With those in hand, the certificate's
-`searched` lines show that nothing beats the placed and recommended schools:
-`better_map_option` for Ada holds for Lindholmen and Haga, but not for
-Centrum.
+need, such as Haga's 3400 for Ada. With those listed, the tables show that
+nothing beats the placed and recommended schools: `better_map_option` for
+Ada holds for Lindholmen and Haga, but not for Centrum.
 
 ---
 
@@ -430,11 +325,28 @@ Centrum.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the questions.** Each of the four questions is answered from
+  its listing, and every call table is checked by expanding its call one
+  level against the program.
+- **It checks the listings are closed.** Applying rules 12 to 20 to the
+  listed facts derives nothing any listing leaves out: no missing better
+  option, route score, placement, recommendation, flag or detour.
+- **It replays each listed fact.** Each step's rule is re-run from scratch:
+  every comparison and calculation is computed again, and each negation is
+  decided from the table of its call at the values it had when the rule
+  ran, such as `recommended('ada', 'centrum', _14)` once Ada's placement is
+  known.
+- **It compares the claims with the answers.** The 18 claims are exactly
+  the answers of the four questions, and every step, listing and table was
+  used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 provisional('ada', 'centrum')
 provisional('bjorn', 'centrum')
 provisional('clara', 'haga')
@@ -454,82 +366,22 @@ audit_flag('ada', 'assignment_differs')
 audit_flag('bjorn', 'assignment_differs')
 audit_flag('davi', 'assignment_differs')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 42)
-condition('C2', 'well_founded', 'ok', 79)
-condition('C3', 'justification', 'ok', 79)
-condition('C4', 'coverage', 'ok', 118)
-condition('C5', 're_decision', 'ok', 26)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 97)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 11)
-condition('C10', 'call_fidelity', 'ok', 22)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(79)
-verified(42)
-recomputed(26)
-composed(0)
-trusted(0)
-claims(18)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (42)**: the 42 steps that cite a clause really are
-  instances of it with the values shown. For example, the route score step
-  for Bjorn is rule 15 with `Walking` = 2000 and `Rank` = 2.
-- **C2 well-founded (79)**: none of the 79 steps depends on itself, even
-  indirectly.
-- **C3 justification (79)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (118)**: the 18 claims and the 100 things the steps use are
-  each backed by a step: nothing is taken for granted silently.
-- **C5 re-decision (26)**: the 26 comparisons and calculations were
-  recomputed and agree: the 15 behind the answers (four `le`, four score
-  sums, four detours, three `gt`) and 11 more behind the certificate's
-  facts.
-- **C6 boundary consistency (0)**: no boundary was left to the evidence:
-  C9 settled all 11 absences.
-- **C7 relevance (97)**: the 18 claims each answer one of the program's
-  queries, and all 79 steps serve a claim.
-- **C8 witness integrity (0)**: no rule invents a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (11)**: all 11 absences were settled by the search
-  certificate: each `searched` line agrees with its call expanded one level
-  against the program, and the `derived` listings of better options, route
-  scores and recommendations are closed under the forward rules.
-
-The statistics: 79 steps, of which 42 were verified against the program, 26
-recomputed and 11 settled by the certificate; none was composed from parts
-and no boundary steps trusted; 18 claims.
-
-The 11 settled absences are, in plain words: *for each placed school no
-better map option exists*, *for each recommended school no better route
-option exists*, and *Ada, Bjorn and Davi have no recommendation at
+The 11 negations behind the answers are, in plain words: *for each placed
+school no better map option exists*, *for each recommended school no better
+route option exists*, and *Ada, Bjorn and Davi have no recommendation at
 Centrum*. Each is meant relative to this program: the absence is true if
 the program's rules cannot produce the missing conclusion.
 
-The verdict is **checked**: every claim follows from the program. The
-checker did not re-search for the absences; it verified the written record
-of the search. As the last comment says, the
-verdict also establishes that these are every answer of the original
-questions.
+The verdict is **checked**: every claim follows from the program, and the
+claims are every answer of its questions. The checker did not search for
+the absences itself; it verified the written record of the search.
 
 This policy is illustrative. There are no school-capacity limits, sibling
 priorities or shared-seat allocation; each child's options are evaluated
 independently.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
 
 ---
 

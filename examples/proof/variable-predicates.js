@@ -2,24 +2,14 @@
 t('alice', 'name', 'Alice')
 t('alice', 'age', 30)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(t('alice', 'source_name', 'Alice')))
-clause(2, fact(t('alice', 'source_age', 30)))
-clause(3, fact(maps('source_name', 'name')))
-clause(4, fact(maps('source_age', 'age')))
-clause(5, implies([t(S, Source, O), maps(Source, Target)], t(S, Target, O)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(t('alice', 'name', 'Alice'), clause(5), {S: 'alice', Source: 'source_name', O: 'Alice', Target: 'name'}, [t('alice', 'source_name', 'Alice'), maps('source_name', 'name')])
 step(t('alice', 'source_name', 'Alice'), clause(1), {}, [])
-step(maps('source_name', 'name'), clause(3), {}, [])
 step(t('alice', 'age', 30), clause(5), {S: 'alice', Source: 'source_age', O: 30, Target: 'age'}, [t('alice', 'source_age', 30), maps('source_age', 'age')])
 step(t('alice', 'source_age', 30), clause(2), {}, [])
-step(maps('source_age', 'age'), clause(4), {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(t(A, B, C), [t('alice', 'name', 'Alice'), t('alice', 'age', 30)])
 called(t('alice', 'name', A), [t('alice', 'name', 'Alice')])
 called(t(B, C, D), [t('alice', 'name', 'Alice'), t('alice', 'age', 30), t('alice', 'source_name', 'Alice'), t('alice', 'source_age', 30)])

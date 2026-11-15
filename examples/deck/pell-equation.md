@@ -103,10 +103,9 @@ exact throughout.
 
 ## The proof, line by line
 
-`eyemind --proof` writes down how it reached each answer. The full proof has
-271 steps and is 41 KB ([read it all](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/pell-equation.js)).
-Below are its claims, all its clauses, the complete chains for steps 0 and
-1 and their equation checks, and the equation check at step 50, verbatim:
+`eyemind --proof` writes down how it reached each answer. This is the
+complete proof, 7 KB
+([proof/pell-equation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/pell-equation.js)):
 
 ```js
 // Answers: each instance of a query() that holds.
@@ -121,80 +120,109 @@ equation_holds(5)
 equation_holds(8)
 equation_holds(50)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(requested_step(0)))
-clause(2, fact(requested_step(1)))
-clause(3, fact(requested_step(5)))
-clause(4, fact(requested_step(8)))
-clause(5, fact(requested_step(50)))
-clause(6, fact(pell(0, 1, 0)))
-clause(7, implied_by(pell(N, X, Y), [gt(N, 0), is(Before, sub(N, 1)), pell(Before, X0, Y0), is(X, add(mul(3, X0), mul(4, Y0))), is(Y, add(mul(2, X0), mul(3, Y0)))]))
-clause(8, implies([requested_step(N), pell(N, X, Y)], solution(N, X, Y)))
-clause(9, implies([solution(N, X, Y), is(1, sub(mul(X, X), mul(2, mul(Y, Y))))], equation_holds(N)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(solution(0, 1, 0), clause(8), {N: 0, X: 1, Y: 0}, [requested_step(0), pell(0, 1, 0)])
-step(requested_step(0), clause(1), {}, [])
-step(pell(0, 1, 0), clause(6), {}, [])
 step(solution(1, 3, 2), clause(8), {N: 1, X: 3, Y: 2}, [requested_step(1), pell(1, 3, 2)])
-step(requested_step(1), clause(2), {}, [])
-step(pell(1, 3, 2), clause(7), {N: 1, X: 3, Y: 2, Before: 0, X0: 1, Y0: 0}, [gt(1, 0), is(0, sub(1, 1)), pell(0, 1, 0), is(3, add(mul(3, 1), mul(4, 0))), is(2, add(mul(2, 1), mul(3, 0)))])
-step(gt(1, 0), 'builtin', {}, [])
-step(is(0, sub(1, 1)), 'builtin', {}, [])
-step(is(3, add(mul(3, 1), mul(4, 0))), 'builtin', {}, [])
-step(is(2, add(mul(2, 1), mul(3, 0))), 'builtin', {}, [])
-// … steps 11-261: the solutions at steps 5, 8 and 50, and the recurrence down to them
+step(solution(5, 3363, 2378), clause(8), {N: 5, X: 3363, Y: 2378}, [requested_step(5), pell(5, 3363, 2378)])
+step(solution(8, 665857, 470832), clause(8), {N: 8, X: 665857, Y: 470832}, [requested_step(8), pell(8, 665857, 470832)])
+step(solution(50, 94741125149636933417873079920900017937, 66992092050551637663438906713182313772), clause(8), {N: 50, X: 94741125149636933417873079920900017937, Y: 66992092050551637663438906713182313772}, [requested_step(50), pell(50, 94741125149636933417873079920900017937, 66992092050551637663438906713182313772)])
 step(equation_holds(0), clause(9), {N: 0, X: 1, Y: 0}, [solution(0, 1, 0), is(1, sub(mul(1, 1), mul(2, mul(0, 0))))])
-step(is(1, sub(mul(1, 1), mul(2, mul(0, 0)))), 'builtin', {}, [])
 step(equation_holds(1), clause(9), {N: 1, X: 3, Y: 2}, [solution(1, 3, 2), is(1, sub(mul(3, 3), mul(2, mul(2, 2))))])
-step(is(1, sub(mul(3, 3), mul(2, mul(2, 2)))), 'builtin', {}, [])
-// … steps 266-269: the equation checks at steps 5 and 8
+step(equation_holds(5), clause(9), {N: 5, X: 3363, Y: 2378}, [solution(5, 3363, 2378), is(1, sub(mul(3363, 3363), mul(2, mul(2378, 2378))))])
+step(equation_holds(8), clause(9), {N: 8, X: 665857, Y: 470832}, [solution(8, 665857, 470832), is(1, sub(mul(665857, 665857), mul(2, mul(470832, 470832))))])
 step(equation_holds(50), clause(9), {N: 50, X: 94741125149636933417873079920900017937, Y: 66992092050551637663438906713182313772}, [solution(50, 94741125149636933417873079920900017937, 66992092050551637663438906713182313772), is(1, sub(mul(94741125149636933417873079920900017937, 94741125149636933417873079920900017937), mul(2, mul(66992092050551637663438906713182313772, 66992092050551637663438906713182313772))))])
-step(is(1, sub(mul(94741125149636933417873079920900017937, 94741125149636933417873079920900017937), mul(2, mul(66992092050551637663438906713182313772, 66992092050551637663438906713182313772)))), 'builtin', {}, [])
-// 271 steps in all.
+
+// Certificate: the derived facts and every answer of each call the questions make.
+derived(solution(A, B, C), [solution(0, 1, 0), solution(1, 3, 2), solution(5, 3363, 2378), solution(8, 665857, 470832), solution(50, 94741125149636933417873079920900017937, 66992092050551637663438906713182313772)])
+derived(equation_holds(A), [equation_holds(0), equation_holds(1), equation_holds(5), equation_holds(8), equation_holds(50)])
+called(solution(A, B, C), [solution(0, 1, 0), solution(1, 3, 2), solution(5, 3363, 2378), solution(8, 665857, 470832), solution(50, 94741125149636933417873079920900017937, 66992092050551637663438906713182313772)])
+called(pell(0, D, E), [pell(0, 1, 0)])
+called(pell(1, D, E), [pell(1, 3, 2)])
+called(pell(5, D, E), [pell(5, 3363, 2378)])
+called(pell(4, F, G), [pell(4, 577, 408)])
+called(pell(3, H, I), [pell(3, 99, 70)])
+called(pell(2, J, K), [pell(2, 17, 12)])
+called(pell(8, D, E), [pell(8, 665857, 470832)])
+called(pell(7, L, M), [pell(7, 114243, 80782)])
+called(pell(6, N, O), [pell(6, 19601, 13860)])
+called(pell(50, D, E), [pell(50, 94741125149636933417873079920900017937, 66992092050551637663438906713182313772)])
+called(pell(49, P, Q), [pell(49, 16255007246704249599863612909970798723, 11494025852381046154570560297746905442)])
+called(pell(48, R, S), [pell(48, 2788918330588564181308597538924774401, 1972063063734639263984455073299118880)])
+called(pell(47, T, U), [pell(47, 478502736827135487987972323577847683, 338352530026789429336170142047807838)])
+called(pell(46, V, W), [pell(46, 82098090374248746619236402542311697, 58052116426097312032565778987728148)])
+called(pell(45, X, Y), [pell(45, 14085805418356991727446091676022499, 9960168529794442859224531878561050)])
+called(pell(44, Z, A1), [pell(44, 2416742135893203745440147513823297, 1708894752669345122781412283638152)])
+called(pell(43, B1, C1), [pell(43, 414647397002230745194793406917283, 293199986221627877463941823267862)])
+called(pell(42, D1, E1), [pell(42, 71142246120180725728612927680401, 50305164660422142002238655969020)])
+called(pell(41, F1, G1), [pell(41, 12206079718853609176884159165123, 8631001740904974549490112546258)])
+called(pell(40, H1, I1), [pell(40, 2094232192940929332692027310337, 1480845785007705294702019308528)])
+called(pell(39, J1, K1), [pell(39, 359313438791966819268004696899, 254072969141257218722003304910)])
+called(pell(38, L1, M1), [pell(38, 61648439810871582916000871057, 43592029839838017630000520932)])
+called(pell(37, N1, O1), [pell(37, 10577200073262678228000529443, 7479209897770887057999820682)])
+called(pell(36, P1, Q1), [pell(36, 1814760628704486452002305601, 1283229546787304717998403160)])
+called(pell(35, R1, S1), [pell(35, 311363698964240484013304163, 220167382952941249990598278)])
+called(pell(34, T1, U1), [pell(34, 53421565080956452077519377, 37774750930342781945186508)])
+called(pell(33, V1, W1), [pell(33, 9165691521498228451812099, 6481122629115441680520770)])
+called(pell(32, X1, Y1), [pell(32, 1572584048032918633353217, 1111984844349868137938112)])
+called(pell(31, Z1, A2), [pell(31, 269812766699283348307203, 190786436983767147107902)])
+called(pell(30, B2, C2), [pell(30, 46292552162781456490001, 32733777552734744709300)])
+called(pell(29, D2, E2), [pell(29, 7942546277405390632803, 5616228332641321147898)])
+called(pell(28, F2, G2), [pell(28, 1362725501650887306817, 963592443113182178088)])
+called(pell(27, H2, I2), [pell(27, 233806732499933208099, 165326326037771920630)])
+called(pell(26, J2, K2), [pell(26, 40114893348711941777, 28365513113449345692)])
+called(pell(25, L2, M2), [pell(25, 6882627592338442563, 4866752642924153522)])
+called(pell(24, N2, O2), [pell(24, 1180872205318713601, 835002744095575440)])
+called(pell(23, P2, Q2), [pell(23, 202605639573839043, 143263821649299118)])
+called(pell(22, R2, S2), [pell(22, 34761632124320657, 24580185800219268)])
+called(pell(21, T2, U2), [pell(21, 5964153172084899, 4217293152016490)])
+called(pell(20, V2, W2), [pell(20, 1023286908188737, 723573111879672)])
+called(pell(19, X2, Y2), [pell(19, 175568277047523, 124145519261542)])
+called(pell(18, Z2, A3), [pell(18, 30122754096401, 21300003689580)])
+called(pell(17, B3, C3), [pell(17, 5168247530883, 3654502875938)])
+called(pell(16, D3, E3), [pell(16, 886731088897, 627013566048)])
+called(pell(15, F3, G3), [pell(15, 152139002499, 107578520350)])
+called(pell(14, H3, I3), [pell(14, 26102926097, 18457556052)])
+called(pell(13, J3, K3), [pell(13, 4478554083, 3166815962)])
+called(pell(12, L3, M3), [pell(12, 768398401, 543339720)])
+called(pell(11, N3, O3), [pell(11, 131836323, 93222358)])
+called(pell(10, P3, Q3), [pell(10, 22619537, 15994428)])
+called(pell(9, R3, S3), [pell(9, 3880899, 2744210)])
+called(equation_holds(T3), [equation_holds(0), equation_holds(1), equation_holds(5), equation_holds(8), equation_holds(50)])
 ```
 
 It has three parts:
 
 - **The claims**: the ten answers the proof is about.
-- **The clauses**: all nine program clauses, numbered as above.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`.
+- **The steps**: one per derived fact, the five solutions and the five
+  equation checks. A step reads
+  `step(what, by which clause, with which values, using what)`, citing the
+  clauses numbered as above.
+- **The certificate**: two *listings*, `derived(...)`, of every `solution`
+  and `equation_holds` fact the forward rules derived, and *call tables*,
+  `called(...)`, of every answer of each call the questions make, one per
+  `pell` step the recurrence needed.
 
-Two kinds of justification occur:
+Read the lines as sentences:
 
-- `clause(N)`: the step is an instance of program clause N, with the
-  variables standing for the values shown.
-- `'builtin'`: a calculation by a built-in operation, such as
-  `is(3, add(mul(3, 1), mul(4, 0)))`. It cites no clause and uses nothing;
-  the checker simply calculates it again.
+- **The `solution` steps**: *the solution at step 1 is (3, 2)*: by rule 8,
+  because step 1 was requested (fact 2) and `pell(1, 3, 2)` holds. The same
+  for steps 0, 5, 8 and 50.
+- **The `equation_holds` steps**: *the equation holds at step 1*: by rule 9,
+  because the solution at step 1 is (3, 2) and 3 × 3 − 2 × (2 × 2) =
+  9 − 8 = 1. The step records the calculation as a use,
+  `is(1, sub(mul(3, 3), mul(2, mul(2, 2))))`; it has no step of its own,
+  because the checker calculates it again. At step 50 the calculation runs
+  with 76-digit intermediate numbers.
+- **The `pell` tables**: *`pell(1, D, E)` has exactly one answer, (3, 2)*.
+  Each table is one step of the recurrence, by rule 7 from the table below
+  it, down to fact 6, the start (1, 0). Step 50 builds on step 8, which
+  builds on step 5: the search reuses each table it already has.
+- **The listings**: *rule 8 derived exactly these five solutions*, and
+  *rule 9 exactly these five equation checks*.
 
-Read the shown steps as sentences:
-
-- **Step 1**: *The solution at step 0 is (1, 0)*: by rule 8, because step 0
-  was requested and `pell(0, 1, 0)` holds.
-- **Step 2**: *Step 0 was requested*: fact 1.
-- **Step 3**: *The solution at step 0 is (1, 0)*: fact 6, the start.
-- **Step 4**: *The solution at step 1 is (3, 2)*: by rule 8, because step 1
-  was requested and `pell(1, 3, 2)` holds.
-- **Step 5**: *Step 1 was requested*: fact 2.
-- **Step 6**: *`pell(1, 3, 2)`*: by rule 7, with `Before` = 0 and
-  (X0, Y0) = (1, 0), because 1 > 0, 1 − 1 = 0, the solution at step 0 is
-  (1, 0) (step 3, reused), 3 × 1 + 4 × 0 = 3 and 2 × 1 + 3 × 0 = 2.
-- **Steps 7 to 10**: those four built-in calculations.
-- **Step 262**: *The equation holds at step 0*: by rule 9, because of
-  step 1 and 1 × 1 − 2 × (0 × 0) = 1 (step 263).
-- **Step 264**: *The equation holds at step 1*: by rule 9, because of
-  step 4 and 3 × 3 − 2 × (2 × 2) = 9 − 8 = 1 (step 265).
-- **Step 270**: *The equation holds at step 50*: by rule 9, because of the
-  step-50 solution and the calculation in step 271.
-- **Step 271**: *x² − 2y² = 1 for the 38-digit pair*: a built-in
-  calculation with 76-digit intermediate numbers.
-
-The steps left out work the same way: each step of the recurrence is one
-`pell` step by rule 7 with its four calculations, down to the solution
-already established. Step 50 builds on step 8, which builds on step 5.
+The `pell` goals have no steps: they rest only on a fact and a backward
+rule, so the tables answer them.
 
 ---
 
@@ -202,11 +230,27 @@ already established. Step 50 builds on step 8, which builds on step 5.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the questions.** It expands `solution(N, X, Y)` and
+  `equation_holds(N)` one level: their relations are derived by forward
+  rules, so their answers are the listed facts, which must equal the tables.
+- **It checks every table it consults the same way.** Each `pell` table is
+  expanded against fact 6 and rule 7: the comparison, the step count and
+  the two new numbers are calculated again, exactly, and the step before is
+  answered from its own table. The recurrence must bottom out at step 0.
+- **It checks the listings are closed.** Running rules 8 and 9 over the
+  certificate gives no solution or equation check the listings leave out.
+- **It replays each listed fact.** It re-runs rule 8 or 9 from no bindings,
+  calculating x² − 2y² itself, and must get exactly the recorded step.
+- **It compares the claims with the answers.** Every claim is an answer, and
+  every answer is claimed. Every step, listing and table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 solution(0, 1, 0)
 solution(1, 3, 2)
 solution(5, 3363, 2378)
@@ -218,68 +262,15 @@ equation_holds(5)
 equation_holds(8)
 equation_holds(50)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 66)
-condition('C2', 'well_founded', 'ok', 271)
-condition('C3', 'justification', 'ok', 271)
-condition('C4', 'coverage', 'ok', 280)
-condition('C5', 're_decision', 'ok', 205)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 281)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 12)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(271)
-verified(66)
-recomputed(205)
-composed(0)
-trusted(0)
-claims(10)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (66)**: the 66 clause steps really are instances of the
-  clauses they cite, with the values shown: the five requests, the start,
-  the 50 recurrence steps and the ten answers.
-- **C2 well-founded (271)**: none of the 271 steps depends on itself, even
-  indirectly; the recurrence bottoms out at step 0.
-- **C3 justification (271)**: all 271 steps say how they were justified, in
-  a form the checker understands.
-- **C4 coverage (280)**: the 10 claims and the 270 things the steps use are
-  each backed by a step: nothing is taken for granted.
-- **C5 re-decision (205)**: the 205 built-in calculations (four per
-  recurrence step: the comparison, the step count and the two new
-  numbers; and one per equation check) were
-  calculated again by the checker itself, exactly, and they agree.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (281)**: the 10 claims answer the queries, and all 271
-  steps serve them. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 271 steps, 66 verified against the program, 205
-recomputed, no boundary steps taken on trust. The verdict is **checked**: all five
-solutions and their equation checks follow from the program.
+The verdict is **checked**: all five solutions and their equation checks
+follow from the program, and they are every answer of its questions.
 
 This checks the five requested instances. It does not establish that every
 nonnegative solution appears in this sequence, or provide an induction proof
 for all step numbers.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
 
 ---
 

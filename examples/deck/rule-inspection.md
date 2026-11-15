@@ -85,43 +85,34 @@ complete proof:
 // Answers: each instance of a query() that holds.
 test(a(A), c(A))
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(2, implies(a(X), c(X)))
-clause(3, implies(implies(X, Y), test(X, Y)))
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
+step(test(a(B), c(B)), clause(3), {X: a(B), Y: c(B)}, [implies(a(B), c(B))])
 
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(test(a(A), c(A)), clause(3), {X: a(A), Y: c(A)}, [implies(a(A), c(A))])
-step(implies(a(A), c(A)), source(2), {}, [])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
-derived(test(B, C), [test(a(D), c(D))])
+// Certificate: the derived facts and every answer of each call the questions make.
+derived(test(C, D), [test(a(B), c(B))])
 called(test(A, B), [test(a(C), c(C))])
 ```
 
-It has four parts:
+It has three parts:
 
 - **The claim**: the answer the proof is about.
-- **The clauses**: the program lines the proof relies on, numbered by their
-  position in the program (the fact is clause 1, the ordinary rule clause 2,
-  the inspecting rule clause 3).
-- **The steps**: one per thing established. A step reads
-  `step(what, justified by, with which values, using what)`.
-- **The search certificate**: `derived(test(B, C), ...)` lists every `test`
-  fact the rules derive, here the one pattern, and `called(test(A, B), ...)`
+- **The step**: one, for the one derived fact. A step reads
+  `step(what, by which clause, with which values, using what)`, with clauses
+  numbered by their position in the program (the fact is clause 1, the
+  ordinary rule clause 2, the inspecting rule clause 3).
+- **The certificate**: `derived(test(C, D), ...)` lists every `test` fact
+  the rules derive, here the one pattern, and `called(test(A, B), ...)`
   every answer of the query. The answer keeps its variable: it is a pattern
-  that holds for every value of `A`, and a listing compares patterns up to
-  the renaming of their variables.
+  that holds for every value of its variable, and listings, tables and steps
+  compare patterns up to the renaming of their variables, so `test(a(A),
+  c(A))` and `test(a(B), c(B))` are the same answer.
 
-Read the steps as sentences:
-
-1. *`test(a(A), c(A))` holds* — by clause 3, with `X` being `a(A)` and `Y`
-   being `c(A)`, because the program contains the rule
-   `implies(a(A), c(A))`.
-2. *The program contains the rule `implies(a(A), c(A))`* — justified by
-   `source(2)`: this is not a fact or a calculation but a quotation of
-   clause 2 of the program itself. It uses nothing else.
+Read the step as a sentence: *`test(a(B), c(B))` holds* — by clause 3, with
+`X` being `a(B)` and `Y` being `c(B)`, because the program contains the rule
+`implies(a(B), c(B))`. That use needs no step of its own: it is not a fact
+or a calculation but a quotation of clause 2 of the program itself, which
+the checker reads from the program.
 
 ---
 
@@ -129,71 +120,33 @@ Read the steps as sentences:
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the question.** It expands `test(X, Y)` one level: the
+  listed pattern gives the table's one answer.
+- **It checks the listing is closed.** It answers the inspection
+  `implies(X, Y)` from the program's catalogue of inspectable rules, in
+  source order, each renamed apart. The catalogue holds only clause 2, so
+  clause 3 gives only `test(a(X), c(X))`, which is listed up to the
+  renaming of its variable.
+- **It replays the listed fact.** It re-runs clause 3 from no bindings: the
+  inspection is answered from the catalogue, from the program it was given
+  and not from the proof, and gives exactly the recorded step.
+- **It compares the claim with the answer.** The claim is the answer, up to
+  the renaming of its variable, and every step, listing and table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 test(a(A), c(A))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 4)
-condition('C2', 'well_founded', 'ok', 4)
-condition('C3', 'justification', 'ok', 4)
-condition('C4', 'coverage', 'ok', 3)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 5)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(4)
-verified(4)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (2)**: both steps match the program. Step 1 is clause 3
-  with the values shown. For step 2, the checker takes clause 2 from the
-  program it was given (not from the proof's own copy) and confirms that it
-  is a forward rule with premise `a(...)`, conclusion `c(...)`, and the same
-  variable in both.
-- **C2 well-founded (2)**: neither step depends on itself, even indirectly.
-- **C3 justification (2)**: both justifications (`clause(3)` and
-  `source(2)`) are of a kind the checker understands.
-- **C4 coverage (2)**: the 1 claim and the 1 thing a step uses (the
-  inspected rule) are each backed by a step.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of something, so there is nothing to confront.
-- **C7 relevance (3)**: the 1 claim answers the query, and both steps serve
-  it.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle.
-- **C10 call fidelity (2)**: the claim is an answer of the query, and the
-  query has no other. The checker answers the inspection `implies(X, Y)`
-  from the program's own catalogue of rules, in source order, renamed apart,
-  so it needs no table for it, and it replays the step of the listed
-  pattern against that catalogue.
-
-The statistics repeat this: 2 steps, both verified against the program, none
-taken on trust. The verdict is **checked**: the reported rule really is in
-the program, the answer follows from it, and it is every answer of the
-query. `--strict-proof` accepts the proof.
-
+The verdict is **checked**: the reported rule really is in the program, the
+answer follows from it, and it is every answer of the query.
 
 ---
 

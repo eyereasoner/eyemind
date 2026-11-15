@@ -78,20 +78,11 @@ complete proof:
 // Conclusions: the facts the program derives, in the order derived.
 t('test', 'is', 'true')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(type('Minka', 'Cat')))
-clause(2, fact(type('Charly', 'Dog')))
-clause(3, implies(type(X, 'Cat'), implies(type(Y, 'Dog'), t('test', 'is', 'true'))))
-clause(4, implies([type(X, 'Cat'), type(Y, 'Dog')], t('test', 'is', 'true')))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(t('test', 'is', 'true'), clause(4), {X: 'Minka', Y: 'Charly'}, [type('Minka', 'Cat'), type('Charly', 'Dog')])
-step(type('Minka', 'Cat'), clause(1), {}, [])
-step(type('Charly', 'Dog'), clause(2), {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(t(A, B, C), [t('test', 'is', 'true')])
 called(t('test', 'is', 'true'), [t('test', 'is', 'true')])
 ```
@@ -99,20 +90,18 @@ called(t('test', 'is', 'true'), [t('test', 'is', 'true')])
 It has three parts:
 
 - **The claim**: the conclusion the proof is about.
-- **The clauses**: the four program rules and facts the proof relies on,
-  numbered as above.
-- **The steps**: one per thing established. A step reads
+- **The step**: the firing behind the derived fact. A step reads
   `step(what, by which clause, with which values, using what)`.
+- **The certificate**: the **listing** `derived(t(A, B, C), [...])` holds
+  every `t` fact forward rules derived, and the **call table**
+  `called(t('test', 'is', 'true'), [...])` every answer of the program's
+  question, which is the head of the forward rule.
 
-Read the steps as sentences:
-
-1. *The test is true* — by rule 4, with `X` being Minka and `Y` being
-   Charly, because Minka is a cat and Charly is a dog.
-2. *Minka is a cat* — fact 1; it uses nothing.
-3. *Charly is a dog* — fact 2; it uses nothing.
-
-The generator's evidence is a direct premise of the conclusion. The checker
-can verify it from the source without reconstructing a reasoning run.
+Read the step as a sentence: *the test is true, by rule 4, with `X` being
+Minka and `Y` being Charly, because Minka is a cat and Charly is a dog.*
+Rule 4 is the compiled inner rule, numbered as above. The cat and dog facts
+are stated in the program, so they need no step of their own. The
+generator's evidence is a direct premise of the conclusion.
 
 ---
 
@@ -120,61 +109,24 @@ can verify it from the source without reconstructing a reasoning run.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself. It answers the question
+from its call table, checks that table by applying the program one level,
+requires the listing to be closed under the forward rules, and replays the
+step: it runs rule 4 again from the source, finding Minka's and Charly's
+facts in the program. A step or table the check does not use fails it. This
+is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 t('test', 'is', 'true')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 3)
-condition('C2', 'well_founded', 'ok', 3)
-condition('C3', 'justification', 'ok', 3)
-condition('C4', 'coverage', 'ok', 3)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 4)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 2)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(3)
-verified(3)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(1)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each condition reports what the checker verified:
-
-- **C1 resolution (3)**: each rule or fact step matches the compiled
-  source clause, including every generating premise.
-- **C2 well-foundedness (3)**: no step depends on itself.
-- **C3 justification (3)**: each step uses a recognized justification.
-- **C4 coverage (3)**: all 1 claims and 2 premise uses have evidence.
-- **C5 re-decision (0)**: there are no primitive calculations to repeat.
-- **C6 boundary consistency (0)**: no absence or collection is taken on trust.
-- **C7 relevance (4)**: the 1 claims answer the program and all 3 steps
-  serve those claims.
-- **C8 witness integrity (0)**: this example introduces no existential witness.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle; the search certificate serves the original questions (C10).
-
-The report records 3 steps, 3 verified against program clauses. The verdict is **checked**: the recorded claims follow from the source
-program, and they are every answer of the original questions.
-
-C10 checks the original questions through the derived rule's instances:
-each instance comes from a solution of its generating premises, so every
-claim is an answer and the claims are every answer. The verdict is
-**checked**, also under `--strict-proof`.
-
+The verdict is **checked**: the recorded claim follows from the source
+program, and it is every answer of the original question. The checker reads
+rule 4 from the program, not from the proof, so the derived rule's instance
+is checked against its generating premise as written.
 
 ---
 

@@ -123,14 +123,26 @@ inf(iri('http://example.org/dijkstra#ab'), iri('http://example.org/dijkstra#best
 
 ## What the proof establishes
 
-The saved report ends with `verdict('checked')`, with no obligations, and strict checking accepts it.
-C1 checks inference steps against the compiled source clauses; C5 checks
-primitive computations; C8 checks fresh witnesses; C10 checks the original
-questions against the recorded call tables. The checker follows the
-certificate without calling the reasoning engine.
+The saved report ends with `verdict('checked')`. The proof cites the
+program compiled from the rule set, with each inference as an `inf(S, P, O)`
+triple. It holds 53 steps, one for each firing behind a listed triple, two
+listings of the derived `inf` and `rdf` triples, and 193 call tables. Among
+those tables are the NOT tests behind the three best routes: each asks
+whether a path is dominated, and finds no answer:
 
-The verdict establishes the displayed claims and that they are
-every answer of the original questions.
+```js
+called(rdf(iri('http://example.org/dijkstra#abc'), iri('http://example.org/dijkstra#dominated'), literal('true', datatype('http://www.w3.org/2001/XMLSchema#boolean'))), [])
+called(rdf(iri('http://example.org/dijkstra#abcd'), iri('http://example.org/dijkstra#dominated'), literal('true', datatype('http://www.w3.org/2001/XMLSchema#boolean'))), [])
+called(rdf(iri('http://example.org/dijkstra#ab'), iri('http://example.org/dijkstra#dominated'), literal('true', datatype('http://www.w3.org/2001/XMLSchema#boolean'))), [])
+```
+
+The checker follows this certificate without calling the reasoning engine.
+It checks each call table by applying the compiled program one level, so an
+empty table must agree with the closed listing of dominated paths; it
+requires the listings to be closed under the rules, and replays each listed
+triple's firing, computing the sums and comparisons itself. The verdict
+establishes that the displayed claims follow from the program and are every
+answer of its questions.
 
 ---
 

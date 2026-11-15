@@ -11,13 +11,12 @@ export const HELP = `Usage: eyemind [OPTION ...] [FILE ...]
 Programs are JavaScript; forward rules run to a fixpoint. Other files are read
 by their extension: .ttl, .trig, .nt and .nq as RDF 1.2 data, .n3 as Notation3
 and .srl as a SPARQL 1.2 RL rule set, both compiled to an eyemind program.
-  -p, --proof             Print a proof in the input's format (JavaScript, N3, SRL)
+  -p, --proof             Print a proof of the conclusions
   -c, --prove-and-check   Generate a proof and check it against the input program
-      --check-proof FILE  Print checked answers and a proof check report (- for stdin)
+      --check-proof FILE  Check a proof and print its answers and verdict (- for stdin)
       --json              Print the check report as JSON instead
       --goal GOAL         Ask a backward goal after forward reasoning; with
                           --check-proof, the goal the proof answers
-      --strict-proof      Reject proofs with unresolved obligations
       --unused            List the clauses that make no difference to the conclusions
       --stats             Print reasoning statistics to stderr
       --max-depth N       Bound backward recursion (default 1000000)
@@ -57,7 +56,6 @@ export function main(argv, io) {
     const goals = [];
     let proofFile = null;
     let stats = false;
-    let strictProof = false;
     let asJson = false;
     let unused = false;
     let proveAndCheck = false;
@@ -83,8 +81,6 @@ export function main(argv, io) {
         proveAndCheck = true;
       } else if (arg === '--stats') {
         stats = true;
-      } else if (arg === '--strict-proof') {
-        strictProof = true;
       } else if (arg === '--json') {
         asJson = true;
       } else if (arg === '--unused') {
@@ -100,7 +96,7 @@ export function main(argv, io) {
         if (i >= argv.length) throw new UsageError(`${arg} needs a value`);
         const value = argv[i];
         // An option in the value's place means the value was left out, as in
-        // --check-proof --strict-proof proof.js; reading the option as a file
+        // --check-proof --json proof.js; reading the option as a file
         // name would only fail later with a puzzling message.
         if (/^--./.test(value) || ['-p', '-c', '-h'].includes(value)) {
           throw new UsageError(`${arg} needs a value right after it, not the option ${value}`);
@@ -127,7 +123,6 @@ export function main(argv, io) {
       }
     }
     if (asJson && proofFile === null && !proveAndCheck) throw new UsageError('--json requires --check-proof or --prove-and-check');
-    if (strictProof && proofFile === null && !proveAndCheck) throw new UsageError('--strict-proof requires --check-proof or --prove-and-check');
     if (proveAndCheck && (proofFile !== null || options.proof)) {
       throw new UsageError('--prove-and-check cannot be combined with --proof or --check-proof');
     }
@@ -191,7 +186,7 @@ export function main(argv, io) {
     // A compiled program has the larger bounds, unless they are given.
     if (loaded.kind !== 'js') for (const [name, value] of Object.entries(COMPILED_LIMITS)) options[name] ??= value;
     if (proofFile !== null) {
-      const report = checkProof(program, document, { goals, allowTrusted: !strictProof });
+      const report = checkProof(program, document, { goals });
       stdout(asJson ? `${JSON.stringify(publicReport(report), null, 2)}\n` : checkReport(report));
       // An invalid proof is a result, not an error: it has its own exit code.
       return report.valid ? 0 : 2;
@@ -204,7 +199,7 @@ export function main(argv, io) {
     if (proveAndCheck) {
       // Check the rendered certificate against the input, just as a saved
       // proof is checked; no second reasoning run supplies missing evidence.
-      const report = checkProof(program, result.proof, { goals, allowTrusted: !strictProof });
+      const report = checkProof(program, result.proof, { goals });
       stdout(asJson ? `${JSON.stringify(publicReport(report), null, 2)}\n` : checkReport(report));
       if (stats) stderr(`${JSON.stringify(result.stats)}\n`);
       return report.valid ? result.haltCode || 0 : 2;

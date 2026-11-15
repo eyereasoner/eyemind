@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 breach_plan('in_force', 'b1', notify(authority('none'), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
 breach_plan('in_force', 'b2', notify(authority(within_hours(72)), people('none')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
 breach_plan('in_force', 'b3', notify(authority(within_hours(72)), people('without_undue_delay')), 'document_breach', basis(['GDPR Art. 33(1)', 'GDPR Art. 34(1)', 'GDPR Art. 33(5)']))
@@ -37,26 +37,4 @@ changed(session('ex:r1'), from(await_device_consent('ex:research')), to(permit('
 changed(session('ex:r7'), from(await_device_consent('ex:research')), to(deny_device('refused_by_signal')))
 changed(session('ex:r8'), from(await_device_consent('ex:research')), to(deny_device('do_not_ask_again')))
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 225)
-condition('C2', 'well_founded', 'ok', 273)
-condition('C3', 'justification', 'ok', 273)
-condition('C4', 'coverage', 'ok', 474)
-condition('C5', 're_decision', 'ok', 15)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 310)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 33)
-condition('C10', 'call_fidelity', 'ok', 46)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(273)
-verified(225)
-recomputed(15)
-composed(0)
-trusted(0)
-claims(37)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')

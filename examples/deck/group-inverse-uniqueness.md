@@ -107,33 +107,15 @@ complete proof:
 same_inverse('x', 'i', 'j')
 same_inverse('x', 'j', 'i')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(element('e')))
-clause(2, fact(element('x')))
-clause(3, fact(element('i')))
-clause(4, fact(element('j')))
-clause(5, fact(inverse_of('i', 'x')))
-clause(6, fact(inverse_of('j', 'x')))
-clause(7, implies(element(A), [product('e', A, A), product(A, 'e', A)]))
-clause(8, implies(inverse_of(Y, X), [product(X, Y, 'e'), product(Y, X, 'e')]))
-clause(9, implies([product(A, B, AB), product(AB, C, Left), product(B, C, BC), product(A, BC, Right)], equal(Left, Right)))
-clause(10, implies([inverse_of(Y, X), inverse_of(Z, X), not_identical(Y, Z), equal(Y, Z)], same_inverse(X, Y, Z)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(same_inverse('x', 'i', 'j'), clause(10), {Y: 'i', X: 'x', Z: 'j'}, [inverse_of('i', 'x'), inverse_of('j', 'x'), not_identical('i', 'j'), equal('i', 'j')])
-step(inverse_of('i', 'x'), clause(5), {}, [])
-step(inverse_of('j', 'x'), clause(6), {}, [])
-step(not_identical('i', 'j'), 'builtin', {}, [])
 step(equal('i', 'j'), clause(9), {A: 'j', B: 'x', AB: 'e', C: 'i', Left: 'i', BC: 'e', Right: 'j'}, [product('j', 'x', 'e'), product('e', 'i', 'i'), product('x', 'i', 'e'), product('j', 'e', 'j')])
 step(product('j', 'x', 'e'), clause(8), {Y: 'j', X: 'x'}, [inverse_of('j', 'x')])
 step(product('e', 'i', 'i'), clause(7), {A: 'i'}, [element('i')])
-step(element('i'), clause(3), {}, [])
 step(product('x', 'i', 'e'), clause(8), {Y: 'i', X: 'x'}, [inverse_of('i', 'x')])
 step(product('j', 'e', 'j'), clause(7), {A: 'j'}, [element('j')])
-step(element('j'), clause(4), {}, [])
 step(same_inverse('x', 'j', 'i'), clause(10), {Y: 'j', X: 'x', Z: 'i'}, [inverse_of('j', 'x'), inverse_of('i', 'x'), not_identical('j', 'i'), equal('j', 'i')])
-step(not_identical('j', 'i'), 'builtin', {}, [])
 step(equal('j', 'i'), clause(9), {A: 'i', B: 'x', AB: 'e', C: 'j', Left: 'j', BC: 'e', Right: 'i'}, [product('i', 'x', 'e'), product('e', 'j', 'j'), product('x', 'j', 'e'), product('i', 'e', 'i')])
 step(product('i', 'x', 'e'), clause(8), {Y: 'i', X: 'x'}, [inverse_of('i', 'x')])
 step(product('e', 'j', 'j'), clause(7), {A: 'j'}, [element('j')])
@@ -141,16 +123,13 @@ step(product('x', 'j', 'e'), clause(8), {Y: 'j', X: 'x'}, [inverse_of('j', 'x')]
 step(product('i', 'e', 'i'), clause(7), {A: 'i'}, [element('i')])
 step(equal('e', 'e'), clause(9), {A: 'e', B: 'e', AB: 'e', C: 'e', Left: 'e', BC: 'e', Right: 'e'}, [product('e', 'e', 'e'), product('e', 'e', 'e'), product('e', 'e', 'e'), product('e', 'e', 'e')])
 step(product('e', 'e', 'e'), clause(7), {A: 'e'}, [element('e')])
-step(element('e'), clause(1), {}, [])
 step(equal('x', 'x'), clause(9), {A: 'e', B: 'e', AB: 'e', C: 'x', Left: 'x', BC: 'x', Right: 'x'}, [product('e', 'e', 'e'), product('e', 'x', 'x'), product('e', 'x', 'x'), product('e', 'x', 'x')])
 step(product('e', 'x', 'x'), clause(7), {A: 'x'}, [element('x')])
-step(element('x'), clause(2), {}, [])
 step(equal('i', 'i'), clause(9), {A: 'e', B: 'e', AB: 'e', C: 'i', Left: 'i', BC: 'i', Right: 'i'}, [product('e', 'e', 'e'), product('e', 'i', 'i'), product('e', 'i', 'i'), product('e', 'i', 'i')])
 step(equal('j', 'j'), clause(9), {A: 'e', B: 'e', AB: 'e', C: 'j', Left: 'j', BC: 'j', Right: 'j'}, [product('e', 'e', 'e'), product('e', 'j', 'j'), product('e', 'j', 'j'), product('e', 'j', 'j')])
 step(product('x', 'e', 'x'), clause(7), {A: 'x'}, [element('x')])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(same_inverse(A, B, C), [same_inverse('x', 'i', 'j'), same_inverse('x', 'j', 'i')])
 derived(equal(A, B), [equal('e', 'e'), equal('x', 'x'), equal('i', 'i'), equal('j', 'j'), equal('j', 'i'), equal('i', 'j')])
 derived(product(A, B, C), [product('e', 'e', 'e'), product('e', 'x', 'x'), product('x', 'e', 'x'), product('e', 'i', 'i'), product('i', 'e', 'i'), product('e', 'j', 'j'), product('j', 'e', 'j'), product('x', 'i', 'e'), product('i', 'x', 'e'), product('x', 'j', 'e'), product('j', 'x', 'e')])
@@ -183,45 +162,41 @@ called(product('j', 'j', I), [])
 It has three parts:
 
 - **The claims**: the two answers the proof is about.
-- **The clauses**: the program's facts and rules that the steps cite. They
-  are numbered in program order, one per fact: `element('e')` and
-  `element('x')` are clauses 1 and 2, but no step needs them, so they are
-  left out.
-- **The steps**: one per thing established. A step reads
-  `step(what, by what, with which values, using what)`. The values say what
-  each variable of the rule stood for; *using what* lists the things the step
-  needs, each with a step of its own.
+- **The steps**: one per derived fact. A step reads
+  `step(what, by which clause, with which values, using what)`. Clauses are
+  numbered in program order, one per fact: the six stated facts are clauses
+  1–6, and the identity, inverse, associativity and theorem rules are 7, 8,
+  9 and 10. The values say what each variable of the rule stood for;
+  *using what* lists the things the rule's condition needed. Stated facts
+  such as `inverse_of('i', 'x')` need no step: the checker reads them from
+  the program, and it redoes the built-in test `not_identical` itself.
+- **The certificate**: the `derived` **listings** of every `same_inverse`,
+  `equal` and `product` fact the rules derived, and the `called` **call
+  tables**, each call the questions make with all of its answers.
 
-Two kinds of justification occur. `clause(N)` means the step is an instance
-of fact or rule N. `'builtin'` means the step is a built-in test, here that
-two names differ, which the checker can simply redo.
-
-The first eleven steps prove that i and j are the same inverse. Read them as
+The first six steps prove that i and j are the same inverse. Read them as
 sentences:
 
 1. *i and j are the same inverse of x* — by rule 10, with `X` = x, `Y` = i,
    `Z` = j, because i and j are inverses of x, are different names, and are
    equal.
-2. *i is an inverse of x* — fact 5.
-3. *j is an inverse of x* — fact 6.
-4. *i and j are different names* — a built-in test.
-5. *i equals j* — by associativity, rule 9, with a = j, b = x, c = i. On one
+2. *i equals j* — by associativity, rule 9, with a = j, b = x, c = i. On one
    side (j · x) · i = e · i = i, so `Left` is i. On the other side
    j · (x · i) = j · e = j, so `Right` is j. It uses the four equations of
-   steps 6, 7, 9 and 10.
-6. *j · x = e* — by the inverse law, rule 8, because j is an inverse of x.
-7. *e · i = i* — by the identity law, rule 7, because i is an element.
-8. *i is an element* — fact 3.
-9. *x · i = e* — by the inverse law, rule 8, because i is an inverse of x.
-10. *j · e = j* — by the identity law, rule 7, because j is an element.
-11. *j is an element* — fact 4.
+   steps 3 to 6.
+3. *j · x = e* — by the inverse law, rule 8, because j is an inverse of x.
+4. *e · i = i* — by the identity law, rule 7, because i is an element.
+5. *x · i = e* — by the inverse law, rule 8, because i is an inverse of x.
+6. *j · e = j* — by the identity law, rule 7, because j is an element.
 
 Together this is the textbook argument
 i = e · i = (j · x) · i = j · (x · i) = j · e = j.
 
-The last seven steps do the same with i and j swapped, for the answer
-`same_inverse('x', 'j', 'i')`. Steps already shown, such as *i is an inverse
-of x*, are not repeated.
+Steps 7–12 do the same with i and j swapped, for the answer
+`same_inverse('x', 'j', 'i')`. The last seven steps derive the dull
+equalities, such as `equal('e', 'e')`, and the equations they use. They are
+here because the listing of `equal` holds every equality the rules derived,
+and every listed fact must show its firing.
 
 ---
 
@@ -229,71 +204,28 @@ of x*, are not repeated.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it follows the
+certificate. It answers the question `same_inverse(A, B, C)` against the
+program, one level at a time, with every inner call answered from its table,
+and checks each table it consults the same way. It requires each listing to
+be closed: the group laws, applied to the listed equations, derive nothing
+the listings leave out. It replays each listed fact's step from its rule,
+redoing the `not_identical` tests. The empty tables, such as
+`called(product('i', 'i', I), [])`, say that no law gives i · i a value.
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 same_inverse('x', 'i', 'j')
 same_inverse('x', 'j', 'i')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 25)
-condition('C2', 'well_founded', 'ok', 27)
-condition('C3', 'justification', 'ok', 27)
-condition('C4', 'coverage', 'ok', 45)
-condition('C5', 're_decision', 'ok', 2)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 29)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 3)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(27)
-verified(25)
-recomputed(2)
-composed(0)
-trusted(0)
-claims(2)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (16)**: the 16 steps that cite a clause really are
-  instances of it. For example, step 5 is the associativity rule with
-  `A` = j, `B` = x, `C` = i, and its four equations really are the ones the
-  rule asks for.
-- **C2 well-founded (18)**: none of the 18 steps depends on itself, even
-  indirectly. The argument is not circular.
-- **C3 justification (18)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (26)**: the 2 claims and the 24 things the steps use are each
-  backed by a step: no equation is taken for granted.
-- **C5 re-decision (2)**: the 2 built-in tests, that i and j are different
-  names and that j and i are, were recomputed by the checker.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (20)**: each of the 2 claims answers the question, and all
-  18 steps serve a claim.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed element, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 18 steps, 16 verified against the program and 2
-recomputed, no boundary steps taken on trust. The verdict is **checked**: the uniqueness
-of the inverse follows from the group laws and the hypothesis. As the last
-comment says, they are also every answer of the original questions.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
+The verdict is **checked**: the uniqueness of the inverse follows from the
+group laws and the hypothesis, and as the comment says, the two claims are
+every answer of the original question. A proof that left out one of them,
+or claimed `same_inverse('x', 'i', 'i')`, would fail.
 
 
 ---

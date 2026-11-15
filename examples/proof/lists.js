@@ -3,40 +3,7 @@ append(['a', 'b'], ['c', 'd'], ['a', 'b', 'c', 'd'])
 squares([1, 2, 3, 4], [1, 4, 9, 16])
 sum([1, 2, 3, 4], 10)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(append([], Ys, Ys)))
-clause(2, implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs)))
-clause(3, fact(squares([], [])))
-clause(4, implied_by(squares([X, ...Xs], [Y, ...Ys]), [is(Y, mul(X, X)), squares(Xs, Ys)]))
-clause(5, fact(sum([], 0)))
-clause(6, implied_by(sum([X, ...Xs], Total), [sum(Xs, Rest), is(Total, add(X, Rest))]))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
-step(append(['a', 'b'], ['c', 'd'], ['a', 'b', 'c', 'd']), clause(2), {X: 'a', Xs: ['b'], Ys: ['c', 'd'], Zs: ['b', 'c', 'd']}, [append(['b'], ['c', 'd'], ['b', 'c', 'd'])])
-step(append(['b'], ['c', 'd'], ['b', 'c', 'd']), clause(2), {X: 'b', Xs: [], Ys: ['c', 'd'], Zs: ['c', 'd']}, [append([], ['c', 'd'], ['c', 'd'])])
-step(append([], ['c', 'd'], ['c', 'd']), clause(1), {Ys: ['c', 'd']}, [])
-step(squares([1, 2, 3, 4], [1, 4, 9, 16]), clause(4), {X: 1, Xs: [2, 3, 4], Y: 1, Ys: [4, 9, 16]}, [is(1, mul(1, 1)), squares([2, 3, 4], [4, 9, 16])])
-step(is(1, mul(1, 1)), 'builtin', {}, [])
-step(squares([2, 3, 4], [4, 9, 16]), clause(4), {X: 2, Xs: [3, 4], Y: 4, Ys: [9, 16]}, [is(4, mul(2, 2)), squares([3, 4], [9, 16])])
-step(is(4, mul(2, 2)), 'builtin', {}, [])
-step(squares([3, 4], [9, 16]), clause(4), {X: 3, Xs: [4], Y: 9, Ys: [16]}, [is(9, mul(3, 3)), squares([4], [16])])
-step(is(9, mul(3, 3)), 'builtin', {}, [])
-step(squares([4], [16]), clause(4), {X: 4, Xs: [], Y: 16, Ys: []}, [is(16, mul(4, 4)), squares([], [])])
-step(is(16, mul(4, 4)), 'builtin', {}, [])
-step(squares([], []), clause(3), {}, [])
-step(sum([1, 2, 3, 4], 10), clause(6), {X: 1, Xs: [2, 3, 4], Total: 10, Rest: 9}, [sum([2, 3, 4], 9), is(10, add(1, 9))])
-step(sum([2, 3, 4], 9), clause(6), {X: 2, Xs: [3, 4], Total: 9, Rest: 7}, [sum([3, 4], 7), is(9, add(2, 7))])
-step(sum([3, 4], 7), clause(6), {X: 3, Xs: [4], Total: 7, Rest: 4}, [sum([4], 4), is(7, add(3, 4))])
-step(sum([4], 4), clause(6), {X: 4, Xs: [], Total: 4, Rest: 0}, [sum([], 0), is(4, add(4, 0))])
-step(sum([], 0), clause(5), {}, [])
-step(is(4, add(4, 0)), 'builtin', {}, [])
-step(is(7, add(3, 4)), 'builtin', {}, [])
-step(is(9, add(2, 7)), 'builtin', {}, [])
-step(is(10, add(1, 9)), 'builtin', {}, [])
-
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 called(append(['a', 'b'], ['c', 'd'], A), [append(['a', 'b'], ['c', 'd'], ['a', 'b', 'c', 'd'])])
 called(append(['b'], ['c', 'd'], B), [append(['b'], ['c', 'd'], ['b', 'c', 'd'])])
 called(append([], ['c', 'd'], C), [append([], ['c', 'd'], ['c', 'd'])])

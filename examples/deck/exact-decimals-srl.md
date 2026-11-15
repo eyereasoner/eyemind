@@ -60,7 +60,7 @@ The decimal total is exactly 0.3, and the larger total retains digits beyond the
 The check report records these claims:
 
 ```js
-// Answers checked subject to the obligations below.
+// Checked answers: these follow from the input program and are every answer of its questions.
 inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/total'), literal('0.3', datatype('http://www.w3.org/2001/XMLSchema#decimal')))
 inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/largeTotal'), literal('9007199254740993.3', datatype('http://www.w3.org/2001/XMLSchema#decimal')))
 inf(iri('https://example.org/numbers/invoice'), iri('https://example.org/numbers/eighth'), literal('0.125', datatype('http://www.w3.org/2001/XMLSchema#decimal')))
@@ -75,13 +75,19 @@ inf(iri('https://example.org/numbers/measurement'), iri('https://example.org/num
 
 ## What the proof establishes
 
-The decimal calculations are ordinary rules over exact integer coefficients and scales. C5 re-decides their integer arithmetic and the float64 primitive used for double results, including exceptional values. The certificate retains the original rule set compilation and all computation evidence.
+The decimal calculations are ordinary rules over exact integer coefficients
+and scales. The proof cites the program compiled from the rule set: one step
+for each of the eight inferred triples, and 168 call tables holding every
+answer of the decimal and numeric helper calls the questions make, such as
+reading `0.1` as `decimal(1, 1)` or promoting an integer to a decimal.
 
-The saved report ends with `verdict('checked')`. C10 establishes the
-original calls from closed call tables and replays the decimal rules'
-firings, so the claims are every answer, and strict checking accepts the
-proof. The checker follows the certificate without calling the reasoning
-engine.
+The saved report ends with `verdict('checked')`. The checker follows the
+certificate without calling the reasoning engine: it checks each call table
+by applying the compiled rules one level, computing their integer arithmetic
+and the float64 primitive used for double results, including the
+exceptional values, itself. It requires the listing to be closed under the
+rules and replays each listed triple's firing. The verdict establishes that
+the claims follow from the program and are every answer of its questions.
 
 ---
 

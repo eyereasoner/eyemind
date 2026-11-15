@@ -1,18 +1,11 @@
 // Conclusions: the facts the program derives, in the order derived.
 indeed_more_interesting(5, 3)
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, implied_by(more_interesting(X, Y), gt(X, Y)))
-clause(2, implies(more_interesting(5, 3), indeed_more_interesting(5, 3)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(indeed_more_interesting(5, 3), clause(2), {}, [more_interesting(5, 3)])
-step(more_interesting(5, 3), clause(1), {X: 5, Y: 3}, [gt(5, 3)])
-step(gt(5, 3), 'builtin', {}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(indeed_more_interesting(A, B), [indeed_more_interesting(5, 3)])
 called(indeed_more_interesting(5, 3), [indeed_more_interesting(5, 3)])
 called(more_interesting(5, 3), [more_interesting(5, 3)])

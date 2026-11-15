@@ -6,38 +6,20 @@ triple('alice', 'related_to', 'bob')
 type('alice', 'person')
 type('bob', 'person')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(subclass('cat', 'mammal')))
-clause(2, fact(subclass('mammal', 'animal')))
-clause(3, fact(subproperty('parent_of', 'related_to')))
-clause(4, fact(domain('parent_of', 'person')))
-clause(5, fact(codomain('parent_of', 'person')))
-clause(6, fact(type('koko', 'cat')))
-clause(7, fact(triple('alice', 'parent_of', 'bob')))
-clause(8, implies([subclass(A, B), subclass(B, C)], subclass(A, C)))
-clause(9, implies([type(X, A), subclass(A, B)], type(X, B)))
-clause(10, implies([triple(S, P, O), subproperty(P, Q)], triple(S, Q, O)))
-clause(11, implies([triple(S, P, _0), domain(P, Class)], type(S, Class)))
-clause(12, implies([triple(_0, P, O), codomain(P, Class)], type(O, Class)))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(subclass('cat', 'animal'), clause(8), {A: 'cat', B: 'mammal', C: 'animal'}, [subclass('cat', 'mammal'), subclass('mammal', 'animal')])
 step(subclass('cat', 'mammal'), clause(1), {}, [])
 step(subclass('mammal', 'animal'), clause(2), {}, [])
 step(type('koko', 'animal'), clause(9), {X: 'koko', A: 'cat', B: 'animal'}, [type('koko', 'cat'), subclass('cat', 'animal')])
 step(type('koko', 'cat'), clause(6), {}, [])
 step(type('koko', 'mammal'), clause(9), {X: 'koko', A: 'cat', B: 'mammal'}, [type('koko', 'cat'), subclass('cat', 'mammal')])
-step(triple('alice', 'related_to', 'bob'), clause(10), {S: 'alice', P: 'parent_of', O: 'bob', Q: 'related_to'}, [triple('alice', 'parent_of', 'bob'), subproperty('parent_of', 'related_to')])
-step(triple('alice', 'parent_of', 'bob'), clause(7), {}, [])
-step(subproperty('parent_of', 'related_to'), clause(3), {}, [])
 step(type('alice', 'person'), clause(11), {S: 'alice', P: 'parent_of', _0: 'bob', Class: 'person'}, [triple('alice', 'parent_of', 'bob'), domain('parent_of', 'person')])
-step(domain('parent_of', 'person'), clause(4), {}, [])
+step(triple('alice', 'parent_of', 'bob'), clause(7), {}, [])
 step(type('bob', 'person'), clause(12), {_0: 'alice', P: 'parent_of', O: 'bob', Class: 'person'}, [triple('alice', 'parent_of', 'bob'), codomain('parent_of', 'person')])
-step(codomain('parent_of', 'person'), clause(5), {}, [])
+step(triple('alice', 'related_to', 'bob'), clause(10), {S: 'alice', P: 'parent_of', O: 'bob', Q: 'related_to'}, [triple('alice', 'parent_of', 'bob'), subproperty('parent_of', 'related_to')])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(subclass(A, B), [subclass('cat', 'animal')])
 derived(type(A, B), [type('koko', 'animal'), type('koko', 'mammal'), type('alice', 'person'), type('bob', 'person')])
 derived(triple(A, B, C), [triple('alice', 'related_to', 'bob')])

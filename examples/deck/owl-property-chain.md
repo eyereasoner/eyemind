@@ -96,30 +96,17 @@ complete proof:
 triple('alice', 'grandparent', 'carol')
 triple('bob', 'grandparent', 'dave')
 
-// Clauses: the program clauses the steps cite, by clause number.
-clause(1, fact(property_chain('grandparent', ['parent', 'parent'])))
-clause(2, fact(triple('alice', 'parent', 'bob')))
-clause(3, fact(triple('bob', 'parent', 'carol')))
-clause(4, fact(triple('carol', 'parent', 'dave')))
-clause(5, implies([property_chain(P, [First, ...Rest]), triple(S, First, M), follow_chain(Rest, M, E)], triple(S, P, E)))
-clause(6, fact(follow_chain([], N, N)))
-clause(7, implied_by(follow_chain([P, ...Rest], S, E), [triple(S, P, M), follow_chain(Rest, M, E)]))
-
-// Steps: each goal, what justifies it (a clause, a builtin, a control, an
-// absence or a collection), the bindings and the goals it uses.
+// Steps: each derived fact and what it rests on: the clause or control that
+// justifies it, the bindings and the goals it uses.
 step(triple('alice', 'grandparent', 'carol'), clause(5), {P: 'grandparent', First: 'parent', Rest: ['parent'], S: 'alice', M: 'bob', E: 'carol'}, [property_chain('grandparent', ['parent', 'parent']), triple('alice', 'parent', 'bob'), follow_chain(['parent'], 'bob', 'carol')])
-step(property_chain('grandparent', ['parent', 'parent']), clause(1), {}, [])
 step(triple('alice', 'parent', 'bob'), clause(2), {}, [])
 step(follow_chain(['parent'], 'bob', 'carol'), clause(7), {P: 'parent', Rest: [], S: 'bob', E: 'carol', M: 'carol'}, [triple('bob', 'parent', 'carol'), follow_chain([], 'carol', 'carol')])
 step(triple('bob', 'parent', 'carol'), clause(3), {}, [])
-step(follow_chain([], 'carol', 'carol'), clause(6), {N: 'carol'}, [])
 step(triple('bob', 'grandparent', 'dave'), clause(5), {P: 'grandparent', First: 'parent', Rest: ['parent'], S: 'bob', M: 'carol', E: 'dave'}, [property_chain('grandparent', ['parent', 'parent']), triple('bob', 'parent', 'carol'), follow_chain(['parent'], 'carol', 'dave')])
 step(follow_chain(['parent'], 'carol', 'dave'), clause(7), {P: 'parent', Rest: [], S: 'carol', E: 'dave', M: 'dave'}, [triple('carol', 'parent', 'dave'), follow_chain([], 'dave', 'dave')])
 step(triple('carol', 'parent', 'dave'), clause(4), {}, [])
-step(follow_chain([], 'dave', 'dave'), clause(6), {N: 'dave'}, [])
 
-// Search certificate: derived facts and complete answers used to check
-// negations, collections and the original questions.
+// Certificate: the derived facts and every answer of each call the questions make.
 derived(triple(A, B, C), [triple('alice', 'grandparent', 'carol'), triple('bob', 'grandparent', 'dave')])
 called(triple(A, 'grandparent', B), [triple('alice', 'grandparent', 'carol'), triple('bob', 'grandparent', 'dave')])
 called(triple(C, 'parent', D), [triple('alice', 'parent', 'bob'), triple('bob', 'parent', 'carol'), triple('carol', 'parent', 'dave')])
@@ -136,32 +123,41 @@ called(triple('dave', 'parent', J), [])
 It has three parts:
 
 - **The claims**: the two answers the proof is about.
-- **The clauses**: the seven program facts and rules, numbered as above.
-- **The steps**: one per thing established. A step reads
-  `step(what, by which clause, with which values, using what)`.
+- **The steps**: one per derived fact, and one for each goal those firings
+  use whose call rests on derived facts. A step reads
+  `step(what, by which clause, with which values, using what)`, with the
+  clauses numbered in program order: the chain declaration is fact 1, the
+  three parent links facts 2–4, the chain rule 5, and `follow_chain` clauses
+  6 and 7.
+- **The certificate**: the *listing* `derived(triple(A, B, C), ...)` of every
+  `triple` fact the rule derived, and *call tables*, `called(...)`, of every
+  answer of each call the question makes, down to the last link of each
+  chain.
 
 Read the steps as sentences:
 
 1. *Alice is Carol's grandparent*: by rule 5, with `P` = grandparent,
    `First` = parent, `Rest` = [parent], `S` = Alice, `M` = Bob and `E` =
-   Carol, because of the next three things.
-2. *The chain for grandparent is parent, parent*: fact 1.
-3. *Alice is Bob's parent*: fact 2. This is the first link.
-4. *From Bob, following [parent] ends at Carol*: by rule 7, with `M` =
+   Carol, because the chain for grandparent is parent, parent, Alice is
+   Bob's parent, and following [parent] from Bob ends at Carol.
+2. *Alice is Bob's parent*: fact 2. Rule 5 itself derives `triple` facts, so
+   a `triple` it uses gets a step, even a stated one.
+3. *From Bob, following [parent] ends at Carol*: by rule 7, with `M` =
    Carol, because Bob is Carol's parent and the empty rest of the chain
-   leaves us at Carol.
-5. *Bob is Carol's parent*: fact 3.
-6. *From Carol, following nothing ends at Carol*: fact 6, with `N` = Carol.
-7. *Bob is Dave's grandparent*: by rule 5, with `S` = Bob, `M` = Carol and
-   `E` = Dave. It reuses steps 2 and 5 (the chain, and Bob being Carol's
-   parent), so they are not repeated.
-8. *From Carol, following [parent] ends at Dave*: by rule 7, because Carol
+   leaves us at Carol. This goal gets a step because its `triple` call rests
+   on derived facts.
+4. *Bob is Carol's parent*: fact 3.
+5. *Bob is Dave's grandparent*: by rule 5, with `S` = Bob, `M` = Carol and
+   `E` = Dave. It reuses step 4, so Bob being Carol's parent is not
+   repeated.
+6. *From Carol, following [parent] ends at Dave*: by rule 7, because Carol
    is Dave's parent.
-9. *Carol is Dave's parent*: fact 4.
-10. *From Dave, following nothing ends at Dave*: fact 6, with `N` = Dave.
+7. *Carol is Dave's parent*: fact 4.
 
-Every step is justified by a clause of the program, and the chain of uses
-ends in facts.
+The chain declaration and the end of each chain, `follow_chain([], N, N)`,
+need no step: their calls are answered by the program's facts and the call
+tables alone. The last two tables record where the search ran dry: nothing
+follows a parent link from Dave.
 
 ---
 
@@ -169,71 +165,35 @@ ends in facts.
 
 A proof is only worth something if someone else can check it. `eyemind -c`
 generates the proof and checks it against the program; `--check-proof` checks
-a saved proof. The checker never reasons by itself: it only confirms each step
-against the program. This is the complete report:
+a saved proof. The checker never reasons by itself: it reads the clauses from
+the program and confirms the proof against them in one procedure:
+
+- **It answers the question.** It expands `triple(Person, 'grandparent', G)`
+  one level against the program, answering each inner call from its call
+  table, and gets the two answers of the first table. Each table it consults
+  is expanded the same way; `called(follow_chain(['parent'], 'dave', E), [])`,
+  for example, is right because the table of `triple('dave', 'parent', J)`
+  is empty.
+- **It checks the listing is closed.** Running rule 5 over every chain and
+  every link gives exactly the two listed grandparent facts.
+- **It replays each listed fact.** It re-runs rule 5 from no bindings
+  against steps 1 and 5, following the steps of the uses that rest on
+  derived facts, and gets exactly the recorded firings.
+- **It compares the claims with the answers.** Every claim is an answer, and
+  every answer is claimed. Every step, listing and table was used.
+
+This is the complete report:
 
 ```js
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 triple('alice', 'grandparent', 'carol')
 triple('bob', 'grandparent', 'dave')
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 10)
-condition('C2', 'well_founded', 'ok', 10)
-condition('C3', 'justification', 'ok', 10)
-condition('C4', 'coverage', 'ok', 12)
-condition('C5', 're_decision', 'ok', 0)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 12)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 3)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(10)
-verified(10)
-recomputed(0)
-composed(0)
-trusted(0)
-claims(2)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
 ```
 
-Each `condition` line names a check, says `'ok'`, and counts what it looked
-at:
-
-- **C1 resolution (10)**: each of the 10 steps really is an instance of the
-  rule or fact it cites, with the values shown. For example, step 4 is
-  rule 7 with `P` = parent, `S` = Bob, `M` = Carol and `E` = Carol.
-- **C2 well-founded (10)**: no step depends on itself, even indirectly.
-- **C3 justification (10)**: every step says how it was justified, in a form
-  the checker understands.
-- **C4 coverage (12)**: the 2 claims and the 10 things the steps use (three
-  each for steps 1 and 7, two each for steps 4 and 8) are each backed by a
-  step: nothing is taken for granted.
-- **C5 re-decision (0)**: no arithmetic or other built-in calculation needed
-  recomputing.
-- **C6 boundary consistency (0)**: nothing was concluded from the *absence*
-  of a fact, so there is nothing to confront.
-- **C7 relevance (12)**: the 2 claims answer the query, and all 10 steps
-  serve them. There is no padding.
-- **C8 witness integrity (0)**: no rule invented a new, unnamed thing, so
-  there is no invented name to verify.
-- **C9 search closure (0)**: there was no absence or collection to
-  settle, so no search certificate to check.
-
-The statistics repeat this: 10 steps, all 10 verified against the program,
-no boundary steps taken on trust. The verdict is **checked**: both grandparent links
-follow from the program. As the last comment says, they are also
-every answer of the original questions.
-
-C10 certifies the original questions: every claim is an answer, and the
-claims are every answer. The verdict is **checked**, also under
-`--strict-proof`.
-
+The verdict is **checked**: both grandparent links follow from the program,
+and they are every answer of its question.
 
 ---
 

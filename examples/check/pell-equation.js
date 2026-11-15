@@ -1,4 +1,4 @@
-// Checked answers: these follow from the input program.
+// Checked answers: these follow from the input program and are every answer of its questions.
 solution(0, 1, 0)
 solution(1, 3, 2)
 solution(5, 3363, 2378)
@@ -10,26 +10,4 @@ equation_holds(5)
 equation_holds(8)
 equation_holds(50)
 
-// C1-C10: resolution, acyclicity, justification, coverage, re-decision,
-// boundary consistency, relevance, witness integrity, search closure and call fidelity.
-condition('C1', 'resolution', 'ok', 66)
-condition('C2', 'well_founded', 'ok', 271)
-condition('C3', 'justification', 'ok', 271)
-condition('C4', 'coverage', 'ok', 280)
-condition('C5', 're_decision', 'ok', 205)
-condition('C6', 'boundary_consistency', 'ok', 0)
-condition('C7', 'relevance', 'ok', 281)
-condition('C8', 'witness_integrity', 'ok', 0)
-condition('C9', 'search_closure', 'ok', 0)
-condition('C10', 'call_fidelity', 'ok', 12)
-
-// Proof statistics: recorded steps and how they were checked.
-steps(271)
-verified(66)
-recomputed(205)
-composed(0)
-trusted(0)
-claims(10)
-
-// This verdict also establishes that the claims above are every answer of the original questions.
 verdict('checked')
