@@ -6,7 +6,7 @@
   },
   "rdf": {
     "source": "https://github.com/w3c/rdf-tests",
-    "revision": "4158bca195a29fe1fd90f92698170bc7cc385273",
+    "revision": "7b5afb91857a9c282c03d2e45d3f76485797c901",
     "manifests": [
       "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-triples/manifest.ttl",
       "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-n-triples/syntax/manifest.ttl",
@@ -23,8 +23,8 @@
   },
   "srl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "47c6e078bcf946ece9487d731f0b1ca2e31d0c80",
+    "revision": "807efba7be2970bb83676a9b2df5eed9c6abe364",
     "path": "shacl12-test-suite/tests/sparql-rl",
-    "cases": 241
+    "cases": 342
   }
 }

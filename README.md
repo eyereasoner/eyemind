@@ -474,7 +474,7 @@ type('socrates', 'human')
 verdict('checked')
 ```
 
-A `checked` verdict thus establishes two things: every claim follows from the program, and the claims are every answer of the original questions. A question with no claims is shown to have no answers by its table. A failed check lists `failure(Detail)` facts, ends with `verdict(failed(N))` and exits with code 2. A halted run's proof establishes that its claims follow, not that they are every answer. To check answers to `--goal` questions, pass the same goals when checking. [SPEC §11](https://eyereasoner.github.io/eyemind/SPEC#11-proof-checking) defines the check.
+A `checked` verdict establishes that every claim follows from the program and every required answer of the original questions is claimed. When the run reports only derived facts, source facts and backward-only answers are not required conclusions. A failed check lists `failure(Detail)` facts, ends with `verdict(failed(N))` and exits with code 2. A halted run's proof establishes that its claims follow, without establishing answer completeness. To check answers to `--goal` questions, pass the same goals when checking. [SPEC §11](https://eyereasoner.github.io/eyemind/SPEC#11-proof-checking) defines the check.
 
 The report's comments explain which checks succeeded, with references to
 SPEC Sections 11.2–11.6. They distinguish complete answers from a halted

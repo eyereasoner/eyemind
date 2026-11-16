@@ -202,9 +202,8 @@ Proofs:
   ([Section 11.2](#112-original-questions)).
 - **Replay**: re-executing the firing a step records, from its source rule,
   with the bindings of each point of the search ([Section 11.4](#114-replaying-derived-facts)).
-- **Checks**: of a proof, that the checker finds no failure; its claims are
-  then exactly the answers of the original questions, or for a halted run
-  follow from the program ([Section 11.1](#111-what-a-checked-proof-establishes)).
+- **Checks**: of a proof, that the checker finds no failure
+  ([Section 11.1](#111-what-a-checked-proof-establishes)).
 - **Check report**: what a checker writes: the claims, any failures and a
   verdict ([Section 12](#12-check-reports)).
 
@@ -227,6 +226,7 @@ An atom used as a predicate has arity 0. A compound's name and arity identify
 its constructor. Integers and floats are distinct: `1` and `1.0` MUST NOT
 unify. Booleans, `null`, `undefined`, infinities and NaN are not terms.
 Nonfinite numeric values MUST be rejected.
+Atoms and numbers are **atomic** terms.
 
 ### 2.2 Lists
 
@@ -295,7 +295,7 @@ another script, resolved as [Section 3.2](#32-names) specifies, so scripts share
 declarations.
 
 The supplied names are the statements of [Section 3.4](#34-statements), `forward`, `backward`,
-`preds`, `vars`, `struct`, the controls and primitives of [Section 4](#4-goals-and-primitives), the
+`preds`, `vars`, `struct`, `float`, the controls and primitives of [Section 4](#4-goals-and-primitives), the
 atom `fail`. Other names are resolved as [Section 3.2](#32-names) specifies.
 
 An embedding MAY supply additional library names. Their operations and
@@ -696,9 +696,10 @@ an incorrect or partial value. The bounds are implementation-defined.
 A body goal depends on a clause when the goal, renamed apart, unifies with
 one of the clause's heads. The dependency is **closed** when the goal occurs
 inside a negation or as the goal of a collection ([Section 4.2](#42-controls)), and **open**
-otherwise. Each clause has a rank: the least assignment such that a clause's
-rank is at least the rank of every clause it depends on, plus one for a closed
-dependency. Forward rules run in order of rank ([Section 8.2](#82-forward-evaluation-and-witnesses)).
+otherwise. Each clause has a nonnegative integer rank: the least assignment
+such that its rank is at least the rank of every clause it depends on, plus
+one for a closed dependency. Forward rules run in order of rank
+([Section 8.2](#82-forward-evaluation-and-witnesses)).
 
 A program MUST be rejected when:
 
@@ -1073,9 +1074,8 @@ infinite closure. A finite model does not ensure search termination:
 `implied_by(p(X), p(X))` has an empty least model, but searching `p('a')`
 recurs indefinitely. Exceeding a resource bound raises an error ([Section
 8.3](#83-resource-bounds)). Contradictions halt without completing the closure ([Section 8.5](#85-contradictions)).
-A proof that checks establishes that its claims are every answer of the
-original questions ([Section 11.1](#111-what-a-checked-proof-establishes)); it does not establish termination of the
-whole program.
+The guarantees and limits of a checked proof are defined in
+[Section 11.1](#111-what-a-checked-proof-establishes).
 
 ## 8. Evaluation and Conclusions
 
@@ -1115,15 +1115,12 @@ and `p(2)` publishes `a(1)`, `b(1)`, `a(2)`, `b(2)`. For each head:
   program writes it (an anonymous one as `_0`, `_1`, ..., [Section 3.3](#33-term-construction)), and
   `Arguments` the list of
   the ground values the solution gives the heads' other variables, in order
-  of their first occurrence in the heads. A Skolem term is thus a function of
-  the firing: the rule and the instance of its heads. The same firing
-  gives the same terms, in any round and in any run, and different
-  firings give different terms; variables shared between heads stay
-  shared. When several head variables stand for one term, the first of them
-  in the heads names it, whichever way unification bound them. A variable
-  that a value of the solution brought in, which no head variable stands
-  for, keeps its own name when no other term of the firing has it; the
-  others take that name followed by the first of `1`, `2`, ... that is
+  of their first occurrence in the heads. When several head variables stand
+  for one term, the first of them in the heads names it, whichever way
+  unification bound them. A variable that a value of the solution brought
+  in, which no head variable stands for, keeps its own name when no other
+  term of the firing has it; the others take that name followed by the first
+  of `1`, `2`, ... that is
   free, in order of first occurrence in the heads. A rule that keeps meeting new firings does
   not terminate ([Section 8.3](#83-resource-bounds)). Derived facts other than scoped inspection
   patterns ([Section 6.3](#63-source-rule-inspection)) are therefore ground. A
@@ -1212,9 +1209,6 @@ depth, goals started or forward rounds are provided, they count as follows:
   including the final round that adds nothing; a stratum without forward
   rules has no rounds.
 
-A run that exceeds a bound MUST report resource exhaustion. Answers found
-before exhaustion MUST NOT be presented as the complete result of that run.
-
 ### 8.4 External goals
 
 A run MAY be given goals. Each goal is read on its own, so goals share no
@@ -1265,8 +1259,8 @@ rather than return a proof that does not check, as for results the format
 cannot establish ([Section 11.1](#111-what-a-checked-proof-establishes)) or a table that would meet an error. It
 MAY bound the work of making tables; exceeding the bound is such an error
 and MUST NOT change the run's answers. A run without conclusions has a proof
-without claims, whose call tables show that the original questions have no
-answers.
+without claims, whose certificate establishes that there are no required
+answers ([Section 11.5](#115-deciding-the-claims)).
 
 ## 9. Document Syntax and Canonical Text
 
@@ -1326,8 +1320,8 @@ conjunction rules of [Section 4.1](#41-goal-syntax).
 String escapes are `\\`, `\'`, `\"`, `\n`, `\r`, `\t`, `\b`, `\f`,
 `\v`, `\0` (not followed by a decimal digit), `\xHH`, `\uHHHH` and
 `\u{H...}` with one to six hexadecimal digits denoting a Unicode code point.
-Other escapes and raw line breaks in strings MUST be rejected; a raw line
-break is a line feed or a carriage return, while the characters U+2028 and
+Other escapes and unescaped characters U+0000–U+001F except tab MUST be
+rejected. This includes raw line feeds and carriage returns; U+2028 and
 U+2029 are allowed in a string as themselves. Outside
 strings, layout consists of spaces, tabs, carriage returns, line feeds and
 the byte-order-mark character, plus comments. A line feed outside brackets
@@ -1368,7 +1362,7 @@ Object keys may also use these reserved names, since keys denote atom text.
   `hex` is the lowercase hexadecimal code point of `c`. The variable name `A-B`
   is thus written `VAR_A_2d_B`. A reader decodes such a name back
   ([Section 9.1](#91-accepted-document-syntax)).
-- A list is written `[I1, I2, ...]`; an open list ends with `, ...Tail`.
+- A list is written `[I1, I2, ...]`; an open or improper list ends with `, ...Tail`.
 
 ### 9.3 Canonical compounds
 
@@ -1484,10 +1478,9 @@ called(p(A), [p(_1)])
 
 ## 11. Proof Checking
 
-A checker establishes whether the claims of a proof are exactly the answers
-of the original questions of the source program. Its inputs are the program,
-the proof document and, when the proof answers goals asked from outside the
-program, those goals. The source program is the authority for clauses and
+A checker verifies a proof's claims against its source program. Its inputs
+are the program, the proof document and, when the proof answers external
+goals, those goals. The source program is the authority for clauses and
 questions; the proof supplies evidence to check. The outcome is `checked`
 or a list of failures.
 
@@ -1524,11 +1517,12 @@ two listings coincide ([Section 10.3](#103-certificate)), and when a variable's 
 
 ### 11.1 What a checked proof establishes
 
-A proof **checks** when the checker finds no failure. Then its claims follow
-from the source program, and, unless the run halted, they are exactly the
-answers of its original questions, up to the renaming of their variables:
-every claim is an answer and every answer is claimed. A proof without claims
-then establishes that the original questions have none.
+A proof **checks** when the checker finds no failure. Its claims then follow
+from the source program. Unless the proof is halted, every claim is an
+answer of an original question, and every required answer
+([Section 11.5](#115-deciding-the-claims)) is claimed, up to variable
+renaming. A checked proof without claims establishes that there are no
+required answers.
 
 For a program with negation, "follows" is relative to the facts the
 listings hold: the check establishes that they are supported by replayed
@@ -1546,12 +1540,11 @@ A checked proof does not establish:
 - that the supplied program expresses the author's intended model.
 
 Some results cannot be established by this proof format, and their proofs
-do not check: a first answer or a collection whose order rests on several
-derived facts, whose publication order the format does not show; a firing of a
-restricted rule, whose guard held before the firing but not in the final
-facts ([Section 7.2](#72-variables-and-witnesses)); a comparison `compare/3` of terms that are not ground,
-since renaming a table need not preserve the order of variable names; and a
-search whose table would not close.
+do not check: a first answer or collection requiring uncertified answer
+order ([Section 11.3](#113-answering-calls)); a firing of a restricted rule
+with a guard ([Section 7.2](#72-variables-and-witnesses)); a comparison
+`compare/3` of terms that are not ground, since renaming a table need not
+preserve the order of variable names; and a search whose table would not close.
 
 ### 11.2 Original questions
 
@@ -1655,12 +1648,11 @@ starting with no bindings, against the step's corresponding use:
 - A primitive runs on the bindings of that point. Its first solution under
   which the goal can still unify with the use is taken. `compare/3` with a
   compared term that is not ground does not replay.
-- `once/1`, `not/1`, `findall/3` and `findall_sorted/3` take the answers of
-  the goal, as it stands at that point, from the certificate, as in
-  [Section 11.3](#113-answering-calls). A negation with an unbound named variable does not replay,
-  and neither does a first answer or a collection whose order rests on a
-  listing. The first answer is taken, and the goal MUST still unify with the
-  use.
+- `once/1`, `not/1`, `findall/3` and `findall_sorted/3` are evaluated from
+  the certificate on the bindings of that point, with the binding and
+  certified-order requirements of [Section 11.3](#113-answering-calls).
+  The control MUST succeed and its resulting goal MUST still unify with
+  the use.
 - Any other goal, as it stands at that point, is answered from the
   certificate as in [Section 11.3](#113-answering-calls), when that search consults no listing:
   the answer identical to the use up to renaming is taken, or else the first
@@ -1688,10 +1680,6 @@ rule's head with its body, identical up to the renaming of variables; a
 derived pattern's variables are all supplied by an inspection or a listed
 pattern. Each step's bindings MUST name distinct variables of its rule,
 whose values unify with what the replay gave them.
-
-Replay re-executes each recorded firing, so a test of whether a variable is
-bound sees what a search sees, a first answer is the search's first answer,
-and arithmetic is computed rather than accepted.
 
 ### 11.5 Deciding the claims
 
@@ -1748,18 +1736,14 @@ A check report is a document ([Section 9.1](#91-accepted-document-syntax)) holdi
 The comment MUST identify the claims as checked answers only when the proof
 checks, as following from a halted program when it checks and is halted, and
 as unverified claims when it fails; a proof without claims that checks MUST
-be said to establish that the original questions have no answers. Comments
-are informative and MAY be worded differently. The wording of `Detail`, and
+be said to establish that there are no required answers
+([Section 11.1](#111-what-a-checked-proof-establishes)). Comments MAY explain
+the checks of Sections [11.2](#112-original-questions)–[11.6](#116-nothing-unused),
+but MUST NOT assert guarantees beyond those of the verdict. Their wording
+is informative and MAY differ. The wording of `Detail`, and
 the number and order of failures, are informative: a conforming checker
 agrees on the verdict `checked` or failed. A report is ordinary data:
 `facts_from` ([Section 3.4](#34-statements)) states it as facts.
-
-Explanatory comments can describe the checks of Sections
-[11.2](#112-original-questions)–[11.6](#116-nothing-unused). They do not add
-evidence or change the verdict. A failed report must not describe those
-checks as having succeeded; a checked halted proof establishes the replay
-of its claims, without establishing answer completeness
-([Section 11.1](#111-what-a-checked-proof-establishes)).
 
 ## 13. Conformance
 
@@ -1817,8 +1801,8 @@ object     = "{", [ pair, { ",", pair }, [ "," ] ], "}" ;
 pair       = ( identifier | string ), ":", expression ;
 number     = integer, [ "n" ] | float ;
 integer    = "0" | nonzero, { digit } ;
-float      = ( digits, ".", { digit } | ".", digits ), [ exponent ]
-           | digits, exponent ;
+float      = ( integer, ".", { digit } | ".", digits ), [ exponent ]
+           | integer, exponent ;
 exponent   = ( "e" | "E" ), [ "+" | "-" ], digits ;
 digits     = digit, { digit } ;
 digit      = "0" | nonzero ;
