@@ -324,8 +324,8 @@ function verdict(report) {
   return report.valid ? 'checked' : new Struct('failed', [BigInt(report.failures.length)]);
 }
 
-// The report as JavaScript source: the claims, then a failure(Detail) per
-// failure, then the verdict.
+// The report as JavaScript source: the claims, any failures, and the verdict.
+// Explain a successful check only after the whole procedure has passed.
 export function checkReport(report) {
   const heading = !report.valid ? '// Unverified claims: proof checking failed.'
     : report.halted ? '// Checked claims: these follow from the input program, which halted.'
@@ -337,6 +337,23 @@ export function checkReport(report) {
     for (const { detail } of report.failures) lines.push(text(new Struct('failure', [detail])));
     lines.push('');
   }
+  if (report.valid) {
+    lines.push('// Proof check (SPEC 11.2-11.6):');
+    if (report.halted) {
+      lines.push("// Halted proof: every claim, including 'false', replays its recorded firing.",
+        '// Answer completeness is not established for a halted proof.');
+    } else {
+      lines.push('// Questions: every claim is an answer, and every required answer is claimed.');
+    }
+    lines.push('// Call tables: every consulted table matches its one-level expansion against the program.',
+      '// Derived listings: every consulted listing is closed under the forward rules.',
+      '// Replay: every required firing replays from no bindings; primitives, controls and',
+      '// Skolem witnesses are checked at the bindings where they run.',
+      '// Evidence: every recorded step, call table and listing is used by the check.');
+  } else {
+    lines.push('// Proof check (SPEC 11): failed; no claim is certified by this report.');
+  }
+  lines.push('');
   lines.push(text(new Struct('verdict', [verdict(report)])));
   return `${lines.join('\n')}\n`;
 }

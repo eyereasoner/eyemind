@@ -20,4 +20,12 @@ and(in_range(1, 20, 18), trajectory(18, [18, 9, 28, 14, 7, 22, 11, 34, 17, 52, 2
 and(in_range(1, 20, 19), trajectory(19, [19, 58, 29, 88, 44, 22, 11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1]))
 and(in_range(1, 20, 20), trajectory(20, [20, 10, 5, 16, 8, 4, 2, 1]))
 
+// Proof check (SPEC 11.2-11.6):
+// Questions: every claim is an answer, and every required answer is claimed.
+// Call tables: every consulted table matches its one-level expansion against the program.
+// Derived listings: every consulted listing is closed under the forward rules.
+// Replay: every required firing replays from no bindings; primitives, controls and
+// Skolem witnesses are checked at the bindings where they run.
+// Evidence: every recorded step, call table and listing is used by the check.
+
 verdict('checked')

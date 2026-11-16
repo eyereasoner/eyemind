@@ -23,4 +23,12 @@ cosine(complex(1.9999999999999998, 0.0))
 arctangent(complex(1.3389725222944935, 0.402359478108525))
 tangent(complex(1.0, 1.9999999999999996))
 
+// Proof check (SPEC 11.2-11.6):
+// Questions: every claim is an answer, and every required answer is claimed.
+// Call tables: every consulted table matches its one-level expansion against the program.
+// Derived listings: every consulted listing is closed under the forward rules.
+// Replay: every required firing replays from no bindings; primitives, controls and
+// Skolem witnesses are checked at the bindings where they run.
+// Evidence: every recorded step, call table and listing is used by the check.
+
 verdict('checked')

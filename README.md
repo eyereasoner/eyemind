@@ -463,10 +463,24 @@ goes unchecked.
 type('socrates', 'mortal')
 type('socrates', 'human')
 
+// Proof check (SPEC 11.2-11.6):
+// Questions: every claim is an answer, and every required answer is claimed.
+// Call tables: every consulted table matches its one-level expansion against the program.
+// Derived listings: every consulted listing is closed under the forward rules.
+// Replay: every required firing replays from no bindings; primitives, controls and
+// Skolem witnesses are checked at the bindings where they run.
+// Evidence: every recorded step, call table and listing is used by the check.
+
 verdict('checked')
 ```
 
 A `checked` verdict thus establishes two things: every claim follows from the program, and the claims are every answer of the original questions. A question with no claims is shown to have no answers by its table. A failed check lists `failure(Detail)` facts, ends with `verdict(failed(N))` and exits with code 2. A halted run's proof establishes that its claims follow, not that they are every answer. To check answers to `--goal` questions, pass the same goals when checking. [SPEC §11](https://eyereasoner.github.io/eyemind/SPEC#11-proof-checking) defines the check.
+
+The report's comments explain which checks succeeded, with references to
+SPEC Sections 11.2–11.6. They distinguish complete answers from a halted
+proof's replayed claims. A failed report keeps its claims unverified and
+lists the failures. These explanations are JavaScript comments: reading the
+report with `facts_from` still gives just its claims, failures and verdict.
 
 Some results cannot be certified by this format, and `--proof` then reports an error while a plain run still gives the answers:
 

@@ -1740,7 +1740,9 @@ A check report is a document ([Section 9.1](#91-accepted-document-syntax)) holdi
 2. an empty line;
 3. when the check failed, a comment line, then one `failure(Detail)` per
    failure, where `Detail` is an atom, then an empty line;
-4. `verdict('checked')`, or `verdict(failed(N))` where `N`, at least 1, is
+4. optional comment lines explaining the outcome of the check, then an
+   empty line when those comments are present;
+5. `verdict('checked')`, or `verdict(failed(N))` where `N`, at least 1, is
    the number of failure lines.
 
 The comment MUST identify the claims as checked answers only when the proof
@@ -1751,6 +1753,13 @@ are informative and MAY be worded differently. The wording of `Detail`, and
 the number and order of failures, are informative: a conforming checker
 agrees on the verdict `checked` or failed. A report is ordinary data:
 `facts_from` ([Section 3.4](#34-statements)) states it as facts.
+
+Explanatory comments can describe the checks of Sections
+[11.2](#112-original-questions)–[11.6](#116-nothing-unused). They do not add
+evidence or change the verdict. A failed report must not describe those
+checks as having succeeded; a checked halted proof establishes the replay
+of its claims, without establishing answer completeness
+([Section 11.1](#111-what-a-checked-proof-establishes)).
 
 ## 13. Conformance
 
@@ -1863,6 +1872,14 @@ Its check report ([Section 12](#12-check-reports)):
 // Checked answers: these follow from the input program and are every answer of its questions.
 type('socrates', 'mortal')
 type('socrates', 'human')
+
+// Proof check (SPEC 11.2-11.6):
+// Questions: every claim is an answer, and every required answer is claimed.
+// Call tables: every consulted table matches its one-level expansion against the program.
+// Derived listings: every consulted listing is closed under the forward rules.
+// Replay: every required firing replays from no bindings; primitives, controls and
+// Skolem witnesses are checked at the bindings where they run.
+// Evidence: every recorded step, call table and listing is used by the check.
 
 verdict('checked')
 ```

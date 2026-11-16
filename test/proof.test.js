@@ -26,7 +26,21 @@ export const tests = {
     const report = checkProof(source, document);
     assert.deepEqual(report.answers, ["q('a')"]);
     assert.equal(checkReport(report),
-      "// Checked answers: these follow from the input program and are every answer of its questions.\nq('a')\n\nverdict('checked')\n");
+      [
+        '// Checked answers: these follow from the input program and are every answer of its questions.',
+        "q('a')",
+        '',
+        '// Proof check (SPEC 11.2-11.6):',
+        '// Questions: every claim is an answer, and every required answer is claimed.',
+        '// Call tables: every consulted table matches its one-level expansion against the program.',
+        '// Derived listings: every consulted listing is closed under the forward rules.',
+        '// Replay: every required firing replays from no bindings; primitives, controls and',
+        '// Skolem witnesses are checked at the bindings where they run.',
+        '// Evidence: every recorded step, call table and listing is used by the check.',
+        '',
+        "verdict('checked')",
+        '',
+      ].join('\n'));
     const failed = checkProof(source, document.replace("q('a')\n", "q('b')\n"));
     assert.match(checkReport(failed), /^\/\/ Unverified claims:[^\n]*\nq\('b'\)\n\n\/\/ Failures:[^\n]*\nfailure\('[^\n]*'\)\n/);
     assert.match(checkReport(failed), /verdict\(failed\(2\)\)\n$/);
@@ -36,6 +50,27 @@ export const tests = {
     assert.match(checkReport(run(halted, { proof: true }).proofReport), /^\/\/ Checked claims: these follow from the input program, which halted\./);
     assert.deepEqual(publicReport(report).answers, report.answers);
     assert.ok(!('failureTerms' in publicReport(report)));
+  },
+
+  'check report explanations distinguish complete answers, halted claims and failed proofs'() {
+    const empty = checkReport(checkProof(program(''), ''));
+    assert.match(empty, /Questions: every claim is an answer, and every required answer is claimed\./);
+    const halted = program("fact(p('a'))\ncontradiction(p(X))");
+    const document = proof(halted);
+    const checked = checkReport(checkProof(halted, document));
+    assert.match(checked, /Halted proof: every claim, including 'false', replays its recorded firing\./);
+    assert.match(checked, /Answer completeness is not established for a halted proof\./);
+    assert.doesNotMatch(checked, /\/\/ Questions:/);
+    // A forged halted claim must not inherit the successful replay explanation.
+    for (const report of [
+      invalid(document.replace("p('a')", "p('b')"), /does not replay/, halted),
+      invalid(proof().replace("q('a')\n", "q('b')\n")),
+      checkProof(SOURCE, "p('unterminated"),
+    ]) {
+      const failed = checkReport(report);
+      assert.match(failed, /Proof check \(SPEC 11\): failed; no claim is certified by this report\./);
+      assert.doesNotMatch(failed, /\/\/ (Questions|Halted proof|Call tables|Derived listings|Replay|Evidence):/);
+    }
   },
 
   'a proof holds the steps of its derived facts and the tables of its questions'() {
