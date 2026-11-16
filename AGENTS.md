@@ -7,7 +7,7 @@ LS programs are JavaScript scripts, saved as `.js` files;
 LS conclusions, proofs and check reports are JavaScript expressions that a
 reader turns back into terms without running them. N3 and SRL inputs write
 the same JavaScript proofs, citing the clauses of their compiled program.
-Controlled Mathematical English (`.me`) compiles to LS and writes `.me`
+Logical English (`.le`) compiles to LS and writes `.le`
 conclusions, with the same `.js` proofs and check reports.
 It runs as a command-line
 program, a JavaScript library, and a browser application. Describe what it
@@ -40,7 +40,8 @@ goals, and keep error messages specific and user-facing text direct.
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
     library API. `version.js`: the version, synced from `package.json`.
   - `entailment.js`: explicit `--rdfs` and `--owl-rl` RDF inference and OWL conflict reports, compiled to standalone LS.
-  - `me.js`: controlled Mathematical English (`.me`) compiled to LS, and `.me` conclusions; its grammar is in `MATHEMATICAL-ENGLISH.md`.
+  - `le.js`: Logical English (`.le`) compiled to LS, and `.le` conclusions; its grammar is in `LOGICAL-ENGLISH.md`.
+    `le-odrl.js` maps an explicitly selected LE ODRL vocabulary to RDF and shares `odrl.js` for snapshot evaluation.
   - `formats.js`: inputs by extension and output with `--to`. `rdf.js`:
     RDF 1.2 (Turtle, TriG, N-Triples, N-Quads) to and from eyemind terms,
     read by the RDF parser (`rdf-lexer.js`, `rdf-parser.js`,
@@ -72,15 +73,15 @@ goals, and keep error messages specific and user-facing text direct.
   `examples/output/`,
   `examples/proof/` and `examples/check/` hold each one's saved conclusions,
   proof and check report; `examples/deck/` a card deck per example. Outputs
-  use the input format’s default (`.js`, `.n3`, `.me` or `.ttl`; `.txt` for the text
+  use the input format’s default (`.js`, `.n3`, `.le` or `.ttl`; `.txt` for the text
   report); proofs and check reports are `.js` for every example. Every file of an example is named after the example, and the
   name of an N3 or SRL example ends in `-n3` or `-srl`: `socrates.js`,
   `socrates-n3.n3` and `socrates-srl.srl` with
   `data/annotation-n3.ttl`, `output/socrates-srl.ttl`,
   `proof/socrates-n3.js`, `check/socrates-n3.js` and
   `deck/socrates-n3.md`. TriG joins N3 as quoted `graph:content` formulas.
-  Mathematical English examples use `name-me.me` for sources and conclusions,
-  and `name-me.js` for compiled programs, proofs and check reports.
+  Logical English examples use `name-le.le` for sources and conclusions,
+  and `name-le.js` for compiled programs, proofs and check reports.
   RDF Message examples keep their logs in `examples/data/`; payloads are
   quoted `log:nameOf` formulas. Replay has proofs and check reports;
   `--stream-messages` runs each message independently.
@@ -170,7 +171,7 @@ very large proofs; redirect them to a file and inspect focused parts.
 
 ## Other formats
 
-RDF data, N3, SPARQL 1.2 RL and controlled Mathematical English are inputs of the command line, compiled to
+RDF data, N3, SPARQL 1.2 RL and Logical English are inputs of the command line, compiled to
 ordinary LS programs; they are implementation extensions described in README.md,
 outside the language and proof specification. The RDF lexer and parser, and the SRL tokenizer, parser and
 analysis, are maintained in `src/` as ES modules. Preserve the `eyemind:`

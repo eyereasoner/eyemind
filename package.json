@@ -17,7 +17,7 @@
     "src/",
     "README.md",
     "SPEC.md",
-    "MATHEMATICAL-ENGLISH.md",
+    "LOGICAL-ENGLISH.md",
     "LICENSE.md"
   ],
   "scripts": {

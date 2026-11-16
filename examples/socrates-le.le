@@ -1,6 +1,6 @@
 # Socrates is human, and every human is mortal.
 # The question concludes that Socrates is mortal, showing class facts,
-# an every-rule and a query compiled from Mathematical English into LS.
+# an every-rule and a query compiled from Logical English into LS.
 
 Socrates is a human.
 Every human is mortal.

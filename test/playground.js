@@ -167,18 +167,18 @@ export const tests = [
     }
   }],
 
-  ['Mathematical English examples download ME conclusions and keep JavaScript proofs', async (page, base) => {
+  ['Logical English examples download LE conclusions and keep JavaScript proofs', async (page, base) => {
     const p = driver(page);
-    for (const name of ['socrates-me', 'squares-me', 'records-me']) {
+    for (const name of ['socrates-le', 'squares-le', 'records-le', 'handicap-card-le']) {
       await p.open(`${base}#example=${name}`);
       await p.run();
       assert.match(await p.status(), /^Done · exit 0/);
-      assert.equal(await p.output(), readFileSync(new URL(`../examples/output/${name}.me`, import.meta.url), 'utf8'));
+      assert.equal(await p.output(), readFileSync(new URL(`../examples/output/${name}.le`, import.meta.url), 'utf8'));
       await page.evaluate(`(() => {
         HTMLAnchorElement.prototype.click = function () { window.savedFilename = this.download; };
         document.getElementById('save-output').click();
       })()`);
-      assert.equal(await page.evaluate('window.savedFilename'), 'output.me');
+      assert.equal(await page.evaluate('window.savedFilename'), 'output.le');
       await p.select('mode', '--proof');
       await p.run();
       const proof = await p.output();
@@ -191,14 +191,14 @@ export const tests = [
       assert.match(await p.output(), /verdict\('checked'\)/);
     }
     await page.evaluate("document.getElementById('share-link').click()");
-    await p.until("document.getElementById('share-url').value.includes('#state=')", 'the ME source and JavaScript proof');
+    await p.until("document.getElementById('share-url').value.includes('#state=')", 'the LE source and JavaScript proof');
     await p.open(await page.evaluate("document.getElementById('share-url').value"), 390, true);
     await p.run();
     assert.match(await p.output(), /verdict\('checked'\)/);
     await p.select('mode', '');
     await p.type('input', '# Header\n\nSocrates is not a human.');
     await p.run();
-    assert.match(await p.messages(), /line 3: Mathematical English: ordinary "not"/);
+    assert.match(await p.messages(), /line 3: Logical English: ordinary "not"/);
     assert.equal(await p.marked(), 'Socrates is not a human.');
   }],
 

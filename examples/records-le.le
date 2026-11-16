@@ -1,6 +1,6 @@
 # Alice and Bob are people, but Bob has a recorded block.
 # Only Alice receives a fresh record, showing explicit absence tests and
-# existential witnesses in Mathematical English compiled to ordinary LS.
+# existential witnesses in Logical English compiled to ordinary LS.
 
 Alice is a person.
 Bob is a person.

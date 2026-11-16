@@ -727,18 +727,23 @@
     "description": "OWL-RL chains infer grandparents and functional properties expose a sameAs/differentFrom conflict"
   },
   {
-    "name": "socrates-me",
-    "files": ["socrates-me.me"],
-    "description": "Mathematical English class facts and an every-rule conclude that Socrates is mortal"
+    "name": "socrates-le",
+    "files": ["socrates-le.le"],
+    "description": "Logical English class facts and an every-rule conclude that Socrates is mortal"
   },
   {
-    "name": "squares-me",
-    "files": ["squares-me.me"],
-    "description": "Mathematical English computes exact squares of three supplied integers"
+    "name": "squares-le",
+    "files": ["squares-le.le"],
+    "description": "Logical English computes exact squares of three supplied integers"
   },
   {
-    "name": "records-me",
-    "files": ["records-me.me"],
+    "name": "records-le",
+    "files": ["records-le.le"],
     "description": "Explicit absence and an existential conclusion give Alice a fresh record while Bob is blocked"
+  },
+  {
+    "name": "handicap-card-le",
+    "files": ["handicap-card-le.le"],
+    "description": "An LE snapshot reuses the ODRL evaluator to allow Alice's card and retain Bob's policy conflict"
   }
 ]

@@ -1,15 +1,16 @@
-// Controlled Mathematical English: an explicit grammar, ordinary LS clauses,
+// Logical English: an explicit grammar, ordinary LS clauses,
 // and conclusions that can be read back as facts. No input text is executed.
 import { PRIMITIVE_KEYS } from './builtins.js';
 import { CONTROL_KEYS, Program, RESERVED_KEYS, Source } from './program.js';
 import { readTerm } from './reader.js';
 import { EMPTY, EyemindError, Struct, Var, conjunction, flattenConjunction } from './terms.js';
 import { write } from './writer.js';
+import { compileOdrlLe, odrlLeReport } from './le-odrl.js';
 
 const st = (name, ...args) => new Struct(name, args);
 const VARIABLE = /^[A-Z][0-9]*$/;
 const NAME = /^[a-z][A-Za-z0-9_]*$/;
-const SENTENCE_WORDS = new Set(['every', 'for', 'if', 'find', 'there', 'it', 'contradiction']);
+const SENTENCE_WORDS = new Set(['every', 'for', 'if', 'find', 'there', 'it', 'contradiction', 'use']);
 const RESERVED = new Set([...PRIMITIVE_KEYS, ...CONTROL_KEYS, ...RESERVED_KEYS].map((key) => key.split('/')[0]));
 for (const name of ['true', 'false', 'fail']) RESERVED.add(name);
 const OPERATORS = { '+': ['add', 1], '-': ['sub', 1], '*': ['mul', 2], '/': ['div', 2] };
@@ -53,7 +54,7 @@ class Parser {
   }
 
   get token() { return this.tokens[this.at]; }
-  error(message, line = this.token?.line ?? 1) { throw new EyemindError(`${this.file}: line ${line}: Mathematical English: ${message}`); }
+  error(message, line = this.token?.line ?? 1) { throw new EyemindError(`${this.file}: line ${line}: Logical English: ${message}`); }
   is(word) { return this.token.kind !== 'string' && this.token.value.toLowerCase() === word; }
   take(word) { if (!this.is(word)) return false; this.at++; return true; }
   need(word) { if (!this.take(word)) this.error(`expected ${JSON.stringify(word)}, found ${JSON.stringify(this.token.raw || 'end of input')}`); }
@@ -166,6 +167,10 @@ class Parser {
       return st('not', this.atomic(false));
     }
     const subject = this.term();
+    if (this.take('has')) {
+      const name = this.name();
+      return st(name, subject, this.term());
+    }
     if (this.take('is')) {
       if (this.is('not')) this.error('ordinary "not" is unsupported; use "it is not known that" in a premise for absence, or a separate relation for explicit negative evidence');
       if (!body && this.is('the')) this.error('put calculations in a premise, as in "Y is the value of X + 1", then state the result relation');
@@ -209,6 +214,20 @@ class Parser {
   sentence() {
     const line = this.token.line;
     this.scope = new Map();
+    if (this.is('use') && this.tokens[this.at + 1]?.kind === 'word' && this.tokens[this.at + 1].value.toLowerCase() === 'odrl') {
+      this.at++;
+      this.need('odrl');
+      let evaluate = false;
+      if (this.take('snapshot')) { this.need('logic'); evaluate = true; }
+      else this.need('vocabulary');
+      this.need('with'); this.need('namespace');
+      if (this.token.kind !== 'string') this.error('an ODRL namespace must be a quoted absolute IRI');
+      const namespace = this.token.value;
+      try { new URL(namespace); } catch { this.error('an ODRL namespace must be an absolute IRI'); }
+      if (/[\s<>"{}|^`\\]/u.test(namespace)) this.error('an ODRL namespace must be an absolute IRI without whitespace or forbidden characters');
+      this.at++; this.need('.');
+      return { kind: 'odrl', namespace, evaluate, line };
+    }
     if (this.take('every')) {
       const from = this.name(); this.need('is');
       const x = new Var('X'), heads = [];
@@ -271,12 +290,18 @@ function javascript(term) {
   return JSON.stringify(term);
 }
 
-export function compileMe(inputs) {
+export function compileLe(inputs) {
   const clauses = [], statements = [], sources = [];
+  let profile = null;
   for (const [text, file] of inputs) {
     const parser = new Parser(String(text), file);
     while (parser.token.kind !== 'end') {
       const sentence = parser.sentence(), { kind, heads, body, line } = sentence;
+      if (kind === 'odrl') {
+        if (profile || statements.length || inputs.length !== 1) parser.error('an ODRL directive must be the first sentence of one LE file', line);
+        profile = { namespace: sentence.namespace, evaluate: sentence.evaluate };
+        continue;
+      }
       statements.push({ ...sentence, file });
       clauses.push(`// ${String(file).replace(/[\r\n\u2028\u2029]/g, ' ')}: line ${line}`);
       if (kind === 'fact') {
@@ -293,52 +318,56 @@ export function compileMe(inputs) {
       }
     }
   }
-  return { kind: 'me', text: '// Compiled from controlled Mathematical English to Logic Script.\n\n' + clauses.join('\n') + '\n',
+  if (profile) return compileOdrlLe(statements, profile, inputs[0][1]);
+  return { kind: 'le', text: '// Compiled from Logical English to Logic Script.\n\n' + clauses.join('\n') + '\n',
     program: new Program(sources), prefixes: {}, compiled: { statements } };
 }
 
-function meTerm(term, names) {
+function leTerm(term, names) {
   if (term instanceof Var) return names.get(term.name);
   if (term === EMPTY) return '[]';
   if (typeof term === 'string') {
     return /^[A-Za-z][A-Za-z0-9_]*$/.test(term) && !VARIABLE.test(term) && !SENTENCE_WORDS.has(term.toLowerCase()) ? term : JSON.stringify(term);
   }
   if (typeof term === 'bigint' || typeof term === 'number') return write(term);
-  if (!(term instanceof Struct)) throw new EyemindError('cannot write this term as Mathematical English');
+  if (!(term instanceof Struct)) throw new EyemindError('cannot write this term as Logical English');
   if (term.name === 'skolem' && term.args.length === 3) {
     const [rule, label, bindings] = term.args, args = listItems(bindings);
     if (typeof rule === 'bigint' && rule > 0n && typeof label === 'string' && args !== null) {
       const name = VARIABLE.test(label) ? label : JSON.stringify(label);
-      return `witness(rule ${rule}, ${name}${args.map((arg) => ', ' + meTerm(arg, names)).join('')})`;
+      return `witness(rule ${rule}, ${name}${args.map((arg) => ', ' + leTerm(arg, names)).join('')})`;
     }
   }
   if (term.name === '.') {
     const items = listItems(term);
-    if (items !== null) return `[${items.map((item) => meTerm(item, names)).join(', ')}]`;
+    if (items !== null) return `[${items.map((item) => leTerm(item, names)).join(', ')}]`;
     // Improper lists remain explicit compounds.
   }
-  return `${JSON.stringify(term.name)}(${term.args.map((arg) => meTerm(arg, names)).join(', ')})`;
+  return `${JSON.stringify(term.name)}(${term.args.map((arg) => leTerm(arg, names)).join(', ')})`;
 }
 
-function meGoal(term, names) {
+function leGoal(term, names, properties) {
   if (term === 'false') return 'Contradiction';
-  if (typeof term === 'string' && NAME.test(term) && !RESERVED.has(term)) return meTerm(term, names);
+  if (typeof term === 'string' && NAME.test(term) && !RESERVED.has(term)) return leTerm(term, names);
   if (!(term instanceof Struct) || !NAME.test(term.name) || RESERVED.has(term.name)) {
-    throw new EyemindError(`${write(term)} is not a Mathematical English relation; use --to eyemind`);
+    throw new EyemindError(`${write(term)} is not a Logical English relation; use --to eyemind`);
   }
   const article = /^[aeiou]/.test(term.name) ? 'an' : 'a';
-  if (term.args.length === 1) return `${meTerm(term.args[0], names)} is ${article} ${term.name}`;
-  if (term.args.length === 2) return `${meTerm(term.args[0], names)} is ${article} ${term.name} of ${meTerm(term.args[1], names)}`;
-  return `${term.name}(${term.args.map((arg) => meTerm(arg, names)).join(', ')})`;
+  if (term.args.length === 1) return `${leTerm(term.args[0], names)} is ${article} ${term.name}`;
+  if (properties && term.args.length === 2) return `${leTerm(term.args[0], names)} has ${term.name} ${leTerm(term.args[1], names)}`;
+  if (term.args.length === 2) return `${leTerm(term.args[0], names)} is ${article} ${term.name} of ${leTerm(term.args[1], names)}`;
+  return `${term.name}(${term.args.map((arg) => leTerm(arg, names)).join(', ')})`;
 }
 
-export function writeMe(result) {
+export function writeLe(result, { odrl = null } = {}) {
+  if (odrl) result = odrlLeReport(result, odrl.namespace);
   const lines = [];
   for (const answer of result.answers) {
     const term = readTerm(answer);
     const names = new Map([...variablesIn([term])].map((name, i) => [name, `X${i}`]));
     const quantifier = names.size ? `For every ${[...names.values()].join(' and ')}, ` : '';
-    lines.push(quantifier + flattenConjunction(term).map((goal) => meGoal(goal, names)).join(' and ') + '.');
+    lines.push(quantifier + flattenConjunction(term).map((goal) => leGoal(goal, names, odrl !== null)).join(' and ') + '.');
   }
-  return lines.length ? lines.join('\n') + '\n' : '# No conclusions.\n';
+  const header = odrl ? `Use ODRL vocabulary with namespace ${JSON.stringify(odrl.namespace)}.\n\n` : '';
+  return header + (lines.length ? lines.join('\n') + '\n' : '# No conclusions.\n');
 }

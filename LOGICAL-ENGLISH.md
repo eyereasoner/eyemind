@@ -1,6 +1,6 @@
-# Controlled Mathematical English
+# Logical English
 
-eyemind reads `.me` files as the controlled language defined here and compiles
+eyemind reads `.le` files as the language defined here and compiles
 them to ordinary Logic Script (LS). This is an input extension; the meaning of
 the compiled program is defined by the [LS specification](https://eyereasoner.github.io/eyemind/SPEC).
 It supports statements and computations in a fixed grammar. It does not parse
@@ -51,13 +51,14 @@ nesting is limited to 256 levels.
 The following forms have the indicated LS meanings. `T`, `U` and the arguments
 stand for terms; `class` and `relation` stand for names as defined above.
 
-| ME form | LS term |
+| LE form | LS term |
 | --- | --- |
 | `T is a class` | `class(T)` |
 | `T is an class` | `class(T)` |
 | `T is class` | `class(T)` |
 | `T is a relation of U` | `relation(T, U)` |
 | `T is an relation of U` | `relation(T, U)` |
+| `T has relation U` | `relation(T, U)` |
 | `relation(T, U, ...)` | The corresponding compound goal. |
 | `relation` | An atom used as a goal, with arity zero. |
 
@@ -95,7 +96,7 @@ actual values must also satisfy LS's runtime requirements.
 
 These additional forms are available in premises and questions:
 
-| ME form | LS goal |
+| LE form | LS goal |
 | --- | --- |
 | `Y is the value of E` | `is(Y, E)` |
 | `X is greater than E` | `gt(X, E)` |
@@ -174,9 +175,81 @@ derived conclusions, following LS's default; given facts alone are not printed.
 run's `'false'` conclusion. Contradictions halt reasoning with exit code 65;
 they do not produce the continuing RDF conflict reports of `--owl-rl`.
 
+## ODRL snapshots
+
+An LE file can explicitly select the existing ODRL snapshot evaluator:
+
+```text
+Use ODRL snapshot logic with namespace "https://example.org/handicap-card#".
+
+evaluation is an evaluation.
+evaluation has policy eligibility.
+evaluation has request issueAlice.
+evaluation has conflictStrategy prohibit.
+```
+
+This directive must be the first sentence of one file. The remainder contains
+ground facts using the snapshot vocabulary, without rules or questions. The
+compiler maps those facts to RDF and includes the validation, evaluation and
+reporting LS of `src/odrl.js`. The same
+[snapshot profile](https://eyereasoner.github.io/eyemind/#odrl-snapshots) applies
+to Turtle and LE, including missing observations, unsupported policy features
+and conflict strategies. Vocabulary by itself does not enable evaluation.
+
+Names expand as follows, with case preserved:
+
+| LE form or name | RDF mapping |
+| --- | --- |
+| An ordinary individual name | An IRI formed by appending it to the declared namespace. |
+| Classes `evaluation`, `request`, `state` | `eval:Evaluation`, `eval:Request`, `eval:State`. |
+| Classes `policy`, `agreement`, `permission`, `prohibition`, `constraint`, `action` | `odrl:Set`, `odrl:Agreement`, `odrl:Permission`, `odrl:Prohibition`, `odrl:Constraint`, `odrl:Action`. |
+| Classes `assetCollection`, `partyCollection` | ODRL collection classes, rejected by the snapshot profile. |
+| Properties `policy`, `request`, `state`, `subject`, `conflictStrategy` | The corresponding `eval:` properties. |
+| Properties `profile`, `permission`, `prohibition`, `assignee`, `assigner`, `action`, `target`, `constraint`, `leftOperand`, `operator`, `rightOperand` | The corresponding `odrl:` properties. |
+| Property `policyConflict` | `odrl:conflict`, the policy-local strategy. |
+| Property `type` | `rdf:type`. |
+| An otherwise unknown class or property | An IRI in the declared namespace; validation still applies. |
+| Values `snapshotProfile`, `perm`, `prohibit`, `invalid`, `eq`, `neq`, `gt`, `gteq`, `lt`, `lteq` | `eval:SnapshotProfile` or the corresponding ODRL strategy/operator IRIs. |
+| Values `true`, `false` | Boolean RDF literals. Quoting does not change an LE name into an RDF string literal. |
+| An integer or float | An exact RDF integer or an `xsd:double` literal. |
+
+The unsupported ODRL properties `duty`, `obligation`, `inheritFrom`, `includedIn`,
+`partOf` and `refinement` retain their ODRL IRIs so the shared validator can
+report them. Explicit RDF values such as `iri("https://example.org/item")` and
+`literal("text", datatype("http://www.w3.org/2001/XMLSchema#string"))` retain
+their terms. `rdf(S, P, O)` facts allow any explicit RDF predicate without an
+abbreviation. A snapshot still has one default graph.
+
+The [handicap-card LE example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card-le)
+contains the complete policies, requests and SOTW. Run it without CLI switches:
+
+```sh
+eyemind examples/handicap-card-le.le
+eyemind --program examples/handicap-card-le.le > /tmp/handicap-card-le.js
+eyemind --to turtle /tmp/handicap-card-le.js
+```
+
+Its default output is an LE report whose first sentence is
+`Use ODRL vocabulary with namespace "https://example.org/handicap-card#".`.
+That directive reads RDF data without evaluating policies. This makes the report
+readable as input again, preserving every RDF fact and witness. Report properties
+use `has`; for example `issueAlice has decision allowed.`. Status values
+`allowed`, `prohibited`, `notApplicable`, `undetermined`, `valid` and
+`invalidReport` name the corresponding `eval:` IRIs. Report classes include
+`evaluationReport`, `conflict`, `validationError` and `uncertainty`.
+`conflict` as a property means `eval:conflict`; `applicablePermission`,
+`applicableProhibition` and `reportConstraint` distinguish the report's
+`eval:permission`, `eval:prohibition` and `eval:constraint` links from ODRL
+input properties. Other report fields retain their `eval:` names. An IRI with
+no unambiguous abbreviation stays explicit, including IRIs inside witness keys.
+
+Both ODRL directives take a single LE file and reject mixed-in ordinary LE
+rules or questions. `--goal` can query their compiled LS program. The normal
+`--odrl` switch continues to select the Turtle snapshot compiler.
+
 ## Output, compilation and checking
 
-ME inputs default to `.me` conclusions. Each answer becomes a sentence:
+LE inputs default to `.le` conclusions. Each answer becomes a sentence:
 
 ```text
 Socrates is a mortal.
@@ -186,7 +259,7 @@ Alice is an owner of witness(rule 4, Y, Alice).
 
 `witness(rule 4, Y, Alice)` names the witness for existential variable `Y` of
 rule 4 with argument Alice. It reads back as `skolem(4, 'Y', ['Alice'])` in LS.
-The label `Y` in this position is a name, independent of any declared ME
+The label `Y` in this position is a name, independent of any declared LE
 variable. A label outside the variable-name syntax is quoted. Additional
 arguments follow as more comma-separated terms; a witness without arguments
 is `witness(rule 4, Y)`. The rule number, label and arguments all contribute
@@ -196,28 +269,28 @@ Unary and binary relations use the class and relation-of forms; relations with
 more arguments use calls. Names are quoted when required to preserve their
 meaning. Compound names are quoted. Variable answers use `For every X0 and X1,
 ...`, consistently renaming their variables while retaining sharing. A conjunctive
-answer uses `and`. These sentences can be loaded as facts in another `.me`
+answer uses `and`. These sentences can be loaded as facts in another `.le`
 program. An empty answer set is `# No conclusions.`. The writer rejects goals
 outside these relational forms instead of silently changing their meaning.
 
 ```sh
-eyemind examples/socrates-me.me
-eyemind --program examples/socrates-me.me > /tmp/socrates-me.js
-eyemind --to me /tmp/socrates-me.js
-eyemind --proof examples/socrates-me.me > /tmp/socrates-me-proof.js
-eyemind --check-proof /tmp/socrates-me-proof.js examples/socrates-me.me
+eyemind examples/socrates-le.le
+eyemind --program examples/socrates-le.le > /tmp/socrates-le.js
+eyemind --to le /tmp/socrates-le.js
+eyemind --proof examples/socrates-le.le > /tmp/socrates-le-proof.js
+eyemind --check-proof /tmp/socrates-le-proof.js examples/socrates-le.le
 ```
 
-Multiple `.me` files form one program in file order; they do not mix with other
-input formats or the RDF logic switches. Standard input remains LS; `--to me`
-can write supported LS conclusions as ME. `--goal` uses LS goal syntax and
-defaults to LS output; add `--to me` for ME output. `--all` applies to RDF and N3
-output, without changing ME's selected conclusions.
+Multiple `.le` files form one program in file order; they do not mix with other
+input formats or the RDF logic switches. Standard input remains LS; `--to le`
+can write supported LS conclusions as LE. `--goal` uses LS goal syntax and
+defaults to LS output; add `--to le` for LE output. `--all` applies to RDF and N3
+output, without changing LE's selected conclusions.
 
 The compiler reads data without executing it and emits standalone `.js` LS
 using explicit constructors to retain names and numeric types. Comments in the
 compiled text identify the source file and sentence line. Parser errors name
-that location. ME runs use LS's usual work bounds, which can be overridden by
+that location. LE runs use LS's usual work bounds, which can be overridden by
 the CLI. Existential or recursive rules can still have an infinite closure.
 
 Proofs and check reports are `.js` documents and use the existing LS checker.

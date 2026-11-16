@@ -2,7 +2,7 @@
 // independently reproduce those artifacts and check their proofs.
 import { readFileSync } from 'node:fs';
 import { basename, isAbsolute, join } from 'node:path';
-import { checkProof, loadText, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
+import { checkProof, compileLe, loadText, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
 import { main } from '../src/cli.js';
 import { nodeIO } from '../src/node.js';
 import { Env, properListItems, unify } from '../src/terms.js';
@@ -362,7 +362,7 @@ for (const entry of MANIFEST) {
         }
         const proofMode = args.some((arg) => ['--proof', '-p', '--check-proof', '--prove-and-check', '-c', '--unused'].includes(arg));
         const explicitFormat = args.includes('--to') ? args[args.indexOf('--to') + 1] : null;
-        const native = args.some((arg) => /\.(n3|srl|me|ttl)$/.test(arg));
+        const native = args.some((arg) => /\.(n3|srl|le|ttl)$/.test(arg));
         if (!proofMode && (native || explicitFormat) && explicitFormat !== 'eyemind') {
           assert.equal(result.code, entry.halt_code ?? 0, result.stderr);
           const saved = readFileSync(artifactPath('output', entry), 'utf8');
@@ -370,7 +370,8 @@ for (const entry of MANIFEST) {
             const triples = (text) => parseN3(text).triples.map((t) => tripleToEyemind(t).map((term) => write(term)));
             assert.deepEqual(triples(result.stdout), triples(saved));
           } else if (explicitFormat === 'turtle' && args.some((arg) => compiled.has(arg))) {
-            assert.ok(isomorphic(parseRdf(result.stdout).quads, parseRdf(saved).quads));
+            const graph = artifactPath('output', entry).endsWith('.le') ? compileLe([[saved, `${name}.le`]]).compiled.quads : parseRdf(saved).quads;
+            assert.ok(isomorphic(parseRdf(result.stdout).quads, graph));
           } else assert.equal(result.stdout, saved);
           continue;
         }

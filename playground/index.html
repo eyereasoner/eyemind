@@ -756,7 +756,7 @@
           const files = [[name, source.text], ...(source.companions ?? []).map((file) => [file.name, file.text]), [proofName, proof.getValue()]];
           const report = await new Promise((resolve, reject) => { finishRun = resolve; failRun = reject; worker.postMessage({ args, files }); });
           if ((byId('odrl').checked || byId('rdfs').checked || byId('owl-rl').checked || /\.(ttl|srl)$/i.test(name)) && /^PREFIX /m.test(output.getValue())) outputName = 'output.ttl';
-          if (/\.me$/i.test(name) && byId('mode').value === '' && !byId('goal').value.trim()) outputName = 'output.me';
+          if (/\.le$/i.test(name) && byId('mode').value === '' && !byId('goal').value.trim()) outputName = 'output.le';
           byId('messages').textContent = report.stderr;
           byId('messages').hidden = !report.stderr;
           // An error in the program names its line: mark it in the input.
@@ -830,7 +830,7 @@
               else if (stateUrl !== null) applyState(normalizeState(JSON.parse((await fetchSource(stateUrl, '', signal)).text)));
               else {
                 applyState(normalizeState({ source: { name: '-', text: defaultProgram } }));
-                await loadExample(example.replace(/\.(?:js|n3|srl|me|ttl|trig)$/, ''), signal);
+                await loadExample(example.replace(/\.(?:js|n3|srl|le|ttl|trig)$/, ''), signal);
               }
               sharedLoaded = true;
               setShareStatus('Opened shared playground. Changes save locally.');

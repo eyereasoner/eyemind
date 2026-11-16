@@ -1,9 +1,9 @@
 import { assert, cli, errorOf } from './helpers.js';
-import { checkProof, compileMe, loadText, readTerm, run, write, writeMe } from '../src/index.js';
+import { checkProof, compileLe, loadText, readTerm, run, write, writeLe } from '../src/index.js';
 import { inputKind, loadInputs } from '../src/formats.js';
 import { flattenConjunction } from '../src/terms.js';
 
-const compile = (text) => compileMe([[text, 'input.me']]);
+const compile = (text) => compileLe([[text, 'input.le']]);
 const answers = (text) => run(compile(text).program).answers;
 
 export const tests = {
@@ -55,14 +55,14 @@ export const tests = {
     const loaded = compile('Alice is a person. For every X, it is impossible that X is a person and X is blocked. Alice is blocked.');
     const result = run(loaded.program, { proof: true });
     assert.equal(result.haltCode, 65);
-    assert.equal(writeMe(result), 'Contradiction.\n');
+    assert.equal(writeLe(result), 'Contradiction.\n');
     assert.equal(checkProof(loaded.program, result.proof).valid, true);
-    assert.equal(run(compile(writeMe(result)).program).haltCode, 65);
-    assert.equal(writeMe(run(compile('Find every X such that X is a person.').program)), '# No conclusions.\n');
+    assert.equal(run(compile(writeLe(result)).program).haltCode, 65);
+    assert.equal(writeLe(run(compile('Find every X such that X is a person.').program)), '# No conclusions.\n');
   },
 
   'readable witness terms preserve rule, label, arguments and ordinary compounds'() {
-    assert.equal(cli(['examples/records-me.me']).stdout, 'Alice is an owner of witness(rule 4, Y, Alice).\n');
+    assert.equal(cli(['examples/records-le.le']).stdout, 'Alice is an owner of witness(rule 4, Y, Alice).\n');
     const values = [
       "skolem(4, 'Y', ['Alice'])", "skolem(5, 'Y', ['Alice'])", "skolem(4, 'Z', ['Alice'])",
       "skolem(4, 'Y', ['Bob'])", "skolem(4, 'Y', [])", "skolem(4, 'record label', ['Alice', 2])",
@@ -70,7 +70,7 @@ export const tests = {
       "skolem(0, 'Y', ['Alice'])", "skolem(4, 'Y', 'open')",
     ];
     for (const value of values) {
-      const answer = `owns('Alice', ${value})`, text = writeMe({ answers: [answer] });
+      const answer = `owns('Alice', ${value})`, text = writeLe({ answers: [answer] });
       const loaded = compile(text);
       assert.equal(write(loaded.program.sources[0].head), write(readTerm(answer)), text);
       assert.equal(write(loadText(loaded.text).sources[0].head), write(readTerm(answer)), text);
@@ -90,7 +90,7 @@ export const tests = {
       'Find every X such that matching(X).';
     const loaded = compile(text), result = run(loaded.program);
     assert.deepEqual(run(loadText(loaded.text)).answers, result.answers);
-    const output = writeMe(result), read = compile(output);
+    const output = writeLe(result), read = compile(output);
     const before = result.answers.flatMap((a) => flattenConjunction(readTerm(a))).map((t) => write(t));
     const after = read.program.sources.map((s) => write(s.head));
     assert.deepEqual(after.slice(0, -1), before.slice(0, -1));
@@ -101,7 +101,7 @@ export const tests = {
 
   'unsupported syntax and variable mistakes name the source line and the required form'() {
     for (const [text, pattern] of [
-      ['# Header\n\nX is a person.', /input.me: line 3:.*undeclared/],
+      ['# Header\n\nX is a person.', /input.le: line 3:.*undeclared/],
       ['Socrates is a human', /expected "\."/],
       ['Every prime number is odd.', /expected "is"/],
       ['For every X and X, X is human.', /already declared/],
@@ -117,33 +117,33 @@ export const tests = {
   },
 
   'input is data and compiled JavaScript cannot execute names or quoted text'() {
-    const input = 'eval("globalThis.meExecuted = true"). ' + JSON.stringify('\");globalThis.meExecuted=true;//') + ' is a name. Find every X such that X is a name.';
-    delete globalThis.meExecuted;
+    const input = 'eval("globalThis.leExecuted = true"). ' + JSON.stringify('\");globalThis.leExecuted=true;//') + ' is a name. Find every X such that X is a name.';
+    delete globalThis.leExecuted;
     const loaded = compile(input);
     const result = run(loadText(loaded.text));
-    assert.equal(globalThis.meExecuted, undefined);
+    assert.equal(globalThis.leExecuted, undefined);
     assert.equal(result.answers.length, 1);
     assert.deepEqual(result.answers, run(loaded.program).answers);
-    assert.equal(globalThis.meExecuted, undefined);
+    assert.equal(globalThis.leExecuted, undefined);
   },
 
-  'ME files merge, default output is ME and standalone LS and proof workflows agree'() {
-    assert.equal(inputKind('Socrates.ME'), 'me');
-    const loaded = loadInputs([['Socrates is a human.', 'facts.me'], ['Every human is mortal. Find every X such that X is mortal.', 'rules.me']]);
+  'LE files merge, default output is LE and standalone LS and proof workflows agree'() {
+    assert.equal(inputKind('Socrates.LE'), 'le');
+    const loaded = loadInputs([['Socrates is a human.', 'facts.le'], ['Every human is mortal. Find every X such that X is mortal.', 'rules.le']]);
     const result = run(loaded.program, { proof: true });
-    assert.equal(writeMe(result), 'Socrates is a mortal.\n');
+    assert.equal(writeLe(result), 'Socrates is a mortal.\n');
     assert.equal(checkProof(loadText(loaded.text), result.proof).valid, true);
     const forged = result.proof.replace("\nmortal('Socrates')\n", "\nmortal('Plato')\n");
     assert.notEqual(forged, result.proof);
     assert.equal(checkProof(loaded.program, forged).valid, false);
-    const command = cli(['examples/socrates-me.me']);
+    const command = cli(['examples/socrates-le.le']);
     assert.equal(command.code, 0, command.stderr);
     assert.equal(command.stdout, 'Socrates is a mortal.\n');
-    assert.equal(cli(['--check-proof', 'examples/proof/socrates-me.js', 'examples/socrates-me.me']).code, 0);
-    assert.equal(cli(['--prove-and-check', 'examples/socrates-me.me']).code, 0);
-    assert.equal(cli(['--to', 'eyemind', 'examples/socrates-me.me']).stdout, "// Answers: each instance of a query() that holds.\nmortal('Socrates')\n");
-    assert.equal(cli(['--to', 'me'], "fact(mortal('Socrates'))\nquery(mortal(X))").stdout, 'Socrates is a mortal.\n');
-    assert.match(errorOf(() => loadInputs([['Socrates is human.', 'x.me'], ['fact(p)', 'x.js']])), /takes .me files/);
-    assert.match(cli(['--rdfs', 'examples/socrates-me.me']).stderr, /without RDF logic switches/);
+    assert.equal(cli(['--check-proof', 'examples/proof/socrates-le.js', 'examples/socrates-le.le']).code, 0);
+    assert.equal(cli(['--prove-and-check', 'examples/socrates-le.le']).code, 0);
+    assert.equal(cli(['--to', 'eyemind', 'examples/socrates-le.le']).stdout, "// Answers: each instance of a query() that holds.\nmortal('Socrates')\n");
+    assert.equal(cli(['--to', 'le'], "fact(mortal('Socrates'))\nquery(mortal(X))").stdout, 'Socrates is a mortal.\n');
+    assert.match(errorOf(() => loadInputs([['Socrates is human.', 'x.le'], ['fact(p)', 'x.js']])), /takes .le files/);
+    assert.match(cli(['--rdfs', 'examples/socrates-le.le']).stderr, /without RDF logic switches/);
   },
 };
