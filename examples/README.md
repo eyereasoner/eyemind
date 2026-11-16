@@ -31,6 +31,10 @@ These `.srl` programs write Turtle output.
 For ODRL policies and a state-of-the-world snapshot in one Turtle file, try
 [handicap-card issuance](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card).
 With `--odrl`, the compiled LS includes validation and evaluation; the result is one Turtle report.
+For explicit RDF entailment, try the [RDFS people directory](https://eyereasoner.github.io/eyemind/examples/deck/people-rdfs)
+with `--rdfs` and the [OWL-RL family ontology](https://eyereasoner.github.io/eyemind/examples/deck/family-owl-rl)
+with `--owl-rl`. Both compile to standalone LS and write new triples as Turtle;
+the family example also reports an equality conflict.
 For RDF Messages, try [message boundaries and heartbeats](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries-n3),
 [independent alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3),
 or [named-graph provenance](https://eyereasoner.github.io/eyemind/examples/deck/message-provenance-n3).
@@ -112,6 +116,7 @@ original inputs.
 | [family-cousins](https://eyereasoner.github.io/eyemind/examples/deck/family-cousins) | [family-cousins.js](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins.js) | Generations, family branches and cousin relationships |
 | [family-cousins-srl](https://eyereasoner.github.io/eyemind/examples/deck/family-cousins-srl) | [family-cousins-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins-srl.srl) | Bounded generations and inherited branch labels identify cousins across a family tree |
 | [family-n3](https://eyereasoner.github.io/eyemind/examples/deck/family-n3) | [family-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/family-n3.n3) | Notation3 backward ancestry and log:query compiled to Logic Script |
+| [family-owl-rl](https://eyereasoner.github.io/eyemind/examples/deck/family-owl-rl) | [family-owl-rl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-owl-rl.ttl) | OWL-RL chains infer grandparents and functional properties expose a sameAs/differentFrom conflict |
 | [family-recursion-n3](https://eyereasoner.github.io/eyemind/examples/deck/family-recursion-n3) | [family-recursion-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/family-recursion-n3.n3) | Recursive backward ancestry selected by a query |
 | [family-srl](https://eyereasoner.github.io/eyemind/examples/deck/family-srl) | [family-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-srl.srl) | Recursive forward ancestry over a three-generation family tree |
 | [fibonacci](https://eyereasoner.github.io/eyemind/examples/deck/fibonacci) | [fibonacci.js](https://github.com/eyereasoner/eyemind/blob/main/examples/fibonacci.js) | Fast doubling for exact Fibonacci numbers, and the golden ratio |
@@ -156,6 +161,7 @@ original inputs.
 | [peano](https://eyereasoner.github.io/eyemind/examples/deck/peano) | [peano.js](https://github.com/eyereasoner/eyemind/blob/main/examples/peano.js) | Symbolic arithmetic, relational addition and a chained derivation |
 | [peasant](https://eyereasoner.github.io/eyemind/examples/deck/peasant) | [peasant.js](https://github.com/eyereasoner/eyemind/blob/main/examples/peasant.js) | Peasant multiplication and exponentiation by halving and doubling |
 | [pell-equation](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation) | [pell-equation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/pell-equation.js) | Exact Pell solutions through step 50, checked against the defining equation |
+| [people-rdfs](https://eyereasoner.github.io/eyemind/examples/deck/people-rdfs) | [people-rdfs.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/people-rdfs.ttl) | RDFS class and property hierarchies infer people's types and a broader contact relation |
 | [permissions](https://eyereasoner.github.io/eyemind/examples/deck/permissions) | [permissions.js](https://github.com/eyereasoner/eyemind/blob/main/examples/permissions.js) | Role permissions with exclusions |
 | [policy-risk](https://eyereasoner.github.io/eyemind/examples/deck/policy-risk) | [policy-risk.js](https://github.com/eyereasoner/eyemind/blob/main/examples/policy-risk.js) | Ranked findings with explanations and suggested mitigations |
 | [polynomial](https://eyereasoner.github.io/eyemind/examples/deck/polynomial) | [polynomial.js](https://github.com/eyereasoner/eyemind/blob/main/examples/polynomial.js) | Complex roots of polynomials up to degree 4 by Cardan and Lagrange |

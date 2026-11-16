@@ -711,5 +711,19 @@
     "output": "ttl",
     "odrl": true,
     "description": "One ODRL and SOTW snapshot allows Alice's handicap card and reports the conflict that blocks Bob's"
+  },
+  {
+    "name": "people-rdfs",
+    "files": ["people-rdfs.ttl"],
+    "output": "ttl",
+    "rdfs": true,
+    "description": "RDFS class and property hierarchies infer people's types and a broader contact relation"
+  },
+  {
+    "name": "family-owl-rl",
+    "files": ["family-owl-rl.ttl"],
+    "output": "ttl",
+    "owlRl": true,
+    "description": "OWL-RL chains infer grandparents and functional properties expose a sameAs/differentFrom conflict"
   }
 ]

@@ -9,7 +9,10 @@ import { ROOT, assert, cachedCli, cli } from './helpers.js';
 export const section = 'examples';
 
 const MANIFEST = readManifest();
-const inputs = (entry) => [...(entry.odrl ? ['--odrl'] : []), ...sourceFiles(entry).map((file) => `examples/${file}`)];
+const inputs = (entry) => [
+  ...(entry.odrl ? ['--odrl'] : []), ...(entry.rdfs ? ['--rdfs'] : []), ...(entry.owlRl ? ['--owl-rl'] : []),
+  ...sourceFiles(entry).map((file) => `examples/${file}`),
+];
 const CHANGED = (kind) => `${kind} changed; review it, then run node tools/update-examples.js`;
 const read = (path) => readFileSync(path, 'utf8');
 // A saved proof this large is not reasoned over again for what the library

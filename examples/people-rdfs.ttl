@@ -1,0 +1,14 @@
+# A people directory supplies its class and property hierarchy in one graph.
+# --rdfs infers Alice's types, Bob's type and the broader contact relation.
+# This shows explicit RDFS rules compiled to standalone Logic Script.
+# Semantics: W3C RDF Schema, https://www.w3.org/TR/rdf-schema/
+@prefix : <https://example.org/people#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+:Researcher rdfs:subClassOf :Employee .
+:Employee rdfs:subClassOf :Person .
+:colleague rdfs:subPropertyOf :knows ;
+    rdfs:domain :Employee ;
+    rdfs:range :Person .
+:Alice a :Researcher ; :colleague :Bob .

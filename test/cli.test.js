@@ -82,7 +82,7 @@ export const tests = {
     assert.equal(help.stderr, '');
     assert.deepEqual([...help.stdout.matchAll(/^(?:  -[a-z], |      )(--[a-z-]+)/gm)].map((match) => match[1]), [
       '--proof', '--prove-and-check', '--check-proof', '--json', '--goal', '--unused', '--stats',
-      '--max-depth', '--max-iterations', '--max-inferences', '--to', '--all', '--program', '--odrl', '--base', '--stream-messages', '--version', '--help',
+      '--max-depth', '--max-iterations', '--max-inferences', '--to', '--all', '--program', '--odrl', '--rdfs', '--owl-rl', '--base', '--stream-messages', '--version', '--help',
     ]);
     for (const [short, long] of [['-p', '--proof'], ['-c', '--prove-and-check'], ['-v', '--version'], ['-h', '--help']]) {
       assert.ok(help.stdout.includes(`${short}, ${long}`));

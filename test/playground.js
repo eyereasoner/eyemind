@@ -128,6 +128,45 @@ export const tests = [
     await p.select('mode', '');
   }],
 
+  ['RDFS and OWL-RL switches run examples, check proofs and survive shared links', async (page, base) => {
+    const p = driver(page);
+    for (const [name, flag] of [['people-rdfs', 'rdfs'], ['family-owl-rl', 'owl-rl']]) {
+      await p.open(`${base}#example=${name}`);
+      assert.equal(await page.evaluate(`document.getElementById('${flag}').checked`), true);
+      assert.match(await page.evaluate("document.getElementById('command').textContent"), new RegExp('--' + flag));
+      await p.run();
+      assert.match(await p.status(), /^Done · exit 0/);
+      assert.equal(await p.output(), readFileSync(new URL(`../examples/output/${name}.ttl`, import.meta.url), 'utf8'));
+      await page.evaluate(`(() => {
+        HTMLAnchorElement.prototype.click = function () { window.savedFilename = this.download; };
+        document.getElementById('save-output').click();
+      })()`);
+      assert.equal(await page.evaluate('window.savedFilename'), 'output.ttl');
+      await p.select('mode', '--proof');
+      await p.run();
+      const proof = await p.output();
+      await p.select('mode', '--check-proof');
+      await p.type('proof-input', proof);
+      await p.run();
+      assert.match(await p.output(), /verdict\('checked'\)/);
+      await page.evaluate("document.getElementById('share-link').click()");
+      await p.until("document.getElementById('share-url').value.includes('#state=')", 'the entailment switch and proof');
+      await p.open(await page.evaluate("document.getElementById('share-url').value"), 390, true);
+      assert.equal(await page.evaluate(`document.getElementById('${flag}').checked`), true);
+      await p.run();
+      assert.match(await p.output(), /verdict\('checked'\)/);
+      await p.select('mode', '');
+      await p.type('proof-input', '');
+      await page.evaluate(`document.getElementById('${flag}').click()`);
+      await page.evaluate("document.getElementById('share-link').click()");
+      await p.until("document.getElementById('share-url').value.includes('#state=')", 'the disabled entailment switch');
+      await p.open(await page.evaluate("document.getElementById('share-url').value"));
+      assert.equal(await page.evaluate(`document.getElementById('${flag}').checked`), false);
+      await p.run();
+      assert.doesNotMatch(await p.output(), /result_rdf|ent:Conflict/);
+    }
+  }],
+
   ['practical and mathematical examples load from the manifest and run', async (page, base) => {
     const p = driver(page);
     // The corpus checks every example. Here exercise representative browser

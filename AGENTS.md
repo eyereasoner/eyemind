@@ -37,6 +37,7 @@ goals, and keep error messages specific and user-facing text direct.
   - `cli.js`: the command line, with no Node imports so the playground's
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
     library API. `version.js`: the version, synced from `package.json`.
+  - `entailment.js`: explicit `--rdfs` and `--owl-rl` RDF inference and OWL conflict reports, compiled to standalone LS.
   - `formats.js`: inputs by extension and output with `--to`. `rdf.js`:
     RDF 1.2 (Turtle, TriG, N-Triples, N-Quads) to and from eyemind terms,
     read by the RDF parser (`rdf-lexer.js`, `rdf-parser.js`,

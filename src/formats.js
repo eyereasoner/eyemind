@@ -13,6 +13,7 @@
 //
 // The odrl option adds the snapshot profile's validation and evaluation LS
 // to one Turtle input. Its vocabulary alone never enables the evaluator.
+// rdfs and owlRl add the documented entailment rules to RDF inputs.
 //
 // The compiled program is ordinary LS: proofs, checking and --unused
 // apply to it. SRL execution functions capture a context that a saved proof
@@ -24,6 +25,7 @@ import { DEFAULT_GRAPH, parseRdf, rdfDocument, rdfFormat, writeRdf } from './rdf
 import { resultToN3, compileSources } from './n3.js';
 import { compileSrl, srlAnswers, srlQuads } from './srl.js';
 import { compileOdrl } from './odrl.js';
+import { compileEntailment } from './entailment.js';
 import { write } from './writer.js';
 import { isRdfMessageLog, parseRdfMessages } from './messages.js';
 
@@ -45,7 +47,7 @@ export function rdfMessageFormat(name) {
 // Load inputs, given as [text, name] pairs, as one program. io may supply
 // readFile, for the documents N3 and IMPORTS name, and fileIri(name), the
 // base IRI of a file. Returns { kind, program, text, prefixes, compiled }:
-// kind is 'js', 'n3', 'srl' or 'odrl', text the compiled program,
+// kind is 'js', 'n3', 'srl', 'odrl', 'rdfs' or 'owl-rl', text the compiled program,
 // and compiled what writing the conclusions needs.
 export function loadInputs(inputs, io = null, options = {}) {
   try {
@@ -57,7 +59,7 @@ export function loadInputs(inputs, io = null, options = {}) {
   }
 }
 
-function load(inputs, io, { base = null, messageInputs = null, srlContext = null, odrl = false }) {
+function load(inputs, io, { base = null, messageInputs = null, srlContext = null, odrl = false, rdfs = false, owlRl = false }) {
   const kinds = inputs.map(([text, name]) => messageInputs?.has(name) ||
     (inputKind(name) === 'n3' && isRdfMessageLog(text)) ? 'rdf' : inputKind(name));
   const baseOf = (name) => base ?? io?.fileIri?.(name) ?? null;
@@ -65,7 +67,21 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
     (isRdfMessageLog(text) ? parseRdfMessages : parseRdf)(text, {
       format: rdfFormat(name) ?? 'trig', base: baseOf(name), scope: scopeOf(inputs, name, k),
     });
-  // ODRL logic is added only when requested, never from a document's terms.
+  // These rule sets are added only when requested, never from vocabulary.
+  if ((rdfs || owlRl) && odrl) throw new EyemindError('--odrl cannot be combined with --rdfs or --owl-rl');
+  if (rdfs || owlRl) {
+    if (inputs.some(([, name], k) => kinds[k] !== 'rdf' && name !== '<stdin>')) {
+      throw new EyemindError('--rdfs and --owl-rl take RDF inputs; standard input is Turtle');
+    }
+    const prefixes = {}, quads = [];
+    inputs.forEach(([text, name], k) => {
+      const parsed = name === '<stdin>' ? parseRdf(text, { format: 'turtle', base: baseOf(name), scope: scopeOf(inputs, name, k) }) : rdf(text, name, k);
+      if (parsed.triples) throw new EyemindError('--rdfs and --owl-rl take RDF graphs, not RDF Message Logs');
+      Object.assign(prefixes, parsed.prefixes);
+      quads.push(...parsed.quads);
+    });
+    return compileEntailment({ quads, prefixes }, { owl: owlRl, source: inputs.map(([, n]) => n).join(', ') });
+  }
   if (odrl) {
     if (inputs.length !== 1) throw new EyemindError('--odrl takes one Turtle snapshot containing policies, requests and SOTW');
     const [text, name] = inputs[0];
@@ -128,9 +144,9 @@ function importResolver(io) {
   };
 }
 
-// The default output format of a run: N3 for N3, Turtle for SRL and ODRL, and
-// eyemind's own text for a program.
-export const defaultFormat = (kind) => ({ n3: 'n3', srl: 'turtle', odrl: 'turtle' })[kind] ?? 'eyemind';
+// The default output format: N3 for N3, Turtle for SRL and the RDF logic
+// extensions, and eyemind's own text for a program.
+export const defaultFormat = (kind) => ({ n3: 'n3', srl: 'turtle', odrl: 'turtle', rdfs: 'turtle', 'owl-rl': 'turtle' })[kind] ?? 'eyemind';
 
 // The conclusions of a run in an output format; null for eyemind's own text.
 // all also writes the given data. Throws when a conclusion is no triple.
