@@ -220,7 +220,7 @@
       // variables (capitalized or _ names), the statements and controls,
       // JavaScript keywords, predicate names, brackets, and punctuation.
       const jsTokens = new RegExp([
-        /(?<comment>\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$))/,
+        /(?<comment>\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|#[^\n]*)/,
         /(?<string>'(?:[^'\\\n]|\\.)*'?|"(?:[^"\\\n]|\\.)*"?|`(?:[^`\\]|\\.)*`?)/,
         /(?<number>\b(?:\d+n|(?:\d+\.\d*|\.\d+|\d+)(?:[eE][+-]?\d+)?)\b)/,
         /(?<variable>\b[A-Z_][A-Za-z0-9_]*\b)/,
@@ -756,10 +756,11 @@
           const files = [[name, source.text], ...(source.companions ?? []).map((file) => [file.name, file.text]), [proofName, proof.getValue()]];
           const report = await new Promise((resolve, reject) => { finishRun = resolve; failRun = reject; worker.postMessage({ args, files }); });
           if ((byId('odrl').checked || byId('rdfs').checked || byId('owl-rl').checked || /\.(ttl|srl)$/i.test(name)) && /^PREFIX /m.test(output.getValue())) outputName = 'output.ttl';
+          if (/\.me$/i.test(name) && byId('mode').value === '' && !byId('goal').value.trim()) outputName = 'output.me';
           byId('messages').textContent = report.stderr;
           byId('messages').hidden = !report.stderr;
           // An error in the program names its line: mark it in the input.
-          const failedLine = report.stderr.match(/^eyemind: line (\d+):/m);
+          const failedLine = report.stderr.replace(`eyemind: ${name}: `, 'eyemind: ').match(/^eyemind: line (\d+):/m);
           if (failedLine && report.exitCode !== 0) input.markLine(Number(failedLine[1]));
           const verdict = report.exitCode === 0 ? 'Done' : report.exitCode === 65 ? 'Contradiction' :
             report.exitCode === 2 ? 'Proof not valid' : 'Failed';
@@ -829,7 +830,7 @@
               else if (stateUrl !== null) applyState(normalizeState(JSON.parse((await fetchSource(stateUrl, '', signal)).text)));
               else {
                 applyState(normalizeState({ source: { name: '-', text: defaultProgram } }));
-                await loadExample(example.replace(/\.(?:js|n3|ttl|trig)$/, ''), signal);
+                await loadExample(example.replace(/\.(?:js|n3|srl|me|ttl|trig)$/, ''), signal);
               }
               sharedLoaded = true;
               setShareStatus('Opened shared playground. Changes save locally.');

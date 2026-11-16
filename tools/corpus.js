@@ -34,11 +34,12 @@ export function readManifest() {
 
 export const sourceFiles = (entry) => entry.files ?? [`${entry.name}.js`];
 export const outputExtension = (entry) => entry.output ??
-  (sourceFiles(entry).some((file) => file.endsWith('.n3')) ? 'n3' :
+  (sourceFiles(entry).some((file) => file.endsWith('.me')) ? 'me' :
+    sourceFiles(entry).some((file) => file.endsWith('.n3')) ? 'n3' :
     sourceFiles(entry).some((file) => file.endsWith('.srl')) ? 'ttl' : 'js');
 // Every file of an example, sources, data and artifacts alike, is named
-// after the example, and an N3 or SRL example's name ends in -n3 or -srl.
-const nativeSource = (entry) => sourceFiles(entry).find((file) => /\.(n3|srl)$/.test(file));
+// after the example; native N3, SRL and ME names end in -n3, -srl and -me.
+const nativeSource = (entry) => sourceFiles(entry).find((file) => /\.(n3|srl|me)$/.test(file));
 // Proofs and check reports are eyemind's own JavaScript expressions for
 // every example, so all examples keep them in one standard form.
 export function artifactPath(kind, entry) {

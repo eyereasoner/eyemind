@@ -1,5 +1,5 @@
 // The inputs of a run in other formats than Logic Script, and its output as
-// RDF or N3.
+// RDF, N3 or controlled Mathematical English.
 //
 // A file's extension says what it holds:
 //
@@ -10,6 +10,7 @@
 //                            rule set, its base graph
 //   .n3                      Notation3, compiled to an LS program
 //   .srl                     a SPARQL 1.2 RL rule set, compiled to one
+//   .me                      controlled Mathematical English, compiled to LS
 //
 // The odrl option adds the snapshot profile's validation and evaluation LS
 // to one Turtle input. Its vocabulary alone never enables the evaluator.
@@ -26,16 +27,18 @@ import { resultToN3, compileSources } from './n3.js';
 import { compileSrl, srlAnswers, srlQuads } from './srl.js';
 import { compileOdrl } from './odrl.js';
 import { compileEntailment } from './entailment.js';
+import { compileMe, writeMe } from './me.js';
 import { write } from './writer.js';
 import { isRdfMessageLog, parseRdfMessages } from './messages.js';
 
-export const OUTPUT_FORMATS = ['eyemind', 'turtle', 'trig', 'n-triples', 'n-quads', 'n3'];
+export const OUTPUT_FORMATS = ['eyemind', 'turtle', 'trig', 'n-triples', 'n-quads', 'n3', 'me'];
 
-// What a file holds: 'js', 'rdf', 'n3' or 'srl'.
+// What a file holds: 'js', 'rdf', 'n3', 'srl' or 'me'.
 export function inputKind(name) {
   if (rdfFormat(name)) return 'rdf';
   if (/\.n3$/i.test(name)) return 'n3';
   if (/\.srl$/i.test(name)) return 'srl';
+  if (/\.me$/i.test(name)) return 'me';
   return 'js';
 }
 
@@ -47,7 +50,7 @@ export function rdfMessageFormat(name) {
 // Load inputs, given as [text, name] pairs, as one program. io may supply
 // readFile, for the documents N3 and IMPORTS name, and fileIri(name), the
 // base IRI of a file. Returns { kind, program, text, prefixes, compiled }:
-// kind is 'js', 'n3', 'srl', 'odrl', 'rdfs' or 'owl-rl', text the compiled program,
+// kind is 'js', 'n3', 'srl', 'me', 'odrl', 'rdfs' or 'owl-rl', text the compiled program,
 // and compiled what writing the conclusions needs.
 export function loadInputs(inputs, io = null, options = {}) {
   try {
@@ -68,6 +71,12 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
       format: rdfFormat(name) ?? 'trig', base: baseOf(name), scope: scopeOf(inputs, name, k),
     });
   // These rule sets are added only when requested, never from vocabulary.
+  if (kinds.includes('me')) {
+    if (kinds.some((kind) => kind !== 'me') || odrl || rdfs || owlRl) {
+      throw new EyemindError('a Mathematical English run takes .me files without RDF logic switches or other input formats');
+    }
+    return compileMe(inputs);
+  }
   if ((rdfs || owlRl) && odrl) throw new EyemindError('--odrl cannot be combined with --rdfs or --owl-rl');
   if (rdfs || owlRl) {
     if (inputs.some(([, name], k) => kinds[k] !== 'rdf' && name !== '<stdin>')) {
@@ -144,14 +153,15 @@ function importResolver(io) {
   };
 }
 
-// The default output format: N3 for N3, Turtle for SRL and the RDF logic
-// extensions, and eyemind's own text for a program.
-export const defaultFormat = (kind) => ({ n3: 'n3', srl: 'turtle', odrl: 'turtle', rdfs: 'turtle', 'owl-rl': 'turtle' })[kind] ?? 'eyemind';
+// Default output: ME for ME, N3 for N3, Turtle for SRL and the RDF logic
+// extensions, and eyemind's own text for an LS program.
+export const defaultFormat = (kind) => ({ me: 'me', n3: 'n3', srl: 'turtle', odrl: 'turtle', rdfs: 'turtle', 'owl-rl': 'turtle' })[kind] ?? 'eyemind';
 
 // The conclusions of a run in an output format; null for eyemind's own text.
-// all also writes the given data. Throws when a conclusion is no triple.
+// all also writes given RDF or N3 data. Rejects conclusions the format cannot represent.
 export function writeConclusions(loaded, result, { format, all = false, blankNodePrefix = '' } = {}) {
   if (format === 'eyemind') return null;
+  if (format === 'me') return writeMe(result);
   if (format === 'n3') {
     if (loaded.kind !== 'n3') throw new EyemindError('--to n3 writes the conclusions of an N3 run');
     return resultToN3(loaded.compiled.doc, result, { mode: all ? 'all' : 'new', blankNodePrefix }).n3;

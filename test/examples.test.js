@@ -75,8 +75,8 @@ function checkCheck(entry) {
 export const tests = {
   'the manifest covers every source, artifact and deck'() {
     const examples = join(ROOT, 'examples');
-    const sources = readdirSync(examples).filter((name) => /\.(js|n3|srl|ttl|trig)$/.test(name));
-    assert.ok(sources.every((file) => !/\.(n3|srl)$/.test(file) || /-(n3|srl)\.\1$/.test(file)), 'N3 and SRL sources are named NAME-n3.n3 and NAME-srl.srl');
+    const sources = readdirSync(examples).filter((name) => /\.(js|n3|srl|me|ttl|trig)$/.test(name));
+    assert.ok(sources.every((file) => !/\.(n3|srl|me)$/.test(file) || /-(n3|srl|me)\.\1$/.test(file)), 'N3, SRL and ME sources are named NAME-n3.n3, NAME-srl.srl and NAME-me.me');
     assert.ok(sources.every((file) => !/^(n3-|rdf12-)/.test(file)));
     sources.push(...readdirSync(join(examples, 'data')).map((name) => `data/${name}`));
     assert.deepEqual(sources.sort(), MANIFEST.flatMap(sourceFiles).sort());

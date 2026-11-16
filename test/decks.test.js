@@ -362,7 +362,7 @@ for (const entry of MANIFEST) {
         }
         const proofMode = args.some((arg) => ['--proof', '-p', '--check-proof', '--prove-and-check', '-c', '--unused'].includes(arg));
         const explicitFormat = args.includes('--to') ? args[args.indexOf('--to') + 1] : null;
-        const native = args.some((arg) => /\.(n3|srl|ttl)$/.test(arg));
+        const native = args.some((arg) => /\.(n3|srl|me|ttl)$/.test(arg));
         if (!proofMode && (native || explicitFormat) && explicitFormat !== 'eyemind') {
           assert.equal(result.code, entry.halt_code ?? 0, result.stderr);
           const saved = readFileSync(artifactPath('output', entry), 'utf8');

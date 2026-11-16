@@ -725,5 +725,20 @@
     "output": "ttl",
     "owlRl": true,
     "description": "OWL-RL chains infer grandparents and functional properties expose a sameAs/differentFrom conflict"
+  },
+  {
+    "name": "socrates-me",
+    "files": ["socrates-me.me"],
+    "description": "Mathematical English class facts and an every-rule conclude that Socrates is mortal"
+  },
+  {
+    "name": "squares-me",
+    "files": ["squares-me.me"],
+    "description": "Mathematical English computes exact squares of three supplied integers"
+  },
+  {
+    "name": "records-me",
+    "files": ["records-me.me"],
+    "description": "Explicit absence and an existential conclusion give Alice a fresh record while Bob is blocked"
   }
 ]

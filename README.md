@@ -3,11 +3,11 @@
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23824021-blue.svg)](https://doi.org/10.5281/zenodo.23824021)
 [![npm](https://img.shields.io/npm/v/eyemind.svg)](https://www.npmjs.com/package/eyemind)
 
-eyemind is a dependency-free reasoner for **Logic Script (LS)**, a rule language with JavaScript syntax. LS programs state facts, rules, and queries; eyemind draws conclusions using forward and backward reasoning, and can produce proofs that a separate checker verifies against your program. It interoperates with **RDF 1.2**, **Notation3 (N3)** and **SPARQL 1.2 RL (SRL)**: RDF supplies data, and N3 and SRL compile to LS programs whose proofs use the same checker. It runs as a command-line program, a JavaScript library, and a browser application.
+eyemind is a dependency-free reasoner for **Logic Script (LS)**, a rule language with JavaScript syntax. LS programs state facts, rules, and queries; eyemind draws conclusions using forward and backward reasoning, and can produce proofs that a separate checker verifies against your program. It interoperates with **RDF 1.2**, **Notation3 (N3)** and **SPARQL 1.2 RL (SRL)**: RDF supplies data, and N3 and SRL compile to LS programs whose proofs use the same checker. Controlled **Mathematical English (ME)** also compiles to LS and writes `.me` conclusions. It runs as a command-line program, a JavaScript library, and a browser application.
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and how a proof is checked. The examples are 138 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1246 cases that test language and proof behavior through a command adapter, together with implementation interface checks; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and how a proof is checked. The examples are 141 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1246 cases that test language and proof behavior through a command adapter, together with implementation interface checks; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -18,6 +18,7 @@ The playground runs programs in your browser; the specification defines the lang
   - [Terms and names](#terms-and-names)
   - [Deriving rules](#deriving-rules)
   - [Inspecting rules](#inspecting-rules)
+  - [Mathematical English](#mathematical-english)
   - [RDF 1.2](#rdf-12)
   - [Notation3](#notation3)
   - [RDF Messages](#rdf-messages)
@@ -178,6 +179,46 @@ query(test(X, Y))
 ```
 
 The answer is `test(a(A), c(A))`, with the shared variable preserved. Inspection sees ordinary source rules only, not facts, queries, generators or itself, and its proof step names the source rule it matched. See the [rule inspection deck](https://eyereasoner.github.io/eyemind/examples/deck/rule-inspection) and [SPEC §6.3](https://eyereasoner.github.io/eyemind/SPEC#63-source-rule-inspection).
+
+### Mathematical English
+
+A `.me` file is [controlled Mathematical English](https://eyereasoner.github.io/eyemind/MATHEMATICAL-ENGLISH),
+compiled deterministically into LS. Facts, class rules, quantified if/then rules,
+calculations, explicit absence tests, existential conclusions, questions and
+contradictions have a fixed grammar. Unsupported prose is an error.
+
+```text
+Socrates is a human.
+Every human is mortal.
+Find every X such that X is mortal.
+```
+
+```sh
+eyemind examples/socrates-me.me > /tmp/socrates-me.me
+eyemind --program examples/socrates-me.me > /tmp/socrates-me.js
+eyemind --to me /tmp/socrates-me.js
+eyemind --proof examples/socrates-me.me > /tmp/socrates-me-proof.js
+eyemind --check-proof /tmp/socrates-me-proof.js examples/socrates-me.me
+```
+
+Conclusions default to `.me`: `Socrates is a mortal.`. They can supply facts to
+another ME program. `--to me` also writes supported LS conclusions in this
+format. Proofs and check reports remain `.js`, and the standalone compilation
+contains all its LS clauses with source sentence locations. The existing checker
+checks the compiled LS; the documented grammar and compiler tests define the
+English translation.
+
+Multiple `.me` files form one program. Names are case-sensitive, variables such
+as `X` and `Y1` are explicitly declared within each sentence, and integers stay
+exact. Arithmetic and absence tests require their inputs from earlier premises;
+absence is written `it is not known that`, with LS's stratified meaning. A rule
+can introduce witnesses with `there exists`. ME uses the ordinary LS resource
+bounds; recursive and existential rules can still have an infinite closure.
+
+The playground loads ME examples and downloads conclusions as `output.me`.
+Try [Socrates](https://eyereasoner.github.io/eyemind/examples/deck/socrates-me),
+[exact squares](https://eyereasoner.github.io/eyemind/examples/deck/squares-me)
+and [record creation](https://eyereasoner.github.io/eyemind/examples/deck/records-me).
 
 ### RDF 1.2
 
@@ -670,7 +711,7 @@ eyemind [OPTION ...] [FILE ...]
 
 | Option | Meaning |
 | --- | --- |
-| (none) | Load the files, or standard input, as one program and print its conclusions. `.js` files and standard input are Logic Script, `.ttl`, `.trig`, `.nt` and `.nq` files RDF data, `.n3` Notation3 and `.srl` a SPARQL 1.2 RL rule set. |
+| (none) | Load the files, or standard input, as one program and print its conclusions. `.js` files and standard input are Logic Script, `.ttl`, `.trig`, `.nt` and `.nq` files RDF data, `.n3` Notation3, `.srl` a SPARQL 1.2 RL rule set and `.me` controlled Mathematical English. |
 | `-p`, `--proof` | Print the proof instead. |
 | `-c`, `--prove-and-check` | Generate a proof, check it, and print the checked answers with the report. |
 | `--check-proof FILE` | Check a saved proof (`-` for standard input) against the program. |
@@ -680,7 +721,7 @@ eyemind [OPTION ...] [FILE ...]
 | `--stream-messages` | Read an RDF Message Log and run the rules independently per message; Node reads files, stdin and HTTP(S) incrementally. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3, SRL, ODRL, RDFS or OWL-RL program has 1000000, 100000 and 1000000000. |
-| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3` or `eyemind`; by default N3 for N3, Turtle for SRL, ODRL, RDFS and OWL-RL, eyemind otherwise. |
+| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `me` or `eyemind`; by default ME for ME, N3 for N3, Turtle for SRL, ODRL, RDFS and OWL-RL, eyemind otherwise. |
 | `--all` | With RDF or N3 output, write the given data too. |
 | `--program` | Print the program the inputs compile to. |
 | `--odrl` | Add the ODRL snapshot profile's validation and evaluation LS to one Turtle input. |
@@ -695,7 +736,7 @@ each goal as a data document, with an array denoting conjunction. With
 `--check-proof`, supply the original goals the proof answers.
 An option that takes a value requires it immediately afterward; another
 option, including a short alias such as `-v`, is reported as a missing value.
-With `--goal`, answers default to eyemind terms even for N3, SRL, ODRL, RDFS and OWL-RL inputs;
+With `--goal`, answers default to eyemind terms even for ME, N3, SRL, ODRL, RDFS and OWL-RL inputs;
 use `--to` to request another output format.
 
 With `--prove-and-check`, reasoning bounds and `--stats` apply to proof
@@ -796,7 +837,7 @@ console.log(result.bindings);
 console.log(checkProof(socrates, result.proof, { goals }).valid);
 ```
 
-`run()` returns `conclusions`, `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `conclusions` holds the answer terms; `answers`, `bindings` and `stdout` are rendered when first read. Ground N3 conclusions are written directly from their terms. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals })` checks a proof. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text.
+`run()` returns `conclusions`, `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `conclusions` holds the answer terms; `answers`, `bindings` and `stdout` are rendered when first read. Ground N3 conclusions are written directly from their terms. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals })` checks a proof. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text. `compileMe([[text, filename], ...])` returns the compiled LS `program` and standalone JavaScript `text`; `writeMe(run(program))` writes its conclusions as ME.
 
 ## What is deliberately absent
 

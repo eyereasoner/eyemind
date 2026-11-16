@@ -31,6 +31,10 @@ These `.srl` programs write Turtle output.
 For ODRL policies and a state-of-the-world snapshot in one Turtle file, try
 [handicap-card issuance](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card).
 With `--odrl`, the compiled LS includes validation and evaluation; the result is one Turtle report.
+For controlled Mathematical English, try [Socrates](https://eyereasoner.github.io/eyemind/examples/deck/socrates-me),
+[integer squares](https://eyereasoner.github.io/eyemind/examples/deck/squares-me) and
+[record creation](https://eyereasoner.github.io/eyemind/examples/deck/records-me).
+Their sources and conclusions use `NAME-me.me`; proofs and check reports use `NAME-me.js`.
 For explicit RDF entailment, try the [RDFS people directory](https://eyereasoner.github.io/eyemind/examples/deck/people-rdfs)
 with `--rdfs` and the [OWL-RL family ontology](https://eyereasoner.github.io/eyemind/examples/deck/family-owl-rl)
 with `--owl-rl`. Both compile to standalone LS and write new triples as Turtle;
@@ -51,7 +55,7 @@ eyemind --check-proof examples/proof/socrates.js examples/socrates.js
 Each program has a matching conclusion file in `output/`, a certificate in
 `proof/`, and its check report in `check/`. JavaScript examples
 save term documents as `.js`; N3 examples save `.n3` output, SRL examples
-save Turtle as `.ttl`, and the text report saves `.txt`. Proofs and check
+save Turtle as `.ttl`, ME examples save `.me`, and the text report saves `.txt`. Proofs and check
 reports are JavaScript expressions read as data, saved as `.js` for every
 example. Every file of an example is named after the
 example, and the name of an N3 or SRL example ends in `-n3` or `-srl`:
@@ -170,6 +174,7 @@ original inputs.
 | [quantifier-scopes-n3](https://eyereasoner.github.io/eyemind/examples/deck/quantifier-scopes-n3) | [quantifier-scopes-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/quantifier-scopes-n3.n3) | An @forSome of the document reaches into quoted formulas, and an inner declaration shadows it |
 | [queens](https://eyereasoner.github.io/eyemind/examples/deck/queens) | [queens.js](https://github.com/eyereasoner/eyemind/blob/main/examples/queens.js) | Configurable N-queens search with diagonal constraints |
 | [reachability](https://eyereasoner.github.io/eyemind/examples/deck/reachability) | [reachability.js](https://github.com/eyereasoner/eyemind/blob/main/examples/reachability.js) | Finite closure in a graph containing a cycle |
+| [records-me](https://eyereasoner.github.io/eyemind/examples/deck/records-me) | [records-me.me](https://github.com/eyereasoner/eyemind/blob/main/examples/records-me.me) | Explicit absence and an existential conclusion give Alice a fresh record while Bob is blocked |
 | [report-n3](https://eyereasoner.github.io/eyemind/examples/deck/report-n3) | [report-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/report-n3.n3) | A formatted text report of fruit quantities, prices and costs |
 | [research-portal](https://eyereasoner.github.io/eyemind/examples/deck/research-portal) | [research-portal.js](https://github.com/eyereasoner/eyemind/blob/main/examples/research-portal.js) | A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans |
 | [restricted-chase-n3](https://eyereasoner.github.io/eyemind/examples/deck/restricted-chase-n3) | [restricted-chase-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/restricted-chase-n3.n3) | Reuse supplied fathers and generate a Skolem father IRI only where none is supplied |
@@ -183,8 +188,10 @@ original inputs.
 | [shortest-path](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path) | [shortest-path.js](https://github.com/eyereasoner/eyemind/blob/main/examples/shortest-path.js) | Weighted paths and stratified minimum selection |
 | [sieve](https://eyereasoner.github.io/eyemind/examples/deck/sieve) | [sieve.js](https://github.com/eyereasoner/eyemind/blob/main/examples/sieve.js) | The sieve of Eratosthenes over an explicit list of integers |
 | [socrates](https://eyereasoner.github.io/eyemind/examples/deck/socrates) | [socrates.js](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates.js) | Class membership derived through a subclass rule |
+| [socrates-me](https://eyereasoner.github.io/eyemind/examples/deck/socrates-me) | [socrates-me.me](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates-me.me) | Mathematical English class facts and an every-rule conclude that Socrates is mortal |
 | [socrates-n3](https://eyereasoner.github.io/eyemind/examples/deck/socrates-n3) | [socrates-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates-n3.n3) | Class membership follows the subclass hierarchy in Notation3 |
 | [socrates-srl](https://eyereasoner.github.io/eyemind/examples/deck/socrates-srl) | [socrates-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates-srl.srl) | Class membership follows the subclass hierarchy in SPARQL 1.2 RL |
+| [squares-me](https://eyereasoner.github.io/eyemind/examples/deck/squares-me) | [squares-me.me](https://github.com/eyereasoner/eyemind/blob/main/examples/squares-me.me) | Mathematical English computes exact squares of three supplied integers |
 | [state-transitions](https://eyereasoner.github.io/eyemind/examples/deck/state-transitions) | [state-transitions.js](https://github.com/eyereasoner/eyemind/blob/main/examples/state-transitions.js) | Account balances from an ordered event log |
 | [strings](https://eyereasoner.github.io/eyemind/examples/deck/strings) | [strings.js](https://github.com/eyereasoner/eyemind/blob/main/examples/strings.js) | Text construction and Unicode inspection |
 | [strings-srl](https://eyereasoner.github.io/eyemind/examples/deck/strings-srl) | [strings-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/strings-srl.srl) | Directory listings, initials and language information from Unicode names |
