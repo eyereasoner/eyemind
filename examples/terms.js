@@ -23,10 +23,12 @@ fact(
     ),
   ),
 )
+
 // List membership, and a triple's membership of a graph.
 fact(member_of(X, [X, ..._]))
 implied_by(member_of(X, [_, ...Xs]), member_of(X, Xs))
 implied_by(includes(graph(Triples), Triple), member_of(Triple, Triples))
 implies([quoted(G), includes(G, T)], found(T))
+
 // W occurs only in the head: one fresh Skolem term per quoted graph.
 implies(quoted(X), witness(X, W))

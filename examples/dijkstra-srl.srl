@@ -19,6 +19,7 @@ WHERE {
   SET(?total := ?left + ?right)
 }
 
+# Compare only paths with the same endpoints when marking a more costly alternative.
 RULE { ?path :dominated true }
 WHERE {
   ?path a :Path ; :from ?from ; :to ?to ; :cost ?cost .
@@ -26,6 +27,7 @@ WHERE {
   FILTER(?betterCost < ?cost)
 }
 
+# Keep paths for which no cheaper listed alternative was found.
 RULE { ?path :best true }
 WHERE {
   ?path a :Path .

@@ -45265,6 +45265,7 @@ implied_by(
   unvisited(Airport, [Other, ...Rest]),
   [not_unify(Airport, Other), unvisited(Airport, Rest)],
 )
+
 // Translate the route's airport ids into airport names.
 fact(airport_names([], []))
 implied_by(

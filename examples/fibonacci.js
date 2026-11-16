@@ -10,6 +10,7 @@
 // Integers are exact however large they get; div gives a float.
 
 implied_by(fib(N, F), [ge(N, 0), fib_pair(N, F, _)])
+
 // fib_pair(N, F(N), F(N+1))
 fact(fib_pair(0, 0, 1))
 implied_by(
@@ -23,10 +24,12 @@ implied_by(
     parity_pair(N, C, D, A, B),
   ],
 )
+
 // For even N the pair is (F(2K), F(2K+1)); for odd N it moves one step on,
 // to (F(2K+1), F(2K) + F(2K+1)).
 implied_by(parity_pair(N, C, D, A, B), [eq(0, mod(N, 2)), unify(A, C), unify(B, D)])
 implied_by(parity_pair(N, C, D, A, B), [eq(1, mod(N, 2)), unify(A, D), is(B, add(C, D))])
+
 // The ratio of successive Fibonacci numbers converges on the golden ratio.
 implied_by(
   golden_ratio(N, Ratio),

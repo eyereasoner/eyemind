@@ -10,6 +10,7 @@
 // steps reach every solution.
 
 fact(requested_step(0), requested_step(1), requested_step(5), requested_step(8), requested_step(50))
+
 // pell(N, X, Y): the solution reached after N steps.
 fact(pell(0, 1, 0))
 implied_by(pell(N, X, Y), [

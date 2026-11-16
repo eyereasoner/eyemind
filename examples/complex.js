@@ -26,6 +26,7 @@ implied_by(
   [is(R, sub(mul(A, C), mul(B, D))), is(I, add(mul(A, D), mul(B, C)))],
 )
 implied_by(complex_conjugate(complex(A, B), complex(A, N)), is(N, neg(B)))
+
 // Dividing by a nonzero divisor scales by its norm. div always gives a float,
 // so every quotient is a float pair, even one that divides exactly.
 implied_by(
@@ -37,9 +38,11 @@ implied_by(
     is(I, div(sub(mul(B, C), mul(A, D)), Norm)),
   ],
 )
+
 // The norm of a Gaussian integer is an exact integer; the modulus is its root.
 implied_by(complex_norm(complex(A, B), Norm), is(Norm, add(mul(A, A), mul(B, B))))
 implied_by(complex_modulus(Z, Modulus), [complex_norm(Z, Norm), is(Modulus, sqrt(Norm))])
+
 // Integer powers by repeated squaring: square the base and halve the exponent,
 // so the recursion is only about log2(Exponent) calls deep.
 fact(complex_power(_, 0, complex(1, 0)))
@@ -61,27 +64,33 @@ implied_by(
 
 fact(point('z', complex(3, 4)))
 fact(point('w', complex(1, 2)))
+
 // Multiplying by 1+i rotates by an eighth turn and scales by the square root of 2.
 fact(turn(complex(1, 1)))
 fact(turns(8))
 
 implies([point('z', Z), point('w', W), complex_add(Z, W, Sum)], sum(Sum))
 implies([point('z', Z), point('w', W), complex_mul(Z, W, Product)], product(Product))
+
 // Dividing the product by w recovers z, as the float pair 3.0+4.0i: the norm
 // divides both parts exactly.
 implies(
   [product(Product), point('w', W), complex_div(Product, W, Quotient)],
   quotient(Quotient),
 )
+
 // The same division with an indivisible numerator leaves the integers.
 implies([point('z', Z), point('w', W), complex_div(Z, W, Ratio)], ratio(Ratio))
+
 // i*i = -1 follows from the multiplication clause rather than being assumed.
 implies(complex_mul(complex(0, 1), complex(0, 1), Square), unit_square(Square))
+
 // Multiplying by the conjugate leaves the norm and no imaginary part.
 implies(
   [point(Name, Z), complex_conjugate(Z, Conjugate), complex_mul(Z, Conjugate, Product)],
   conjugate_product(Name, Product),
 )
+
 // The Gaussian norm is multiplicative: N(z) * N(w) = N(z*w).
 implies(
   [
@@ -94,6 +103,7 @@ implies(
   ],
   norm_multiplicative(Nz, Nw, Nzw),
 )
+
 // Eight eighth-turns return to the positive real axis, at 2^4.
 implies(
   [turn(Base), turns(Exponent), complex_power(Base, Exponent, Result)],
@@ -127,6 +137,7 @@ implied_by(
   quadrant_angle(X, Y, Reference, Angle),
   [ge(X, 0), lt(Y, 0), pi_value(Pi), is(Angle, sub(mul(2, Pi), Reference))],
 )
+
 // For w = c+di and z with modulus |z| and angle t:
 // z^w = |z|^c * e^(-d*t) * (cos(d*ln|z| + c*t) + i*sin(d*ln|z| + c*t)).
 implied_by(
@@ -139,6 +150,7 @@ implied_by(
     is(F, mul(Magnitude, sin(Phase))),
   ],
 )
+
 // Inverse sine and cosine of a complex argument, through the same real parts.
 implied_by(
   complex_half_axes(complex(A, B), Minor, Major),
@@ -177,6 +189,7 @@ implied_by(
     complex_div(complex(LogR, Angle), complex(LogBase, BaseAngle), Result),
   ],
 )
+
 // Sine and cosine of a complex argument, through the real hyperbolic parts.
 implied_by(
   complex_sin(complex(A, B), complex(C, D)),
@@ -212,6 +225,7 @@ implied_by(
 fact(exponent_case('root', complex(-1, 0), complex(0.5, 0)))
 fact(exponent_case('euler', complex(2.718281828459045, 0), complex(0, 3.141592653589793)))
 fact(exponent_case('self_power', complex(0, 1), complex(0, 1)))
+
 // e to the power -pi/2, rounded, should come close to i^i above.
 fact(exponent_case('real_power', complex(2.718281828459045, 0), complex(-1.57079632679, 0)))
 fact(inverse_case(complex(2, 0)))
@@ -226,9 +240,11 @@ implies(
   logarithm('natural', Value),
 )
 implies(complex_log(complex(0, 1), complex(0, 1), Value), logarithm('imaginary', Value))
+
 // Sine and cosine invert the arcsine and arccosine above, back to 2.
 implies([arcsine(_, Angle), complex_sin(Angle, Value)], sine(Value))
 implies([arccosine(_, Angle), complex_cos(Angle, Value)], cosine(Value))
+
 // Tangent and arctangent likewise round-trip 1+2i.
 implies(complex_atan(complex(1, 2), Value), arctangent(Value))
 implies([arctangent(Angle), complex_tan(Angle, Value)], tangent(Value))

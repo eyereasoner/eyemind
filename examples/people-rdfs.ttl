@@ -2,13 +2,19 @@
 # --rdfs infers Alice's types, Bob's type and the broader contact relation.
 # This shows explicit RDFS rules compiled to standalone Logic Script.
 # Semantics: W3C RDF Schema, https://www.w3.org/TR/rdf-schema/
+
 @prefix : <https://example.org/people#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
+# Class membership follows both levels of this hierarchy.
 :Researcher rdfs:subClassOf :Employee .
 :Employee rdfs:subClassOf :Person .
+
+# Using colleague also implies knows and types both ends of the relation.
 :colleague rdfs:subPropertyOf :knows ;
     rdfs:domain :Employee ;
     rdfs:range :Person .
+
+# The directory supplies only Alice's specific type and her colleague link.
 :Alice a :Researcher ; :colleague :Bob .

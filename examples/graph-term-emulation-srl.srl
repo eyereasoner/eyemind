@@ -21,6 +21,7 @@ DATA {
   :note1 :aboutGraphTerm :g1 .
 }
 
+# Follow the list cells belonging to each graph description.
 RULE { ?g :listCell ?cell }
 WHERE {
   ?g :quotedTriples ?cell .
@@ -32,6 +33,7 @@ WHERE {
   ?cell rdf:rest ?rest .
 }
 
+# Inspect the quoted triples without asserting their contents as ordinary data.
 RULE { ?g a :SocialGraphTerm }
 WHERE {
   ?g a :GraphTerm ;

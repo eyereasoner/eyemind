@@ -12,11 +12,14 @@
 implied_by(
   computus(Year, [Month, Day]),
   [
+
     // the year's place in the 19-year cycle of moon phases
     is(A, mod(Year, 19)),
+
     // century and year within the century
     is(B, floordiv(Year, 100)),
     is(C, mod(Year, 100)),
+
     // roughly the days from 21 March to the paschal full moon, with the
     // Gregorian century corrections
     is(
@@ -32,11 +35,13 @@ implied_by(
         30,
       ),
     ),
+
     // the weekday correction that moves the date on to a Sunday
     is(
       E,
       mod(sub(sub(add(add(32, mul(2, mod(B, 4))), mul(2, floordiv(C, 4))), D), mod(C, 4)), 7),
     ),
+
     // the date as Month * 31 + (Day - 1); the 451 term moves the few dates
     // that would come out too late back one week
     is(F, add(sub(add(D, E), mul(7, floordiv(add(add(A, mul(11, D)), mul(22, E)), 451))), 114)),

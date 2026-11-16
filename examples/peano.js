@@ -12,14 +12,18 @@
 
 fact(add(A, 'zero', A))
 implied_by(add(A, s(B), s(C)), add(A, B, C))
+
 // multiply(A, B, C) means A * B = C: A * 0 = 0, and A * (B + 1) = A * B + A.
 fact(multiply(_, 'zero', 'zero'))
 implied_by(multiply(A, s(B), C), [multiply(A, B, D), add(A, D, C)])
+
 // 0! = 1, and (N + 1)! = (N + 1) * N!.
 fact(factorial('zero', s('zero')))
 implied_by(factorial(s(N), F), [factorial(N, Before), multiply(s(N), Before, F)])
+
 // Addition run backward enumerates every way of splitting a known sum.
 query(add(A, B, s(s(s('zero')))))
+
 // One derivation chains all three relations: (1*2)+3 = 5, then 5! = 120.
 query(
   multiply(s('zero'), s(s('zero')), Product),

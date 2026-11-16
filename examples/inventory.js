@@ -13,6 +13,7 @@ fact(item('apple', 3, 2))
 fact(item('pear', 4, 3))
 fact(item('plum', 2, 5))
 implies([item(Name, Quantity, Price), is(Total, mul(Quantity, Price))], line_total(Name, Total))
+
 // sum(Numbers, Total): Total is the sum of the list Numbers.
 fact(sum([], 0))
 implied_by(sum([X, ...Xs], Total), [sum(Xs, Rest), is(Total, add(X, Rest))])

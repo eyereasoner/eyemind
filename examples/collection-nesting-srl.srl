@@ -17,5 +17,6 @@ WHERE { :root :nested/rdf:rest/rdf:first ?second }
 RULE { :test :secondProperty ?object }
 WHERE { :root :nested/rdf:rest/rdf:first/:p ?object }
 
+# The third outer item is itself a list, so one more rdf:first reaches its number.
 RULE { :test :thirdFirst ?item }
 WHERE { :root :nested/rdf:rest/rdf:rest/rdf:first/rdf:first ?item }

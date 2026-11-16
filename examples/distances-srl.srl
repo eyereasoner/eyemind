@@ -2,6 +2,7 @@
 # are computed only for routes whose base data has none, so a given value is
 # never overwritten. Shows SET with arithmetic, an xsd:integer cast, and
 # NOT DATA, which looks only at the base graph supplied with the rule set.
+
 PREFIX : <http://example.org/routes#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 

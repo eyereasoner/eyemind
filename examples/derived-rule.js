@@ -9,5 +9,6 @@
 fact(type('Minka', 'Cat'))
 fact(type('Charly', 'Dog'))
 
+// The cat enables the rule; the dog is matched only when that new rule runs.
 implies(type(X, 'Cat'),
   implies(type(Y, 'Dog'), t('test', 'is', 'true')))

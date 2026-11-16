@@ -18,15 +18,18 @@ implied_by(
   zebra(WaterDrinker, ZebraOwner),
   [
     unify(Houses, [_, _, _, _, _]),
+
     // Milk is drunk in the middle house; the Norwegian lives in the first.
     unify(Houses, [_, _, house(_, _, _, 'milk', _), _, _]),
     unify(Houses, [house(_, 'norwegian', _, _, _), ..._]),
+
     // The Norwegian lives next to the blue house.
     adjacent(house(_, 'norwegian', _, _, _), house('blue', _, _, _, _), Houses),
     member(house('red', 'english', _, _, _), Houses),
     member(house(_, 'spanish', 'dog', _, _), Houses),
     member(house('green', _, _, 'coffee', _), Houses),
     member(house(_, 'ukrainian', _, 'tea', _), Houses),
+
     // The green house is immediately right of the ivory house.
     next_to(house('ivory', _, _, _, _), house('green', _, _, _, _), Houses),
     member(house(_, _, 'snail', _, 'old_gold'), Houses),
@@ -37,6 +40,7 @@ implied_by(
     member(house(_, 'japanese', _, _, 'parliaments'), Houses),
     member(house(_, WaterDrinker, _, 'water', _), Houses),
     member(house(_, ZebraOwner, 'zebra', _, _), Houses),
+
     // The puzzle takes for granted that the street is fully known and that no
     // two houses share a colour, nationality, pet, drink or brand.
     is_ground(Houses),
@@ -46,10 +50,12 @@ implied_by(
 
 fact(member(X, [X, ..._]))
 implied_by(member(X, [_, ...Rest]), member(X, Rest))
+
 // next_to(X, Y, Houses): X is immediately left of Y; adjacent: either way round.
 fact(next_to(X, Y, [X, Y, ..._]))
 implied_by(next_to(X, Y, [_, ...Rest]), next_to(X, Y, Rest))
 implied_by(adjacent(A, B, Houses), or(next_to(A, B, Houses), next_to(B, A, Houses)))
+
 // all_different(Houses): every house differs from every later one in each of
 // its five values.
 fact(all_different([]))

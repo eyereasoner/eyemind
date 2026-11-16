@@ -74,6 +74,7 @@ fact(t('dpv:Advertising', 'skos:broader', 'dpv:Marketing'))
 // Parties and data.
 fact(t('ex:partnerBE', 'odrl:partOf', 'ex:consortium'))
 fact(t('ex:partnerUS', 'odrl:partOf', 'ex:consortium'))
+
 // The lab results are special-category personal data (dpv:SpecialCategoryPersonalData);
 // the policy's conditions, not a type triple, carry what that requires here.
 
@@ -267,6 +268,7 @@ fact(
     20261115,
   ),
 )
+
 // Each process fact reads as triples about the process.
 implied_by(t(P, 'rdf:type', 'dpv:Process'), process(P, _, _, _, _, _, _, _, _, _))
 implied_by(t(P, 'dpv:hasDataController', X), process(P, X, _, _, _, _, _, _, _, _))
@@ -330,8 +332,10 @@ implied_by(
     not(met(P, C)),
   ],
 )
+
 // A rule applies when it addresses the process and no constraint is unmet.
 implied_by(applies(P, Rule), [addresses(P, Rule), findall(Why, unmet(P, Rule, Why), [])])
+
 // A policy governs a process when it is an agreement assigned by the
 // process's data controller.
 implied_by(
@@ -354,6 +358,7 @@ implied_by(
   candidate(P, Rule),
   [governs(Policy, P), t(Policy, 'odrl:permission', Rule), addresses(P, Rule)],
 )
+
 // The policy can be evaluated only when its conflict rule is exactly
 // odrl:prohibit, the one this example supports.
 implied_by(

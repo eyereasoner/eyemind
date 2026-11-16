@@ -42,11 +42,13 @@ implied_by(lookup(Name, [[Other, _], ...Rest], Type), [not_identical(Name, Other
 fact(type_expr(_, int_lit(_), 'int'))
 fact(type_expr(_, bool_lit(_), 'bool'))
 implied_by(type_expr(Env, ref(Name), Type), lookup(Name, Env, Type))
+
 // A function's body is typed with its parameter added to the environment.
 implied_by(
   type_expr(Env, lam(Name, ArgType, Body), fun(ArgType, BodyType)),
   type_expr([[Name, ArgType], ...Env], Body, BodyType),
 )
+
 // A call needs a function whose parameter type is the argument's type; the
 // shared variable ArgType makes the two agree.
 implied_by(
@@ -54,6 +56,7 @@ implied_by(
   [type_expr(Env, Fn, fun(ArgType, ResultType)), type_expr(Env, Arg, ArgType)],
 )
 implied_by(type_expr(Env, add(Left, Right), 'int'), [type_expr(Env, Left, 'int'), type_expr(Env, Right, 'int')])
+
 // Both branches of a conditional must have the same type.
 implied_by(
   type_expr(Env, cond(Cond, Then, Else), Type),
@@ -63,6 +66,7 @@ implied_by(
   type_expr(Env, pair(Left, Right), pair(LeftType, RightType)),
   [type_expr(Env, Left, LeftType), type_expr(Env, Right, RightType)],
 )
+
 // fst and snd take the first and the second item of a pair. No program here
 // uses snd; its rule completes the language.
 implied_by(type_expr(Env, fst(Pair), LeftType), type_expr(Env, Pair, pair(LeftType, _)))

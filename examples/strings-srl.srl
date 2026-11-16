@@ -1,6 +1,7 @@
 # Names are tidied for a directory listing: an upper-case surname, initials,
 # and a sort key; names in other scripts keep their language tag. Shows
 # string functions, CONCAT, and the language of a literal.
+
 PREFIX : <http://example.org/people#>
 
 DATA {
@@ -15,4 +16,6 @@ WHERE {
   SET(?i := SUBSTR(?g, 1, 1))
   SET(?listing := CONCAT(UCASE(?f), ", ", ?g))
 }
+
+# Read the language tag directly; do not rebuild a name from its spelling.
 RULE { ?p :script ?lang ; :length ?n } WHERE { ?p :name ?name SET(?lang := LANG(?name)) SET(?n := STRLEN(?name)) }

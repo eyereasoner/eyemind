@@ -52,6 +52,7 @@ query(prod([3, 0], _))
 query(prod([5, 6], _))
 query(prod([238, 13], _))
 query(prod([8367238, 27133], _))
+
 // Integers beyond 2^53 are written as BigInt literals (with an n) so that
 // JavaScript does not round them before eyemind sees them.
 query(prod([62713345408367238n, 40836723862713345n], _))

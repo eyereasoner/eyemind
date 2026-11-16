@@ -44,16 +44,19 @@ fact(v('true', 'false'))
 // qubit as it is, G flips it, and K maps |1) to the superposition |0) + |1).
 // ID |0) = |0)
 fact(id('false', 'false'))
+
 // ID |1) = |1)
 fact(id('true', 'true'))
 
 // G |0) = |1)
 fact(g('false', 'true'))
+
 // G |1) = |0)
 fact(g('true', 'false'))
 
 // K |0) = |0)
 fact(k('false', 'false'))
+
 // K |1) = |0) + |1)
 fact(k('true', 'false'))
 fact(k('true', 'true'))

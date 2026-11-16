@@ -20,6 +20,7 @@ fact(mammal('batsy'))
 fact(bat('batsy'))
 fact(fish('nemo'))
 fact(bird('mythic'))
+
 // An explicit observation that contradicts the rule for birds.
 fact(observed('mythic', 'flies', 'false'))
 

@@ -18,13 +18,16 @@
 
 // the elements named; the proof needs the identity law only for i and j
 fact(element('e'), element('x'), element('i'), element('j'))
+
 // the hypothesis: i and j are both inverses of x
 fact(inverse_of('i', 'x'), inverse_of('j', 'x'))
 
 // identity: e · a = a and a · e = a
 implies(element(A), [product('e', A, A), product(A, 'e', A)])
+
 // inverse: when y is an inverse of x, x · y = e and y · x = e
 implies(inverse_of(Y, X), [product(X, Y, 'e'), product(Y, X, 'e')])
+
 // associativity: when (a · b) · c works out to Left and a · (b · c) to Right,
 // Left and Right are equal
 implies(

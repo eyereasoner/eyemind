@@ -38,6 +38,7 @@ fact(one_eq(X, _, X))
 // A plan of a given length is a list of that many moves still to be chosen.
 fact(moves(0, []))
 implied_by(moves(N, [_, ...Rest]), [gt(N, 0), is(M, sub(N, 1)), moves(M, Rest)])
+
 // in_range(Low, High, N): N is one of Low, Low + 1, ..., High.
 implied_by(in_range(Low, High, Low), le(Low, High))
 implied_by(

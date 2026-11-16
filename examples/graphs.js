@@ -10,6 +10,7 @@
 fact(base('alice', 'parent_of', 'bob'))
 fact(base('alice', 'parent_of', 'carol'))
 fact(base('bob', 'blocked', 'true'))
+
 // Every base triple is also a t triple.
 implied_by(t(S, P, O), base(S, P, O))
 implies(t(P, 'parent_of', C), t(C, 'child_of', P))

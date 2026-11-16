@@ -13,10 +13,12 @@
 fact(received('damaged', [1, 0, 1, 1, 1, 1, 0]))
 fact(received('intact', [1, 0, 1, 1, 0, 1, 0]))
 fact(received('last_bit', [0, 0, 0, 0, 0, 0, 1]))
+
 // bits(Word): every item of Word is 0 or 1.
 fact(bit(0), bit(1))
 fact(bits([]))
 implied_by(bits([B, ...Rest]), [bit(B), bits(Rest)])
+
 // correct(Word, Position, Syndrome, Fixed): flip the bit whose position
 // equals the syndrome and copy every other bit.
 fact(correct([], _, _, []))
@@ -25,6 +27,7 @@ implied_by(correct([Bit, ...Rest], Position, Syndrome, [Fixed, ...Tail]), [
 ])
 implied_by(correct_bit(Position, Syndrome, Bit, Fixed), [eq(Position, Syndrome), is(Fixed, sub(1, Bit))])
 implied_by(correct_bit(Position, Syndrome, Bit, Bit), ne(Position, Syndrome))
+
 // Parity bits sit at positions 1, 2 and 4; data bits at 3, 5, 6 and 7.
 implied_by(decode([B1, B2, B3, B4, B5, B6, B7], Syndrome, Corrected, [D1, D2, D3, D4]), [
   bits([B1, B2, B3, B4, B5, B6, B7]),

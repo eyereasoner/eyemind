@@ -21,6 +21,7 @@ fact(reachable(S, [], S))
 implied_by(reachable(S1, [M, ...Rest], S3), [legal_move(S1, M, S2), reachable(S2, Rest, S3)])
 
 fact(initial_state(['loc1', 'loc2', 'loc3', 'n', 'n']))
+
 // Any state in which the monkey holds the bananas is a goal.
 fact(goal_state([_, _, _, _, 'y']))
 

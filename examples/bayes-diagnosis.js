@@ -19,6 +19,7 @@ implies(
   [fault(Fault, Prior, Jam, Offline), is(Weight, mul(mul(Prior, Jam), Offline))],
   weight(Fault, Weight),
 )
+
 // The total weight of all faults normalizes the posteriors.
 fact(sum_weights([], 0))
 implied_by(sum_weights([W, ...Ws], Sum), [sum_weights(Ws, Rest), is(Sum, add(W, Rest))])

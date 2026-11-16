@@ -2,12 +2,14 @@
 # trust ranks each claim; the top claim decides only at a score of at least
 # 8000. The authority's 9310 beats the anonymous post's 700, so the result is
 # avoid_bridge, with both ranks and sources. Collection counts higher scores.
+
 @prefix : <https://example.org/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix log: <http://www.w3.org/2000/10/swap/log#> .
 @prefix math: <http://www.w3.org/2000/10/swap/math#> .
 @prefix list: <http://www.w3.org/2000/10/swap/list#> .
 
+# Score each report using the confidence of its reifier and the trust in its source.
 {
   :bridge :status ?status .
   ?reifier rdf:reifies <<( :bridge :status ?status )>> ;
@@ -21,6 +23,7 @@
   ?other math:greaterThan ?score .
 } .
 
+# Rank a claim by counting the claims with a strictly higher score.
 {
   (?status ?source ?score) a :Claim .
   (?other { (?score ?other) a :HigherScore } ?higher) log:collectAllIn ?SCOPE .
@@ -32,6 +35,7 @@
 :closed :action :avoid_bridge .
 :open :action :cross_bridge .
 
+# Only the top-ranked claim can decide; a low score instead requires verification.
 {
   (1 ?status ?source ?score) a :RankedClaim .
   :policy :threshold ?limit .

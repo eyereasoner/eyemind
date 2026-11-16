@@ -15,6 +15,7 @@ fact(owns('bob', 'dog6'))
 fact(owns('bob', 'dog7'))
 fact(owner('alice'))
 fact(owner('bob'))
+
 // The length of a list, counted recursively.
 fact(length([], 0))
 implied_by(length([_, ...Xs], N), [length(Xs, Before), is(N, add(Before, 1))])

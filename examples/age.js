@@ -43,6 +43,7 @@ implied_by(
     is(Days, sub(Today, Born)),
   ],
 )
+
 // The date Years after a birth date, with the day clipped to the month's length.
 implied_by(
   anniversary(date(Y, M, D), Years, date(Year, M, Day)),
@@ -85,6 +86,7 @@ implied_by(
     ),
   ],
 )
+
 // Days in each month; February depends on the year.
 implied_by(month_days(Y, 2, 29), leap_year(Y))
 implied_by(month_days(Y, 2, 28), common_year(Y))
@@ -100,15 +102,18 @@ fact(ordinary_month(9, 30))
 fact(ordinary_month(10, 31))
 fact(ordinary_month(11, 30))
 fact(ordinary_month(12, 31))
+
 // A leap year is divisible by 4, but not by 100 unless also by 400.
 implied_by(leap_year(Y), eq(0, mod(Y, 400)))
 implied_by(leap_year(Y), [eq(0, mod(Y, 4)), ne(0, mod(Y, 100))])
 implied_by(common_year(Y), ne(0, mod(Y, 4)))
 implied_by(common_year(Y), [eq(0, mod(Y, 100)), ne(0, mod(Y, 400))])
+
 // The leap day counts only for dates after February.
 implied_by(leap_extra(_, M, 0), le(M, 2))
 implied_by(leap_extra(Y, M, 1), [gt(M, 2), leap_year(Y)])
 implied_by(leap_extra(Y, M, 0), [gt(M, 2), common_year(Y)])
+
 // Days before the first of each month in a common year.
 fact(month_offset(1, 0))
 fact(month_offset(2, 31))

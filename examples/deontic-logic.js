@@ -27,6 +27,7 @@ fact(compensates('share_record', 'notify_dpo'))
 fact(performed('alice', 'share_record'))
 fact(performed('alice', 'notify_dpo'))
 fact(not_performed('alice', 'obtain_consent'))
+
 // No rule uses this one: nothing obliged alice to delete the copy, so not
 // deleting it breaks no norm.
 fact(not_performed('alice', 'delete_unneeded_copy'))

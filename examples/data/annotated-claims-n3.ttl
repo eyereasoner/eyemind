@@ -2,6 +2,7 @@
 # trust ranks each claim; the top claim decides only at a score of at least
 # 8000. The authority's 9310 beats the anonymous post's 700, so the result is
 # avoid_bridge, with both ranks and sources. Collection counts higher scores.
+
 @prefix : <https://example.org/> .
 
 :bridge :status :closed ~ :authorityClaim .

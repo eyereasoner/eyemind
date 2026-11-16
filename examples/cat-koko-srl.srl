@@ -18,6 +18,7 @@ WHERE {
   :Koko a :Animal .
 }
 
+# The separate rule heads create witnesses that the final comparison distinguishes.
 RULE { :test :is true }
 WHERE {
   ?X a :Cat .

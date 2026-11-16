@@ -25,6 +25,7 @@ implied_by(stats([point(X, Y), ...Rest], N, SX, SY, SXX, SXY, SYY), [
   is(N, add(N0, 1)), is(SX, add(X0, X)), is(SY, add(Y0, Y)),
   is(SXX, add(XX0, mul(X, X))), is(SXY, add(XY0, mul(X, Y))), is(SYY, add(YY0, mul(Y, Y))),
 ])
+
 // DX and DY measure the spread of X and of Y, and Cross how X and Y vary
 // together. Each is N times a sum of squared or multiplied deviations from
 // the mean; scaling by N avoids dividing, so they stay integers.
@@ -33,12 +34,14 @@ implies([
   is(DX, sub(mul(N, SXX), mul(SX, SX))), is(DY, sub(mul(N, SYY), mul(SY, SY))),
   is(Cross, sub(mul(N, SXY), mul(SX, SY))),
 ], moments(Name, N, SX, SY, DX, DY, Cross))
+
 // A fit needs at least two points and some spread in both X and Y.
 implies([
   moments(Name, N, SX, SY, DX, DY, Cross), ge(N, 2), gt(DX, 0), gt(DY, 0),
   is(Slope, div(Cross, DX)), is(Intercept, div(sub(mul(SY, DX), mul(Cross, SX)), mul(N, DX))),
   is(R2, div(mul(Cross, Cross), mul(DX, DY))),
 ], fit(Name, Slope, Intercept, R2))
+
 // Each dataset that cannot be fitted gets the reason why.
 implies([moments(Name, N, _, _, _, _, _), lt(N, 2)], rejected(Name, 'too_few_points'))
 implies([moments(Name, N, _, _, DX, _, _), ge(N, 2), le(DX, 0)], rejected(Name, 'no_x_variation'))

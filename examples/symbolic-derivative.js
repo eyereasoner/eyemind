@@ -31,19 +31,24 @@ fact(expr('nested_log', log(log(sym('x')))))
 fact(d(num(_), _, num(0)))
 fact(d(sym(X), X, num(1)))
 implied_by(d(sym(Y), X, num(0)), not_identical(X, Y))
+
 // (u + v)' = u' + v', and (u - v)' = u' - v'
 implied_by(d(add(U, V), X, add(Du, Dv)), [d(U, X, Du), d(V, X, Dv)])
 implied_by(d(sub(U, V), X, sub(Du, Dv)), [d(U, X, Du), d(V, X, Dv)])
+
 // (u * v)' = u' * v + u * v'
 implied_by(d(mul(U, V), X, add(mul(Du, V), mul(U, Dv))), [d(U, X, Du), d(V, X, Dv)])
+
 // (u / v)' = (u' * v - u * v') / v^2
 implied_by(
   d(divide(U, V), X, divide(sub(mul(Du, V), mul(U, Dv)), pow(V, 2))),
   [d(U, X, Du), d(V, X, Dv)],
 )
+
 // (u^n)' = n * u^(n-1) * u', for a whole number n; the exponent n - 1 is
 // computed, so x^2 becomes 2 * x^1 * 1.
 implied_by(d(pow(U, N), X, mul(mul(num(N), pow(U, N1)), Du)), [is(N1, sub(N, 1)), d(U, X, Du)])
+
 // (log u)' = u' / u
 implied_by(d(log(U), X, divide(Du, U)), d(U, X, Du))
 

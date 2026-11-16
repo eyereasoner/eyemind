@@ -1,5 +1,6 @@
 # An inference fuse: { ... } => false stops the run when its premise holds,
 # here a door that is both locked and open. eyemind exits with status 65.
+
 @prefix : <http://example.org/door#>.
 
 :door :state :locked, :open.

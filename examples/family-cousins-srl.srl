@@ -21,6 +21,7 @@ DATA {
   :c :differentFrom :b .
 }
 
+# Path length assigns the generation independently of branch propagation.
 RULE { :Adam :generation 0 } WHERE { }
 
 RULE { ?child :generation 1 }
@@ -32,12 +33,14 @@ WHERE { :Adam :parentOf/:parentOf ?grandchild }
 RULE { ?greatGrandchild :generation 3 }
 WHERE { :Adam :parentOf/:parentOf/:parentOf ?greatGrandchild }
 
+# Carry a labelled branch to descendants before comparing cousins.
 RULE { ?child :branch ?branch }
 WHERE {
   ?parent :parentOf ?child .
   ?parent :branch ?branch .
 }
 
+# Equal generations count as cousins here only when the branches differ.
 RULE { ?x :cousin ?y }
 WHERE {
   ?x :generation ?generation .

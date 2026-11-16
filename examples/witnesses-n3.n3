@@ -2,12 +2,14 @@
 # record is linked to the order and marked ready; two orders get different
 # records. log:skolem computes the IRI from the role and the order, so the
 # ordinary forward rule has no conclusion-only existential variable.
+
 @prefix : <https://example.org/delivery#> .
 @prefix log: <http://www.w3.org/2000/10/swap/log#> .
 
 :order1 :status :paid .
 :order2 :status :paid .
 
+# The role and order determine one stable delivery IRI shared by both conclusions.
 {
   ?order :status :paid .
   (:delivery ?order) log:skolem ?delivery

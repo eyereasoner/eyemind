@@ -3,14 +3,20 @@
 # then reports that the stated difference between those names conflicts.
 # This shows OWL 2 RL/RDF inference with a conflict retained in the Turtle output.
 # Rules: W3C OWL 2 Profiles, https://www.w3.org/TR/owl2-profiles/#Reasoning_in_OWL_2_RL_and_RDF_Graphs
+
 @prefix : <https://example.org/family#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 
+# The ontology supplies the inverse, two-step chain and functional father property.
 :parent owl:inverseOf :child ; rdfs:domain :Person ; rdfs:range :Person .
 :grandparent owl:propertyChainAxiom (:parent :parent) .
 :father a owl:FunctionalProperty ; rdfs:subPropertyOf :parent .
+
+# Two parent steps make Alice a grandparent of both named fathers.
 :Alice :parent :Bob .
 :Bob :father :Charles, :Charlie .
+
+# Functionality equates the two father names; this assertion makes that a conflict.
 :Charles owl:differentFrom :Charlie .

@@ -25,18 +25,22 @@ fact(project_end('launch'))
 // member(X, List): X is an element of List.
 fact(member(X, [X, ..._]))
 implied_by(member(X, [_, ...Rest]), member(X, Rest))
+
 // latest_finish(Tasks, Latest): the latest finish among Tasks, 0 for none.
 fact(latest_finish([], 0))
 implied_by(latest_finish([Task, ...Rest], Latest),
   [schedule(Task, _, Finish), latest_finish(Rest, Remaining), is(Latest, max(Finish, Remaining))])
+
 // A task starts when its prerequisites have all finished.
 implied_by(schedule(Task, Start, Finish),
   [task(Task, Duration, Parents), latest_finish(Parents, Start), is(Finish, add(Start, Duration))])
+
 // A critical predecessor of a task finishes exactly when that task starts.
 implied_by(critical_predecessor(Task, Parent),
   [task(Task, _, Parents), member(Parent, Parents), schedule(Parent, _, Finish), schedule(Task, Finish, _)])
 
 implies([project_end(Task), schedule(Task, _, Finish)], project_finish(Finish))
+
 // The last task is critical, and so is every critical predecessor of a
 // critical task.
 implies(project_end(Task), critical_task(Task))

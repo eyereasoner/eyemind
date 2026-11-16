@@ -5,8 +5,12 @@
 
 fact(append([], Ys, Ys))
 implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs))
+
+// Squaring preserves the list shape while computing one new value per item.
 fact(squares([], []))
 implied_by(squares([X, ...Xs], [Y, ...Ys]), [is(Y, mul(X, X)), squares(Xs, Ys)])
+
+// The empty list supplies zero; each recursive step adds one item.
 fact(sum([], 0))
 implied_by(sum([X, ...Xs], Total), [sum(Xs, Rest), is(Total, add(X, Rest))])
 query(append(['a', 'b'], ['c', 'd'], Joined))

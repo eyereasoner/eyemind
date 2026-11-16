@@ -12,6 +12,7 @@ fact(literal('n2', 2))
 fact(literal('n3', 3))
 fact(literal('n10', 10))
 fact(literal('n4', 4))
+
 // the inner nodes: expression(Node, Operation, Left, Right)
 fact(expression('product', 'mul', 'n2', 'n3'))
 fact(expression('difference', 'sub', 'n10', 'n4'))
@@ -29,6 +30,7 @@ implied_by(
     calculate(Operation, L, R, Value),
   ],
 )
+
 // One clause per operation name.
 implied_by(calculate('add', L, R, Value), is(Value, add(L, R)))
 implied_by(calculate('sub', L, R, Value), is(Value, sub(L, R)))

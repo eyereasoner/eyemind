@@ -11,9 +11,11 @@ fact(t('s1', 'p1', 'o1'))
 fact(t('s2', 'p1', 'o2'))
 fact(t('s3', 'p1', 'o3'))
 fact(t('s3', 'p1', 'o4'))
+
 // append(Xs, Ys, Zs): Zs is Xs followed by Ys.
 fact(append([], Ys, Ys))
 implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs))
+
 // flat_map(Subjects, Predicate, Objects)
 fact(flat_map([], _, []))
 implied_by(

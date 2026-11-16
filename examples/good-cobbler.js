@@ -12,8 +12,10 @@
 fact(description('joe', ['good', 'cobbler']))
 fact(description('jane', ['good', 'carpenter']))
 fact(description('sam', ['novice', 'cobbler']))
+
 // Any quality: a novice cobbler is still a cobbler.
 implies(description(Person, [_, Trade]), classified_as(Person, Trade))
+
 // Only 'good', and only for the trade it describes.
 implies(description(Person, ['good', Trade]), good_at(Person, Trade))
 query(good_at(Person, Trade))

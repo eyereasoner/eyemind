@@ -149,6 +149,8 @@ very large proofs; redirect them to a file and inspect focused parts.
   and must never execute text.
 - Every example starts with header comments in its source format saying
   what situation it models, what it concludes, and which feature it shows.
+  Separate the header from the body with an empty line. Add body comments
+  where they explain the reasoning, with an empty line before each comment block.
   Describe the example as it is. Keep credits to external sources (authors,
   papers, puzzles, standards) in the program and its deck, but never
   mention sibling projects.

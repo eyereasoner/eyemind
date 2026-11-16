@@ -77,12 +77,14 @@ implied_by(
   val(M, 'dy64Cm', Z),
   [measurement(M), val(M, 'p6yCm', X), val(M, 'p4yCm', Y), is(Z, sub(X, Y))],
 )
+
 // slope of the reference line through landmarks 1 and 2
 implied_by(
   val(M, 'cL1', Z),
   [measurement(M), val(M, 'dy12Cm', Y), val(M, 'dx12Cm', X), is(Z, div(Y, X))],
 )
 implied_by(val(M, 'dL3m', Z), [measurement(M), val(M, 'cL1', X), is(Z, div(1, X))])
+
 // slope of the perpendicular lines through landmarks 3 and 4: -1 / cL1
 implied_by(val(M, 'cL3', Z), [measurement(M), val(M, 'dL3m', X), is(Z, sub(0, X))])
 implied_by(
@@ -129,6 +131,7 @@ implied_by(
   val(M, 'pL1dx62Cm', Z),
   [measurement(M), val(M, 'cL1', X), val(M, 'dx62Cm', Y), is(Z, mul(X, Y))],
 )
+
 // Projections 5 and 6: where each perpendicular crosses the reference line.
 implied_by(
   val(M, 'p5xCm', Z),
@@ -146,6 +149,7 @@ implied_by(
   val(M, 'p6yCm', Z),
   [measurement(M), val(M, 'pL1dx62Cm', X), val(M, 'p2yCm', Y), is(Z, add(X, Y))],
 )
+
 // leg lengths by Pythagoras, pow(X, 0.5) being the square root
 implied_by(val(M, 'sdx53Cm2', Z), [measurement(M), val(M, 'dx53Cm', X), is(Z, pow(X, 2))])
 implied_by(val(M, 'sdx64Cm2', Z), [measurement(M), val(M, 'dx64Cm', X), is(Z, pow(X, 2))])
@@ -161,6 +165,7 @@ implied_by(
 )
 implied_by(val(M, 'd53Cm', Z), [measurement(M), val(M, 'ssd53Cm2', X), is(Z, pow(X, 0.5))])
 implied_by(val(M, 'd64Cm', Z), [measurement(M), val(M, 'ssd64Cm2', X), is(Z, pow(X, 0.5))])
+
 // discrepancy: left length minus right length
 implied_by(
   val(M, 'dCm', Z),

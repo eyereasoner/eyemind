@@ -17,6 +17,7 @@ implied_by(
   trajectory(N, [N, ...Rest]),
   [gt(N, 1), eq(1, mod(N, 2)), is(Next, add(mul(3, N), 1)), trajectory(Next, Rest)],
 )
+
 // A range of starting values, enumerated by ordinary clauses.
 implied_by(in_range(Low, High, Low), le(Low, High))
 implied_by(

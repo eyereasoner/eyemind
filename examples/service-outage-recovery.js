@@ -33,6 +33,7 @@ fact(business_function('place_order', 'web_store'), business_function('mobile_ch
 
 fact(member(X, [X, ..._]))
 implied_by(member(X, [_, ...Rest]), member(X, Rest))
+
 // Every subset of the repair candidates is a plan, costing the sum of its
 // repair prices.
 fact(subset([], []))
@@ -56,6 +57,7 @@ implied_by(all_groups([Group, ...Rest], Plan),
 implies([hardware_ready(Plan, Node), node(Node, _, Groups), all_groups(Groups, Plan)], operating(Plan, Node))
 fact(all_operating([], _))
 implied_by(all_operating([Node, ...Rest], Plan), [operating(Plan, Node), all_operating(Rest, Plan)])
+
 // A plan is feasible when every critical service operates, and best when no
 // feasible plan is cheaper.
 implies([repair_plan(Plan, Cost), critical_services(Required), all_operating(Required, Plan)],

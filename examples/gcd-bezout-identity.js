@@ -12,6 +12,7 @@
 fact(pair('common_factor', 48, 18), pair('coprime', 101, 462))
 fact(pair('zero_left', 0, 5), pair('zero_right', 5, 0))
 fact(pair('larger', 270, 192), pair('negative', -27, 36), pair('large', 123456, 7890))
+
 // sign(N, S): S is 1, 0 or -1 as N is positive, zero or negative.
 implied_by(sign(N, 1), gt(N, 0))
 fact(sign(0, 0))
@@ -26,6 +27,7 @@ implied_by(euclid(R0, R1, S0, S1, T0, T1, G, S, T), [
   is(S2, sub(S0, mul(Q, S1))), is(T2, sub(T0, mul(Q, T1))),
   euclid(R1, R2, S1, S2, T1, T2, G, S, T),
 ])
+
 // Run the algorithm on the absolute values, then restore the signs.
 implied_by(bezout(A, B, G, S, T), [
   is(R0, abs(A)), is(R1, abs(B)), is(Total, add(R0, R1)), gt(Total, 0),
@@ -33,6 +35,7 @@ implied_by(bezout(A, B, G, S, T), [
   is(S, mul(AS, U)), is(T, mul(BS, V)),
 ])
 implies([pair(Name, A, B), bezout(A, B, G, S, T)], certificate(Name, G, S, T))
+
 // An independent check: the identity, and gcd computed by the built-in.
 implies([pair(Name, A, B), certificate(Name, G, S, T), is(G, add(mul(A, S), mul(B, T))), is(G, gcd(A, B))],
   identity_holds(Name))

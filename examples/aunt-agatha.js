@@ -71,6 +71,7 @@ fact(hates(hates(_, _, _, _, _, V, _, _, _), 'butler', 'charles', V))
 fact(hates(hates(_, _, _, _, _, _, V, _, _), 'charles', 'agatha', V))
 fact(hates(hates(_, _, _, _, _, _, _, V, _), 'charles', 'butler', V))
 fact(hates(hates(_, _, _, _, _, _, _, _, V), 'charles', 'charles', V))
+
 // richer(Richer, X, V): V says whether X is richer than Agatha.
 fact(richer(richer(V, _, _), 'agatha', V))
 fact(richer(richer(_, V, _), 'butler', V))
@@ -80,6 +81,7 @@ fact(truth('yes'))
 fact(truth('no'))
 fact(label([]))
 implied_by(label([V, ...Vs]), [truth(V), label(Vs)])
+
 // The connectives below (if_then, if_then_not, unless, some_no) have clauses
 // that differ in their first argument, so when that answer is still open,
 // each clause fixes it to a different value and no model is found twice.
@@ -101,10 +103,12 @@ implies(
   [resident(Suspect), findall(W, model(Suspect, W), Ws), count(Ws, N)],
   models(Suspect, N),
 )
+
 // Entailment: some model exists, and every model has Agatha as the killer.
 implies(
   [models('agatha', N), gt(N, 0), models('butler', 0), models('charles', 0)],
   entailed(killed('agatha', 'agatha')),
 )
+
 // One model in full, with a proof that every premise holds in it.
 implies(once(model(Killer, W)), witness(Killer, W))

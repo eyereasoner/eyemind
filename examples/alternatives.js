@@ -8,6 +8,7 @@
 
 fact(train('paris', 'brussels'))
 fact(bus('paris', 'lille'))
+
 // Two alternative clauses: a route is a train or a bus connection.
 implied_by(route(From, To), train(From, To))
 implied_by(route(From, To), bus(From, To))

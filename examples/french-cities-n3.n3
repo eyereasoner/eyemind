@@ -3,6 +3,7 @@
 # Chartres and Paris can reach it. Five integrity fuses guard other cities.
 # The rules explicitly use the RDFS subPropertyOf and OWL TransitiveProperty
 # vocabulary; the graph and these rules supply the reasoning in this example.
+
 @prefix : <https://example.org/french-cities#> .
 @prefix log: <http://www.w3.org/2000/10/swap/log#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -18,6 +19,7 @@
 :oneway rdfs:subPropertyOf :path .
 :path a owl:TransitiveProperty .
 
+# These explicit rules give the schema vocabulary its meaning in this program.
 { ?property rdfs:subPropertyOf ?super . ?from ?property ?to }
   => { ?from ?super ?to } .
 { ?property rdfs:subPropertyOf ?middle . ?middle rdfs:subPropertyOf ?super }
@@ -27,6 +29,7 @@
 
 { ?city :path :nantes } log:query { ?city :canReach :nantes } .
 
+# Each fuse would halt reasoning if a forbidden route were derived.
 { :orleans :path :nantes } => false .
 { :amiens :path :nantes } => false .
 { :bourges :path :nantes } => false .

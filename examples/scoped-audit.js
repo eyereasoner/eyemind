@@ -16,6 +16,7 @@ fact(
   ),
 )
 fact(context('incomplete', graph([triple('bob', 'role', 'editor')])))
+
 // List membership, and a triple's membership of a graph.
 fact(member(X, [X, ..._]))
 implied_by(member(X, [_, ...Xs]), member(X, Xs))
@@ -24,6 +25,7 @@ implies(
   [context(Context, Graph), includes(Graph, triple(Person, 'consent', 'yes'))],
   consented(Context, Person),
 )
+
 // An editor whose own graph records no consent needs review.
 implies(
   [

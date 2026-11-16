@@ -20,6 +20,7 @@ implies(
   [path(X, Y, Before), edge(Y, Z, Weight), is(Cost, add(Before, Weight))],
   path(X, Z, Cost),
 )
+
 // cheaper(X, Y, Cost): some route from X to Y costs less than Cost.
 implied_by(cheaper(X, Y, Cost), [path(X, Y, Other), lt(Other, Cost)])
 implies([path(X, Y, Cost), not(cheaper(X, Y, Cost))], shortest(X, Y, Cost))

@@ -3,6 +3,7 @@
 # the reporter and reading together inside each message, showing named-graph
 # provenance without mixing the observations.
 # See https://w3c-cg.github.io/rsp/spec/messages
+
 VERSION "1.2-messages"
 PREFIX : <https://example.org/provenance#>
 

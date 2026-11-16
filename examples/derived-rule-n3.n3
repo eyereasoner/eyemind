@@ -1,5 +1,6 @@
 # A rule that writes a rule: when the policy is active, every member may read
 # the report. The derived rule is applied, and also reported as a triple.
+
 @prefix : <http://example.org/policy#>.
 
 :policy :status :active.

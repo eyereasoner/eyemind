@@ -9,5 +9,6 @@
 fact(a('b'))
 implies(a(X), c(X))
 
+// Inspect the source rule while preserving the variable shared by its two sides.
 implies(implies(X, Y), test(X, Y))
 query(test(X, Y))

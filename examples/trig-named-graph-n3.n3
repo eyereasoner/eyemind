@@ -2,6 +2,7 @@
 # The loader represents its contents as a quoted graph:content formula.
 # Two rules conclude the three ancestor links in formulas with the same name;
 # none of those links is asserted in the default graph.
+
 @prefix : <https://example.org/> .
 @prefix graph: <https://eyereasoner.github.io/eyemind/graph#> .
 @prefix log: <http://www.w3.org/2000/10/swap/log#> .
@@ -11,6 +12,7 @@
   ?data log:includes { ?s :parent ?o } .
 } => { ?g graph:content { ?s :ancestor ?o } } .
 
+# The two-hop match keeps the new ancestor triple inside the same named graph.
 {
   ?g graph:content ?data .
   ?data log:includes { ?s :parent ?m . ?m :parent ?o } .

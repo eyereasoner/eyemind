@@ -1,10 +1,12 @@
 # Two orders receive a recording time, a UUID IRI and a UUID string.
 # Both orders share one NOW value and have distinct identifiers. Shows
 # SPARQL 1.2 RL execution functions and their reproducible proof context.
+
 PREFIX : <https://example.org/orders/>
 
 DATA { :alice :order :first, :second }
 
+# NOW is shared by the run; the two UUID calls allocate identifiers per solution.
 RULE { ?order :recordedAt ?time ; :record ?iri ; :reference ?text } WHERE {
   :alice :order ?order
   SET(?time := NOW())

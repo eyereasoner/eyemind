@@ -43,16 +43,19 @@ fact(r('true', 'true'))
 // |1) to both values.
 // ID |0) = |0)
 fact(id('false', 'false'))
+
 // ID |1) = |1)
 fact(id('true', 'true'))
 
 // G |0) = |1)
 fact(g('false', 'true'))
+
 // G |1) = |0)
 fact(g('true', 'false'))
 
 // K |0) = |0)
 fact(k('false', 'false'))
+
 // K |1) = |0) + |1)
 fact(k('true', 'false'))
 fact(k('true', 'true'))

@@ -9,6 +9,7 @@
 
 fact(append([], Ys, Ys))
 implied_by(append([X, ...Xs], Ys, [X, ...Zs]), append(Xs, Ys, Zs))
+
 // moves(N, From, To, Spare, Moves): one disk moves directly.
 fact(moves(1, From, To, _, [move(From, To)]))
 implied_by(

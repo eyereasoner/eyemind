@@ -14,6 +14,8 @@ fact(permits('editor', 'read'))
 fact(permits('editor', 'write'))
 fact(permits('viewer', 'read'))
 fact(suspended('carol'))
+
+// Expand the roles first, then remove the permissions of suspended users.
 implies([role(User, Role), permits(Role, Action)], candidate(User, Action))
 implies([candidate(User, Action), not(suspended(User))], allowed(User, Action))
 query(allowed(User, Action))

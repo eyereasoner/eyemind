@@ -2,6 +2,7 @@
 # the key, so Ann and Bob get different mother IRIs, and a second rule adds
 # reciprocal child links. The computed name is bound in the premise, making
 # this an ordinary forward rule with a strictly checkable proof.
+
 @prefix : <http://example.org/people#>.
 @prefix log: <http://www.w3.org/2000/10/swap/log#>.
 

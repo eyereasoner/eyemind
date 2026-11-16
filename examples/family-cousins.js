@@ -19,12 +19,14 @@ fact(parent('carol', 'grace'))
 fact(parent('dave', 'heidi'))
 fact(parent('eve', 'ivan'))
 fact(parent('frank', 'judy'))
+
 // Adam is generation 0; the branch labels start with the grandchildren.
 fact(generation('adam', 0))
 fact(branch('dave', 'b'))
 fact(branch('eve', 'b'))
 fact(branch('frank', 'c'))
 fact(branch('grace', 'c'))
+
 // A child is one generation below its parent and inherits its branch.
 implies(
   [parent(Parent, Child), generation(Parent, N), is(Next, add(N, 1))],

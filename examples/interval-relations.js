@@ -23,12 +23,15 @@ fact(interval('g', 660, 720))
 fact(interval('h', 540, 960))
 fact(start_duration('i', 960, 120))
 fact(end_duration('j', 960, 60))
+
 // start_duration(Name, Start, Duration) and end_duration(Name, End, Duration)
 implies([start_duration(I, S, D), gt(D, 0), is(E, add(S, D))], interval(I, S, E))
 implies([end_duration(I, E, D), gt(D, 0), is(S, sub(E, D))], interval(I, S, E))
+
 // Only nonempty intervals take part, and every ordered pair of them is compared.
 implied_by(valid_interval(I, S, E), [interval(I, S, E), lt(S, E)])
 implied_by(pair(I, J, SI, EI, SJ, EJ), [valid_interval(I, SI, EI), valid_interval(J, SJ, EJ)])
+
 // the seven basic relations of I to J
 implies([pair(I, J, SI, EI, SJ, EJ), lt(EI, SJ)], relation(I, 'before', J))
 implies([pair(I, J, SI, EI, SJ, EJ), eq(EI, SJ)], relation(I, 'meets', J))
@@ -40,6 +43,7 @@ implies([pair(I, J, SI, EI, SJ, EJ), eq(SI, SJ), lt(EI, EJ)], relation(I, 'start
 implies([pair(I, J, SI, EI, SJ, EJ), lt(SJ, SI), lt(EI, EJ)], relation(I, 'during', J))
 implies([pair(I, J, SI, EI, SJ, EJ), lt(SJ, SI), eq(EI, EJ)], relation(I, 'finishes', J))
 implies([pair(I, J, SI, EI, SJ, EJ), eq(SI, SJ), eq(EI, EJ)], relation(I, 'equals', J))
+
 // and their converses
 implies(relation(I, 'before', J), relation(J, 'after', I))
 implies(relation(I, 'meets', J), relation(J, 'met_by', I))

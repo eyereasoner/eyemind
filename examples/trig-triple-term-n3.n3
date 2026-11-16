@@ -2,6 +2,7 @@
 # The loader quotes that graph in a graph:content formula. Accepting its
 # claim concludes the relationship in another formula with the same graph
 # name, preserving its separation from default-graph assertions.
+
 @prefix : <https://example.org/> .
 @prefix graph: <https://eyereasoner.github.io/eyemind/graph#> .
 @prefix log: <http://www.w3.org/2000/10/swap/log#> .

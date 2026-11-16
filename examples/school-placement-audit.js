@@ -17,6 +17,7 @@
 // best when no better one is found, so options that tie for best are all kept.
 
 fact(max_walking_meters(2500), preference_penalty_meters(600))
+
 // candidate(Student, School, StraightMeters, WalkingMeters, PreferenceRank)
 fact(candidate('ada', 'centrum', 600, 3600, 2))
 fact(candidate('ada', 'lindholmen', 1200, 1800, 1))

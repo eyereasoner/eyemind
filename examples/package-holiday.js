@@ -183,6 +183,7 @@ implied_by(
   [request(C, B, by(X), _, _, _, _), booking(B, _, lead(L), _), not_identical(X, L)],
 )
 implied_by(value(C, 'ex:daysBeforeDeparture', D), request(C, _, _, _, days(D), _, _))
+
 // Each operator decides its comparison either way, so no step rests on
 // the absence of an answer.
 implied_by(compare_('odrl:eq', V, R, 'true'), identical(V, R))
@@ -296,6 +297,7 @@ fact(
     voucher(value(P), valid_months(12), 'unused_value_refunded'),
   ),
 )
+
 // The provision behind the way the money is settled.
 fact(money_basis(_, 'no', _, 'PTD Art. 12(4)'))
 fact(money_basis(_, 'yes', 'not_offered', 'PTD Art. 12(4)'))

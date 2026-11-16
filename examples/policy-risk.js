@@ -24,14 +24,17 @@ fact(permission('c5', 'share_data'))
 fact(safeguard('c5', 'consent'))
 fact(permission('c6', 'change_terms'))
 fact(notice_days('c6', 14))
+
 // Weights added to the base score of each kind of finding.
 fact(importance('retention', 20))
 fact(importance('prior_notice', 15))
 fact(importance('consent', 12))
 fact(importance('portability', 10))
+
 // Days of notice required before the terms change.
 fact(required_notice(14))
 implied_by(has_notice(Clause), [notice_days(Clause, Days), ge(Days, 0)])
+
 // One rule per kind of risk; each finding's raw score is a base score
 // (90, 70, 85, 60) plus the weight of the concern.
 implies(
@@ -72,12 +75,14 @@ implies(
   ],
   finding(Clause, Raw, 'export_prohibited', 'permit_export'),
 )
+
 // Scores are capped at 100.
 implies([finding(Clause, Raw, Why, Fix), gt(Raw, 100)], score(Clause, 100))
 implies([finding(Clause, Raw, Why, Fix), le(Raw, 100)], score(Clause, Raw))
 implied_by(severity(Score, 'high'), ge(Score, 80))
 implied_by(severity(Score, 'moderate'), [ge(Score, 50), lt(Score, 80)])
 implied_by(severity(Score, 'low'), lt(Score, 50))
+
 // Other is the score of a clause that scores higher than Score.
 implied_by(higher(Score, Other), [score(Clause, Other), gt(Other, Score)])
 fact(count([], 0))

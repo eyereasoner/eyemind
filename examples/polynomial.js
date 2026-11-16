@@ -40,6 +40,7 @@ implied_by(
   ],
 )
 implied_by(racine([A, B, C, D], Z), racine_cubique([A, B, C, D], Z))
+
 // Degree 4: substituting x = z + T with T = -B/4A removes the cubic term and
 // leaves z^4 + P z^2 + Q z + R = 0, solved by Lagrange's method.
 implied_by(

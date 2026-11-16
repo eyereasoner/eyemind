@@ -1,5 +1,6 @@
 # Three routes have distances in miles; one already has a kilometre value.
 # The companion rules fill only missing values, showing NOT DATA and a cast.
+
 PREFIX : <http://example.org/routes#>
 
 :ghent-bruges :distanceMiles 30 .

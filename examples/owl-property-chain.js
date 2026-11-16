@@ -23,6 +23,7 @@ implies(
   [property_chain(P, [First, ...Rest]), triple(S, First, M), follow_chain(Rest, M, E)],
   triple(S, P, E),
 )
+
 // follow_chain(Properties, Start, End): from Start, one link per property in
 // turn reaches End. The list shrinks at each step, so the walk ends.
 fact(follow_chain([], N, N))

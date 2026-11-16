@@ -2,6 +2,7 @@
 # vulnerabilities. A component exposed to a severe vulnerability is critical;
 # every other component is safe to deploy. Shows FILTER and NOT, which waits
 # until everything it inspects is known (stratified negation).
+
 PREFIX : <http://example.org/deployment#>
 
 DATA {
@@ -14,7 +15,11 @@ DATA {
 
 RULE { ?x :dependsOn ?y } WHERE { ?x :callsService ?y }
 RULE { ?x :dependsOn ?y } WHERE { ?x :queriesDatabase ?y }
+
+# Propagate vulnerabilities through every dependency before classifying components.
 RULE { ?x :exposedTo ?v } WHERE { ?x :hasVulnerability ?v }
 RULE { ?x :exposedTo ?v } WHERE { ?x :dependsOn ?y . ?y :exposedTo ?v }
 RULE { ?x :status :critical } WHERE { ?x :exposedTo ?v . ?v :severity ?s FILTER(?s >= 9.0) }
+
+# Negation tests the completed critical classification, not just the supplied data.
 RULE { ?x :status :safeToDeploy } WHERE { ?x a :Component NOT { ?x :status :critical } }

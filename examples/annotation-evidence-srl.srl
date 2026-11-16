@@ -12,6 +12,7 @@ DATA {
 RULE { :test :hasStatement true }
 WHERE { :a :name "Alice" }
 
+# Recover the statement through its reifier rather than matching only the asserted triple.
 RULE { :test :hasNamedStatement ?statement }
 WHERE { ?statement rdf:reifies <<(:a :name "Alice")>> }
 

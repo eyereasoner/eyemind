@@ -18,17 +18,20 @@ implied_by(choose_step(N, K, I, Accumulator, C), [
   lt(I, K), is(Next, add(I, 1)), is(Numerator, mul(Accumulator, sub(N, I))),
   is(Updated, floordiv(Numerator, Next)), choose_step(N, K, Next, Updated, C),
 ])
+
 // split_sum: the sum of C(N, K) * C(M, R - K) for K from the current value up to Upper.
 implied_by(split_sum(_, _, _, K, Upper, 0), gt(K, Upper))
 implied_by(split_sum(N, M, R, K, Upper, Sum), [
   le(K, Upper), is(Other, sub(R, K)), choose(N, K, A), choose(M, Other, B),
   is(Next, add(K, 1)), split_sum(N, M, R, Next, Upper, Tail), is(Sum, add(mul(A, B), Tail)),
 ])
+
 // Both sides must give the same Sum; K runs only over splits both groups can supply.
 implied_by(vandermonde(N, M, R, Sum), [
   ge(N, 0), ge(M, 0), ge(R, 0), is(Total, add(N, M)), choose(Total, R, Sum),
   is(Lower, max(0, sub(R, M))), is(Upper, min(N, R)), split_sum(N, M, R, Lower, Upper, Sum),
 ])
+
 // row_sum: C(N, K) + C(N, K + 1) + ... + C(N, N).
 implied_by(row_sum(N, K, 0), gt(K, N))
 implied_by(row_sum(N, K, Sum),

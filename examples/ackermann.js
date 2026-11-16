@@ -19,6 +19,7 @@ implied_by(hyper(0, Y, _, A), is(A, add(Y, 1)))
 implied_by(hyper(1, Y, Z, A), is(A, add(Y, Z)))
 implied_by(hyper(2, Y, Z, A), is(A, mul(Y, Z)))
 implied_by(hyper(3, Y, Z, A), is(A, pow(Z, Y)))
+
 // Above them, level X applied Y times is level X-1 applied to the result of
 // level X applied Y-1 times. Applied zero times, every such level gives 1.
 implied_by(hyper(X, 0, _, 1), gt(X, 3))

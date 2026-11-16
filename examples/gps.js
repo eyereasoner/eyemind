@@ -109,6 +109,7 @@ fact(
     _Limits,
   ),
 )
+
 // struct('continue', Holds, ...) decides by whether the goal holds: 'yes'
 // ends the path (the fact above), 'no' takes one more step (this rule). Each
 // step commits, with once, to the first way of finishing from it.
@@ -133,6 +134,7 @@ implied_by(
   ),
   [
     unify(Limits, [MaxDuration, MaxCost, MinBelief, MinComfort, MaxStagecount]),
+
     // a transition whose From fluent is in the state
     description(Map, [From, _Transition, To, Action, Duration_n, Cost_n, Belief_n, Comfort_n]),
     becomes(From, To, State, State_t),
