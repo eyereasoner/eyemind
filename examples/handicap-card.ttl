@@ -1,0 +1,52 @@
+# A fictional civic office considers issuing handicap cards to Alice and Bob.
+# Both have an approved assessment and verified residence; Bob has an explicit
+# administrative hold. Alice's card may be issued; Bob's request is prohibited
+# and the overlapping permission and prohibition are reported as a conflict.
+# Shows --odrl adding validation and evaluation LS to one Turtle input with
+# policies, requests and SOTW. These criteria are illustrative, not law.
+# ODRL model and vocabulary: https://www.w3.org/TR/odrl-model/
+# https://www.w3.org/TR/odrl-vocab/
+@prefix : <https://example.org/handicap-card#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix eval: <https://eyereasoner.github.io/eyemind/odrl#> .
+
+:evaluation a eval:Evaluation ;
+    eval:policy :eligibility, :administrativeHold ;
+    eval:request :issueAlice, :issueBob ;
+    eval:conflictStrategy odrl:prohibit .
+
+:eligibility a odrl:Set ;
+    odrl:profile eval:SnapshotProfile ;
+    odrl:permission :mayIssue .
+:mayIssue a odrl:Permission ;
+    odrl:assignee :CivicOffice ;
+    odrl:action :issueHandicapCard ;
+    odrl:target :HandicapCardService ;
+    odrl:constraint :approved, :resident .
+:approved a odrl:Constraint ;
+    odrl:leftOperand :assessmentApproved ; odrl:operator odrl:eq ; odrl:rightOperand true .
+:resident a odrl:Constraint ;
+    odrl:leftOperand :residenceVerified ; odrl:operator odrl:eq ; odrl:rightOperand true .
+
+:administrativeHold a odrl:Set ;
+    odrl:profile eval:SnapshotProfile ;
+    odrl:prohibition :mustWait .
+:mustWait a odrl:Prohibition ;
+    odrl:assignee :CivicOffice ;
+    odrl:action :issueHandicapCard ;
+    odrl:target :HandicapCardService ;
+    odrl:constraint :held .
+:held a odrl:Constraint ;
+    odrl:leftOperand :administrativeHold ; odrl:operator odrl:eq ; odrl:rightOperand true .
+
+:issueAlice a eval:Request ;
+    odrl:assignee :CivicOffice ; odrl:action :issueHandicapCard ; odrl:target :HandicapCardService ;
+    eval:subject :Alice ; eval:state :aliceState .
+:aliceState a eval:State ; eval:subject :Alice ;
+    :assessmentApproved true ; :residenceVerified true ; :administrativeHold false .
+
+:issueBob a eval:Request ;
+    odrl:assignee :CivicOffice ; odrl:action :issueHandicapCard ; odrl:target :HandicapCardService ;
+    eval:subject :Bob ; eval:state :bobState .
+:bobState a eval:State ; eval:subject :Bob ;
+    :assessmentApproved true ; :residenceVerified true ; :administrativeHold true .

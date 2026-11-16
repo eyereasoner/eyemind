@@ -51,7 +51,7 @@ export function loadExampleInputs(entry) {
     const path = join(ROOT, file);
     return [readFileSync(path, 'utf8'), path];
   });
-  return loadInputs(inputs, nodeIO, { srlContext: entry.srlContext ?? null });
+  return loadInputs(inputs, nodeIO, { srlContext: entry.srlContext ?? null, odrl: entry.odrl ?? false });
 }
 
 export const loadExample = (entry) => loadExampleInputs(entry).program;

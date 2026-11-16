@@ -9,6 +9,8 @@ import { Env, properListItems, unify } from '../src/terms.js';
 import { shellSplit } from '../conformance/run.js';
 import { parseN3 } from '../src/n3-parser.js';
 import { tripleToEyemind } from '../src/n3-writer.js';
+import { parseRdf } from '../src/rdf.js';
+import { isomorphic } from './w3c.js';
 import { artifactPath, loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
 import { ROOT, assert, cachedCli } from './helpers.js';
 
@@ -360,13 +362,15 @@ for (const entry of MANIFEST) {
         }
         const proofMode = args.some((arg) => ['--proof', '-p', '--check-proof', '--prove-and-check', '-c', '--unused'].includes(arg));
         const explicitFormat = args.includes('--to') ? args[args.indexOf('--to') + 1] : null;
-        const native = args.some((arg) => /\.(n3|srl)$/.test(arg));
+        const native = args.some((arg) => /\.(n3|srl|ttl)$/.test(arg));
         if (!proofMode && (native || explicitFormat) && explicitFormat !== 'eyemind') {
           assert.equal(result.code, entry.halt_code ?? 0, result.stderr);
           const saved = readFileSync(artifactPath('output', entry), 'utf8');
           if (args.includes('--stream-messages')) {
             const triples = (text) => parseN3(text).triples.map((t) => tripleToEyemind(t).map((term) => write(term)));
             assert.deepEqual(triples(result.stdout), triples(saved));
+          } else if (explicitFormat === 'turtle' && args.some((arg) => compiled.has(arg))) {
+            assert.ok(isomorphic(parseRdf(result.stdout).quads, parseRdf(saved).quads));
           } else assert.equal(result.stdout, saved);
           continue;
         }

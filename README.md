@@ -7,7 +7,7 @@ eyemind is a dependency-free reasoner for **Logic Script (LS)**, a rule language
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and how a proof is checked. The examples are 135 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1246 cases that test language and proof behavior through a command adapter, together with implementation interface checks; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and how a proof is checked. The examples are 136 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1246 cases that test language and proof behavior through a command adapter, together with implementation interface checks; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -22,6 +22,7 @@ The playground runs programs in your browser; the specification defines the lang
   - [Notation3](#notation3)
   - [RDF Messages](#rdf-messages)
   - [SPARQL 1.2 RL](#sparql-12-rl)
+  - [ODRL snapshots](#odrl-snapshots)
 - [How eyemind reasons](#how-eyemind-reasons)
 - [Proofs, and what checking one means](#proofs-and-what-checking-one-means)
   - [JSON check reports](#json-check-reports)
@@ -349,7 +350,7 @@ eyemind --all rules.srl facts.ttl         # the base graph too
 eyemind -c rules.srl facts.ttl            # a proof of it, checked
 ```
 
-Triples are `rdf(Subject, Predicate, Object)`, with `base/3` marking the base graph and `inf/3` the inference graph. A rule becomes `implies`, `NOT` becomes `not` of a helper, `GROUP` becomes `findall_sorted`, which leaves aggregates independent of derivation order, a blank node in a rule head becomes the Skolem term of its firing, and a SPARQL error is a goal that fails, so `FILTER` rejects the solution and `SET` drops it. The W3C SPARQL 1.2 RL test suite runs in `npm test` from `.cache/w3c/sparql-rl`: all 241 tests pass.
+Triples are `rdf(Subject, Predicate, Object)`, with `base/3` marking the base graph and `inf/3` the inference graph. A rule becomes `implies`, `NOT` becomes `not` of a helper, `GROUP` becomes `findall_sorted`, which leaves aggregates independent of derivation order, a blank node in a rule head becomes the Skolem term of its firing, and a SPARQL error is a goal that fails, so `FILTER` rejects the solution and `SET` drops it. The W3C SPARQL 1.2 RL test suite runs in `npm test` from `.cache/w3c/sparql-rl`: all 342 tests pass.
 
 SRL integers and decimals use exact integer arithmetic. Decimal addition,
 subtraction, multiplication, comparison, rounding and terminating division
@@ -384,6 +385,78 @@ The [example catalog](https://eyereasoner.github.io/eyemind/examples/) includes
 SRL programs for deployment dependencies, route distances, ancestry, inventory,
 invoices, provenance and Unicode strings. Each has saved Turtle output, a
 proof, a check report and a deck, and runs in the playground.
+
+### ODRL snapshots
+
+Use `--odrl` to add ODRL validation and evaluation to one Turtle file
+containing policies, candidate requests and their state of the world (SOTW).
+A resource of type `eval:Evaluation`, using
+`eval: <https://eyereasoner.github.io/eyemind/odrl#>`, selects the policies
+with `eval:policy`, the requests with `eval:request`, and a cross-policy
+`eval:conflictStrategy`: `odrl:perm`, `odrl:prohibit` or `odrl:invalid`.
+The switch enables the snapshot compiler; without it Turtle remains RDF
+data, even when it contains an `eval:Evaluation` resource. The playground
+has the same `--odrl` checkbox, enabled for the handicap-card example and
+preserved in saved state and shared links.
+
+```sh
+eyemind --odrl examples/handicap-card.ttl > /tmp/handicap-card-report.ttl
+eyemind --odrl --program examples/handicap-card.ttl > /tmp/handicap-card.js
+eyemind --to turtle /tmp/handicap-card.js > /tmp/handicap-card-report.ttl
+eyemind --odrl --proof examples/handicap-card.ttl > /tmp/handicap-card-proof.js
+eyemind --odrl --check-proof /tmp/handicap-card-proof.js examples/handicap-card.ttl
+```
+
+The compiled `.js` includes the input facts and all validation and evaluation
+LS; running it needs no policy file or external evaluator. The Turtle report
+lists each request's `eval:decision` (`Allowed`, `Prohibited`,
+`NotApplicable` or `Undetermined`), the `eval:canHappen` requests, validation
+errors, uncertainties and conflicts. Each conflict identifies its request,
+permission policy/rule and prohibition policy/rule. `eval:conflictCount`
+explicitly records zero when none is detected. This evaluates the listed
+requests at the supplied snapshot; it neither issues a card nor predicts
+future changes to the world.
+`eval:validationStatus` records whether the input fits the profile's shape
+and vocabulary. Conflicts are reported and resolved separately.
+
+The supported profile is declared on each policy with
+`odrl:profile eval:SnapshotProfile`. Policies are `odrl:Set` or
+`odrl:Agreement`; each rule states exactly one assignee, action and target.
+A request is an `eval:Request` with those same three ODRL properties, an
+`eval:subject` and an `eval:state`. Its `eval:State` names the same subject.
+Assignees, actions and targets match by RDF term identity. Each constraint's
+`odrl:leftOperand` is an IRI naming a property of that state, with exactly one
+`odrl:operator` and `odrl:rightOperand`. All constraints of a rule must hold.
+Equality and inequality (`eq`, `neq`) support IRIs, strings, booleans and
+exact integers; ordering (`gt`, `gteq`, `lt`, `lteq`) supports exact integers.
+Boolean lexical forms `true`/`1` and `false`/`0` denote the same values.
+
+An absent, multiply valued, unsupported or differently typed observation
+leaves a constraint unknown. A definitely false constraint makes its rule
+inapplicable; otherwise an unknown constraint makes the request
+`Undetermined`. Missing facts never establish a negative observation.
+The caller supplies the applicable policy set, trusted state and candidate
+actions. The compiler does not establish agreement acceptance or evidence
+authenticity. Unsupported policy properties, profiles, duties, inheritance,
+action hierarchies, collections and refinements are validation errors and
+block authorization for the evaluation. This is a bounded profile, not a
+general ODRL evaluator.
+
+ODRL's per-policy `odrl:conflict` strategies are applied first; an omitted
+strategy defaults to `odrl:invalid`. A detected internal conflict then voids
+that policy and leaves the evaluation undetermined. The explicit
+`eval:conflictStrategy` combines the remaining policy decisions; `invalid`
+voids the evaluation if both a permission and a prohibition remain for any
+request. Conflicts stay in the report after resolution. These are
+permission/prohibition overlaps for the listed requests, not an exhaustive
+search for conflicts in every possible state. The rules follow the
+[ODRL Information Model](https://www.w3.org/TR/odrl-model/) for the supported
+features; the snapshot vocabulary and cross-policy composition are this
+profile's conventions.
+
+The [handicap-card example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card)
+allows Alice's request and reports the conflict that blocks Bob's, under
+explicitly fictional criteria.
 
 ## How eyemind reasons
 
@@ -551,10 +624,11 @@ eyemind [OPTION ...] [FILE ...]
 | `--unused` | List the clauses that make no difference to the conclusions. |
 | `--stream-messages` | Read an RDF Message Log and run the rules independently per message; Node reads files, stdin and HTTP(S) incrementally. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
-| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3 or SRL program has 1000000, 100000 and 1000000000. |
-| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3` or `eyemind`; by default N3 for N3, Turtle for SRL, eyemind otherwise. |
+| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3, SRL or ODRL program has 1000000, 100000 and 1000000000. |
+| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3` or `eyemind`; by default N3 for N3, Turtle for SRL and ODRL, eyemind otherwise. |
 | `--all` | With RDF or N3 output, write the given data too. |
 | `--program` | Print the program the inputs compile to. |
+| `--odrl` | Add the ODRL snapshot profile's validation and evaluation LS to one Turtle input. |
 | `--base IRI` | Resolve relative IRIs of the inputs against `IRI` instead of each file's location. |
 | `-v`, `--version`, `-h`, `--help` | Print the version or the usage. |
 
@@ -564,7 +638,7 @@ each goal as a data document, with an array denoting conjunction. With
 `--check-proof`, supply the original goals the proof answers.
 An option that takes a value requires it immediately afterward; another
 option, including a short alias such as `-v`, is reported as a missing value.
-With `--goal`, answers default to eyemind terms even for N3 and SRL inputs;
+With `--goal`, answers default to eyemind terms even for N3, SRL and ODRL inputs;
 use `--to` to request another output format.
 
 With `--prove-and-check`, reasoning bounds and `--stats` apply to proof
@@ -593,7 +667,7 @@ They are outside the language and proof specification.
 
 The JavaScript implementation defaults to a depth limit of 1000000, an
 inference limit of 1000000 and a limit of 1000 forward rounds per stratum.
-Compiled N3 and SRL programs use 1000000, 1000000000 and 100000 respectively.
+Compiled N3, SRL and ODRL programs use 1000000, 1000000000 and 100000 respectively.
 Each supplied bound must be a positive integer no greater than
 9007199254740991.
 

@@ -1,7 +1,7 @@
 # Examples
 
 Native examples are Logic Script (LS) programs in `.js` files. eyemind also
-runs N3 and SPARQL 1.2 RL examples by compiling them to LS.
+runs N3, SPARQL 1.2 RL and ODRL snapshot examples by compiling them to LS.
 
 Each example comes with a short card deck that explains it for a wide audience: the question it asks, what the program says, what eyemind concludes, why, and what the proof checker confirms. Cards are separated by `---`, so a deck reads as plain Markdown here and works as slides in Markdown slide tools such as Marp.
 
@@ -28,6 +28,9 @@ For SPARQL 1.2 RL, try [property paths](https://eyereasoner.github.io/eyemind/ex
 [exact decimals and doubles](https://eyereasoner.github.io/eyemind/examples/deck/exact-decimals-srl),
 or [execution times and UUIDs](https://eyereasoner.github.io/eyemind/examples/deck/execution-identifiers-srl).
 These `.srl` programs write Turtle output.
+For ODRL policies and a state-of-the-world snapshot in one Turtle file, try
+[handicap-card issuance](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card).
+With `--odrl`, the compiled LS includes validation and evaluation; the result is one Turtle report.
 For RDF Messages, try [message boundaries and heartbeats](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries-n3),
 [independent alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3),
 or [named-graph provenance](https://eyereasoner.github.io/eyemind/examples/deck/message-provenance-n3).
@@ -126,6 +129,7 @@ original inputs.
 | [graphs](https://eyereasoner.github.io/eyemind/examples/deck/graphs) | [graphs.js](https://github.com/eyereasoner/eyemind/blob/main/examples/graphs.js) | Base data, negation and collection |
 | [group-inverse-uniqueness](https://eyereasoner.github.io/eyemind/examples/deck/group-inverse-uniqueness) | [group-inverse-uniqueness.js](https://github.com/eyereasoner/eyemind/blob/main/examples/group-inverse-uniqueness.js) | Uniqueness of group inverses derived from the associativity, identity and inverse laws |
 | [hamming-code](https://eyereasoner.github.io/eyemind/examples/deck/hamming-code) | [hamming-code.js](https://github.com/eyereasoner/eyemind/blob/main/examples/hamming-code.js) | Parity syndromes and correction of a single flipped bit in Hamming(7,4) |
+| [handicap-card](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card) | [handicap-card.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/handicap-card.ttl) | One ODRL and SOTW snapshot allows Alice's handicap card and reports the conflict that blocks Bob's |
 | [hanoi](https://eyereasoner.github.io/eyemind/examples/deck/hanoi) | [hanoi.js](https://github.com/eyereasoner/eyemind/blob/main/examples/hanoi.js) | Recursive construction of a disk-move sequence |
 | [integrity](https://eyereasoner.github.io/eyemind/examples/deck/integrity) | [integrity.js](https://github.com/eyereasoner/eyemind/blob/main/examples/integrity.js) | A provable integrity violation |
 | [interval-relations](https://eyereasoner.github.io/eyemind/examples/deck/interval-relations) | [interval-relations.js](https://github.com/eyereasoner/eyemind/blob/main/examples/interval-relations.js) | All thirteen interval relations and endpoint completion |

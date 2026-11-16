@@ -87,6 +87,47 @@ export const tests = [
     await p.select('mode', '');
   }],
 
+  ['an ODRL Turtle snapshot runs, downloads as Turtle and checks its proof', async (page, base) => {
+    const p = driver(page);
+    await p.open(`${base}#example=handicap-card`);
+    assert.equal(await page.evaluate("document.getElementById('odrl').checked"), true);
+    assert.match(await page.evaluate("document.getElementById('command').textContent"), /--odrl/);
+    await p.run();
+    assert.match(await p.status(), /^Done · exit 0/);
+    assert.equal(await p.output(), readFileSync(new URL('../examples/output/handicap-card.ttl', import.meta.url), 'utf8'));
+    await page.evaluate(`(() => {
+      HTMLAnchorElement.prototype.click = function () { window.savedFilename = this.download; };
+      document.getElementById('save-output').click();
+    })()`);
+    assert.equal(await page.evaluate('window.savedFilename'), 'output.ttl');
+    await page.evaluate("document.getElementById('odrl').click()");
+    assert.doesNotMatch(await page.evaluate("document.getElementById('command').textContent"), /--odrl/);
+    await p.run();
+    assert.doesNotMatch(await p.output(), /canHappen|EvaluationReport/);
+    await page.evaluate("document.getElementById('share-link').click()");
+    await p.until("document.getElementById('share-url').value.includes('#state=')", 'the disabled ODRL switch');
+    const withoutOdrl = await page.evaluate("document.getElementById('share-url').value");
+    await p.open(withoutOdrl, 390, true);
+    assert.equal(await page.evaluate("document.getElementById('odrl').checked"), false);
+    await page.evaluate("document.getElementById('odrl').click()");
+    await p.select('mode', '--proof');
+    await p.run();
+    const proof = await p.output();
+    assert.match(proof, /^step\(/m);
+    await p.select('mode', '--check-proof');
+    await p.type('proof-input', proof);
+    await p.run();
+    assert.match(await p.output(), /verdict\('checked'\)/);
+    await page.evaluate("document.getElementById('share-link').click()");
+    await p.until("document.getElementById('share-url').value.includes('#state=')", 'the enabled ODRL switch and proof');
+    const withOdrl = await page.evaluate("document.getElementById('share-url').value");
+    await p.open(withOdrl);
+    assert.equal(await page.evaluate("document.getElementById('odrl').checked"), true);
+    await p.run();
+    assert.match(await p.output(), /verdict\('checked'\)/);
+    await p.select('mode', '');
+  }],
+
   ['practical and mathematical examples load from the manifest and run', async (page, base) => {
     const p = driver(page);
     // The corpus checks every example. Here exercise representative browser

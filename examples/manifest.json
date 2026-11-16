@@ -704,5 +704,12 @@
       "exact-decimals-srl.srl"
     ],
     "description": "Exact decimal invoice totals and division alongside binary64 double arithmetic"
+  },
+  {
+    "name": "handicap-card",
+    "files": ["handicap-card.ttl"],
+    "output": "ttl",
+    "odrl": true,
+    "description": "One ODRL and SOTW snapshot allows Alice's handicap card and reports the conflict that blocks Bob's"
   }
 ]

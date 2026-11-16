@@ -9,7 +9,7 @@ import { ROOT, assert, cachedCli, cli } from './helpers.js';
 export const section = 'examples';
 
 const MANIFEST = readManifest();
-const inputs = (entry) => sourceFiles(entry).map((file) => `examples/${file}`);
+const inputs = (entry) => [...(entry.odrl ? ['--odrl'] : []), ...sourceFiles(entry).map((file) => `examples/${file}`)];
 const CHANGED = (kind) => `${kind} changed; review it, then run node tools/update-examples.js`;
 const read = (path) => readFileSync(path, 'utf8');
 // A saved proof this large is not reasoned over again for what the library
@@ -102,7 +102,7 @@ export const tests = {
 // Three tests per example, so a run shows each as it goes and a failure names
 // the example and what of it changed.
 for (const entry of MANIFEST) {
-  const [source] = inputs(entry);
+  const source = `examples/${sourceFiles(entry)[0]}`;
   tests[`${source} output: ${entry.description}`] = () => checkOutput(entry);
   tests[`${source} proof`] = () => checkProofOf(entry);
   tests[`${source} check`] = () => checkCheck(entry);

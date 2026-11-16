@@ -11,6 +11,9 @@
 //   .n3                      Notation3, compiled to an LS program
 //   .srl                     a SPARQL 1.2 RL rule set, compiled to one
 //
+// The odrl option adds the snapshot profile's validation and evaluation LS
+// to one Turtle input. Its vocabulary alone never enables the evaluator.
+//
 // The compiled program is ordinary LS: proofs, checking and --unused
 // apply to it. SRL execution functions capture a context that a saved proof
 // retains; compiling with that context reproduces the same program later.
@@ -20,6 +23,7 @@ import { readTerms } from './reader.js';
 import { DEFAULT_GRAPH, parseRdf, rdfDocument, rdfFormat, writeRdf } from './rdf.js';
 import { resultToN3, compileSources } from './n3.js';
 import { compileSrl, srlAnswers, srlQuads } from './srl.js';
+import { compileOdrl } from './odrl.js';
 import { write } from './writer.js';
 import { isRdfMessageLog, parseRdfMessages } from './messages.js';
 
@@ -41,7 +45,7 @@ export function rdfMessageFormat(name) {
 // Load inputs, given as [text, name] pairs, as one program. io may supply
 // readFile, for the documents N3 and IMPORTS name, and fileIri(name), the
 // base IRI of a file. Returns { kind, program, text, prefixes, compiled }:
-// kind is 'js', 'n3' or 'srl', text the compiled program for N3 and SRL,
+// kind is 'js', 'n3', 'srl' or 'odrl', text the compiled program,
 // and compiled what writing the conclusions needs.
 export function loadInputs(inputs, io = null, options = {}) {
   try {
@@ -53,7 +57,7 @@ export function loadInputs(inputs, io = null, options = {}) {
   }
 }
 
-function load(inputs, io, { base = null, messageInputs = null, srlContext = null }) {
+function load(inputs, io, { base = null, messageInputs = null, srlContext = null, odrl = false }) {
   const kinds = inputs.map(([text, name]) => messageInputs?.has(name) ||
     (inputKind(name) === 'n3' && isRdfMessageLog(text)) ? 'rdf' : inputKind(name));
   const baseOf = (name) => base ?? io?.fileIri?.(name) ?? null;
@@ -61,6 +65,12 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
     (isRdfMessageLog(text) ? parseRdfMessages : parseRdf)(text, {
       format: rdfFormat(name) ?? 'trig', base: baseOf(name), scope: scopeOf(inputs, name, k),
     });
+  // ODRL logic is added only when requested, never from a document's terms.
+  if (odrl) {
+    if (inputs.length !== 1) throw new EyemindError('--odrl takes one Turtle snapshot containing policies, requests and SOTW');
+    const [text, name] = inputs[0];
+    return compileOdrl(parseRdf(text, { format: 'turtle', base: baseOf(name), scope: scopeOf(inputs, name, 0) }), { source: name });
+  }
   if (kinds.includes('srl')) {
     const others = kinds.filter((k) => k !== 'srl' && k !== 'rdf');
     if (kinds.filter((k) => k === 'srl').length > 1 || others.length) {
@@ -118,9 +128,9 @@ function importResolver(io) {
   };
 }
 
-// The default output format of a run: N3 for N3, Turtle for SRL, and
+// The default output format of a run: N3 for N3, Turtle for SRL and ODRL, and
 // eyemind's own text for a program.
-export const defaultFormat = (kind) => ({ n3: 'n3', srl: 'turtle' })[kind] ?? 'eyemind';
+export const defaultFormat = (kind) => ({ n3: 'n3', srl: 'turtle', odrl: 'turtle' })[kind] ?? 'eyemind';
 
 // The conclusions of a run in an output format; null for eyemind's own text.
 // all also writes the given data. Throws when a conclusion is no triple.

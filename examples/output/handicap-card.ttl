@@ -1,0 +1,38 @@
+PREFIX : <https://example.org/handicap-card#>
+PREFIX eval: <https://eyereasoner.github.io/eyemind/odrl#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+
+:evaluation a eval:EvaluationReport .
+:evaluation eval:policy :eligibility .
+:evaluation eval:policy :administrativeHold .
+:evaluation eval:conflictStrategy odrl:prohibit .
+:issueAlice a eval:Request .
+:issueAlice odrl:assignee :CivicOffice .
+:issueAlice odrl:action :issueHandicapCard .
+:issueAlice odrl:target :HandicapCardService .
+:issueAlice eval:subject :Alice .
+:issueAlice eval:state :aliceState .
+:issueBob a eval:Request .
+:issueBob odrl:assignee :CivicOffice .
+:issueBob odrl:action :issueHandicapCard .
+:issueBob odrl:target :HandicapCardService .
+:issueBob eval:subject :Bob .
+:issueBob eval:state :bobState .
+:evaluation eval:validationStatus eval:Valid .
+:issueAlice eval:unmetConstraint :held .
+:issueAlice eval:permission :mayIssue .
+:issueBob eval:permission :mayIssue .
+:issueBob eval:prohibition :mustWait .
+:evaluation eval:conflict _:b0 .
+_:b0 a eval:Conflict .
+_:b0 eval:request :issueBob .
+_:b0 eval:permissionPolicy :eligibility .
+_:b0 eval:permissionRule :mayIssue .
+_:b0 eval:prohibitionPolicy :administrativeHold .
+_:b0 eval:prohibitionRule :mustWait .
+:evaluation eval:conflictCount 1 .
+:evaluation eval:request :issueAlice .
+:issueAlice eval:decision eval:Allowed .
+:evaluation eval:request :issueBob .
+:issueBob eval:decision eval:Prohibited .
+:evaluation eval:canHappen :issueAlice .

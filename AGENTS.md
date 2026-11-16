@@ -50,6 +50,8 @@ goals, and keep error messages specific and user-facing text direct.
     by the SRL tokenizer, parser and analysis (`srl-tokenizer.js`,
     `srl-parser.js`, `srl-term.js`, `srl-assignments.js`, `srl-analyze.js`,
     `srl-builtin-names.js`).
+  `odrl.js`: the ODRL snapshot profile enabled by `--odrl`, compiling one Turtle input
+  with policies, requests and SOTW into LS validation and evaluation rules.
 - `bin/eyemind.js`: the `eyemind` command.
 - `playground/index.html`: hand-written browser playground; it runs `src/`
   in a module worker, with no build step. `playground.html` redirects older
@@ -62,6 +64,7 @@ goals, and keep error messages specific and user-facing text direct.
   their description and halt code. An entry can list its
   source files in order. RDF examples pair Turtle or TriG data in
   `examples/data/` with companion N3 rules directly in `examples/`.
+  An ODRL snapshot example is one `.ttl` file directly in `examples/`.
   `examples/output/`,
   `examples/proof/` and `examples/check/` hold each one's saved conclusions,
   proof and check report; `examples/deck/` a card deck per example. Outputs
