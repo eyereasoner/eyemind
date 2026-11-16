@@ -96,7 +96,7 @@ inf(iri('http://example.org/deployment#cve1'), iri('http://example.org/deploymen
 
 ## What the proof establishes
 
-The rule set compiles to an eyemind program: each data triple becomes the
+The rule set compiles to a Logic Script (LS) program: each data triple becomes the
 facts `rdf(S, P, O)` and `inf(S, P, O)`, each `RULE` a forward rule, and
 `NOT { ... }` a negation of a helper relation, here `srl_not_6_1`. The proof
 cites that program's clauses. It holds the 17 claims, 23 steps, and a

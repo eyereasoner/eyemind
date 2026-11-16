@@ -80,7 +80,7 @@ inf(iri('http://example.org/collection-nesting#test'), iri('http://example.org/c
 
 ## What the proof establishes
 
-The rule set is compiled to an eyemind program, and its proof cites that
+The rule set is compiled to a Logic Script (LS) program, and its proof cites that
 program's clauses, with each triple written `rdf(S, P, O)` and each inference
 `inf(S, P, O)`. After the claims come the steps: one `step(Goal, clause(N),
 Bindings, Uses)` per inferred triple, naming the compiled rule, the values of

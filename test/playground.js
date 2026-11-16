@@ -62,6 +62,7 @@ export const tests = [
     await p.open(`${base}#example=socrates`);
     assert.equal(await page.evaluate('document.title'), 'The eyemind Playground');
     assert.equal(await page.evaluate("document.querySelector('h1').textContent"), 'The eyemind Playground');
+    assert.match(await page.evaluate("document.querySelector('header p').textContent"), /Logic Script \(LS\).*JavaScript syntax/);
     assert.equal(await page.evaluate("document.querySelector('a[href=\"https://github.com/eyereasoner/eyemind\"]').textContent"), 'Repository ↗');
     assert.equal(await page.evaluate("document.getElementById('version').textContent"), expected);
     assert.equal(await page.evaluate("document.getElementById('examples').value"), 'socrates');
@@ -387,6 +388,8 @@ query(or(q(X), r(X)))`);
     assert.equal(await page.evaluate('location.pathname'), '/playground/conformance');
     assert.deepEqual(await page.evaluate("[...document.querySelectorAll('nav a')].map(a => a.textContent)"), labels);
     assert.equal(await page.evaluate("document.querySelector('nav [aria-current=page]').textContent"), 'Conformance');
+    assert.match(await page.evaluate("document.querySelector('.tagline').textContent"), /Logic Script \(LS\) conformance/);
+    assert.match(await page.evaluate("document.querySelector('footer').textContent"), /eyemind.*Logic Script \(LS\) reasoner/s);
     assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].some(node => node.textContent.includes('README.command-line'))"));
     assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].every(node => node.textContent.startsWith('References: '))"));
     await p.type('filter', 'replay');

@@ -18,6 +18,20 @@ function blocks(path, heading, language = 'js') {
 const slug = (title) => title.trim().toLowerCase().replace(/[^\p{L}\p{N}_\- ]/gu, '').replace(/ /g, '-');
 
 export const tests = {
+  'public descriptions name Logic Script as the language and eyemind as the reasoner'() {
+    for (const path of ['README.md', 'SPEC.md', 'AGENTS.md', 'examples/README.md', 'conformance/README.md']) {
+      assert.match(document(path), /Logic Script \(LS\)/, path);
+    }
+    for (const path of ['package.json', '.zenodo.json']) {
+      const metadata = JSON.parse(document(path));
+      assert.match(metadata.description, /Logic Script \(LS\)/, path);
+      assert.match(metadata.description, /reasoner/, path);
+    }
+    assert.equal(JSON.parse(document('package.json')).name, 'eyemind');
+    assert.match(cli(['--help']).stdout, /Logic Script \(LS\) programs use JavaScript syntax/);
+    assert.match(document('_layouts/default.html'), /eyemind · Logic Script with checked proofs/);
+  },
+
   'the guide and command help list the same options and aliases'() {
     const guide = document('README.md').split('## Command line\n')[1].split('### Resource limits\n')[0];
     const options = guide.split('\n').filter((line) => line.startsWith('| `')).map((line) => line.split('|')[1]).join('\n');

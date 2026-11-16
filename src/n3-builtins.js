@@ -1,7 +1,7 @@
-// N3 built-ins as eyemind backward rules.
+// N3 built-ins as Logic Script backward rules.
 //
 // Each built-in predicate of a rule body becomes a goal n3_<ns>_<name>(S, O)
-// whose definition is written here in eyemind itself, so the compiled program
+// whose definition is written here in Logic Script, so the compiled program
 // is self-contained and every built-in step is an ordinary, checkable
 // derivation. A definition lists the helpers it needs; the compiler copies
 // the definitions a program uses, and their helpers, into the program.

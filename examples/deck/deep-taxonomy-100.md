@@ -34,7 +34,7 @@ for (let level = 1; level <= 100; level++) {
 query(type(X, 'n100'))
 ```
 
-An eyemind program is JavaScript, so an ordinary `for` loop can state rules:
+A Logic Script (LS) program is JavaScript, so an ordinary `for` loop can state rules:
 it runs with `level` = 1, 2, ..., 100, and `` `n${level}` `` spells the
 class name, such as `n1`. The fact is clause 1; level 1 gives clauses 2, 3
 and 4, level 2 gives clauses 5, 6 and 7, and so on up to clause 301.

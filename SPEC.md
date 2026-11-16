@@ -1,13 +1,13 @@
-# <img src="assets/eye.png" alt="" width="48" height="48" align="absmiddle"> eyemind specification
+# <img src="assets/eye.png" alt="" width="48" height="48" align="absmiddle"> Logic Script (LS) specification
 
 ```text
-Title:      The eyemind Rule Language and Proof Format
+Title:      The Logic Script (LS) Language and Proof Format
 Version:    eyemind 0.6.1
 ```
 
-This document specifies the syntax and meaning of eyemind programs and data
-documents, their observable evaluation, their proofs, and how a proof is
-checked.
+This document specifies Logic Script (LS): the syntax and meaning of its
+programs and data documents, their observable evaluation, their proofs, and
+how a proof is checked. eyemind is an implementation of LS.
 
 ## Table of Contents
 
@@ -83,9 +83,9 @@ checked.
 
 ### 1.1 Scope
 
-This specification defines eyemind's terms, program syntax, semantics,
+This specification defines Logic Script's terms, program syntax, semantics,
 evaluation, data documents, proof documents and proof checking.
-Programs are JavaScript scripts. Conclusions, proofs and check reports are
+LS programs are JavaScript scripts. Conclusions, proofs and check reports are
 data documents whose expressions MUST be read without execution.
 
 The requirements apply to any conforming implementation. JavaScript is the
@@ -285,8 +285,8 @@ own code point; a valid surrogate pair denotes one supplementary code point.
 
 ### 3.1 Scripts
 
-A program consists of one or more non-strict JavaScript scripts. Each script
-may use JavaScript declarations, expressions, functions and control flow to
+A Logic Script program consists of one or more non-strict JavaScript scripts.
+Each script may use JavaScript declarations, expressions, functions and control flow to
 construct its clauses. No import is required for the statements and term
 constructors defined here. Clauses are stated in the order their statement
 calls occur; multiple input scripts are processed in input order. Each

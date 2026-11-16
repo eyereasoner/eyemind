@@ -8,9 +8,9 @@ import { VERSION } from './version.js';
 import { srlContextFromProof } from './srl.js';
 
 export const HELP = `Usage: eyemind [OPTION ...] [FILE ...]
-Programs are JavaScript; forward rules run to a fixpoint. Other files are read
-by their extension: .ttl, .trig, .nt and .nq as RDF 1.2 data, .n3 as Notation3
-and .srl as a SPARQL 1.2 RL rule set, both compiled to an eyemind program.
+Logic Script (LS) programs use JavaScript syntax. Forward rules run to a fixpoint.
+Files are read by extension: .js as LS, .ttl, .trig, .nt and .nq as RDF 1.2 data,
+.n3 as Notation3 and .srl as a SPARQL 1.2 RL rule set, both compiled to LS.
   -p, --proof             Print a proof of the conclusions
   -c, --prove-and-check   Generate a proof and check it against the input program
       --check-proof FILE  Check a proof and print its answers and verdict (- for stdin)

@@ -46,7 +46,7 @@ does not depend on order, so eyemind compiles `log:collectAllIn` to
 `findall_sorted(Template, Goal, List)`, which sorts the list in the standard
 order of terms and keeps repeated items. `math:sum` and
 `math:greaterThan` become backward definitions included in the generated
-program, using eyemind primitives for arithmetic and comparison.
+program, using Logic Script primitives for arithmetic and comparison.
 
 Collection waits for its dependencies to settle. Here its search concerns
 line and amount properties; the conclusions use total and type properties.

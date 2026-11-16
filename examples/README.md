@@ -1,5 +1,8 @@
 # Examples
 
+Native examples are Logic Script (LS) programs in `.js` files. eyemind also
+runs N3 and SPARQL 1.2 RL examples by compiling them to LS.
+
 Each example comes with a short card deck that explains it for a wide audience: the question it asks, what the program says, what eyemind concludes, why, and what the proof checker confirms. Cards are separated by `---`, so a deck reads as plain Markdown here and works as slides in Markdown slide tools such as Marp.
 
 For practical decisions, try [outage recovery](https://eyereasoner.github.io/eyemind/examples/deck/service-outage-recovery),
@@ -105,7 +108,7 @@ original inputs.
 | [expression-eval](https://eyereasoner.github.io/eyemind/examples/deck/expression-eval) | [expression-eval.js](https://github.com/eyereasoner/eyemind/blob/main/examples/expression-eval.js) | Recursive expression graphs used in forward inference |
 | [family-cousins](https://eyereasoner.github.io/eyemind/examples/deck/family-cousins) | [family-cousins.js](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins.js) | Generations, family branches and cousin relationships |
 | [family-cousins-srl](https://eyereasoner.github.io/eyemind/examples/deck/family-cousins-srl) | [family-cousins-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins-srl.srl) | Bounded generations and inherited branch labels identify cousins across a family tree |
-| [family-n3](https://eyereasoner.github.io/eyemind/examples/deck/family-n3) | [family-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/family-n3.n3) | Notation3 backward ancestry and log:query compiled to eyemind |
+| [family-n3](https://eyereasoner.github.io/eyemind/examples/deck/family-n3) | [family-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/family-n3.n3) | Notation3 backward ancestry and log:query compiled to Logic Script |
 | [family-recursion-n3](https://eyereasoner.github.io/eyemind/examples/deck/family-recursion-n3) | [family-recursion-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/family-recursion-n3.n3) | Recursive backward ancestry selected by a query |
 | [family-srl](https://eyereasoner.github.io/eyemind/examples/deck/family-srl) | [family-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-srl.srl) | Recursive forward ancestry over a three-generation family tree |
 | [fibonacci](https://eyereasoner.github.io/eyemind/examples/deck/fibonacci) | [fibonacci.js](https://github.com/eyereasoner/eyemind/blob/main/examples/fibonacci.js) | Fast doubling for exact Fibonacci numbers, and the golden ratio |

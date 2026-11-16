@@ -12,7 +12,7 @@ Ann is Bob's parent, and Bob is Cara's parent. Who descends from Ann?
 The answer needs both a direct connection and a chain of connections.
 
 The playground and command line run the N3 file directly. Use
-`eyemind --program examples/family-n3.n3` to inspect the eyemind rules
+`eyemind --program examples/family-n3.n3` to inspect the Logic Script (LS) rules
 it compiles.
 
 ---

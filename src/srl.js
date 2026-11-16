@@ -1,4 +1,4 @@
-// SPARQL 1.2 RL rule sets compiled to eyemind programs.
+// SPARQL 1.2 RL rule sets compiled to Logic Script (LS) programs.
 //
 // Rule sets are read by the SRL tokenizer, parser and analysis (the
 // srl-*.js files): parsing gives the rule set's data blocks and rules, and the

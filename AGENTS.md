@@ -1,7 +1,9 @@
 # Working on eyemind
 
-eyemind is a dependency-free JavaScript rule language with forward and
-backward reasoning and checkable proofs. Programs are JavaScript scripts;
+eyemind is a dependency-free reasoner for Logic Script (LS), a rule language
+with JavaScript syntax, forward and backward reasoning, and checkable proofs.
+It interoperates with RDF 1.2, Notation3 (N3) and SPARQL 1.2 RL (SRL).
+LS programs are JavaScript scripts, saved as `.js` files;
 conclusions, proofs and check reports are JavaScript expressions that a
 reader turns back into terms without running them. N3 and SRL inputs write
 the same JavaScript proofs, citing the clauses of their compiled program.
@@ -16,8 +18,8 @@ goals, and keep error messages specific and user-facing text direct.
   - `terms.js`: terms, unification with the occurs check, the trail, the
     standard order. `writer.js`, `reader.js`: the canonical text, and
     reading documents back without executing them.
-  - `lang.js`: stating programs in JavaScript (the implicit-name scope,
-    statements, line numbers). `goals.js`: arrays as conjunctions.
+  - `lang.js`: stating Logic Script programs in JavaScript (the implicit-name
+    scope, statements, line numbers). `goals.js`: arrays as conjunctions.
   - `program.js`: clause validation, indexing and stratification, and the
     guards and restraint order of restricted rules. `chains.js`: chain
     stratification for programs whose negations lie on a dependency cycle.
@@ -159,7 +161,7 @@ very large proofs; redirect them to a file and inspect focused parts.
 ## Other formats
 
 RDF data, N3 and SPARQL 1.2 RL are inputs of the command line, compiled to
-ordinary programs; they are implementation extensions described in README.md,
+ordinary LS programs; they are implementation extensions described in README.md,
 outside the language and proof specification. The RDF lexer and parser, and the SRL tokenizer, parser and
 analysis, are maintained in `src/` as ES modules. Preserve the `eyemind:`
 comments that explain adaptations in these modules. The W3C suites decide

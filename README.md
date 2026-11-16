@@ -3,7 +3,7 @@
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23824021-blue.svg)](https://doi.org/10.5281/zenodo.23824021)
 [![npm](https://img.shields.io/npm/v/eyemind.svg)](https://www.npmjs.com/package/eyemind)
 
-eyemind is a **JavaScript rule language** with forward and backward reasoning and checkable proofs. You write facts and rules in plain JavaScript; eyemind draws conclusions, and every conclusion can come with a proof that a separate checker verifies against your program. It runs as a command-line program, a JavaScript library, and a browser application, with no dependencies.
+eyemind is a dependency-free reasoner for **Logic Script (LS)**, a rule language with JavaScript syntax. LS programs state facts, rules, and queries; eyemind draws conclusions using forward and backward reasoning, and can produce proofs that a separate checker verifies against your program. It interoperates with **RDF 1.2**, **Notation3 (N3)** and **SPARQL 1.2 RL (SRL)**: RDF supplies data, and N3 and SRL compile to LS programs whose proofs use the same checker. It runs as a command-line program, a JavaScript library, and a browser application.
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
@@ -49,7 +49,7 @@ Prolog, Datalog, N3 and SRL already exist, and eyemind adds no new logic: rules 
      - what a rule says exists, as the Skolem term of that rule firing;
      - whether each answer really answers the question asked, and whether every answer of the question is there.
    - A forged proof must never pass the check, so a result is something you can hand to someone who does not trust your engine.
-2. **Programs are plain JavaScript.**
+2. **Logic Script programs are JavaScript scripts.**
    - There is no syntax to learn, no parser to install and no dependency.
    - The same program runs on the command line, as a library and in a browser tab.
    - Conclusions and proofs are data that is read back into terms without being run.
@@ -57,14 +57,14 @@ Prolog, Datalog, N3 and SRL already exist, and eyemind adds no new logic: rules 
    - Classic Datalog is forward-only and has no function terms; Prolog is backward-only.
    - eyemind does both: forward rounds compute what follows, backward search answers questions, the two call each other, and what a rule says exists becomes a Skolem term.
 4. **A specification written for other implementers.**
-   - The specification and its black-box [conformance suite](https://eyereasoner.github.io/eyemind/conformance/) let someone else build an independent eyemind and test it.
+   - The specification and its black-box [conformance suite](https://eyereasoner.github.io/eyemind/conformance/) let someone else build an independent LS implementation and test it.
    - Agreement between independent implementations is what makes a proof worth more than "trust our code".
 5. **Exact numbers.** Integers are BigInts and are never silently turned into floats.
 
 When eyemind is not the right tool:
 
 - If you do not need proofs, use the mature tools: SWI-Prolog and XSB have tabling, and Soufflé is fast at scale.
-- N3 and SRL are designed around RDF and Web data. eyemind does not compete there: RDF is read as data (see [RDF 1.2](#rdf-12)), and N3 programs and SRL rule sets compile to eyemind (see [Notation3](#notation3) and [SPARQL 1.2 RL](#sparql-12-rl)).
+- N3 and SRL are designed around RDF and Web data. eyemind does not compete there: RDF is read as data (see [RDF 1.2](#rdf-12)), and N3 programs and SRL rule sets compile to LS (see [Notation3](#notation3) and [SPARQL 1.2 RL](#sparql-12-rl)).
 - eyemind is for cases where someone else has to be able to check why a conclusion holds: audits, compliance, and decisions between parties that do not trust each other.
 
 ## Install and run
@@ -93,7 +93,7 @@ The report ends with `verdict('checked')`. `eyemind -c examples/socrates.js` doe
 
 ## Your first program
 
-Save this as `/tmp/family.js`, or paste it into the [playground](https://eyereasoner.github.io/eyemind/playground/):
+Logic Script sources use the `.js` extension. Save this LS program as `/tmp/family.js`, or paste it into the [playground](https://eyereasoner.github.io/eyemind/playground/):
 
 ```js
 fact(parent('alice', 'bob'))
@@ -200,7 +200,7 @@ A reified triple `<< s p o >>` and an annotation `{| ... |}` become their reifie
 
 ### Notation3
 
-A file ending in `.n3` is Notation3: eyemind compiles its facts and rules into a program, with the N3 built-ins it uses written as eyemind rules, and writes the conclusions back as N3. RDF default-graph data joins the N3 document as triples:
+A file ending in `.n3` is Notation3: eyemind compiles its facts and rules into an LS program, with the N3 built-ins it uses written as LS rules, and writes the conclusions back as N3. RDF default-graph data joins the N3 document as triples:
 
 ```sh
 eyemind examples/family-n3.n3                            # the derived triples as N3
@@ -341,7 +341,7 @@ returns `messages` plus its replay representation. Both take `format`,
 
 ### SPARQL 1.2 RL
 
-A file ending in `.srl` is a [SPARQL 1.2 RL](https://www.w3.org/TR/sparql12-rl/) rule set: eyemind parses and analyzes it, then compiles it into a program, with the SPARQL functions and aggregates it uses written as eyemind rules, and RDF data files given with it are its base graph. The result is the inference graph, as Turtle:
+A file ending in `.srl` is a [SPARQL 1.2 RL](https://www.w3.org/TR/sparql12-rl/) rule set: eyemind parses and analyzes it, then compiles it into an LS program, with the SPARQL functions and aggregates it uses written as LS rules, and RDF data files given with it are its base graph. The result is the inference graph, as Turtle:
 
 ```sh
 eyemind rules.srl facts.ttl               # the inference graph as Turtle
@@ -402,7 +402,7 @@ The two work together: a forward rule's premise can call a backward definition, 
 
 A proof holds the claims, the certificate that answers the program's
 questions, and the recorded firings behind derived facts as `step(...)`
-records. Every input writes the same JavaScript proof: an N3 document or SRL rule set is compiled to an eyemind program, and
+records. Every input writes the same JavaScript proof: an N3 document or SRL rule set is compiled to an LS program, and
 its proof cites that program's clauses, with triples as `rdf(S, P, O)` (an
 SRL inference as `inf(S, P, O)`) over `iri(...)` and `literal(...)` terms:
 
@@ -528,7 +528,7 @@ eyemind [OPTION ...] [FILE ...]
 
 | Option | Meaning |
 | --- | --- |
-| (none) | Load the files, or standard input, as one program and print its conclusions. `.ttl`, `.trig`, `.nt` and `.nq` files are RDF data, `.n3` Notation3 and `.srl` a SPARQL 1.2 RL rule set. |
+| (none) | Load the files, or standard input, as one program and print its conclusions. `.js` files and standard input are Logic Script, `.ttl`, `.trig`, `.nt` and `.nq` files RDF data, `.n3` Notation3 and `.srl` a SPARQL 1.2 RL rule set. |
 | `-p`, `--proof` | Print the proof instead. |
 | `-c`, `--prove-and-check` | Generate a proof, check it, and print the checked answers with the report. |
 | `--check-proof FILE` | Check a saved proof (`-` for standard input) against the program. |
@@ -713,5 +713,7 @@ the scorer's `--live` option checks the current remote resources instead.
 ## The name
 
 **eyemind** joins *eye* and *mind*: facts and rules lead to conclusions whose reasoning can be inspected and checked.
+
+**Logic Script (LS)** names the language: facts, rules, and queries written in JavaScript syntax. eyemind is the reasoner that runs LS programs and checks their proofs.
 
 MIT licensed; see [LICENSE.md](LICENSE.md).

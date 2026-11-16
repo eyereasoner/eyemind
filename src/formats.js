@@ -1,17 +1,17 @@
-// The inputs of a run in other formats than JavaScript, and its output as
+// The inputs of a run in other formats than Logic Script, and its output as
 // RDF or N3.
 //
 // A file's extension says what it holds:
 //
-//   .js and standard input   an eyemind program
+//   .js and standard input   a Logic Script (LS) program
 //   .ttl .trig .nt .nq       RDF 1.2 data: with a program, rdf(S, P, O, G)
 //                            facts; with an N3 document, default triples and
 //                            graph:content formulas for named graphs; with a
 //                            rule set, its base graph
-//   .n3                      Notation3, compiled to an eyemind program
+//   .n3                      Notation3, compiled to an LS program
 //   .srl                     a SPARQL 1.2 RL rule set, compiled to one
 //
-// The compiled program is ordinary eyemind: proofs, checking and --unused
+// The compiled program is ordinary LS: proofs, checking and --unused
 // apply to it. SRL execution functions capture a context that a saved proof
 // retains; compiling with that context reproduces the same program later.
 import { EyemindError, Struct } from './terms.js';

@@ -1,8 +1,8 @@
-// N3 documents compiled to eyemind programs.
+// N3 documents compiled to Logic Script (LS) programs.
 //
 // Every N3 statement becomes rdf(Subject, Predicate, Object): the document's
 // own triples are facts, and a run concludes the triples its forward rules
-// derive that were not already facts. Rules become eyemind rules:
+// derive that were not already facts. Rules become LS rules:
 //
 //   { B } => { H }.        implies(B, H)               forward; restricted(B, H)
 //                                                      when H has blank nodes
@@ -20,7 +20,7 @@
 // backward rules. A quoted formula is a graph term: its own blank nodes and
 // universals are qbnode(Label) and qvar(Name), and a rule's graph pattern
 // matches it as a set, up to a one-to-one renaming of those. Built-in
-// predicates of a body become goals defined in eyemind itself (builtins.mjs).
+// predicates of a body become goals defined in LS (n3-builtins.js).
 import { run } from './engine.js';
 import { loadText } from './lang.js';
 import { Program, Source } from './program.js';

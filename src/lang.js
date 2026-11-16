@@ -1,6 +1,6 @@
-// Writing programs in JavaScript.
+// Writing Logic Script (LS) programs in JavaScript.
 //
-// A program is a JavaScript script that states facts and rules:
+// An LS program is a JavaScript script that states facts, rules and queries:
 //
 //     fact(type('socrates', 'human'))
 //     fact(subclass_of('human', 'mortal'))

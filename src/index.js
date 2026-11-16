@@ -1,9 +1,9 @@
 // eyemind: reasoning you can see, in JavaScript.
 //
-// Facts and rules are JavaScript. Forward rules materialize conclusions until
-// a fixpoint, backward rules are decided when a goal asks for them, and every
-// certifiable answer can come with a proof that a separate checker verifies
-// against the program, using its call tables and recorded firings.
+// Logic Script (LS) states facts, rules and queries in JavaScript syntax.
+// Forward rules materialize conclusions until a fixpoint; backward rules are
+// decided when a goal asks for them. A separate checker verifies proofs
+// against the program, using their call tables and recorded firings.
 export { VERSION } from './version.js';
 export { Result, run, unusedClauses } from './engine.js';
 export { readGoal } from './goals.js';

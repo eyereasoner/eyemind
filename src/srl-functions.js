@@ -1,8 +1,8 @@
-// SPARQL expressions and aggregates as eyemind backward rules.
+// SPARQL expressions and aggregates as Logic Script backward rules.
 //
 // An expression compiles to goals that bind its value; a function is a goal
 // srl_<name>(Arguments..., Result) whose definition is written here in
-// eyemind itself, so the compiled program is self-contained and every
+// Logic Script, so the compiled program is self-contained and every
 // function step is an ordinary, checkable derivation. A SPARQL error is a
 // goal that fails: FILTER then rejects the solution and SET drops it, as
 // SPARQL 1.2 RL evaluates them. A definition lists the definitions it needs;

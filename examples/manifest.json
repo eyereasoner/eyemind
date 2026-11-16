@@ -325,7 +325,7 @@
     "files": [
       "family-n3.n3"
     ],
-    "description": "Notation3 backward ancestry and log:query compiled to eyemind"
+    "description": "Notation3 backward ancestry and log:query compiled to Logic Script"
   },
   {
     "name": "scoped-negation-n3",

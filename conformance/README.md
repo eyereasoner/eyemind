@@ -1,6 +1,6 @@
-# eyemind conformance suite
+# Logic Script conformance suite
 
-These cases test an implementation against [the specification](https://eyereasoner.github.io/eyemind/SPEC). They are
+These cases test a Logic Script (LS) implementation against [the specification](https://eyereasoner.github.io/eyemind/SPEC). They are
 black-box: each case creates some files, runs the implementation's command
 line and compares what it prints and its exit code with the expected result.
 The command adapter follows the [README command-line interface](https://eyereasoner.github.io/eyemind/#command-line).

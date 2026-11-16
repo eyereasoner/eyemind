@@ -1,4 +1,4 @@
-// Notation3 compiled to eyemind: the parser, the compiler and its built-ins,
+// Notation3 compiled to Logic Script: the parser, the compiler and its built-ins,
 // the writer, and the N3 documents in examples/.
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
@@ -146,7 +146,7 @@ test('parser: quantifiers precede statements, @forAll before @forSome, each IRI 
 });
 
 // Compiling.
-test('compiler: IRIs are iri(Text) and rules are eyemind rules', () => {
+test('compiler: IRIs are iri(Text) and rules are Logic Script rules', () => {
   const { program } = compileN3(`${P}:a :p :b. { ?x :p ?y } => { ?y :q ?x }.`);
   assert.match(program, /^fact\(rdf\(iri\("http:\/\/example.org\/#a"\), iri\("http:\/\/example.org\/#p"\), iri\("http:\/\/example.org\/#b"\)\)\)$/m);
   assert.match(program, /^implies\(rdf\(X, iri\("http:\/\/example.org\/#p"\), Y\), rdf\(Y, iri\("http:\/\/example.org\/#q"\), X\)\)$/m);

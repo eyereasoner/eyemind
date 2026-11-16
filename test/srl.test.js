@@ -1,4 +1,4 @@
-// SPARQL 1.2 RL compiled to eyemind: reading and analyzing rule sets, the
+// SPARQL 1.2 RL compiled to Logic Script: reading and analyzing rule sets, the
 // compiler, expressions and aggregates, proofs, the SRL examples and
 // the W3C SPARQL 1.2 RL test suite in .cache/w3c/sparql-rl.
 import { mkdtempSync, writeFileSync } from 'node:fs';
