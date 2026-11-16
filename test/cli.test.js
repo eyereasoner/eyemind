@@ -126,6 +126,28 @@ export const tests = {
     assert.equal(cli(['--check-proof', proof, '--json', 'examples/socrates.js']).code, 0);
   },
 
+  'every short alias is recognized when a required value is missing'() {
+    const aliases = [...cli(['--help']).stdout.matchAll(/^  (-[a-z]), /gm)].map((match) => match[1]);
+    for (const option of ['--check-proof', '--goal', '--to', '--base', '--max-depth', '--max-iterations', '--max-inferences']) {
+      for (const alias of aliases) {
+        assert.deepEqual(cli([option, alias, 'examples/socrates.js']), {
+          code: 1, stdout: '', stderr: `eyemind: ${option} needs a value right after it, not the option ${alias}\n`,
+        });
+      }
+    }
+  },
+
+  'external goals use eyemind output by default for compiled inputs'() {
+    for (const file of ['examples/socrates-n3.n3', 'examples/socrates-srl.srl']) {
+      const args = [file, '--goal', "'true'"];
+      const result = cli(args);
+      assert.equal(result.code, 0, result.stderr);
+      assert.equal(result.stdout, "// Answers: each instance of a goal that holds.\n'true'\n");
+      assert.deepEqual(cli([...args, '--to', 'eyemind']), result);
+      assert.notEqual(cli([file]).stdout, result.stdout);
+    }
+  },
+
   'prints the version'() {
     for (const [flag, ran] of [['-v', command], ['--version', cli]]) {
       const result = ran([flag, 'examples/socrates.js']);

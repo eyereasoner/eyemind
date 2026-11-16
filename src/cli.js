@@ -24,8 +24,8 @@ and .srl as a SPARQL 1.2 RL rule set, both compiled to an eyemind program.
       --max-inferences N  Bound reasoning work (default 1000000)
       --to FORMAT         Write the conclusions as turtle, trig, n-triples,
                           n-quads, n3 or eyemind (default: n3 for N3, turtle
-                          for a rule set, eyemind otherwise)
-      --all               With RDF output, write the given data too
+                          for a rule set, eyemind otherwise or with --goal)
+      --all               With RDF or N3 output, write the given data too
       --program           Print the program the inputs compile to
       --base IRI          Resolve relative IRIs of the inputs against IRI
       --stream-messages   Run the rules independently for each RDF Message
@@ -36,6 +36,7 @@ Exit codes: 0 success, 1 error, 2 invalid proof, 65 contradiction.
 `;
 
 const LIMITS = { '--max-depth': 'maxDepth', '--max-iterations': 'maxIterations', '--max-inferences': 'maxInferences' };
+const ALIASES = new Map([['-p', '--proof'], ['-c', '--prove-and-check'], ['-v', '--version'], ['-h', '--help']]);
 // N3 and SPARQL 1.2 RL programs run longer than eyemind's defaults allow.
 const COMPILED_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferences: 1000000000 };
 
@@ -66,18 +67,18 @@ export function main(argv, io) {
     let streamMessages = false;
     const filePositions = new Set();
     for (let i = 0; i < argv.length; i++) {
-      const arg = argv[i];
-      if (arg === '--help' || arg === '-h') {
+      const arg = ALIASES.get(argv[i]) ?? argv[i];
+      if (arg === '--help') {
         stdout(HELP);
         return 0;
       }
-      if (arg === '--version' || arg === '-v') {
+      if (arg === '--version') {
         stdout(`eyemind v${VERSION}\n`);
         return 0;
       }
-      if (arg === '--proof' || arg === '-p') {
+      if (arg === '--proof') {
         options.proof = true;
-      } else if (arg === '--prove-and-check' || arg === '-c') {
+      } else if (arg === '--prove-and-check') {
         proveAndCheck = true;
       } else if (arg === '--stats') {
         stats = true;
@@ -98,7 +99,7 @@ export function main(argv, io) {
         // An option in the value's place means the value was left out, as in
         // --check-proof --json proof.js; reading the option as a file
         // name would only fail later with a puzzling message.
-        if (/^--./.test(value) || ['-p', '-c', '-h'].includes(value)) {
+        if (/^--./.test(value) || ALIASES.has(value)) {
           throw new UsageError(`${arg} needs a value right after it, not the option ${value}`);
         }
         if (arg === '--check-proof') {

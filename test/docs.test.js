@@ -18,6 +18,13 @@ function blocks(path, heading, language = 'js') {
 const slug = (title) => title.trim().toLowerCase().replace(/[^\p{L}\p{N}_\- ]/gu, '').replace(/ /g, '-');
 
 export const tests = {
+  'the guide and command help list the same options and aliases'() {
+    const guide = document('README.md').split('## Command line\n')[1].split('### Resource limits\n')[0];
+    const options = guide.split('\n').filter((line) => line.startsWith('| `')).map((line) => line.split('|')[1]).join('\n');
+    const flags = (text) => [...new Set(text.match(/--[a-z-]+|(?<![\w-])-[a-z]\b/g))].sort();
+    assert.deepEqual(flags(options), flags(cli(['--help']).stdout));
+  },
+
   'every top navigation links conformance immediately after the specification'() {
     for (const path of ['_layouts/default.html', 'playground/index.html', 'playground/conformance.html']) {
       const nav = document(path).match(/<nav\b[^>]*>([\s\S]*?)<\/nav>/)[1];

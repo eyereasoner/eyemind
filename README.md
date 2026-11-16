@@ -548,6 +548,10 @@ eyemind [OPTION ...] [FILE ...]
 exclusive. `--json` needs a checking mode. `--goal` reads
 each goal as a data document, with an array denoting conjunction. With
 `--check-proof`, supply the original goals the proof answers.
+An option that takes a value requires it immediately afterward; another
+option, including a short alias such as `-v`, is reported as a missing value.
+With `--goal`, answers default to eyemind terms even for N3 and SRL inputs;
+use `--to` to request another output format.
 
 With `--prove-and-check`, reasoning bounds and `--stats` apply to proof
 generation; an invalid check returns 2, otherwise the run's halt code is
@@ -664,7 +668,7 @@ npm test -- unit examples                             # these sections, plus W3C
 npm test -- -k skolem                                 # only tests whose line contains "skolem"
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node tools/update-examples.js                         # regenerate example artifacts after an intended change
-node tools/report.js                                  # the table npm test ends with, into REPORT.md
+node tools/report.js                                  # run the full suite and write REPORT.md
 node tools/notation3tests.js                          # the cached Notation3 suite
 npm run sync                                          # refresh all three upstream test suites
 node conformance/run.js --command "my-eyemind"        # run the conformance suite against another implementation
