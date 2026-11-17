@@ -2,7 +2,7 @@
 
 eyemind reads `.le` files as the language defined here and compiles
 them to ordinary Logic Script (LS). This is an input extension; the meaning of
-the compiled program is defined by the [LS specification](https://eyereasoner.github.io/eyemind/SPEC).
+the compiled program is defined by the [LS specification](https://eyereasoner.github.io/eyemind/LS-SPEC).
 It supports statements and computations in a fixed grammar. It does not parse
 arbitrary mathematical prose or check textbook proof arguments.
 

@@ -19,7 +19,7 @@ const slug = (title) => title.trim().toLowerCase().replace(/[^\p{L}\p{N}_\- ]/gu
 
 export const tests = {
   'public descriptions name Logic Script as the language and eyemind as the reasoner'() {
-    for (const path of ['README.md', 'SPEC.md', 'AGENTS.md', 'examples/README.md', 'conformance/README.md']) {
+    for (const path of ['README.md', 'LS-SPEC.md', 'LE-SPEC.md', 'AGENTS.md', 'examples/README.md', 'conformance/README.md']) {
       assert.match(document(path), /Logic Script \(LS\)/, path);
     }
     for (const path of ['package.json', '.zenodo.json']) {
@@ -59,11 +59,11 @@ export const tests = {
   },
 
   'documents link the guide, the specification and the decks through GitHub Pages'() {
-    for (const path of ['README.md', 'SPEC.md', 'conformance/README.md', 'examples/README.md']) {
+    for (const path of ['README.md', 'LS-SPEC.md', 'LE-SPEC.md', 'conformance/README.md', 'examples/README.md']) {
       for (const [, target] of document(path).matchAll(/\]\(([^)#][^)]*)\)/g)) {
-        assert.doesNotMatch(target, /^(?!https?:)(?:.*\/)?(?:SPEC|GUIDE)(?:\.md)?(?:#|$)|^(?!https?:).*\bdeck\//,
+        assert.doesNotMatch(target, /^(?!https?:)(?:.*\/)?(?:LS-SPEC|LE-SPEC|SPEC|GUIDE)(?:\.md)?(?:#|$)|^(?!https?:).*\bdeck\//,
           `${path}: ${target} should be a https://eyereasoner.github.io/eyemind/ link`);
-        assert.doesNotMatch(target, /^https:\/\/github\.com\/eyereasoner\/eyemind\/(?:blob|tree)\/main\/(?:SPEC\.md|GUIDE\.md|conformance\/?$)/, `${path}: ${target}`);
+        assert.doesNotMatch(target, /^https:\/\/github\.com\/eyereasoner\/eyemind\/(?:blob|tree)\/main\/(?:LS-SPEC\.md|LE-SPEC\.md|SPEC\.md|GUIDE\.md|conformance\/?$)/, `${path}: ${target}`);
       }
     }
   },
@@ -78,7 +78,7 @@ export const tests = {
   },
 
   'consecutive lines with inline comments align them in one column'() {
-    const sources = ['README.md', 'SPEC.md', 'AGENTS.md', 'conformance/README.md', 'examples/README.md',
+    const sources = ['README.md', 'LS-SPEC.md', 'LE-SPEC.md', 'AGENTS.md', 'conformance/README.md', 'examples/README.md',
       ...['src', 'bin', 'tools', 'test', 'conformance'].flatMap((dir) => readdirSync(join(ROOT, dir))
         .filter((name) => /\.m?js$/.test(name)).map((name) => `${dir}/${name}`))];
     for (const path of sources) {
@@ -98,7 +98,7 @@ export const tests = {
   },
 
   'the specification keeps implementation interfaces in the guide'() {
-    const spec = document('SPEC.md');
+    const spec = document('LS-SPEC.md');
     const headings = [...spec.matchAll(/^#{2,3} (.+)$/gm)].map((match) => match[1]);
     assert.ok(headings.includes('13. Conformance'));
     assert.ok(headings.includes('14. Security'));
@@ -129,7 +129,7 @@ export const tests = {
   },
 
   'the spec appendix output proof and report match the program'() {
-    const [source, output, proof, report] = blocks('SPEC.md', '## Appendix B. Example');
+    const [source, output, proof, report] = blocks('LS-SPEC.md', '## Appendix B. Example');
     const program = loadText(source);
     assert.equal(run(program).stdout, output);
     const result = run(program, { proof: true });
@@ -151,7 +151,7 @@ export const tests = {
   },
 
   'the specification links every section it mentions, and every link within it has a heading'() {
-    const spec = document('SPEC.md');
+    const spec = document('LS-SPEC.md');
     const headings = [...spec.matchAll(/^(#{2,3}) (.+)$/gm)].filter((match) => match[2] !== 'Table of Contents');
     const contents = spec.split('## Table of Contents\n')[1].split(/\n---\n/)[0];
     const listed = [...contents.matchAll(/^( *)- \[(.+)\]\(#([^)]+)\)$/gm)];

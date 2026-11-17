@@ -45,7 +45,7 @@ goals, and keep error messages specific and user-facing text direct.
     and SHACL validation to standalone LS; `shacl-expr.js` compiles SHACL
     node expressions.
   - `owl2rl.js`: explicit `--owl2rl` inference, including RDFS, and OWL conflict reports, compiled to standalone LS.
-  - `le.js`: Logical English (`.le`) compiled to LS, and `.le` conclusions; its grammar is in `LOGICAL-ENGLISH.md`.
+  - `le.js`: Logical English (`.le`) compiled to LS, and `.le` conclusions; its grammar is in `LE-SPEC.md`.
     `le-odrl.js` maps an explicitly selected LE ODRL vocabulary to RDF and shares `odrl.js` for snapshot evaluation.
   - `formats.js`: inputs by extension and output with `--to`. `rdf.js`:
     RDF 1.2 (Turtle, TriG, N-Triples, N-Quads) to and from eyemind terms,
@@ -90,7 +90,7 @@ goals, and keep error messages specific and user-facing text direct.
   RDF Message examples keep their logs in `examples/data/`; payloads are
   quoted `log:nameOf` formulas. Replay has proofs and check reports;
   `--stream-messages` runs each message independently.
-- `conformance/`: black-box language and proof cases from SPEC.md, plus
+- `conformance/`: black-box language and proof cases from LS-SPEC.md, plus
   implementation interface checks tagged with their README headings. Each case file is an
   eyemind document of `conformance(Name, [Setting, ...])` terms, read by
   `conformance/run.js`; `conformance/README.md` describes the format.
@@ -115,7 +115,7 @@ goals, and keep error messages specific and user-facing text direct.
   upstream suites into Git.
 - `README.md` (the guide: why eyemind, running, writing programs, proofs,
   playground, CLI, library, development), served by Pages as the site root;
-  `SPEC.md` (RFC-style specification: terms, programs, arithmetic,
+  `LS-SPEC.md` (RFC-style specification: terms, programs, arithmetic,
   reasoning, canonical text, proof documents and proof checking).
 - `release`, `.github/workflows/`, `.zenodo.json`: releases, CI, Pages,
   GitHub releases, npm publishing and Zenodo archiving.
@@ -153,7 +153,7 @@ very large proofs; redirect them to a file and inspect focused parts.
 
 ## Language and examples
 
-- Read the relevant section of `SPEC.md` before changing language behavior,
+- Read the relevant section of `LS-SPEC.md` before changing language behavior,
   and Sections 10–12 before changing proofs. Keep the implementation, SPEC,
   README, examples, conformance cases and tests consistent.
 - Operators never build terms: `add(X, 1)`, `gt(X, 1)`, and an array for a
@@ -177,7 +177,7 @@ very large proofs; redirect them to a file and inspect focused parts.
   change, run `node tools/update-examples.js` and review the diff: no
   artifact should change unless intended.
 - Expected conformance outputs come from the specification, not from running
-  eyemind. When a language or proof case and eyemind disagree, SPEC.md decides
+  eyemind. When a language or proof case and eyemind disagree, LS-SPEC.md decides
   which is wrong. Interface compatibility cases cite the README instead.
 
 ## Other formats
@@ -227,11 +227,11 @@ forged proof the checker rejects, and confirm that all saved example proofs
 still check. `test/properties.test.js` forges proofs at random; after changing
 the checker, run it with a larger `EYEMIND_PROPERTY_SCALE`.
 
-SPEC.md and the conformance suite are written for implementations by
+LS-SPEC.md and the conformance suite are written for implementations by
 independent parties: interoperability comes from them, not from keeping
 another implementation's code in sync. Decide behavior from the
 specification, keep the suite free of anything only eyemind can run, and put
-what another implementer needs in SPEC.md rather than only in eyemind's code.
+what another implementer needs in LS-SPEC.md rather than only in eyemind's code.
 Floats from a host's math library (`exp`, `log`, trigonometry, `pow`) may
 differ in the last place between implementations; SPEC Section 13 allows it,
 and a proof whose answers rest on such a result may then not check on
@@ -276,7 +276,7 @@ release. The script rejects empty and version-only messages before doing work.
 
 The script requires a clean working tree, switches to `main`, pulls with
 `--ff-only`, runs `npm test` under a memory cap, bumps the version with
-`npm version`, writes it into `src/version.js` and SPEC.md with
+`npm version`, writes it into `src/version.js` and LS-SPEC.md with
 `node tools/version.js`, commits, creates an annotated `v*` tag, and pushes
 the branch and tag atomically. A push to `main` runs CI and deploys GitHub
 Pages; a `v*` tag creates the GitHub release (which Zenodo archives) and

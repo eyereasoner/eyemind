@@ -6,7 +6,7 @@ import { ROOT, assert } from './helpers.js';
 
 export const tests = {
   'every behavioral specification subsection has an explicitly tagged case'() {
-    const specification = readFileSync(join(ROOT, 'SPEC.md'), 'utf8');
+    const specification = readFileSync(join(ROOT, 'LS-SPEC.md'), 'utf8');
     const headings = [...specification.matchAll(/^#{2,3} (\d+(?:\.\d+)?)\.? /gm)].map((m) => m[1]);
     const guide = readFileSync(join(ROOT, 'README.md'), 'utf8');
     const guideHeadings = new Set([...guide.matchAll(/^#{2,3} (.+)$/gm)]
@@ -23,7 +23,7 @@ export const tests = {
   },
 
   'every documented arithmetic function has a successful evaluation case'() {
-    const specification = readFileSync(join(ROOT, 'SPEC.md'), 'utf8').split('### 5.2 Functions and arities')[1].split('### 5.3')[0];
+    const specification = readFileSync(join(ROOT, 'LS-SPEC.md'), 'utf8').split('### 5.2 Functions and arities')[1].split('### 5.3')[0];
     const names = [...specification.matchAll(/^\| ([^|]+) \| [^|]+ \|/gm)].flatMap((m) => [...m[1].matchAll(/`([a-z0-9_]+)`/g)].map((n) => n[1]));
     const positive = loadCases(['06-arithmetic.js']).filter((item) => item.exit === 0).map((item) => item.args).join('\n');
     for (const name of names) assert.match(positive, new RegExp(`\\b${name}\\(`), `no successful arithmetic case for ${name}`);

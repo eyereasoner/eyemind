@@ -22,7 +22,7 @@ using class and property sentences such as `eligibility is a policy` and
 The directive explicitly enables the shared evaluator in `src/odrl.js`.
 Validation, observation lookup, conflict strategies and report generation are
 the same LS rules used by the Turtle example with `--odrl`.
-The [LE reference](https://eyereasoner.github.io/eyemind/LOGICAL-ENGLISH#odrl-snapshots)
+The [LE reference](https://eyereasoner.github.io/eyemind/LE-SPEC#odrl-snapshots)
 defines the vocabulary mapping. The policy semantics come from the supported
 profile of the [W3C ODRL Information Model](https://www.w3.org/TR/odrl-model/).
 

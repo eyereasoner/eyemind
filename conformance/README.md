@@ -1,6 +1,6 @@
 # Logic Script conformance suite
 
-These cases test a Logic Script (LS) implementation against [the specification](https://eyereasoner.github.io/eyemind/SPEC). They are
+These cases test a Logic Script (LS) implementation against [the specification](https://eyereasoner.github.io/eyemind/LS-SPEC). They are
 black-box: each case creates some files, runs the implementation's command
 line and compares what it prints and its exit code with the expected result.
 The command adapter follows the [README command-line interface](https://eyereasoner.github.io/eyemind/#command-line).
@@ -48,7 +48,7 @@ they do not imply exhaustive coverage of all inputs or combinations.
 ## Case format
 
 This section defines the harness manifest, case format and pass criteria.
-Case files are data documents in [SPEC Section 9.1](https://eyereasoner.github.io/eyemind/SPEC#91-accepted-document-syntax).
+Case files are data documents in [SPEC Section 9.1](https://eyereasoner.github.io/eyemind/LS-SPEC#91-accepted-document-syntax).
 Numeric `spec` tags refer to that specification. Tags beginning `README.`
 refer to implementation features at the corresponding README heading, such
 as `README.command-line`, `README.json-check-reports` and
@@ -61,7 +61,7 @@ the order they run. Each element is an object with three string members:
 section or README heading references, separated by commas; and `topic`, a
 description. The cases of a file run in the order they appear in it.
 
-**Case files.** A case file is a document ([Section 9.1](https://eyereasoner.github.io/eyemind/SPEC#91-accepted-document-syntax)), read as data and
+**Case files.** A case file is a document ([Section 9.1](https://eyereasoner.github.io/eyemind/LS-SPEC#91-accepted-document-syntax)), read as data and
 never executed, whatever its file name extension. Each of its terms is one
 case, `conformance(Name, Settings)`, where `Name` is an atom unique in the
 suite and `Settings` is a proper list of the settings below. A **block** is a
@@ -125,7 +125,7 @@ the expected and actual standard output MUST have the same number of lines,
 and each expected line MUST equal the actual one, except that each `…`
 (U+2026) in an expected line matches any sequence of characters within that
 line; the language specification leaves such text, for example a failure detail, to
-the implementation ([Section 13](https://eyereasoner.github.io/eyemind/SPEC#13-conformance)). As JSON, both outputs MUST parse, and they
+the implementation ([Section 13](https://eyereasoner.github.io/eyemind/LS-SPEC#13-conformance)). As JSON, both outputs MUST parse, and they
 MUST be equal as JSON values: arrays element by element, objects with the
 same member names whatever their order, numbers by their values, and
 strings as lines are, so that an expected string containing `…` matches any
@@ -137,6 +137,6 @@ Expected language and proof results come from the specification, not from
 running an implementation. When a case and an implementation disagree, the
 specification decides which one is wrong. A case whose proof check fails
 compares only the exit code, since the wording, number and order of failures
-are informative ([Section 12](https://eyereasoner.github.io/eyemind/SPEC#12-check-reports)). Interface compatibility cases take
+are informative ([Section 12](https://eyereasoner.github.io/eyemind/LS-SPEC#12-check-reports)). Interface compatibility cases take
 their expectations from the README. Keep these references explicit; passing
 implementation interface checks is not a language conformance requirement.

@@ -10,7 +10,7 @@ Socrates is a human. Every human is mortal. The question asks for every mortal.
 
 ## What we tell eyemind
 
-The input uses [Logical English](https://eyereasoner.github.io/eyemind/LOGICAL-ENGLISH).
+The input uses [Logical English](https://eyereasoner.github.io/eyemind/LE-SPEC).
 Its fixed grammar gives the sentences an explicit LS meaning. Variables are
 declared in each sentence; class and relation names retain their spelling.
 The source file's comments explain the rule and question.
