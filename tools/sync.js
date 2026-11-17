@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// Refresh all three cached test suites, staging downloads before replacement.
+// Refresh cached test suites, staging downloads before replacement.
 import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { manifestCases, RDF_MANIFESTS, sparqlRlCases, SRL_BASE, W3C_BASE } from '../test/w3c.js';
+import { shaclCases, SHACL_BASE, SHACL_PATH } from '../test/shacl.js';
 import { syncNotation3Tests } from './sync-notation3tests.js';
 import { cachePaths, readCachedSuites, recordUpstream, writeInventory } from './test-cache.js';
 
@@ -13,11 +14,12 @@ const RDF_SOURCE = 'https://github.com/w3c/rdf-tests';
 const SRL_SOURCE = 'https://github.com/w3c/data-shapes';
 const SRL_PATH = 'shacl12-test-suite/tests/sparql-rl';
 const help = `Usage: npm run sync [-- OPTIONS]
-Refresh notation3tests, W3C RDF and W3C SPARQL 1.2 RL from upstream.
+Refresh notation3tests, W3C RDF, SPARQL 1.2 RL and SHACL 1.2 from upstream.
 Requires Git and network access. Optional local Git checkouts:
   --notation3tests PATH    notation3tests repository
   --w3c-rdf PATH           w3c/rdf-tests repository
   --w3c-sparql-rl PATH     w3c/data-shapes repository
+  --w3c-shacl PATH         w3c/data-shapes repository (defaults to the SRL checkout)
   -h, --help              Print this help
 `;
 
@@ -54,7 +56,7 @@ function licenses(source, target) {
 // rejection. Check the files before publishing the manifests that name them.
 function validate(cases, base, mirror) {
   if (!cases.length) throw new Error(`no cases found for ${base}`);
-  for (const c of cases) for (const iri of [c.action, c.result, c.ruleset, ...(c.data ?? [])].filter(Boolean)) {
+  for (const c of cases) for (const iri of [c.manifest, c.action, c.result, c.ruleset, ...(c.data ?? []), ...(c.shapes ?? [])].filter(Boolean)) {
     if (!iri.startsWith(base)) throw new Error(`${c.id}: resource outside the mirrored suite: ${iri}`);
     const path = resolve(mirror, decodeURIComponent(iri.slice(base.length).replace(/#.*$/, '')));
     if (!path.startsWith(`${resolve(mirror)}${sep}`) || !existsSync(path) || !statSync(path).isFile()) {
@@ -114,7 +116,7 @@ export async function syncTestSuites({ root = ROOT, checkouts = {}, log = consol
 
     log('Syncing W3C SPARQL 1.2 RL...');
     const srl = join(temporary, 'sparql-rl');
-    const srlCheckout = checkout(SRL_SOURCE, checkouts['w3c-sparql-rl'], join(temporary, 'srl-upstream'), [SRL_PATH]);
+    const srlCheckout = checkout(SRL_SOURCE, checkouts['w3c-sparql-rl'] ?? checkouts['w3c-shacl'], join(temporary, 'srl-upstream'), [SHACL_PATH]);
     copy(join(srlCheckout, SRL_PATH), srl);
     licenses(srlCheckout, srl);
     const srlCases = sparqlRlCases({ mirror: srl });
@@ -123,15 +125,28 @@ export async function syncTestSuites({ root = ROOT, checkouts = {}, log = consol
     metadata(srl, srlInfo);
     log(`w3c-sparql-rl: staged ${srlCases.length} cases at ${srlInfo.revision}`);
 
+    log('Syncing W3C SHACL 1.2...');
+    const shacl = join(temporary, 'shacl');
+    const shaclCheckout = checkouts['w3c-shacl'] ? resolve(checkouts['w3c-shacl']) : srlCheckout;
+    copy(join(shaclCheckout, SHACL_PATH), shacl, (file) => basename(file) !== 'sparql-rl');
+    licenses(shaclCheckout, shacl);
+    copy(join(shaclCheckout, 'shacl12-test-suite/README.md'), join(shacl, 'UPSTREAM.md'));
+    const shaclTests = shaclCases({ mirror: shacl });
+    validate(shaclTests, SHACL_BASE, shacl);
+    const shaclInfo = { source: SRL_SOURCE, revision: revision(shaclCheckout), path: SHACL_PATH,
+      manifest: SHACL_BASE + 'manifest.ttl', cases: shaclTests.length };
+    metadata(shacl, shaclInfo);
+    log(`w3c-shacl: staged ${shaclTests.length} cases at ${shaclInfo.revision}`);
+
     const targets = cachePaths(root);
-    for (const stage of [n3, rdf, srl]) writeInventory(stage);
-    const info = { notation3tests: notation3, rdf: rdfInfo, srl: srlInfo };
+    for (const stage of [n3, rdf, srl, shacl]) writeInventory(stage);
+    const info = { notation3tests: notation3, rdf: rdfInfo, srl: srlInfo, shacl: shaclInfo };
     const provenance = join(temporary, 'upstream.json');
     metadata(temporary, info);
     publish([{ stage: n3, target: targets.notation3tests },
-      { stage: rdf, target: targets.rdf }, { stage: srl, target: targets.srl },
+      { stage: rdf, target: targets.rdf }, { stage: srl, target: targets.srl }, { stage: shacl, target: targets.shacl },
       { stage: provenance, target: join(root, 'test/upstream.json') }], temporary);
-    log(`Synced ${notation3.cases} Notation3, ${rdfCases.length} RDF and ${srlCases.length} SPARQL RL cases.`);
+    log(`Synced ${notation3.cases} Notation3, ${rdfCases.length} RDF, ${srlCases.length} SPARQL RL and ${shaclTests.length} SHACL cases.`);
     return info;
   } finally {
     rmSync(temporary, { recursive: true, force: true });
@@ -153,7 +168,7 @@ export async function main(argv) {
   for (let i = 0; i < argv.length; i++) {
     const option = argv[i];
     if (['--help', '-h'].includes(option)) { console.log(help); return 0; }
-    if (!['--notation3tests', '--w3c-rdf', '--w3c-sparql-rl'].includes(option)) throw new Error(`unknown sync option ${option}; use --help`);
+    if (!['--notation3tests', '--w3c-rdf', '--w3c-sparql-rl', '--w3c-shacl'].includes(option)) throw new Error(`unknown sync option ${option}; use --help`);
     if (!argv[i + 1] || argv[i + 1].startsWith('--')) throw new Error(`${option} needs a checkout path`);
     checkouts[option.slice(2)] = argv[++i];
   }

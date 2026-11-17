@@ -7,6 +7,7 @@ import { earlReport } from '../tools/earl.js';
 import { parseRdf } from '../src/rdf.js';
 import { write } from '../src/index.js';
 import { manifestCases, RDF_MANIFESTS, sparqlRlCases } from './w3c.js';
+import { scoredShaclCases } from './shacl.js';
 import { ROOT, assert } from './helpers.js';
 
 const EARL = 'http://www.w3.org/ns/earl#';
@@ -32,7 +33,7 @@ export const tests = {
     assert.equal(new Set(assertions.map((q) => write(q[0]))).size, cases.length);
   },
 
-  'even a filtered npm test invocation regenerates both complete W3C EARL reports'() {
+  'even a filtered npm test invocation regenerates all complete W3C EARL reports'() {
     const result = spawnSync(process.execPath, [join(ROOT, 'test/run.js'), 'unit', '-k', 'earl-no-matching-test'], {
       cwd: ROOT, encoding: 'utf8', timeout: 30000,
     });
@@ -42,11 +43,12 @@ export const tests = {
     for (const [name, cases] of [
       ['w3c-rdf-earl.ttl', RDF_MANIFESTS.flatMap(manifestCases)],
       ['w3c-sparql-rl-earl.ttl', sparqlRlCases()],
+      ['w3c-shacl-earl.ttl', scoredShaclCases()],
     ]) {
       const data = quads(readFileSync(join(ROOT, 'reports', name), 'utf8'));
       assert.deepEqual(values(data, `${EARL}test`).map((t) => t.args[0]), cases.map((c) => c.id));
       assert.equal(values(data, `${EARL}outcome`).length, cases.length);
-      assert.ok(values(data, `${EARL}outcome`).every((t) => t.args[0] === `${EARL}passed`));
+      if (name !== 'w3c-shacl-earl.ttl') assert.ok(values(data, `${EARL}outcome`).every((t) => t.args[0] === `${EARL}passed`));
     }
   },
 };

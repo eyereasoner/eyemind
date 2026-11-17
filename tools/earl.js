@@ -46,9 +46,10 @@ export function earlReport(results, { title = 'eyemind EARL report', date = new 
   return writeRdf(quads, { prefixes: { earl: EARL, doap: DOAP, dct: DCT, xsd: XSD } });
 }
 
-export function writeEarlReports(directory, rdf, srl) {
+export function writeEarlReports(directory, rdf, srl, shacl) {
   mkdirSync(directory, { recursive: true });
   const date = new Date().toISOString();
   writeFileSync(join(directory, 'w3c-rdf-earl.ttl'), earlReport(rdf, { title: 'eyemind W3C RDF EARL report', date }));
   writeFileSync(join(directory, 'w3c-sparql-rl-earl.ttl'), earlReport(srl, { title: 'eyemind W3C SPARQL 1.2 RL EARL report', date }));
+  writeFileSync(join(directory, 'w3c-shacl-earl.ttl'), earlReport(shacl, { title: 'eyemind W3C SHACL 1.2 full-report coverage', date }));
 }

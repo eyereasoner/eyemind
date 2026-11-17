@@ -1,15 +1,16 @@
 # Upstream test suites
 
-`npm test` uses three suites in Git-ignored `.cache/`:
+`npm test` uses four suites in Git-ignored `.cache/`:
 
 | Cache directory | Upstream |
 | --- | --- |
 | `.cache/notation3tests/` | [phochste/notation3tests](https://codeberg.org/phochste/notation3tests) |
 | `.cache/w3c/rdf-tests/` | [w3c/rdf-tests](https://github.com/w3c/rdf-tests) |
+| `.cache/w3c/shacl/` | [w3c/data-shapes](https://github.com/w3c/data-shapes), the SHACL 1.2 root manifest and its includes |
 | `.cache/w3c/sparql-rl/` | [w3c/data-shapes](https://github.com/w3c/data-shapes), `shacl12-test-suite/tests/sparql-rl` |
 
 A normal run reuses the cache without checking upstream. If the cache is
-missing or incomplete, the runner downloads all three suites before importing
+missing or incomplete, the runner downloads all four suites before importing
 the tests. This first run needs Git and network access. File inventories let
 the runner detect missing inputs instead of silently skipping their cases.
 
@@ -41,6 +42,24 @@ Local Git checkouts can supply any of the sources:
 ```sh
 npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes
 ```
+
+The data-shapes checkout supplies both SRL and SHACL. `--w3c-shacl PATH`
+selects a separate SHACL checkout. The SHACL mirror contains the four processor
+families reachable from `tests/manifest.ttl`; the separate `sparql-rl` tree
+stays in its existing cache.
+
+`node tools/shacltests.js [--json] [--strict] [SUITE_DIRECTORY]` scores the
+Core and node-expression groups of the SHACL root manifest and writes `reports/w3c-shacl-earl.ttl`. Every `npm test`,
+including a filtered run, scores it too. Complete validation reports are
+compared according to the upstream full-compliance procedure, retaining
+required messages, input blank-node identities and result multiplicity while
+normalizing path structure and generated result IDs. Processor requirements
+are checked explicitly: unsupported processors are untested, never false
+passes from coincidentally matching output or rejecting an expected-failure
+case. Unsupported active constraints and incorrect reports are failed cases.
+The default coverage run leaves missing SHACL support outside the strict
+RDF/SRL release gate; `--strict` fails for every non-passing SHACL case.
+Missing resources or malformed manifests fail either mode.
 
 `node tools/sync-notation3tests.js [UPSTREAM_CHECKOUT]` refreshes only the
 Notation3 cache. The next test run records its updated provenance.

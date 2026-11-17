@@ -23,8 +23,15 @@
   },
   "srl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "807efba7be2970bb83676a9b2df5eed9c6abe364",
+    "revision": "0ed3f9b4273c2debba0125a7ed5c9dc3cd4b741c",
     "path": "shacl12-test-suite/tests/sparql-rl",
     "cases": 342
+  },
+  "shacl": {
+    "source": "https://github.com/w3c/data-shapes",
+    "revision": "0ed3f9b4273c2debba0125a7ed5c9dc3cd4b741c",
+    "path": "shacl12-test-suite/tests",
+    "manifest": "https://w3c.github.io/data-shapes/shacl12-test-suite/tests/manifest.ttl",
+    "cases": 591
   }
 }

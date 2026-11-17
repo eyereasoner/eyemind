@@ -9,6 +9,7 @@ export const cachePaths = (root = ROOT) => ({
   notation3tests: join(root, '.cache/notation3tests'),
   rdf: join(root, '.cache/w3c/rdf-tests'),
   srl: join(root, '.cache/w3c/sparql-rl'),
+  shacl: join(root, '.cache/w3c/shacl'),
 });
 
 export function writeInventory(directory) {

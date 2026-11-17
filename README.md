@@ -605,24 +605,38 @@ records carrying focus node, source shape, constraint component and severity,
 plus path, value and supplied messages where applicable. Complex result
 paths retain their RDF definitions in the report.
 
-Implemented SHACL Core families include all four explicit targets and
-implicit class targets; class, datatype and node-kind constraints; counts,
-bounds, lengths, patterns and language constraints; sets, property pairs and
-closed shapes; nested properties, node/not/and/or/xone, and qualified counts
-with disjoint siblings. Predicate, inverse, sequence, alternative and repeated
-paths compute distinct values and terminate on data cycles. Repeated `xone`
-members count separately. Deactivated shapes conform without validation.
+SHACL 1.2 Core is implemented: node, class, subjects-of, objects-of and where
+targets, `sh:shape` links in the data, and implicit class targets including
+`sh:ShapeClass`; class, datatype, node-kind and root-class constraints, each
+also with a list of alternatives; counts, bounds, lengths, patterns, single
+lines and language constraints; SHACL list members, lengths and uniqueness;
+sets, unique values for targets, property pairs over any path, and closed
+shapes, also `sh:ByTypes`; nested properties, node/not/and/or/xone,
+`sh:someValue`, reifier shapes and qualified counts with disjoint siblings.
+Constant `sh:values` and `sh:defaultValue` add value nodes. Predicate,
+inverse, sequence, alternative and repeated paths compute distinct values and
+terminate on data cycles. Repeated `xone` members count separately.
 
-This is a documented Core subset, not a claim of full W3C SHACL conformance.
+A reifier of a constraint triple can deactivate that constraint or give it its
+own `sh:severity` and `sh:message`. Each validation of a focus node is a
+separate result, so a nested shape reached by two routes reports twice, and
+`sh:lessThan` reports each incomparable pair. Results whose severity is outside
+the conformance-disallow set (`sh:Violation`, `sh:Warning` and `sh:Info` by
+default) are reported but do not make a node or the report nonconforming; a
+library caller can pass another set as `disallows`, which the report then
+lists as `sh:conformanceDisallows`. Only the boolean `true` activates a
+boolean parameter. Deactivated shapes conform without validation.
+
 Shapes and path definitions must be present in the input; inference may add
 data and targets, but cannot dynamically define new constraints. Recursive
-shape dependencies, SHACL-SPARQL, JavaScript constraints, rules, custom
-targets and SHACL 1.2 additions are rejected when used by active shapes.
+shape dependencies, node expressions beyond constants, SHACL-SPARQL,
+JavaScript constraints and rules are outside the implementation. Active
+shapes with unsupported constraint predicates are rejected.
 
 Datatype checks support XSD integer subtypes, decimal, float/double, boolean,
 string/normalizedString/token/language/anyURI, hex/base64 binary,
-date/dateTime/dateTimeStamp/time and RDF language strings. Other requested
-datatypes raise an error. Numeric bounds use exact integers/decimals with
+date/dateTime/dateTimeStamp/time and RDF language strings; a literal of
+another datatype matches that datatype's IRI. Numeric bounds use exact integers/decimals with
 SPARQL promotion for binary floats; string and same-kind temporal bounds
 are also supported. Temporal fractions remain exact. Timezones compare
 when both values have one or both omit one; a mixed pair is incomparable.
@@ -636,6 +650,34 @@ implemented. Malformed shapes and unsupported features produce specific
 errors instead of a conforming report.
 Try the [directory](https://eyereasoner.github.io/eyemind/examples/deck/people-shacl)
 and [normalized speed readings](https://eyereasoner.github.io/eyemind/examples/deck/measurement-shacl).
+
+The [W3C SHACL 1.2 manifest](https://w3c.github.io/data-shapes/shacl12-test-suite/tests/manifest.ttl)
+is scored on every `npm test`, including filtered runs. eyemind targets its
+Core and node-expression groups; SHACL-SPARQL and inference rules are out of
+scope and not scored. At upstream revision
+`0ed3f9b4273c2debba0125a7ed5c9dc3cd4b741c`, **all 162 Core tests pass
+complete-report comparison**. Node expressions beyond constants are not yet
+implemented, so the 284 node-expression tests do not pass yet.
+
+The two groups are reported separately in
+[REPORT.md](REPORT.md) and [SHACL EARL](reports/w3c-shacl-earl.ttl). The runner
+preserves separate data and shapes graphs, follows manifest includes and
+compares complete top-level results, their multiplicity, messages and paths.
+A matching conformance boolean alone is not a pass. Unimplemented processor
+families are explicitly untested in EARL; attempted validation cases that
+reject unsupported constraints or produce wrong reports are failed.
+
+```sh
+node tools/shacltests.js
+node tools/shacltests.js --json > /tmp/shacl-coverage.json
+node tools/shacltests.js --strict
+```
+
+The default scorer and `npm test` report SHACL coverage without making missing
+support fail the release checks, as with the Notation3 scorer. `--strict` exits
+with code 1 for any non-passing SHACL case. Broken manifests and missing test
+resources always fail the run. These commands reuse the cached suite; an
+optional suite directory can select a different copy.
 
 ### ODRL snapshots
 
@@ -1013,7 +1055,8 @@ EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node tools/update-examples.js                         # regenerate example artifacts after an intended change
 node tools/report.js                                  # run the full suite and write REPORT.md
 node tools/notation3tests.js                          # the cached Notation3 suite
-npm run sync                                          # refresh all three upstream test suites
+node tools/shacltests.js                              # SHACL 1.2 coverage; --strict fails for missing support
+npm run sync                                          # refresh all four upstream test suites
 node conformance/run.js --command "my-eyemind"        # run the conformance suite against another implementation
 ```
 
@@ -1023,16 +1066,18 @@ A full `npm test` writes `REPORT.md` from the summary table it prints.
 
 Every `npm test` invocation, including a filtered run, also runs both cached
 W3C format suites and rewrites [reports/w3c-rdf-earl.ttl](reports/w3c-rdf-earl.ttl)
-and [reports/w3c-sparql-rl-earl.ttl](reports/w3c-sparql-rl-earl.ttl).
+and [reports/w3c-sparql-rl-earl.ttl](reports/w3c-sparql-rl-earl.ttl). It also scores
+the Core and node-expression groups of the SHACL 1.2 manifest and writes
+[reports/w3c-shacl-earl.ttl](reports/w3c-shacl-earl.ttl).
 These [EARL](https://www.w3.org/TR/EARL10-Schema/) reports contain one
 assertion per manifest case, its actual outcome and diagnostic, the eyemind
-version and the run date. A W3C failure makes the command fail. A negative
+version and the run date. An RDF or SRL failure makes the command fail; SHACL is reported as coverage. A negative
 syntax test passes when the parser rejects its input as required.
 
 The [upstream suites](test/UPSTREAM.md) live in Git-ignored `.cache/`.
 `npm test` reuses them without fetching. If the cache is missing or incomplete,
 it downloads the suites first; that first run needs Git and network access.
-`npm run sync` explicitly refreshes all three suites and the Notation3 document
+`npm run sync` explicitly refreshes all four suites and the Notation3 document
 fixtures. Downloads and manifest resource checks finish before the cached
 suites are replaced; a failed refresh retains the old set. Upstream licensing
 and documentation stay with the cached files. The small tracked
@@ -1044,6 +1089,9 @@ Local Git checkouts can supply any of the sources:
 ```sh
 npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes
 ```
+
+The data-shapes checkout supplies both SRL and SHACL; `--w3c-shacl PATH` can
+select a separate checkout for SHACL.
 
 `node tools/sync-notation3tests.js [UPSTREAM_CHECKOUT]` still refreshes only
 Notation3 in `.cache/`. Once cached, tests use saved documents with no network fallback;

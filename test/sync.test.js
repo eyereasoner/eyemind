@@ -52,6 +52,16 @@ function fixture() {
     <#case> a <http://www.w3.org/ns/sparql-rl-tests#RulesPositiveSyntaxTest>;
       mf:name "fixture"; mf:action <input.srl>.`);
   put(join(srl, SRL_PATH, 'syntax/input.srl'), 'DATA {}\n');
+  put(join(srl, 'shacl12-test-suite/README.md'), 'upstream SHACL readme\n');
+  put(join(srl, 'shacl12-test-suite/tests/manifest.ttl'), `@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+    <> mf:include <core/manifest.ttl>.`);
+  put(join(srl, 'shacl12-test-suite/tests/core/manifest.ttl'), `@prefix mf: <http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#>.
+    @prefix sh: <http://www.w3.org/ns/shacl#>.
+    @prefix sht: <http://www.w3.org/ns/shacl-test#>.
+    <> mf:entries (<#case>).
+    <#case> a sht:Validate; mf:requires sht:Core;
+      mf:action [sht:dataGraph <>; sht:shapesGraph <>];
+      mf:result [a sh:ValidationReport; sh:conforms true].`);
   const revisions = {};
   for (const [name, path] of Object.entries(checkouts)) {
     git(path, 'init', '-q');
@@ -59,7 +69,7 @@ function fixture() {
     git(path, '-c', 'user.name=Sync fixture', '-c', 'user.email=sync@example.org', 'commit', '-qm', 'Test suite fixture');
     revisions[name] = git(path, 'rev-parse', 'HEAD');
   }
-  for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl']) put(join(root, path, 'stale'), 'old mirror');
+  for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl', '.cache/w3c/shacl']) put(join(root, path, 'stale'), 'old mirror');
   put(join(root, 'unrelated.txt'), 'keep me');
   return { temporary, root, checkouts, revisions };
 }
@@ -123,14 +133,15 @@ export const tests = {
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
-  async 'sync refreshes all three mirrors from local Git checkouts with exact bytes, fixtures and revisions'() {
+  async 'sync refreshes all four mirrors from local Git checkouts with exact bytes, fixtures and revisions'() {
     const f = fixture();
     try {
       const info = await syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} });
       assert.equal(info.notation3tests.cases, 3);
       assert.equal(info.rdf.cases, RDF_MANIFESTS.length);
       assert.equal(info.srl.cases, 1);
-      for (const [name, path] of [['notation3tests', '.cache/notation3tests'], ['w3c-rdf', '.cache/w3c/rdf-tests'], ['w3c-sparql-rl', '.cache/w3c/sparql-rl']]) {
+      assert.equal(info.shacl.cases, 1);
+      for (const [name, path] of [['notation3tests', '.cache/notation3tests'], ['w3c-rdf', '.cache/w3c/rdf-tests'], ['w3c-sparql-rl', '.cache/w3c/sparql-rl'], ['w3c-sparql-rl', '.cache/w3c/shacl']]) {
         assert.ok(!existsSync(join(f.root, path, 'stale')));
         assert.equal(JSON.parse(text(join(f.root, path, 'upstream.json'))).revision, f.revisions[name]);
       }
@@ -145,17 +156,20 @@ export const tests = {
       assert.ok(!existsSync(join(f.root, '.cache/w3c/rdf-tests/rdf/rdf11/rdf-turtle/reports')));
       assert.ok(!existsSync(join(f.root, '.cache/w3c/rdf-tests/rdf/rdf11/rdf-turtle/TESTS.zip')));
       assert.equal(text(join(f.root, '.cache/w3c/sparql-rl/LICENSE.md')), 'SRL license\n');
+      assert.equal(text(join(f.root, '.cache/w3c/shacl/UPSTREAM.md')), 'upstream SHACL readme\n');
+      assert.ok(!existsSync(join(f.root, '.cache/w3c/shacl/sparql-rl')));
       assert.equal(text(join(f.root, 'unrelated.txt')), 'keep me');
       assert.ok(readdirSync(join(f.root, '.cache')).every((name) => !name.startsWith('.sync-')));
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
-  async 'a failure in the last suite leaves all three previous mirrors intact'() {
+  async 'a failure in the last suite leaves all four previous mirrors intact'() {
     const f = fixture();
     try {
-      rmSync(join(f.checkouts['w3c-sparql-rl'], SRL_PATH, 'syntax/input.srl'));
-      await assert.rejects(syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} }), /input\.srl/);
-      for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl']) {
+      const manifest = join(f.checkouts['w3c-sparql-rl'], 'shacl12-test-suite/tests/core/manifest.ttl');
+      put(manifest, text(manifest).replace('sht:dataGraph <>', 'sht:dataGraph <missing.ttl>'));
+      await assert.rejects(syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} }), /missing\.ttl/);
+      for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl', '.cache/w3c/shacl']) {
         assert.equal(text(join(f.root, path, 'stale')), 'old mirror');
         assert.ok(!existsSync(join(f.root, path, 'upstream.json')));
       }
@@ -209,6 +223,7 @@ export const tests = {
     assert.match(help.stdout, /--notation3tests PATH/);
     assert.match(help.stdout, /--w3c-rdf PATH/);
     assert.match(help.stdout, /--w3c-sparql-rl PATH/);
+    assert.match(help.stdout, /--w3c-shacl PATH/);
     assert.equal(run('--unknown').status, 1);
     assert.match(run('--w3c-rdf').stderr, /needs a checkout path/);
   },

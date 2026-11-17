@@ -26,6 +26,8 @@ import { RDF_MANIFESTS, manifestCases, runCase, runSparqlRlCase, sparqlRlCases }
 import { writeEarlReports } from '../tools/earl.js';
 import { ensureTestCache } from '../tools/sync.js';
 import { cachePaths } from '../tools/test-cache.js';
+import { runShaclManifest } from './shacl.js';
+import { shaclSummary } from '../tools/shacltests.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = dirname(HERE);
@@ -312,17 +314,28 @@ async function main(argv) {
   }
   const full = !sections.length && pattern === null;
   const code = reporter.finish(full ? 'Main test total' : 'Total');
-  // Even a filtered run refreshes both reports from complete W3C runs. A
+  // Even a filtered run refreshes complete W3C reports. A
   // report never presents a skipped case or an old result as a fresh pass.
   console.log(`\n${paint('33', '== W3C RDF and SPARQL 1.2 RL suites')}`);
   const started = performance.now();
   const w3c = w3cRows();
-  writeEarlReports(join(ROOT, 'reports'), w3c.rdf, w3c.srl);
   const passed = w3c.rows.reduce((sum, row) => sum + row.passed, 0);
   const total = w3c.rows.reduce((sum, row) => sum + row.cases, 0);
   reporter.summary(passed, total, 'W3C format cases', performance.now() - started);
-  console.log('Wrote reports/w3c-rdf-earl.ttl and reports/w3c-sparql-rl-earl.ttl.');
-  if (full) printReport([...reporter.rows, ...w3c.rows, ...notation3Rows(reporter)]);
+  console.log(`\n${paint('33', '== W3C SHACL 1.2 coverage (complete reports)')}`);
+  const shacl = runShaclManifest();
+  const groups = shaclSummary(shacl);
+  for (const [name, g] of Object.entries(groups)) console.log(`${name}: ${g.passed}/${g.cases} passed; ${g.conforms} matching conforms; ${g.unsupported} unsupported`);
+  const brokenHarness = shacl.filter((r) => r.message.startsWith('test harness:'));
+  for (const r of brokenHarness) console.error(`${r.case.id}: ${r.message}`);
+  writeEarlReports(join(ROOT, 'reports'), w3c.rdf, w3c.srl, shacl);
+  console.log('Wrote reports/w3c-rdf-earl.ttl and reports/w3c-sparql-rl-earl.ttl; wrote reports/w3c-shacl-earl.ttl.');
+  const shaclRows = Object.entries(groups).map(([name, g]) => ({ suite: `W3C SHACL 1.2 ${name} (coverage)`, cases: g.cases,
+    passed: g.passed, seconds: g.seconds, coverage: true }));
+  if (full) printReport([...reporter.rows, ...w3c.rows, ...shaclRows, ...notation3Rows(reporter)]);
+  // SHACL is a scored implementation subset, like Notation3. Missing support
+  // is reported honestly; broken manifests/resources still fail the test run.
+  if (brokenHarness.length) return 1;
   return code || (passed === total ? 0 : 1);
 }
 
@@ -381,7 +394,7 @@ function printReport(rows) {
     '| --- | ---: | ---: | --- | ---: |',
   ];
   for (const row of rows) {
-    const result = row.passed === row.cases ? '✅ ok' : `❌ ${row.cases - row.passed} failed`;
+    const result = row.passed === row.cases ? '✅ ok' : `❌ ${row.cases - row.passed} ${row.coverage ? 'not passed' : 'failed'}`;
     lines.push(`| ${row.suite} | ${row.cases} | ${row.passed} | ${result} | ${time(row.seconds)} |`);
   }
   lines.push(`| **Total** | **${total.cases}** | **${total.passed}** | **${(100 * total.passed / total.cases).toFixed(1)}% ok** | **${time(total.seconds)}** |`);
