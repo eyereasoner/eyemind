@@ -173,7 +173,22 @@ derived conclusions, following LS's default; given facts alone are not printed.
 `It is impossible that` compiles to an LS contradiction with the stated body.
 `Contradiction.` is an unconditional contradiction, also used to serialize a
 run's `'false'` conclusion. Contradictions halt reasoning with exit code 65;
-they do not produce the continuing RDF conflict reports of `--owl-rl`.
+they do not produce the continuing RDF conflict reports of `--owl2rl`.
+
+## Examples combining features
+
+These programs use the grammar above without additional syntax:
+
+| Example | What it demonstrates |
+| --- | --- |
+| [Shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le) | Bounded recursive histories, exact costs and minimum selection by absence, retaining ties. |
+| [River crossing](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le) | Compound states, repeated-variable matching, safety constraints and complete plans within a bound. |
+| [Pell equations](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation-le) | Recursive arithmetic beyond binary64 integer precision and exact polynomial checks. |
+| [Course certificates](https://eyereasoner.github.io/eyemind/examples/deck/course-certificates-le) | Recursive requirements, absence of a counterexample, shared existential witnesses and witnesses containing earlier witnesses. |
+| [Symbolic differentiation](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative-le) | Structural recursion over expression trees, constructed derivatives and evaluation at separate points. |
+
+Their decks state the modeled assumptions and what the checked proofs establish.
+Bounds and finite expression domains are explicit in the programs.
 
 ## ODRL snapshots
 

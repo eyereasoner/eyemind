@@ -713,18 +713,18 @@
     "description": "One ODRL and SOTW snapshot allows Alice's handicap card and reports the conflict that blocks Bob's"
   },
   {
-    "name": "people-rdfs",
-    "files": ["people-rdfs.ttl"],
+    "name": "people-owl2rl",
+    "files": ["people-owl2rl.ttl"],
     "output": "ttl",
-    "rdfs": true,
-    "description": "RDFS class and property hierarchies infer people's types and a broader contact relation"
+    "owl2rl": true,
+    "description": "OWL 2 RL includes RDFS class and property rules to infer people's types and a broader contact relation"
   },
   {
-    "name": "family-owl-rl",
-    "files": ["family-owl-rl.ttl"],
+    "name": "family-owl2rl",
+    "files": ["family-owl2rl.ttl"],
     "output": "ttl",
-    "owlRl": true,
-    "description": "OWL-RL chains infer grandparents and functional properties expose a sameAs/differentFrom conflict"
+    "owl2rl": true,
+    "description": "OWL 2 RL chains infer grandparents and functional properties expose a sameAs/differentFrom conflict"
   },
   {
     "name": "socrates-le",
@@ -745,5 +745,30 @@
     "name": "handicap-card-le",
     "files": ["handicap-card-le.le"],
     "description": "An LE snapshot reuses the ODRL evaluator to allow Alice's card and retain Bob's policy conflict"
+  },
+  {
+    "name": "shortest-path-le",
+    "files": ["shortest-path-le.le"],
+    "description": "Bounded recursive paths retain both cheapest routes through a graph containing a cycle"
+  },
+  {
+    "name": "river-crossing-le",
+    "files": ["river-crossing-le.le"],
+    "description": "Compound states and safety constraints find both seven-crossing wolf, goat and cabbage plans"
+  },
+  {
+    "name": "pell-equation-le",
+    "files": ["pell-equation-le.le"],
+    "description": "An exact recurrence generates large Pell solutions and checks each polynomial identity"
+  },
+  {
+    "name": "course-certificates-le",
+    "files": ["course-certificates-le.le"],
+    "description": "Recursive course requirements and prior learning lead to shared dossiers, audits and nested certificate witnesses"
+  },
+  {
+    "name": "symbolic-derivative-le",
+    "files": ["symbolic-derivative-le.le"],
+    "description": "Structural rules differentiate a cubic expression and evaluate the resulting tree at two points"
   }
 ]

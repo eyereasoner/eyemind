@@ -25,12 +25,11 @@ all compiled to LS.
       --max-inferences N  Bound reasoning work (default 1000000)
       --to FORMAT         Write the conclusions as turtle, trig, n-triples,
                           n-quads, n3, le or eyemind (default: le for LE, n3 for N3, turtle
-                          for SRL, ODRL, RDFS or OWL-RL, eyemind otherwise or with --goal)
+                          for SRL, ODRL or OWL 2 RL, eyemind otherwise or with --goal)
       --all               With RDF or N3 output, write the given data too
       --program           Print the program the inputs compile to
       --odrl              Add ODRL validation and evaluation to one Turtle snapshot
-      --rdfs              Add RDFS inference rules to RDF inputs
-      --owl-rl            Add OWL-RL inference and conflict rules to RDF inputs
+      --owl2rl            Add OWL 2 RL inference, including RDFS, and conflict rules
       --base IRI          Resolve relative IRIs of the inputs against IRI
       --stream-messages   Run the rules independently for each RDF Message
   -v, --version           Print the version
@@ -70,8 +69,7 @@ export function main(argv, io) {
     let base = null;
     let streamMessages = false;
     let odrl = false;
-    let rdfs = false;
-    let owlRl = false;
+    let owl2rl = false;
     const filePositions = new Set();
     for (let i = 0; i < argv.length; i++) {
       const arg = ALIASES.get(argv[i]) ?? argv[i];
@@ -99,10 +97,8 @@ export function main(argv, io) {
         printProgram = true;
       } else if (arg === '--odrl') {
         odrl = true;
-      } else if (arg === '--rdfs') {
-        rdfs = true;
-      } else if (arg === '--owl-rl') {
-        owlRl = true;
+      } else if (arg === '--owl2rl') {
+        owl2rl = true;
       } else if (arg === '--stream-messages') {
         streamMessages = true;
       } else if (arg === '--check-proof' || arg === '--goal' || arg === '--to' || arg === '--base' || Object.hasOwn(LIMITS, arg)) {
@@ -151,7 +147,7 @@ export function main(argv, io) {
     if (files.filter((file) => file === '-').length > 1) throw new UsageError('stdin can only be read once');
     if (streamMessages) {
       if (odrl) throw new UsageError('--odrl cannot be combined with --stream-messages');
-      if (rdfs || owlRl) throw new UsageError('--rdfs and --owl-rl cannot be combined with --stream-messages');
+      if (owl2rl) throw new UsageError('--owl2rl cannot be combined with --stream-messages');
       if (proofFile !== null || options.proof || proveAndCheck || printProgram || unused) {
         throw new UsageError('--stream-messages cannot be combined with --proof, --check-proof, --prove-and-check, --program or --unused; replay the whole log to prove its conclusions');
       }
@@ -192,7 +188,7 @@ export function main(argv, io) {
     }
     const document = proofFile === null ? null : readSource(proofFile, io);
     const loaded = loadInputs(files.map((file) => [readSource(file, io), file === '-' ? '<stdin>' : file]), io,
-      { base, messageInputs: io.messageInputs, odrl, rdfs, owlRl,
+      { base, messageInputs: io.messageInputs, odrl, owl2rl,
         srlContext: document !== null && files.some((file) => inputKind(file) === 'srl') ? srlContextFromProof(document) : null });
     const program = loaded.program;
     if (printProgram) {

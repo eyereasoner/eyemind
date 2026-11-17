@@ -1,8 +1,8 @@
-# People with RDFS
+# People with OWL 2 RL
 
 *One Turtle graph supplies both the directory and its schema.*
 
-[people-rdfs.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/people-rdfs.ttl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/people-rdfs.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/people-rdfs.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/people-rdfs.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=people-rdfs)
+[people-owl2rl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/people-owl2rl.ttl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/people-owl2rl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/people-owl2rl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/people-owl2rl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=people-owl2rl)
 
 ---
 
@@ -16,8 +16,9 @@ What types and relations follow from this directory?
 
 ## What we tell eyemind
 
-The Turtle file contains the data and the schema. `--rdfs` adds the inference
-rules; the vocabulary by itself does not enable reasoning. The rules follow
+The Turtle file contains the data and the schema. `--owl2rl` adds the inference
+rules, including RDFS; the vocabulary by itself does not enable reasoning.
+The class and property rules follow
 [W3C RDF Schema](https://www.w3.org/TR/rdf-schema/).
 
 ## What eyemind concludes
@@ -36,7 +37,7 @@ result_rdf(iri('https://example.org/people#Alice'), iri('http://www.w3.org/1999/
 ```
 
 The output also contains the class, property and resource consequences of
-the RDFS rules. By default it omits triples already present in the input;
+the RDFS rules, together with OWL 2 RL equality and schema conclusions. By default it omits triples already present in the input;
 `--all` includes them.
 
 ## What the proof establishes
@@ -49,11 +50,11 @@ stated beforehand. Missing information is not a contradiction.
 ## Try it
 
 ```sh
-node bin/eyemind.js --rdfs examples/people-rdfs.ttl
-node bin/eyemind.js --rdfs --program examples/people-rdfs.ttl > /tmp/people-rdfs.js
-node bin/eyemind.js --to turtle /tmp/people-rdfs.js
-node bin/eyemind.js --rdfs --proof examples/people-rdfs.ttl
-node bin/eyemind.js --rdfs --check-proof examples/proof/people-rdfs.js examples/people-rdfs.ttl
+node bin/eyemind.js --owl2rl examples/people-owl2rl.ttl
+node bin/eyemind.js --owl2rl --program examples/people-owl2rl.ttl > /tmp/people-owl2rl.js
+node bin/eyemind.js --to turtle /tmp/people-owl2rl.js
+node bin/eyemind.js --owl2rl --proof examples/people-owl2rl.ttl
+node bin/eyemind.js --owl2rl --check-proof examples/proof/people-owl2rl.js examples/people-owl2rl.ttl
 ```
 
 Remove Alice's explicit researcher type: the colleague property's domain

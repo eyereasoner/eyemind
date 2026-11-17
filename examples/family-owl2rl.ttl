@@ -1,5 +1,5 @@
 # A family graph combines a property chain, inverse and functional properties.
-# --owl-rl infers Alice's grandparent relation and two names for the same father,
+# --owl2rl infers Alice's grandparent relation and two names for the same father,
 # then reports that the stated difference between those names conflicts.
 # This shows OWL 2 RL/RDF inference with a conflict retained in the Turtle output.
 # Rules: W3C OWL 2 Profiles, https://www.w3.org/TR/owl2-profiles/#Reasoning_in_OWL_2_RL_and_RDF_Graphs

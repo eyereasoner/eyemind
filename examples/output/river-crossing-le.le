@@ -1,0 +1,2 @@
+plan(7, "state"(right, right, right, right), "step"("step"("step"("step"("step"("step"("step"(start, goat), alone), wolf), goat), cabbage), alone), goat)).
+plan(7, "state"(right, right, right, right), "step"("step"("step"("step"("step"("step"("step"(start, goat), alone), cabbage), goat), wolf), alone), goat)).

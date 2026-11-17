@@ -1,0 +1,51 @@
+# The expression x*x*x + 2*x is represented as a tree of sum, product and leaf terms.
+# Derives its symbolic derivative by the sum and product rules, then evaluates it at x = 0 and 3.
+# Concludes slopes of 2 and 29. Shows structural recursion, repeated-variable matching,
+# constructed terms and exact evaluation, without parsing arbitrary algebraic prose.
+
+sum(product(variable(x), product(variable(x), variable(x))), product(constant(2), variable(x))) is a formula.
+x is a differentiationVariable.
+point(x, 0) and point(x, 3).
+
+# Visit only subexpressions of the supplied formula, keeping symbolic construction finite.
+For every E, if E is a formula then E is an expression.
+For every A and B, if sum(A, B) is an expression then A is an expression and B is an expression.
+For every A and B, if product(A, B) is an expression then A is an expression and B is an expression.
+
+# A variable's derivative is one; constants contribute zero.
+For every X,
+if variable(X) is an expression and X is a differentiationVariable
+then derivative(variable(X), X, constant(1)).
+For every N and X,
+if constant(N) is an expression and X is a differentiationVariable
+then derivative(constant(N), X, constant(0)).
+
+# Construct derivative trees without feeding those new trees back into differentiation.
+For every A and B and X and U and V,
+if sum(A, B) is an expression and derivative(A, X, U) and derivative(B, X, V)
+then derivative(sum(A, B), X, sum(U, V)).
+For every A and B and X and U and V,
+if product(A, B) is an expression and derivative(A, X, U) and derivative(B, X, V)
+then derivative(product(A, B), X, sum(product(U, B), product(A, V))).
+
+# Evaluation has its own finite tree domain: the final derivative and its subterms.
+For every E and X and D,
+if E is a formula and derivative(E, X, D) then D is evaluable.
+For every A and B, if sum(A, B) is evaluable then A is evaluable and B is evaluable.
+For every A and B, if product(A, B) is evaluable then A is evaluable and B is evaluable.
+For every N and X and P,
+if constant(N) is evaluable and point(X, P) then evaluated(constant(N), X, P, N).
+For every X and P,
+if variable(X) is evaluable and point(X, P) then evaluated(variable(X), X, P, P).
+For every A and B and X and P and U and V and N,
+if sum(A, B) is evaluable and evaluated(A, X, P, U) and evaluated(B, X, P, V)
+and N is the value of U + V then evaluated(sum(A, B), X, P, N).
+For every A and B and X and P and U and V and N,
+if product(A, B) is evaluable and evaluated(A, X, P, U) and evaluated(B, X, P, V)
+and N is the value of U * V then evaluated(product(A, B), X, P, N).
+
+# Include the symbolic tree as evidence as well as its numeric slope.
+For every E and X and D and P and N,
+if E is a formula and derivative(E, X, D) and evaluated(D, X, P, N)
+then analysis(E, D, P, N).
+Find every E and D and P and N such that analysis(E, D, P, N).

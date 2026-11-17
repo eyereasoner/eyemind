@@ -52,7 +52,7 @@ export function loadExampleInputs(entry) {
     const path = join(ROOT, file);
     return [readFileSync(path, 'utf8'), path];
   });
-  return loadInputs(inputs, nodeIO, { srlContext: entry.srlContext ?? null, odrl: entry.odrl ?? false, rdfs: entry.rdfs ?? false, owlRl: entry.owlRl ?? false });
+  return loadInputs(inputs, nodeIO, { srlContext: entry.srlContext ?? null, odrl: entry.odrl ?? false, owl2rl: entry.owl2rl ?? false });
 }
 
 export const loadExample = (entry) => loadExampleInputs(entry).program;

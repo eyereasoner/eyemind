@@ -35,7 +35,7 @@ export const tests = {
   'the guide and command help list the same options and aliases'() {
     const guide = document('README.md').split('## Command line\n')[1].split('### Resource limits\n')[0];
     const options = guide.split('\n').filter((line) => line.startsWith('| `')).map((line) => line.split('|')[1]).join('\n');
-    const flags = (text) => [...new Set(text.match(/--[a-z-]+|(?<![\w-])-[a-z]\b/g))].sort();
+    const flags = (text) => [...new Set(text.match(/--[a-z0-9-]+|(?<![\w-])-[a-z]\b/g))].sort();
     assert.deepEqual(flags(options), flags(cli(['--help']).stdout));
   },
 

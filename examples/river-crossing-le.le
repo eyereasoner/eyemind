@@ -1,0 +1,45 @@
+# The traditional wolf, goat and cabbage puzzle has a farmer and a small boat.
+# The boat carries the farmer and at most one item; unattended animals must be safe.
+# Finds both plans that move everyone across within seven crossings.
+# Shows compound-state matching, safety by absence and bounded recursive planning.
+
+left is a bank and right is a bank.
+left is an opposite of right and right is an opposite of left.
+
+# Equal bank variables express that the wolf and goat, or goat and cabbage, are together.
+# A state lists the farmer's, wolf's, goat's and cabbage's banks in that order.
+For every F and X and C,
+if F is an opposite of X and C is a bank
+then state(F, X, X, C) is unsafe.
+For every F and W and X,
+if F is an opposite of X and W is a bank
+then state(F, W, X, X) is unsafe.
+For every F and W and G and C,
+if F is a bank and W is a bank and G is a bank and C is a bank
+and it is not known that state(F, W, G, C) is unsafe
+then state(F, W, G, C) is safe.
+
+# A transported item must start on the farmer's bank. Both states must be safe.
+For every F and T and W and G and C,
+if F is an opposite of T and state(F, W, G, C) is safe and state(T, W, G, C) is safe
+then crossing(state(F, W, G, C), alone, state(T, W, G, C)).
+For every F and T and G and C,
+if F is an opposite of T and state(F, F, G, C) is safe and state(T, T, G, C) is safe
+then crossing(state(F, F, G, C), wolf, state(T, T, G, C)).
+For every F and T and W and C,
+if F is an opposite of T and state(F, W, F, C) is safe and state(T, W, T, C) is safe
+then crossing(state(F, W, F, C), goat, state(T, W, T, C)).
+For every F and T and W and G,
+if F is an opposite of T and state(F, W, G, F) is safe and state(T, W, G, T) is safe
+then crossing(state(F, W, G, F), cabbage, state(T, W, G, T)).
+
+# History terms retain the moves. A seven-step bound makes the search finite.
+plan(0, state(left, left, left, left), start).
+7 is a crossingLimit.
+For every N and S and P and A and T and M and L,
+if plan(N, S, P) and crossing(S, A, T) and L is a crossingLimit
+and N is less than L and M is the value of N + 1
+then plan(M, T, step(P, A)).
+
+# Every shorter plan is inside this bound as well; neither shorter nor unsafe plans answer.
+Find every N and P such that plan(N, state(right, right, right, right), P).

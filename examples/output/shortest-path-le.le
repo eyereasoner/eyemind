@@ -1,0 +1,2 @@
+bestRoute(Harbor, 10, "via"("via"("start"(Atrium), Library), Harbor)).
+bestRoute(Harbor, 10, "via"("via"("start"(Atrium), Garden), Harbor)).

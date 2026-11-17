@@ -12,8 +12,8 @@ const PREFIX = `@prefix : <https://example.org/>.
 @prefix ent: <https://eyereasoner.github.io/eyemind/entailment#>.
 `;
 const key = (q) => q.map((term) => write(term)).join(' ');
-function conclusions(data, owlRl = true) {
-  const loaded = loadInputs([[PREFIX + data, 'input.ttl']], null, { rdfs: !owlRl, owlRl });
+function conclusions(data) {
+  const loaded = loadInputs([[PREFIX + data, 'input.ttl']], null, { owl2rl: true });
   const result = run(loaded.program);
   return parseRdf(writeConclusions(loaded, result, { format: 'turtle' })).quads;
 }
@@ -27,19 +27,19 @@ export const tests = {
   'RDFS: class and property hierarchies, domain, range and container membership'() {
     const out = conclusions(`:A rdfs:subClassOf :B. :B rdfs:subClassOf :C.
       :p rdfs:subPropertyOf :q. :q rdfs:subPropertyOf :r; rdfs:domain :A; rdfs:range :B.
-      :x :p :y. :member a rdfs:ContainerMembershipProperty. :x :member :z.`, false);
+      :x :p :y. :member a rdfs:ContainerMembershipProperty. :x :member :z.`);
     includes(out, `:x a :A, :B, :C. :y a :B, :C. :x :r :y; rdfs:member :z.
       :A rdfs:subClassOf :C. :p rdfs:domain :C; rdfs:range :C.`);
   },
 
-  'OWL-RL: equality substitution, equivalent and inverse properties, symmetric and transitive properties'() {
+  'OWL 2 RL: equality substitution, equivalent and inverse properties, symmetric and transitive properties'() {
     const out = conclusions(`:p a owl:TransitiveProperty, owl:SymmetricProperty; owl:equivalentProperty :q; owl:inverseOf :inverse.
       :x :p :y. :y :p :z. :x owl:sameAs :alias.
       :A owl:equivalentClass :B. :x a :A.`);
     includes(out, `:alias :p :z; :q :z; a :B. :z :inverse :alias. :z :p :x.`);
   },
 
-  'OWL-RL: arbitrary property chains, intersections, unions, enumerations and value restrictions'() {
+  'OWL 2 RL: arbitrary property chains, intersections, unions, enumerations and value restrictions'() {
     const out = conclusions(`:ancestor owl:propertyChainAxiom (:parent :parent :parent).
       :a :parent :b. :b :parent :c. :c :parent :d.
       :AB owl:intersectionOf (:A :B). :Either owl:unionOf (:A :B). :Chosen owl:oneOf (:a :b).
@@ -51,7 +51,7 @@ export const tests = {
       :b a :B, :Fixed. :c a :A, :B.`);
   },
 
-  'OWL-RL: functional properties, keys and maximum cardinalities infer equality'() {
+  'OWL 2 RL: functional properties, keys and maximum cardinalities infer equality'() {
     const out = conclusions(`:id a owl:InverseFunctionalProperty. :x :id :same. :y :id :same.
       :p a owl:FunctionalProperty. :s :p :u, :v.
       :Person owl:hasKey (:code :country). :alice a :Person; :code "1"; :country :be.
@@ -70,7 +70,7 @@ export const tests = {
     assert.ok(!new Set(tail.map(key)).has(key(parseRdf(PREFIX + ':x owl:sameAs :y.').quads[0])));
   },
 
-  'OWL-RL: contradictions are reported together, with rule names and focus nodes'() {
+  'OWL 2 RL: contradictions are reported together, with rule names and focus nodes'() {
     const out = conclusions(`:A owl:disjointWith :B; owl:complementOf :C. :x a :A, :B, :C, owl:Nothing.
       :p a owl:IrreflexiveProperty, owl:AsymmetricProperty. :x :p :x.
       :x owl:sameAs :y; owl:differentFrom :y.
@@ -87,7 +87,7 @@ export const tests = {
     assert.ok(out.some(([, p, o]) => p.args[0].endsWith('/entailment#focus') && o.args?.[0] === 'https://example.org/x'));
   },
 
-  'OWL-RL: cyclic lists terminate, incomplete chains do not fire and missing facts do not create conflicts'() {
+  'OWL 2 RL: cyclic lists terminate, incomplete chains do not fire and missing facts do not create conflicts'() {
     const out = conclusions(`:p owl:propertyChainAxiom :cycle. :cycle rdf:first :q; rdf:rest :cycle.
       :A owl:intersectionOf :cycle. :x :q :y. :C owl:disjointWith :D. :x a :C.`);
     assert.equal(conflicts(out).length, 0);
@@ -95,39 +95,39 @@ export const tests = {
     assert.ok(!out.some(([s, p, o]) => s.args?.[0] === 'https://example.org/x' && p.args?.[0].endsWith('#type') && o.args?.[0] === 'https://example.org/A'));
   },
 
-  'entailment: switches are explicit, input files merge and named graphs stay separate'() {
+  'OWL 2 RL: the switch is explicit, input files merge and named graphs stay separate'() {
     const data = PREFIX + ':A rdfs:subClassOf :B. :x a :A.';
     assert.equal(loadInputs([[data, 'input.ttl']]).kind, 'js');
-    const result = cli(['--rdfs'], data);
+    const result = cli(['--owl2rl'], data);
     assert.equal(result.code, 0, result.stderr);
     assert.match(result.stdout, /:x a :B/);
-    assert.equal(cli(['--rdfs', '--owl-rl'], data).stdout, cli(['--owl-rl'], data).stdout);
-    const merged = loadInputs([[PREFIX + ':A rdfs:subClassOf :B.', 'schema.ttl'], [PREFIX + ':x a :A.', 'data.ttl']], null, { rdfs: true });
+    assert.match(cli(['--rdfs'], data).stderr, /unknown option.*--rdfs/);
+    assert.match(cli(['--owl-rl'], data).stderr, /unknown option.*--owl-rl/);
+    const merged = loadInputs([[PREFIX + ':A rdfs:subClassOf :B.', 'schema.ttl'], [PREFIX + ':x a :A.', 'data.ttl']], null, { owl2rl: true });
     assert.match(writeConclusions(merged, run(merged.program), { format: 'turtle' }), /:x a :B/);
-    const named = loadInputs([[PREFIX + ':g1 { :A rdfs:subClassOf :B. } :g2 { :x a :A. } :g3 { :A rdfs:subClassOf :B. :x a :A. }', 'named.trig']], null, { owlRl: true });
+    const named = loadInputs([[PREFIX + ':g1 { :A rdfs:subClassOf :B. } :g2 { :x a :A. } :g3 { :A rdfs:subClassOf :B. :x a :A. }', 'named.trig']], null, { owl2rl: true });
     const namedQuads = parseRdf(writeConclusions(named, run(named.program), { format: 'trig' }), { format: 'trig' }).quads;
     const inferredTypes = namedQuads.filter(([s, p, o]) => s.args?.[0] === 'https://example.org/x' && p.args?.[0].endsWith('#type') && o.args?.[0] === 'https://example.org/B');
     assert.deepEqual(inferredTypes.map((q) => q[3].args[0]), ['https://example.org/g3']);
-    assert.match(cli(['--rdfs', '--odrl'], data).stderr, /cannot be combined/);
-    assert.match(cli(['--rdfs', 'examples/socrates.js']).stderr, /take RDF inputs/);
-    assert.match(cli(['--owl-rl', '--stream-messages'], data).stderr, /cannot be combined/);
+    assert.match(cli(['--owl2rl', '--odrl'], data).stderr, /cannot be combined/);
+    assert.match(cli(['--owl2rl', 'examples/socrates.js']).stderr, /takes RDF inputs/);
+    assert.match(cli(['--owl2rl', '--stream-messages'], data).stderr, /cannot be combined/);
   },
 
-  'entailment: compiled JavaScript is standalone, --all includes input and proofs reject missing claims'() {
-    for (const flag of ['--rdfs', '--owl-rl']) {
-      const input = PREFIX + ':A rdfs:subClassOf :B. :x a :A. :B owl:disjointWith :C. :x a :C.';
-      const compiled = cli([flag, '--program'], input);
-      assert.equal(compiled.code, 0, compiled.stderr);
-      const program = loadText(compiled.stdout);
-      const result = run(program, { proof: true });
-      assert.equal(checkProof(program, result.proof).valid, true);
-      const forged = result.proof.replace('\n' + result.answers[0] + '\n', '\n');
-      assert.notEqual(forged, result.proof);
-      assert.equal(checkProof(program, forged).valid, false);
-      const all = cli([flag, '--all'], input);
-      assert.equal(all.code, 0, all.stderr);
-      includes(parseRdf(all.stdout).quads, ':x a :A, :B.');
-      assert.equal(cli([flag, '--prove-and-check'], input).code, 0);
-    }
+  'OWL 2 RL: compiled JavaScript is standalone, --all includes input and proofs reject missing claims'() {
+    const flag = '--owl2rl';
+    const input = PREFIX + ':A rdfs:subClassOf :B. :x a :A. :B owl:disjointWith :C. :x a :C.';
+    const compiled = cli([flag, '--program'], input);
+    assert.equal(compiled.code, 0, compiled.stderr);
+    const program = loadText(compiled.stdout);
+    const result = run(program, { proof: true });
+    assert.equal(checkProof(program, result.proof).valid, true);
+    const forged = result.proof.replace('\n' + result.answers[0] + '\n', '\n');
+    assert.notEqual(forged, result.proof);
+    assert.equal(checkProof(program, forged).valid, false);
+    const all = cli([flag, '--all'], input);
+    assert.equal(all.code, 0, all.stderr);
+    includes(parseRdf(all.stdout).quads, ':x a :A, :B.');
+    assert.equal(cli([flag, '--prove-and-check'], input).code, 0);
   },
 };

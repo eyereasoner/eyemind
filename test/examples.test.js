@@ -10,7 +10,7 @@ export const section = 'examples';
 
 const MANIFEST = readManifest();
 const inputs = (entry) => [
-  ...(entry.odrl ? ['--odrl'] : []), ...(entry.rdfs ? ['--rdfs'] : []), ...(entry.owlRl ? ['--owl-rl'] : []),
+  ...(entry.odrl ? ['--odrl'] : []), ...(entry.owl2rl ? ['--owl2rl'] : []),
   ...sourceFiles(entry).map((file) => `examples/${file}`),
 ];
 const CHANGED = (kind) => `${kind} changed; review it, then run node tools/update-examples.js`;

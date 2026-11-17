@@ -144,6 +144,6 @@ export const tests = {
     assert.equal(cli(['--to', 'eyemind', 'examples/socrates-le.le']).stdout, "// Answers: each instance of a query() that holds.\nmortal('Socrates')\n");
     assert.equal(cli(['--to', 'le'], "fact(mortal('Socrates'))\nquery(mortal(X))").stdout, 'Socrates is a mortal.\n');
     assert.match(errorOf(() => loadInputs([['Socrates is human.', 'x.le'], ['fact(p)', 'x.js']])), /takes .le files/);
-    assert.match(cli(['--rdfs', 'examples/socrates-le.le']).stderr, /without RDF logic switches/);
+    assert.match(cli(['--owl2rl', 'examples/socrates-le.le']).stderr, /without RDF logic switches/);
   },
 };

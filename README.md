@@ -7,7 +7,7 @@ eyemind is a dependency-free reasoner for **Logic Script (LS)**, a rule language
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and how a proof is checked. The examples are 142 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1246 cases that test language and proof behavior through a command adapter, together with implementation interface checks; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and how a proof is checked. The examples are 147 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1246 cases that test language and proof behavior through a command adapter, together with implementation interface checks; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -23,7 +23,7 @@ The playground runs programs in your browser; the specification defines the lang
   - [Notation3](#notation3)
   - [RDF Messages](#rdf-messages)
   - [SPARQL 1.2 RL](#sparql-12-rl)
-  - [RDFS and OWL-RL](#rdfs-and-owl-rl)
+  - [OWL 2 RL](#owl-2-rl)
   - [ODRL snapshots](#odrl-snapshots)
 - [How eyemind reasons](#how-eyemind-reasons)
 - [Proofs, and what checking one means](#proofs-and-what-checking-one-means)
@@ -219,6 +219,12 @@ The playground loads LE examples and downloads conclusions as `output.le`.
 Try [Socrates](https://eyereasoner.github.io/eyemind/examples/deck/socrates-le),
 [exact squares](https://eyereasoner.github.io/eyemind/examples/deck/squares-le)
 and [record creation](https://eyereasoner.github.io/eyemind/examples/deck/records-le).
+For examples combining more features, try
+[shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le),
+[river-crossing plans](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le),
+[large Pell solutions](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation-le),
+[symbolic differentiation](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative-le),
+or [course certificates](https://eyereasoner.github.io/eyemind/examples/deck/course-certificates-le).
 The [handicap-card LE snapshot](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card-le)
 explicitly selects the shared ODRL evaluator with `Use ODRL snapshot logic with
 namespace ...`. It expresses the Turtle example's policies and SOTW as English
@@ -432,20 +438,20 @@ SRL programs for deployment dependencies, route distances, ancestry, inventory,
 invoices, provenance and Unicode strings. Each has saved Turtle output, a
 proof, a check report and a deck, and runs in the playground.
 
-### RDFS and OWL-RL
+### OWL 2 RL
 
-`--rdfs` and `--owl-rl` add inference rules to RDF inputs. The files still
+`--owl2rl` adds inference rules, including RDFS, to RDF inputs. The files still
 use their usual RDF extensions; standard input is Turtle. A graph's use of
-RDFS or OWL vocabulary alone does not enable either extension. The playground
-has both switches and preserves them in saved sessions and shared links.
+RDFS or OWL vocabulary alone does not enable the extension. The playground
+has the same switch and preserves it in saved sessions and shared links.
 
 ```sh
-eyemind --rdfs examples/people-rdfs.ttl
-eyemind --owl-rl examples/family-owl-rl.ttl > /tmp/family-report.ttl
-eyemind --owl-rl --program examples/family-owl-rl.ttl > /tmp/family.js
+eyemind --owl2rl examples/people-owl2rl.ttl
+eyemind --owl2rl examples/family-owl2rl.ttl > /tmp/family-report.ttl
+eyemind --owl2rl --program examples/family-owl2rl.ttl > /tmp/family.js
 eyemind --to turtle /tmp/family.js
-eyemind --owl-rl --proof examples/family-owl-rl.ttl > /tmp/family-proof.js
-eyemind --owl-rl --check-proof /tmp/family-proof.js examples/family-owl-rl.ttl
+eyemind --owl2rl --proof examples/family-owl2rl.ttl > /tmp/family-proof.js
+eyemind --owl2rl --check-proof /tmp/family-proof.js examples/family-owl2rl.ttl
 ```
 
 The generated `.js` contains the data, inference rules and reporting rules;
@@ -456,10 +462,10 @@ need `--to trig` or `--to n-quads` to retain their graph names.
 
 The implemented rules are:
 
-| Switch | Coverage |
+| Rule family | Coverage |
 | --- | --- |
-| `--rdfs` | Class and property hierarchy transitivity, type and property propagation, domain and range inference and inheritance, resource/class/property typing, reflexive hierarchies, container membership and datatype-to-literal subclassing. |
-| `--owl-rl` | The RDFS rules above plus OWL equality and substitution; equivalent classes and properties; inverse, symmetric, transitive, functional and inverse-functional properties; property chains and keys; intersections, unions, enumerations, value restrictions and maximum cardinalities 0 and 1; class/property disjointness, AllDifferent, negative property assertions and schema propagation. |
+| RDFS | Class and property hierarchy transitivity, type and property propagation, domain and range inference and inheritance, resource/class/property typing, reflexive hierarchies, container membership and datatype-to-literal subclassing. |
+| OWL | Equality and substitution; equivalent classes and properties; inverse, symmetric, transitive, functional and inverse-functional properties; property chains and keys; intersections, unions, enumerations, value restrictions and maximum cardinalities 0 and 1; class/property disjointness, AllDifferent, negative property assertions and schema propagation. |
 
 The OWL rules implement the non-datatype rule families of
 [OWL 2 RL/RDF tables 4–7 and 9](https://www.w3.org/TR/owl2-profiles/#Reasoning_in_OWL_2_RL_and_RDF_Graphs),
@@ -468,9 +474,8 @@ They operate on the terms present in each graph. RDFS axiomatic triples,
 datatype value-space reasoning (OWL table 8), ontology imports and OWL
 constructs outside these rule families are not implemented. Literal equality
 uses the RDF-to-LS representation, without general datatype normalization.
-These switches do not validate profile membership or certify completeness
-for arbitrary RDFS or OWL ontologies. `--owl-rl` already includes `--rdfs`;
-enabling both adds the rules once. They take RDF inputs and cannot be combined
+This switch does not validate profile membership or certify completeness
+for arbitrary RDFS or OWL ontologies. It takes RDF inputs and cannot be combined
 with `--odrl` or `--stream-messages`.
 
 OWL contradictions appear as RDF records of type `ent:Conflict`, where
@@ -483,8 +488,8 @@ conflict set only means these rules detected none; it is not a full consistency
 guarantee. RDFS domain and range infer types rather than checking required
 fields, and missing facts alone do not establish a conflict.
 
-Try the [people directory](https://eyereasoner.github.io/eyemind/examples/deck/people-rdfs)
-and [family ontology](https://eyereasoner.github.io/eyemind/examples/deck/family-owl-rl).
+Try the [people directory](https://eyereasoner.github.io/eyemind/examples/deck/people-owl2rl)
+and [family ontology](https://eyereasoner.github.io/eyemind/examples/deck/family-owl2rl).
 
 ### ODRL snapshots
 
@@ -724,13 +729,12 @@ eyemind [OPTION ...] [FILE ...]
 | `--unused` | List the clauses that make no difference to the conclusions. |
 | `--stream-messages` | Read an RDF Message Log and run the rules independently per message; Node reads files, stdin and HTTP(S) incrementally. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
-| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3, SRL, ODRL, RDFS or OWL-RL program has 1000000, 100000 and 1000000000. |
-| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; by default LE for LE, N3 for N3, Turtle for SRL, ODRL, RDFS and OWL-RL, eyemind otherwise. |
+| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3, SRL, ODRL, RDFS or OWL 2 RL program has 1000000, 100000 and 1000000000. |
+| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; by default LE for LE, N3 for N3, Turtle for SRL, ODRL, RDFS and OWL 2 RL, eyemind otherwise. |
 | `--all` | With RDF or N3 output, write the given data too. |
 | `--program` | Print the program the inputs compile to. |
 | `--odrl` | Add the ODRL snapshot profile's validation and evaluation LS to one Turtle input. |
-| `--rdfs` | Add the documented RDFS inference rules to RDF inputs. |
-| `--owl-rl` | Add the documented OWL-RL inference rules and RDF conflict reports to RDF inputs; includes `--rdfs`. |
+| `--owl2rl` | Add the documented OWL 2 RL inference rules, including RDFS, and RDF conflict reports to RDF inputs. |
 | `--base IRI` | Resolve relative IRIs of the inputs against `IRI` instead of each file's location. |
 | `-v`, `--version`, `-h`, `--help` | Print the version or the usage. |
 
@@ -740,7 +744,7 @@ each goal as a data document, with an array denoting conjunction. With
 `--check-proof`, supply the original goals the proof answers.
 An option that takes a value requires it immediately afterward; another
 option, including a short alias such as `-v`, is reported as a missing value.
-With `--goal`, answers default to eyemind terms even for LE, N3, SRL, ODRL, RDFS and OWL-RL inputs;
+With `--goal`, answers default to eyemind terms even for LE, N3, SRL, ODRL, RDFS and OWL 2 RL inputs;
 use `--to` to request another output format.
 
 With `--prove-and-check`, reasoning bounds and `--stats` apply to proof
@@ -769,7 +773,7 @@ They are outside the language and proof specification.
 
 The JavaScript implementation defaults to a depth limit of 1000000, an
 inference limit of 1000000 and a limit of 1000 forward rounds per stratum.
-Compiled N3, SRL, ODRL, RDFS and OWL-RL programs use 1000000, 1000000000 and 100000 respectively.
+Compiled N3, SRL, ODRL and OWL 2 RL programs use 1000000, 1000000000 and 100000 respectively.
 Each supplied bound must be a positive integer no greater than
 9007199254740991.
 

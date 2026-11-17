@@ -1,8 +1,8 @@
-# A family with OWL-RL
+# A family with OWL 2 RL
 
 *A property chain discovers a grandparent; equality exposes a contradiction.*
 
-[family-owl-rl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-owl-rl.ttl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-owl-rl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-owl-rl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-owl-rl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-owl-rl)
+[family-owl2rl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-owl2rl.ttl) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/family-owl2rl.ttl) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/family-owl2rl.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/family-owl2rl.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=family-owl2rl)
 
 ## The question
 
@@ -16,11 +16,11 @@ Which relationships follow, and which assertions conflict?
 
 One Turtle file supplies the family data and ontology. A father is a parent,
 child is the inverse of parent, and two parent steps form a grandparent
-relationship. `--owl-rl` adds the inference and conflict rules as LS.
+relationship. `--owl2rl` adds the inference and conflict rules as LS.
 
 The rules follow the [W3C OWL 2 RL/RDF rule tables](https://www.w3.org/TR/owl2-profiles/#Reasoning_in_OWL_2_RL_and_RDF_Graphs).
 The implemented coverage and datatype limits are described in the
-[guide](https://eyereasoner.github.io/eyemind/#rdfs-and-owl-rl).
+[guide](https://eyereasoner.github.io/eyemind/#owl-2-rl).
 
 ## What eyemind concludes
 
@@ -55,11 +55,11 @@ the report completed.
 ## Try it
 
 ```sh
-node bin/eyemind.js --owl-rl examples/family-owl-rl.ttl
-node bin/eyemind.js --owl-rl --program examples/family-owl-rl.ttl > /tmp/family-owl-rl.js
-node bin/eyemind.js --to turtle /tmp/family-owl-rl.js
-node bin/eyemind.js --owl-rl --proof examples/family-owl-rl.ttl
-node bin/eyemind.js --owl-rl --check-proof examples/proof/family-owl-rl.js examples/family-owl-rl.ttl
+node bin/eyemind.js --owl2rl examples/family-owl2rl.ttl
+node bin/eyemind.js --owl2rl --program examples/family-owl2rl.ttl > /tmp/family-owl2rl.js
+node bin/eyemind.js --to turtle /tmp/family-owl2rl.js
+node bin/eyemind.js --owl2rl --proof examples/family-owl2rl.ttl
+node bin/eyemind.js --owl2rl --check-proof examples/proof/family-owl2rl.js examples/family-owl2rl.ttl
 ```
 
 Remove the `owl:differentFrom` assertion: equality and the family relationships

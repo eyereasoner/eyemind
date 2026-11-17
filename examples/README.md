@@ -1,7 +1,7 @@
 # Examples
 
 Native examples are Logic Script (LS) programs in `.js` files. eyemind also
-runs N3, SPARQL 1.2 RL and ODRL snapshot examples by compiling them to LS.
+runs N3, SPARQL 1.2 RL, Logical English and ODRL snapshot examples by compiling them to LS.
 
 Each example comes with a short card deck that explains it for a wide audience: the question it asks, what the program says, what eyemind concludes, why, and what the proof checker confirms. Cards are separated by `---`, so a deck reads as plain Markdown here and works as slides in Markdown slide tools such as Marp.
 
@@ -37,9 +37,9 @@ For Logical English, try [Socrates](https://eyereasoner.github.io/eyemind/exampl
 [integer squares](https://eyereasoner.github.io/eyemind/examples/deck/squares-le) and
 [record creation](https://eyereasoner.github.io/eyemind/examples/deck/records-le).
 Their sources and conclusions use `NAME-le.le`; proofs and check reports use `NAME-le.js`.
-For explicit RDF entailment, try the [RDFS people directory](https://eyereasoner.github.io/eyemind/examples/deck/people-rdfs)
-with `--rdfs` and the [OWL-RL family ontology](https://eyereasoner.github.io/eyemind/examples/deck/family-owl-rl)
-with `--owl-rl`. Both compile to standalone LS and write new triples as Turtle;
+For OWL 2 RL inference, including RDFS, try the [people directory](https://eyereasoner.github.io/eyemind/examples/deck/people-owl2rl)
+and the [family ontology](https://eyereasoner.github.io/eyemind/examples/deck/family-owl2rl)
+with `--owl2rl`. Both compile to standalone LS and write new triples as Turtle;
 the family example also reports an equality conflict.
 For RDF Messages, try [message boundaries and heartbeats](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries-n3),
 [independent alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3),
@@ -93,6 +93,7 @@ original inputs.
 | [collection-nesting-srl](https://eyereasoner.github.io/eyemind/examples/deck/collection-nesting-srl) | [collection-nesting-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/collection-nesting-srl.srl) | Property paths read nested RDF lists and a blank node property |
 | [complex](https://eyereasoner.github.io/eyemind/examples/deck/complex) | [complex.js](https://github.com/eyereasoner/eyemind/blob/main/examples/complex.js) | Complex arithmetic, exact over Gaussian integers and polar beyond them |
 | [control-system](https://eyereasoner.github.io/eyemind/examples/deck/control-system) | [control-system.js](https://github.com/eyereasoner/eyemind/blob/main/examples/control-system.js) | Feedforward and nonlinear feedback commands for two actuators |
+| [course-certificates-le](https://eyereasoner.github.io/eyemind/examples/deck/course-certificates-le) | [course-certificates-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/course-certificates-le.le) | Recursive course requirements and prior learning lead to shared dossiers, audits and nested certificate witnesses |
 | [critical-path-schedule](https://eyereasoner.github.io/eyemind/examples/deck/critical-path-schedule) | [critical-path-schedule.js](https://github.com/eyereasoner/eyemind/blob/main/examples/critical-path-schedule.js) | Earliest task times and every critical predecessor in a launch schedule |
 | [data-value-right](https://eyereasoner.github.io/eyemind/examples/deck/data-value-right) | [data-value-right.js](https://github.com/eyereasoner/eyemind/blob/main/examples/data-value-right.js) | A right to the value of personal data in the age of AI: how it fits existing EU law, and how it could become an autonomous right |
 | [deep-taxonomy-10](https://eyereasoner.github.io/eyemind/examples/deck/deep-taxonomy-10) | [deep-taxonomy-10.js](https://github.com/eyereasoner/eyemind/blob/main/examples/deep-taxonomy-10.js) | A ten-level subclass chain with branches that lead nowhere |
@@ -122,7 +123,7 @@ original inputs.
 | [family-cousins](https://eyereasoner.github.io/eyemind/examples/deck/family-cousins) | [family-cousins.js](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins.js) | Generations, family branches and cousin relationships |
 | [family-cousins-srl](https://eyereasoner.github.io/eyemind/examples/deck/family-cousins-srl) | [family-cousins-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-cousins-srl.srl) | Bounded generations and inherited branch labels identify cousins across a family tree |
 | [family-n3](https://eyereasoner.github.io/eyemind/examples/deck/family-n3) | [family-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/family-n3.n3) | Notation3 backward ancestry and log:query compiled to Logic Script |
-| [family-owl-rl](https://eyereasoner.github.io/eyemind/examples/deck/family-owl-rl) | [family-owl-rl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-owl-rl.ttl) | OWL-RL chains infer grandparents and functional properties expose a sameAs/differentFrom conflict |
+| [family-owl2rl](https://eyereasoner.github.io/eyemind/examples/deck/family-owl2rl) | [family-owl2rl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-owl2rl.ttl) | OWL 2 RL chains infer grandparents and functional properties expose a sameAs/differentFrom conflict |
 | [family-recursion-n3](https://eyereasoner.github.io/eyemind/examples/deck/family-recursion-n3) | [family-recursion-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/family-recursion-n3.n3) | Recursive backward ancestry selected by a query |
 | [family-srl](https://eyereasoner.github.io/eyemind/examples/deck/family-srl) | [family-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/family-srl.srl) | Recursive forward ancestry over a three-generation family tree |
 | [fibonacci](https://eyereasoner.github.io/eyemind/examples/deck/fibonacci) | [fibonacci.js](https://github.com/eyereasoner/eyemind/blob/main/examples/fibonacci.js) | Fast doubling for exact Fibonacci numbers, and the golden ratio |
@@ -168,7 +169,8 @@ original inputs.
 | [peano](https://eyereasoner.github.io/eyemind/examples/deck/peano) | [peano.js](https://github.com/eyereasoner/eyemind/blob/main/examples/peano.js) | Symbolic arithmetic, relational addition and a chained derivation |
 | [peasant](https://eyereasoner.github.io/eyemind/examples/deck/peasant) | [peasant.js](https://github.com/eyereasoner/eyemind/blob/main/examples/peasant.js) | Peasant multiplication and exponentiation by halving and doubling |
 | [pell-equation](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation) | [pell-equation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/pell-equation.js) | Exact Pell solutions through step 50, checked against the defining equation |
-| [people-rdfs](https://eyereasoner.github.io/eyemind/examples/deck/people-rdfs) | [people-rdfs.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/people-rdfs.ttl) | RDFS class and property hierarchies infer people's types and a broader contact relation |
+| [pell-equation-le](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation-le) | [pell-equation-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/pell-equation-le.le) | An exact recurrence generates large Pell solutions and checks each polynomial identity |
+| [people-owl2rl](https://eyereasoner.github.io/eyemind/examples/deck/people-owl2rl) | [people-owl2rl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/people-owl2rl.ttl) | OWL 2 RL includes RDFS class and property rules to infer people's types and a broader contact relation |
 | [permissions](https://eyereasoner.github.io/eyemind/examples/deck/permissions) | [permissions.js](https://github.com/eyereasoner/eyemind/blob/main/examples/permissions.js) | Role permissions with exclusions |
 | [policy-risk](https://eyereasoner.github.io/eyemind/examples/deck/policy-risk) | [policy-risk.js](https://github.com/eyereasoner/eyemind/blob/main/examples/policy-risk.js) | Ranked findings with explanations and suggested mitigations |
 | [polynomial](https://eyereasoner.github.io/eyemind/examples/deck/polynomial) | [polynomial.js](https://github.com/eyereasoner/eyemind/blob/main/examples/polynomial.js) | Complex roots of polynomials up to degree 4 by Cardan and Lagrange |
@@ -181,6 +183,7 @@ original inputs.
 | [report-n3](https://eyereasoner.github.io/eyemind/examples/deck/report-n3) | [report-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/report-n3.n3) | A formatted text report of fruit quantities, prices and costs |
 | [research-portal](https://eyereasoner.github.io/eyemind/examples/deck/research-portal) | [research-portal.js](https://github.com/eyereasoner/eyemind/blob/main/examples/research-portal.js) | A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans |
 | [restricted-chase-n3](https://eyereasoner.github.io/eyemind/examples/deck/restricted-chase-n3) | [restricted-chase-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/restricted-chase-n3.n3) | Reuse supplied fathers and generate a Skolem father IRI only where none is supplied |
+| [river-crossing-le](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le) | [river-crossing-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/river-crossing-le.le) | Compound states and safety constraints find both seven-crossing wolf, goat and cabbage plans |
 | [rule-inspection](https://eyereasoner.github.io/eyemind/examples/deck/rule-inspection) | [rule-inspection.js](https://github.com/eyereasoner/eyemind/blob/main/examples/rule-inspection.js) | Inspecting a source rule as data while preserving its shared variable |
 | [schema-inference](https://eyereasoner.github.io/eyemind/examples/deck/schema-inference) | [schema-inference.js](https://github.com/eyereasoner/eyemind/blob/main/examples/schema-inference.js) | Subclasses, subproperties, domains and ranges |
 | [school-placement-audit](https://eyereasoner.github.io/eyemind/examples/deck/school-placement-audit) | [school-placement-audit.js](https://github.com/eyereasoner/eyemind/blob/main/examples/school-placement-audit.js) | Walking-route and preference scores audit provisional school placements |
@@ -189,6 +192,7 @@ original inputs.
 | [service-outage-recovery](https://eyereasoner.github.io/eyemind/examples/deck/service-outage-recovery) | [service-outage-recovery.js](https://github.com/eyereasoner/eyemind/blob/main/examples/service-outage-recovery.js) | Least-cost repairs that restore checkout through redundant providers and a dependency cycle |
 | [shared-existential-n3](https://eyereasoner.github.io/eyemind/examples/deck/shared-existential-n3) | [shared-existential-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/shared-existential-n3.n3) | A top-level @forSome witness is the one individual a universal conclusion talks about |
 | [shortest-path](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path) | [shortest-path.js](https://github.com/eyereasoner/eyemind/blob/main/examples/shortest-path.js) | Weighted paths and stratified minimum selection |
+| [shortest-path-le](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le) | [shortest-path-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/shortest-path-le.le) | Bounded recursive paths retain both cheapest routes through a graph containing a cycle |
 | [sieve](https://eyereasoner.github.io/eyemind/examples/deck/sieve) | [sieve.js](https://github.com/eyereasoner/eyemind/blob/main/examples/sieve.js) | The sieve of Eratosthenes over an explicit list of integers |
 | [socrates](https://eyereasoner.github.io/eyemind/examples/deck/socrates) | [socrates.js](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates.js) | Class membership derived through a subclass rule |
 | [socrates-le](https://eyereasoner.github.io/eyemind/examples/deck/socrates-le) | [socrates-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/socrates-le.le) | Logical English class facts and an every-rule conclude that Socrates is mortal |
@@ -200,6 +204,7 @@ original inputs.
 | [strings-srl](https://eyereasoner.github.io/eyemind/examples/deck/strings-srl) | [strings-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/strings-srl.srl) | Directory listings, initials and language information from Unicode names |
 | [superdense-coding](https://eyereasoner.github.io/eyemind/examples/deck/superdense-coding) | [superdense-coding.js](https://github.com/eyereasoner/eyemind/blob/main/examples/superdense-coding.js) | Superdense coding in discrete quantum theory, with interference as odd path counts |
 | [symbolic-derivative](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative) | [symbolic-derivative.js](https://github.com/eyereasoner/eyemind/blob/main/examples/symbolic-derivative.js) | Symbolic differentiation of structured formulas by the sum, product, quotient, power and chain rules |
+| [symbolic-derivative-le](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative-le) | [symbolic-derivative-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/symbolic-derivative-le.le) | Structural rules differentiate a cubic expression and evaluate the resulting tree at two points |
 | [teleportation](https://eyereasoner.github.io/eyemind/examples/deck/teleportation) | [teleportation.js](https://github.com/eyereasoner/eyemind/blob/main/examples/teleportation.js) | Quantum teleportation in discrete quantum theory, checked for every state and outcome |
 | [terms](https://eyereasoner.github.io/eyemind/examples/deck/terms) | [terms.js](https://github.com/eyereasoner/eyemind/blob/main/examples/terms.js) | Quoted graphs, triple terms and residual witnesses |
 | [trig-graph-join-n3](https://eyereasoner.github.io/eyemind/examples/deck/trig-graph-join-n3) | [data/trig-graph-join-n3.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/trig-graph-join-n3.trig) · [trig-graph-join-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/trig-graph-join-n3.n3) | Data about a named graph in the default graph joined with data inside that graph |

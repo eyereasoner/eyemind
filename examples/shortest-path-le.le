@@ -1,0 +1,31 @@
+# A walker can reach the harbor through a library, a garden or a direct road.
+# The library and garden routes tie at ten minutes; the direct road takes fifteen.
+# Shows bounded recursive path construction, exact costs and minimum selection
+# by stratified absence. A return edge creates a cycle without an infinite chase.
+
+road(Atrium, Library, 4).
+road(Library, Harbor, 6).
+road(Atrium, Garden, 3).
+road(Garden, Harbor, 7).
+road(Atrium, Harbor, 15).
+road(Library, Atrium, 2).
+
+# Only paths from the atrium are explored, using at most four roads.
+route(Atrium, 0, 0, start(Atrium)).
+4 is a roadLimit.
+For every A and B and C and N and P and W and M and D and L,
+if route(A, C, N, P) and road(A, B, W) and L is a roadLimit
+and N is less than L and M is the value of N + 1
+and D is the value of C + W
+then route(B, D, M, via(P, B)).
+
+# A candidate loses only if some route to the same place is strictly cheaper.
+For every A and C and N and P and D and M and Q,
+if route(A, C, N, P) and route(A, D, M, Q) and D is less than C
+then cheaper(A, C).
+For every A and C and N and P,
+if route(A, C, N, P) and it is not known that cheaper(A, C)
+then bestRoute(A, C, P).
+
+# Preserve both paths when their minimum costs are equal.
+Find every C and P such that bestRoute(Harbor, C, P).

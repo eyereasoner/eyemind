@@ -198,8 +198,7 @@
             <label class="field" for="max-inferences"><span>--max-inferences N</span><input id="max-inferences" type="number" min="1" step="1" placeholder="1000000 (default)" /></label>
           </div>
           <div class="row flags">
-            <label class="toggle" title="Add RDFS inference to RDF inputs"><input id="rdfs" type="checkbox" /><span><code>--rdfs</code></span></label>
-            <label class="toggle" title="Add OWL-RL inference and conflict reporting to RDF inputs"><input id="owl-rl" type="checkbox" /><span><code>--owl-rl</code></span></label>
+            <label class="toggle" title="Add OWL 2 RL inference, including RDFS, and conflict reporting to RDF inputs"><input id="owl2rl" type="checkbox" /><span><code>--owl2rl</code></span></label>
             <label class="toggle" title="Add ODRL validation and evaluation to one Turtle snapshot"><input id="odrl" type="checkbox" /><span><code>--odrl</code></span></label>
             <label class="toggle" title="With either checking mode, print the report as JSON"><input id="json" type="checkbox" /><span><code>--json</code></span></label>
             <label class="toggle" title="Print reasoning statistics"><input id="stats" type="checkbox" /><span><code>--stats</code></span></label>
@@ -417,7 +416,7 @@
           if (byId('json').checked) args.push('--json');
         }
         if (byId('stats').checked && mode !== '--check-proof') args.push('--stats');
-        for (const id of ['odrl', 'rdfs', 'owl-rl']) if (byId(id).checked) args.push('--' + id);
+        for (const id of ['odrl', 'owl2rl']) if (byId(id).checked) args.push('--' + id);
         const goal = byId('goal').value.trim();
         if (goal) args.push('--goal', goal);
         for (const id of ['max-depth', 'max-inferences']) {
@@ -443,7 +442,7 @@
       function state() {
         return { v: 1, source, mode: byId('mode').value, goal: byId('goal').value,
           json: byId('json').checked, stats: byId('stats').checked, odrl: byId('odrl').checked,
-          rdfs: byId('rdfs').checked, owlRl: byId('owl-rl').checked,
+          owl2rl: byId('owl2rl').checked,
           maxDepth: byId('max-depth').value, maxInferences: byId('max-inferences').value,
           proof: { name: proofName, text: proof.getValue() }, example: byId('examples').value };
       }
@@ -489,7 +488,7 @@
         }
         const mode = raw.mode ?? '';
         if (!modes.includes(mode)) throw new Error('Unknown shared output mode.');
-        for (const key of ['json', 'stats', 'odrl', 'rdfs', 'owlRl']) {
+        for (const key of ['json', 'stats', 'odrl', 'owl2rl']) {
           if (raw[key] !== undefined && typeof raw[key] !== 'boolean') throw new Error(`Invalid shared option: ${key}.`);
         }
         for (const key of ['goal', 'maxDepth', 'maxInferences']) {
@@ -499,7 +498,7 @@
         const source = { name: raw.source.name, text: raw.source.text };
         if (companions?.length) source.companions = companions.map(({ name, text }) => ({ name, text }));
         return { v: 1, source, mode, goal: raw.goal ?? '',
-          json: raw.json ?? false, stats: raw.stats ?? false, odrl: raw.odrl ?? false, rdfs: raw.rdfs ?? false, owlRl: raw.owlRl ?? false,
+          json: raw.json ?? false, stats: raw.stats ?? false, odrl: raw.odrl ?? false, owl2rl: raw.owl2rl ?? false,
           maxDepth: raw.maxDepth ?? '', maxInferences: raw.maxInferences ?? '',
           proof: raw.proof ?? { name: 'proof.js', text: '' }, example: exampleNamed(raw.example)?.name ?? '' };
       }
@@ -512,8 +511,7 @@
         byId('json').checked = saved.json;
         byId('stats').checked = saved.stats;
         byId('odrl').checked = saved.odrl;
-        byId('rdfs').checked = saved.rdfs;
-        byId('owl-rl').checked = saved.owlRl;
+        byId('owl2rl').checked = saved.owl2rl;
         byId('max-depth').value = saved.maxDepth;
         byId('max-inferences').value = saved.maxInferences;
         proofName = saved.proof.name;
@@ -564,7 +562,7 @@
         const url = shareBaseUrl();
         const defaultOptions = !snapshot.mode && !snapshot.goal && !snapshot.stats && snapshot.maxDepth === '' &&
           snapshot.maxInferences === '' && !snapshot.proof.text && snapshot.odrl === Boolean(exampleNamed(snapshot.example)?.odrl) &&
-          snapshot.rdfs === Boolean(exampleNamed(snapshot.example)?.rdfs) && snapshot.owlRl === Boolean(exampleNamed(snapshot.example)?.owlRl);
+          snapshot.owl2rl === Boolean(exampleNamed(snapshot.example)?.owl2rl);
         if (exampleNamed(snapshot.example) && defaultOptions) {
           try {
             if (originalExample?.name !== snapshot.example) {
@@ -755,7 +753,7 @@
           const name = source.name.trim() || '-';
           const files = [[name, source.text], ...(source.companions ?? []).map((file) => [file.name, file.text]), [proofName, proof.getValue()]];
           const report = await new Promise((resolve, reject) => { finishRun = resolve; failRun = reject; worker.postMessage({ args, files }); });
-          if ((byId('odrl').checked || byId('rdfs').checked || byId('owl-rl').checked || /\.(ttl|srl)$/i.test(name)) && /^PREFIX /m.test(output.getValue())) outputName = 'output.ttl';
+          if ((byId('odrl').checked || byId('owl2rl').checked || /\.(ttl|srl)$/i.test(name)) && /^PREFIX /m.test(output.getValue())) outputName = 'output.ttl';
           if (/\.le$/i.test(name) && byId('mode').value === '' && !byId('goal').value.trim()) outputName = 'output.le';
           byId('messages').textContent = report.stderr;
           byId('messages').hidden = !report.stderr;
@@ -806,8 +804,7 @@
         source = loaded;
         byId('examples').value = name;
         byId('odrl').checked = Boolean(exampleNamed(name)?.odrl);
-        byId('rdfs').checked = Boolean(exampleNamed(name)?.rdfs);
-        byId('owl-rl').checked = Boolean(exampleNamed(name)?.owlRl);
+        byId('owl2rl').checked = Boolean(exampleNamed(name)?.owl2rl);
         showSource();
       }
 
@@ -861,7 +858,7 @@
       }
       input.on('change', () => { if (!restoring) { source.text = input.getValue(); scheduleSave(); } });
       proof.on('change', scheduleSave);
-      for (const id of ['mode', 'goal', 'json', 'stats', 'odrl', 'rdfs', 'owl-rl', 'max-depth', 'max-inferences']) {
+      for (const id of ['mode', 'goal', 'json', 'stats', 'odrl', 'owl2rl', 'max-depth', 'max-inferences']) {
         byId(id).addEventListener('input', updateOptions);
       }
       byId('mode').addEventListener('change', () => {

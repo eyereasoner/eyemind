@@ -128,10 +128,12 @@ export const tests = [
     await p.select('mode', '');
   }],
 
-  ['RDFS and OWL-RL switches run examples, check proofs and survive shared links', async (page, base) => {
+  ['OWL 2 RL runs RDFS and OWL examples, checks proofs and survives shared links', async (page, base) => {
     const p = driver(page);
-    for (const [name, flag] of [['people-rdfs', 'rdfs'], ['family-owl-rl', 'owl-rl']]) {
+    for (const name of ['people-owl2rl', 'family-owl2rl']) {
+      const flag = 'owl2rl';
       await p.open(`${base}#example=${name}`);
+      assert.equal(await page.evaluate("document.querySelectorAll('#rdfs, #owl-rl').length"), 0);
       assert.equal(await page.evaluate(`document.getElementById('${flag}').checked`), true);
       assert.match(await page.evaluate("document.getElementById('command').textContent"), new RegExp('--' + flag));
       await p.run();
@@ -169,7 +171,8 @@ export const tests = [
 
   ['Logical English examples download LE conclusions and keep JavaScript proofs', async (page, base) => {
     const p = driver(page);
-    for (const name of ['socrates-le', 'squares-le', 'records-le', 'handicap-card-le']) {
+    for (const name of ['socrates-le', 'squares-le', 'records-le', 'handicap-card-le',
+      'shortest-path-le', 'river-crossing-le', 'pell-equation-le', 'course-certificates-le', 'symbolic-derivative-le']) {
       await p.open(`${base}#example=${name}`);
       await p.run();
       assert.match(await p.status(), /^Done · exit 0/);
