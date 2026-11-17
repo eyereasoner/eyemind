@@ -2,7 +2,7 @@
 
 ```text
 Title:      The Logic Script (LS) Language and Proof Format
-Version:    eyemind 0.7.2
+Version:    eyemind 0.8.0
 ```
 
 This document specifies Logic Script (LS): the syntax and meaning of its
