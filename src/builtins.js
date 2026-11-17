@@ -199,10 +199,10 @@ function caseConversion(name, convert) {
 }
 
 // digest(+Algorithm, +A, ?Hex): the lowercase hexadecimal digest of A's UTF-8
-// bytes, by md5, sha1, sha256 or sha512.
+// bytes, by md5, sha1, sha256, sha384 or sha512.
 function digest(args, resolved, env, bind) {
   const algorithm = DIGESTS.get(resolved[0]);
-  if (algorithm === undefined) throw new EyemindError(`digest/3 needs md5, sha1, sha256 or sha512, not ${write(resolved[0])}`);
+  if (algorithm === undefined) throw new EyemindError(`digest/3 needs md5, sha1, sha256, sha384 or sha512, not ${write(resolved[0])}`);
   return bind(args[2], algorithm(utf8(text('digest/3', resolved[1], 'atom'))));
 }
 

@@ -613,7 +613,8 @@ lines and language constraints; SHACL list members, lengths and uniqueness;
 sets, unique values for targets, property pairs over any path, and closed
 shapes, also `sh:ByTypes`; nested properties, node/not/and/or/xone,
 `sh:someValue`, reifier shapes and qualified counts with disjoint siblings.
-Constant `sh:values` and `sh:defaultValue` add value nodes. Predicate,
+Node expressions in `sh:values`, `sh:defaultValue`, `sh:targetNode` and
+`sh:deactivated` compute value nodes, targets and deactivation. Predicate,
 inverse, sequence, alternative and repeated paths compute distinct values and
 terminate on data cycles. Repeated `xone` members count separately.
 
@@ -627,11 +628,29 @@ library caller can pass another set as `disallows`, which the report then
 lists as `sh:conformanceDisallows`. Only the boolean `true` activates a
 boolean parameter. Deactivated shapes conform without validation.
 
+SHACL 1.2 node expressions compile to LS as well: constants, lists, variables,
+paths, `exists`, `if`, distinct, intersection, concat, remove, filter,
+limit, offset, order, flat map, find-first and match-all, counts and other
+aggregates, `instancesOf`, `nodesMatching` and `conformsToShape`, the
+`sparql:` functions, and custom named and list parameter functions. An
+expression gives its output nodes in order, or an evaluation failure that the
+enclosing expression propagates. `sh:expression` and `sh:nodeByExpression`
+constrain value nodes with them, and report the expression or shape as
+`sh:sourceConstraint`. A library caller can evaluate one expression with
+`compileRdfLogic(graph, { profiles: ['shacl'], evaluate: { expression, focus,
+scope } })`, which answers `sh_evaluation(nodes(List))` or
+`sh_evaluation('failure')`. `sparql:now`, `rand`, `uuid` and `struuid` read a
+captured clock and seed, so checking such a proof from its source recompiles
+another context and fails.
+
 Shapes and path definitions must be present in the input; inference may add
-data and targets, but cannot dynamically define new constraints. Recursive
-shape dependencies, node expressions beyond constants, SHACL-SPARQL,
-JavaScript constraints and rules are outside the implementation. Active
-shapes with unsupported constraint predicates are rejected.
+data and targets, but cannot dynamically define new constraints. A shape
+selected at evaluation time, by `sh:nodeByExpression` or `conformsToShape`,
+cannot itself use `sh:expression`, `sh:nodeByExpression` or expression-valued
+parameters. Recursive shape dependencies, SHACL-SPARQL, JavaScript
+constraints and rules are outside the implementation. An evaluation failure
+in validation is not reported separately. Active shapes with unsupported
+constraint predicates are rejected.
 
 Datatype checks support XSD integer subtypes, decimal, float/double, boolean,
 string/normalizedString/token/language/anyURI, hex/base64 binary,
@@ -656,8 +675,7 @@ is scored on every `npm test`, including filtered runs. eyemind targets its
 Core and node-expression groups; SHACL-SPARQL and inference rules are out of
 scope and not scored. At upstream revision
 `0ed3f9b4273c2debba0125a7ed5c9dc3cd4b741c`, **all 162 Core tests pass
-complete-report comparison**. Node expressions beyond constants are not yet
-implemented, so the 284 node-expression tests do not pass yet.
+complete-report comparison**, as do all 284 node-expression tests.
 
 The two groups are reported separately in
 [REPORT.md](REPORT.md) and [SHACL EARL](reports/w3c-shacl-earl.ttl). The runner

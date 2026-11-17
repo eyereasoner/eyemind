@@ -55,7 +55,10 @@ implied_by(rv_order(A, B, O), [rv_temporal(A, T, K, X), rv_temporal(B, T, K, Y),
 implied_by(rv_member(T, iri(rvXsd + 'dateTime')), [rv_datatype(T, iri(rvXsd + 'dateTimeStamp')), rv_valid(T)]);
 `;
 
-export const rdfValueRules = '\n' + libraryText(new Set(['srl_num', 'srl_make', 'srl_add', 'srl_sub', 'srl_mul', 'srl_div', 'srl_order', 'srl_str', 'srl_lang'])) + '\n' + String.raw`
+// The SPARQL definitions the value rules use; a profile may add more.
+const VALUE_LIBRARY = ['srl_num', 'srl_make', 'srl_add', 'srl_sub', 'srl_mul', 'srl_div', 'srl_order', 'srl_str', 'srl_lang'];
+export const rdfValueRules = (extra = []) => '\n' + libraryText(new Set([...VALUE_LIBRARY, ...extra])) + '\n' + VALUE_RULES;
+const VALUE_RULES = String.raw`
 const rvXsd = 'http://www.w3.org/2001/XMLSchema#';
 const rvRdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 implied_by(rv_datatype(N, iri(rvXsd + 'integer')), is_int(N));

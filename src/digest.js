@@ -132,10 +132,18 @@ bef9a3f7b2c67915 c67178f2e372532b ca273eceea26619c d186b8c721c0c207 eada7dd6cde0
 4cc5d4becb3e42b6 597f299cfc657e2a 5fcb6fab3ad6faec 6c44198c4a475817`.split(/\s+/).map((x) => BigInt(`0x${x}`));
 const rotr64 = (x, n) => ((x >> n) | (x << (64n - n))) & MASK64;
 
-function sha512(bytes) {
-  const m = pad(bytes, 128, 16, false);
-  let h = `6a09e667f3bcc908 bb67ae8584caa73b 3c6ef372fe94f82b a54ff53a5f1d36f1 510e527fade682d1 9b05688c2b3e6c1f
+const SHA512_IV = `6a09e667f3bcc908 bb67ae8584caa73b 3c6ef372fe94f82b a54ff53a5f1d36f1 510e527fade682d1 9b05688c2b3e6c1f
 1f83d9abfb41bd6b 5be0cd19137e2179`.split(/\s+/).map((x) => BigInt(`0x${x}`));
+// SHA-384 is SHA-512 from other initial values, truncated to six words.
+const SHA384_IV = `cbbb9d5dc1059ed8 629a292a367cd507 9159015a3070dd17 152fecd8f70e5939 67332667ffc00b31 8eb44a8768581511
+db0c2e0d64f98fa7 47b5481dbefa4fa4`.split(/\s+/).map((x) => BigInt(`0x${x}`));
+
+const sha512 = (bytes) => sha512Words(bytes, SHA512_IV, 8);
+const sha384 = (bytes) => sha512Words(bytes, SHA384_IV, 6);
+
+function sha512Words(bytes, iv, words) {
+  const m = pad(bytes, 128, 16, false);
+  let h = iv;
   for (let offset = 0; offset < m.length; offset += 128) {
     const w = [];
     for (let i = 0; i < 16; i++) {
@@ -156,7 +164,7 @@ function sha512(bytes) {
     }
     h = h.map((x, i) => (x + [a, b, c, d, e, f, g, k][i]) & MASK64);
   }
-  return h.map((x) => x.toString(16).padStart(16, '0')).join('');
+  return h.slice(0, words).map((x) => x.toString(16).padStart(16, '0')).join('');
 }
 
-export const DIGESTS = new Map([['md5', md5], ['sha1', sha1], ['sha256', sha256], ['sha512', sha512]]);
+export const DIGESTS = new Map([['md5', md5], ['sha1', sha1], ['sha256', sha256], ['sha384', sha384], ['sha512', sha512]]);

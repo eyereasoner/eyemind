@@ -42,7 +42,8 @@ goals, and keep error messages specific and user-facing text direct.
   - `rdf-logic.js` combines explicit RDF profiles over one working graph;
     `rdf-values.js` supplies shared LS datatype and value rules. `qudt.js`,
     `skos.js` and `shacl.js` compile quantity normalization, SKOS entailment
-    and SHACL validation to standalone LS.
+    and SHACL validation to standalone LS; `shacl-expr.js` compiles SHACL
+    node expressions.
   - `owl2rl.js`: explicit `--owl2rl` inference, including RDFS, and OWL conflict reports, compiled to standalone LS.
   - `le.js`: Logical English (`.le`) compiled to LS, and `.le` conclusions; its grammar is in `LOGICAL-ENGLISH.md`.
     `le-odrl.js` maps an explicitly selected LE ODRL vocabulary to RDF and shares `odrl.js` for snapshot evaluation.

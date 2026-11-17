@@ -560,7 +560,7 @@ fact(p(float(0), 'positive_zero'), p(9007199254740993n, 'large'), p(f(1), 'struc
     ].join('\n'));
     assert.deepEqual(run(source).answers, ["up('STRASSE')", "low('οδος')", "text('f(\\'a\\', [1, 2.0])')"]);
     throwsMatching(() => run(program("query(term_text(f(X), A))")), /term_text\/2 needs a ground term/);
-    throwsMatching(() => run(program("query(digest('sha3', 'a', D))")), /digest\/3 needs md5, sha1, sha256 or sha512/);
+    throwsMatching(() => run(program("query(digest('sha3', 'a', D))")), /digest\/3 needs md5, sha1, sha256, sha384 or sha512/);
   },
 
   'a halted run whose unfinished listings cannot decide a negation is not certified'() {

@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
 import { run, readTerm, write } from '../src/index.js';
 import { parseRdf } from '../src/rdf.js';
+import { properListItems } from '../src/terms.js';
 import { compileRdfLogic } from '../src/rdf-logic.js';
 import { cachePaths } from '../tools/test-cache.js';
 
@@ -50,7 +51,8 @@ function graph(quads) {
     }
     return items;
   };
-  return { objects, one, list };
+  const properties = (s) => [...(index.get(write(s)) ?? new Map())].map(([p, objects]) => [p, objects]);
+  return { objects, one, list, properties };
 }
 
 export function shaclCases({ mirror = cachePaths().shacl } = {}) {
@@ -71,7 +73,7 @@ export function shaclCases({ mirror = cachePaths().shacl } = {}) {
       const data = g.objects(action, SHT + 'dataGraph').map(uri);
       const shapes = g.objects(action, SHT + 'shapesGraph').map(uri);
       const type = g.objects(entry, RDF + 'type').map(uri).find((t) => t?.startsWith(SHT));
-      cases.push({ id, name: g.objects(entry, MF + 'name')[0]?.args[0] ?? g.objects(entry, RDFS + 'label')[0]?.args[0] ?? id,
+      cases.push({ id, actionNode: action, name: g.objects(entry, MF + 'name')[0]?.args[0] ?? g.objects(entry, RDFS + 'label')[0]?.args[0] ?? id,
         manifest, group: manifest.slice(SHACL_BASE.length).split('/')[0], type: type?.slice(SHT.length) ?? 'unknown',
         requires: g.objects(entry, MF + 'requires').map(uri), status: uri(g.objects(entry, MF + 'status')[0]),
         data, shapes, expected: g.one(entry, MF + 'result') });
@@ -81,7 +83,7 @@ export function shaclCases({ mirror = cachePaths().shacl } = {}) {
   return cases;
 }
 
-const FIELDS = ['focusNode', 'resultSeverity', 'sourceConstraint', 'sourceConstraintComponent', 'sourceShape', 'value'];
+const FIELDS = ['focusNode', 'resultSeverity', 'sourceConstraintComponent', 'sourceShape', 'value'];
 const PATHS = ['inversePath', 'alternativePath', 'zeroOrMorePath', 'oneOrMorePath', 'zeroOrOnePath'];
 
 // Paths compare by structure, independently for every occurrence. Focus nodes,
@@ -109,12 +111,20 @@ export function compareShaclReports(actual, expected, expectedRoot) {
     const child = g.one(term, SH + ops[0]);
     return ops[0] === 'alternativePath' ? [ops[0], ...g.list(child).map((p) => path(g, p, next))] : [ops[0], path(g, child, next)];
   };
+  // A sourceConstraint is a deep copy: blank nodes compare by their triples.
+  const copy = (g, term, seen = new Set()) => {
+    if (term?.name !== 'bnode') return write(term);
+    if (seen.has(write(term))) throw new Error('cyclic source constraint');
+    const next = new Set(seen).add(write(term));
+    return g.properties(term).map(([p, objects]) => [p, objects.map((o) => copy(g, o, next)).sort()]).sort();
+  };
   const report = (g, root) => {
     if (!g.objects(root, RDF + 'type').some((t) => uri(t) === SH + 'ValidationReport')) throw new Error('missing ValidationReport type');
     return g.objects(root, SH + 'result').map((r) => {
       if (!g.objects(r, RDF + 'type').some((t) => uri(t) === SH + 'ValidationResult')) throw new Error('missing ValidationResult type');
       const fields = Object.fromEntries(FIELDS.map((p) => [p, g.objects(r, SH + p).map((t) => write(t)).sort()]));
       fields.resultPath = g.objects(r, SH + 'resultPath').map((p) => JSON.stringify(path(g, p))).sort();
+      fields.sourceConstraint = g.objects(r, SH + 'sourceConstraint').map((t) => JSON.stringify(copy(g, t))).sort();
       fields.resultMessage = g.objects(r, SH + 'resultMessage').map((t) => write(t)).filter((m) => messages.has(m)).sort();
       return JSON.stringify(fields);
     }).sort();
@@ -128,17 +138,45 @@ export function compareShaclReports(actual, expected, expectedRoot) {
     `${booleanOk ? 'conforms matches; ' : 'conforms differs; '}validation report differs\nexpected: ${JSON.stringify(wanted)}\nactual: ${JSON.stringify(got)}` };
 }
 
+// A node expression test evaluates sht:nodeExpr in its own file, with an
+// optional focus node and scope, and compares the output nodes or failure.
+function runNodeExpression(c, read) {
+  const manifest = read(c.manifest), g = graph(manifest.quads);
+  const expression = g.one(c.actionNode, SHT + 'nodeExpr');
+  const focus = g.objects(c.actionNode, SHT + 'focusNode')[0];
+  const scope = manifest.quads.filter(([s, p]) => same(s, c.actionNode) && uri(p)?.startsWith(SHT + 'scope-'))
+    .map(([, p, o]) => [uri(p).slice(SHT.length + 'scope-'.length), o]);
+  const unordered = g.objects(c.actionNode, SHT + 'ignoreOrder').some((t) => t.args?.[0] === 'true');
+  let answers;
+  try {
+    const loaded = compileRdfLogic({ ...manifest }, { profiles: ['shacl'], source: c.id, evaluate: { expression, focus, scope } });
+    answers = run(loaded.program, { maxInferences: 250000, maxIterations: 1000 }).answers.map((a) => readTerm(a).args[0]);
+  } catch (error) {
+    const unsupported = /unsupported|not supported/.test(error.message);
+    return { ok: false, unsupported, message: error.message };
+  }
+  if (answers.length !== 1) return { ok: false, message: `expected one evaluation result, found ${answers.length}` };
+  const [result] = answers, failed = result.name !== 'nodes';
+  if (uri(c.expected) === SHT + 'Failure') return { ok: failed, message: failed ? 'passed (expected evaluation failure)' : `expected a failure, got ${write(result)}` };
+  if (failed) return { ok: false, message: 'evaluation failed, but output nodes were expected' };
+  const order = (list) => unordered ? [...list].sort() : list;
+  const got = order(properListItems(result.args[0]).map((t) => write(t))), wanted = order(g.list(c.expected).map((t) => write(t)));
+  const ok = JSON.stringify(got) === JSON.stringify(wanted);
+  return { ok, message: ok ? 'passed (output nodes)' : `output nodes differ\nexpected: ${wanted.join(' ')}\nactual: ${got.join(' ')}` };
+}
+
 export function runShaclCase(c, { mirror = cachePaths().shacl } = {}) {
-  // These processors have distinct contracts. Refusing an unimplemented
-  // processor never counts as passing one of its expected-failure cases.
-  if (c.type !== 'Validate') return { ok: null, unsupported: true, message: `unsupported SHACL processor test: ${c.type}` };
-  const requirements = c.requires.filter((r) => r !== SHT + 'Core');
-  if (requirements.length) return { ok: null, unsupported: true, message: `unsupported SHACL processor requirements: ${requirements.join(', ')}` };
   const documents = new Map();
   const read = (url) => {
     if (!documents.has(url)) documents.set(url, parseRdf(readFileSync(shaclResource(url, mirror), 'utf8'), { base: url, scope: url }));
     return documents.get(url);
   };
+  if (c.type === 'EvalNodeExpr') return runNodeExpression(c, read);
+  // These processors have distinct contracts. Refusing an unimplemented
+  // processor never counts as passing one of its expected-failure cases.
+  if (c.type !== 'Validate') return { ok: null, unsupported: true, message: `unsupported SHACL processor test: ${c.type}` };
+  const requirements = c.requires.filter((r) => r !== SHT + 'Core' && r !== SHT + 'NodeExpr');
+  if (requirements.length) return { ok: null, unsupported: true, message: `unsupported SHACL processor requirements: ${requirements.join(', ')}` };
   const manifest = read(c.manifest);
   if (c.data.length !== 1 || c.shapes.length !== 1 || !c.data[0] || !c.shapes[0]) throw new Error(`${c.id}: needs one data graph and one shapes graph`);
   const data = read(c.data[0]), shapes = read(c.shapes[0]);

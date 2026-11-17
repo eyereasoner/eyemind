@@ -94,6 +94,37 @@ export const tests = {
     assert.ok(strict.some((a) => a.includes('conformanceDisallows')));
   },
 
+  'SHACL node expressions evaluate in order, propagate failures and drive constraints with checked proofs'() {
+    const N = '@prefix shnex: <http://www.w3.org/ns/shacl-node-expr#>.\n@prefix sparql: <http://www.w3.org/ns/sparql#>.\n';
+    const evaluate = (text, options = {}) => {
+      const graph = parsed(N + ':e :is ' + text + '.');
+      const loaded = compileRdfLogic(graph, { profiles: ['shacl'], evaluate: { expression: graph.quads.find(([t]) => t.args[0] === 'urn:example:e')[2], ...options } });
+      const result = run(loaded.program, { proof: true });
+      assert.equal(checkProof(loaded.program, result.proof).valid, true);
+      return result.answers[0];
+    };
+    assert.equal(evaluate('[shnex:nodes (2.5 1 3); shnex:orderBy [shnex:var "focusNode"]]'),
+      "sh_evaluation(nodes([1, literal('2.5', datatype('http://www.w3.org/2001/XMLSchema#decimal')), 3]))");
+    assert.equal(evaluate('[shnex:distinct (1 2 1 3 2)]'), 'sh_evaluation(nodes([1, 2, 3]))');
+    assert.equal(evaluate('[sparql:plus ([shnex:var "x"] 4)]', { scope: [['x', 38n]] }), 'sh_evaluation(nodes([42]))');
+    assert.equal(evaluate('[sparql:plus ([shnex:var "unbound"] 4)]'), 'sh_evaluation(nodes([]))');
+    assert.equal(evaluate('[sparql:coalesce ((1 2) "ok")]'), "sh_evaluation(nodes([literal('ok', datatype('http://www.w3.org/2001/XMLSchema#string'))]))");
+    for (const failing of ['[sparql:abs ((-1 -2))]', '[shnex:count [shnex:instancesOf 42]]', '[shnex:pathValues :p]'])
+      assert.equal(evaluate(failing), "sh_evaluation('failure')");
+    const graph = parsed(N + `
+      :S sh:targetNode :a, :b; sh:property [sh:path :v; sh:values [shnex:pathValues :w]; sh:expression [sparql:less-than ([shnex:var "value"] 10)]].
+      :T sh:targetNode :a, :b; sh:nodeByExpression :Has.
+      :Has sh:property [sh:path :w; sh:minCount 1].
+      :a :w 3. :b :v 12.`);
+    const loaded = compileRdfLogic(graph, { profiles: ['shacl'] });
+    const result = run(loaded.program, { proof: true });
+    assert.equal(checkProof(loaded.program, result.proof).valid, true);
+    const component = (name) => result.answers.filter((a) => a.includes(`#sourceConstraintComponent'), iri('http://www.w3.org/ns/shacl#${name}')`)).length;
+    assert.equal(component('ExpressionConstraintComponent'), 1);
+    assert.equal(component('NodeByExpressionConstraintComponent'), 1);
+    assert.ok(result.answers.some((a) => a.includes("#sourceConstraint'), iri('urn:example:Has')")));
+  },
+
   'SHACL report comparison detects wrong fields and preserves result multiplicity and input blank identities'() {
     const expected = report(item());
     assert.equal(compareShaclReports(expected, expected, root).ok, true);

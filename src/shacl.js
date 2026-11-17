@@ -5,6 +5,7 @@
 import { EyemindError, Struct } from './terms.js';
 import { write } from './writer.js';
 import { RDF_DATATYPES } from './rdf-values.js';
+import { NODE_COMMON, nodeExpressions } from './shacl-expr.js';
 
 const SH = 'http://www.w3.org/ns/shacl#';
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
@@ -20,9 +21,9 @@ const CONSTRAINTS = ['class', 'datatype', 'nodeKind', 'minCount', 'maxCount', 'm
   'memberShape', 'minListLength', 'maxListLength', 'uniqueMembers', 'equals', 'disjoint', 'subsetOf', 'lessThan',
   'lessThanOrEquals', 'not', 'and', 'or', 'xone', 'node', 'property', 'someValue', 'qualifiedValueShape',
   'qualifiedMinCount', 'qualifiedMaxCount', 'qualifiedValueShapesDisjoint', 'reifierShape', 'reificationRequired',
-  'closed', 'hasValue', 'in', 'rootClass', 'uniqueValuesFor'];
+  'closed', 'hasValue', 'in', 'rootClass', 'uniqueValuesFor', 'expression', 'nodeByExpression'];
 const ANNOTATIONS = ['severity', 'message', 'deactivated', 'name', 'description', 'order', 'group', 'defaultValue', 'unit',
-  'intent', 'agentInstruction', 'codeIdentifier', 'codeType'];
+  'intent', 'agentInstruction', 'codeIdentifier', 'codeType', 'keyParameter', 'optional'];
 const ALLOWED = new Set([...TARGETS, ...CONSTRAINTS, ...ANNOTATIONS, 'path', 'values', 'flags', 'ignoredProperties']);
 // Shape-expecting parameters, whose values are compiled as shapes and checked for recursion.
 const SHAPE_PARAMETERS = ['node', 'not', 'qualifiedValueShape', 'property', 'memberShape', 'reifierShape', 'someValue', 'targetWhere'];
@@ -36,9 +37,13 @@ const TRUE = (t) => literal(t, XSD + 'boolean') && t.args[0] === 'true';
 const isIri = (t) => t instanceof Struct && t.name === 'iri';
 const resource = (t) => t instanceof Struct && ['iri', 'bnode', 'triple'].includes(t.name);
 const typeNames = (types) => types.map((t) => t.args?.[0]);
+const TRUE_TERM = `literal('true', datatype('${XSD}boolean'))`;
 
-export function compileShacl(quads, { disallows = SHACL_DISALLOWS } = {}) {
-  const graphs = new Map(), lines = [COMMON], blocked = new Set(disallows);
+// needs collects the SPARQL library definitions that node expressions call;
+// evaluate { expression, focus, scope } adds sh_evaluation(Result) for one
+// node expression of the default graph.
+export function compileShacl(quads, { disallows = SHACL_DISALLOWS, needs = new Set(), evaluate } = {}) {
+  const graphs = new Map(), lines = [COMMON, NODE_COMMON], blocked = new Set(disallows);
   for (const severity of disallows) lines.push(`fact(sh_disallowed(${iri(severity)}));`);
   if (disallows.length !== SHACL_DISALLOWS.length || disallows.some((d) => !SHACL_DISALLOWS.includes(d)))
     lines.push('fact(sh_custom_disallows);');
@@ -123,6 +128,19 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS } = {}) {
       checking.add(node.id); node.refs.forEach(acyclic); checking.delete(node.id); checked.add(node.id);
     };
     shapes.forEach(acyclic);
+    // A shape whose conformance may consult shapes chosen at evaluation time
+    // is dynamic. Dynamic dispatch (sh_conforms) lists only the other shapes,
+    // so that negation stays stratified.
+    const dynamics = new Map();
+    const dynamic = (node) => {
+      if (dynamics.has(node.id)) return dynamics.get(node.id);
+      dynamics.set(node.id, false);
+      const s = node.term, blank = (p) => values(s, p).some((t) => t instanceof Struct && t.name === 'bnode');
+      const result = !node.inactive && (values(s, 'expression').length > 0 || values(s, 'nodeByExpression').length > 0 ||
+        ['values', 'defaultValue', 'deactivated'].some(blank) || node.refs.some(dynamic));
+      dynamics.set(node.id, result);
+      return result;
+    };
     const paths = new Map(), parsing = new Set();
     const path = (term) => {
       const key = write(term);
@@ -160,6 +178,9 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS } = {}) {
       }
       parsing.delete(key); paths.set(key, name); return name;
     };
+    const expressions = nodeExpressions({ G, lines, needs, index, rdfList, path, error,
+      conforms: (t) => `sh_ok_${shape(t).id}` });
+    const expression = (t) => expressions.compile(t);
     // sh:closed sh:ByTypes permits, for each rdf:type T of a value node, the
     // properties that collectProperties(T) reaches in the shapes graph.
     let byTypes = null;
@@ -194,24 +215,30 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS } = {}) {
     for (const node of shapes.values()) {
       const { term: s, id, inactive } = node, S = write(s), v = `sh_values_${id}`, ok = `sh_ok_${id}`, bad = `sh_bad_${id}`;
       const issue = `sh_issue_${id}`, focus = `sh_focus_${id}`, target = `sh_target_${id}`;
-      if (inactive) { lines.push(`fact(${ok}(_));`); continue; }
+      if (inactive) {
+        lines.push(`fact(${ok}(_));`);
+        if (isIri(s)) lines.push(`fact(sh_shape(${S}));`, `implied_by(sh_conforms(${S}, X), ${ok}(X));`);
+        continue;
+      }
       const p = one(s, 'path'), P = p ? write(p) : NONE;
       if (p && types(s).includes(SH + 'NodeShape')) error(s, 'is a NodeShape with sh:path');
       if (!p && types(s).includes(SH + 'PropertyShape')) error(s, 'is a PropertyShape without sh:path');
       if (p) lines.push(`implied_by(${v}(F, V), ${path(p)}(F, V));`);
-      else lines.push(`implied_by(${v}(F, F), ent_node(F, ${G}));`);
-      // Core node expressions are constants: sh:values adds them, and
-      // sh:defaultValue supplies them when there is no other value node.
-      const constant = (property, t) => {
-        if (!isIri(t) && !(t instanceof Struct && t.name === 'literal') && typeof t !== 'bigint') error(s, `needs an IRI or literal sh:${property}`);
+      else lines.push(`fact(${v}(F, F));`);
+      // sh:values adds the output nodes of its node expressions, and
+      // sh:defaultValue supplies its own when there is no other value node.
+      const produced = (property) => values(s, property).map((t) => {
         if (!p) error(s, `uses sh:${property} without a property path`);
-        return write(t);
-      };
-      const added = values(s, 'values').map((t) => constant('values', t));
-      for (const t of added) lines.push(`implied_by(${v}(F, ${t}), ent_node(F, ${G}));`);
-      const fallback = one(s, 'defaultValue');
-      if (fallback !== undefined && !added.length)
-        lines.push(`implied_by(${v}(F, ${constant('defaultValue', fallback)}), [ent_node(F, ${G}), not(${path(p)}(F, _))]);`);
+        return expression(t);
+      });
+      const added = produced('values'), fallback = one(s, 'defaultValue');
+      for (const e of added) lines.push(`implied_by(${v}(F, V), [${e}(F, [], nodes(L)), ent_member(V, L)]);`);
+      if (fallback !== undefined) {
+        const own = `sh_own_${id}`;
+        lines.push(`implied_by(${own}(F), ${path(p)}(F, _));`);
+        for (const e of added) lines.push(`implied_by(${own}(F), [${e}(F, [], nodes([_, ..._]))]);`);
+        lines.push(`implied_by(${v}(F, V), [not(${own}(F)), ${produced('defaultValue')[0]}(F, [], nodes(L)), ent_member(V, L)]);`);
+      }
       // A complex resultPath must remain interpretable in the standalone report.
       const describePath = (term, seen = new Set()) => {
         if (isIri(term) || seen.has(write(term))) return;
@@ -252,10 +279,16 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS } = {}) {
       const each = (property, fn) => values(s, property).forEach((t) => fn(t, constraint([property, t])));
       const scalar = (property, fn) => { const t = one(s, property); if (t !== undefined) fn(t, constraint([property, t])); };
       const helper = (name) => `sh_${name}_${id}_${nextHelper++}`;
-      const deactivated = one(s, 'deactivated');
-      if (deactivated !== undefined) boolean('deactivated', deactivated);
+      // A deactivation expression decides for each focus node.
+      const deactivated = one(s, 'deactivated'), guard = [];
+      if (deactivated !== undefined && !BOOL(deactivated)) {
+        lines.push(`implied_by(sh_inactive_${id}(F), ${expression(deactivated)}(F, [], nodes([${TRUE_TERM}])));`);
+        guard.push(`not(sh_inactive_${id}(F))`);
+      }
       const all = (property, fn) => values(s, property).forEach(fn);
-      all('targetNode', (t) => lines.push(`fact(${target}(${write(t)}), ent_node(${write(t)}, ${G}));`));
+      all('targetNode', (t) => lines.push(t instanceof Struct && t.name === 'bnode' ?
+        `implies([${expression(t)}('sh_none', [], nodes(L)), ent_member(T, L)], ${target}(T));` :
+        `fact(${target}(${write(t)}), ent_node(${write(t)}, ${G}));`));
       all('targetClass', (t) => lines.push(`implies(sh_instance(F, ${requireIri('targetClass', t)}, ${G}), ${target}(F));`));
       all('targetSubjectsOf', (t) => lines.push(`implies([rdf(F, ${requireIri('targetSubjectsOf', t)}, _, ${G}), ent_resource(F)], ${target}(F));`));
       all('targetObjectsOf', (t) => lines.push(`implies([rdf(X, ${requireIri('targetObjectsOf', t)}, F, ${G}), ent_resource(X)], ${target}(F));`));
@@ -344,7 +377,7 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS } = {}) {
         for (const item of rdfList(t)) lines.push(`fact(${allowed}(${write(item)}));`);
         emit(c, [`${v}(F, V)`, `not(${allowed}(V))`], 'In');
       });
-      each('hasValue', (t, c) => emit(c, [`ent_node(F, ${G})`, `not(${v}(F, ${write(t)}))`], 'HasValue', NONE, P, write(t)));
+      each('hasValue', (t, c) => emit(c, [`not(${v}(F, ${write(t)}))`], 'HasValue', NONE, P, write(t)));
       each('rootClass', (t, c) => {
         const member = helper('root');
         for (const root of iris(s, 'rootClass', t)) {
@@ -374,15 +407,15 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS } = {}) {
       for (const child of node.properties) {
         if (!child.inactive && !one(child.term, 'path')) error(child.term, 'is referenced by sh:property without sh:path');
         if (!constraint(['property', child.term])) continue;
-        lines.push(`implied_by(${bad}(F), [${v}(F, V), not(sh_ok_${child.id}(V))]);`);
-        if (!child.inactive) lines.push(`implies([${focus}(F, X), ${v}(F, V)], sh_focus_${child.id}(V, sh_via(${id}, F, X)));`);
+        lines.push(`implied_by(${bad}(F), [${v}(F, V), not(sh_ok_${child.id}(V))${guard.map((g) => ', ' + g).join('')}]);`);
+        if (!child.inactive) lines.push(`implies([${focus}(F, X), ${v}(F, V)${guard.map((g) => ', ' + g).join('')}], sh_focus_${child.id}(V, sh_via(${id}, F, X)));`);
       }
       each('node', (t, c) => emit(c, [`${v}(F, V)`, `not(sh_ok_${shape(t).id}(V))`], 'Node', 'V', P, write(t)));
       each('not', (t, c) => emit(c, [`${v}(F, V)`, `sh_ok_${shape(t).id}(V)`], 'Not', 'V', P, write(t)));
       each('someValue', (t, c) => {
         const some = helper('some');
         lines.push(`implied_by(${some}(F), [${v}(F, V), sh_ok_${shape(t).id}(V)]);`);
-        emit(c, [`ent_node(F, ${G})`, `not(${some}(F))`], 'SomeValue', NONE, P, write(t));
+        emit(c, [`not(${some}(F))`], 'SomeValue', NONE, P, write(t));
       });
       for (const [name, children] of node.lists) {
         const c = constraint([name, one(s, name)]);
@@ -428,6 +461,21 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS } = {}) {
         lines.push(`implied_by(${duplicate}(V), [${key}(V, K), not(unify(K, [${properties.map(() => '[]').join(', ')}])), ${target}(T), not_identical(T, V), ${key}(T, K)]);`);
         emit(c, [`${v}(F, V)`, `${duplicate}(V)`], 'UniqueValuesFor', NONE, P, 'V');
       });
+      // sh:expression must give exactly true for each value node, bound to value.
+      // A blank node expression is copied into the report as sh:sourceConstraint.
+      const copy = (root, term = root, seen = new Set()) => {
+        if (!(term instanceof Struct && term.name === 'bnode') || seen.has(write(term))) return;
+        seen.add(write(term));
+        for (const [predicate, objects] of index.get(write(term)) ?? []) for (const object of objects) {
+          lines.push(`fact(sh_copy(${write(root)}, ${write(term)}, ${iri(predicate)}, ${write(object)}, ${G}));`);
+          copy(root, object, seen);
+        }
+      };
+      values(s, 'expression').forEach((t) => copy(t));
+      each('expression', (t, c) => emit(c, [`${v}(F, V)`, `${expression(t)}(F, [['value', V]], R)`, `not(unify(R, nodes([${TRUE_TERM}])))`],
+        'Expression', 'V', P, `source(${write(t)})`));
+      each('nodeByExpression', (t, c) => emit(c, [`${v}(F, V)`, `${expression(t)}(V, [], nodes(L))`, 'ent_member(Shape, L)', 'sh_shape(Shape)', 'not(sh_conforms(Shape, V))'],
+        'NodeByExpression', 'V', P, 'source(Shape)'));
       scalar('closed', (t, c) => {
         const types = isIri(t) && t.args[0] === SH + 'ByTypes';
         if (!types && !boolean('closed', t)) return;
@@ -440,9 +488,14 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS } = {}) {
         }
         emit(c, [`${v}(F, X)`, 'ent_resource(X)', `rdf(X, Predicate, V, ${G})`, `not(${allowed}(X, Predicate))`], 'Closed', 'V', 'Predicate', 'X');
       });
-      lines.push(`implied_by(${bad}(F), [${issue}(F, _, _, _, _, C), sh_blocking(C)]);`);
+      lines.push(`implied_by(${bad}(F), [${issue}(F, _, _, _, _, C), sh_blocking(C)${guard.map((g) => ', ' + g).join('')}]);`);
       lines.push(`implied_by(${ok}(F), not(${bad}(F)));`);
-      lines.push(`implies([${focus}(F, X), ${issue}(F, P, V, C, K, I)], sh_violation(${S}, F, P, V, C, K, I, X, ${G}));`);
+      lines.push(`implies([${focus}(F, X), ${issue}(F, P, V, C, K, I)${guard.map((g) => ', ' + g).join('')}], sh_violation(${S}, F, P, V, C, K, I, X, ${G}));`);
+      if (isIri(s) && !dynamic(node)) lines.push(`fact(sh_shape(${S}));`, `implied_by(sh_conforms(${S}, X), ${ok}(X));`);
+    }
+    if (evaluate && G === "'default_graph'") {
+      const scope = [...evaluate.scope ?? []].map(([k, t]) => `[${JSON.stringify(k)}, ${write(t)}]`);
+      lines.push(`implied_by(sh_evaluation(R), ${expression(evaluate.expression)}(${evaluate.focus ? write(evaluate.focus) : "'sh_none'"}, [${scope.join(', ')}], R));`);
     }
   }
   return lines.join('\n') + '\n';
@@ -549,4 +602,6 @@ implies([sh_result(R, S, F, P, V, C, K, I, X, G), not_identical(P, 'sh_none')], 
 implies([sh_result(R, S, F, P, V, C, K, I, X, G), not_identical(V, 'sh_none')], ent_report(R, iri(shN + 'value'), V, G));
 implies([sh_result(R, S, F, P, V, C, K, I, X, G), sh_constraint_message(I, Message)], ent_report(R, iri(shN + 'resultMessage'), Message, G));
 implies([sh_result(_, _, _, Path, _, _, _, _, _, G), sh_path_statement(Path, S, P, O, G)], ent_report(S, P, O, G));
+implies(sh_result(R, _, _, _, _, _, source(T), _, _, G), ent_report(R, iri(shN + 'sourceConstraint'), T, G));
+implies([sh_result(_, _, _, _, _, _, source(T), _, _, G), sh_copy(T, S, P, O, G)], ent_report(S, P, O, G));
 `;

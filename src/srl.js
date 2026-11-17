@@ -191,7 +191,7 @@ function nativeProgram(parts) {
 // Clock and entropy are inputs captured once when the rule set is compiled.
 // A saved proof carries this one fact; replay validates its shape and then
 // recompiles the source. No other clause display becomes source authority.
-function executionContext(context) {
+export function executionContext(context) {
   if (context === null) {
     const bytes = new Uint8Array(32);
     if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(bytes);
