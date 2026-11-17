@@ -69,7 +69,7 @@ goals, and keep error messages specific and user-facing text direct.
   `playground/conformance.html` and `conformance/worker.js` run the shared suite in a browser.
 - `_config.yml`, `_layouts/default.html`, `assets/docs.css`: GitHub Pages
   renders the Markdown documents with one masthead (Playground,
-  Specification, Conformance, Repository; the logo links home), the same nav the playground shows.
+  Examples, Specification, Conformance, Repository; the logo links home), the same nav the playground shows.
 - `examples/`: runnable examples, listed in `examples/manifest.json` with
   their description and halt code. An entry can list its
   source files in order. RDF examples pair Turtle or TriG data in
