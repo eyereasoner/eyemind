@@ -1,0 +1,19 @@
+# A small transport thesaurus connects concepts, labels and an ordered group.
+# With --skos, cycling is transitively narrower than travel and aligned with biking.
+# This shows SKOS Core entailment without making broader or closeMatch transitive.
+# Vocabulary and semantics: W3C SKOS Reference, https://www.w3.org/TR/skos-reference/ .
+
+@prefix : <https://example.org/transport#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Top concepts imply scheme membership and Concept typing.
+:scheme skos:hasTopConcept :travel .
+:cycling skos:prefLabel "Cycling"@en ;
+    skos:broader :activeTravel ;
+    skos:exactMatch :biking .
+:activeTravel skos:broader :travel .
+:biking skos:exactMatch :bikeTravel .
+
+# Ordered membership entails ordinary collection membership.
+:activeModes skos:memberList (:cycling :walking) .
+:walking skos:definition "Travel on foot"@en ; skos:related :cycling .

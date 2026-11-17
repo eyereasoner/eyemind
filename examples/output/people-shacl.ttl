@@ -1,0 +1,22 @@
+PREFIX : <https://example.org/directory#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+_:b0 a sh:ValidationReport .
+_:b0 sh:conforms false .
+_:b0 sh:result _:b1 .
+_:b1 a sh:ValidationResult .
+_:b1 sh:focusNode :Bob .
+_:b1 sh:sourceShape :NameShape .
+_:b1 sh:sourceConstraintComponent sh:MinCountConstraintComponent .
+_:b1 sh:resultSeverity sh:Violation .
+_:b0 sh:result _:b2 .
+_:b2 a sh:ValidationResult .
+_:b2 sh:focusNode :Bob .
+_:b2 sh:sourceShape :AgeShape .
+_:b2 sh:sourceConstraintComponent sh:MinInclusiveConstraintComponent .
+_:b2 sh:resultSeverity sh:Violation .
+_:b1 sh:resultPath :name .
+_:b2 sh:resultPath :age .
+_:b2 sh:value 17 .
+_:b1 sh:resultMessage "Supply one name."@en .
+_:b2 sh:resultMessage "The directory requires adults."@en .

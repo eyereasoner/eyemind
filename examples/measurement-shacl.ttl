@@ -1,0 +1,20 @@
+# Two speed readings are converted and checked against a ten-metre-per-second limit.
+# With --qudt --shacl, the bicycle passes and the car has a maximum-value violation.
+# This shows validation after inference, using a sequence path into generated data.
+# Semantics: QUDT.org, https://w3id.org/cdt/ and W3C SHACL.
+
+@prefix : <https://example.org/readings#> .
+@prefix cdt: <https://w3id.org/cdt/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix qconv: <https://eyereasoner.github.io/eyemind/qudt#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# Both readings enter in kilometres per hour; QUDT adds normalized quantities.
+:bicycle :speed "36 km/h"^^cdt:speed .
+:car :speed "54 km/h"^^cdt:speed .
+
+# The sequence follows the generated quantity's numeric value, after closure.
+:SpeedShape sh:targetSubjectsOf :speed ; sh:property :LimitShape .
+:LimitShape sh:path (qconv:normalizedQuantity qudt:numericValue) ;
+    sh:minCount 1 ; sh:maxCount 1 ; sh:maxInclusive 10 ;
+    sh:message "Speed must be at most 10 m/s."@en .

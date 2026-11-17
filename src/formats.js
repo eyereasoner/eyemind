@@ -14,7 +14,7 @@
 //
 // The odrl option adds the snapshot profile's validation and evaluation LS
 // to one Turtle input. Its vocabulary alone never enables the evaluator.
-// owl2rl adds OWL 2 RL rules, including RDFS, to RDF inputs.
+// Explicit owl2rl, qudt, skos and shacl profiles share one RDF working graph.
 //
 // The compiled program is ordinary LS: proofs, checking and --unused
 // apply to it. SRL execution functions capture a context that a saved proof
@@ -26,12 +26,13 @@ import { DEFAULT_GRAPH, parseRdf, rdfDocument, rdfFormat, writeRdf } from './rdf
 import { resultToN3, compileSources } from './n3.js';
 import { compileSrl, srlAnswers, srlQuads } from './srl.js';
 import { compileOdrl } from './odrl.js';
-import { compileOwl2rl } from './owl2rl.js';
+import { compileRdfLogic, RDF_PROFILES } from './rdf-logic.js';
 import { compileLe, writeLe } from './le.js';
 import { write } from './writer.js';
 import { isRdfMessageLog, parseRdfMessages } from './messages.js';
 
 export const OUTPUT_FORMATS = ['eyemind', 'turtle', 'trig', 'n-triples', 'n-quads', 'n3', 'le'];
+export { RDF_PROFILES };
 
 // What a file holds: 'js', 'rdf', 'n3', 'srl' or 'le'.
 export function inputKind(name) {
@@ -50,7 +51,7 @@ export function rdfMessageFormat(name) {
 // Load inputs, given as [text, name] pairs, as one program. io may supply
 // readFile, for the documents N3 and IMPORTS name, and fileIri(name), the
 // base IRI of a file. Returns { kind, program, text, prefixes, compiled }:
-// kind is 'js', 'n3', 'srl', 'le', 'odrl' or 'owl2rl', text the compiled program,
+// kind is 'js', 'n3', 'srl', 'le', 'odrl' or an RDF profile name; text is the program,
 // and compiled what writing the conclusions needs.
 export function loadInputs(inputs, io = null, options = {}) {
   try {
@@ -62,7 +63,9 @@ export function loadInputs(inputs, io = null, options = {}) {
   }
 }
 
-function load(inputs, io, { base = null, messageInputs = null, srlContext = null, odrl = false, owl2rl = false }) {
+function load(inputs, io, { base = null, messageInputs = null, srlContext = null, odrl = false, owl2rl = false, qudt = false, skos = false, shacl = false }) {
+  const options = { owl2rl, qudt, skos, shacl }, profiles = RDF_PROFILES.filter((p) => options[p]);
+  const switches = profiles.map((p) => '--' + p).join(' ');
   const kinds = inputs.map(([text, name]) => messageInputs?.has(name) ||
     (inputKind(name) === 'n3' && isRdfMessageLog(text)) ? 'rdf' : inputKind(name));
   const baseOf = (name) => base ?? io?.fileIri?.(name) ?? null;
@@ -72,24 +75,24 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
     });
   // These rule sets are added only when requested, never from vocabulary.
   if (kinds.includes('le')) {
-    if (kinds.some((kind) => kind !== 'le') || odrl || owl2rl) {
+    if (kinds.some((kind) => kind !== 'le') || odrl || profiles.length) {
       throw new EyemindError('a Logical English run takes .le files without RDF logic switches or other input formats');
     }
     return compileLe(inputs);
   }
-  if (owl2rl && odrl) throw new EyemindError('--odrl cannot be combined with --owl2rl');
-  if (owl2rl) {
+  if (profiles.length && odrl) throw new EyemindError(`--odrl cannot be combined with ${switches}`);
+  if (profiles.length) {
     if (inputs.some(([, name], k) => kinds[k] !== 'rdf' && name !== '<stdin>')) {
-      throw new EyemindError('--owl2rl takes RDF inputs; standard input is Turtle');
+      throw new EyemindError(`${switches} takes RDF inputs; standard input is Turtle`);
     }
     const prefixes = {}, quads = [];
     inputs.forEach(([text, name], k) => {
       const parsed = name === '<stdin>' ? parseRdf(text, { format: 'turtle', base: baseOf(name), scope: scopeOf(inputs, name, k) }) : rdf(text, name, k);
-      if (parsed.triples) throw new EyemindError('--owl2rl takes RDF graphs, not RDF Message Logs');
+      if (parsed.triples) throw new EyemindError(`${switches} takes RDF graphs, not RDF Message Logs`);
       Object.assign(prefixes, parsed.prefixes);
       quads.push(...parsed.quads);
     });
-    return compileOwl2rl({ quads, prefixes }, { source: inputs.map(([, n]) => n).join(', ') });
+    return compileRdfLogic({ quads, prefixes }, { profiles, source: inputs.map(([, n]) => n).join(', ') });
   }
   if (odrl) {
     if (inputs.length !== 1) throw new EyemindError('--odrl takes one Turtle snapshot containing policies, requests and SOTW');
@@ -155,7 +158,7 @@ function importResolver(io) {
 
 // Default output: LE for LE, N3 for N3, Turtle for SRL and the RDF logic
 // extensions, and eyemind's own text for an LS program.
-export const defaultFormat = (kind) => ({ le: 'le', n3: 'n3', srl: 'turtle', odrl: 'turtle', owl2rl: 'turtle' })[kind] ?? 'eyemind';
+export const defaultFormat = (kind) => RDF_PROFILES.includes(kind) ? 'turtle' : ({ le: 'le', n3: 'n3', srl: 'turtle', odrl: 'turtle' })[kind] ?? 'eyemind';
 
 // The conclusions of a run in an output format; null for eyemind's own text.
 // all also writes given RDF or N3 data. Rejects conclusions the format cannot represent.

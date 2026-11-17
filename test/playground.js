@@ -169,6 +169,43 @@ export const tests = [
     }
   }],
 
+  ['QUDT, SKOS and SHACL switches run examples and preserve composed sessions', async (page, base) => {
+    const p = driver(page);
+    for (const [name, flags] of [['quantities-qudt', ['qudt']], ['thesaurus-skos', ['skos']],
+      ['people-shacl', ['shacl']], ['measurement-shacl', ['qudt', 'shacl']]]) {
+      await p.open(`${base}#example=${name}`);
+      for (const flag of flags) assert.equal(await page.evaluate(`document.getElementById('${flag}').checked`), true);
+      await p.run();
+      assert.match(await p.status(), /^Done · exit 0/);
+      assert.equal(await p.output(), readFileSync(new URL(`../examples/output/${name}.ttl`, import.meta.url), 'utf8'));
+      await p.select('mode', '--proof');
+      await p.run();
+      const proof = await p.output();
+      assert.match(proof, /^step\(/m);
+      await p.select('mode', '--check-proof');
+      await p.type('proof-input', proof);
+      await p.run();
+      assert.match(await p.output(), /verdict\('checked'\)/);
+    }
+    await page.evaluate("document.getElementById('share-link').click()");
+    await p.until("document.getElementById('share-url').value.includes('#state=')", 'the composed RDF profiles');
+    await p.open(await page.evaluate("document.getElementById('share-url').value"), 390, true);
+    for (const flag of ['qudt', 'shacl']) assert.equal(await page.evaluate(`document.getElementById('${flag}').checked`), true);
+    await p.run();
+    assert.match(await p.output(), /verdict\('checked'\)/);
+    await p.select('mode', '');
+    await p.type('proof-input', '');
+    await page.evaluate("document.getElementById('qudt').click()");
+    await p.run();
+    assert.doesNotMatch(await p.output(), /qconv:normalizedCdtLiteral/);
+    assert.match(await p.output(), /sh:conforms false/);
+    await page.evaluate("document.getElementById('share-link').click()");
+    await p.until("document.getElementById('share-url').value.includes('#state=')", 'the disabled conversion profile');
+    await p.open(await page.evaluate("document.getElementById('share-url').value"));
+    assert.equal(await page.evaluate("document.getElementById('qudt').checked"), false);
+    assert.equal(await page.evaluate("document.getElementById('shacl').checked"), true);
+  }],
+
   ['Logical English examples download LE conclusions and keep JavaScript proofs', async (page, base) => {
     const p = driver(page);
     for (const name of ['socrates-le', 'squares-le', 'records-le', 'handicap-card-le',

@@ -39,6 +39,10 @@ goals, and keep error messages specific and user-facing text direct.
   - `cli.js`: the command line, with no Node imports so the playground's
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
     library API. `version.js`: the version, synced from `package.json`.
+  - `rdf-logic.js` combines explicit RDF profiles over one working graph;
+    `rdf-values.js` supplies shared LS datatype and value rules. `qudt.js`,
+    `skos.js` and `shacl.js` compile quantity normalization, SKOS entailment
+    and SHACL validation to standalone LS.
   - `owl2rl.js`: explicit `--owl2rl` inference, including RDFS, and OWL conflict reports, compiled to standalone LS.
   - `le.js`: Logical English (`.le`) compiled to LS, and `.le` conclusions; its grammar is in `LOGICAL-ENGLISH.md`.
     `le-odrl.js` maps an explicitly selected LE ODRL vocabulary to RDF and shares `odrl.js` for snapshot evaluation.

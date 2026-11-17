@@ -1,0 +1,26 @@
+# Measurements use different units and CDT literal spellings.
+# With --qudt, speed becomes metres per second and temperature becomes kelvin.
+# This shows QUDT affine conversion, logarithms and explicit unit metadata.
+# Unit conventions: https://qudt.org/ and https://w3id.org/cdt/ .
+
+@prefix : <https://example.org/measurements#> .
+@prefix cdt: <https://w3id.org/cdt/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+# A typed literal and a QuantityValue object normalize by the same dimension.
+:car :speed "36 km/h"^^cdt:speed .
+:room :temperature [
+    a qudt:QuantityValue ;
+    qudt:numericValue 68 ;
+    qudt:unit unit:DEG_F
+] .
+
+# Decibels express a power ratio; 20 dB becomes the dimensionless ratio 100.
+:amplifier :gain "20 dB"^^cdt:dimensionless .
+
+# Local metadata extends the offline catalog: this example's cubit is 0.5 m.
+:cubit qudt:symbol "cb" ;
+    qudt:conversionMultiplier 0.5 ;
+    qudt:hasDimensionVector <http://qudt.org/vocab/dimensionvector/A0E0L1I0M0H0T0D0> .
+:table :length "4 cb"^^cdt:length .

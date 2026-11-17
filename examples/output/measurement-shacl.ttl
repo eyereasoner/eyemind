@@ -1,0 +1,40 @@
+PREFIX : <https://example.org/readings#>
+PREFIX cdt: <https://w3id.org/cdt/>
+PREFIX qconv: <https://eyereasoner.github.io/eyemind/qudt#>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+
+:bicycle qconv:normalizedQuantity _:b0 .
+:bicycle qconv:normalizedUcumLiteral "10.0 m/s"^^cdt:ucum .
+:bicycle qconv:normalizedCdtLiteral "10.0 m/s"^^cdt:speed .
+_:b0 a qudt:QuantityValue .
+_:b0 qudt:numericValue "10.0"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b0 qudt:unit unit:M-PER-SEC .
+_:b0 qconv:sourceProperty :speed .
+_:b0 qconv:sourceLiteral "36 km/h"^^cdt:speed .
+_:b0 qconv:sourceUnit unit:KiloM-PER-HR .
+:car qconv:normalizedQuantity _:b1 .
+:car qconv:normalizedUcumLiteral "15.0 m/s"^^cdt:ucum .
+:car qconv:normalizedCdtLiteral "15.0 m/s"^^cdt:speed .
+_:b1 a qudt:QuantityValue .
+_:b1 qudt:numericValue "15.0"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b1 qudt:unit unit:M-PER-SEC .
+_:b1 qconv:sourceProperty :speed .
+_:b1 qconv:sourceLiteral "54 km/h"^^cdt:speed .
+_:b1 qconv:sourceUnit unit:KiloM-PER-HR .
+_:b2 a sh:ValidationReport .
+_:b2 sh:conforms false .
+_:b2 sh:result _:b3 .
+_:b3 a sh:ValidationResult .
+_:b3 sh:focusNode :car .
+_:b3 sh:sourceShape :LimitShape .
+_:b3 sh:sourceConstraintComponent sh:MaxInclusiveConstraintComponent .
+_:b3 sh:resultSeverity sh:Violation .
+_:b3 sh:resultPath _:b4 .
+_:b3 sh:value "15.0"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b3 sh:resultMessage "Speed must be at most 10 m/s."@en .
+_:b4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> qconv:normalizedQuantity .
+_:b4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b5 .
+_:b5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> qudt:numericValue .
+_:b5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .

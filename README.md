@@ -7,7 +7,7 @@ eyemind is a dependency-free reasoner for **Logic Script (LS)**, a rule language
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Specification](https://eyereasoner.github.io/eyemind/SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/) · [Examples](https://eyereasoner.github.io/eyemind/examples/)
 
-The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and how a proof is checked. The examples are 147 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1246 cases that test language and proof behavior through a command adapter, together with implementation interface checks; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The playground runs programs in your browser; the specification defines the language, its canonical text, the proof format and how a proof is checked. The examples are 152 runnable programs, each with a card deck and saved conclusions, proofs and check reports. The conformance suite has 1246 cases that test language and proof behavior through a command adapter, together with implementation interface checks; run it [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
 
@@ -24,6 +24,10 @@ The playground runs programs in your browser; the specification defines the lang
   - [RDF Messages](#rdf-messages)
   - [SPARQL 1.2 RL](#sparql-12-rl)
   - [OWL 2 RL](#owl-2-rl)
+  - [Combining RDF logic profiles](#combining-rdf-logic-profiles)
+  - [QUDT quantities](#qudt-quantities)
+  - [SKOS entailment](#skos-entailment)
+  - [SHACL validation](#shacl-validation)
   - [ODRL snapshots](#odrl-snapshots)
 - [How eyemind reasons](#how-eyemind-reasons)
 - [Proofs, and what checking one means](#proofs-and-what-checking-one-means)
@@ -467,16 +471,23 @@ The implemented rules are:
 | RDFS | Class and property hierarchy transitivity, type and property propagation, domain and range inference and inheritance, resource/class/property typing, reflexive hierarchies, container membership and datatype-to-literal subclassing. |
 | OWL | Equality and substitution; equivalent classes and properties; inverse, symmetric, transitive, functional and inverse-functional properties; property chains and keys; intersections, unions, enumerations, value restrictions and maximum cardinalities 0 and 1; class/property disjointness, AllDifferent, negative property assertions and schema propagation. |
 
-The OWL rules implement the non-datatype rule families of
+The OWL rules cover the non-datatype families of
 [OWL 2 RL/RDF tables 4–7 and 9](https://www.w3.org/TR/owl2-profiles/#Reasoning_in_OWL_2_RL_and_RDF_Graphs),
-inspired by [EYE's RDF plus OWL rules](https://github.com/eyereasoner/eye/tree/master/reasoning/rpo).
-They operate on the terms present in each graph. RDFS axiomatic triples,
-datatype value-space reasoning (OWL table 8), ontology imports and OWL
-constructs outside these rule families are not implemented. Literal equality
-uses the RDF-to-LS representation, without general datatype normalization.
-This switch does not validate profile membership or certify completeness
-for arbitrary RDFS or OWL ontologies. It takes RDF inputs and cannot be combined
-with `--odrl` or `--stream-messages`.
+inspired by [EYE's RDF plus OWL rules](https://github.com/eyereasoner/eye/tree/master/reasoning/rpo)
+and the [rdfjs-inference-engine rule sets](https://github.com/pietercolpaert/rdfjs-inference-engine/tree/main/rules).
+Disjoint lists also infer pairwise differences or disjointness, and reflexive
+properties apply to resources present in the graph.
+
+Datatype reasoning is partial: integer and decimal comparisons are exact,
+integer subtype bounds are checked, and boolean and string values are
+compared across supported lexical spellings. Supported datatype IRIs present
+in a graph are recognized as datatypes. Maximum qualified cardinalities can
+use `owl:onDataRange`. This does not implement all of OWL table 8: full
+datatype inclusion/disjointness, facets, binary floating-point value equality
+and temporal value equality are outside the profile. RDFS axiomatic triples,
+ontology imports and constructs beyond these rule families are also outside
+it. The switch does not validate OWL profile membership or certify
+completeness for arbitrary ontologies.
 
 OWL contradictions appear as RDF records of type `ent:Conflict`, where
 `ent:` is `https://eyereasoner.github.io/eyemind/entailment#`. Each records its
@@ -489,7 +500,142 @@ guarantee. RDFS domain and range infer types rather than checking required
 fields, and missing facts alone do not establish a conflict.
 
 Try the [people directory](https://eyereasoner.github.io/eyemind/examples/deck/people-owl2rl)
-and [family ontology](https://eyereasoner.github.io/eyemind/examples/deck/family-owl2rl).
+[family ontology](https://eyereasoner.github.io/eyemind/examples/deck/family-owl2rl)
+and [datatype catalog](https://eyereasoner.github.io/eyemind/examples/deck/datatypes-owl2rl).
+
+### Combining RDF logic profiles
+
+`--owl2rl`, `--qudt`, `--skos` and `--shacl` can be combined. Each explicitly
+adds its logic to RDF inputs; vocabulary alone never enables a profile.
+Multiple inputs merge their default graphs. Named graphs remain independent:
+put each graph's data and shapes together, and use `--to trig` to retain graph
+names in the output. These switches cannot be combined with `--odrl` or
+`--stream-messages`.
+
+All four compile to standalone `.js` containing the data and ordinary LS
+rules. Inference closes before validation, whose reports cannot affect
+inference. Output defaults to Turtle containing new triples and reports;
+`--all` includes the input. Proofs and check reports remain `.js`, including
+proofs of validation failures. Exit code 0 means evaluation completed;
+inspect `sh:conforms` and any `ent:Conflict` records to assess the graph.
+The playground exposes the same switches and preserves combinations in
+saved sessions and shared links.
+
+```sh
+eyemind --qudt --shacl examples/measurement-shacl.ttl
+eyemind --qudt --shacl --program examples/measurement-shacl.ttl > /tmp/measurement.js
+eyemind --to turtle /tmp/measurement.js
+eyemind --qudt --shacl --proof examples/measurement-shacl.ttl > /tmp/measurement-proof.js
+eyemind --qudt --shacl --check-proof /tmp/measurement-proof.js examples/measurement-shacl.ttl
+```
+
+### QUDT quantities
+
+`--qudt` normalizes linked `qudt:QuantityValue` objects and quantity literals
+using current `https://w3id.org/cdt/` or legacy
+`http://w3id.org/lindt/custom_datatypes#` datatypes. For example,
+`"36 km/h"^^cdt:speed` yields `"10.0 m/s"^^cdt:speed`. The object form needs
+an incoming `subject property quantity` link, a `qudt:QuantityValue` type,
+`qudt:numericValue` and `qudt:unit`. Only input measurements are normalized;
+generated quantities do not create another generation of measurements.
+
+The offline catalog contains common length, area, volume, time, mass, speed,
+acceleration, temperature, pressure, energy, power, dimensionless, electric
+current and amount-of-substance units. Defaults are SI units. Unit tokens
+include registered symbols and UCUM spellings; this is a finite catalog,
+not a general UCUM expression parser or the complete QUDT ontology.
+Affine conversion uses `(value + offset) * multiplier`, including Fahrenheit.
+Selected logarithmic conventions are power-ratio bel/decibel, neper,
+octave, decade and pH. Conversions use binary64 arithmetic; logarithmic
+results can depend on the host math library's last-place rounding.
+
+Input unit metadata extends or overrides the catalog with
+`qudt:hasDimensionVector`, `qudt:conversionMultiplier`, optional
+`qudt:conversionOffset` (zero by default), and `qudt:symbol`, `qudt:ucumCode`
+or `qudt:expression` tokens. A custom affine definition needs both its
+dimension vector and multiplier. Local unit IRIs can align to a known unit
+through `owl:sameAs`, `skos:exactMatch` or `qconv:alignedQudtUnit`; enabling
+OWL or SKOS also supplies their inferred alignments.
+
+Here `qconv:` is `https://eyereasoner.github.io/eyemind/qudt#`. A property
+can select a `qconv:normalizationProfile`; built-in profiles include
+`qconv:LengthProfile`, `qconv:SpeedProfile` and `qconv:TemperatureProfile`.
+A custom profile supplies `qconv:targetUnit`, `qconv:datatype` (an IRI) and
+`qconv:targetUcumCode` (a string). Generic `cdt:ucum` literals and quantity
+objects otherwise select an unambiguous profile by dimension. Specific CDT
+literals select their datatype's profile and must agree with any property
+contract. Source and target dimension vectors must match. Unknown tokens,
+incompatible dimensions, ambiguous profiles and unsupported conversions
+produce no normalization; use SHACL required-value constraints when missing
+normalization must be reported.
+
+Each result attaches `qconv:normalizedQuantity`,
+`qconv:normalizedUcumLiteral` and `qconv:normalizedCdtLiteral` to the original
+subject. The generated quantity records its unit and numeric value, plus
+`qconv:sourceProperty`, `qconv:sourceUnit` and `qconv:sourceLiteral` or
+`qconv:sourceQuantity`. Legacy literals normalize to current CDT datatypes.
+The small catalog is adapted from [QUDT.org](https://qudt.org/), licensed
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), and can be inspected
+in `src/qudt.js`. No ontology is downloaded during compilation.
+Try [quantities](https://eyereasoner.github.io/eyemind/examples/deck/quantities-qudt).
+
+### SKOS entailment
+
+`--skos` adds positive [SKOS Core entailments](https://www.w3.org/TR/skos-reference/):
+concept and scheme typing, labels and notes, top concepts, hierarchical and
+associative relations, mapping relations and ordered collection membership.
+`skos:broader` and `skos:closeMatch` are not transitive;
+`skos:broaderTransitive`, `skos:narrowerTransitive` and `skos:exactMatch` are.
+A collection member is not arbitrarily typed as either a concept or a
+collection, and related concepts do not acquire a shared scheme without
+supporting assertions. Cyclic lists do not invent collection members.
+
+The profile emits its vocabulary axioms and resulting triples. It does not
+check SKOS integrity conditions or implement SKOS-XL. Add `--owl2rl` for
+general RDFS/OWL consequences of the vocabulary.
+Try the [transport thesaurus](https://eyereasoner.github.io/eyemind/examples/deck/thesaurus-skos).
+
+### SHACL validation
+
+`--shacl` compiles the supplied shapes into LS predicates with explicit
+conformance dependencies. Validation inspects the completed graph, including
+consequences from the other selected profiles. It writes a standard
+`sh:ValidationReport` with `sh:conforms` and linked `sh:ValidationResult`
+records carrying focus node, source shape, constraint component and severity,
+plus path, value and supplied messages where applicable. Complex result
+paths retain their RDF definitions in the report.
+
+Implemented SHACL Core families include all four explicit targets and
+implicit class targets; class, datatype and node-kind constraints; counts,
+bounds, lengths, patterns and language constraints; sets, property pairs and
+closed shapes; nested properties, node/not/and/or/xone, and qualified counts
+with disjoint siblings. Predicate, inverse, sequence, alternative and repeated
+paths compute distinct values and terminate on data cycles. Repeated `xone`
+members count separately. Deactivated shapes conform without validation.
+
+This is a documented Core subset, not a claim of full W3C SHACL conformance.
+Shapes and path definitions must be present in the input; inference may add
+data and targets, but cannot dynamically define new constraints. Recursive
+shape dependencies, SHACL-SPARQL, JavaScript constraints, rules, custom
+targets and SHACL 1.2 additions are rejected when used by active shapes.
+
+Datatype checks support XSD integer subtypes, decimal, float/double, boolean,
+string/normalizedString/token/language/anyURI, hex/base64 binary,
+date/dateTime/dateTimeStamp/time and RDF language strings. Other requested
+datatypes raise an error. Numeric bounds use exact integers/decimals with
+SPARQL promotion for binary floats; string and same-kind temporal bounds
+are also supported. Temporal fractions remain exact. Timezones compare
+when both values have one or both omit one; a mixed pair is incomparable.
+Unsupported comparisons fail their constraint.
+
+Patterns use the LS Unicode ECMAScript regex primitive. Flag `s` and the
+whitespace-removing flag `x` are translated; `i` supports ASCII literal and
+character-class folding. Flag `m`, non-ASCII case folding and richer escaped
+case-insensitive patterns raise errors. XPath-specific regex syntax is not
+implemented. Malformed shapes and unsupported features produce specific
+errors instead of a conforming report.
+Try the [directory](https://eyereasoner.github.io/eyemind/examples/deck/people-shacl)
+and [normalized speed readings](https://eyereasoner.github.io/eyemind/examples/deck/measurement-shacl).
 
 ### ODRL snapshots
 
@@ -729,12 +875,15 @@ eyemind [OPTION ...] [FILE ...]
 | `--unused` | List the clauses that make no difference to the conclusions. |
 | `--stream-messages` | Read an RDF Message Log and run the rules independently per message; Node reads files, stdin and HTTP(S) incrementally. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
-| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3, SRL, ODRL, RDFS or OWL 2 RL program has 1000000, 100000 and 1000000000. |
-| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; by default LE for LE, N3 for N3, Turtle for SRL, ODRL, RDFS and OWL 2 RL, eyemind otherwise. |
+| `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3, SRL, ODRL or RDF profile program has 1000000, 100000 and 1000000000. |
+| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; by default LE for LE, N3 for N3, Turtle for SRL, ODRL and RDF profiles, eyemind otherwise. |
 | `--all` | With RDF or N3 output, write the given data too. |
 | `--program` | Print the program the inputs compile to. |
 | `--odrl` | Add the ODRL snapshot profile's validation and evaluation LS to one Turtle input. |
 | `--owl2rl` | Add the documented OWL 2 RL inference rules, including RDFS, and RDF conflict reports to RDF inputs. |
+| `--qudt` | Normalize supported QUDT/CDT quantities, with source provenance. |
+| `--skos` | Add positive SKOS Core entailments. |
+| `--shacl` | Compile supported SHACL Core shapes to LS and output RDF validation reports. |
 | `--base IRI` | Resolve relative IRIs of the inputs against `IRI` instead of each file's location. |
 | `-v`, `--version`, `-h`, `--help` | Print the version or the usage. |
 
@@ -744,7 +893,7 @@ each goal as a data document, with an array denoting conjunction. With
 `--check-proof`, supply the original goals the proof answers.
 An option that takes a value requires it immediately afterward; another
 option, including a short alias such as `-v`, is reported as a missing value.
-With `--goal`, answers default to eyemind terms even for LE, N3, SRL, ODRL, RDFS and OWL 2 RL inputs;
+With `--goal`, answers default to eyemind terms even for LE, N3, SRL, ODRL and RDF profile inputs;
 use `--to` to request another output format.
 
 With `--prove-and-check`, reasoning bounds and `--stats` apply to proof
@@ -773,7 +922,7 @@ They are outside the language and proof specification.
 
 The JavaScript implementation defaults to a depth limit of 1000000, an
 inference limit of 1000000 and a limit of 1000 forward rounds per stratum.
-Compiled N3, SRL, ODRL and OWL 2 RL programs use 1000000, 1000000000 and 100000 respectively.
+Compiled N3, SRL, ODRL and RDF profile programs use 1000000, 1000000000 and 100000 respectively.
 Each supplied bound must be a positive integer no greater than
 9007199254740991.
 

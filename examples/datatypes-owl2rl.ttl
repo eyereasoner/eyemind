@@ -1,0 +1,20 @@
+# A catalog stores the same count with different numeric lexical forms.
+# With --owl2rl, their exact values agree and an out-of-range byte produces a conflict.
+# This shows partial OWL 2 RL datatype reasoning and positive AllDifferent consequences.
+# Rule semantics: W3C OWL 2 Profiles, section 4.3.
+
+@prefix : <https://example.org/catalog#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Equal numeric values can substitute even when their RDF terms differ.
+:left :count "01"^^xsd:integer .
+:right :count "1.0"^^xsd:decimal .
+
+# A range assertion cannot make 129 a member of the byte value space.
+:byteCount rdfs:range xsd:byte .
+:broken :byteCount 129 .
+
+# Explicitly distinct catalog items also acquire pairwise differentFrom triples.
+:items a owl:AllDifferent ; owl:distinctMembers (:left :right) .

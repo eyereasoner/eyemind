@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { basename, dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkReport, run } from '../src/index.js';
-import { defaultFormat, loadInputs, writeConclusions } from '../src/formats.js';
+import { RDF_PROFILES, defaultFormat, loadInputs, writeConclusions } from '../src/formats.js';
 import { nodeIO } from '../src/node.js';
 
 export const ROOT = join(dirname(dirname(fileURLToPath(import.meta.url))), 'examples');
@@ -52,7 +52,8 @@ export function loadExampleInputs(entry) {
     const path = join(ROOT, file);
     return [readFileSync(path, 'utf8'), path];
   });
-  return loadInputs(inputs, nodeIO, { srlContext: entry.srlContext ?? null, odrl: entry.odrl ?? false, owl2rl: entry.owl2rl ?? false });
+  return loadInputs(inputs, nodeIO, { srlContext: entry.srlContext ?? null, odrl: entry.odrl ?? false,
+    ...Object.fromEntries(RDF_PROFILES.map((p) => [p, entry[p] ?? false])) });
 }
 
 export const loadExample = (entry) => loadExampleInputs(entry).program;

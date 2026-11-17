@@ -1,0 +1,42 @@
+PREFIX : <https://example.org/measurements#>
+PREFIX cdt: <https://w3id.org/cdt/>
+PREFIX qconv: <https://eyereasoner.github.io/eyemind/qudt#>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+
+:car qconv:normalizedQuantity _:b0 .
+:car qconv:normalizedUcumLiteral "10.0 m/s"^^cdt:ucum .
+:car qconv:normalizedCdtLiteral "10.0 m/s"^^cdt:speed .
+_:b0 a qudt:QuantityValue .
+_:b0 qudt:numericValue "10.0"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b0 qudt:unit unit:M-PER-SEC .
+_:b0 qconv:sourceProperty :speed .
+_:b0 qconv:sourceLiteral "36 km/h"^^cdt:speed .
+_:b0 qconv:sourceUnit unit:KiloM-PER-HR .
+:amplifier qconv:normalizedQuantity _:b1 .
+:amplifier qconv:normalizedUcumLiteral "100.0 1"^^cdt:ucum .
+:amplifier qconv:normalizedCdtLiteral "100.0 1"^^cdt:dimensionless .
+_:b1 a qudt:QuantityValue .
+_:b1 qudt:numericValue "100.0"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b1 qudt:unit unit:UNITLESS .
+_:b1 qconv:sourceProperty :gain .
+_:b1 qconv:sourceLiteral "20 dB"^^cdt:dimensionless .
+_:b1 qconv:sourceUnit unit:DeciB .
+:table qconv:normalizedQuantity _:b2 .
+:table qconv:normalizedUcumLiteral "2.0 m"^^cdt:ucum .
+:table qconv:normalizedCdtLiteral "2.0 m"^^cdt:length .
+_:b2 a qudt:QuantityValue .
+_:b2 qudt:numericValue "2.0"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b2 qudt:unit unit:M .
+_:b2 qconv:sourceProperty :length .
+_:b2 qconv:sourceLiteral "4 cb"^^cdt:length .
+_:b2 qconv:sourceUnit :cubit .
+:room qconv:normalizedQuantity _:b3 .
+:room qconv:normalizedUcumLiteral "293.15000000000003 K"^^cdt:ucum .
+:room qconv:normalizedCdtLiteral "293.15000000000003 K"^^cdt:temperature .
+_:b3 a qudt:QuantityValue .
+_:b3 qudt:numericValue "293.15000000000003"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b3 qudt:unit unit:K .
+_:b3 qconv:sourceProperty :temperature .
+_:b3 qconv:sourceQuantity _:b4 .
+_:b3 qconv:sourceUnit unit:DEG_F .

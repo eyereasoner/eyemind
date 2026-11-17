@@ -727,6 +727,52 @@
     "description": "OWL 2 RL chains infer grandparents and functional properties expose a sameAs/differentFrom conflict"
   },
   {
+    "name": "datatypes-owl2rl",
+    "files": [
+      "datatypes-owl2rl.ttl"
+    ],
+    "output": "ttl",
+    "owl2rl": true,
+    "description": "OWL exact numeric values substitute across lexical forms and an invalid byte range yields a conflict"
+  },
+  {
+    "name": "quantities-qudt",
+    "files": [
+      "quantities-qudt.ttl"
+    ],
+    "output": "ttl",
+    "qudt": true,
+    "description": "QUDT normalizes CDT literals, Fahrenheit, decibels and a locally defined length unit"
+  },
+  {
+    "name": "thesaurus-skos",
+    "files": [
+      "thesaurus-skos.ttl"
+    ],
+    "output": "ttl",
+    "skos": true,
+    "description": "SKOS closes concept hierarchies, exact mappings and ordered collection membership"
+  },
+  {
+    "name": "people-shacl",
+    "files": [
+      "people-shacl.ttl"
+    ],
+    "output": "ttl",
+    "shacl": true,
+    "description": "SHACL reports a missing name and an underage directory entry with standard validation results"
+  },
+  {
+    "name": "measurement-shacl",
+    "files": [
+      "measurement-shacl.ttl"
+    ],
+    "output": "ttl",
+    "qudt": true,
+    "shacl": true,
+    "description": "QUDT converts speed readings before SHACL checks a sequence path against a numeric limit"
+  },
+  {
     "name": "socrates-le",
     "files": ["socrates-le.le"],
     "description": "Logical English class facts and an every-rule conclude that Socrates is mortal"

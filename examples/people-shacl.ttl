@@ -1,0 +1,21 @@
+# A directory is checked against reusable SHACL shapes.
+# With --shacl, Alice passes; Bob lacks a name and has an age below eighteen.
+# This shows nested shapes, required values and standard validation results.
+# Constraint semantics: W3C SHACL, https://www.w3.org/TR/shacl/ .
+
+@prefix : <https://example.org/directory#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Shapes are data in this snapshot; their constraints compile to ordinary LS.
+:PersonShape a sh:NodeShape ;
+    sh:targetClass :Person ;
+    sh:property :NameShape, :AgeShape .
+:NameShape sh:path :name ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:datatype xsd:string ; sh:message "Supply one name."@en .
+:AgeShape sh:path :age ; sh:minCount 1 ; sh:datatype xsd:integer ;
+    sh:minInclusive 18 ; sh:message "The directory requires adults."@en .
+
+# Missing information is a validation failure here, rather than an OWL contradiction.
+:Alice a :Person ; :name "Alice" ; :age 28 .
+:Bob a :Person ; :age 17 .

@@ -5,12 +5,13 @@ import { basename, join, relative } from 'node:path';
 import { checkProof, checkReport, publicReport, readTerms, run, write } from '../src/index.js';
 import { KINDS, artifactPath, certify, loadExampleInputs, outputText, readManifest, sourceFiles } from '../tools/corpus.js';
 import { ROOT, assert, cachedCli, cli } from './helpers.js';
+import { RDF_PROFILES } from '../src/formats.js';
 
 export const section = 'examples';
 
 const MANIFEST = readManifest();
 const inputs = (entry) => [
-  ...(entry.odrl ? ['--odrl'] : []), ...(entry.owl2rl ? ['--owl2rl'] : []),
+  ...(entry.odrl ? ['--odrl'] : []), ...RDF_PROFILES.filter((p) => entry[p]).map((p) => '--' + p),
   ...sourceFiles(entry).map((file) => `examples/${file}`),
 ];
 const CHANGED = (kind) => `${kind} changed; review it, then run node tools/update-examples.js`;
