@@ -1,9 +1,9 @@
-// RDF 1.2 read into eyemind terms and written back: the W3C test suites of
-// N-Triples, N-Quads, Turtle and TriG, and the term mapping.
+// RDF 1.2 read into eyemind terms and written back. The test runner evaluates
+// the complete W3C manifests separately when it writes the EARL reports.
 import { Struct, write } from '../src/index.js';
 import { DEFAULT_GRAPH, parseRdf, rdfDocument, rdfFormat, writeRdf } from '../src/rdf.js';
 import { assert } from './helpers.js';
-import { RDF_MANIFESTS, W3C_BASE, manifestCases, runCase, isomorphic } from './w3c.js';
+import { isomorphic } from './w3c.js';
 
 const terms = (text, format = 'turtle') => parseRdf(text, { format, scope: 'd' }).quads.map((q) => q.map((t) => (t === DEFAULT_GRAPH ? t : write(t))));
 
@@ -79,20 +79,3 @@ export const tests = {
     assert.ok(quads[0][0] instanceof Struct);
   },
 };
-
-// Each W3C manifest is one test, its failures listed.
-for (const manifest of RDF_MANIFESTS) {
-  tests[`W3C ${manifest.slice(W3C_BASE.length)}`] = () => {
-    const failures = [];
-    const cases = manifestCases(manifest);
-    for (const c of cases) {
-      try {
-        runCase(c);
-      } catch (error) {
-        failures.push(`${c.name}: ${error.message.split('\n')[0]}`);
-      }
-    }
-    assert.ok(cases.length > 0, 'no cases');
-    assert.deepEqual(failures, []);
-  };
-}

@@ -97,15 +97,7 @@ implied_by(rv_lexical(rvXsd + 'NCName', L), regex_match('^[\\p{L}_][\\p{L}\\p{N}
 implied_by(rv_lexical(rvXsd + 'NMTOKEN', L), regex_match('^[\\p{L}\\p{N}._:\\-]+$', L));
 // rdf:PlainLiteral: text, then @ and an empty or well-formed language tag.
 implied_by(rv_lexical(rvRdf + 'PlainLiteral', L), regex_match('@(?:[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*)?$', L));
-implied_by(rv_lexical(rvRdf + 'XMLLiteral', L), rv_xml(L));
-// A well-formed XML fragment, as far as its tags: each opened tag closes in
-// order, and no markup character is left outside a tag.
-implied_by(rv_xml(L), [findall([C, N, E], regex_find('<(/?)([\\p{L}_:][\\p{L}\\p{N}._:\\-]*)(?:\\s[^<>]*?)?(/?)>', L, [_, C, N, E]), Tags),
-  regex_replace('<(/?)([\\p{L}_:][\\p{L}\\p{N}._:\\-]*)(?:\\s[^<>]*?)?(/?)>', L, '', Rest), not(regex_match('[<>]', Rest)), rv_xml_balanced(Tags, [])]);
-fact(rv_xml_balanced([], []));
-implied_by(rv_xml_balanced([['', _, '/'], ...T], S), rv_xml_balanced(T, S));
-implied_by(rv_xml_balanced([['', N, ''], ...T], S), rv_xml_balanced(T, [N, ...S]));
-implied_by(rv_xml_balanced([['/', N, ''], ...T], [N, ...S]), rv_xml_balanced(T, S));
+implied_by(rv_lexical(rvRdf + 'XMLLiteral', L), xml_content(L));
 implied_by(rv_lexical(rvXsd + 'hexBinary', L), regex_match('^[ \\t\\r\\n]*(?:[0-9A-Fa-f]{2})*[ \\t\\r\\n]*$', L));
 implied_by(rv_lexical(rvXsd + 'base64Binary', L), [regex_replace('[ \\t\\r\\n]', L, '', S), regex_match('^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/][AQgw]==|[A-Za-z0-9+/]{2}[AEIMQUYcgkosw048]=)?$', S)]);
 implied_by(rv_exact(T), [rv_valid(T), srl_num(T, K, _), rv_exact_kind(K)]);

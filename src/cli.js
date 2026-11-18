@@ -192,7 +192,7 @@ export function main(argv, io) {
     const document = proofFile === null ? null : readSource(proofFile, io);
     const loaded = loadInputs(files.map((file) => [readSource(file, io), file === '-' ? '<stdin>' : file]), io,
       { base, messageInputs: io.messageInputs, odrl, ...rdfLogic,
-        srlContext: document !== null && files.some((file) => inputKind(file) === 'srl') ? srlContextFromProof(document) : null });
+        srlContext: document !== null && (rdfLogic.shacl || files.some((file) => inputKind(file) === 'srl')) ? srlContextFromProof(document) : null });
     const program = loaded.program;
     if (printProgram) {
       stdout(loaded.text);

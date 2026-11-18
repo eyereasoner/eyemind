@@ -17,7 +17,7 @@ const PREFIXES = `@prefix : <https://example.org/bench#> .
 @prefix cdt: <https://w3id.org/cdt/> .
 `;
 const lines = (n, f) => Array.from({ length: n }, (_, i) => f(i)).join('\n');
-const SPEED_UNITS = ['m/s', 'km/h', 'mi/h', 'kn'];
+const SPEED_UNITS = ['m/s', 'km/h', 'mph', 'kn'];
 
 function subclassChain(length, instances) {
   return {
@@ -65,7 +65,8 @@ function speeds(count, profiles = ['qudt']) {
   const owl = profiles.includes('owl2rl');
   return {
     id: `${owl ? 'owl-' : ''}qudt-speeds-${count}`, profiles,
-    description: `${count} cdt:speed literals in m/s, km/h, mi/h and kn to normalize${owl ? ', with an OWL class hierarchy of the measured vehicles' : ''}.`,
+    description: `${count} cdt:speed literals in m/s, km/h, mph and kn to normalize${owl ? ', with an OWL class hierarchy of the measured vehicles' : ''}.`,
+    expected: { normalizedQuantities: count },
     ontology: ':speed rdfs:range qudt:QuantityValue .' + (owl ? '\n:Bus rdfs:subClassOf :Vehicle .\n:Vehicle rdfs:subClassOf :Thing .' : ''),
     data: lines(count, (i) => `:m${i} :speed "${(i % 97) + 1} ${SPEED_UNITS[i % 4]}"^^cdt:speed .` + (owl ? ` :m${i} a :Bus .` : '')),
   };
@@ -75,6 +76,7 @@ function persons(count) {
   return {
     id: `shacl-persons-${count}`, profiles: ['shacl'],
     description: `SHACL Core validation of ${count} people against cardinality, datatype, range, pattern and class constraints; one in ten is invalid.`,
+    expected: { results: 4 * Math.floor(count / 10) },
     ontology: `:PersonShape a sh:NodeShape ; sh:targetClass :Person ;
   sh:property [ sh:path :name ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
   sh:property [ sh:path :age ; sh:datatype xsd:integer ; sh:minInclusive 0 ; sh:maxInclusive 150 ] ;
@@ -108,7 +110,8 @@ export function writeWorkloads(dir, selected = workloads()) {
     mkdirSync(join(dir, w.id), { recursive: true });
     writeFileSync(join(dir, w.id, 'ontology.ttl'), w.ontology);
     writeFileSync(join(dir, w.id, 'data.ttl'), w.data);
-    manifest.push({ id: w.id, profiles: w.profiles, description: w.description });
+    const { id, profiles, description, expected } = w;
+    manifest.push({ id, profiles, description, expected });
   }
   writeFileSync(join(dir, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   return manifest;

@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { basename, isAbsolute, join } from 'node:path';
 import { checkProof, compileLe, loadText, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
 import { main } from '../src/cli.js';
+import { RDF_PROFILES } from '../src/formats.js';
 import { nodeIO } from '../src/node.js';
 import { Env, properListItems, unify } from '../src/terms.js';
 import { shellSplit } from '../conformance/run.js';
@@ -12,7 +13,7 @@ import { tripleToEyemind } from '../src/n3-writer.js';
 import { parseRdf } from '../src/rdf.js';
 import { isomorphic } from './w3c.js';
 import { artifactPath, loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
-import { ROOT, assert, cachedCli } from './helpers.js';
+import { ROOT, assert, cli } from './helpers.js';
 
 const MANIFEST = readManifest();
 const PROSE_GOALS = new Set(['gcd-bezout-identity', 'pell-equation', 'binomial-vandermonde', 'hamming-code']);
@@ -75,6 +76,19 @@ function deckCommand(args, files) {
     stdin: () => '', stdout: (text) => out.push(text), stderr: (text) => err.push(text),
   });
   return { code, stdout: out.join(''), stderr: err.join('') };
+}
+
+// Option order is immaterial for the standard commands, but input order and
+// the proof file matter. Keep option values with their option.
+function commandKey(args) {
+  const flags = [], files = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--check-proof') flags.push(JSON.stringify([arg, args[++i]]));
+    else if (arg.startsWith('-')) flags.push(JSON.stringify([arg]));
+    else files.push(arg);
+  }
+  return JSON.stringify([flags.sort(), files]);
 }
 
 function rows(text) {
@@ -299,20 +313,21 @@ export const tests = {
 
 for (const entry of MANIFEST) {
   const { name } = entry;
-  tests[`${name} deck displayed conclusions agree with its artifacts`] = () => {
-    const text = deck(name);
-    if (name === 'battery-dispatch') return tests['the battery deck table is a feasible optimum with the stated per-slot costs']();
-    if (name === 'school-placement-audit') return tests['the school deck table and named audit flags match the conclusions']();
-    const heading = name === 'research-portal' ? 'What the proposal changes'
-      : name === 'package-holiday' ? 'What the revision changes' : 'What eyemind concludes';
-    const conclusions = section(text, heading);
-    if (name === 'path-discovery') return checkRouteLabels(conclusions);
-    const snippets = blocks(conclusions, 'js');
-    if (name === 'least-squares-regression') snippets.push(...blocks(section(text, 'Rejection is an answer too'), 'js'));
-    checkSnippets(name, snippets);
-    if (name === 'research-portal' || name === 'package-holiday') checkAssessmentTable(name, text);
-    if (name === 'queens') checkQueenBoard(conclusions);
-  };
+  // The battery and school tables have their own tests above.
+  if (name !== 'battery-dispatch' && name !== 'school-placement-audit') {
+    tests[`${name} deck displayed conclusions agree with its artifacts`] = () => {
+      const text = deck(name);
+      const heading = name === 'research-portal' ? 'What the proposal changes'
+        : name === 'package-holiday' ? 'What the revision changes' : 'What eyemind concludes';
+      const conclusions = section(text, heading);
+      if (name === 'path-discovery') return checkRouteLabels(conclusions);
+      const snippets = blocks(conclusions, 'js');
+      if (name === 'least-squares-regression') snippets.push(...blocks(section(text, 'Rejection is an answer too'), 'js'));
+      checkSnippets(name, snippets);
+      if (name === 'research-portal' || name === 'package-holiday') checkAssessmentTable(name, text);
+      if (name === 'queens') checkQueenBoard(conclusions);
+    };
+  }
 
   tests[`${name} deck verdict agrees with its check report`] = () => {
     const text = proofCard(deck(name));
@@ -331,6 +346,9 @@ for (const entry of MANIFEST) {
     assert.ok(commands.length, 'no runnable commands');
     const files = new Map();
     const inputs = sourceFiles(entry).map((file) => `examples/${file}`);
+    const profiles = [...(entry.odrl ? ['--odrl'] : []), ...RDF_PROFILES.filter((p) => entry[p]).map((p) => '--' + p)];
+    const standard = new Set([[], ['--stats'], ['--proof'], ['-p'], ['--prove-and-check'], ['-c'],
+      ['--check-proof', `examples/proof/${name}.js`]].map((mode) => commandKey([...mode, ...profiles, ...inputs])));
     const compiled = new Set();
     for (const line of commands) {
       const clean = line.replace(/[ \t]+#.*$/, '').replace(/; echo "exit code: \$\?"$/, '').trim();
@@ -351,8 +369,11 @@ for (const entry of MANIFEST) {
         }
         assert.ok(inputs.every((file) => args.includes(file)) || args.some((arg) => compiled.has(arg)),
           'command must use all example inputs or the program compiled from them');
-        // A command that reads a file an earlier one wrote runs afresh.
-        const result = args.some((arg) => files.has(arg)) ? deckCommand(args, files) : cachedCli(args);
+        // The corpus already checks this input's output, proof and check
+        // report. The CLI tests cover the modes and statistics themselves.
+        const readsRedirect = args.some((arg) => files.has(arg));
+        if (target === null && !readsRedirect && standard.has(commandKey(args))) continue;
+        const result = readsRedirect ? deckCommand(args, files) : cli(args);
         if (target) files.set(target, result.stdout);
         if (args.includes('--program')) {
           assert.equal(result.code, 0, result.stderr);

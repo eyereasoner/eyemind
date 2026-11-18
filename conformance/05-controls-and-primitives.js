@@ -1,5 +1,22 @@
 // SPEC 4: controls and primitives. Most cases ask goals of a small program.
 
+conformance('xml_content checks self-contained XML fragments', [
+  spec('4.3'),
+  args('program.js'),
+  file('program.js', [
+    "fact(sample('empty', ''), sample('fragment', 'a<!--c--><p:x xmlns:p=\"urn:p\"><![CDATA[&]]>&#x1F600;</p:x>'))",
+    "fact(sample('bad_entity', '<a>&x;</a>'), sample('bad_attribute', '<a x=1/>'), sample('unbound_prefix', '<p:x/>'))",
+    "fact(sample('dtd', '<!DOCTYPE a><a/>'), sample('bad_reference', '&#0;'), sample('unbalanced', '<a><b></a></b>'))",
+    'implies([sample(Name, T), xml_content(T)], valid(Name))',
+    'query(valid(Name))',
+  ]),
+  stdout([
+    '// Answers: each instance of a query() that holds.',
+    "valid('empty')",
+    "valid('fragment')",
+  ]),
+])
+
 conformance('conjunction solves left to right', [
   spec('4.2'),
   args("program.js --goal '[p(X), q(X)]'"),

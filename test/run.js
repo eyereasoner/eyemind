@@ -24,10 +24,12 @@ import { VERSION } from '../src/index.js';
 import { check, execute, loadCases, shellSplit } from '../conformance/run.js';
 import { RDF_MANIFESTS, manifestCases, runCase, runSparqlRlCase, sparqlRlCases } from './w3c.js';
 import { writeEarlReports } from '../tools/earl.js';
+import { checkCompleteEarlReports } from './earl.test.js';
 import { ensureTestCache } from '../tools/sync.js';
 import { cachePaths } from '../tools/test-cache.js';
-import { runShaclManifest } from './shacl.js';
-import { mobibenchCases, runMobibenchCase } from './mobibench.js';
+import { scoredShaclCases, SHACL_GROUPS } from './shacl.js';
+import { mobibenchCases } from './mobibench.js';
+import { scoreUpstreamCases } from './upstream-cases.js';
 import { shaclSummary } from '../tools/shacltests.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -159,19 +161,12 @@ function casesFor(reporter) {
 }
 
 // MobiBench's OWL 2 RL subsuite through --owl2rl, one test per case.
-function runMobibench(reporter) {
-  for (const c of mobibenchCases()) {
-    const label = `mobibench ${c.kind} ${c.id}`;
-    if (!reporter.wanted(label)) continue;
-    const started = performance.now();
-    let problem = null;
-    try {
-      runMobibenchCase(c);
-    } catch (error) {
-      problem = problemOf(error);
-    }
-    reporter.result(label, performance.now() - started, problem);
-  }
+async function runMobibench(reporter) {
+  const cases = mobibenchCases();
+  const labels = cases.map((c) => `mobibench ${c.kind} ${c.id}`);
+  const indexes = labels.flatMap((label, i) => reporter.wanted(label) ? [i] : []);
+  const results = await scoreUpstreamCases('mobibench', indexes, cases);
+  results.forEach(({ ms, problem }, i) => reporter.result(labels[indexes[i]], ms, problem));
 }
 
 function runInProcess(reporter) {
@@ -325,7 +320,7 @@ async function main(argv) {
     if (sections.length && !sections.includes(section)) continue;
     reporter.section(section);
     if (section === 'conformance') runInProcess(reporter);
-    else if (section === 'mobibench') runMobibench(reporter);
+    else if (section === 'mobibench') await runMobibench(reporter);
     else if (section === 'cli') await runThroughCommandLine(reporter);
     else if (section === 'playground') await runPlayground(reporter);
     else await runTests(reporter, tests.filter(([name]) => name === section));
@@ -342,15 +337,24 @@ async function main(argv) {
   const total = w3c.rows.reduce((sum, row) => sum + row.cases, 0);
   reporter.summary(passed, total, 'W3C format cases', performance.now() - started);
   console.log(`\n${paint('33', '== W3C SHACL 1.2 coverage (complete reports)')}`);
-  const shacl = runShaclManifest();
+  const shaclCases = scoredShaclCases(), shacl = new Array(shaclCases.length), shaclTime = new Map();
+  for (const group of SHACL_GROUPS) {
+    const indexes = shaclCases.flatMap((c, i) => c.group === group ? [i] : []);
+    const started = performance.now();
+    const results = await scoreUpstreamCases('shacl', indexes, shaclCases);
+    shaclTime.set(group, (performance.now() - started) / 1000);
+    results.forEach((result, i) => { shacl[indexes[i]] = { case: shaclCases[indexes[i]], ...result }; });
+  }
   const groups = shaclSummary(shacl);
   for (const [name, g] of Object.entries(groups)) console.log(`${name}: ${g.passed}/${g.cases} passed; ${g.conforms} matching conforms; ${g.unsupported} unsupported`);
   const brokenHarness = shacl.filter((r) => r.message.startsWith('test harness:'));
   for (const r of brokenHarness) console.error(`${r.case.id}: ${r.message}`);
-  writeEarlReports(join(ROOT, 'reports'), w3c.rdf, w3c.srl, shacl);
+  const reports = join(ROOT, 'reports');
+  writeEarlReports(reports, w3c.rdf, w3c.srl, shacl);
+  checkCompleteEarlReports(reports);
   console.log('Wrote reports/w3c-rdf-earl.ttl and reports/w3c-sparql-rl-earl.ttl; wrote reports/w3c-shacl-earl.ttl.');
   const shaclRows = Object.entries(groups).map(([name, g]) => ({ suite: `W3C SHACL 1.2 ${name} (coverage)`, cases: g.cases,
-    passed: g.passed, seconds: g.seconds, coverage: true }));
+    passed: g.passed, seconds: shaclTime.get(name), coverage: true }));
   if (full) printReport([...reporter.rows, ...w3c.rows, ...shaclRows, ...notation3Rows(reporter)]);
   // SHACL is a scored implementation subset, like Notation3. Missing support
   // is reported honestly; broken manifests/resources still fail the test run.
@@ -379,7 +383,12 @@ function w3cRows() {
     }
     rows.push({ suite, cases: cases.length, passed, seconds: (performance.now() - started) / 1000 });
   };
-  timed('W3C RDF 1.1 and 1.2', RDF_MANIFESTS.flatMap(manifestCases), runCase, rdf);
+  const rdfCases = RDF_MANIFESTS.flatMap((manifest) => {
+    const cases = manifestCases(manifest);
+    if (!cases.length) throw new Error(`no cases in the W3C RDF manifest ${manifest}`);
+    return cases;
+  });
+  timed('W3C RDF 1.1 and 1.2', rdfCases, runCase, rdf);
   timed('W3C SPARQL 1.2 RL', sparqlRlCases(), runSparqlRlCase, srl);
   return { rows, rdf, srl };
 }

@@ -565,6 +565,7 @@ primitive called outside its patterns raises an error.
 | `regex_match` | `regex_match(+P, +T)` | Some part of the atom `T` matches the regular expression `P`. |
 | `regex_find` | `regex_find(+P, +T, ?G)` | One solution per match of `P` in `T`, from left to right: `G` is the list of the matched text followed by each capture group's text, `''` for a group that took no part in the match. |
 | `regex_replace` | `regex_replace(+P, +T, +R, ?U)` | `U` is `T` with every match of `P` replaced by `R`. |
+| `xml_content` | `xml_content(+T)` | The atom `T` is self-contained XML content, as defined below. |
 
 A character is a Unicode code point. Every primitive except `atom_concat`
 and `regex_find` has at most one solution.
@@ -602,6 +603,15 @@ for `$`; any other `$` is itself. Primitives MUST be pure: their solutions depen
 their arguments. A primitive given an argument of the wrong kind for its
 patterns raises an error, as `atom_length(123, N)` does; one given arguments
 of the right kinds that has no solution fails, as `arg(5, f(1), A)` does.
+
+`xml_content/1` tests the lexical space of [`rdf:XMLLiteral`](https://www.w3.org/TR/rdf12-concepts/#section-XMLLiteral).
+The atom MUST be well-balanced, self-contained content as defined by
+[XML 1.1](https://www.w3.org/TR/xml11/#NT-content) and conform to
+[Namespaces in XML 1.0](https://www.w3.org/TR/xml-names/#Conformance) when
+embedded inside an element with no namespace declarations. Empty content and
+multiple top-level nodes are allowed. Only the predefined entities and
+numeric character references are available. XML declarations and DTDs are
+outside the content grammar. The test performs no I/O.
 
 All primitives take exactly the displayed number of arguments. `functor`
 and `univ` expose list structure as specified in [Section 2.2](#22-lists); use bracket

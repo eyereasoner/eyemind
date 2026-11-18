@@ -94,6 +94,7 @@
     const status = $('#status');
     const bar = $('#bar');
     const groups = $('#groups');
+    const byFile = new Map();
 
     let cases = [];
     let results = [];
@@ -143,9 +144,16 @@
       results = cases.map(() => null);
       $('#version').textContent = `eyemind v${data.version}`;
       const manifest = JSON.parse(groups.dataset.manifest);
-      groups.replaceChildren(...manifest.map((entry) => groupElement(entry)));
+      byFile.clear();
+      groups.replaceChildren(...manifest.map((entry) => {
+        const group = groupElement(entry);
+        byFile.set(entry.file, { list: group.querySelector('.cases'), badge: group.querySelector('.counts'), indexes: [] });
+        return group;
+      }));
       cases.forEach((item, index) => {
-        $(`[data-file="${CSS.escape(item.file)}"] .cases`).append(caseElement(item, index));
+        const group = byFile.get(item.file);
+        group.indexes.push(index);
+        group.list.append(caseElement(item, index));
       });
       updateCounts();
       const params = new URLSearchParams(location.hash.slice(1));
@@ -260,7 +268,7 @@
       $(`#case-${index} .time`).textContent = `${data.milliseconds.toFixed(0)} ms`;
       if (!passed) $(`#case-${index} details`).open = true;
       if ($(`#case-${index} details`).open) renderBody(index);
-      updateCounts();
+      updateCounts(cases[index].file);
       if (running) next();
     }
 
@@ -278,18 +286,17 @@
       applyFilter();
     }
 
-    function updateCounts() {
+    function updateCounts(file = null) {
       const done = results.filter(Boolean).length;
       const failed = results.filter((result) => result && result.problems.length).length;
       bar.style.width = `${cases.length ? (100 * done) / cases.length : 0}%`;
       if (running) setStatus(`Running: ${done} of ${cases.length} done${failed ? `, ${failed} failed` : ''}…`);
-      for (const group of groups.children) {
-        const indexes = cases.map((item, index) => (item.file === group.dataset.file ? index : -1)).filter((i) => i >= 0);
+      // A new result only changes the badge for its own case file.
+      for (const { indexes, badge } of file === null ? byFile.values() : [byFile.get(file)]) {
         const finished = indexes.filter((i) => results[i]);
         const passed = finished.filter((i) => !results[i].problems.length).length;
-        const counts = group.querySelector('.counts');
-        counts.textContent = finished.length ? `${passed} / ${indexes.length}` : `${indexes.length} cases`;
-        counts.className = `counts${finished.length ? (passed === finished.length ? ' badge ok' : ' badge bad') : ''}`;
+        badge.textContent = finished.length ? `${passed} / ${indexes.length}` : `${indexes.length} cases`;
+        badge.className = `counts${finished.length ? (passed === finished.length ? ' badge ok' : ' badge bad') : ''}`;
       }
     }
 

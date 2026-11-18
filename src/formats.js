@@ -92,7 +92,7 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
       Object.assign(prefixes, parsed.prefixes);
       quads.push(...parsed.quads);
     });
-    return compileRdfLogic({ quads, prefixes }, { profiles, source: inputs.map(([, n]) => n).join(', ') });
+    return compileRdfLogic({ quads, prefixes }, { profiles, source: inputs.map(([, n]) => n).join(', '), context: srlContext });
   }
   if (odrl) {
     if (inputs.length !== 1) throw new EyemindError('--odrl takes one Turtle snapshot containing policies, requests and SOTW');

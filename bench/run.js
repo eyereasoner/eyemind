@@ -18,6 +18,7 @@ without {output} its standard output is the output. The default adapter is eyemi
 // Statements about these vocabularies are axioms whose coverage differs by design.
 const VOCABULARY = /^iri\('http:\/\/www\.w3\.org\/(1999\/02\/22-rdf-syntax-ns|2000\/01\/rdf-schema|2002\/07\/owl|2001\/XMLSchema)#/;
 const SH = 'http://www.w3.org/ns/shacl#';
+const NORMALIZED = 'https://eyereasoner.github.io/eyemind/qudt#normalizedQuantity';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 const REFLEXIVE = new Set(['http://www.w3.org/2002/07/owl#sameAs', 'http://www.w3.org/2002/07/owl#equivalentClass', 'http://www.w3.org/2002/07/owl#equivalentProperty',
   'http://www.w3.org/2000/01/rdf-schema#subClassOf', 'http://www.w3.org/2000/01/rdf-schema#subPropertyOf']);
@@ -105,7 +106,8 @@ export function conclusions(outputText, inputTexts) {
   const results = [...derived.values()].filter(([, p, o]) => p.args?.[0] === RDF_TYPE && o.args?.[0] === SH + 'ValidationResult').map(([r]) => r);
   const violations = new Set(results.flatMap((r) => objects(r, 'focusNode').flatMap((f) =>
     (objects(r, 'sourceConstraintComponent').length ? objects(r, 'sourceConstraintComponent') : [null]).map((c) => `${write(f)} ${c ? write(c) : '?'}`))));
-  return { derived: derived.size, domain, results: results.length, violations };
+  const normalizedQuantities = [...derived.values()].filter(([s, p]) => p.args?.[0] === NORMALIZED && subjects.has(write(s))).length;
+  return { derived: derived.size, domain, results: results.length, violations, normalizedQuantities };
 }
 
 const median = (xs) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
@@ -113,14 +115,29 @@ const median = (xs) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
 // A run longer than ten seconds is measured once; others take the median of
 // the iterations after one warmup run.
 export function measure(adapter, workload, dir, { iterations, timeout }) {
-  const first = runOnce(adapter, workload, dir, timeout);
-  if (first.error) return first;
-  const runs = first.ms > 10_000 ? [first] : Array.from({ length: iterations }, () => runOnce(adapter, workload, dir, timeout));
-  const failed = runs.find((r) => r.error);
-  if (failed) return failed;
-  const result = { ms: median(runs.map((r) => r.ms)), runs: runs.length, rssMB: median(runs.map((r) => r.rssMB ?? 0)) || undefined };
   const inputs = ['ontology.ttl', 'data.ttl'].map((f) => readFileSync(join(dir, f), 'utf8'));
-  return { ...result, ...conclusions(readFileSync(runs.at(-1).output, 'utf8'), inputs) };
+  const summarize = (run) => conclusions(readFileSync(run.output, 'utf8'), inputs);
+  const measured = () => {
+    const run = runOnce(adapter, workload, dir, timeout);
+    if (run.error || !workload.expected) return run;
+    const summary = summarize(run);
+    for (const [field, expected] of Object.entries(workload.expected)) {
+      if (summary[field] !== expected) return { error: `expected ${expected} ${field}, got ${summary[field]}` };
+    }
+    return { ...run, summary };
+  };
+  const first = measured();
+  if (first.error) return first;
+  const count = first.ms > 10_000 ? 1 : iterations;
+  const times = [], memory = [];
+  let last = first;
+  for (let i = 0; i < count; i++) {
+    if (first.ms <= 10_000) last = measured();
+    if (last.error) return last;
+    times.push(last.ms);
+    memory.push(last.rssMB ?? 0);
+  }
+  return { ms: median(times), runs: count, rssMB: median(memory) || undefined, ...(last.summary ?? summarize(last)) };
 }
 
 export function agreement(reference, other, shacl) {
@@ -133,7 +150,7 @@ export function report(rows, adapters, reference) {
   const others = adapters.filter((a) => a.name !== reference);
   const seconds = (ms) => ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms)} ms`;
   // The total, and after start-up: less the baseline of the same profiles.
-  const time = (r) => r.error ? (r.error.startsWith('timeout') ? `> ${r.error.match(/\d+/)[0]} s` : 'error') :
+  const time = (r) => r.error ? (r.error.startsWith('timeout') ? `> ${r.error.match(/\d+/)[0]} s` : r.error.startsWith('expected ') ? r.error : 'error') :
     r.baselineMs === undefined ? seconds(r.ms) : `${seconds(r.ms)} (${seconds(Math.max(0, r.ms - r.baselineMs))} after start-up)`;
   const head = ['Workload', 'Profiles', ...adapters.map((a) => a.name), ...others.map((a) => `${a.name} vs ${reference}`)];
   const lines = [`| ${head.join(' | ')} |`, `| ${head.map(() => '---').join(' | ')} |`];

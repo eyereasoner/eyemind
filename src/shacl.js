@@ -53,6 +53,8 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS, needs = new S
     graphs.get(key).triples.push([s, p, o]);
   }
   let nextShape = 0, nextPath = 0, nextConstraint = 0, nextHelper = 0;
+  let nextExpression = 0;
+  const freshExpression = (kind) => `sh_expr_${kind}_${nextExpression++}`;
   for (const { graph, triples } of graphs.values()) {
     const G = write(graph), index = new Map(), terms = new Map(), reifiers = new Map();
     for (const [s, p, o] of triples) {
@@ -178,7 +180,7 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS, needs = new S
       }
       parsing.delete(key); paths.set(key, name); return name;
     };
-    const expressions = nodeExpressions({ G, lines, needs, index, rdfList, path, error,
+    const expressions = nodeExpressions({ G, lines, needs, index, rdfList, path, error, fresh: freshExpression,
       conforms: (t) => `sh_ok_${shape(t).id}` });
     const expression = (t) => expressions.compile(t);
     // sh:closed sh:ByTypes permits, for each rdf:type T of a value node, the
@@ -217,7 +219,7 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS, needs = new S
       const issue = `sh_issue_${id}`, focus = `sh_focus_${id}`, target = `sh_target_${id}`;
       if (inactive) {
         lines.push(`fact(${ok}(_));`);
-        if (isIri(s)) lines.push(`fact(sh_shape(${S}));`, `implied_by(sh_conforms(${S}, X), ${ok}(X));`);
+        if (isIri(s)) lines.push(`fact(sh_shape(${S}, ${G}));`, `implied_by(sh_conforms(${S}, X, ${G}), ${ok}(X));`);
         continue;
       }
       const p = one(s, 'path'), P = p ? write(p) : NONE;
@@ -474,7 +476,7 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS, needs = new S
       values(s, 'expression').forEach((t) => copy(t));
       each('expression', (t, c) => emit(c, [`${v}(F, V)`, `${expression(t)}(F, [['value', V]], R)`, `not(unify(R, nodes([${TRUE_TERM}])))`],
         'Expression', 'V', P, `source(${write(t)})`));
-      each('nodeByExpression', (t, c) => emit(c, [`${v}(F, V)`, `${expression(t)}(V, [], nodes(L))`, 'ent_member(Shape, L)', 'sh_shape(Shape)', 'not(sh_conforms(Shape, V))'],
+      each('nodeByExpression', (t, c) => emit(c, [`${v}(F, V)`, `${expression(t)}(V, [], nodes(L))`, 'ent_member(Shape, L)', `sh_shape(Shape, ${G})`, `not(sh_conforms(Shape, V, ${G}))`],
         'NodeByExpression', 'V', P, 'source(Shape)'));
       scalar('closed', (t, c) => {
         const types = isIri(t) && t.args[0] === SH + 'ByTypes';
@@ -491,7 +493,7 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS, needs = new S
       lines.push(`implied_by(${bad}(F), [${issue}(F, _, _, _, _, C), sh_blocking(C)${guard.map((g) => ', ' + g).join('')}]);`);
       lines.push(`implied_by(${ok}(F), not(${bad}(F)));`);
       lines.push(`implies([${focus}(F, X), ${issue}(F, P, V, C, K, I)${guard.map((g) => ', ' + g).join('')}], sh_violation(${S}, F, P, V, C, K, I, X, ${G}));`);
-      if (isIri(s) && !dynamic(node)) lines.push(`fact(sh_shape(${S}));`, `implied_by(sh_conforms(${S}, X), ${ok}(X));`);
+      if (isIri(s) && !dynamic(node)) lines.push(`fact(sh_shape(${S}, ${G}));`, `implied_by(sh_conforms(${S}, X, ${G}), ${ok}(X));`);
     }
     if (evaluate && G === "'default_graph'") {
       const scope = [...evaluate.scope ?? []].map(([k, t]) => `[${JSON.stringify(k)}, ${write(t)}]`);

@@ -65,4 +65,18 @@ export const tests = {
       assert.match(failing.error, /exit 3/);
     } finally { rmSync(dir, { recursive: true, force: true }); }
   },
+
+  'the QUDT workload normalizes every measurement and rejects incomplete runs'() {
+    const dir = mkdtempSync(join(tmpdir(), 'eyemind-bench-'));
+    try {
+      const workload = workloads().find((w) => w.id === 'qudt-speeds-10');
+      writeWorkloads(dir, [workload]);
+      const path = join(dir, workload.id), options = { iterations: 1, timeout: 120 };
+      const result = measure({ name: 'eyemind', command: EYEMIND }, workload, path, options);
+      assert.equal(result.normalizedQuantities, 10, result.error);
+      const incomplete = measure({ name: 'empty', command: 'true' }, workload, path, options);
+      assert.match(incomplete.error, /expected 10 normalizedQuantities, got 0/);
+      assert.equal(incomplete.ms, undefined);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  },
 };

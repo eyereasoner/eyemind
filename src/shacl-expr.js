@@ -55,10 +55,8 @@ const NAMED = ['var', 'pathValues', 'exists', 'if', 'distinct', 'intersection', 
 
 // The expressions of one graph. The shapes compiler supplies its graph
 // access, its paths and the conformance predicates of its shapes.
-export function nodeExpressions({ G, lines, needs, index, rdfList, path, conforms, error }) {
+export function nodeExpressions({ G, lines, needs, index, rdfList, path, conforms, error, fresh }) {
   const memo = new Map(), compiling = new Set();
-  let next = 0;
-  const fresh = (kind) => `sh_expr_${kind}_${next++}`;
   // Custom functions declared in the shapes graph by sh:bodyExpression.
   const custom = { list: new Map(), named: new Map() };
   for (const [key, properties] of index) {
@@ -230,7 +228,7 @@ export function nodeExpressions({ G, lines, needs, index, rdfList, path, conform
         const list = `[${args.map((_, i) => 'A' + i).join(', ')}]`;
         if (p === SHNEX + 'conformsToShape') {
           if (args.length !== 2) error(term, 'needs two arguments for shnex:conformsToShape');
-          rule([...evaluated, `sh_ne_status(${list}, T)`, 'sh_ne_conforms(T, A0, A1, R)']);
+          rule([...evaluated, `sh_ne_status(${list}, T)`, `sh_ne_conforms(T, A0, A1, ${G}, R)`]);
         } else if (fn === null) {
           // A custom list parameter function: its body sees only its arguments.
           const body = compile(custom.list.get(write(new Struct('iri', [p]))));
@@ -367,8 +365,8 @@ implied_by(sh_ne_before(p(k(A), _), p(k(B), _)), [srl_rank_order(A, B, O), ident
 // List parameter arguments: v(Node), unbound, or error.
 fact(sh_ne_arg(failure, error), sh_ne_arg(nodes([]), unbound), sh_ne_arg(nodes([X]), v(X)), sh_ne_arg(nodes([_, _, ..._]), error));
 implied_by(sh_ne_status(As, T), once(or([ent_member(error, As), unify(T, 'error')], [ent_member(unbound, As), unify(T, 'unbound')], unify(T, 'ok'))));
-fact(sh_ne_conforms('error', _, _, failure), sh_ne_conforms('unbound', _, _, nodes([])));
-implied_by(sh_ne_conforms('ok', v(X), v(Shape), R), once(or([sh_shape(Shape), sh_conforms(Shape, X), unify(R, nodes([${TRUE}]))], [sh_shape(Shape), not(sh_conforms(Shape, X)), unify(R, nodes([${FALSE}]))], unify(R, failure))));
+fact(sh_ne_conforms('error', _, _, _, failure), sh_ne_conforms('unbound', _, _, _, nodes([])));
+implied_by(sh_ne_conforms('ok', v(X), v(Shape), G, R), once(or([sh_shape(Shape, G), sh_conforms(Shape, X, G), unify(R, nodes([${TRUE}]))], [sh_shape(Shape, G), not(sh_conforms(Shape, X, G)), unify(R, nodes([${FALSE}]))], unify(R, failure))));
 implied_by(sh_ne_bound([A], R), or([unify(A, v(_)), unify(R, nodes([${TRUE}]))], [unify(A, unbound), unify(R, nodes([${FALSE}]))], [unify(A, error), unify(R, failure)]));
 implied_by(sh_ne_coalesce(As, R), once(or([ent_member(v(X), As), unify(R, nodes([X]))], unify(R, failure))));
 implied_by(sh_ne_choose(v(C), A, B, R), once(or([srl_ebv(C, 'true'), sh_ne_value(A, R)], [srl_ebv(C, 'false'), sh_ne_value(B, R)], unify(R, failure))));

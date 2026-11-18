@@ -15,7 +15,7 @@ program, a JavaScript library and a browser application.
 The examples are 152 runnable programs, each with a card deck and saved
 conclusions, proofs and check reports. The specification defines the language,
 the proof format and how a proof is checked; its conformance suite has
-1246 cases that test language and proof behavior, and runs
+1247 cases that test language and proof behavior, and runs
 [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 
 ## Contents
@@ -319,7 +319,9 @@ is Turtle with the new triples and reports.
   rules, including the datatype map of its table 8: value equality and
   difference, membership across lexical forms, and ill-typed literals for the
   XSD numeric, string, temporal and binary types, `rdf:PlainLiteral` and
-  `rdf:XMLLiteral`. It reports contradictions as `ent:Conflict` records
+  `rdf:XMLLiteral`. XML literal validation checks well-formed content and
+  namespaces. Equality and difference for XML literals use their lexical forms.
+  It reports contradictions as `ent:Conflict` records
   instead of inferring everything from them, and passes all 273 cases of the
   [MobiBench](https://github.com/william-vw/mobibench) OWL 2 RL suite.
 - `--qudt` normalizes QUDT quantity values and CDT literals to SI units from
@@ -661,6 +663,11 @@ cap, such as `systemd-run --user --scope -q -p MemoryMax=3G -p MemorySwapMax=0 -
 The playground tests need Chrome (`CHROME` names it). A full run writes
 [REPORT.md](REPORT.md) and the [W3C EARL reports](reports/README.md); the
 [upstream suites](test/UPSTREAM.md) are cached in Git-ignored `.cache/`.
+
+The example tests reproduce every saved conclusion and proof, then check
+the proofs from disk. The deck tests check the documented claims and run
+commands with extra goals, conversions or redirects. The corpus and CLI
+tests cover the standard example commands.
 
 ## The name
 

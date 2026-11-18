@@ -63,6 +63,10 @@ The default coverage run leaves missing SHACL support outside the strict
 RDF/SRL release gate; `--strict` fails for every non-passing SHACL case.
 Missing resources or malformed manifests fail either mode.
 
+`npm test` runs independent MobiBench and SHACL cases on up to two threads
+within the same test process. It reports cases in manifest order and finishes
+each suite before starting the next one.
+
 `node tools/sync-notation3tests.js [UPSTREAM_CHECKOUT]` refreshes only the
 Notation3 cache. The next test run records its updated provenance.
 `node tools/notation3tests.js` scores that cache, creating it if needed;

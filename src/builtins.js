@@ -17,6 +17,7 @@ import {
 } from './terms.js';
 import { DIGESTS, utf8 } from './digest.js';
 import { floatText, write } from './writer.js';
+import { isXmlContent } from './xml.js';
 
 function comparison(holds) {
   return (args, resolved, env) => holds(arith.compare(args[0], args[1], env));
@@ -280,6 +281,7 @@ export const TESTS = new Map([
   ['term_text/2', termText],
   ['float64/4', float64],
   ['regex_match/2', regexMatch],
+  ['xml_content/1', (args, resolved) => isXmlContent(text('xml_content/1', resolved[0]))],
   ['regex_replace/4', regexReplace],
 ]);
 

@@ -15,10 +15,11 @@
 import { PRIMITIVE_KEYS, primitive } from './builtins.js';
 import { freshClause, sameVariant, text, variant } from './common.js';
 import { INSPECTION_KEYS } from './inspection.js';
+import { bucketEntries, positionIndexes } from './program.js';
 import { Lettering, write } from './writer.js';
 import {
-  Env, EyemindError, Struct, Var, copyResolved, deref, flattenConjunction, freshTerm, identity, isCallable, isGround, key,
-  isGroundButAnonymous, listFromItems, sortCollected, unify, variables,
+  Env, EyemindError, Struct, Var, copyResolved, deref, flattenConjunction, freshTerm, identity, indexKey, isCallable, isGround,
+  isGroundButAnonymous, key, keyArity, listFromItems, sortCollected, unify, variables,
 } from './terms.js';
 
 // Terms as a failure message shows them, variables lettered A, B, ... across
@@ -243,12 +244,23 @@ export class Settler {
     const goalKey = key(call);
     const mark = env.mark();
     if (this.derivedKeys.has(goalKey)) {
-      const facts = this.listing(goalKey);
+      const entry = this.listing(goalKey);
       reliance.listings.add(goalKey);
+      let facts = entry.facts;
+      for (const [position, index] of entry.positions.entries()) {
+        // Only use buckets that leave no potentially matching facts out.
+        if (index === null || index[1].length) continue;
+        const argument = indexKey(call.args[position], env);
+        if (argument === undefined) continue;
+        const candidates = bucketEntries(index[0].get(argument));
+        if (candidates.length < facts.length) facts = candidates;
+        if (!facts.length) break;
+      }
       for (const fact of facts) {
         // A derived pattern is freshened at every use.
-        if (!isGround(fact)) reliance.inspected = true;
-        if (unify(call, isGround(fact) ? fact : freshTerm(fact, `pattern${++this.serial}`), env)) yield;
+        const ground = entry.ground || isGround(fact);
+        if (!ground) reliance.inspected = true;
+        if (unify(call, ground ? fact : freshTerm(fact, `pattern${++this.serial}`), env)) yield;
         env.undo(mark);
       }
     }
@@ -308,10 +320,18 @@ export class Settler {
     if (entry === undefined) {
       const facts = this.source.facts(goalKey);
       if (facts === null) throw new Unsettled();
-      entry = { facts, checked: false, failure: null, subject: null, unsettled: false, reported: false, reliance: null };
+      const ground = facts.every((fact) => isGround(fact));
+      const arity = keyArity(goalKey);
+      // Large ground listings are read many times while expanding tables.
+      // The buckets retain listing order. Leave patterns and malformed facts
+      // on the ordinary scan path.
+      const positions = ground && arity && facts.length >= 16 &&
+        facts.every((fact) => fact instanceof Struct && key(fact) === goalKey)
+        ? positionIndexes(facts, (fact) => fact, arity) : [];
+      entry = { facts, ground, positions, checked: false, failure: null, subject: null, unsettled: false, reported: false, reliance: null };
       this.listings.set(goalKey, entry);
     }
-    return entry.facts;
+    return entry;
   }
 
   // A table holds when expanding its call gives exactly its answers, in order.

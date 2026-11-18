@@ -49,21 +49,6 @@ export function cli(args, stdin = '') {
   }
 }
 
-// cli, once per test run for each command: the deck and example tests run
-// many of the same commands on the same examples, whose files do not change
-// during a run. -c and -p are their long forms. Large outputs are not kept.
-const memo = new Map();
-const LONG = new Map([['-c', '--prove-and-check'], ['-p', '--proof']]);
-export function cachedCli(args, stdin = '') {
-  const key = JSON.stringify([args.map((arg) => LONG.get(arg) ?? arg), stdin]);
-  let result = memo.get(key);
-  if (result === undefined) {
-    result = cli(args, stdin);
-    if (result.stdout.length + result.stderr.length < 1_000_000) memo.set(key, result);
-  }
-  return result;
-}
-
 // The eyemind command as a process of its own, for what only a process
 // shows: its standard streams, a pipe between two runs, and its exit code.
 export function command(args, stdin = '') {

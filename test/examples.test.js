@@ -4,7 +4,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, join, relative } from 'node:path';
 import { checkProof, checkReport, publicReport, readTerms, run, write } from '../src/index.js';
 import { KINDS, artifactPath, certify, loadExampleInputs, outputText, readManifest, sourceFiles } from '../tools/corpus.js';
-import { ROOT, assert, cachedCli, cli } from './helpers.js';
+import { ROOT, assert, cli } from './helpers.js';
 import { RDF_PROFILES } from '../src/formats.js';
 
 export const section = 'examples';
@@ -16,9 +16,8 @@ const inputs = (entry) => [
 ];
 const CHANGED = (kind) => `${kind} changed; review it, then run node tools/update-examples.js`;
 const read = (path) => readFileSync(path, 'utf8');
-// A saved proof this large is not reasoned over again for what the library
-// path already compares: the command line's prove-and-check repeats the
-// certified run of the check test, and a tampered copy repeats its check.
+// The property tests exercise proof forgeries. Avoid another check of a
+// megabyte-scale proof just to confirm that an unrelated claim is rejected.
 const LARGE = 1_000_000;
 const large = (entry) => statSync(artifactPath('proof', entry)).size > LARGE;
 
@@ -100,6 +99,15 @@ export const tests = {
       assert.equal(checked.code, 0, checked.stderr);
       assert.equal(checked.stdout, read(artifactPath('check', entry)));
     }
+    // Exercise the combined command on representative compiler paths. Every
+    // example still generates its proof and checks its saved proof below.
+    for (const name of ['integrity', 'annotation-n3', 'distances-srl', 'socrates-le',
+      'handicap-card', 'quantities-qudt', 'thesaurus-skos', 'people-shacl']) {
+      const entry = MANIFEST.find((item) => item.name === name);
+      const checked = cli(['--prove-and-check', ...inputs(entry)]);
+      assert.equal(checked.code, entry.halt_code ?? 0, checked.stderr);
+      assert.equal(checked.stdout, read(artifactPath('check', entry)));
+    }
   },
 };
 
@@ -110,7 +118,7 @@ for (const entry of MANIFEST) {
   tests[`${source} output: ${entry.description}`] = () => checkOutput(entry);
   tests[`${source} proof`] = () => checkProofOf(entry);
   tests[`${source} check`] = () => checkCheck(entry);
-  tests[`examples/check/${entry.name}.js checked answers and prove-and-check output`] = () => {
+  tests[`examples/check/${entry.name}.js checked answers agree with the proof and conclusions`] = () => {
     const saved = read(artifactPath('check', entry));
     const answers = saved.slice(0, saved.lastIndexOf('\nverdict('));
     const claims = readTerms(read(artifactPath('proof', entry))).map(([term]) => term)
@@ -123,11 +131,5 @@ for (const entry of MANIFEST) {
       const loaded = loadExampleInputs(entry);
       assert.equal(outputText(loaded, { answers: readTerms(answers).map(([term]) => write(term)) }), output);
     }
-    if (large(entry)) return;
-    const result = entry.srlContext
-      ? cachedCli(['--check-proof', relative(ROOT, artifactPath('proof', entry)), ...inputs(entry)])
-      : cachedCli(['--prove-and-check', ...inputs(entry)]);
-    assert.equal(result.code, entry.halt_code ?? 0, result.stderr);
-    assert.equal(result.stdout, saved);
   };
 }

@@ -3,6 +3,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { main } from '../src/cli.js';
 import { checkProof, run } from '../src/index.js';
 import { parseRdf } from '../src/rdf.js';
 import { compileRdfLogic } from '../src/rdf-logic.js';
@@ -123,6 +124,44 @@ export const tests = {
     assert.equal(component('ExpressionConstraintComponent'), 1);
     assert.equal(component('NodeByExpressionConstraintComponent'), 1);
     assert.ok(result.answers.some((a) => a.includes("#sourceConstraint'), iri('urn:example:Has')")));
+  },
+
+  'SHACL expressions and named shape lookups stay within their graph'() {
+    const N = '@prefix shnex: <http://www.w3.org/ns/shacl-node-expr#>.\n';
+    const graph = parseRdf(P + N + `
+      :good { :S sh:targetNode :a; sh:expression true, [shnex:conformsToShape (:a :Named)]; sh:nodeByExpression :Named.
+        :Named sh:class :C. :a a :C. }
+      :bad { :S sh:targetNode :a; sh:expression false, [shnex:conformsToShape (:a :Named)]; sh:nodeByExpression :Named.
+        :Named sh:class :D. }`, { format: 'trig' });
+    for (const quads of [graph.quads, [...graph.quads].reverse()]) {
+      const loaded = compileRdfLogic({ ...graph, quads }, { profiles: ['shacl'] });
+      const result = run(loaded.program, { proof: true });
+      assert.equal(checkProof(loaded.program, result.proof).valid, true);
+      const conforms = new Map(result.conclusions.filter((t) => t.args[1]?.args[0] === 'http://www.w3.org/ns/shacl#conforms')
+        .map((t) => [t.args[3].args[0], t.args[2].args[0]]));
+      assert.deepEqual(conforms, new Map([['urn:example:good', 'true'], ['urn:example:bad', 'false']]));
+      assert.equal(result.conclusions.filter((t) => t.args[1]?.args[0] === 'http://www.w3.org/ns/shacl#sourceConstraintComponent').length, 3);
+    }
+  },
+
+  'the CLI rechecks saved SHACL proofs with the captured clock and seed'() {
+    const source = P + `@prefix sparql: <http://www.w3.org/ns/sparql#>.
+      :S sh:targetNode :a; sh:property [sh:path :p; sh:minCount 2;
+        sh:values [sparql:now ()], [sparql:rand ()]].`;
+    const cli = (args, proof = '') => {
+      const out = [], err = [];
+      const code = main(['--shacl', ...args, 'input.ttl'], { readFile: () => source, stdin: () => proof,
+        stdout: (s) => out.push(s), stderr: (s) => err.push(s) });
+      return { code, stdout: out.join(''), stderr: err.join('') };
+    };
+    const generated = cli(['--proof']);
+    assert.equal(generated.code, 0, generated.stderr);
+    assert.match(generated.stdout, /^called\(srl_execution\(/m);
+    const checked = cli(['--check-proof', '-'], generated.stdout);
+    assert.equal(checked.code, 0, checked.stdout || checked.stderr);
+    assert.match(checked.stdout, /verdict\('checked'\)/);
+    const missingContext = generated.stdout.replace(/^called\(srl_execution\(.*\)\n/gm, '');
+    assert.equal(cli(['--check-proof', '-'], missingContext).code, 2);
   },
 
   'SHACL report comparison detects wrong fields and preserves result multiplicity and input blank identities'() {

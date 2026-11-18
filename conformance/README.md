@@ -26,7 +26,7 @@ the case files in order, with the SPEC sections and the topic of each.
 | --- | --- | --- | --- |
 | [03-terms.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/03-terms.js) | 2 | 90 | Unification, the occurs check, integers and finite floats, lists, the standard order |
 | [04-programs.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/04-programs.js) | 3, 6 | 165 | Statements, clause numbering, names a program leaves undefined, reserved heads, rejected clauses, stratification, chain stratification |
-| [05-controls-and-primitives.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/05-controls-and-primitives.js) | 4 | 214 | Every control and primitive, and the errors of their flow patterns |
+| [05-controls-and-primitives.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/05-controls-and-primitives.js) | 4 | 215 | Every control and primitive, and the errors of their flow patterns |
 | [06-arithmetic.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/06-arithmetic.js) | 5, README.resource-limits | 191 | The meaning of every arithmetic term and function, exact integers, and each error |
 | [07-reasoning.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/07-reasoning.js) | 7, 8 | 166 | Search order, forward rounds, Skolem terms, restricted rules, chain strata, conclusions, halting, bounds |
 | [08-canonical-text.js](https://github.com/eyereasoner/eyemind/blob/main/conformance/08-canonical-text.js) | 9 | 57 | The one spelling of atoms, numbers, variables, lists and compounds |

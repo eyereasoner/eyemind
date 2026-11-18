@@ -335,7 +335,7 @@ class Bucket {
 const NO_ENTRIES = Object.freeze([]);
 
 // The entries a positionIndexes map gives for a value, as a list.
-function bucketEntries(found) {
+export function bucketEntries(found) {
   if (found === undefined) return NO_ENTRIES;
   return found instanceof Bucket ? found.entries : [found];
 }

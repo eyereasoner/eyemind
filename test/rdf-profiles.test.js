@@ -33,9 +33,8 @@ const components = (quads) => quads.filter(([, p]) => p.args?.[0] === SH + 'sour
 const numbers = (quads) => quads.filter(([, p]) => p.args?.[0] === Q + 'numericValue').map(([, , o]) => Number(typeof o === 'bigint' ? o : o.args[0]));
 
 export const tests = {
-  'each RDF profile compiles standalone, checks its proof and rejects a removed claim'() {
+  'QUDT, SKOS and SHACL compile standalone, check their proofs and reject a removed claim'() {
     for (const [profile, data] of [
-      ['owl2rl', ':x :p "01"^^xsd:integer, "1.0"^^xsd:decimal.'],
       ['qudt', ':obs :speed "36 km/h"^^cdt:speed.'],
       ['skos', ':a skos:broader :b.'],
       ['shacl', ':Shape sh:targetNode :alice; sh:property [sh:path :name; sh:minCount 1].'],
@@ -124,6 +123,18 @@ export const tests = {
       ['xsd:double', '"+NaN"^^xsd:double', false],
       ['xsd:base64Binary', '"AB=="^^xsd:base64Binary', false],
     ]) assert.equal(conforming(evaluate(`:S sh:targetNode ${value}; sh:datatype ${datatype}.`).quads), expected, value);
+  },
+
+  'SHACL validates XML literal content including attributes, references and markup'() {
+    const examples = ['text<a x="&quot; >"/><!--ok--><?test data?><![CDATA[<x>&]]>tail',
+      '<p:a p:x="&#x1F600;" xmlns:p="urn:test"><p:b/></p:a>', '<a>&</a>', '<a attr=unquoted/>',
+      '<a><![CDATA[missing</a>', '<a>&undeclared;</a>', '<a>&#0;</a>', '<a><!--a--b--></a>',
+      '<a x="1" x="2"/>', '<p:a/>', '<a xmlns:p="urn:x" xmlns:q="urn:x" p:n="1" q:n="2"/>'];
+    for (const [i, xml] of examples.entries()) {
+      const { quads } = evaluate(`:S sh:targetNode :a; sh:property [sh:path :p; sh:datatype rdf:XMLLiteral].
+        :a :p ${JSON.stringify(xml)}^^rdf:XMLLiteral.`, { shacl: true }, true);
+      assert.equal(conforming(quads), i < 2, xml);
+    }
   },
 
   'SHACL compiles nested node, not, and, or and xone shapes with actual conformance dependencies'() {

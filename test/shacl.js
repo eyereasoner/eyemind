@@ -197,12 +197,14 @@ export function runShaclCase(c, { mirror = cachePaths().shacl } = {}) {
 
 export const scoredShaclCases = (options = {}) => shaclCases(options).filter((c) => SHACL_GROUPS.includes(c.group));
 
+export function scoreShaclCase(c, options) {
+  const started = performance.now();
+  let result;
+  try { result = runShaclCase(c, options); }
+  catch (error) { result = { ok: false, message: `test harness: ${error.message}` }; }
+  return { ...result, seconds: (performance.now() - started) / 1000 };
+}
+
 export function runShaclManifest(options = {}) {
-  return scoredShaclCases(options).map((c) => {
-    const started = performance.now();
-    let result;
-    try { result = runShaclCase(c, options); }
-    catch (error) { result = { ok: false, message: `test harness: ${error.message}` }; }
-    return { case: c, ...result, seconds: (performance.now() - started) / 1000 };
-  });
+  return scoredShaclCases(options).map((c) => ({ case: c, ...scoreShaclCase(c, options) }));
 }

@@ -26,7 +26,7 @@ goals, and keep error messages specific and user-facing text direct.
     guards and restraint order of restricted rules. `chains.js`: chain
     stratification for programs whose negations lie on a dependency cycle.
     `templates.js`: potential derived clauses, scopes and generator links.
-    `builtins.js`, `arith.js`: primitives and arithmetic.
+    `builtins.js`, `arith.js`, `xml.js`: primitives, arithmetic and XML content validation.
   - `engine.js`: backward search as an explicit machine, semi-naive forward
     rounds, Skolem terms, proof recording, making a proof's certificate,
     unused clauses.

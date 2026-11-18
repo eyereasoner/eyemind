@@ -34,7 +34,8 @@ export function findChrome() {
   return null;
 }
 
-// The files under root, served on a free port of this machine.
+// The files under root, served on a free port of this machine. One run uses
+// a fresh Chrome profile, so its fixed assets can be cached across pages.
 export async function serve(root) {
   const server = createServer((request, response) => {
     const path = normalize(join(root, decodeURIComponent(new URL(request.url, 'http://x').pathname)));
@@ -47,7 +48,7 @@ export async function serve(root) {
     try {
       if (statSync(file).isDirectory()) file = join(file, 'index.html');
       const body = readFileSync(file);
-      response.writeHead(200, { 'content-type': TYPES[extname(file)] || 'application/octet-stream', 'cache-control': 'no-store' });
+      response.writeHead(200, { 'content-type': TYPES[extname(file)] || 'application/octet-stream', 'cache-control': 'max-age=3600' });
       response.end(body);
     } catch {
       response.writeHead(404).end();

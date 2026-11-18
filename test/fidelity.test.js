@@ -54,6 +54,21 @@ export const tests = {
     assert.ok(checkProof(loaded, result.proof).valid);
   },
 
+  'repeated proof calls preserve listing order and reject an omitted indexed answer'() {
+    const { loaded, result } = checked(`
+      for (let i = 1; i <= 18; i++) fact(seed(i < 3 ? 'wanted' : 'other', i));
+      implies(seed(K, V), stored(iri(K), V));
+      fact(request('first'), request('second'));
+      implies([request(R), stored(iri('wanted'), V)], match(R, V));
+      query(stored(iri('wanted'), V));
+      query(match(R, V));
+    `);
+    assert.deepEqual(result.answers.slice(0, 2), ["stored(iri('wanted'), 1)", "stored(iri('wanted'), 2)"]);
+    const forged = result.proof.replace(/^(called\(stored\(iri\('wanted'\), [A-Z]\w*\), \[stored\(iri\('wanted'\), 1\)), stored\(iri\('wanted'\), 2\)(\]\))$/m, '$1$2');
+    assert.notEqual(forged, result.proof);
+    assert.match(rejected(loaded, forged).failures[0].detail, /leaves out the answer/);
+  },
+
   'original calls are certified and survive writing and reading the proof'() {
     const { result, report } = checked(ONCE);
     assert.deepEqual(result.answers, ["q('a')"]);

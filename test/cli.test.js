@@ -178,7 +178,12 @@ export const tests = {
     assert.equal(cli(['--max-depth', '0']).code, 1);
     assert.equal(cli(['--check-proof', '-']).code, 1);
     assert.equal(cli([], "fact('p')\ncontradiction('p')\n").code, 65);
-    assert.equal(JSON.parse(cli(['--stats', 'examples/socrates.js']).stderr).derived, 1);
+    const result = cli(['--stats', 'examples/socrates.js']);
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(result.stdout, SOCRATES);
+    const stats = JSON.parse(result.stderr);
+    assert.equal(stats.derived, 1);
+    for (const key of ['inferences', 'rounds', 'derived']) assert.ok(Number.isSafeInteger(stats[key]), key);
   },
 
   'command line reasoning bounds reject overflow and unsafe integers'() {

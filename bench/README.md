@@ -10,7 +10,8 @@ and the runner times it and compares its conclusions with a reference.
 
 `node bench/workloads.js DIR` writes each workload as `DIR/ID/ontology.ttl`
 (the ontology or shapes graph) and `DIR/ID/data.ttl`, with `DIR/manifest.json`
-listing their identifiers, profiles and descriptions. The generator is
+listing their identifiers, profiles, descriptions and expected counts where
+defined. The generator is
 deterministic, so every implementation reasons over the same triples.
 
 | Workload | Profiles | What it exercises |
@@ -64,8 +65,11 @@ reflexive `owl:sameAs`, `owl:equivalentClass`, `owl:equivalentProperty`,
 `rdfs:subClassOf` and `rdfs:subPropertyOf` axioms, and typing as
 `rdfs:Resource` or `owl:Thing`; rule sets differ there by design. QUDT
 results are compared only where the implementations share a result
-vocabulary. For SHACL, it compares the violations: each focus node with the
-constraint component it violates.
+vocabulary. The speed workloads expect one `qconv:normalizedQuantity` link
+per measurement, and the SHACL workloads expect four `sh:ValidationResult`
+nodes per invalid person. The runner reports a count mismatch as an error
+instead of a timing. For SHACL, the comparison matches each focus node with
+the constraint component it violates.
 
 Run the benchmark under a memory cap on a small machine, as the full test
 suite runs: `systemd-run --user --scope -q -p MemoryMax=3G -p MemorySwapMax=0 -- npm run bench`.

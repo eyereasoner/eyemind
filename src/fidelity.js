@@ -50,6 +50,7 @@ export function callQuestions(program, goals, claims) {
 export function replayer(program, settler, stepOf, used) {
   const confirmed = new Map();
   const active = new Set();
+  const settledCalls = new Map();
   // The steps a firing's replay followed, each as [replayed, recorded]: once
   // the whole firing has replayed, each must be its step up to renaming.
   let followed = [];
@@ -104,10 +105,24 @@ export function replayer(program, settler, stepOf, used) {
   // an answer agrees with the use; null when its search consults derived
   // facts, whose support only steps show.
   function answered(goal, use, env) {
-    const outcome = settler.answers(copyResolved(goal, env));
-    if (outcome.status === 'unsettled' || (outcome.status === 'settled' && outcome.listings.length)) return null;
-    for (const item of outcome.tables) used.tables.add(item);
-    if (outcome.status !== 'settled') return false;
+    const call = copyResolved(goal, env);
+    const id = variant(call, true);
+    let outcome = settledCalls.get(id);
+    if (outcome === undefined) {
+      const checked = settler.answers(call);
+      if (checked.status === 'unsettled') return null;
+      if (checked.status === 'settled' && checked.listings.length) {
+        // The table depends on derived facts. Each use still follows its step.
+        settledCalls.set(id, null);
+        return null;
+      }
+      for (const item of checked.tables) used.tables.add(item);
+      if (checked.status !== 'settled') return false;
+      // Dependencies have already been checked and marked used for this call.
+      outcome = { answers: checked.answers, inspected: checked.inspected };
+      settledCalls.set(id, outcome);
+    }
+    if (outcome === null) return null;
     // The answer that is the use, up to renaming, is the one the firing
     // took; failing that, the first that can still become it.
     const target = variant(use);

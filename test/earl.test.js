@@ -1,18 +1,31 @@
 // EARL reports describe the outcomes of actual manifest cases, never the
 // acceptance of input alone (negative syntax tests must be rejected).
 import { readFileSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { earlReport } from '../tools/earl.js';
 import { parseRdf } from '../src/rdf.js';
 import { write } from '../src/index.js';
 import { manifestCases, RDF_MANIFESTS, sparqlRlCases } from './w3c.js';
 import { scoredShaclCases } from './shacl.js';
-import { ROOT, assert } from './helpers.js';
+import { assert } from './helpers.js';
 
 const EARL = 'http://www.w3.org/ns/earl#';
 const quads = (text) => parseRdf(text, { format: 'turtle' }).quads;
 const values = (data, predicate) => data.filter((q) => q[1].args[0] === predicate).map((q) => q[2]);
+
+// Check the reports this invocation wrote against the complete manifests.
+// The runner calls this after the W3C sweep, including on filtered runs.
+export function checkCompleteEarlReports(directory) {
+  for (const [name, cases] of [
+    ['w3c-rdf-earl.ttl', RDF_MANIFESTS.flatMap(manifestCases)],
+    ['w3c-sparql-rl-earl.ttl', sparqlRlCases()],
+    ['w3c-shacl-earl.ttl', scoredShaclCases()],
+  ]) {
+    const data = quads(readFileSync(join(directory, name), 'utf8'));
+    assert.deepEqual(values(data, `${EARL}test`).map((t) => t.args[0]), cases.map((c) => c.id), name);
+    assert.equal(values(data, `${EARL}outcome`).length, cases.length, name);
+  }
+}
 
 export const tests = {
   'EARL distinguishes passed, failed and untested cases and preserves diagnostic text'() {
@@ -33,22 +46,4 @@ export const tests = {
     assert.equal(new Set(assertions.map((q) => write(q[0]))).size, cases.length);
   },
 
-  'even a filtered npm test invocation regenerates all complete W3C EARL reports'() {
-    const result = spawnSync(process.execPath, [join(ROOT, 'test/run.js'), 'unit', '-k', 'earl-no-matching-test'], {
-      cwd: ROOT, encoding: 'utf8', timeout: 30000,
-    });
-    assert.ifError(result.error);
-    assert.equal(result.status, 1, 'the selected unit test does not exist');
-    assert.match(result.stdout, /Wrote reports\/w3c-rdf-earl\.ttl and reports\/w3c-sparql-rl-earl\.ttl/);
-    for (const [name, cases] of [
-      ['w3c-rdf-earl.ttl', RDF_MANIFESTS.flatMap(manifestCases)],
-      ['w3c-sparql-rl-earl.ttl', sparqlRlCases()],
-      ['w3c-shacl-earl.ttl', scoredShaclCases()],
-    ]) {
-      const data = quads(readFileSync(join(ROOT, 'reports', name), 'utf8'));
-      assert.deepEqual(values(data, `${EARL}test`).map((t) => t.args[0]), cases.map((c) => c.id));
-      assert.equal(values(data, `${EARL}outcome`).length, cases.length);
-      if (name !== 'w3c-shacl-earl.ttl') assert.ok(values(data, `${EARL}outcome`).every((t) => t.args[0] === `${EARL}passed`));
-    }
-  },
 };

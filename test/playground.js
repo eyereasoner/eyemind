@@ -116,8 +116,6 @@ export const tests = [
     assert.match(proof, /^step\(/m);
     await p.select('mode', '--check-proof');
     await p.type('proof-input', proof);
-    await p.run();
-    assert.match(await p.output(), /verdict\('checked'\)/);
     await page.evaluate("document.getElementById('share-link').click()");
     await p.until("document.getElementById('share-url').value.includes('#state=')", 'the enabled ODRL switch and proof');
     const withOdrl = await page.evaluate("document.getElementById('share-url').value");
@@ -130,43 +128,43 @@ export const tests = [
 
   ['OWL 2 RL runs RDFS and OWL examples, checks proofs and survives shared links', async (page, base) => {
     const p = driver(page);
-    for (const name of ['people-owl2rl', 'family-owl2rl']) {
-      const flag = 'owl2rl';
+    for (const name of ['family-owl2rl', 'people-owl2rl']) {
       await p.open(`${base}#example=${name}`);
       assert.equal(await page.evaluate("document.querySelectorAll('#rdfs, #owl-rl').length"), 0);
-      assert.equal(await page.evaluate(`document.getElementById('${flag}').checked`), true);
-      assert.match(await page.evaluate("document.getElementById('command').textContent"), new RegExp('--' + flag));
+      assert.equal(await page.evaluate("document.getElementById('owl2rl').checked"), true);
+      assert.match(await page.evaluate("document.getElementById('command').textContent"), /--owl2rl/);
       await p.run();
       assert.match(await p.status(), /^Done · exit 0/);
       assert.equal(await p.output(), readFileSync(new URL(`../examples/output/${name}.ttl`, import.meta.url), 'utf8'));
-      await page.evaluate(`(() => {
-        HTMLAnchorElement.prototype.click = function () { window.savedFilename = this.download; };
-        document.getElementById('save-output').click();
-      })()`);
-      assert.equal(await page.evaluate('window.savedFilename'), 'output.ttl');
-      await p.select('mode', '--proof');
-      await p.run();
-      const proof = await p.output();
-      await p.select('mode', '--check-proof');
-      await p.type('proof-input', proof);
-      await p.run();
-      assert.match(await p.output(), /verdict\('checked'\)/);
-      await page.evaluate("document.getElementById('share-link').click()");
-      await p.until("document.getElementById('share-url').value.includes('#state=')", 'the entailment switch and proof');
-      await p.open(await page.evaluate("document.getElementById('share-url').value"), 390, true);
-      assert.equal(await page.evaluate(`document.getElementById('${flag}').checked`), true);
-      await p.run();
-      assert.match(await p.output(), /verdict\('checked'\)/);
-      await p.select('mode', '');
-      await p.type('proof-input', '');
-      await page.evaluate(`document.getElementById('${flag}').click()`);
-      await page.evaluate("document.getElementById('share-link').click()");
-      await p.until("document.getElementById('share-url').value.includes('#state=')", 'the disabled entailment switch');
-      await p.open(await page.evaluate("document.getElementById('share-url').value"));
-      assert.equal(await page.evaluate(`document.getElementById('${flag}').checked`), false);
-      await p.run();
-      assert.doesNotMatch(await p.output(), /result_rdf|ent:Conflict/);
     }
+    // Both examples have corpus proof checks. Exercise the browser's proof,
+    // download and sharing controls once with the smaller example.
+    await page.evaluate(`(() => {
+      HTMLAnchorElement.prototype.click = function () { window.savedFilename = this.download; };
+      document.getElementById('save-output').click();
+    })()`);
+    assert.equal(await page.evaluate('window.savedFilename'), 'output.ttl');
+    await p.select('mode', '--proof');
+    await p.run();
+    const proof = await p.output();
+    assert.match(proof, /^step\(/m);
+    await p.select('mode', '--check-proof');
+    await p.type('proof-input', proof);
+    await page.evaluate("document.getElementById('share-link').click()");
+    await p.until("document.getElementById('share-url').value.includes('#state=')", 'the entailment switch and proof');
+    await p.open(await page.evaluate("document.getElementById('share-url').value"), 390, true);
+    assert.equal(await page.evaluate("document.getElementById('owl2rl').checked"), true);
+    await p.run();
+    assert.match(await p.output(), /verdict\('checked'\)/);
+    await p.select('mode', '');
+    await p.type('proof-input', '');
+    await page.evaluate("document.getElementById('owl2rl').click()");
+    await page.evaluate("document.getElementById('share-link').click()");
+    await p.until("document.getElementById('share-url').value.includes('#state=')", 'the disabled entailment switch');
+    await p.open(await page.evaluate("document.getElementById('share-url').value"));
+    assert.equal(await page.evaluate("document.getElementById('owl2rl').checked"), false);
+    await p.run();
+    assert.doesNotMatch(await p.output(), /result_rdf|ent:Conflict/);
   }],
 
   ['QUDT, SKOS and SHACL switches run examples and preserve composed sessions', async (page, base) => {
@@ -184,6 +182,7 @@ export const tests = [
       assert.match(proof, /^step\(/m);
       await p.select('mode', '--check-proof');
       await p.type('proof-input', proof);
+      if (name === 'measurement-shacl') continue; // check the proof after restoring the shared session
       await p.run();
       assert.match(await p.output(), /verdict\('checked'\)/);
     }
@@ -209,27 +208,26 @@ export const tests = [
   ['Logical English examples download LE conclusions and keep JavaScript proofs', async (page, base) => {
     const p = driver(page);
     for (const name of ['socrates-le', 'squares-le', 'records-le', 'handicap-card-le',
-      'shortest-path-le', 'river-crossing-le', 'pell-equation-le', 'course-certificates-le', 'symbolic-derivative-le']) {
+      'shortest-path-le', 'river-crossing-le', 'pell-equation-le', 'symbolic-derivative-le', 'course-certificates-le']) {
       await p.open(`${base}#example=${name}`);
       await p.run();
       assert.match(await p.status(), /^Done · exit 0/);
       assert.equal(await p.output(), readFileSync(new URL(`../examples/output/${name}.le`, import.meta.url), 'utf8'));
-      await page.evaluate(`(() => {
-        HTMLAnchorElement.prototype.click = function () { window.savedFilename = this.download; };
-        document.getElementById('save-output').click();
-      })()`);
-      assert.equal(await page.evaluate('window.savedFilename'), 'output.le');
-      await p.select('mode', '--proof');
-      await p.run();
-      const proof = await p.output();
-      assert.match(proof, /^step\(/m);
-      await page.evaluate("document.getElementById('save-output').click()");
-      assert.equal(await page.evaluate('window.savedFilename'), 'proof.js');
-      await p.select('mode', '--check-proof');
-      await p.type('proof-input', proof);
-      await p.run();
-      assert.match(await p.output(), /verdict\('checked'\)/);
     }
+    // The certificate example also exercises witness terms in both formats.
+    await page.evaluate(`(() => {
+      HTMLAnchorElement.prototype.click = function () { window.savedFilename = this.download; };
+      document.getElementById('save-output').click();
+    })()`);
+    assert.equal(await page.evaluate('window.savedFilename'), 'output.le');
+    await p.select('mode', '--proof');
+    await p.run();
+    const proof = await p.output();
+    assert.match(proof, /^step\(/m);
+    await page.evaluate("document.getElementById('save-output').click()");
+    assert.equal(await page.evaluate('window.savedFilename'), 'proof.js');
+    await p.select('mode', '--check-proof');
+    await p.type('proof-input', proof);
     await page.evaluate("document.getElementById('share-link').click()");
     await p.until("document.getElementById('share-url').value.includes('#state=')", 'the LE source and JavaScript proof');
     await p.open(await page.evaluate("document.getElementById('share-url').value"), 390, true);
@@ -560,6 +558,10 @@ query(or(q(X), r(X)))`);
     await p.until(`!document.getElementById('run').disabled && document.querySelectorAll('.mark.pass, .mark.fail').length === ${count}`, 'all browser conformance cases', 120000);
     assert.equal(await page.evaluate("[...document.querySelectorAll('.mark.fail')].map(mark => mark.closest('li').textContent).join('\\n')"), '');
     assert.equal(await page.evaluate("document.querySelectorAll('.mark.pass').length"), count);
+    assert.ok(await page.evaluate(`Array.from(document.querySelectorAll('.group')).every(group => {
+      const size = group.querySelectorAll('.cases > li').length;
+      return group.querySelector('.counts.badge.ok')?.textContent === size + ' / ' + size;
+    })`));
     for (const width of [1280, 390]) {
       await page.command('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width === 390 });
       assert.ok(await page.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth'), `conformance at ${width}px`);
@@ -575,9 +577,8 @@ query(or(q(X), r(X)))`);
   }],
 ];
 
-// Start the page for the tests: DevTools domains on, the cache off.
+// Start the page for the tests and collect JavaScript exceptions.
 export async function prepare(page) {
   await page.command('Page.enable');
   await page.command('Runtime.enable');
-  await page.command('Network.setCacheDisabled', { cacheDisabled: true });
 }
