@@ -70,6 +70,32 @@ export const tests = {
     assert.ok(!new Set(tail.map(key)).has(key(parseRdf(PREFIX + ':x owl:sameAs :y.').quads[0])));
   },
 
+  'OWL 2 RL datatypes: the datatype map, value equality and difference, and membership across lexical forms'() {
+    const out = conclusions(`:a owl:sameAs "2009-04-21T12:30:15"^^xsd:dateTime. :b owl:sameAs "2009-04-21T12:30:15.00"^^xsd:dateTime.
+      :c owl:sameAs "3.141"^^xsd:double. :d owl:sameAs "+0.31410E+01"^^xsd:double. :e owl:sameAs "1.5"^^xsd:double.
+      :f owl:sameAs "01"^^xsd:hexBinary. :g owl:sameAs "AF"^^xsd:hexBinary. :h owl:sameAs "abc@de"^^rdf:PlainLiteral.
+      :i owl:sameAs "abc"@DE. :j owl:sameAs 42. :k owl:sameAs "tag"^^xsd:NCName. :l owl:sameAs "<ex>a</ex>"^^rdf:XMLLiteral.`);
+    includes(out, `xsd:integer a rdfs:Datatype. xsd:NMTOKEN a rdfs:Datatype. rdf:PlainLiteral a rdfs:Datatype. rdfs:Literal a rdfs:Datatype.
+      :a owl:sameAs :b. :c owl:sameAs :d. :c owl:differentFrom :e. :f owl:differentFrom :g. :h owl:sameAs :i.
+      :j a xsd:decimal, xsd:byte. :k a xsd:NCName, xsd:Name, xsd:string. :l a rdf:XMLLiteral.`);
+  },
+
+  'OWL 2 RL datatypes: ill-typed values are conflicts, including 64-bit bounds and float ranges'() {
+    for (const [type, lexical] of [['long', '9223372036854775808'], ['unsignedLong', '18446744073709551616'], ['float', '1.0E+40'],
+      ['float', '1.0E-50'], ['double', '1.0E+310'], ['double', '1.0E-330'], ['token', ' abc 123 '], ['NCName', 'ex:tag'],
+      ['NMTOKEN', ' a b '], ['anyURI', ':abc']]) {
+      assert.deepEqual(conflicts(conclusions(`:x a xsd:${type}; owl:sameAs "${lexical}"^^xsd:${type}.`)), ['dt-not-type'], `${type} ${lexical}`);
+    }
+    for (const [type, lexical] of [['long', '9223372036854775807'], ['float', '1.0E+38'], ['double', '0.0E-400'], ['anyURI', 'rel/a:b']]) {
+      assert.deepEqual(conflicts(conclusions(`:x a xsd:${type}; owl:sameAs "${lexical}"^^xsd:${type}.`)), [], `${type} ${lexical}`);
+    }
+    for (const lexical of ['abc', 'abc@12']) {
+      assert.deepEqual(conflicts(conclusions(`:x a rdf:PlainLiteral; owl:sameAs "${lexical}"^^rdf:PlainLiteral.`)), ['dt-not-type'], lexical);
+    }
+    assert.deepEqual(conflicts(conclusions(':x a rdf:XMLLiteral; owl:sameAs "<a><b></a></b>"^^rdf:XMLLiteral.')), ['dt-not-type']);
+    assert.deepEqual(conflicts(conclusions(':v a xsd:integer; owl:sameAs "false"^^xsd:boolean.')), ['dt-not-type']);
+  },
+
   'OWL 2 RL: contradictions are reported together, with rule names and focus nodes'() {
     const out = conclusions(`:A owl:disjointWith :B; owl:complementOf :C. :x a :A, :B, :C, owl:Nothing.
       :p a owl:IrreflexiveProperty, owl:AsymmetricProperty. :x :p :x.

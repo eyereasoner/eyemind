@@ -7,12 +7,18 @@ const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
 const OWL = 'http://www.w3.org/2002/07/owl#';
 const iri = (s) => `iri(${JSON.stringify(s)})`;
 const k = (s) => iri(SKOS + s);
-const schema = [], facts = [];
+// Each entailment is its own rule with the property as a constant, so the
+// engine's argument index gives a rule only the triples of that property.
+const schema = [], rules = [];
+const TYPE = iri(RDF + 'type');
 const axiom = (s, p, o) => schema.push(`fact(sk_schema(${s}, ${p}, ${o}));`);
-const sub = (p, q) => { facts.push(`fact(sk_sub(${k(p)}, ${q}));`); axiom(k(p), iri(RDFS + 'subPropertyOf'), q); };
-const domain = (p, c) => { facts.push(`fact(sk_domain(${k(p)}, ${k(c)}));`); axiom(k(p), iri(RDFS + 'domain'), k(c)); };
-const range = (p, c) => { facts.push(`fact(sk_range(${k(p)}, ${k(c)}));`); axiom(k(p), iri(RDFS + 'range'), k(c)); };
-const inverse = (p, q) => { facts.push(`fact(sk_inverse(${k(p)}, ${k(q)}));`); axiom(k(p), iri(OWL + 'inverseOf'), k(q)); };
+const sub = (p, q) => { rules.push(`implies(rdf(S, ${k(p)}, O, G), rdf(S, ${q}, O, G));`); axiom(k(p), iri(RDFS + 'subPropertyOf'), q); };
+const domain = (p, c) => { rules.push(`implies(rdf(S, ${k(p)}, O, G), rdf(S, ${TYPE}, ${k(c)}, G));`); axiom(k(p), iri(RDFS + 'domain'), k(c)); };
+const range = (p, c) => { rules.push(`implies(rdf(S, ${k(p)}, O, G), rdf(O, ${TYPE}, ${k(c)}, G));`); axiom(k(p), iri(RDFS + 'range'), k(c)); };
+const inverse = (p, q) => {
+  rules.push(`implies(rdf(S, ${k(p)}, O, G), rdf(O, ${k(q)}, S, G));`, `implies(rdf(S, ${k(q)}, O, G), rdf(O, ${k(p)}, S, G));`);
+  axiom(k(p), iri(OWL + 'inverseOf'), k(q));
+};
 for (const c of ['Concept', 'ConceptScheme', 'Collection', 'OrderedCollection']) axiom(k(c), iri(RDF + 'type'), iri(OWL + 'Class'));
 const relations = ['inScheme', 'hasTopConcept', 'topConceptOf', 'semanticRelation', 'broader', 'narrower', 'related',
   'broaderTransitive', 'narrowerTransitive', 'member', 'memberList', 'mappingRelation', 'closeMatch', 'exactMatch', 'broadMatch', 'narrowMatch', 'relatedMatch'];
@@ -43,21 +49,14 @@ for (const [p, q] of [['broadMatch', 'broader'], ['narrowMatch', 'narrower'], ['
 }
 inverse('broadMatch', 'narrowMatch');
 for (const p of ['related', 'relatedMatch', 'closeMatch', 'exactMatch']) {
-  facts.push(`fact(sk_symmetric(${k(p)}));`); axiom(k(p), iri(RDF + 'type'), iri(OWL + 'SymmetricProperty'));
+  rules.push(`implies(rdf(S, ${k(p)}, O, G), rdf(O, ${k(p)}, S, G));`); axiom(k(p), iri(RDF + 'type'), iri(OWL + 'SymmetricProperty'));
 }
 for (const p of ['broaderTransitive', 'narrowerTransitive', 'exactMatch']) {
-  facts.push(`fact(sk_transitive(${k(p)}));`); axiom(k(p), iri(RDF + 'type'), iri(OWL + 'TransitiveProperty'));
+  rules.push(`implies([rdf(S, ${k(p)}, M, G), rdf(M, ${k(p)}, O, G)], rdf(S, ${k(p)}, O, G));`); axiom(k(p), iri(RDF + 'type'), iri(OWL + 'TransitiveProperty'));
 }
 
-export const skosRules = '\n' + [...schema, ...facts].join('\n') + String.raw`
+export const skosRules = '\n' + [...schema, ...rules].join('\n') + String.raw`
 implies([ent_graph(G), sk_schema(S, P, O)], rdf(S, P, O, G));
-implies([rdf(S, P, O, G), sk_sub(P, Q)], rdf(S, Q, O, G));
-implies([rdf(S, P, O, G), sk_domain(P, C)], rdf(S, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), C, G));
-implies([rdf(S, P, O, G), sk_range(P, C)], rdf(O, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), C, G));
-implies([rdf(S, P, O, G), sk_inverse(P, Q)], rdf(O, Q, S, G));
-implies([rdf(S, Q, O, G), sk_inverse(P, Q)], rdf(O, P, S, G));
-implies([rdf(S, P, O, G), sk_symmetric(P)], rdf(O, P, S, G));
-implies([rdf(S, P, M, G), sk_transitive(P), rdf(M, P, O, G)], rdf(S, P, O, G));
 implies(rdf(S, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://www.w3.org/2004/02/skos/core#OrderedCollection'), G), rdf(S, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://www.w3.org/2004/02/skos/core#Collection'), G));
 implies([ent_graph(G)], sk_list(iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil'), G));
 implies([rdf(L, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#first'), X, G), rdf(L, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#rest'), T, G), sk_list(T, G)], sk_list(L, G));

@@ -315,9 +315,13 @@ Four switches add standalone LS rules to RDF inputs; vocabulary alone never
 enables one. They combine, inference closes before validation, and the output
 is Turtle with the new triples and reports.
 
-- `--owl2rl` adds the RDFS and non-datatype [OWL 2 RL](https://www.w3.org/TR/owl2-profiles/#Reasoning_in_OWL_2_RL_and_RDF_Graphs)
-  rules, with partial datatype reasoning, and reports contradictions as
-  `ent:Conflict` records instead of inferring everything from them.
+- `--owl2rl` adds the RDFS and [OWL 2 RL](https://www.w3.org/TR/owl2-profiles/#Reasoning_in_OWL_2_RL_and_RDF_Graphs)
+  rules, including the datatype map of its table 8: value equality and
+  difference, membership across lexical forms, and ill-typed literals for the
+  XSD numeric, string, temporal and binary types, `rdf:PlainLiteral` and
+  `rdf:XMLLiteral`. It reports contradictions as `ent:Conflict` records
+  instead of inferring everything from them, and passes all 273 cases of the
+  [MobiBench](https://github.com/william-vw/mobibench) OWL 2 RL suite.
 - `--qudt` normalizes QUDT quantity values and CDT literals to SI units from
   an offline catalog adapted from [QUDT.org](https://qudt.org/) (CC BY 4.0):
   `"36 km/h"^^cdt:speed` yields `"10.0 m/s"^^cdt:speed`.

@@ -127,6 +127,35 @@ implies(has_parent(X, P), known(X))
     assert.deepEqual(run(source).answers, result.answers);
   },
 
+  'indexing derived facts on argument pairs changes neither the answers nor the proof'() {
+    // A subject with many facts and a property with many subjects: only the
+    // pair of both narrows the second goal of the rule to its facts.
+    const next = random(5);
+    const saved = Solver.prototype.factOrder;
+    for (let trial = 0; trial < 8; trial++) {
+      const facts = Array.from({ length: 40 }, () => `fact(t(${next(4)}, ${['p', 'q', 'r'][next(3)]}, ${next(6)}))\n`).join('');
+      const source = program(`${facts}
+implies(t(S, P, O), u(S, P, O))
+implies([u(S, P, M), u(M, P, O)], u(S, P, O))
+implies([u(S, 'p', O), not(u(O, 'q', S))], only(S, O))
+`);
+      const paired = run(source, { proof: true });
+      Solver.prototype.factOrder = function (...args) {
+        const pairs = this.pairIndex;
+        this.pairIndex = new Map();
+        try { return saved.apply(this, args); } finally { this.pairIndex = pairs; }
+      };
+      let single;
+      try {
+        single = run(source, { proof: true });
+      } finally {
+        Solver.prototype.factOrder = saved;
+      }
+      assert.ok(paired.proofReport.valid);
+      assert.deepEqual([paired.answers, paired.proof], [single.answers, single.proof]);
+    }
+  },
+
   'a run without a proof keeps one firing per new fact, in the order a proof run publishes them'() {
     // Transitive closures of dense graphs derive most facts many times over;
     // the run without a proof drops known and duplicate firings early.

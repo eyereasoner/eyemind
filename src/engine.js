@@ -103,6 +103,14 @@ class Point {
 }
 
 const NO_NODES = Object.freeze([]);
+
+// Add a fact number to an index bucket: a single number, then an array of them.
+function addToBucket(index, key, number) {
+  const bucket = index.get(key);
+  if (bucket === undefined) index.set(key, number);
+  else if (typeof bucket === 'number') index.set(key, [bucket, number]);
+  else bucket.push(number);
+}
 const QUIET = new Pending(null, null, NO_NODES, null);
 const SPLICE = 'splice';
 
@@ -284,6 +292,10 @@ export class Solver {
     // per argument position from an atom or number to the indexes, in order,
     // of the facts with that value there.
     this.factIndex = new Map();
+    // Derived facts are also indexed on adjacent argument pairs, so a goal such
+    // as rdf(S, P, O, G) with a common subject and a given property finds its
+    // facts directly rather than among all the subject's facts.
+    this.pairIndex = new Map();
     this.factKeys = new Set(program.groundFactKeys);
     this.iriIds = new Map();
     for (const clause of program.clauses) {
@@ -549,15 +561,24 @@ export class Solver {
         positions = Array.from({ length: arity }, () => new Map());
         this.factIndex.set(goalKey, positions);
       }
-      node.goal.args.forEach((arg, position) => {
-        const argument = indexKey(arg);
-        if (argument !== undefined) {
-          const bucket = positions[position].get(argument);
-          if (bucket === undefined) positions[position].set(argument, number);
-          else if (typeof bucket === 'number') positions[position].set(argument, [bucket, number]);
-          else bucket.push(number);
-        }
+      const keys = node.goal.args.map((arg) => indexKey(arg));
+      keys.forEach((argument, position) => {
+        if (argument !== undefined) addToBucket(positions[position], argument, number);
       });
+      if (arity > 1) {
+        let pairs = this.pairIndex.get(goalKey);
+        if (pairs === undefined) {
+          pairs = Array.from({ length: arity - 1 }, () => new Map());
+          this.pairIndex.set(goalKey, pairs);
+        }
+        for (let position = 0; position + 1 < arity; position++) {
+          const [first, second] = [keys[position], keys[position + 1]];
+          if (first === undefined || second === undefined) continue;
+          let inner = pairs[position].get(first);
+          if (inner === undefined) pairs[position].set(first, inner = new Map());
+          addToBucket(inner, second, number);
+        }
+      }
     }
   }
 
@@ -583,17 +604,20 @@ export class Solver {
     if (positions === undefined) return null;
     let best = null;
     let size = this.facts.get(goalKey).length;
-    for (let position = 0; position < goal.args.length; position++) {
-      const arg = indexKey(goal.args[position], env);
-      if (arg !== undefined) {
-        const stored = positions[position].get(arg);
-        const bucket = typeof stored === 'number' ? [stored] : stored ?? NO_NODES;
-        if (bucket.length < size) {
-          best = bucket;
-          size = bucket.length;
-          if (!size) break;
-        }
+    const keys = goal.args.map((arg) => indexKey(arg, env));
+    const consider = (stored) => {
+      const bucket = typeof stored === 'number' ? [stored] : stored ?? NO_NODES;
+      if (bucket.length < size) {
+        best = bucket;
+        size = bucket.length;
       }
+    };
+    for (let position = 0; position < keys.length && size; position++) {
+      if (keys[position] !== undefined) consider(positions[position].get(keys[position]));
+    }
+    const pairs = this.pairIndex.get(goalKey);
+    for (let position = 0; pairs !== undefined && position + 1 < keys.length && size; position++) {
+      if (keys[position] !== undefined && keys[position + 1] !== undefined) consider(pairs[position].get(keys[position])?.get(keys[position + 1]));
     }
     return best;
   }

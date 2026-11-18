@@ -13,11 +13,12 @@ const bounds = [
   ['unsignedShort', '0', '65535'], ['unsignedByte', '0', '255'],
 ];
 export const RDF_DATATYPES = new Set([...bounds.map(([n]) => XSD + n), ...['decimal', 'float', 'double', 'boolean', 'string',
-  'normalizedString', 'token', 'language', 'anyURI', 'date', 'dateTime', 'dateTimeStamp', 'time',
-  'hexBinary', 'base64Binary'].map((n) => XSD + n), RDF + 'langString', RDF + 'dirLangString']);
+  'normalizedString', 'token', 'language', 'Name', 'NCName', 'NMTOKEN', 'anyURI', 'date', 'dateTime', 'dateTimeStamp', 'time',
+  'hexBinary', 'base64Binary'].map((n) => XSD + n), RDF + 'langString', RDF + 'dirLangString', RDF + 'PlainLiteral', RDF + 'XMLLiteral']);
 
 const integerRules = bounds.map(([name, min, max]) => {
-  const facets = `${min === null ? '' : `, ge(N, ${min})`}${max === null ? '' : `, le(N, ${max})`}`;
+  // BigInt literals: as JavaScript numbers, bounds beyond 2^53 would round.
+  const facets = `${min === null ? '' : `, ge(N, ${min}n)`}${max === null ? '' : `, le(N, ${max}n)`}`;
   return `implied_by(rv_lexical('${XSD}${name}', L), [srl_read_number('integer', L, N)${facets}]);\n` +
     `implied_by(rv_member(T, iri('${XSD}${name}')), [rv_integer_value(T, N)${facets}]);\n` +
     `fact(rv_integer_datatype(iri('${XSD}${name}')));`;
@@ -72,12 +73,39 @@ implied_by(rv_valid_as(literal(L, datatype(D)), iri(D)), rv_lexical(D, L));
 fact(rv_valid_as(literal(_, lang(_)), iri(rvRdf + 'langString')));
 fact(rv_valid_as(literal(_, lang(_, _)), iri(rvRdf + 'dirLangString')));
 implied_by(rv_lexical(rvXsd + 'decimal', L), srl_decimal_text(L, _));
-implied_by(rv_lexical(D, L), [rv_binary_type(D), regex_match('^[ \\t\\r\\n]*(?:[+-]?(?:(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?|INF)|NaN)[ \\t\\r\\n]*$', L)]);
+implied_by(rv_lexical(D, L), [rv_binary_type(D), regex_match('^[ \\t\\r\\n]*(?:[+-]?(?:(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?|INF)|NaN)[ \\t\\r\\n]*$', L), rv_binary_range(D, L)]);
+// A finite lexical form whose value overflows the type, or is nonzero and
+// rounds to zero in it, denotes no value of the type.
+implied_by(rv_binary_range(D, L), or(regex_match('INF|NaN', L), [float64('parse', L, 0, V), is_float(V), float64('abs', V, 0, A),
+  rv_binary_limits(D, Max, Min), float64('compare', A, Max, O1), not_identical(O1, '>'), or(not(regex_match('^[^eE]*[1-9]', L)), [float64('compare', A, Min, O2), identical(O2, '>')])]));
+fact(rv_binary_limits(rvXsd + 'double', float(1.7976931348623157e308), float(0)), rv_binary_limits(rvXsd + 'float', float(3.4028235677973366e38), float(7.006492321624085e-46)));
 fact(rv_binary_type(rvXsd + 'float'), rv_binary_type(rvXsd + 'double'));
 implied_by(rv_lexical(rvXsd + 'boolean', L), regex_match('^[ \\t\\r\\n]*(true|false|0|1)[ \\t\\r\\n]*$', L));
 implied_by(rv_lexical(D, L), [rv_text_type(D), is_atom(L)]);
-fact(rv_text_type(rvXsd + 'string'), rv_text_type(rvXsd + 'normalizedString'), rv_text_type(rvXsd + 'token'), rv_text_type(rvXsd + 'anyURI'));
-implied_by(rv_lexical(rvXsd + 'language', L), regex_match('^[ \\t\\r\\n]*[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*[ \\t\\r\\n]*$', L));
+fact(rv_text_type(rvXsd + 'string'));
+// An IRI reference: a colon before any /, ? or # ends a scheme, which starts
+// with a letter; spaces, <>"{}|\^ and the backquote are excluded.
+implied_by(rv_lexical(rvXsd + 'anyURI', L), [not(regex_match('[\\s<>"{}|\\\\^\\x60]', L)),
+  or(not(regex_match('^[^/?#]*:', L)), regex_match('^[A-Za-z][A-Za-z0-9+.\\-]*:', L))]);
+// The lexical spaces of the string types derived by restriction exclude what
+// their whitespace facets would remove: a literal is not normalized first.
+implied_by(rv_lexical(rvXsd + 'normalizedString', L), not(regex_match('[\\t\\r\\n]', L)));
+implied_by(rv_lexical(rvXsd + 'token', L), not(regex_match('[\\t\\r\\n]|^ | $|  ', L)));
+implied_by(rv_lexical(rvXsd + 'language', L), regex_match('^[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*$', L));
+implied_by(rv_lexical(rvXsd + 'Name', L), regex_match('^[\\p{L}_:][\\p{L}\\p{N}._:\\-]*$', L));
+implied_by(rv_lexical(rvXsd + 'NCName', L), regex_match('^[\\p{L}_][\\p{L}\\p{N}._\\-]*$', L));
+implied_by(rv_lexical(rvXsd + 'NMTOKEN', L), regex_match('^[\\p{L}\\p{N}._:\\-]+$', L));
+// rdf:PlainLiteral: text, then @ and an empty or well-formed language tag.
+implied_by(rv_lexical(rvRdf + 'PlainLiteral', L), regex_match('@(?:[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*)?$', L));
+implied_by(rv_lexical(rvRdf + 'XMLLiteral', L), rv_xml(L));
+// A well-formed XML fragment, as far as its tags: each opened tag closes in
+// order, and no markup character is left outside a tag.
+implied_by(rv_xml(L), [findall([C, N, E], regex_find('<(/?)([\\p{L}_:][\\p{L}\\p{N}._:\\-]*)(?:\\s[^<>]*?)?(/?)>', L, [_, C, N, E]), Tags),
+  regex_replace('<(/?)([\\p{L}_:][\\p{L}\\p{N}._:\\-]*)(?:\\s[^<>]*?)?(/?)>', L, '', Rest), not(regex_match('[<>]', Rest)), rv_xml_balanced(Tags, [])]);
+fact(rv_xml_balanced([], []));
+implied_by(rv_xml_balanced([['', _, '/'], ...T], S), rv_xml_balanced(T, S));
+implied_by(rv_xml_balanced([['', N, ''], ...T], S), rv_xml_balanced(T, [N, ...S]));
+implied_by(rv_xml_balanced([['/', N, ''], ...T], [N, ...S]), rv_xml_balanced(T, S));
 implied_by(rv_lexical(rvXsd + 'hexBinary', L), regex_match('^[ \\t\\r\\n]*(?:[0-9A-Fa-f]{2})*[ \\t\\r\\n]*$', L));
 implied_by(rv_lexical(rvXsd + 'base64Binary', L), [regex_replace('[ \\t\\r\\n]', L, '', S), regex_match('^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/][AQgw]==|[A-Za-z0-9+/]{2}[AEIMQUYcgkosw048]=)?$', S)]);
 implied_by(rv_exact(T), [rv_valid(T), srl_num(T, K, _), rv_exact_kind(K)]);
@@ -91,11 +119,39 @@ fact(rv_boolean_text('true', 'true'), rv_boolean_text('1', 'true'), rv_boolean_t
 implied_by(rv_same(A, B), [rv_text_value(A, S), rv_text_value(B, S)]);
 implied_by(rv_different(A, B), [rv_text_value(A, S), rv_text_value(B, T), not_identical(S, T)]);
 fact(rv_text_value(literal(L, datatype(rvXsd + 'string')), L));
-implied_by(rv_text_value(literal(L, datatype(rvXsd + 'normalizedString')), S), regex_replace('[\\t\\r\\n]', L, ' ', S));
-implied_by(rv_text_value(literal(L, datatype(rvXsd + 'token')), S), [regex_replace('[ \\t\\r\\n]+', L, ' ', A), regex_replace('^ | $', A, '', S)]);
+// A valid literal of a string type derived by restriction is its own value.
+implied_by(rv_text_value(literal(L, datatype(D)), L), [rv_string_type(D), rv_lexical(D, L)]);
+fact(rv_string_type(rvXsd + 'normalizedString'), rv_string_type(rvXsd + 'token'), rv_string_type(rvXsd + 'language'),
+  rv_string_type(rvXsd + 'Name'), rv_string_type(rvXsd + 'NCName'), rv_string_type(rvXsd + 'NMTOKEN'));
+implied_by(rv_text_value(literal(L, datatype(rvRdf + 'PlainLiteral')), S), regex_find('^([\\s\\S]*)@$', L, [_, S]));
+// The other value spaces: binary floats and doubles, temporal values, binary
+// data, URIs, language-tagged text and XML. Values of different spaces are
+// neither the same nor, here, different.
+implied_by(rv_value(T, Space, V), [rv_valid(T), rv_datatype(T, D), rv_value_of(D, T, Space, V)]);
+implied_by(rv_value_of(iri(D), T, D, V), [rv_binary_type(D), srl_num(T, _, V), is_float(V)]);
+implied_by(rv_value_of(_, T, temporal(Type, Kind), V), rv_temporal(T, Type, Kind, V));
+implied_by(rv_value_of(iri(rvXsd + 'hexBinary'), literal(L, _), 'hexBinary', V), [regex_replace('[ \\t\\r\\n]', L, '', S), atom_upper(S, V)]);
+implied_by(rv_value_of(iri(rvXsd + 'base64Binary'), literal(L, _), 'base64Binary', V), regex_replace('[ \\t\\r\\n]', L, '', V));
+fact(rv_value_of(iri(rvXsd + 'anyURI'), literal(L, _), 'anyURI', L));
+fact(rv_value_of(iri(rvRdf + 'XMLLiteral'), literal(L, _), 'XMLLiteral', L));
+implied_by(rv_value_of(iri(rvRdf + 'langString'), literal(S, lang(L)), 'lang', [S, T]), atom_lower(L, T));
+implied_by(rv_value_of(iri(rvRdf + 'PlainLiteral'), literal(L, _), 'lang', [S, T]), [regex_find('^([\\s\\S]*)@([^@]+)$', L, [_, S, Tag]), atom_lower(Tag, T)]);
+implied_by(rv_same(A, B), [rv_value(A, Space, V), rv_value(B, Space, W), rv_value_compare(Space, V, W, '=')]);
+implied_by(rv_different(A, B), [rv_value(A, Space, V), rv_value(B, Space, W), rv_value_compare(Space, V, W, O), not_identical(O, '='), not_identical(O, 'unordered')]);
+implied_by(rv_value_compare(Space, V, W, O), [rv_binary_type(Space), float64('compare', V, W, O)]);
+implied_by(rv_value_compare(temporal(_, _), V, W, O), [srl_decimal_value(V, A), srl_decimal_value(W, B), srl_value_compare(A, B, O)]);
+implied_by(rv_value_compare(Space, V, W, O), [rv_identity_space(Space), or([identical(V, W), unify(O, '=')], [not_identical(V, W), unify(O, '<>')])]);
+fact(rv_identity_space('hexBinary'), rv_identity_space('base64Binary'), rv_identity_space('anyURI'), rv_identity_space('XMLLiteral'), rv_identity_space('lang'));
 implied_by(rv_order(A, B, O), [rv_valid(A), rv_valid(B), srl_pair(A, B, _, X, Y), srl_value_compare(X, Y, O)]);
 implied_by(rv_order(A, B, O), [rv_text_value(A, S), rv_text_value(B, T), compare(O, S, T)]);
 implied_by(rv_integer_value(T, N), [rv_exact(T), srl_num(T, _, V), srl_decimal_value(V, decimal(C, S)), is(P, pow(10, S)), eq(mod(C, P), 0), is(N, floordiv(C, P))]);
 implied_by(rv_member(T, iri(rvXsd + 'decimal')), rv_exact(T));
+// Every string-family value is a string, and strings and language-tagged
+// strings are rdf:PlainLiteral values.
+implied_by(rv_member(T, iri(rvXsd + 'string')), rv_text_value(T, _));
+// A string value belongs to each string type derived by restriction whose
+// lexical space holds it: an NCName is also a Name, a token and so on.
+implied_by(rv_member(T, iri(D)), [rv_text_value(T, S), rv_string_type(D), rv_lexical(D, S)]);
+implied_by(rv_member(T, iri(rvRdf + 'PlainLiteral')), or(rv_text_value(T, _), rv_value(T, 'lang', _)));
 implied_by(rv_member(T, D), rv_valid_as(T, D));
 ` + integerRules + '\n' + [...RDF_DATATYPES].map((d) => `fact(rv_supported(iri('${d}')));`).join('\n') + dateRules;

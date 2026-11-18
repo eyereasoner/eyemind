@@ -163,15 +163,16 @@ implies([t(A, r('type'), o('AllDisjointProperties')), t(A, o('members'), L), ent
 implies([t(P, o('propertyDisjointWith'), Q), t(X, P, V), t(Y, Q, V)], t(X, o('differentFrom'), Y));
 implies([t(P, o('propertyDisjointWith'), Q), t(X, P, V), t(X, Q, W)], t(V, o('differentFrom'), W));
 implies([t(P, r('type'), o('FunctionalProperty')), t(X, P, V), t(Y, P, W), t(V, o('differentFrom'), W)], t(X, o('differentFrom'), Y));
-// Literal membership and exact numeric/boolean/string value comparisons.
-// Datatype declarations are scoped to the vocabulary actually used by a graph.
-implies([ent_node(iri(D), G), rv_supported(iri(D))], t(iri(D), r('type'), s('Datatype')));
+// The datatype map (dt-type1): every supported datatype, and rdfs:Literal.
+implies([ent_graph(G), rv_supported(D)], t(D, r('type'), s('Datatype')));
+implies(ent_graph(G), t(s('Literal'), r('type'), s('Datatype')));
 implies([rdf(_, _, T, G), rv_literal(T)], ent_literal(T, G));
+// A literal is an instance of its own datatype and of every supported
+// datatype whose value space holds its value (dt-type2), and a literal typed
+// with a supported datatype that does not hold its value is a conflict.
 implies([ent_literal(T, G), rv_datatype(T, D), rv_valid(T)], t(T, r('type'), D));
-implies([ent_literal(T, G), ent_node(D, G), rv_supported(D), rv_member(T, D)], t(T, r('type'), D));
-implies([ent_literal(T, G), rv_datatype(T, D), rv_supported(D), rdf(T, r('type'), D, G), not(rv_valid(T))],
-  ent_conflict('dt-not-type', T, r('type'), D, G));
-implies([ent_literal(T, G), rv_exact(T), rdf(T, r('type'), D, G), rv_integer_datatype(D), not(rv_member(T, D))],
+implies([ent_literal(T, G), rv_supported(D), rv_member(T, D)], t(T, r('type'), D));
+implies([ent_literal(T, G), rdf(T, r('type'), D, G), rv_supported(D), not(rv_member(T, D))],
   ent_conflict('dt-not-type', T, r('type'), D, G));
 implies([ent_literal(A, G), ent_literal(B, G), not_identical(A, B), rv_same(A, B)], t(A, o('sameAs'), B));
 implies([ent_literal(A, G), ent_literal(B, G), rv_different(A, B)], t(A, o('differentFrom'), B));
