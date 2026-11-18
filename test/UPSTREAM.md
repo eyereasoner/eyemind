@@ -1,16 +1,17 @@
 # Upstream test suites
 
-`npm test` uses four suites in Git-ignored `.cache/`:
+`npm test` uses five suites in Git-ignored `.cache/`:
 
 | Cache directory | Upstream |
 | --- | --- |
+| `.cache/mobibench/` | [william-vw/mobibench](https://github.com/william-vw/mobibench), the OWL 2 RL subsuite of `web/res/owl/conf/testsuite-owl2-rdfbased.zip` |
 | `.cache/notation3tests/` | [phochste/notation3tests](https://codeberg.org/phochste/notation3tests) |
 | `.cache/w3c/rdf-tests/` | [w3c/rdf-tests](https://github.com/w3c/rdf-tests) |
 | `.cache/w3c/shacl/` | [w3c/data-shapes](https://github.com/w3c/data-shapes), the SHACL 1.2 root manifest and its includes |
 | `.cache/w3c/sparql-rl/` | [w3c/data-shapes](https://github.com/w3c/data-shapes), `shacl12-test-suite/tests/sparql-rl` |
 
 A normal run reuses the cache without checking upstream. If the cache is
-missing or incomplete, the runner downloads all four suites before importing
+missing or incomplete, the runner downloads all five suites before importing
 the tests. This first run needs Git and network access. File inventories let
 the runner detect missing inputs instead of silently skipping their cases.
 
@@ -21,7 +22,8 @@ failures are saved as error fixtures; temporary network failures stop the
 sync. Downloads and manifest resource checks finish before the cached suites
 are replaced. A failed sync retains the previous set.
 
-Test inputs are copied without changes. Notation3's `documents.json` stores
+Test inputs are copied without changes; MobiBench's are extracted from its
+archive, with only Node's `zlib`. Notation3's `documents.json` stores
 the inputs to `log:content`, `log:semantics` and `log:semanticsOrError`,
 including expected retrieval failures. Resources owned by the upstream
 repository come from the same checkout as its tests. Missing document
@@ -40,7 +42,7 @@ changes and run `npm test` after syncing; every run writes the
 Local Git checkouts can supply any of the sources:
 
 ```sh
-npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes
+npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes --mobibench /path/to/mobibench
 ```
 
 The data-shapes checkout supplies both SRL and SHACL. `--w3c-shacl PATH`

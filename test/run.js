@@ -27,17 +27,19 @@ import { writeEarlReports } from '../tools/earl.js';
 import { ensureTestCache } from '../tools/sync.js';
 import { cachePaths } from '../tools/test-cache.js';
 import { runShaclManifest } from './shacl.js';
+import { mobibenchCases, runMobibenchCase } from './mobibench.js';
 import { shaclSummary } from '../tools/shacltests.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = dirname(HERE);
-const SECTIONS = ['unit', 'examples', 'conformance', 'cli', 'playground'];
+const SECTIONS = ['unit', 'examples', 'conformance', 'mobibench', 'cli', 'playground'];
 const TITLES = {
-  unit: 'Unit tests', examples: 'Examples', conformance: 'Conformance', cli: 'Command-line cases through the eyemind command',
+  unit: 'Unit tests', examples: 'Examples', conformance: 'Conformance', mobibench: 'MobiBench OWL 2 RL',
+  cli: 'Command-line cases through the eyemind command',
   playground: 'Playground in a headless Chrome',
 };
 const COUNTED = {
-  unit: 'unit tests', examples: 'example tests', conformance: 'conformance cases',
+  unit: 'unit tests', examples: 'example tests', conformance: 'conformance cases', mobibench: 'MobiBench OWL 2 RL cases',
   cli: 'command-line cases through the eyemind command', playground: 'playground tests',
 };
 const COLOR = process.env.NO_COLOR === undefined && (process.stdout.isTTY || (process.env.FORCE_COLOR ?? '0') !== '0');
@@ -154,6 +156,22 @@ async function runTests(reporter, tests) {
 
 function casesFor(reporter) {
   return loadCases().filter((item) => reporter.wanted(`${item.where} ${item.name}`));
+}
+
+// MobiBench's OWL 2 RL subsuite through --owl2rl, one test per case.
+function runMobibench(reporter) {
+  for (const c of mobibenchCases()) {
+    const label = `mobibench ${c.kind} ${c.id}`;
+    if (!reporter.wanted(label)) continue;
+    const started = performance.now();
+    let problem = null;
+    try {
+      runMobibenchCase(c);
+    } catch (error) {
+      problem = problemOf(error);
+    }
+    reporter.result(label, performance.now() - started, problem);
+  }
 }
 
 function runInProcess(reporter) {
@@ -307,6 +325,7 @@ async function main(argv) {
     if (sections.length && !sections.includes(section)) continue;
     reporter.section(section);
     if (section === 'conformance') runInProcess(reporter);
+    else if (section === 'mobibench') runMobibench(reporter);
     else if (section === 'cli') await runThroughCommandLine(reporter);
     else if (section === 'playground') await runPlayground(reporter);
     else await runTests(reporter, tests.filter(([name]) => name === section));

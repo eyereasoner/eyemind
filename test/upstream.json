@@ -23,15 +23,22 @@
   },
   "srl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "0ed3f9b4273c2debba0125a7ed5c9dc3cd4b741c",
+    "revision": "301eac24d186a8c625fb4517b1ed469f07616ae0",
     "path": "shacl12-test-suite/tests/sparql-rl",
     "cases": 342
   },
   "shacl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "0ed3f9b4273c2debba0125a7ed5c9dc3cd4b741c",
+    "revision": "301eac24d186a8c625fb4517b1ed469f07616ae0",
     "path": "shacl12-test-suite/tests",
     "manifest": "https://w3c.github.io/data-shapes/shacl12-test-suite/tests/manifest.ttl",
     "cases": 591
+  },
+  "mobibench": {
+    "source": "https://github.com/william-vw/mobibench",
+    "revision": "0598535ae76cef9278c52f30914dd7136023cacc",
+    "archive": "web/res/owl/conf/testsuite-owl2-rdfbased.zip",
+    "path": "testsuite-owl2-rdfbased/subsuites/owl2rl",
+    "cases": 273
   }
 }

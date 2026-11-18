@@ -646,7 +646,7 @@ eyemind is authored and maintained by Jos De Roo. Codex and Claude Code are
 development tools used by the author.
 
 ```sh
-npm test                                              # unit, examples, conformance, command line, playground
+npm test                                              # unit, examples, conformance, MobiBench, command line, playground
 npm test -- -k skolem                                 # only tests whose line contains "skolem"
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node tools/update-examples.js                         # regenerate example artifacts after an intended change

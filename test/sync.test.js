@@ -17,10 +17,41 @@ const text = (path) => readFileSync(path, 'utf8');
 function put(path, value) { mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, value); }
 function git(path, ...args) { return execFileSync('git', ['-C', path, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); }
 
+// A stored (uncompressed) ZIP archive of [name, text] entries.
+function zip(entries) {
+  const crc = (data) => {
+    let c = ~0;
+    for (const byte of data) {
+      c ^= byte;
+      for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1));
+    }
+    return ~c >>> 0;
+  };
+  const locals = [], centrals = [];
+  let offset = 0;
+  for (const [name, text] of entries) {
+    const file = Buffer.from(name), data = Buffer.from(text), sum = crc(data);
+    const local = Buffer.alloc(30);
+    local.writeUInt32LE(0x04034b50, 0); local.writeUInt16LE(20, 4); local.writeUInt32LE(sum, 14);
+    local.writeUInt32LE(data.length, 18); local.writeUInt32LE(data.length, 22); local.writeUInt16LE(file.length, 26);
+    const central = Buffer.alloc(46);
+    central.writeUInt32LE(0x02014b50, 0); central.writeUInt16LE(20, 4); central.writeUInt16LE(20, 6); central.writeUInt32LE(sum, 16);
+    central.writeUInt32LE(data.length, 20); central.writeUInt32LE(data.length, 24); central.writeUInt16LE(file.length, 28);
+    central.writeUInt32LE(offset, 42);
+    locals.push(local, file, data);
+    centrals.push(central, file);
+    offset += 30 + file.length + data.length;
+  }
+  const directory = Buffer.concat(centrals), end = Buffer.alloc(22);
+  end.writeUInt32LE(0x06054b50, 0); end.writeUInt16LE(entries.length, 8); end.writeUInt16LE(entries.length, 10);
+  end.writeUInt32LE(directory.length, 12); end.writeUInt32LE(offset, 16);
+  return Buffer.concat([...locals, directory, end]);
+}
+
 function fixture() {
   const temporary = mkdtempSync(join(tmpdir(), 'eyemind-sync-test-'));
   const root = join(temporary, 'project');
-  const checkouts = Object.fromEntries(['notation3tests', 'w3c-rdf', 'w3c-sparql-rl'].map((name) => [name, join(temporary, name)]));
+  const checkouts = Object.fromEntries(['notation3tests', 'w3c-rdf', 'w3c-sparql-rl', 'mobibench'].map((name) => [name, join(temporary, name)]));
   for (const path of Object.values(checkouts)) mkdirSync(path, { recursive: true });
   const n3 = checkouts.notation3tests;
   put(join(n3, 'LICENSE'), 'fixture license\n');
@@ -62,6 +93,16 @@ function fixture() {
     <#case> a sht:Validate; mf:requires sht:Core;
       mf:action [sht:dataGraph <>; sht:shapesGraph <>];
       mf:result [a sh:ValidationReport; sh:conforms true].`);
+  const mobibench = checkouts.mobibench, suite = 'testsuite-owl2-rdfbased/subsuites/owl2rl/rdfbased-fixture';
+  put(join(mobibench, 'README.md'), 'upstream MobiBench readme\n');
+  put(join(mobibench, 'LICENSE'), 'MobiBench license\n');
+  mkdirSync(join(mobibench, 'web/res/owl/conf'), { recursive: true });
+  writeFileSync(join(mobibench, 'web/res/owl/conf/testsuite-owl2-rdfbased.zip'), zip([
+    [`${suite}/rdfbased-fixture.metadata.properties`, '<entry key="testcase.type">POSITIVE_ENTAILMENT</entry><entry key="testcase.description">fixture &amp; case</entry>'],
+    [`${suite}/rdfbased-fixture.premisegraph.ttl`, '<urn:a> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <urn:b> .\n'],
+    [`${suite}/rdfbased-fixture.conclusiongraph.ttl`, '<urn:a> a <http://www.w3.org/2000/01/rdf-schema#Class> .\n'],
+    ['testsuite-owl2-rdfbased/subsuites/other/ignored.ttl', 'outside the OWL 2 RL subsuite'],
+  ]));
   const revisions = {};
   for (const [name, path] of Object.entries(checkouts)) {
     git(path, 'init', '-q');
@@ -69,7 +110,7 @@ function fixture() {
     git(path, '-c', 'user.name=Sync fixture', '-c', 'user.email=sync@example.org', 'commit', '-qm', 'Test suite fixture');
     revisions[name] = git(path, 'rev-parse', 'HEAD');
   }
-  for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl', '.cache/w3c/shacl']) put(join(root, path, 'stale'), 'old mirror');
+  for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl', '.cache/w3c/shacl', '.cache/mobibench']) put(join(root, path, 'stale'), 'old mirror');
   put(join(root, 'unrelated.txt'), 'keep me');
   return { temporary, root, checkouts, revisions };
 }
@@ -133,7 +174,7 @@ export const tests = {
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
-  async 'sync refreshes all four mirrors from local Git checkouts with exact bytes, fixtures and revisions'() {
+  async 'sync refreshes all five mirrors from local Git checkouts with exact bytes, fixtures and revisions'() {
     const f = fixture();
     try {
       const info = await syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} });
@@ -141,7 +182,9 @@ export const tests = {
       assert.equal(info.rdf.cases, RDF_MANIFESTS.length);
       assert.equal(info.srl.cases, 1);
       assert.equal(info.shacl.cases, 1);
-      for (const [name, path] of [['notation3tests', '.cache/notation3tests'], ['w3c-rdf', '.cache/w3c/rdf-tests'], ['w3c-sparql-rl', '.cache/w3c/sparql-rl'], ['w3c-sparql-rl', '.cache/w3c/shacl']]) {
+      assert.equal(info.mobibench.cases, 1);
+      for (const [name, path] of [['notation3tests', '.cache/notation3tests'], ['w3c-rdf', '.cache/w3c/rdf-tests'], ['w3c-sparql-rl', '.cache/w3c/sparql-rl'],
+        ['w3c-sparql-rl', '.cache/w3c/shacl'], ['mobibench', '.cache/mobibench']]) {
         assert.ok(!existsSync(join(f.root, path, 'stale')));
         assert.equal(JSON.parse(text(join(f.root, path, 'upstream.json'))).revision, f.revisions[name]);
       }
@@ -158,18 +201,22 @@ export const tests = {
       assert.equal(text(join(f.root, '.cache/w3c/sparql-rl/LICENSE.md')), 'SRL license\n');
       assert.equal(text(join(f.root, '.cache/w3c/shacl/UPSTREAM.md')), 'upstream SHACL readme\n');
       assert.ok(!existsSync(join(f.root, '.cache/w3c/shacl/sparql-rl')));
+      const extracted = '.cache/mobibench/testsuite-owl2-rdfbased/subsuites/owl2rl/rdfbased-fixture/rdfbased-fixture.premisegraph.ttl';
+      assert.equal(text(join(f.root, extracted)), '<urn:a> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <urn:b> .\n');
+      assert.ok(!existsSync(join(f.root, '.cache/mobibench/testsuite-owl2-rdfbased/subsuites/other')));
+      assert.equal(text(join(f.root, '.cache/mobibench/LICENSE')), 'MobiBench license\n');
       assert.equal(text(join(f.root, 'unrelated.txt')), 'keep me');
       assert.ok(readdirSync(join(f.root, '.cache')).every((name) => !name.startsWith('.sync-')));
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
-  async 'a failure in the last suite leaves all four previous mirrors intact'() {
+  async 'a failure in one suite leaves all five previous mirrors intact'() {
     const f = fixture();
     try {
       const manifest = join(f.checkouts['w3c-sparql-rl'], 'shacl12-test-suite/tests/core/manifest.ttl');
       put(manifest, text(manifest).replace('sht:dataGraph <>', 'sht:dataGraph <missing.ttl>'));
       await assert.rejects(syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} }), /missing\.ttl/);
-      for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl', '.cache/w3c/shacl']) {
+      for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl', '.cache/w3c/shacl', '.cache/mobibench']) {
         assert.equal(text(join(f.root, path, 'stale')), 'old mirror');
         assert.ok(!existsSync(join(f.root, path, 'upstream.json')));
       }

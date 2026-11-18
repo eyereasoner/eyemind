@@ -1,25 +1,29 @@
 #!/usr/bin/env node
 // Refresh cached test suites, staging downloads before replacement.
 import { execFileSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { manifestCases, RDF_MANIFESTS, sparqlRlCases, SRL_BASE, W3C_BASE } from '../test/w3c.js';
 import { shaclCases, SHACL_BASE, SHACL_PATH } from '../test/shacl.js';
+import { mobibenchCases, MOBIBENCH_ARCHIVE, MOBIBENCH_SUBSUITE } from '../test/mobibench.js';
 import { syncNotation3Tests } from './sync-notation3tests.js';
 import { cachePaths, readCachedSuites, recordUpstream, writeInventory } from './test-cache.js';
+import { readZip } from './zip.js';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const RDF_SOURCE = 'https://github.com/w3c/rdf-tests';
 const SRL_SOURCE = 'https://github.com/w3c/data-shapes';
 const SRL_PATH = 'shacl12-test-suite/tests/sparql-rl';
+const MOBIBENCH_SOURCE = 'https://github.com/william-vw/mobibench';
 const help = `Usage: npm run sync [-- OPTIONS]
-Refresh notation3tests, W3C RDF, SPARQL 1.2 RL and SHACL 1.2 from upstream.
+Refresh notation3tests, W3C RDF, SPARQL 1.2 RL, SHACL 1.2 and MobiBench from upstream.
 Requires Git and network access. Optional local Git checkouts:
   --notation3tests PATH    notation3tests repository
   --w3c-rdf PATH           w3c/rdf-tests repository
   --w3c-sparql-rl PATH     w3c/data-shapes repository
   --w3c-shacl PATH         w3c/data-shapes repository (defaults to the SRL checkout)
+  --mobibench PATH         william-vw/mobibench repository
   -h, --help              Print this help
 `;
 
@@ -138,15 +142,37 @@ export async function syncTestSuites({ root = ROOT, checkouts = {}, log = consol
     metadata(shacl, shaclInfo);
     log(`w3c-shacl: staged ${shaclTests.length} cases at ${shaclInfo.revision}`);
 
+    // MobiBench publishes its suite as an archive; the OWL 2 RL subsuite is
+    // extracted from it, each path checked to stay inside the mirror.
+    log('Syncing MobiBench OWL 2 RL...');
+    const mobibench = join(temporary, 'mobibench');
+    const mobibenchCheckout = checkout(MOBIBENCH_SOURCE, checkouts.mobibench, join(temporary, 'mobibench-upstream'), [dirname(MOBIBENCH_ARCHIVE)]);
+    for (const { name, data } of readZip(readFileSync(join(mobibenchCheckout, MOBIBENCH_ARCHIVE)))) {
+      if (!name.startsWith(`${MOBIBENCH_SUBSUITE}/`)) continue;
+      const path = resolve(mobibench, name);
+      if (!path.startsWith(`${resolve(mobibench)}${sep}`)) throw new Error(`MobiBench archive entry escapes the mirror: ${name}`);
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, data);
+    }
+    licenses(mobibenchCheckout, mobibench);
+    copy(join(mobibenchCheckout, 'README.md'), join(mobibench, 'UPSTREAM.md'));
+    const mobibenchTests = mobibenchCases({ mirror: mobibench });
+    if (!mobibenchTests.length) throw new Error(`no cases found in ${MOBIBENCH_ARCHIVE}`);
+    const mobibenchInfo = { source: MOBIBENCH_SOURCE, revision: revision(mobibenchCheckout), archive: MOBIBENCH_ARCHIVE,
+      path: MOBIBENCH_SUBSUITE, cases: mobibenchTests.length };
+    metadata(mobibench, mobibenchInfo);
+    log(`mobibench: staged ${mobibenchTests.length} cases at ${mobibenchInfo.revision}`);
+
     const targets = cachePaths(root);
-    for (const stage of [n3, rdf, srl, shacl]) writeInventory(stage);
-    const info = { notation3tests: notation3, rdf: rdfInfo, srl: srlInfo, shacl: shaclInfo };
+    for (const stage of [n3, rdf, srl, shacl, mobibench]) writeInventory(stage);
+    const info = { notation3tests: notation3, rdf: rdfInfo, srl: srlInfo, shacl: shaclInfo, mobibench: mobibenchInfo };
     const provenance = join(temporary, 'upstream.json');
     metadata(temporary, info);
     publish([{ stage: n3, target: targets.notation3tests },
       { stage: rdf, target: targets.rdf }, { stage: srl, target: targets.srl }, { stage: shacl, target: targets.shacl },
+      { stage: mobibench, target: targets.mobibench },
       { stage: provenance, target: join(root, 'test/upstream.json') }], temporary);
-    log(`Synced ${notation3.cases} Notation3, ${rdfCases.length} RDF, ${srlCases.length} SPARQL RL and ${shaclTests.length} SHACL cases.`);
+    log(`Synced ${notation3.cases} Notation3, ${rdfCases.length} RDF, ${srlCases.length} SPARQL RL, ${shaclTests.length} SHACL and ${mobibenchTests.length} MobiBench cases.`);
     return info;
   } finally {
     rmSync(temporary, { recursive: true, force: true });
@@ -168,7 +194,7 @@ export async function main(argv) {
   for (let i = 0; i < argv.length; i++) {
     const option = argv[i];
     if (['--help', '-h'].includes(option)) { console.log(help); return 0; }
-    if (!['--notation3tests', '--w3c-rdf', '--w3c-sparql-rl', '--w3c-shacl'].includes(option)) throw new Error(`unknown sync option ${option}; use --help`);
+    if (!['--notation3tests', '--w3c-rdf', '--w3c-sparql-rl', '--w3c-shacl', '--mobibench'].includes(option)) throw new Error(`unknown sync option ${option}; use --help`);
     if (!argv[i + 1] || argv[i + 1].startsWith('--')) throw new Error(`${option} needs a checkout path`);
     checkouts[option.slice(2)] = argv[++i];
   }

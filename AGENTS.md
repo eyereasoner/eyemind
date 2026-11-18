@@ -98,6 +98,8 @@ goals, and keep error messages specific and user-facing text direct.
   the playground tests of `playground.js` in a headless Chrome that
   `chrome.js` starts; `browser.mjs` runs those alone and can take screenshots.
   `w3c.js` runs the W3C RDF and SPARQL 1.2 RL suites cached in `.cache/w3c/`;
+  `mobibench.js` runs MobiBench's OWL 2 RL subsuite, cached in `.cache/mobibench/`,
+  as the `mobibench` section of `npm test`;
   `shacl.js` reads the W3C SHACL 1.2 manifest and scores its Core and
   node-expression groups; SHACL-SPARQL and inference rules are out of scope.
   `UPSTREAM.md` describes the cache and `upstream.json` records its provenance.
@@ -110,10 +112,10 @@ goals, and keep error messages specific and user-facing text direct.
   `notation3tests.js` scores the Notation3 test suite, `shacltests.js` scores
   SHACL 1.2 with complete-report comparison, and `report.js`
   writes `REPORT.md`, the table a whole `npm test` run ends with.
-  `sync.js`, run with `npm run sync`, stages and refreshes all four upstream
+  `sync.js`, run with `npm run sync`, stages and refreshes all five upstream
   test caches and records their revisions; `sync-notation3tests.js` also
-  refreshes Notation3's remote document fixtures. `test-cache.js` checks the
-  cache inventory. `npm test` reuses `.cache/` or creates it when incomplete;
+  refreshes Notation3's remote document fixtures. `zip.js` reads the
+  MobiBench archive; `test-cache.js` checks the cache inventory. `npm test` reuses `.cache/` or creates it when incomplete;
   creating or refreshing it needs Git and network access. Never vendor the
   upstream suites into Git.
 - `README.md` (the guide: why eyemind, running, writing programs, proofs,
@@ -135,7 +137,7 @@ node bin/eyemind.js examples/socrates.js
 node bin/eyemind.js --proof examples/socrates.js > /tmp/proof.js
 node bin/eyemind.js --check-proof /tmp/proof.js examples/socrates.js
 node bin/eyemind.js --unused examples/graphs.js
-npm test                                              # unit, examples, conformance, command line, playground
+npm test                                              # unit, examples, conformance, MobiBench, command line, playground
 npm test -- unit conformance                          # these sections, plus W3C EARL
 npm test -- -k skolem                                 # only tests whose line contains "skolem"
 npm test -- playground                                # the playground in a headless Chrome
