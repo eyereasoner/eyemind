@@ -18,7 +18,15 @@
       input[type="text"], input[type="url"], input[type="number"], select { min-width: 0; border: 1px solid var(--border); padding: 0.45rem 0.6rem; background: var(--panel); color: var(--text); }
       :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
       [hidden] { display: none !important; }
-      .page { max-width: 1500px; margin: 0 auto; padding: calc(1.5rem + env(safe-area-inset-top)) calc(1rem + env(safe-area-inset-right)) calc(2rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left)); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "nav nav" "heading options" "actions options" "input output"; align-items: start; gap: 1rem; }
+      .page { max-width: 1500px; margin: 0 auto; padding: calc(1.5rem + env(safe-area-inset-top)) calc(1rem + env(safe-area-inset-right)) calc(2rem + env(safe-area-inset-bottom)) calc(1rem + env(safe-area-inset-left)); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "nav nav" "intro options" "input output"; align-items: start; gap: 1rem; }
+      /* The title and the run and share controls share one card, the first
+         quadrant, as tall as the options card beside it.
+         On narrow screens the card dissolves and the toolbar stays sticky. */
+      .intro-card { display: contents; }
+      @media (min-width: 981px) {
+        .intro-card { grid-area: intro; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; }
+        .intro-card .run-toolbar { padding: 1rem 0 0; border: 0; border-top: 1px solid #e5e7eb; border-radius: 0; box-shadow: none; position: static; }
+      }
       header { grid-area: heading; display: flex; align-items: center; gap: 1rem; text-align: left; }
       header .home, header .logo { display: block; flex: none; border-radius: 50%; }
       header .header-copy { min-width: 0; }
@@ -140,11 +148,12 @@
         <a href="conformance">Conformance</a>
         <a href="https://github.com/eyereasoner/eyemind">Repository ↗</a>
       </nav>
+      <section class="card intro-card" aria-label="About and run controls">
       <header>
         <a class="home" href="../" aria-label="eyemind home"><img class="logo" src="../assets/eye.png" alt="" width="64" height="64"></a>
         <div class="header-copy">
           <h1>The eyemind Playground</h1>
-          <p>Write Logic Script (LS) in JavaScript syntax or try an example.</p>
+          <p>Write <a href="../LS-SPEC" target="_blank" rel="noopener">Logic Script (LS)</a> in JavaScript syntax, bring <a href="https://www.w3.org/TR/rdf12-concepts/" target="_blank" rel="noopener">RDF 1.2</a>, <a href="https://w3c.github.io/N3/spec/" target="_blank" rel="noopener">Notation3</a>, <a href="https://www.w3.org/TR/sparql12-rl/" target="_blank" rel="noopener">SPARQL 1.2 RL</a> or <a href="../LE-SPEC" target="_blank" rel="noopener">Logical English</a>, or try <a href="../examples/" target="_blank" rel="noopener">an example</a>. eyemind draws conclusions from facts, rules and queries with <a href="../#how-eyemind-reasons" target="_blank" rel="noopener">forward and backward reasoning</a>, adds <a href="https://www.w3.org/TR/owl2-profiles/#Reasoning_in_OWL_2_RL_and_RDF_Graphs" target="_blank" rel="noopener">OWL 2 RL</a>, <a href="https://www.w3.org/TR/skos-reference/" target="_blank" rel="noopener">SKOS</a>, <a href="https://www.w3.org/TR/shacl12-core/" target="_blank" rel="noopener">SHACL</a>, <a href="https://qudt.org/" target="_blank" rel="noopener">QUDT</a> and <a href="https://www.w3.org/TR/odrl-model/" target="_blank" rel="noopener">ODRL</a> on request, and backs every conclusion with <a href="../#proofs-and-what-checking-one-means" target="_blank" rel="noopener">a proof that a separate checker verifies</a> against your program, all in your browser.</p>
           <p class="hint">Version <strong id="version">…</strong></p>
         </div>
       </header>
@@ -159,6 +168,7 @@
         <p id="status" class="status" role="status">Loading eyemind…</p>
         <p id="share-status" class="status" role="status" hidden></p>
         <label id="share-result" class="field share-result" hidden><span>Share link</span><input id="share-url" type="text" readonly spellcheck="false" /></label>
+      </section>
       </section>
 
       <div class="grid">
