@@ -648,6 +648,7 @@ EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node tools/update-examples.js                         # regenerate example artifacts after an intended change
 npm run sync                                          # refresh the cached upstream test suites
 node conformance/run.js --command "my-eyemind"        # run the conformance suite against another implementation
+node bench/run.js                                     # the RDF reasoning benchmark; see bench/README.md
 ./release patch "Describe the changes"                # test, tag and publish a release
 ```
 

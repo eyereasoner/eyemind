@@ -127,6 +127,26 @@ implies(has_parent(X, P), known(X))
     assert.deepEqual(run(source).answers, result.answers);
   },
 
+  'a run without a proof keeps one firing per new fact, in the order a proof run publishes them'() {
+    // Transitive closures of dense graphs derive most facts many times over;
+    // the run without a proof drops known and duplicate firings early.
+    const next = random(11);
+    for (let trial = 0; trial < 12; trial++) {
+      const nodes = 4 + next(8);
+      const edges = new Set();
+      for (let i = 0; i < 3 * nodes; i++) edges.add(`${next(nodes)}, ${next(nodes)}`);
+      const source = program(`${[...edges].sort().map((edge) => `fact(edge(${edge}))\n`).join('')}
+implies(edge(X, Y), path(X, Y))
+implies([path(X, Y), path(Y, Z)], [path(X, Z), reach(X)])
+implies([path(X, Y), edge(Y, Z), lt(X, Z)], ahead(X, Z))
+`);
+      const plain = run(source), proved = run(source, { proof: true });
+      assert.ok(proved.proofReport.valid);
+      assert.deepEqual(plain.answers, proved.answers);
+      assert.equal(plain.stats.derived, proved.stats.derived);
+    }
+  },
+
   'semi-naive forward reasoning concludes and proves as a full search does'() {
     const next = random(7);
     const saved = Solver.prototype.directKeys;

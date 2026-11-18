@@ -102,6 +102,9 @@ goals, and keep error messages specific and user-facing text direct.
   node-expression groups; SHACL-SPARQL and inference rules are out of scope.
   `UPSTREAM.md` describes the cache and `upstream.json` records its provenance.
   N3 and SRL examples and their saved artifacts live in `examples/`.
+- `bench/`: deterministic OWL 2 RL, SKOS, QUDT and SHACL workloads
+  (`workloads.js`) and a runner (`run.js`) that times any reasoner through a
+  command adapter and compares its conclusions; `bench/README.md` describes it.
 - `tools/`: `update-examples.js` regenerates the example artifacts,
   `corpus.js` evaluates the corpus, `version.js` syncs the version,
   `notation3tests.js` scores the Notation3 test suite, `shacltests.js` scores

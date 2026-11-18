@@ -761,6 +761,8 @@ export class Solver {
     const body = fullBody.slice(clause.prefixLength);
     const env = new Env();
     const prefix = this.context(clause, names, env);
+    // The firings of one call share their duplicate check (see scan).
+    this.pendingFirings = new Map();
     if (previous === null) return this.scan(clause, head, body, names, env, prefix).map(([found]) => found);
     const found = [];
     for (const delta of positions) {
@@ -897,7 +899,33 @@ export class Solver {
       const claim = conclusions.some((item) => item === 'true') ? copyResolved(conjunction(body), answerEnv) : null;
       // A restricted firing keeps its guard, checked again once reasoning ends.
       const guard = clause.guard === null || !unresolved.size ? null : copyResolved(body[body.length - 1], answerEnv);
-      found.push([[conclusions, children, bindings, claim, guard], this.chosen !== null ? [...this.chosen] : null]);
+      const chosen = this.chosen !== null ? [...this.chosen] : null;
+      // Without a proof, a firing that only concludes ground facts is the same
+      // whichever of its duplicates publishes it. Keeping only the first in
+      // publication order, and none whose facts are already known, bounds
+      // memory by the new facts rather than the firings, as in a closure
+      // where many firings derive each fact.
+      const plain = !this.recording && !clause.templates.length && guard === null && claim === null && !this.program.inspectionEnabled &&
+        conclusions.every((item) => item !== 'false' && isGround(item));
+      if (plain) {
+        const keys = conclusions.map((item) => this.factKey(item));
+        if (keys.every((k) => this.factKeys.has(k))) { answerEnv.undo(mark); continue; }
+        const id = keys.join('\u0000'), earlier = this.pendingFirings.get(id);
+        if (earlier) {
+          if (chosen !== null && earlier[1] !== null && compareChosen(chosen, earlier[1]) < 0) {
+            earlier[0] = [conclusions, children, bindings, claim, guard];
+            earlier[1] = chosen;
+          }
+          answerEnv.undo(mark);
+          continue;
+        }
+        const entry = [[conclusions, children, bindings, claim, guard], chosen];
+        this.pendingFirings.set(id, entry);
+        found.push(entry);
+        answerEnv.undo(mark);
+        continue;
+      }
+      found.push([[conclusions, children, bindings, claim, guard], chosen]);
       answerEnv.undo(mark);
     }
     return found;
