@@ -332,12 +332,28 @@ function stronglyConnectedComponents(size, edges) {
 
 function sequentialWellFormednessDiagnostics(clauses, ruleNameValue, prefixes = {}, initialBound = new Set()) {
   const diagnostics = [];
+  const error = (code, message) => diagnostics.push({
+    code, severity: 'error', rule: ruleNameValue,
+    message: `${displayRuleName(ruleNameValue, prefixes)} ${message}`,
+  });
 
-  function visit(items, initialBound, scopeLabel) {
+  function visit(items, initialBound, initialInUse, scopeLabel) {
     const bound = new Set(initialBound);
+    const inUse = new Set(initialInUse);
+    // Local names from a nested sequence remain reserved after it finishes.
+    const reserveLocals = (inner) => {
+      for (const names of [inner.bound, inner.inUse]) {
+        for (const name of names) if (!bound.has(name)) inUse.add(name);
+      }
+    };
     for (const clause of items) {
       if (clause.type === 'triple' || clause.type === 'path') {
-        collectTripleVars(clause.triple, bound);
+        const names = new Set();
+        collectTripleVars(clause.triple, names);
+        for (const name of names) {
+          if (inUse.has(name)) error('variable-already-in-use', `pattern reuses ?${name}, which is already in use${scopeLabel}`);
+          bound.add(name);
+        }
       } else if (clause.type === 'filter') {
         for (const variable of expressionVariables(clause.expr)) {
           if (!bound.has(variable)) {
@@ -357,6 +373,8 @@ function sequentialWellFormednessDiagnostics(clauses, ruleNameValue, prefixes = 
             rule: ruleNameValue,
             message: `${displayRuleName(ruleNameValue, prefixes)} SET assigns ?${clause.variable}, but that variable is already bound${scopeLabel}`,
           });
+        } else if (inUse.has(clause.variable)) {
+          error('variable-already-in-use', `SET assigns ?${clause.variable}, but that variable is already in use${scopeLabel}`);
         }
         for (const variable of expressionVariables(clause.expr)) {
           if (!bound.has(variable)) {
@@ -370,34 +388,35 @@ function sequentialWellFormednessDiagnostics(clauses, ruleNameValue, prefixes = 
         }
         bound.add(clause.variable);
       } else if (clause.type === 'not') {
-        visit(clause.body, bound, ' inside NOT');
+        reserveLocals(visit(clause.body, bound, inUse, ' inside NOT'));
       } else if (clause.type === 'group') {
         // Only keys correlate the group pattern with the incoming mapping.
+        const keys = new Set(clause.keys);
         const initial = new Set(clause.keys.filter((key) => bound.has(key)));
-        const inner = visit(clause.pattern, initial, ' inside GROUP');
-        const error = (code, message) => diagnostics.push({
-          code, severity: 'error', rule: ruleNameValue,
-          message: `${displayRuleName(ruleNameValue, prefixes)} ${message}`,
-        });
+        const reserved = new Set(inUse);
+        for (const name of bound) if (!keys.has(name)) reserved.add(name);
+        const inner = visit(clause.pattern, initial, reserved, ' inside GROUP');
         for (const key of clause.keys) {
-          if (!inner.has(key)) error('unbound-group-key', `GROUP key ?${key} is not bound in the group pattern`);
+          if (!inner.bound.has(key)) error('unbound-group-key', `GROUP key ?${key} is not bound in the group pattern`);
         }
         const assigned = new Set();
         for (const aggregation of clause.aggregations) {
           const { variable, function: fn } = aggregation;
-          if (inner.has(variable) || bound.has(variable)) error('aggregation-variable-already-bound', `GROUP assigns ?${variable}, but that variable is already bound`);
+          if (inner.bound.has(variable) || bound.has(variable)) error('aggregation-variable-already-bound', `GROUP assigns ?${variable}, but that variable is already bound`);
+          else if (inner.inUse.has(variable)) error('variable-already-in-use', `GROUP assigns ?${variable}, but that variable is already in use`);
           if (assigned.has(variable)) error('duplicate-aggregation-variable', `GROUP assigns ?${variable} more than once`);
-          if (fn.argument !== '*' && !inner.has(fn.argument)) error('unbound-aggregation-argument', `GROUP aggregate uses unbound variable ?${fn.argument}`);
+          if (fn.argument !== '*' && !inner.bound.has(fn.argument)) error('unbound-aggregation-argument', `GROUP aggregate uses unbound variable ?${fn.argument}`);
           assigned.add(variable);
         }
         for (const key of clause.keys) bound.add(key);
         for (const variable of assigned) bound.add(variable);
+        reserveLocals(inner);
       }
     }
-    return bound;
+    return { bound, inUse };
   }
 
-  visit(clauses, initialBound, '');
+  visit(clauses, initialBound, new Set(), '');
   return diagnostics;
 }
 

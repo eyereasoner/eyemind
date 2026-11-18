@@ -376,8 +376,21 @@ test('GROUP: without BY one group even when empty; with BY none', () => {
   assert.deepEqual(derived('RULE { :r :m ?m } WHERE { GROUP { ?x :none ?y } [ ?m := MIN(?y) ] }'), []);
 });
 test('GROUP: only keys correlate the group with the solution', () => {
-  const out = derived('DATA { :a :c 1 . :b :c 1 . :a :e :v1 , :v2 } RULE { ?c :all ?n } WHERE { ?c :c 1 GROUP { ?c :e ?v } [ ?n := COUNT(?v) ] }');
+  const out = derived('DATA { :a :c 1 . :b :c 1 . :a :e :v1 , :v2 } RULE { ?c :all ?n } WHERE { ?c :c 1 GROUP { ?local :e ?v } [ ?n := COUNT(?v) ] }');
   assert.ok(out.includes(':a :all 2 .') && out.includes(':b :all 2 .'));
+});
+test('NOT and GROUP keep local variable names in use after their scopes end', () => {
+  for (const body of [
+    '?s :p 1 . NOT { ?s :q ?y } ?y :t 2',
+    '?s :p 1 . NOT { ?s :q ?y } SET(?y := 2)',
+    '?s :p 1 . NOT { ?s :q ?y } NOT { ?s :t ?y }',
+    '?s :p ?y GROUP BY ?s { ?s :q ?y } [ ?n := COUNT(*) ]',
+    'GROUP { :a :p ?y } [ ?n := COUNT(*) ] SET(?y := 1)',
+    'NOT { :a :p ?y } GROUP { :a :q ?local } [ ?y := COUNT(*) ]',
+  ]) assert.throws(() => readRuleSet(`${P}RULE { :a :r 1 } WHERE { ${body} }`), /\?y.*already in use/);
+  assert.doesNotThrow(() => readRuleSet(`${P}RULE { ?s :r ?n } WHERE {
+    ?s :p ?x NOT { ?s :q ?y } GROUP BY ?s { ?s :t ?local } [ ?n := COUNT(*) ]
+  }`));
 });
 
 // Proofs.

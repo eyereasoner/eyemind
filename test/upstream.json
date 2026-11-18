@@ -6,7 +6,7 @@
   },
   "rdf": {
     "source": "https://github.com/w3c/rdf-tests",
-    "revision": "7b5afb91857a9c282c03d2e45d3f76485797c901",
+    "revision": "56076c0efec4c353efcae2971be8f6005294ac64",
     "manifests": [
       "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-triples/manifest.ttl",
       "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-n-triples/syntax/manifest.ttl",
@@ -23,13 +23,13 @@
   },
   "srl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "301eac24d186a8c625fb4517b1ed469f07616ae0",
+    "revision": "193188a7efb3e8d093aac8ecb6e437be0bbdba61",
     "path": "shacl12-test-suite/tests/sparql-rl",
-    "cases": 342
+    "cases": 368
   },
   "shacl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "301eac24d186a8c625fb4517b1ed469f07616ae0",
+    "revision": "193188a7efb3e8d093aac8ecb6e437be0bbdba61",
     "path": "shacl12-test-suite/tests",
     "manifest": "https://w3c.github.io/data-shapes/shacl12-test-suite/tests/manifest.ttl",
     "cases": 591

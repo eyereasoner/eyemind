@@ -301,9 +301,11 @@ A `.srl` file is a [SPARQL 1.2 RL](https://www.w3.org/TR/sparql12-rl/) rule
 set over the RDF data given with it; the result is the inference graph, as
 Turtle (`--all` adds the base graph). Rules become `implies`, `NOT` becomes
 `not`, `GROUP` becomes `findall_sorted`, and a SPARQL error is a goal that
-fails. Decimals are exact (`0.1 + 0.2` is `0.3`) and floats are binary64.
+fails. Local variable names in `NOT` and `GROUP` cannot be bound again
+elsewhere in the same rule. Decimals are exact (`0.1 + 0.2` is `0.3`) and
+floats are binary64.
 `NOW()` and `UUID()` use a clock and seed captured at compilation, which a
-saved proof retains. All 342 W3C SPARQL 1.2 RL tests pass.
+saved proof retains. All 368 W3C SPARQL 1.2 RL tests pass.
 
 ```sh
 eyemind -c rules.srl facts.ttl                           # the inference graph, with a checked proof
