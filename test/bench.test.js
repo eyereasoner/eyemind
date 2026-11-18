@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { EYEMIND, agreement, conclusions, measure, parseArgs } from '../bench/run.js';
 import { workloads, writeWorkloads } from '../bench/workloads.js';
-import { assert, throwsMatching } from './helpers.js';
+import { ROOT, assert, throwsMatching } from './helpers.js';
 
 const P = '@prefix : <https://example.org/bench#> .\n@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix owl: <http://www.w3.org/2002/07/owl#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n';
 const nt = (lines) => lines.map((l) => l + ' .').join('\n') + '\n';
@@ -25,6 +25,7 @@ export const tests = {
     throwsMatching(() => parseArgs(['--reference', 'other']), /names no adapter/);
     throwsMatching(() => parseArgs(['--iterations', '0']), /positive integer/);
     throwsMatching(() => parseArgs(['--timeout']), /needs a value/);
+    assert.equal(JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).scripts.bench, 'node bench/run.js');
   },
 
   'benchmark comparisons ignore input, blank nodes, vocabulary axioms and reflexive triples'() {

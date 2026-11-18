@@ -1,1 +1,14 @@
 /.cache/
+# Created by npm install and npm pack; eyemind has no dependencies.
+/node_modules/
+/package-lock.json
+*.tgz
+# Personal Claude Code settings; .claude/settings.json is shared.
+/.claude/settings.local.json
+# A local Jekyll preview of the Pages site.
+/_site/
+/.jekyll-cache/
+# Node profiles written to the working directory.
+*.cpuprofile
+*.heapprofile
+isolate-*.log

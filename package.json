@@ -22,7 +22,8 @@
   ],
   "scripts": {
     "test": "node test/run.js",
-    "sync": "node tools/sync.js"
+    "sync": "node tools/sync.js",
+    "bench": "node bench/run.js"
   },
   "engines": {
     "node": ">=18"

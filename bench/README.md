@@ -26,9 +26,9 @@ deterministic, so every implementation reasons over the same triples.
 ## Running
 
 ```sh
-node bench/run.js                                     # eyemind on every workload
-node bench/run.js --case skos-tree-200 --iterations 5
-node bench/run.js --adapter eyemind="node bin/eyemind.js {flags} --to n-quads {ontology} {data}" \
+npm run bench                                         # eyemind on every workload
+npm run bench -- --case skos-tree-200 --iterations 5
+npm run bench -- --adapter eyemind="node bin/eyemind.js {flags} --to n-quads {ontology} {data}" \
   --adapter other="other-reasoner --profiles {profiles} {ontology} {data} -o {output}" \
   --reference eyemind --json /tmp/bench.json
 ```
@@ -68,4 +68,6 @@ vocabulary. For SHACL, it compares the violations: each focus node with the
 constraint component it violates.
 
 Run the benchmark under a memory cap on a small machine, as the full test
-suite runs: `systemd-run --user --scope -q -p MemoryMax=3G -p MemorySwapMax=0 -- node bench/run.js`.
+suite runs: `systemd-run --user --scope -q -p MemoryMax=3G -p MemorySwapMax=0 -- npm run bench`.
+For eyemind alone, every workload takes about six minutes, more than two of
+them for `owl-subclass-500x10`.

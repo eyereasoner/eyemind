@@ -146,6 +146,7 @@ EYEMIND_CLI_ALL=1 npm test -- cli                     # every case through the c
 node conformance/run.js 11-checking.js -v
 node tools/update-examples.js [NAME ...]
 npm run sync
+npm run bench
 git diff --check
 ```
 
