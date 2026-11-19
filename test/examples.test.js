@@ -3,7 +3,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, join, relative } from 'node:path';
 import { checkProof, checkReport, publicReport, readTerms, run, write } from '../src/index.js';
-import { KINDS, artifactPath, certify, loadExampleInputs, outputText, readManifest, sourceFiles } from '../tools/corpus.js';
+import { KINDS, artifactKinds, artifactPath, certify, loadExampleInputs, outputText, readManifest, sourceFiles, streamOutput } from '../tools/corpus.js';
 import { ROOT, assert, cli } from './helpers.js';
 import { RDF_PROFILES } from '../src/formats.js';
 
@@ -81,7 +81,8 @@ export const tests = {
     sources.push(...readdirSync(join(examples, 'data')).map((name) => `data/${name}`));
     assert.deepEqual(sources.sort(), MANIFEST.flatMap(sourceFiles).sort());
     for (const kind of KINDS) {
-      assert.deepEqual(readdirSync(join(examples, kind)).sort(), MANIFEST.map((entry) => basename(artifactPath(kind, entry))).sort());
+      assert.deepEqual(readdirSync(join(examples, kind)).sort(),
+        MANIFEST.filter((entry) => artifactKinds(entry).includes(kind)).map((entry) => basename(artifactPath(kind, entry))).sort());
     }
     const decks = MANIFEST.map((entry) => `${entry.name}.md`).sort();
     assert.deepEqual(readdirSync(join(examples, 'deck')).filter((name) => name.endsWith('.md')).sort(), decks);
@@ -115,6 +116,13 @@ export const tests = {
 // the example and what of it changed.
 for (const entry of MANIFEST) {
   const source = `examples/${sourceFiles(entry)[0]}`;
+  if (entry.stream_messages) {
+    // Each message runs independently, with no proof to save.
+    tests[`${source} output: ${entry.description}`] = () => {
+      assert.equal(streamOutput(entry), read(artifactPath('output', entry)), CHANGED('output'));
+    };
+    continue;
+  }
   tests[`${source} output: ${entry.description}`] = () => checkOutput(entry);
   tests[`${source} proof`] = () => checkProofOf(entry);
   tests[`${source} check`] = () => checkCheck(entry);

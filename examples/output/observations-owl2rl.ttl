@@ -1,0 +1,460 @@
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs1 a sosa:Observation .
+ex:sensor1 a sosa:Sensor .
+ex:platformA a sosa:FeatureOfInterest .
+ex:obs1 sosa:madeBySensor ex:sensor1 .
+ex:obs1 sosa:hasFeatureOfInterest ex:platformA .
+ex:obs1 a rdfs:Resource .
+ex:sensor1 a rdfs:Resource .
+ex:platformA a rdfs:Resource .
+ex:obs1 sosa:resultTime "2026-06-16T10:00:01Z"^^xsd:dateTime .
+ex:obs1 sosa:hasSimpleResult 18.1 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs1 <http://www.w3.org/2002/07/owl#sameAs> ex:obs1 .
+ex:sensor1 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor1 .
+ex:platformA <http://www.w3.org/2002/07/owl#sameAs> ex:platformA .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs2 a sosa:Observation .
+ex:sensor2 a sosa:Sensor .
+ex:platformA a sosa:FeatureOfInterest .
+ex:obs2 sosa:madeBySensor ex:sensor2 .
+ex:obs2 sosa:hasFeatureOfInterest ex:platformA .
+ex:obs2 a rdfs:Resource .
+ex:sensor2 a rdfs:Resource .
+ex:platformA a rdfs:Resource .
+ex:obs2 sosa:resultTime "2026-06-16T10:00:02Z"^^xsd:dateTime .
+ex:obs2 sosa:hasSimpleResult 18.3 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs2 <http://www.w3.org/2002/07/owl#sameAs> ex:obs2 .
+ex:sensor2 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor2 .
+ex:platformA <http://www.w3.org/2002/07/owl#sameAs> ex:platformA .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs3 a sosa:Observation .
+ex:sensor3 a sosa:Sensor .
+ex:platformB a sosa:FeatureOfInterest .
+ex:obs3 sosa:madeBySensor ex:sensor3 .
+ex:obs3 sosa:hasFeatureOfInterest ex:platformB .
+ex:obs3 a rdfs:Resource .
+ex:sensor3 a rdfs:Resource .
+ex:platformB a rdfs:Resource .
+ex:obs3 sosa:resultTime "2026-06-16T10:00:03Z"^^xsd:dateTime .
+ex:obs3 sosa:hasSimpleResult 18.6 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs3 <http://www.w3.org/2002/07/owl#sameAs> ex:obs3 .
+ex:sensor3 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor3 .
+ex:platformB <http://www.w3.org/2002/07/owl#sameAs> ex:platformB .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs4 a sosa:Observation .
+ex:sensor4 a sosa:Sensor .
+ex:platformB a sosa:FeatureOfInterest .
+ex:obs4 sosa:madeBySensor ex:sensor4 .
+ex:obs4 sosa:hasFeatureOfInterest ex:platformB .
+ex:obs4 a rdfs:Resource .
+ex:sensor4 a rdfs:Resource .
+ex:platformB a rdfs:Resource .
+ex:obs4 sosa:resultTime "2026-06-16T10:00:04Z"^^xsd:dateTime .
+ex:obs4 sosa:hasSimpleResult 18.8 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs4 <http://www.w3.org/2002/07/owl#sameAs> ex:obs4 .
+ex:sensor4 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor4 .
+ex:platformB <http://www.w3.org/2002/07/owl#sameAs> ex:platformB .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs5 a sosa:Observation .
+ex:sensor5 a sosa:Sensor .
+ex:platformC a sosa:FeatureOfInterest .
+ex:obs5 sosa:madeBySensor ex:sensor5 .
+ex:obs5 sosa:hasFeatureOfInterest ex:platformC .
+ex:obs5 a rdfs:Resource .
+ex:sensor5 a rdfs:Resource .
+ex:platformC a rdfs:Resource .
+ex:obs5 sosa:resultTime "2026-06-16T10:00:05Z"^^xsd:dateTime .
+ex:obs5 sosa:hasSimpleResult 19.0 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs5 <http://www.w3.org/2002/07/owl#sameAs> ex:obs5 .
+ex:sensor5 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor5 .
+ex:platformC <http://www.w3.org/2002/07/owl#sameAs> ex:platformC .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs6 a sosa:Observation .
+ex:sensor1 a sosa:Sensor .
+ex:platformC a sosa:FeatureOfInterest .
+ex:obs6 sosa:madeBySensor ex:sensor1 .
+ex:obs6 sosa:hasFeatureOfInterest ex:platformC .
+ex:obs6 a rdfs:Resource .
+ex:sensor1 a rdfs:Resource .
+ex:platformC a rdfs:Resource .
+ex:obs6 sosa:resultTime "2026-06-16T10:00:06Z"^^xsd:dateTime .
+ex:obs6 sosa:hasSimpleResult 19.2 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs6 <http://www.w3.org/2002/07/owl#sameAs> ex:obs6 .
+ex:sensor1 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor1 .
+ex:platformC <http://www.w3.org/2002/07/owl#sameAs> ex:platformC .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs7 a sosa:Observation .
+ex:sensor2 a sosa:Sensor .
+ex:platformD a sosa:FeatureOfInterest .
+ex:obs7 sosa:madeBySensor ex:sensor2 .
+ex:obs7 sosa:hasFeatureOfInterest ex:platformD .
+ex:obs7 a rdfs:Resource .
+ex:sensor2 a rdfs:Resource .
+ex:platformD a rdfs:Resource .
+ex:obs7 sosa:resultTime "2026-06-16T10:00:07Z"^^xsd:dateTime .
+ex:obs7 sosa:hasSimpleResult 19.5 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs7 <http://www.w3.org/2002/07/owl#sameAs> ex:obs7 .
+ex:sensor2 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor2 .
+ex:platformD <http://www.w3.org/2002/07/owl#sameAs> ex:platformD .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs8 a sosa:Observation .
+ex:sensor3 a sosa:Sensor .
+ex:platformD a sosa:FeatureOfInterest .
+ex:obs8 sosa:madeBySensor ex:sensor3 .
+ex:obs8 sosa:hasFeatureOfInterest ex:platformD .
+ex:obs8 a rdfs:Resource .
+ex:sensor3 a rdfs:Resource .
+ex:platformD a rdfs:Resource .
+ex:obs8 sosa:resultTime "2026-06-16T10:00:08Z"^^xsd:dateTime .
+ex:obs8 sosa:hasSimpleResult 19.7 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs8 <http://www.w3.org/2002/07/owl#sameAs> ex:obs8 .
+ex:sensor3 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor3 .
+ex:platformD <http://www.w3.org/2002/07/owl#sameAs> ex:platformD .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs9 a sosa:Observation .
+ex:sensor4 a sosa:Sensor .
+ex:platformE a sosa:FeatureOfInterest .
+ex:obs9 sosa:madeBySensor ex:sensor4 .
+ex:obs9 sosa:hasFeatureOfInterest ex:platformE .
+ex:obs9 a rdfs:Resource .
+ex:sensor4 a rdfs:Resource .
+ex:platformE a rdfs:Resource .
+ex:obs9 sosa:resultTime "2026-06-16T10:00:09Z"^^xsd:dateTime .
+ex:obs9 sosa:hasSimpleResult 19.9 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs9 <http://www.w3.org/2002/07/owl#sameAs> ex:obs9 .
+ex:sensor4 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor4 .
+ex:platformE <http://www.w3.org/2002/07/owl#sameAs> ex:platformE .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs10 a sosa:Observation .
+ex:sensor5 a sosa:Sensor .
+ex:platformE a sosa:FeatureOfInterest .
+ex:obs10 sosa:madeBySensor ex:sensor5 .
+ex:obs10 sosa:hasFeatureOfInterest ex:platformE .
+ex:obs10 a rdfs:Resource .
+ex:sensor5 a rdfs:Resource .
+ex:platformE a rdfs:Resource .
+ex:obs10 sosa:resultTime "2026-06-16T10:00:10Z"^^xsd:dateTime .
+ex:obs10 sosa:hasSimpleResult 20.0 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs10 <http://www.w3.org/2002/07/owl#sameAs> ex:obs10 .
+ex:sensor5 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor5 .
+ex:platformE <http://www.w3.org/2002/07/owl#sameAs> ex:platformE .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs11 a sosa:Observation .
+ex:sensor1 a sosa:Sensor .
+ex:platformA a sosa:FeatureOfInterest .
+ex:obs11 sosa:madeBySensor ex:sensor1 .
+ex:obs11 sosa:hasFeatureOfInterest ex:platformA .
+ex:obs11 a rdfs:Resource .
+ex:sensor1 a rdfs:Resource .
+ex:platformA a rdfs:Resource .
+ex:obs11 sosa:resultTime "2026-06-16T10:00:11Z"^^xsd:dateTime .
+ex:obs11 sosa:hasSimpleResult 20.2 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs11 <http://www.w3.org/2002/07/owl#sameAs> ex:obs11 .
+ex:sensor1 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor1 .
+ex:platformA <http://www.w3.org/2002/07/owl#sameAs> ex:platformA .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs12 a sosa:Observation .
+ex:sensor2 a sosa:Sensor .
+ex:platformB a sosa:FeatureOfInterest .
+ex:obs12 sosa:madeBySensor ex:sensor2 .
+ex:obs12 sosa:hasFeatureOfInterest ex:platformB .
+ex:obs12 a rdfs:Resource .
+ex:sensor2 a rdfs:Resource .
+ex:platformB a rdfs:Resource .
+ex:obs12 sosa:resultTime "2026-06-16T10:00:12Z"^^xsd:dateTime .
+ex:obs12 sosa:hasSimpleResult 20.4 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs12 <http://www.w3.org/2002/07/owl#sameAs> ex:obs12 .
+ex:sensor2 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor2 .
+ex:platformB <http://www.w3.org/2002/07/owl#sameAs> ex:platformB .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs13 a sosa:Observation .
+ex:sensor3 a sosa:Sensor .
+ex:platformC a sosa:FeatureOfInterest .
+ex:obs13 sosa:madeBySensor ex:sensor3 .
+ex:obs13 sosa:hasFeatureOfInterest ex:platformC .
+ex:obs13 a rdfs:Resource .
+ex:sensor3 a rdfs:Resource .
+ex:platformC a rdfs:Resource .
+ex:obs13 sosa:resultTime "2026-06-16T10:00:13Z"^^xsd:dateTime .
+ex:obs13 sosa:hasSimpleResult 20.6 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs13 <http://www.w3.org/2002/07/owl#sameAs> ex:obs13 .
+ex:sensor3 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor3 .
+ex:platformC <http://www.w3.org/2002/07/owl#sameAs> ex:platformC .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs14 a sosa:Observation .
+ex:sensor4 a sosa:Sensor .
+ex:platformD a sosa:FeatureOfInterest .
+ex:obs14 sosa:madeBySensor ex:sensor4 .
+ex:obs14 sosa:hasFeatureOfInterest ex:platformD .
+ex:obs14 a rdfs:Resource .
+ex:sensor4 a rdfs:Resource .
+ex:platformD a rdfs:Resource .
+ex:obs14 sosa:resultTime "2026-06-16T10:00:14Z"^^xsd:dateTime .
+ex:obs14 sosa:hasSimpleResult 20.8 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs14 <http://www.w3.org/2002/07/owl#sameAs> ex:obs14 .
+ex:sensor4 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor4 .
+ex:platformD <http://www.w3.org/2002/07/owl#sameAs> ex:platformD .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs15 a sosa:Observation .
+ex:sensor5 a sosa:Sensor .
+ex:platformE a sosa:FeatureOfInterest .
+ex:obs15 sosa:madeBySensor ex:sensor5 .
+ex:obs15 sosa:hasFeatureOfInterest ex:platformE .
+ex:obs15 a rdfs:Resource .
+ex:sensor5 a rdfs:Resource .
+ex:platformE a rdfs:Resource .
+ex:obs15 sosa:resultTime "2026-06-16T10:00:15Z"^^xsd:dateTime .
+ex:obs15 sosa:hasSimpleResult 21.0 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs15 <http://www.w3.org/2002/07/owl#sameAs> ex:obs15 .
+ex:sensor5 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor5 .
+ex:platformE <http://www.w3.org/2002/07/owl#sameAs> ex:platformE .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs16 a sosa:Observation .
+ex:sensor1 a sosa:Sensor .
+ex:platformA a sosa:FeatureOfInterest .
+ex:obs16 sosa:madeBySensor ex:sensor1 .
+ex:obs16 sosa:hasFeatureOfInterest ex:platformA .
+ex:obs16 a rdfs:Resource .
+ex:sensor1 a rdfs:Resource .
+ex:platformA a rdfs:Resource .
+ex:obs16 sosa:resultTime "2026-06-16T10:00:16Z"^^xsd:dateTime .
+ex:obs16 sosa:hasSimpleResult 21.1 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs16 <http://www.w3.org/2002/07/owl#sameAs> ex:obs16 .
+ex:sensor1 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor1 .
+ex:platformA <http://www.w3.org/2002/07/owl#sameAs> ex:platformA .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs17 a sosa:Observation .
+ex:sensor2 a sosa:Sensor .
+ex:platformB a sosa:FeatureOfInterest .
+ex:obs17 sosa:madeBySensor ex:sensor2 .
+ex:obs17 sosa:hasFeatureOfInterest ex:platformB .
+ex:obs17 a rdfs:Resource .
+ex:sensor2 a rdfs:Resource .
+ex:platformB a rdfs:Resource .
+ex:obs17 sosa:resultTime "2026-06-16T10:00:17Z"^^xsd:dateTime .
+ex:obs17 sosa:hasSimpleResult 21.3 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs17 <http://www.w3.org/2002/07/owl#sameAs> ex:obs17 .
+ex:sensor2 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor2 .
+ex:platformB <http://www.w3.org/2002/07/owl#sameAs> ex:platformB .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs18 a sosa:Observation .
+ex:sensor3 a sosa:Sensor .
+ex:platformC a sosa:FeatureOfInterest .
+ex:obs18 sosa:madeBySensor ex:sensor3 .
+ex:obs18 sosa:hasFeatureOfInterest ex:platformC .
+ex:obs18 a rdfs:Resource .
+ex:sensor3 a rdfs:Resource .
+ex:platformC a rdfs:Resource .
+ex:obs18 sosa:resultTime "2026-06-16T10:00:18Z"^^xsd:dateTime .
+ex:obs18 sosa:hasSimpleResult 21.5 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs18 <http://www.w3.org/2002/07/owl#sameAs> ex:obs18 .
+ex:sensor3 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor3 .
+ex:platformC <http://www.w3.org/2002/07/owl#sameAs> ex:platformC .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs19 a sosa:Observation .
+ex:sensor4 a sosa:Sensor .
+ex:platformD a sosa:FeatureOfInterest .
+ex:obs19 sosa:madeBySensor ex:sensor4 .
+ex:obs19 sosa:hasFeatureOfInterest ex:platformD .
+ex:obs19 a rdfs:Resource .
+ex:sensor4 a rdfs:Resource .
+ex:platformD a rdfs:Resource .
+ex:obs19 sosa:resultTime "2026-06-16T10:00:19Z"^^xsd:dateTime .
+ex:obs19 sosa:hasSimpleResult 21.7 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs19 <http://www.w3.org/2002/07/owl#sameAs> ex:obs19 .
+ex:sensor4 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor4 .
+ex:platformD <http://www.w3.org/2002/07/owl#sameAs> ex:platformD .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs20 a sosa:Observation .
+ex:sensor5 a sosa:Sensor .
+ex:platformE a sosa:FeatureOfInterest .
+ex:obs20 sosa:madeBySensor ex:sensor5 .
+ex:obs20 sosa:hasFeatureOfInterest ex:platformE .
+ex:obs20 a rdfs:Resource .
+ex:sensor5 a rdfs:Resource .
+ex:platformE a rdfs:Resource .
+ex:obs20 sosa:resultTime "2026-06-16T10:00:20Z"^^xsd:dateTime .
+ex:obs20 sosa:hasSimpleResult 21.9 .
+ex:debugOnly a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+ex:debugOnly a rdfs:Resource .
+ex:debugOnly rdfs:subPropertyOf ex:debugOnly .
+ex:obs20 <http://www.w3.org/2002/07/owl#sameAs> ex:obs20 .
+ex:sensor5 <http://www.w3.org/2002/07/owl#sameAs> ex:sensor5 .
+ex:platformE <http://www.w3.org/2002/07/owl#sameAs> ex:platformE .
+ex:debugOnly <http://www.w3.org/2002/07/owl#sameAs> ex:debugOnly .
+ex:debugOnly <http://www.w3.org/2002/07/owl#equivalentProperty> ex:debugOnly .

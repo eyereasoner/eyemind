@@ -1,8 +1,10 @@
 // The eyemind command line.
 import { run, unusedClauses } from './engine.js';
-import { OUTPUT_FORMATS, RDF_PROFILES, defaultFormat, inputKind, loadInputs, rdfMessageFormat, scopeOf, writeConclusions } from './formats.js';
+import { OUTPUT_FORMATS, RDF_PROFILES, defaultFormat, inputKind, loadInputs, loadMessageReasoner, rdfMessageFormat, scopeOf, writeConclusions } from './formats.js';
 import { isRdfMessageLog, replayMessages, RdfMessageReader } from './messages.js';
 import { checkProof, checkReport, publicReport } from './proof.js';
+import { writeRdf } from './rdf.js';
+import { programText } from './specialize.js';
 import { EyemindError } from './terms.js';
 import { VERSION } from './version.js';
 import { srlContextFromProof } from './srl.js';
@@ -45,6 +47,8 @@ const LIMITS = { '--max-depth': 'maxDepth', '--max-iterations': 'maxIterations',
 const ALIASES = new Map([['-p', '--proof'], ['-c', '--prove-and-check'], ['-v', '--version'], ['-h', '--help']]);
 // N3 and SPARQL 1.2 RL programs run longer than eyemind's defaults allow.
 const COMPILED_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferences: 1000000000 };
+
+const RDF_FORMATS = ['turtle', 'trig', 'n-triples', 'n-quads'];
 
 class UsageError extends Error {}
 
@@ -149,17 +153,37 @@ export function main(argv, io) {
     if (!files.length) files.push('-');
     if (files.filter((file) => file === '-').length > 1) throw new UsageError('stdin can only be read once');
     if (streamMessages) {
+      const profiles = RDF_PROFILES.filter((p) => rdfLogic[p]);
       if (odrl) throw new UsageError('--odrl cannot be combined with --stream-messages');
-      if (Object.keys(rdfLogic).length) throw new UsageError(`${Object.keys(rdfLogic).map((p) => '--' + p).join(' ')} cannot be combined with --stream-messages`);
-      if (proofFile !== null || options.proof || proveAndCheck || printProgram || unused) {
-        throw new UsageError('--stream-messages cannot be combined with --proof, --check-proof, --prove-and-check, --program or --unused; replay the whole log to prove its conclusions');
+      if (proofFile !== null || options.proof || proveAndCheck || unused || (printProgram && !profiles.length)) {
+        throw new UsageError('--stream-messages cannot be combined with --proof, --check-proof, --prove-and-check or --unused, ' +
+          'nor with --program without an RDF logic profile; replay the whole log to prove its conclusions');
+      }
+      if (profiles.length && format !== null && !RDF_FORMATS.includes(format)) {
+        throw new UsageError(`--stream-messages with ${profiles.map((p) => '--' + p).join(' ')} writes ${RDF_FORMATS.join(', ')}, not ${format}`);
       }
       const args = argv.filter((arg, i) => arg !== '--stream-messages' && !filePositions.has(i));
       let messageNumber = 0;
+      // The logic profiles close the other inputs once and reason over each
+      // message with rules specialized to its shape (rdf-logic.js).
+      let reasoner = null;
+      const infer = (inputs, message) => {
+        reasoner ??= loadMessageReasoner(inputs.map(([path, text]) => [text, path === '-' ? '<stdin>' : path]), io, { base, ...rdfLogic });
+        const result = reasoner.infer(message.quads, { ...COMPILED_LIMITS, ...options });
+        messageNumber++;
+        if (printProgram) {
+          if (result.sources) stdout(`// The rules specialized for message ${message.index} and those shaped like it, without their facts.\n${programText(result.sources)}`);
+          else if (!result.specialized && messageNumber === 1) stdout(`// These rules are not specialized: ${reasoner.reason ?? 'a message has a shape they cannot be specialized to'}.\n`);
+          return 0;
+        }
+        stdout(writeRdf(result.quads, { format: format ?? 'turtle', prefixes: { ...reasoner.prefixes, ...message.prefixes }, blankNodePrefix: `m${messageNumber}_` }));
+        if (stats) stderr(`${JSON.stringify({ message: message.index, specialized: result.specialized, ...result.stats })}\n`);
+        return result.haltCode || 0;
+      };
       const request = {
         files, base,
         scope: (name, index = files.indexOf(name)) => scopeOf(files.map((f) => ['', f]), name, index),
-        run: (inputs, name, replay) => main([...args, ...inputs.map(([path]) => path), name], {
+        run: (inputs, name, replay, message) => profiles.length ? infer(inputs, message) : main([...args, ...inputs.map(([path]) => path), name], {
           ...io,
           // Each result is serialized separately; keep its blank labels
           // distinct without retaining nodes from previous messages.
@@ -180,7 +204,7 @@ export function main(argv, io) {
         let code = 0;
         const scope = request.scope(name, index);
         const reader = new RdfMessageReader({ format: rdfMessageFormat(name), base: base ?? io.fileIri?.(name), scope, onMessage: (message) => {
-          code = request.run(inputs, name, replayMessages([message], { scope }));
+          code = request.run(inputs, name, replayMessages([message], { scope }), message);
           return code === 0;
         } });
         reader.write(text);

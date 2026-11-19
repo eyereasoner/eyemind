@@ -6,9 +6,13 @@ import { fileURLToPath } from 'node:url';
 import { checkReport, run } from '../src/index.js';
 import { RDF_PROFILES, defaultFormat, loadInputs, writeConclusions } from '../src/formats.js';
 import { nodeIO } from '../src/node.js';
+import { main } from '../src/cli.js';
 
 export const ROOT = join(dirname(dirname(fileURLToPath(import.meta.url))), 'examples');
 export const KINDS = ['output', 'proof', 'check'];
+// An example that streams RDF Messages runs each message independently and
+// saves only its output: proofs belong to a replayed log.
+export const artifactKinds = (entry) => entry.stream_messages ? ['output'] : KINDS;
 
 export function readManifest() {
   const manifest = JSON.parse(readFileSync(join(ROOT, 'manifest.json'), 'utf8'));
@@ -72,7 +76,23 @@ export function certify(entry, program, output) {
   return proved;
 }
 
+// The arguments of an example on the command line.
+export const exampleArgs = (entry) => [
+  ...(entry.odrl ? ['--odrl'] : []), ...RDF_PROFILES.filter((p) => entry[p]).map((p) => '--' + p),
+  ...(entry.stream_messages ? ['--stream-messages'] : []), ...sourceFiles(entry).map((file) => `examples/${file}`),
+];
+
+// What the command line writes for a streaming example, read synchronously.
+export function streamOutput(entry) {
+  const out = [], err = [];
+  const code = main(exampleArgs(entry), { ...nodeIO, streamMessages: undefined,
+    readFile: (path) => nodeIO.readFile(join(dirname(ROOT), path)), stdout: (text) => out.push(text), stderr: (text) => err.push(text) });
+  if (code !== (entry.halt_code ?? 0)) throw new Error(`${entry.name}: exit ${code}: ${err.join('')}`);
+  return out.join('');
+}
+
 export function evaluate(entry) {
+  if (entry.stream_messages) return { output: streamOutput(entry) };
   const loaded = loadExampleInputs(entry);
   const { program } = loaded;
   const output = run(program);

@@ -39,11 +39,13 @@ goals, and keep error messages specific and user-facing text direct.
   - `cli.js`: the command line, with no Node imports so the playground's
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
     library API. `version.js`: the version, synced from `package.json`.
-  - `rdf-logic.js` combines explicit RDF profiles over one working graph;
-    `rdf-values.js` supplies shared LS datatype and value rules. `qudt.js`,
-    `skos.js` and `shacl.js` compile quantity normalization, SKOS entailment
-    and SHACL validation to standalone LS; `shacl-expr.js` compiles SHACL
-    node expressions.
+  - `rdf-logic.js` combines explicit RDF profiles over one working graph,
+    and reasons over streamed messages with a background graph;
+    `specialize.js` specializes a program to the shape of facts that arrive
+    repeatedly, after closing its own facts once; `rdf-values.js` supplies
+    shared LS datatype and value rules. `qudt.js`, `skos.js` and `shacl.js`
+    compile quantity normalization, SKOS entailment and SHACL validation to
+    standalone LS; `shacl-expr.js` compiles SHACL node expressions.
   - `owl2rl.js`: explicit `--owl2rl` inference, including RDFS, and OWL conflict reports, compiled to standalone LS.
   - `le.js`: Logical English (`.le`) compiled to LS, and `.le` conclusions; its grammar is in `LE-SPEC.md`.
     `le-odrl.js` maps an explicitly selected LE ODRL vocabulary to RDF and shares `odrl.js` for snapshot evaluation.
@@ -89,7 +91,8 @@ goals, and keep error messages specific and user-facing text direct.
   and `name-le.js` for compiled programs, proofs and check reports.
   RDF Message examples keep their logs in `examples/data/`; payloads are
   quoted `log:nameOf` formulas. Replay has proofs and check reports;
-  `--stream-messages` runs each message independently.
+  `--stream-messages` runs each message independently. A manifest entry with
+  `stream_messages` runs that way and saves only its output.
 - `conformance/`: black-box language and proof cases from LS-SPEC.md, plus
   implementation interface checks tagged with their README headings. Each case file is an
   eyemind document of `conformance(Name, [Setting, ...])` terms, read by

@@ -1,0 +1,40 @@
+# Sensor messages use compact properties that a small ontology maps to SOSA.
+# With --stream-messages, --owl2rl closes this ontology once and concludes,
+# for each message, its SOSA observation, sensor and feature of interest.
+# Shows rules specialized to the shape of the messages, compiled to standalone
+# Logic Script. Adapted from the SHACL shape-planning example of Pieter
+# Colpaert's rdfjs-inference-engine (MIT licence),
+# https://github.com/pietercolpaert/rdfjs-inference-engine
+# Vocabulary: W3C Semantic Sensor Network Ontology, https://www.w3.org/TR/vocab-ssn/
+
+@prefix ex:   <https://example.org/shape-planning#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# The SOSA properties type what they connect.
+sosa:madeBySensor
+  rdfs:domain sosa:Observation ;
+  rdfs:range sosa:Sensor .
+
+sosa:resultTime
+  rdfs:domain sosa:Observation .
+
+sosa:hasSimpleResult
+  rdfs:domain sosa:Observation .
+
+sosa:hasFeatureOfInterest
+  rdfs:domain sosa:Observation ;
+  rdfs:range sosa:FeatureOfInterest .
+
+# The message properties specialize them.
+ex:observedBy
+  rdfs:subPropertyOf sosa:madeBySensor .
+
+ex:observedAt
+  rdfs:subPropertyOf sosa:resultTime .
+
+ex:temperatureCelsius
+  rdfs:subPropertyOf sosa:hasSimpleResult .
+
+ex:observedFeature
+  rdfs:subPropertyOf sosa:hasFeatureOfInterest .

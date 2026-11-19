@@ -12,8 +12,8 @@ program, a JavaScript library and a browser application.
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Examples](https://eyereasoner.github.io/eyemind/examples/) · [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/)
 
-The examples are 155 runnable programs, each with a card deck and saved
-conclusions, proofs and check reports. The specification defines the language,
+The examples are 156 runnable programs, each with a card deck and saved
+conclusions; all but one streamed example also save proofs and check reports. The specification defines the language,
 the proof format and how a proof is checked; its conformance suite has
 1247 cases that test language and proof behavior, and runs
 [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
@@ -302,6 +302,25 @@ standard input or HTTP(S) incrementally. See the
 [message-boundaries](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries-n3)
 and [message-alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3) decks.
 
+With an [RDF logic profile](#rdf-logic-profiles), `--stream-messages` treats
+the other inputs as a background graph and writes, for each message, the
+triples it adds to what the background alone concludes. The background is
+closed once. Each shape of message, its properties and whether its values
+are IRIs or literals of a datatype, gets the rule instances that can use one
+of its triples, with background facts unfolded where they fix a property or
+class; later messages of that shape only add their own facts. The result is
+the same as running the whole program over the background and the message,
+and the whole program runs instead when new triples could have any property,
+as `owl:sameAs` between individuals makes, or when a negation could retract
+a background conclusion. `--program` prints the specialized program of each
+new shape, and `--stats` says whether each message used one. Streamed
+messages have no proofs. See the
+[observations](https://eyereasoner.github.io/eyemind/examples/deck/observations-owl2rl) deck.
+
+```sh
+eyemind --owl2rl --stream-messages ontology.ttl messages.trig   # each message's new triples
+```
+
 ### SPARQL 1.2 RL
 
 A `.srl` file is a [SPARQL 1.2 RL](https://www.w3.org/TR/sparql12-rl/) rule
@@ -524,7 +543,7 @@ eyemind [OPTION ...] [FILE ...]
 | `--json` | With a checking mode, print the report as JSON. |
 | `--goal GOAL` | Ask `GOAL` after forward reasoning; may be repeated. |
 | `--unused` | List the clauses that make no difference to the conclusions. |
-| `--stream-messages` | Read an RDF Message Log and run the rules independently per message; Node reads files, stdin and HTTP(S) incrementally. |
+| `--stream-messages` | Read an RDF Message Log and run the rules independently per message; Node reads files, stdin and HTTP(S) incrementally. With an RDF logic profile, the other inputs are a background closed once and the rules are specialized per message shape. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3, SRL, ODRL or RDF profile program has 1000000, 100000 and 1000000000. |
 | `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; by default LE for LE, N3 for N3, Turtle for SRL, ODRL and RDF profiles, eyemind otherwise. |

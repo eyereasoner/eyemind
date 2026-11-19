@@ -337,6 +337,21 @@ export const tests = [
     await p.select('mode', '');
   }],
 
+  ['a streamed OWL 2 RL example runs its messages with specialized rules and leaves streaming with the example', async (page, base) => {
+    const p = driver(page);
+    const entry = manifest.find(({ name }) => name === 'observations-owl2rl');
+    await p.open(`${base}#example=observations-owl2rl`, 390, true);
+    assert.equal(await page.evaluate("document.getElementById('mode').value"), '--stream-messages');
+    assert.ok(await page.evaluate("document.getElementById('owl2rl').checked"));
+    assert.match(await page.evaluate("document.getElementById('command').textContent"), /--stream-messages/);
+    await p.run();
+    assert.match(await p.status(), /^Done · exit 0/);
+    assert.equal(await p.output(), readFileSync(artifactPath('output', entry), 'utf8'));
+    await p.select('examples', 'socrates');
+    await p.until("document.getElementById('examples').value === 'socrates' && document.getElementById('status').textContent === 'Inputs ready.'", 'socrates');
+    assert.equal(await page.evaluate("document.getElementById('mode').value"), '');
+  }],
+
   ['N3 and SRL proofs generate, download and check as JavaScript proofs', async (page, base) => {
     const p = driver(page);
     for (const [name, width] of [['socrates-n3', 1280], ['socrates-srl', 390]]) {

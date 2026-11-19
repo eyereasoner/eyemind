@@ -575,7 +575,7 @@
 
       async function makeShareUrl(snapshot) {
         const url = shareBaseUrl();
-        const defaultOptions = !snapshot.mode && !snapshot.goal && !snapshot.stats && snapshot.maxDepth === '' &&
+        const defaultOptions = snapshot.mode === (exampleNamed(snapshot.example)?.stream_messages ? '--stream-messages' : '') && !snapshot.goal && !snapshot.stats && snapshot.maxDepth === '' &&
           snapshot.maxInferences === '' && !snapshot.proof.text && logicFlags.every((id) => snapshot[id] === Boolean(exampleNamed(snapshot.example)?.[id]));
         if (exampleNamed(snapshot.example) && defaultOptions) {
           try {
@@ -811,6 +811,7 @@
         return primary;
       }
 
+      let streamedExample = false;
       async function loadExample(link, signal) {
         const name = exampleNamed(link)?.name ?? link;
         const loaded = await readExampleSource(name, signal);
@@ -818,6 +819,11 @@
         source = loaded;
         byId('examples').value = name;
         for (const id of logicFlags) byId(id).checked = Boolean(exampleNamed(name)?.[id]);
+        // A streamed example runs each message on its own; leaving one
+        // returns to an ordinary run.
+        if (exampleNamed(name)?.stream_messages) byId('mode').value = '--stream-messages';
+        else if (streamedExample) byId('mode').value = '';
+        streamedExample = Boolean(exampleNamed(name)?.stream_messages);
         showSource();
       }
 

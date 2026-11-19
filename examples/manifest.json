@@ -688,6 +688,17 @@
     "description": "Reporters and named-graph readings join within each message without crossing its boundary"
   },
   {
+    "name": "observations-owl2rl",
+    "files": [
+      "observations-owl2rl.ttl",
+      "data/observations-owl2rl.trig"
+    ],
+    "output": "ttl",
+    "owl2rl": true,
+    "stream_messages": true,
+    "description": "Streamed sensor messages each become SOSA observations through rules specialized once to the shape of the messages"
+  },
+  {
     "name": "execution-identifiers-srl",
     "files": [
       "execution-identifiers-srl.srl"

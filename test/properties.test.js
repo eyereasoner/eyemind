@@ -1225,7 +1225,7 @@ implies(implied_by(H, B), backward_rule(H, B))`);
 // One forgery test per example, so that a failure names it. Clause removal
 // and reordering use the small generated programs and their independent model.
 // Proofs over 200 KB are too slow to forge many times.
-for (const entry of readManifest()) {
+for (const entry of readManifest().filter((item) => !item.stream_messages)) {
   const path = artifactPath('proof', entry);
   const text = readFileSync(path, 'utf8');
   if (text.length <= 200000) {

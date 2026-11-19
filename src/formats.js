@@ -26,7 +26,7 @@ import { DEFAULT_GRAPH, parseRdf, rdfDocument, rdfFormat, writeRdf } from './rdf
 import { resultToN3, compileSources } from './n3.js';
 import { compileSrl, srlAnswers, srlQuads } from './srl.js';
 import { compileOdrl } from './odrl.js';
-import { compileRdfLogic, RDF_PROFILES } from './rdf-logic.js';
+import { compileRdfLogic, messageReasoner, RDF_PROFILES } from './rdf-logic.js';
 import { compileLe, writeLe } from './le.js';
 import { write } from './writer.js';
 import { isRdfMessageLog, parseRdfMessages } from './messages.js';
@@ -63,7 +63,33 @@ export function loadInputs(inputs, io = null, options = {}) {
   }
 }
 
-function load(inputs, io, { base = null, messageInputs = null, srlContext = null, odrl = false, owl2rl = false, qudt = false, skos = false, shacl = false }) {
+// The RDF inputs of the logic profiles as one graph.
+function profileGraph(inputs, kinds, rdf, baseOf, switches) {
+  if (inputs.some(([, name], k) => kinds[k] !== 'rdf' && name !== '<stdin>')) {
+    throw new EyemindError(`${switches} takes RDF inputs; standard input is Turtle`);
+  }
+  const prefixes = {}, quads = [];
+  inputs.forEach(([text, name], k) => {
+    const parsed = name === '<stdin>' ? parseRdf(text, { format: 'turtle', base: baseOf(name), scope: scopeOf(inputs, name, k) }) : rdf(text, name, k);
+    if (parsed.triples) throw new EyemindError(`${switches} takes RDF graphs, not RDF Message Logs`);
+    Object.assign(prefixes, parsed.prefixes);
+    quads.push(...parsed.quads);
+  });
+  return { quads, prefixes };
+}
+
+// The reasoner the logic profiles run each RDF Message with, given the
+// background inputs as [text, name] pairs (rdf-logic.js).
+export function loadMessageReasoner(inputs, io = null, options = {}) {
+  try {
+    return load(inputs, io, { ...options, messages: true });
+  } catch (error) {
+    if (error instanceof EyemindError || !(error instanceof Error) || error instanceof TypeError || error instanceof ReferenceError) throw error;
+    throw new EyemindError(error.message);
+  }
+}
+
+function load(inputs, io, { base = null, messageInputs = null, srlContext = null, odrl = false, owl2rl = false, qudt = false, skos = false, shacl = false, messages = false }) {
   const options = { owl2rl, qudt, skos, shacl }, profiles = RDF_PROFILES.filter((p) => options[p]);
   const switches = profiles.map((p) => '--' + p).join(' ');
   const kinds = inputs.map(([text, name]) => messageInputs?.has(name) ||
@@ -82,17 +108,10 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
   }
   if (profiles.length && odrl) throw new EyemindError(`--odrl cannot be combined with ${switches}`);
   if (profiles.length) {
-    if (inputs.some(([, name], k) => kinds[k] !== 'rdf' && name !== '<stdin>')) {
-      throw new EyemindError(`${switches} takes RDF inputs; standard input is Turtle`);
-    }
-    const prefixes = {}, quads = [];
-    inputs.forEach(([text, name], k) => {
-      const parsed = name === '<stdin>' ? parseRdf(text, { format: 'turtle', base: baseOf(name), scope: scopeOf(inputs, name, k) }) : rdf(text, name, k);
-      if (parsed.triples) throw new EyemindError(`${switches} takes RDF graphs, not RDF Message Logs`);
-      Object.assign(prefixes, parsed.prefixes);
-      quads.push(...parsed.quads);
-    });
-    return compileRdfLogic({ quads, prefixes }, { profiles, source: inputs.map(([, n]) => n).join(', '), context: srlContext });
+    const graph = profileGraph(inputs, kinds, rdf, baseOf, switches);
+    const source = inputs.map(([, n]) => n).join(', ');
+    if (messages) return messageReasoner(graph, { profiles, source });
+    return compileRdfLogic(graph, { profiles, source, context: srlContext });
   }
   if (odrl) {
     if (inputs.length !== 1) throw new EyemindError('--odrl takes one Turtle snapshot containing policies, requests and SOTW');

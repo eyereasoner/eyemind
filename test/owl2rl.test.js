@@ -137,7 +137,7 @@ export const tests = {
     assert.deepEqual(inferredTypes.map((q) => q[3].args[0]), ['https://example.org/g3']);
     assert.match(cli(['--owl2rl', '--odrl'], data).stderr, /cannot be combined/);
     assert.match(cli(['--owl2rl', 'examples/socrates.js']).stderr, /takes RDF inputs/);
-    assert.match(cli(['--owl2rl', '--stream-messages'], data).stderr, /cannot be combined/);
+    assert.match(cli(['--owl2rl', '--stream-messages'], data).stderr, /needs an RDF Message Log/);
   },
 
   'OWL 2 RL: compiled JavaScript is standalone, --all includes input and proofs reject missing claims'() {

@@ -10,11 +10,14 @@ import { compileShacl } from './shacl.js';
 import { NODE_FUNCTIONS } from './shacl-expr.js';
 import { executionContext } from './srl.js';
 import { rdfValueRules } from './rdf-values.js';
+import { run } from './engine.js';
+import { Specializer } from './specialize.js';
+import { Struct, identity } from './terms.js';
 
 export const ENTAILMENT = 'https://eyereasoner.github.io/eyemind/entailment#';
 export const RDF_PROFILES = ['owl2rl', 'qudt', 'skos', 'shacl'];
 
-export function compileRdfLogic({ quads, prefixes, shapes = quads }, { profiles, source = '<input>', disallows, evaluate, context }) {
+export function compileRdfLogic({ quads, prefixes, shapes = quads }, { profiles, source = '<input>', disallows, evaluate, context, stream = false }) {
   quads = [...new Map(quads.map((q) => [q.map((t) => write(t)).join(' '), q])).values()];
   const selected = new Set(profiles), needs = new Set();
   // SHACL node expressions may call SPARQL functions beyond the value rules.
@@ -32,12 +35,51 @@ export function compileRdfLogic({ quads, prefixes, shapes = quads }, { profiles,
     (selected.has('owl2rl') ? owl2rlRules : '') +
     (selected.has('skos') ? skosRules : '') +
     (selected.has('qudt') ? qudtRules : '') +
-    shacl + (evaluate ? "query(sh_evaluation(R));\n" : OUTPUT);
+    shacl + (evaluate ? "query(sh_evaluation(R));\n" : REPORTS + (stream ? '' : RESULT));
   return { kind: profiles[0], text, program: loadText(text, source),
     prefixes: { ...prefixes, ent: ENTAILMENT, ...(selected.has('skos') ? { skos: 'http://www.w3.org/2004/02/skos/core#' } : {}),
       ...(selected.has('qudt') ? { qconv: 'https://eyereasoner.github.io/eyemind/qudt#', qudt: 'http://qudt.org/schema/qudt/', unit: 'http://qudt.org/vocab/unit/' } : {}),
       ...(selected.has('shacl') ? { sh: 'http://www.w3.org/ns/shacl#' } : {}) }, compiled: null };
 }
+
+// Reasoning over messages one at a time, each with the same background
+// graph: infer(quads) gives the triples a message adds to what the background
+// alone concludes. The background is closed once and the rules are
+// specialized to the kinds of triples a message has (specialize.js); a
+// program that cannot be specialized runs whole for every message instead.
+export function messageReasoner({ quads, prefixes }, { profiles, source = '<input>' }) {
+  const options = { profiles, source };
+  const background = compileRdfLogic({ quads, prefixes }, { ...options, stream: true });
+  const specializer = new Specializer(background.program, { quads: ['rdf/4', 'ent_base/4'] });
+  let alone = null;
+  const answers = (program, limits) => run(program, limits).conclusions.filter((t) => t instanceof Struct && t.name === 'result_rdf');
+  return {
+    prefixes: background.prefixes,
+    reason: specializer.reason,
+    specializer,
+    // limits are run()'s bounds. The result has the added quads, whether
+    // the rules were specialized, and the specialized program's sources the
+    // first time a message has its shape.
+    infer(message, limits = {}) {
+      const facts = message.flatMap((q) => [new Struct('rdf', q), new Struct('ent_base', q)]);
+      const special = specializer.specialize(facts);
+      if (special !== null) {
+        const result = run(special.program, limits);
+        const added = result.derived.map((node) => node.goal).filter((t) => !special.old.has(identity(t)) &&
+          (t.name === 'ent_report' || (t.name === 'rdf' && RESOURCES.has(t.args[0].name) && t.args[1].name === 'iri')));
+        return { quads: added.map((t) => t.args), specialized: true, stats: result.stats, haltCode: result.haltCode,
+          sources: special.fresh ? special.sources : null };
+      }
+      alone ??= new Set(answers(compileRdfLogic({ quads, prefixes }, options).program, limits).map(identity));
+      const result = run(compileRdfLogic({ quads: [...quads, ...message], prefixes, shapes: quads }, options).program, limits);
+      const added = result.conclusions.filter((t) => t instanceof Struct && t.name === 'result_rdf' && !alone.has(identity(t)));
+      return { quads: added.map((t) => t.args), specialized: false, stats: result.stats, haltCode: result.haltCode, sources: null };
+    },
+  };
+}
+
+// The subjects ent_resource/1 accepts.
+const RESOURCES = new Set(['iri', 'bnode', 'skolem', 'triple']);
 
 const COMMON = String.raw`
 implied_by(ent_resource(iri(A)), is_atom(A));
@@ -52,7 +94,7 @@ fact(ent_member(X, [X, ..._]));
 implied_by(ent_member(X, [_, ...T]), ent_member(X, T));
 `;
 
-const OUTPUT = String.raw`
+const REPORTS = String.raw`
 // A report cannot create more ontology consequences or affect a constraint.
 implies(ent_conflict(R, X, P, Y, G), [
   ent_report(B, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('https://eyereasoner.github.io/eyemind/entailment#Conflict'), G),
@@ -61,7 +103,9 @@ implies(ent_conflict(R, X, P, Y, G), [
   ent_report(B, iri('https://eyereasoner.github.io/eyemind/entailment#left'), P, G),
   ent_report(B, iri('https://eyereasoner.github.io/eyemind/entailment#right'), Y, G)
 ]);
-implies([rdf(S, iri(P), O, G), ent_resource(S), not(ent_base(S, iri(P), O, G))], result_rdf(S, iri(P), O, G));
+`;
+
+const RESULT = String.raw`implies([rdf(S, iri(P), O, G), ent_resource(S), not(ent_base(S, iri(P), O, G))], result_rdf(S, iri(P), O, G));
 implies(ent_report(S, P, O, G), result_rdf(S, P, O, G));
 query(result_rdf(S, P, O, G));
 `;

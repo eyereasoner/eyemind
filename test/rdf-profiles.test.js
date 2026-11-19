@@ -227,7 +227,7 @@ export const tests = {
     }
     assert.equal(conforming(evaluate(':S sh:targetNode :a; sh:deactivated true; sh:class :Missing.').quads), true);
     for (const flag of ['--qudt', '--skos', '--shacl']) {
-      assert.match(cli([flag, '--stream-messages'], '').stderr, /cannot be combined/);
+      assert.match(cli([flag, '--stream-messages'], '').stderr, /needs an RDF Message Log/);
       assert.match(cli([flag, 'examples/socrates.js']).stderr, /takes RDF inputs/);
     }
   },

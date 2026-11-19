@@ -66,7 +66,7 @@ export async function streamMessages(request, io) {
       let code = 0;
       const reader = new RdfMessageReader({ format: source.format ?? rdfMessageFormat(name), base: request.base ?? source.base, scope,
         onMessage: (message) => {
-          code = request.run(inputs, name, replayMessages([message], { scope }));
+          code = request.run(inputs, name, replayMessages([message], { scope }), message);
           return code === 0;
         } });
       for await (const text of source.body) {

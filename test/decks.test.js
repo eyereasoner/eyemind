@@ -12,7 +12,7 @@ import { parseN3 } from '../src/n3-parser.js';
 import { tripleToEyemind } from '../src/n3-writer.js';
 import { parseRdf } from '../src/rdf.js';
 import { isomorphic } from './w3c.js';
-import { artifactPath, loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
+import { artifactKinds, artifactPath, loadExample, readManifest, sourceFiles } from '../tools/corpus.js';
 import { ROOT, assert, cli } from './helpers.js';
 
 const MANIFEST = readManifest();
@@ -188,7 +188,7 @@ export const tests = {
     for (const entry of readManifest()) {
       const { name } = entry;
       const links = new Set([...deck(name).matchAll(/\[[^\]]*\]\(([^)]+)\)/g)].map((match) => match[1]));
-      for (const file of [...sourceFiles(entry), ...['output', 'proof', 'check'].map((kind) => `${kind}/${basename(artifactPath(kind, entry))}`)]) {
+      for (const file of [...sourceFiles(entry), ...artifactKinds(entry).map((kind) => `${kind}/${basename(artifactPath(kind, entry))}`)]) {
         assert.ok(links.has(`https://github.com/eyereasoner/eyemind/blob/main/examples/${file}`), `${name}: ${file}`);
       }
       assert.ok(links.has(`https://eyereasoner.github.io/eyemind/playground/#example=${name}`), name);
@@ -314,7 +314,16 @@ export const tests = {
 for (const entry of MANIFEST) {
   const { name } = entry;
   // The battery and school tables have their own tests above.
-  if (name !== 'battery-dispatch' && name !== 'school-placement-audit') {
+  if (entry.stream_messages) {
+    // A streamed example has no check report: its displayed Turtle lines
+    // are lines of its saved output.
+    tests[`${name} deck displayed conclusions agree with its output`] = () => {
+      const saved = new Set(read(`output/${basename(artifactPath('output', entry))}`).split('\n'));
+      const lines = blocks(section(deck(name), 'What eyemind concludes'), 'turtle').flatMap((block) => block.split('\n')).filter(Boolean);
+      assert.ok(lines.length, `${name}: no displayed conclusions checked`);
+      for (const line of lines) assert.ok(saved.has(line), `${name}: ${line}`);
+    };
+  } else if (name !== 'battery-dispatch' && name !== 'school-placement-audit') {
     tests[`${name} deck displayed conclusions agree with its artifacts`] = () => {
       const text = deck(name);
       const heading = name === 'research-portal' ? 'What the proposal changes'
@@ -329,7 +338,7 @@ for (const entry of MANIFEST) {
     };
   }
 
-  tests[`${name} deck verdict agrees with its check report`] = () => {
+  if (!entry.stream_messages) tests[`${name} deck verdict agrees with its check report`] = () => {
     const text = proofCard(deck(name));
     // The report's own verdict is its last fact; a deck states it last, after
     // any verdicts its answers mention, as audited-grants does.

@@ -200,6 +200,37 @@ export class Program {
     this.layered = this.strata.layered === true;
   }
 
+  // This program with more ground facts after its clauses, sharing its
+  // rules and strata: a fact changes no stratum. Programs specialized for
+  // RDF Messages (specialize.js) get each message's facts this way.
+  withFacts(facts) {
+    const program = Object.assign(Object.create(Program.prototype), this);
+    program.sources = [...this.sources];
+    program.clauses = [...this.clauses];
+    program.byId = new Map(this.byId);
+    program.groups = new Map(this.groups);
+    program.indexes = new Map(this.indexes);
+    program.groundFactKeys = new Set(this.groundFactKeys);
+    for (const fact of facts) {
+      if (!isCallable(fact) || !isGround(fact) || fact === EMPTY || isTerm(fact, '.', 2) || RESERVED_KEYS.has(key(fact)) ||
+          PRIMITIVE_KEYS.has(key(fact)) || CONTROL_KEYS.has(key(fact))) {
+        throw new EyemindError(`${write(fact)} is not a ground fact`);
+      }
+      const source = new Source('fact', fact, []);
+      const clause = new Clause(++program.maxClauseId, fact, null, [], false, null);
+      clause.originalHead = fact;
+      clause.plainHeads = [fact];
+      program.sources.push(source);
+      program.clauses.push(clause);
+      program.byId.set(clause.id, clause);
+      const factKey = key(fact);
+      program.groups.set(factKey, [...(program.groups.get(factKey) ?? []), clause]);
+      program.indexes.delete(factKey);
+      program.groundFactKeys.add(identity(fact));
+    }
+    return program;
+  }
+
   // Restricted rules in the order they run: one whose heads can satisfy
   // another's, its witnesses free, before that one, and otherwise, as on a
   // cycle of such rules, in clause order (SPEC Section 8.2).

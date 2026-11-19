@@ -1,6 +1,6 @@
 // RDF Messages, following the living draft and its message-level cases:
 // https://w3c-cg.github.io/rsp/spec/messages-tests (22 October 2026).
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'node:http';
@@ -10,6 +10,11 @@ import { loadInputs, writeConclusions } from '../src/formats.js';
 import { parseRdf } from '../src/rdf.js';
 import { parseN3 } from '../src/n3-parser.js';
 import { isRdfMessageLog, MESSAGE_NS, parseRdfMessages, RdfMessageReader } from '../src/messages.js';
+import { messageReasoner } from '../src/rdf-logic.js';
+import { Program } from '../src/program.js';
+import { Specializer, generalize } from '../src/specialize.js';
+import { Struct, Var, identity } from '../src/terms.js';
+import { loadText } from '../src/lang.js';
 import { ROOT, assert, cli, command } from './helpers.js';
 
 const P = 'PREFIX : <http://example.org/>\n';
@@ -284,5 +289,97 @@ export const tests = {
       server.closeAllConnections();
       await new Promise((resolve) => server.close(resolve));
     }
+  },
+
+  'RDF logic profiles stream messages with rules specialized once per message shape'() {
+    const args = ['--owl2rl', '--stream-messages', 'examples/observations-owl2rl.ttl', 'examples/data/observations-owl2rl.trig'];
+    const saved = readFileSync(join(ROOT, 'examples/output/observations-owl2rl.ttl'), 'utf8');
+    // Node reads the log incrementally; the same rules give the same triples.
+    const streamed = command([...args, '--stats']);
+    assert.equal(streamed.code, 0, streamed.stderr);
+    assert.equal(streamed.stdout, saved);
+    const stats = streamed.stderr.trim().split('\n').map((line) => JSON.parse(line));
+    assert.equal(stats.length, 20);
+    assert.ok(stats.every((line) => line.specialized));
+    assert.match(saved, /ex:obs20 a sosa:Observation/);
+    assert.match(saved, /ex:sensor5 a sosa:Sensor/);
+    // The background closure is not repeated for each message.
+    assert.doesNotMatch(saved, /sosa:Observation a rdfs:Class/);
+    // The specialized program is ordinary Logic Script, printed once for the
+    // one shape all twenty messages share.
+    const printed = cli([...args, '--program']);
+    assert.equal(printed.code, 0, printed.stderr);
+    assert.equal(printed.stdout.match(/^\/\/ The rules specialized/gm).length, 1);
+    assert.match(printed.stdout, /^fact\(old_rdf\(/m);
+    const program = loadText(printed.stdout);
+    assert.ok(program.forward.length > 0);
+    assert.match(cli(['--owl2rl', '--stream-messages', '--to', 'n3', ...args.slice(2)]).stderr, /writes turtle, trig/);
+  },
+
+  'specialized message runs conclude what whole runs conclude, or run whole'() {
+    const ex = (name) => new Struct('iri', [`https://example.org/x#${name}`]);
+    const rdf = (name) => new Struct('iri', [`http://www.w3.org/1999/02/22-rdf-syntax-ns#${name}`]);
+    const rdfs = (name) => new Struct('iri', [`http://www.w3.org/2000/01/rdf-schema#${name}`]);
+    const owl = (name) => new Struct('iri', [`http://www.w3.org/2002/07/owl#${name}`]);
+    const t = (s, p, o) => [s, p, o, 'default_graph'];
+    const background = [t(ex('p'), rdfs('subPropertyOf'), ex('q')), t(ex('q'), rdfs('domain'), ex('C')),
+      t(ex('C'), rdfs('subClassOf'), ex('D')), t(ex('f'), rdf('type'), owl('FunctionalProperty')), t(ex('a'), ex('f'), ex('b'))];
+    const reasoner = messageReasoner({ quads: background, prefixes: {} }, { profiles: ['owl2rl'] });
+    const sorted = (quads) => quads.map((q) => q.map((x) => write(x).replace(/skolem\([^)]*\)/g, 'S')).join(' ')).sort();
+    const both = (message) => {
+      const special = reasoner.infer(message);
+      const saved = reasoner.specializer.reason;
+      reasoner.specializer.reason = 'compared';
+      const whole = reasoner.infer(message);
+      reasoner.specializer.reason = saved;
+      assert.deepEqual(sorted(special.quads), sorted(whole.quads));
+      return special;
+    };
+    const typed = both([t(ex('x'), ex('p'), ex('y'))]);
+    assert.ok(typed.specialized);
+    assert.ok(sorted(typed.quads).includes(`${write(ex('x'))} ${write(rdf('type'))} ${write(ex('D'))} 'default_graph'`));
+    // A message with the same shape reuses the program.
+    assert.equal(both([t(ex('z'), ex('p'), ex('w'))]).sources, null);
+    // A background triple adds nothing.
+    assert.deepEqual(both([background[0]]).quads, []);
+    // A second value of a functional property makes owl:sameAs between
+    // individuals: new facts can then have any property, so the whole
+    // program runs, with the same conclusions.
+    assert.equal(both([t(ex('a'), ex('f'), ex('c'))]).specialized, false);
+    // Schema triples in a message are new facts like any other.
+    both([t(ex('r'), rdfs('subPropertyOf'), ex('p')), t(ex('u'), ex('r'), ex('v'))]);
+  },
+
+  'a program with more facts shares its rules and concludes as one built with them'() {
+    const program = loadText('implies(edge(X, Y), path(X, Y)); implies([edge(X, Y), path(Y, Z)], path(X, Z)); implies([node(X), not(edge(X, _))], sink(X)); fact(edge(a, b));');
+    const extra = [new Struct('edge', ['b', 'c']), new Struct('node', ['c']), new Struct('node', ['a'])];
+    const together = loadText('implies(edge(X, Y), path(X, Y)); implies([edge(X, Y), path(Y, Z)], path(X, Z)); implies([node(X), not(edge(X, _))], sink(X)); fact(edge(a, b)); fact(edge(b, c)); fact(node(c)); fact(node(a));');
+    assert.deepEqual(run(program.withFacts(extra)).answers, run(together).answers);
+    assert.deepEqual(run(program).answers, ["path('a', 'b')"]);
+    assert.throws(() => program.withFacts([new Struct('edge', [new Var('X'), 'c'])]), /not a ground fact/);
+  },
+
+  'a specialized program keeps rules whose new premise is inside a control goal or a backward clause'() {
+    const program = loadText(`fact(seen(old)); fact(kind(a)); implies([kind(X), or(seen(X), alarm(X))], flagged(X));
+      implied_by(watched(X), seen(X)); implies([kind(X), watched(X)], tracked(X)); implies(flagged(X), report(X));`);
+    const specializer = new Specializer(program);
+    assert.equal(specializer.reason, null);
+    const special = specializer.specialize([new Struct('seen', ['a'])]);
+    assert.ok(special);
+    assert.deepEqual(run(special.program).derived.map((node) => write(node.goal)).sort(),
+      ["flagged('a')", "report('a')", "tracked('a')"]);
+    // Negating facts that can be new is not specialized, nor are arriving
+    // facts of a relation the program has no facts or forward rules for.
+    assert.equal(new Specializer(loadText('fact(kind(a)); fact(seen(b)); implies([kind(X), not(seen(X))], fresh(X));'))
+      .specialize([new Struct('seen', ['a'])]), null);
+    assert.equal(new Specializer(loadText('fact(kind(a)); implies([kind(X), not(seen(X))], fresh(X));'))
+      .specialize([new Struct('seen', ['a'])]), null);
+  },
+
+  'generalizing terms keeps what they share and pairs what they do not'() {
+    const general = generalize([new Struct('f', ['a', 'a', 'b']), new Struct('f', ['c', 'c', 'b'])]);
+    assert.equal(general.args[2], 'b');
+    assert.ok(general.args[0] instanceof Var && general.args[0] === general.args[1]);
+    assert.equal(identity(generalize([new Struct('g', [1n])])), identity(new Struct('g', [1n])));
   },
 };
