@@ -125,6 +125,79 @@ keeps integer and float terms distinct. Calculations belong in premises,
 followed by relational conclusions. These calculations do not prove arbitrary
 algebraic identities or supply induction.
 
+## Alternative premises
+
+```text
+Every cat or dog is a pet.
+For every V, if V is registered or V is a provisionalVoter and V is verified
+then V is an eligibleVoter.
+For every X, it is impossible that X is a minor and X is a voter or X is barred.
+```
+
+`or` separates alternative premises of a rule or contradiction. `and` binds
+more tightly, so each alternative is a conjunction; there are no parentheses
+around alternatives. Each alternative compiles to its own LS clause with the
+same conclusion, in the order written: `Every A or B is C.` is
+`implies(A(X), C(X))` followed by `implies(B(X), C(X))`. The sentence's
+declarations are shared, and an alternative need not use every declared
+variable, but each conclusion variable must be supplied by every alternative
+or introduced with `there exists`. An existential conclusion therefore has a
+witness per alternative and firing. The order of premises is checked within
+each alternative.
+
+Questions have no `or`: ask one question per alternative, or ask for a relation
+that an `or` rule derives. Conclusions are never disjunctive.
+
+## Aggregates
+
+```text
+For every M and T,
+if M is a member and T is the sum of F for every C and F such that charge(M, C, F)
+then T is an amountDue of M.
+For every V and N,
+if V is a participant and N is the number of C such that choice(V, C) and N is at least 2
+then V is a spoiledVoter.
+For every C and N,
+if C is a candidate and N is the number of V such that
+(choice(V, C) and V is an eligibleVoter and it is not known that V is a spoiledVoter)
+then N is a voteCount of C.
+```
+
+These premise forms collect every solution of a condition:
+
+| LE form | Result |
+| --- | --- |
+| `N is the number of X1 and ... such that C` | The number of distinct combinations of `X1 ...` satisfying `C`. |
+| `S is the sum of V for every X1 and ... such that C` | The sum of `V` over those combinations; `0` when there are none. |
+| `M is the maximum of V for every X1 and ... such that C` | The greatest `V` over those combinations; no result when there are none. |
+| `M is the minimum of V for every X1 and ... such that C` | The least `V` over those combinations; no result when there are none. |
+
+The variables after `the number of` or `for every` are declared by the
+aggregate, must be new in the sentence, and cannot be used after it. `V` must
+be one of them. The condition `C` is one statement, or a conjunction in
+parentheses; it can use calculations, comparisons and absence tests, but no
+`or` and no other aggregate. Any other variable of `C` must be supplied by an earlier premise. The
+left-hand side is a declared variable or a number, as in the value-of form:
+an unbound variable receives the result and a bound one is compared with it.
+
+Each distinct combination of the declared variables' values counts once, however
+many derivations it has. To count distinct values of one variable when the
+condition needs others, derive a relation of that variable first, as
+`choice(V, C)` above does for ballots. Values are summed with LS arithmetic, so
+integers stay exact and a float makes the sum a float; maximum and minimum
+compare numerically.
+
+An aggregate compiles to
+`findall_sorted(t(V, X1, ...), C, L)`, followed by goals of backward helper
+relations named `le:distinct`, `le:count`, `le:sum`, `le:max` and `le:min`,
+which remove repeated tuples and fold the rest. The helpers are added after
+the program's own clauses, only when used, so they do not change the rule
+numbers of witnesses; their names cannot be written as LE names. Like a
+negation, an aggregate waits until the relations of its condition are complete,
+so a program cannot aggregate over a relation that depends on the aggregate's
+own result. Questions cannot aggregate: derive the aggregate in a rule and ask
+for its conclusion.
+
 ## Absence and existential conclusions
 
 An absence test has exactly this form, followed by one positive statement:
@@ -186,6 +259,9 @@ These programs use the grammar above without additional syntax:
 | [Pell equations](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation-le) | Recursive arithmetic beyond binary64 integer precision and exact polynomial checks. |
 | [Course certificates](https://eyereasoner.github.io/eyemind/examples/deck/course-certificates-le) | Recursive requirements, absence of a counterexample, shared existential witnesses and witnesses containing earlier witnesses. |
 | [Symbolic differentiation](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative-le) | Structural recursion over expression trees, constructed derivatives and evaluation at separate points. |
+| [British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le) | Section 1 of the British Nationality Act 1981: alternative premises, a presumption that holds unless the contrary is shown, date comparisons and citizenship through a derived parent. |
+| [Library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le) | Charges from alternative rules, then the sum, number and maximum per member over distinct combinations. |
+| [Election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le) | Eligibility by alternatives, distinct choices, an absence test inside a count, winners by maximum with ties, and a quorum. |
 
 Their decks state the modeled assumptions and what the checked proofs establish.
 Bounds and finite expression domains are explicit in the programs.

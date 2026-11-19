@@ -34,8 +34,11 @@ With `--odrl`, the compiled LS includes validation and evaluation; the result is
 The [LE counterpart](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card-le)
 selects the same evaluator from its source and writes an equivalent LE report.
 For Logical English, try [Socrates](https://eyereasoner.github.io/eyemind/examples/deck/socrates-le),
-[integer squares](https://eyereasoner.github.io/eyemind/examples/deck/squares-le) and
-[record creation](https://eyereasoner.github.io/eyemind/examples/deck/records-le).
+[integer squares](https://eyereasoner.github.io/eyemind/examples/deck/squares-le),
+[record creation](https://eyereasoner.github.io/eyemind/examples/deck/records-le),
+[British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le) with
+alternative premises, or [library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le)
+and an [election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le) with aggregates.
 Their sources and conclusions use `NAME-le.le`; proofs and check reports use `NAME-le.js`.
 For OWL 2 RL inference, including RDFS, try the [people directory](https://eyereasoner.github.io/eyemind/examples/deck/people-owl2rl)
 and the [family ontology](https://eyereasoner.github.io/eyemind/examples/deck/family-owl2rl)
@@ -91,6 +94,7 @@ original inputs.
 | [battery-dispatch](https://eyereasoner.github.io/eyemind/examples/deck/battery-dispatch) | [battery-dispatch.js](https://github.com/eyereasoner/eyemind/blob/main/examples/battery-dispatch.js) | Cheapest four-slot battery schedule under energy and power limits |
 | [bayes-diagnosis](https://eyereasoner.github.io/eyemind/examples/deck/bayes-diagnosis) | [bayes-diagnosis.js](https://github.com/eyereasoner/eyemind/blob/main/examples/bayes-diagnosis.js) | Normalized probabilities for illustrative printer faults |
 | [binomial-vandermonde](https://eyereasoner.github.io/eyemind/examples/deck/binomial-vandermonde) | [binomial-vandermonde.js](https://github.com/eyereasoner/eyemind/blob/main/examples/binomial-vandermonde.js) | Exact binomial coefficients and finite checks of Vandermonde and Pascal row sums |
+| [british-citizenship-le](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le) | [british-citizenship-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/british-citizenship-le.le) | Section 1 of the British Nationality Act 1981 grants citizenship by birth to a citizen or settled parent, or to a foundling unless the contrary is shown |
 | [cat-koko-srl](https://eyereasoner.github.io/eyemind/examples/deck/cat-koko-srl) | [cat-koko-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/cat-koko-srl.srl) | Separate head blank nodes create distinct witnesses that pass an identity filter |
 | [chain-stratification-n3](https://eyereasoner.github.io/eyemind/examples/deck/chain-stratification-n3) | [chain-stratification-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/chain-stratification-n3.n3) | Rules with no strata, whose negation every chain of rule applications reaching it breaks a constraint for |
 | [closed-world-n3](https://eyereasoner.github.io/eyemind/examples/deck/closed-world-n3) | [closed-world-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/closed-world-n3.n3) | Paid orders ship when no hold is on record |
@@ -121,6 +125,7 @@ original inputs.
 | [distances-srl](https://eyereasoner.github.io/eyemind/examples/deck/distances-srl) | [distances-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/distances-srl.srl) · [data/distances-srl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/distances-srl.ttl) | Missing kilometre distances are converted from miles without replacing base data |
 | [dog-license](https://eyereasoner.github.io/eyemind/examples/deck/dog-license) | [dog-license.js](https://github.com/eyereasoner/eyemind/blob/main/examples/dog-license.js) | A licensing threshold based on collected dog counts |
 | [easter](https://eyereasoner.github.io/eyemind/examples/deck/easter) | [easter.js](https://github.com/eyereasoner/eyemind/blob/main/examples/easter.js) | Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050 |
+| [election-tally-le](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le) | [election-tally-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/election-tally-le.le) | Eligible voters' choices are counted once each, spoiled votes are excluded and a tie gives two winners |
 | [exact-decimals-srl](https://eyereasoner.github.io/eyemind/examples/deck/exact-decimals-srl) | [exact-decimals-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/exact-decimals-srl.srl) | Exact decimal invoice totals and division alongside binary64 double arithmetic |
 | [execution-identifiers-srl](https://eyereasoner.github.io/eyemind/examples/deck/execution-identifiers-srl) | [execution-identifiers-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/execution-identifiers-srl.srl) | Orders share one execution time and receive distinct UUID IRIs and strings |
 | [existential-n3](https://eyereasoner.github.io/eyemind/examples/deck/existential-n3) | [existential-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/existential-n3.n3) | Skolem mother IRIs and reciprocal child relations for each person |
@@ -160,6 +165,7 @@ original inputs.
 | [kaprekar](https://eyereasoner.github.io/eyemind/examples/deck/kaprekar) | [kaprekar.js](https://github.com/eyereasoner/eyemind/blob/main/examples/kaprekar.js) | Every four-digit Kaprekar routine reaches 6174 within seven steps |
 | [knapsack-optimization](https://eyereasoner.github.io/eyemind/examples/deck/knapsack-optimization) | [knapsack-optimization.js](https://github.com/eyereasoner/eyemind/blob/main/examples/knapsack-optimization.js) | The 0/1 knapsack problem: the most valuable pack within a weight limit |
 | [least-squares-regression](https://eyereasoner.github.io/eyemind/examples/deck/least-squares-regression) | [least-squares-regression.js](https://github.com/eyereasoner/eyemind/blob/main/examples/least-squares-regression.js) | Straight-line fits from exact sufficient statistics, with explicit degenerate cases |
+| [library-fines-le](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le) | [library-fines-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/library-fines-le.le) | Late fees and replacement costs are summed, counted and maximized per member, charging a damaged and lost loan once |
 | [lists](https://eyereasoner.github.io/eyemind/examples/deck/lists) | [lists.js](https://github.com/eyereasoner/eyemind/blob/main/examples/lists.js) | Concatenation, mapping and summation |
 | [lldm](https://eyereasoner.github.io/eyemind/examples/deck/lldm) | [lldm.js](https://github.com/eyereasoner/eyemind/blob/main/examples/lldm.js) | Leg length discrepancy measured from radiograph landmarks, with an alarm and its reason |
 | [measurement-shacl](https://eyereasoner.github.io/eyemind/examples/deck/measurement-shacl) | [measurement-shacl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/measurement-shacl.ttl) | QUDT converts speed readings before SHACL checks a sequence path against a numeric limit |

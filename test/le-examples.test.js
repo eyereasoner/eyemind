@@ -76,4 +76,43 @@ export const tests = {
     const changed = answers('symbolic-derivative', (s) => s.replaceAll('constant(2)', 'constant(5)'));
     assert.deepEqual(changed.map((row) => row.args.slice(2)), [[0n, 5n], [3n, 32n]]);
   },
+
+  'British citizenship follows either subsection, passes through a derived parent and yields to the contrary'() {
+    const citizens = (edit) => answers('british-citizenship', edit).filter((row) => row.name === 'britishCitizen').map((row) => row.args[0]).sort();
+    assert.deepEqual(citizens(), ['Anna', 'Ben', 'Eve', 'Gwen']);
+    assert.deepEqual(citizens((s) => s.replace('settledSince(Ivan, 20050101)', 'settledSince(Ivan, 19990101)')), ['Anna', 'Ben', 'Dara', 'Eve', 'Gwen']);
+    assert.deepEqual(citizens((s) => s.replace('Finn is a contraryShown.', '')), ['Anna', 'Ben', 'Eve', 'Finn', 'Gwen']);
+    // Without Farid's settlement, Anna and therefore Ben lose citizenship.
+    assert.deepEqual(citizens((s) => s.replace('settledSince(Farid, 19750301)', 'settledSince(Farid, 19950301)')), ['Eve', 'Gwen']);
+  },
+
+  'library fines charge a damaged and lost loan once and summarize every member'() {
+    const rows = (edit) => answers('library-fines', edit).map((term) => write(term));
+    assert.deepEqual(rows(), [
+      "amountDue(11, 'Alice')", "amountDue(4, 'Bob')", "amountDue(0, 'Carol')",
+      "lateLoanCount(2, 'Alice')", "lateLoanCount(1, 'Bob')", "lateLoanCount(0, 'Carol')",
+      "longestDelay(3, 'Alice')", "longestDelay(4, 'Bob')", "longestDelay(0, 'Carol')", "blockedMember('Alice')",
+    ]);
+    assert.ok(rows((s) => s.replace('loan(l4, Bob, novel, 4)', 'loan(l4, Bob, novel, 6)')).includes("amountDue(6, 'Bob')"));
+    assert.ok(rows((s) => s.replace('dvd has dailyRate 2', 'dvd has dailyRate 3')).includes("amountDue(12, 'Alice')"));
+    // A loan that is only damaged is charged the same as one damaged and lost.
+    assert.deepEqual(rows((s) => s.replace('l3 is damaged and l3 is lost.', 'l3 is damaged.')), rows());
+    assert.ok(!rows((s) => s.replace('l3 is damaged and l3 is lost.', '')).includes("blockedMember('Alice')"));
+  },
+
+  'election tallies count each eligible choice once, exclude spoiled votes and keep tied winners'() {
+    const rows = (edit) => answers('election-tally', edit).map((term) => write(term));
+    assert.deepEqual(rows(), [
+      "spoiledVoter('v7')", "'quorumMet'", "voteCount(3, 'Hana')", "voteCount(3, 'Ravi')", "voteCount(1, 'Sven')",
+      "winner('Hana')", "winner('Ravi')",
+    ]);
+    const verified = rows((s) => s.replace('v10 is a provisionalVoter.', 'v10 is a provisionalVoter. v10 is verified.'));
+    assert.ok(verified.includes("voteCount(2, 'Sven')") && verified.includes("winner('Ravi')"));
+    const single = rows((s) => s.replace('ballot(b9, v7, Sven).', ''));
+    assert.deepEqual(single.filter((row) => row.startsWith('winner')), ["winner('Hana')"]);
+    assert.ok(single.includes("voteCount(4, 'Hana')") && !single.some((row) => row.startsWith('spoiledVoter')));
+    // Two participants of eleven eligible voters fall short of the quorum.
+    const few = rows((s) => s.replace(/^ballot\(b(?:[3-9]|1[01]),.*\n/gm, ''));
+    assert.ok(!few.includes("'quorumMet'"));
+  },
 };

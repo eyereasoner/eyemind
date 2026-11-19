@@ -1,0 +1,55 @@
+# A library charges a daily late fee per item kind and the replacement cost of
+# an item returned damaged or lost. It totals each member's charges, counts
+# their late loans and finds their longest delay; a member who owes 10 or more
+# is blocked. Alice owes 11 and is blocked, Bob owes 4 and Carol nothing.
+# Shows "or" premises and the number, sum and maximum aggregates, each over
+# distinct combinations: a loan recorded as both damaged and lost is charged once.
+
+book has dailyRate 1.
+dvd has dailyRate 2.
+Alice is a member and Bob is a member and Carol is a member.
+
+atlas has kind book and atlas has replacementCost 12.
+novel has kind book and novel has replacementCost 8.
+film has kind dvd and film has replacementCost 15.
+poems has kind book and poems has replacementCost 6.
+
+# loan(Loan, Member, Item, DaysLate)
+loan(l1, Alice, atlas, 3).
+loan(l2, Alice, film, 1).
+loan(l3, Alice, poems, 0).
+l3 is damaged and l3 is lost.
+loan(l4, Bob, novel, 4).
+loan(l5, Bob, poems, 0).
+loan(l6, Carol, atlas, 0).
+
+# A late fee is the days late times the daily rate of the item's kind.
+For every L and M and I and N and K and R and F,
+if loan(L, M, I, N) and N is greater than 0 and I has kind K and K has dailyRate R
+and F is the value of N * R
+then charge(M, lateFee(L), F).
+
+# Damaged or lost: either record charges the replacement cost, once.
+For every L and M and I and N and F,
+if loan(L, M, I, N) and L is damaged and I has replacementCost F
+or loan(L, M, I, N) and L is lost and I has replacementCost F
+then charge(M, replacement(L), F).
+
+# Each aggregate's variables are its own; it counts every distinct
+# combination of their values once.
+For every M and T,
+if M is a member and T is the sum of F for every C and F such that charge(M, C, F)
+then T is an amountDue of M.
+For every M and N,
+if M is a member and N is the number of L and I and D such that (loan(L, M, I, D) and D is greater than 0)
+then N is a lateLoanCount of M.
+For every M and W,
+if M is a member and W is the maximum of D for every L and I and D such that loan(L, M, I, D)
+then W is a longestDelay of M.
+
+For every M and T, if T is an amountDue of M and T is at least 10 then M is a blockedMember.
+
+Find every T and M such that T is an amountDue of M.
+Find every N and M such that N is a lateLoanCount of M.
+Find every W and M such that W is a longestDelay of M.
+Find every M such that M is a blockedMember.

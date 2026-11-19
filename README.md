@@ -12,7 +12,7 @@ program, a JavaScript library and a browser application.
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Examples](https://eyereasoner.github.io/eyemind/examples/) · [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/)
 
-The examples are 152 runnable programs, each with a card deck and saved
+The examples are 155 runnable programs, each with a card deck and saved
 conclusions, proofs and check reports. The specification defines the language,
 the proof format and how a proof is checked; its conformance suite has
 1247 cases that test language and proof behavior, and runs
@@ -227,16 +227,20 @@ its scope. Terms also include exact integers, floats (`1.0`, `1e3`), lists
 | `For every X, ...` | a universally quantified fact |
 | `Every A is B.` | `implies(A(X), B(X))` |
 | `For every X and Y, if ... then ...` | a forward rule |
+| `if A and B or C then ...`, `Every A or B is C.` | one rule per alternative; `and` binds more tightly |
 | `Y is the value of E` | `is(Y, E)`, with `+ - * /` and parentheses |
 | `X is greater than`, `less than`, `at least`, `at most`, `equal to`, `different from E` | `gt`, `lt`, `ge`, `le`, `eq`, `ne` |
 | `it is not known that S` | `not(S)`, with LS's stratified meaning |
+| `N is the number of X such that S` | a count of the distinct values of `X` |
+| `T is the sum`, `maximum`, `minimum of V for every X and V such that S` | a fold of `V` over the distinct combinations |
 | `then there exists Y such that ...` | a Skolem witness of the firing |
 | `Find every X such that ...`, `Find whether ...` | `query(...)` |
 | `It is impossible that ...`, `Contradiction.` | `contradiction(...)` |
 
-Arithmetic and absence tests need their inputs from earlier premises, and
-arithmetic follows LS: integers stay exact, division gives a float. An
-answer becomes a sentence such as `16 is a square of 4.`; a witness is written
+Arithmetic, absence tests and aggregates need their inputs from earlier
+premises; an aggregate's own variables stay inside it, and a conjunction in its
+condition is put in parentheses. Arithmetic follows LS: integers stay exact,
+division gives a float. An answer becomes a sentence such as `16 is a square of 4.`; a witness is written
 `witness(rule 4, Y, Alice)`, and conclusions read back as facts of another LE
 program. Several `.le` files form one program, `--to le` writes LS conclusions
 as LE, and proofs check the compiled LS, not the English-to-LS translation.
@@ -248,8 +252,11 @@ mapped to the `eval:` and `odrl:` vocabularies; see the
 [handicap-card LE deck](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card-le).
 For larger programs, try
 [shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le),
-[river-crossing plans](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le) or
-[Pell equations](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation-le).
+[river-crossing plans](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le),
+[Pell equations](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation-le),
+[British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le),
+[library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le) or an
+[election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le).
 
 ### RDF 1.2
 

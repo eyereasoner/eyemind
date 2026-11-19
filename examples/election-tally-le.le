@@ -1,0 +1,60 @@
+# A plurality election with registered and verified provisional voters. A
+# voter who chooses two different candidates spoils their vote; a repeated
+# ballot for the same candidate counts once. Hana and Ravi tie with three votes
+# each and both win; turnout meets the quorum of half the eligible voters.
+# Shows "or" premises, counting distinct values through a derived relation,
+# an absence test inside an aggregate, and a maximum that keeps ties.
+
+Hana is a candidate and Ravi is a candidate and Sven is a candidate.
+
+v1 is registered and v2 is registered and v3 is registered and v4 is registered.
+v5 is registered and v6 is registered and v7 is registered and v8 is registered.
+v9 is a provisionalVoter and v9 is verified.
+v10 is a provisionalVoter.
+v11 is registered and v12 is registered.
+
+# ballot(Ballot, Voter, Candidate)
+ballot(b1, v1, Hana).
+ballot(b2, v2, Hana).
+ballot(b3, v3, Ravi).
+ballot(b4, v4, Ravi).
+ballot(b5, v5, Sven).
+ballot(b6, v6, Hana).
+ballot(b7, v6, Hana).
+ballot(b8, v7, Hana).
+ballot(b9, v7, Sven).
+ballot(b10, v9, Ravi).
+ballot(b11, v10, Sven).
+
+For every V, if V is registered or V is a provisionalVoter and V is verified
+then V is an eligibleVoter.
+
+# A choice drops the ballot, so counting choices counts candidates, not ballots.
+For every B and V and C, if ballot(B, V, C) then choice(V, C).
+For every V and C, if V is an eligibleVoter and choice(V, C) then V is a participant.
+
+For every V and N,
+if V is a participant and N is the number of C such that choice(V, C) and N is at least 2
+then V is a spoiledVoter.
+
+For every C and N,
+if C is a candidate and N is the number of V such that
+(choice(V, C) and V is an eligibleVoter and it is not known that V is a spoiledVoter)
+then N is a voteCount of C.
+
+# Every candidate with the highest count wins, so a tie keeps both.
+For every C and N and W,
+if N is a voteCount of C and W is the maximum of M for every D and M such that M is a voteCount of D
+and N is equal to W
+then C is a winner.
+
+For every T and R and H,
+if T is the number of V such that V is a participant
+and R is the number of U such that U is an eligibleVoter
+and H is the value of T * 2 and H is at least R
+then quorumMet.
+
+Find every N and C such that N is a voteCount of C.
+Find every V such that V is a spoiledVoter.
+Find every C such that C is a winner.
+Find whether quorumMet.

@@ -816,5 +816,20 @@
     "name": "symbolic-derivative-le",
     "files": ["symbolic-derivative-le.le"],
     "description": "Structural rules differentiate a cubic expression and evaluate the resulting tree at two points"
+  },
+  {
+    "name": "british-citizenship-le",
+    "files": ["british-citizenship-le.le"],
+    "description": "Section 1 of the British Nationality Act 1981 grants citizenship by birth to a citizen or settled parent, or to a foundling unless the contrary is shown"
+  },
+  {
+    "name": "library-fines-le",
+    "files": ["library-fines-le.le"],
+    "description": "Late fees and replacement costs are summed, counted and maximized per member, charging a damaged and lost loan once"
+  },
+  {
+    "name": "election-tally-le",
+    "files": ["election-tally-le.le"],
+    "description": "Eligible voters' choices are counted once each, spoiled votes are excluded and a tie gives two winners"
   }
 ]

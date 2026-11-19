@@ -61,6 +61,73 @@ export const tests = {
     assert.equal(writeLe(run(compile('Find every X such that X is a person.').program)), '# No conclusions.\n');
   },
 
+  'or separates alternative premises, each compiled to its own clause with its own order checks'() {
+    const loaded = compile('Rex is a cat. Fido is a dog. Tom is a fox and Tom is tame. Every cat or dog is a pet. ' +
+      'For every X, if X is a pet or X is a fox and X is tame then X is welcome. Find every X such that X is welcome.');
+    assert.deepEqual(run(loaded.program).answers, ["welcome('Rex')", "welcome('Fido')", "welcome('Tom')"]);
+    assert.deepEqual(loaded.program.sources.filter((s) => s.kind === 'forward').map((s) => `${write(s.head)} :- ${s.body.map((goal) => write(goal)).join(', ')}`), [
+      'pet(X) :- cat(X)', 'pet(X) :- dog(X)', 'welcome(X) :- pet(X)', 'welcome(X) :- fox(X), tame(X)',
+    ]);
+    assert.deepEqual(run(loadText(loaded.text)).answers, run(loaded.program).answers);
+    const constraint = 'For every X, it is impossible that X is a minor and X is a voter or X is barred.';
+    assert.equal(run(compile(`Ann is a minor and Ann is a voter. ${constraint}`).program).haltCode, 65);
+    assert.equal(run(compile(`Bo is barred. ${constraint}`).program).haltCode, 65);
+    assert.notEqual(run(compile(`Ann is a minor. ${constraint}`).program).haltCode, 65);
+    for (const [text, pattern] of [
+      ['For every X and Y, if X is a cat or p(X, Y) then q(X, Y).', /every alternative of an "or" premise/],
+      ['For every X, if X is a cat or it is not known that X is a dog then ok(X).', /X must be supplied/],
+      ['Find every X such that X is a cat or X is a dog.', /a question has no "or"/],
+    ]) {
+      assert.match(errorOf(() => compile(text)), pattern, text);
+    }
+  },
+
+  'aggregates count, sum and fold distinct combinations, and their proofs check'() {
+    // Alice's charge x is both given and derived: one combination, counted once.
+    const facts = 'Alice is a member and Bob is a member and Carol is a member. ' +
+      'fine(Alice, a, 3). fine(Alice, b, 5). fine(Bob, c, 2). fine(Bob, d, 2.5). a is a loan and b is a loan and c is a loan. ' +
+      'charge(Alice, x, 6). For every M, if M is a member and fine(M, a, 3) then charge(M, x, 6). ';
+    const rules = [
+      'For every M and T, if M is a member and T is the sum of F for every L and F such that fine(M, L, F) then total(M, T).',
+      'For every M and N, if M is a member and N is the number of L and F such that (fine(M, L, F) and L is a loan) then loans(M, N).',
+      'For every M and B, if M is a member and B is the maximum of F for every L and F such that fine(M, L, F) then most(M, B).',
+      'For every M and B, if M is a member and B is the minimum of F for every L and F such that fine(M, L, F) then least(M, B).',
+      'For every M and N, if M is a member and N is the number of C and F such that charge(M, C, F) then charges(M, N).',
+      'If 2 is the number of L such that L is a loan then twoLoans. If 3 is the number of L such that L is a loan then threeLoans.',
+      'Find every M and T such that total(M, T). Find every M and N such that loans(M, N). Find every M and B such that most(M, B).',
+      'Find every M and B such that least(M, B). Find every M and N such that charges(M, N). Find whether threeLoans. Find whether twoLoans.',
+    ].join(' ');
+    const loaded = compile(facts + rules), result = run(loaded.program, { proof: true });
+    assert.deepEqual(result.answers, [
+      "total('Alice', 8)", "total('Bob', 4.5)", "total('Carol', 0)",
+      "loans('Alice', 2)", "loans('Bob', 1)", "loans('Carol', 0)",
+      "most('Alice', 5)", "most('Bob', 2.5)", "least('Alice', 3)", "least('Bob', 2)",
+      "charges('Alice', 1)", "charges('Bob', 0)", "charges('Carol', 0)", "'threeLoans'",
+    ]);
+    assert.equal(checkProof(loaded.program, result.proof).valid, true);
+    assert.equal(checkProof(loadText(loaded.text), result.proof).valid, true);
+    const forged = result.proof.replace("total('Alice', 8)", "total('Alice', 9)");
+    assert.notEqual(forged, result.proof);
+    assert.equal(checkProof(loaded.program, forged).valid, false);
+    // The helpers follow the stated clauses and appear only when used.
+    assert.equal(loaded.program.sources.at(-1).kind, 'backward');
+    assert.doesNotMatch(compile('Find every X such that X is a cat.').text, /"le:/);
+    for (const [text, pattern] of [
+      ['For every M and N, if M is a member and N is the number of L such that fine(M, L) and L is a loan then x(M, N).', /belongs to the aggregate/],
+      ['For every M and N, if N is the number of L such that fine(M, L) and M is a member then x(M, N).', /M must be supplied by an earlier premise before the aggregate/],
+      ['For every M and N, if M is a member and N is the number of M such that p(M) then x(M, N).', /already declared/],
+      ['For every S, if S is the sum of V for every L such that fine(L, V) then t(S).', /V must be declared after "for every"/],
+      ['For every S, if S is the sum of the value for every L such that fine(L) then t(S).', /needs a variable/],
+      ['For every N, if N is the number of L such that fine(L, F) then t(N).', /F is undeclared/],
+      ['For every N, if N is the number of L such that (p(L) or q(L)) then t(N).', /expected "\)"/],
+      ['Find every N such that N is the number of L such that p(L).', /a question cannot aggregate/],
+      ['For every N, if N is the number of L and K such that (p(L) and K is the number of J such that q(L, J)) then t(N).', /cannot contain another aggregate/],
+    ]) {
+      assert.match(errorOf(() => compile(text)), pattern, text);
+    }
+    assert.match(errorOf(() => run(compile('p(a). For every N, if N is the number of X such that p(X) then p(N).').program)), /unstratified/);
+  },
+
   'readable witness terms preserve rule, label, arguments and ordinary compounds'() {
     assert.equal(cli(['examples/records-le.le']).stdout, 'Alice is an owner of witness(rule 4, Y, Alice).\n');
     const values = [

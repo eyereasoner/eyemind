@@ -15,6 +15,54 @@ const RESERVED = new Set([...PRIMITIVE_KEYS, ...CONTROL_KEYS, ...RESERVED_KEYS].
 for (const name of ['true', 'false', 'fail']) RESERVED.add(name);
 const OPERATORS = { '+': ['add', 1], '-': ['sub', 1], '*': ['mul', 2], '/': ['div', 2] };
 const list = (items) => items.reduceRight((tail, head) => st('.', head, tail), EMPTY);
+const cons = (head, tail) => st('.', head, tail);
+const AGGREGATES = { number: 'le:count', sum: 'le:sum', maximum: 'le:max', minimum: 'le:min' };
+
+// Aggregates collect t(...) tuples with findall_sorted, drop repeated tuples
+// with le:distinct and fold the rest with these backward rules. Their names
+// contain ':', which no LE name can, so they never meet a user's relation.
+// Each clause is a function so that every use has its own variables.
+const HELPERS = {
+  'le:distinct': [
+    () => [st('le:distinct', EMPTY, EMPTY), []],
+    () => { const X = new Var('X'); return [st('le:distinct', list([X]), list([X])), []]; },
+    () => {
+      const X = new Var('X'), Y = new Var('Y'), T = new Var('T'), R = new Var('R');
+      return [st('le:distinct', cons(X, cons(Y, T)), R), [st('identical', X, Y), st('le:distinct', cons(Y, T), R)]];
+    },
+    () => {
+      const X = new Var('X'), Y = new Var('Y'), T = new Var('T'), R = new Var('R');
+      return [st('le:distinct', cons(X, cons(Y, T)), cons(X, R)), [st('not_identical', X, Y), st('le:distinct', cons(Y, T), R)]];
+    },
+  ],
+  'le:count': [
+    () => [st('le:count', EMPTY, 0n), []],
+    () => {
+      const H = new Var('H'), T = new Var('T'), N = new Var('N'), M = new Var('M');
+      return [st('le:count', cons(H, T), N), [st('le:count', T, M), st('is', N, st('add', M, 1n))]];
+    },
+  ],
+  'le:sum': [
+    () => [st('le:sum', EMPTY, 0n), []],
+    () => {
+      const H = new Var('H'), T = new Var('T'), S = new Var('S'), S0 = new Var('S0'), V = new Var('V');
+      return [st('le:sum', cons(H, T), S), [st('arg', 1n, H, V), st('le:sum', T, S0), st('is', S, st('add', S0, V))]];
+    },
+  ],
+  'le:max': extremum('le:max', 'ge', 'lt'),
+  'le:min': extremum('le:min', 'le', 'gt'),
+};
+
+// The value of a list's best tuple; an empty list has none.
+function extremum(name, keep, pass) {
+  const one = () => { const H = new Var('H'), V = new Var('V'); return [st(name, list([H]), V), [st('arg', 1n, H, V)]]; };
+  const more = (test, chosen) => () => {
+    const H = new Var('H'), I = new Var('I'), T = new Var('T'), M = new Var('M'), M0 = new Var('M0'), V = new Var('V');
+    return [st(name, cons(H, cons(I, T)), M),
+      [st(name, cons(I, T), M0), st('arg', 1n, H, V), st(test, V, M0), st('unify', M, chosen(V, M0))]];
+  };
+  return [one, more(keep, (V) => V), more(pass, (V, M0) => M0)];
+}
 
 function listItems(term) {
   const items = [];
@@ -31,6 +79,9 @@ class Parser {
     this.tokens = [];
     this.at = 0;
     this.scope = new Map();
+    this.closed = new Set();
+    this.helpers = new Set();
+    this.aggregates = 0;
     this.depth = 0;
     let line = 1, pos = 0;
     while (pos < text.length) {
@@ -130,6 +181,7 @@ class Parser {
       return st(token.value, ...args);
     }
     if (token.kind === 'word' && VARIABLE.test(token.value)) {
+      if (this.closed.has(token.value)) this.error(`variable ${token.value} belongs to the aggregate that declares it and cannot be used outside it`, token.line);
       if (!this.scope.has(token.value)) this.error(`variable ${token.value} is undeclared; introduce it with "For every", "Find every" or "there exists", or quote it as a name`, token.line);
       return this.scope.get(token.value);
     }
@@ -180,8 +232,10 @@ class Parser {
       }
       if (body) {
         if (this.take('the')) {
-          this.need('value'); this.need('of');
           if (!(subject instanceof Var) && !['bigint', 'number'].includes(typeof subject)) this.error('a calculation needs a variable or number on its left');
+          const kind = Object.keys(AGGREGATES).find((word) => this.is(word));
+          if (kind) return this.aggregate(subject, kind);
+          this.need('value'); this.need('of');
           return st('is', subject, this.expression());
         }
         let comparison;
@@ -205,15 +259,78 @@ class Parser {
     this.error('expected "is a class", "is a relation of", or a relation call such as parent(Alice, Bob)');
   }
 
+  // An aggregate statement stands for several goals, so goals are flattened.
   goals(body) {
     const goals = [this.atomic(body)];
     while (this.take('and')) goals.push(this.atomic(body));
-    return goals;
+    return goals.flat();
+  }
+
+  // Premises joined by "or", with "and" binding more tightly; each
+  // alternative becomes a clause of its own.
+  alternatives() {
+    const result = [this.goals(true)];
+    while (this.take('or')) result.push(this.goals(true));
+    return result;
+  }
+
+  // "N is the number of X and Y such that ..." counts the distinct
+  // combinations of the declared variables; sum, maximum and minimum fold the
+  // value V over them. The condition is one statement or a conjunction in
+  // parentheses, and its declared variables stay inside it.
+  aggregate(result, kind) {
+    this.at++; this.need('of');
+    let value = null;
+    if (kind !== 'number') {
+      if (this.token.kind !== 'word' || !VARIABLE.test(this.token.value)) {
+        this.error(`"the ${kind} of" needs a variable, as in "the ${kind} of V for every X and V such that ..."`);
+      }
+      value = this.token.value;
+      this.at++; this.need('for'); this.need('every');
+    }
+    const locals = this.declarations();
+    if (value !== null && !locals.some((v) => v.name === value)) this.error(`${value} must be declared after "for every" in its aggregate`);
+    this.need('such'); this.need('that');
+    let condition;
+    if (this.take('(')) { condition = this.goals(true); this.need(')'); }
+    else condition = [this.atomic(true)].flat();
+    if (condition.some((goal) => goal instanceof Struct && goal.name === 'findall_sorted')) {
+      this.error('an aggregate cannot contain another aggregate; derive the inner one in a rule and use its conclusion');
+    }
+    for (const v of locals) this.closed.add(v.name);
+    const ordered = value === null ? locals : [locals.find((v) => v.name === value), ...locals.filter((v) => v.name !== value)];
+    const n = ++this.aggregates, all = new Var(`Agg${n}`), distinct = new Var(`Agg${n}d`), helper = AGGREGATES[kind];
+    this.helpers.add('le:distinct');
+    this.helpers.add(helper);
+    return [st('findall_sorted', st('t', ...ordered), conjunction(condition), all),
+      st('le:distinct', all, distinct), st(helper, distinct, result)];
+  }
+
+  // Calculations, comparisons and absence tests need their inputs from
+  // earlier premises; an aggregate needs those of its condition other than
+  // its own variables, and checks its condition in the same way.
+  checkOrder(goals, bound, line) {
+    for (const goal of goals) {
+      if (goal instanceof Struct && goal.name === 'findall_sorted') {
+        const locals = variablesIn([goal.args[0]]), inner = new Set(bound);
+        for (const name of variablesIn([goal.args[1]])) {
+          if (!locals.has(name) && !bound.has(name)) this.error(`${name} must be supplied by an earlier premise before the aggregate that uses it`, line);
+        }
+        this.checkOrder(flattenConjunction(goal.args[1]), inner, line);
+        bound.add(goal.args[2].name);
+        continue;
+      }
+      const required = goal instanceof Struct && RESERVED.has(goal.name) ? variablesIn(goal.name === 'is' ? [goal.args[1]] : [goal]) : new Set();
+      for (const name of required) if (!bound.has(name)) this.error(`${name} must be supplied by an earlier positive premise or calculation`, line);
+      if (!(goal instanceof Struct && goal.name === 'not')) for (const name of variablesIn([goal])) bound.add(name);
+    }
+    return bound;
   }
 
   sentence() {
     const line = this.token.line;
     this.scope = new Map();
+    this.closed = new Set();
     if (this.is('use') && this.tokens[this.at + 1]?.kind === 'word' && this.tokens[this.at + 1].value.toLowerCase() === 'odrl') {
       this.at++;
       this.need('odrl');
@@ -229,45 +346,49 @@ class Parser {
       return { kind: 'odrl', namespace, evaluate, line };
     }
     if (this.take('every')) {
-      const from = this.name(); this.need('is');
-      const x = new Var('X'), heads = [];
+      const x = new Var('X'), froms = [this.name()], heads = [];
+      while (this.take('or')) froms.push(this.name());
+      this.need('is');
       do { this.take('a') || this.take('an'); heads.push(st(this.name(), x)); } while (this.take('and'));
       this.need('.');
-      return { kind: 'forward', heads, body: [st(from, x)], line };
+      return { kind: 'forward', heads, bodies: froms.map((from) => [st(from, x)]), line };
     }
     let quantified = false;
     if (this.take('for')) { this.need('every'); this.declarations(); this.need(','); quantified = true; }
-    let kind = 'fact', body = [], heads = [], witnesses = [];
+    let kind = 'fact', bodies = [[]], heads = [], witnesses = [];
     if (this.take('find')) {
       if (quantified) this.error('a question introduces its variables with "Find every"');
       if (this.take('every')) { this.declarations(); this.need('such'); this.need('that'); }
       else this.need('whether');
-      kind = 'query'; body = this.goals(true);
+      kind = 'query'; bodies = [this.goals(true)];
+      if (this.is('or')) this.error('a question has no "or"; ask one question per alternative, or derive a relation with an "or" rule and ask for it');
+      if (bodies[0].some((goal) => goal instanceof Struct && goal.name === 'findall_sorted')) {
+        this.error('a question cannot aggregate; derive the aggregate in a rule and ask for its conclusion');
+      }
     } else if (this.take('contradiction')) {
-      kind = 'contradiction'; body = ['true'];
+      kind = 'contradiction'; bodies = [['true']];
     } else if (this.take('it')) {
       this.need('is'); this.need('impossible'); this.need('that');
-      kind = 'contradiction'; body = this.goals(true);
+      kind = 'contradiction'; bodies = this.alternatives();
     } else {
-      if (this.take('if')) { kind = 'forward'; body = this.goals(true); this.need('then'); }
+      if (this.take('if')) { kind = 'forward'; bodies = this.alternatives(); this.need('then'); }
       if (this.take('there')) {
         this.need('exists'); witnesses = this.declarations(); this.need('such'); this.need('that');
-        if (kind === 'fact') { kind = 'forward'; body = ['true']; }
+        if (kind === 'fact') { kind = 'forward'; bodies = [['true']]; }
       }
       heads = this.goals(false);
     }
     this.need('.');
-    const headVars = variablesIn(heads), bound = new Set(), witnessNames = new Set(witnesses.map((v) => v.name));
-    for (const goal of body) {
-      const required = goal instanceof Struct && RESERVED.has(goal.name) ? variablesIn(goal.name === 'is' ? [goal.args[1]] : [goal]) : new Set();
-      for (const name of required) if (!bound.has(name)) this.error(`${name} must be supplied by an earlier positive premise or calculation`, line);
-      if (!(goal instanceof Struct && goal.name === 'not')) for (const name of variablesIn([goal])) bound.add(name);
-    }
+    const headVars = variablesIn(heads), witnessNames = new Set(witnesses.map((v) => v.name));
     if (witnesses.some((v) => !headVars.has(v.name))) this.error('every existential variable must occur in its conclusion', line);
-    if (kind === 'forward' && [...headVars].some((name) => !bound.has(name) && !witnessNames.has(name))) {
-      this.error('a conclusion variable must occur in a premise or be introduced with "there exists"', line);
+    for (const body of bodies) {
+      const bound = this.checkOrder(body, new Set(), line);
+      if (kind === 'forward' && [...headVars].some((name) => !bound.has(name) && !witnessNames.has(name))) {
+        this.error(bodies.length > 1 ? 'a conclusion variable must occur in every alternative of an "or" premise, or be introduced with "there exists"'
+          : 'a conclusion variable must occur in a premise or be introduced with "there exists"', line);
+      }
     }
-    return { kind, heads, body, line };
+    return { kind, heads, bodies, line };
   }
 }
 
@@ -291,34 +412,47 @@ function javascript(term) {
 }
 
 export function compileLe(inputs) {
-  const clauses = [], statements = [], sources = [];
+  const clauses = [], statements = [], sources = [], helpers = new Set();
   let profile = null;
   for (const [text, file] of inputs) {
     const parser = new Parser(String(text), file);
     while (parser.token.kind !== 'end') {
-      const sentence = parser.sentence(), { kind, heads, body, line } = sentence;
+      const sentence = parser.sentence(), { kind, heads, bodies, line } = sentence;
       if (kind === 'odrl') {
         if (profile || statements.length || inputs.length !== 1) parser.error('an ODRL directive must be the first sentence of one LE file', line);
         profile = { namespace: sentence.namespace, evaluate: sentence.evaluate };
         continue;
       }
-      statements.push({ ...sentence, file });
       clauses.push(`// ${String(file).replace(/[\r\n\u2028\u2029]/g, ' ')}: line ${line}`);
-      if (kind === 'fact') {
-        for (const head of heads) {
-          clauses.push(`fact(${javascript(head)})`);
-          sources.push(new Source('fact', head, [], line, file));
+      for (const body of bodies) {
+        statements.push({ kind, heads, body, line, file });
+        if (kind === 'fact') {
+          for (const head of heads) {
+            clauses.push(`fact(${javascript(head)})`);
+            sources.push(new Source('fact', head, [], line, file));
+          }
+        } else if (kind === 'forward') {
+          clauses.push(`implies(${javascript(conjunction(body))}, ${javascript(conjunction(heads))})`);
+          sources.push(new Source('forward', conjunction(heads), body, line, file));
+        } else {
+          clauses.push(`${kind}(${body.map(javascript).join(', ')})`);
+          sources.push(new Source(kind, kind === 'query' ? 'true' : 'false', body, line, file));
         }
-      } else if (kind === 'forward') {
-        clauses.push(`implies(${javascript(conjunction(body))}, ${javascript(conjunction(heads))})`);
-        sources.push(new Source('forward', conjunction(heads), body, line, file));
-      } else {
-        clauses.push(`${kind}(${body.map(javascript).join(', ')})`);
-        sources.push(new Source(kind, kind === 'query' ? 'true' : 'false', body, line, file));
       }
     }
+    for (const name of parser.helpers) helpers.add(name);
   }
   if (profile) return compileOdrlLe(statements, profile, inputs[0][1]);
+  // The helpers follow every stated clause, so a witness's rule number is
+  // the same whether or not the program aggregates.
+  if (helpers.size) clauses.push('// Aggregation helpers.');
+  for (const name of Object.keys(HELPERS).filter((key) => helpers.has(key))) {
+    for (const make of HELPERS[name]) {
+      const [head, body] = make();
+      clauses.push(`implied_by(${javascript(head)}, ${body.length ? javascript(conjunction(body)) : "'true'"})`);
+      sources.push(new Source('backward', head, body.length ? body : ['true'], null, null));
+    }
+  }
   return { kind: 'le', text: '// Compiled from Logical English to Logic Script.\n\n' + clauses.join('\n') + '\n',
     program: new Program(sources), prefixes: {}, compiled: { statements } };
 }

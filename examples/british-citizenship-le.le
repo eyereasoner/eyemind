@@ -1,0 +1,49 @@
+# Section 1 of the British Nationality Act 1981, after the logic program of
+# Sergot, Sadri, Kowalski, Kriwaczek, Hammond and Cory (1986). Anna, born in the
+# United Kingdom after commencement to a settled father, is a British citizen,
+# and so is her son Ben, through her. Hugo was born before commencement, Dara
+# before her father settled, and Jo abroad; none of them is a citizen by
+# section 1. The foundling Eve is a citizen; for Finn the contrary is shown.
+# Shows "or" premises, absence as "unless the contrary is shown", date
+# comparisons and citizenship that passes through a derived parent.
+
+# Dates are integers of the form YYYYMMDD. The Act commenced on 1 January 1983.
+19830101 is a commencement.
+
+Farid is a parent of Anna and settledSince(Farid, 19750301).
+Anna has birthPlace unitedKingdom and Anna has birthDate 19900512.
+Anna is a parent of Ben.
+Ben has birthPlace unitedKingdom and Ben has birthDate 20150820.
+Anna is a parent of Jo.
+Jo has birthPlace france and Jo has birthDate 20170203.
+
+# Gwen is a citizen under earlier law, which this program does not model.
+Gwen is a britishCitizen and Gwen is a parent of Hugo.
+Hugo has birthPlace unitedKingdom and Hugo has birthDate 19800101.
+
+Ivan is a parent of Dara and settledSince(Ivan, 20050101).
+Dara has birthPlace unitedKingdom and Dara has birthDate 20010304.
+
+Eve is a foundling and Eve has foundIn unitedKingdom and Eve has foundDate 20200601.
+Finn is a foundling and Finn has foundIn unitedKingdom and Finn has foundDate 20180101.
+Finn is a contraryShown.
+
+# A parent qualifies who, at the time of the birth, is a British citizen or
+# is settled in the United Kingdom. "and" binds more tightly than "or".
+For every Q and P and D and S,
+if Q is a parent of P and Q is a britishCitizen
+or Q is a parent of P and P has birthDate D and settledSince(Q, S) and S is at most D
+then Q is a qualifyingParent of P.
+
+# Section 1(1) and 1(2): born in the United Kingdom after commencement to a
+# qualifying parent, or found abandoned there as a new-born after
+# commencement, unless the contrary is shown.
+For every P and Q and D and C,
+if P has birthPlace unitedKingdom and P has birthDate D and C is a commencement
+and D is at least C and Q is a qualifyingParent of P
+or P is a foundling and P has foundIn unitedKingdom and P has foundDate D
+and C is a commencement and D is at least C and it is not known that P is a contraryShown
+then P is a britishCitizen.
+
+Find every P such that P is a britishCitizen.
+Find every Q and P such that Q is a qualifyingParent of P.
