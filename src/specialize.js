@@ -129,8 +129,11 @@ export function programText(sources) {
 
 export class Specializer {
   // quads: the keys whose arguments are subject, property, object and graph.
-  constructor(program, { quads = [] } = {}) {
+  // wanted: patterns of the new facts asked for, or null for all; rules that
+  // cannot contribute to one are left out.
+  constructor(program, { quads = [], wanted = null } = {}) {
     this.quads = new Set(quads);
+    this.wanted = wanted;
     this.cache = new Map();
     this.reason = null;
     try {
@@ -293,45 +296,45 @@ export class Specializer {
       }
       if (changed) this.readsMemo = new Map();
     }
+    const variants = [];
+    for (const rule of this.rules) this.variants(rule, (heads, body, newIndex, free) => variants.push([heads, body, newIndex, free]));
     const sources = [];
     const needed = new Map();
     const need = (goal) => {
       for (const fact of this.matches(goal, new Env())) needed.set(identity(fact), fact);
     };
-    for (const rule of this.rules) {
-      this.variants(rule, (heads, body, newIndex) => {
-        const goals = body.map(([goal, mode]) => {
-          if (mode === 'old') {
-            need(goal);
-            return old(goal);
-          }
-          return mode === 'new' ? goal : this.rewrite(goal, false, need);
-        });
-        // A new premise first: it has the fewest facts to try.
-        const ordered = newIndex < 0 ? goals : [goals[newIndex], ...goals.filter((_, i) => i !== newIndex)];
-        const inBody = new Set();
-        for (const goal of ordered) for (const name of variables(goal).keys()) inBody.add(name);
-        if (heads.some((head) => [...variables(head).keys()].some((name) => !inBody.has(name)))) {
-          // Witnesses are shared by the conclusions of one firing.
-          sources.push(new Source('forward', conjunction(heads), ordered));
-          return;
+    for (const [heads, body, newIndex] of this.relevant(variants)) {
+      const goals = body.map(([goal, mode]) => {
+        if (mode === 'old') {
+          need(goal);
+          return old(goal);
         }
-        for (const head of heads) {
-          if (head === 'false') {
-            sources.push(new Source('contradiction', 'false', ordered));
-            continue;
-          }
-          // An old conclusion is not new: say so when the old facts it
-          // could be are few enough to copy.
-          const could = this.matches(head, new Env(), MANY);
-          if (could !== null && could.length) {
-            need(head);
-            sources.push(new Source('forward', head, [...ordered, new Struct('not', [old(head)])]));
-          } else {
-            sources.push(new Source('forward', head, ordered));
-          }
-        }
+        return mode === 'new' ? goal : this.rewrite(goal, false, need);
       });
+      // A new premise first: it has the fewest facts to try.
+      const ordered = newIndex < 0 ? goals : [goals[newIndex], ...goals.filter((_, i) => i !== newIndex)];
+      const inBody = new Set();
+      for (const goal of ordered) for (const name of variables(goal).keys()) inBody.add(name);
+      if (heads.some((head) => [...variables(head).keys()].some((name) => !inBody.has(name)))) {
+        // Witnesses are shared by the conclusions of one firing.
+        sources.push(new Source('forward', conjunction(heads), ordered));
+        continue;
+      }
+      for (const head of heads) {
+        if (head === 'false') {
+          sources.push(new Source('contradiction', 'false', ordered));
+          continue;
+        }
+        // An old conclusion is not new: say so when the old facts it
+        // could be are few enough to copy.
+        const could = this.matches(head, new Env(), MANY);
+        if (could !== null && could.length) {
+          need(head);
+          sources.push(new Source('forward', head, [...ordered, new Struct('not', [old(head)])]));
+        } else {
+          sources.push(new Source('forward', head, ordered));
+        }
+      }
     }
     for (const clause of this.backward) {
       sources.push(clause.body.length
@@ -340,6 +343,113 @@ export class Specializer {
     }
     for (const fact of needed.values()) sources.push(new Source('fact', old(fact), []));
     return { sources };
+  }
+
+  // The variants that can contribute to a wanted fact: one with a wanted
+  // conclusion, or a contradiction, and then those concluding what its new
+  // premises and the goals it calls read, to a fixpoint. Each wanted fact
+  // says which of its positions matter to its reader: a value matters when
+  // it reaches a position some reader uses, or joins goals. A conclusion
+  // does not serve a reader when the variant reading it would conclude only
+  // its own premises, as reflexive owl:sameAs does in replacement rules, or
+  // when one of its own premises already agrees with it wherever the reader
+  // looks, as a triple owl:sameAs copies to an equal object has the subject
+  // its original has. All variants without wanted patterns.
+  relevant(variants) {
+    if (this.wanted === null) return variants;
+    const wanted = this.wanted.map((pattern) => ({ goal: renamed(pattern), heads: null, premises: null, positions: pattern.args.map(() => true) }));
+    const want = (goal, heads, premises, positions, free = null) => {
+      const names = new Map();
+      const suffix = `r${++fresh}`;
+      const copy = freshTerm(goal, suffix, names);
+      // The premise open where the rule has a variable whose value does
+      // not matter: any value there serves alike.
+      const open = free === null ? copy : new Struct(copy.name, copy.args.map((arg, i) => free[i] && !positions[i] ? variable() : arg));
+      wanted.push({ goal: copy, open, heads: heads && heads.map((head) => freshTerm(head, suffix, names)),
+        premises: premises && premises.map((premise) => freshTerm(premise, suffix, names)), positions });
+    };
+    const env = new Env();
+    const serves = (head, own, { goal, open, heads, premises, positions }) => {
+      const mark = env.mark();
+      try {
+        if (!unify(head, goal, env)) return false;
+        if (heads === null) return true;
+        // Every firing whose conclusion is read here has such a premise when
+        // the premise, as the firing binds it, is an instance of the read one.
+        if (own.some((premise) => {
+          const bound = copyResolved(premise, env);
+          return bound instanceof Struct && instance(open, bound) &&
+            positions.every((matters, i) => !matters || identical(bound.args[i], head.args[i], env));
+        })) return false;
+        return heads.some((item) => item === 'false' || !premises.some((premise) => identical(premise, item, env)));
+      } finally {
+        env.undo(mark);
+      }
+    };
+    // For each kept variant, the positions of each conclusion some reader uses.
+    const usage = new Map();
+    const checked = new Map();
+    for (let changed = true; changed;) {
+      changed = false;
+      for (const variant of variants) {
+        const [heads, body, , free] = variant;
+        const own = body.filter(([, mode]) => mode === 'new' || mode === 'old').map(([goal]) => goal);
+        let use = usage.get(variant);
+        let grew = false;
+        const from = checked.get(variant) ?? 0;
+        checked.set(variant, wanted.length);
+        heads.forEach((head, h) => {
+          if (head === 'false') {
+            if (use === undefined) usage.set(variant, use = heads.map((item) => item instanceof Struct ? item.args.map(() => false) : []));
+            if (from === 0) grew = true;
+            return;
+          }
+          for (let w = from; w < wanted.length; w++) {
+            if (!serves(head, own, wanted[w])) continue;
+            if (use === undefined) usage.set(variant, use = heads.map((item) => item instanceof Struct ? item.args.map(() => false) : []));
+            wanted[w].positions.forEach((matters, i) => {
+              if (matters && !use[h][i]) use[h][i] = grew = true;
+            });
+            if (!use[h].length) grew = true;
+          }
+        });
+        if (!grew) continue;
+        changed = true;
+        // The values that matter: those at used positions of the
+        // conclusions, and those shared with another goal of the body.
+        const values = (except) => {
+          const names = new Set();
+          heads.forEach((head, h) => {
+            if (head instanceof Struct) head.args.forEach((arg, i) => { if (use[h][i]) for (const name of variables(arg).keys()) names.add(name); });
+          });
+          for (const [goal] of body) if (goal !== except) for (const name of variables(goal).keys()) names.add(name);
+          return names;
+        };
+        for (const [at, [goal, mode]] of body.entries()) {
+          if (mode === 'new') {
+            const names = values(goal);
+            const counts = new Map();
+            for (const arg of goal.args) for (const name of variables(arg).keys()) counts.set(name, (counts.get(name) ?? 0) + 1);
+            want(goal, heads, own, goal.args.map((arg) => [...variables(arg).keys()].some((name) => names.has(name) || counts.get(name) > 1)), free[at]);
+          } else if (mode === null) {
+            for (const read of this.reads(goal)) want(read, null, null, read.args.map(() => true));
+          }
+        }
+      }
+    }
+    return variants.filter((variant) => usage.has(variant));
+  }
+
+  // The data goals that a goal which is no premise reads and that can be
+  // new: inside control goals, and in the backward clauses it calls.
+  reads(goal, seen = new Set()) {
+    if (!(goal instanceof Struct)) return [];
+    const goalKey = key(goal);
+    if (this.data.has(goalKey)) return this.mayBeNew(goal) ? [goal] : [];
+    if (CONTROL_KEYS.has(goalKey)) return goal.args.flatMap((arg) => this.reads(arg, seen));
+    if (!this.backwardKeys.has(goalKey) || seen.has(goalKey)) return [];
+    seen.add(goalKey);
+    return this.clausesOf.get(goalKey).flatMap((clause) => clause.body.flatMap((item) => this.reads(item, seen)));
   }
 
   // Whether a goal that is no premise may hold: false when no clause can
@@ -456,9 +566,9 @@ export class Specializer {
       resolved.forEach((goal, i) => {
         if (modes[i] === 'fact') return;
         if (modes[i] === 'new' && newIndex < 0) newIndex = list.length;
-        list.push([goal, modes[i]]);
+        list.push([goal, modes[i], body[i]]);
       });
-      emit(kept, list, newIndex);
+      emit(kept, list, newIndex, list.map(([, , original]) => original instanceof Struct ? original.args.map((arg) => arg instanceof Var) : []));
     };
     // The variables in the property, or rdf:type class, of the conclusions
     // and the other premises: unfolding an old premise that binds one makes

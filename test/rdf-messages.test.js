@@ -292,7 +292,7 @@ export const tests = {
   },
 
   'RDF logic profiles stream messages with rules specialized once per message shape'() {
-    const args = ['--owl2rl', '--stream-messages', 'examples/observations-owl2rl.ttl', 'examples/data/observations-owl2rl.trig'];
+    const args = ['--owl2rl', '--stream-messages', 'examples/observations-owl2rl.ttl', 'examples/observations-owl2rl.js', 'examples/data/observations-owl2rl.trig'];
     const saved = readFileSync(join(ROOT, 'examples/output/observations-owl2rl.ttl'), 'utf8');
     // Node reads the log incrementally; the same rules give the same triples.
     const streamed = command([...args, '--stats']);
@@ -303,8 +303,15 @@ export const tests = {
     assert.ok(stats.every((line) => line.specialized));
     assert.match(saved, /ex:obs20 a sosa:Observation/);
     assert.match(saved, /ex:sensor5 a sosa:Sensor/);
-    // The background closure is not repeated for each message.
-    assert.doesNotMatch(saved, /sosa:Observation a rdfs:Class/);
+    // The output contract asks for seven triples of each message.
+    assert.equal(saved.split('\n').filter((line) => line.startsWith('ex:')).length, 140);
+    assert.doesNotMatch(saved, /rdfs:Resource|owl#sameAs|debugOnly/);
+    // Without the contract, each message adds RDFS and equality triples, but
+    // never the ontology's own consequences.
+    const all = cli(args.filter((arg) => !arg.endsWith('.js')));
+    assert.equal(all.code, 0, all.stderr);
+    assert.match(all.stdout, /ex:obs1 a rdfs:Resource/);
+    assert.doesNotMatch(all.stdout, /sosa:Observation a rdfs:Class/);
     // The specialized program is ordinary Logic Script, printed once for the
     // one shape all twenty messages share.
     const printed = cli([...args, '--program']);
@@ -314,6 +321,32 @@ export const tests = {
     const program = loadText(printed.stdout);
     assert.ok(program.forward.length > 0);
     assert.match(cli(['--owl2rl', '--stream-messages', '--to', 'n3', ...args.slice(2)]).stderr, /writes turtle, trig/);
+  },
+
+  'an output contract keeps only the rules that can contribute to what it asks for'() {
+    const files = ['examples/observations-owl2rl.ttl', 'examples/data/observations-owl2rl.trig'];
+    const tmp = mkdtempSync(join(tmpdir(), 'eyemind-contract-'));
+    const contract = join(tmp, 'contract.js');
+    writeFileSync(contract, `const sosa = (name) => iri('http://www.w3.org/ns/sosa/' + name);
+      query(rdf(O, sosa('madeBySensor'), S));
+      query(rdf(S, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), sosa('Sensor')));`);
+    const rules = (extra) => cli(['--owl2rl', '--stream-messages', '--program', files[0], ...extra, files[1]]).stdout.match(/^implies\(/gm).length;
+    // Triples with IRI values need a handful of rules; literal values keep
+    // OWL 2 RL's datatype rules, as equal literals are owl:sameAs.
+    assert.ok(rules([contract]) < 30);
+    assert.ok(rules(['examples/observations-owl2rl.js']) < rules([]));
+    const ran = cli(['--owl2rl', '--stream-messages', files[0], contract, files[1]]);
+    assert.equal(ran.code, 0, ran.stderr);
+    assert.equal(ran.stdout.split('\n').filter((line) => line.startsWith('ex:')).length, 40);
+    // A whole run answers the contract's queries, with a checked proof.
+    const data = join(tmp, 'data.ttl');
+    writeFileSync(data, '<https://example.org/shape-planning#o> <https://example.org/shape-planning#observedBy> <https://example.org/shape-planning#s> .');
+    const checked = cli(['--owl2rl', '-c', files[0], contract, data]);
+    assert.equal(checked.code, 0, checked.stderr);
+    assert.match(checked.stdout, /verdict\('checked'\)/);
+    assert.equal((checked.stdout.match(/^result_rdf\(/gm) ?? []).length, 2);
+    writeFileSync(contract, 'query(rdf(S, P, O), rdf(O, P, S));');
+    assert.match(cli(['--owl2rl', files[0], contract, data]).stderr, /an output contract states only query/);
   },
 
   'specialized message runs conclude what whole runs conclude, or run whole'() {
@@ -348,6 +381,18 @@ export const tests = {
     assert.equal(both([t(ex('a'), ex('f'), ex('c'))]).specialized, false);
     // Schema triples in a message are new facts like any other.
     both([t(ex('r'), rdfs('subPropertyOf'), ex('p')), t(ex('u'), ex('r'), ex('v'))]);
+    // With an output contract, the pruned rules give the projected whole run.
+    const wanted = [new Struct('rdf', [new Var('S'), rdf('type'), ex('D'), new Var('G')]), new Struct('rdf', [new Var('S'), ex('q'), new Var('O'), new Var('G')])];
+    const contracted = messageReasoner({ quads: background, prefixes: {}, wanted }, { profiles: ['owl2rl'] });
+    for (const message of [[t(ex('x'), ex('p'), ex('y'))], [t(ex('r'), rdfs('subPropertyOf'), ex('p')), t(ex('u'), ex('r'), ex('v'))], [t(ex('a'), ex('f'), ex('c'))]]) {
+      const special = contracted.infer(message);
+      contracted.specializer.reason = 'compared';
+      const whole = contracted.infer(message);
+      contracted.specializer.reason = null;
+      assert.deepEqual(sorted(special.quads), sorted(whole.quads));
+      assert.ok(special.quads.every(([, p, o]) => write(p) === write(ex('q')) || write(o) === write(ex('D'))));
+    }
+    assert.ok(sorted(contracted.infer([t(ex('x'), ex('p'), ex('y'))]).quads).length === 2);
   },
 
   'a program with more facts shares its rules and concludes as one built with them'() {

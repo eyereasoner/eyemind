@@ -42,7 +42,8 @@ goals, and keep error messages specific and user-facing text direct.
   - `rdf-logic.js` combines explicit RDF profiles over one working graph,
     and reasons over streamed messages with a background graph;
     `specialize.js` specializes a program to the shape of facts that arrive
-    repeatedly, after closing its own facts once; `rdf-values.js` supplies
+    repeatedly, after closing its own facts once, and prunes it to an output
+    contract of `query(rdf(...))` statements; `rdf-values.js` supplies
     shared LS datatype and value rules. `qudt.js`, `skos.js` and `shacl.js`
     compile quantity normalization, SKOS entailment and SHACL validation to
     standalone LS; `shacl-expr.js` compiles SHACL node expressions.

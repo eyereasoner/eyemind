@@ -2,7 +2,7 @@
 // feed back into it; LS stratification closes inference before validation.
 import { loadText } from './lang.js';
 import { rdfDocument } from './rdf.js';
-import { write } from './writer.js';
+import { Lettering, write } from './writer.js';
 import { owl2rlRules } from './owl2rl.js';
 import { skosRules } from './skos.js';
 import { qudtRules } from './qudt.js';
@@ -12,12 +12,13 @@ import { executionContext } from './srl.js';
 import { rdfValueRules } from './rdf-values.js';
 import { run } from './engine.js';
 import { Specializer } from './specialize.js';
-import { Struct, identity } from './terms.js';
+import { Env, Struct, freshTerm, identity, unify } from './terms.js';
 
 export const ENTAILMENT = 'https://eyereasoner.github.io/eyemind/entailment#';
 export const RDF_PROFILES = ['owl2rl', 'qudt', 'skos', 'shacl'];
 
-export function compileRdfLogic({ quads, prefixes, shapes = quads }, { profiles, source = '<input>', disallows, evaluate, context, stream = false }) {
+// wanted: rdf/4 patterns of the output contract, or null for every new triple.
+export function compileRdfLogic({ quads, prefixes, shapes = quads, wanted = null }, { profiles, source = '<input>', disallows, evaluate, context, stream = false }) {
   quads = [...new Map(quads.map((q) => [q.map((t) => write(t)).join(' '), q])).values()];
   const selected = new Set(profiles), needs = new Set();
   // SHACL node expressions may call SPARQL functions beyond the value rules.
@@ -35,7 +36,7 @@ export function compileRdfLogic({ quads, prefixes, shapes = quads }, { profiles,
     (selected.has('owl2rl') ? owl2rlRules : '') +
     (selected.has('skos') ? skosRules : '') +
     (selected.has('qudt') ? qudtRules : '') +
-    shacl + (evaluate ? "query(sh_evaluation(R));\n" : REPORTS + (stream ? '' : RESULT));
+    shacl + (evaluate ? "query(sh_evaluation(R));\n" : REPORTS + (stream ? '' : wanted === null ? RESULT : contracted(wanted)));
   return { kind: profiles[0], text, program: loadText(text, source),
     prefixes: { ...prefixes, ent: ENTAILMENT, ...(selected.has('skos') ? { skos: 'http://www.w3.org/2004/02/skos/core#' } : {}),
       ...(selected.has('qudt') ? { qconv: 'https://eyereasoner.github.io/eyemind/qudt#', qudt: 'http://qudt.org/schema/qudt/', unit: 'http://qudt.org/vocab/unit/' } : {}),
@@ -47,10 +48,16 @@ export function compileRdfLogic({ quads, prefixes, shapes = quads }, { profiles,
 // alone concludes. The background is closed once and the rules are
 // specialized to the kinds of triples a message has (specialize.js); a
 // program that cannot be specialized runs whole for every message instead.
-export function messageReasoner({ quads, prefixes }, { profiles, source = '<input>' }) {
+// With an output contract, only the rules that can contribute to its
+// patterns are specialized, and only triples matching one are written.
+export function messageReasoner({ quads, prefixes, wanted = null }, { profiles, source = '<input>' }) {
   const options = { profiles, source };
   const background = compileRdfLogic({ quads, prefixes }, { ...options, stream: true });
-  const specializer = new Specializer(background.program, { quads: ['rdf/4', 'ent_base/4'] });
+  const specializer = new Specializer(background.program, { quads: ['rdf/4', 'ent_base/4'],
+    wanted: wanted && wanted.flatMap((pattern) => [pattern, new Struct('ent_report', pattern.args)]) });
+  let serial = 0;
+  const kept = (quad) => wanted === null ||
+    wanted.some((pattern) => unify(new Struct('rdf', quad), freshTerm(pattern, `w${++serial}`), new Env()));
   let alone = null;
   const answers = (program, limits) => run(program, limits).conclusions.filter((t) => t instanceof Struct && t.name === 'result_rdf');
   return {
@@ -67,13 +74,13 @@ export function messageReasoner({ quads, prefixes }, { profiles, source = '<inpu
         const result = run(special.program, limits);
         const added = result.derived.map((node) => node.goal).filter((t) => !special.old.has(identity(t)) &&
           (t.name === 'ent_report' || (t.name === 'rdf' && RESOURCES.has(t.args[0].name) && t.args[1].name === 'iri')));
-        return { quads: added.map((t) => t.args), specialized: true, stats: result.stats, haltCode: result.haltCode,
+        return { quads: added.map((t) => t.args).filter(kept), specialized: true, stats: result.stats, haltCode: result.haltCode,
           sources: special.fresh ? special.sources : null };
       }
       alone ??= new Set(answers(compileRdfLogic({ quads, prefixes }, options).program, limits).map(identity));
       const result = run(compileRdfLogic({ quads: [...quads, ...message], prefixes, shapes: quads }, options).program, limits);
       const added = result.conclusions.filter((t) => t instanceof Struct && t.name === 'result_rdf' && !alone.has(identity(t)));
-      return { quads: added.map((t) => t.args), specialized: false, stats: result.stats, haltCode: result.haltCode, sources: null };
+      return { quads: added.map((t) => t.args).filter(kept), specialized: false, stats: result.stats, haltCode: result.haltCode, sources: null };
     },
   };
 }
@@ -104,6 +111,10 @@ implies(ent_conflict(R, X, P, Y, G), [
   ent_report(B, iri('https://eyereasoner.github.io/eyemind/entailment#right'), Y, G)
 ]);
 `;
+
+// The result restricted to an output contract: one query per pattern.
+const contracted = (wanted) => RESULT.replace(/^query\(.*\n/m, '') +
+  wanted.map((pattern) => `${write(new Struct('query', [new Struct('result_rdf', pattern.args)]), null, new Lettering())};\n`).join('');
 
 const RESULT = String.raw`implies([rdf(S, iri(P), O, G), ent_resource(S), not(ent_base(S, iri(P), O, G))], result_rdf(S, iri(P), O, G));
 implies(ent_report(S, P, O, G), result_rdf(S, P, O, G));

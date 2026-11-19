@@ -691,12 +691,13 @@
     "name": "observations-owl2rl",
     "files": [
       "observations-owl2rl.ttl",
+      "observations-owl2rl.js",
       "data/observations-owl2rl.trig"
     ],
     "output": "ttl",
     "owl2rl": true,
     "stream_messages": true,
-    "description": "Streamed sensor messages each become SOSA observations through rules specialized once to the shape of the messages"
+    "description": "Streamed sensor messages each yield the SOSA triples an output contract asks for, through rules specialized once to the shape of the messages"
   },
   {
     "name": "execution-identifiers-srl",

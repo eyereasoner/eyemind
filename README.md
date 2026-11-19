@@ -314,11 +314,18 @@ and the whole program runs instead when new triples could have any property,
 as `owl:sameAs` between individuals makes, or when a negation could retract
 a background conclusion. `--program` prints the specialized program of each
 new shape, and `--stats` says whether each message used one. Streamed
-messages have no proofs. See the
+messages have no proofs.
+
+An [output contract](#rdf-logic-profiles) prunes the specialized rules to
+those that can contribute to a triple it asks for, following premises back
+to the rules concluding them. A value counts only where a reader uses it:
+a triple that `owl:sameAs` copies to an equal object serves no rule that
+reads only its subject. See the
 [observations](https://eyereasoner.github.io/eyemind/examples/deck/observations-owl2rl) deck.
 
 ```sh
-eyemind --owl2rl --stream-messages ontology.ttl messages.trig   # each message's new triples
+eyemind --owl2rl --stream-messages ontology.ttl messages.trig               # each message's new triples
+eyemind --owl2rl --stream-messages ontology.ttl contract.js messages.trig   # only those the contract asks for
 ```
 
 ### SPARQL 1.2 RL
@@ -342,6 +349,16 @@ eyemind -c rules.srl facts.ttl                           # the inference graph, 
 Four switches add standalone LS rules to RDF inputs; vocabulary alone never
 enables one. They combine, inference closes before validation, and the output
 is Turtle with the new triples and reports.
+
+A `.js` input is an output contract: a Logic Script program whose statements
+are `query(rdf(S, P, O))` or `query(rdf(S, P, O, G))`. The output then holds
+only the new triples matching one of them, and a proof answers those queries.
+
+```js
+const sosa = (name) => iri('http://www.w3.org/ns/sosa/' + name);
+query(rdf(O, sosa('madeBySensor'), S));
+query(rdf(O, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), sosa('Observation')));
+```
 
 - `--owl2rl` adds the RDFS and [OWL 2 RL](https://www.w3.org/TR/owl2-profiles/#Reasoning_in_OWL_2_RL_and_RDF_Graphs)
   rules, including the datatype map of its table 8: value equality and

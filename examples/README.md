@@ -48,7 +48,8 @@ For RDF Messages, try [message boundaries and heartbeats](https://eyereasoner.gi
 [independent alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3),
 or [named-graph provenance](https://eyereasoner.github.io/eyemind/examples/deck/message-provenance-n3).
 [Sensor observations](https://eyereasoner.github.io/eyemind/examples/deck/observations-owl2rl) stream
-messages through `--owl2rl` rules specialized to their shape; streamed runs save output only.
+messages through `--owl2rl` rules specialized to their shape and pruned to a Logic Script output
+contract; streamed runs save output only.
 
 For quantity normalization, try [QUDT quantities](https://eyereasoner.github.io/eyemind/examples/deck/quantities-qudt)
 with `--qudt`. The [transport thesaurus](https://eyereasoner.github.io/eyemind/examples/deck/thesaurus-skos)
@@ -178,7 +179,7 @@ original inputs.
 | [monkey-bananas](https://eyereasoner.github.io/eyemind/examples/deck/monkey-bananas) | [monkey-bananas.js](https://github.com/eyereasoner/eyemind/blob/main/examples/monkey-bananas.js) | Every plan of up to five moves that gets the monkey the bananas |
 | [nested-triple-term-n3](https://eyereasoner.github.io/eyemind/examples/deck/nested-triple-term-n3) | [data/nested-triple-term-n3.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/data/nested-triple-term-n3.ttl) · [nested-triple-term-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/nested-triple-term-n3.n3) | Nested RDF 1.2 triple terms: one pattern reaches the triple inside a claim inside a review |
 | [nixon-diamond](https://eyereasoner.github.io/eyemind/examples/deck/nixon-diamond) | [nixon-diamond.js](https://github.com/eyereasoner/eyemind/blob/main/examples/nixon-diamond.js) | A default guarded by negation, so a contrary rule takes priority |
-| [observations-owl2rl](https://eyereasoner.github.io/eyemind/examples/deck/observations-owl2rl) | [observations-owl2rl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/observations-owl2rl.ttl) · [data/observations-owl2rl.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/observations-owl2rl.trig) | Streamed sensor messages each become SOSA observations through rules specialized once to the shape of the messages |
+| [observations-owl2rl](https://eyereasoner.github.io/eyemind/examples/deck/observations-owl2rl) | [observations-owl2rl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/observations-owl2rl.ttl) · [observations-owl2rl.js](https://github.com/eyereasoner/eyemind/blob/main/examples/observations-owl2rl.js) · [data/observations-owl2rl.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/observations-owl2rl.trig) | Streamed sensor messages each yield the SOSA triples an output contract asks for, through rules specialized once to the shape of the messages |
 | [orders-srl](https://eyereasoner.github.io/eyemind/examples/deck/orders-srl) | [orders-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/orders-srl.srl) | Each order gets its own invoice with a customer and total |
 | [owl-property-chain](https://eyereasoner.github.io/eyemind/examples/deck/owl-property-chain) | [owl-property-chain.js](https://github.com/eyereasoner/eyemind/blob/main/examples/owl-property-chain.js) | A property chain declared as data, followed by one general rule |
 | [package-holiday](https://eyereasoner.github.io/eyemind/examples/deck/package-holiday) | [package-holiday.js](https://github.com/eyereasoner/eyemind/blob/main/examples/package-holiday.js) | Package holiday cancellations under the tour operator's ODRL terms and the 2015 and revised EU Package Travel Directive |

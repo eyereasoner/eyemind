@@ -19,7 +19,7 @@
 // The compiled program is ordinary LS: proofs, checking and --unused
 // apply to it. SRL execution functions capture a context that a saved proof
 // retains; compiling with that context reproduces the same program later.
-import { EyemindError, Struct } from './terms.js';
+import { EyemindError, Struct, Var } from './terms.js';
 import { loadSources } from './lang.js';
 import { readTerms } from './reader.js';
 import { DEFAULT_GRAPH, parseRdf, rdfDocument, rdfFormat, writeRdf } from './rdf.js';
@@ -63,19 +63,38 @@ export function loadInputs(inputs, io = null, options = {}) {
   }
 }
 
-// The RDF inputs of the logic profiles as one graph.
-function profileGraph(inputs, kinds, rdf, baseOf, switches) {
-  if (inputs.some(([, name], k) => kinds[k] !== 'rdf' && name !== '<stdin>')) {
-    throw new EyemindError(`${switches} takes RDF inputs; standard input is Turtle`);
+// The RDF inputs of the logic profiles as one graph, and the output contract
+// a Logic Script input states, if any.
+function profileGraph(inputs, kinds, rdf, baseOf, switches, io) {
+  if (inputs.some(([, name], k) => kinds[k] !== 'rdf' && kinds[k] !== 'js' && name !== '<stdin>')) {
+    throw new EyemindError(`${switches} takes RDF inputs, and a Logic Script output contract; standard input is Turtle`);
   }
+  const contracts = inputs.filter(([, name], k) => kinds[k] === 'js' && name !== '<stdin>');
+  const wanted = contracts.length ? contracts.flatMap(([text, name]) => outputContract(text, name, io)) : null;
+  if (contracts.length && !wanted.length) throw new EyemindError(`${switches} needs a query(rdf(S, P, O)) in its output contract`);
   const prefixes = {}, quads = [];
   inputs.forEach(([text, name], k) => {
+    if (kinds[k] === 'js' && name !== '<stdin>') return;
     const parsed = name === '<stdin>' ? parseRdf(text, { format: 'turtle', base: baseOf(name), scope: scopeOf(inputs, name, k) }) : rdf(text, name, k);
     if (parsed.triples) throw new EyemindError(`${switches} takes RDF graphs, not RDF Message Logs`);
     Object.assign(prefixes, parsed.prefixes);
     quads.push(...parsed.quads);
   });
-  return { quads, prefixes };
+  return { quads, prefixes, wanted };
+}
+
+// The triple patterns an output contract asks for: a Logic Script program
+// whose statements are query(rdf(S, P, O)) or query(rdf(S, P, O, G)).
+function outputContract(text, name, io) {
+  const program = loadSources([[text, name]], io);
+  return program.clauses.map((clause) => {
+    const goal = clause.forward && clause.heads.length === 1 && clause.heads[0] === 'true' && clause.statedBody.length === 1
+      ? clause.statedBody[0] : null;
+    if (!(goal instanceof Struct) || goal.name !== 'rdf' || ![3, 4].includes(goal.args.length)) {
+      throw new EyemindError(`${name}: an output contract states only query(rdf(S, P, O)) or query(rdf(S, P, O, G))${clause.line ? `, not line ${clause.line}` : ''}`);
+    }
+    return goal.args.length === 4 ? goal : new Struct('rdf', [...goal.args, new Var(`G#contract${clause.id}`)]);
+  });
 }
 
 // The reasoner the logic profiles run each RDF Message with, given the
@@ -108,7 +127,7 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
   }
   if (profiles.length && odrl) throw new EyemindError(`--odrl cannot be combined with ${switches}`);
   if (profiles.length) {
-    const graph = profileGraph(inputs, kinds, rdf, baseOf, switches);
+    const graph = profileGraph(inputs, kinds, rdf, baseOf, switches, io);
     const source = inputs.map(([, n]) => n).join(', ');
     if (messages) return messageReasoner(graph, { profiles, source });
     return compileRdfLogic(graph, { profiles, source, context: srlContext });
