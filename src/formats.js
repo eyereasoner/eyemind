@@ -26,7 +26,7 @@ import { DEFAULT_GRAPH, parseRdf, rdfDocument, rdfFormat, writeRdf } from './rdf
 import { resultToN3, compileSources } from './n3.js';
 import { compileSrl, srlAnswers, srlQuads } from './srl.js';
 import { compileOdrl } from './odrl.js';
-import { compileRdfLogic, messageReasoner, RDF_PROFILES } from './rdf-logic.js';
+import { compileRdfLogic, messageReasoner, RDF_PROFILES, shaclIn as shaclInPatterns, shaclOut as shaclOutPatterns } from './rdf-logic.js';
 import { compileLe, writeLe } from './le.js';
 import { write } from './writer.js';
 import { isRdfMessageLog, parseRdfMessages } from './messages.js';
@@ -108,7 +108,7 @@ export function loadMessageReasoner(inputs, io = null, options = {}) {
   }
 }
 
-function load(inputs, io, { base = null, messageInputs = null, srlContext = null, odrl = false, owl2rl = false, qudt = false, skos = false, shacl = false, messages = false }) {
+function load(inputs, io, { base = null, messageInputs = null, srlContext = null, odrl = false, owl2rl = false, qudt = false, skos = false, shacl = false, messages = false, shaclIn = null, shaclOut = null }) {
   const options = { owl2rl, qudt, skos, shacl }, profiles = RDF_PROFILES.filter((p) => options[p]);
   const switches = profiles.map((p) => '--' + p).join(' ');
   const kinds = inputs.map(([text, name]) => messageInputs?.has(name) ||
@@ -129,6 +129,14 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
   if (profiles.length) {
     const graph = profileGraph(inputs, kinds, rdf, baseOf, switches, io);
     const source = inputs.map(([, n]) => n).join(', ');
+    // SHACL shapes as contracts: what messages hold, and what is wanted.
+    const shapes = ([text, name]) => parseRdf(text, { format: rdfFormat(name) ?? 'turtle', base: baseOf(name) }).quads;
+    if (shaclOut) graph.wanted = [...graph.wanted ?? [], ...shaclOut.flatMap((input) => shaclOutPatterns(shapes(input), input[1]))];
+    if (shaclIn) {
+      const read = shaclIn.map((input) => shaclInPatterns(shapes(input), input[1]));
+      const closed = read.every((r) => r.allowed);
+      graph.expected = { patterns: read.flatMap((r) => r.patterns), allowed: closed ? new Set(read.flatMap((r) => [...r.allowed])) : null };
+    }
     if (messages) return messageReasoner(graph, { profiles, source });
     return compileRdfLogic(graph, { profiles, source, context: srlContext });
   }

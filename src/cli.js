@@ -37,6 +37,10 @@ all compiled to LS.
       --shacl             Compile SHACL Core shapes into LS validation rules
       --base IRI          Resolve relative IRIs of the inputs against IRI
       --stream-messages   Run the rules independently for each RDF Message
+      --shacl-in FILE     With --stream-messages and a profile, specialize the
+                          rules to the messages SHACL shapes in FILE describe
+      --shacl-out FILE    With a profile, keep and write only the triples
+                          SHACL shapes in FILE describe
   -v, --version           Print the version
   -h, --help              Print this help
 Source defaults to stdin; multiple files form one program.
@@ -77,6 +81,7 @@ export function main(argv, io) {
     let streamMessages = false;
     let odrl = false;
     const rdfLogic = {};
+    const shapeFiles = { shaclIn: [], shaclOut: [] };
     const filePositions = new Set();
     for (let i = 0; i < argv.length; i++) {
       const arg = ALIASES.get(argv[i]) ?? argv[i];
@@ -108,7 +113,7 @@ export function main(argv, io) {
         rdfLogic[arg.slice(2)] = true;
       } else if (arg === '--stream-messages') {
         streamMessages = true;
-      } else if (arg === '--check-proof' || arg === '--goal' || arg === '--to' || arg === '--base' || Object.hasOwn(LIMITS, arg)) {
+      } else if (arg === '--check-proof' || arg === '--goal' || arg === '--to' || arg === '--base' || arg === '--shacl-in' || arg === '--shacl-out' || Object.hasOwn(LIMITS, arg)) {
         i++;
         if (i >= argv.length) throw new UsageError(`${arg} needs a value`);
         const value = argv[i];
@@ -127,6 +132,8 @@ export function main(argv, io) {
           base = value;
         } else if (arg === '--goal') {
           goals.push(value);
+        } else if (arg === '--shacl-in' || arg === '--shacl-out') {
+          shapeFiles[arg === '--shacl-in' ? 'shaclIn' : 'shaclOut'].push(value);
         } else {
           const number = /^[0-9]+$/.test(value.trim()) ? Number(value.trim()) : 0;
           if (!Number.isSafeInteger(number) || number < 1) throw new UsageError(`${arg} needs a positive safe integer`);
@@ -150,6 +157,12 @@ export function main(argv, io) {
     if (proofFile === '-' && (!files.length || files.includes('-'))) {
       throw new UsageError('stdin holds the proof; name the program as files');
     }
+    const shaped = shapeFiles.shaclIn.length || shapeFiles.shaclOut.length;
+    if (shaped && !RDF_PROFILES.some((p) => rdfLogic[p])) throw new UsageError('--shacl-in and --shacl-out need an RDF logic profile, such as --owl2rl');
+    if (shapeFiles.shaclIn.length && !streamMessages) throw new UsageError('--shacl-in describes RDF Messages and needs --stream-messages');
+    // The shapes are contracts for the run, not inputs of the program.
+    const shapes = Object.fromEntries(Object.entries(shapeFiles).map(([option, names]) =>
+      [option, names.length ? names.map((name) => [readSource(name, io), name]) : null]));
     if (!files.length) files.push('-');
     if (files.filter((file) => file === '-').length > 1) throw new UsageError('stdin can only be read once');
     if (streamMessages) {
@@ -168,7 +181,7 @@ export function main(argv, io) {
       // message with rules specialized to its shape (rdf-logic.js).
       let reasoner = null;
       const infer = (inputs, message) => {
-        reasoner ??= loadMessageReasoner(inputs.map(([path, text]) => [text, path === '-' ? '<stdin>' : path]), io, { base, ...rdfLogic });
+        reasoner ??= loadMessageReasoner(inputs.map(([path, text]) => [text, path === '-' ? '<stdin>' : path]), io, { base, ...rdfLogic, ...shapes });
         const result = reasoner.infer(message.quads, { ...COMPILED_LIMITS, ...options });
         messageNumber++;
         if (printProgram) {
@@ -177,7 +190,7 @@ export function main(argv, io) {
           return 0;
         }
         stdout(writeRdf(result.quads, { format: format ?? 'turtle', prefixes: { ...reasoner.prefixes, ...message.prefixes }, blankNodePrefix: `m${messageNumber}_` }));
-        if (stats) stderr(`${JSON.stringify({ message: message.index, specialized: result.specialized, ...result.stats })}\n`);
+        if (stats) stderr(`${JSON.stringify({ message: message.index, specialized: result.specialized, dropped: result.dropped, conforms: result.conforms, ...result.stats })}\n`);
         return result.haltCode || 0;
       };
       const request = {
@@ -215,7 +228,7 @@ export function main(argv, io) {
     }
     const document = proofFile === null ? null : readSource(proofFile, io);
     const loaded = loadInputs(files.map((file) => [readSource(file, io), file === '-' ? '<stdin>' : file]), io,
-      { base, messageInputs: io.messageInputs, odrl, ...rdfLogic,
+      { base, messageInputs: io.messageInputs, odrl, ...rdfLogic, shaclOut: shapes.shaclOut,
         srlContext: document !== null && (rdfLogic.shacl || files.some((file) => inputKind(file) === 'srl')) ? srlContextFromProof(document) : null });
     const program = loaded.program;
     if (printProgram) {

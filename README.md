@@ -12,7 +12,7 @@ program, a JavaScript library and a browser application.
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Examples](https://eyereasoner.github.io/eyemind/examples/) · [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/)
 
-The examples are 156 runnable programs, each with a card deck and saved
+The examples are 157 runnable programs, each with a card deck and saved
 conclusions; all but one streamed example also save proofs and check reports. The specification defines the language,
 the proof format and how a proof is checked; its conformance suite has
 1247 cases that test language and proof behavior, and runs
@@ -323,9 +323,24 @@ a triple that `owl:sameAs` copies to an equal object serves no rule that
 reads only its subject. See the
 [observations](https://eyereasoner.github.io/eyemind/examples/deck/observations-owl2rl) deck.
 
+SHACL shapes can state both contracts, which are trusted and not validated.
+`--shacl-in FILE` reads the input shapes: each property shape is a pattern of
+message triples, its path the property and its value what `sh:datatype`,
+`sh:nodeKind`, `sh:class`, `sh:hasValue` or `sh:in` allows, in the default
+graph; other paths allow triples of each of their predicates. The rules are
+specialized to these patterns when the background loads, and a message whose
+triples are all instances of them uses that program, whatever fields it
+leaves out. When every input shape is closed, a message triple whose property
+no shape names or ignores is dropped first. A message with other triples gets
+rules of its own shape, and `--stats` reports `conforms` and `dropped` per
+message. `--shacl-out FILE` reads output shapes as an output contract: each
+property shape asks for triples of its path, of the values it allows. See the
+[shape-planning](https://eyereasoner.github.io/eyemind/examples/deck/shape-planning-owl2rl) deck.
+
 ```sh
 eyemind --owl2rl --stream-messages ontology.ttl messages.trig               # each message's new triples
 eyemind --owl2rl --stream-messages ontology.ttl contract.js messages.trig   # only those the contract asks for
+eyemind --owl2rl --stream-messages --shacl-in in.ttl --shacl-out out.ttl ontology.ttl messages.trig
 ```
 
 ### SPARQL 1.2 RL
@@ -353,6 +368,7 @@ is Turtle with the new triples and reports.
 A `.js` input is an output contract: a Logic Script program whose statements
 are `query(rdf(S, P, O))` or `query(rdf(S, P, O, G))`. The output then holds
 only the new triples matching one of them, and a proof answers those queries.
+`--shacl-out FILE` gives the same contract as SHACL output shapes.
 
 ```js
 const sosa = (name) => iri('http://www.w3.org/ns/sosa/' + name);
@@ -561,6 +577,8 @@ eyemind [OPTION ...] [FILE ...]
 | `--goal GOAL` | Ask `GOAL` after forward reasoning; may be repeated. |
 | `--unused` | List the clauses that make no difference to the conclusions. |
 | `--stream-messages` | Read an RDF Message Log and run the rules independently per message; Node reads files, stdin and HTTP(S) incrementally. With an RDF logic profile, the other inputs are a background closed once and the rules are specialized per message shape. |
+| `--shacl-in FILE` | With `--stream-messages` and an RDF logic profile, trust the SHACL shapes in `FILE` to describe the messages: the rules are specialized to them before the first message, and a closed shape drops triples of other properties. |
+| `--shacl-out FILE` | With an RDF logic profile, keep only the rules that can contribute to triples the SHACL shapes in `FILE` describe, and write only those triples. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3, SRL, ODRL or RDF profile program has 1000000, 100000 and 1000000000. |
 | `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; by default LE for LE, N3 for N3, Turtle for SRL, ODRL and RDF profiles, eyemind otherwise. |

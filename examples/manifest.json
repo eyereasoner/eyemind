@@ -700,6 +700,19 @@
     "description": "Streamed sensor messages each yield the SOSA triples an output contract asks for, through rules specialized once to the shape of the messages"
   },
   {
+    "name": "shape-planning-owl2rl",
+    "files": [
+      "shape-planning-owl2rl.ttl",
+      "shape-planning-owl2rl-shacl-in.ttl",
+      "shape-planning-owl2rl-shacl-out.ttl",
+      "data/shape-planning-owl2rl.trig"
+    ],
+    "output": "ttl",
+    "owl2rl": true,
+    "stream_messages": true,
+    "description": "SHACL input and output shapes let streamed sensor messages run rules specialized before the first message and yield only the SOSA triples asked for"
+  },
+  {
     "name": "execution-identifiers-srl",
     "files": [
       "execution-identifiers-srl.srl"

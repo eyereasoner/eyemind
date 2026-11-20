@@ -11,8 +11,8 @@ import { NODE_FUNCTIONS } from './shacl-expr.js';
 import { executionContext } from './srl.js';
 import { rdfValueRules } from './rdf-values.js';
 import { run } from './engine.js';
-import { Specializer } from './specialize.js';
-import { Env, Struct, freshTerm, identity, unify } from './terms.js';
+import { Specializer, shape } from './specialize.js';
+import { Env, EyemindError, Struct, Var, freshTerm, identity, unify } from './terms.js';
 
 export const ENTAILMENT = 'https://eyereasoner.github.io/eyemind/entailment#';
 export const RDF_PROFILES = ['owl2rl', 'qudt', 'skos', 'shacl'];
@@ -43,6 +43,109 @@ export function compileRdfLogic({ quads, prefixes, shapes = quads, wanted = null
       ...(selected.has('shacl') ? { sh: 'http://www.w3.org/ns/shacl#' } : {}) }, compiled: null };
 }
 
+const SH = 'http://www.w3.org/ns/shacl#';
+const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+const XSD_INTEGER = 'http://www.w3.org/2001/XMLSchema#integer';
+const TARGETS = ['targetClass', 'targetNode', 'targetSubjectsOf', 'targetObjectsOf'];
+
+// SHACL shapes read as contracts, not validated: the triple patterns their
+// property shapes describe. A value is an instance of what one of its
+// constraints allows (sh:hasValue, sh:in, sh:datatype, sh:nodeKind or
+// sh:class), or anything. A path that is not a predicate or an inverse
+// predicate describes triples of each predicate in it, of any value.
+function shapePatterns(quads, name, input) {
+  const about = new Map();
+  for (const quad of quads) {
+    const id = identity(quad[0]);
+    if (!about.has(id)) about.set(id, []);
+    about.get(id).push(quad);
+  }
+  const values = (node, property) => (about.get(identity(node)) ?? [])
+    .filter((q) => q[1].args[0] === property).map((q) => q[2]);
+  const value = (node, property) => values(node, property)[0];
+  const list = (node) => {
+    const items = [];
+    for (let at = node, seen = new Set(); at && !(at.name === 'iri' && at.args[0] === RDF + 'nil') && !seen.has(identity(at)); at = value(at, RDF + 'rest')) {
+      seen.add(identity(at));
+      items.push(value(at, RDF + 'first'));
+    }
+    return items.filter(Boolean);
+  };
+  const named = (term) => term?.name === 'iri' ? term.args[0] : null;
+  const any = () => new Var(`S#${++fresh}`);
+  // The terms a value of this shape is an instance of.
+  const valueTerms = (node, kept) => {
+    const given = [...values(node, SH + 'hasValue'), ...values(node, SH + 'in').flatMap(list)];
+    if (given.length) return given.map((term) => kept ? term : shape(term));
+    const datatype = named(value(node, SH + 'datatype'));
+    if (datatype === XSD_INTEGER) return [any()];
+    if (datatype === RDF + 'langString') return [new Struct('literal', [any(), new Struct('lang', [any()])])];
+    if (datatype) return [new Struct('literal', [any(), new Struct('datatype', [datatype])])];
+    const kind = named(value(node, SH + 'nodeKind'))?.slice(SH.length);
+    const iri = () => new Struct('iri', [any()]), bnode = () => new Struct('bnode', [any(), any()]);
+    if (kind === 'IRI') return [iri()];
+    if (kind === 'BlankNode') return [bnode()];
+    if (kind === 'BlankNodeOrIRI' || (!kind && values(node, SH + 'class').length)) return [iri(), bnode()];
+    return [any()];
+  };
+  // The predicates of a path, and whether it is a predicate or its inverse.
+  const path = (node) => {
+    if (named(node)) return { predicates: [named(node)], direct: true };
+    const inverse = value(node, SH + 'inversePath');
+    if (named(inverse)) return { predicates: [named(inverse)], inverse: true };
+    const parts = [inverse, ...values(node, SH + 'alternativePath').flatMap(list),
+      ...['zeroOrMorePath', 'oneOrMorePath', 'zeroOrOnePath'].map((p) => value(node, SH + p)), ...list(node)].filter(Boolean);
+    if (!parts.length) throw new EyemindError(`${name}: a SHACL path is a predicate, a list or one of the sh: path forms`);
+    return { predicates: parts.flatMap((part) => path(part).predicates) };
+  };
+  const owners = new Map();
+  for (const quad of quads) {
+    if (quad[1].args[0] === SH + 'property') owners.set(identity(quad[2]), [...(owners.get(identity(quad[2])) ?? []), quad[0]]);
+  }
+  const patterns = [], allowed = new Set();
+  const isTrue = (term) => term?.name === 'literal' && term.args[0] === 'true';
+  const nodeShapes = [...about.values()].map((stated) => stated[0][0]).filter((node) => values(node, SH + 'property').length ||
+    values(node, RDF + 'type').some((t) => named(t) === SH + 'NodeShape') || TARGETS.some((t) => values(node, SH + t).length));
+  const closed = nodeShapes.length > 0 && nodeShapes.every((node) => values(node, SH + 'closed').some(isTrue));
+  for (const node of nodeShapes) for (const p of values(node, SH + 'ignoredProperties').flatMap(list)) if (named(p)) allowed.add(named(p));
+  // In a message, the focus nodes of a shape are what it allows of a
+  // subject: an IRI or a blank node.
+  const focusOf = (nodes) => {
+    const terms = nodes.flatMap((node) => valueTerms(node, false));
+    return !terms.length || terms.some((term) => term instanceof Var) ? [new Struct('iri', [any()]), new Struct('bnode', [any(), any()])] : terms;
+  };
+  for (const [id, stated] of about) {
+    const pathNode = value(stated[0][0], SH + 'path');
+    if (pathNode === undefined) continue;
+    const { predicates, direct, inverse } = path(pathNode);
+    const focus = input ? focusOf(owners.get(id) ?? []) : [any()];
+    for (const predicate of predicates) {
+      allowed.add(predicate);
+      const p = new Struct('iri', [predicate]);
+      const objects = direct || inverse ? valueTerms(stated[0][0], !input || predicate === RDF + 'type') : [any()];
+      for (const subject of focus) {
+        for (const object of objects) {
+          const [s, o] = [subject, object].map((term) => freshTerm(term, `s${++fresh}`));
+          // Shapes describe a message's triples, which are in its default
+          // graph; an output contract asks for them in any graph.
+          const g = input ? 'default_graph' : any();
+          patterns.push(new Struct('rdf', inverse ? [o, p, s, g] : [s, p, o, g]));
+        }
+      }
+    }
+  }
+  if (!patterns.length) throw new EyemindError(`${name}: the SHACL shapes describe no triples`);
+  return { patterns, allowed: closed ? allowed : null };
+}
+let fresh = 0;
+
+// The patterns of triples messages have, from a SHACL input shape. When the
+// shapes are closed, a message triple of another property is dropped.
+export const shaclIn = (quads, name) => shapePatterns(quads, name, true);
+// An output contract from SHACL output shapes: their property shapes'
+// triples, of the values they allow.
+export const shaclOut = (quads, name) => shapePatterns(quads, name, false).patterns;
+
 // Reasoning over messages one at a time, each with the same background
 // graph: infer(quads) gives the triples a message adds to what the background
 // alone concludes. The background is closed once and the rules are
@@ -50,11 +153,17 @@ export function compileRdfLogic({ quads, prefixes, shapes = quads, wanted = null
 // program that cannot be specialized runs whole for every message instead.
 // With an output contract, only the rules that can contribute to its
 // patterns are specialized, and only triples matching one are written.
-export function messageReasoner({ quads, prefixes, wanted = null }, { profiles, source = '<input>' }) {
+// expected, from SHACL input shapes, has the patterns of message triples
+// and, for closed shapes, the properties a kept triple has: the program for
+// conforming messages is made before the first one arrives, and a message
+// that does not conform gets one of its own shape.
+export function messageReasoner({ quads, prefixes, wanted = null, expected = null }, { profiles, source = '<input>' }) {
   const options = { profiles, source };
   const background = compileRdfLogic({ quads, prefixes }, { ...options, stream: true });
   const specializer = new Specializer(background.program, { quads: ['rdf/4', 'ent_base/4'],
     wanted: wanted && wanted.flatMap((pattern) => [pattern, new Struct('ent_report', pattern.args)]) });
+  // The program for the messages an input shape describes is made at once.
+  if (expected) specializer.expect(expected.patterns.flatMap((pattern) => [pattern, new Struct('ent_base', pattern.args)]));
   let serial = 0;
   const kept = (quad) => wanted === null ||
     wanted.some((pattern) => unify(new Struct('rdf', quad), freshTerm(pattern, `w${++serial}`), new Env()));
@@ -66,8 +175,12 @@ export function messageReasoner({ quads, prefixes, wanted = null }, { profiles, 
     specializer,
     // limits are run()'s bounds. The result has the added quads, whether
     // the rules were specialized, and the specialized program's sources the
-    // first time a message has its shape.
+    // first time a message has its shape; with input shapes, how many
+    // triples were dropped and whether the rest conform.
     infer(message, limits = {}) {
+      const all = message;
+      if (expected?.allowed) message = message.filter((quad) => quad[1].name === 'iri' && expected.allowed.has(quad[1].args[0]));
+      const shaped = expected ? { dropped: all.length - message.length } : {};
       const facts = message.flatMap((q) => [new Struct('rdf', q), new Struct('ent_base', q)]);
       const special = specializer.specialize(facts);
       if (special !== null) {
@@ -75,12 +188,12 @@ export function messageReasoner({ quads, prefixes, wanted = null }, { profiles, 
         const added = result.derived.map((node) => node.goal).filter((t) => !special.old.has(identity(t)) &&
           (t.name === 'ent_report' || (t.name === 'rdf' && RESOURCES.has(t.args[0].name) && t.args[1].name === 'iri')));
         return { quads: added.map((t) => t.args).filter(kept), specialized: true, stats: result.stats, haltCode: result.haltCode,
-          sources: special.fresh ? special.sources : null };
+          sources: special.fresh ? special.sources : null, ...(expected ? { ...shaped, conforms: special.conforms } : {}) };
       }
       alone ??= new Set(answers(compileRdfLogic({ quads, prefixes }, options).program, limits).map(identity));
       const result = run(compileRdfLogic({ quads: [...quads, ...message], prefixes, shapes: quads }, options).program, limits);
       const added = result.conclusions.filter((t) => t instanceof Struct && t.name === 'result_rdf' && !alone.has(identity(t)));
-      return { quads: added.map((t) => t.args).filter(kept), specialized: false, stats: result.stats, haltCode: result.haltCode, sources: null };
+      return { quads: added.map((t) => t.args).filter(kept), specialized: false, stats: result.stats, haltCode: result.haltCode, sources: null, ...shaped };
     },
   };
 }

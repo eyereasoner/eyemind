@@ -1,0 +1,220 @@
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs1 a sosa:Observation .
+ex:sensor1 a sosa:Sensor .
+ex:platformA a sosa:FeatureOfInterest .
+ex:obs1 sosa:madeBySensor ex:sensor1 .
+ex:obs1 sosa:hasFeatureOfInterest ex:platformA .
+ex:obs1 sosa:resultTime "2026-06-16T10:00:01Z"^^xsd:dateTime .
+ex:obs1 sosa:hasSimpleResult 18.1 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs2 a sosa:Observation .
+ex:sensor2 a sosa:Sensor .
+ex:platformA a sosa:FeatureOfInterest .
+ex:obs2 sosa:madeBySensor ex:sensor2 .
+ex:obs2 sosa:hasFeatureOfInterest ex:platformA .
+ex:obs2 sosa:resultTime "2026-06-16T10:00:02Z"^^xsd:dateTime .
+ex:obs2 sosa:hasSimpleResult 18.3 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs3 a sosa:Observation .
+ex:sensor3 a sosa:Sensor .
+ex:platformB a sosa:FeatureOfInterest .
+ex:obs3 sosa:madeBySensor ex:sensor3 .
+ex:obs3 sosa:hasFeatureOfInterest ex:platformB .
+ex:obs3 sosa:resultTime "2026-06-16T10:00:03Z"^^xsd:dateTime .
+ex:obs3 sosa:hasSimpleResult 18.6 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs4 a sosa:Observation .
+ex:sensor4 a sosa:Sensor .
+ex:platformB a sosa:FeatureOfInterest .
+ex:obs4 sosa:madeBySensor ex:sensor4 .
+ex:obs4 sosa:hasFeatureOfInterest ex:platformB .
+ex:obs4 sosa:resultTime "2026-06-16T10:00:04Z"^^xsd:dateTime .
+ex:obs4 sosa:hasSimpleResult 18.8 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs5 a sosa:Observation .
+ex:sensor5 a sosa:Sensor .
+ex:platformC a sosa:FeatureOfInterest .
+ex:obs5 sosa:madeBySensor ex:sensor5 .
+ex:obs5 sosa:hasFeatureOfInterest ex:platformC .
+ex:obs5 sosa:resultTime "2026-06-16T10:00:05Z"^^xsd:dateTime .
+ex:obs5 sosa:hasSimpleResult 19.0 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs6 a sosa:Observation .
+ex:sensor1 a sosa:Sensor .
+ex:platformC a sosa:FeatureOfInterest .
+ex:obs6 sosa:madeBySensor ex:sensor1 .
+ex:obs6 sosa:hasFeatureOfInterest ex:platformC .
+ex:obs6 sosa:resultTime "2026-06-16T10:00:06Z"^^xsd:dateTime .
+ex:obs6 sosa:hasSimpleResult 19.2 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs7 a sosa:Observation .
+ex:sensor2 a sosa:Sensor .
+ex:platformD a sosa:FeatureOfInterest .
+ex:obs7 sosa:madeBySensor ex:sensor2 .
+ex:obs7 sosa:hasFeatureOfInterest ex:platformD .
+ex:obs7 sosa:resultTime "2026-06-16T10:00:07Z"^^xsd:dateTime .
+ex:obs7 sosa:hasSimpleResult 19.5 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs8 a sosa:Observation .
+ex:sensor3 a sosa:Sensor .
+ex:platformD a sosa:FeatureOfInterest .
+ex:obs8 sosa:madeBySensor ex:sensor3 .
+ex:obs8 sosa:hasFeatureOfInterest ex:platformD .
+ex:obs8 sosa:resultTime "2026-06-16T10:00:08Z"^^xsd:dateTime .
+ex:obs8 sosa:hasSimpleResult 19.7 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs9 a sosa:Observation .
+ex:sensor4 a sosa:Sensor .
+ex:platformE a sosa:FeatureOfInterest .
+ex:obs9 sosa:madeBySensor ex:sensor4 .
+ex:obs9 sosa:hasFeatureOfInterest ex:platformE .
+ex:obs9 sosa:resultTime "2026-06-16T10:00:09Z"^^xsd:dateTime .
+ex:obs9 sosa:hasSimpleResult 19.9 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs10 a sosa:Observation .
+ex:sensor5 a sosa:Sensor .
+ex:platformE a sosa:FeatureOfInterest .
+ex:obs10 sosa:madeBySensor ex:sensor5 .
+ex:obs10 sosa:hasFeatureOfInterest ex:platformE .
+ex:obs10 sosa:resultTime "2026-06-16T10:00:10Z"^^xsd:dateTime .
+ex:obs10 sosa:hasSimpleResult 20.0 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs11 a sosa:Observation .
+ex:sensor1 a sosa:Sensor .
+ex:platformA a sosa:FeatureOfInterest .
+ex:obs11 sosa:madeBySensor ex:sensor1 .
+ex:obs11 sosa:hasFeatureOfInterest ex:platformA .
+ex:obs11 sosa:resultTime "2026-06-16T10:00:11Z"^^xsd:dateTime .
+ex:obs11 sosa:hasSimpleResult 20.2 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs12 a sosa:Observation .
+ex:sensor2 a sosa:Sensor .
+ex:platformB a sosa:FeatureOfInterest .
+ex:obs12 sosa:madeBySensor ex:sensor2 .
+ex:obs12 sosa:hasFeatureOfInterest ex:platformB .
+ex:obs12 sosa:resultTime "2026-06-16T10:00:12Z"^^xsd:dateTime .
+ex:obs12 sosa:hasSimpleResult 20.4 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs13 a sosa:Observation .
+ex:sensor3 a sosa:Sensor .
+ex:platformC a sosa:FeatureOfInterest .
+ex:obs13 sosa:madeBySensor ex:sensor3 .
+ex:obs13 sosa:hasFeatureOfInterest ex:platformC .
+ex:obs13 sosa:resultTime "2026-06-16T10:00:13Z"^^xsd:dateTime .
+ex:obs13 sosa:hasSimpleResult 20.6 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs14 a sosa:Observation .
+ex:sensor4 a sosa:Sensor .
+ex:platformD a sosa:FeatureOfInterest .
+ex:obs14 sosa:madeBySensor ex:sensor4 .
+ex:obs14 sosa:hasFeatureOfInterest ex:platformD .
+ex:obs14 sosa:resultTime "2026-06-16T10:00:14Z"^^xsd:dateTime .
+ex:obs14 sosa:hasSimpleResult 20.8 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs15 a sosa:Observation .
+ex:sensor5 a sosa:Sensor .
+ex:platformE a sosa:FeatureOfInterest .
+ex:obs15 sosa:madeBySensor ex:sensor5 .
+ex:obs15 sosa:hasFeatureOfInterest ex:platformE .
+ex:obs15 sosa:resultTime "2026-06-16T10:00:15Z"^^xsd:dateTime .
+ex:obs15 sosa:hasSimpleResult 21.0 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs16 a sosa:Observation .
+ex:sensor1 a sosa:Sensor .
+ex:platformA a sosa:FeatureOfInterest .
+ex:obs16 sosa:madeBySensor ex:sensor1 .
+ex:obs16 sosa:hasFeatureOfInterest ex:platformA .
+ex:obs16 sosa:resultTime "2026-06-16T10:00:16Z"^^xsd:dateTime .
+ex:obs16 sosa:hasSimpleResult 21.1 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs17 a sosa:Observation .
+ex:sensor2 a sosa:Sensor .
+ex:platformB a sosa:FeatureOfInterest .
+ex:obs17 sosa:madeBySensor ex:sensor2 .
+ex:obs17 sosa:hasFeatureOfInterest ex:platformB .
+ex:obs17 sosa:resultTime "2026-06-16T10:00:17Z"^^xsd:dateTime .
+ex:obs17 sosa:hasSimpleResult 21.3 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs18 a sosa:Observation .
+ex:sensor3 a sosa:Sensor .
+ex:platformC a sosa:FeatureOfInterest .
+ex:obs18 sosa:madeBySensor ex:sensor3 .
+ex:obs18 sosa:hasFeatureOfInterest ex:platformC .
+ex:obs18 sosa:resultTime "2026-06-16T10:00:18Z"^^xsd:dateTime .
+ex:obs18 sosa:hasSimpleResult 21.5 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs19 a sosa:Observation .
+ex:sensor4 a sosa:Sensor .
+ex:platformD a sosa:FeatureOfInterest .
+ex:obs19 sosa:madeBySensor ex:sensor4 .
+ex:obs19 sosa:hasFeatureOfInterest ex:platformD .
+ex:obs19 sosa:resultTime "2026-06-16T10:00:19Z"^^xsd:dateTime .
+ex:obs19 sosa:hasSimpleResult 21.7 .
+PREFIX ex: <https://example.org/shape-planning#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ex:obs20 a sosa:Observation .
+ex:sensor5 a sosa:Sensor .
+ex:platformE a sosa:FeatureOfInterest .
+ex:obs20 sosa:madeBySensor ex:sensor5 .
+ex:obs20 sosa:hasFeatureOfInterest ex:platformE .
+ex:obs20 sosa:resultTime "2026-06-16T10:00:20Z"^^xsd:dateTime .
+ex:obs20 sosa:hasSimpleResult 21.9 .

@@ -107,7 +107,7 @@ function canonical(pattern) {
 
 // A term with its atoms and numbers made variables: the shape of a value.
 // A literal keeps its datatype.
-const shape = (term) => term instanceof Var ? term : !(term instanceof Struct) ? variable()
+export const shape = (term) => term instanceof Var ? term : !(term instanceof Struct) ? variable()
   : term.name === 'datatype' && term.args.length === 1 ? term : new Struct(term.name, term.args.map(shape));
 // The functors of a term to a depth, and the datatypes of its literals:
 // patterns with the same skeleton are generalized into one.
@@ -217,20 +217,51 @@ export class Specializer {
     });
   }
 
+  // Declare the patterns every arriving fact is expected to be an instance
+  // of, as message shapes give them, and specialize the program to them at
+  // once: arriving facts that conform use it, whatever subset of the
+  // patterns they have, and others get a program of their own shape.
+  expect(patterns) {
+    if (this.reason !== null) return;
+    this.expected = patterns;
+    this.declared = this.compiled(patterns);
+    if (!this.declared.reason) this.declared.program = new Program(this.declared.sources);
+  }
+
   // A program for these arriving facts, or null when this program cannot be
-  // specialized; old holds the identities of the old facts.
+  // specialized; old holds the identities of the old facts, and conforms
+  // whether they are instances of the expected patterns, if any.
   specialize(facts) {
     if (this.reason !== null) return null;
     const arriving = facts.filter((fact) => !this.oldIds.has(identity(fact)));
-    this.patterns = new Map();
+    const patterns = [];
     for (const fact of arriving) {
       const k = key(fact);
       // A relation without facts or forward rules of its own may be read
       // anywhere, under negation too: the whole program runs.
       if (!this.data.has(k)) return null;
-      this.addPattern(this.quads.has(k)
+      patterns.push(this.quads.has(k)
         ? new Struct(fact.name, [shape(fact.args[0]), fact.args[1], isType(fact.args[1]) ? fact.args[2] : shape(fact.args[2]), fact.args[3]])
         : shape(fact));
+    }
+    const conforms = this.expected === undefined ? null
+      : patterns.every((pattern) => this.expected.some((expected) => key(expected) === key(pattern) && instance(expected, pattern)));
+    const compiled = conforms ? this.declared : this.compiled(patterns);
+    if (compiled.reason) return null;
+    const fresh = !compiled.used;
+    compiled.program ??= new Program(compiled.sources);
+    compiled.used = true;
+    return { program: compiled.program.withFacts(arriving), sources: compiled.sources, old: this.oldIds, fresh, conforms };
+  }
+
+  // The specialized program for these patterns of arriving facts, cached.
+  compiled(patterns) {
+    this.patterns = new Map();
+    try {
+      for (const pattern of patterns) this.addPattern(pattern);
+    } catch (error) {
+      if (!(error instanceof Unsupported)) throw error;
+      return { reason: error.message };
     }
     const id = [...this.patterns.values()].flatMap((group) => [...group.values()].map(canonical)).sort().join('\n');
     let compiled = this.cache.get(id);
@@ -243,10 +274,7 @@ export class Specializer {
       }
       this.cache.set(id, compiled);
     }
-    if (compiled.reason) return null;
-    const first = compiled.program === undefined;
-    compiled.program ??= new Program(compiled.sources);
-    return { program: compiled.program.withFacts(arriving), sources: compiled.sources, old: this.oldIds, fresh: first };
+    return compiled;
   }
 
   // Add a pattern of new facts, generalizing the one of its relation,

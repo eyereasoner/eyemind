@@ -81,10 +81,10 @@ of each node it mentions. Consequences of the ontology alone, such as
 
 ## How the rules are specialized
 
-eyemind closes the ontology under the rules once. The first message has a
-shape: its properties, and whether its values are IRIs or literals of a
-datatype. For that shape eyemind keeps only the instances of rules that can
-use a new triple, with the ontology's facts unfolded into them where that
+eyemind closes the ontology under the rules once. Each message has a shape:
+its properties, and whether its values are IRIs or literals of a datatype.
+For each shape eyemind keeps only the instances of rules that can use a new
+triple, with the ontology's facts unfolded into them where that
 fixes a property or class. The subproperty and domain rules become, among
 others:
 
@@ -98,8 +98,11 @@ asks for, following each premise back to the rules concluding it. A value
 counts only where a reader uses it: the debug note, the `rdfs:Resource`
 types and the reflexive `owl:sameAs` contribute nothing and go.
 
-All twenty messages share one shape, so the specialized program is made
-once and every later message only adds its own facts. The run gives the
+The specialized program is made the first time a shape occurs and reused
+for every later message of that shape, which only adds its own facts; a
+message of another shape gets its own. All twenty messages share one shape.
+[shape-planning-owl2rl](https://eyereasoner.github.io/eyemind/examples/deck/shape-planning-owl2rl)
+plans the program from SHACL shapes instead, before the first message. The run gives the
 same triples as running the whole program over the ontology and each
 message, restricted to the contract.
 

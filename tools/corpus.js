@@ -26,7 +26,9 @@ export function readManifest() {
     names.add(entry.name);
     for (const file of sourceFiles(entry)) {
       const expected = `${entry.name}${extname(file)}`;
-      if (basename(file) !== expected) throw new Error(`example ${entry.name}: ${file} must be named ${expected}`);
+      if (basename(file) !== expected && !(entry.stream_messages && shapeOption(entry, file))) {
+        throw new Error(`example ${entry.name}: ${file} must be named ${expected}`);
+      }
     }
     const source = nativeSource(entry);
     if (source && !entry.name.endsWith(`-${extname(source).slice(1)}`)) {
@@ -37,6 +39,15 @@ export function readManifest() {
 }
 
 export const sourceFiles = (entry) => entry.files ?? [`${entry.name}.js`];
+// A streamed example's SHACL input and output shapes, NAME-shacl-in.ttl and
+// NAME-shacl-out.ttl, are given with --shacl-in and --shacl-out.
+export const shapeOption = (entry, file) => ['in', 'out'].map((role) => `--shacl-${role}`)
+  .find((option) => basename(file) === `${entry.name}${option.slice(1)}.ttl`) ?? null;
+// The command-line arguments that name an example's files.
+export const fileArgs = (entry) => sourceFiles(entry).flatMap((file) => {
+  const option = entry.stream_messages ? shapeOption(entry, file) : null;
+  return option ? [option, `examples/${file}`] : [`examples/${file}`];
+});
 export const outputExtension = (entry) => entry.output ??
   (sourceFiles(entry).some((file) => file.endsWith('.le')) ? 'le' :
     sourceFiles(entry).some((file) => file.endsWith('.n3')) ? 'n3' :
@@ -79,7 +90,7 @@ export function certify(entry, program, output) {
 // The arguments of an example on the command line.
 export const exampleArgs = (entry) => [
   ...(entry.odrl ? ['--odrl'] : []), ...RDF_PROFILES.filter((p) => entry[p]).map((p) => '--' + p),
-  ...(entry.stream_messages ? ['--stream-messages'] : []), ...sourceFiles(entry).map((file) => `examples/${file}`),
+  ...(entry.stream_messages ? ['--stream-messages'] : []), ...fileArgs(entry),
 ];
 
 // What the command line writes for a streaming example, read synchronously.

@@ -10,7 +10,7 @@ import { loadInputs, writeConclusions } from '../src/formats.js';
 import { parseRdf } from '../src/rdf.js';
 import { parseN3 } from '../src/n3-parser.js';
 import { isRdfMessageLog, MESSAGE_NS, parseRdfMessages, RdfMessageReader } from '../src/messages.js';
-import { messageReasoner } from '../src/rdf-logic.js';
+import { messageReasoner, shaclIn, shaclOut } from '../src/rdf-logic.js';
 import { Program } from '../src/program.js';
 import { Specializer, generalize } from '../src/specialize.js';
 import { Struct, Var, identity } from '../src/terms.js';
@@ -347,6 +347,76 @@ export const tests = {
     assert.equal((checked.stdout.match(/^result_rdf\(/gm) ?? []).length, 2);
     writeFileSync(contract, 'query(rdf(S, P, O), rdf(O, P, S));');
     assert.match(cli(['--owl2rl', files[0], contract, data]).stderr, /an output contract states only query/);
+  },
+
+  'SHACL input and output shapes specialize the rules before the first message and project its triples'() {
+    const name = 'shape-planning-owl2rl';
+    const [ontology, shapesIn, shapesOut, log] = ['.ttl', '-shacl-in.ttl', '-shacl-out.ttl'].map((end) => `examples/${name}${end}`)
+      .concat(`examples/data/${name}.trig`);
+    const ran = cli(['--owl2rl', '--stream-messages', '--stats', '--shacl-in', shapesIn, '--shacl-out', shapesOut, ontology, log]);
+    assert.equal(ran.code, 0, ran.stderr);
+    assert.equal(ran.stdout, readFileSync(join(ROOT, `examples/output/${name}.ttl`), 'utf8'));
+    // The closed input shape drops each debug note; every message conforms
+    // and uses the program made for the shape.
+    const stats = ran.stderr.trim().split('\n').map((line) => JSON.parse(line));
+    assert.equal(stats.length, 20);
+    assert.ok(stats.every((line) => line.specialized && line.conforms && line.dropped === 1));
+    const triples = (text) => text.split('\n').filter((line) => line.startsWith('ex:')).sort();
+    // The same triples as the Logic Script contract of the same example.
+    const contract = cli(['--owl2rl', '--stream-messages', 'examples/observations-owl2rl.ttl', 'examples/observations-owl2rl.js', log]);
+    assert.deepEqual(triples(ran.stdout), triples(contract.stdout));
+    // The program for the shape is printed once, before any message has
+    // been seen to have it.
+    const printed = cli(['--owl2rl', '--stream-messages', '--program', '--shacl-in', shapesIn, ontology, log]);
+    assert.equal(printed.stdout.match(/^\/\/ The rules specialized/gm).length, 1);
+    // An open shape keeps the debug note; a message with it does not
+    // conform and gets rules of its own shape, with the same triples.
+    const tmp = mkdtempSync(join(tmpdir(), 'eyemind-shacl-'));
+    const open = join(tmp, 'open.ttl');
+    writeFileSync(open, readFileSync(join(ROOT, shapesIn), 'utf8').replace('sh:closed true ;', ''));
+    const loose = cli(['--owl2rl', '--stream-messages', '--stats', '--shacl-in', open, '--shacl-out', shapesOut, ontology, log]);
+    assert.deepEqual(triples(loose.stdout), triples(ran.stdout));
+    assert.ok(loose.stderr.trim().split('\n').map((line) => JSON.parse(line)).every((line) => line.specialized && !line.conforms && line.dropped === 0));
+    // Output shapes also project a whole run, whose proof checks.
+    const data = join(tmp, 'data.ttl');
+    writeFileSync(data, '<https://example.org/shape-planning#o> <https://example.org/shape-planning#observedBy> <https://example.org/shape-planning#s> .');
+    const checked = cli(['--owl2rl', '-c', '--shacl-out', shapesOut, ontology, data]);
+    assert.equal(checked.code, 0, checked.stderr);
+    assert.match(checked.stdout, /verdict\('checked'\)/);
+    assert.equal((checked.stdout.match(/^result_rdf\(/gm) ?? []).length, 3);
+    assert.match(cli(['--owl2rl', '--shacl-in', shapesIn, ontology, data]).stderr, /--shacl-in describes RDF Messages and needs --stream-messages/);
+    assert.match(cli(['--shacl-out', shapesOut, data]).stderr, /need an RDF logic profile/);
+    writeFileSync(open, '@prefix sh: <http://www.w3.org/ns/shacl#> . <http://example.org/S> a sh:NodeShape .');
+    assert.match(cli(['--owl2rl', '--shacl-out', open, ontology, data]).stderr, /the SHACL shapes describe no triples/);
+  },
+
+  'SHACL shapes read as triple patterns'() {
+    const shapes = (text) => parseRdf(`@prefix sh: <http://www.w3.org/ns/shacl#> . @prefix : <http://example.org/> .
+      @prefix xsd: <http://www.w3.org/2001/XMLSchema#> . ${text}`).quads;
+    const read = (text) => shaclIn(shapes(text), 'shapes.ttl');
+    const written = (text) => read(text).patterns.map((pattern) => write(pattern).replace(/VAR_[A-Za-z0-9_]+/g, '_')).sort();
+    const iri = (name) => `iri('http://example.org/${name}')`;
+    // Focus nodes are IRIs or blank nodes unless their shape says which.
+    assert.deepEqual(written(':S sh:property [ sh:path :p ; sh:datatype xsd:decimal ] .'), [
+      `rdf(bnode(_, _), ${iri('p')}, literal(_, datatype('http://www.w3.org/2001/XMLSchema#decimal')), 'default_graph')`,
+      `rdf(iri(_), ${iri('p')}, literal(_, datatype('http://www.w3.org/2001/XMLSchema#decimal')), 'default_graph')`]);
+    // An inverse path swaps the ends; rdf:type keeps its classes.
+    assert.deepEqual(written(`:S sh:nodeKind sh:IRI ; sh:property [ sh:path [ sh:inversePath :p ] ; sh:nodeKind sh:BlankNode ],
+      [ sh:path <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ; sh:in ( :A :B ) ] .`), [
+      `rdf(bnode(_, _), ${iri('p')}, iri(_), 'default_graph')`,
+      `rdf(iri(_), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), ${iri('A')}, 'default_graph')`,
+      `rdf(iri(_), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), ${iri('B')}, 'default_graph')`]);
+    // Other paths describe triples of each of their predicates.
+    assert.deepEqual(written(':S sh:nodeKind sh:IRI ; sh:property [ sh:path ( :p [ sh:alternativePath ( :q [ sh:zeroOrMorePath :r ] ) ] ) ; sh:class :C ] .'),
+      ['p', 'q', 'r'].map((p) => `rdf(iri(_), ${iri(p)}, _, 'default_graph')`));
+    // Only closed shapes say which properties a kept triple has.
+    assert.equal(read(':S sh:property [ sh:path :p ] .').allowed, null);
+    assert.deepEqual([...read(':S sh:closed true ; sh:ignoredProperties ( :q ) ; sh:property [ sh:path :p ] .').allowed].sort(),
+      ['http://example.org/p', 'http://example.org/q']);
+    // Output shapes ask for their values in any graph.
+    assert.deepEqual(shaclOut(shapes(':S sh:property [ sh:path :p ; sh:hasValue :v ] .'), 'out.ttl').map((p) => write(p).replace(/VAR_[A-Za-z0-9_]+/g, '_')),
+      [`rdf(_, ${iri('p')}, ${iri('v')}, _)`]);
+    assert.throws(() => read(':S sh:property [ sh:path [ sh:unknownPath :p ] ] .'), /a SHACL path is a predicate/);
   },
 
   'specialized message runs conclude what whole runs conclude, or run whole'() {

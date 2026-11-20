@@ -49,7 +49,9 @@ For RDF Messages, try [message boundaries and heartbeats](https://eyereasoner.gi
 or [named-graph provenance](https://eyereasoner.github.io/eyemind/examples/deck/message-provenance-n3).
 [Sensor observations](https://eyereasoner.github.io/eyemind/examples/deck/observations-owl2rl) stream
 messages through `--owl2rl` rules specialized to their shape and pruned to a Logic Script output
-contract; streamed runs save output only.
+contract; [shape planning](https://eyereasoner.github.io/eyemind/examples/deck/shape-planning-owl2rl)
+plans the same rules from SHACL input and output shapes before the first message.
+Streamed runs save output only.
 
 For quantity normalization, try [QUDT quantities](https://eyereasoner.github.io/eyemind/examples/deck/quantities-qudt)
 with `--qudt`. The [transport thesaurus](https://eyereasoner.github.io/eyemind/examples/deck/thesaurus-skos)
@@ -211,6 +213,7 @@ original inputs.
 | [scoped-audit](https://eyereasoner.github.io/eyemind/examples/deck/scoped-audit) | [scoped-audit.js](https://github.com/eyereasoner/eyemind/blob/main/examples/scoped-audit.js) | Presence and absence within separate quoted graphs |
 | [scoped-negation-n3](https://eyereasoner.github.io/eyemind/examples/deck/scoped-negation-n3) | [scoped-negation-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/scoped-negation-n3.n3) | Notation3 scoped negation waits for a derived order hold |
 | [service-outage-recovery](https://eyereasoner.github.io/eyemind/examples/deck/service-outage-recovery) | [service-outage-recovery.js](https://github.com/eyereasoner/eyemind/blob/main/examples/service-outage-recovery.js) | Least-cost repairs that restore checkout through redundant providers and a dependency cycle |
+| [shape-planning-owl2rl](https://eyereasoner.github.io/eyemind/examples/deck/shape-planning-owl2rl) | [shape-planning-owl2rl.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/shape-planning-owl2rl.ttl) · [shape-planning-owl2rl-shacl-in.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/shape-planning-owl2rl-shacl-in.ttl) · [shape-planning-owl2rl-shacl-out.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/shape-planning-owl2rl-shacl-out.ttl) · [data/shape-planning-owl2rl.trig](https://github.com/eyereasoner/eyemind/blob/main/examples/data/shape-planning-owl2rl.trig) | SHACL input and output shapes let streamed sensor messages run rules specialized before the first message and yield only the SOSA triples asked for |
 | [shared-existential-n3](https://eyereasoner.github.io/eyemind/examples/deck/shared-existential-n3) | [shared-existential-n3.n3](https://github.com/eyereasoner/eyemind/blob/main/examples/shared-existential-n3.n3) | A top-level @forSome witness is the one individual a universal conclusion talks about |
 | [shortest-path](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path) | [shortest-path.js](https://github.com/eyereasoner/eyemind/blob/main/examples/shortest-path.js) | Weighted paths and stratified minimum selection |
 | [shortest-path-le](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le) | [shortest-path-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/shortest-path-le.le) | Bounded recursive paths retain both cheapest routes through a graph containing a cycle |

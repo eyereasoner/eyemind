@@ -337,7 +337,7 @@ export const tests = [
     await p.select('mode', '');
   }],
 
-  ['a streamed OWL 2 RL example runs its messages with specialized rules and leaves streaming with the example', async (page, base) => {
+  ['streamed OWL 2 RL examples run their messages with specialized rules, from SHACL shapes too, and leave streaming with the example', async (page, base) => {
     const p = driver(page);
     const entry = manifest.find(({ name }) => name === 'observations-owl2rl');
     await p.open(`${base}#example=observations-owl2rl`, 390, true);
@@ -347,6 +347,15 @@ export const tests = [
     await p.run();
     assert.match(await p.status(), /^Done · exit 0/);
     assert.equal(await p.output(), readFileSync(artifactPath('output', entry), 'utf8'));
+    // An example's SHACL shapes are given with --shacl-in and --shacl-out.
+    const shaped = manifest.find(({ name }) => name === 'shape-planning-owl2rl');
+    await p.select('examples', 'shape-planning-owl2rl');
+    await p.until("document.getElementById('status').textContent === 'Inputs ready.'", 'shape-planning-owl2rl');
+    assert.match(await page.evaluate("document.getElementById('command').textContent"),
+      /--shacl-in examples\/shape-planning-owl2rl-shacl-in\.ttl --shacl-out examples\/shape-planning-owl2rl-shacl-out\.ttl/);
+    await p.run();
+    assert.match(await p.status(), /^Done · exit 0/);
+    assert.equal(await p.output(), readFileSync(artifactPath('output', shaped), 'utf8'));
     await p.select('examples', 'socrates');
     await p.until("document.getElementById('examples').value === 'socrates' && document.getElementById('status').textContent === 'Inputs ready.'", 'socrates');
     assert.equal(await page.evaluate("document.getElementById('mode').value"), '');

@@ -43,7 +43,8 @@ goals, and keep error messages specific and user-facing text direct.
     and reasons over streamed messages with a background graph;
     `specialize.js` specializes a program to the shape of facts that arrive
     repeatedly, after closing its own facts once, and prunes it to an output
-    contract of `query(rdf(...))` statements; `rdf-values.js` supplies
+    contract of `query(rdf(...))` statements or SHACL output shapes, after
+    specializing it at once to the message triples SHACL input shapes describe; `rdf-values.js` supplies
     shared LS datatype and value rules. `qudt.js`, `skos.js` and `shacl.js`
     compile quantity normalization, SKOS entailment and SHACL validation to
     standalone LS; `shacl-expr.js` compiles SHACL node expressions.
@@ -93,7 +94,9 @@ goals, and keep error messages specific and user-facing text direct.
   RDF Message examples keep their logs in `examples/data/`; payloads are
   quoted `log:nameOf` formulas. Replay has proofs and check reports;
   `--stream-messages` runs each message independently. A manifest entry with
-  `stream_messages` runs that way and saves only its output.
+  `stream_messages` runs that way and saves only its output; its files
+  `NAME-shacl-in.ttl` and `NAME-shacl-out.ttl` are given with `--shacl-in`
+  and `--shacl-out`, also in the playground.
 - `conformance/`: black-box language and proof cases from LS-SPEC.md, plus
   implementation interface checks tagged with their README headings. Each case file is an
   eyemind document of `conformance(Name, [Setting, ...])` terms, read by

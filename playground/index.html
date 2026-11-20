@@ -438,7 +438,12 @@
           const value = byId(id).value;
           if (value !== '' && mode !== '--check-proof') args.push('--' + id, value);
         }
-        return args.concat(source.name.trim() || '-', (source.companions ?? []).map((file) => file.name));
+        // A companion named NAME-shacl-in.ttl or NAME-shacl-out.ttl holds
+        // SHACL shapes the run takes as a contract, as the examples do.
+        return args.concat(source.name.trim() || '-', (source.companions ?? []).flatMap((file) => {
+          const role = file.name.match(/-shacl-(in|out)\.ttl$/)?.[1];
+          return role ? [`--shacl-${role}`, file.name] : [file.name];
+        }));
       }
 
       function quoteArgument(value) {
