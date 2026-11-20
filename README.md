@@ -52,31 +52,21 @@ the proof format and how a proof is checked; its conformance suite has
 
 ## Why eyemind?
 
-LS is the assembler level for rule languages. N3, SRL, Logical English and the
-OWL 2 RL, SKOS, QUDT, SHACL and ODRL profiles of RDF 1.2 keep their own syntax
-and meaning, and compile to ordinary LS programs that one engine runs and one
-checker verifies. A new language gets reasoning and checkable proofs as soon
-as it compiles to LS.
+Logic Script (LS) is the assembler level for rule languages. N3, SRL, Logical
+English and the OWL 2 RL, SKOS, QUDT, SHACL and ODRL profiles of RDF 1.2 keep
+their own syntax and meaning, and compile to ordinary LS programs that one
+engine runs and one checker verifies. A new language gets reasoning and
+checkable proofs as soon as it compiles to LS.
 
-- **Proofs that do not ask for trust.** Every conclusion can come with a proof
-  that a separate checker verifies against the program, without running the
-  reasoner. It covers the hard parts too: that nothing matched, for negation
-  and collections; what a rule says exists, as a Skolem term; and that no
-  answer is missing. A forged proof never passes.
-- **Programs are JavaScript.** No parser to install and no dependencies: one
-  program runs on the command line, as a library and in a browser tab, and
-  conclusions and proofs are data, read back without being run.
-- **Forward and backward together.** Forward rounds derive what follows,
-  backward search answers questions, and each calls the other.
-- **Exact numbers.** Integers are BigInts and never silently become floats.
-- **Open to other implementations.** The specification and its black-box
+- **So conclusions can be checked, not trusted.** A proof is verified against
+  the program by a checker that never runs the reasoner, and a forged proof
+  never passes: you can hand a result to someone who does not trust your
+  engine, for audits, compliance or decisions between parties.
+- **So one program runs anywhere.** LS is JavaScript, with no dependencies: on
+  the command line, as a library and in a browser tab.
+- **So no one depends on eyemind alone.** A specification and a black-box
   [conformance suite](https://eyereasoner.github.io/eyemind/conformance/) let
-  others build an independent LS implementation, so a proof is worth more
-  than "trust our code".
-
-eyemind is for conclusions someone else must be able to check: audits,
-compliance, and decisions between parties that do not trust each other. If
-you do not need proofs, faster engines exist.
+  others implement LS independently.
 
 ## Install and run
 
