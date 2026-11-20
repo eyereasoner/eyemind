@@ -73,9 +73,12 @@ verifies against your program, without running the reasoner.
    has no function terms; Prolog is backward-only. In eyemind, forward rounds
    derive what follows, backward search answers questions, and each calls the
    other.
-4. **Your formats, the same proofs.** RDF 1.2, N3, SRL, Logical English and
-   the OWL 2 RL, SKOS, QUDT and SHACL profiles compile to LS, so their
-   conclusions get the same checkable proofs.
+4. **The assembler level for rule languages.** LS is not one more rule
+   language next to N3: it is the level below, as assembly is to C. N3, SRL,
+   Logical English and the OWL 2 RL, SKOS, QUDT, SHACL and ODRL profiles of
+   RDF 1.2 keep their own syntax and meaning, and compile to ordinary LS
+   programs that one engine runs and one checker verifies. A new language gets
+   reasoning and checkable proofs as soon as it compiles to LS.
 5. **Written for other implementers.** The specification and its black-box
    [conformance suite](https://eyereasoner.github.io/eyemind/conformance/) let
    others build an independent LS implementation. Agreement between
