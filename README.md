@@ -64,7 +64,7 @@ checkable proofs as soon as it compiles to LS.
   engine, for audits, compliance or decisions between parties.
 - **So one program runs anywhere.** LS is JavaScript, with no dependencies: on
   the command line, as a library and in a browser tab.
-- **So no one depends on eyemind alone.** A specification and a black-box
+- **So no one depends on eyemind alone.** A [specification](https://eyereasoner.github.io/eyemind/LS-SPEC) and a black-box
   [conformance suite](https://eyereasoner.github.io/eyemind/conformance/) let
   others implement LS independently.
 
