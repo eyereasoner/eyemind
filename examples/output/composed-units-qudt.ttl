@@ -67,4 +67,13 @@ _:b11 qudt:unit unit:SEC .
 _:b11 qconv:sourceProperty :latency .
 _:b11 qconv:sourceQuantity _:b12 .
 _:b11 qconv:sourceUnit unit:MicroSEC .
-_:b13 qconv:unresolvedUnit unit:CCY_USD .
+:pyranometer qconv:normalizedQuantity _:b13 .
+:pyranometer qconv:normalizedUcumLiteral "650.0 W/m2"^^cdt:ucum .
+:pyranometer qconv:normalizedCdtLiteral "650.0 W/m2"^^cdt:ucum .
+_:b13 a qudt:QuantityValue .
+_:b13 qudt:numericValue "650.0"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b13 qudt:unit unit:W-PER-M2 .
+_:b13 qconv:sourceProperty :irradiance .
+_:b13 qconv:sourceQuantity _:b14 .
+_:b13 qconv:sourceUnit unit:W-PER-M2 .
+_:b15 qconv:unresolvedUnit unit:CCY_USD .

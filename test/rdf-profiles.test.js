@@ -110,9 +110,15 @@ export const tests = {
     assert.deepEqual(value(reading('unit:MicroSEC').replace('5;', '250;')), ['0.00025 s', 0]);
     // A dimension without a target normalizes to its coherent SI unit.
     assert.deepEqual(value(':u qudt:conversionMultiplier 10000; qudt:hasDimensionVector <http://qudt.org/vocab/dimensionvector/A0E0L-2I1M0H0T0D0>. ' + reading(':u')), ['50000.0 cd.m-2', 0]);
-    // Factors compose recursively; an offset or an unknown factor does not.
+    // Factors compose recursively, without their offsets; an unknown one does not.
     assert.deepEqual(value(':v qudt:prefix prefix:Milli; qudt:scalingOf unit:GM. :u qudt:hasFactorUnit [qudt:hasUnit :v; qudt:exponent 1], [qudt:hasUnit unit:L; qudt:exponent -1]. ' + reading(':u')), ['0.005 kg/m3', 0]);
-    assert.deepEqual(value(':u qudt:hasFactorUnit [qudt:hasUnit unit:DEG_C; qudt:exponent 1], [qudt:hasUnit unit:SEC; qudt:exponent -1]. ' + reading(':u')), [undefined, 1]);
+    assert.deepEqual(value(':u qudt:hasFactorUnit [qudt:hasUnit unit:DEG_C; qudt:exponent 1], [qudt:hasUnit unit:SEC; qudt:exponent -1]. ' + reading(':u')), ['5.0 K.s-1', 0]);
+    // QUDT names compose by their parts; a coherent one is its own target.
+    assert.deepEqual(value(reading('unit:W-PER-M2')), ['5.0 W/m2', 0]);
+    assert.deepEqual(value(reading('unit:KiloGM-M-PER-SEC2')), ['5.0 kg.m/s2', 0]);
+    assert.deepEqual(value(reading('unit:PER-SEC')), ['5.0 1/s', 0]);
+    assert.deepEqual(value(reading('unit:MilliM-PER-HR').replace('5;', '3600;')), ['0.001 m/s', 0]);
+    assert.deepEqual(value(reading('unit:FOO-PER-M2')), [undefined, 1]);
     assert.deepEqual(value(':u qudt:hasFactorUnit [qudt:hasUnit unit:FURLONG; qudt:exponent 1]. ' + reading(':u')), [undefined, 1]);
     assert.deepEqual(value(reading('unit:CCY_USD')), [undefined, 1]);
     // A composed unit's UCUM code reads CDT literals.

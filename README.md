@@ -410,7 +410,7 @@ query(rdf(O, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), sosa('Obser
   units: with `qudt:conversionMultiplier` and `qudt:hasDimensionVector`,
   composed from QUDT units with `qudt:hasFactorUnit` or `qudt:prefix` and
   `qudt:scalingOf`, or aligned with `owl:sameAs` or `skos:exactMatch`; QUDT
-  names such as `unit:NanoGM` resolve as a prefix and a catalog unit. A
+  names such as `unit:NanoGM` or `unit:W-PER-M2` resolve by their parts. A
   dimension without a CDT datatype normalizes to its coherent SI unit as a
   `cdt:ucum` literal, and a quantity whose unit cannot be resolved, such as a
   currency, is reported with `qconv:unresolvedUnit`.

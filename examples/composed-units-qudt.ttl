@@ -1,10 +1,11 @@
-# Air quality and traffic readings use units the offline QUDT catalog lacks:
-# nanograms per cubic metre, vehicles per hour, candelas per square
-# centimetre, kilohours and microseconds.
+# Air quality, traffic and weather readings use units the offline QUDT
+# catalog lacks: nanograms per cubic metre, vehicles per hour, candelas per
+# square centimetre, watts per square metre, kilohours and microseconds.
 # With --qudt, each is composed from QUDT units and normalized to SI; a
 # reading in US dollars is reported as an unresolved unit.
 # Shows qudt:hasFactorUnit, qudt:prefix with qudt:scalingOf, prefixed QUDT
-# unit names, explicit dimension vectors and SI targets for any dimension.
+# and compound unit names, explicit dimension vectors and SI targets for any
+# dimension.
 # Unit conventions: https://qudt.org/ and https://w3id.org/cdt/ .
 
 @prefix : <https://example.org/readings#> .
@@ -45,6 +46,10 @@
 
 # QUDT names a prefixed unit by its prefix and unit: MicroSEC is a microsecond.
 :sensor :latency [ a qudt:QuantityValue ; qudt:numericValue 250 ; qudt:unit unit:MicroSEC ] .
+
+# QUDT names a compound unit by its parts: W-PER-M2 is a watt per square
+# metre, the coherent SI unit of irradiance, so it is its own target.
+:pyranometer :irradiance [ a qudt:QuantityValue ; qudt:numericValue 650 ; qudt:unit unit:W-PER-M2 ] .
 
 # A currency has no conversion to an SI unit: the reading is reported.
 :repair :cost [ a qudt:QuantityValue ; qudt:numericValue 3 ; qudt:unit unit:CCY_USD ] .
