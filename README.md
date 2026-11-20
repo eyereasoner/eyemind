@@ -52,45 +52,31 @@ the proof format and how a proof is checked; its conformance suite has
 
 ## Why eyemind?
 
-eyemind adds no new logic: as in Datalog, Prolog, N3 and SRL, rules run to a
-least fixpoint, with stratified negation and collection. What it adds is
-evidence. Every conclusion can come with a proof that a separate checker
-verifies against your program, without running the reasoner.
+LS is the assembler level for rule languages. N3, SRL, Logical English and the
+OWL 2 RL, SKOS, QUDT, SHACL and ODRL profiles of RDF 1.2 keep their own syntax
+and meaning, and compile to ordinary LS programs that one engine runs and one
+checker verifies. A new language gets reasoning and checkable proofs as soon
+as it compiles to LS.
 
-1. **Proofs that cover the whole answer.** Most engines give an answer, or a
-   trace you have to trust. An eyemind proof also justifies the hard parts:
-   - that nothing matched, for negation and collections, from complete answer
-     tables whose listings of derived facts must be closed;
-   - what a rule says exists, as the Skolem term of its firing;
-   - that each answer answers the question asked, and that none is missing.
+- **Proofs that do not ask for trust.** Every conclusion can come with a proof
+  that a separate checker verifies against the program, without running the
+  reasoner. It covers the hard parts too: that nothing matched, for negation
+  and collections; what a rule says exists, as a Skolem term; and that no
+  answer is missing. A forged proof never passes.
+- **Programs are JavaScript.** No parser to install and no dependencies: one
+  program runs on the command line, as a library and in a browser tab, and
+  conclusions and proofs are data, read back without being run.
+- **Forward and backward together.** Forward rounds derive what follows,
+  backward search answers questions, and each calls the other.
+- **Exact numbers.** Integers are BigInts and never silently become floats.
+- **Open to other implementations.** The specification and its black-box
+  [conformance suite](https://eyereasoner.github.io/eyemind/conformance/) let
+  others build an independent LS implementation, so a proof is worth more
+  than "trust our code".
 
-   A forged proof must never pass the check, so you can hand a result to
-   someone who does not trust your engine.
-2. **Programs are JavaScript.** No syntax to learn, no parser to install, no
-   dependencies. One program runs on the command line, as a library and in a
-   browser tab; conclusions and proofs are data, read back without being run.
-3. **Forward and backward reasoning together.** Datalog is forward-only and
-   has no function terms; Prolog is backward-only. In eyemind, forward rounds
-   derive what follows, backward search answers questions, and each calls the
-   other.
-4. **The assembler level for rule languages.** LS is not one more rule
-   language next to N3: it is the level below, as assembly is to C. N3, SRL,
-   Logical English and the OWL 2 RL, SKOS, QUDT, SHACL and ODRL profiles of
-   RDF 1.2 keep their own syntax and meaning, and compile to ordinary LS
-   programs that one engine runs and one checker verifies. A new language gets
-   reasoning and checkable proofs as soon as it compiles to LS.
-5. **Written for other implementers.** The specification and its black-box
-   [conformance suite](https://eyereasoner.github.io/eyemind/conformance/) let
-   others build an independent LS implementation. Agreement between
-   implementations is what makes a proof worth more than "trust our code".
-6. **Exact numbers.** Integers are BigInts and never silently become floats.
-
-**When to use something else.** If you do not need proofs, mature tools are
-faster: SWI-Prolog and XSB have tabling, and Soufflé scales. N3 and SRL are
-built for Web data; eyemind reads and compiles them rather than competing
-(see [Other formats](#other-formats)). eyemind is for conclusions someone else
-must be able to check: audits, compliance, and decisions between parties that
-do not trust each other.
+eyemind is for conclusions someone else must be able to check: audits,
+compliance, and decisions between parties that do not trust each other. If
+you do not need proofs, faster engines exist.
 
 ## Install and run
 
