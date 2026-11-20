@@ -12,7 +12,8 @@ import { executionContext } from './srl.js';
 import { rdfValueRules } from './rdf-values.js';
 import { run } from './engine.js';
 import { Specializer, shape } from './specialize.js';
-import { Env, EyemindError, Struct, Var, freshTerm, identity, unify } from './terms.js';
+import { Env, EyemindError, Struct, Var, freshTerm, identity, key, unify } from './terms.js';
+import { CONTROL_KEYS, Program } from './program.js';
 
 export const ENTAILMENT = 'https://eyereasoner.github.io/eyemind/entailment#';
 export const RDF_PROFILES = ['owl2rl', 'qudt', 'skos', 'shacl'];
@@ -86,6 +87,12 @@ function shapePatterns(quads, name, input) {
     if (kind === 'IRI') return [iri()];
     if (kind === 'BlankNode') return [bnode()];
     if (kind === 'BlankNodeOrIRI' || (!kind && values(node, SH + 'class').length)) return [iri(), bnode()];
+    // A message literal is a literal term; an integer, which is a number
+    // term, then does not conform. An output contract asks for any literal.
+    const literal = () => input ? new Struct('literal', [any(), any()]) : any();
+    if (kind === 'Literal') return [literal()];
+    if (kind === 'IRIOrLiteral') return [iri(), literal()];
+    if (kind === 'BlankNodeOrLiteral') return [bnode(), literal()];
     return [any()];
   };
   // The predicates of a path, and whether it is a predicate or its inverse.
@@ -146,6 +153,147 @@ export const shaclIn = (quads, name) => shapePatterns(quads, name, true);
 // triples, of the values they allow.
 export const shaclOut = (quads, name) => shapePatterns(quads, name, false).patterns;
 
+const RDF_TYPE = RDF + 'type';
+const RDFS = 'http://www.w3.org/2000/01/rdf-schema#', OWL = 'http://www.w3.org/2002/07/owl#';
+// Schema properties and property types whose rules can only fire when the
+// background has them.
+const SCHEMA = new Set([...['domain', 'range', 'subClassOf', 'subPropertyOf'].map((n) => RDFS + n),
+  ...['equivalentClass', 'equivalentProperty', 'inverseOf', 'propertyChainAxiom', 'intersectionOf', 'unionOf', 'oneOf',
+    'members', 'distinctMembers', 'hasKey', 'onProperty', 'onClass', 'onDataRange', 'someValuesFrom', 'allValuesFrom',
+    'hasValue', 'maxCardinality', 'maxQualifiedCardinality', 'complementOf', 'disjointWith', 'disjointUnionOf',
+    'datatypeComplementOf'].map((n) => OWL + n)]);
+const TYPE_GUARDS = new Set(['FunctionalProperty', 'InverseFunctionalProperty', 'TransitiveProperty', 'SymmetricProperty',
+  'AsymmetricProperty', 'IrreflexiveProperty', 'ReflexiveProperty', 'AllDifferent', 'AllDisjointClasses',
+  'AllDisjointProperties'].map((n) => OWL + n));
+const QUADS = new Set(['rdf/4', 'ent_base/4']);
+
+// The rules for messages that trusted SHACL shapes plan, at the level of
+// properties and classes: a rule whose schema premise the background lacks
+// is left out; with input shapes, only rules whose premises can match a
+// property or class of the background, the messages or a kept rule's
+// conclusion are kept; with output shapes, only rules concluding a property
+// or class asked for, or one a kept rule reads. A relation other than a
+// triple counts as a property of its own. Facts and backward rules stay.
+export function planRules(program, quads, { input = null, output = null }) {
+  const named = (t) => t instanceof Struct && t.name === 'iri' && typeof t.args[0] === 'string' ? t.args[0] : null;
+  const describe = (goals, into) => {
+    for (const goal of goals) {
+      if (!(goal instanceof Struct)) continue;
+      const k = key(goal);
+      if (CONTROL_KEYS.has(k)) { describe(goal.args, into); continue; }
+      if (!QUADS.has(k)) { into.predicates.add('#' + k); continue; }
+      const p = named(goal.args[1]);
+      if (p === null) { into.variable = true; continue; }
+      if (p === RDF_TYPE && named(goal.args[2])) into.classes.add(named(goal.args[2]));
+      else into.predicates.add(p);
+    }
+    return into;
+  };
+  const entry = () => ({ predicates: new Set(), classes: new Set(), variable: false });
+  // The values a variable takes in a schema premise, such as P2 in
+  // rdf(P1, rdfs:subPropertyOf, P2), from the background's triples of that
+  // property, as partial evaluation makes them; null for no such premise.
+  const values = (variable, body) => {
+    for (const goal of body) {
+      if (!(goal instanceof Struct) || !QUADS.has(key(goal))) continue;
+      const p = named(goal.args[1]);
+      const at = [0, 2].find((i) => goal.args[i] instanceof Var && goal.args[i].name === variable.name);
+      if (p === null || p === RDF_TYPE || at === undefined) continue;
+      return [...new Set(quads.filter((quad) => named(quad[1]) === p).map((quad) => named(quad[at])).filter(Boolean))];
+    }
+    return null;
+  };
+  // The properties and classes of goals, a variable one taking its values.
+  const partial = (goals, body) => {
+    const into = entry();
+    for (const goal of goals) {
+      if (!(goal instanceof Struct) || !QUADS.has(key(goal))) { describe([goal], into); continue; }
+      const [, p, o] = goal.args;
+      if (p instanceof Var) {
+        const found = values(p, body);
+        if (found === null) into.variable = true;
+        else for (const value of found) into.predicates.add(value);
+      } else if (named(p) === RDF_TYPE && o instanceof Var) {
+        const found = values(o, body);
+        if (found === null) into.predicates.add(RDF_TYPE);
+        else for (const value of found) into.classes.add(value);
+      } else describe([goal], into);
+    }
+    return into;
+  };
+  const rules = program.clauses.filter((c) => c.forward).map((clause) => ({ clause,
+    body: partial(clause.body, clause.body), head: partial(clause.heads, clause.body) }));
+  // What the background has, and what statically relevant rules conclude
+  // from it.
+  const known = entry();
+  for (const quad of quads) {
+    const p = named(quad[1]);
+    if (p === RDF_TYPE && named(quad[2])) known.classes.add(named(quad[2]));
+    else if (p) known.predicates.add(p);
+  }
+  for (const clause of program.clauses) if (!clause.forward && !clause.body.length) known.predicates.add('#' + key(clause.head));
+  const matches = (body, have) => (!body.predicates.size && !body.classes.size) ||
+    [...body.predicates].some((p) => have.predicates.has(p)) || [...body.classes].some((c) => have.classes.has(c));
+  const close = (selected, have) => {
+    const kept = new Set();
+    for (let changed = true; changed;) {
+      changed = false;
+      for (const rule of selected) {
+        if (kept.has(rule) || !matches(rule.body, have)) continue;
+        kept.add(rule);
+        for (const p of rule.head.predicates) have.predicates.add(p);
+        for (const c of rule.head.classes) have.classes.add(c);
+        changed = true;
+      }
+    }
+    return kept;
+  };
+  const staticReach = close(rules, { predicates: new Set(known.predicates), classes: new Set(known.classes) });
+  const background = { predicates: new Set(known.predicates), classes: new Set(known.classes) };
+  for (const rule of staticReach) {
+    for (const p of rule.head.predicates) background.predicates.add(p);
+    for (const c of rule.head.classes) background.classes.add(c);
+  }
+  let selected = rules.filter((rule) => [...rule.body.predicates].every((p) => !SCHEMA.has(p) || background.predicates.has(p)) &&
+    [...rule.body.classes].every((c) => !TYPE_GUARDS.has(c) || background.classes.has(c)));
+  if (input) {
+    const reached = close(selected, { predicates: new Set([...background.predicates, ...input.predicates]),
+      classes: new Set([...background.classes, ...input.classes]) });
+    selected = selected.filter((rule) => reached.has(rule));
+  }
+  if (output) {
+    const desired = { predicates: new Set(output.predicates), classes: new Set(output.classes) };
+    const needed = new Set();
+    const wanted = (head) => (head.variable && desired.predicates.size && !desired.classes.size) ||
+      [...head.predicates].some((p) => desired.predicates.has(p) && !(p === RDF_TYPE && desired.classes.size)) ||
+      [...head.classes].some((c) => desired.classes.has(c));
+    for (let changed = true; changed;) {
+      changed = false;
+      for (const rule of selected) {
+        if (needed.has(rule) || !wanted(rule.head)) continue;
+        needed.add(rule);
+        for (const p of rule.body.predicates) desired.predicates.add(p);
+        for (const c of rule.body.classes) desired.classes.add(c);
+        changed = true;
+      }
+    }
+    selected = selected.filter((rule) => needed.has(rule));
+  }
+  const keep = new Set(selected.map((rule) => rule.clause.id));
+  return new Program(program.sources.filter((_, i) => !program.byId.get(i + 1)?.forward || keep.has(i + 1)));
+}
+
+// The properties and classes of triple patterns.
+const vocabularyOf = (patterns) => {
+  const into = { predicates: new Set(), classes: new Set() };
+  for (const pattern of patterns) {
+    const p = pattern.args[1]?.name === 'iri' ? pattern.args[1].args[0] : null;
+    if (p === RDF_TYPE && pattern.args[2]?.name === 'iri' && typeof pattern.args[2].args[0] === 'string') into.classes.add(pattern.args[2].args[0]);
+    else if (p !== null) into.predicates.add(p);
+  }
+  return into;
+};
+
 // Reasoning over messages one at a time, each with the same background
 // graph: infer(quads) gives the triples a message adds to what the background
 // alone concludes. The background is closed once and the rules are
@@ -157,10 +305,13 @@ export const shaclOut = (quads, name) => shapePatterns(quads, name, false).patte
 // and, for closed shapes, the properties a kept triple has: the program for
 // conforming messages is made before the first one arrives, and a message
 // that does not conform gets one of its own shape.
-export function messageReasoner({ quads, prefixes, wanted = null, expected = null }, { profiles, source = '<input>' }) {
+export function messageReasoner({ quads, prefixes, wanted = null, expected = null, planned = false }, { profiles, source = '<input>', limits = {} }) {
   const options = { profiles, source };
   const background = compileRdfLogic({ quads, prefixes }, { ...options, stream: true });
-  const specializer = new Specializer(background.program, { quads: ['rdf/4', 'ent_base/4'],
+  // Trusted SHACL shapes plan the rules first, as rdfjs-inference-engine does.
+  const program = planned ? planRules(background.program, quads, { input: expected && vocabularyOf(expected.patterns),
+    output: wanted && vocabularyOf(wanted) }) : background.program;
+  const specializer = new Specializer(program, { quads: ['rdf/4', 'ent_base/4'], limits,
     wanted: wanted && wanted.flatMap((pattern) => [pattern, new Struct('ent_report', pattern.args)]) });
   // The program for the messages an input shape describes is made at once.
   if (expected) specializer.expect(expected.patterns.flatMap((pattern) => [pattern, new Struct('ent_base', pattern.args)]));
@@ -189,6 +340,14 @@ export function messageReasoner({ quads, prefixes, wanted = null, expected = nul
           (t.name === 'ent_report' || (t.name === 'rdf' && RESOURCES.has(t.args[0].name) && t.args[1].name === 'iri')));
         return { quads: added.map((t) => t.args).filter(kept), specialized: true, stats: result.stats, haltCode: result.haltCode,
           sources: special.fresh ? special.sources : null, ...(expected ? { ...shaped, conforms: special.conforms } : {}) };
+      }
+      if (planned) {
+        // The planned rules run whole over the background and the message.
+        alone ??= new Set(run(program, limits).derived.map((node) => identity(node.goal)));
+        const result = run(program.withFacts(facts), limits);
+        const added = result.derived.map((node) => node.goal).filter((t) => !alone.has(identity(t)) &&
+          (t.name === 'ent_report' || (t.name === 'rdf' && RESOURCES.has(t.args[0].name) && t.args[1].name === 'iri')));
+        return { quads: added.map((t) => t.args).filter(kept), specialized: false, stats: result.stats, haltCode: result.haltCode, sources: null, ...shaped };
       }
       alone ??= new Set(answers(compileRdfLogic({ quads, prefixes }, options).program, limits).map(identity));
       const result = run(compileRdfLogic({ quads: [...quads, ...message], prefixes, shapes: quads }, options).program, limits);

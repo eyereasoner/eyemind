@@ -91,19 +91,25 @@ and its value is what `sh:datatype`, `sh:nodeKind`, `sh:class`, `sh:hasValue`
 or `sh:in` allows. `ex:temperatureCelsius` holds a decimal literal,
 `ex:observedBy` an IRI, and a focus node is an IRI or a blank node.
 
-eyemind closes the ontology once and specializes the rules to those patterns
-when it loads, so the program is ready before the first message. A message
-whose triples are all instances of the patterns uses that program, whatever
-fields it leaves out; the shape is closed, so the debug note, whose property
-the shape does not allow, is dropped first. A message with other triples
-gets rules specialized to its own shape, with the same result as the whole
-program, and `--stats` reports that it does not conform.
+eyemind first plans the rules by property and class, as SHACL-OPTIMIZATION.md
+describes: a rule whose schema premise the ontology lacks goes; from the
+ontology and the input shape, only rules that can read an available property
+or class stay; and from the output shapes, only rules concluding a property or
+class asked for, or one such a rule reads. A variable property or class takes
+the values its schema premise has in the ontology, so the subproperty rule
+concludes `sosa:madeBySensor` among others. OWL 2 RL's equality and literal
+value rules are not asked for and go.
 
-The output shapes become an output contract: each property shape asks for
-triples of its path, of the values it allows. Only the rules that can
-contribute to those triples are kept, and only those triples are written.
-Asking for decimal results keeps fewer of OWL 2 RL's literal equality rules
-than asking for any result.
+eyemind then closes the ontology under the planned rules and specializes them
+to the input patterns when it loads, so the program is ready before the first
+message: each message takes a few dozen inferences. A message whose triples
+are all instances of the patterns uses that program, whatever fields it leaves
+out; the shape is closed, so the debug note, whose property the shape does not
+allow, is dropped first. A message with other triples gets planned rules
+specialized to its own shape, and `--stats` reports that it does not conform.
+
+The output shapes are also an output contract: only triples of their paths,
+with the values they allow, are written.
 
 ---
 

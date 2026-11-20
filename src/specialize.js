@@ -23,7 +23,7 @@
 // has restricted rules, rule templates or inspection, is not specialized.
 import { CONTROL_KEYS, Program, Source } from './program.js';
 import { run } from './engine.js';
-import { Env, Struct, Var, conjunction, copyResolved, deref, freshTerm, flattenConjunction, identical, identity, isGround, isTerm, key, listFromItems, unify, variables } from './terms.js';
+import { Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, freshTerm, flattenConjunction, identical, identity, isGround, isTerm, key, listFromItems, unify, variables } from './terms.js';
 import { Lettering, write } from './writer.js';
 
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
@@ -130,10 +130,12 @@ export function programText(sources) {
 export class Specializer {
   // quads: the keys whose arguments are subject, property, object and graph.
   // wanted: patterns of the new facts asked for, or null for all; rules that
-  // cannot contribute to one are left out.
-  constructor(program, { quads = [], wanted = null } = {}) {
+  // cannot contribute to one are left out. limits bound closing the
+  // program's own facts, as run() takes them.
+  constructor(program, { quads = [], wanted = null, limits = {} } = {}) {
     this.quads = new Set(quads);
     this.wanted = wanted;
+    this.limits = limits;
     this.cache = new Map();
     this.reason = null;
     try {
@@ -174,7 +176,13 @@ export class Specializer {
       this.clausesOf.get(k).push(clause);
     }
     this.rules = program.clauses.filter((c) => c.forward && !c.heads.every((head) => head === 'true'));
-    const result = run(program);
+    let result;
+    try {
+      result = run(program, this.limits);
+    } catch (error) {
+      if (error instanceof EyemindError) error.message = `closing the background: ${error.message}`;
+      throw error;
+    }
     if (result.haltCode !== null) throw new Unsupported('its own facts are contradictory');
     const facts = program.clauses.filter((c) => !c.forward && !c.body.length && this.data.has(key(c.head))).map((c) => c.head);
     for (const node of result.derived) if (this.data.has(key(node.goal))) facts.push(node.goal);
@@ -246,7 +254,9 @@ export class Specializer {
     }
     const conforms = this.expected === undefined ? null
       : patterns.every((pattern) => this.expected.some((expected) => key(expected) === key(pattern) && instance(expected, pattern)));
-    const compiled = conforms ? this.declared : this.compiled(patterns);
+    // Without a program for the expected patterns, a conforming message gets
+    // one of its own shape too.
+    const compiled = conforms && !this.declared.reason ? this.declared : this.compiled(patterns);
     if (compiled.reason) return null;
     const fresh = !compiled.used;
     compiled.program ??= new Program(compiled.sources);
@@ -490,6 +500,14 @@ export class Specializer {
     if (TYPE_TESTS.has(goalKey)) return resolved.args[0] instanceof Var || TYPE_TESTS.get(goalKey)(resolved.args[0]);
     if (goalKey === 'and/2') return resolved.args.every((arg) => this.holds(arg, depth, env));
     if (goalKey === 'or/2') return resolved.args.some((arg) => this.holds(arg, depth, new Env()));
+    // Facts that cannot be new are the old ones: one of them must match, and
+    // when only one does, the goal is that fact.
+    if (this.data.has(goalKey) && !this.mayBeNew(resolved)) {
+      const facts = this.matches(resolved, new Env(), MANY);
+      if (facts === null) return true;
+      if (facts.length === 1) unify(resolved, facts[0], env);
+      return facts.length > 0;
+    }
     if (!this.backwardKeys.has(goalKey)) return true;
     let only = null;
     let count = 0;
@@ -501,7 +519,8 @@ export class Specializer {
       if (!unify(resolved, head, local)) continue;
       if (depth && !clause.body.every((item) => this.holds(freshTerm(item, suffix, names), depth - 1, local))) continue;
       if (++count > 1) return true;
-      only = clause.body.length ? null : copyResolved(head, local);
+      // Every answer is an instance of the one clause head that applies.
+      only = copyResolved(head, local);
     }
     if (only !== null) unify(resolved, only, env);
     return count > 0;
@@ -578,6 +597,13 @@ export class Specializer {
       const mark = env.mark();
       try {
         for (const [i, goal] of body.entries()) if (modes[i] === null && !this.holds(goal, DEPTH, env)) return;
+        // An old premise kept before later premises bound it reads only the
+        // old facts it still matches, and none ends the variant.
+        for (const [i, goal] of body.entries()) {
+          if (modes[i] !== 'old') continue;
+          const facts = this.matches(goal, env, MANY);
+          if (facts !== null && (!facts.length || !unify(goal, generalize(facts), env))) return;
+        }
         settled(count);
       } finally {
         env.undo(mark);

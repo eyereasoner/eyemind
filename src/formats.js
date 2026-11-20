@@ -108,7 +108,7 @@ export function loadMessageReasoner(inputs, io = null, options = {}) {
   }
 }
 
-function load(inputs, io, { base = null, messageInputs = null, srlContext = null, odrl = false, owl2rl = false, qudt = false, skos = false, shacl = false, messages = false, shaclIn = null, shaclOut = null }) {
+function load(inputs, io, { base = null, messageInputs = null, srlContext = null, odrl = false, owl2rl = false, qudt = false, skos = false, shacl = false, messages = false, shaclIn = null, shaclOut = null, limits = {} }) {
   const options = { owl2rl, qudt, skos, shacl }, profiles = RDF_PROFILES.filter((p) => options[p]);
   const switches = profiles.map((p) => '--' + p).join(' ');
   const kinds = inputs.map(([text, name]) => messageInputs?.has(name) ||
@@ -132,12 +132,13 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
     // SHACL shapes as contracts: what messages hold, and what is wanted.
     const shapes = ([text, name]) => parseRdf(text, { format: rdfFormat(name) ?? 'turtle', base: baseOf(name) }).quads;
     if (shaclOut) graph.wanted = [...graph.wanted ?? [], ...shaclOut.flatMap((input) => shaclOutPatterns(shapes(input), input[1]))];
+    graph.planned = Boolean(shaclIn || shaclOut);
     if (shaclIn) {
       const read = shaclIn.map((input) => shaclInPatterns(shapes(input), input[1]));
       const closed = read.every((r) => r.allowed);
       graph.expected = { patterns: read.flatMap((r) => r.patterns), allowed: closed ? new Set(read.flatMap((r) => [...r.allowed])) : null };
     }
-    if (messages) return messageReasoner(graph, { profiles, source });
+    if (messages) return messageReasoner(graph, { profiles, source, limits });
     return compileRdfLogic(graph, { profiles, source, context: srlContext });
   }
   if (odrl) {

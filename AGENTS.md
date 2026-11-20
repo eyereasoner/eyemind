@@ -40,7 +40,8 @@ goals, and keep error messages specific and user-facing text direct.
     worker runs it too. `node.js`: Node's file access for it. `index.js`:
     library API. `version.js`: the version, synced from `package.json`.
   - `rdf-logic.js` combines explicit RDF profiles over one working graph,
-    and reasons over streamed messages with a background graph;
+    and reasons over streamed messages with a background graph, planning
+    the rules by property and class from trusted SHACL shapes;
     `specialize.js` specializes a program to the shape of facts that arrive
     repeatedly, after closing its own facts once, and prunes it to an output
     contract of `query(rdf(...))` statements or SHACL output shapes, after

@@ -390,6 +390,43 @@ export const tests = {
     assert.match(cli(['--owl2rl', '--shacl-out', open, ontology, data]).stderr, /the SHACL shapes describe no triples/);
   },
 
+  'trusted SHACL shapes plan the rules of point messages over a chain alignment'() {
+    const tmp = mkdtempSync(join(tmpdir(), 'eyemind-plan-'));
+    const file = (name, text) => { const path = join(tmp, name); writeFileSync(path, text); return path; };
+    const P = '@prefix tss: <https://w3id.org/tss#>. @prefix sosa: <http://www.w3.org/ns/sosa/>. @prefix owl: <http://www.w3.org/2002/07/owl#>. ' +
+      '@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>. @prefix sh: <http://www.w3.org/ns/shacl#>. @prefix xsd: <http://www.w3.org/2001/XMLSchema#>. ' +
+      '@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>. @prefix unit: <http://qudt.org/vocab/unit/>. @prefix qudt: <http://qudt.org/schema/qudt/>.\n';
+    const background = file('alignment.ttl', P + 'sosa:observedProperty owl:propertyChainAxiom (tss:field tss:observedProperty). ' +
+      'qudt:hasUnit owl:propertyChainAxiom (tss:field tss:unit). tss:hasPoint rdfs:range tss:Point. tss:Point rdfs:subClassOf sosa:Observation. ' +
+      'tss:time rdfs:subPropertyOf sosa:resultTime. tss:value rdfs:subPropertyOf sosa:hasSimpleResult. tss:time a owl:FunctionalProperty. ' +
+      '<http://example.org/t> tss:unit unit:DEG_C; tss:observedProperty <http://example.org/Air>.');
+    const point = (i) => `<http://example.org/s> tss:hasPoint [ tss:field <http://example.org/t>; tss:time "2030-01-01T00:0${i}:00Z"^^xsd:dateTime; tss:value "${i}.5"^^xsd:double ] .\n`;
+    const log = file('points.trig', 'VERSION "1.2-messages"\nPREFIX tss: <https://w3id.org/tss#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n' +
+      [1, 2, 3].map(point).join('MESSAGE\n'));
+    const shapesIn = file('in.ttl', P + '<#s> sh:closed true; sh:property [sh:path tss:hasPoint; sh:nodeKind sh:BlankNodeOrIRI]. ' +
+      '<#p> sh:closed true; sh:property [sh:path tss:field; sh:nodeKind sh:IRI], [sh:path tss:time; sh:datatype xsd:dateTime], [sh:path tss:value; sh:nodeKind sh:Literal].');
+    const shapesOut = file('out.ttl', P + '<#o> sh:property [sh:path rdf:type; sh:hasValue sosa:Observation], [sh:path sosa:resultTime], ' +
+      '[sh:path sosa:hasSimpleResult], [sh:path sosa:observedProperty], [sh:path qudt:hasUnit].');
+    const stats = (ran) => ran.stderr.trim().split('\n').map((line) => JSON.parse(line));
+    const triples = (text) => text.split('\n').filter((line) => line.startsWith('_:')).map((line) => line.replace(/^_:m\d+_b\d+/, '_')).sort();
+    // Without shapes, the complete rules are specialized: a dateTime and a
+    // double are never the same value, so no equality reaches every property.
+    const complete = cli(['--owl2rl', '--stream-messages', '--stats', background, log]);
+    assert.equal(complete.code, 0, complete.stderr);
+    assert.ok(stats(complete).every((line) => line.specialized));
+    // The shapes plan a few rules, as rdfjs-inference-engine does, and the
+    // asked-for triples are the complete ones.
+    const planned = cli(['--owl2rl', '--stream-messages', '--stats', '--shacl-in', shapesIn, '--shacl-out', shapesOut, background, log]);
+    assert.equal(planned.code, 0, planned.stderr);
+    assert.ok(stats(planned).every((line) => line.specialized && line.conforms && line.inferences < 500), planned.stderr);
+    const asked = /a sosa:Observation|sosa:resultTime|sosa:hasSimpleResult|sosa:observedProperty|qudt:hasUnit/;
+    assert.deepEqual(triples(planned.stdout), triples(complete.stdout).filter((line) => asked.test(line)));
+    assert.equal(triples(planned.stdout).length, 15);
+    // Closing the background obeys the limits and says that it was that.
+    const limited = cli(['--owl2rl', '--stream-messages', '--max-inferences', '10', background, log]);
+    assert.match(limited.stderr, /closing the background: reasoning exceeded max_inferences/);
+  },
+
   'SHACL shapes read as triple patterns'() {
     const shapes = (text) => parseRdf(`@prefix sh: <http://www.w3.org/ns/shacl#> . @prefix : <http://example.org/> .
       @prefix xsd: <http://www.w3.org/2001/XMLSchema#> . ${text}`).quads;

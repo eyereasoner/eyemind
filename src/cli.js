@@ -181,7 +181,7 @@ export function main(argv, io) {
       // message with rules specialized to its shape (rdf-logic.js).
       let reasoner = null;
       const infer = (inputs, message) => {
-        reasoner ??= loadMessageReasoner(inputs.map(([path, text]) => [text, path === '-' ? '<stdin>' : path]), io, { base, ...rdfLogic, ...shapes });
+        reasoner ??= loadMessageReasoner(inputs.map(([path, text]) => [text, path === '-' ? '<stdin>' : path]), io, { base, ...rdfLogic, ...shapes, limits: { ...COMPILED_LIMITS, ...options } });
         const result = reasoner.infer(message.quads, { ...COMPILED_LIMITS, ...options });
         messageNumber++;
         if (printProgram) {

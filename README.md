@@ -333,18 +333,27 @@ a triple that `owl:sameAs` copies to an equal object serves no rule that
 reads only its subject. See the
 [observations](https://eyereasoner.github.io/eyemind/examples/deck/observations-owl2rl) deck.
 
-SHACL shapes can state both contracts, which are trusted and not validated.
+SHACL shapes state both contracts, which are trusted and not validated, and
+plan the rules as [rdfjs-inference-engine](https://github.com/pietercolpaert/rdfjs-inference-engine/blob/main/SHACL-OPTIMIZATION.md)
+does, by property and class. A rule whose schema premise, such as
+`rdfs:domain` or `owl:FunctionalProperty`, the background lacks is left out.
 `--shacl-in FILE` reads the input shapes: each property shape is a pattern of
 message triples, its path the property and its value what `sh:datatype`,
 `sh:nodeKind`, `sh:class`, `sh:hasValue` or `sh:in` allows, in the default
-graph; other paths allow triples of each of their predicates. The rules are
-specialized to these patterns when the background loads, and a message whose
-triples are all instances of them uses that program, whatever fields it
-leaves out. When every input shape is closed, a message triple whose property
-no shape names or ignores is dropped first. A message with other triples gets
-rules of its own shape, and `--stats` reports `conforms` and `dropped` per
-message. `--shacl-out FILE` reads output shapes as an output contract: each
-property shape asks for triples of its path, of the values it allows. See the
+graph; other paths allow triples of each of their predicates. Only rules that
+can read a property or class of the background, the messages or a kept rule
+stay, and they are specialized to these patterns when the background loads;
+a message whose triples are all instances of them uses that program, and one
+with other triples gets rules of its own shape. When every input shape is
+closed, a message triple whose property no shape names or ignores is dropped
+first; `--stats` reports `conforms` and `dropped` per message.
+`--shacl-out FILE` reads output shapes as an output contract: each property
+shape asks for triples of its path, of the values it allows, and only rules
+concluding those, or what such a rule reads, stay. A variable property or
+class in a rule takes the values its schema premise has in the background, as
+partial evaluation gives them. Planned rules derive what the shapes lead to,
+not every OWL 2 RL consequence: equality that the output does not ask for is
+not derived. See the
 [shape-planning](https://eyereasoner.github.io/eyemind/examples/deck/shape-planning-owl2rl) deck.
 
 ```sh
@@ -594,8 +603,8 @@ eyemind [OPTION ...] [FILE ...]
 | `--goal GOAL` | Ask `GOAL` after forward reasoning; may be repeated. |
 | `--unused` | List the clauses that make no difference to the conclusions. |
 | `--stream-messages` | Read an RDF Message Log and run the rules independently per message; Node reads files, stdin and HTTP(S) incrementally. With an RDF logic profile, the other inputs are a background closed once and the rules are specialized per message shape. |
-| `--shacl-in FILE` | With `--stream-messages` and an RDF logic profile, trust the SHACL shapes in `FILE` to describe the messages: the rules are specialized to them before the first message, and a closed shape drops triples of other properties. |
-| `--shacl-out FILE` | With an RDF logic profile, keep only the rules that can contribute to triples the SHACL shapes in `FILE` describe, and write only those triples. |
+| `--shacl-in FILE` | With `--stream-messages` and an RDF logic profile, trust the SHACL shapes in `FILE` to describe the messages: the rules are planned and specialized for them before the first message, and a closed shape drops triples of other properties. |
+| `--shacl-out FILE` | With an RDF logic profile, plan only the rules that conclude triples the SHACL shapes in `FILE` describe, or what those rules read, and write only those triples. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3, SRL, ODRL or RDF profile program has 1000000, 100000 and 1000000000. |
 | `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; by default LE for LE, N3 for N3, Turtle for SRL, ODRL and RDF profiles, eyemind otherwise. |
