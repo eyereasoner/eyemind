@@ -13,7 +13,7 @@ program, a JavaScript library and a browser application.
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Examples](https://eyereasoner.github.io/eyemind/examples/) · [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/)
 
 The examples are 158 runnable programs, each with a card deck and saved
-conclusions; all but one streamed example also save proofs and check reports. The specification defines the language,
+conclusions; all but the two streamed examples also save proofs and check reports. The specification defines the language,
 the proof format and how a proof is checked; its conformance suite has
 1247 cases that test language and proof behavior, and runs
 [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
@@ -52,32 +52,42 @@ the proof format and how a proof is checked; its conformance suite has
 
 ## Why eyemind?
 
-Prolog, Datalog, N3 and SRL already exist, and eyemind adds no new logic: rules run to a least fixpoint, with stratified negation and collection. What it adds is that it does not stop at the answer. Every conclusion can come with a proof that a separate checker verifies against your program, without calling the reasoner.
+eyemind adds no new logic: as in Datalog, Prolog, N3 and SRL, rules run to a
+least fixpoint, with stratified negation and collection. What it adds is
+evidence. Every conclusion can come with a proof that a separate checker
+verifies against your program, without running the reasoner.
 
-1. **The proof covers everything that went into the answer.**
-   - Most engines show an answer, or at best a trace you have to trust.
-   - eyemind proofs include the hard parts:
-     - "nothing matched" (negation and collections), decided from complete answer tables whose listings of derived facts must be closed;
-     - what a rule says exists, as the Skolem term of that rule firing;
-     - whether each answer really answers the question asked, and whether every answer of the question is there.
-   - A forged proof must never pass the check, so a result is something you can hand to someone who does not trust your engine.
-2. **Logic Script programs are JavaScript scripts.**
-   - There is no syntax to learn, no parser to install and no dependency.
-   - The same program runs on the command line, as a library and in a browser tab.
-   - Conclusions and proofs are data that is read back into terms without being run.
-3. **Forward and backward reasoning in one program.**
-   - Classic Datalog is forward-only and has no function terms; Prolog is backward-only.
-   - eyemind does both: forward rounds compute what follows, backward search answers questions, the two call each other, and what a rule says exists becomes a Skolem term.
-4. **A specification written for other implementers.**
-   - The specification and its black-box [conformance suite](https://eyereasoner.github.io/eyemind/conformance/) let someone else build an independent LS implementation and test it.
-   - Agreement between independent implementations is what makes a proof worth more than "trust our code".
-5. **Exact numbers.** Integers are BigInts and are never silently turned into floats.
+1. **Proofs that cover the whole answer.** Most engines give an answer, or a
+   trace you have to trust. An eyemind proof also justifies the hard parts:
+   - that nothing matched, for negation and collections, from complete answer
+     tables whose listings of derived facts must be closed;
+   - what a rule says exists, as the Skolem term of its firing;
+   - that each answer answers the question asked, and that none is missing.
 
-When eyemind is not the right tool:
+   A forged proof must never pass the check, so you can hand a result to
+   someone who does not trust your engine.
+2. **Programs are JavaScript.** No syntax to learn, no parser to install, no
+   dependencies. One program runs on the command line, as a library and in a
+   browser tab; conclusions and proofs are data, read back without being run.
+3. **Forward and backward reasoning together.** Datalog is forward-only and
+   has no function terms; Prolog is backward-only. In eyemind, forward rounds
+   derive what follows, backward search answers questions, and each calls the
+   other.
+4. **Your formats, the same proofs.** RDF 1.2, N3, SRL, Logical English and
+   the OWL 2 RL, SKOS, QUDT and SHACL profiles compile to LS, so their
+   conclusions get the same checkable proofs.
+5. **Written for other implementers.** The specification and its black-box
+   [conformance suite](https://eyereasoner.github.io/eyemind/conformance/) let
+   others build an independent LS implementation. Agreement between
+   implementations is what makes a proof worth more than "trust our code".
+6. **Exact numbers.** Integers are BigInts and never silently become floats.
 
-- If you do not need proofs, use the mature tools: SWI-Prolog and XSB have tabling, and Soufflé is fast at scale.
-- N3 and SRL are designed around RDF and Web data. eyemind does not compete there: it reads them, and compiles them to LS (see [Other formats](#other-formats)).
-- eyemind is for cases where someone else has to be able to check why a conclusion holds: audits, compliance, and decisions between parties that do not trust each other.
+**When to use something else.** If you do not need proofs, mature tools are
+faster: SWI-Prolog and XSB have tabling, and Soufflé scales. N3 and SRL are
+built for Web data; eyemind reads and compiles them rather than competing
+(see [Other formats](#other-formats)). eyemind is for conclusions someone else
+must be able to check: audits, compliance, and decisions between parties that
+do not trust each other.
 
 ## Install and run
 
