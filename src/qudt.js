@@ -11,6 +11,7 @@ const dimensions = {
   acceleration: 'A0E0L1I0M0H0T-2D0', temperature: 'A0E0L0I0M0H1T0D0',
   pressure: 'A0E0L-1I0M1H0T-2D0', energy: 'A0E0L2I0M1H0T-2D0', power: 'A0E0L2I0M1H0T-3D0',
   dimensionless: 'A0E0L0I0M0H0T0D1', current: 'A0E1L0I0M0H0T0D0', amountOfSubstance: 'A1E0L0I0M0H0T0D0',
+  massDensity: 'A0E0L-3I0M1H0T0D0',
 };
 const units = [
   ['M', 'length', 1, 0, ['m']], ['CentiM', 'length', 0.01, 0, ['cm']], ['MilliM', 'length', 0.001, 0, ['mm']],
@@ -18,7 +19,9 @@ const units = [
   ['FT', 'length', 0.3048, 0, ['[ft_i]', 'ft']], ['MI', 'length', 1609.344, 0, ['[mi_i]', 'mi']],
   ['SEC', 'time', 1, 0, ['s']], ['MIN', 'time', 60, 0, ['min']], ['HR', 'time', 3600, 0, ['h']], ['DAY', 'time', 86400, 0, ['d']],
   ['KiloGM', 'mass', 1, 0, ['kg']], ['GM', 'mass', 0.001, 0, ['g']], ['MilliGM', 'mass', 0.000001, 0, ['mg']],
-  ['LB', 'mass', 0.45359237, 0, ['[lb_av]', 'lb']],
+  ['LB', 'mass', 0.45359237, 0, ['[lb_av]', 'lb']], ['OZ', 'mass', 0.028349523125, 0, ['[oz_av]', 'oz']],
+  ['OZ_TROY', 'mass', 0.0311034768, 0, ['[oz_tr]']], ['TONNE', 'mass', 1000, 0, ['t']],
+  ['KiloTONNE', 'mass', 1e6, 0, ['kt']], ['MegaTONNE', 'mass', 1e9, 0, ['Mt']],
   ['M-PER-SEC', 'speed', 1, 0, ['m/s', 'm.s-1']], ['KiloM-PER-HR', 'speed', 1 / 3.6, 0, ['km/h', 'km.h-1']],
   ['MI-PER-HR', 'speed', 0.44704, 0, ['[mi_i]/h', 'mph']], ['KN', 'speed', 1852 / 3600, 0, ['[kn_i]', 'kn']],
   ['M-PER-SEC2', 'acceleration', 1, 0, ['m/s2', 'm.s-2']],
@@ -26,16 +29,26 @@ const units = [
   ['DEG_F', 'temperature', 5 / 9, 459.67, ['[degF]', '°F']],
   ['M2', 'area', 1, 0, ['m2']], ['CentiM2', 'area', 0.0001, 0, ['cm2']],
   ['M3', 'volume', 1, 0, ['m3']], ['L', 'volume', 0.001, 0, ['L', 'l']], ['MilliL', 'volume', 0.000001, 0, ['mL']],
-  ['PA', 'pressure', 1, 0, ['Pa']], ['KiloPA', 'pressure', 1000, 0, ['kPa']], ['BAR', 'pressure', 100000, 0, ['bar']],
-  ['J', 'energy', 1, 0, ['J']], ['KiloJ', 'energy', 1000, 0, ['kJ']],
-  ['W', 'power', 1, 0, ['W']], ['KiloW', 'power', 1000, 0, ['kW']],
-  ['UNITLESS', 'dimensionless', 1, 0, ['1']], ['PERCENT', 'dimensionless', 0.01, 0, ['%']],
+  ['BBL', 'volume', 0.1589873, 0, ['[bbl_us]']],
+  ['PA', 'pressure', 1, 0, ['Pa']], ['HectoPA', 'pressure', 100, 0, ['hPa']], ['KiloPA', 'pressure', 1000, 0, ['kPa']],
+  ['MilliBAR', 'pressure', 100, 0, ['mbar']], ['BAR', 'pressure', 100000, 0, ['bar']],
+  ['J', 'energy', 1, 0, ['J']], ['KiloJ', 'energy', 1000, 0, ['kJ']], ['MegaJ', 'energy', 1e6, 0, ['MJ']],
+  ['W-HR', 'energy', 3600, 0, ['W.h']], ['KiloW-HR', 'energy', 3.6e6, 0, ['kW.h']], ['MegaW-HR', 'energy', 3.6e9, 0, ['MW.h']],
+  ['BTU_IT', 'energy', 1055.05585262, 0, ['[Btu_IT]']], ['MegaBTU_IT', 'energy', 1055055852.62, 0, ['M[Btu_IT]']],
+  ['W', 'power', 1, 0, ['W']], ['KiloW', 'power', 1000, 0, ['kW']], ['MegaW', 'power', 1e6, 0, ['MW']],
+  ['UNITLESS', 'dimensionless', 1, 0, ['1']], ['NUM', 'dimensionless', 1, 0, []], ['PERCENT', 'dimensionless', 0.01, 0, ['%']],
+  ['PPTH', 'dimensionless', 0.001, 0, ['[ppth]']], ['PPM', 'dimensionless', 1e-6, 0, ['[ppm]']],
+  ['PPB', 'dimensionless', 1e-9, 0, ['[ppb]']],
+  ['KiloGM-PER-M3', 'massDensity', 1, 0, ['kg/m3']], ['GM-PER-M3', 'massDensity', 0.001, 0, ['g/m3']],
+  ['MilliGM-PER-M3', 'massDensity', 1e-6, 0, ['mg/m3']], ['MicroGM-PER-M3', 'massDensity', 1e-9, 0, ['ug/m3', 'µg/m3']],
   ['A', 'current', 1, 0, ['A']], ['MOL', 'amountOfSubstance', 1, 0, ['mol']],
 ];
 const targets = [['length', 'M', 'm'], ['area', 'M2', 'm2'], ['volume', 'M3', 'm3'], ['time', 'SEC', 's'],
   ['mass', 'KiloGM', 'kg'], ['speed', 'M-PER-SEC', 'm/s'], ['acceleration', 'M-PER-SEC2', 'm/s2'],
   ['temperature', 'K', 'K'], ['pressure', 'PA', 'Pa'], ['energy', 'J', 'J'], ['power', 'W', 'W'],
-  ['dimensionless', 'UNITLESS', '1'], ['current', 'A', 'A'], ['amountOfSubstance', 'MOL', 'mol']];
+  ['dimensionless', 'UNITLESS', '1'], ['current', 'A', 'A'], ['amountOfSubstance', 'MOL', 'mol'],
+  // CDT has no datatype for mass density: its values are cdt:ucum literals.
+  ['massDensity', 'KiloGM-PER-M3', 'kg/m3', 'ucum']];
 const text = (s) => JSON.stringify(s);
 const iri = (s) => `iri(${text(s)})`;
 const number = (n) => `float(${n})`;
@@ -44,9 +57,9 @@ for (const [name, dim, mult, offset, tokens] of units) {
   definitions.push(`fact(qu_builtin(${iri(U + name)}, ${iri(D + dimensions[dim])}, ${number(mult)}, ${number(offset)}));`);
   for (const token of tokens) definitions.push(`fact(qu_builtin_token(${text(token)}, ${iri(U + name)}));`);
 }
-for (const [dt, unit, code] of targets) {
+for (const [dt, unit, code, cdt = dt === 'current' ? 'electricCurrent' : dt] of targets) {
   const profile = C + dt[0].toUpperCase() + dt.slice(1) + 'Profile';
-  definitions.push(`fact(qu_builtin_profile(${iri(profile)}, ${text('https://w3id.org/cdt/' + (dt === 'current' ? 'electricCurrent' : dt))}, ${iri(U + unit)}, ${text(code)}));`);
+  definitions.push(`fact(qu_builtin_profile(${iri(profile)}, ${text('https://w3id.org/cdt/' + cdt)}, ${iri(U + unit)}, ${text(code)}));`);
 }
 for (const [name, base, exponent, code] of [['B', 10, 1, 'B'], ['DeciB', 10, 0.1, 'dB'],
   ['NP', Math.E, 1, 'Np'], ['OCT', 2, 1, 'oct'], ['DECADE', 10, 1, 'dec'], ['PH', 10, -1, '[pH]']]) {
@@ -92,7 +105,7 @@ implied_by(qu_generic('http://w3id.org/lindt/custom_datatypes#ucum'), 'true');
 // become new measurements. Inferred OWL/SKOS unit alignments are still consulted.
 implied_by(qu_contract(Property, Profile, G), not(ent_base(Property, qc('normalizationProfile'), _, G)));
 implied_by(qu_contract(Property, Profile, G), ent_base(Property, qc('normalizationProfile'), Profile, G));
-implies([ent_base(S, P, literal(L, datatype(DT)), G), qu_parsed(L, U, G, V), qu_datatype(Profile, DT, _, _, G), qu_contract(P, Profile, G), qu_profile(Profile, Specific, T, Code, G), qu_dimension(U, G, Dim), qu_dimension(T, G, Dim)], qu_input(S, P, literal(L, datatype(DT)), qc('sourceLiteral'), U, V, T, Code, Specific, G));
+implies([ent_base(S, P, literal(L, datatype(DT)), G), not(qu_generic(DT)), qu_parsed(L, U, G, V), qu_datatype(Profile, DT, _, _, G), qu_contract(P, Profile, G), qu_profile(Profile, Specific, T, Code, G), qu_dimension(U, G, Dim), qu_dimension(T, G, Dim)], qu_input(S, P, literal(L, datatype(DT)), qc('sourceLiteral'), U, V, T, Code, Specific, G));
 implies([ent_base(S, P, literal(L, datatype(DT)), G), qu_generic(DT), qu_parsed(L, U, G, V), qu_dimension(U, G, Dim), qu_selected(P, Profile, Specific, T, Code, Dim, G)], qu_input(S, P, literal(L, datatype(DT)), qc('sourceLiteral'), U, V, T, Code, Specific, G));
 implies([ent_base(S, P, Q, G), rdf(Q, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), qu('QuantityValue'), G), rdf(Q, qu('numericValue'), Value, G), rdf(Q, qu('unit'), Local, G), qu_float(Value, V), qu_align(Local, U, G), qu_dimension(U, G, Dim), qu_selected(P, Profile, DT, T, Code, Dim, G)], qu_input(S, P, Q, qc('sourceQuantity'), U, V, T, Code, DT, G));
 // QUDT's offset is applied before its multiplier; this matters for Fahrenheit.

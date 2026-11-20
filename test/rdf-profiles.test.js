@@ -81,6 +81,21 @@ export const tests = {
     assert.equal(invalid.quads.length, 0);
   },
 
+  'QUDT normalizes mass concentrations, parts per million, tonnes, barrels and energy units'() {
+    const quantity = (unit, value) => `[a qudt:QuantityValue; qudt:numericValue ${value}; qudt:unit unit:${unit}]`;
+    const cases = [['MicroGM-PER-M3', 40, 4e-8], ['PPM', 410, 4.1e-4], ['NUM', 7, 7], ['TONNE', 3, 3000], ['MegaTONNE', 2, 2e9],
+      ['OZ_TROY', 1, 0.0311034768], ['BBL', 1, 0.1589873], ['MegaBTU_IT', 1, 1055055852.62], ['KiloW-HR', 1, 3.6e6], ['HectoPA', 1013, 101300]];
+    for (const [unit, value, expected] of cases) {
+      const values = numbers(evaluate(`:a :v ${quantity(unit, value)}.`, { qudt: true }).quads);
+      assert.equal(values.length, 1, unit);
+      assert.ok(Math.abs(values[0] - expected) <= 1e-12 * Math.abs(expected), `${unit}: ${values[0]}`);
+    }
+    // CDT has no mass density datatype: a cdt:ucum literal normalizes once.
+    const { quads } = evaluate(':a :pm10 "40 ug/m3"^^cdt:ucum.', { qudt: true });
+    assert.equal(quads.filter(([, p]) => p.args?.[0] === QC + 'normalizedQuantity').length, 1);
+    includes(quads, ':a qconv:normalizedUcumLiteral "4e-08 kg/m3"^^cdt:ucum.');
+  },
+
   'QUDT uses input metadata and logarithmic conventions without recursively normalizing results'() {
     const { quads } = evaluate(':cubits qudt:symbol "cb"; qudt:hasDimensionVector <http://qudt.org/vocab/dimensionvector/A0E0L1I0M0H0T0D0>; qudt:conversionMultiplier 2.0; qudt:conversionOffset 1.0. ' +
       ':a :length "1 cb"^^cdt:length. :b :ratio "20 dB"^^cdt:dimensionless.', { qudt: true });
