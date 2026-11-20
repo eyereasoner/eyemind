@@ -409,8 +409,10 @@ query(rdf(O, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), sosa('Obser
   `"36 km/h"^^cdt:speed` yields `"10.0 m/s"^^cdt:speed`. Input metadata adds
   units: with `qudt:conversionMultiplier` and `qudt:hasDimensionVector`,
   composed from QUDT units with `qudt:hasFactorUnit` or `qudt:prefix` and
-  `qudt:scalingOf`, or aligned with `owl:sameAs` or `skos:exactMatch`; QUDT
-  names such as `unit:NanoGM` or `unit:W-PER-M2` resolve by their parts. A
+  `qudt:scalingOf`, or aligned with `owl:sameAs` or `skos:exactMatch`. The
+  other units of the QUDT unit vocabulary with a fixed conversion, such as
+  `unit:W-PER-M2`, come from an offline catalog that `tools/qudt-catalog.js`
+  generates from a QUDT release, also by the UCUM code of a CDT literal. A
   dimension without a CDT datatype normalizes to its coherent SI unit as a
   `cdt:ucum` literal, and a quantity whose unit cannot be resolved, such as a
   currency, is reported with `qconv:unresolvedUnit`.
@@ -741,7 +743,7 @@ npm test                                              # unit, examples, conforma
 npm test -- -k skolem                                 # only tests whose line contains "skolem"
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node tools/update-examples.js                         # regenerate example artifacts after an intended change
-npm run sync                                          # refresh the cached upstream test suites
+npm run sync                                          # refresh the cached upstream test suites and the QUDT catalog
 node conformance/run.js --command "my-eyemind"        # run the conformance suite against another implementation
 npm run bench                                         # the RDF reasoning benchmark; see bench/README.md
 ./release patch "Describe the changes"                # test, tag and publish a release

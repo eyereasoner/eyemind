@@ -10,6 +10,7 @@ import { mobibenchCases, MOBIBENCH_ARCHIVE, MOBIBENCH_SUBSUITE } from '../test/m
 import { syncNotation3Tests } from './sync-notation3tests.js';
 import { cachePaths, readCachedSuites, recordUpstream, writeInventory } from './test-cache.js';
 import { readZip } from './zip.js';
+import { QUDT_SOURCE, QUDT_UNITS, writeQudtCatalog } from './qudt-catalog.js';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const RDF_SOURCE = 'https://github.com/w3c/rdf-tests';
@@ -17,13 +18,15 @@ const SRL_SOURCE = 'https://github.com/w3c/data-shapes';
 const SRL_PATH = 'shacl12-test-suite/tests/sparql-rl';
 const MOBIBENCH_SOURCE = 'https://github.com/william-vw/mobibench';
 const help = `Usage: npm run sync [-- OPTIONS]
-Refresh notation3tests, W3C RDF, SPARQL 1.2 RL, SHACL 1.2 and MobiBench from upstream.
+Refresh notation3tests, W3C RDF, SPARQL 1.2 RL, SHACL 1.2 and MobiBench from upstream,
+and the offline QUDT unit catalog of --qudt from the latest QUDT release.
 Requires Git and network access. Optional local Git checkouts:
   --notation3tests PATH    notation3tests repository
   --w3c-rdf PATH           w3c/rdf-tests repository
   --w3c-sparql-rl PATH     w3c/data-shapes repository
   --w3c-shacl PATH         w3c/data-shapes repository (defaults to the SRL checkout)
   --mobibench PATH         william-vw/mobibench repository
+  --qudt PATH              qudt/qudt-public-repo repository, at the release to use
   -h, --help              Print this help
 `;
 
@@ -179,6 +182,36 @@ export async function syncTestSuites({ root = ROOT, checkouts = {}, log = consol
   }
 }
 
+// The latest release tag of the QUDT repository.
+function latestQudtRelease() {
+  const tags = execFileSync('git', ['ls-remote', '--tags', '--sort=-v:refname', `${QUDT_SOURCE}.git`, 'v*'], { encoding: 'utf8' });
+  const tag = tags.split('\n').map((line) => line.split('\t')[1]).find((ref) => ref && /^refs\/tags\/v\d+\.\d+\.\d+$/.test(ref));
+  if (!tag) throw new Error(`no release tag found at ${QUDT_SOURCE}`);
+  return tag.slice('refs/tags/'.length);
+}
+
+// Regenerate src/qudt-catalog.js from the QUDT unit vocabulary of the latest
+// release, or of a supplied checkout at the release it has checked out.
+export function syncQudtCatalog({ root = ROOT, checkout: supplied = null, log = console.log } = {}) {
+  const temporary = mkdtempSync(join(root, '.cache', '.sync-qudt-'));
+  try {
+    let path = supplied && resolve(supplied), release;
+    if (path) {
+      release = execFileSync('git', ['-C', path, 'describe', '--tags', '--always'], { encoding: 'utf8' }).trim();
+    } else {
+      release = latestQudtRelease();
+      path = join(temporary, 'qudt');
+      execFileSync('git', ['clone', '--depth', '1', '--branch', release, '--filter=blob:none', '--sparse', `${QUDT_SOURCE}.git`, path], { stdio: 'pipe' });
+      execFileSync('git', ['-C', path, 'sparse-checkout', 'set', dirname(QUDT_UNITS)], { stdio: 'pipe' });
+    }
+    const { units } = writeQudtCatalog(join(path, QUDT_UNITS), release, { root, revision: revision(path) });
+    log(`qudt: wrote ${units} units of ${release} to src/qudt-catalog.js`);
+    return { release, units };
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
+}
+
 export async function ensureTestCache({ root = ROOT, log = console.log, ...options } = {}) {
   const info = readCachedSuites(root);
   if (info) {
@@ -194,12 +227,15 @@ export async function main(argv) {
   for (let i = 0; i < argv.length; i++) {
     const option = argv[i];
     if (['--help', '-h'].includes(option)) { console.log(help); return 0; }
-    if (!['--notation3tests', '--w3c-rdf', '--w3c-sparql-rl', '--w3c-shacl', '--mobibench'].includes(option)) throw new Error(`unknown sync option ${option}; use --help`);
+    if (!['--notation3tests', '--w3c-rdf', '--w3c-sparql-rl', '--w3c-shacl', '--mobibench', '--qudt'].includes(option)) throw new Error(`unknown sync option ${option}; use --help`);
     if (!argv[i + 1] || argv[i + 1].startsWith('--')) throw new Error(`${option} needs a checkout path`);
     checkouts[option.slice(2)] = argv[++i];
   }
-  await syncTestSuites({ checkouts });
-  console.log('Run npm test to check the refreshed suites and update their EARL reports.');
+  const { qudt, ...suites } = checkouts;
+  await syncTestSuites({ checkouts: suites });
+  console.log('Syncing the QUDT unit catalog...');
+  syncQudtCatalog({ checkout: qudt ?? null });
+  console.log('Run npm test to check the refreshed suites and catalog and update their EARL reports.');
   return 0;
 }
 

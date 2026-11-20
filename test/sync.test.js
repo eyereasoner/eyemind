@@ -271,6 +271,7 @@ export const tests = {
     assert.match(help.stdout, /--w3c-rdf PATH/);
     assert.match(help.stdout, /--w3c-sparql-rl PATH/);
     assert.match(help.stdout, /--w3c-shacl PATH/);
+    assert.match(help.stdout, /--qudt PATH/);
     assert.equal(run('--unknown').status, 1);
     assert.match(run('--w3c-rdf').stderr, /needs a checkout path/);
   },

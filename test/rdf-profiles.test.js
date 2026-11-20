@@ -113,10 +113,12 @@ export const tests = {
     // Factors compose recursively, without their offsets; an unknown one does not.
     assert.deepEqual(value(':v qudt:prefix prefix:Milli; qudt:scalingOf unit:GM. :u qudt:hasFactorUnit [qudt:hasUnit :v; qudt:exponent 1], [qudt:hasUnit unit:L; qudt:exponent -1]. ' + reading(':u')), ['0.005 kg/m3', 0]);
     assert.deepEqual(value(':u qudt:hasFactorUnit [qudt:hasUnit unit:DEG_C; qudt:exponent 1], [qudt:hasUnit unit:SEC; qudt:exponent -1]. ' + reading(':u')), ['5.0 K.s-1', 0]);
-    // QUDT names compose by their parts; a coherent one is its own target.
-    assert.deepEqual(value(reading('unit:W-PER-M2')), ['5.0 W/m2', 0]);
-    assert.deepEqual(value(reading('unit:KiloGM-M-PER-SEC2')), ['5.0 kg.m/s2', 0]);
-    assert.deepEqual(value(reading('unit:PER-SEC')), ['5.0 1/s', 0]);
+    // QUDT's catalog has the units its vocabulary defines; a coherent SI unit
+    // is the target of a dimension without one, with its UCUM code.
+    assert.deepEqual(value(reading('unit:W-PER-M2')), ['5.0 W.m-2', 0]);
+    assert.deepEqual(value(reading('unit:KiloGM-M-PER-SEC2')), ['5.0 kg.m.s-2', 0]);
+    assert.deepEqual(value(reading('unit:PER-SEC')), ['5.0 s-1', 0]);
+    assert.deepEqual(value(':a :v "5 W.m-2"^^cdt:ucum.'), ['5.0 W.m-2', 0]);
     assert.deepEqual(value(reading('unit:MilliM-PER-HR').replace('5;', '3600;')), ['0.001 m/s', 0]);
     assert.deepEqual(value(reading('unit:FOO-PER-M2')), [undefined, 1]);
     assert.deepEqual(value(':u qudt:hasFactorUnit [qudt:hasUnit unit:FURLONG; qudt:exponent 1]. ' + reading(':u')), [undefined, 1]);

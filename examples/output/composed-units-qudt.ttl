@@ -36,7 +36,7 @@ _:b3 qconv:sourceUnit unit:MicroGM-PER-M3 .
 :screen qconv:normalizedCdtLiteral "500.0 cd.m-2"^^cdt:ucum .
 _:b5 a qudt:QuantityValue .
 _:b5 qudt:numericValue "500.0"^^<http://www.w3.org/2001/XMLSchema#double> .
-_:b5 qudt:unit qconv:unit-cd.m-2 .
+_:b5 qudt:unit unit:CD-PER-M2 .
 _:b5 qconv:sourceProperty :luminance .
 _:b5 qconv:sourceQuantity _:b6 .
 _:b5 qconv:sourceUnit :cd-per-cm2 .
@@ -45,7 +45,7 @@ _:b5 qconv:sourceUnit :cd-per-cm2 .
 :bridge qconv:normalizedCdtLiteral "0.5 s-1"^^cdt:ucum .
 _:b7 a qudt:QuantityValue .
 _:b7 qudt:numericValue "0.5"^^<http://www.w3.org/2001/XMLSchema#double> .
-_:b7 qudt:unit qconv:unit-s-1 .
+_:b7 qudt:unit unit:PER-SEC .
 _:b7 qconv:sourceProperty :traffic .
 _:b7 qconv:sourceQuantity _:b8 .
 _:b7 qconv:sourceUnit :vehicles-per-hour .
@@ -68,8 +68,8 @@ _:b11 qconv:sourceProperty :latency .
 _:b11 qconv:sourceQuantity _:b12 .
 _:b11 qconv:sourceUnit unit:MicroSEC .
 :pyranometer qconv:normalizedQuantity _:b13 .
-:pyranometer qconv:normalizedUcumLiteral "650.0 W/m2"^^cdt:ucum .
-:pyranometer qconv:normalizedCdtLiteral "650.0 W/m2"^^cdt:ucum .
+:pyranometer qconv:normalizedUcumLiteral "650.0 W.m-2"^^cdt:ucum .
+:pyranometer qconv:normalizedCdtLiteral "650.0 W.m-2"^^cdt:ucum .
 _:b13 a qudt:QuantityValue .
 _:b13 qudt:numericValue "650.0"^^<http://www.w3.org/2001/XMLSchema#double> .
 _:b13 qudt:unit unit:W-PER-M2 .

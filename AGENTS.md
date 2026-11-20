@@ -49,6 +49,7 @@ goals, and keep error messages specific and user-facing text direct.
     shared LS datatype and value rules. `qudt.js`, `skos.js` and `shacl.js`
     compile quantity normalization, SKOS entailment and SHACL validation to
     standalone LS; `shacl-expr.js` compiles SHACL node expressions.
+    `qudt-catalog.js` is QUDT's unit catalog, generated; never edit it.
   - `owl2rl.js`: explicit `--owl2rl` inference, including RDFS, and OWL conflict reports, compiled to standalone LS.
   - `le.js`: Logical English (`.le`) compiled to LS, and `.le` conclusions; its grammar is in `LE-SPEC.md`.
     `le-odrl.js` maps an explicitly selected LE ODRL vocabulary to RDF and shares `odrl.js` for snapshot evaluation.
@@ -121,7 +122,9 @@ goals, and keep error messages specific and user-facing text direct.
   SHACL 1.2 with complete-report comparison, and `report.js`
   writes `REPORT.md`, the table a whole `npm test` run ends with.
   `sync.js`, run with `npm run sync`, stages and refreshes all five upstream
-  test caches and records their revisions; `sync-notation3tests.js` also
+  test caches and records their revisions, and regenerates
+  `src/qudt-catalog.js` from the latest QUDT release with `qudt-catalog.js`;
+  `sync-notation3tests.js` also
   refreshes Notation3's remote document fixtures. `zip.js` reads the
   MobiBench archive; `test-cache.js` checks the cache inventory. `npm test` reuses `.cache/` or creates it when incomplete;
   creating or refreshing it needs Git and network access. Never vendor the

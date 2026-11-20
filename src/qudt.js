@@ -2,6 +2,8 @@
 // from QUDT.org (CC BY 4.0), https://qudt.org/vocab/unit/ . Input metadata can
 // extend or override it; there is no ontology download during compilation.
 import { write } from './writer.js';
+import { Struct } from './terms.js';
+import { DIMENSIONS, UNITS } from './qudt-catalog.js';
 
 const Q = 'http://qudt.org/schema/qudt/';
 const U = 'http://qudt.org/vocab/unit/';
@@ -143,9 +145,8 @@ const ucumOf = (exponents) => {
   return [...factors.filter(([, e]) => e > 0), ...factors.filter(([, e]) => e < 0)]
     .map(([code, e]) => code + (e === 1 ? '' : e)).join('.') || '1';
 };
-const SYMBOLS = { Quecto: 'q', Ronto: 'r', Yocto: 'y', Zepto: 'z', Atto: 'a', Femto: 'f', Pico: 'p', Nano: 'n', Micro: 'u',
-  Milli: 'm', Centi: 'c', Deci: 'd', Deca: 'da', Hecto: 'h', Kilo: 'k', Mega: 'M', Giga: 'G', Tera: 'T', Peta: 'P', Exa: 'E',
-  Zetta: 'Z', Yotta: 'Y', Ronna: 'R', Quetta: 'Q' };
+// The SI prefixes of QUDT's prefix vocabulary, for a prefix the input does
+// not give a qudt:prefixMultiplier.
 const PREFIXES = { Quecto: 1e-30, Ronto: 1e-27, Yocto: 1e-24, Zepto: 1e-21, Atto: 1e-18, Femto: 1e-15, Pico: 1e-12, Nano: 1e-9,
   Micro: 1e-6, Milli: 1e-3, Centi: 1e-2, Deci: 1e-1, Deca: 1e1, Hecto: 1e2, Kilo: 1e3, Mega: 1e6, Giga: 1e9, Tera: 1e12,
   Peta: 1e15, Exa: 1e18, Zetta: 1e21, Yotta: 1e24, Ronna: 1e27, Quetta: 1e30 };
@@ -155,47 +156,31 @@ const exact = (n) => {
   const rounded = Number(n.toPrecision(15));
   return rounded.toExponential().replace(/e.*$/, '').replace(/[-.]/g, '').length <= 12 ? rounded : n;
 };
-// A unit IRI named by an SI prefix and a catalog unit without an offset.
-const prefixed = (name) => {
-  for (const [prefix, scale] of Object.entries(PREFIXES)) {
-    const base = builtin.get(U + name.slice(prefix.length));
-    if (name.startsWith(prefix) && base && base.offset === 0) {
-      return { ...base, mult: exact(scale * base.mult), code: base.code && /^[A-Za-z]+\d*$/.test(base.code) ? SYMBOLS[prefix] + base.code : null };
+// QUDT's units with a fixed conversion (qudt-catalog.js), read on first use:
+// each one's dimension vector, multiplier, offset, whether it is a coherent
+// SI unit and its UCUM code; and the units a UCUM code names, when it names
+// one, or several with one conversion.
+let catalog = null;
+const catalogUnits = () => {
+  if (catalog !== null) return catalog;
+  const units = new Map(), byCode = new Map();
+  for (const line of UNITS.split('\n')) {
+    const [name, mult, offset, dim, coherent, codes] = line.split('\t');
+    const unit = { exponents: vector(DIMENSIONS[Number(dim)]), mult: Number(mult), offset: Number(offset), coherent: coherent === '1',
+      code: codes ? codes.split(' ')[0] : null };
+    units.set(U + name, unit);
+    for (const code of codes ? codes.split(' ') : []) {
+      const other = byCode.get(code);
+      if (other === undefined) byCode.set(code, U + name);
+      else if (other !== null && !same(units.get(other), unit)) byCode.set(code, null);
     }
   }
-  return null;
+  return catalog = { units, byCode };
 };
-// A unit QUDT names by its parts: a prefixed unit, as NanoGM, or factors
-// with exponents, joined by - and divided by PER, as W-PER-M2 or
-// KiloGM-M-PER-SEC2. As in QUDT, a factor's offset does not carry over:
-// DEG_C-PER-HR is a rate of temperature difference.
-const byName = (id) => {
-  if (!id.startsWith(U)) return null;
-  const name = id.slice(U.length);
-  const single = prefixed(name);
-  if (single) return single;
-  const [over, under = ''] = name.startsWith('PER-') ? ['', name.slice(4)] : name.split('-PER-');
-  if (name.split('-PER-').length > 2) return null;
-  const factor = (token) => {
-    const known = builtin.get(U + token) ?? prefixed(token);
-    if (known) return [known, 1];
-    const [, base, power] = /^(.+?)(\d+)$/.exec(token) ?? [];
-    const unit = base && (builtin.get(U + base) ?? prefixed(base));
-    return unit ? [unit, Number(power)] : null;
-  };
-  const parts = [...(over ? over.split('-').map((t) => [t, 1]) : []), ...(under ? under.split('-').map((t) => [t, -1]) : [])]
-    .map(([token, sign]) => { const f = factor(token); return f && [f[0], f[1] * sign]; });
-  if ((parts.length === 1 && parts[0]?.[1] === 1) || parts.some((part) => !part)) return null;
-  // Its UCUM code: the factors' codes, joined by . and divided by /.
-  const codes = parts.map(([u, e]) => !u.code ? null : Math.abs(e) === 1 && /^[A-Za-z]+\d*$/.test(u.code) ? u.code
-    : /^[A-Za-z]+$/.test(u.code) ? u.code + Math.abs(e) : null);
-  const code = codes.every(Boolean) ? (codes.filter((_, i) => parts[i][1] > 0).join('.') || '1') +
-    codes.filter((_, i) => parts[i][1] < 0).map((c) => '/' + c).join('') : null;
-  return { exponents: BASES.map((_, i) => parts.reduce((sum, [u, e]) => sum + u.exponents[i] * e, 0)),
-    mult: exact(parts.reduce((product, [u, e]) => product * u.mult ** e, 1)), offset: 0, code };
-};
+const same = (a, b) => a.mult === b.mult && a.offset === b.offset && vectorName(a.exponents) === vectorName(b.exponents);
 const builtin = new Map(units.map(([name, dim, mult, offset, tokens]) => [U + name, { exponents: vector(dimensions[dim]), mult, offset, code: tokens[0] ?? null }]));
 const profiled = new Set(targets.map(([dim]) => dimensions[dim]));
+const builtinTokens = new Set(units.flatMap(([, , , , tokens]) => tokens));
 
 // Facts for the units of these quads that QUDT composes from other units:
 // qudt:hasFactorUnit with qudt:hasUnit and qudt:exponent, or qudt:prefix
@@ -203,7 +188,8 @@ const profiled = new Set(targets.map(([dim]) => dimensions[dim]));
 // multipliers, each to its exponent, and their dimension the sum of their
 // factors' dimensions times it; as in QUDT, a factor's offset does not
 // carry over, but a unit that is one factor with an offset is not a new one.
-// QUDT unit names such as NanoGM or W-PER-M2 compose the same way (byName).
+// The QUDT units the quads use and the catalog of builtin units lacks, by
+// IRI or by the UCUM code of a CDT literal, come from QUDT's catalog.
 export function qudtUnits(quads) {
   const about = new Map();
   for (const quad of quads) {
@@ -232,9 +218,9 @@ export function qudtUnits(quads) {
       dims.add(dimension);
     } else if (builtin.has(id)) {
       found = builtin.get(id);
-    } else if (byName(id)) {
-      found = byName(id);
-      derived.push(`fact(qu_builtin(${iri(id)}, ${iri(D + vectorName(found.exponents))}, ${number(found.mult)}, ${number(0)}));`);
+    } else if (catalogUnits().units.has(id)) {
+      found = catalogUnits().units.get(id);
+      derived.push(`fact(qu_builtin(${iri(id)}, ${iri(D + vectorName(found.exponents))}, ${number(found.mult)}, ${number(found.offset)}));`);
       dims.add(vectorName(found.exponents));
     } else {
       const factors = values(unit, 'hasFactorUnit');
@@ -264,13 +250,26 @@ export function qudtUnits(quads) {
     if (['hasFactorUnit', 'scalingOf', 'hasDimensionVector'].some((p) => values(subject, p).length)) resolve(subject);
   }
   for (const quad of quads) if (quad[1].args?.[0] === Q + 'unit') resolve(quad[2]);
-  // A dimension without a target normalizes to a QUDT unit of it with
-  // multiplier 1 that the input uses, as W-PER-M2, or else to the coherent
-  // SI unit eyemind names by its UCUM code, as kg.s-3.
+  // The units of CDT literals by their UCUM codes.
+  const tokens = [];
+  for (const quad of quads) {
+    const [lexical, datatype] = quad[2]?.name === 'literal' ? quad[2].args : [];
+    if (typeof lexical !== 'string' || !/^(https:\/\/w3id\.org\/cdt\/|http:\/\/w3id\.org\/lindt\/custom_datatypes#)/.test(datatype?.args?.[0])) continue;
+    const code = /^\s*\S+\s+(.+?)\s*$/.exec(lexical)?.[1];
+    const unit = code && !builtinTokens.has(code) ? catalogUnits().byCode.get(code) : null;
+    if (unit && resolve(new Struct('iri', [unit]))) tokens.push(`fact(qu_builtin_token(${text(code)}, ${iri(unit)}));`);
+  }
+  // A dimension without a target normalizes to a coherent SI unit of it that
+  // the input uses, as W-PER-M2; or to QUDT's unit of SI base units, as
+  // PER-SEC for s-1 rather than becquerel or hertz; or else to the one eyemind
+  // names by that UCUM code, as kg.s-3.
   const profiles = [...dims].filter((dim) => !profiled.has(dim)).map((dim) => {
-    const coherent = [...known].find(([id, u]) => id.startsWith(U) && u && u.mult === 1 && u.offset === 0 && u.code && vectorName(u.exponents) === dim);
-    if (coherent) {
-      const [unit, { code }] = coherent;
+    const coherent = (u) => u && u.mult === 1 && u.offset === 0 && u.code && vectorName(u.exponents) === dim;
+    const target = [...known].find(([id, u]) => id.startsWith(U) && coherent(u))?.[0] ??
+      [...catalogUnits().units].find(([, u]) => coherent(u) && u.code === ucumOf(vector(dim)))?.[0];
+    if (target) {
+      const { code } = catalogUnits().units.get(target) ?? builtin.get(target) ?? known.get(target);
+      const unit = resolve(new Struct('iri', [target])) && target;
       return `fact(qu_builtin_token(${text(code)}, ${iri(unit)}));\n` +
         `fact(qu_builtin_profile(${iri(C + 'Profile-' + code)}, ${text('https://w3id.org/cdt/ucum')}, ${iri(unit)}, ${text(code)}));`;
     }
@@ -279,7 +278,7 @@ export function qudtUnits(quads) {
       `fact(qu_builtin_token(${text(code)}, ${iri(unit)}));\n` +
       `fact(qu_builtin_profile(${iri(C + 'Profile-' + code)}, ${text('https://w3id.org/cdt/ucum')}, ${iri(unit)}, ${text(code)}));`;
   });
-  return [...derived, ...profiles].map((line) => line + '\n').join('');
+  return [...derived, ...tokens, ...profiles].map((line) => line + '\n').join('');
 }
 
 export const qudtRules = (quads) => qudtCatalog + qudtUnits(quads);

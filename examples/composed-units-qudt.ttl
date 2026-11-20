@@ -3,9 +3,8 @@
 # square centimetre, watts per square metre, kilohours and microseconds.
 # With --qudt, each is composed from QUDT units and normalized to SI; a
 # reading in US dollars is reported as an unresolved unit.
-# Shows qudt:hasFactorUnit, qudt:prefix with qudt:scalingOf, prefixed QUDT
-# and compound unit names, explicit dimension vectors and SI targets for any
-# dimension.
+# Shows qudt:hasFactorUnit, qudt:prefix with qudt:scalingOf, QUDT's own
+# units, explicit dimension vectors and SI targets for any dimension.
 # Unit conventions: https://qudt.org/ and https://w3id.org/cdt/ .
 
 @prefix : <https://example.org/readings#> .
@@ -44,11 +43,11 @@
 :kilohour a qudt:Unit ; qudt:prefix prefix:Kilo ; qudt:scalingOf unit:HR .
 :pump :runningTime [ a qudt:QuantityValue ; qudt:numericValue 2 ; qudt:unit :kilohour ] .
 
-# QUDT names a prefixed unit by its prefix and unit: MicroSEC is a microsecond.
+# QUDT defines the microsecond.
 :sensor :latency [ a qudt:QuantityValue ; qudt:numericValue 250 ; qudt:unit unit:MicroSEC ] .
 
-# QUDT names a compound unit by its parts: W-PER-M2 is a watt per square
-# metre, the coherent SI unit of irradiance, so it is its own target.
+# QUDT defines the watt per square metre, the coherent SI unit of irradiance,
+# so it is its own target.
 :pyranometer :irradiance [ a qudt:QuantityValue ; qudt:numericValue 650 ; qudt:unit unit:W-PER-M2 ] .
 
 # A currency has no conversion to an SI unit: the reading is reported.
