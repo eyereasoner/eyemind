@@ -1,0 +1,70 @@
+PREFIX : <https://example.org/readings#>
+PREFIX cdt: <https://w3id.org/cdt/>
+PREFIX qconv: <https://eyereasoner.github.io/eyemind/qudt#>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+
+:lead qconv:normalizedQuantity _:b0 .
+:lead qconv:normalizedUcumLiteral "1.2e-11 kg/m3"^^cdt:ucum .
+:lead qconv:normalizedCdtLiteral "1.2e-11 kg/m3"^^cdt:ucum .
+_:b0 a qudt:QuantityValue .
+_:b0 qudt:numericValue 1.2e-11 .
+_:b0 qudt:unit unit:KiloGM-PER-M3 .
+_:b0 qconv:sourceProperty :concentration .
+_:b0 qconv:sourceLiteral "12 ng/m3"^^cdt:ucum .
+_:b0 qconv:sourceUnit :ng-per-m3 .
+:benzene qconv:normalizedQuantity _:b1 .
+:benzene qconv:normalizedUcumLiteral "5e-12 kg/m3"^^cdt:ucum .
+:benzene qconv:normalizedCdtLiteral "5e-12 kg/m3"^^cdt:ucum .
+_:b1 a qudt:QuantityValue .
+_:b1 qudt:numericValue 5e-12 .
+_:b1 qudt:unit unit:KiloGM-PER-M3 .
+_:b1 qconv:sourceProperty :concentration .
+_:b1 qconv:sourceQuantity _:b2 .
+_:b1 qconv:sourceUnit :ng-per-m3 .
+:pm10 qconv:normalizedQuantity _:b3 .
+:pm10 qconv:normalizedUcumLiteral "4e-08 kg/m3"^^cdt:ucum .
+:pm10 qconv:normalizedCdtLiteral "4e-08 kg/m3"^^cdt:ucum .
+_:b3 a qudt:QuantityValue .
+_:b3 qudt:numericValue 4e-08 .
+_:b3 qudt:unit unit:KiloGM-PER-M3 .
+_:b3 qconv:sourceProperty :concentration .
+_:b3 qconv:sourceQuantity _:b4 .
+_:b3 qconv:sourceUnit unit:MicroGM-PER-M3 .
+:screen qconv:normalizedQuantity _:b5 .
+:screen qconv:normalizedUcumLiteral "500.0 cd.m-2"^^cdt:ucum .
+:screen qconv:normalizedCdtLiteral "500.0 cd.m-2"^^cdt:ucum .
+_:b5 a qudt:QuantityValue .
+_:b5 qudt:numericValue "500.0"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b5 qudt:unit qconv:unit-cd.m-2 .
+_:b5 qconv:sourceProperty :luminance .
+_:b5 qconv:sourceQuantity _:b6 .
+_:b5 qconv:sourceUnit :cd-per-cm2 .
+:bridge qconv:normalizedQuantity _:b7 .
+:bridge qconv:normalizedUcumLiteral "0.5 s-1"^^cdt:ucum .
+:bridge qconv:normalizedCdtLiteral "0.5 s-1"^^cdt:ucum .
+_:b7 a qudt:QuantityValue .
+_:b7 qudt:numericValue "0.5"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b7 qudt:unit qconv:unit-s-1 .
+_:b7 qconv:sourceProperty :traffic .
+_:b7 qconv:sourceQuantity _:b8 .
+_:b7 qconv:sourceUnit :vehicles-per-hour .
+:pump qconv:normalizedQuantity _:b9 .
+:pump qconv:normalizedUcumLiteral "7200000.0 s"^^cdt:ucum .
+:pump qconv:normalizedCdtLiteral "7200000.0 s"^^cdt:time .
+_:b9 a qudt:QuantityValue .
+_:b9 qudt:numericValue "7200000.0"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b9 qudt:unit unit:SEC .
+_:b9 qconv:sourceProperty :runningTime .
+_:b9 qconv:sourceQuantity _:b10 .
+_:b9 qconv:sourceUnit :kilohour .
+:sensor qconv:normalizedQuantity _:b11 .
+:sensor qconv:normalizedUcumLiteral "0.00025 s"^^cdt:ucum .
+:sensor qconv:normalizedCdtLiteral "0.00025 s"^^cdt:time .
+_:b11 a qudt:QuantityValue .
+_:b11 qudt:numericValue "0.00025"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b11 qudt:unit unit:SEC .
+_:b11 qconv:sourceProperty :latency .
+_:b11 qconv:sourceQuantity _:b12 .
+_:b11 qconv:sourceUnit unit:MicroSEC .
+_:b13 qconv:unresolvedUnit unit:CCY_USD .

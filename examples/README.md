@@ -54,7 +54,8 @@ plans the same rules from SHACL input and output shapes before the first message
 Streamed runs save output only.
 
 For quantity normalization, try [QUDT quantities](https://eyereasoner.github.io/eyemind/examples/deck/quantities-qudt)
-with `--qudt`. The [transport thesaurus](https://eyereasoner.github.io/eyemind/examples/deck/thesaurus-skos)
+with `--qudt`, and [composed units](https://eyereasoner.github.io/eyemind/examples/deck/composed-units-qudt)
+for units built from QUDT units. The [transport thesaurus](https://eyereasoner.github.io/eyemind/examples/deck/thesaurus-skos)
 uses `--skos`. The [directory](https://eyereasoner.github.io/eyemind/examples/deck/people-shacl)
 uses `--shacl`, and [speed readings](https://eyereasoner.github.io/eyemind/examples/deck/measurement-shacl)
 combine `--qudt --shacl` to validate normalized values.
@@ -108,6 +109,7 @@ original inputs.
 | [collatz](https://eyereasoner.github.io/eyemind/examples/deck/collatz) | [collatz.js](https://github.com/eyereasoner/eyemind/blob/main/examples/collatz.js) | Parity-based recursive trajectories over a range of starts |
 | [collection-nesting-srl](https://eyereasoner.github.io/eyemind/examples/deck/collection-nesting-srl) | [collection-nesting-srl.srl](https://github.com/eyereasoner/eyemind/blob/main/examples/collection-nesting-srl.srl) | Property paths read nested RDF lists and a blank node property |
 | [complex](https://eyereasoner.github.io/eyemind/examples/deck/complex) | [complex.js](https://github.com/eyereasoner/eyemind/blob/main/examples/complex.js) | Complex arithmetic, exact over Gaussian integers and polar beyond them |
+| [composed-units-qudt](https://eyereasoner.github.io/eyemind/examples/deck/composed-units-qudt) | [composed-units-qudt.ttl](https://github.com/eyereasoner/eyemind/blob/main/examples/composed-units-qudt.ttl) | QUDT composes units from factor units, prefixes and prefixed names, normalizes any dimension to SI and reports a currency |
 | [control-system](https://eyereasoner.github.io/eyemind/examples/deck/control-system) | [control-system.js](https://github.com/eyereasoner/eyemind/blob/main/examples/control-system.js) | Feedforward and nonlinear feedback commands for two actuators |
 | [course-certificates-le](https://eyereasoner.github.io/eyemind/examples/deck/course-certificates-le) | [course-certificates-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/course-certificates-le.le) | Recursive course requirements and prior learning lead to shared dossiers, audits and nested certificate witnesses |
 | [critical-path-schedule](https://eyereasoner.github.io/eyemind/examples/deck/critical-path-schedule) | [critical-path-schedule.js](https://github.com/eyereasoner/eyemind/blob/main/examples/critical-path-schedule.js) | Earliest task times and every critical predecessor in a launch schedule |

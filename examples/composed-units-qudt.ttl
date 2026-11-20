@@ -1,0 +1,50 @@
+# Air quality and traffic readings use units the offline QUDT catalog lacks:
+# nanograms per cubic metre, vehicles per hour, candelas per square
+# centimetre, kilohours and microseconds.
+# With --qudt, each is composed from QUDT units and normalized to SI; a
+# reading in US dollars is reported as an unresolved unit.
+# Shows qudt:hasFactorUnit, qudt:prefix with qudt:scalingOf, prefixed QUDT
+# unit names, explicit dimension vectors and SI targets for any dimension.
+# Unit conventions: https://qudt.org/ and https://w3id.org/cdt/ .
+
+@prefix : <https://example.org/readings#> .
+@prefix cdt: <https://w3id.org/cdt/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix prefix: <http://qudt.org/vocab/prefix/> .
+
+# Nanograms per cubic metre: a nanogram per cubic metre, from QUDT's units.
+# Its UCUM code lets CDT literals use it too.
+:ng-per-m3 a qudt:Unit ;
+    qudt:ucumCode "ng/m3" ;
+    qudt:hasFactorUnit [ qudt:hasUnit unit:NanoGM ; qudt:exponent 1 ] ,
+        [ qudt:hasUnit unit:M3 ; qudt:exponent -1 ] .
+:benzene :concentration [ a qudt:QuantityValue ; qudt:numericValue 5 ; qudt:unit :ng-per-m3 ] .
+:lead :concentration "12 ng/m3"^^cdt:ucum .
+
+# QUDT's own micrograms per cubic metre, as the London air quality data uses.
+:pm10 :concentration [ a qudt:QuantityValue ; qudt:numericValue 40 ; qudt:unit unit:MicroGM-PER-M3 ] .
+
+# Vehicles per hour, a count per hour: its dimension has no fixed target,
+# so it is normalized to the coherent SI unit s-1.
+:vehicles-per-hour a qudt:Unit ;
+    qudt:hasFactorUnit [ qudt:hasUnit unit:NUM ; qudt:exponent 1 ] ,
+        [ qudt:hasUnit unit:HR ; qudt:exponent -1 ] .
+
+# A unit can also state its multiplier and dimension: a candela per square
+# centimetre is 10000 cd/m2, a luminance.
+:cd-per-cm2 a qudt:Unit ;
+    qudt:conversionMultiplier 10000 ;
+    qudt:hasDimensionVector <http://qudt.org/vocab/dimensionvector/A0E0L-2I1M0H0T0D0> .
+:screen :luminance [ a qudt:QuantityValue ; qudt:numericValue 0.05 ; qudt:unit :cd-per-cm2 ] .
+:bridge :traffic [ a qudt:QuantityValue ; qudt:numericValue 1800 ; qudt:unit :vehicles-per-hour ] .
+
+# A kilohour is the prefix kilo applied to the hour.
+:kilohour a qudt:Unit ; qudt:prefix prefix:Kilo ; qudt:scalingOf unit:HR .
+:pump :runningTime [ a qudt:QuantityValue ; qudt:numericValue 2 ; qudt:unit :kilohour ] .
+
+# QUDT names a prefixed unit by its prefix and unit: MicroSEC is a microsecond.
+:sensor :latency [ a qudt:QuantityValue ; qudt:numericValue 250 ; qudt:unit unit:MicroSEC ] .
+
+# A currency has no conversion to an SI unit: the reading is reported.
+:repair :cost [ a qudt:QuantityValue ; qudt:numericValue 3 ; qudt:unit unit:CCY_USD ] .

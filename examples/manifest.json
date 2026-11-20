@@ -761,6 +761,15 @@
     "description": "OWL exact numeric values substitute across lexical forms and an invalid byte range yields a conflict"
   },
   {
+    "name": "composed-units-qudt",
+    "files": [
+      "composed-units-qudt.ttl"
+    ],
+    "output": "ttl",
+    "qudt": true,
+    "description": "QUDT composes units from factor units, prefixes and prefixed names, normalizes any dimension to SI and reports a currency"
+  },
+  {
     "name": "quantities-qudt",
     "files": [
       "quantities-qudt.ttl"

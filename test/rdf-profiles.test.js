@@ -96,6 +96,29 @@ export const tests = {
     includes(quads, ':a qconv:normalizedUcumLiteral "4e-08 kg/m3"^^cdt:ucum.');
   },
 
+  'QUDT composes units from factor units, prefixes and prefixed names, and reports unresolved units'() {
+    const value = (data) => {
+      const { quads } = evaluate(`@prefix prefix: <http://qudt.org/vocab/prefix/>. ${data}`, { qudt: true });
+      const literal = quads.find(([, p]) => p.args?.[0] === QC + 'normalizedUcumLiteral');
+      return [literal?.[2].args[0], quads.filter(([, p]) => p.args?.[0] === QC + 'unresolvedUnit').length];
+    };
+    const reading = (unit) => `:a :v [a qudt:QuantityValue; qudt:numericValue 5; qudt:unit ${unit}].`;
+    assert.deepEqual(value(':u qudt:hasFactorUnit [qudt:hasUnit unit:NanoGM; qudt:exponent 1], [qudt:hasUnit unit:M3; qudt:exponent -1]. ' + reading(':u')), ['5e-12 kg/m3', 0]);
+    assert.deepEqual(value(':u qudt:hasFactorUnit [qudt:hasUnit unit:NUM; qudt:exponent 1], [qudt:hasUnit unit:HR; qudt:exponent -1]. ' + reading(':u')), ['0.001388888888888889 s-1', 0]);
+    assert.deepEqual(value(':u qudt:prefix prefix:Kilo; qudt:scalingOf unit:HR. ' + reading(':u')), ['18000000.0 s', 0]);
+    assert.deepEqual(value(':p qudt:prefixMultiplier 4.0. :u qudt:prefix :p; qudt:scalingOf unit:M. ' + reading(':u')), ['20.0 m', 0]);
+    assert.deepEqual(value(reading('unit:MicroSEC').replace('5;', '250;')), ['0.00025 s', 0]);
+    // A dimension without a target normalizes to its coherent SI unit.
+    assert.deepEqual(value(':u qudt:conversionMultiplier 10000; qudt:hasDimensionVector <http://qudt.org/vocab/dimensionvector/A0E0L-2I1M0H0T0D0>. ' + reading(':u')), ['50000.0 cd.m-2', 0]);
+    // Factors compose recursively; an offset or an unknown factor does not.
+    assert.deepEqual(value(':v qudt:prefix prefix:Milli; qudt:scalingOf unit:GM. :u qudt:hasFactorUnit [qudt:hasUnit :v; qudt:exponent 1], [qudt:hasUnit unit:L; qudt:exponent -1]. ' + reading(':u')), ['0.005 kg/m3', 0]);
+    assert.deepEqual(value(':u qudt:hasFactorUnit [qudt:hasUnit unit:DEG_C; qudt:exponent 1], [qudt:hasUnit unit:SEC; qudt:exponent -1]. ' + reading(':u')), [undefined, 1]);
+    assert.deepEqual(value(':u qudt:hasFactorUnit [qudt:hasUnit unit:FURLONG; qudt:exponent 1]. ' + reading(':u')), [undefined, 1]);
+    assert.deepEqual(value(reading('unit:CCY_USD')), [undefined, 1]);
+    // A composed unit's UCUM code reads CDT literals.
+    assert.deepEqual(value(':u qudt:ucumCode "ng/m3"; qudt:hasFactorUnit [qudt:hasUnit unit:NanoGM; qudt:exponent 1], [qudt:hasUnit unit:M3; qudt:exponent -1]. :a :v "12 ng/m3"^^cdt:ucum.'), ['1.2e-11 kg/m3', 0]);
+  },
+
   'QUDT uses input metadata and logarithmic conventions without recursively normalizing results'() {
     const { quads } = evaluate(':cubits qudt:symbol "cb"; qudt:hasDimensionVector <http://qudt.org/vocab/dimensionvector/A0E0L1I0M0H0T0D0>; qudt:conversionMultiplier 2.0; qudt:conversionOffset 1.0. ' +
       ':a :length "1 cb"^^cdt:length. :b :ratio "20 dB"^^cdt:dimensionless.', { qudt: true });

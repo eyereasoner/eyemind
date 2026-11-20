@@ -12,7 +12,7 @@ program, a JavaScript library and a browser application.
 
 [Playground](https://eyereasoner.github.io/eyemind/playground/) · [Examples](https://eyereasoner.github.io/eyemind/examples/) · [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/)
 
-The examples are 157 runnable programs, each with a card deck and saved
+The examples are 158 runnable programs, each with a card deck and saved
 conclusions; all but one streamed example also save proofs and check reports. The specification defines the language,
 the proof format and how a proof is checked; its conformance suite has
 1247 cases that test language and proof behavior, and runs
@@ -387,7 +387,14 @@ query(rdf(O, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), sosa('Obser
   [MobiBench](https://github.com/william-vw/mobibench) OWL 2 RL suite.
 - `--qudt` normalizes QUDT quantity values and CDT literals to SI units from
   an offline catalog adapted from [QUDT.org](https://qudt.org/) (CC BY 4.0):
-  `"36 km/h"^^cdt:speed` yields `"10.0 m/s"^^cdt:speed`.
+  `"36 km/h"^^cdt:speed` yields `"10.0 m/s"^^cdt:speed`. Input metadata adds
+  units: with `qudt:conversionMultiplier` and `qudt:hasDimensionVector`,
+  composed from QUDT units with `qudt:hasFactorUnit` or `qudt:prefix` and
+  `qudt:scalingOf`, or aligned with `owl:sameAs` or `skos:exactMatch`; QUDT
+  names such as `unit:NanoGM` resolve as a prefix and a catalog unit. A
+  dimension without a CDT datatype normalizes to its coherent SI unit as a
+  `cdt:ucum` literal, and a quantity whose unit cannot be resolved, such as a
+  currency, is reported with `qconv:unresolvedUnit`.
 - `--skos` adds positive [SKOS Core](https://www.w3.org/TR/skos-reference/)
   entailments, without integrity checks or SKOS-XL.
 - `--shacl` compiles shapes to LS and writes a standard `sh:ValidationReport`.

@@ -35,7 +35,7 @@ export function compileRdfLogic({ quads, prefixes, shapes = quads, wanted = null
     (execution ? `implied_by(srl_execution(${JSON.stringify(execution.now)}, ${JSON.stringify(execution.seed)}), 'true');\n` : '') +
     (selected.has('owl2rl') ? owl2rlRules : '') +
     (selected.has('skos') ? skosRules : '') +
-    (selected.has('qudt') ? qudtRules : '') +
+    (selected.has('qudt') ? qudtRules(quads) : '') +
     shacl + (evaluate ? "query(sh_evaluation(R));\n" : REPORTS + (stream ? '' : wanted === null ? RESULT : contracted(wanted)));
   return { kind: profiles[0], text, program: loadText(text, source),
     prefixes: { ...prefixes, ent: ENTAILMENT, ...(selected.has('skos') ? { skos: 'http://www.w3.org/2004/02/skos/core#' } : {}),

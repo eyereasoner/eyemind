@@ -1,6 +1,8 @@
 // Offline QUDT/CDT normalization. Metadata facts are a small, explicit selection
 // from QUDT.org (CC BY 4.0), https://qudt.org/vocab/unit/ . Input metadata can
 // extend or override it; there is no ontology download during compilation.
+import { write } from './writer.js';
+
 const Q = 'http://qudt.org/schema/qudt/';
 const U = 'http://qudt.org/vocab/unit/';
 const C = 'https://eyereasoner.github.io/eyemind/qudt#';
@@ -67,7 +69,7 @@ for (const [name, base, exponent, code] of [['B', 10, 1, 'B'], ['DeciB', 10, 0.1
   definitions.push(`fact(qu_builtin_token(${text(code)}, ${iri(U + name)}));`);
 }
 
-export const qudtRules = '\n' + definitions.join('\n') + String.raw`
+const qudtCatalog = '\n' + definitions.join('\n') + String.raw`
 const qu = (n) => iri('http://qudt.org/schema/qudt/' + n);
 const qc = (n) => iri('https://eyereasoner.github.io/eyemind/qudt#' + n);
 const quDouble = 'http://www.w3.org/2001/XMLSchema#double';
@@ -119,4 +121,125 @@ implies([qu_input(S, P, Q, Kind, U, V, T, Code, DT, G), qu_ratio(V, U, G, R), qu
   rdf(B, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), qu('QuantityValue'), G),
   rdf(B, qu('numericValue'), Number, G), rdf(B, qu('unit'), T, G), rdf(B, qc('sourceProperty'), P, G), rdf(B, Kind, Q, G), rdf(B, qc('sourceUnit'), U, G)
 ]);
+// Units composed in the input from factor units or a prefix (qudtUnits).
+implied_by(qu_unit(U, G, D, M, float(0)), [qu_derived(U, G, D, M), not(qu_custom(U, G))]);
+// A quantity whose unit is not known, composed or aligned is reported.
+implied_by(qu_resolved(L, G), qu_align(L, _, G));
+implies([ent_base(S, P, Q, G), rdf(Q, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), qu('QuantityValue'), G), rdf(Q, qu('unit'), L, G), not(qu_resolved(L, G))], ent_report(Q, qc('unresolvedUnit'), L, G));
 `;
+
+// The dimension exponents of a QUDT dimension vector, in its order.
+const BASES = ['A', 'E', 'L', 'I', 'M', 'H', 'T'];
+const vector = (name) => {
+  const match = /^A(-?[0-9.]+)E(-?[0-9.]+)L(-?[0-9.]+)I(-?[0-9.]+)M(-?[0-9.]+)H(-?[0-9.]+)T(-?[0-9.]+)D[01]$/.exec(name);
+  return match ? match.slice(1).map(Number) : null;
+};
+const vectorName = (exponents) => BASES.map((base, i) => base + (exponents[i] + 0)).join('') + (exponents.every((e) => e === 0) ? 'D1' : 'D0');
+// The coherent SI unit of a dimension, in UCUM: kg, m, s, A, K, mol and cd.
+const UCUM = [['M', 'kg'], ['L', 'm'], ['T', 's'], ['E', 'A'], ['H', 'K'], ['A', 'mol'], ['I', 'cd']];
+// Positive exponents come first, as in cd.m-2.
+const ucumOf = (exponents) => {
+  const factors = UCUM.map(([base, code]) => [code, exponents[BASES.indexOf(base)]]).filter(([, e]) => e !== 0);
+  return [...factors.filter(([, e]) => e > 0), ...factors.filter(([, e]) => e < 0)]
+    .map(([code, e]) => code + (e === 1 ? '' : e)).join('.') || '1';
+};
+const PREFIXES = { Quecto: 1e-30, Ronto: 1e-27, Yocto: 1e-24, Zepto: 1e-21, Atto: 1e-18, Femto: 1e-15, Pico: 1e-12, Nano: 1e-9,
+  Micro: 1e-6, Milli: 1e-3, Centi: 1e-2, Deci: 1e-1, Deca: 1e1, Hecto: 1e2, Kilo: 1e3, Mega: 1e6, Giga: 1e9, Tera: 1e12,
+  Peta: 1e15, Exa: 1e18, Zetta: 1e21, Yotta: 1e24, Ronna: 1e27, Quetta: 1e30 };
+// A product of multipliers without the rounding error of the
+// multiplications when it is a short decimal, as 1e-12 for a nanogram.
+const exact = (n) => {
+  const rounded = Number(n.toPrecision(15));
+  return rounded.toExponential().replace(/e.*$/, '').replace(/[-.]/g, '').length <= 12 ? rounded : n;
+};
+// A unit IRI named by an SI prefix and a catalog unit without an offset.
+const prefixed = (id) => {
+  if (!id.startsWith(U)) return null;
+  const name = id.slice(U.length);
+  for (const [prefix, scale] of Object.entries(PREFIXES)) {
+    const base = builtin.get(U + name.slice(prefix.length));
+    if (name.startsWith(prefix) && base && base.offset === 0) return [scale, base];
+  }
+  return null;
+};
+const builtin = new Map(units.map(([name, dim, mult, offset]) => [U + name, { exponents: vector(dimensions[dim]), mult, offset }]));
+const profiled = new Set(targets.map(([dim]) => dimensions[dim]));
+
+// Facts for the units of these quads that QUDT composes from other units:
+// qudt:hasFactorUnit with qudt:hasUnit and qudt:exponent, or qudt:prefix
+// with qudt:scalingOf. Their multiplier is the product of their factors'
+// multipliers, each to its exponent, and their dimension the sum of their
+// factors' dimensions times it; a factor with an offset cannot compose. A
+// unit of a dimension without a target gets the dimension's coherent SI unit.
+export function qudtUnits(quads) {
+  const about = new Map();
+  for (const quad of quads) {
+    if (quad[0]?.name !== 'iri' && quad[0]?.name !== 'bnode') continue;
+    const id = write(quad[0]);
+    if (!about.has(id)) about.set(id, []);
+    about.get(id).push(quad);
+  }
+  const values = (node, property) => (about.get(write(node)) ?? []).filter((q) => q[1].args?.[0] === Q + property).map((q) => q[2]);
+  const numberOf = (term) => typeof term === 'bigint' ? Number(term)
+    : term?.name === 'literal' && /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(term.args[0]) ? Number(term.args[0]) : null;
+  const known = new Map(), derived = [], dims = new Set();
+  // The graph of a unit's metadata.
+  const graphOf = (unit) => write(about.get(write(unit))[0][3]);
+  const resolve = (unit, seen = new Set()) => {
+    if (unit?.name !== 'iri') return null;
+    const id = unit.args[0];
+    if (known.has(id)) return known.get(id);
+    if (seen.has(id)) return null;
+    seen.add(id);
+    let found = null;
+    const multiplier = numberOf(values(unit, 'conversionMultiplier')[0]);
+    const dimension = values(unit, 'hasDimensionVector')[0]?.args?.[0]?.slice(D.length);
+    if (multiplier !== null && dimension && vector(dimension)) {
+      found = { exponents: vector(dimension), mult: multiplier, offset: numberOf(values(unit, 'conversionOffset')[0]) ?? 0 };
+      dims.add(dimension);
+    } else if (builtin.has(id)) {
+      found = builtin.get(id);
+    } else if (prefixed(id)) {
+      // QUDT names a prefixed unit by its prefix and unit, as NanoGM.
+      const [scale, base] = prefixed(id);
+      found = { ...base, mult: exact(scale * base.mult) };
+      derived.push(`fact(qu_builtin(${iri(id)}, ${iri(D + vectorName(found.exponents))}, ${number(found.mult)}, ${number(0)}));`);
+      dims.add(vectorName(found.exponents));
+    } else {
+      const factors = values(unit, 'hasFactorUnit');
+      const prefix = values(unit, 'prefix')[0], base = values(unit, 'scalingOf')[0];
+      let parts = null;
+      if (factors.length) parts = factors.map((f) => [values(f, 'hasUnit')[0], numberOf(values(f, 'exponent')[0])]);
+      else if (prefix && base) {
+        const scale = numberOf(values(prefix, 'prefixMultiplier')[0]) ?? PREFIXES[prefix.args?.[0]?.slice('http://qudt.org/vocab/prefix/'.length)];
+        if (scale !== undefined && scale !== null) parts = [[base, 1, scale]];
+      }
+      if (parts && parts.every(([u, e]) => u && e !== null)) {
+        const resolved = parts.map(([u, e, scale = 1]) => [resolve(u, seen), e, scale]);
+        if (resolved.every(([r]) => r && r.offset === 0)) {
+          const exponents = BASES.map((_, i) => resolved.reduce((sum, [r, e]) => sum + r.exponents[i] * e, 0));
+          const mult = exact(resolved.reduce((product, [r, e, scale]) => product * scale * r.mult ** e, 1));
+          found = { exponents, mult, offset: 0 };
+          derived.push(`fact(qu_derived(${iri(id)}, ${graphOf(unit)}, ${iri(D + vectorName(exponents))}, ${number(mult)}));`);
+          dims.add(vectorName(exponents));
+        }
+      }
+    }
+    known.set(id, found);
+    return found;
+  };
+  for (const id of about.keys()) {
+    const subject = about.get(id)[0][0];
+    if (['hasFactorUnit', 'scalingOf', 'hasDimensionVector'].some((p) => values(subject, p).length)) resolve(subject);
+  }
+  for (const quad of quads) if (quad[1].args?.[0] === Q + 'unit') resolve(quad[2]);
+  const profiles = [...dims].filter((dim) => !profiled.has(dim)).map((dim) => {
+    const code = ucumOf(vector(dim)), unit = C + 'unit-' + code;
+    return `fact(qu_builtin(${iri(unit)}, ${iri(D + dim)}, ${number(1)}, ${number(0)}));\n` +
+      `fact(qu_builtin_token(${text(code)}, ${iri(unit)}));\n` +
+      `fact(qu_builtin_profile(${iri(C + 'Profile-' + code)}, ${text('https://w3id.org/cdt/ucum')}, ${iri(unit)}, ${text(code)}));`;
+  });
+  return [...derived, ...profiles].map((line) => line + '\n').join('');
+}
+
+export const qudtRules = (quads) => qudtCatalog + qudtUnits(quads);
