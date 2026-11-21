@@ -130,19 +130,23 @@ totals: a sum is only right if no item was left out.
 
 ## Honest numbers
 
-Ask a typical computer for 0.1 + 0.2 and it will say 0.30000000000000004. For
-a fine, a tax or a dose, that is not good enough. In LS, whole numbers are
-exact, however large they get, and they never quietly turn into
-approximations. Decimal arithmetic in SPARQL rules is exact too.
+A number in LS keeps its type, and its type keeps its promise. `0.1` is a
+floating-point number, so `0.1 + 0.2` gives 0.30000000000000004, exactly what
+float arithmetic promises everywhere. Integers promise something else: they
+are exact, however large they get, so 2 to the power 100 comes out with every
+one of its 31 digits. What LS never does is change a type behind your back:
+an integer does not quietly become a float, and a float is not passed off as
+exact. When a fine, a tax or a dose needs exact fractions, decimal arithmetic
+in SPARQL rules is exact too.
 
 The same care goes into units. A reading in micrograms per cubic metre,
 kilometres per hour or watts per square metre is converted to SI units using
 the multipliers published by the QUDT unit catalogue, and a unit that cannot
 be converted, such as a currency, is reported instead of silently dropped.
 
-![A pocket calculator shows 0.30000000000000004 and sweats. Mind holds a card that says exactly 3/10.](assets/book/07-numbers.svg)
+![Mind holds up two cards. The float card says 0.1 + 0.2 = 0.30000000000000004, as floats promise. The integer card says 2 ** 100 = 1267650600228229401496703205376, every digit exact.](assets/book/07-numbers.svg)
 
-*Approximately right is a different answer.*
+*Each number keeps its type, and each type keeps its promise.*
 
 ## eyemind in a world with AI
 
@@ -200,7 +204,7 @@ cheap. Evidence is not.
    never the reasoner's mind.
 5. **Prove the "no" as well as the "yes".** Absence and totals need complete
    evidence.
-6. **Be exact.** Numbers and units should mean exactly what they say.
+6. **Keep types honest.** Numbers and units should mean exactly what they say.
 7. **Refuse rather than bluff.** If it cannot be proven, eyemind says so.
 
 ![Mind and Checker sit side by side on a bench at sunset, sharing one proof.](assets/book/09-bench.svg)
