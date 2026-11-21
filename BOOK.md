@@ -133,14 +133,16 @@ totals: a sum is only right if no item was left out.
 In LS a number keeps its type. `0.1` is a float, so `0.1 + 0.2` gives
 0.30000000000000004, as float arithmetic does everywhere. Integers are exact
 however large they get, and LS never turns one type into another behind your
-back. Units get the same care: a reading in micrograms per cubic metre or
+back. An `xsd:decimal` in SPARQL RL or N3 is exact too: it compiles to an
+integer and a power of ten, so `0.1 + 0.2` over decimals gives 0.3; in
+SPARQL RL, the checker recomputes it with integers alone. Units get the same care: a reading in micrograms per cubic metre or
 watts per square metre is converted to SI units with the multipliers of the
 QUDT unit catalogue, and a unit that cannot be converted, such as a currency,
 is reported instead of dropped.
 
-![Mind beside a board with two sums. Float: 0.1 + 0.2 = 0.30000000000000004. Integer: 10^20 + 1 = 100000000000000000001. Mind says: no surprises.](assets/book/07-numbers.svg)
+![Mind beside a board with three sums. Float: 0.1 + 0.2 = 0.30000000000000004. Decimal: 0.1 + 0.2 = 0.3. Integer: 10^20 + 1 = 100000000000000000001. Mind says: no surprises.](assets/book/07-numbers.svg)
 
-*Floats behave as floats, integers stay exact.*
+*Floats behave as floats, decimals and integers stay exact.*
 
 ## eyemind in a world with AI
 
