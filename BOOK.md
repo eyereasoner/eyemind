@@ -152,7 +152,7 @@ produce what is *likely*, not what is *entailed*, and they cannot show you a
 derivation that someone else can check line by line.
 
 eyemind is built for the other half of the job. The two fit together like a
-writer and an accountant.
+writer and a mathematician.
 
 ![A chatbot says: trust me! Mind says: check me. A rule travels from the chatbot to Mind, and a proof from Mind to Checker, under a green CHECKED stamp.](assets/book/08-ai.svg)
 
@@ -190,8 +190,9 @@ cheap. Evidence is not.
 
 ## The art, in seven maxims
 
-1. **Keep your language; share the assembler.** Every rule language can
-   compile to LS.
+1. **Keep your language; share the assembler.** N3, SPARQL RL and Logical
+   English already compile to LS, and any rule language that does gets the
+   same engine and checker.
 2. **State facts and rules, not procedures.** Say what is true; let the
    reasoner work out what follows.
 3. **Show your work.** A conclusion with a proof travels further than one
