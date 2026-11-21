@@ -10,13 +10,18 @@ facts, rules and queries, and every conclusion can come with a proof that a
 separate checker verifies against your program. It runs as a command-line
 program, a JavaScript library and a browser application.
 
-[Playground](https://eyereasoner.github.io/eyemind/playground/) · [Examples](https://eyereasoner.github.io/eyemind/examples/) · [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC) · [Conformance](https://eyereasoner.github.io/eyemind/conformance/)
-
-The examples are 158 runnable programs, each with a card deck and saved
-conclusions; all but the two streamed examples also save proofs and check reports. The specification defines the language,
-the proof format and how a proof is checked; its conformance suite has
-1247 cases that test language and proof behavior, and runs
-[in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+- [Playground](https://eyereasoner.github.io/eyemind/playground/): run any
+  example or your own program in the browser, with its proof and check report.
+- [Examples](https://eyereasoner.github.io/eyemind/examples/): the
+  158 runnable programs, each with a card deck and saved conclusions; all but
+  the two streamed examples also save proofs and check reports.
+- [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC): the
+  language, the proof format and how a proof is checked.
+- [Conformance](https://eyereasoner.github.io/eyemind/conformance/): the
+  1247 cases that test language and proof behavior, also run
+  [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+- [Book](https://eyereasoner.github.io/eyemind/BOOK): The Art of eyemind, an
+  illustrated introduction for a wide audience.
 
 ## Contents
 
