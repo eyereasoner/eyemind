@@ -75,7 +75,7 @@ goals, and keep error messages specific and user-facing text direct.
   `playground/conformance.html` and `conformance/worker.js` run the shared suite in a browser.
 - `_config.yml`, `_layouts/default.html`, `assets/docs.css`: GitHub Pages
   renders the Markdown documents with one masthead (Playground,
-  Examples, Specification, Conformance, Repository; the logo links home), the same nav the playground shows.
+  Examples, Specification, Conformance, Book, Repository; the logo links home), the same nav the playground shows.
 - `examples/`: runnable examples, listed in `examples/manifest.json` with
   their description and halt code. An entry can list its
   source files in order. RDF examples pair Turtle or TriG data in
@@ -133,6 +133,8 @@ goals, and keep error messages specific and user-facing text direct.
   playground, CLI, library, development), served by Pages as the site root;
   `LS-SPEC.md` (RFC-style specification: terms, programs, arithmetic,
   reasoning, canonical text, proof documents and proof checking).
+- `BOOK.md`, "The Art of eyemind": an illustrated introduction for a wide
+  audience, with its cartoons as SVG files in `assets/book/`.
 - `release`, `.github/workflows/`, `.zenodo.json`: releases, CI, Pages,
   GitHub releases, npm publishing and Zenodo archiving.
 - `reports/`: RDF, SPARQL RL and SHACL 1.2 EARL reports, refreshed from complete

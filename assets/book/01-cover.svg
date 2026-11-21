@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -12 664 284" width="664" height="284" role="img">
+<style>
+  svg { --paper: #ffffff; --ink: #1d2a44; --marker: #ffe066; --ok: #1f7a4d; --no: #c0392b; --sky: #dbe7ff; }
+  .ln { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .thin { stroke-width: 2; }
+  .inkf { fill: var(--ink); }
+  .paperf { fill: var(--paper); stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
+  .skyf { fill: var(--sky); stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
+  .hif { fill: var(--marker); stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
+  .okl { fill: none; stroke: var(--ok); stroke-width: 4; stroke-linejoin: round; }
+  .nol { fill: none; stroke: var(--no); stroke-width: 4; stroke-linejoin: round; }
+  .hand { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: var(--ink); }
+  .handok { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: var(--ok); }
+  .handno { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: var(--no); }
+  .mono { font-family: "JetBrains Mono", Menlo, Consolas, monospace; fill: var(--ink); }
+</style>
+<defs>
+    <symbol id="mind" viewBox="0 0 120 140">
+      <path class="skyf" d="M18 70 C14 34 40 12 62 12 C88 12 106 34 102 70 C100 98 86 112 60 112 C34 112 20 98 18 70 Z"/>
+      <ellipse class="paperf" cx="60" cy="58" rx="24" ry="20"/>
+      <g class="blink"><circle class="inkf" cx="64" cy="58" r="9"/><circle fill="var(--page)" cx="67" cy="55" r="3"/></g>
+      <path class="ln thin" d="M50 90 Q60 97 72 90"/>
+      <path class="ln" d="M40 112 L36 132 M80 112 L84 132 M28 132 L44 132 M76 132 L92 132"/>
+      <path class="ln" d="M60 12 L60 2"/><circle class="hif" cx="60" cy="2" r="4"/>
+    </symbol>
+    <symbol id="checker" viewBox="0 0 120 140">
+      <rect class="paperf" x="28" y="30" width="64" height="82" rx="6"/>
+      <path class="ln thin" d="M38 48 L82 48 M38 60 L82 60 M38 72 L70 72"/>
+      <circle class="paperf" cx="48" cy="20" r="0"/>
+      <circle class="inkf" cx="50" cy="40" r="0"/>
+      <path class="ln" d="M44 112 L40 132 M76 112 L80 132 M32 132 L48 132 M72 132 L88 132"/>
+      <circle class="inkf" cx="48" cy="88" r="4"/><circle class="inkf" cx="72" cy="88" r="4"/>
+      <path class="ln thin" d="M50 102 L70 102"/>
+      <path class="ln" d="M44 80 L54 78 M66 78 L76 80"/>
+    </symbol>
+    <symbol id="chatty" viewBox="0 0 140 140">
+      <path class="paperf" d="M20 30 Q20 12 40 12 L100 12 Q120 12 120 30 L120 80 Q120 98 100 98 L56 98 L34 122 L38 98 Q20 98 20 80 Z"/>
+      <circle class="inkf" cx="52" cy="48" r="6"/><circle class="inkf" cx="88" cy="48" r="6"/>
+      <path class="ln" d="M46 70 Q70 88 94 70"/>
+      <path class="ln thin" d="M124 22 L134 14 M126 40 L138 40 M124 58 L134 66"/>
+    </symbol>
+  </defs>
+<rect x="-10" y="-10" width="660" height="280" rx="6" fill="#ffffff" stroke="#1d2a44" stroke-width="2.5"/>
+        <title>Mind, a one-eyed reasoner, hands a scroll labelled proof to Checker, a sheet of paper with a magnifying glass, who answers: checked.</title>
+        <path class="ln thin" d="M20 230 L620 230" stroke-dasharray="2 9"/>
+        <use href="#mind" x="70" y="70" width="140" height="163"/>
+        <g transform="translate(250 120) rotate(-6)">
+          <path class="hif" d="M0 0 L120 0 L120 70 L0 70 Z"/>
+          <path class="ln thin" d="M14 18 L100 18 M14 32 L106 32 M14 46 L84 46"/>
+          <text class="hand" x="60" y="-10" font-size="20" text-anchor="middle">proof</text>
+        </g>
+        <use href="#checker" x="440" y="70" width="140" height="163"/>
+        <circle class="ln" cx="455" cy="150" r="26"/><path class="ln" d="M436 170 L414 194"/>
+        <path class="paperf" d="M470 18 L610 18 Q622 18 622 30 L622 62 Q622 74 610 74 L540 74 L524 92 L526 74 L470 74 Q458 74 458 62 L458 30 Q458 18 470 18 Z"/>
+        <text class="handok" x="540" y="54" font-size="26" text-anchor="middle">Checked!</text>
+        <path class="paperf" d="M40 18 L210 18 Q222 18 222 30 L222 62 Q222 74 210 74 L130 74 L120 92 L112 74 L40 74 Q28 74 28 62 L28 30 Q28 18 40 18 Z"/>
+        <text class="hand" x="125" y="54" font-size="22" text-anchor="middle">Here is why.</text>
+      </svg>

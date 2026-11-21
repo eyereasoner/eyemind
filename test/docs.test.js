@@ -43,9 +43,10 @@ export const tests = {
     for (const path of ['_layouts/default.html', 'playground/index.html', 'playground/conformance.html']) {
       const nav = document(path).match(/<nav\b[^>]*>([\s\S]*?)<\/nav>/)[1];
       assert.deepEqual([...nav.matchAll(/<a\b[^>]*>([^<]+)<\/a>/g)].map((m) => m[1]),
-        ['Playground', 'Examples', 'Specification', 'Conformance', 'Repository ↗'], path);
+        ['Playground', 'Examples', 'Specification', 'Conformance', 'Book', 'Repository ↗'], path);
       assert.match(nav, /href="[^"]*examples\/[^"]*"/, path);
       assert.match(nav, /href="[^"]*conformance[^"]*"/, path);
+      assert.match(nav, /href="[^"]*BOOK[^"]*"/, path);
     }
     assert.match(document('README.md'), /https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/conformance/);
   },
