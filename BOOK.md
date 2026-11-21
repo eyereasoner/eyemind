@@ -130,23 +130,17 @@ totals: a sum is only right if no item was left out.
 
 ## Honest numbers
 
-A number in LS keeps its type, and its type keeps its promise. `0.1` is a
-floating-point number, so `0.1 + 0.2` gives 0.30000000000000004, exactly what
-float arithmetic promises everywhere. Integers promise something else: they
-are exact, however large they get, so 2 to the power 100 comes out with every
-one of its 31 digits. What LS never does is change a type behind your back:
-an integer does not quietly become a float, and a float is not passed off as
-exact. When a fine, a tax or a dose needs exact fractions, decimal arithmetic
-in SPARQL rules is exact too.
+In LS a number keeps its type. `0.1` is a float, so `0.1 + 0.2` gives
+0.30000000000000004, as float arithmetic does everywhere. Integers are exact
+however large they get, and LS never turns one type into another behind your
+back. Units get the same care: a reading in micrograms per cubic metre or
+watts per square metre is converted to SI units with the multipliers of the
+QUDT unit catalogue, and a unit that cannot be converted, such as a currency,
+is reported instead of dropped.
 
-The same care goes into units. A reading in micrograms per cubic metre,
-kilometres per hour or watts per square metre is converted to SI units using
-the multipliers published by the QUDT unit catalogue, and a unit that cannot
-be converted, such as a currency, is reported instead of silently dropped.
+![Mind beside a board with two sums. Float: 0.1 + 0.2 = 0.30000000000000004. Integer: 10^20 + 1 = 100000000000000000001. Mind says: no surprises.](assets/book/07-numbers.svg)
 
-![Mind holds up two cards. The float card says 0.1 + 0.2 = 0.30000000000000004, as floats promise. The integer card says 2 ** 100 = 1267650600228229401496703205376, every digit exact.](assets/book/07-numbers.svg)
-
-*Each number keeps its type, and each type keeps its promise.*
+*Floats behave as floats, integers stay exact.*
 
 ## eyemind in a world with AI
 
