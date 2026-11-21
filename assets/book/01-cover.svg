@@ -41,7 +41,7 @@
     </symbol>
   </defs>
 <rect x="-10" y="-10" width="660" height="280" rx="6" fill="#ffffff" stroke="#1d2a44" stroke-width="2.5"/>
-        <title>Mind, a one-eyed reasoner, hands a scroll labelled proof to Checker, a sheet of paper with a magnifying glass, who answers: checked.</title>
+        <title>Mind, a one-eyed reasoner, says: here is why, and hands a page labelled proof to Checker, a sheet of paper with a magnifying glass, who answers: checked.</title>
         <path class="ln thin" d="M20 230 L620 230" stroke-dasharray="2 9"/>
         <use href="#mind" x="70" y="70" width="140" height="163"/>
         <g transform="translate(250 120) rotate(-6)">

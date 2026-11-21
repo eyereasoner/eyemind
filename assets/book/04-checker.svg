@@ -41,7 +41,7 @@
     </symbol>
   </defs>
 <rect x="-10" y="-10" width="660" height="260" rx="6" fill="#ffffff" stroke="#1d2a44" stroke-width="2.5"/>
-        <title>Checker sits at a desk with two documents, the program and the proof, and a lamp. Mind waits outside a door marked: reasoners wait outside.</title>
+        <title>Checker stands behind a desk with two documents, the program and the proof. Mind offers help from beside a door marked: reasoners wait outside. Checker answers: no, thank you.</title>
         <rect class="paperf" x="30" y="40" width="120" height="170" rx="4"/>
         <path class="ln thin" d="M118 120 L118 132"/><circle class="inkf" cx="124" cy="126" r="4"/>
         <text class="hand" x="90" y="74" font-size="16" text-anchor="middle">reasoners</text>

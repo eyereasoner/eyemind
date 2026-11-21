@@ -4,7 +4,7 @@
 conclusions you do not have to take on faith, and why that matters more, not
 less, now that machines write so fluently.*
 
-![Mind, a one-eyed reasoner, hands a scroll labelled proof to Checker, a sheet of paper with a magnifying glass, who answers: checked.](assets/book/01-cover.svg)
+![Mind, a one-eyed reasoner, says: here is why, and hands a page labelled proof to Checker, a sheet of paper with a magnifying glass, who answers: checked.](assets/book/01-cover.svg)
 
 *Meet Mind, who reasons, and Checker, who never takes Mind's word for anything.*
 
@@ -81,7 +81,7 @@ only two things: your program and the proof. It never runs the reasoner to
 fill a gap. If the proof skips a step, leans on a rule that is not in the
 program, or claims an answer it cannot justify, the check fails.
 
-![Checker sits at a desk with two documents, the program and the proof. Mind offers help from beside a door marked: reasoners wait outside. Checker answers: no, thank you.](assets/book/04-checker.svg)
+![Checker stands behind a desk with two documents, the program and the proof. Mind offers help from beside a door marked: reasoners wait outside. Checker answers: no, thank you.](assets/book/04-checker.svg)
 
 *The checker works from the paper alone. That is the whole trick.*
 
@@ -124,7 +124,7 @@ rules, and their proofs include **complete answer tables**, so the checker can
 confirm that the search really was exhaustive. The same goes for counting and
 totals: a sum is only right if no item was left out.
 
-![Mind stands by a filing cabinet whose drawers are all empty, next to a list ticking off each drawer: none, none, none, so none at all.](assets/book/06-absence.svg)
+![Mind stands between a filing cabinet with one drawer pulled open and a checklist asking: overdue books? Drawer 1, none; drawer 2, none; drawer 3, none; so none at all.](assets/book/06-absence.svg)
 
 *"Nothing" is a conclusion too, and it deserves evidence.*
 
@@ -204,9 +204,9 @@ cheap. Evidence is not.
 6. **Keep types honest.** Numbers and units should mean exactly what they say.
 7. **Refuse rather than bluff.** If it cannot be proven, eyemind says so.
 
-![Mind and Checker sit side by side on a bench at sunset, sharing one proof.](assets/book/09-bench.svg)
+![Mind and Checker sit side by side on a bench with one proof between them, while the sun sets on the horizon.](assets/book/09-bench.svg)
 
-*Reasoning and checking, better together.*
+*At the end of the day, Mind and Checker share one proof and watch the sun go down: reasoning and checking, better together.*
 
 ---
 
