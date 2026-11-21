@@ -9,7 +9,9 @@ and the runner times it and compares its conclusions with a reference.
 ## Workloads
 
 `node bench/workloads.js DIR` writes each workload as `DIR/ID/ontology.ttl`
-(the ontology or shapes graph) and `DIR/ID/data.ttl`, with `DIR/manifest.json`
+(the ontology or shapes graph) and `DIR/ID/data.ttl`; a message workload has
+an RDF Message log `DIR/ID/data.trig` instead, and its SHACL input and output
+shapes in `DIR/ID/shacl-in.ttl` and `DIR/ID/shacl-out.ttl`. `DIR/manifest.json`
 listing their identifiers, profiles, descriptions and expected counts where
 defined. The generator is
 deterministic, so every implementation reasons over the same triples.
@@ -23,6 +25,14 @@ deterministic, so every implementation reasons over the same triples.
 | `qudt-speeds-10`, `qudt-speeds-100`, `qudt-speeds-1000` | qudt | Normalizing `cdt:speed` literals in four units. |
 | `owl-qudt-speeds-10` | owl2rl, qudt | The two profiles together. |
 | `shacl-persons-100`, `shacl-persons-1000`, `shacl-persons-5000` | shacl | SHACL Core validation, one person in ten invalid. |
+| `messages-shapes-200`, `messages-shapes-2000` | owl2rl | RDF Messages of nine triples, each reasoned over on its own against a SOSA alignment, with trusted SHACL input and output shapes. |
+
+The message workloads take the setting of the SHACL shape-planning benchmark
+of Pieter Colpaert's
+[rdfjs-inference-engine](https://github.com/pietercolpaert/rdfjs-inference-engine/blob/main/SHACL-OPTIMIZATION.md)
+(MIT licence): each message has an observation's four compact fields and five
+debug notes, which the closed input shape leaves out, and yields the seven
+triples the output shapes ask for.
 
 ## Running
 
@@ -35,8 +45,10 @@ npm run bench -- --adapter eyemind="node bin/eyemind.js {flags} --to n-quads {on
 ```
 
 An adapter is `NAME=COMMAND`, run by `sh`. The command may use `{flags}`
-(`--owl2rl` and so on), `{profiles}` (`owl2rl,qudt`), `{ontology}`, `{data}`
-and `{output}`. Without `{output}`, its standard output is its output, which
+(`--owl2rl` and so on, and for a message workload `--stream-messages`,
+`--shacl-in` and `--shacl-out` with the shape files), `{profiles}`
+(`owl2rl,qudt`), `{ontology}`, `{data}`, `{shaclIn}`, `{shaclOut}` and
+`{output}`. Without `{output}`, its standard output is its output, which
 is N-Triples or N-Quads: the triples it concludes, with or without its input.
 Without `--adapter`, the runner uses eyemind. Workloads are written to
 `.cache/bench/` unless `--dir` names another directory.
@@ -55,7 +67,9 @@ an empty ontology and empty data, which costs whatever starting the process
 and loading those profiles costs. The report gives each total with the time
 after start-up, the total less that baseline. For an implementation that
 loads its profiles once and then reasons over many inputs, the time after
-start-up is the cost that repeats.
+start-up is the cost that repeats. A message workload's baseline is the same
+workload with only its first message, so its time after start-up is the cost
+of all the other messages.
 
 Conclusions are compared with the reference adapter (the first, or
 `--reference`). For OWL 2 RL, SKOS and QUDT, the runner compares domain
@@ -66,7 +80,8 @@ reflexive `owl:sameAs`, `owl:equivalentClass`, `owl:equivalentProperty`,
 `rdfs:Resource` or `owl:Thing`; rule sets differ there by design. QUDT
 results are compared only where the implementations share a result
 vocabulary. The speed workloads expect one `qconv:normalizedQuantity` link
-per measurement, and the SHACL workloads expect four `sh:ValidationResult`
+per measurement, the message workloads the new triples their output shapes
+describe, and the SHACL workloads expect four `sh:ValidationResult`
 nodes per invalid person. The runner reports a count mismatch as an error
 instead of a timing. For SHACL, the comparison matches each focus node with
 the constraint component it violates.

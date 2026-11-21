@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { EYEMIND, agreement, conclusions, measure, parseArgs } from '../bench/run.js';
-import { workloads, writeWorkloads } from '../bench/workloads.js';
+import { baseline, workloads, writeWorkloads } from '../bench/workloads.js';
 import { ROOT, assert, throwsMatching } from './helpers.js';
 
 const P = '@prefix : <https://example.org/bench#> .\n@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix owl: <http://www.w3.org/2002/07/owl#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n';
@@ -63,6 +63,21 @@ export const tests = {
       assert.equal(result.violations.size, 40);
       const failing = measure({ name: 'broken', command: 'exit 3' }, workload, join(dir, workload.id), { iterations: 1, timeout: 120 });
       assert.match(failing.error, /exit 3/);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  },
+
+  'a message workload streams its messages with its shapes and measures start-up with the first message'() {
+    const dir = mkdtempSync(join(tmpdir(), 'eyemind-bench-'));
+    try {
+      const workload = workloads().find((w) => w.id === 'messages-shapes-200');
+      const first = baseline(workload);
+      assert.equal(first.data.split('MESSAGE').length, 1);
+      assert.match(first.data, /ex:obs1 ex:observedBy/);
+      writeWorkloads(dir, [workload]);
+      const result = measure({ name: 'eyemind', command: EYEMIND }, workload, join(dir, workload.id), { iterations: 1, timeout: 120 });
+      assert.equal(result.derived, 5 * 200 + 50 + 5, result.error);
+      const empty = measure({ name: 'empty', command: 'true' }, workload, join(dir, workload.id), { iterations: 1, timeout: 120 });
+      assert.match(empty.error, /expected 1055 derived, got 0/);
     } finally { rmSync(dir, { recursive: true, force: true }); }
   },
 

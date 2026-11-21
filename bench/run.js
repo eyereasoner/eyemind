@@ -5,16 +5,18 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parseRdfMessages } from '../src/messages.js';
 import { parseRdf } from '../src/rdf.js';
 import { write } from '../src/writer.js';
-import { baseline, workloads, writeWorkloads } from './workloads.js';
+import { baseline, files, workloads, writeWorkloads } from './workloads.js';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 export const EYEMIND = `${JSON.stringify(process.execPath)} ${JSON.stringify(join(ROOT, 'bin/eyemind.js'))} {flags} --to n-quads {ontology} {data}`;
 const USAGE = `Usage: node bench/run.js [--adapter NAME=COMMAND ...] [--reference NAME] [--case ID ...]
   [--iterations N] [--timeout SECONDS] [--json FILE] [--dir DIR]
-An adapter command may use {flags}, {profiles}, {ontology}, {data} and {output};
-without {output} its standard output is the output. The default adapter is eyemind.`;
+An adapter command may use {flags}, {profiles}, {ontology}, {data}, {shaclIn},
+{shaclOut} and {output}; without {output} its standard output is the output.
+The default adapter is eyemind.`;
 // Statements about these vocabularies are axioms whose coverage differs by design.
 const VOCABULARY = /^iri\('http:\/\/www\.w3\.org\/(1999\/02\/22-rdf-syntax-ns|2000\/01\/rdf-schema|2002\/07\/owl|2001\/XMLSchema)#/;
 const SH = 'http://www.w3.org/ns/shacl#';
@@ -61,10 +63,15 @@ const quote = (s) => `'${s.replaceAll("'", "'\\''")}'`;
 // One run of an adapter: wall time of the whole process, its peak memory where
 // GNU time is available, and its output.
 function runOnce(adapter, workload, dir, timeout) {
-  const output = join(dir, `${adapter.name}.out`);
-  const fill = (text) => text.replaceAll('{flags}', workload.profiles.map((p) => `--${p}`).join(' '))
-    .replaceAll('{profiles}', workload.profiles.join(',')).replaceAll('{ontology}', quote(join(dir, 'ontology.ttl')))
-    .replaceAll('{data}', quote(join(dir, 'data.ttl'))).replaceAll('{output}', quote(output));
+  const output = join(dir, `${adapter.name}.out`), path = (file) => quote(join(dir, file));
+  const { ontology, data, shaclIn, shaclOut } = files(workload);
+  // A message workload streams its messages with its shapes as contracts.
+  const flags = [...workload.profiles.map((p) => `--${p}`),
+    ...(workload.messages ? ['--stream-messages', '--shacl-in', path(shaclIn), '--shacl-out', path(shaclOut)] : [])].join(' ');
+  const fill = (text) => text.replaceAll('{flags}', flags).replaceAll('{profiles}', workload.profiles.join(','))
+    .replaceAll('{ontology}', path(ontology)).replaceAll('{data}', path(data))
+    .replaceAll('{shaclIn}', shaclIn ? path(shaclIn) : '').replaceAll('{shaclOut}', shaclOut ? path(shaclOut) : '')
+    .replaceAll('{output}', quote(output));
   const command = fill(adapter.command) + (adapter.command.includes('{output}') ? '' : ` > ${quote(output)}`);
   // GNU timeout runs the command in its own process group, so a timeout also
   // ends the processes the adapter starts.
@@ -86,7 +93,10 @@ function runOnce(adapter, workload, dir, timeout) {
 // its violations: each focus node with the constraint component it violates.
 export function conclusions(outputText, inputTexts) {
   const key = ([s, p, o]) => `${write(s)} ${write(p)} ${write(o)}`;
-  const inputTriples = inputTexts.flatMap((text) => parseRdf(text, { format: 'turtle', scope: 'bench' }).quads);
+  // An RDF Message log is read as the triples of all its messages.
+  const inputTriples = inputTexts.flatMap((text) => text.startsWith('VERSION "1.2-messages"')
+    ? parseRdfMessages(text, { format: 'trig', scope: 'bench' }).messages.flatMap((m) => m.quads)
+    : parseRdf(text, { format: 'turtle', scope: 'bench' }).quads);
   const input = new Set(inputTriples.map(key)), subjects = new Set(inputTriples.flatMap(([s, , o]) => [write(s), write(o)]));
   const derived = new Map();
   for (const [s, p, o] of parseRdf(outputText, { format: 'n-quads', scope: 'bench' }).quads) {
@@ -115,7 +125,8 @@ const median = (xs) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
 // A run longer than ten seconds is measured once; others take the median of
 // the iterations after one warmup run.
 export function measure(adapter, workload, dir, { iterations, timeout }) {
-  const inputs = ['ontology.ttl', 'data.ttl'].map((f) => readFileSync(join(dir, f), 'utf8'));
+  const { ontology, data } = files(workload);
+  const inputs = [ontology, data].map((f) => readFileSync(join(dir, f), 'utf8'));
   const summarize = (run) => conclusions(readFileSync(run.output, 'utf8'), inputs);
   const measured = () => {
     const run = runOnce(adapter, workload, dir, timeout);
@@ -149,7 +160,8 @@ export function agreement(reference, other, shacl) {
 export function report(rows, adapters, reference) {
   const others = adapters.filter((a) => a.name !== reference);
   const seconds = (ms) => ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms)} ms`;
-  // The total, and after start-up: less the baseline of the same profiles.
+  // The total, and after start-up: less the baseline of the same profiles, or
+  // of the same message workload's first message.
   const time = (r) => r.error ? (r.error.startsWith('timeout') ? `> ${r.error.match(/\d+/)[0]} s` : r.error.startsWith('expected ') ? r.error : 'error') :
     r.baselineMs === undefined ? seconds(r.ms) : `${seconds(r.ms)} (${seconds(Math.max(0, r.ms - r.baselineMs))} after start-up)`;
   const head = ['Workload', 'Profiles', ...adapters.map((a) => a.name), ...others.map((a) => `${a.name} vs ${reference}`)];
@@ -172,12 +184,12 @@ async function main(argv) {
   if (options.cases.some((id) => !selected.some((w) => w.id === id))) throw new Error(`unknown workload in ${options.cases.join(', ')}`);
   mkdirSync(options.dir, { recursive: true });
   writeWorkloads(options.dir, selected);
-  // Each adapter's start-up with each profile set, measured once on empty graphs.
+  // Each adapter's start-up with each profile set, measured once on empty
+  // graphs, or for each message workload, with its first message.
   const baselines = new Map();
-  const startup = (adapter, profiles) => {
-    const key = `${adapter.name} ${profiles.join(',')}`;
+  const startup = (adapter, workload) => {
+    const empty = baseline(workload), key = `${adapter.name} ${empty.id}`;
     if (!baselines.has(key)) {
-      const empty = baseline(profiles);
       writeWorkloads(join(options.dir, 'baselines'), [empty]);
       baselines.set(key, measure(adapter, empty, join(options.dir, 'baselines', empty.id), options));
       const b = baselines.get(key);
@@ -189,7 +201,7 @@ async function main(argv) {
   for (const workload of selected) {
     const dir = join(options.dir, workload.id), row = { id: workload.id, profiles: workload.profiles, results: {}, agreement: {} };
     for (const adapter of options.adapters) {
-      const base = startup(adapter, workload.profiles);
+      const base = startup(adapter, workload);
       row.results[adapter.name] = measure(adapter, workload, dir, options);
       const r = row.results[adapter.name];
       if (!base.error && !r.error) r.baselineMs = base.ms;
