@@ -1,24 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -12 664 264" width="664" height="264" role="img">
 <style>
-  svg { --paper: #ffffff; --ink: #1d2a44; --marker: #ffe066; --ok: #1f7a4d; --no: #c0392b; --sky: #dbe7ff; }
-  .ln { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .ln { fill: none; stroke: #1d2a44; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
   .thin { stroke-width: 2; }
-  .inkf { fill: var(--ink); }
-  .paperf { fill: var(--paper); stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
-  .skyf { fill: var(--sky); stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
-  .hif { fill: var(--marker); stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
-  .okl { fill: none; stroke: var(--ok); stroke-width: 4; stroke-linejoin: round; }
-  .nol { fill: none; stroke: var(--no); stroke-width: 4; stroke-linejoin: round; }
-  .hand { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: var(--ink); }
-  .handok { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: var(--ok); }
-  .handno { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: var(--no); }
-  .mono { font-family: "JetBrains Mono", Menlo, Consolas, monospace; fill: var(--ink); }
+  .inkf { fill: #1d2a44; }
+  .paperf { fill: #ffffff; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .skyf { fill: #c7dbff; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .hif { fill: #ffd43b; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .okl { fill: none; stroke: #16a34a; stroke-width: 4; stroke-linejoin: round; }
+  .nol { fill: none; stroke: #dc2626; stroke-width: 4; stroke-linejoin: round; }
+  .hand { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #1d2a44; }
+  .handok { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #16a34a; }
+  .handno { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #dc2626; }
+  .mono { font-family: "JetBrains Mono", Menlo, Consolas, monospace; fill: #1d2a44; }
 </style>
 <defs>
     <symbol id="mind" viewBox="0 0 120 140">
       <path class="skyf" d="M18 70 C14 34 40 12 62 12 C88 12 106 34 102 70 C100 98 86 112 60 112 C34 112 20 98 18 70 Z"/>
       <ellipse class="paperf" cx="60" cy="58" rx="24" ry="20"/>
-      <g class="blink"><circle class="inkf" cx="64" cy="58" r="9"/><circle fill="var(--page)" cx="67" cy="55" r="3"/></g>
+      <g class="blink"><circle class="inkf" cx="64" cy="58" r="9"/><circle fill="#ffffff" cx="67" cy="55" r="3"/></g>
       <path class="ln thin" d="M50 90 Q60 97 72 90"/>
       <path class="ln" d="M40 112 L36 132 M80 112 L84 132 M28 132 L44 132 M76 132 L92 132"/>
       <path class="ln" d="M60 12 L60 2"/><circle class="hif" cx="60" cy="2" r="4"/>
