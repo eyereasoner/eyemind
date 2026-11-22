@@ -44,7 +44,7 @@
         <path class="ln thin" d="M20 230 L620 230" stroke-dasharray="2 9"/>
         <use href="#mind" x="70" y="70" width="140" height="163"/>
         <g transform="translate(250 120) rotate(-6)">
-          <path class="hif" d="M0 0 L120 0 L120 70 L0 70 Z"/>
+          <path fill="#ffa94d" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" d="M0 0 L120 0 L120 70 L0 70 Z"/>
           <path class="ln thin" d="M14 18 L100 18 M14 32 L106 32 M14 46 L84 46"/>
           <text class="hand" x="60" y="-10" font-size="20" text-anchor="middle">proof</text>
         </g>
