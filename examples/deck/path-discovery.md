@@ -285,13 +285,15 @@ endpoint as a variable to find possible airports and give `MaxStopovers` a
 nonnegative integer. A route with at most N stopovers has at most N+1 flights.
 Large limits on this network can reach the configured reasoning bounds.
 
-To save and check a proof for a custom route, pass the same goal to both commands.
+Save a proof for the direct flight to Liège from Ostend-Bruges.
 
 ```sh
-goal="path_discovery('Ostend-Bruges International Airport', 'Liège Airport', 0, Path)"
-eyemind --proof --goal "$goal" examples/path-discovery.js > /tmp/route-proof.js
-eyemind --check-proof /tmp/route-proof.js --goal "$goal" examples/path-discovery.js
+eyemind --proof --goal "path_discovery('Ostend-Bruges International Airport', 'Liège Airport', 0, Path)" examples/path-discovery.js > /tmp/route-proof.js
 ```
+
+Pass the same goal when checking the proof.
+`eyemind --check-proof /tmp/route-proof.js --goal "path_discovery('Ostend-Bruges International Airport', 'Liège Airport', 0, Path)" examples/path-discovery.js`
+checks the one direct route.
 
 ---
 
