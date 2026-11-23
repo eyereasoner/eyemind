@@ -1,25 +1,21 @@
 # Examples
 
-[Run Socrates in the Playground](https://eyereasoner.github.io/eyemind/playground/#example=socrates-le), or open a topic below.
-Each example's deck explains the result and links to the source and Playground.
+Browse examples in Logic Script (LS), Logical English, Notation3, SPARQL 1.2 RL,
+and RDF, or [run Socrates in the Playground](https://eyereasoner.github.io/eyemind/playground/#example=socrates-le).
+Each deck explains the result and links to the source and Playground.
 
-<nav class="example-contents" aria-label="Contents" markdown="block">
+## Contents
 
-- [Rules and proofs](#reasoning)
-- [Operations and decisions](#operations)
-- [Policy, rights and privacy](#policy)
-- [Puzzles, plans and routes](#plans)
-- [Mathematics and computing](#mathematics)
-- [People and places](#people)
-- [Linked data and evidence](#linked-data)
-- [Science and measurements](#science)
+- [Rules and proofs](#rules-and-proofs)
+- [Operations and decisions](#operations-and-decisions)
+- [Policy, rights and privacy](#policy-rights-and-privacy)
+- [Puzzles, plans and routes](#puzzles-plans-and-routes)
+- [Mathematics and computing](#mathematics-and-computing)
+- [People and places](#people-and-places)
+- [Linked data and evidence](#linked-data-and-evidence)
+- [Science and measurements](#science-and-measurements)
 
-</nav>
-
-<details class="example-group" markdown="block">
-<summary>Rules and proofs</summary>
-
-<div id="reasoning"></div>
+## Rules and proofs
 
 - [Socrates](https://eyereasoner.github.io/eyemind/examples/deck/socrates) (Logic Script) — Class membership derived through a subclass rule
 - [Socrates in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/socrates-le) (Logical English) — Logical English class facts and an every-rule conclude that Socrates is mortal
@@ -59,12 +55,7 @@ Each example's deck explains the result and links to the source and Playground.
 - [Deep Taxonomy 10000](https://eyereasoner.github.io/eyemind/examples/deck/deep-taxonomy-10000) (Logic Script) — The same taxonomy benchmark at ten thousand levels
 - [Deep Taxonomy 100000](https://eyereasoner.github.io/eyemind/examples/deck/deep-taxonomy-100000) (Logic Script) — The same taxonomy benchmark at a hundred thousand levels
 
-</details>
-
-<details class="example-group" markdown="block">
-<summary>Operations and decisions</summary>
-
-<div id="operations"></div>
+## Operations and decisions
 
 - [Restoring checkout after an outage](https://eyereasoner.github.io/eyemind/examples/deck/service-outage-recovery) (Logic Script) — Least-cost repairs that restore checkout through redundant providers and a dependency cycle
 - [Which tasks determine the launch date?](https://eyereasoner.github.io/eyemind/examples/deck/critical-path-schedule) (Logic Script) — Earliest task times and every critical predecessor in a launch schedule
@@ -86,12 +77,7 @@ Each example's deck explains the result and links to the source and Playground.
 - [Election tally in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le) (Logical English) — Eligible voters' choices are counted once each, spoiled votes are excluded and a tie gives two winners
 - [Exact invoice totals and floating measurements](https://eyereasoner.github.io/eyemind/examples/deck/exact-decimals-srl) (SPARQL 1.2 RL) — Exact decimal invoice totals and division alongside binary64 double arithmetic
 
-</details>
-
-<details class="example-group" markdown="block">
-<summary>Policy, rights and privacy</summary>
-
-<div id="policy"></div>
+## Policy, rights and privacy
 
 - [Research scope and duties in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le) (Logical English) — An ODRL snapshot checks a compound constraint over DPV purpose and data categories and looks for request-local duty evidence
 - [Research access in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/research-access-le) (Logical English) — Logical English joins ODRL permission, prohibition and duty facts with DPV process descriptions to decide three research requests
@@ -108,12 +94,7 @@ Each example's deck explains the result and links to the source and Playground.
 - [Dog license](https://eyereasoner.github.io/eyemind/examples/deck/dog-license) (Logic Script) — A licensing threshold based on collected dog counts
 - [Delfour](https://eyereasoner.github.io/eyemind/examples/deck/delfour) (Logic Script) — A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes
 
-</details>
-
-<details class="example-group" markdown="block">
-<summary>Puzzles, plans and routes</summary>
-
-<div id="plans"></div>
+## Puzzles, plans and routes
 
 - [Shortest Path](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path) (Logic Script) — Weighted paths and stratified minimum selection
 - [Shortest paths in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le) (Logical English) — Bounded recursive paths retain both cheapest routes through a graph containing a cycle
@@ -133,12 +114,7 @@ Each example's deck explains the result and links to the source and Playground.
 - [Monkey and bananas](https://eyereasoner.github.io/eyemind/examples/deck/monkey-bananas) (Logic Script) — Every plan of up to five moves that gets the monkey the bananas
 - [GPS: goal-driven routes](https://eyereasoner.github.io/eyemind/examples/deck/gps) (Logic Script) — Goal-driven parallel sequences: routes to a goal state within duration, cost, belief and comfort limits
 
-</details>
-
-<details class="example-group" markdown="block">
-<summary>Mathematics and computing</summary>
-
-<div id="mathematics"></div>
+## Mathematics and computing
 
 - [Fibonacci](https://eyereasoner.github.io/eyemind/examples/deck/fibonacci) (Logic Script) — Fast doubling for exact Fibonacci numbers, and the golden ratio
 - [Lists](https://eyereasoner.github.io/eyemind/examples/deck/lists) (Logic Script) — Concatenation, mapping and summation
@@ -167,12 +143,7 @@ Each example's deck explains the result and links to the source and Playground.
 - [Recover four data bits after one bit flips](https://eyereasoner.github.io/eyemind/examples/deck/hamming-code) (Logic Script) — Parity syndromes and correction of a single flipped bit in Hamming(7,4)
 - [Squares in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/squares-le) (Logical English) — Logical English computes exact squares of three supplied integers
 
-</details>
-
-<details class="example-group" markdown="block">
-<summary>People and places</summary>
-
-<div id="people"></div>
+## People and places
 
 - [Age](https://eyereasoner.github.io/eyemind/examples/deck/age) (Logic Script) — Calendar-year and elapsed-day age checks at an explicit reference date
 - [Easter](https://eyereasoner.github.io/eyemind/examples/deck/easter) (Logic Script) — Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050
@@ -193,12 +164,7 @@ Each example's deck explains the result and links to the source and Playground.
 - [A trade inside a list](https://eyereasoner.github.io/eyemind/examples/deck/good-cobbler-srl) (SPARQL 1.2 RL) — RDF list patterns extract a trade from a structured description
 - [A Skolem mother for each person](https://eyereasoner.github.io/eyemind/examples/deck/existential-n3) (Notation3) — Skolem mother IRIs and reciprocal child relations for each person
 
-</details>
-
-<details class="example-group" markdown="block">
-<summary>Linked data and evidence</summary>
-
-<div id="linked-data"></div>
+## Linked data and evidence
 
 - [Who supplied a statement?](https://eyereasoner.github.io/eyemind/examples/deck/annotation-evidence-srl) (SPARQL 1.2 RL) — A named reifier links an asserted statement to its author and recording date
 - [Choosing between reports](https://eyereasoner.github.io/eyemind/examples/deck/annotated-claims-n3) (Notation3) — Conflicting RDF 1.2 annotated claims ranked by confidence and trust, with typed literals read as numbers
@@ -219,12 +185,7 @@ Each example's deck explains the result and links to the source and Playground.
 - [A transport thesaurus](https://eyereasoner.github.io/eyemind/examples/deck/thesaurus-skos) (RDF) — SKOS closes concept hierarchies, exact mappings and ordered collection membership
 - [Exact OWL numeric values](https://eyereasoner.github.io/eyemind/examples/deck/datatypes-owl2rl) (RDF) — OWL exact numeric values substitute across lexical forms and an invalid byte range yields a conflict
 
-</details>
-
-<details class="example-group" markdown="block">
-<summary>Science and measurements</summary>
-
-<div id="science"></div>
+## Science and measurements
 
 - [Normalize, then validate](https://eyereasoner.github.io/eyemind/examples/deck/measurement-shacl) (RDF) — QUDT converts speed readings before SHACL checks a sequence path against a numeric limit
 - [QUDT quantities](https://eyereasoner.github.io/eyemind/examples/deck/quantities-qudt) (RDF) — QUDT normalizes CDT literals, Fahrenheit, decibels and a locally defined length unit
@@ -237,26 +198,3 @@ Each example's deck explains the result and links to the source and Playground.
 - [An alert belongs to one observation](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3) (Notation3) — Independent sensor messages raise an alert only for the observation above the temperature threshold
 - [Sensor messages become SOSA observations](https://eyereasoner.github.io/eyemind/examples/deck/observations-owl2rl) (RDF) — Streamed sensor messages each yield the SOSA triples an output contract asks for, through rules specialized once to the shape of the messages
 - [Shapes plan the rules for sensor messages](https://eyereasoner.github.io/eyemind/examples/deck/shape-planning-owl2rl) (RDF) — SHACL input and output shapes let streamed sensor messages run rules specialized before the first message and yield only the SOSA triples asked for
-
-</details>
-
-<details class="example-group" markdown="block">
-<summary>Running from the command line</summary>
-
-<div id="running-the-examples"></div>
-
-To run this Logic Script (LS) example from the repository, use the commands below.
-
-```sh
-eyemind examples/socrates.js
-eyemind -c examples/socrates.js
-eyemind --proof examples/socrates.js
-eyemind --check-proof examples/proof/socrates.js examples/socrates.js
-```
-
-Saved conclusions are in `output/`, proofs in `proof/`, and check reports in
-`check/`. Streamed examples save their conclusions only. See the
-[command-line guide](https://eyereasoner.github.io/eyemind/#command-line)
-for input formats and options.
-
-</details>

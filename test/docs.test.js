@@ -237,13 +237,13 @@ export const tests = {
   'the contents link to the topics and every example has its deck and input language'() {
     const manifest = JSON.parse(document('examples/manifest.json'));
     const catalog = document('examples/README.md');
-    const groups = [...catalog.matchAll(/^<details class="example-group" markdown="block">\n<summary>([^<]+)<\/summary>\n\n<div id="([^"]+)"><\/div>\n\n([\s\S]*?)\n<\/details>/gm)];
-    const topics = groups.filter(([, , , body]) => body.startsWith('- ['));
+    const [, contents, ...sections] = catalog.split(/^## /m);
+    const topics = sections.map((section) => section.trim().split('\n\n'));
     assert.ok(topics.length > 1);
-    assert.equal(new Set(groups.map(([, , id]) => id)).size, groups.length);
-    const contents = catalog.match(/<nav class="example-contents"[^>]*>([\s\S]*?)<\/nav>/)[1];
-    assert.deepEqual(contents.trim().split('\n'), topics.map(([, title, id]) => `- [${title}](#${id})`));
-    const rows = topics.flatMap(([, , , body]) => body.trim().split('\n'));
+    assert.equal(new Set(topics.map(([title]) => slug(title))).size, topics.length);
+    assert.deepEqual(contents.trim().split('\n'), ['Contents', '',
+      ...topics.map(([title]) => `- [${title}](#${slug(title)})`)]);
+    const rows = topics.flatMap(([, ...lists]) => lists.flatMap((list) => list.split('\n')));
     const expected = manifest.map((entry) => {
       const files = sourceFiles(entry);
       const deck = document(`examples/deck/${entry.name}.md`);
@@ -257,7 +257,7 @@ export const tests = {
       return `- [${title}](https://eyereasoner.github.io/eyemind/examples/deck/${entry.name}) (${input}) — ${entry.description}`;
     });
     assert.deepEqual(rows.sort(), expected.sort());
-    const starter = catalog.match(/\[Run Socrates in the Playground\]\(https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/#example=([^)]+)\)/);
+    const starter = catalog.match(/\[run Socrates in the Playground\]\(https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/#example=([^)]+)\)/);
     assert.ok(manifest.some((entry) => entry.name === starter?.[1]));
     assert.ok(document('README.md').includes('[Examples](https://eyereasoner.github.io/eyemind/examples/)'));
   },

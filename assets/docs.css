@@ -205,24 +205,6 @@ a {
 .highlight :is(.gi) { color: #116329; background: #dafbe1; }
 .highlight .err { color: inherit; background: none; }
 
-.documentation article .example-contents ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 18px;
-  padding: 0;
-  list-style: none;
-}
-.example-contents ul li + li { margin-top: 0; }
-.documentation article .example-group {
-  border-top: 1px solid var(--line);
-}
-.example-group > summary {
-  padding: 10px 0;
-  cursor: pointer;
-  font-weight: 600;
-}
-.example-group > div[id] { scroll-margin-top: 56px; }
-
 footer {
   display: flex;
   justify-content: space-between;

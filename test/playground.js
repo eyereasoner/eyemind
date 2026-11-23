@@ -11,16 +11,18 @@ const expected = JSON.parse(readFileSync(new URL('../package.json', import.meta.
 const socrates = readFileSync(new URL('../examples/output/socrates.js', import.meta.url), 'utf8');
 const manifest = readManifest();
 
-// Render the Markdown lists inside the native topic disclosures because the
-// browser harness serves repository files without running Jekyll.
+// Render the catalogue's headings and lists for the browser harness, which
+// serves repository files without running Jekyll.
 function exampleCatalog(base) {
   const source = readFileSync(new URL('../examples/README.md', import.meta.url), 'utf8');
-  const topics = source.slice(source.indexOf('<nav'), source.lastIndexOf('<details'));
-  const content = topics.replace(/(?:^- .+\n)+/gm, (list) => {
-    const rows = list.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
-      .replace(/^- \[([^\]]+)\]\(([^)]+)\)(.*)$/gm, '<li><a href="$2">$1</a>$3</li>');
-    return `<ul>${rows}</ul>`;
-  });
+  const content = source.slice(source.indexOf('## Contents'))
+    .replace(/^## (.+)$/gm, (_, title) =>
+      `<h2 id="${title.toLowerCase().replace(/[^a-z ]/g, '').replaceAll(' ', '-')}">${title}</h2>`)
+    .replace(/(?:^- .+\n)+/gm, (list) => {
+      const rows = list.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+        .replace(/^- \[([^\]]+)\]\(([^)]+)\)(.*)$/gm, '<li><a href="$2">$1</a>$3</li>');
+      return `<ul>${rows}</ul>`;
+    });
   return `<!doctype html><meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="${new URL('../assets/docs.css', base)}">
     <main class="documentation"><article>${content}</article></main>`;
@@ -73,21 +75,21 @@ export function driver(page) {
 }
 
 export const tests = [
-  ['the example contents open topics on desktop and phone', async (page, base) => {
+  ['the example contents jump to visible topics on desktop and phone', async (page, base) => {
     const { command, evaluate } = page, p = driver(page);
     for (const [width, mobile] of [[1280, false], [390, true]]) {
       await p.open(base, width, mobile);
       const { frameTree } = await command('Page.getFrameTree');
       await command('Page.setDocumentContent', { frameId: frameTree.frame.id, html: exampleCatalog(base) });
       await p.until('document.styleSheets.length === 1', 'the examples stylesheet');
-      assert.equal(await evaluate("document.querySelectorAll('details li').length"), manifest.length);
-      assert.equal(await evaluate("document.querySelectorAll('details[open]').length"), 0);
-      await evaluate("document.querySelector('nav a[href=\"#reasoning\"]').click()");
-      await p.until("location.hash === '#reasoning' && document.getElementById('reasoning').parentElement.open", 'the topic from the contents');
-      assert.ok(await evaluate("document.querySelector('details[open] li a').getBoundingClientRect().height > 0"));
+      assert.equal(await evaluate("document.querySelectorAll('article a[href*=\"/examples/deck/\"]').length"), manifest.length);
+      const topic = 'policy-rights-and-privacy';
+      await evaluate(`document.querySelector('article a[href="#${topic}"]').click()`);
+      await p.until(`(() => {
+        const heading = document.getElementById('${topic}').getBoundingClientRect();
+        return location.hash === '#${topic}' && heading.top >= 0 && heading.bottom <= innerHeight;
+      })()`, 'the topic from the contents');
       assert.ok(await evaluate('document.documentElement.scrollWidth <= innerWidth'));
-      await evaluate("document.querySelector('details[open] summary').click()");
-      assert.equal(await evaluate("document.querySelectorAll('details[open]').length"), 0);
     }
   }],
   ['the catalog loads and socrates runs, answers a goal and checks its proof', async (page, base) => {
