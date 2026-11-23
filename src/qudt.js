@@ -10,6 +10,9 @@ const U = 'http://qudt.org/vocab/unit/';
 const C = 'https://eyereasoner.github.io/eyemind/qudt#';
 const D = 'http://qudt.org/vocab/dimensionvector/';
 const K = 'http://qudt.org/vocab/quantitykind/';
+const SAME_AS = 'http://www.w3.org/2002/07/owl#sameAs';
+const EXACT_MATCH = 'http://www.w3.org/2004/02/skos/core#exactMatch';
+const ALIGNED_UNIT = C + 'alignedQudtUnit';
 const dimensions = {
   length: 'A0E0L1I0M0H0T0D0', area: 'A0E0L2I0M0H0T0D0', volume: 'A0E0L3I0M0H0T0D0',
   time: 'A0E0L0I0M0H0T1D0', mass: 'A0E0L0I0M1H0T0D0', speed: 'A0E0L1I0M0H0T-1D0',
@@ -90,7 +93,7 @@ implied_by(qu_dimension(U, G, iri('http://qudt.org/vocab/dimensionvector/A0E0L0I
 implied_by(qu_token(T, U, G), qu_builtin_token(T, U));
 for (const p of ['symbol', 'ucumCode', 'expression']) implied_by(qu_token(T, U, G), [ent_base(U, qu(p), L, G), srl_str(L, literal(T, datatype(quString)))]);
 implied_by(qu_align(U, U, G), qu_dimension(U, G, _));
-for (const p of [iri('http://www.w3.org/2002/07/owl#sameAs'), iri('http://www.w3.org/2004/02/skos/core#exactMatch'), qc('alignedQudtUnit')]) {
+for (const p of [iri('${SAME_AS}'), iri('${EXACT_MATCH}'), qc('alignedQudtUnit')]) {
   implied_by(qu_align(Local, U, G), [rdf(Local, p, U, G), qu_dimension(U, G, _)]);
 }
 implied_by(qu_custom_profile(P, G), ent_base(P, qc('targetUnit'), _, G));
@@ -254,6 +257,16 @@ export function qudtUnits(quads) {
     if (['hasFactorUnit', 'scalingOf', 'hasDimensionVector'].some((p) => values(subject, p).length)) resolve(subject);
   }
   for (const quad of quads) if (quad[1].args?.[0] === Q + 'unit') resolve(quad[2]);
+  // An alignment can be the only mention of a catalog unit, for example
+  // when a CDT literal uses a local symbol. OWL and SKOS can reverse it.
+  const resolveCatalog = (unit) => {
+    if (unit?.name === 'iri' && unit.args[0].startsWith(U)) resolve(unit);
+  };
+  for (const [subject, predicate, object] of quads) {
+    const p = predicate.args?.[0];
+    if (p === SAME_AS || p === EXACT_MATCH) resolveCatalog(subject);
+    if (p === SAME_AS || p === EXACT_MATCH || p === ALIGNED_UNIT) resolveCatalog(object);
+  }
   // The units of CDT literals by their UCUM codes.
   const tokens = [];
   for (const quad of quads) {

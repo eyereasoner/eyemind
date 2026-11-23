@@ -130,15 +130,16 @@ totals: a sum is only right if no item was left out.
 
 ## Honest numbers
 
-In LS a number keeps its type. `0.1` is a float, so `0.1 + 0.2` gives
-0.30000000000000004, as float arithmetic does everywhere. Integers are exact
-however large they get, and LS never turns one type into another behind your
-back. An `xsd:decimal` in SPARQL RL or N3 is exact too: it compiles to an
-integer and a power of ten, so `0.1 + 0.2` over decimals gives 0.3; in
-SPARQL RL, the checker recomputes it with integers alone. Units get the same care: a reading in micrograms per cubic metre or
-watts per square metre is converted to SI units with the multipliers of the
-QUDT unit catalogue, and a unit that cannot be converted, such as a currency,
-is reported instead of dropped.
+In LS a number keeps its type. Adding the binary64 floats `0.1` and `0.2`
+with `add(0.1, 0.2)` gives `0.30000000000000004`. Integers are exact however
+large they get, and LS keeps integer and float arithmetic separate. In SPARQL
+RL, `xsd:decimal` uses an integer coefficient and a power of ten. Adding
+decimal `0.1` and `0.2` gives exactly `0.3`, and the proof checker recomputes
+that sum with integers alone.
+
+The QUDT profile uses its unit catalogue to normalize a reading such as
+micrograms per cubic metre to kilograms per cubic metre. The profile reports
+an unresolved unit, such as a currency, on a quantity value.
 
 ![Mind beside a board with three sums. Float: 0.1 + 0.2 = 0.30000000000000004. Decimal: 0.1 + 0.2 = 0.3. Integer: 10^20 + 1 = 100000000000000000001. Mind says: no surprises.](assets/book/07-numbers.svg)
 
@@ -172,11 +173,11 @@ writer and a mathematician.
   usage policies: who may use which data, for what, under which duties. As
   agents trade data and services, those yes-or-no answers need to be
   explainable.
-- **Fast enough for streams.** Sensors and services send small RDF messages
-  all day long. Given SHACL shapes that describe the messages and the wanted
-  output, eyemind plans and specializes its rules once, before the first
-  message arrives, and then reasons over each message in well under a
-  millisecond.
+- **Rules for streams.** Sensors and services send small RDF messages all
+  day long. The shape-planning example uses SHACL shapes to describe those
+  messages and the desired output. eyemind prepares specialized OWL 2 RL
+  rules before it processes the first message, then reuses them for messages
+  of the same shape.
 - **Many independent implementations.** LS has a written
   [specification](https://eyereasoner.github.io/eyemind/LS-SPEC) and a
   black-box [conformance suite](https://eyereasoner.github.io/eyemind/conformance/),

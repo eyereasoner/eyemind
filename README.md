@@ -306,9 +306,11 @@ class; later messages of that shape only add their own facts. The result is
 the same as running the whole program over the background and the message,
 and the whole program runs instead when new triples could have any property,
 as `owl:sameAs` between individuals makes, or when a negation could retract
-a background conclusion. `--program` prints the specialized program of each
-new shape, and `--stats` says whether each message used one. Streamed
-messages have no proofs.
+a background conclusion. With `--qudt`, the compiler reads the units and
+metadata of each message and runs the whole program for it. SHACL contracts
+still filter the input of closed shapes and project the output.
+`--program` prints the specialized program of each new shape, and `--stats`
+says whether each message used one. Streamed messages have no proofs.
 
 An [output contract](#rdf-logic-profiles) prunes the specialized rules to
 those that can contribute to a triple it asks for, following premises back
@@ -331,11 +333,11 @@ a message whose triples are all instances of them uses that program, and one
 with other triples gets rules of its own shape. When every input shape is
 closed, a message triple whose property no shape names or ignores is dropped
 first; `--stats` reports `conforms` and `dropped` per message.
-`--shacl-out FILE` reads output shapes as an output contract: each property
-shape asks for triples of its path, of the values it allows, and only rules
-concluding those, or what such a rule reads, stay. A variable property or
-class in a rule takes the values its schema premise has in the background, as
-partial evaluation gives them. Planned rules derive what the shapes lead to,
+`--shacl-out FILE` reads output shapes as an output contract. Each property
+shape asks for triples of its path with the values it allows. Planning
+keeps rules that conclude those triples and rules they depend on. A variable
+property or class in a rule takes the values its schema premise has in the
+background, as partial evaluation gives them. Planned rules derive what the shapes lead to,
 not every OWL 2 RL consequence: equality that the output does not ask for is
 not derived. See the
 [shape-planning](https://eyereasoner.github.io/eyemind/examples/deck/shape-planning-owl2rl) deck.

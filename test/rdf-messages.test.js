@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { createServer } from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
 import { checkProof, run, write } from '../src/index.js';
-import { loadInputs, writeConclusions } from '../src/formats.js';
+import { loadInputs, loadMessageReasoner, writeConclusions } from '../src/formats.js';
 import { parseRdf } from '../src/rdf.js';
 import { parseN3 } from '../src/n3-parser.js';
 import { isRdfMessageLog, MESSAGE_NS, parseRdfMessages, RdfMessageReader } from '../src/messages.js';
@@ -454,6 +454,49 @@ export const tests = {
     assert.deepEqual(shaclOut(shapes(':S sh:property [ sh:path :p ; sh:hasValue :v ] .'), 'out.ttl').map((p) => write(p).replace(/VAR_[A-Za-z0-9_]+/g, '_')),
       [`rdf(_, ${iri('p')}, ${iri('v')}, _)`]);
     assert.throws(() => read(':S sh:property [ sh:path [ sh:unknownPath :p ] ] .'), /a SHACL path is a predicate/);
+  },
+
+  'SHACL planning keeps conclusions requested with any predicate or any class'() {
+    const prefixes = P + 'PREFIX skos: <http://www.w3.org/2004/02/skos/core#> PREFIX sh: <http://www.w3.org/ns/shacl#> ' +
+      'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ';
+    const shaclIn = [[prefixes + ':S sh:property [sh:path skos:broader], [sh:path skos:member].', 'in.ttl']];
+    const message = parseRdf(prefixes + ':a skos:broader :b. :c skos:member :a.').quads;
+    const any = loadMessageReasoner([['query(rdf(S, P, O));', 'out.js']], null, { skos: true, shaclIn });
+    const vocabulary = (rows, position) => new Set(rows.map((q) => q[position].args[0].split('#').at(-1)));
+    assert.ok(vocabulary(any.infer(message).quads, 1).has('narrower'));
+
+    const shaclOut = [[prefixes + ':S sh:property [sh:path rdf:type], [sh:path rdf:type; sh:hasValue skos:Concept].', 'out.ttl']];
+    const types = loadMessageReasoner([], null, { skos: true, shaclIn, shaclOut });
+    assert.deepEqual(vocabulary(types.infer(message).quads, 2), new Set(['Concept', 'Collection']));
+  },
+
+  'QUDT resolves catalog units from each message with SHACL contracts'() {
+    const prefixes = P + 'PREFIX cdt: <https://w3id.org/cdt/> PREFIX sh: <http://www.w3.org/ns/shacl#> ' +
+      'PREFIX qconv: <https://eyereasoner.github.io/eyemind/qudt#> ';
+    const shaclIn = [[prefixes + ':S sh:closed true; sh:property [sh:path :value; sh:datatype cdt:ucum].', 'in.ttl']];
+    const shaclOut = [[prefixes + ':S sh:property [sh:path qconv:normalizedUcumLiteral].', 'out.ttl']];
+    const reasoner = loadMessageReasoner([], null, { qudt: true, shaclIn, shaclOut });
+    for (const [reading, expected] of [['2 kW.m-2', '2000.0 W.m-2'], ['3 W.m-2.sr-1', '3.0 W.m-2.sr-1']]) {
+      const message = parseRdf(prefixes + `:a :value "${reading}"^^cdt:ucum; :note "drop".`).quads;
+      const result = reasoner.infer(message);
+      assert.deepEqual(result.quads.map(([, p, o]) => [p.args[0], o.args[0]]), [
+        ['https://eyereasoner.github.io/eyemind/qudt#normalizedUcumLiteral', expected],
+      ]);
+      assert.equal(result.dropped, 1);
+      assert.equal(result.conforms, true);
+    }
+  },
+
+  'QUDT streaming omits the normalized quantities of the background'() {
+    const prefixes = P + 'PREFIX cdt: <https://w3id.org/cdt/> ';
+    const background = [[prefixes + ':station :value "5 km/h"^^cdt:speed.', 'background.ttl']];
+    const reasoner = loadMessageReasoner(background, null, { qudt: true });
+    const message = parseRdf(prefixes + ':a :value "2 kW.m-2"^^cdt:ucum.').quads;
+    const { quads } = reasoner.infer(message);
+    const quantities = quads.filter(([, p]) => p.args[0] === 'https://eyereasoner.github.io/eyemind/qudt#normalizedQuantity');
+    assert.deepEqual(quantities.map(([s]) => s.args[0]), ['http://example.org/a']);
+    const node = identity(quantities[0][2]);
+    assert.ok(quads.every(([s]) => s.args[0] === 'http://example.org/a' || identity(s) === node));
   },
 
   'specialized message runs conclude what whole runs conclude, or run whole'() {

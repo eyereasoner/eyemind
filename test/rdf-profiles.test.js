@@ -177,6 +177,18 @@ export const tests = {
     }
   },
 
+  'QUDT looks up a catalog unit named only in an alignment'() {
+    const local = ':local qudt:ucumCode "localIrradiance". :a :value "2 localIrradiance"^^cdt:ucum. ';
+    for (const [alignment, profiles] of [
+      [':local qconv:alignedQudtUnit unit:KiloW-PER-M2.', {}],
+      ['unit:KiloW-PER-M2 skos:exactMatch :local.', { skos: true }],
+      ['unit:KiloW-PER-M2 owl:sameAs :local.', { owl2rl: true }],
+    ]) {
+      const { quads } = evaluate(local + alignment, { qudt: true, ...profiles });
+      includes(quads, ':a qconv:normalizedUcumLiteral "2000.0 W.m-2"^^cdt:ucum.');
+    }
+  },
+
   'SHACL count constraints inspect distinct completed path values, including missing and duplicate inputs'() {
     const shape = ':Shape sh:targetNode :alice; sh:property [sh:path :name; sh:minCount 1; sh:maxCount 1; sh:datatype xsd:string].';
     assert.equal(conforming(evaluate(shape + ':alice :name "Alice". :alice :name "Alice".').quads), true);
