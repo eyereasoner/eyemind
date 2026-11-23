@@ -6,6 +6,7 @@ import { EyemindError, Struct } from './terms.js';
 import { DEFAULT_GRAPH } from './rdf.js';
 import { loadText } from './lang.js';
 import { write } from './writer.js';
+import { DPV, DPV_PROPERTIES, dpvRules } from './dpv.js';
 
 export const ODRL_EVAL = 'https://eyereasoner.github.io/eyemind/odrl#';
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
@@ -35,7 +36,10 @@ const evalNS = 'https://eyereasoner.github.io/eyemind/odrl#';
 const xsdNS = 'http://www.w3.org/2001/XMLSchema#';
 const o = (name) => iri(odrlNS + name);
 const e = (name) => iri(evalNS + name);
-const rdfType = iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
+const rdfNS = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+const rdfType = iri(rdfNS + 'type');
+const rdfFirst = iri(rdfNS + 'first'), rdfRest = iri(rdfNS + 'rest'), rdfNil = iri(rdfNS + 'nil');
+${dpvRules('odrl_input')}
 
 implies(odrl_input(E, rdfType, e('Evaluation')), odrl_evaluation(E));
 implies(odrl_evaluation(E), odrl_node(E, E, 'evaluation'));
@@ -44,7 +48,11 @@ implies([odrl_evaluation(E), odrl_input(E, e('request'), Q)], odrl_node(E, Q, 'r
 implies([odrl_node(E, P, 'policy'), odrl_input(P, o('permission'), R)], odrl_rule(E, P, R, 'permission'));
 implies([odrl_node(E, P, 'policy'), odrl_input(P, o('prohibition'), R)], odrl_rule(E, P, R, 'prohibition'));
 implies(odrl_rule(E, P, R, K), odrl_node(E, R, K));
-implies([odrl_rule(E, P, R, K), odrl_input(R, o('constraint'), C)], odrl_node(E, C, 'constraint'));
+implies([odrl_rule(E, P, R, K), odrl_input(R, o('constraint'), C)], odrl_root_constraint(E, C));
+implies([odrl_root_constraint(E, C), odrl_input(C, rdfType, o('LogicalConstraint'))], odrl_node(E, C, 'logical'));
+implies([odrl_root_constraint(E, C), not(odrl_input(C, rdfType, o('LogicalConstraint')))], odrl_node(E, C, 'constraint'));
+implies([odrl_node(E, C, 'logical'), odrl_logical(C, Op, Members), odrl_member(A, Members)], odrl_node(E, A, 'constraint'));
+implies([odrl_rule(E, P, R, 'permission'), odrl_input(R, o('duty'), D)], odrl_node(E, D, 'duty'));
 implies([odrl_node(E, Q, 'request'), odrl_input(Q, e('state'), S)], odrl_node(E, S, 'state'));
 implies([odrl_rule(E, P, R, K), odrl_input(R, o('action'), A)], odrl_node(E, A, 'action'));
 implies([odrl_node(E, Q, 'request'), odrl_input(Q, o('action'), A)], odrl_node(E, A, 'action'));
@@ -70,14 +78,23 @@ for (const [kind, predicate, min, max, valueKind] of [
   ['request', o('target'), 1, 1, 'resource'],
   ['request', e('subject'), 1, 1, 'resource'],
   ['request', e('state'), 1, 1, 'resource'],
+  ['request', e('fulfilledDuty'), 0, -1, 'resource'],
+  ['request', e('unfulfilledDuty'), 0, -1, 'resource'],
   ['state', rdfType, 1, 1, 'type'],
   ['state', e('subject'), 1, 1, 'resource'],
   ['constraint', rdfType, 0, 1, 'type'],
   ['constraint', o('leftOperand'), 1, 1, 'iri'],
   ['constraint', o('operator'), 1, 1, 'operator'],
   ['constraint', o('rightOperand'), 1, 1, 'scalar'],
+  ['logical', rdfType, 1, 1, 'type'],
+  ['duty', rdfType, 1, 1, 'type'],
+  ['duty', o('action'), 1, 1, 'iri'],
   ['action', rdfType, 0, 1, 'type'],
 ]) fact(odrl_field(kind, predicate, min, max, valueKind));
+fact(odrl_field('permission', o('duty'), 0, -1, 'resource'));
+for (const name of ['and', 'or', 'xone']) {
+  fact(odrl_operand(o(name)), odrl_field('logical', o(name), 0, 1, 'resource'));
+}
 for (const kind of ['permission', 'prohibition']) {
   fact(odrl_field(kind, rdfType, 0, 1, 'type'));
   for (const name of ['assignee', 'action', 'target']) fact(odrl_field(kind, o(name), 1, 1, name === 'action' ? 'iri' : 'resource'));
@@ -87,6 +104,7 @@ for (const [kind, type] of [
   ['evaluation', e('Evaluation')], ['request', e('Request')], ['state', e('State')],
   ['policy', o('Set')], ['policy', o('Agreement')],
   ['permission', o('Permission')], ['prohibition', o('Prohibition')], ['constraint', o('Constraint')],
+  ['logical', o('LogicalConstraint')], ['duty', o('Duty')],
   ['action', o('Action')],
 ]) fact(odrl_type(kind, type));
 for (const predicate of [
@@ -95,11 +113,33 @@ for (const predicate of [
 ]) fact(odrl_metadata(iri(predicate)));
 for (const name of ['perm', 'prohibit', 'invalid']) fact(odrl_strategy_value(o(name)));
 for (const name of ['eq', 'neq', 'gt', 'gteq', 'lt', 'lteq']) fact(odrl_operator(o(name)));
+fact(odrl_operator(e('withinCategory')));
+for (const property of ${JSON.stringify(Object.keys(DPV_PROPERTIES).map((name) => DPV + name))}) {
+  fact(odrl_category_property(iri(property)));
+}
 
 fact(odrl_count([], 0));
 implied_by(odrl_count([_, ...T], N), [odrl_count(T, M), is(N, add(M, 1))]);
 implied_by(odrl_resource(iri(V)), is_atom(V));
 implied_by(odrl_resource(bnode(S, V)), [is_atom(S), is_atom(V)]);
+
+// Read the one RDF operand list. Follow each cell once and require distinct
+// members, so cyclic, branching and repeated lists cannot grant permission.
+fact(odrl_member(X, [X, ...Tail]));
+implied_by(odrl_member(X, [Head, ...Tail]), odrl_member(X, Tail));
+implied_by(odrl_list(rdfNil, Seen, []), [not(odrl_input(rdfNil, rdfFirst, _)), not(odrl_input(rdfNil, rdfRest, _))]);
+implied_by(odrl_list(Cell, Seen, [A, ...Tail]), [
+  odrl_resource(Cell), not_identical(Cell, rdfNil), not(odrl_member(Cell, Seen)),
+  findall_sorted(V, odrl_input(Cell, rdfFirst, V), First), unify(First, [A]), odrl_resource(A),
+  findall_sorted(V, odrl_input(Cell, rdfRest, V), Rest), unify(Rest, [Next]),
+  odrl_list(Next, [Cell, ...Seen], Tail), not(odrl_member(A, Tail)),
+]);
+implied_by(odrl_operand_value(C, Op, L), [odrl_operand(Op), odrl_input(C, Op, L)]);
+implied_by(odrl_logical(C, Op, Members), [
+  findall_sorted(pair(P, L), odrl_operand_value(C, P, L), Operands), unify(Operands, [pair(Op, Head)]),
+  odrl_list(Head, [], Members), unify(Members, [A, B, ...Tail]),
+]);
+
 implied_by(odrl_scalar(V, 'integer', V), is_int(V));
 implied_by(odrl_scalar(iri(V), 'iri', V), is_atom(V));
 implied_by(odrl_scalar(literal(V, datatype(xsdNS + 'string')), 'string', V), is_atom(V));
@@ -132,6 +172,11 @@ implies([odrl_node(E, S, K), odrl_input(S, P, V), not(odrl_known_field(K, P))],
 implies([odrl_node(E, S, K), odrl_input(S, rdfType, T), not(odrl_type(K, T))],
   odrl_problem(E, S, rdfType, e('UnsupportedType')));
 implies([odrl_node(E, P, 'policy'), not(odrl_has_rule(P))], odrl_problem(E, P, rdfType, e('MissingRule')));
+implies([odrl_node(E, C, 'logical'), not(odrl_logical(C, _, _))], odrl_problem(E, C, o('operand'), e('InvalidLogicalOperands')));
+for (const name of ['fulfilledDuty', 'unfulfilledDuty']) {
+  implies([odrl_node(E, Q, 'request'), odrl_input(Q, e(name), D), not(odrl_node(E, D, 'duty'))],
+    odrl_problem(E, Q, e(name), e('UnknownDuty')));
+}
 implies([odrl_evaluation(E), findall_sorted(X, odrl_evaluation(X), Es), odrl_count(Es, N), ne(N, 1)],
   odrl_problem(E, E, rdfType, e('MultipleEvaluations')));
 implies([odrl_node(E, Q, 'request'), odrl_input(Q, e('state'), S),
@@ -151,6 +196,10 @@ implied_by(odrl_syntax_error(E), odrl_problem(E, _, _, _));
 implied_by(odrl_order_kind(o('eq'), K), 'true');
 implied_by(odrl_order_kind(o('neq'), K), 'true');
 for (const name of ['gt', 'gteq', 'lt', 'lteq']) fact(odrl_order_kind(o(name), 'integer'));
+fact(odrl_order_kind(e('withinCategory'), 'iri'));
+implies([odrl_node(E, C, 'constraint'), odrl_input(C, o('operator'), e('withinCategory')),
+  odrl_input(C, o('leftOperand'), P), not(odrl_category_property(P))],
+  odrl_problem(E, C, o('leftOperand'), e('UnsupportedCategoryProperty')));
 implies([odrl_node(E, C, 'constraint'), odrl_input(C, o('operator'), Op),
   odrl_input(C, o('rightOperand'), V), odrl_scalar(V, K, N), not(odrl_order_kind(Op, K))],
   odrl_problem(E, C, o('rightOperand'), e('OperatorTypeMismatch')));
@@ -160,11 +209,16 @@ implied_by(odrl_compare(o('gt'), 'integer', V, W), gt(V, W));
 implied_by(odrl_compare(o('gteq'), 'integer', V, W), ge(V, W));
 implied_by(odrl_compare(o('lt'), 'integer', V, W), lt(V, W));
 implied_by(odrl_compare(o('lteq'), 'integer', V, W), le(V, W));
+implied_by(odrl_compare(e('withinCategory'), 'iri', V, W), struct('dpv:within', iri(V), iri(W)));
 implies([odrl_rule(E, P, R, K), odrl_node(E, Q, 'request'), not(odrl_syntax_error(E)),
   odrl_input(R, o('assignee'), Who), odrl_input(Q, o('assignee'), Who),
   odrl_input(R, o('action'), Act), odrl_input(Q, o('action'), Act),
   odrl_input(R, o('target'), Target), odrl_input(Q, o('target'), Target)], odrl_candidate(E, Q, P, R, K));
-implies([odrl_candidate(E, Q, P, R, K), odrl_input(R, o('constraint'), C),
+implies([odrl_candidate(E, Q, P, R, K), odrl_input(R, o('constraint'), C), odrl_node(E, C, 'constraint')],
+  odrl_atomic(E, Q, R, C));
+implies([odrl_candidate(E, Q, P, R, K), odrl_input(R, o('constraint'), C), odrl_node(E, C, 'logical'),
+  odrl_logical(C, Op, Members), odrl_member(A, Members)], odrl_atomic(E, Q, R, A));
+implies([odrl_atomic(E, Q, R, C),
   odrl_input(C, o('leftOperand'), Left), odrl_input(Q, e('state'), S),
   findall_sorted(V, odrl_input(S, Left, V), Values)], odrl_observation(E, Q, R, C, Values));
 implies(odrl_observation(E, Q, R, C, []), odrl_condition(E, Q, R, C, 'unknown', e('MissingObservation')));
@@ -180,8 +234,38 @@ implies([odrl_observation(E, Q, R, C, [V]), odrl_scalar(V, K, VN),
 implies([odrl_observation(E, Q, R, C, [V]), odrl_scalar(V, K, VN),
   odrl_input(C, o('rightOperand'), W), odrl_scalar(W, K, WN), odrl_input(C, o('operator'), Op),
   not(odrl_compare(Op, K, VN, WN))], odrl_condition(E, Q, R, C, 'unmet', e('Unsatisfied')));
-implied_by(odrl_failed(E, Q, R), odrl_condition(E, Q, R, _, 'unmet', _));
-implied_by(odrl_unknown(E, Q, R), odrl_condition(E, Q, R, _, 'unknown', _));
+
+// The observed number of satisfied members is a lower bound. Unknown
+// members add to the upper bound. Compare that interval with what the
+// operator accepts before deciding whether missing data matters.
+fact(odrl_group_bounds(o('and'), N, N, N), odrl_group_bounds(o('or'), N, 1, N),
+  odrl_group_bounds(o('xone'), N, 1, 1));
+implied_by(odrl_group_status(L, H, Min, Max, 'met', e('Satisfied')), [ge(L, Min), le(H, Max)]);
+implied_by(odrl_group_status(L, H, Min, Max, 'unmet', e('UnsatisfiedLogicalConstraint')), or(lt(H, Min), gt(L, Max)));
+implied_by(odrl_group_status(L, H, Min, Max, 'unknown', e('LogicalConstraintUndetermined')),
+  [ge(H, Min), le(L, Max), or(lt(L, Min), gt(H, Max))]);
+implies([odrl_candidate(E, Q, P, R, K), odrl_input(R, o('constraint'), C), odrl_node(E, C, 'logical'),
+  odrl_logical(C, Op, Members), odrl_count(Members, Total), odrl_group_bounds(Op, Total, Min, Max),
+  findall_sorted(A, [odrl_member(A, Members), odrl_condition(E, Q, R, A, 'met', _)], Yes), odrl_count(Yes, L),
+  findall_sorted(A, [odrl_member(A, Members), odrl_condition(E, Q, R, A, 'unknown', _)], Maybe), odrl_count(Maybe, U),
+  is(H, add(L, U)), odrl_group_status(L, H, Min, Max, Status, Reason)],
+  odrl_rule_condition(E, Q, R, C, Status, Reason, Op));
+implies([odrl_input(R, o('constraint'), C), odrl_condition(E, Q, R, C, Status, Reason),
+  odrl_input(C, o('leftOperand'), Left)], odrl_rule_condition(E, Q, R, C, Status, Reason, Left));
+
+// Fulfillment is evidence scoped to a request and a named duty. A missing
+// or contradictory record leaves that permission uncertain.
+implies([odrl_candidate(E, Q, P, R, 'permission'), odrl_input(R, o('duty'), D)], odrl_required_duty(E, Q, R, D));
+implies([odrl_required_duty(E, Q, R, D), odrl_input(Q, e('unfulfilledDuty'), D),
+  not(odrl_input(Q, e('fulfilledDuty'), D))], odrl_unmet_duty(E, Q, R, D));
+implies([odrl_required_duty(E, Q, R, D), not(odrl_input(Q, e('fulfilledDuty'), D)),
+  not(odrl_input(Q, e('unfulfilledDuty'), D))], odrl_unknown_duty(E, Q, R, D, e('MissingDutyEvidence')));
+implies([odrl_required_duty(E, Q, R, D), odrl_input(Q, e('fulfilledDuty'), D),
+  odrl_input(Q, e('unfulfilledDuty'), D)], odrl_unknown_duty(E, Q, R, D, e('ConflictingDutyEvidence')));
+implied_by(odrl_failed(E, Q, R), odrl_rule_condition(E, Q, R, _, 'unmet', _, _));
+implied_by(odrl_failed(E, Q, R), odrl_unmet_duty(E, Q, R, _));
+implied_by(odrl_unknown(E, Q, R), odrl_rule_condition(E, Q, R, _, 'unknown', _, _));
+implied_by(odrl_unknown(E, Q, R), odrl_unknown_duty(E, Q, R, _, _));
 implies([odrl_candidate(E, Q, P, R, K), not(odrl_failed(E, Q, R)), not(odrl_unknown(E, Q, R))],
   odrl_applies(E, Q, P, R, K));
 implied_by(odrl_uncertain(E, Q), [odrl_candidate(E, Q, P, R, K), not(odrl_failed(E, Q, R)), odrl_unknown(E, Q, R)]);
@@ -231,11 +315,16 @@ implies(odrl_applies(E, Q, P, R, 'permission'), rdf(Q, e('permission'), R));
 implies(odrl_applies(E, Q, P, R, 'prohibition'), rdf(Q, e('prohibition'), R));
 implies(odrl_void_policy(E, P), rdf(E, e('invalidPolicy'), P));
 implies([odrl_input(E, e('conflictStrategy'), o('invalid')), odrl_cross_conflict(E)], rdf(E, e('reason'), e('ConflictingPolicies')));
-implies(odrl_condition(E, Q, R, C, 'unmet', Why), rdf(Q, e('unmetConstraint'), C));
-implies([odrl_condition(E, Q, R, C, 'unknown', Why), odrl_input(C, o('leftOperand'), Left)], [
+implies(odrl_rule_condition(E, Q, R, C, 'unmet', Why, Left), rdf(Q, e('unmetConstraint'), C));
+implies(odrl_rule_condition(E, Q, R, C, 'unknown', Why, Left), [
   rdf(Q, e('uncertainty'), Issue), rdf(Issue, rdfType, e('Uncertainty')),
   rdf(Issue, e('constraint'), C), rdf(Issue, e('rule'), R),
   rdf(Issue, e('property'), Left), rdf(Issue, e('reason'), Why),
+]);
+implies(odrl_unmet_duty(E, Q, R, D), rdf(Q, e('unmetDuty'), D));
+implies(odrl_unknown_duty(E, Q, R, D, Why), [
+  rdf(Q, e('uncertainty'), Issue), rdf(Issue, rdfType, e('Uncertainty')),
+  rdf(Issue, e('duty'), D), rdf(Issue, e('rule'), R), rdf(Issue, e('reason'), Why),
 ]);
 implies(odrl_problem(E, S, P, Code), [
   rdf(E, e('validationError'), Issue), rdf(Issue, rdfType, e('ValidationError')),

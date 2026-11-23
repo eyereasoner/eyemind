@@ -23,7 +23,7 @@
       <path class="ln" d="M60 12 L60 2"/><circle class="hif" cx="60" cy="2" r="4"/>
     </symbol>
     <symbol id="checker" viewBox="0 0 120 140">
-      <rect fill="#ffe100" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="28" y="30" width="64" height="82" rx="6"/>
+      <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="28" y="30" width="64" height="82" rx="6"/>
       <path class="ln thin" d="M38 48 L82 48 M38 60 L82 60 M38 72 L70 72"/>
       <circle class="paperf" cx="48" cy="20" r="0"/>
       <circle class="inkf" cx="50" cy="40" r="0"/>

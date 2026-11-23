@@ -15,6 +15,10 @@ const decisions = (result) => Object.fromEntries(field(result, 'decision')
   .map((t) => [t.args[0].args[0].slice(EX.length), t.args[2].args[0].slice(ODRL_EVAL.length)]));
 const codes = (result, predicate = 'code') => field(result, predicate).map((t) => t.args[2].args[0].slice(ODRL_EVAL.length));
 const BASELINE = { issueAlice: 'Allowed', issueBob: 'Prohibited' };
+const logical = (operator, members = '(:approved :resident)') => INPUT
+  .replace('odrl:constraint :approved, :resident .', 'odrl:constraint :group .') +
+  `\n:group a odrl:LogicalConstraint ; odrl:${operator} ${members} .\n`;
+const ALICE = /(:aliceState a eval:State ; eval:subject :Alice) ;\s+:assessmentApproved true ; :residenceVerified true/;
 
 export const tests = {
   'one Turtle snapshot returns decisions and a conflict with both source rules'() {
@@ -72,10 +76,84 @@ export const tests = {
     assert.equal(decisions(evaluated(mistyped)).issueAlice, 'Undetermined');
   },
 
+  'ODRL logical operators decide only when every possible result agrees'() {
+    assert.match(INPUT, ALICE);
+    const states = [
+      [['true', 'true'], ['Allowed', 'Allowed', 'NotApplicable']],
+      [['true', 'false'], ['NotApplicable', 'Allowed', 'Allowed']],
+      [['false', 'false'], ['NotApplicable', 'NotApplicable', 'NotApplicable']],
+      [['true', null], ['Undetermined', 'Allowed', 'Undetermined']],
+      [['false', null], ['NotApplicable', 'Undetermined', 'Undetermined']],
+      [[null, null], ['Undetermined', 'Undetermined', 'Undetermined']],
+    ];
+    for (const [observations, expected] of states) {
+      const predicates = ['assessmentApproved', 'residenceVerified'];
+      const state = observations.flatMap((value, i) => value === null ? [] : [` ; :${predicates[i]} ${value}`]).join('');
+      for (const [i, operator] of ['and', 'or', 'xone'].entries()) {
+        const input = logical(operator).replace(ALICE, '$1' + state);
+        const result = run(loaded(input).program);
+        assert.equal(decisions(result).issueAlice, expected[i], operator + ' ' + observations);
+        const issues = field(result, 'uncertainty').filter((t) => t.args[0].args[0] === EX + 'issueAlice');
+        assert.equal(issues.length, expected[i] === 'Undetermined' ? 1 : 0);
+      }
+    }
+    const source = logical('xone').replace(ALICE, '$1 ; :assessmentApproved true');
+    const program = loaded(source).program, result = run(program, { proof: true });
+    assert.equal(decisions(result).issueAlice, 'Undetermined');
+    assert.ok(result.proofReport.valid);
+    assert.ok(codes(result, 'reason').includes('LogicalConstraintUndetermined'));
+    assert.equal(checkProof(program, result.proof.replaceAll(ODRL_EVAL + 'Undetermined', ODRL_EVAL + 'Allowed')).valid, false);
+  },
+
+  'logical operands must be a single proper list of distinct atomic constraints'() {
+    const cases = [
+      logical('and', '()'),
+      logical('and', '(:approved)'),
+      logical('or', '(:approved :approved)'),
+      logical('or') + ':group odrl:and (:approved :resident) .',
+      logical('andSequence'),
+      logical('or', '_:a') + '_:a rdf:first :approved ; rdf:rest _:a .',
+      logical('or', '_:a') + '_:a rdf:first :approved, :resident ; rdf:rest rdf:nil .',
+    ];
+    for (const input of cases) {
+      const result = run(loaded('@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n' + input).program, { proof: true });
+      assert.ok(codes(result).includes('InvalidLogicalOperands'));
+      assert.equal(field(result, 'canHappen').length, 0);
+      assert.ok(result.proofReport.valid);
+    }
+    const nested = evaluated(logical('and', '(:approved :nested)') + ':nested a odrl:LogicalConstraint ; odrl:or (:approved :resident) .');
+    assert.ok(codes(nested).includes('UnsupportedType'));
+    assert.equal(field(nested, 'canHappen').length, 0);
+  },
+
+  'request-local evidence is required for every permission duty'() {
+    const input = INPUT + '\n:mayIssue odrl:duty :credit, :review .\n' +
+      ':credit a odrl:Duty ; odrl:action odrl:attribute .\n:review a odrl:Duty ; odrl:action odrl:reviewPolicy .\n' +
+      ':issueBob eval:fulfilledDuty :credit, :review .\n:issueAlice eval:fulfilledDuty :credit .\n';
+    for (const [evidence, decision, reason] of [
+      ['', 'Undetermined', 'MissingDutyEvidence'],
+      [':issueAlice eval:fulfilledDuty :review .', 'Allowed', null],
+      [':issueAlice eval:unfulfilledDuty :review .', 'NotApplicable', null],
+      [':issueAlice eval:fulfilledDuty :review ; eval:unfulfilledDuty :review .', 'Undetermined', 'ConflictingDutyEvidence'],
+    ]) {
+      const program = loaded(input + evidence).program, result = run(program, { proof: true });
+      assert.equal(decisions(result).issueAlice, decision);
+      assert.equal(decisions(result).issueBob, 'Prohibited');
+      assert.ok(result.proofReport.valid);
+      if (reason) {
+        assert.ok(codes(result, 'reason').includes(reason));
+        assert.equal(checkProof(program, result.proof.replaceAll(ODRL_EVAL + 'Undetermined', ODRL_EVAL + 'Allowed')).valid, false);
+      }
+      if (decision === 'NotApplicable') assert.equal(field(result, 'unmetDuty')[0].args[2].args[0], EX + 'review');
+    }
+    assert.ok(codes(evaluated(input + ':issueAlice eval:fulfilledDuty :unknown .')).includes('UnknownDuty'));
+  },
+
   'unsupported features and malformed shapes block authorization with validation errors'() {
     for (const [source, code] of [
       [INPUT + '\n:eligibility odrl:inheritFrom :other .', 'UnsupportedProperty'],
-      [INPUT + '\n:mayIssue odrl:duty :payment .', 'UnsupportedProperty'],
+      [INPUT + '\n:mayIssue odrl:duty :payment .', 'MissingValue'],
+      [INPUT + '\n:mustWait odrl:duty :payment .', 'UnsupportedProperty'],
       [INPUT + '\n:issueHandicapCard odrl:includedIn odrl:use .', 'UnsupportedProperty'],
       [INPUT + '\n:CivicOffice odrl:partOf :group .', 'UnsupportedProperty'],
       [INPUT.replaceAll('eval:SnapshotProfile', ':UnknownProfile'), 'UnsupportedValue'],

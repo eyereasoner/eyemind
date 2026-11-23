@@ -23,7 +23,7 @@
       <path class="ln" d="M60 12 L60 2"/><circle class="hif" cx="60" cy="2" r="4"/>
     </symbol>
     <symbol id="checker" viewBox="0 0 120 140">
-      <rect fill="#ffe100" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="28" y="30" width="64" height="82" rx="6"/>
+      <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="28" y="30" width="64" height="82" rx="6"/>
       <path class="ln thin" d="M38 48 L82 48 M38 60 L82 60 M38 72 L70 72"/>
       <circle class="paperf" cx="48" cy="20" r="0"/>
       <circle class="inkf" cx="50" cy="40" r="0"/>
@@ -51,7 +51,7 @@
         <path class="paperf" d="M246 14 L380 14 Q390 14 390 24 L390 52 Q390 62 380 62 L330 62 L318 76 L318 62 L256 62 Q246 62 246 52 L246 24 Q246 14 256 14 Z"/>
         <text class="hand" x="318" y="46" font-size="22" text-anchor="middle">Check me.</text>
         <path class="ln" d="M380 206 L470 206"/><path class="ln" d="M458 196 L470 206 L458 216"/>
-        <rect fill="#ffa94d" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="390" y="160" width="74" height="36" rx="3"/><text class="hand" x="427" y="184" font-size="15" text-anchor="middle">a proof</text>
+        <rect fill="#f7c5a9" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="390" y="160" width="74" height="36" rx="3"/><text class="hand" x="427" y="184" font-size="15" text-anchor="middle">a proof</text>
         <use href="#checker" x="480" y="96" width="110" height="128"/>
         <g transform="translate(520 30) rotate(-8)"><rect class="okl" x="0" y="0" width="110" height="40" rx="4"/><text class="handok" x="55" y="29" font-size="24" text-anchor="middle">CHECKED</text></g>
       </svg>

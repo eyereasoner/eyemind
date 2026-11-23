@@ -23,7 +23,7 @@
       <path class="ln" d="M60 12 L60 2"/><circle class="hif" cx="60" cy="2" r="4"/>
     </symbol>
     <symbol id="checker" viewBox="0 0 120 140">
-      <rect fill="#ffe100" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="28" y="30" width="64" height="82" rx="6"/>
+      <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="28" y="30" width="64" height="82" rx="6"/>
       <path class="ln thin" d="M38 48 L82 48 M38 60 L82 60 M38 72 L70 72"/>
       <circle class="paperf" cx="48" cy="20" r="0"/>
       <circle class="inkf" cx="50" cy="40" r="0"/>
@@ -50,7 +50,7 @@
         <text class="hand" x="221" y="94" font-size="17" text-anchor="middle">Can I help?</text>
         <path class="ln" d="M310 190 L620 190 M330 190 L330 226 M600 190 L600 226"/>
         <rect class="paperf" x="350" y="140" width="96" height="50" rx="3"/><text class="mono" x="398" y="170" font-size="13" text-anchor="middle">program</text>
-        <rect fill="#ffa94d" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="456" y="140" width="96" height="50" rx="3"/><text class="mono" x="504" y="170" font-size="13" text-anchor="middle">proof</text>
+        <rect fill="#f7c5a9" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="456" y="140" width="96" height="50" rx="3"/><text class="mono" x="504" y="170" font-size="13" text-anchor="middle">proof</text>
         <use href="#checker" x="410" y="10" width="100" height="117"/>
         <circle class="ln" cx="430" cy="98" r="18"/><path class="ln" d="M444 110 L470 136"/>
         <path class="paperf" d="M520 30 L626 30 Q634 30 634 38 L634 66 Q634 74 626 74 L540 74 L528 86 L530 74 L520 74 Q512 74 512 66 L512 38 Q512 30 520 30 Z"/>

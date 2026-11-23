@@ -1,0 +1,53 @@
+# An archive allows research use of contact data once attribution is recorded.
+# One request qualifies, one awaits duty evidence, and one is outside the
+# research purpose. The ODRL snapshot checks a compound constraint using
+# broader categories from the DPV and Personal Data taxonomies.
+# Sources https://www.w3.org/TR/odrl-model/
+#         https://w3id.org/dpv/2.3/dpv/
+#         https://w3id.org/dpv/2.3/pd/
+
+Use ODRL snapshot logic with namespace "https://example.org/research-snapshot#".
+Use prefix ex with namespace "https://example.org/research-snapshot#".
+Use prefix dpv with namespace "https://w3id.org/dpv#".
+Use prefix pd with namespace "https://w3id.org/dpv/pd#".
+Use prefix skos with namespace "http://www.w3.org/2004/02/skos/core#".
+Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
+
+# Only the taxonomy links this snapshot uses are supplied.
+
+dpv:AcademicResearch has skos:broader dpv:ResearchAndDevelopment.
+pd:EmailAddressWork has skos:broader pd:EmailAddress.
+pd:EmailAddress has skos:broader pd:Contact.
+
+# Both category constraints must hold, and attribution is a precondition.
+
+evaluation is an evaluation.
+evaluation has policy agreement1 and evaluation has conflictStrategy prohibit.
+evaluation has request ready and evaluation has request pending and evaluation has request marketing.
+agreement1 is an agreement and agreement1 has profile snapshotProfile.
+agreement1 has assigner archive and agreement1 has permission researchUse.
+researchUse is a permission.
+researchUse has assignee researcher and researchUse has action odrl:use and researchUse has target directory.
+researchUse has constraint scope and researchUse has duty credit.
+scope is a logicalConstraint and scope has andOperands [research, contactData].
+research is a constraint and research has leftOperand dpv:hasPurpose.
+research has operator withinCategory and research has rightOperand dpv:ResearchAndDevelopment.
+contactData is a constraint and contactData has leftOperand dpv:hasPersonalData.
+contactData has operator withinCategory and contactData has rightOperand pd:Contact.
+credit is a duty and credit has action odrl:attribute.
+
+# The ready and pending requests have the same observations and separate
+# duty records. The marketing request records attribution and fails scope.
+
+ready is a request and pending is a request and marketing is a request.
+ready has assignee researcher and ready has action odrl:use and ready has target directory.
+pending has assignee researcher and pending has action odrl:use and pending has target directory.
+marketing has assignee researcher and marketing has action odrl:use and marketing has target directory.
+ready has subject visitor and ready has state researchState and ready has fulfilledDuty credit.
+pending has subject visitor and pending has state researchState.
+marketing has subject visitor and marketing has state marketingState and marketing has fulfilledDuty credit.
+
+researchState is a state and researchState has subject visitor.
+ex:researchState has dpv:hasPurpose dpv:AcademicResearch and ex:researchState has dpv:hasPersonalData pd:EmailAddressWork.
+marketingState is a state and marketingState has subject visitor.
+ex:marketingState has dpv:hasPurpose dpv:Marketing and ex:marketingState has dpv:hasPersonalData pd:EmailAddressWork.

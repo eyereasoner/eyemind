@@ -827,6 +827,16 @@
     "description": "An LE snapshot reuses the ODRL evaluator to allow Alice's card and retain Bob's policy conflict"
   },
   {
+    "name": "research-access-le",
+    "files": ["research-access-le.le"],
+    "description": "Logical English joins ODRL permission, prohibition and duty facts with DPV process descriptions to decide three research requests"
+  },
+  {
+    "name": "research-snapshot-le",
+    "files": ["research-snapshot-le.le"],
+    "description": "An ODRL snapshot checks a compound constraint over DPV purpose and data categories and looks for request-local duty evidence"
+  },
+  {
     "name": "shortest-path-le",
     "files": ["shortest-path-le.le"],
     "description": "Bounded recursive paths retain both cheapest routes through a graph containing a cycle"

@@ -13,7 +13,7 @@ program, a JavaScript library and a browser application.
 - [Playground](https://eyereasoner.github.io/eyemind/playground/): run any
   example or your own program in the browser, with its proof and check report.
 - [Examples](https://eyereasoner.github.io/eyemind/examples/): the
-  158 runnable programs, each with a card deck and saved conclusions; all but
+  160 runnable programs, each with a card deck and saved conclusions; all but
   the two streamed examples also save proofs and check reports.
 - [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC): the
   language, the proof format and how a proof is checked.
@@ -244,6 +244,15 @@ A first sentence `Use ODRL snapshot logic with namespace "..."` turns a file of
 ground facts into an [ODRL snapshot](#odrl-snapshots) evaluation, with LE names
 mapped to the `eval:` and `odrl:` vocabularies; see the
 [handicap-card LE deck](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card-le).
+Ordinary LE can declare RDF prefixes with `Use prefix dpv with namespace "https://w3id.org/dpv#".`
+Qualified classes, properties and values work in facts, rules and questions.
+The research access example combines ODRL rules with DPV purpose and consent
+data and checks three policy decisions. [Research access LE deck](https://eyereasoner.github.io/eyemind/examples/deck/research-access-le)
+
+`Use DPV hierarchy logic.` adds rules for matching purposes, data and
+personal data against the supplied SKOS taxonomy. ODRL snapshots can use the same
+hierarchy in category constraints. [Logical English specification](https://eyereasoner.github.io/eyemind/LE-SPEC#dpv-hierarchies)
+
 For larger programs, try
 [shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le),
 [river-crossing plans](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le),
@@ -433,9 +442,11 @@ eyemind --owl2rl -c examples/family-owl2rl.ttl
 and their state of the world, selected by an `eval:Evaluation` resource. The
 report gives each request's decision (`Allowed`, `Prohibited`,
 `NotApplicable` or `Undetermined`) and the permission/prohibition conflicts.
-It is a bounded profile, not a general ODRL evaluator: each rule has one
-assignee, action and target, and constraints compare state properties. See
-the [handicap-card example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card).
+Each rule has one assignee, action and target. The snapshot compares state
+properties with scalar or DPV category constraints and combines constraints
+with `odrl:and`, `odrl:or` or `odrl:xone`. Permissions can require duties,
+with fulfillment evidence attached to each request.
+[Handicap-card example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card) · [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le)
 
 ## How eyemind reasons
 

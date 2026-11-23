@@ -211,20 +211,25 @@ export const defaultFormat = (kind) => RDF_PROFILES.includes(kind) ? 'turtle' : 
 // all also writes given RDF or N3 data. Rejects conclusions the format cannot represent.
 export function writeConclusions(loaded, result, { format, all = false, blankNodePrefix = '' } = {}) {
   if (format === 'eyemind') return null;
-  if (format === 'le') return writeLe(result, { odrl: loaded.compiled?.odrl ?? null });
+  if (format === 'le') return writeLe(result, { odrl: loaded.compiled?.odrl ?? null,
+    prefixes: loaded.kind === 'le' ? loaded.prefixes : {} });
   if (format === 'n3') {
     if (loaded.kind !== 'n3') throw new EyemindError('--to n3 writes the conclusions of an N3 run');
     return resultToN3(loaded.compiled.doc, result, { mode: all ? 'all' : 'new', blankNodePrefix }).n3;
   }
   let quads;
   if (loaded.kind === 'srl') quads = srlQuads(loaded.compiled, srlAnswers(result), { all });
-  else quads = conclusionQuads(result.answers, all ? loaded.text : null);
+  else if (all && loaded.kind === 'le' && !loaded.compiled?.odrl) {
+    const facts = loaded.program.sources.filter(({ kind, head }) => kind === 'fact' &&
+      head instanceof Struct && head.name === 'rdf' && (head.args.length === 3 || head.args.length === 4));
+    quads = conclusionQuads(result.answers, null, facts.map(({ head }) => head));
+  } else quads = conclusionQuads(result.answers, all ? loaded.text : null);
   return writeRdf(quads, { format, prefixes: loaded.kind === 'n3' ? Object.fromEntries(loaded.prefixes) : loaded.prefixes, blankNodePrefix });
 }
 
 // Conclusions that are triples, rdf/3 or result/3, or quads, rdf/4 or
 // result_rdf/4, as quads; given, the program's own rdf facts come first.
-function conclusionQuads(answers, given) {
+function conclusionQuads(answers, given, facts = []) {
   const quads = [];
   const seen = new Set();
   const add = (t) => {
@@ -240,6 +245,7 @@ function conclusionQuads(answers, given) {
       for (const [t] of readTerms(JSON.parse(match[1]))) add(t);
     }
   }
+  for (const fact of facts) add(fact);
   for (const answer of answers) {
     const [[t]] = readTerms(answer);
     if (t === 'false') continue;

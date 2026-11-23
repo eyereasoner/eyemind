@@ -1,0 +1,41 @@
+Use ODRL vocabulary with namespace "https://example.org/research-snapshot#".
+
+evaluation is an evaluationReport.
+evaluation has policy agreement1.
+evaluation has conflictStrategy prohibit.
+ready is a request.
+ready has assignee researcher.
+ready has action "iri"("http://www.w3.org/ns/odrl/2/use").
+ready has target directory.
+ready has subject visitor.
+ready has state researchState.
+ready has fulfilledDuty credit.
+pending is a request.
+pending has assignee researcher.
+pending has action "iri"("http://www.w3.org/ns/odrl/2/use").
+pending has target directory.
+pending has subject visitor.
+pending has state researchState.
+marketing is a request.
+marketing has assignee researcher.
+marketing has action "iri"("http://www.w3.org/ns/odrl/2/use").
+marketing has target directory.
+marketing has subject visitor.
+marketing has state marketingState.
+marketing has fulfilledDuty credit.
+evaluation has validationStatus valid.
+pending has uncertainty witness(rule 286, "Issue", "iri"("https://example.org/research-snapshot#pending"), "iri"("https://example.org/research-snapshot#credit"), "iri"("https://example.org/research-snapshot#researchUse"), "iri"("https://eyereasoner.github.io/eyemind/odrl#MissingDutyEvidence")).
+witness(rule 286, "Issue", "iri"("https://example.org/research-snapshot#pending"), "iri"("https://example.org/research-snapshot#credit"), "iri"("https://example.org/research-snapshot#researchUse"), "iri"("https://eyereasoner.github.io/eyemind/odrl#MissingDutyEvidence")) is an uncertainty.
+witness(rule 286, "Issue", "iri"("https://example.org/research-snapshot#pending"), "iri"("https://example.org/research-snapshot#credit"), "iri"("https://example.org/research-snapshot#researchUse"), "iri"("https://eyereasoner.github.io/eyemind/odrl#MissingDutyEvidence")) has reportDuty credit.
+witness(rule 286, "Issue", "iri"("https://example.org/research-snapshot#pending"), "iri"("https://example.org/research-snapshot#credit"), "iri"("https://example.org/research-snapshot#researchUse"), "iri"("https://eyereasoner.github.io/eyemind/odrl#MissingDutyEvidence")) has rule researchUse.
+witness(rule 286, "Issue", "iri"("https://example.org/research-snapshot#pending"), "iri"("https://example.org/research-snapshot#credit"), "iri"("https://example.org/research-snapshot#researchUse"), "iri"("https://eyereasoner.github.io/eyemind/odrl#MissingDutyEvidence")) has reason "iri"("https://eyereasoner.github.io/eyemind/odrl#MissingDutyEvidence").
+marketing has unmetConstraint scope.
+ready has applicablePermission researchUse.
+evaluation has conflictCount 0.
+evaluation has request pending.
+pending has decision undetermined.
+evaluation has request ready.
+ready has decision allowed.
+evaluation has request marketing.
+marketing has decision notApplicable.
+evaluation has canHappen ready.

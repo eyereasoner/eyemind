@@ -1,0 +1,83 @@
+# An archive sets the terms for a partner to use a dataset for academic
+# research. The policy requires consent evidence and a completed attribution
+# duty. Marketing is prohibited and takes priority over a permission.
+# The rules allow one process, prohibit mixed research and marketing, and
+# send a process with missing duty evidence for review.
+# ODRL 2.2 and DPV 2.3 identifiers are written as RDF names in Logical English.
+# Sources https://www.w3.org/TR/odrl-model/
+#         https://www.w3.org/TR/odrl-vocab/
+#         https://w3id.org/dpv/2.3/dpv/
+
+Use prefix ex with namespace "https://example.org/research-access#".
+Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
+Use prefix dpv with namespace "https://w3id.org/dpv#".
+
+ex:policy is an odrl:Agreement.
+ex:policy has odrl:permission ex:research and ex:policy has odrl:prohibition ex:noMarketing.
+ex:policy has odrl:conflict odrl:prohibit.
+ex:research is an odrl:Permission and ex:noMarketing is an odrl:Prohibition.
+ex:research has odrl:assigner ex:archive and ex:noMarketing has odrl:assigner ex:archive.
+ex:research has odrl:assignee ex:partner and ex:noMarketing has odrl:assignee ex:partner.
+ex:research has odrl:action odrl:use and ex:noMarketing has odrl:action odrl:use.
+ex:research has odrl:target ex:dataset and ex:noMarketing has odrl:target ex:dataset.
+ex:research has odrl:constraint ex:academic and ex:research has odrl:constraint ex:consented.
+ex:noMarketing has odrl:constraint ex:marketing.
+ex:academic is an odrl:Constraint and ex:consented is an odrl:Constraint and ex:marketing is an odrl:Constraint.
+ex:academic has odrl:leftOperand dpv:hasPurpose and ex:academic has odrl:operator odrl:eq and ex:academic has odrl:rightOperand dpv:AcademicResearch.
+ex:marketing has odrl:leftOperand dpv:hasPurpose and ex:marketing has odrl:operator odrl:eq and ex:marketing has odrl:rightOperand dpv:Marketing.
+ex:consented has odrl:leftOperand dpv:hasConsentStatus and ex:consented has odrl:operator odrl:eq and ex:consented has odrl:rightOperand dpv:ConsentGiven.
+ex:research has odrl:duty ex:credit.
+ex:credit is an odrl:Duty and ex:credit has odrl:action odrl:attribute and ex:credit has odrl:attributedParty ex:archive.
+
+# These are process descriptions and given records of fulfillment.
+
+ex:study is a dpv:Process and ex:mixed is a dpv:Process and ex:pending is a dpv:Process.
+ex:consent is a dpv:Consent and ex:consent has dpv:hasConsentStatus dpv:ConsentGiven.
+For every X, if X is a dpv:Process then
+X has ex:requester ex:partner and X has ex:requestedAction odrl:use and
+X has ex:requestedAsset ex:dataset and X has dpv:hasLegalBasis ex:consent.
+ex:study has dpv:hasPurpose dpv:AcademicResearch.
+ex:mixed has dpv:hasPurpose dpv:AcademicResearch and ex:mixed has dpv:hasPurpose dpv:Marketing.
+ex:pending has dpv:hasPurpose dpv:AcademicResearch.
+ex:study has ex:fulfilledDuty ex:credit and ex:mixed has ex:fulfilledDuty ex:credit.
+
+# This policy uses exact equality for its three operands. A purpose can have
+# several asserted values, and a matching value meets the constraint.
+
+For every X and V, if X has dpv:hasPurpose V then observed(X, dpv:hasPurpose, V).
+For every X and C and V,
+if X has dpv:hasLegalBasis C and C is a dpv:Consent and C has dpv:hasConsentStatus V
+then observed(X, dpv:hasConsentStatus, V).
+For every R, if ex:policy has odrl:permission R or ex:policy has odrl:prohibition R then R is a policyRule.
+For every X and R and P and A and T,
+if X is a dpv:Process and R is a policyRule and
+X has ex:requester P and R has odrl:assignee P and
+X has ex:requestedAction A and R has odrl:action A and
+X has ex:requestedAsset T and R has odrl:target T
+then candidate(X, R).
+For every X and R and C and P and V,
+if candidate(X, R) and R has odrl:constraint C and C has odrl:operator odrl:eq and
+C has odrl:leftOperand P and C has odrl:rightOperand V and observed(X, P, V)
+then satisfied(X, C).
+For every X and R and C,
+if candidate(X, R) and R has odrl:constraint C and it is not known that satisfied(X, C)
+then unmet(X, R).
+For every X and R and D,
+if candidate(X, R) and R has odrl:duty D and it is not known that X has ex:fulfilledDuty D
+then unmet(X, R).
+For every X and R, if candidate(X, R) and it is not known that unmet(X, R) then applies(X, R).
+
+# The explicit conflict strategy gives an applicable prohibition priority.
+# Review asks for more evidence where neither outcome can be derived.
+
+For every X and R, if ex:policy has odrl:prohibition R and applies(X, R) then X is prohibited.
+For every X and R,
+if ex:policy has odrl:conflict odrl:prohibit and ex:policy has odrl:permission R and
+applies(X, R) and it is not known that X is prohibited
+then X is allowed.
+For every X, if X is prohibited then X has ex:decision ex:prohibited.
+For every X, if X is allowed then X has ex:decision ex:allowed.
+For every X, if X is a dpv:Process and it is not known that X is prohibited and it is not known that X is allowed
+then X has ex:decision ex:review.
+
+Find every X and Y such that X has ex:decision Y.

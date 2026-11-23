@@ -78,6 +78,59 @@ For every X, matching(pair(X, X)).
 Variables declared by `For every` are universal within that sentence. Each
 sentence has its own scope. Repeating a declaration in one scope is an error.
 
+## RDF vocabulary names
+
+Declare a prefix before using its names. ODRL, DPV and DPV extension
+namespaces can appear together in the same file.
+
+```text
+Use prefix ex with namespace "https://example.org/research#".
+Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
+Use prefix dpv with namespace "https://w3id.org/dpv#".
+
+ex:agreement is an odrl:Agreement.
+ex:study is a dpv:Process.
+ex:study has dpv:hasPurpose dpv:AcademicResearch.
+
+Find every X such that X has dpv:hasPurpose dpv:AcademicResearch.
+```
+
+Prefixes start with an ASCII letter and can also contain digits and
+underscores. Local names contain ASCII letters, digits, underscores and
+hyphens, and cannot start with a hyphen. Prefixes and local names are
+case-sensitive. A declaration binds a prefix to a quoted absolute IRI.
+Each file declares its own prefixes, at most once per prefix. Prefix
+expansion appends the local name to the namespace exactly as stated.
+`iri("...")` terms can express IRIs outside this abbreviation syntax.
+
+In facts, rules and questions, a qualified class or property uses the
+same `rdf/3` relation:
+
+| LE form | LS term |
+| --- | --- |
+| `T is a ex:Class` | `rdf(T, iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), iri("https://example.org/research#Class"))` |
+| `T has ex:property U` or `T is an ex:property of U` | `rdf(T, iri("https://example.org/research#property"), U)` |
+| `ex:item` in any term position | `iri("https://example.org/research#item")` |
+
+`Every` rules also accept qualified classes on either side. Qualified
+statements take a resource or variable as their subject. Objects can
+also be numbers and explicit RDF terms such as
+`literal("dataset", datatype("http://www.w3.org/2001/XMLSchema#string"))`.
+Ordinary unqualified class and relation names retain their LS meanings.
+
+The default LE output abbreviates IRIs using available prefixes and
+includes the declarations it uses. Other IRIs retain their explicit
+terms. When input files assign the same prefix to different namespaces,
+the final declaration supplies the output abbreviation. Earlier files'
+expanded IRIs retain their values. For triple conclusions, `--to turtle`
+writes the RDF graph and `--all` adds the stated RDF facts.
+
+Prefix declarations specify names. The facts and rules supply their
+meaning for a run. The research access example uses ODRL permissions,
+prohibitions, constraints and a duty with DPV purpose and consent
+evidence. Its ordinary LE rules specify the scenario's policy decisions.
+[Research access example](https://eyereasoner.github.io/eyemind/examples/deck/research-access-le) · [ODRL Vocabulary](https://www.w3.org/TR/odrl-vocab/) · [Data Privacy Vocabulary 2.3](https://w3id.org/dpv/2.3/dpv/)
+
 ## Rules and calculations
 
 ```text
@@ -266,6 +319,36 @@ These programs use the grammar above without additional syntax:
 Their decks state the modeled assumptions and what the checked proofs establish.
 Bounds and finite expression domains are explicit in the programs.
 
+## DPV hierarchies
+
+```text
+Use DPV hierarchy logic.
+Use prefix ex with namespace "https://example.org/research#".
+Use prefix dpv with namespace "https://w3id.org/dpv#".
+Use prefix skos with namespace "http://www.w3.org/2004/02/skos/core#".
+
+ex:study has dpv:hasPurpose dpv:AcademicResearch.
+dpv:AcademicResearch has skos:broader dpv:ResearchAndDevelopment.
+Find whether ex:study has purposeWithin dpv:ResearchAndDevelopment.
+```
+
+The directive adds hierarchy rules to an ordinary LE program. The
+program supplies its observations and SKOS edges. DPV 2.3 uses SKOS
+broader and narrower relations for its default taxonomy representation.
+[DPV 2.3](https://w3id.org/dpv/2.3/dpv/)
+
+| Observation property | LE conclusion |
+| --- | --- |
+| `dpv:hasPurpose` | `X has purposeWithin C` |
+| `dpv:hasData` | `X has dataWithin C` |
+| `dpv:hasPersonalData` | `X has personalDataWithin C` |
+
+Each conclusion matches an observed category itself and its ancestors
+reached by transitively following the supplied IRI-to-IRI
+`skos:broader` and `skos:broaderTransitive` edges, or the inverse of
+`skos:narrower` and `skos:narrowerTransitive`. A snapshot uses the same
+hierarchy through its `withinCategory` operator.
+
 ## ODRL snapshots
 
 An LE file can explicitly select the existing ODRL snapshot evaluator:
@@ -293,18 +376,21 @@ Names expand as follows, with case preserved:
 | --- | --- |
 | An ordinary individual name | An IRI formed by appending it to the declared namespace. |
 | Classes `evaluation`, `request`, `state` | `eval:Evaluation`, `eval:Request`, `eval:State`. |
-| Classes `policy`, `agreement`, `permission`, `prohibition`, `constraint`, `action` | `odrl:Set`, `odrl:Agreement`, `odrl:Permission`, `odrl:Prohibition`, `odrl:Constraint`, `odrl:Action`. |
+| Classes `policy`, `agreement`, `permission`, `prohibition`, `constraint`, `logicalConstraint`, `duty`, `action` | `odrl:Set`, `odrl:Agreement`, `odrl:Permission`, `odrl:Prohibition`, `odrl:Constraint`, `odrl:LogicalConstraint`, `odrl:Duty`, `odrl:Action`. |
 | Classes `assetCollection`, `partyCollection` | ODRL collection classes, rejected by the snapshot profile. |
 | Properties `policy`, `request`, `state`, `subject`, `conflictStrategy` | The corresponding `eval:` properties. |
-| Properties `profile`, `permission`, `prohibition`, `assignee`, `assigner`, `action`, `target`, `constraint`, `leftOperand`, `operator`, `rightOperand` | The corresponding `odrl:` properties. |
+| Properties `profile`, `permission`, `prohibition`, `assignee`, `assigner`, `action`, `target`, `constraint`, `leftOperand`, `operator`, `rightOperand`, `duty` | The corresponding `odrl:` properties. |
+| Properties `andOperands`, `orOperands`, `xoneOperands` | `odrl:and`, `odrl:or`, `odrl:xone`. LE lists become RDF collections. |
+| Properties `fulfilledDuty`, `unfulfilledDuty` | The corresponding `eval:` request evidence properties. |
 | Property `policyConflict` | `odrl:conflict`, the policy-local strategy. |
 | Property `type` | `rdf:type`. |
 | An otherwise unknown class or property | An IRI in the declared namespace; validation still applies. |
 | Values `snapshotProfile`, `perm`, `prohibit`, `invalid`, `eq`, `neq`, `gt`, `gteq`, `lt`, `lteq` | `eval:SnapshotProfile` or the corresponding ODRL strategy/operator IRIs. |
+| Value `withinCategory` | `eval:withinCategory`, the snapshot's DPV hierarchy operator. |
 | Values `true`, `false` | Boolean RDF literals. Quoting does not change an LE name into an RDF string literal. |
 | An integer or float | An exact RDF integer or an `xsd:double` literal. |
 
-The unsupported ODRL properties `duty`, `obligation`, `inheritFrom`, `includedIn`,
+The unsupported ODRL properties `obligation`, `inheritFrom`, `includedIn`,
 `partOf` and `refinement` retain their ODRL IRIs so the shared validator can
 report them. Explicit RDF values such as `iri("https://example.org/item")` and
 `literal("text", datatype("http://www.w3.org/2001/XMLSchema#string"))` retain
@@ -333,6 +419,46 @@ use `has`; for example `issueAlice has decision allowed.`. Status values
 `eval:permission`, `eval:prohibition` and `eval:constraint` links from ODRL
 input properties. Other report fields retain their `eval:` names. An IRI with
 no unambiguous abbreviation stays explicit, including IRIs inside witness keys.
+
+Prefix declarations can follow either ODRL directive. A qualified state
+property or value can use a DPV IRI, for example
+`ex:state has dpv:hasPurpose dpv:AcademicResearch.`. An equality constraint
+can read `dpv:hasPurpose` as its left operand and use
+`dpv:AcademicResearch` as its right operand.
+
+```text
+scope is a logicalConstraint and scope has andOperands [purpose, dataCategory].
+purpose is a constraint and purpose has leftOperand dpv:hasPurpose.
+purpose has operator withinCategory and purpose has rightOperand dpv:ResearchAndDevelopment.
+credit is a duty and credit has action odrl:attribute.
+researchUse has constraint scope and researchUse has duty credit.
+ready has fulfilledDuty credit.
+```
+
+A logical constraint has one operator and a proper RDF list of at least two
+distinct atomic constraints. `andOperands` requires all members,
+`orOperands` at least one and `xoneOperands` exactly one. The result is
+unknown when treating unknown members as satisfied or unsatisfied could
+change the outcome. Reports cite the group for an unmet or unknown logical
+constraint. The snapshot rejects nested groups and `odrl:andSequence`.
+[ODRL Logical Constraint Class](https://www.w3.org/TR/odrl-model/#constraint-logical)
+
+A permission can require several duties. Each is typed `odrl:Duty` and
+has one action IRI. A request records whether it has fulfilled each duty.
+An `unfulfilledDuty` record makes the permission inapplicable and gives
+an `unmetDuty` report link. A missing record or conflicting records give
+an uncertainty with `reportDuty` and a reason. The snapshot takes these
+records as evidence of fulfillment. Duties that specify additional action
+refinements, roles or consequences fail validation.
+[ODRL Duty with a Permission](https://www.w3.org/TR/odrl-model/#duties)
+
+`withinCategory` compares a single observed IRI with a required category IRI.
+It accepts the three DPV observation properties in the hierarchy table.
+An exact match or a supplied broader path satisfies the constraint. With
+a known observation and no such path the constraint is unmet. The snapshot
+reports missing, ambiguous or mistyped observations as unknown.
+The research snapshot demonstrates compound scope, two DPV hierarchies and
+request-local duty evidence. [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le)
 
 Both ODRL directives take a single LE file and reject mixed-in ordinary LE
 rules or questions. `--goal` can query their compiled LS program. The normal

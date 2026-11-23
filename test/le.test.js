@@ -1,6 +1,7 @@
 import { assert, cli, errorOf } from './helpers.js';
 import { checkProof, compileLe, loadText, readTerm, run, write, writeLe } from '../src/index.js';
-import { inputKind, loadInputs } from '../src/formats.js';
+import { inputKind, loadInputs, writeConclusions } from '../src/formats.js';
+import { parseRdf } from '../src/rdf.js';
 import { flattenConjunction } from '../src/terms.js';
 
 const compile = (text) => compileLe([[text, 'input.le']]);
@@ -15,6 +16,78 @@ export const tests = {
       'Find every X such that Alice is an ancestor of X.';
     assert.deepEqual(answers(input), ["ancestor('Alice', 'Bob')", "ancestor('Alice', 'Carol')"]);
     assert.deepEqual(answers('Ada is a human and Ada is a mathematician. Every human is mortal and animal.'), ["mortal('Ada')", "animal('Ada')"]);
+  },
+
+  'qualified RDF vocabulary joins ODRL and DPV in rules and round-trips through LE and Turtle'() {
+    const loaded = compile(`
+Use prefix ex with namespace "urn:example:".
+Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
+Use prefix dpv with namespace "https://w3id.org/dpv#".
+ex:agreement is an odrl:Agreement.
+ex:study is a dpv:Process and ex:study has dpv:hasPurpose dpv:AcademicResearch.
+Every odrl:Agreement is an ex:ReviewedPolicy.
+For every X and P, if X is a dpv:Process and X is a dpv:hasPurpose of P then X has ex:observedPurpose P.
+Find every X such that X is an ex:ReviewedPolicy.
+Find every X and P such that X has ex:observedPurpose P.`);
+    const result = run(loaded.program, { proof: true });
+    assert.deepEqual(run(loadText(loaded.text)).answers, result.answers);
+    assert.equal(checkProof(loadText(loaded.text), result.proof).valid, true);
+    const output = writeConclusions(loaded, result, { format: 'le' });
+    assert.match(output, /^Use prefix dpv with namespace "https:\/\/w3id\.org\/dpv#"/);
+    assert.doesNotMatch(output, /Use prefix odrl/);
+    assert.match(output, /ex:agreement is a ex:ReviewedPolicy\./);
+    assert.match(output, /ex:study has ex:observedPurpose dpv:AcademicResearch\./);
+    assert.deepEqual(compile(output).program.sources.map((s) => write(s.head)), result.answers);
+    const turtle = (all) => parseRdf(writeConclusions(loaded, result, { format: 'turtle', all })).quads;
+    assert.equal(turtle(false).length, 2);
+    const graph = turtle(true);
+    assert.equal(graph.length, 5);
+    assert.ok(graph.some((q) => q[1].args[0] === 'https://w3id.org/dpv#hasPurpose' && q[2].args[0] === 'https://w3id.org/dpv#AcademicResearch'));
+  },
+
+  'prefix definitions are scoped to their file and malformed RDF shorthand gets a located error'() {
+    const first = 'Use prefix ex with namespace "urn:first:". ex:item has ex:related ex:other.';
+    const second = 'Use prefix ex with namespace "urn:second:". ex:item has ex:related 1.';
+    const loaded = compileLe([[first, 'one.le'], [second, 'two.le']]);
+    assert.deepEqual(loaded.program.sources.map((s) => write(s.head)), [
+      "rdf(iri('urn:first:item'), iri('urn:first:related'), iri('urn:first:other'))",
+      "rdf(iri('urn:second:item'), iri('urn:second:related'), 1)",
+    ]);
+    assert.match(errorOf(() => compileLe([[first, 'one.le'], ['ex:item is a dpv:Process.', 'two.le']])), /two\.le: line 1:.*prefix ex is undeclared/);
+    for (const [text, pattern] of [
+      ['Use prefix pd with namespace "relative#".', /absolute IRI/],
+      [first + ' Use prefix ex with namespace "urn:changed:".', /already declared/],
+      [first + ' item is a ex:Class.', /needs a resource subject/],
+      [first + ' ex:item has ex:related "an LS atom".', /needs an RDF value/],
+    ]) assert.match(errorOf(() => compile(text)), pattern);
+  },
+
+  'DPV hierarchy logic matches exact and broader purpose and data categories from supplied SKOS edges'() {
+    const input = `Use DPV hierarchy logic.
+Use prefix ex with namespace "urn:example:".
+Use prefix dpv with namespace "https://w3id.org/dpv#".
+Use prefix pd with namespace "https://w3id.org/dpv/pd#".
+Use prefix skos with namespace "http://www.w3.org/2004/02/skos/core#".
+ex:study has dpv:hasPurpose dpv:AcademicResearch.
+dpv:AcademicResearch has skos:broader dpv:ResearchAndDevelopment.
+ex:study has dpv:hasData pd:EmailAddressWork and ex:study has dpv:hasPersonalData pd:EmailAddressWork.
+pd:EmailAddressWork has skos:broader pd:EmailAddress.
+pd:Contact has skos:narrower pd:EmailAddress.
+Find whether ex:study has purposeWithin dpv:AcademicResearch.
+Find whether ex:study has purposeWithin dpv:ResearchAndDevelopment.
+Find whether ex:study has purposeWithin dpv:Marketing.
+Find whether ex:study has dataWithin pd:Contact.
+Find whether ex:study has personalDataWithin pd:Contact.`;
+    const loaded = compile(input), result = run(loaded.program, { proof: true });
+    assert.deepEqual(result.answers, [
+      "purposeWithin(iri('urn:example:study'), iri('https://w3id.org/dpv#AcademicResearch'))",
+      "purposeWithin(iri('urn:example:study'), iri('https://w3id.org/dpv#ResearchAndDevelopment'))",
+      "dataWithin(iri('urn:example:study'), iri('https://w3id.org/dpv/pd#Contact'))",
+      "personalDataWithin(iri('urn:example:study'), iri('https://w3id.org/dpv/pd#Contact'))",
+    ]);
+    assert.deepEqual(run(loadText(loaded.text)).answers, result.answers);
+    assert.ok(checkProof(loadText(loaded.text), result.proof).valid);
+    assert.deepEqual(answers(input.replace('Use DPV hierarchy logic.', '')), []);
   },
 
   'arithmetic preserves exact integers, float types, precedence and comparison boundaries'() {

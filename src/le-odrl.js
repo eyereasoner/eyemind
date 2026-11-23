@@ -3,7 +3,7 @@
 import { compileOdrl, ODRL_EVAL } from './odrl.js';
 import { loadText } from './lang.js';
 import { DEFAULT_GRAPH, writeRdf } from './rdf.js';
-import { EyemindError, Struct, isGround } from './terms.js';
+import { EyemindError, Struct, isGround, properListItems } from './terms.js';
 import { readTerm } from './reader.js';
 import { write } from './writer.js';
 
@@ -16,6 +16,7 @@ const NAME = /^[a-z][A-Za-z0-9_]*$/;
 const TYPES = new Map(Object.entries({
   evaluation: ODRL_EVAL + 'Evaluation', policy: ODRL + 'Set', agreement: ODRL + 'Agreement',
   permission: ODRL + 'Permission', prohibition: ODRL + 'Prohibition', constraint: ODRL + 'Constraint',
+  logicalConstraint: ODRL + 'LogicalConstraint', duty: ODRL + 'Duty',
   request: ODRL_EVAL + 'Request', state: ODRL_EVAL + 'State', action: ODRL + 'Action',
   assetCollection: ODRL + 'AssetCollection', partyCollection: ODRL + 'PartyCollection',
   evaluationReport: ODRL_EVAL + 'EvaluationReport', conflict: ODRL_EVAL + 'Conflict',
@@ -26,7 +27,7 @@ for (const name of ['profile', 'permission', 'prohibition', 'assignee', 'assigne
   'constraint', 'leftOperand', 'operator', 'rightOperand', 'duty', 'obligation', 'inheritFrom',
   'includedIn', 'partOf', 'refinement']) PROPERTIES.set(name, ODRL + name);
 for (const name of ['policy', 'request', 'state', 'subject', 'conflictStrategy', 'decision', 'canHappen',
-  'validationStatus', 'invalidPolicy', 'reason', 'unmetConstraint', 'uncertainty', 'rule', 'property',
+  'validationStatus', 'invalidPolicy', 'reason', 'unmetConstraint', 'unmetDuty', 'fulfilledDuty', 'unfulfilledDuty', 'uncertainty', 'rule', 'property',
   'validationError', 'focus', 'code', 'permissionPolicy', 'permissionRule', 'prohibitionPolicy',
   'prohibitionRule', 'conflictCount']) PROPERTIES.set(name, ODRL_EVAL + name);
 // A conflict is an evaluation report link; policy-local conflict has a
@@ -36,11 +37,19 @@ PROPERTIES.set('policyConflict', ODRL + 'conflict');
 PROPERTIES.set('applicablePermission', ODRL_EVAL + 'permission');
 PROPERTIES.set('applicableProhibition', ODRL_EVAL + 'prohibition');
 PROPERTIES.set('reportConstraint', ODRL_EVAL + 'constraint');
+PROPERTIES.set('reportDuty', ODRL_EVAL + 'duty');
 PROPERTIES.set('type', RDF + 'type');
+const LIST_OPERANDS = new Set();
+for (const name of ['and', 'or', 'xone']) {
+  const property = ODRL + name;
+  PROPERTIES.set(name + 'Operands', property);
+  LIST_OPERANDS.add(property);
+}
 const VALUES = new Map(Object.entries({
   snapshotProfile: ODRL_EVAL + 'SnapshotProfile',
   perm: ODRL + 'perm', prohibit: ODRL + 'prohibit', invalid: ODRL + 'invalid',
   eq: ODRL + 'eq', neq: ODRL + 'neq', gt: ODRL + 'gt', gteq: ODRL + 'gteq', lt: ODRL + 'lt', lteq: ODRL + 'lteq',
+  withinCategory: ODRL_EVAL + 'withinCategory',
   allowed: ODRL_EVAL + 'Allowed', prohibited: ODRL_EVAL + 'Prohibited',
   notApplicable: ODRL_EVAL + 'NotApplicable', undetermined: ODRL_EVAL + 'Undetermined',
   valid: ODRL_EVAL + 'Valid', invalidReport: ODRL_EVAL + 'Invalid',
@@ -63,6 +72,32 @@ function resource(term) {
   return term instanceof Struct && ['iri', 'bnode', 'triple', 'skolem'].includes(term.name);
 }
 
+// The LE operand abbreviations accept a list of constraint references.
+// Convert it to the same RDF first/rest links used by Turtle collections.
+function expandOperandLists(quads, namespace) {
+  const lists = quads.filter(([, p, o]) => LIST_OPERANDS.has(p.args[0]) && properListItems(o) !== null);
+  if (!lists.length) return;
+  const scopes = new Set(), pending = quads.flatMap((quad) => quad.slice(0, 3));
+  while (pending.length) {
+    const term = pending.pop();
+    if (!(term instanceof Struct)) continue;
+    if (term.name === 'bnode') scopes.add(term.args[0]);
+    pending.push(...term.args);
+  }
+  let scope = 'le-odrl-list', suffix = 0, label = 0;
+  while (scopes.has(scope)) scope = `le-odrl-list-${++suffix}`;
+  for (const quad of lists) {
+    let tail = iri(RDF + 'nil');
+    for (const item of properListItems(quad[2]).reverse()) {
+      const cell = new Struct('bnode', [scope, String(++label)]);
+      quads.push([cell, iri(RDF + 'first'), rdfValue(item, namespace), DEFAULT_GRAPH],
+        [cell, iri(RDF + 'rest'), tail, DEFAULT_GRAPH]);
+      tail = cell;
+    }
+    quad[2] = tail;
+  }
+}
+
 export function compileOdrlLe(statements, profile, source) {
   const { namespace, evaluate } = profile;
   const quads = [];
@@ -77,7 +112,8 @@ export function compileOdrlLe(statements, profile, source) {
         o = iri(TYPES.get(head.name) ?? namespace + head.name);
       } else if (head.args.length === 2) {
         s = rdfValue(head.args[0], namespace); p = iri(PROPERTIES.get(head.name) ?? namespace + head.name);
-        o = rdfValue(head.args[1], namespace);
+        const value = head.args[1];
+        o = LIST_OPERANDS.has(p.args[0]) && properListItems(value) !== null ? value : rdfValue(value, namespace);
       } else throw new EyemindError(`${statement.file}: line ${statement.line}: use class facts, binary properties or explicit rdf(S, P, O) facts in LE ODRL`);
       if (!resource(s) || !(p instanceof Struct && p.name === 'iri' && p.args.length === 1)) {
         throw new EyemindError(`${statement.file}: line ${statement.line}: an LE ODRL triple needs a resource subject and an IRI property`);
@@ -85,6 +121,7 @@ export function compileOdrlLe(statements, profile, source) {
       quads.push([s, p, o, DEFAULT_GRAPH]);
     }
   }
+  expandOperandLists(quads, namespace);
   // Validate RDF constructors without rewriting terms or witness identities.
   const pending = quads.flatMap((quad) => quad.slice(0, 3));
   while (pending.length) {

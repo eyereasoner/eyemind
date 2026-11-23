@@ -6,10 +6,15 @@ import { readTerm } from './reader.js';
 import { EMPTY, EyemindError, Struct, Var, conjunction, flattenConjunction } from './terms.js';
 import { write } from './writer.js';
 import { compileOdrlLe, odrlLeReport } from './le-odrl.js';
+import { dpvRules } from './dpv.js';
+import { loadText } from './lang.js';
 
 const st = (name, ...args) => new Struct(name, args);
 const VARIABLE = /^[A-Z][0-9]*$/;
 const NAME = /^[a-z][A-Za-z0-9_]*$/;
+const PREFIX = /^[A-Za-z][A-Za-z0-9_]*$/;
+const LOCAL = /^[A-Za-z0-9_][A-Za-z0-9_-]*$/;
+const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 const SENTENCE_WORDS = new Set(['every', 'for', 'if', 'find', 'there', 'it', 'contradiction', 'use']);
 const RESERVED = new Set([...PRIMITIVE_KEYS, ...CONTROL_KEYS, ...RESERVED_KEYS].map((key) => key.split('/')[0]));
 for (const name of ['true', 'false', 'fail']) RESERVED.add(name);
@@ -81,6 +86,7 @@ class Parser {
     this.scope = new Map();
     this.closed = new Set();
     this.helpers = new Set();
+    this.prefixes = new Map();
     this.aggregates = 0;
     this.depth = 0;
     let line = 1, pos = 0;
@@ -89,7 +95,7 @@ class Parser {
       const whitespace = /^\s+/.exec(tail);
       if (whitespace) { line += (whitespace[0].match(/\n/g) ?? []).length; pos += whitespace[0].length; continue; }
       if (tail[0] === '#') { const end = text.indexOf('\n', pos); pos = end < 0 ? text.length : end; continue; }
-      const match = /^("(?:[^"\\\r\n]|\\.)*"|(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|[A-Za-z][A-Za-z0-9_]*|[()[\],.+*/-])/.exec(tail);
+      const match = /^("(?:[^"\\\r\n]|\\.)*"|(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|[A-Za-z][A-Za-z0-9_]*(?::[A-Za-z0-9_][A-Za-z0-9_-]*)?|[()[\],.+*/-])/.exec(tail);
       if (!match) this.error(`unexpected character ${JSON.stringify(tail[0])}`, line);
       const raw = match[0];
       let value = raw, kind = 'word';
@@ -98,6 +104,7 @@ class Parser {
         kind = 'string';
       } else if (/^[0-9]/.test(raw)) kind = 'number';
       else if (!/^[A-Za-z]/.test(raw)) kind = 'punct';
+      else if (raw.includes(':')) kind = 'qualified';
       this.tokens.push({ value, raw, kind, line });
       pos += raw.length;
     }
@@ -112,11 +119,27 @@ class Parser {
 
   name() {
     const token = this.token;
+    if (token.kind === 'qualified') return this.qualifiedName();
     if (token.kind !== 'word' || !NAME.test(token.value) || RESERVED.has(token.value)) {
       this.error('a relation or class name must start with a lowercase letter and must not name an LS primitive or control');
     }
     this.at++;
     return token.value;
+  }
+
+  qualifiedName() {
+    const token = this.token, [prefix, local] = token.value.split(':');
+    if (!this.prefixes.has(prefix)) this.error(`prefix ${prefix} is undeclared; introduce it with "Use prefix ${prefix} with namespace …"`, token.line);
+    this.at++;
+    return st('iri', this.prefixes.get(prefix) + local);
+  }
+
+  statement(name, subject, ...objects) {
+    if (typeof name === 'string') return st(name, subject, ...objects);
+    if (!rdfResource(subject)) this.error('a qualified RDF statement needs a resource subject such as ex:item, iri(...) or a variable');
+    if (!objects.length) return st('rdf', subject, st('iri', RDF_TYPE), name);
+    if (!rdfValue(objects[0])) this.error('a qualified RDF property needs an RDF value such as a qualified name, number or literal(...)');
+    return st('rdf', subject, name, objects[0]);
   }
 
   declarations() {
@@ -172,6 +195,7 @@ class Parser {
       return st('skolem', rule, label.value, list(args));
     }
     const token = this.token;
+    if (token.kind === 'qualified') return this.qualifiedName();
     if (!['word', 'string'].includes(token.kind)) this.error('expected a name, number, variable, list or compound term');
     this.at++;
     if (this.take('(')) {
@@ -221,14 +245,14 @@ class Parser {
     const subject = this.term();
     if (this.take('has')) {
       const name = this.name();
-      return st(name, subject, this.term());
+      return this.statement(name, subject, this.term());
     }
     if (this.take('is')) {
       if (this.is('not')) this.error('ordinary "not" is unsupported; use "it is not known that" in a premise for absence, or a separate relation for explicit negative evidence');
       if (!body && this.is('the')) this.error('put calculations in a premise, as in "Y is the value of X + 1", then state the result relation');
       if (this.take('a') || this.take('an')) {
         const name = this.name();
-        return this.take('of') ? st(name, subject, this.term()) : st(name, subject);
+        return this.take('of') ? this.statement(name, subject, this.term()) : this.statement(name, subject);
       }
       if (body) {
         if (this.take('the')) {
@@ -252,7 +276,7 @@ class Parser {
         }
       }
       // Adjectival class form, as in "Every human is mortal".
-      return st(this.name(), subject);
+      return this.statement(this.name(), subject);
     }
     if (subject instanceof Struct && subject.name !== '.' && NAME.test(subject.name) && !RESERVED.has(subject.name)) return subject;
     if (typeof subject === 'string' && NAME.test(subject) && !RESERVED.has(subject)) return subject;
@@ -327,31 +351,50 @@ class Parser {
     return bound;
   }
 
+  namespace(label) {
+    this.need('with'); this.need('namespace');
+    if (this.token.kind !== 'string') this.error(`${label} namespace must be a quoted absolute IRI`);
+    const namespace = this.token.value;
+    try { new URL(namespace); } catch { this.error(`${label} namespace must be an absolute IRI`); }
+    if (/[\s<>"{}|^`\\]/u.test(namespace)) this.error(`${label} namespace must be an absolute IRI without whitespace or forbidden characters`);
+    this.at++; this.need('.');
+    return namespace;
+  }
+
   sentence() {
     const line = this.token.line;
     this.scope = new Map();
     this.closed = new Set();
+    if (this.is('use') && this.tokens[this.at + 1]?.kind === 'word' && this.tokens[this.at + 1].value.toLowerCase() === 'dpv') {
+      this.at += 2;
+      this.need('hierarchy'); this.need('logic'); this.need('.');
+      return { kind: 'dpv', line };
+    }
+    if (this.is('use') && this.tokens[this.at + 1]?.kind === 'word' && this.tokens[this.at + 1].value.toLowerCase() === 'prefix') {
+      this.at += 2;
+      const prefix = this.token.value;
+      if (this.token.kind !== 'word' || !PREFIX.test(prefix)) this.error('expected a prefix name such as dpv');
+      if (this.prefixes.has(prefix)) this.error(`prefix ${prefix} is already declared in this file`);
+      this.at++;
+      this.prefixes.set(prefix, this.namespace('a prefix'));
+      return { kind: 'prefix', line };
+    }
     if (this.is('use') && this.tokens[this.at + 1]?.kind === 'word' && this.tokens[this.at + 1].value.toLowerCase() === 'odrl') {
       this.at++;
       this.need('odrl');
       let evaluate = false;
       if (this.take('snapshot')) { this.need('logic'); evaluate = true; }
       else this.need('vocabulary');
-      this.need('with'); this.need('namespace');
-      if (this.token.kind !== 'string') this.error('an ODRL namespace must be a quoted absolute IRI');
-      const namespace = this.token.value;
-      try { new URL(namespace); } catch { this.error('an ODRL namespace must be an absolute IRI'); }
-      if (/[\s<>"{}|^`\\]/u.test(namespace)) this.error('an ODRL namespace must be an absolute IRI without whitespace or forbidden characters');
-      this.at++; this.need('.');
+      const namespace = this.namespace('an ODRL');
       return { kind: 'odrl', namespace, evaluate, line };
     }
     if (this.take('every')) {
       const x = new Var('X'), froms = [this.name()], heads = [];
       while (this.take('or')) froms.push(this.name());
       this.need('is');
-      do { this.take('a') || this.take('an'); heads.push(st(this.name(), x)); } while (this.take('and'));
+      do { this.take('a') || this.take('an'); heads.push(this.statement(this.name(), x)); } while (this.take('and'));
       this.need('.');
-      return { kind: 'forward', heads, bodies: froms.map((from) => [st(from, x)]), line };
+      return { kind: 'forward', heads, bodies: froms.map((from) => [this.statement(from, x)]), line };
     }
     let quantified = false;
     if (this.take('for')) { this.need('every'); this.declarations(); this.need(','); quantified = true; }
@@ -392,6 +435,17 @@ class Parser {
   }
 }
 
+function rdfResource(term) {
+  return term instanceof Var || term instanceof Struct &&
+    (term.name === 'iri' && term.args.length === 1 && typeof term.args[0] === 'string' ||
+      term.name === 'bnode' && term.args.length === 2 || term.name === 'skolem' && term.args.length === 3);
+}
+
+function rdfValue(term) {
+  return rdfResource(term) || typeof term === 'bigint' || typeof term === 'number' ||
+    term instanceof Struct && (term.name === 'literal' && term.args.length === 2 || term.name === 'triple' && term.args.length === 3);
+}
+
 function variablesIn(terms) {
   const result = new Set(), pending = [...terms];
   while (pending.length) {
@@ -412,14 +466,20 @@ function javascript(term) {
 }
 
 export function compileLe(inputs) {
-  const clauses = [], statements = [], sources = [], helpers = new Set();
-  let profile = null;
+  const clauses = [], statements = [], sources = [], helpers = new Set(), prefixes = new Map();
+  let profile = null, dpv = false;
   for (const [text, file] of inputs) {
     const parser = new Parser(String(text), file);
     while (parser.token.kind !== 'end') {
       const sentence = parser.sentence(), { kind, heads, bodies, line } = sentence;
+      if (kind === 'prefix') continue;
+      if (kind === 'dpv') {
+        if (profile) parser.error('the DPV hierarchy directive belongs to ordinary LE; an ODRL snapshot uses its withinCategory operator', line);
+        dpv = true;
+        continue;
+      }
       if (kind === 'odrl') {
-        if (profile || statements.length || inputs.length !== 1) parser.error('an ODRL directive must be the first sentence of one LE file', line);
+        if (profile || dpv || statements.length || parser.prefixes.size || inputs.length !== 1) parser.error('an ODRL directive must be the first sentence of one LE file', line);
         profile = { namespace: sentence.namespace, evaluate: sentence.evaluate };
         continue;
       }
@@ -441,8 +501,12 @@ export function compileLe(inputs) {
       }
     }
     for (const name of parser.helpers) helpers.add(name);
+    for (const [prefix, namespace] of parser.prefixes) prefixes.set(prefix, namespace);
   }
-  if (profile) return compileOdrlLe(statements, profile, inputs[0][1]);
+  if (profile) {
+    const loaded = compileOdrlLe(statements, profile, inputs[0][1]);
+    return { ...loaded, prefixes: { ...loaded.prefixes, ...Object.fromEntries(prefixes) } };
+  }
   // The helpers follow every stated clause, so a witness's rule number is
   // the same whether or not the program aggregates.
   if (helpers.size) clauses.push('// Aggregation helpers.');
@@ -453,11 +517,16 @@ export function compileLe(inputs) {
       sources.push(new Source('backward', head, body.length ? body : ['true'], null, null));
     }
   }
+  if (dpv) {
+    const rules = dpvRules('rdf', true);
+    sources.push(...loadText(rules, 'DPV hierarchy rules').sources);
+    clauses.push(rules);
+  }
   return { kind: 'le', text: '// Compiled from Logical English to Logic Script.\n\n' + clauses.join('\n') + '\n',
-    program: new Program(sources), prefixes: {}, compiled: { statements } };
+    program: new Program(sources), prefixes: Object.fromEntries(prefixes), compiled: { statements } };
 }
 
-function leTerm(term, names) {
+function leTerm(term, names, compact) {
   if (term instanceof Var) return names.get(term.name);
   if (term === EMPTY) return '[]';
   if (typeof term === 'string') {
@@ -465,43 +534,74 @@ function leTerm(term, names) {
   }
   if (typeof term === 'bigint' || typeof term === 'number') return write(term);
   if (!(term instanceof Struct)) throw new EyemindError('cannot write this term as Logical English');
+  const qualified = compact(term);
+  if (qualified) return qualified;
+  const render = (arg) => leTerm(arg, names, compact);
   if (term.name === 'skolem' && term.args.length === 3) {
     const [rule, label, bindings] = term.args, args = listItems(bindings);
     if (typeof rule === 'bigint' && rule > 0n && typeof label === 'string' && args !== null) {
       const name = VARIABLE.test(label) ? label : JSON.stringify(label);
-      return `witness(rule ${rule}, ${name}${args.map((arg) => ', ' + leTerm(arg, names)).join('')})`;
+      return `witness(rule ${rule}, ${name}${args.map((arg) => ', ' + render(arg)).join('')})`;
     }
   }
   if (term.name === '.') {
     const items = listItems(term);
-    if (items !== null) return `[${items.map((item) => leTerm(item, names)).join(', ')}]`;
+    if (items !== null) return `[${items.map(render).join(', ')}]`;
     // Improper lists remain explicit compounds.
   }
-  return `${JSON.stringify(term.name)}(${term.args.map((arg) => leTerm(arg, names)).join(', ')})`;
+  return `${JSON.stringify(term.name)}(${term.args.map(render).join(', ')})`;
 }
 
-function leGoal(term, names, properties) {
+function leGoal(term, render, properties, compact) {
   if (term === 'false') return 'Contradiction';
-  if (typeof term === 'string' && NAME.test(term) && !RESERVED.has(term)) return leTerm(term, names);
+  if (typeof term === 'string' && NAME.test(term) && !RESERVED.has(term)) return render(term);
   if (!(term instanceof Struct) || !NAME.test(term.name) || RESERVED.has(term.name)) {
     throw new EyemindError(`${write(term)} is not a Logical English relation; use --to eyemind`);
   }
+  if (term.name === 'rdf' && term.args.length === 3) {
+    const [s, p, o] = term.args;
+    if (rdfResource(s) && rdfValue(o)) {
+      if (p instanceof Struct && p.name === 'iri' && p.args.length === 1 && p.args[0] === RDF_TYPE) {
+        const type = compact(o);
+        if (type) return `${render(s)} is a ${type}`;
+      }
+      const property = compact(p);
+      if (property) return `${render(s)} has ${property} ${render(o)}`;
+    }
+  }
   const article = /^[aeiou]/.test(term.name) ? 'an' : 'a';
-  if (term.args.length === 1) return `${leTerm(term.args[0], names)} is ${article} ${term.name}`;
-  if (properties && term.args.length === 2) return `${leTerm(term.args[0], names)} has ${term.name} ${leTerm(term.args[1], names)}`;
-  if (term.args.length === 2) return `${leTerm(term.args[0], names)} is ${article} ${term.name} of ${leTerm(term.args[1], names)}`;
-  return `${term.name}(${term.args.map((arg) => leTerm(arg, names)).join(', ')})`;
+  if (term.args.length === 1) return `${render(term.args[0])} is ${article} ${term.name}`;
+  if (properties && term.args.length === 2) return `${render(term.args[0])} has ${term.name} ${render(term.args[1])}`;
+  if (term.args.length === 2) return `${render(term.args[0])} is ${article} ${term.name} of ${render(term.args[1])}`;
+  return `${term.name}(${term.args.map(render).join(', ')})`;
 }
 
-export function writeLe(result, { odrl = null } = {}) {
+export function writeLe(result, { odrl = null, prefixes = {} } = {}) {
   if (odrl) result = odrlLeReport(result, odrl.namespace);
+  const namespaces = odrl ? [] : Object.entries(prefixes).filter(([prefix]) => PREFIX.test(prefix))
+    .sort((a, b) => b[1].length - a[1].length);
+  const used = new Map();
+  const compact = (term) => {
+    if (!(term instanceof Struct) || term.name !== 'iri' || term.args.length !== 1 || typeof term.args[0] !== 'string') return null;
+    for (const [prefix, namespace] of namespaces) {
+      if (!term.args[0].startsWith(namespace)) continue;
+      const local = term.args[0].slice(namespace.length);
+      if (!LOCAL.test(local)) continue;
+      used.set(prefix, namespace);
+      return `${prefix}:${local}`;
+    }
+    return null;
+  };
   const lines = [];
   for (const answer of result.answers) {
     const term = readTerm(answer);
     const names = new Map([...variablesIn([term])].map((name, i) => [name, `X${i}`]));
     const quantifier = names.size ? `For every ${[...names.values()].join(' and ')}, ` : '';
-    lines.push(quantifier + flattenConjunction(term).map((goal) => leGoal(goal, names, odrl !== null)).join(' and ') + '.');
+    const render = (arg) => leTerm(arg, names, compact);
+    lines.push(quantifier + flattenConjunction(term).map((goal) => leGoal(goal, render, odrl !== null, compact)).join(' and ') + '.');
   }
-  const header = odrl ? `Use ODRL vocabulary with namespace ${JSON.stringify(odrl.namespace)}.\n\n` : '';
+  const declarations = [...used].sort().map(([prefix, namespace]) => `Use prefix ${prefix} with namespace ${JSON.stringify(namespace)}.`);
+  const header = odrl ? `Use ODRL vocabulary with namespace ${JSON.stringify(odrl.namespace)}.\n\n`
+    : declarations.length ? `${declarations.join('\n')}\n\n` : '';
   return header + (lines.length ? lines.join('\n') + '\n' : '# No conclusions.\n');
 }

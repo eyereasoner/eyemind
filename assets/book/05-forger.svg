@@ -23,7 +23,7 @@
       <path class="ln" d="M60 12 L60 2"/><circle class="hif" cx="60" cy="2" r="4"/>
     </symbol>
     <symbol id="checker" viewBox="0 0 120 140">
-      <rect fill="#ffe100" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="28" y="30" width="64" height="82" rx="6"/>
+      <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="28" y="30" width="64" height="82" rx="6"/>
       <path class="ln thin" d="M38 48 L82 48 M38 60 L82 60 M38 72 L70 72"/>
       <circle class="paperf" cx="48" cy="20" r="0"/>
       <circle class="inkf" cx="50" cy="40" r="0"/>
@@ -50,7 +50,7 @@
           <path class="ln" d="M132 150 L188 160"/>
         </g>
         <g transform="translate(196 112) rotate(4)">
-          <rect class="paperf" x="0" y="0" width="190" height="84" rx="3"/>
+          <rect class="paperf" style="fill: #f7c5a9" x="0" y="0" width="190" height="84" rx="3"/>
           <text class="mono" x="14" y="30" font-size="13">type('socrates',</text>
           <text class="mono" x="14" y="52" font-size="13">     'teapot')</text>
           <text class="hand" x="14" y="74" font-size="15">trust me, it follows</text>
