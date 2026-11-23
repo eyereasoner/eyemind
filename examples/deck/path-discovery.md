@@ -280,6 +280,19 @@ gives the single route Ostend-Bruges → Liège. Ask for Ostend-Bruges to
 Prague with at most 1 stopover: there is no answer, since every route found
 needs two.
 
+Use `--goal "airport(Id, Name)"` to list the airport names. You can leave either
+endpoint as a variable to find possible airports and give `MaxStopovers` a
+nonnegative integer. A route with at most N stopovers has at most N+1 flights.
+Large limits on this network can reach the configured reasoning bounds.
+
+To save and check a proof for a custom route, pass the same goal to both commands.
+
+```sh
+goal="path_discovery('Ostend-Bruges International Airport', 'Liège Airport', 0, Path)"
+eyemind --proof --goal "$goal" examples/path-discovery.js > /tmp/route-proof.js
+eyemind --check-proof /tmp/route-proof.js --goal "$goal" examples/path-discovery.js
+```
+
 ---
 
 ## Takeaway

@@ -234,33 +234,31 @@ export const tests = {
     assert.match(document('README.md'), new RegExp(`\\b${loadCases().length} cases that test`));
   },
 
-  'the topic catalog gives every example its deck, input language and source'() {
+  'the contents link to the topics and every example has its deck and input language'() {
     const manifest = JSON.parse(document('examples/manifest.json'));
     const catalog = document('examples/README.md');
-    const topics = [...catalog.matchAll(/^<h3 class="example-topic" id="([^"]+)">([^<]+)<\/h3>\n\n[^\n]+\n\n\| Example/gm)];
-    const links = catalog.match(/<nav class="example-topics"[^>]*>([\s\S]*?)<\/nav>/)[1];
+    const groups = [...catalog.matchAll(/^<details class="example-group" markdown="block">\n<summary>([^<]+)<\/summary>\n\n<div id="([^"]+)"><\/div>\n\n([\s\S]*?)\n<\/details>/gm)];
+    const topics = groups.filter(([, , , body]) => body.startsWith('- ['));
     assert.ok(topics.length > 1);
-    assert.deepEqual([...links.matchAll(/<a href="#([^"]+)">([^<]+)<\/a>/g)].map((match) => match.slice(1)),
-      topics.map((match) => match.slice(1)));
-    const rows = catalog.split('\n').filter((line) => line.startsWith('| ['))
-      .map((line) => line.split('|').slice(1, -1).map((cell) => cell.trim()));
+    assert.equal(new Set(groups.map(([, , id]) => id)).size, groups.length);
+    const contents = catalog.match(/<nav class="example-contents"[^>]*>([\s\S]*?)<\/nav>/)[1];
+    assert.deepEqual(contents.trim().split('\n'), topics.map(([, title, id]) => `- [${title}](#${id})`));
+    const rows = topics.flatMap(([, , , body]) => body.trim().split('\n'));
     const expected = manifest.map((entry) => {
       const files = sourceFiles(entry);
-      const title = document(`examples/deck/${entry.name}.md`).match(/^# (.+)$/m)[1];
+      const deck = document(`examples/deck/${entry.name}.md`);
+      const title = deck.match(/^# (.+)$/m)[1];
+      for (const file of files) assert.ok(deck.includes(`/examples/${file})`), file);
+      assert.ok(deck.includes(`/playground/#example=${entry.name})`), entry.name);
       const languages = { le: 'Logical English', n3: 'Notation3', srl: 'SPARQL 1.2 RL' };
       const native = files.find((file) => /\.(le|n3|srl)$/.test(file));
       const input = native ? languages[native.split('.').at(-1)]
         : files.some((file) => /\.(ttl|trig|nt|nq)$/.test(file)) ? 'RDF' : 'Logic Script';
-      return [
-        `[${title}](https://eyereasoner.github.io/eyemind/examples/deck/${entry.name})`,
-        input, entry.description,
-        files.map((file) => `[${file}](https://github.com/eyereasoner/eyemind/blob/main/examples/${file})`).join(' · '),
-      ];
+      return `- [${title}](https://eyereasoner.github.io/eyemind/examples/deck/${entry.name}) (${input}) — ${entry.description}`;
     });
     assert.deepEqual(rows.sort(), expected.sort());
-    const featured = [...catalog.matchAll(/class="example-run" href="https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/#example=([^"]+)"/g)];
-    assert.ok(featured.length > 1);
-    for (const [, name] of featured) assert.ok(manifest.some((entry) => entry.name === name), name);
+    const starter = catalog.match(/\[Run Socrates in the Playground\]\(https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/#example=([^)]+)\)/);
+    assert.ok(manifest.some((entry) => entry.name === starter?.[1]));
     assert.ok(document('README.md').includes('[Examples](https://eyereasoner.github.io/eyemind/examples/)'));
   },
 };

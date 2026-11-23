@@ -75,6 +75,12 @@ as many times as it can succeed and gathers every `Z` into the list `L`. So
 the first line reads: *"the roots of `P` are the list of everything `racine`
 finds for `P`."*
 
+Lagrange's quartic rule collects the roots of its auxiliary cubic through a
+separate predicate, so that collection depends only on a lower degree.
+Colmerauer's Prolog version builds arithmetic calls with `=..` and uses cuts
+after zero tests. Here each operation has its own clause, and the branches
+use numeric comparisons to make their zero and nonzero cases exclusive.
+
 `est(Z, Expr)` ("is") evaluates a complex expression, written out as
 ordinary rules: `fois` is times, `add` plus, `moins` minus, `floordiv` here
 complex division, `carre`, `cube` and `pquatre` the second, third and fourth

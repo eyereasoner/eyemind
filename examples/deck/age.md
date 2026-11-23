@@ -93,6 +93,10 @@ arithmetic, written as terms such as `add`, `sub`, `mul`, `floordiv`
 (division rounded down), `mod` (remainder) and `min`, and worked out by
 `is(Result, calculation)`.
 
+An invalid date, a reference date before the birth, an unknown person, or a
+negative or noninteger threshold gives no answer. The program takes reference
+dates from the input, so the same proof checks on any day.
+
 ---
 
 ## What eyemind concludes

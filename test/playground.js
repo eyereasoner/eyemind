@@ -11,24 +11,19 @@ const expected = JSON.parse(readFileSync(new URL('../package.json', import.meta.
 const socrates = readFileSync(new URL('../examples/output/socrates.js', import.meta.url), 'utf8');
 const manifest = readManifest();
 
-// Render the topic table subset of the Markdown for the browser harness,
-// which serves repository files directly without running Jekyll.
+// Render the Markdown lists inside the native topic disclosures because the
+// browser harness serves repository files without running Jekyll.
 function exampleCatalog(base) {
   const source = readFileSync(new URL('../examples/README.md', import.meta.url), 'utf8');
-  const intro = source.slice(source.indexOf('<div class="example-starters">'), source.indexOf('<h3 class="example-topic"'))
-    .replace('## Browse by topic', '<h2>Browse by topic</h2>');
-  const cellHtml = (cell) => cell.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-  const groups = Array.from(source.matchAll(/^(<h3 class="example-topic" .+<\/h3>)\n\n(.+)\n\n((?:\| .+\n)+)/gm), ([, heading, summary, table]) => {
-    const row = (line, element) => '<tr>' + line.split('|').slice(1, -1).map((cell) =>
-      `<${element}>${cellHtml(cell.trim())}</${element}>`).join('') + '</tr>';
-    const [header, , ...rows] = table.trimEnd().split('\n');
-    return `${heading}<p>${summary}</p><table><thead>${row(header, 'th')}</thead><tbody>${rows.map((line) => row(line, 'td')).join('')}</tbody></table>`;
+  const topics = source.slice(source.indexOf('<nav'), source.lastIndexOf('<details'));
+  const content = topics.replace(/(?:^- .+\n)+/gm, (list) => {
+    const rows = list.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+      .replace(/^- \[([^\]]+)\]\(([^)]+)\)(.*)$/gm, '<li><a href="$2">$1</a>$3</li>');
+    return `<ul>${rows}</ul>`;
   });
   return `<!doctype html><meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="${new URL('../assets/docs.css', base)}">
-    <main class="documentation"><article class="example-catalog">${intro}${groups.join('')}</article></main>
-    <script src="${new URL('../assets/examples.js', base)}" defer></script>`;
+    <main class="documentation"><article>${content}</article></main>`;
 }
 
 // What the tests do with the page.
@@ -78,36 +73,22 @@ export function driver(page) {
 }
 
 export const tests = [
-  ['the example catalog filters by language and search across topics at desktop and phone widths', async (page, base) => {
+  ['the example contents open topics on desktop and phone', async (page, base) => {
     const { command, evaluate } = page, p = driver(page);
-    await p.open(base);
-    const { frameTree } = await command('Page.getFrameTree');
-    await command('Page.setDocumentContent', { frameId: frameTree.frame.id, html: exampleCatalog(base) });
-    await p.until("!document.querySelector('.example-filters').hidden", 'the example filters');
-    const count = () => evaluate("document.querySelector('.example-count').textContent");
-    assert.equal(await count(), `${manifest.length} examples`);
-    await evaluate(`(() => {
-      const language = document.querySelector('[name="language"]');
-      language.value = 'Logical English';
-      language.dispatchEvent(new Event('change', { bubbles: true }));
-    })()`);
-    assert.equal(await count(), `${manifest.filter((entry) => sourceFiles(entry).some((file) => file.endsWith('.le'))).length} examples`);
-    const search = (text) => evaluate(`(() => {
-      const input = document.querySelector('[name="query"]');
-      input.value = ${JSON.stringify(text)};
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    })()`);
-    await search('MORTAL socrates');
-    assert.equal(await count(), '1 example');
-    assert.deepEqual(await evaluate("[...document.querySelectorAll('.example-topics a:not([hidden])')].map(a => a.hash)"), ['#reasoning']);
-    assert.equal(await evaluate("document.querySelector('tbody tr:not([hidden]) a').textContent"), 'Socrates in Logical English');
-    await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 900, deviceScaleFactor: 1, mobile: true });
-    await search('no matching vocabulary');
-    assert.equal(await count(), 'No matching examples');
-    assert.equal(await evaluate("getComputedStyle(document.querySelector('tbody tr[hidden]')).display"), 'none');
-    await evaluate("document.querySelector('.example-filters button').click()");
-    await p.until(`document.querySelector('.example-count').textContent === '${manifest.length} examples'`, 'cleared filters');
-    assert.ok(await evaluate('document.documentElement.scrollWidth <= innerWidth'));
+    for (const [width, mobile] of [[1280, false], [390, true]]) {
+      await p.open(base, width, mobile);
+      const { frameTree } = await command('Page.getFrameTree');
+      await command('Page.setDocumentContent', { frameId: frameTree.frame.id, html: exampleCatalog(base) });
+      await p.until('document.styleSheets.length === 1', 'the examples stylesheet');
+      assert.equal(await evaluate("document.querySelectorAll('details li').length"), manifest.length);
+      assert.equal(await evaluate("document.querySelectorAll('details[open]').length"), 0);
+      await evaluate("document.querySelector('nav a[href=\"#reasoning\"]').click()");
+      await p.until("location.hash === '#reasoning' && document.getElementById('reasoning').parentElement.open", 'the topic from the contents');
+      assert.ok(await evaluate("document.querySelector('details[open] li a').getBoundingClientRect().height > 0"));
+      assert.ok(await evaluate('document.documentElement.scrollWidth <= innerWidth'));
+      await evaluate("document.querySelector('details[open] summary').click()");
+      assert.equal(await evaluate("document.querySelectorAll('details[open]').length"), 0);
+    }
   }],
   ['the catalog loads and socrates runs, answers a goal and checks its proof', async (page, base) => {
     const p = driver(page);

@@ -102,6 +102,13 @@ head holds if every part of the body holds"*. In outline:
 - The next stage of the search is wrapped in `once(...)`, which commits to
   the first way of finishing from that point.
 
+The current state travels through the search as a list of fluents. Each drive
+passes an updated list to the next call, so the checker can replay the
+transition as an ordinary clause instance. Consecutive drives on the same map
+count as one stage, and each map change adds a stage.
+The original planner read transitions with `clause/2`, updated fluents in the
+database, and capped the stage count at two.
+
 `is`, `le`, `ge`, `unify` (*make equal*), `not_unify` (*differ*) and
 `identical` are **builtins**, operations built into eyemind. `once` is a
 **control**: it does not prove anything by itself, but steers how its
