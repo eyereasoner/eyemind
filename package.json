@@ -7,6 +7,11 @@
   "exports": {
     ".": "./src/index.js",
     "./node": "./src/node.js",
+    "./rdf": "./src/rdf.js",
+    "./messages": "./src/messages.js",
+    "./formats": "./src/formats.js",
+    "./cli": "./src/cli.js",
+    "./qudt": "./src/qudt.js",
     "./package.json": "./package.json"
   },
   "bin": {

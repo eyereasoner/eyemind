@@ -3,12 +3,13 @@
 // extend or override it; there is no ontology download during compilation.
 import { write } from './writer.js';
 import { Struct } from './terms.js';
-import { DIMENSIONS, UNITS } from './qudt-catalog.js';
+import { DIMENSIONS, KINDS, UNITS } from './qudt-catalog.js';
 
 const Q = 'http://qudt.org/schema/qudt/';
 const U = 'http://qudt.org/vocab/unit/';
 const C = 'https://eyereasoner.github.io/eyemind/qudt#';
 const D = 'http://qudt.org/vocab/dimensionvector/';
+const K = 'http://qudt.org/vocab/quantitykind/';
 const dimensions = {
   length: 'A0E0L1I0M0H0T0D0', area: 'A0E0L2I0M0H0T0D0', volume: 'A0E0L3I0M0H0T0D0',
   time: 'A0E0L0I0M0H0T1D0', mass: 'A0E0L0I0M1H0T0D0', speed: 'A0E0L1I0M0H0T-1D0',
@@ -112,6 +113,12 @@ implied_by(qu_contract(Property, Profile, G), ent_base(Property, qc('normalizati
 implies([ent_base(S, P, literal(L, datatype(DT)), G), not(qu_generic(DT)), qu_parsed(L, U, G, V), qu_datatype(Profile, DT, _, _, G), qu_contract(P, Profile, G), qu_profile(Profile, Specific, T, Code, G), qu_dimension(U, G, Dim), qu_dimension(T, G, Dim)], qu_input(S, P, literal(L, datatype(DT)), qc('sourceLiteral'), U, V, T, Code, Specific, G));
 implies([ent_base(S, P, literal(L, datatype(DT)), G), qu_generic(DT), qu_parsed(L, U, G, V), qu_dimension(U, G, Dim), qu_selected(P, Profile, Specific, T, Code, Dim, G)], qu_input(S, P, literal(L, datatype(DT)), qc('sourceLiteral'), U, V, T, Code, Specific, G));
 implies([ent_base(S, P, Q, G), rdf(Q, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), qu('QuantityValue'), G), rdf(Q, qu('numericValue'), Value, G), rdf(Q, qu('unit'), Local, G), qu_float(Value, V), qu_align(Local, U, G), qu_dimension(U, G, Dim), qu_selected(P, Profile, DT, T, Code, Dim, G)], qu_input(S, P, Q, qc('sourceQuantity'), U, V, T, Code, DT, G));
+// A unit of a dimension without a CDT datatype normalizes to the coherent SI
+// unit qudtUnits chose for it, as a cdt:ucum literal, unless a profile covers
+// its dimension or the property has a contract.
+implied_by(qu_unit_target(P, U, T, Code, G), [qu_builtin_target(U, T, Code), not(ent_base(P, qc('normalizationProfile'), _, G)), qu_dimension(U, G, D), not(qu_selected(P, _, _, _, _, D, G))]);
+implies([ent_base(S, P, literal(L, datatype(DT)), G), qu_generic(DT), qu_parsed(L, U, G, V), qu_unit_target(P, U, T, Code, G)], qu_input(S, P, literal(L, datatype(DT)), qc('sourceLiteral'), U, V, T, Code, 'https://w3id.org/cdt/ucum', G));
+implies([ent_base(S, P, Q, G), rdf(Q, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), qu('QuantityValue'), G), rdf(Q, qu('numericValue'), Value, G), rdf(Q, qu('unit'), Local, G), qu_float(Value, V), qu_align(Local, U, G), qu_unit_target(P, U, T, Code, G)], qu_input(S, P, Q, qc('sourceQuantity'), U, V, T, Code, 'https://w3id.org/cdt/ucum', G));
 // QUDT's offset is applied before its multiplier; this matters for Fahrenheit.
 implied_by(qu_ratio(V, U, G, R), [qu_unit(U, G, _, M, O), float64('add', V, O, A), float64('mul', A, M, R), is_float(R)]);
 implied_by(qu_ratio(V, U, G, R), [qu_log(U, G, B, E), float64('mul', V, E, X), is_float(X), is(LB, log(B)), float64('mul', X, LB, Ln), is_float(Ln), lt(Ln, float(709.782712893384)), is(R, pow(B, X))]);
@@ -165,9 +172,9 @@ const catalogUnits = () => {
   if (catalog !== null) return catalog;
   const units = new Map(), byCode = new Map();
   for (const line of UNITS.split('\n')) {
-    const [name, mult, offset, dim, coherent, codes] = line.split('\t');
+    const [name, mult, offset, dim, coherent, codes, kinds] = line.split('\t');
     const unit = { exponents: vector(DIMENSIONS[Number(dim)]), mult: Number(mult), offset: Number(offset), coherent: coherent === '1',
-      code: codes ? codes.split(' ')[0] : null };
+      code: codes ? codes.split(' ')[0] : null, kinds: kinds ? kinds.split(' ').map((i) => KINDS[Number(i)]) : [] };
     units.set(U + name, unit);
     for (const code of codes ? codes.split(' ') : []) {
       const other = byCode.get(code);
@@ -201,7 +208,7 @@ export function qudtUnits(quads) {
   const values = (node, property) => (about.get(write(node)) ?? []).filter((q) => q[1].args?.[0] === Q + property).map((q) => q[2]);
   const numberOf = (term) => typeof term === 'bigint' ? Number(term)
     : term?.name === 'literal' && /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(term.args[0]) ? Number(term.args[0]) : null;
-  const known = new Map(), derived = [], dims = new Set();
+  const known = new Map(), derived = [];
   // The graph of a unit's metadata.
   const graphOf = (unit) => write(about.get(write(unit))[0][3]);
   const resolve = (unit, seen = new Set()) => {
@@ -215,13 +222,11 @@ export function qudtUnits(quads) {
     const dimension = values(unit, 'hasDimensionVector')[0]?.args?.[0]?.slice(D.length);
     if (multiplier !== null && dimension && vector(dimension)) {
       found = { exponents: vector(dimension), mult: multiplier, offset: numberOf(values(unit, 'conversionOffset')[0]) ?? 0 };
-      dims.add(dimension);
     } else if (builtin.has(id)) {
       found = builtin.get(id);
     } else if (catalogUnits().units.has(id)) {
       found = catalogUnits().units.get(id);
       derived.push(`fact(qu_builtin(${iri(id)}, ${iri(D + vectorName(found.exponents))}, ${number(found.mult)}, ${number(found.offset)}));`);
-      dims.add(vectorName(found.exponents));
     } else {
       const factors = values(unit, 'hasFactorUnit');
       const prefix = values(unit, 'prefix')[0], base = values(unit, 'scalingOf')[0];
@@ -238,7 +243,6 @@ export function qudtUnits(quads) {
           const mult = exact(resolved.reduce((product, [r, e, scale]) => product * scale * r.mult ** e, 1));
           found = { exponents, mult, offset: 0 };
           derived.push(`fact(qu_derived(${iri(id)}, ${graphOf(unit)}, ${iri(D + vectorName(exponents))}, ${number(mult)}));`);
-          dims.add(vectorName(exponents));
         }
       }
     }
@@ -259,26 +263,66 @@ export function qudtUnits(quads) {
     const unit = code && !builtinTokens.has(code) ? catalogUnits().byCode.get(code) : null;
     if (unit && resolve(new Struct('iri', [unit]))) tokens.push(`fact(qu_builtin_token(${text(code)}, ${iri(unit)}));`);
   }
-  // A dimension without a target normalizes to a coherent SI unit of it that
-  // the input uses, as W-PER-M2; or to QUDT's unit of SI base units, as
-  // PER-SEC for s-1 rather than becquerel or hertz; or else to the one eyemind
-  // names by that UCUM code, as kg.s-3.
-  const profiles = [...dims].filter((dim) => !profiled.has(dim)).map((dim) => {
-    const coherent = (u) => u && u.mult === 1 && u.offset === 0 && u.code && vectorName(u.exponents) === dim;
-    const target = [...known].find(([id, u]) => id.startsWith(U) && coherent(u))?.[0] ??
-      [...catalogUnits().units].find(([, u]) => coherent(u) && u.code === ucumOf(vector(dim)))?.[0];
-    if (target) {
-      const { code } = catalogUnits().units.get(target) ?? builtin.get(target) ?? known.get(target);
-      const unit = resolve(new Struct('iri', [target])) && target;
-      return `fact(qu_builtin_token(${text(code)}, ${iri(unit)}));\n` +
-        `fact(qu_builtin_profile(${iri(C + 'Profile-' + code)}, ${text('https://w3id.org/cdt/ucum')}, ${iri(unit)}, ${text(code)}));`;
+  // Each unit of a dimension without a CDT datatype normalizes to the target
+  // targetUnit chooses from its dimension and quantity kinds alone, so
+  // separate runs agree; the input's own kinds of a unit replace QUDT's.
+  const targets = [], declared = new Set();
+  for (const [id, unit] of known) {
+    const dim = unit && vectorName(unit.exponents);
+    if (!unit || profiled.has(dim)) continue;
+    const stated = [...values(new Struct('iri', [id]), 'hasQuantityKind'), ...values(new Struct('iri', [id]), 'unitForQuantityKind')]
+      .map((kind) => kind?.args?.[0]).filter((kind) => typeof kind === 'string').map((kind) => kind.startsWith(K) ? kind.slice(K.length) : kind);
+    const { target, code } = targetUnit(dim, stated.length ? stated : kindsOf(id));
+    if (!declared.has(target)) {
+      declared.add(target);
+      if (target.startsWith(C)) targets.push(`fact(qu_builtin(${iri(target)}, ${iri(D + dim)}, ${number(1)}, ${number(0)}));`);
+      else resolve(new Struct('iri', [target]));
+      targets.push(`fact(qu_builtin_token(${text(code)}, ${iri(target)}));`);
     }
-    const code = ucumOf(vector(dim)), unit = C + 'unit-' + code;
-    return `fact(qu_builtin(${iri(unit)}, ${iri(D + dim)}, ${number(1)}, ${number(0)}));\n` +
-      `fact(qu_builtin_token(${text(code)}, ${iri(unit)}));\n` +
-      `fact(qu_builtin_profile(${iri(C + 'Profile-' + code)}, ${text('https://w3id.org/cdt/ucum')}, ${iri(unit)}, ${text(code)}));`;
-  });
-  return [...derived, ...tokens, ...profiles].map((line) => line + '\n').join('');
+    targets.push(`fact(qu_builtin_target(${iri(id)}, ${iri(target)}, ${text(code)}));`);
+  }
+  return [...derived, ...tokens, ...targets].map((line) => line + '\n').join('');
 }
 
+// The quantity kinds QUDT gives a unit, by their names in quantitykind:.
+const kindsOf = (unit) => catalogUnits().units.get(unit)?.kinds ?? [];
+
+// The coherent SI unit a unit of dimension dim with these quantity kinds
+// normalizes to, and its UCUM code: a coherent SI unit of QUDT's catalog,
+// preferring one that shares a quantity kind, then the one of SI base units,
+// as PER-SEC for s-1, then the one with the fewest UCUM factors, as W-PER-M2
+// over W-PER-M2-SR, then the first by name; or else the one eyemind names by
+// its UCUM code, as K.s-1.
+const targetUnit = (dim, kinds) => {
+  const base = ucumOf(vector(dim));
+  const candidates = [...catalogUnits().units].filter(([, u]) => u.coherent && u.code && vectorName(u.exponents) === dim);
+  const rank = ([id, u]) => [u.kinds.some((k) => kinds.includes(k)) ? 0 : 1, u.code === base ? 0 : 1, u.code.split('.').length, id];
+  const order = (a, b) => {
+    const [x, y] = [rank(a), rank(b)];
+    for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] < y[i] ? -1 : 1;
+    return 0;
+  };
+  const best = candidates.sort(order)[0];
+  return best ? { target: best[0], code: best[1].code } : { target: C + 'unit-' + base, code: base };
+};
+
 export const qudtRules = (quads) => qudtCatalog + qudtUnits(quads);
+
+// The conversion from one QUDT unit to another, both given by IRI, as a
+// value in the second unit = value in the first × scale + offset; with the
+// dimension vector they share and the quantity kinds both have, so a caller
+// can refuse a conversion between kinds. Null when either unit is not in the
+// catalog, has no fixed conversion, or the dimensions differ.
+export function unitConversion(from, to) {
+  const unitOf = (id) => catalogUnits().units.get(id) ?? builtin.get(id) ?? null;
+  const [a, b] = [unitOf(from), unitOf(to)];
+  if (!a || !b || vectorName(a.exponents) !== vectorName(b.exponents)) return null;
+  // QUDT converts to SI as (value + offset) × multiplier.
+  const scale = exact(a.mult / b.mult);
+  const offset = exact(a.offset * a.mult / b.mult - b.offset) + 0;
+  const shared = kindsOf(from).filter((kind) => kindsOf(to).includes(kind));
+  return { scale, offset, dimensionVector: D + vectorName(a.exponents), sharedQuantityKinds: shared.map((kind) => K + kind) };
+}
+
+// The quantity kinds QUDT gives a unit, by IRI.
+export const quantityKinds = (unit) => kindsOf(unit).map((kind) => K + kind);

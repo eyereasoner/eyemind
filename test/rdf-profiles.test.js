@@ -2,6 +2,7 @@ import { assert, cli, errorOf } from './helpers.js';
 import { checkProof, loadText, readTerm, run, write } from '../src/index.js';
 import { loadInputs } from '../src/formats.js';
 import { parseRdf } from '../src/rdf.js';
+import { quantityKinds, unitConversion } from '../src/qudt.js';
 
 const P = `@prefix : <urn:ex:>.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
@@ -114,9 +115,10 @@ export const tests = {
     assert.deepEqual(value(':v qudt:prefix prefix:Milli; qudt:scalingOf unit:GM. :u qudt:hasFactorUnit [qudt:hasUnit :v; qudt:exponent 1], [qudt:hasUnit unit:L; qudt:exponent -1]. ' + reading(':u')), ['0.005 kg/m3', 0]);
     assert.deepEqual(value(':u qudt:hasFactorUnit [qudt:hasUnit unit:DEG_C; qudt:exponent 1], [qudt:hasUnit unit:SEC; qudt:exponent -1]. ' + reading(':u')), ['5.0 K.s-1', 0]);
     // QUDT's catalog has the units its vocabulary defines; a coherent SI unit
-    // is the target of a dimension without one, with its UCUM code.
+    // of the same quantity kind is the target of a dimension without one,
+    // with its UCUM code: newton for kg.m.s-2.
     assert.deepEqual(value(reading('unit:W-PER-M2')), ['5.0 W.m-2', 0]);
-    assert.deepEqual(value(reading('unit:KiloGM-M-PER-SEC2')), ['5.0 kg.m.s-2', 0]);
+    assert.deepEqual(value(reading('unit:KiloGM-M-PER-SEC2')), ['5.0 N', 0]);
     assert.deepEqual(value(reading('unit:PER-SEC')), ['5.0 s-1', 0]);
     assert.deepEqual(value(':a :v "5 W.m-2"^^cdt:ucum.'), ['5.0 W.m-2', 0]);
     assert.deepEqual(value(reading('unit:MilliM-PER-HR').replace('5;', '3600;')), ['0.001 m/s', 0]);
@@ -125,6 +127,37 @@ export const tests = {
     assert.deepEqual(value(reading('unit:CCY_USD')), [undefined, 1]);
     // A composed unit's UCUM code reads CDT literals.
     assert.deepEqual(value(':u qudt:ucumCode "ng/m3"; qudt:hasFactorUnit [qudt:hasUnit unit:NanoGM; qudt:exponent 1], [qudt:hasUnit unit:M3; qudt:exponent -1]. :a :v "12 ng/m3"^^cdt:ucum.'), ['1.2e-11 kg/m3', 0]);
+  },
+
+  'QUDT normalizes a unit without a CDT datatype to one target in any run, within its quantity kind'() {
+    const target = (data) => {
+      const { quads } = evaluate(data, { qudt: true });
+      return quads.filter(([, p]) => p.args?.[0] === Q + 'unit').map(([, , o]) => o.args[0].replace('http://qudt.org/vocab/unit/', '')).sort();
+    };
+    const reading = (s, unit) => `:${s} :v [a qudt:QuantityValue; qudt:numericValue 5; qudt:unit unit:${unit}]. `;
+    // Separate runs and one run agree: kW/m² is W/m², not kg.s-3.
+    assert.deepEqual(target(reading('a', 'KiloW-PER-M2')), ['W-PER-M2']);
+    assert.deepEqual(target(reading('a', 'KiloW-PER-M2') + reading('b', 'W-PER-M2')), ['W-PER-M2', 'W-PER-M2']);
+    // A radiance stays a radiance, though it shares the dimension of W/m²;
+    // a frequency goes to s-1, a radioactive activity to becquerel.
+    assert.deepEqual(target(reading('a', 'W-PER-M2-SR') + reading('b', 'W-PER-M2')), ['W-PER-M2', 'W-PER-M2-SR']);
+    assert.deepEqual(target(reading('a', 'KiloHZ') + reading('b', 'KiloBQ')), ['BQ', 'PER-SEC']);
+    // The input's quantity kinds of a unit replace QUDT's.
+    assert.deepEqual(target('unit:KiloW-PER-M2 qudt:hasQuantityKind <http://qudt.org/vocab/quantitykind/Radiance>. ' + reading('a', 'KiloW-PER-M2')), ['W-PER-M2-SR']);
+  },
+
+  'QUDT conversions between two units give a scale, an offset and their shared quantity kinds'() {
+    const U = 'http://qudt.org/vocab/unit/', K = 'http://qudt.org/vocab/quantitykind/';
+    assert.deepEqual(unitConversion(U + 'KiloW-PER-M2', U + 'W-PER-M2'), { scale: 1000, offset: 0,
+      dimensionVector: 'http://qudt.org/vocab/dimensionvector/A0E0L0I0M1H0T-3D0', sharedQuantityKinds: [K + 'PowerPerArea'] });
+    assert.deepEqual(unitConversion(U + 'W-PER-M2', U + 'W-PER-M2-SR').sharedQuantityKinds, []);
+    const { scale, offset } = unitConversion(U + 'DEG_C', U + 'DEG_F');
+    assert.ok(Math.abs(scale * 100 + offset - 212) < 1e-12);
+    assert.equal(unitConversion(U + 'K', U + 'DEG_C').offset, -273.15);
+    assert.equal(unitConversion(U + 'M', U + 'SEC'), null);
+    assert.equal(unitConversion(U + 'FOO', U + 'M'), null);
+    assert.ok(quantityKinds(U + 'W-PER-M2-SR').includes(K + 'Radiance'));
+    assert.deepEqual(quantityKinds(U + 'FOO'), []);
   },
 
   'QUDT uses input metadata and logarithmic conventions without recursively normalizing results'() {

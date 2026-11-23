@@ -397,9 +397,13 @@ query(rdf(O, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), sosa('Obser
   other units of the QUDT unit vocabulary with a fixed conversion, such as
   `unit:W-PER-M2`, come from an offline catalog that `tools/qudt-catalog.js`
   generates from a QUDT release, also by the UCUM code of a CDT literal. A
-  dimension without a CDT datatype normalizes to its coherent SI unit as a
-  `cdt:ucum` literal, and a quantity whose unit cannot be resolved, such as a
-  currency, is reported with `qconv:unresolvedUnit`.
+  unit of a dimension without a CDT datatype normalizes, as a `cdt:ucum`
+  literal, to a coherent SI unit of the catalog chosen from the unit alone, so
+  separate runs agree: one that shares a quantity kind with it (QUDT's, or
+  those the input states with `qudt:hasQuantityKind`), then one of SI base
+  units, then the one with the fewest UCUM factors. So kW/m² is W/m² in any
+  run, and a radiance stays W/(m²·sr). A quantity whose unit cannot be
+  resolved, such as a currency, is reported with `qconv:unresolvedUnit`.
 - `--skos` adds positive [SKOS Core](https://www.w3.org/TR/skos-reference/)
   entailments, without integrity checks or SKOS-XL.
 - `--shacl` compiles shapes to LS and writes a standard `sh:ValidationReport`.
@@ -712,6 +716,23 @@ console.log(checkProof(socrates, result.proof, { goals }).valid);
 ```
 
 `run()` returns `conclusions`, `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `conclusions` holds the answer terms; `answers`, `bindings` and `stdout` are rendered when first read. Ground N3 conclusions are written directly from their terms. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals })` checks a proof. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text. `compileLe([[text, filename], ...])` returns the compiled LS `program` and standalone JavaScript `text`; `writeLe(run(program))` writes its conclusions as LE.
+
+Further entry points serve applications built on the formats and profiles:
+
+| Import | Gives |
+| --- | --- |
+| `eyemind/rdf` | `parseRdf(text, { format, base })` and `writeRdf(quads, { format, prefixes })`, RDF 1.2 to and from eyemind terms |
+| `eyemind/messages` | `parseRdfMessages(text)` and `RdfMessageReader`, for RDF Message logs |
+| `eyemind/formats` | `loadInputs(inputs, io, options)` and `loadMessageReasoner(inputs, io, options)`, the command line's loading of `[text, name]` inputs with the options of the RDF profiles, such as `{ qudt: true, shaclIn, shaclOut }` |
+| `eyemind/cli` | `main(argv, io)`, the command line itself, with `io` as in `eyemind/node` |
+| `eyemind/qudt` | `unitConversion(from, to)` and `quantityKinds(unit)`, from the QUDT catalog of `--qudt` |
+
+`unitConversion` takes two QUDT unit IRIs and returns `{ scale, offset,
+dimensionVector, sharedQuantityKinds }`, where a value in the second unit is
+the value in the first times `scale` plus `offset`, or `null` when either unit
+is unknown or the dimensions differ. An empty `sharedQuantityKinds` marks a
+conversion between quantity kinds, such as from irradiance to radiance, that a
+caller may refuse.
 
 ## What is deliberately absent
 

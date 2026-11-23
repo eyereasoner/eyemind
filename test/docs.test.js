@@ -32,6 +32,19 @@ export const tests = {
     assert.match(document('_layouts/default.html'), /eyemind · Logic Script with checked proofs/);
   },
 
+  async 'the package entry points give the functions the guide lists'() {
+    const entries = { rdf: ['parseRdf', 'writeRdf'], messages: ['parseRdfMessages', 'RdfMessageReader'],
+      formats: ['loadInputs', 'loadMessageReasoner'], cli: ['main'], qudt: ['unitConversion', 'quantityKinds'] };
+    const readme = document('README.md');
+    for (const [entry, names] of Object.entries(entries)) {
+      const module = await import(`eyemind/${entry}`);
+      for (const name of names) {
+        assert.equal(typeof module[name], 'function', `eyemind/${entry} ${name}`);
+        assert.ok(readme.includes(`\`${name}`), `README lists ${name}`);
+      }
+    }
+  },
+
   'the guide and command help list the same options and aliases'() {
     const guide = document('README.md').split('## Command line\n')[1].split('### Resource limits\n')[0];
     const options = guide.split('\n').filter((line) => line.startsWith('| `')).map((line) => line.split('|')[1]).join('\n');
