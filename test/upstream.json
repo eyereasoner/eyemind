@@ -1,7 +1,7 @@
 {
   "notation3tests": {
     "source": "https://codeberg.org/phochste/notation3tests",
-    "revision": "14034dadff9910faa60749dbe8a5fe9d2db15b0e",
+    "revision": "b260849df351f0f948cb63dd845e1124c85bdb6b",
     "cases": 1163
   },
   "rdf": {
@@ -23,13 +23,13 @@
   },
   "srl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "2f64c74e220d7118a6fd8c12b8059225411cd75d",
+    "revision": "1ca8692672cfa4d37adb6e4303cc9a6978f2fcff",
     "path": "shacl12-test-suite/tests/sparql-rl",
-    "cases": 368
+    "cases": 367
   },
   "shacl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "2f64c74e220d7118a6fd8c12b8059225411cd75d",
+    "revision": "1ca8692672cfa4d37adb6e4303cc9a6978f2fcff",
     "path": "shacl12-test-suite/tests",
     "manifest": "https://w3c.github.io/data-shapes/shacl12-test-suite/tests/manifest.ttl",
     "cases": 591

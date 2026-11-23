@@ -22,6 +22,12 @@ failures are saved as error fixtures; temporary network failures stop the
 sync. Downloads and manifest resource checks finish before the cached suites
 are replaced. A failed sync retains the previous set.
 
+The sync summary shows each suite's case count and upstream revision, with
+the previous values when they change. For an existing cache it lists the
+added, modified and removed files, including refreshed Notation3 document
+fixtures. The QUDT summary shows the release, revision and unit count, and
+lists added, modified and removed units.
+
 Test inputs are copied without changes; MobiBench's are extracted from its
 archive, with only Node's `zlib`. Notation3's `documents.json` stores
 the inputs to `log:content`, `log:semantics` and `log:semanticsOrError`,

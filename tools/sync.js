@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 // Refresh cached test suites, staging downloads before replacement.
 import { execFileSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { manifestCases, RDF_MANIFESTS, sparqlRlCases, SRL_BASE, W3C_BASE } from '../test/w3c.js';
 import { shaclCases, SHACL_BASE, SHACL_PATH } from '../test/shacl.js';
 import { mobibenchCases, MOBIBENCH_ARCHIVE, MOBIBENCH_SUBSUITE } from '../test/mobibench.js';
 import { syncNotation3Tests } from './sync-notation3tests.js';
-import { cachePaths, readCachedSuites, recordUpstream, writeInventory } from './test-cache.js';
+import { cacheFiles, cachePaths, readCachedSuites, recordUpstream, writeInventory } from './test-cache.js';
 import { readZip } from './zip.js';
 import { QUDT_SOURCE, QUDT_UNITS, writeQudtCatalog } from './qudt-catalog.js';
 
@@ -17,9 +17,12 @@ const RDF_SOURCE = 'https://github.com/w3c/rdf-tests';
 const SRL_SOURCE = 'https://github.com/w3c/data-shapes';
 const SRL_PATH = 'shacl12-test-suite/tests/sparql-rl';
 const MOBIBENCH_SOURCE = 'https://github.com/william-vw/mobibench';
+const suiteNames = { notation3tests: 'Notation3', rdf: 'W3C RDF', srl: 'W3C SPARQL 1.2 RL',
+  shacl: 'W3C SHACL 1.2', mobibench: 'MobiBench OWL 2 RL' };
 const help = `Usage: npm run sync [-- OPTIONS]
 Refresh notation3tests, W3C RDF, SPARQL 1.2 RL, SHACL 1.2 and MobiBench from upstream,
 and the offline QUDT unit catalog of --qudt from the latest QUDT release.
+Shows counts, revisions and changes compared with the local cache and catalog.
 Requires Git and network access. Optional local Git checkouts:
   --notation3tests PATH    notation3tests repository
   --w3c-rdf PATH           w3c/rdf-tests repository
@@ -51,6 +54,63 @@ function copy(source, target, filter = undefined) {
 
 function metadata(target, data) {
   writeFileSync(join(target, 'upstream.json'), `${JSON.stringify(data, null, 2)}\n`);
+}
+
+function countChange(before, after, unit) {
+  const count = `${after} ${unit}${after === 1 ? '' : 's'}`;
+  if (before === undefined || before === after) return count;
+  const delta = after - before;
+  return `${before} → ${count} (${delta > 0 ? '+' : ''}${delta})`;
+}
+
+function revisionChange(before, after) {
+  return before && before !== after ? `${before} → ${after}` : after;
+}
+
+function changes(before, after, equal) {
+  const added = [], modified = [], removed = [];
+  for (const name of [...after.keys()].sort()) {
+    if (!before.has(name)) added.push(name);
+    else if (!equal(name)) modified.push(name);
+  }
+  for (const name of [...before.keys()].sort()) if (!after.has(name)) removed.push(name);
+  return { added, modified, removed };
+}
+
+function logChanges(log, label, { added, modified, removed }) {
+  if (!added.length && !modified.length && !removed.length) {
+    log(`    No ${label} changes`);
+    return;
+  }
+  log(`    ${label[0].toUpperCase() + label.slice(1)} changes — ${added.length} added, ${modified.length} modified, ${removed.length} removed`);
+  for (const [prefix, names] of [['A', added], ['M', modified], ['D', removed]]) {
+    for (const name of names) log(`      ${prefix} ${name}`);
+  }
+}
+
+function suiteReport(name, info, stage, target) {
+  const files = writeInventory(stage);
+  if (!lstatSync(target, { throwIfNoEntry: false })?.isDirectory()) {
+    return { headline: `${name} — ${countChange(undefined, info.cases, 'case')} at ${info.revision} (new cache)` };
+  }
+  const previous = cacheFiles(target);
+  let old;
+  if (previous.get('upstream.json')?.isFile()) {
+    try { old = JSON.parse(readFileSync(join(target, 'upstream.json'), 'utf8')); }
+    catch (error) { if (!(error instanceof SyntaxError)) throw error; }
+  }
+  // Report provenance separately from the files in the mirror.
+  previous.delete('upstream.json');
+  files.delete('upstream.json');
+  const filesChanged = changes(previous, files, (name) => {
+    const oldPath = join(target, name), newPath = join(stage, name);
+    if (previous.get(name).isFile() && files.get(name).isFile()) return readFileSync(oldPath).equals(readFileSync(newPath));
+    return previous.get(name).isSymbolicLink() && files.get(name).isSymbolicLink() &&
+      readlinkSync(oldPath) === readlinkSync(newPath);
+  });
+  const cases = countChange(Number.isInteger(old?.cases) ? old.cases : undefined, info.cases, 'case');
+  const revision = revisionChange(old?.revision, info.revision);
+  return { headline: `${name} — ${cases} at ${revision}${old ? '' : ' (previous provenance unavailable)'}`, filesChanged };
 }
 
 function licenses(source, target) {
@@ -119,7 +179,6 @@ export async function syncTestSuites({ root = ROOT, checkouts = {}, log = consol
     validate(rdfCases, W3C_BASE, rdf);
     const rdfInfo = { source: RDF_SOURCE, revision: revision(rdfCheckout), manifests: RDF_MANIFESTS, cases: rdfCases.length };
     metadata(rdf, rdfInfo);
-    log(`w3c-rdf: staged ${rdfCases.length} cases at ${rdfInfo.revision}`);
 
     log('Syncing W3C SPARQL 1.2 RL...');
     const srl = join(temporary, 'sparql-rl');
@@ -130,7 +189,6 @@ export async function syncTestSuites({ root = ROOT, checkouts = {}, log = consol
     validate(srlCases, SRL_BASE, srl);
     const srlInfo = { source: SRL_SOURCE, revision: revision(srlCheckout), path: SRL_PATH, cases: srlCases.length };
     metadata(srl, srlInfo);
-    log(`w3c-sparql-rl: staged ${srlCases.length} cases at ${srlInfo.revision}`);
 
     log('Syncing W3C SHACL 1.2...');
     const shacl = join(temporary, 'shacl');
@@ -143,7 +201,6 @@ export async function syncTestSuites({ root = ROOT, checkouts = {}, log = consol
     const shaclInfo = { source: SRL_SOURCE, revision: revision(shaclCheckout), path: SHACL_PATH,
       manifest: SHACL_BASE + 'manifest.ttl', cases: shaclTests.length };
     metadata(shacl, shaclInfo);
-    log(`w3c-shacl: staged ${shaclTests.length} cases at ${shaclInfo.revision}`);
 
     // MobiBench publishes its suite as an archive; the OWL 2 RL subsuite is
     // extracted from it, each path checked to stay inside the mirror.
@@ -164,21 +221,47 @@ export async function syncTestSuites({ root = ROOT, checkouts = {}, log = consol
     const mobibenchInfo = { source: MOBIBENCH_SOURCE, revision: revision(mobibenchCheckout), archive: MOBIBENCH_ARCHIVE,
       path: MOBIBENCH_SUBSUITE, cases: mobibenchTests.length };
     metadata(mobibench, mobibenchInfo);
-    log(`mobibench: staged ${mobibenchTests.length} cases at ${mobibenchInfo.revision}`);
 
     const targets = cachePaths(root);
-    for (const stage of [n3, rdf, srl, shacl, mobibench]) writeInventory(stage);
+    const stages = { notation3tests: n3, rdf, srl, shacl, mobibench };
     const info = { notation3tests: notation3, rdf: rdfInfo, srl: srlInfo, shacl: shaclInfo, mobibench: mobibenchInfo };
+    const suites = Object.keys(info).map((name) => ({ stage: stages[name], target: targets[name],
+      ...suiteReport(suiteNames[name], info[name], stages[name], targets[name]) }));
     const provenance = join(temporary, 'upstream.json');
     metadata(temporary, info);
-    publish([{ stage: n3, target: targets.notation3tests },
-      { stage: rdf, target: targets.rdf }, { stage: srl, target: targets.srl }, { stage: shacl, target: targets.shacl },
-      { stage: mobibench, target: targets.mobibench },
+    publish([...suites,
       { stage: provenance, target: join(root, 'test/upstream.json') }], temporary);
-    log(`Synced ${notation3.cases} Notation3, ${rdfCases.length} RDF, ${srlCases.length} SPARQL RL, ${shaclTests.length} SHACL and ${mobibenchTests.length} MobiBench cases.`);
+    log('Refreshed upstream test suites');
+    for (const { headline, filesChanged } of suites) {
+      log(`  ${headline}`);
+      if (filesChanged) logChanges(log, 'cached file', filesChanged);
+    }
     return info;
   } finally {
     rmSync(temporary, { recursive: true, force: true });
+  }
+}
+
+function catalogSnapshot(path) {
+  if (!existsSync(path)) return null;
+  const text = readFileSync(path, 'utf8');
+  // The generated constants are JSON. Resolve the indexes so a reordered
+  // dimension or quantity kind does not look like a change to each unit.
+  const value = (key) => JSON.parse(text.match(new RegExp(`^export const ${key} = (.*);$`, 'm'))?.[1] ?? 'null');
+  try {
+    const release = value('QUDT_RELEASE'), dimensions = value('DIMENSIONS'), kinds = value('KINDS'), units = value('UNITS');
+    if (typeof release !== 'string' || !Array.isArray(dimensions) || !Array.isArray(kinds) || typeof units !== 'string') return null;
+    const revision = text.match(/^\/\/ Generated by .* \(([a-f0-9]+)\),$/m)?.[1];
+    const records = new Map();
+    for (const line of units ? units.split('\n') : []) {
+      const [name, multiplier, offset, dimension, coherent, codes, indexes] = line.split('\t');
+      const quantityKinds = indexes ? indexes.split(' ').map((index) => kinds[index]).sort() : [];
+      records.set(name, JSON.stringify([multiplier, offset, dimensions[dimension], coherent, codes, quantityKinds]));
+    }
+    return { release, revision, records };
+  } catch (error) {
+    if (!(error instanceof SyntaxError)) throw error;
+    return null;
   }
 }
 
@@ -204,8 +287,18 @@ export function syncQudtCatalog({ root = ROOT, checkout: supplied = null, log = 
       execFileSync('git', ['clone', '--depth', '1', '--branch', release, '--filter=blob:none', '--sparse', `${QUDT_SOURCE}.git`, path], { stdio: 'pipe' });
       execFileSync('git', ['-C', path, 'sparse-checkout', 'set', dirname(QUDT_UNITS)], { stdio: 'pipe' });
     }
-    const { units } = writeQudtCatalog(join(path, QUDT_UNITS), release, { root, revision: revision(path) });
-    log(`qudt: wrote ${units} units of ${release} to src/qudt-catalog.js`);
+    const catalog = join(root, 'src/qudt-catalog.js');
+    const previous = catalogSnapshot(catalog);
+    const commit = revision(path);
+    const { units } = writeQudtCatalog(join(path, QUDT_UNITS), release, { root, revision: commit });
+    const count = countChange(previous?.records.size, units, 'unit');
+    const releaseChange = revisionChange(previous?.release, release);
+    const commitChange = revisionChange(previous?.revision, commit);
+    log(`  QUDT — ${count}, release ${releaseChange} at ${commitChange}`);
+    if (previous) {
+      const current = catalogSnapshot(catalog);
+      logChanges(log, 'unit', changes(previous.records, current.records, (name) => previous.records.get(name) === current.records.get(name)));
+    } else log('    No previous unit records available for comparison');
     return { release, units };
   } finally {
     rmSync(temporary, { recursive: true, force: true });

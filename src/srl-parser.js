@@ -117,10 +117,15 @@ class Parser {
     this.expectValue('{');
     const head = this.parseTriplesBlock({ allowPath: false, context: 'head' });
     this.expectWord('WHERE');
-    const groundData = this.matchWord('DATA');
+    const groundData = this.matchBaseGraph();
     this.expectValue('{');
     const body = this.parseRuleBodyWithBlankNodeScope();
     return { name, head, body, groundData, runOnce: ruleNeedsRunOnce(head, body, this.options) };
+  }
+
+  matchBaseGraph() {
+    // eyemind: accept GROUND from W3C test fixtures alongside the published DATA.
+    return this.matchWord('DATA') || this.matchWord('GROUND');
   }
 
   parseRuleBodyWithBlankNodeScope() {
@@ -374,7 +379,7 @@ class Parser {
       } else if (this.matchWord('BIND')) {
         throw this.error('BIND is not part of the SPARQL 1.2 RL grammar; use SET');
       } else if (this.matchWord('NOT')) {
-        const groundData = this.matchWord('DATA');
+        const groundData = this.matchBaseGraph();
         this.expectValue('{');
         const body = this.parseBodyBasicAlreadyOpen();
         clauses.push({ type: 'not', body, groundData });

@@ -182,10 +182,17 @@ test('all: the base graph is written too', () => {
   const r = srl(`${P}RULE { ?x :q ?y } WHERE { ?x :p ?y }`, { data: [[`${P}:b :p 2 .`, 'd.ttl']], all: true });
   assert.match(r.turtle, /:b :p 2 \.\n:b :q 2 \./);
 });
-test('WHERE DATA and NOT DATA read only the base graph', () => {
+test('WHERE and NOT with DATA or GROUND read only the base graph', () => {
   const data = [[`${P}:s :p :o .`, 'd.ttl']];
-  assert.deepEqual(derived('DATA { :t :p :o } RULE { ?x :seen 1 } WHERE DATA { ?x :p :o }', { data }), [':t :p :o .', ':s :seen 1 .']);
-  assert.deepEqual(derived('DATA { :t :p :o } RULE { ?x :new 1 } WHERE { ?x :p :o NOT DATA { ?x :p ?any } }', { data }), [':t :p :o .', ':t :new 1 .']);
+  for (const modifier of ['DATA', 'ground']) {
+    assert.deepEqual(derived(`DATA { :t :p :o } RULE { ?x :seen 1 } WHERE ${modifier} { ?x :p :o }`, { data }),
+      [':t :p :o .', ':s :seen 1 .']);
+    assert.deepEqual(derived(`DATA { :t :p :o } RULE { ?x :new 1 } WHERE { ?x :p :o NOT ${modifier} { ?x :p ?any } }`, { data }),
+      [':t :p :o .', ':t :new 1 .']);
+    assert.deepEqual(derived(`DATA { :s :p :t }
+      RULE { ?s :p ?n } WHERE ${modifier} { GROUP BY ?s { ?s :p ?o } [ ?n := COUNT(*) ] }`, { data }),
+      [':s :p :t .', ':s :p 1 .']);
+  }
 });
 test('recursion runs to a fixpoint', () => {
   assert.equal(derived('DATA { :a :e :b . :b :e :c . :c :e :a } RULE { ?x :r ?y } WHERE { ?x :e ?y } RULE { ?x :r ?z } WHERE { ?x :r ?y . ?y :e ?z }').length, 12);

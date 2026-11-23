@@ -5,7 +5,8 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSy
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { checkout, ensureTestCache, syncTestSuites } from '../tools/sync.js';
+import { checkout, ensureTestCache, syncQudtCatalog, syncTestSuites } from '../tools/sync.js';
+import { QUDT_UNITS } from '../tools/qudt-catalog.js';
 import { readCachedSuites } from '../tools/test-cache.js';
 import { syncNotation3Tests } from '../tools/sync-notation3tests.js';
 import { RDF_MANIFESTS, W3C_BASE } from './w3c.js';
@@ -143,20 +144,73 @@ export const tests = {
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
-  async 'explicit sync refreshes a valid cache and records the new upstream revision'() {
+  async 'explicit sync reports and records the changes from a valid cache'() {
     const f = fixture();
     try {
       const original = await syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} });
       const source = f.checkouts.notation3tests;
       put(join(source, 'tests/added.n3'), '@prefix : <urn:test:>. :s :p :o.');
+      put(join(source, 'tests/also-added.n3'), '@prefix : <urn:test:>. :s :p :o.');
+      put(join(source, 'HELLO.txt'), 'new document bytes\n');
+      rmSync(join(source, 'tests/negative.n3'));
       git(source, 'add', '-A');
       git(source, '-c', 'user.name=Sync fixture', '-c', 'user.email=sync@example.org', 'commit', '-qm', 'Add a test');
       assert.deepEqual(await ensureTestCache({ root: f.root, checkouts: f.checkouts, log() {} }), original);
-      const updated = await syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} });
+      const logs = [];
+      const log = (line) => logs.push(line);
+      const updated = await syncTestSuites({ root: f.root, checkouts: f.checkouts, log });
       assert.equal(updated.notation3tests.cases, 4);
       assert.notEqual(updated.notation3tests.revision, original.notation3tests.revision);
       assert.deepEqual(JSON.parse(text(join(f.root, 'test/upstream.json'))), updated);
+      assert.ok(logs.includes(`  Notation3 — 3 → 4 cases (+1) at ${original.notation3tests.revision} → ${updated.notation3tests.revision}`));
+      assert.ok(logs.includes('    Cached file changes — 2 added, 1 modified, 1 removed'));
+      assert.ok(logs.includes('      A tests/added.n3'));
+      assert.ok(logs.includes('      M documents.json'));
+      assert.ok(logs.includes('      D tests/negative.n3'));
+      assert.equal(logs.filter((line) => line === '    No cached file changes').length, 4);
+      logs.length = 0;
+      await syncTestSuites({ root: f.root, checkouts: f.checkouts, log });
+      assert.equal(logs.filter((line) => line === '    No cached file changes').length, 5);
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
+  },
+
+  'QUDT sync reports release and unit changes without counting reindexed units'() {
+    const temporary = mkdtempSync(join(tmpdir(), 'eyemind-qudt-sync-test-'));
+    try {
+      const root = join(temporary, 'root'), source = join(temporary, 'qudt');
+      mkdirSync(join(root, '.cache'), { recursive: true });
+      mkdirSync(join(root, 'src'));
+      const unit = (name, multiplier, dimension) => `unit:${name} qu:conversionMultiplier ${multiplier};
+        qu:hasDimensionVector dim:${dimension}.\n`;
+      const prefixes = `@prefix unit: <http://qudt.org/vocab/unit/>.
+        @prefix qu: <http://qudt.org/schema/qudt/>.
+        @prefix dim: <http://qudt.org/vocab/dimensionvector/>.\n`;
+      put(join(source, QUDT_UNITS), prefixes + unit('B', 1, 'length') + unit('D', 1, 'time') + unit('Z', 1, 'mass'));
+      git(source, 'init', '-q');
+      const commit = (release) => {
+        git(source, 'add', '-A');
+        git(source, '-c', 'user.name=Sync fixture', '-c', 'user.email=sync@example.org', 'commit', '-qm', release);
+        git(source, 'tag', release);
+        return git(source, 'rev-parse', 'HEAD');
+      };
+      const first = commit('v1.0.0');
+      const logs = [];
+      const sync = () => syncQudtCatalog({ root, checkout: source, log: (line) => logs.push(line) });
+      assert.deepEqual(sync(), { release: 'v1.0.0', units: 3 });
+      assert.ok(logs.includes(`  QUDT — 3 units, release v1.0.0 at ${first}`));
+      put(join(source, QUDT_UNITS), prefixes + unit('A', 1, 'length') + unit('B', 2, 'length') +
+        unit('Z', 1, 'mass') + unit('ZZ', 1, 'time'));
+      const second = commit('v1.0.1');
+      logs.length = 0;
+      assert.deepEqual(sync(), { release: 'v1.0.1', units: 4 });
+      assert.deepEqual(logs, [
+        `  QUDT — 3 → 4 units (+1), release v1.0.0 → v1.0.1 at ${first} → ${second}`,
+        '    Unit changes — 2 added, 1 modified, 1 removed', '      A A', '      A ZZ', '      M B', '      D D',
+      ]);
+      logs.length = 0;
+      sync();
+      assert.ok(logs.includes('    No unit changes'));
+    } finally { rmSync(temporary, { recursive: true, force: true }); }
   },
 
   'sparse upstream clones include root licensing and documentation beside the selected tests'() {

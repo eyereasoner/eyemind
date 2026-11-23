@@ -13,17 +13,23 @@ export const cachePaths = (root = ROOT) => ({
   mobibench: join(root, '.cache/mobibench'),
 });
 
-export function writeInventory(directory) {
-  const files = [];
+export function cacheFiles(directory) {
+  const files = new Map();
   const walk = (path) => {
     for (const entry of readdirSync(path, { withFileTypes: true })) {
       const file = join(path, entry.name);
       if (entry.isDirectory()) walk(file);
-      else if (file !== join(directory, 'inventory.json')) files.push(relative(directory, file).split(sep).join('/'));
+      else if (file !== join(directory, 'inventory.json')) files.set(relative(directory, file).split(sep).join('/'), entry);
     }
   };
   walk(directory);
-  writeFileSync(join(directory, 'inventory.json'), `${JSON.stringify(files.sort())}\n`);
+  return files;
+}
+
+export function writeInventory(directory) {
+  const files = cacheFiles(directory);
+  writeFileSync(join(directory, 'inventory.json'), `${JSON.stringify([...files.keys()].sort())}\n`);
+  return files;
 }
 
 export function readCachedSuites(root = ROOT) {

@@ -356,9 +356,11 @@ Turtle (`--all` adds the base graph). Rules become `implies`, `NOT` becomes
 `not`, `GROUP` becomes `findall_sorted`, and a SPARQL error is a goal that
 fails. Local variable names in `NOT` and `GROUP` cannot be bound again
 elsewhere in the same rule. Decimals are exact (`0.1 + 0.2` is `0.3`) and
-floats are binary64.
+floats are binary64. `WHERE DATA` and `NOT DATA` match only the supplied
+base graph. eyemind also accepts `GROUND` in those positions for W3C test
+suite compatibility.
 `NOW()` and `UUID()` use a clock and seed captured at compilation, which a
-saved proof retains. All 368 W3C SPARQL 1.2 RL tests pass.
+saved proof retains. All 367 cached W3C SPARQL 1.2 RL tests pass.
 
 ```sh
 eyemind -c rules.srl facts.ttl                           # the inference graph, with a checked proof

@@ -46,7 +46,7 @@ import { write } from './writer.js';
 export class SrlError extends Error {}
 
 // A rule set as data blocks and rules: { baseIRI, prefixes, imports, data,
-// rules }. strictGrammar follows the SPARQL 1.2 RL grammar exactly.
+// rules }. The parser also accepts GROUND as the base-graph modifier.
 export function parseRuleSet(text, { base = null, filename = '<input>' } = {}) {
   return new Parser(String(text), { baseIRI: base, filename, strictGrammar: true }).parseProgram();
 }
