@@ -3,6 +3,7 @@ import { checkProof, loadText, readTerm, run, write } from '../src/index.js';
 import { loadInputs } from '../src/formats.js';
 import { parseRdf } from '../src/rdf.js';
 import { quantityKinds, unitConversion } from '../src/qudt.js';
+import { DIMENSIONS, KINDS, QUDT_RELEASE, UNITS } from '../src/qudt-catalog.js';
 
 const P = `@prefix : <urn:ex:>.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
@@ -190,6 +191,37 @@ export const tests = {
     assert.equal(unitConversion(U + 'FOO', U + 'M'), null);
     assert.ok(quantityKinds(U + 'W-PER-M2-SR').includes(K + 'Radiance'));
     assert.deepEqual(quantityKinds(U + 'FOO'), []);
+  },
+
+  'QUDT catalog conversions agree with coherent SI targets'() {
+    const U = 'http://qudt.org/vocab/unit/', D = 'http://qudt.org/vocab/dimensionvector/', K = 'http://qudt.org/vocab/quantitykind/';
+    const units = UNITS.split('\n').map((line) => {
+      const [name, multiplier, offset, dimension, coherent, , kinds] = line.split('\t');
+      return { name, multiplier: Number(multiplier), offset: Number(offset), dimension: DIMENSIONS[Number(dimension)],
+        coherent: coherent === '1', kinds: kinds ? kinds.split(' ').map((id) => K + KINDS[Number(id)]) : [] };
+    });
+    const targets = units.filter((unit) => unit.coherent);
+    let cases = 0;
+    for (const from of units) {
+      const to = targets.find((unit) => unit !== from && unit.dimension === from.dimension &&
+        unit.kinds.some((kind) => from.kinds.includes(kind)));
+      if (!to) continue;
+      cases++;
+      const label = `${from.name} to ${to.name}`;
+      const conversion = unitConversion(U + from.name, U + to.name);
+      assert.ok(conversion, label);
+      // A coherent SI target has multiplier 1 and offset 0. The source
+      // catalog therefore supplies the expected scale and offset directly.
+      const offset = from.offset * from.multiplier;
+      assert.ok(Math.abs(conversion.scale - from.multiplier) <= Math.abs(from.multiplier) * 1e-12,
+        `${label}: expected scale ${from.multiplier}, got ${conversion.scale}`);
+      assert.ok(Math.abs(conversion.offset - offset) <= Math.abs(offset) * 1e-12,
+        `${label}: expected offset ${offset}, got ${conversion.offset}`);
+      assert.equal(conversion.dimensionVector, D + from.dimension, label);
+      assert.deepEqual(conversion.sharedQuantityKinds, from.kinds.filter((kind) => to.kinds.includes(kind)), label);
+    }
+    assert.ok(cases > 0, 'the catalog supplies conversions to coherent SI targets');
+    if (QUDT_RELEASE === 'v3.5.3') assert.equal(cases, 860);
   },
 
   'QUDT uses input metadata and logarithmic conventions without recursively normalizing results'() {
