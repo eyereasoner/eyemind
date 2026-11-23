@@ -234,15 +234,33 @@ export const tests = {
     assert.match(document('README.md'), new RegExp(`\\b${loadCases().length} cases that test`));
   },
 
-  'the example catalog links every deck before its source program'() {
+  'the topic catalog gives every example its deck, input language and source'() {
     const manifest = JSON.parse(document('examples/manifest.json'));
-    const rows = document('examples/README.md').split('\n').filter((line) => line.startsWith('| ['))
+    const catalog = document('examples/README.md');
+    const topics = [...catalog.matchAll(/^<h3 class="example-topic" id="([^"]+)">([^<]+)<\/h3>\n\n[^\n]+\n\n\| Example/gm)];
+    const links = catalog.match(/<nav class="example-topics"[^>]*>([\s\S]*?)<\/nav>/)[1];
+    assert.ok(topics.length > 1);
+    assert.deepEqual([...links.matchAll(/<a href="#([^"]+)">([^<]+)<\/a>/g)].map((match) => match.slice(1)),
+      topics.map((match) => match.slice(1)));
+    const rows = catalog.split('\n').filter((line) => line.startsWith('| ['))
       .map((line) => line.split('|').slice(1, -1).map((cell) => cell.trim()));
-    assert.deepEqual(rows, manifest.sort((a, b) => a.name.localeCompare(b.name, 'en')).map((entry) => [
-      `[${entry.name}](https://eyereasoner.github.io/eyemind/examples/deck/${entry.name})`,
-      sourceFiles(entry).map((file) => `[${file}](https://github.com/eyereasoner/eyemind/blob/main/examples/${file})`).join(' · '),
-      entry.description,
-    ]));
+    const expected = manifest.map((entry) => {
+      const files = sourceFiles(entry);
+      const title = document(`examples/deck/${entry.name}.md`).match(/^# (.+)$/m)[1];
+      const languages = { le: 'Logical English', n3: 'Notation3', srl: 'SPARQL 1.2 RL' };
+      const native = files.find((file) => /\.(le|n3|srl)$/.test(file));
+      const input = native ? languages[native.split('.').at(-1)]
+        : files.some((file) => /\.(ttl|trig|nt|nq)$/.test(file)) ? 'RDF' : 'Logic Script';
+      return [
+        `[${title}](https://eyereasoner.github.io/eyemind/examples/deck/${entry.name})`,
+        input, entry.description,
+        files.map((file) => `[${file}](https://github.com/eyereasoner/eyemind/blob/main/examples/${file})`).join(' · '),
+      ];
+    });
+    assert.deepEqual(rows.sort(), expected.sort());
+    const featured = [...catalog.matchAll(/class="example-run" href="https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/#example=([^"]+)"/g)];
+    assert.ok(featured.length > 1);
+    for (const [, name] of featured) assert.ok(manifest.some((entry) => entry.name === name), name);
     assert.ok(document('README.md').includes('[Examples](https://eyereasoner.github.io/eyemind/examples/)'));
   },
 };

@@ -47,7 +47,7 @@
         {%- endif -%}
       {%- endfor -%}
     {%- endcapture %}
-    <article>{{ body }}</article>
+    <article{% if page.path == 'examples/README.md' %} class="example-catalog"{% endif %}>{{ body }}</article>
     <footer><span>eyemind · Logic Script with checked proofs</span><span>MIT licensed</span></footer>
   </main>
   <script>
@@ -58,5 +58,8 @@
       if (next && next.nodeType === 1 && next.classList.contains('p') && next.textContent.startsWith('(')) name.classList.add('call');
     }
   </script>
+  {% if page.path == 'examples/README.md' %}
+  <script src="{{ '/assets/examples.js' | relative_url }}" defer></script>
+  {% endif %}
 </body>
 </html>
