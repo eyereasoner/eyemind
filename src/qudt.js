@@ -13,6 +13,7 @@ const K = 'http://qudt.org/vocab/quantitykind/';
 const SAME_AS = 'http://www.w3.org/2002/07/owl#sameAs';
 const EXACT_MATCH = 'http://www.w3.org/2004/02/skos/core#exactMatch';
 const ALIGNED_UNIT = C + 'alignedQudtUnit';
+const TARGET_UNIT = C + 'targetUnit';
 const dimensions = {
   length: 'A0E0L1I0M0H0T0D0', area: 'A0E0L2I0M0H0T0D0', volume: 'A0E0L3I0M0H0T0D0',
   time: 'A0E0L0I0M0H0T1D0', mass: 'A0E0L0I0M1H0T0D0', speed: 'A0E0L1I0M0H0T-1D0',
@@ -166,6 +167,7 @@ const exact = (n) => {
   const rounded = Number(n.toPrecision(15));
   return rounded.toExponential().replace(/e.*$/, '').replace(/[-.]/g, '').length <= 12 ? rounded : n;
 };
+const usableMultiplier = (n) => Number.isFinite(n) && n !== 0;
 // QUDT's units with a fixed conversion (qudt-catalog.js), read on first use:
 // each one's dimension vector, multiplier, offset, whether it is a coherent
 // SI unit and its UCUM code; and the units a UCUM code names, when it names
@@ -194,10 +196,11 @@ const builtinTokens = new Set(units.flatMap(([, , , , tokens]) => tokens));
 
 // Facts for the units of these quads that QUDT composes from other units:
 // qudt:hasFactorUnit with qudt:hasUnit and qudt:exponent, or qudt:prefix
-// with qudt:scalingOf. Their multiplier is the product of their factors'
-// multipliers, each to its exponent, and their dimension the sum of their
-// factors' dimensions times it; as in QUDT, a factor's offset does not
-// carry over, but a unit that is one factor with an offset is not a new one.
+// with qudt:scalingOf. The conversion multiplier is the product of the
+// factors' multipliers raised to their exponents, times qudt:factorUnitScalar
+// if given. The dimension is the sum of the factors' scaled dimensions.
+// A factor's offset does not carry over, but a unit that is one factor with
+// an offset is not a new one.
 // The QUDT units the quads use and the catalog of builtin units lacks, by
 // IRI or by the UCUM code of a CDT literal, come from QUDT's catalog.
 export function qudtUnits(quads) {
@@ -222,9 +225,13 @@ export function qudtUnits(quads) {
     seen.add(id);
     let found = null;
     const multiplier = numberOf(values(unit, 'conversionMultiplier')[0]);
-    const dimension = values(unit, 'hasDimensionVector')[0]?.args?.[0]?.slice(D.length);
-    if (multiplier !== null && dimension && vector(dimension)) {
-      found = { exponents: vector(dimension), mult: multiplier, offset: numberOf(values(unit, 'conversionOffset')[0]) ?? 0 };
+    const exponents = vector(values(unit, 'hasDimensionVector')[0]?.args?.[0]?.slice(D.length));
+    if (multiplier !== null && exponents !== null) {
+      const offset = values(unit, 'conversionOffset')[0];
+      const offsetValue = offset === undefined ? 0 : numberOf(offset);
+      if (usableMultiplier(multiplier) && Number.isFinite(offsetValue) && exponents.every(Number.isFinite)) {
+        found = { exponents, mult: multiplier, offset: offsetValue };
+      }
     } else if (builtin.has(id)) {
       found = builtin.get(id);
     } else if (catalogUnits().units.has(id)) {
@@ -236,16 +243,22 @@ export function qudtUnits(quads) {
       let parts = null;
       if (factors.length) parts = factors.map((f) => [values(f, 'hasUnit')[0], numberOf(values(f, 'exponent')[0])]);
       else if (prefix && base) {
-        const scale = numberOf(values(prefix, 'prefixMultiplier')[0]) ?? PREFIXES[prefix.args?.[0]?.slice('http://qudt.org/vocab/prefix/'.length)];
-        if (scale !== undefined && scale !== null) parts = [[base, 1, scale]];
+        const stated = values(prefix, 'prefixMultiplier')[0];
+        const scale = stated === undefined ? PREFIXES[prefix.args?.[0]?.slice('http://qudt.org/vocab/prefix/'.length)] : numberOf(stated);
+        if (usableMultiplier(scale)) parts = [[base, 1, scale]];
       }
-      if (parts && parts.every(([u, e]) => u && e !== null)) {
+      const scalar = factors.length ? values(unit, 'factorUnitScalar')[0] : undefined;
+      const factor = scalar === undefined ? 1 : numberOf(scalar);
+      if (usableMultiplier(factor) && parts?.every(([u, e]) => u && Number.isFinite(e))) {
         const resolved = parts.map(([u, e, scale = 1]) => [resolve(u, seen), e, scale]);
         if (resolved.every(([r]) => r) && (factors.length > 1 || resolved[0][1] !== 1 || resolved[0][0].offset === 0)) {
-          const exponents = BASES.map((_, i) => resolved.reduce((sum, [r, e]) => sum + r.exponents[i] * e, 0));
-          const mult = exact(resolved.reduce((product, [r, e, scale]) => product * scale * r.mult ** e, 1));
-          found = { exponents, mult, offset: 0 };
-          derived.push(`fact(qu_derived(${iri(id)}, ${graphOf(unit)}, ${iri(D + vectorName(exponents))}, ${number(mult)}));`);
+          const powers = BASES.map((_, i) => resolved.reduce((sum, [r, e]) => sum + r.exponents[i] * e, 0));
+          const mult = exact(factor * resolved.reduce((product, [r, e, scale]) => product * scale * r.mult ** e, 1));
+          const dim = vectorName(powers);
+          if (usableMultiplier(mult) && vector(dim)) {
+            found = { exponents: powers, mult, offset: 0 };
+            derived.push(`fact(qu_derived(${iri(id)}, ${graphOf(unit)}, ${iri(D + dim)}, ${number(mult)}));`);
+          }
         }
       }
     }
@@ -256,7 +269,10 @@ export function qudtUnits(quads) {
     const subject = about.get(id)[0][0];
     if (['hasFactorUnit', 'scalingOf', 'hasDimensionVector'].some((p) => values(subject, p).length)) resolve(subject);
   }
-  for (const quad of quads) if (quad[1].args?.[0] === Q + 'unit') resolve(quad[2]);
+  for (const [, predicate, unit] of quads) {
+    const p = predicate.args?.[0];
+    if (p === Q + 'unit' || p === TARGET_UNIT) resolve(unit);
+  }
   // An alignment can be the only mention of a catalog unit, for example
   // when a CDT literal uses a local symbol. OWL and SKOS can reverse it.
   const resolveCatalog = (unit) => {

@@ -394,8 +394,9 @@ query(rdf(O, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), sosa('Obser
   an offline catalog adapted from [QUDT.org](https://qudt.org/) (CC BY 4.0):
   `"36 km/h"^^cdt:speed` yields `"10.0 m/s"^^cdt:speed`. Input metadata adds
   units: with `qudt:conversionMultiplier` and `qudt:hasDimensionVector`,
-  composed from QUDT units with `qudt:hasFactorUnit` or `qudt:prefix` and
-  `qudt:scalingOf`, or aligned with `owl:sameAs` or `skos:exactMatch`. The
+  composed from QUDT units with `qudt:hasFactorUnit` and an optional
+  `qudt:factorUnitScalar`, derived from `qudt:prefix` and `qudt:scalingOf`,
+  or aligned with `owl:sameAs` or `skos:exactMatch`. The
   other units of the QUDT unit vocabulary with a fixed conversion, such as
   `unit:W-PER-M2`, come from an offline catalog that `tools/qudt-catalog.js`
   generates from a QUDT release, also by the UCUM code of a CDT literal. A
@@ -404,8 +405,12 @@ query(rdf(O, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), sosa('Obser
   separate runs agree: one that shares a quantity kind with it (QUDT's, or
   those the input states with `qudt:hasQuantityKind`), then one of SI base
   units, then the one with the fewest UCUM factors. So kW/m² is W/m² in any
-  run, and a radiance stays W/(m²·sr). A quantity whose unit cannot be
-  resolved, such as a currency, is reported with `qconv:unresolvedUnit`.
+  run, and a radiance stays W/(m²·sr). A property can choose another unit
+  with `qconv:normalizationProfile`. That profile supplies `qconv:targetUnit`,
+  `qconv:targetUcumCode` and `qconv:datatype`.
+  `qconv:unresolvedUnit` reports quantity values whose units lack a usable
+  conversion, including composed units whose multipliers are zero or
+  overflow binary64.
 - `--skos` adds positive [SKOS Core](https://www.w3.org/TR/skos-reference/)
   entailments, without integrity checks or SKOS-XL.
 - `--shacl` compiles shapes to LS and writes a standard `sh:ValidationReport`.

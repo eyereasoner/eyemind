@@ -470,6 +470,17 @@ export const tests = {
     assert.deepEqual(vocabulary(types.infer(message).quads, 2), new Set(['Concept', 'Collection']));
   },
 
+  'SHACL contracts report cyclic paths and lists with the shape file name'() {
+    const prefixes = P + 'PREFIX sh: <http://www.w3.org/ns/shacl#> PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ';
+    const shapes = (path) => parseRdf(prefixes + ':S sh:property [sh:path _:a]. ' + path).quads;
+    for (const read of [shaclIn, shaclOut]) {
+      assert.throws(() => read(shapes('_:a sh:inversePath _:a.'), 'shapes.ttl'), /shapes\.ttl: cyclic SHACL path/);
+      assert.throws(() => read(shapes('_:a sh:alternativePath (:p _:b). _:b sh:oneOrMorePath _:a.'), 'shapes.ttl'), /shapes\.ttl: cyclic SHACL path/);
+      assert.throws(() => read(shapes('_:a rdf:first :p; rdf:rest _:a.'), 'shapes.ttl'), /shapes\.ttl: cyclic RDF list/);
+      assert.doesNotThrow(() => read(shapes('_:a sh:alternativePath (_:b _:b). _:b sh:oneOrMorePath :p.'), 'shapes.ttl'));
+    }
+  },
+
   'QUDT resolves catalog units from each message with SHACL contracts'() {
     const prefixes = P + 'PREFIX cdt: <https://w3id.org/cdt/> PREFIX sh: <http://www.w3.org/ns/shacl#> ' +
       'PREFIX qconv: <https://eyereasoner.github.io/eyemind/qudt#> ';

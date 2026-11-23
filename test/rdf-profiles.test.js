@@ -97,6 +97,16 @@ export const tests = {
     includes(quads, ':a qconv:normalizedUcumLiteral "4e-08 kg/m3"^^cdt:ucum.');
   },
 
+  'QUDT resolves a catalog unit mentioned only as an explicit normalization target'() {
+    const { quads } = evaluate(':irradiance qconv:normalizationProfile :kilowatts. ' +
+      ':kilowatts qconv:targetUnit unit:KiloW-PER-M2; qconv:targetUcumCode "kW.m-2"; qconv:datatype cdt:ucum. ' +
+      ':a :irradiance "800 W.m-2"^^cdt:ucum. ' +
+      ':b :irradiance [a qudt:QuantityValue; qudt:numericValue 1600; qudt:unit unit:W-PER-M2].', { qudt: true });
+    includes(quads, ':a qconv:normalizedUcumLiteral "0.8 kW.m-2"^^cdt:ucum. :b qconv:normalizedUcumLiteral "1.6 kW.m-2"^^cdt:ucum.');
+    const targets = quads.filter(([, p]) => p.args?.[0] === Q + 'unit').map(([, , o]) => o.args[0]);
+    assert.deepEqual(targets, Array(2).fill('http://qudt.org/vocab/unit/KiloW-PER-M2'));
+  },
+
   'QUDT composes units from factor units, prefixes and prefixed names, and reports unresolved units'() {
     const value = (data) => {
       const { quads } = evaluate(`@prefix prefix: <http://qudt.org/vocab/prefix/>. ${data}`, { qudt: true });
@@ -144,6 +154,28 @@ export const tests = {
     assert.deepEqual(target(reading('a', 'KiloHZ') + reading('b', 'KiloBQ')), ['BQ', 'PER-SEC']);
     // The input's quantity kinds of a unit replace QUDT's.
     assert.deepEqual(target('unit:KiloW-PER-M2 qudt:hasQuantityKind <http://qudt.org/vocab/quantitykind/Radiance>. ' + reading('a', 'KiloW-PER-M2')), ['W-PER-M2-SR']);
+  },
+
+  'QUDT applies a factor unit scalar to the product of the factors'() {
+    const { quads } = evaluate(':u a qudt:Unit; qudt:factorUnitScalar 2.0; ' +
+      'qudt:hasFactorUnit [a qudt:FactorUnit; qudt:hasUnit unit:M; qudt:exponent 1]. ' +
+      ':a :v [a qudt:QuantityValue; qudt:numericValue 3; qudt:unit :u].', { qudt: true }, true);
+    includes(quads, ':a qconv:normalizedUcumLiteral "6.0 m"^^cdt:ucum.');
+  },
+
+  'QUDT reports composed units with unusable multipliers while other readings still normalize'() {
+    const base = (mult) => `:base qudt:conversionMultiplier ${mult}; ` +
+      'qudt:hasDimensionVector <http://qudt.org/vocab/dimensionvector/A0E0L1I0M0H0T0D0>. ' +
+      ':u qudt:hasFactorUnit [qudt:hasUnit :base; qudt:exponent 2]. ';
+    for (const units of [base('0.0'), base(`1${'0'.repeat(300)}.0`), base(`0.${'0'.repeat(299)}1`),
+      ':u qudt:factorUnitScalar 0.0; qudt:hasFactorUnit [qudt:hasUnit unit:M; qudt:exponent 1]. ',
+      ':prefix qudt:prefixMultiplier 0.0. :u qudt:prefix :prefix; qudt:scalingOf unit:M. ',
+    ]) {
+      const { quads } = evaluate(units + ':a :v :q. :q a qudt:QuantityValue; qudt:numericValue 5; qudt:unit :u. ' +
+        ':b :v "2 m"^^cdt:length.', { qudt: true });
+      includes(quads, ':q qconv:unresolvedUnit :u. :b qconv:normalizedUcumLiteral "2.0 m"^^cdt:ucum.');
+      assert.deepEqual(numbers(quads), [2]);
+    }
   },
 
   'QUDT conversions between two units give a scale, an offset and their shared quantity kinds'() {

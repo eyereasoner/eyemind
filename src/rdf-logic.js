@@ -72,8 +72,10 @@ function shapePatterns(quads, name, input) {
   const value = (node, property) => values(node, property)[0];
   const list = (node) => {
     const items = [];
-    for (let at = node, seen = new Set(); at && !(at.name === 'iri' && at.args[0] === RDF + 'nil') && !seen.has(identity(at)); at = value(at, RDF + 'rest')) {
-      seen.add(identity(at));
+    for (let at = node, seen = new Set(); at && !(at.name === 'iri' && at.args[0] === RDF + 'nil'); at = value(at, RDF + 'rest')) {
+      const id = identity(at);
+      if (seen.has(id)) throw new EyemindError(`${name}: cyclic RDF list in SHACL shapes`);
+      seen.add(id);
       items.push(value(at, RDF + 'first'));
     }
     return items.filter(Boolean);
@@ -102,14 +104,20 @@ function shapePatterns(quads, name, input) {
     return [any()];
   };
   // The predicates of a path, and whether it is a predicate or its inverse.
+  const readingPath = new Set();
   const path = (node) => {
     if (named(node)) return { predicates: [named(node)], direct: true };
+    const id = identity(node);
+    if (readingPath.has(id)) throw new EyemindError(`${name}: cyclic SHACL path`);
     const inverse = value(node, SH + 'inversePath');
     if (named(inverse)) return { predicates: [named(inverse)], inverse: true };
     const parts = [inverse, ...values(node, SH + 'alternativePath').flatMap(list),
       ...['zeroOrMorePath', 'oneOrMorePath', 'zeroOrOnePath'].map((p) => value(node, SH + p)), ...list(node)].filter(Boolean);
     if (!parts.length) throw new EyemindError(`${name}: a SHACL path is a predicate, a list or one of the sh: path forms`);
-    return { predicates: parts.flatMap((part) => path(part).predicates) };
+    readingPath.add(id);
+    const predicates = parts.flatMap((part) => path(part).predicates);
+    readingPath.delete(id);
+    return { predicates };
   };
   const owners = new Map();
   for (const quad of quads) {
