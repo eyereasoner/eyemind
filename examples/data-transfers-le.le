@@ -2,25 +2,27 @@
 # outside the European Economic Area. Under Chapter V of the GDPR a transfer
 # needs an adequacy decision for the destination, appropriate safeguards such
 # as standard contractual clauses, or, for an occasional transfer, a
-# derogation such as the employee's explicit consent. The company's own ODRL
-# policy adds a duty, a transfer impact assessment before it relies on the
-# clauses, and prohibits sending health data abroad at all.
-# The program allows the transfers to Japan, Switzerland, a certified US
+# derogation such as the employee's explicit consent. The company's ODRL
+# policy permits a transfer on each of these bases, adds a duty to assess a
+# transfer that relies on the clauses, and prohibits sending health data.
+# The snapshot allows the transfers to Japan, Switzerland, a certified US
 # provider and, by explicit consent, a one-off relocation to Brazil. It
-# prohibits the US analytics transfer that carries health data, sends the
-# Indian helpdesk transfer for review until its assessment is done, and blocks
-# the bulk transfer to Brazil, which has no basis at all.
-# Shows Logical English over ODRL 2.2 and DPV 2.3 with its GDPR, location and
-# personal data extensions, written with namespace prefixes: qualified facts
-# and rules, alternative premises, absence tests and a prohibition that wins.
+# prohibits the US analytics transfer that carries health data, reporting the
+# conflict; it leaves the Indian helpdesk transfer undetermined until its
+# assessment is recorded; and no rule applies to the bulk archive in Brazil.
+# Shows an LE ODRL snapshot with rules: Logical English rules derive each
+# transfer's observations from adequacy decisions, recipients and safeguards,
+# and the snapshot evaluator decides, all with ODRL, DPV and GDPR prefixes.
 # The adequacy decisions are input facts for this scenario, not a register of
 # the decisions in force.
 # Sources https://eur-lex.europa.eu/eli/reg/2016/679/oj (Articles 44-49)
 #         https://www.w3.org/TR/odrl-vocab/
 #         https://w3id.org/dpv/2.3/dpv/ and https://w3id.org/dpv/legal/eu/gdpr
 
+Use ODRL snapshot logic with namespace "https://example.org/data-transfers#".
 Use prefix ex with namespace "https://example.org/data-transfers#".
 Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
+Use prefix eval with namespace "https://eyereasoner.github.io/eyemind/odrl#".
 Use prefix dpv with namespace "https://w3id.org/dpv#".
 Use prefix pd with namespace "https://w3id.org/dpv/pd#".
 Use prefix loc with namespace "https://w3id.org/dpv/loc#".
@@ -34,19 +36,6 @@ ex:swissDecision is a gdpr:AdequacyDecision and ex:swissDecision has ex:covers l
 ex:privacyFramework is a gdpr:AdequacyDecision and ex:privacyFramework has ex:covers loc:US.
 ex:privacyFramework is a ex:CertificationScheme.
 
-# The group policy: employee data may be distributed to providers, under a
-# duty to assess a transfer that relies on clauses; health data may not.
-
-ex:groupPolicy is an odrl:Agreement and ex:groupPolicy has odrl:assigner ex:hrCompany.
-ex:groupPolicy has odrl:conflict odrl:prohibit.
-ex:groupPolicy has odrl:permission ex:mayTransfer and ex:groupPolicy has odrl:prohibition ex:noHealthAbroad.
-ex:mayTransfer is an odrl:Permission and ex:mayTransfer has odrl:action odrl:distribute.
-ex:mayTransfer has odrl:target ex:employeeData and ex:mayTransfer has odrl:duty ex:assessment.
-ex:assessment is an odrl:Duty and ex:assessment has odrl:action ex:assess.
-ex:assessment has odrl:target dpv:DataTransferImpactAssessment.
-ex:noHealthAbroad is an odrl:Prohibition and ex:noHealthAbroad has odrl:action odrl:distribute.
-ex:noHealthAbroad has odrl:target pd:MedicalHealth.
-
 # The providers and where they are established.
 
 ex:payrollJapan has dpv:hasLocation loc:JP.
@@ -57,80 +46,102 @@ ex:helpdeskIndia has dpv:hasLocation loc:IN.
 ex:relocationAgent has dpv:hasLocation loc:BR.
 ex:archiveBrazil has dpv:hasLocation loc:BR.
 
-# The planned transfers, as DPV processes.
+# The group policy: one permission per basis, with the assessment duty on
+# the clauses, and a prohibition on health data that takes priority.
 
-ex:payroll is a dpv:Process and ex:payroll has dpv:hasRecipient ex:payrollJapan.
-ex:payroll has dpv:hasPersonalData pd:Salary and ex:payroll has dpv:hasPersonalData pd:BankAccount.
-ex:pensions is a dpv:Process and ex:pensions has dpv:hasRecipient ex:pensionsSwiss.
-ex:pensions has dpv:hasPersonalData pd:Salary.
-ex:support is a dpv:Process and ex:support has dpv:hasRecipient ex:supportDesk.
-ex:support has dpv:hasPersonalData pd:Name and ex:support has dpv:hasPersonalData pd:EmailAddress.
-ex:analytics is a dpv:Process and ex:analytics has dpv:hasRecipient ex:analyticsVendor.
-ex:analytics has dpv:hasPersonalData pd:Salary and ex:analytics has dpv:hasPersonalData pd:MedicalHealth.
-ex:analytics has ex:safeguard gdpr:StandardContractualClauses and ex:analytics has ex:fulfilled ex:assessment.
-ex:helpdesk is a dpv:Process and ex:helpdesk has dpv:hasRecipient ex:helpdeskIndia.
-ex:helpdesk has dpv:hasPersonalData pd:Name and ex:helpdesk has ex:safeguard gdpr:StandardContractualClauses.
-ex:relocation is a dpv:Process and ex:relocation has dpv:hasRecipient ex:relocationAgent.
-ex:relocation has dpv:hasPersonalData pd:Name and ex:relocation is a ex:OccasionalTransfer.
-ex:relocation has dpv:hasConsentStatus dpv:ConsentGiven.
-ex:archive is a dpv:Process and ex:archive has dpv:hasRecipient ex:archiveBrazil.
-ex:archive has dpv:hasPersonalData pd:Salary.
+ex:groupPolicy is a odrl:Agreement and ex:groupPolicy has odrl:profile eval:SnapshotProfile.
+ex:groupPolicy has odrl:assigner ex:hrCompany and ex:groupPolicy has odrl:conflict odrl:prohibit.
+ex:groupPolicy has odrl:permission ex:onAdequacy and ex:groupPolicy has odrl:permission ex:onClauses.
+ex:groupPolicy has odrl:permission ex:onConsent and ex:groupPolicy has odrl:prohibition ex:noHealthData.
 
-For every T, if T is a dpv:Process then T has dpv:hasProcessing dpv:Transfer.
+ex:onAdequacy is a odrl:Permission and ex:onAdequacy has odrl:assignee ex:hrCompany.
+ex:onAdequacy has odrl:action odrl:distribute and ex:onAdequacy has odrl:target ex:employeeData.
+ex:onAdequacy has odrl:constraint ex:adequate.
+ex:adequate is a odrl:Constraint and ex:adequate has odrl:leftOperand ex:adequacyCovered.
+ex:adequate has odrl:operator odrl:eq and ex:adequate has odrl:rightOperand true.
+
+ex:onClauses is a odrl:Permission and ex:onClauses has odrl:assignee ex:hrCompany.
+ex:onClauses has odrl:action odrl:distribute and ex:onClauses has odrl:target ex:employeeData.
+ex:onClauses has odrl:constraint ex:clauses and ex:onClauses has odrl:duty ex:assessment.
+ex:clauses is a odrl:Constraint and ex:clauses has odrl:leftOperand ex:clausesSigned.
+ex:clauses has odrl:operator odrl:eq and ex:clauses has odrl:rightOperand true.
+ex:assessment is a odrl:Duty and ex:assessment has odrl:action ex:assessTransferImpact.
+
+ex:onConsent is a odrl:Permission and ex:onConsent has odrl:assignee ex:hrCompany.
+ex:onConsent has odrl:action odrl:distribute and ex:onConsent has odrl:target ex:employeeData.
+ex:onConsent has odrl:constraint ex:derogation.
+ex:derogation is a odrl:LogicalConstraint and ex:derogation has odrl:and [ex:occasional, ex:explicitConsent].
+ex:occasional is a odrl:Constraint and ex:occasional has odrl:leftOperand ex:occasionalTransfer.
+ex:occasional has odrl:operator odrl:eq and ex:occasional has odrl:rightOperand true.
+ex:explicitConsent is a odrl:Constraint and ex:explicitConsent has odrl:leftOperand dpv:hasConsentStatus.
+ex:explicitConsent has odrl:operator odrl:eq and ex:explicitConsent has odrl:rightOperand dpv:ConsentGiven.
+
+ex:noHealthData is a odrl:Prohibition and ex:noHealthData has odrl:assignee ex:hrCompany.
+ex:noHealthData has odrl:action odrl:distribute and ex:noHealthData has odrl:target ex:employeeData.
+ex:noHealthData has odrl:constraint ex:health.
+ex:health is a odrl:Constraint and ex:health has odrl:leftOperand ex:carriesHealthData.
+ex:health has odrl:operator odrl:eq and ex:health has odrl:rightOperand true.
+
+# The planned transfers: one request each, whose state records the
+# recipient, the personal data and any safeguard.
+
+ex:evaluation is a eval:Evaluation and ex:evaluation has eval:policy ex:groupPolicy.
+ex:evaluation has eval:conflictStrategy odrl:prohibit.
+For every T,
+if ex:hrCompany has ex:plans T
+then ex:evaluation has eval:request T and T is a eval:Request and T has odrl:assignee ex:hrCompany and
+T has odrl:action odrl:distribute and T has odrl:target ex:employeeData and T has eval:subject ex:employees.
+For every S, if S is a eval:State then S has eval:subject ex:employees.
+
+ex:hrCompany has ex:plans ex:payroll and ex:payroll has eval:state ex:payrollState.
+ex:payrollState is a eval:State and ex:payrollState has ex:recipient ex:payrollJapan.
+ex:payrollState has dpv:hasPersonalData pd:Salary.
+ex:hrCompany has ex:plans ex:pensions and ex:pensions has eval:state ex:pensionsState.
+ex:pensionsState is a eval:State and ex:pensionsState has ex:recipient ex:pensionsSwiss.
+ex:pensionsState has dpv:hasPersonalData pd:Salary.
+ex:hrCompany has ex:plans ex:support and ex:support has eval:state ex:supportState.
+ex:supportState is a eval:State and ex:supportState has ex:recipient ex:supportDesk.
+ex:supportState has dpv:hasPersonalData pd:EmailAddress.
+ex:hrCompany has ex:plans ex:analytics and ex:analytics has eval:state ex:analyticsState.
+ex:analytics has eval:fulfilledDuty ex:assessment.
+ex:analyticsState is a eval:State and ex:analyticsState has ex:recipient ex:analyticsVendor.
+ex:analyticsState has dpv:hasPersonalData pd:MedicalHealth and ex:analyticsState has ex:safeguard gdpr:StandardContractualClauses.
+ex:hrCompany has ex:plans ex:helpdesk and ex:helpdesk has eval:state ex:helpdeskState.
+ex:helpdeskState is a eval:State and ex:helpdeskState has ex:recipient ex:helpdeskIndia.
+ex:helpdeskState has dpv:hasPersonalData pd:Name and ex:helpdeskState has ex:safeguard gdpr:StandardContractualClauses.
+ex:hrCompany has ex:plans ex:relocation and ex:relocation has eval:state ex:relocationState.
+ex:relocationState is a eval:State and ex:relocationState has ex:recipient ex:relocationAgent.
+ex:relocationState has dpv:hasPersonalData pd:Name and ex:relocationState has ex:frequency ex:once.
+ex:relocationState has dpv:hasConsentStatus dpv:ConsentGiven.
+ex:hrCompany has ex:plans ex:archive and ex:archive has eval:state ex:archiveState.
+ex:archiveState is a eval:State and ex:archiveState has ex:recipient ex:archiveBrazil.
+ex:archiveState has dpv:hasPersonalData pd:Salary.
 
 # Article 45: an adequacy decision for the recipient's country, and for a
-# certification scheme, the recipient's certification under it.
+# certification scheme, the recipient's certification under it. Every
+# observation is derived as true or false, so none stays unknown.
 
-For every T and R and C and D,
-if T has dpv:hasProcessing dpv:Transfer and T has dpv:hasRecipient R and R has dpv:hasLocation C and
+For every S and R and C and D,
+if S is a eval:State and S has ex:recipient R and R has dpv:hasLocation C and
 D is a gdpr:AdequacyDecision and D has ex:covers C and it is not known that D is a ex:CertificationScheme
-or T has dpv:hasProcessing dpv:Transfer and T has dpv:hasRecipient R and R has dpv:hasLocation C and
+or S is a eval:State and S has ex:recipient R and R has dpv:hasLocation C and
 D is a gdpr:AdequacyDecision and D has ex:covers C and D is a ex:CertificationScheme and R has ex:certifiedUnder D
-then T has ex:transferBasis gdpr:A45-3.
+then S has ex:adequacyCovered true.
+For every S, if S is a eval:State and it is not known that S has ex:adequacyCovered true then S has ex:adequacyCovered false.
 
-# Article 46(2)(c): standard contractual clauses, which the policy accepts
-# only once its assessment duty is fulfilled; until then, review.
+# Article 46(2)(c): standard contractual clauses; Article 49(1)(a): an
+# occasional transfer, whose explicit consent the state records.
 
-For every T and D,
-if T has ex:safeguard gdpr:StandardContractualClauses and ex:mayTransfer has odrl:duty D and T has ex:fulfilled D
-then T has ex:transferBasis gdpr:A46-2-c.
-For every T and D,
-if T has ex:safeguard gdpr:StandardContractualClauses and ex:mayTransfer has odrl:duty D and
-it is not known that T has ex:fulfilled D
-then T has ex:missingDuty D.
+For every S, if S has ex:safeguard gdpr:StandardContractualClauses then S has ex:clausesSigned true.
+For every S, if S is a eval:State and it is not known that S has ex:clausesSigned true then S has ex:clausesSigned false.
+For every S, if S has ex:frequency ex:once then S has ex:occasionalTransfer true.
+For every S,
+if S is a eval:State and it is not known that S has ex:frequency ex:once
+then S has ex:occasionalTransfer false.
 
-# Article 49(1)(a): an occasional transfer with explicit consent.
+# The policy's prohibition reads whether the transfer carries health data.
 
-For every T,
-if T is a ex:OccasionalTransfer and T has dpv:hasConsentStatus dpv:ConsentGiven
-then T has ex:transferBasis gdpr:A49-1-a.
-
-# The policy's prohibition takes priority over any basis.
-
-For every T and P and X,
-if T has dpv:hasProcessing dpv:Transfer and ex:groupPolicy has odrl:prohibition P and
-P has odrl:target X and T has dpv:hasPersonalData X
-then T is a ex:ProhibitedTransfer.
-For every T and B, if T has ex:transferBasis B then T is a ex:LawfulTransfer.
-
-For every T,
-if T is a ex:LawfulTransfer and it is not known that T is a ex:ProhibitedTransfer
-then T has ex:decision ex:allowed.
-For every T, if T is a ex:ProhibitedTransfer then T has ex:decision ex:prohibited.
-For every T and D,
-if T has ex:missingDuty D and it is not known that T is a ex:LawfulTransfer and
-it is not known that T is a ex:ProhibitedTransfer
-then T has ex:decision ex:review.
-For every T,
-if T has dpv:hasProcessing dpv:Transfer and it is not known that T is a ex:LawfulTransfer and
-it is not known that T is a ex:ProhibitedTransfer and it is not known that T is a ex:PendingTransfer
-then T has ex:decision ex:blocked.
-For every T and D, if T has ex:missingDuty D then T is a ex:PendingTransfer.
-
-For every T and B,
-if T has ex:transferBasis B and it is not known that T is a ex:ProhibitedTransfer
-then T has ex:reliesOn B.
-
-Find every T and D such that T has ex:decision D.
-Find every T and B such that T has ex:reliesOn B.
-Find every T and D such that T has ex:missingDuty D.
+For every S, if S has dpv:hasPersonalData pd:MedicalHealth then S has ex:carriesHealthData true.
+For every S,
+if S is a eval:State and it is not known that S has dpv:hasPersonalData pd:MedicalHealth
+then S has ex:carriesHealthData false.

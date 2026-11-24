@@ -132,12 +132,42 @@ export const tests = {
     assert.deepEqual(run(compileLe([['Use is a word. Find whether Use is a word.', 'ordinary.le']]).program).answers, ["word('Use')"]);
   },
 
-  'ODRL activation is explicit and misplaced directives, rules and nonground data are rejected'() {
+  'snapshot rules derive observations and duty evidence that the unchanged evaluator decides'() {
+    // Alice's residence follows from her registration instead of being stated.
+    const derived = LE.replace('aliceState has assessmentApproved true and aliceState has residenceVerified true.',
+      'aliceState has assessmentApproved true.\nAlice has registeredIn civicDistrict.\n' +
+      'For every S and P, if S is a state and S has subject P and P has registeredIn civicDistrict then S has residenceVerified true.');
+    assert.notEqual(derived, LE);
+    const le = loaded(derived), result = run(le.program, { proof: true });
+    const output = writeConclusions(le, result, { format: 'le' });
+    assert.match(output, /issueAlice has decision allowed\./);
+    assert.match(output, /issueBob has decision prohibited\./);
+    assert.equal(checkProof(loadText(le.text), result.proof).valid, true);
+    assert.ok(!checkProof(le.program, result.proof.replaceAll('odrl#Allowed', 'odrl#Prohibited')).valid);
+    // Without the registration the observation is missing, not false.
+    const unregistered = loaded(derived.replace('Alice has registeredIn civicDistrict.\n', ''));
+    assert.match(writeConclusions(unregistered, run(unregistered.program), { format: 'le' }), /issueAlice has decision undetermined\./);
+    // An aggregate in a snapshot rule has its helpers; a snapshot without
+    // rules keeps its clauses, so its saved proof still checks.
+    const counted = LE.replace('aliceState has assessmentApproved true and aliceState has residenceVerified true.',
+      'aliceState has assessmentApproved true.\naliceState has proof utilityBill and aliceState has proof leaseContract.\n' +
+      'For every S and N, if S is a state and N is the number of D such that S has proof D and N is at least 2 then S has residenceVerified true.');
+    const tally = loaded(counted);
+    assert.match(writeConclusions(tally, run(tally.program), { format: 'le' }), /issueAlice has decision allowed\./);
+    assert.match(tally.text, /le:count/);
+    assert.equal(cli(['--check-proof', 'examples/proof/handicap-card-le.js', 'examples/handicap-card-le.le']).code, 0);
+    const breach = cli(['examples/breach-notification-le.le']);
+    assert.equal(breach.code, 0, breach.stderr);
+    assert.match(breach.stdout, /hostingLeak has unmetDuty alertShop\./);
+  },
+
+  'ODRL activation is explicit and misplaced directives, questions, vocabulary rules and nonground data are rejected'() {
     const directive = 'Use ODRL snapshot logic with namespace "https://example.org/#".\n';
     assert.match(errorOf(() => loaded('Alice is a person.\n' + directive)), /first sentence/);
     assert.match(errorOf(() => loaded(directive + 'For every X, X is a person.')), /ground/);
-    assert.match(errorOf(() => loaded(directive + 'Every person is mortal.')), /not rules or questions/);
-    assert.match(errorOf(() => loaded(directive + 'Find whether Alice is a person.')), /not rules or questions/);
+    const vocabulary = 'Use ODRL vocabulary with namespace "https://example.org/#".\n';
+    assert.match(errorOf(() => loaded(vocabulary + 'Every person is mortal.')), /vocabulary document contains ground facts, not rules/);
+    assert.match(errorOf(() => loaded(directive + 'Find whether Alice is a person.')), /not questions; its report is the answer/);
     assert.match(errorOf(() => loaded(directive.replace('https://example.org/#', 'relative#'))), /absolute IRI/);
     assert.match(errorOf(() => compileLe([[directive, 'one.le'], ['Alice is a person.', 'two.le']])), /one LE file/);
     assert.equal(loaded(LE.replace(/^Use ODRL snapshot logic[^\n]+\n/m, '')).compiled.odrl, undefined);

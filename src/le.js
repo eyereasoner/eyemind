@@ -5,7 +5,7 @@ import { CONTROL_KEYS, Program, RESERVED_KEYS, Source } from './program.js';
 import { readTerm } from './reader.js';
 import { EMPTY, EyemindError, Struct, Var, conjunction, flattenConjunction } from './terms.js';
 import { write } from './writer.js';
-import { compileOdrlLe, odrlLeReport } from './le-odrl.js';
+import { compileOdrlLe, odrlLeReport, snapshotGoal } from './le-odrl.js';
 import { dpvRules } from './dpv.js';
 import { loadText } from './lang.js';
 
@@ -511,7 +511,23 @@ export function compileLe(inputs) {
     for (const [prefix, namespace] of parser.prefixes) prefixes.set(prefix, namespace);
   }
   if (profile) {
-    const loaded = compileOdrlLe(statements, profile, inputs[0][1]);
+    // A snapshot's rules derive input triples for its evaluation, with the
+    // aggregation helpers they use; its facts remain RDF data.
+    const map = (goal) => snapshotGoal(goal, profile.namespace);
+    const rules = [];
+    for (const { kind, heads, body, line, file } of statements.filter((s) => s.kind === 'forward' || s.kind === 'contradiction')) {
+      rules.push(`// ${String(file).replace(/[\r\n\u2028\u2029]/g, ' ')}: line ${line}`);
+      rules.push(kind === 'forward' ? `implies(${javascript(conjunction(body.map(map)))}, ${javascript(conjunction(heads.map(map)))})`
+        : `contradiction(${body.map(map).map(javascript).join(', ')})`);
+    }
+    for (const name of Object.keys(HELPERS).filter((key) => helpers.has(key))) {
+      for (const make of HELPERS[name]) {
+        const [head, body] = make();
+        rules.push(`implied_by(${javascript(head)}, ${body.length ? javascript(conjunction(body)) : "'true'"})`);
+      }
+    }
+    const loaded = compileOdrlLe(statements.filter((s) => s.kind !== 'forward' && s.kind !== 'contradiction'), profile, inputs[0][1],
+      rules.length ? rules.join('\n') + '\n' : '');
     return { ...loaded, prefixes: { ...loaded.prefixes, ...Object.fromEntries(prefixes) } };
   }
   // The helpers follow every stated clause, so a witness's rule number is

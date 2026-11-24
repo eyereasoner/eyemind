@@ -243,9 +243,12 @@ as LE, and proofs check the compiled LS, not the English-to-LS translation.
 There are no pronouns, disjunctive conclusions or implicit assumptions.
 
 A first sentence `Use ODRL snapshot logic with namespace "..."` turns a file of
-ground facts into an [ODRL snapshot](#odrl-snapshots) evaluation, with LE names
+facts and rules into an [ODRL snapshot](#odrl-snapshots) evaluation, with LE names
 mapped to the `eval:` and `odrl:` vocabularies; see the
 [handicap-card LE deck](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card-le).
+The rules derive the snapshot's observations and duty evidence, and the
+evaluator decides; see the
+[data transfers deck](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le).
 Ordinary LE can declare RDF prefixes with `Use prefix dpv with namespace "https://w3id.org/dpv#".`
 Qualified classes, properties and values work in facts, rules and questions.
 The research access example combines ODRL rules with DPV purpose and consent

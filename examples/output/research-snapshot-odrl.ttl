@@ -26,13 +26,13 @@ PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
 :marketing eval:state :marketingState .
 :marketing eval:fulfilledDuty :credit .
 :evaluation eval:validationStatus eval:Valid .
+:marketing eval:unmetConstraint :scope .
+:ready eval:permission :researchUse .
 :pending eval:uncertainty _:b0 .
 _:b0 a eval:Uncertainty .
 _:b0 eval:duty :credit .
 _:b0 eval:rule :researchUse .
 _:b0 eval:reason eval:MissingDutyEvidence .
-:marketing eval:unmetConstraint :scope .
-:ready eval:permission :researchUse .
 :evaluation eval:conflictCount 0 .
 :evaluation eval:request :pending .
 :pending eval:decision eval:Undetermined .

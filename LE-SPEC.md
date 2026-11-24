@@ -317,8 +317,8 @@ These programs use the grammar above without additional syntax:
 | [British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le) | Section 1 of the British Nationality Act 1981: alternative premises, a presumption that holds unless the contrary is shown, date comparisons and citizenship through a derived parent. |
 | [Library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le) | Charges from alternative rules, then the sum, number and maximum per member over distinct combinations. |
 | [Election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le) | Eligibility by alternatives, distinct choices, an absence test inside a count, winners by maximum with ties, and a quorum. |
-| [International data transfers](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le) | GDPR Chapter V over ODRL, DPV, location and GDPR-extension names: alternative premises, a duty read from a policy, and a prohibition that wins. |
-| [Breach notification](https://eyereasoner.github.io/eyemind/examples/deck/breach-notification-le) | GDPR Articles 33 and 34 over DPV risk terms: deadlines in hours, an encryption exemption, a processor's ODRL duty and a sum. |
+| [International data transfers](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le) | An ODRL snapshot with rules: GDPR Chapter V observations derived with alternative premises and absence tests over DPV, location and GDPR-extension names, decided by one permission per basis and a prohibition that wins. |
+| [Breach notification](https://eyereasoner.github.io/eyemind/examples/deck/breach-notification-le) | An ODRL snapshot with rules: GDPR Articles 33 and 34 as permissions and prohibitions, with requests, observations and a processor's duty evidence derived from breach records by comparisons over hours. |
 
 Their decks state the modeled assumptions and what the checked proofs establish.
 Bounds and finite expression domains are explicit in the programs.
@@ -367,9 +367,30 @@ evaluation has conflictStrategy prohibit.
 ```
 
 This directive must be the first sentence of one file. The remainder contains
-ground facts using the snapshot vocabulary, without rules or questions. The
-compiler maps those facts to RDF and includes the validation, evaluation and
-reporting LS of `src/odrl.js`. The same
+facts using the snapshot vocabulary, and rules, but no questions: the report
+is the answer. The compiler maps the facts to RDF and includes the
+validation, evaluation and reporting LS of `src/odrl.js`.
+
+A snapshot's rules derive more of its input: their class and property
+statements, in premises and conclusions, are statements of the snapshot's
+RDF graph, with names mapped as for facts. A rule typically derives a state's
+observations or a request's duty evidence from other facts, so the
+evaluator decides on what the rules establish:
+
+```text
+For every S and P,
+if S is a state and S has subject P and P has registeredIn civicDistrict
+then S has residenceVerified true.
+```
+
+Calculations, comparisons, absence tests and aggregates work as in ordinary
+LE; an absence test asks whether the graph, with the rules' conclusions,
+holds a statement. The rules precede the evaluator's own clauses, so they
+cannot read its report, and a snapshot without rules compiles to the same
+program as before. The evaluator validates what the rules derive as it
+validates stated facts: a request or state still has one type, for
+example. Derive an observation as both `true` and `false` where it matters,
+since a missing observation leaves a constraint unknown. The same
 [snapshot profile](https://eyereasoner.github.io/eyemind/#odrl-snapshots) applies
 to Turtle and LE, including missing observations, unsupported policy features
 and conflict strategies. Vocabulary by itself does not enable evaluation.
@@ -475,8 +496,8 @@ The research snapshot demonstrates compound scope, two DPV hierarchies and
 request-local duty evidence; its Turtle twin, run with `--odrl`, reaches the
 same decisions. [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le) · [Turtle twin](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-odrl)
 
-Both ODRL directives take a single LE file and reject mixed-in ordinary LE
-rules or questions. `--goal` can query their compiled LS program. The
+Both ODRL directives take a single LE file and reject questions; the
+vocabulary directive also rejects rules. `--goal` can query their compiled LS program. The
 `--odrl` switch selects the Turtle snapshot compiler, which can also combine
 with `--owl2rl`, `--skos`, `--qudt` and `--shacl`; an LE run takes none of these
 switches, so an LE snapshot reads only the facts it states.

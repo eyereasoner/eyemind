@@ -1,109 +1,173 @@
 # A web shop handles four personal data breaches. Under Article 33 of the
 # GDPR it notifies the supervisory authority within 72 hours of becoming
-# aware of a breach, unless the breach is unlikely to result in a risk; under
-# Article 34 it also tells the people affected when the risk is high, unless
-# the data was encrypted (Article 34(3)(a)). Its hosting processor must alert
-# it within 24 hours, a duty of their processing agreement, an ODRL agreement.
-# The program finds that the lost laptop, the leaked customer database and
-# the ransomware attack go to the authority, the database late; that only
-# the database leak's 1200 customers must be told, the encrypted laptop being
-# exempt; that the misdirected email is only documented; and that the
-# processor broke its 24-hour duty for the database leak.
-# Shows Logical English with namespace prefixes for ODRL 2.2 and DPV 2.3 with
-# its personal data, risk and GDPR extensions: arithmetic over hours,
-# comparisons, absence tests, an ODRL duty read by rules, and a sum.
-# The risk levels are the controller's assessments, given as input.
+# aware of a breach, unless the breach is unlikely to result in a risk, and
+# a later notice must give reasons; under Article 34 it also tells the
+# people affected of a high risk, unless the data was encrypted (Article
+# 34(3)(a)). Its hosting processor must inform it of a breach within the
+# hours their processing agreement sets.
+# The snapshot allows closing only the misdirected email's file without
+# notifying the authority, and prohibits it for the other three; it allows
+# not telling the owners of the encrypted lost laptop and prohibits it for
+# the leaked database; it allows the laptop's notice in time and the
+# database's late notice, whose reasons are recorded; and the hosting
+# permission does not cover the database leak, whose alert came too late.
+# Shows an LE ODRL snapshot with rules: Logical English rules derive the
+# requests, their observations and duty evidence from the breach records,
+# and the snapshot evaluator decides, with ODRL, DPV and risk prefixes.
+# The risk levels are the shop's assessments, given as input.
 # Sources https://eur-lex.europa.eu/eli/reg/2016/679/oj (Articles 28, 33, 34)
 #         https://www.w3.org/TR/odrl-vocab/
-#         https://w3id.org/dpv/2.3/risk/ and https://w3id.org/dpv/legal/eu/gdpr
+#         https://w3id.org/dpv/2.3/risk/
 
+Use ODRL snapshot logic with namespace "https://example.org/breach-notification#".
 Use prefix ex with namespace "https://example.org/breach-notification#".
 Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
+Use prefix eval with namespace "https://eyereasoner.github.io/eyemind/odrl#".
 Use prefix dpv with namespace "https://w3id.org/dpv#".
 Use prefix pd with namespace "https://w3id.org/dpv/pd#".
 Use prefix risk with namespace "https://w3id.org/dpv/risk#".
-Use prefix gdpr with namespace "https://w3id.org/dpv/legal/eu/gdpr#".
-
-# The processing agreement: the host may use the customer data, and must
-# inform the shop of a breach within 24 hours.
-
-ex:agreement is an odrl:Agreement and ex:agreement has odrl:assigner ex:webShop.
-ex:agreement has odrl:permission ex:hosting.
-ex:hosting is an odrl:Permission and ex:hosting has odrl:assignee ex:cloudHost.
-ex:hosting has odrl:action odrl:use and ex:hosting has odrl:target ex:customerData.
-ex:hosting has odrl:duty ex:alertShop.
-ex:alertShop is an odrl:Duty and ex:alertShop has odrl:action odrl:inform.
-ex:alertShop has odrl:constraint ex:within24Hours.
-ex:within24Hours has odrl:leftOperand odrl:elapsedTime and ex:within24Hours has odrl:operator odrl:lteq.
-ex:within24Hours has odrl:rightOperand 24.
 
 # The breaches, with the shop's risk assessment. Hours count from the
 # moment the shop became aware of each breach.
 
 ex:lostLaptop is a risk:DataBreach and ex:lostLaptop has dpv:hasRisk risk:HighRisk.
-ex:lostLaptop has dpv:hasPersonalData pd:Name and ex:lostLaptop has dpv:hasPersonalData pd:EmailAddress.
-ex:lostLaptop has dpv:hasTechnicalMeasure dpv:Encryption and ex:lostLaptop has ex:affected 300.
+ex:lostLaptop has dpv:hasPersonalData pd:EmailAddress and ex:lostLaptop has dpv:hasTechnicalMeasure dpv:Encryption.
 ex:lostLaptop has ex:authorityNotifiedAt 40.
-
 ex:databaseLeak is a risk:DataBreach and ex:databaseLeak has dpv:hasRisk risk:HighRisk.
-ex:databaseLeak has dpv:hasPersonalData pd:MedicalHealth and ex:databaseLeak has ex:affected 1200.
-ex:databaseLeak has ex:atProcessor ex:cloudHost and ex:databaseLeak has ex:processorAlertedAfter 30.
-ex:databaseLeak has ex:authorityNotifiedAt 90.
-
+ex:databaseLeak has dpv:hasPersonalData pd:MedicalHealth and ex:databaseLeak has ex:authorityNotifiedAt 90.
+ex:databaseLeak has ex:processorAlertedAfter 30.
 ex:ransomware is a risk:DataBreach and ex:ransomware has dpv:hasRisk risk:ModerateRisk.
-ex:ransomware has dpv:hasPersonalData pd:PurchasesAndSpendingHabit and ex:ransomware has ex:affected 5000.
-ex:ransomware has ex:atProcessor ex:cloudHost and ex:ransomware has ex:processorAlertedAfter 6.
-ex:ransomware has ex:authorityNotifiedAt 48.
-
+ex:ransomware has dpv:hasPersonalData pd:PurchasesAndSpendingHabit and ex:ransomware has ex:processorAlertedAfter 6.
 ex:misdirectedEmail is a risk:DataBreach and ex:misdirectedEmail has dpv:hasRisk risk:LowRisk.
-ex:misdirectedEmail has dpv:hasPersonalData pd:Name and ex:misdirectedEmail has ex:affected 1.
+ex:misdirectedEmail has dpv:hasPersonalData pd:Name.
 
-# Article 33(1): notify the authority unless the breach is unlikely to
-# result in a risk, which the assessment expresses as low risk.
+# Each breach has a file, the state of the world its requests read, and
+# the requests the shop asks about.
 
-For every B,
-if B is a risk:DataBreach and it is not known that B has dpv:hasRisk risk:LowRisk
-then B has ex:requires gdpr:DPABreachNotice.
-For every B, if B is a risk:DataBreach and B has dpv:hasRisk risk:LowRisk then B has ex:outcome ex:documentOnly.
+ex:lostLaptop has ex:file ex:laptopFile and ex:lostLaptop has ex:closeRequest ex:closeLaptop.
+ex:lostLaptop has ex:silenceRequest ex:silenceLaptop and ex:lostLaptop has ex:noticeRequest ex:noticeLaptop.
+ex:databaseLeak has ex:file ex:leakFile and ex:databaseLeak has ex:closeRequest ex:closeLeak.
+ex:databaseLeak has ex:silenceRequest ex:silenceLeak and ex:databaseLeak has ex:noticeRequest ex:noticeLeak.
+ex:databaseLeak has ex:hostingRequest ex:hostingLeak.
+ex:ransomware has ex:file ex:ransomwareFile and ex:ransomware has ex:closeRequest ex:closeRansomware.
+ex:ransomware has ex:hostingRequest ex:hostingRansomware.
+ex:misdirectedEmail has ex:file ex:emailFile and ex:misdirectedEmail has ex:closeRequest ex:closeEmail.
+ex:noticeLeak has eval:fulfilledDuty ex:giveReasons.
 
-# The 72-hour deadline, met or missed. A late notice must give reasons.
+# The shop's GDPR obligations as an ODRL set, and the processing agreement
+# with its hosting processor; a prohibition wins.
 
-For every B and N,
-if B has ex:requires gdpr:DPABreachNotice and B has ex:authorityNotifiedAt N and N is at most 72
-then B has ex:authorityNotice ex:onTime.
-For every B and N,
-if B has ex:requires gdpr:DPABreachNotice and B has ex:authorityNotifiedAt N and N is greater than 72
-then B has ex:authorityNotice ex:lateWithReasons.
+ex:evaluation is a eval:Evaluation and ex:evaluation has eval:conflictStrategy odrl:prohibit.
+ex:evaluation has eval:policy ex:breachRules and ex:evaluation has eval:policy ex:agreement.
 
-# Article 34: tell the people affected of a high risk, unless the data was
-# encrypted.
+ex:breachRules is a odrl:Set and ex:breachRules has odrl:profile eval:SnapshotProfile.
+ex:breachRules has odrl:conflict odrl:prohibit.
+ex:breachRules has odrl:permission ex:mayCloseQuietly and ex:breachRules has odrl:prohibition ex:mustNotifyAuthority.
+ex:breachRules has odrl:permission ex:mayStaySilent and ex:breachRules has odrl:prohibition ex:mustTellPeople.
+ex:breachRules has odrl:permission ex:mayNotifyInTime and ex:breachRules has odrl:permission ex:mayNotifyLate.
 
-For every B,
-if B has dpv:hasRisk risk:HighRisk and it is not known that B has dpv:hasTechnicalMeasure dpv:Encryption
-then B has ex:requires gdpr:DataSubjectBreachNotice.
-For every B,
-if B has dpv:hasRisk risk:HighRisk and B has dpv:hasTechnicalMeasure dpv:Encryption
-then B has ex:exemptFrom gdpr:DataSubjectBreachNotice.
+# Article 33(1): a file may be closed without notice only when the breach
+# is unlikely to result in a risk, which the assessment expresses as low.
 
-# The processor's duty, read from the agreement: an inform duty limited by
-# elapsed time, broken when the alert came later than the limit.
+ex:mayCloseQuietly is a odrl:Permission and ex:mayCloseQuietly has odrl:assignee ex:webShop.
+ex:mayCloseQuietly has odrl:action ex:closeWithoutNotice and ex:mayCloseQuietly has odrl:target ex:breachFile.
+ex:mayCloseQuietly has odrl:constraint ex:unlikely.
+ex:mustNotifyAuthority is a odrl:Prohibition and ex:mustNotifyAuthority has odrl:assignee ex:webShop.
+ex:mustNotifyAuthority has odrl:action ex:closeWithoutNotice and ex:mustNotifyAuthority has odrl:target ex:breachFile.
+ex:mustNotifyAuthority has odrl:constraint ex:likely.
+ex:unlikely is a odrl:Constraint and ex:unlikely has odrl:leftOperand ex:riskUnlikely.
+ex:unlikely has odrl:operator odrl:eq and ex:unlikely has odrl:rightOperand true.
+ex:likely is a odrl:Constraint and ex:likely has odrl:leftOperand ex:riskUnlikely.
+ex:likely has odrl:operator odrl:eq and ex:likely has odrl:rightOperand false.
 
-For every B and P and R and D and C and L and H,
-if B has ex:atProcessor P and ex:agreement has odrl:permission R and R has odrl:assignee P and
-R has odrl:duty D and D has odrl:action odrl:inform and D has odrl:constraint C and
-C has odrl:leftOperand odrl:elapsedTime and C has odrl:operator odrl:lteq and C has odrl:rightOperand L and
-B has ex:processorAlertedAfter H and H is greater than L
-then B has ex:brokenDuty D.
+# Article 34: the people affected need not be told unless they face a high
+# risk, which encryption removes.
 
-# How many people must be told in all.
+ex:mayStaySilent is a odrl:Permission and ex:mayStaySilent has odrl:assignee ex:webShop.
+ex:mayStaySilent has odrl:action ex:skipTellingPeople and ex:mayStaySilent has odrl:target ex:breachFile.
+ex:mayStaySilent has odrl:constraint ex:noHighRisk.
+ex:mustTellPeople is a odrl:Prohibition and ex:mustTellPeople has odrl:assignee ex:webShop.
+ex:mustTellPeople has odrl:action ex:skipTellingPeople and ex:mustTellPeople has odrl:target ex:breachFile.
+ex:mustTellPeople has odrl:constraint ex:highRisk.
+ex:noHighRisk is a odrl:Constraint and ex:noHighRisk has odrl:leftOperand ex:peopleAtHighRisk.
+ex:noHighRisk has odrl:operator odrl:eq and ex:noHighRisk has odrl:rightOperand false.
+ex:highRisk is a odrl:Constraint and ex:highRisk has odrl:leftOperand ex:peopleAtHighRisk.
+ex:highRisk has odrl:operator odrl:eq and ex:highRisk has odrl:rightOperand true.
 
-For every N,
-if N is the sum of A for every B and A such that (B has ex:requires gdpr:DataSubjectBreachNotice and B has ex:affected A)
-then ex:register has ex:peopleToInform N.
+# Article 33(1): a notice within 72 hours, or a later one with reasons.
 
-Find every B and D such that B has ex:requires D.
-Find every B and S such that B has ex:authorityNotice S.
-Find every B and D such that B has ex:exemptFrom D.
-Find every B and O such that B has ex:outcome O.
-Find every B and D such that B has ex:brokenDuty D.
-Find every N such that ex:register has ex:peopleToInform N.
+ex:mayNotifyInTime is a odrl:Permission and ex:mayNotifyInTime has odrl:assignee ex:webShop.
+ex:mayNotifyInTime has odrl:action ex:notifyAuthority and ex:mayNotifyInTime has odrl:target ex:breachFile.
+ex:mayNotifyInTime has odrl:constraint ex:inTime.
+ex:mayNotifyLate is a odrl:Permission and ex:mayNotifyLate has odrl:assignee ex:webShop.
+ex:mayNotifyLate has odrl:action ex:notifyAuthority and ex:mayNotifyLate has odrl:target ex:breachFile.
+ex:mayNotifyLate has odrl:constraint ex:late and ex:mayNotifyLate has odrl:duty ex:giveReasons.
+ex:inTime is a odrl:Constraint and ex:inTime has odrl:leftOperand ex:hoursToNotice.
+ex:inTime has odrl:operator odrl:lteq and ex:inTime has odrl:rightOperand 72.
+ex:late is a odrl:Constraint and ex:late has odrl:leftOperand ex:hoursToNotice.
+ex:late has odrl:operator odrl:gt and ex:late has odrl:rightOperand 72.
+ex:giveReasons is a odrl:Duty and ex:giveReasons has odrl:action ex:explainDelay.
+
+# Article 28: the host may use the customer data under the duty to inform
+# the shop of a breach, within the hours the agreement's terms set.
+
+ex:agreement is a odrl:Agreement and ex:agreement has odrl:profile eval:SnapshotProfile.
+ex:agreement has odrl:assigner ex:webShop and ex:agreement has odrl:permission ex:hosting.
+ex:hosting is a odrl:Permission and ex:hosting has odrl:assignee ex:cloudHost.
+ex:hosting has odrl:action odrl:use and ex:hosting has odrl:target ex:customerData.
+ex:hosting has odrl:duty ex:alertShop.
+ex:alertShop is a odrl:Duty and ex:alertShop has odrl:action odrl:inform.
+ex:alertTerms has ex:informWithinHours 24.
+
+# The requests, one family per question.
+
+For every B and Q and F,
+if B has ex:closeRequest Q and B has ex:file F
+then ex:evaluation has eval:request Q and Q is a eval:Request and Q has odrl:assignee ex:webShop and
+Q has odrl:action ex:closeWithoutNotice and Q has odrl:target ex:breachFile and Q has eval:state F.
+For every B and Q and F,
+if B has ex:silenceRequest Q and B has ex:file F
+then ex:evaluation has eval:request Q and Q is a eval:Request and Q has odrl:assignee ex:webShop and
+Q has odrl:action ex:skipTellingPeople and Q has odrl:target ex:breachFile and Q has eval:state F.
+For every B and Q and F,
+if B has ex:noticeRequest Q and B has ex:file F
+then ex:evaluation has eval:request Q and Q is a eval:Request and Q has odrl:assignee ex:webShop and
+Q has odrl:action ex:notifyAuthority and Q has odrl:target ex:breachFile and Q has eval:state F.
+For every B and Q and F,
+if B has ex:hostingRequest Q and B has ex:file F
+then ex:evaluation has eval:request Q and Q is a eval:Request and Q has odrl:assignee ex:cloudHost and
+Q has odrl:action odrl:use and Q has odrl:target ex:customerData and Q has eval:state F.
+For every Q, if Q is a eval:Request then Q has eval:subject ex:customers.
+
+# Each file's observations, derived from its breach record as true or false.
+
+For every B and F,
+if B has ex:file F
+then F is a eval:State and F has eval:subject ex:customers.
+For every B and F,
+if B has ex:file F and B has dpv:hasRisk risk:LowRisk
+then F has ex:riskUnlikely true.
+For every B and F,
+if B has ex:file F and it is not known that B has dpv:hasRisk risk:LowRisk
+then F has ex:riskUnlikely false.
+For every B and F,
+if B has ex:file F and B has dpv:hasRisk risk:HighRisk and
+it is not known that B has dpv:hasTechnicalMeasure dpv:Encryption
+then F has ex:peopleAtHighRisk true.
+For every B and F,
+if B has ex:file F and it is not known that F has ex:peopleAtHighRisk true
+then F has ex:peopleAtHighRisk false.
+For every B and F and H,
+if B has ex:file F and B has ex:authorityNotifiedAt H
+then F has ex:hoursToNotice H.
+
+# The processor's duty evidence, from the hours the agreement allows.
+
+For every B and Q and H and L,
+if B has ex:hostingRequest Q and B has ex:processorAlertedAfter H and
+ex:alertTerms has ex:informWithinHours L and H is at most L
+then Q has eval:fulfilledDuty ex:alertShop.
+For every B and Q and H and L,
+if B has ex:hostingRequest Q and B has ex:processorAlertedAfter H and
+ex:alertTerms has ex:informWithinHours L and H is greater than L
+then Q has eval:unfulfilledDuty ex:alertShop.

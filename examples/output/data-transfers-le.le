@@ -1,15 +1,110 @@
+Use ODRL vocabulary with namespace "https://example.org/data-transfers#".
+Use prefix eval with namespace "https://eyereasoner.github.io/eyemind/odrl#".
 Use prefix ex with namespace "https://example.org/data-transfers#".
-Use prefix gdpr with namespace "https://w3id.org/dpv/legal/eu/gdpr#".
+Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
 
-ex:support has ex:reliesOn gdpr:A45-3.
-ex:relocation has ex:reliesOn gdpr:A49-1-a.
-ex:payroll has ex:reliesOn gdpr:A45-3.
-ex:pensions has ex:reliesOn gdpr:A45-3.
-ex:helpdesk has ex:missingDuty ex:assessment.
-ex:analytics has ex:decision ex:prohibited.
-ex:support has ex:decision ex:allowed.
-ex:relocation has ex:decision ex:allowed.
-ex:payroll has ex:decision ex:allowed.
-ex:pensions has ex:decision ex:allowed.
-ex:helpdesk has ex:decision ex:review.
-ex:archive has ex:decision ex:blocked.
+evaluation is an evaluationReport.
+evaluation has policy groupPolicy.
+evaluation has conflictStrategy prohibit.
+payroll is a request.
+payroll has assignee hrCompany.
+payroll has action odrl:distribute.
+payroll has target employeeData.
+payroll has subject employees.
+payroll has state payrollState.
+pensions is a request.
+pensions has assignee hrCompany.
+pensions has action odrl:distribute.
+pensions has target employeeData.
+pensions has subject employees.
+pensions has state pensionsState.
+support is a request.
+support has assignee hrCompany.
+support has action odrl:distribute.
+support has target employeeData.
+support has subject employees.
+support has state supportState.
+analytics is a request.
+analytics has assignee hrCompany.
+analytics has action odrl:distribute.
+analytics has target employeeData.
+analytics has subject employees.
+analytics has state analyticsState.
+analytics has fulfilledDuty assessment.
+helpdesk is a request.
+helpdesk has assignee hrCompany.
+helpdesk has action odrl:distribute.
+helpdesk has target employeeData.
+helpdesk has subject employees.
+helpdesk has state helpdeskState.
+relocation is a request.
+relocation has assignee hrCompany.
+relocation has action odrl:distribute.
+relocation has target employeeData.
+relocation has subject employees.
+relocation has state relocationState.
+archive is a request.
+archive has assignee hrCompany.
+archive has action odrl:distribute.
+archive has target employeeData.
+archive has subject employees.
+archive has state archiveState.
+evaluation has validationStatus valid.
+analytics has unmetConstraint adequate.
+helpdesk has unmetConstraint adequate.
+relocation has unmetConstraint adequate.
+archive has unmetConstraint adequate.
+payroll has unmetConstraint clauses.
+pensions has unmetConstraint clauses.
+support has unmetConstraint clauses.
+relocation has unmetConstraint clauses.
+archive has unmetConstraint clauses.
+payroll has unmetConstraint health.
+pensions has unmetConstraint health.
+support has unmetConstraint health.
+helpdesk has unmetConstraint health.
+relocation has unmetConstraint health.
+archive has unmetConstraint health.
+payroll has unmetConstraint derogation.
+pensions has unmetConstraint derogation.
+support has unmetConstraint derogation.
+analytics has unmetConstraint derogation.
+helpdesk has unmetConstraint derogation.
+archive has unmetConstraint derogation.
+payroll has applicablePermission onAdequacy.
+pensions has applicablePermission onAdequacy.
+support has applicablePermission onAdequacy.
+analytics has applicablePermission onClauses.
+relocation has applicablePermission onConsent.
+analytics has applicableProhibition noHealthData.
+helpdesk has uncertainty witness(rule 349, "Issue", ex:helpdesk, ex:assessment, ex:onClauses, eval:MissingDutyEvidence).
+witness(rule 349, "Issue", ex:helpdesk, ex:assessment, ex:onClauses, eval:MissingDutyEvidence) is an uncertainty.
+witness(rule 349, "Issue", ex:helpdesk, ex:assessment, ex:onClauses, eval:MissingDutyEvidence) has reportDuty assessment.
+witness(rule 349, "Issue", ex:helpdesk, ex:assessment, ex:onClauses, eval:MissingDutyEvidence) has rule onClauses.
+witness(rule 349, "Issue", ex:helpdesk, ex:assessment, ex:onClauses, eval:MissingDutyEvidence) has reason eval:MissingDutyEvidence.
+evaluation has conflict witness(rule 351, "Conflict", ex:evaluation, ex:analytics, ex:groupPolicy, ex:onClauses, ex:groupPolicy, ex:noHealthData).
+witness(rule 351, "Conflict", ex:evaluation, ex:analytics, ex:groupPolicy, ex:onClauses, ex:groupPolicy, ex:noHealthData) is a conflict.
+witness(rule 351, "Conflict", ex:evaluation, ex:analytics, ex:groupPolicy, ex:onClauses, ex:groupPolicy, ex:noHealthData) has request analytics.
+witness(rule 351, "Conflict", ex:evaluation, ex:analytics, ex:groupPolicy, ex:onClauses, ex:groupPolicy, ex:noHealthData) has permissionPolicy groupPolicy.
+witness(rule 351, "Conflict", ex:evaluation, ex:analytics, ex:groupPolicy, ex:onClauses, ex:groupPolicy, ex:noHealthData) has permissionRule onClauses.
+witness(rule 351, "Conflict", ex:evaluation, ex:analytics, ex:groupPolicy, ex:onClauses, ex:groupPolicy, ex:noHealthData) has prohibitionPolicy groupPolicy.
+witness(rule 351, "Conflict", ex:evaluation, ex:analytics, ex:groupPolicy, ex:onClauses, ex:groupPolicy, ex:noHealthData) has prohibitionRule noHealthData.
+evaluation has conflictCount 1.
+evaluation has request helpdesk.
+helpdesk has decision undetermined.
+evaluation has request payroll.
+payroll has decision allowed.
+evaluation has request pensions.
+pensions has decision allowed.
+evaluation has request support.
+support has decision allowed.
+evaluation has request relocation.
+relocation has decision allowed.
+evaluation has request analytics.
+analytics has decision prohibited.
+evaluation has request archive.
+archive has decision notApplicable.
+evaluation has canHappen payroll.
+evaluation has canHappen pensions.
+evaluation has canHappen support.
+evaluation has canHappen relocation.

@@ -3,7 +3,7 @@
 import { compileOdrl, ODRL_EVAL } from './odrl.js';
 import { loadText } from './lang.js';
 import { DEFAULT_GRAPH, writeRdf } from './rdf.js';
-import { EyemindError, Struct, isGround, properListItems } from './terms.js';
+import { EyemindError, Struct, Var, conjunction, flattenConjunction, isGround, properListItems } from './terms.js';
 import { readTerm } from './reader.js';
 import { write } from './writer.js';
 
@@ -98,11 +98,38 @@ function expandOperandLists(quads, namespace) {
   }
 }
 
-export function compileOdrlLe(statements, profile, source) {
+// LS goals a snapshot rule keeps as they are: calculations, comparisons and
+// the aggregation helpers of le.js.
+const KEPT = new Set(['is', 'gt', 'lt', 'ge', 'le', 'eq', 'ne', 'le:distinct', 'le:count', 'le:sum', 'le:max', 'le:min']);
+
+// A goal of a snapshot rule over the snapshot's input: class and property
+// statements become odrl_input(S, P, O) with names mapped as for facts.
+export function snapshotGoal(goal, namespace) {
+  const value = (term) => term instanceof Var ? term : rdfValue(term, namespace);
+  if (goal === 'true') return goal;
+  if (!(goal instanceof Struct)) throw new EyemindError('an LE ODRL rule needs class and property statements, calculations and absence tests');
+  if (goal.name === 'not' && goal.args.length === 1) return new Struct('not', [snapshotGoal(goal.args[0], namespace)]);
+  if (goal.name === 'findall_sorted') {
+    const [template, condition, result] = goal.args;
+    return new Struct('findall_sorted', [template, conjunction(flattenConjunction(condition).map((g) => snapshotGoal(g, namespace))), result]);
+  }
+  if (KEPT.has(goal.name)) return goal;
+  let s, p, o;
+  if (goal.name === 'rdf' && goal.args.length === 3) [s, p, o] = goal.args;
+  else if (goal.args.length === 1) [s, p, o] = [goal.args[0], iri(RDF + 'type'), iri(TYPES.get(goal.name) ?? namespace + goal.name)];
+  else if (goal.args.length === 2) [s, p, o] = [goal.args[0], iri(PROPERTIES.get(goal.name) ?? namespace + goal.name), goal.args[1]];
+  else throw new EyemindError('use class statements, binary properties or rdf(S, P, O) in LE ODRL rules');
+  return new Struct('odrl_input', [value(s), p, LIST_OPERANDS.has(p.args?.[0]) && properListItems(o) !== null ? o : value(o)]);
+}
+
+// statements: the snapshot's facts; rules: the LS text of its rules, which
+// only a snapshot, not a vocabulary document, may have.
+export function compileOdrlLe(statements, profile, source, rules = '') {
   const { namespace, evaluate } = profile;
   const quads = [];
+  if (rules && !evaluate) throw new EyemindError(`${source}: an LE ODRL vocabulary document contains ground facts, not rules`);
   for (const statement of statements) {
-    if (statement.kind !== 'fact') throw new EyemindError(`${statement.file}: line ${statement.line}: an LE ODRL snapshot or report contains ground facts, not rules or questions`);
+    if (statement.kind !== 'fact') throw new EyemindError(`${statement.file}: line ${statement.line}: an LE ODRL snapshot has facts and rules, not questions; its report is the answer`);
     for (const head of statement.heads) {
       if (!(head instanceof Struct) || !isGround(head)) throw new EyemindError(`${statement.file}: line ${statement.line}: an LE ODRL fact needs a ground class or property statement`);
       let s, p, o;
@@ -142,7 +169,7 @@ export function compileOdrlLe(statements, profile, source) {
   writeRdf(quads, { format: 'n-triples' });
   const prefixes = { '': namespace, odrl: ODRL, eval: ODRL_EVAL };
   let loaded;
-  if (evaluate) loaded = compileOdrl({ quads, prefixes }, { source });
+  if (evaluate) loaded = compileOdrl({ quads, prefixes }, { source, rules });
   else {
     const facts = quads.map(([s, p, o]) => write(new Struct('rdf', [s, p, o]))).join('\n');
     const text = `// RDF facts from an LE ODRL vocabulary document.\nfacts_from({ text: ${JSON.stringify(facts)} })\n`;
