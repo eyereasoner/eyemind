@@ -1,0 +1,15 @@
+Use prefix ex with namespace "https://example.org/data-transfers#".
+Use prefix gdpr with namespace "https://w3id.org/dpv/legal/eu/gdpr#".
+
+ex:support has ex:reliesOn gdpr:A45-3.
+ex:relocation has ex:reliesOn gdpr:A49-1-a.
+ex:payroll has ex:reliesOn gdpr:A45-3.
+ex:pensions has ex:reliesOn gdpr:A45-3.
+ex:helpdesk has ex:missingDuty ex:assessment.
+ex:analytics has ex:decision ex:prohibited.
+ex:support has ex:decision ex:allowed.
+ex:relocation has ex:decision ex:allowed.
+ex:payroll has ex:decision ex:allowed.
+ex:pensions has ex:decision ex:allowed.
+ex:helpdesk has ex:decision ex:review.
+ex:archive has ex:decision ex:blocked.

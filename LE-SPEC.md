@@ -317,6 +317,8 @@ These programs use the grammar above without additional syntax:
 | [British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le) | Section 1 of the British Nationality Act 1981: alternative premises, a presumption that holds unless the contrary is shown, date comparisons and citizenship through a derived parent. |
 | [Library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le) | Charges from alternative rules, then the sum, number and maximum per member over distinct combinations. |
 | [Election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le) | Eligibility by alternatives, distinct choices, an absence test inside a count, winners by maximum with ties, and a quorum. |
+| [International data transfers](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le) | GDPR Chapter V over ODRL, DPV, location and GDPR-extension names: alternative premises, a duty read from a policy, and a prohibition that wins. |
+| [Breach notification](https://eyereasoner.github.io/eyemind/examples/deck/breach-notification-le) | GDPR Articles 33 and 34 over DPV risk terms: deadlines in hours, an encryption exemption, a processor's ODRL duty and a sum. |
 
 Their decks state the modeled assumptions and what the checked proofs establish.
 Bounds and finite expression domains are explicit in the programs.
@@ -419,14 +421,24 @@ use `has`; for example `issueAlice has decision allowed.`. Status values
 `conflict` as a property means `eval:conflict`; `applicablePermission`,
 `applicableProhibition`, `reportConstraint` and `reportDuty` distinguish the
 report's `eval:permission`, `eval:prohibition`, `eval:constraint` and
-`eval:duty` links from ODRL input properties. Other report fields retain their `eval:` names. An IRI with
-no unambiguous abbreviation stays explicit, including IRIs inside witness keys.
+`eval:duty` links from ODRL input properties. Other report fields retain their `eval:` names. Other IRIs
+are written with the run's prefixes, declared after the directive: those the
+file declares, `odrl:` and `eval:`. Inside a witness key, where a bare name
+would read back as a name rather than an IRI, the snapshot namespace also
+needs a prefix: the file's own, or `ns` when it declares none. An IRI that no
+prefix abbreviates stays explicit.
 
-Prefix declarations can follow either ODRL directive. A qualified state
+Prefix declarations can follow either ODRL directive, and the whole snapshot
+can be written with qualified names, as `ex:mayErase has odrl:action
+odrl:delete.` or `ex:evaluation is a eval:Evaluation.`. After an ODRL
+directive a qualified statement takes the subjects and values the short forms
+take: an ordinary name in the declared namespace, `true` and `false`, and an
+operand list, as `ex:scope has odrl:and [ex:purpose, ex:consent].`. A state
 property or value can use a DPV IRI, for example
-`ex:state has dpv:hasPurpose dpv:AcademicResearch.`. An equality constraint
+`state has dpv:hasPurpose dpv:AcademicResearch.`. An equality constraint
 can read `dpv:hasPurpose` as its left operand and use
 `dpv:AcademicResearch` as its right operand.
+[Right to erasure example](https://eyereasoner.github.io/eyemind/examples/deck/right-to-erasure-le)
 
 ```text
 scope is a logicalConstraint and scope has andOperands [purpose, dataCategory].

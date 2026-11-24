@@ -13,7 +13,7 @@ program, a JavaScript library and a browser application.
 - [Playground](https://eyereasoner.github.io/eyemind/playground/): run any
   example or your own program in the browser, with its proof and check report.
 - [Examples](https://eyereasoner.github.io/eyemind/examples/): the
-  165 runnable programs, each with a card deck and saved conclusions; all but
+  168 runnable programs, each with a card deck and saved conclusions; all but
   the two streamed examples also save proofs and check reports.
 - [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC): the
   language, the proof format and how a proof is checked.
@@ -461,7 +461,7 @@ SKOS links between categories, such as a `skos:broadMatch` to DPV. Other
 entailments, such as an `rdfs:Resource` type for every node, stay out of the
 snapshot, whose validation would reject them. The output is the ODRL report
 with the profiles' own reports, such as a SHACL validation report.
-[Handicap-card example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card) · [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-odrl) · [Research access with OWL 2 RL and SKOS](https://eyereasoner.github.io/eyemind/examples/deck/research-access-odrl) · [Research portal with OWL 2 RL](https://eyereasoner.github.io/eyemind/examples/deck/research-portal-odrl) · [Package holiday with SHACL](https://eyereasoner.github.io/eyemind/examples/deck/package-holiday-odrl)
+[Handicap-card example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card) · [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-odrl) · [Research access with OWL 2 RL and SKOS](https://eyereasoner.github.io/eyemind/examples/deck/research-access-odrl) · [Research portal with OWL 2 RL](https://eyereasoner.github.io/eyemind/examples/deck/research-portal-odrl) · [Package holiday with SHACL](https://eyereasoner.github.io/eyemind/examples/deck/package-holiday-odrl) · [Right to erasure in qualified LE](https://eyereasoner.github.io/eyemind/examples/deck/right-to-erasure-le)
 
 ## How eyemind reasons
 

@@ -48,6 +48,6 @@ pending has subject visitor and pending has state researchState.
 marketing has subject visitor and marketing has state marketingState and marketing has fulfilledDuty credit.
 
 researchState is a state and researchState has subject visitor.
-ex:researchState has dpv:hasPurpose dpv:AcademicResearch and ex:researchState has dpv:hasPersonalData pd:EmailAddressWork.
+researchState has dpv:hasPurpose dpv:AcademicResearch and researchState has dpv:hasPersonalData pd:EmailAddressWork.
 marketingState is a state and marketingState has subject visitor.
-ex:marketingState has dpv:hasPurpose dpv:Marketing and ex:marketingState has dpv:hasPersonalData pd:EmailAddressWork.
+marketingState has dpv:hasPurpose dpv:Marketing and marketingState has dpv:hasPersonalData pd:EmailAddressWork.

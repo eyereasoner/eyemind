@@ -52,6 +52,36 @@ export const tests = {
     }
   },
 
+  'qualified snapshot statements take names, booleans and operand lists as the short forms do'() {
+    const sources = (le) => le.program.sources.map((s) => write(s.head));
+    const qualified = RESEARCH.replace('scope has andOperands [research, contactData].', 'ex:scope has odrl:and [research, contactData].')
+      .replace('ex:researchState has dpv:hasPurpose', 'researchState has dpv:hasPurpose');
+    assert.notEqual(qualified, RESEARCH);
+    assert.deepEqual(sources(compileLe([[qualified, 'q.le']])), sources(compileLe([[RESEARCH, 'q.le']])));
+    const prefixed = LE.replace(/(Use ODRL snapshot logic[^\n]+\n)/, '$1Use prefix ex with namespace "https://example.org/handicap-card#".\n');
+    const booleans = prefixed.replace('aliceState has assessmentApproved true', 'aliceState has ex:assessmentApproved true');
+    assert.notEqual(booleans, prefixed);
+    assert.deepEqual(sources(loaded(booleans)), sources(loaded(prefixed)));
+    // Outside a snapshot a qualified property still needs an RDF value.
+    assert.match(errorOf(() => compileLe([['Use prefix ex with namespace "https://example.org/x#".\nex:a has ex:b [ex:c, ex:d].', 'x.le']])),
+      /needs an RDF value/);
+    const erasure = cli(['examples/right-to-erasure-le.le']);
+    assert.equal(erasure.code, 0, erasure.stderr);
+    assert.match(erasure.stdout, /eraseInvoices has decision prohibited\./);
+  },
+
+  'an LE snapshot report writes other IRIs and witness keys with prefixes and reads back'() {
+    const research = cli(['examples/research-snapshot-le.le']).stdout;
+    assert.match(research, /^Use ODRL vocabulary with namespace "https:\/\/example\.org\/research-snapshot#"\.\nUse prefix eval /);
+    assert.match(research, /ready has action odrl:use\./);
+    assert.match(research, /witness\(rule \d+, "Issue", ex:pending, ex:credit, ex:researchUse, eval:MissingDutyEvidence\)/);
+    assert.doesNotMatch(research, /"iri"/);
+    // Without a prefix of its own, the snapshot namespace is named ns.
+    const handicap = cli(['examples/handicap-card-le.le']).stdout;
+    assert.match(handicap, /^Use ODRL vocabulary with namespace "https:\/\/example\.org\/handicap-card#"\.\nUse prefix ns with namespace "https:\/\/example\.org\/handicap-card#"\./);
+    assert.doesNotMatch(handicap, /"iri"/);
+  },
+
   'a snapshot can use a qualified DPV property and value for an ODRL equality constraint'() {
     const input = LE.replace(/(Use ODRL snapshot logic[^\n]+\n)/, '$1' +
       'Use prefix dpv with namespace "https://w3id.org/dpv#".\n' +
@@ -111,7 +141,7 @@ export const tests = {
     assert.match(errorOf(() => loaded(directive.replace('https://example.org/#', 'relative#'))), /absolute IRI/);
     assert.match(errorOf(() => compileLe([[directive, 'one.le'], ['Alice is a person.', 'two.le']])), /one LE file/);
     assert.equal(loaded(LE.replace(/^Use ODRL snapshot logic[^\n]+\n/m, '')).compiled.odrl, undefined);
-    assert.match(errorOf(() => loaded(directive + 'rdf(iri("https://example.org/a"), iri("https://example.org/p"), evil(1)).')), /not an RDF term/);
+    assert.match(errorOf(() => loaded(directive + 'rdf(iri("https://example.org/a"), iri("https://example.org/p"), evil(1)).')), /LE ODRL values need names, numbers or explicit RDF terms/);
     assert.match(errorOf(() => loaded(directive + 'Alice has target iri("relative").')), /IRIs must be absolute/);
   },
 };

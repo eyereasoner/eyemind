@@ -254,7 +254,10 @@ export const tests = {
       const native = files.find((file) => /\.(le|n3|srl)$/.test(file));
       const input = native ? languages[native.split('.').at(-1)]
         : files.some((file) => /\.(ttl|trig|nt|nq)$/.test(file)) ? 'RDF' : 'Logic Script';
-      return `- [${title}](https://eyereasoner.github.io/eyemind/examples/deck/${entry.name}) (${input}) — ${entry.description}`;
+      // The row's input tag already names the language, so a title does not
+      // repeat it, as "Socrates in Logical English" in its deck.
+      const shown = title.replace(new RegExp(` in ${input}$`), '');
+      return `- [${shown}](https://eyereasoner.github.io/eyemind/examples/deck/${entry.name}) (${input}) — ${entry.description}`;
     });
     assert.deepEqual(rows.sort(), expected.sort());
     const starter = catalog.match(/\[run Socrates in the Playground\]\(https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/#example=([^)]+)\)/);

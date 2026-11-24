@@ -1,0 +1,136 @@
+# A Belgian HR software company sends employee data to service providers
+# outside the European Economic Area. Under Chapter V of the GDPR a transfer
+# needs an adequacy decision for the destination, appropriate safeguards such
+# as standard contractual clauses, or, for an occasional transfer, a
+# derogation such as the employee's explicit consent. The company's own ODRL
+# policy adds a duty, a transfer impact assessment before it relies on the
+# clauses, and prohibits sending health data abroad at all.
+# The program allows the transfers to Japan, Switzerland, a certified US
+# provider and, by explicit consent, a one-off relocation to Brazil. It
+# prohibits the US analytics transfer that carries health data, sends the
+# Indian helpdesk transfer for review until its assessment is done, and blocks
+# the bulk transfer to Brazil, which has no basis at all.
+# Shows Logical English over ODRL 2.2 and DPV 2.3 with its GDPR, location and
+# personal data extensions, written with namespace prefixes: qualified facts
+# and rules, alternative premises, absence tests and a prohibition that wins.
+# The adequacy decisions are input facts for this scenario, not a register of
+# the decisions in force.
+# Sources https://eur-lex.europa.eu/eli/reg/2016/679/oj (Articles 44-49)
+#         https://www.w3.org/TR/odrl-vocab/
+#         https://w3id.org/dpv/2.3/dpv/ and https://w3id.org/dpv/legal/eu/gdpr
+
+Use prefix ex with namespace "https://example.org/data-transfers#".
+Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
+Use prefix dpv with namespace "https://w3id.org/dpv#".
+Use prefix pd with namespace "https://w3id.org/dpv/pd#".
+Use prefix loc with namespace "https://w3id.org/dpv/loc#".
+Use prefix gdpr with namespace "https://w3id.org/dpv/legal/eu/gdpr#".
+
+# The adequacy decisions this scenario relies on. The US decision covers
+# only recipients certified under its framework.
+
+ex:japanDecision is a gdpr:AdequacyDecision and ex:japanDecision has ex:covers loc:JP.
+ex:swissDecision is a gdpr:AdequacyDecision and ex:swissDecision has ex:covers loc:CH.
+ex:privacyFramework is a gdpr:AdequacyDecision and ex:privacyFramework has ex:covers loc:US.
+ex:privacyFramework is a ex:CertificationScheme.
+
+# The group policy: employee data may be distributed to providers, under a
+# duty to assess a transfer that relies on clauses; health data may not.
+
+ex:groupPolicy is an odrl:Agreement and ex:groupPolicy has odrl:assigner ex:hrCompany.
+ex:groupPolicy has odrl:conflict odrl:prohibit.
+ex:groupPolicy has odrl:permission ex:mayTransfer and ex:groupPolicy has odrl:prohibition ex:noHealthAbroad.
+ex:mayTransfer is an odrl:Permission and ex:mayTransfer has odrl:action odrl:distribute.
+ex:mayTransfer has odrl:target ex:employeeData and ex:mayTransfer has odrl:duty ex:assessment.
+ex:assessment is an odrl:Duty and ex:assessment has odrl:action ex:assess.
+ex:assessment has odrl:target dpv:DataTransferImpactAssessment.
+ex:noHealthAbroad is an odrl:Prohibition and ex:noHealthAbroad has odrl:action odrl:distribute.
+ex:noHealthAbroad has odrl:target pd:MedicalHealth.
+
+# The providers and where they are established.
+
+ex:payrollJapan has dpv:hasLocation loc:JP.
+ex:pensionsSwiss has dpv:hasLocation loc:CH.
+ex:supportDesk has dpv:hasLocation loc:US and ex:supportDesk has ex:certifiedUnder ex:privacyFramework.
+ex:analyticsVendor has dpv:hasLocation loc:US.
+ex:helpdeskIndia has dpv:hasLocation loc:IN.
+ex:relocationAgent has dpv:hasLocation loc:BR.
+ex:archiveBrazil has dpv:hasLocation loc:BR.
+
+# The planned transfers, as DPV processes.
+
+ex:payroll is a dpv:Process and ex:payroll has dpv:hasRecipient ex:payrollJapan.
+ex:payroll has dpv:hasPersonalData pd:Salary and ex:payroll has dpv:hasPersonalData pd:BankAccount.
+ex:pensions is a dpv:Process and ex:pensions has dpv:hasRecipient ex:pensionsSwiss.
+ex:pensions has dpv:hasPersonalData pd:Salary.
+ex:support is a dpv:Process and ex:support has dpv:hasRecipient ex:supportDesk.
+ex:support has dpv:hasPersonalData pd:Name and ex:support has dpv:hasPersonalData pd:EmailAddress.
+ex:analytics is a dpv:Process and ex:analytics has dpv:hasRecipient ex:analyticsVendor.
+ex:analytics has dpv:hasPersonalData pd:Salary and ex:analytics has dpv:hasPersonalData pd:MedicalHealth.
+ex:analytics has ex:safeguard gdpr:StandardContractualClauses and ex:analytics has ex:fulfilled ex:assessment.
+ex:helpdesk is a dpv:Process and ex:helpdesk has dpv:hasRecipient ex:helpdeskIndia.
+ex:helpdesk has dpv:hasPersonalData pd:Name and ex:helpdesk has ex:safeguard gdpr:StandardContractualClauses.
+ex:relocation is a dpv:Process and ex:relocation has dpv:hasRecipient ex:relocationAgent.
+ex:relocation has dpv:hasPersonalData pd:Name and ex:relocation is a ex:OccasionalTransfer.
+ex:relocation has dpv:hasConsentStatus dpv:ConsentGiven.
+ex:archive is a dpv:Process and ex:archive has dpv:hasRecipient ex:archiveBrazil.
+ex:archive has dpv:hasPersonalData pd:Salary.
+
+For every T, if T is a dpv:Process then T has dpv:hasProcessing dpv:Transfer.
+
+# Article 45: an adequacy decision for the recipient's country, and for a
+# certification scheme, the recipient's certification under it.
+
+For every T and R and C and D,
+if T has dpv:hasProcessing dpv:Transfer and T has dpv:hasRecipient R and R has dpv:hasLocation C and
+D is a gdpr:AdequacyDecision and D has ex:covers C and it is not known that D is a ex:CertificationScheme
+or T has dpv:hasProcessing dpv:Transfer and T has dpv:hasRecipient R and R has dpv:hasLocation C and
+D is a gdpr:AdequacyDecision and D has ex:covers C and D is a ex:CertificationScheme and R has ex:certifiedUnder D
+then T has ex:transferBasis gdpr:A45-3.
+
+# Article 46(2)(c): standard contractual clauses, which the policy accepts
+# only once its assessment duty is fulfilled; until then, review.
+
+For every T and D,
+if T has ex:safeguard gdpr:StandardContractualClauses and ex:mayTransfer has odrl:duty D and T has ex:fulfilled D
+then T has ex:transferBasis gdpr:A46-2-c.
+For every T and D,
+if T has ex:safeguard gdpr:StandardContractualClauses and ex:mayTransfer has odrl:duty D and
+it is not known that T has ex:fulfilled D
+then T has ex:missingDuty D.
+
+# Article 49(1)(a): an occasional transfer with explicit consent.
+
+For every T,
+if T is a ex:OccasionalTransfer and T has dpv:hasConsentStatus dpv:ConsentGiven
+then T has ex:transferBasis gdpr:A49-1-a.
+
+# The policy's prohibition takes priority over any basis.
+
+For every T and P and X,
+if T has dpv:hasProcessing dpv:Transfer and ex:groupPolicy has odrl:prohibition P and
+P has odrl:target X and T has dpv:hasPersonalData X
+then T is a ex:ProhibitedTransfer.
+For every T and B, if T has ex:transferBasis B then T is a ex:LawfulTransfer.
+
+For every T,
+if T is a ex:LawfulTransfer and it is not known that T is a ex:ProhibitedTransfer
+then T has ex:decision ex:allowed.
+For every T, if T is a ex:ProhibitedTransfer then T has ex:decision ex:prohibited.
+For every T and D,
+if T has ex:missingDuty D and it is not known that T is a ex:LawfulTransfer and
+it is not known that T is a ex:ProhibitedTransfer
+then T has ex:decision ex:review.
+For every T,
+if T has dpv:hasProcessing dpv:Transfer and it is not known that T is a ex:LawfulTransfer and
+it is not known that T is a ex:ProhibitedTransfer and it is not known that T is a ex:PendingTransfer
+then T has ex:decision ex:blocked.
+For every T and D, if T has ex:missingDuty D then T is a ex:PendingTransfer.
+
+For every T and B,
+if T has ex:transferBasis B and it is not known that T is a ex:ProhibitedTransfer
+then T has ex:reliesOn B.
+
+Find every T and D such that T has ex:decision D.
+Find every T and B such that T has ex:reliesOn B.
+Find every T and D such that T has ex:missingDuty D.

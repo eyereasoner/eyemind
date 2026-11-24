@@ -106,7 +106,11 @@ export function compileOdrlLe(statements, profile, source) {
     for (const head of statement.heads) {
       if (!(head instanceof Struct) || !isGround(head)) throw new EyemindError(`${statement.file}: line ${statement.line}: an LE ODRL fact needs a ground class or property statement`);
       let s, p, o;
-      if (head.name === 'rdf' && head.args.length === 3) [s, p, o] = head.args;
+      if (head.name === 'rdf' && head.args.length === 3) {
+        [s, p, o] = head.args;
+        s = rdfValue(s, namespace);
+        o = LIST_OPERANDS.has(p.args?.[0]) && properListItems(o) !== null ? o : rdfValue(o, namespace);
+      }
       else if (head.args.length === 1) {
         s = rdfValue(head.args[0], namespace); p = iri(RDF + 'type');
         o = iri(TYPES.get(head.name) ?? namespace + head.name);

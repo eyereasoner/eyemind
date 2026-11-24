@@ -18,7 +18,7 @@ export function isOdrlEvaluation(quads) {
 }
 
 export function checkOdrlInput(quads) {
-  if (!isOdrlEvaluation(quads)) throw new EyemindError('--odrl needs an eval:Evaluation resource selecting the policies and requests');
+  if (!isOdrlEvaluation(quads)) throw new EyemindError('an ODRL snapshot needs an eval:Evaluation resource selecting the policies and requests');
   if (quads.some(([, , , graph]) => graph !== DEFAULT_GRAPH)) throw new EyemindError('an ODRL snapshot needs one default graph');
 }
 

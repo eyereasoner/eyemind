@@ -1,0 +1,109 @@
+# A web shop handles four personal data breaches. Under Article 33 of the
+# GDPR it notifies the supervisory authority within 72 hours of becoming
+# aware of a breach, unless the breach is unlikely to result in a risk; under
+# Article 34 it also tells the people affected when the risk is high, unless
+# the data was encrypted (Article 34(3)(a)). Its hosting processor must alert
+# it within 24 hours, a duty of their processing agreement, an ODRL agreement.
+# The program finds that the lost laptop, the leaked customer database and
+# the ransomware attack go to the authority, the database late; that only
+# the database leak's 1200 customers must be told, the encrypted laptop being
+# exempt; that the misdirected email is only documented; and that the
+# processor broke its 24-hour duty for the database leak.
+# Shows Logical English with namespace prefixes for ODRL 2.2 and DPV 2.3 with
+# its personal data, risk and GDPR extensions: arithmetic over hours,
+# comparisons, absence tests, an ODRL duty read by rules, and a sum.
+# The risk levels are the controller's assessments, given as input.
+# Sources https://eur-lex.europa.eu/eli/reg/2016/679/oj (Articles 28, 33, 34)
+#         https://www.w3.org/TR/odrl-vocab/
+#         https://w3id.org/dpv/2.3/risk/ and https://w3id.org/dpv/legal/eu/gdpr
+
+Use prefix ex with namespace "https://example.org/breach-notification#".
+Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
+Use prefix dpv with namespace "https://w3id.org/dpv#".
+Use prefix pd with namespace "https://w3id.org/dpv/pd#".
+Use prefix risk with namespace "https://w3id.org/dpv/risk#".
+Use prefix gdpr with namespace "https://w3id.org/dpv/legal/eu/gdpr#".
+
+# The processing agreement: the host may use the customer data, and must
+# inform the shop of a breach within 24 hours.
+
+ex:agreement is an odrl:Agreement and ex:agreement has odrl:assigner ex:webShop.
+ex:agreement has odrl:permission ex:hosting.
+ex:hosting is an odrl:Permission and ex:hosting has odrl:assignee ex:cloudHost.
+ex:hosting has odrl:action odrl:use and ex:hosting has odrl:target ex:customerData.
+ex:hosting has odrl:duty ex:alertShop.
+ex:alertShop is an odrl:Duty and ex:alertShop has odrl:action odrl:inform.
+ex:alertShop has odrl:constraint ex:within24Hours.
+ex:within24Hours has odrl:leftOperand odrl:elapsedTime and ex:within24Hours has odrl:operator odrl:lteq.
+ex:within24Hours has odrl:rightOperand 24.
+
+# The breaches, with the shop's risk assessment. Hours count from the
+# moment the shop became aware of each breach.
+
+ex:lostLaptop is a risk:DataBreach and ex:lostLaptop has dpv:hasRisk risk:HighRisk.
+ex:lostLaptop has dpv:hasPersonalData pd:Name and ex:lostLaptop has dpv:hasPersonalData pd:EmailAddress.
+ex:lostLaptop has dpv:hasTechnicalMeasure dpv:Encryption and ex:lostLaptop has ex:affected 300.
+ex:lostLaptop has ex:authorityNotifiedAt 40.
+
+ex:databaseLeak is a risk:DataBreach and ex:databaseLeak has dpv:hasRisk risk:HighRisk.
+ex:databaseLeak has dpv:hasPersonalData pd:MedicalHealth and ex:databaseLeak has ex:affected 1200.
+ex:databaseLeak has ex:atProcessor ex:cloudHost and ex:databaseLeak has ex:processorAlertedAfter 30.
+ex:databaseLeak has ex:authorityNotifiedAt 90.
+
+ex:ransomware is a risk:DataBreach and ex:ransomware has dpv:hasRisk risk:ModerateRisk.
+ex:ransomware has dpv:hasPersonalData pd:PurchasesAndSpendingHabit and ex:ransomware has ex:affected 5000.
+ex:ransomware has ex:atProcessor ex:cloudHost and ex:ransomware has ex:processorAlertedAfter 6.
+ex:ransomware has ex:authorityNotifiedAt 48.
+
+ex:misdirectedEmail is a risk:DataBreach and ex:misdirectedEmail has dpv:hasRisk risk:LowRisk.
+ex:misdirectedEmail has dpv:hasPersonalData pd:Name and ex:misdirectedEmail has ex:affected 1.
+
+# Article 33(1): notify the authority unless the breach is unlikely to
+# result in a risk, which the assessment expresses as low risk.
+
+For every B,
+if B is a risk:DataBreach and it is not known that B has dpv:hasRisk risk:LowRisk
+then B has ex:requires gdpr:DPABreachNotice.
+For every B, if B is a risk:DataBreach and B has dpv:hasRisk risk:LowRisk then B has ex:outcome ex:documentOnly.
+
+# The 72-hour deadline, met or missed. A late notice must give reasons.
+
+For every B and N,
+if B has ex:requires gdpr:DPABreachNotice and B has ex:authorityNotifiedAt N and N is at most 72
+then B has ex:authorityNotice ex:onTime.
+For every B and N,
+if B has ex:requires gdpr:DPABreachNotice and B has ex:authorityNotifiedAt N and N is greater than 72
+then B has ex:authorityNotice ex:lateWithReasons.
+
+# Article 34: tell the people affected of a high risk, unless the data was
+# encrypted.
+
+For every B,
+if B has dpv:hasRisk risk:HighRisk and it is not known that B has dpv:hasTechnicalMeasure dpv:Encryption
+then B has ex:requires gdpr:DataSubjectBreachNotice.
+For every B,
+if B has dpv:hasRisk risk:HighRisk and B has dpv:hasTechnicalMeasure dpv:Encryption
+then B has ex:exemptFrom gdpr:DataSubjectBreachNotice.
+
+# The processor's duty, read from the agreement: an inform duty limited by
+# elapsed time, broken when the alert came later than the limit.
+
+For every B and P and R and D and C and L and H,
+if B has ex:atProcessor P and ex:agreement has odrl:permission R and R has odrl:assignee P and
+R has odrl:duty D and D has odrl:action odrl:inform and D has odrl:constraint C and
+C has odrl:leftOperand odrl:elapsedTime and C has odrl:operator odrl:lteq and C has odrl:rightOperand L and
+B has ex:processorAlertedAfter H and H is greater than L
+then B has ex:brokenDuty D.
+
+# How many people must be told in all.
+
+For every N,
+if N is the sum of A for every B and A such that (B has ex:requires gdpr:DataSubjectBreachNotice and B has ex:affected A)
+then ex:register has ex:peopleToInform N.
+
+Find every B and D such that B has ex:requires D.
+Find every B and S such that B has ex:authorityNotice S.
+Find every B and D such that B has ex:exemptFrom D.
+Find every B and O such that B has ex:outcome O.
+Find every B and D such that B has ex:brokenDuty D.
+Find every N such that ex:register has ex:peopleToInform N.

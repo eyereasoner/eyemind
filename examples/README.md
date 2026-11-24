@@ -39,13 +39,13 @@ Each deck explains the result and links to the source and Playground.
 - [Paraconsistent Animals](https://eyereasoner.github.io/eyemind/examples/deck/paraconsistent-animals) (Logic Script) — Local summaries of conflicting observations
 - [Quantifier scopes](https://eyereasoner.github.io/eyemind/examples/deck/quantifier-scopes-n3) (Notation3) — An @forSome of the document reaches into quoted formulas, and an inner declaration shadows it
 - [Reasoning about a rule](https://eyereasoner.github.io/eyemind/examples/deck/rule-inspection) (Logic Script) — Inspecting a source rule as data while preserving its shared variable
-- [Records in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/records-le) (Logical English) — Explicit absence and an existential conclusion give Alice a fresh record while Bob is blocked
+- [Records](https://eyereasoner.github.io/eyemind/examples/deck/records-le) (Logical English) — Explicit absence and an existential conclusion give Alice a fresh record while Bob is blocked
 - [Schema Inference](https://eyereasoner.github.io/eyemind/examples/deck/schema-inference) (Logic Script) — Subclasses, subproperties, domains and ranges
 - [Scoped audit](https://eyereasoner.github.io/eyemind/examples/deck/scoped-audit) (Logic Script) — Presence and absence within separate quoted graphs
 - [Shared existential](https://eyereasoner.github.io/eyemind/examples/deck/shared-existential-n3) (Notation3) — A top-level @forSome witness is the one individual a universal conclusion talks about
 - [Socrates](https://eyereasoner.github.io/eyemind/examples/deck/socrates) (Logic Script) — Class membership derived through a subclass rule
-- [Socrates in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/socrates-le) (Logical English) — Logical English class facts and an every-rule conclude that Socrates is mortal
-- [Socrates in Notation3](https://eyereasoner.github.io/eyemind/examples/deck/socrates-n3) (Notation3) — Class membership follows the subclass hierarchy in Notation3
+- [Socrates](https://eyereasoner.github.io/eyemind/examples/deck/socrates-le) (Logical English) — Logical English class facts and an every-rule conclude that Socrates is mortal
+- [Socrates](https://eyereasoner.github.io/eyemind/examples/deck/socrates-n3) (Notation3) — Class membership follows the subclass hierarchy in Notation3
 - [Socrates in SPARQL rules](https://eyereasoner.github.io/eyemind/examples/deck/socrates-srl) (SPARQL 1.2 RL) — Class membership follows the subclass hierarchy in SPARQL 1.2 RL
 - [Terms](https://eyereasoner.github.io/eyemind/examples/deck/terms) (Logic Script) — Quoted graphs, triple terms and residual witnesses
 - [Two derived backward rules](https://eyereasoner.github.io/eyemind/examples/deck/derived-backward-rule-2) (Logic Script) — A conjunction of backward templates supplies premises for forward reasoning
@@ -61,10 +61,10 @@ Each deck explains the result and links to the source and Playground.
 - [A text invoice](https://eyereasoner.github.io/eyemind/examples/deck/report-n3) (Notation3) — A formatted text report of fruit quantities, prices and costs
 - [Adding invoice lines](https://eyereasoner.github.io/eyemind/examples/deck/invoice-totals-n3) (Notation3) — Collected line amounts produce invoice totals and a large-invoice classification
 - [Can this component deploy?](https://eyereasoner.github.io/eyemind/examples/deck/deployment-srl) (SPARQL 1.2 RL) — Service dependencies propagate severe vulnerabilities and safe deployment decisions
-- [Election tally in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le) (Logical English) — Eligible voters' choices are counted once each, spoiled votes are excluded and a tie gives two winners
+- [Election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le) (Logical English) — Eligible voters' choices are counted once each, spoiled votes are excluded and a tie gives two winners
 - [Exact invoice totals and floating measurements](https://eyereasoner.github.io/eyemind/examples/deck/exact-decimals-srl) (SPARQL 1.2 RL) — Exact decimal invoice totals and division alongside binary64 double arithmetic
 - [Inventory Invoice](https://eyereasoner.github.io/eyemind/examples/deck/inventory) (Logic Script) — An invoice from collected line totals
-- [Library fines in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le) (Logical English) — Late fees and replacement costs are summed, counted and maximized per member, charging a damaged and lost loan once
+- [Library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le) (Logical English) — Late fees and replacement costs are summed, counted and maximized per member, charging a damaged and lost loan once
 - [N3 delivery witnesses](https://eyereasoner.github.io/eyemind/examples/deck/witnesses-n3) (Notation3) — Deterministic Skolem IRIs give each paid order its own ready delivery record
 - [N3 invoice collection](https://eyereasoner.github.io/eyemind/examples/deck/invoice-n3) (Notation3) — Notation3 collection totals invoices, including an empty invoice
 - [N3 scoped negation](https://eyereasoner.github.io/eyemind/examples/deck/scoped-negation-n3) (Notation3) — Notation3 scoped negation waits for a derived order hold
@@ -84,19 +84,22 @@ Each deck explains the result and links to the source and Playground.
 - [A research portal under two rulebooks](https://eyereasoner.github.io/eyemind/examples/deck/research-portal) (Logic Script) — A hospital research portal combines ODRL/DPV policy decisions with Digital Omnibus device consent and breach plans
 - [A right to the value of personal data](https://eyereasoner.github.io/eyemind/examples/deck/data-value-right) (Logic Script) — A right to the value of personal data in the age of AI: how it fits existing EU law, and how it could become an autonomous right
 - [Audited grants](https://eyereasoner.github.io/eyemind/examples/deck/audited-grants) (Logic Script) — A grant policy whose own proof and check report are read back as facts and audited, in the same language
-- [British citizenship in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le) (Logical English) — Section 1 of the British Nationality Act 1981 grants citizenship by birth to a citizen or settled parent, or to a foundling unless the contrary is shown
+- [Breach notification](https://eyereasoner.github.io/eyemind/examples/deck/breach-notification-le) (Logical English) — GDPR Articles 33 and 34 deadlines and exemptions for four breaches, and a processor's ODRL duty to alert within 24 hours
+- [British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le) (Logical English) — Section 1 of the British Nationality Act 1981 grants citizenship by birth to a citizen or settled parent, or to a foundling unless the contrary is shown
 - [Delfour](https://eyereasoner.github.io/eyemind/examples/deck/delfour) (Logic Script) — A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes
 - [Deontic Logic](https://eyereasoner.github.io/eyemind/examples/deck/deontic-logic) (Logic Script) — Obligations, prohibitions and compensation that does not erase a violation
 - [Dog license](https://eyereasoner.github.io/eyemind/examples/deck/dog-license) (Logic Script) — A licensing threshold based on collected dog counts
 - [Handicap card](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card) (RDF) — One ODRL and SOTW snapshot allows Alice's handicap card and reports the conflict that blocks Bob's
-- [Handicap card in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card-le) (Logical English) — An LE snapshot reuses the ODRL evaluator to allow Alice's card and retain Bob's policy conflict
+- [Handicap card](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card-le) (Logical English) — An LE snapshot reuses the ODRL evaluator to allow Alice's card and retain Bob's policy conflict
+- [International data transfers](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le) (Logical English) — GDPR Chapter V transfers decided from adequacy, standard contractual clauses with an ODRL assessment duty, and explicit consent, with DPV prefixes
 - [Package holiday terms with ODRL and SHACL](https://eyereasoner.github.io/eyemind/examples/deck/package-holiday-odrl) (RDF) — A tour operator's ODRL cancellation terms as a snapshot, with SHACL checking the state of the world it reads
 - [Permissions](https://eyereasoner.github.io/eyemind/examples/deck/permissions) (Logic Script) — Role permissions with exclusions
 - [Policy Risk](https://eyereasoner.github.io/eyemind/examples/deck/policy-risk) (Logic Script) — Ranked findings with explanations and suggested mitigations
-- [Research access in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/research-access-le) (Logical English) — Logical English joins ODRL permission, prohibition and duty facts with DPV process descriptions to decide three research requests
+- [Research access](https://eyereasoner.github.io/eyemind/examples/deck/research-access-le) (Logical English) — Logical English joins ODRL permission, prohibition and duty facts with DPV process descriptions to decide three research requests
 - [Research access with ODRL, OWL 2 RL and SKOS](https://eyereasoner.github.io/eyemind/examples/deck/research-access-odrl) (RDF) — OWL 2 RL derives consent status and SKOS maps local purposes to DPV before an ODRL snapshot decides three research requests
-- [Research scope and duties in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le) (Logical English) — An ODRL snapshot checks a compound constraint over DPV purpose and data categories and looks for request-local duty evidence
+- [Research scope and duties](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le) (Logical English) — An ODRL snapshot checks a compound constraint over DPV purpose and data categories and looks for request-local duty evidence
 - [Research scope and duties in ODRL](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-odrl) (RDF) — An ODRL snapshot in Turtle checks a compound constraint over DPV purpose and data categories and looks for request-local duty evidence
+- [Right to erasure](https://eyereasoner.github.io/eyemind/examples/deck/right-to-erasure-le) (Logical English) — An LE ODRL snapshot in qualified names weighs erasure requests against retention and a litigation hold
 
 ## Puzzles, plans and routes
 
@@ -109,9 +112,9 @@ Each deck explains the result and links to the source and Playground.
 - [Monkey and bananas](https://eyereasoner.github.io/eyemind/examples/deck/monkey-bananas) (Logic Script) — Every plan of up to five moves that gets the monkey the bananas
 - [Path discovery](https://eyereasoner.github.io/eyemind/examples/deck/path-discovery) (Logic Script) — Full airport network with configurable endpoints and maximum stopovers
 - [Reachability](https://eyereasoner.github.io/eyemind/examples/deck/reachability) (Logic Script) — Finite closure in a graph containing a cycle
-- [River crossing in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le) (Logical English) — Compound states and safety constraints find both seven-crossing wolf, goat and cabbage plans
+- [River crossing](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le) (Logical English) — Compound states and safety constraints find both seven-crossing wolf, goat and cabbage plans
 - [Shortest Path](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path) (Logic Script) — Weighted paths and stratified minimum selection
-- [Shortest paths in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le) (Logical English) — Bounded recursive paths retain both cheapest routes through a graph containing a cycle
+- [Shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le) (Logical English) — Bounded recursive paths retain both cheapest routes through a graph containing a cycle
 - [The cheapest listed routes](https://eyereasoner.github.io/eyemind/examples/deck/dijkstra-srl) (SPARQL 1.2 RL) — Listed candidate routes receive total costs and the cheapest alternatives survive stratified negation
 - [Tower of Hanoi](https://eyereasoner.github.io/eyemind/examples/deck/hanoi) (Logic Script) — Recursive construction of a disk-move sequence
 - [Who Killed Aunt Agatha?](https://eyereasoner.github.io/eyemind/examples/deck/aunt-agatha) (Logic Script) — Who killed Aunt Agatha? A conclusion entailed by holding in every model of the premises
@@ -136,14 +139,14 @@ Each deck explains the result and links to the source and Playground.
 - [Lists](https://eyereasoner.github.io/eyemind/examples/deck/lists) (Logic Script) — Concatenation, mapping and summation
 - [Peano](https://eyereasoner.github.io/eyemind/examples/deck/peano) (Logic Script) — Symbolic arithmetic, relational addition and a chained derivation
 - [Peasant Arithmetic](https://eyereasoner.github.io/eyemind/examples/deck/peasant) (Logic Script) — Peasant multiplication and exponentiation by halving and doubling
-- [Pell equations in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation-le) (Logical English) — An exact recurrence generates large Pell solutions and checks each polynomial identity
+- [Pell equations](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation-le) (Logical English) — An exact recurrence generates large Pell solutions and checks each polynomial identity
 - [Pell solutions beyond machine-sized integers](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation) (Logic Script) — Exact Pell solutions through step 50, checked against the defining equation
 - [Polynomial Roots](https://eyereasoner.github.io/eyemind/examples/deck/polynomial) (Logic Script) — Complex roots of polynomials up to degree 4 by Cardan and Lagrange
 - [Recover four data bits after one bit flips](https://eyereasoner.github.io/eyemind/examples/deck/hamming-code) (Logic Script) — Parity syndromes and correction of a single flipped bit in Hamming(7,4)
-- [Squares in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/squares-le) (Logical English) — Logical English computes exact squares of three supplied integers
+- [Squares](https://eyereasoner.github.io/eyemind/examples/deck/squares-le) (Logical English) — Logical English computes exact squares of three supplied integers
 - [Strings](https://eyereasoner.github.io/eyemind/examples/deck/strings) (Logic Script) — Text construction and Unicode inspection
 - [Symbolic Derivative](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative) (Logic Script) — Symbolic differentiation of structured formulas by the sum, product, quotient, power and chain rules
-- [Symbolic differentiation in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative-le) (Logical English) — Structural rules differentiate a cubic expression and evaluate the resulting tree at two points
+- [Symbolic differentiation](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative-le) (Logical English) — Structural rules differentiate a cubic expression and evaluate the resulting tree at two points
 - [The Sieve of Eratosthenes](https://eyereasoner.github.io/eyemind/examples/deck/sieve) (Logic Script) — The sieve of Eratosthenes over an explicit list of integers
 - [Type Inference](https://eyereasoner.github.io/eyemind/examples/deck/type-inference) (Logic Script) — Typing rules for a small expression language, run as a checker
 
@@ -157,7 +160,7 @@ Each deck explains the result and links to the source and Playground.
 - [Ancestry by forward closure](https://eyereasoner.github.io/eyemind/examples/deck/family-srl) (SPARQL 1.2 RL) — Recursive forward ancestry over a three-generation family tree
 - [Ancestry on demand](https://eyereasoner.github.io/eyemind/examples/deck/family-recursion-n3) (Notation3) — Recursive backward ancestry selected by a query
 - [Completing route distances](https://eyereasoner.github.io/eyemind/examples/deck/distances-srl) (SPARQL 1.2 RL) — Missing kilometre distances are converted from miles without replacing base data
-- [Course certificates in Logical English](https://eyereasoner.github.io/eyemind/examples/deck/course-certificates-le) (Logical English) — Recursive course requirements and prior learning lead to shared dossiers, audits and nested certificate witnesses
+- [Course certificates](https://eyereasoner.github.io/eyemind/examples/deck/course-certificates-le) (Logical English) — Recursive course requirements and prior learning lead to shared dossiers, audits and nested certificate witnesses
 - [Cousins across family branches](https://eyereasoner.github.io/eyemind/examples/deck/family-cousins-srl) (SPARQL 1.2 RL) — Bounded generations and inherited branch labels identify cousins across a family tree
 - [Easter](https://eyereasoner.github.io/eyemind/examples/deck/easter) (Logic Script) — Easter Sunday by the anonymous Gregorian algorithm, 2021 to 2050
 - [Family cousins](https://eyereasoner.github.io/eyemind/examples/deck/family-cousins) (Logic Script) — Generations, family branches and cousin relationships

@@ -871,6 +871,21 @@
     "description": "Logical English joins ODRL permission, prohibition and duty facts with DPV process descriptions to decide three research requests"
   },
   {
+    "name": "data-transfers-le",
+    "files": ["data-transfers-le.le"],
+    "description": "GDPR Chapter V transfers decided from adequacy, standard contractual clauses with an ODRL assessment duty, and explicit consent, with DPV prefixes"
+  },
+  {
+    "name": "breach-notification-le",
+    "files": ["breach-notification-le.le"],
+    "description": "GDPR Articles 33 and 34 deadlines and exemptions for four breaches, and a processor's ODRL duty to alert within 24 hours"
+  },
+  {
+    "name": "right-to-erasure-le",
+    "files": ["right-to-erasure-le.le"],
+    "description": "An LE ODRL snapshot in qualified names weighs erasure requests against retention and a litigation hold"
+  },
+  {
     "name": "research-snapshot-le",
     "files": ["research-snapshot-le.le"],
     "description": "An ODRL snapshot checks a compound constraint over DPV purpose and data categories and looks for request-local duty evidence"

@@ -1,0 +1,14 @@
+Use prefix ex with namespace "https://example.org/breach-notification#".
+Use prefix gdpr with namespace "https://w3id.org/dpv/legal/eu/gdpr#".
+
+ex:lostLaptop has ex:exemptFrom gdpr:DataSubjectBreachNotice.
+ex:misdirectedEmail has ex:outcome ex:documentOnly.
+ex:databaseLeak has ex:brokenDuty ex:alertShop.
+ex:lostLaptop has ex:requires gdpr:DPABreachNotice.
+ex:databaseLeak has ex:requires gdpr:DPABreachNotice.
+ex:ransomware has ex:requires gdpr:DPABreachNotice.
+ex:databaseLeak has ex:requires gdpr:DataSubjectBreachNotice.
+ex:lostLaptop has ex:authorityNotice ex:onTime.
+ex:ransomware has ex:authorityNotice ex:onTime.
+ex:databaseLeak has ex:authorityNotice ex:lateWithReasons.
+ex:register has ex:peopleToInform 1200.

@@ -136,10 +136,16 @@ class Parser {
 
   statement(name, subject, ...objects) {
     if (typeof name === 'string') return st(name, subject, ...objects);
-    if (!rdfResource(subject)) this.error('a qualified RDF statement needs a resource subject such as ex:item, iri(...) or a variable');
+    // After an ODRL directive, qualified statements take the names, true,
+    // false and operand lists the short forms take; le-odrl.js maps them.
+    const name_ = (term) => this.odrl && typeof term === 'string';
+    if (!rdfResource(subject) && !name_(subject)) this.error('a qualified RDF statement needs a resource subject such as ex:item, iri(...) or a variable');
     if (!objects.length) return st('rdf', subject, st('iri', RDF_TYPE), name);
-    if (!rdfValue(objects[0])) this.error('a qualified RDF property needs an RDF value such as a qualified name, number or literal(...)');
-    return st('rdf', subject, name, objects[0]);
+    const [object] = objects, items = this.odrl ? listItems(object) : null;
+    if (!rdfValue(object) && !name_(object) && !(items?.length && items.every((item) => rdfValue(item) || name_(item)))) {
+      this.error('a qualified RDF property needs an RDF value such as a qualified name, number or literal(...)');
+    }
+    return st('rdf', subject, name, object);
   }
 
   declarations() {
@@ -386,6 +392,7 @@ class Parser {
       if (this.take('snapshot')) { this.need('logic'); evaluate = true; }
       else this.need('vocabulary');
       const namespace = this.namespace('an ODRL');
+      this.odrl = true;
       return { kind: 'odrl', namespace, evaluate, line };
     }
     if (this.take('every')) {
@@ -580,6 +587,8 @@ export function writeLe(result, { odrl = null, prefixes = {} } = {}) {
   if (odrl) result = odrlLeReport(result, odrl.namespace);
   // A prefix LE cannot spell, such as Turtle's empty one, gets the first free
   // name of ns, ns2, ...; the output declares each prefix it uses.
+  // An ODRL report names its own namespace's resources bare where a name
+  // reads back as that IRI; inside a witness key a prefix keeps it an IRI.
   const valid = Object.entries(prefixes).filter(([prefix, namespace]) => PREFIX.test(prefix) && typeof namespace === 'string');
   const taken = new Set(valid.map(([prefix]) => prefix)), stated = new Set(valid.map(([, namespace]) => namespace));
   for (const [prefix, namespace] of Object.entries(prefixes)) {
@@ -589,7 +598,7 @@ export function writeLe(result, { odrl = null, prefixes = {} } = {}) {
     taken.add(name); stated.add(namespace);
     valid.push([name, namespace]);
   }
-  const namespaces = odrl ? [] : valid.sort((a, b) => b[1].length - a[1].length);
+  const namespaces = valid.sort((a, b) => b[1].length - a[1].length);
   const used = new Map();
   const compact = (term) => {
     if (!(term instanceof Struct) || term.name !== 'iri' || term.args.length !== 1 || typeof term.args[0] !== 'string') return null;
@@ -611,7 +620,7 @@ export function writeLe(result, { odrl = null, prefixes = {} } = {}) {
     lines.push(quantifier + flattenConjunction(term).map((goal) => leGoal(goal, render, odrl !== null, compact)).join(' and ') + '.');
   }
   const declarations = [...used].sort().map(([prefix, namespace]) => `Use prefix ${prefix} with namespace ${JSON.stringify(namespace)}.`);
-  const header = odrl ? `Use ODRL vocabulary with namespace ${JSON.stringify(odrl.namespace)}.\n\n`
-    : declarations.length ? `${declarations.join('\n')}\n\n` : '';
+  const header = (odrl ? `Use ODRL vocabulary with namespace ${JSON.stringify(odrl.namespace)}.\n` : '') +
+    (declarations.length ? `${declarations.join('\n')}\n` : '') + (odrl || declarations.length ? '\n' : '');
   return header + (lines.length ? lines.join('\n') + '\n' : '# No conclusions.\n');
 }
