@@ -2,15 +2,15 @@
 
 | Suite | Cases | Passed | Result | Time |
 | --- | ---: | ---: | --- | ---: |
-| npm test: unit tests | 1187 | 1187 | ✅ ok | 71.37 s |
-| npm test: example tests | 652 | 652 | ✅ ok | 41.80 s |
-| npm test: conformance cases | 1247 | 1247 | ✅ ok | 1.87 s |
-| npm test: MobiBench OWL 2 RL cases | 273 | 273 | ✅ ok | 14.49 s |
-| npm test: command-line cases through the eyemind command | 233 | 233 | ✅ ok | 6.97 s |
-| npm test: playground tests | 25 | 25 | ✅ ok | 49.67 s |
-| W3C RDF 1.1 and 1.2 | 1065 | 1065 | ✅ ok | 0.41 s |
-| W3C SPARQL 1.2 RL | 367 | 367 | ✅ ok | 0.68 s |
-| W3C SHACL 1.2 core (coverage) | 162 | 162 | ✅ ok | 3.95 s |
-| W3C SHACL 1.2 node-expr (coverage) | 284 | 284 | ✅ ok | 7.50 s |
-| notation3tests | 1163 | 1163 | ✅ ok | 3.02 s |
-| **Total** | **6658** | **6658** | **100.0% ok** | **201.73 s** |
+| npm test: unit tests | 1187 | 1187 | ✅ ok | 72.34 s |
+| npm test: example tests | 652 | 652 | ✅ ok | 44.29 s |
+| npm test: conformance cases | 1247 | 1247 | ✅ ok | 3.31 s |
+| npm test: MobiBench OWL 2 RL cases | 273 | 273 | ✅ ok | 16.22 s |
+| npm test: command-line cases through the eyemind command | 233 | 233 | ✅ ok | 7.99 s |
+| npm test: playground tests | 25 | 25 | ✅ ok | 54.24 s |
+| W3C RDF 1.1 and 1.2 | 1065 | 1065 | ✅ ok | 1.62 s |
+| W3C SPARQL 1.2 RL | 367 | 367 | ✅ ok | 0.76 s |
+| W3C SHACL 1.2 core (coverage) | 162 | 162 | ✅ ok | 4.26 s |
+| W3C SHACL 1.2 node-expr (coverage) | 284 | 284 | ✅ ok | 7.27 s |
+| notation3tests | 1163 | 1163 | ✅ ok | 2.19 s |
+| **Total** | **6658** | **6658** | **100.0% ok** | **214.48 s** |
