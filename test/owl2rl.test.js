@@ -135,7 +135,7 @@ export const tests = {
     const namedQuads = parseRdf(writeConclusions(named, run(named.program), { format: 'trig' }), { format: 'trig' }).quads;
     const inferredTypes = namedQuads.filter(([s, p, o]) => s.args?.[0] === 'https://example.org/x' && p.args?.[0].endsWith('#type') && o.args?.[0] === 'https://example.org/B');
     assert.deepEqual(inferredTypes.map((q) => q[3].args[0]), ['https://example.org/g3']);
-    assert.match(cli(['--owl2rl', '--odrl'], data).stderr, /cannot be combined/);
+    assert.match(cli(['--owl2rl', '--odrl'], data).stderr, /--odrl needs an eval:Evaluation/);
     assert.match(cli(['--owl2rl', 'examples/socrates.js']).stderr, /an output contract states only query/);
     assert.match(cli(['--owl2rl', 'examples/socrates-n3.n3']).stderr, /takes RDF inputs/);
     assert.match(cli(['--owl2rl', '--stream-messages'], data).stderr, /needs an RDF Message Log/);

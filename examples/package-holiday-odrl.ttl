@@ -1,0 +1,72 @@
+# A tour operator's cancellation terms for package holidays, as an ODRL
+# policy. This is the package holiday's gate 1 alone: what the terms allow,
+# with the Package Travel Directive of gate 2 and the cancellation fee left
+# to package-holiday. Of eight cancellation requests, six are allowed; r7,
+# made two days after departure, and r8, made by someone other than the lead
+# traveller, are not applicable, each with its unmet condition.
+# Shows --odrl combined with --shacl: SHACL shapes check the state of the
+# world the snapshot reads, and the validation report joins the ODRL report.
+# Sources https://www.w3.org/TR/odrl-model/
+#         https://www.w3.org/TR/shacl12-core/
+#         https://eur-lex.europa.eu/eli/dir/2015/2302/oj/eng
+
+@prefix : <https://example.org/package-holiday#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix eval: <https://eyereasoner.github.io/eyemind/odrl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Each state records one requester role, from a closed list, and one whole
+# number of days before departure.
+:StateShape a sh:NodeShape ;
+    sh:targetClass eval:State ;
+    sh:property [ sh:path :requesterRole ; sh:minCount 1 ; sh:maxCount 1 ; sh:in (:leadTraveller :otherPerson) ] ;
+    sh:property [ sh:path :daysBeforeDeparture ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ] .
+
+:evaluation a eval:Evaluation ;
+    eval:policy :terms ;
+    eval:request :r1, :r2, :r3, :r4, :r5, :r6, :r7, :r8 ;
+    eval:conflictStrategy odrl:prohibit .
+
+# The lead traveller may cancel the package before departure. The snapshot
+# profile reads an offer's terms as an ODRL set.
+:terms a odrl:Set ;
+    odrl:profile eval:SnapshotProfile ;
+    odrl:assigner :sunTrips ;
+    odrl:permission :cancellation .
+:cancellation a odrl:Permission ;
+    odrl:assignee :traveller ; odrl:action :cancel ; odrl:target :package ;
+    odrl:constraint :conditions .
+:conditions a odrl:LogicalConstraint ;
+    odrl:and (:byLeadTraveller :beforeDeparture) .
+:byLeadTraveller a odrl:Constraint ;
+    odrl:leftOperand :requesterRole ; odrl:operator odrl:eq ; odrl:rightOperand :leadTraveller .
+:beforeDeparture a odrl:Constraint ;
+    odrl:leftOperand :daysBeforeDeparture ; odrl:operator odrl:gt ; odrl:rightOperand 0 .
+
+# The requests, one per booking. Each state records who asks, as a role in
+# that booking, and how many days are left before departure.
+:r1 a eval:Request ; odrl:assignee :traveller ; odrl:action :cancel ; odrl:target :package ;
+    eval:subject :bk1 ; eval:state :r1State .
+:r1State a eval:State ; eval:subject :bk1 ; :requesterRole :leadTraveller ; :daysBeforeDeparture 90 .
+:r2 a eval:Request ; odrl:assignee :traveller ; odrl:action :cancel ; odrl:target :package ;
+    eval:subject :bk2 ; eval:state :r2State .
+:r2State a eval:State ; eval:subject :bk2 ; :requesterRole :leadTraveller ; :daysBeforeDeparture 20 .
+:r3 a eval:Request ; odrl:assignee :traveller ; odrl:action :cancel ; odrl:target :package ;
+    eval:subject :bk3 ; eval:state :r3State .
+:r3State a eval:State ; eval:subject :bk3 ; :requesterRole :leadTraveller ; :daysBeforeDeparture 10 .
+:r4 a eval:Request ; odrl:assignee :traveller ; odrl:action :cancel ; odrl:target :package ;
+    eval:subject :bk4 ; eval:state :r4State .
+:r4State a eval:State ; eval:subject :bk4 ; :requesterRole :leadTraveller ; :daysBeforeDeparture 5 .
+:r5 a eval:Request ; odrl:assignee :traveller ; odrl:action :cancel ; odrl:target :package ;
+    eval:subject :bk5 ; eval:state :r5State .
+:r5State a eval:State ; eval:subject :bk5 ; :requesterRole :leadTraveller ; :daysBeforeDeparture 12 .
+:r6 a eval:Request ; odrl:assignee :traveller ; odrl:action :cancel ; odrl:target :package ;
+    eval:subject :bk6 ; eval:state :r6State .
+:r6State a eval:State ; eval:subject :bk6 ; :requesterRole :leadTraveller ; :daysBeforeDeparture 12 .
+:r7 a eval:Request ; odrl:assignee :traveller ; odrl:action :cancel ; odrl:target :package ;
+    eval:subject :bk7 ; eval:state :r7State .
+:r7State a eval:State ; eval:subject :bk7 ; :requesterRole :leadTraveller ; :daysBeforeDeparture -2 .
+:r8 a eval:Request ; odrl:assignee :traveller ; odrl:action :cancel ; odrl:target :package ;
+    eval:subject :bk8 ; eval:state :r8State .
+:r8State a eval:State ; eval:subject :bk8 ; :requesterRole :otherPerson ; :daysBeforeDeparture 40 .

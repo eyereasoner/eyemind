@@ -14,7 +14,8 @@
 //
 // The odrl option adds the snapshot profile's validation and evaluation LS
 // to one Turtle input. Its vocabulary alone never enables the evaluator.
-// Explicit owl2rl, qudt, skos and shacl profiles share one RDF working graph.
+// Explicit owl2rl, qudt, skos and shacl profiles share one RDF working graph;
+// with odrl as well, that graph's entailments about states feed the snapshot.
 //
 // The compiled program is ordinary LS: proofs, checking and --unused
 // apply to it. SRL execution functions capture a context that a saved proof
@@ -25,7 +26,7 @@ import { readTerms } from './reader.js';
 import { DEFAULT_GRAPH, parseRdf, rdfDocument, rdfFormat, writeRdf } from './rdf.js';
 import { resultToN3, compileSources } from './n3.js';
 import { compileSrl, srlAnswers, srlQuads } from './srl.js';
-import { compileOdrl } from './odrl.js';
+import { checkOdrlInput, compileOdrl } from './odrl.js';
 import { compileRdfLogic, messageReasoner, RDF_PROFILES, shaclIn as shaclInPatterns, shaclOut as shaclOutPatterns } from './rdf-logic.js';
 import { compileLe, writeLe } from './le.js';
 import { write } from './writer.js';
@@ -125,9 +126,13 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
     }
     return compileLe(inputs);
   }
-  if (profiles.length && odrl) throw new EyemindError(`--odrl cannot be combined with ${switches}`);
+  if (profiles.length && odrl) {
+    if (inputs.length !== 1) throw new EyemindError(`--odrl with ${switches} takes one Turtle snapshot containing policies, requests and SOTW`);
+    if (shaclIn || shaclOut) throw new EyemindError('--odrl cannot be combined with --shacl-in or --shacl-out');
+  }
   if (profiles.length) {
     const graph = profileGraph(inputs, kinds, rdf, baseOf, switches, io);
+    if (odrl) checkOdrlInput(graph.quads);
     const source = inputs.map(([, n]) => n).join(', ');
     // SHACL shapes as contracts: what messages hold, and what is wanted.
     const shapes = ([text, name]) => parseRdf(text, { format: rdfFormat(name) ?? 'turtle', base: baseOf(name) }).quads;
@@ -139,7 +144,7 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
       graph.expected = { patterns: read.flatMap((r) => r.patterns), allowed: closed ? new Set(read.flatMap((r) => [...r.allowed])) : null };
     }
     if (messages) return messageReasoner(graph, { profiles, source, limits });
-    return compileRdfLogic(graph, { profiles, source, context: srlContext });
+    return compileRdfLogic(graph, { profiles, source, context: srlContext, odrl });
   }
   if (odrl) {
     if (inputs.length !== 1) throw new EyemindError('--odrl takes one Turtle snapshot containing policies, requests and SOTW');

@@ -13,7 +13,7 @@ program, a JavaScript library and a browser application.
 - [Playground](https://eyereasoner.github.io/eyemind/playground/): run any
   example or your own program in the browser, with its proof and check report.
 - [Examples](https://eyereasoner.github.io/eyemind/examples/): the
-  160 runnable programs, each with a card deck and saved conclusions; all but
+  164 runnable programs, each with a card deck and saved conclusions; all but
   the two streamed examples also save proofs and check reports.
 - [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC): the
   language, the proof format and how a proof is checked.
@@ -446,7 +446,15 @@ Each rule has one assignee, action and target. The snapshot compares state
 properties with scalar or DPV category constraints and combines constraints
 with `odrl:and`, `odrl:or` or `odrl:xone`. Permissions can require duties,
 with fulfillment evidence attached to each request.
-[Handicap-card example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card) · [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le)
+
+`--odrl` combines with `--owl2rl`, `--skos`, `--qudt` and `--shacl`. The
+snapshot then reads the given triples, what the profiles entail about each
+request's state, such as an observation a property chain derives, and entailed
+SKOS links between categories, such as a `skos:broadMatch` to DPV. Other
+entailments, such as an `rdfs:Resource` type for every node, stay out of the
+snapshot, whose validation would reject them. The output is the ODRL report
+with the profiles' own reports, such as a SHACL validation report.
+[Handicap-card example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card) · [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le) · [Research access with OWL 2 RL and SKOS](https://eyereasoner.github.io/eyemind/examples/deck/research-access-odrl) · [Research portal with OWL 2 RL](https://eyereasoner.github.io/eyemind/examples/deck/research-portal-odrl) · [Package holiday with SHACL](https://eyereasoner.github.io/eyemind/examples/deck/package-holiday-odrl)
 
 ## How eyemind reasons
 
@@ -620,7 +628,7 @@ eyemind [OPTION ...] [FILE ...]
 | `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; by default LE for LE, N3 for N3, Turtle for SRL, ODRL and RDF profiles, eyemind otherwise. |
 | `--all` | With RDF or N3 output, write the given data too. |
 | `--program` | Print the program the inputs compile to. |
-| `--odrl` | Add the ODRL snapshot profile's validation and evaluation LS to one Turtle input. |
+| `--odrl` | Add the ODRL snapshot profile's validation and evaluation LS to one Turtle input; with RDF logic profiles, the snapshot also reads what they entail about its states. |
 | `--owl2rl` | Add the documented OWL 2 RL inference rules, including RDFS, and RDF conflict reports to RDF inputs. |
 | `--qudt` | Normalize supported QUDT/CDT quantities, with source provenance. |
 | `--skos` | Add positive SKOS Core entailments. |

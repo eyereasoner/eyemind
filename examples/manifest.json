@@ -738,6 +738,38 @@
     "description": "One ODRL and SOTW snapshot allows Alice's handicap card and reports the conflict that blocks Bob's"
   },
   {
+    "name": "research-snapshot-odrl",
+    "files": ["research-snapshot-odrl.ttl"],
+    "output": "ttl",
+    "odrl": true,
+    "description": "An ODRL snapshot in Turtle checks a compound constraint over DPV purpose and data categories and looks for request-local duty evidence"
+  },
+  {
+    "name": "research-access-odrl",
+    "files": ["research-access-odrl.ttl"],
+    "output": "ttl",
+    "odrl": true,
+    "owl2rl": true,
+    "skos": true,
+    "description": "OWL 2 RL derives consent status and SKOS maps local purposes to DPV before an ODRL snapshot decides three research requests"
+  },
+  {
+    "name": "research-portal-odrl",
+    "files": ["research-portal-odrl.ttl"],
+    "output": "ttl",
+    "odrl": true,
+    "owl2rl": true,
+    "description": "The research portal's ODRL/DPV policy as a snapshot, with OWL 2 RL deriving where each recipient is established"
+  },
+  {
+    "name": "package-holiday-odrl",
+    "files": ["package-holiday-odrl.ttl"],
+    "output": "ttl",
+    "odrl": true,
+    "shacl": true,
+    "description": "A tour operator's ODRL cancellation terms as a snapshot, with SHACL checking the state of the world it reads"
+  },
+  {
     "name": "people-owl2rl",
     "files": ["people-owl2rl.ttl"],
     "output": "ttl",

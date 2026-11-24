@@ -10,6 +10,7 @@ import { compileShacl } from './shacl.js';
 import { NODE_FUNCTIONS } from './shacl-expr.js';
 import { executionContext } from './srl.js';
 import { rdfValueRules } from './rdf-values.js';
+import { ODRL_EVAL, odrlProfileRules } from './odrl.js';
 import { run } from './engine.js';
 import { Specializer, shape } from './specialize.js';
 import { Env, EyemindError, Struct, Var, freshTerm, identity, key, unify } from './terms.js';
@@ -19,8 +20,10 @@ export const ENTAILMENT = 'https://eyereasoner.github.io/eyemind/entailment#';
 export const RDF_PROFILES = ['owl2rl', 'qudt', 'skos', 'shacl'];
 
 // wanted: rdf/4 patterns of the output contract, or null for every new triple.
+// odrl: the entailed graph feeds an ODRL snapshot, whose report replaces the
+// new triples; the profiles' own reports stay.
 export function compileRdfLogic({ quads, prefixes, shapes = quads, wanted = null }, {
-  profiles, source = '<input>', disallows, evaluate, context, stream = false, stableRuleIds = false,
+  profiles, source = '<input>', disallows, evaluate, context, stream = false, stableRuleIds = false, odrl = false,
 }) {
   quads = [...new Map(quads.map((q) => [q.map((t) => write(t)).join(' '), q])).values()];
   const selected = new Set(profiles), needs = new Set();
@@ -42,10 +45,10 @@ export function compileRdfLogic({ quads, prefixes, shapes = quads, wanted = null
     (selected.has('owl2rl') ? owl2rlRules : '') +
     (selected.has('skos') ? skosRules : '') +
     (selected.has('qudt') ? qudtRules(stableRuleIds ? [] : quads) : '') +
-    shacl + (evaluate ? "query(sh_evaluation(R));\n" : REPORTS + (stream ? '' : wanted === null ? RESULT : contracted(wanted))) +
+    shacl + (evaluate ? "query(sh_evaluation(R));\n" : REPORTS + (odrl ? REPORTED + odrlProfileRules() : stream ? '' : wanted === null ? RESULT : contracted(wanted))) +
     (stableRuleIds ? data + defaultGraph + (selected.has('qudt') ? qudtUnits(quads) : '') : '');
-  return { kind: profiles[0], text, program: loadText(text, source),
-    prefixes: { ...prefixes, ent: ENTAILMENT, ...(selected.has('skos') ? { skos: 'http://www.w3.org/2004/02/skos/core#' } : {}),
+  return { kind: odrl ? 'odrl' : profiles[0], text, program: loadText(text, source),
+    prefixes: { ...prefixes, ent: ENTAILMENT, ...(odrl ? { eval: ODRL_EVAL } : {}), ...(selected.has('skos') ? { skos: 'http://www.w3.org/2004/02/skos/core#' } : {}),
       ...(selected.has('qudt') ? { qconv: 'https://eyereasoner.github.io/eyemind/qudt#', qudt: 'http://qudt.org/schema/qudt/', unit: 'http://qudt.org/vocab/unit/' } : {}),
       ...(selected.has('shacl') ? { sh: 'http://www.w3.org/ns/shacl#' } : {}) }, compiled: null };
 }
@@ -410,6 +413,10 @@ implies(ent_conflict(R, X, P, Y, G), [
 // The result restricted to an output contract: one query per pattern.
 const contracted = (wanted) => RESULT.replace(/^query\(.*\n/m, '') +
   wanted.map((pattern) => `${write(new Struct('query', [new Struct('result_rdf', pattern.args)]), null, new Lettering())};\n`).join('');
+
+const REPORTED = String.raw`implies(ent_report(S, P, O, G), result_rdf(S, P, O, G));
+query(result_rdf(S, P, O, G));
+`;
 
 const RESULT = String.raw`implies([rdf(S, iri(P), O, G), ent_resource(S), not(ent_base(S, iri(P), O, G))], result_rdf(S, iri(P), O, G));
 implies(ent_report(S, P, O, G), result_rdf(S, P, O, G));

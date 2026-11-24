@@ -1,0 +1,118 @@
+# A hospital lets partners in a research consortium use patients' lab results
+# through a web portal. This is the research portal's gate 1 alone: the
+# hospital's ODRL/DPV research policy, with the device rules of gate 2 left
+# to research-portal. Of seven planned sessions, r1 is allowed; r2, r4 and r5
+# leave the permission's conditions unmet, each listed; r3 and r6 are
+# prohibited, r6 with a reported conflict; and r11, a share for research,
+# has no applicable rule. Sessions r7 to r10 of research-portal have r1's
+# policy data and are left out.
+# Shows --odrl combined with --owl2rl: a property chain gives each session
+# the jurisdiction of the partner receiving the data, which the transfer
+# prohibition tests. Without --owl2rl that observation is missing, and every
+# use of the data is undetermined.
+# Sources https://www.w3.org/TR/odrl-model/
+#         https://www.w3.org/TR/odrl-vocab/
+#         https://w3id.org/dpv/2.3/dpv/
+#         https://www.w3.org/TR/owl2-profiles/
+
+@prefix : <https://example.org/research-portal#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix eval: <https://eyereasoner.github.io/eyemind/odrl#> .
+@prefix dpv: <https://w3id.org/dpv#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# A small excerpt of the DPV purpose taxonomy.
+dpv:AcademicResearch skos:broader dpv:ResearchAndDevelopment .
+dpv:CommercialResearch skos:broader dpv:ResearchAndDevelopment .
+dpv:Advertising skos:broader dpv:Marketing .
+
+# The partners and where they are established. A session's recipient
+# jurisdiction is where its recipient is established.
+:partnerBE :establishedIn :BE .
+:partnerUS :establishedIn :US .
+:recipientJurisdiction owl:propertyChainAxiom (:recipient :establishedIn) .
+
+:evaluation a eval:Evaluation ;
+    eval:policy :policy ;
+    eval:request :r1, :r2, :r3, :r4, :r5, :r6, :r11 ;
+    eval:conflictStrategy odrl:prohibit .
+
+# The consortium may use the lab results for research under given consent,
+# pseudonymised, before 2027. It may not distribute them for marketing, nor
+# use them through a partner established in the US. The policy's own
+# conflict strategy lets an applicable prohibition win.
+:policy a odrl:Agreement ;
+    odrl:profile eval:SnapshotProfile ;
+    odrl:assigner :hospital ;
+    odrl:conflict odrl:prohibit ;
+    odrl:permission :research ;
+    odrl:prohibition :noMarketing, :noTransferUS .
+:research a odrl:Permission ;
+    odrl:assignee :consortium ; odrl:action odrl:use ; odrl:target :labResults ;
+    odrl:constraint :forResearch, :underConsent, :consentGiven, :pseudonymised, :before2027 .
+:noMarketing a odrl:Prohibition ;
+    odrl:assignee :consortium ; odrl:action odrl:distribute ; odrl:target :labResults ;
+    odrl:constraint :forMarketing .
+:noTransferUS a odrl:Prohibition ;
+    odrl:assignee :consortium ; odrl:action odrl:use ; odrl:target :labResults ;
+    odrl:constraint :toUS .
+
+:forResearch a odrl:Constraint ;
+    odrl:leftOperand dpv:hasPurpose ; odrl:operator eval:withinCategory ; odrl:rightOperand dpv:ResearchAndDevelopment .
+:underConsent a odrl:Constraint ;
+    odrl:leftOperand dpv:hasLegalBasis ; odrl:operator odrl:eq ; odrl:rightOperand dpv:Consent .
+:consentGiven a odrl:Constraint ;
+    odrl:leftOperand dpv:hasConsentStatus ; odrl:operator odrl:eq ; odrl:rightOperand dpv:ConsentGiven .
+:pseudonymised a odrl:Constraint ;
+    odrl:leftOperand dpv:hasTechnicalMeasure ; odrl:operator odrl:eq ; odrl:rightOperand dpv:Pseudonymisation .
+:before2027 a odrl:Constraint ;
+    odrl:leftOperand :requestDate ; odrl:operator odrl:lt ; odrl:rightOperand 20270101 .
+:forMarketing a odrl:Constraint ;
+    odrl:leftOperand dpv:hasPurpose ; odrl:operator eval:withinCategory ; odrl:rightOperand dpv:Marketing .
+:toUS a odrl:Constraint ;
+    odrl:leftOperand :recipientJurisdiction ; odrl:operator odrl:eq ; odrl:rightOperand :US .
+
+# The sessions. A DPV use is the ODRL action use, and a share is distribute.
+# Dates are YYYYMMDD integers.
+:r1 a eval:Request ; odrl:assignee :consortium ; odrl:action odrl:use ; odrl:target :labResults ;
+    eval:subject :patients ; eval:state :r1State .
+:r1State a eval:State ; eval:subject :patients ; :recipient :partnerBE ;
+    dpv:hasPurpose dpv:AcademicResearch ; dpv:hasLegalBasis dpv:Consent ; dpv:hasConsentStatus dpv:ConsentGiven ;
+    dpv:hasTechnicalMeasure dpv:Pseudonymisation ; :requestDate 20261115 .
+
+:r2 a eval:Request ; odrl:assignee :consortium ; odrl:action odrl:use ; odrl:target :labResults ;
+    eval:subject :patients ; eval:state :r2State .
+:r2State a eval:State ; eval:subject :patients ; :recipient :partnerBE ;
+    dpv:hasPurpose dpv:PersonalisedAdvertising ; dpv:hasLegalBasis dpv:LegitimateInterest ; dpv:hasConsentStatus dpv:ConsentUnknown ;
+    dpv:hasTechnicalMeasure dpv:Pseudonymisation ; :requestDate 20261115 .
+
+:r3 a eval:Request ; odrl:assignee :consortium ; odrl:action odrl:distribute ; odrl:target :labResults ;
+    eval:subject :patients ; eval:state :r3State .
+:r3State a eval:State ; eval:subject :patients ; :recipient :partnerBE ;
+    dpv:hasPurpose dpv:Advertising ; dpv:hasLegalBasis dpv:Consent ; dpv:hasConsentStatus dpv:ConsentGiven ;
+    dpv:hasTechnicalMeasure dpv:Pseudonymisation ; :requestDate 20261115 .
+
+:r4 a eval:Request ; odrl:assignee :consortium ; odrl:action odrl:use ; odrl:target :labResults ;
+    eval:subject :patients ; eval:state :r4State .
+:r4State a eval:State ; eval:subject :patients ; :recipient :partnerBE ;
+    dpv:hasPurpose dpv:CommercialResearch ; dpv:hasLegalBasis dpv:Consent ; dpv:hasConsentStatus dpv:ConsentWithdrawn ;
+    dpv:hasTechnicalMeasure dpv:Pseudonymisation ; :requestDate 20261115 .
+
+:r5 a eval:Request ; odrl:assignee :consortium ; odrl:action odrl:use ; odrl:target :labResults ;
+    eval:subject :patients ; eval:state :r5State .
+:r5State a eval:State ; eval:subject :patients ; :recipient :partnerBE ;
+    dpv:hasPurpose dpv:AcademicResearch ; dpv:hasLegalBasis dpv:Consent ; dpv:hasConsentStatus dpv:ConsentGiven ;
+    dpv:hasTechnicalMeasure dpv:Encryption ; :requestDate 20270301 .
+
+:r6 a eval:Request ; odrl:assignee :consortium ; odrl:action odrl:use ; odrl:target :labResults ;
+    eval:subject :patients ; eval:state :r6State .
+:r6State a eval:State ; eval:subject :patients ; :recipient :partnerUS ;
+    dpv:hasPurpose dpv:AcademicResearch ; dpv:hasLegalBasis dpv:Consent ; dpv:hasConsentStatus dpv:ConsentGiven ;
+    dpv:hasTechnicalMeasure dpv:Pseudonymisation ; :requestDate 20261115 .
+
+:r11 a eval:Request ; odrl:assignee :consortium ; odrl:action odrl:distribute ; odrl:target :labResults ;
+    eval:subject :patients ; eval:state :r11State .
+:r11State a eval:State ; eval:subject :patients ; :recipient :partnerBE ;
+    dpv:hasPurpose dpv:AcademicResearch ; dpv:hasLegalBasis dpv:Consent ; dpv:hasConsentStatus dpv:ConsentGiven ;
+    dpv:hasTechnicalMeasure dpv:Pseudonymisation ; :requestDate 20261115 .

@@ -1,0 +1,60 @@
+# An archive allows research use of contact data once attribution is recorded.
+# One request qualifies, one awaits duty evidence, and one is outside the
+# research purpose. The ODRL snapshot checks a compound constraint using
+# broader categories from the DPV and Personal Data taxonomies.
+# Shows --odrl on the Turtle form of the research snapshot that
+# research-snapshot-le writes in Logical English, with the same decisions.
+# Sources https://www.w3.org/TR/odrl-model/
+#         https://w3id.org/dpv/2.3/dpv/
+#         https://w3id.org/dpv/2.3/pd/
+
+@prefix : <https://example.org/research-snapshot#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix eval: <https://eyereasoner.github.io/eyemind/odrl#> .
+@prefix dpv: <https://w3id.org/dpv#> .
+@prefix pd: <https://w3id.org/dpv/pd#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Only the taxonomy links this snapshot uses are supplied.
+dpv:AcademicResearch skos:broader dpv:ResearchAndDevelopment .
+pd:EmailAddressWork skos:broader pd:EmailAddress .
+pd:EmailAddress skos:broader pd:Contact .
+
+# Both category constraints must hold, and attribution is a precondition.
+:evaluation a eval:Evaluation ;
+    eval:policy :agreement1 ;
+    eval:request :ready, :pending, :marketing ;
+    eval:conflictStrategy odrl:prohibit .
+
+:agreement1 a odrl:Agreement ;
+    odrl:profile eval:SnapshotProfile ;
+    odrl:assigner :archive ;
+    odrl:permission :researchUse .
+:researchUse a odrl:Permission ;
+    odrl:assignee :researcher ; odrl:action odrl:use ; odrl:target :directory ;
+    odrl:constraint :scope ;
+    odrl:duty :credit .
+:scope a odrl:LogicalConstraint ;
+    odrl:and (:research :contactData) .
+:research a odrl:Constraint ;
+    odrl:leftOperand dpv:hasPurpose ; odrl:operator eval:withinCategory ; odrl:rightOperand dpv:ResearchAndDevelopment .
+:contactData a odrl:Constraint ;
+    odrl:leftOperand dpv:hasPersonalData ; odrl:operator eval:withinCategory ; odrl:rightOperand pd:Contact .
+:credit a odrl:Duty ; odrl:action odrl:attribute .
+
+# The ready and pending requests have the same observations and separate
+# duty records. The marketing request records attribution and fails scope.
+:ready a eval:Request ;
+    odrl:assignee :researcher ; odrl:action odrl:use ; odrl:target :directory ;
+    eval:subject :visitor ; eval:state :researchState ; eval:fulfilledDuty :credit .
+:pending a eval:Request ;
+    odrl:assignee :researcher ; odrl:action odrl:use ; odrl:target :directory ;
+    eval:subject :visitor ; eval:state :researchState .
+:marketing a eval:Request ;
+    odrl:assignee :researcher ; odrl:action odrl:use ; odrl:target :directory ;
+    eval:subject :visitor ; eval:state :marketingState ; eval:fulfilledDuty :credit .
+
+:researchState a eval:State ; eval:subject :visitor ;
+    dpv:hasPurpose dpv:AcademicResearch ; dpv:hasPersonalData pd:EmailAddressWork .
+:marketingState a eval:State ; eval:subject :visitor ;
+    dpv:hasPurpose dpv:Marketing ; dpv:hasPersonalData pd:EmailAddressWork .

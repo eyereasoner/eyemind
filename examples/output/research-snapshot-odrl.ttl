@@ -1,0 +1,43 @@
+PREFIX : <https://example.org/research-snapshot#>
+PREFIX eval: <https://eyereasoner.github.io/eyemind/odrl#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+
+:evaluation a eval:EvaluationReport .
+:evaluation eval:policy :agreement1 .
+:evaluation eval:conflictStrategy odrl:prohibit .
+:ready a eval:Request .
+:ready odrl:assignee :researcher .
+:ready odrl:action odrl:use .
+:ready odrl:target :directory .
+:ready eval:subject :visitor .
+:ready eval:state :researchState .
+:ready eval:fulfilledDuty :credit .
+:pending a eval:Request .
+:pending odrl:assignee :researcher .
+:pending odrl:action odrl:use .
+:pending odrl:target :directory .
+:pending eval:subject :visitor .
+:pending eval:state :researchState .
+:marketing a eval:Request .
+:marketing odrl:assignee :researcher .
+:marketing odrl:action odrl:use .
+:marketing odrl:target :directory .
+:marketing eval:subject :visitor .
+:marketing eval:state :marketingState .
+:marketing eval:fulfilledDuty :credit .
+:evaluation eval:validationStatus eval:Valid .
+:pending eval:uncertainty _:b0 .
+_:b0 a eval:Uncertainty .
+_:b0 eval:duty :credit .
+_:b0 eval:rule :researchUse .
+_:b0 eval:reason eval:MissingDutyEvidence .
+:marketing eval:unmetConstraint :scope .
+:ready eval:permission :researchUse .
+:evaluation eval:conflictCount 0 .
+:evaluation eval:request :pending .
+:pending eval:decision eval:Undetermined .
+:evaluation eval:request :ready .
+:ready eval:decision eval:Allowed .
+:evaluation eval:request :marketing .
+:marketing eval:decision eval:NotApplicable .
+:evaluation eval:canHappen :ready .

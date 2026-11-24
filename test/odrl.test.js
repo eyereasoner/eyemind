@@ -208,6 +208,40 @@ export const tests = {
     assert.match(cli(['--odrl'], '@prefix : <http://e/>. :s :p :o.').stderr, /eval:Evaluation/);
   },
 
+  'RDF logic profiles feed entailed state observations to the snapshot, and only those'() {
+    // The residence observation comes from the subject's record by a property
+    // chain; every node's rdfs:Resource type must not fail validation.
+    const chained = INPUT.replace(':aliceState a eval:State ; eval:subject :Alice ;\n    :assessmentApproved true ; :residenceVerified true ;',
+      ':aliceState a eval:State ; eval:subject :Alice ;\n    :assessmentApproved true ;') +
+      '\n:Alice :residenceVerified true .\n:residenceVerified <http://www.w3.org/2002/07/owl#propertyChainAxiom> (eval:subject :residenceVerified) .\n';
+    assert.notEqual(chained, INPUT);
+    const combined = (text, profiles) => run(loadInputs([[text, 'handicap-card.ttl']], null, { odrl: true, ...profiles }).program, { proof: true });
+    assert.equal(decisions(evaluated(chained)).issueAlice, 'Undetermined');
+    const result = combined(chained, { owl2rl: true });
+    assert.deepEqual(decisions(result), BASELINE);
+    assert.deepEqual(codes(result, 'validationStatus'), ['Valid']);
+    assert.ok(result.proofReport.valid);
+    const program = loadInputs([[chained, 'handicap-card.ttl']], null, { odrl: true, owl2rl: true }).program;
+    assert.ok(!checkProof(program, result.proof.replaceAll(ODRL_EVAL + 'Allowed', ODRL_EVAL + 'Prohibited')).valid);
+    // An entailed type of a state is not an observation, and the profiles'
+    // new triples are not written; their reports are.
+    const typed = combined(INPUT + '\n:assessmentApproved <http://www.w3.org/2000/01/rdf-schema#domain> :Assessed .\n', { owl2rl: true });
+    assert.deepEqual(decisions(typed), BASELINE);
+    assert.ok(!typed.conclusions.some((t) => t.args[2]?.args?.[0] === EX + 'Assessed'));
+    const shaped = combined(INPUT + '\n:S a <http://www.w3.org/ns/shacl#NodeShape> ; <http://www.w3.org/ns/shacl#targetClass> eval:State .\n', { shacl: true });
+    assert.deepEqual(decisions(shaped), BASELINE);
+    assert.ok(shaped.conclusions.some((t) => t.name === 'result_rdf' && t.args[1].args[0] === 'http://www.w3.org/ns/shacl#conforms'));
+    // Entailed SKOS links between categories reach eval:withinCategory.
+    const category = INPUT.replace('odrl:leftOperand :assessmentApproved ; odrl:operator odrl:eq ; odrl:rightOperand true',
+      'odrl:leftOperand <https://w3id.org/dpv#hasPurpose> ; odrl:operator eval:withinCategory ; odrl:rightOperand :Care')
+      .replaceAll(':assessmentApproved true', '<https://w3id.org/dpv#hasPurpose> :parking') +
+      '\n:parking <http://www.w3.org/2004/02/skos/core#broadMatch> :Care .\n';
+    assert.equal(decisions(evaluated(category)).issueAlice, 'NotApplicable');
+    assert.deepEqual(decisions(combined(category, { skos: true })), BASELINE);
+    assert.match(cli(['--odrl', '--owl2rl', 'examples/handicap-card.ttl', 'examples/research-snapshot-odrl.ttl']).stderr, /takes one Turtle snapshot/);
+    assert.match(cli(['--odrl', '--owl2rl', '--shacl-out', 'examples/shape-planning-owl2rl-shacl-out.ttl', 'examples/handicap-card.ttl']).stderr, /cannot be combined with --shacl-in or --shacl-out/);
+  },
+
   'policy strings stay data in the generated JavaScript'() {
     const payload = "'); globalThis.__eyemindOdrlInputExecuted = true; ('";
     const text = INPUT + '\n:eligibility <http://www.w3.org/2000/01/rdf-schema#comment> ' + JSON.stringify(payload) + ' .';

@@ -1,0 +1,81 @@
+# An archive sets the terms for a partner to use a dataset for academic
+# research. The permission needs given consent and a completed attribution
+# duty; marketing is prohibited and takes priority over the permission. The
+# partner names its studies with its own purposes, mapped to DPV.
+# The cohort study is allowed, the sponsored study is prohibited with a
+# reported conflict, and the pending study is undetermined until attribution
+# evidence arrives.
+# Shows --odrl combined with RDF profiles: --owl2rl derives each state's
+# consent status through its legal basis with a property chain, and --skos
+# turns the partner's skos:broadMatch mappings into the DPV categories that
+# the constraints test. research-access-le decides the same requests with
+# hand-written Logical English rules.
+# Sources https://www.w3.org/TR/odrl-model/
+#         https://www.w3.org/TR/odrl-vocab/
+#         https://w3id.org/dpv/2.3/dpv/
+#         https://www.w3.org/TR/skos-reference/
+#         https://www.w3.org/TR/owl2-profiles/
+
+@prefix : <https://example.org/research-access#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix eval: <https://eyereasoner.github.io/eyemind/odrl#> .
+@prefix dpv: <https://w3id.org/dpv#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# The partner's purposes, mapped to DPV. --skos makes each skos:broadMatch a
+# skos:broader link, and a sponsored study falls under both categories.
+:cohortStudy skos:broadMatch dpv:AcademicResearch .
+:sponsoredStudy skos:broadMatch dpv:AcademicResearch, dpv:Marketing .
+
+# A process's consent status is that of its legal basis; --owl2rl applies
+# the chain to each state.
+:consentStatus owl:propertyChainAxiom (dpv:hasLegalBasis dpv:hasConsentStatus) .
+:consent a dpv:Consent ; dpv:hasConsentStatus dpv:ConsentGiven .
+
+# An applicable prohibition wins over an applicable permission, within the
+# policy and across policies.
+:evaluation a eval:Evaluation ;
+    eval:policy :policy ;
+    eval:request :study, :mixed, :pending ;
+    eval:conflictStrategy odrl:prohibit .
+
+:policy a odrl:Agreement ;
+    odrl:profile eval:SnapshotProfile ;
+    odrl:assigner :archive ;
+    odrl:conflict odrl:prohibit ;
+    odrl:permission :research ;
+    odrl:prohibition :noMarketing .
+:research a odrl:Permission ;
+    odrl:assignee :partner ; odrl:action odrl:use ; odrl:target :dataset ;
+    odrl:constraint :academic, :consented ;
+    odrl:duty :credit .
+:noMarketing a odrl:Prohibition ;
+    odrl:assignee :partner ; odrl:action odrl:use ; odrl:target :dataset ;
+    odrl:constraint :marketing .
+:academic a odrl:Constraint ;
+    odrl:leftOperand dpv:hasPurpose ; odrl:operator eval:withinCategory ; odrl:rightOperand dpv:AcademicResearch .
+:marketing a odrl:Constraint ;
+    odrl:leftOperand dpv:hasPurpose ; odrl:operator eval:withinCategory ; odrl:rightOperand dpv:Marketing .
+:consented a odrl:Constraint ;
+    odrl:leftOperand :consentStatus ; odrl:operator odrl:eq ; odrl:rightOperand dpv:ConsentGiven .
+:credit a odrl:Duty ; odrl:action odrl:attribute .
+
+# Three studies with their own states. The states give a purpose and a legal
+# basis; the consent status is derived.
+:study a eval:Request ;
+    odrl:assignee :partner ; odrl:action odrl:use ; odrl:target :dataset ;
+    eval:subject :participants ; eval:state :studyState ; eval:fulfilledDuty :credit .
+:mixed a eval:Request ;
+    odrl:assignee :partner ; odrl:action odrl:use ; odrl:target :dataset ;
+    eval:subject :participants ; eval:state :mixedState ; eval:fulfilledDuty :credit .
+:pending a eval:Request ;
+    odrl:assignee :partner ; odrl:action odrl:use ; odrl:target :dataset ;
+    eval:subject :participants ; eval:state :pendingState .
+
+:studyState a eval:State ; eval:subject :participants ;
+    dpv:hasPurpose :cohortStudy ; dpv:hasLegalBasis :consent .
+:mixedState a eval:State ; eval:subject :participants ;
+    dpv:hasPurpose :sponsoredStudy ; dpv:hasLegalBasis :consent .
+:pendingState a eval:State ; eval:subject :participants ;
+    dpv:hasPurpose :cohortStudy ; dpv:hasLegalBasis :consent .
