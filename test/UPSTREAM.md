@@ -16,8 +16,9 @@ the tests. This first run needs Git and network access. File inventories let
 the runner detect missing inputs instead of silently skipping their cases.
 
 `npm run sync` explicitly refreshes the suites from their current upstream
-branches. It also saves the remote documents used by Notation3 tests, so
-subsequent test runs need no network access. Permanent document retrieval
+branches, then regenerates `src/qudt-catalog.js`, the unit catalog of
+`--qudt`, from the latest QUDT release. It also saves the remote documents
+used by Notation3 tests, so subsequent test runs need no network access. Permanent document retrieval
 failures are saved as error fixtures; temporary network failures stop the
 sync. Downloads and manifest resource checks finish before the cached suites
 are replaced. A failed sync retains the previous set.
@@ -48,11 +49,13 @@ changes and run `npm test` after syncing; every run writes the
 Local Git checkouts can supply any of the sources:
 
 ```sh
-npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes --mobibench /path/to/mobibench
+npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes --mobibench /path/to/mobibench --qudt /path/to/qudt-public-repo
 ```
 
-The data-shapes checkout supplies both SRL and SHACL. `--w3c-shacl PATH`
-selects a separate SHACL checkout. The SHACL mirror contains the four processor
+A QUDT checkout is used at the release it has checked out. The data-shapes
+checkout supplies both SRL and SHACL. `--w3c-shacl PATH`
+selects a separate SHACL checkout; given without `--w3c-sparql-rl`, it
+supplies SRL too. The SHACL mirror contains the four processor
 families reachable from `tests/manifest.ttl`; the separate `sparql-rl` tree
 stays in its existing cache.
 

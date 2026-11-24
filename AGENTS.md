@@ -26,10 +26,13 @@ goals, and keep error messages specific and user-facing text direct.
     guards and restraint order of restricted rules. `chains.js`: chain
     stratification for programs whose negations lie on a dependency cycle.
     `templates.js`: potential derived clauses, scopes and generator links.
-    `builtins.js`, `arith.js`, `xml.js`: primitives, arithmetic and XML content validation.
+    `builtins.js`, `arith.js`, `xml.js`: primitives, arithmetic and XML content validation;
+    `digest.js`: the message digests of `digest/3`, without Node.
+    `inspection.js`: source rule inspection through `implies/2` and `implied_by/2` goals.
   - `engine.js`: backward search as an explicit machine, semi-naive forward
     rounds, Skolem terms, proof recording, making a proof's certificate,
-    unused clauses.
+    unused clauses. `common.js`: renaming clauses apart, head matching and
+    variant tests, shared by the engine and the proof checker.
   - `proof.js`: proof rendering, reading and check reports; the checker
     never calls the engine. `closure.js`: answering calls from a proof's
     call tables, each expanded one level against the program, and the
@@ -48,7 +51,8 @@ goals, and keep error messages specific and user-facing text direct.
     specializing it at once to the message triples SHACL input shapes describe; `rdf-values.js` supplies
     shared LS datatype and value rules. `qudt.js`, `skos.js` and `shacl.js`
     compile quantity normalization, SKOS entailment and SHACL validation to
-    standalone LS; `shacl-expr.js` compiles SHACL node expressions.
+    standalone LS; `qudt.js` reads a local unit alias given by `owl:sameAs` or
+    `skos:exactMatch` in either direction. `shacl-expr.js` compiles SHACL node expressions.
     `qudt-catalog.js` is QUDT's unit catalog, generated; never edit it.
   - `owl2rl.js`: explicit `--owl2rl` inference, including RDFS, and OWL conflict reports, compiled to standalone LS.
   - `le.js`: Logical English (`.le`) compiled to LS, and `.le` conclusions; its grammar is in `LE-SPEC.md`.
@@ -66,8 +70,11 @@ goals, and keep error messages specific and user-facing text direct.
     by the SRL tokenizer, parser and analysis (`srl-tokenizer.js`,
     `srl-parser.js`, `srl-term.js`, `srl-assignments.js`, `srl-analyze.js`,
     `srl-builtin-names.js`).
-  `odrl.js`: the ODRL snapshot profile enabled by `--odrl`, compiling one Turtle input
-  with policies, requests and SOTW into LS validation and evaluation rules.
+  - `odrl.js`: the ODRL snapshot profile enabled by `--odrl`, compiling one Turtle input
+    with policies, requests and SOTW into LS validation and evaluation rules; with
+    RDF profiles, `rdf-logic.js` adds them as `odrlProfileRules` over the entailed graph.
+    `dpv.js`: DPV category rules over SKOS `broader` and `narrower` links, shared by
+    `odrl.js` and LE's `Use DPV hierarchy logic.`
 - `bin/eyemind.js`: the `eyemind` command.
 - `playground/index.html`: hand-written browser playground; it runs `src/`
   in a module worker, with no build step. `playground.html` redirects older
@@ -80,7 +87,13 @@ goals, and keep error messages specific and user-facing text direct.
   their description and halt code. An entry can list its
   source files in order. RDF examples pair Turtle or TriG data in
   `examples/data/` with companion N3 rules directly in `examples/`.
-  An ODRL snapshot example is one `.ttl` file directly in `examples/`.
+  An RDF profile example is one `.ttl` file directly in `examples/`, named
+  after its profile (`people-owl2rl.ttl`, `thesaurus-skos.ttl`,
+  `quantities-qudt.ttl`, `people-shacl.ttl`); its manifest entry sets
+  `output` to `ttl` and flags each profile it runs with (`owl2rl`, `skos`,
+  `qudt`, `shacl`, `odrl`). An ODRL snapshot example is `NAME-odrl.ttl`,
+  such as `research-access-odrl.ttl`, run with `--odrl` and any profiles
+  its entry flags; `handicap-card.ttl` keeps the name of its LE twin.
   `examples/output/`,
   `examples/proof/` and `examples/check/` hold each one's saved conclusions,
   proof and check report; `examples/deck/` a card deck per example. Outputs
@@ -101,8 +114,10 @@ goals, and keep error messages specific and user-facing text direct.
   and `--shacl-out`, also in the playground.
 - `conformance/`: black-box language and proof cases from LS-SPEC.md, plus
   implementation interface checks tagged with their README headings. Each case file is an
-  eyemind document of `conformance(Name, [Setting, ...])` terms, read by
-  `conformance/run.js`; `conformance/README.md` describes the format.
+  eyemind document of `conformance(Name, [Setting, ...])` terms, listed in
+  order by `manifest.json` and read by `conformance/run.js`; `cases.js` parses
+  and compares cases for the Node runner and the browser `worker.js`, which
+  runs them in memory through `memory.js`. `conformance/README.md` describes the format.
 - `test/`: `run.js` runs every `*.test.js` module, the conformance suite and
   the playground tests of `playground.js` in a headless Chrome that
   `chrome.js` starts; `browser.mjs` runs those alone and can take screenshots.
@@ -111,6 +126,8 @@ goals, and keep error messages specific and user-facing text direct.
   as the `mobibench` section of `npm test`;
   `shacl.js` reads the W3C SHACL 1.2 manifest and scores its Core and
   node-expression groups; SHACL-SPARQL and inference rules are out of scope.
+  `upstream-cases.js` scores independent MobiBench and SHACL cases on up to two threads.
+  `helpers.js` holds what the test modules share.
   `UPSTREAM.md` describes the cache and `upstream.json` records its provenance.
   N3 and SRL examples and their saved artifacts live in `examples/`.
 - `bench/`: deterministic OWL 2 RL, SKOS, QUDT and SHACL workloads
@@ -119,8 +136,10 @@ goals, and keep error messages specific and user-facing text direct.
 - `tools/`: `update-examples.js` regenerates the example artifacts,
   `corpus.js` evaluates the corpus, `version.js` syncs the version,
   `notation3tests.js` scores the Notation3 test suite, `shacltests.js` scores
-  SHACL 1.2 with complete-report comparison, and `report.js`
+  SHACL 1.2 with complete-report comparison, `earl.js` writes the EARL
+  reports, and `report.js`
   writes `REPORT.md`, the table a whole `npm test` run ends with.
+  `notation3-worker.js` is the reusable process the Notation3 scorer runs cases in.
   `sync.js`, run with `npm run sync`, stages and refreshes all five upstream
   test caches and records their revisions, and regenerates
   `src/qudt-catalog.js` from the latest QUDT release with `qudt-catalog.js`;

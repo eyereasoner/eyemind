@@ -1214,7 +1214,9 @@ depth, goals started or forward rounds are provided, they count as follows:
   allows exceeds it. A goal solved by a fact adds no level.
 - Every goal the search starts counts once toward the inference bound,
   including each conjunction, control and primitive, in forward premises as
-  in goals: `[p(X), p(Y)]` against one fact starts three goals.
+  in goals: the goal `[p(X), p(Y)]` against one fact starts three goals. A
+  rule body is flattened to its goals ([Section 3.5](#35-clause-constraints-and-numbering)), so the same
+  array as a forward premise starts two.
 - Every forward round of a stratum counts toward the round bound,
   including the final round that adds nothing; a stratum without forward
   rules has no rounds.

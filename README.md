@@ -84,6 +84,7 @@ eyemind examples/socrates.js
 prints
 
 ```js
+// Answers: each instance of a query() that holds.
 type('socrates', 'mortal')
 type('socrates', 'human')
 ```
@@ -236,7 +237,8 @@ premises; an aggregate's own variables stay inside it, and a conjunction in its
 condition is put in parentheses. Arithmetic follows LS: integers stay exact,
 division gives a float. An answer becomes a sentence such as `16 is a square of 4.`; a witness is written
 `witness(rule 4, Y, Alice)`, and conclusions read back as facts of another LE
-program. Several `.le` files form one program, `--to le` writes LS conclusions
+program. Several `.le` files form one program, without other input formats
+or RDF logic switches; `--to le` writes LS conclusions
 as LE, and proofs check the compiled LS, not the English-to-LS translation.
 There are no pronouns, disjunctive conclusions or implicit assumptions.
 
@@ -288,7 +290,8 @@ and P.-A. Champin, ["Notation3: Graph Terms for RDF"](https://arxiv.org/abs/2610
 a rule with existentials in its conclusion is restricted, making Skolem
 witnesses only where none is known. RDF named graphs join N3 as
 `graph:content` formulas, and `log:semantics` documents are read before
-compiling.
+compiling. All 1163 cases of the
+[Notation3 test suite](https://codeberg.org/phochste/notation3tests) pass.
 
 ```sh
 eyemind examples/family-n3.n3                            # the derived triples as N3
@@ -450,14 +453,15 @@ properties with scalar or DPV category constraints and combines constraints
 with `odrl:and`, `odrl:or` or `odrl:xone`. Permissions can require duties,
 with fulfillment evidence attached to each request.
 
-`--odrl` combines with `--owl2rl`, `--skos`, `--qudt` and `--shacl`. The
+`--odrl` combines with `--owl2rl`, `--skos`, `--qudt` and `--shacl`, though
+not with `--stream-messages`, `--shacl-in` or `--shacl-out`. The
 snapshot then reads the given triples, what the profiles entail about each
 request's state, such as an observation a property chain derives, and entailed
 SKOS links between categories, such as a `skos:broadMatch` to DPV. Other
 entailments, such as an `rdfs:Resource` type for every node, stay out of the
 snapshot, whose validation would reject them. The output is the ODRL report
 with the profiles' own reports, such as a SHACL validation report.
-[Handicap-card example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card) · [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le) · [Research access with OWL 2 RL and SKOS](https://eyereasoner.github.io/eyemind/examples/deck/research-access-odrl) · [Research portal with OWL 2 RL](https://eyereasoner.github.io/eyemind/examples/deck/research-portal-odrl) · [Package holiday with SHACL](https://eyereasoner.github.io/eyemind/examples/deck/package-holiday-odrl)
+[Handicap-card example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card) · [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-odrl) · [Research access with OWL 2 RL and SKOS](https://eyereasoner.github.io/eyemind/examples/deck/research-access-odrl) · [Research portal with OWL 2 RL](https://eyereasoner.github.io/eyemind/examples/deck/research-portal-odrl) · [Package holiday with SHACL](https://eyereasoner.github.io/eyemind/examples/deck/package-holiday-odrl)
 
 ## How eyemind reasons
 
@@ -604,9 +608,9 @@ A clause is listed when no conclusion's proof uses it; a clause only a negation 
 
 ## Examples and the playground
 
-The [examples](https://eyereasoner.github.io/eyemind/examples/) range from classics (Ackermann, the zebra puzzle) to planning, policy reasoning, mathematics, RDF 1.2 data and a hundred-thousand-level taxonomy. Each has its conclusions, proof and check report saved in `examples/output/`, `examples/proof/` and `examples/check/`, and a card deck for a wide audience. Change a fact, run it, and compare with the saved output.
+The [examples](https://eyereasoner.github.io/eyemind/examples/) range from classics (Ackermann, the zebra puzzle) to planning, policy reasoning, mathematics, RDF 1.2 data and a hundred-thousand-level taxonomy. Each has its conclusions saved in `examples/output/`, all but the two streamed examples their proof and check report in `examples/proof/` and `examples/check/`, and each a card deck for a wide audience. Change a fact, run it, and compare with the saved output.
 
-The [playground](https://eyereasoner.github.io/eyemind/playground/) runs eyemind in a worker in your browser, so **Stop** ends a long run. Choose an example, edit it, pick an output (conclusions, proof, check of a saved proof, or unused clauses) and press **Run** or Ctrl+Enter. A line an error names is marked red, the options panel shows the equivalent command, and **Share link** copies a link with the program and options.
+The [playground](https://eyereasoner.github.io/eyemind/playground/) runs eyemind in a worker in your browser, so **Stop** ends a long run. Choose an example, edit it, pick an output (conclusions, proof, checked answers, check of a saved proof, unused clauses, or independent RDF Messages) and press **Run** or Ctrl+Enter. A line an error names is marked red, the options panel shows the equivalent command, and **Share link** copies a link with the program and options.
 
 ## Command line
 
@@ -628,10 +632,10 @@ eyemind [OPTION ...] [FILE ...]
 | `--shacl-out FILE` | With an RDF logic profile, plan only the rules that conclude triples the SHACL shapes in `FILE` describe, or what those rules read, and write only those triples. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3, SRL, ODRL or RDF profile program has 1000000, 100000 and 1000000000. |
-| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; by default LE for LE, N3 for N3, Turtle for SRL, ODRL and RDF profiles, eyemind otherwise. |
+| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; `n3` only for an N3 run; by default LE for LE, N3 for N3, Turtle for SRL, ODRL and RDF profiles, eyemind otherwise. |
 | `--all` | With RDF or N3 output, write the given data too. |
 | `--program` | Print the program the inputs compile to. |
-| `--odrl` | Add the ODRL snapshot profile's validation and evaluation LS to one Turtle input; with RDF logic profiles, the snapshot also reads what they entail about its states. |
+| `--odrl` | Add the ODRL snapshot profile's validation and evaluation LS to one Turtle input; with RDF logic profiles, the snapshot also reads what they entail about its states. Not with `--stream-messages`, `--shacl-in` or `--shacl-out`. |
 | `--owl2rl` | Add the documented OWL 2 RL inference rules, including RDFS, and RDF conflict reports to RDF inputs. |
 | `--qudt` | Normalize supported QUDT/CDT quantities, with source provenance. |
 | `--skos` | Add positive SKOS Core entailments. |
@@ -727,7 +731,7 @@ not in the proof.
 | `negation requires a goal whose variables are bound` | Bind the variables before `not(...)`, or use `_`. |
 | `unstratified negation or collection dependency` | A negation or collection depends on its own conclusion; see [why negation and collection are safe](#why-negation-and-collection-are-safe). |
 | `exceeded max_depth` or another bound | Usually a left-recursive backward rule; make it forward, or raise the bound. |
-| A goal with no arguments finds nothing | In goal text a bare name is a variable; write `p()` or `'p'`. |
+| `expected a callable goal, got p` | In goal text a bare name is a variable; write `p()` or `'p'`. |
 | `this is a proof document, not a program` | Check it with `--check-proof PROOF PROGRAM`. |
 
 ## JavaScript library

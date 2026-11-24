@@ -128,8 +128,9 @@ writes the RDF graph and `--all` adds the stated RDF facts.
 Prefix declarations specify names. The facts and rules supply their
 meaning for a run. The research access example uses ODRL permissions,
 prohibitions, constraints and a duty with DPV purpose and consent
-evidence. Its ordinary LE rules specify the scenario's policy decisions.
-[Research access example](https://eyereasoner.github.io/eyemind/examples/deck/research-access-le) · [ODRL Vocabulary](https://www.w3.org/TR/odrl-vocab/) · [Data Privacy Vocabulary 2.3](https://w3id.org/dpv/2.3/dpv/)
+evidence. Its ordinary LE rules specify the scenario's policy decisions; a
+Turtle companion decides similar requests with the ODRL snapshot evaluator.
+[Research access example](https://eyereasoner.github.io/eyemind/examples/deck/research-access-le) · [Turtle companion](https://eyereasoner.github.io/eyemind/examples/deck/research-access-odrl) · [ODRL Vocabulary](https://www.w3.org/TR/odrl-vocab/) · [Data Privacy Vocabulary 2.3](https://w3id.org/dpv/2.3/dpv/)
 
 ## Rules and calculations
 
@@ -141,7 +142,8 @@ If Alice is a person then Alice is a participant.
 ```
 
 `Every A is B.` compiles to `implies(A(X), B(X))`, with a fresh clause-local
-variable. An if/then sentence compiles its premises and conclusions to one
+variable; `a` or `an` may precede each class after `is`, as in
+`Every human is a mortal.`. An if/then sentence compiles its premises and conclusions to one
 forward LS rule. Both sides may contain conjunctions. A conclusion variable
 must be supplied by a premise or explicitly declared existentially. The
 compiler checks the stated order of premises for calculations and absence tests;
@@ -415,9 +417,9 @@ use `has`; for example `issueAlice has decision allowed.`. Status values
 `invalidReport` name the corresponding `eval:` IRIs. Report classes include
 `evaluationReport`, `conflict`, `validationError` and `uncertainty`.
 `conflict` as a property means `eval:conflict`; `applicablePermission`,
-`applicableProhibition` and `reportConstraint` distinguish the report's
-`eval:permission`, `eval:prohibition` and `eval:constraint` links from ODRL
-input properties. Other report fields retain their `eval:` names. An IRI with
+`applicableProhibition`, `reportConstraint` and `reportDuty` distinguish the
+report's `eval:permission`, `eval:prohibition`, `eval:constraint` and
+`eval:duty` links from ODRL input properties. Other report fields retain their `eval:` names. An IRI with
 no unambiguous abbreviation stays explicit, including IRIs inside witness keys.
 
 Prefix declarations can follow either ODRL directive. A qualified state
@@ -458,11 +460,14 @@ An exact match or a supplied broader path satisfies the constraint. With
 a known observation and no such path the constraint is unmet. The snapshot
 reports missing, ambiguous or mistyped observations as unknown.
 The research snapshot demonstrates compound scope, two DPV hierarchies and
-request-local duty evidence. [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le)
+request-local duty evidence; its Turtle twin, run with `--odrl`, reaches the
+same decisions. [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le) · [Turtle twin](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-odrl)
 
 Both ODRL directives take a single LE file and reject mixed-in ordinary LE
-rules or questions. `--goal` can query their compiled LS program. The normal
-`--odrl` switch continues to select the Turtle snapshot compiler.
+rules or questions. `--goal` can query their compiled LS program. The
+`--odrl` switch selects the Turtle snapshot compiler, which can also combine
+with `--owl2rl`, `--skos`, `--qudt` and `--shacl`; an LE run takes none of these
+switches, so an LE snapshot reads only the facts it states.
 
 ## Output, compilation and checking
 
