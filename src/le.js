@@ -578,8 +578,18 @@ function leGoal(term, render, properties, compact) {
 
 export function writeLe(result, { odrl = null, prefixes = {} } = {}) {
   if (odrl) result = odrlLeReport(result, odrl.namespace);
-  const namespaces = odrl ? [] : Object.entries(prefixes).filter(([prefix]) => PREFIX.test(prefix))
-    .sort((a, b) => b[1].length - a[1].length);
+  // A prefix LE cannot spell, such as Turtle's empty one, gets the first free
+  // name of ns, ns2, ...; the output declares each prefix it uses.
+  const valid = Object.entries(prefixes).filter(([prefix, namespace]) => PREFIX.test(prefix) && typeof namespace === 'string');
+  const taken = new Set(valid.map(([prefix]) => prefix)), stated = new Set(valid.map(([, namespace]) => namespace));
+  for (const [prefix, namespace] of Object.entries(prefixes)) {
+    if (PREFIX.test(prefix) || typeof namespace !== 'string' || stated.has(namespace)) continue;
+    let name = 'ns';
+    for (let n = 2; taken.has(name); n++) name = `ns${n}`;
+    taken.add(name); stated.add(namespace);
+    valid.push([name, namespace]);
+  }
+  const namespaces = odrl ? [] : valid.sort((a, b) => b[1].length - a[1].length);
   const used = new Map();
   const compact = (term) => {
     if (!(term instanceof Struct) || term.name !== 'iri' || term.args.length !== 1 || typeof term.args[0] !== 'string') return null;

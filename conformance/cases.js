@@ -4,6 +4,10 @@ import { readTerms } from '../src/reader.js';
 import { EMPTY, Struct } from '../src/terms.js';
 
 const WILDCARD = '…';
+const STDERR = new Set(['empty', 'nonempty', 'json']);
+// stdout, stdout_json and stdout_text each give standard output, so a case
+// has at most one of them.
+const SLOT = { stdout_json: 'stdout', stdout_text: 'stdout' };
 
 class Case {
   constructor(name, path, line) {
@@ -35,14 +39,22 @@ export function parseCases(document, path = '<document>') {
       throw new Error(`${where}: expected conformance(Name, [Setting, ...])`);
     }
     const item = new Case(term.args[0], path, line);
+    const seen = new Set();
     for (const setting of items(term.args[1], where)) {
       const [first, second] = setting instanceof Struct ? setting.args : [];
       const key = setting instanceof Struct ? `${setting.name}/${setting.args.length}` : String(setting);
+      // Each setting appears at most once, except file, once per file name.
+      const slot = key === 'file/2' ? `file ${text(first, where)}` : SLOT[setting.name] ?? setting.name ?? key;
+      if (seen.has(slot)) throw new Error(`${where}: ${item.name}: ${key === 'file/2' ? `file ${JSON.stringify(first)}` : `setting ${slot}`} appears more than once`);
+      seen.add(slot);
       if (key === 'spec/1') item.spec = text(first, where);
       else if (key === 'args/1') item.args = text(first, where);
       else if (key === 'exit/1' && typeof first === 'bigint') item.exit = Number(first);
       else if (key === 'stderr/1' && first instanceof Struct && first.name === 'prefix') item.stderr = `prefix ${text(first.args[0], where)}`;
-      else if (key === 'stderr/1') item.stderr = text(first, where);
+      else if (key === 'stderr/1') {
+        if (!STDERR.has(first)) throw new Error(`${where}: stderr(${JSON.stringify(first)}) is not 'empty', 'nonempty', 'json' or prefix(T)`);
+        item.stderr = first;
+      }
       else if (key === 'file/2') item.files[text(first, where)] = block(second, where);
       else if (key === 'stdin/1') item.stdin = block(first, where);
       else if (key === 'stdout/1' && first === 'nonempty') item.stdoutMode = 'nonempty';
@@ -55,6 +67,16 @@ export function parseCases(document, path = '<document>') {
     }
     return item;
   });
+}
+
+// Case names are unique in a suite; the first repeat is an error.
+export function uniqueNames(cases) {
+  const where = new Map();
+  for (const item of cases) {
+    if (where.has(item.name)) throw new Error(`${item.where}: case name ${JSON.stringify(item.name)} is already used at ${where.get(item.name)}`);
+    where.set(item.name, item.where);
+  }
+  return cases;
 }
 
 function text(term, where) {

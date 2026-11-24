@@ -505,7 +505,9 @@ eyemind --check-proof /tmp/socrates-le-proof.js examples/socrates-le.le
 
 Multiple `.le` files form one program in file order; they do not mix with other
 input formats or the RDF logic switches. Standard input remains LS; `--to le`
-can write supported LS conclusions as LE. `--goal` uses LS goal syntax and
+can write supported LS conclusions as LE. For an N3, SRL or RDF run, IRIs are
+abbreviated with that run's prefixes; a prefix LE cannot spell, such as
+Turtle's empty one, is declared as `ns`, or `ns2` and so on when taken. `--goal` uses LS goal syntax and
 defaults to LS output; add `--to le` for LE output. `--all` applies to RDF and N3
 output, without changing LE's selected conclusions.
 

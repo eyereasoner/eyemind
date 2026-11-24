@@ -409,6 +409,8 @@ export class Solver {
         stats.inferences++;
         if (stats.inferences > this.maxInferences) throw new EyemindError('reasoning exceeded max_inferences');
         const goal = deref(frame.goals[frame.index], env);
+        // A renamed-apart variable is named by what its clause or goal wrote.
+        if (goal instanceof Var) throw new EyemindError(`the called variable ${goal.name.split('#')[0]} must be bound`);
         if (!isCallable(goal)) throw new EyemindError(`expected a callable goal, got ${text(goal)}`);
         const next = this.step(goal, frame, env, choices);
         if (next === null) {

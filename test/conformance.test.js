@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { HERE, check, loadCases, parseCases, readManifest } from '../conformance/run.js';
+import { uniqueNames } from '../conformance/cases.js';
 import { executeMemory } from '../conformance/memory.js';
 import { ROOT, assert } from './helpers.js';
 
@@ -31,6 +32,18 @@ export const tests = {
 
   'the memory host runs every case with the same specification expectations'() {
     for (const item of loadCases()) assert.deepEqual(check(item, ...executeMemory(item)), [], item.name);
+  },
+
+  'a case repeats no setting or file, names a known stderr check, and its name is unique'() {
+    const one = (settings) => `conformance('c', [${settings}])`;
+    assert.equal(parseCases(one("file('a.js', []), file('b.js', []), stdout([])")).length, 1);
+    for (const [settings, message] of [
+      ["exit(1), exit(2)", /setting exit appears more than once/],
+      ["stdout([]), stdout_text('x')", /setting stdout appears more than once/],
+      ["file('a.js', []), file('a.js', [])", /file "a.js" appears more than once/],
+      ["stderr('emtpy')", /stderr\("emtpy"\) is not/],
+    ]) assert.throws(() => parseCases(one(settings)), message);
+    assert.throws(() => uniqueNames(parseCases(one('') + '\n' + one(''), 'x.js')), /case name "c" is already used at x.js:1/);
   },
 
   'case documents are read as data and JSON object member order is immaterial'() {

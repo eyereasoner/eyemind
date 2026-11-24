@@ -1,6 +1,6 @@
 // The browser uses the same case grammar, comparisons and command line as
 // the Node suite, with a fresh in-memory file host for each case.
-import { parseCases, check } from './cases.js';
+import { parseCases, check, uniqueNames } from './cases.js';
 import { executeMemory } from './memory.js';
 import { VERSION } from '../src/version.js';
 
@@ -8,7 +8,7 @@ let cases = [];
 self.onmessage = ({ data }) => {
   try {
     if (data.type === 'load') {
-      cases = data.files.flatMap(({ file, text }) => parseCases(text, file).map((item) => ({ ...item, file })));
+      cases = uniqueNames(data.files.flatMap(({ file, text }) => parseCases(text, file))).map((item) => ({ ...item, file: item.path }));
       self.postMessage({ type: 'loaded', version: VERSION, cases });
     } else if (data.type === 'run') {
       const started = performance.now();

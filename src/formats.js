@@ -217,7 +217,7 @@ export const defaultFormat = (kind) => RDF_PROFILES.includes(kind) ? 'turtle' : 
 export function writeConclusions(loaded, result, { format, all = false, blankNodePrefix = '' } = {}) {
   if (format === 'eyemind') return null;
   if (format === 'le') return writeLe(result, { odrl: loaded.compiled?.odrl ?? null,
-    prefixes: loaded.kind === 'le' ? loaded.prefixes : {} });
+    prefixes: loaded.prefixes instanceof Map ? Object.fromEntries(loaded.prefixes) : loaded.prefixes ?? {} });
   if (format === 'n3') {
     if (loaded.kind !== 'n3') throw new EyemindError('--to n3 writes the conclusions of an N3 run');
     return resultToN3(loaded.compiled.doc, result, { mode: all ? 'all' : 'new', blankNodePrefix }).n3;

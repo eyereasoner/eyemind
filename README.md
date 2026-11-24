@@ -731,7 +731,7 @@ not in the proof.
 | `negation requires a goal whose variables are bound` | Bind the variables before `not(...)`, or use `_`. |
 | `unstratified negation or collection dependency` | A negation or collection depends on its own conclusion; see [why negation and collection are safe](#why-negation-and-collection-are-safe). |
 | `exceeded max_depth` or another bound | Usually a left-recursive backward rule; make it forward, or raise the bound. |
-| `expected a callable goal, got p` | In goal text a bare name is a variable; write `p()` or `'p'`. |
+| `the called variable p must be bound` | In goal text a bare name is a variable; write `p()` or `'p'`. |
 | `this is a proof document, not a program` | Check it with `--check-proof PROOF PROGRAM`. |
 
 ## JavaScript library

@@ -365,6 +365,7 @@ implies(t(X, 'seed', 'true'), t(X, 'blocked', 'true'))
       /max_iterations/);
     throwsMatching(() => run(program("fact(p('a'))\nimplies([p(X), p(X)], q(X))"), { maxInferences: 1 }), /max_inferences/);
     throwsMatching(() => run(program(''), { goal: 'not(p(X))' }), /negation requires a goal whose variables are bound/);
+    throwsMatching(() => run(program('implied_by(r(G), G)'), { goal: 'r(G)' }), /^the called variable G must be bound$/);
     throwsMatching(() => program("fact(struct('step', 1, 2, 3, 4))"), /reserved/);
     throwsMatching(() => program('implied_by(p, [])'), /an empty array is not a goal/);
     // A program built from clause records directly is checked as a statement is.

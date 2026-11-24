@@ -2,12 +2,12 @@
   {
     "file": "03-terms.js",
     "spec": "2",
-    "topic": "Unification, the occurs check, integers and floats, lists, the standard order"
+    "topic": "Unification, the occurs check, integers and finite floats, lists, the standard order"
   },
   {
     "file": "04-programs.js",
     "spec": "3, 6",
-    "topic": "Statements, clause numbering, names a program leaves undefined, reserved heads, rejected clauses, stratification"
+    "topic": "Statements, clause numbering, names a program leaves undefined, reserved heads, rejected clauses, stratification, chain stratification"
   },
   {
     "file": "05-controls-and-primitives.js",
@@ -17,17 +17,17 @@
   {
     "file": "06-arithmetic.js",
     "spec": "5, README.resource-limits",
-    "topic": "the meaning of every arithmetic term and function, exact integers, and each error"
+    "topic": "The meaning of every arithmetic term and function, exact integers, and each error"
   },
   {
     "file": "07-reasoning.js",
     "spec": "7, 8",
-    "topic": "Search order, forward rounds, Skolem names, conclusions, halting, bounds"
+    "topic": "Search order, forward rounds, Skolem terms, restricted rules, chain strata, conclusions, halting, bounds"
   },
   {
     "file": "08-canonical-text.js",
     "spec": "9",
-    "topic": "The one spelling of atoms, numbers, variables, lists, compounds and operators"
+    "topic": "The one spelling of atoms, numbers, variables, lists and compounds"
   },
   {
     "file": "09-reading.js",
@@ -42,7 +42,7 @@
   {
     "file": "11-checking.js",
     "spec": "11, 11.3, 11.4, 11.6, 12, README.json-check-reports",
-    "topic": "Reading proofs, answering calls from call tables, replaying derived facts, nothing unused, and check reports"
+    "topic": "Reading proofs, answering calls from call tables, replaying derived facts, nothing unused, and the exact reports of valid proofs"
   },
   {
     "file": "12-fidelity.js",

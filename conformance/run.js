@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, isAbsolute, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { main as cliMain } from '../src/cli.js';
-import { check, parseCases, shellSplit } from './cases.js';
+import { check, parseCases, shellSplit, uniqueNames } from './cases.js';
 import { nodeIO } from '../src/node.js';
 
 export const HERE = dirname(fileURLToPath(import.meta.url));
@@ -81,7 +81,7 @@ function caseFiles(names) {
 }
 
 export function loadCases(names = [], pattern = null) {
-  let cases = caseFiles(names).flatMap(parse);
+  let cases = uniqueNames(caseFiles(names).flatMap(parse));
   if (pattern) cases = cases.filter((item) => item.name.toLowerCase().includes(pattern.toLowerCase()));
   return cases;
 }

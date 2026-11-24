@@ -286,4 +286,15 @@ Find whether ex:study has personalDataWithin pd:Contact.`;
     assert.match(errorOf(() => loadInputs([['Socrates is human.', 'x.le'], ['fact(p)', 'x.js']])), /takes .le files/);
     assert.match(cli(['--owl2rl', 'examples/socrates-le.le']).stderr, /without RDF logic switches/);
   },
+
+  '--to le abbreviates the IRIs of other runs with their prefixes, naming an empty one'() {
+    const n3 = cli(['--to', 'le', 'examples/socrates-n3.n3']);
+    assert.equal(n3.code, 0, n3.stderr);
+    assert.equal(n3.stdout, 'Use prefix ns with namespace "http://example.org/socrates#".\n\nns:Socrates is a ns:Mortal.\n');
+    const again = compileLe([[n3.stdout, 'again.le']]);
+    assert.ok(again.program.sources.some(({ head }) => write(head) ===
+      "rdf(iri('http://example.org/socrates#Socrates'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/socrates#Mortal'))"));
+    // A taken name moves the generated one on.
+    assert.match(writeLe({ answers: ["p(iri('urn:a#x'))"] }, { prefixes: { '': 'urn:a#', ns: 'urn:b#' } }), /^Use prefix ns2 with namespace "urn:a#"\.\n\nns2:x is a p\.\n$/);
+  },
 };

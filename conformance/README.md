@@ -82,7 +82,10 @@ and a setting other than these is an error in the suite.
 | `stdout_json(Block)` | Standard output, compared as JSON. | |
 | `stdout_text(T)` | Standard output given as the atom `T`, for text a block cannot show, such as text without a final line feed; compared as `stdout` compares. | |
 
-Each setting appears at most once in a case, except `file`.
+Each setting appears at most once in a case, except `file`, which appears at
+most once per file name; `stdout`, `stdout_json` and `stdout_text` count as one
+setting. A repeated setting, a `stderr` value other than those above and a case
+name used twice in the suite are errors in the suite.
 
 For example, this case requires the proof of one forward firing:
 
