@@ -1,0 +1,45 @@
+# A lab digitizes old instrument logs. They write Fahrenheit with a local
+# symbol, use the Réaumur scale, which QUDT does not define, and mention a gas
+# mark, which nobody described. With --qudt, the Fahrenheit and Réaumur
+# readings become kelvin and the gas mark is reported as unresolved.
+# Shows units added in the input: a local alias of a QUDT unit by owl:sameAs,
+# in either direction, and a unit described by its conversion multiplier,
+# offset and dimension vector.
+# Unit conventions: https://qudt.org/ and https://w3id.org/cdt/ .
+
+@prefix : <https://example.org/instrument-logs#> .
+@prefix cdt: <https://w3id.org/cdt/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix dv: <http://qudt.org/vocab/dimensionvector/> .
+
+# The local Fahrenheit is QUDT's. owl:sameAs is symmetric, so this direction
+# aligns the local unit with unit:DEG_F as well as the other, without --owl2rl.
+:LocalFahrenheit qudt:symbol "local-degF" .
+unit:DEG_F owl:sameAs :LocalFahrenheit .
+
+# QUDT has no Réaumur unit. Its description gives the conversion to kelvin:
+# (value + 218.52) × 1.25, the offset applied before the multiplier, as QUDT
+# does, and its dimension is temperature.
+:Reaumur qudt:symbol "degRe" ;
+    qudt:conversionMultiplier 1.25 ;
+    qudt:conversionOffset 218.52 ;
+    qudt:hasDimensionVector dv:A0E0L0I0M0H1T0D0 .
+
+# The readings, as CDT literals and as a quantity value.
+:patient :temperature "98.6 local-degF"^^cdt:temperature .
+:kettle :temperature "80 degRe"^^cdt:temperature .
+:freezer :temperature [
+    a qudt:QuantityValue ;
+    qudt:numericValue -40 ;
+    qudt:unit :LocalFahrenheit
+] .
+
+# The gas mark has no description and no alignment, so it is reported
+# instead of silently left out.
+:oven :setting [
+    a qudt:QuantityValue ;
+    qudt:numericValue 6 ;
+    qudt:unit :GasMark
+] .

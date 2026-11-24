@@ -196,6 +196,7 @@ Each deck explains the result and links to the source and Playground.
 - [Composed QUDT units](https://eyereasoner.github.io/eyemind/examples/deck/composed-units-qudt) (RDF) — QUDT composes units from factor units, prefixes and prefixed names, normalizes any dimension to SI and reports a currency
 - [Control System](https://eyereasoner.github.io/eyemind/examples/deck/control-system) (Logic Script) — Feedforward and nonlinear feedback commands for two actuators
 - [Leg Length Discrepancy](https://eyereasoner.github.io/eyemind/examples/deck/lldm) (Logic Script) — Leg length discrepancy measured from radiograph landmarks, with an alarm and its reason
+- [Local units with QUDT](https://eyereasoner.github.io/eyemind/examples/deck/local-units-qudt) (RDF) — Units added in the input: a local alias of a QUDT unit by owl:sameAs and a Réaumur scale QUDT lacks
 - [Normalize, then validate](https://eyereasoner.github.io/eyemind/examples/deck/measurement-shacl) (RDF) — QUDT converts speed readings before SHACL checks a sequence path against a numeric limit
 - [QUDT quantities](https://eyereasoner.github.io/eyemind/examples/deck/quantities-qudt) (RDF) — QUDT normalizes CDT literals, Fahrenheit, decibels and a locally defined length unit
 - [Sensor messages become SOSA observations](https://eyereasoner.github.io/eyemind/examples/deck/observations-owl2rl) (RDF) — Streamed sensor messages each yield the SOSA triples an output contract asks for, through rules specialized once to the shape of the messages

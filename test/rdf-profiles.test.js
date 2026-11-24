@@ -233,12 +233,17 @@ export const tests = {
     includes(legacy, ':a qconv:normalizedCdtLiteral "1.0 m"^^cdt:length.');
   },
 
-  'QUDT and SKOS or OWL composition resolves reverse local unit alignments'() {
+  'QUDT reads symmetric unit alignments in both directions, alone or with SKOS or OWL'() {
     for (const [profile, predicate] of [['skos', 'skos:exactMatch'], ['owl2rl', 'owl:sameAs']]) {
       const data = `unit:KiloM-PER-HR ${predicate} :local. :local qudt:symbol "localSpeed". :a :speed "36 localSpeed"^^cdt:speed.`;
-      assert.equal(evaluate(data, { qudt: true }).quads.length, 0);
+      const alone = evaluate(data, { qudt: true }, true);
+      assert.ok(numbers(alone.quads).includes(10));
+      assert.ok(alone.result.proofReport.valid);
       assert.ok(numbers(evaluate(data, { qudt: true, [profile]: true }).quads).includes(10));
     }
+    // qconv:alignedQudtUnit names the QUDT unit as its object, so it is not reversed.
+    const directed = 'unit:KiloM-PER-HR qconv:alignedQudtUnit :local. :local qudt:symbol "localSpeed". :a :speed "36 localSpeed"^^cdt:speed.';
+    assert.equal(evaluate(directed, { qudt: true }).quads.length, 0);
   },
 
   'QUDT looks up a catalog unit named only in an alignment'() {

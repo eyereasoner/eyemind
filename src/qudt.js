@@ -97,6 +97,11 @@ implied_by(qu_align(U, U, G), qu_dimension(U, G, _));
 for (const p of [iri('${SAME_AS}'), iri('${EXACT_MATCH}'), qc('alignedQudtUnit')]) {
   implied_by(qu_align(Local, U, G), [rdf(Local, p, U, G), qu_dimension(U, G, _)]);
 }
+// owl:sameAs and skos:exactMatch are symmetric, so a known unit can name its
+// local alias without --owl2rl or --skos; qconv:alignedQudtUnit is directed.
+for (const p of [iri('${SAME_AS}'), iri('${EXACT_MATCH}')]) {
+  implied_by(qu_align(Local, U, G), [rdf(U, p, Local, G), qu_dimension(U, G, _)]);
+}
 implied_by(qu_custom_profile(P, G), ent_base(P, qc('targetUnit'), _, G));
 implied_by(qu_profile(P, DT, U, Code, G), [qu_builtin_profile(P, DT, U, Code), not(qu_custom_profile(P, G))]);
 implied_by(qu_profile(P, DT, U, Code, G), [ent_base(P, qc('targetUnit'), U, G), ent_base(P, qc('datatype'), iri(DT), G), ent_base(P, qc('targetUcumCode'), L, G), srl_str(L, literal(Code, datatype(quString)))]);

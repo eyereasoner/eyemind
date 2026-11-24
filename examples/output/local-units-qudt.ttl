@@ -1,0 +1,34 @@
+PREFIX : <https://example.org/instrument-logs#>
+PREFIX cdt: <https://w3id.org/cdt/>
+PREFIX qconv: <https://eyereasoner.github.io/eyemind/qudt#>
+PREFIX qudt: <http://qudt.org/schema/qudt/>
+PREFIX unit: <http://qudt.org/vocab/unit/>
+
+:patient qconv:normalizedQuantity _:b0 .
+:patient qconv:normalizedUcumLiteral "310.15 K"^^cdt:ucum .
+:patient qconv:normalizedCdtLiteral "310.15 K"^^cdt:temperature .
+_:b0 a qudt:QuantityValue .
+_:b0 qudt:numericValue "310.15"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b0 qudt:unit unit:K .
+_:b0 qconv:sourceProperty :temperature .
+_:b0 qconv:sourceLiteral "98.6 local-degF"^^cdt:temperature .
+_:b0 qconv:sourceUnit unit:DEG_F .
+:kettle qconv:normalizedQuantity _:b1 .
+:kettle qconv:normalizedUcumLiteral "373.15 K"^^cdt:ucum .
+:kettle qconv:normalizedCdtLiteral "373.15 K"^^cdt:temperature .
+_:b1 a qudt:QuantityValue .
+_:b1 qudt:numericValue "373.15"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b1 qudt:unit unit:K .
+_:b1 qconv:sourceProperty :temperature .
+_:b1 qconv:sourceLiteral "80 degRe"^^cdt:temperature .
+_:b1 qconv:sourceUnit :Reaumur .
+:freezer qconv:normalizedQuantity _:b2 .
+:freezer qconv:normalizedUcumLiteral "233.15 K"^^cdt:ucum .
+:freezer qconv:normalizedCdtLiteral "233.15 K"^^cdt:temperature .
+_:b2 a qudt:QuantityValue .
+_:b2 qudt:numericValue "233.15"^^<http://www.w3.org/2001/XMLSchema#double> .
+_:b2 qudt:unit unit:K .
+_:b2 qconv:sourceProperty :temperature .
+_:b2 qconv:sourceQuantity _:b3 .
+_:b2 qconv:sourceUnit unit:DEG_F .
+_:b4 qconv:unresolvedUnit :GasMark .

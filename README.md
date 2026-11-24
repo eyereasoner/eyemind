@@ -13,7 +13,7 @@ program, a JavaScript library and a browser application.
 - [Playground](https://eyereasoner.github.io/eyemind/playground/): run any
   example or your own program in the browser, with its proof and check report.
 - [Examples](https://eyereasoner.github.io/eyemind/examples/): the
-  164 runnable programs, each with a card deck and saved conclusions; all but
+  165 runnable programs, each with a card deck and saved conclusions; all but
   the two streamed examples also save proofs and check reports.
 - [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC): the
   language, the proof format and how a proof is checked.
@@ -407,7 +407,10 @@ query(rdf(O, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), sosa('Obser
   units: with `qudt:conversionMultiplier` and `qudt:hasDimensionVector`,
   composed from QUDT units with `qudt:hasFactorUnit` and an optional
   `qudt:factorUnitScalar`, derived from `qudt:prefix` and `qudt:scalingOf`,
-  or aligned with `owl:sameAs` or `skos:exactMatch`. The
+  or aligned with `owl:sameAs` or `skos:exactMatch`, which are symmetric and
+  read in either direction, or with `qconv:alignedQudtUnit` from the local
+  unit to the QUDT one; a local `qudt:symbol` or `qudt:ucumCode` then names
+  the unit in a CDT literal. The
   other units of the QUDT unit vocabulary with a fixed conversion, such as
   `unit:W-PER-M2`, come from an offline catalog that `tools/qudt-catalog.js`
   generates from a QUDT release, also by the UCUM code of a CDT literal. A

@@ -811,6 +811,13 @@
     "description": "QUDT normalizes CDT literals, Fahrenheit, decibels and a locally defined length unit"
   },
   {
+    "name": "local-units-qudt",
+    "files": ["local-units-qudt.ttl"],
+    "output": "ttl",
+    "qudt": true,
+    "description": "Units added in the input: a local alias of a QUDT unit by owl:sameAs and a Réaumur scale QUDT lacks"
+  },
+  {
     "name": "thesaurus-skos",
     "files": [
       "thesaurus-skos.ttl"
