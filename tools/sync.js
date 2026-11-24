@@ -242,7 +242,7 @@ export async function syncTestSuites({ root = ROOT, checkouts = {}, log = consol
   }
 }
 
-function catalogSnapshot(path) {
+export function catalogSnapshot(path) {
   if (!existsSync(path)) return null;
   const text = readFileSync(path, 'utf8');
   // The generated constants are JSON. Resolve the indexes so a reordered

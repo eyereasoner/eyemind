@@ -6,7 +6,7 @@
   },
   "rdf": {
     "source": "https://github.com/w3c/rdf-tests",
-    "revision": "56076c0efec4c353efcae2971be8f6005294ac64",
+    "revision": "3cbb83bd6d325bcddb1e2496037adb770a9cd769",
     "manifests": [
       "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-n-triples/manifest.ttl",
       "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-n-triples/syntax/manifest.ttl",
@@ -23,16 +23,16 @@
   },
   "srl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "1ca8692672cfa4d37adb6e4303cc9a6978f2fcff",
+    "revision": "eacdef4528d66ee116f0ac9118d968c5717c7233",
     "path": "shacl12-test-suite/tests/sparql-rl",
     "cases": 367
   },
   "shacl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "1ca8692672cfa4d37adb6e4303cc9a6978f2fcff",
+    "revision": "eacdef4528d66ee116f0ac9118d968c5717c7233",
     "path": "shacl12-test-suite/tests",
     "manifest": "https://w3c.github.io/data-shapes/shacl12-test-suite/tests/manifest.ttl",
-    "cases": 591
+    "cases": 592
   },
   "mobibench": {
     "source": "https://github.com/william-vw/mobibench",

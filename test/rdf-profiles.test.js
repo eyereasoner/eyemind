@@ -2,7 +2,7 @@ import { assert, cli, errorOf } from './helpers.js';
 import { checkProof, loadText, readTerm, run, write } from '../src/index.js';
 import { loadInputs } from '../src/formats.js';
 import { parseRdf } from '../src/rdf.js';
-import { quantityKinds, unitConversion } from '../src/qudt.js';
+import { quantityKinds, unitConversion, vector } from '../src/qudt.js';
 import { DIMENSIONS, KINDS, QUDT_RELEASE, UNITS } from '../src/qudt-catalog.js';
 
 const P = `@prefix : <urn:ex:>.
@@ -244,6 +244,15 @@ export const tests = {
     // qconv:alignedQudtUnit names the QUDT unit as its object, so it is not reversed.
     const directed = 'unit:KiloM-PER-HR qconv:alignedQudtUnit :local. :local qudt:symbol "localSpeed". :a :speed "36 localSpeed"^^cdt:speed.';
     assert.equal(evaluate(directed, { qudt: true }).quads.length, 0);
+  },
+
+  'QUDT reads fractional dimension exponents, which it spells with dot'() {
+    const { quads } = evaluate(':a :k [ a qudt:QuantityValue; qudt:numericValue 2; qudt:unit unit:MegaPA-M0dot5 ].', { qudt: true });
+    includes(quads, ':a qconv:normalizedUcumLiteral "2000000.0 kg.m-0.5.s-2"^^cdt:ucum.');
+    // Every unit of the catalog has a dimension vector --qudt reads.
+    assert.ok(UNITS.split('\n').every((line) => vector(DIMENSIONS[Number(line.split('\t')[3])])));
+    assert.deepEqual(vector('A0E0L-0dot5I0M1H0T-2D0'), [0, 0, -0.5, 0, 1, 0, -2]);
+    assert.equal(vector('A0E0L-.5I0M1H0T-2D0'), null);
   },
 
   'QUDT looks up a catalog unit named only in an alignment'() {

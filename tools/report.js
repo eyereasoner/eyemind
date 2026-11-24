@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Write REPORT.md: the table a whole npm test run ends with, of the results
 // and timings of its sections, the W3C RDF and SPARQL 1.2 RL suites, and
-// the Notation3 test suite.
+// the Notation3 test suite, and the units of the QUDT catalog of --qudt.
 //
 //   node tools/report.js
 //

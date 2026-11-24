@@ -25,7 +25,8 @@ import { check, execute, loadCases, shellSplit } from '../conformance/run.js';
 import { RDF_MANIFESTS, manifestCases, runCase, runSparqlRlCase, sparqlRlCases } from './w3c.js';
 import { writeEarlReports } from '../tools/earl.js';
 import { checkCompleteEarlReports } from './earl.test.js';
-import { ensureTestCache } from '../tools/sync.js';
+import { catalogSnapshot, ensureTestCache } from '../tools/sync.js';
+import { vector } from '../src/qudt.js';
 import { cachePaths } from '../tools/test-cache.js';
 import { scoredShaclCases, SHACL_GROUPS } from './shacl.js';
 import { mobibenchCases } from './mobibench.js';
@@ -355,11 +356,15 @@ async function main(argv) {
   console.log('Wrote reports/w3c-rdf-earl.ttl and reports/w3c-sparql-rl-earl.ttl; wrote reports/w3c-shacl-earl.ttl.');
   const shaclRows = Object.entries(groups).map(([name, g]) => ({ suite: `W3C SHACL 1.2 ${name} (coverage)`, cases: g.cases,
     passed: g.passed, seconds: shaclTime.get(name), coverage: true }));
-  if (full) printReport([...reporter.rows, ...w3c.rows, ...shaclRows, ...notation3Rows(reporter)]);
+  let qudt = [];
+  if (full) {
+    qudt = qudtRows(reporter);
+    printReport([...reporter.rows, ...w3c.rows, ...shaclRows, ...notation3Rows(reporter), ...qudt]);
+  }
   // SHACL is a scored implementation subset, like Notation3. Missing support
   // is reported honestly; broken manifests/resources still fail the test run.
   if (brokenHarness.length) return 1;
-  return code || (passed === total ? 0 : 1);
+  return code || (passed === total && qudt.every((row) => row.passed === row.cases) ? 0 : 1);
 }
 
 // The W3C suites, case by case, timed as one row per suite.
@@ -410,6 +415,27 @@ function notation3Rows(reporter) {
   const passed = n3.tally.ok ?? 0;
   reporter.summary(passed, n3.total, 'Notation3 cases', n3.seconds * 1000);
   return [{ suite: 'notation3tests', cases: n3.total, passed, seconds: n3.seconds }];
+}
+
+// The QUDT unit catalog of --qudt, as npm run sync last generated it: each
+// unit passes when its entry gives a finite nonzero multiplier, a finite
+// offset and a dimension vector --qudt reads.
+function qudtRows(reporter) {
+  const started = performance.now();
+  const catalog = catalogSnapshot(join(ROOT, 'src/qudt-catalog.js'));
+  console.log(`\n${paint('33', '== QUDT unit catalog')}`);
+  if (catalog === null) {
+    console.error('src/qudt-catalog.js is missing or unreadable; run npm run sync');
+    return [{ suite: 'QUDT unit catalog', cases: 1, passed: 0, seconds: 0 }];
+  }
+  let passed = 0;
+  for (const record of catalog.records.values()) {
+    const [multiplier, offset, dimension] = JSON.parse(record);
+    if (Number.isFinite(Number(multiplier)) && Number(multiplier) !== 0 && Number.isFinite(Number(offset)) && vector(dimension)) passed++;
+  }
+  const cases = catalog.records.size, seconds = (performance.now() - started) / 1000;
+  reporter.summary(passed, cases, `QUDT ${catalog.release} units`, seconds * 1000);
+  return [{ suite: `QUDT unit catalog ${catalog.release}`, cases, passed, seconds }];
 }
 
 // The rows as a Markdown table with a total, as REPORT.md has it.

@@ -146,13 +146,17 @@ implied_by(qu_resolved(L, G), qu_align(L, _, G));
 implies([ent_base(S, P, Q, G), rdf(Q, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), qu('QuantityValue'), G), rdf(Q, qu('unit'), L, G), not(qu_resolved(L, G))], ent_report(Q, qc('unresolvedUnit'), L, G));
 `;
 
-// The dimension exponents of a QUDT dimension vector, in its order.
+// The dimension exponents of a QUDT dimension vector, in its order. QUDT
+// writes a fractional exponent with "dot", as L-0dot5 in A0E0L-0dot5I0M1H0T-2D0.
 const BASES = ['A', 'E', 'L', 'I', 'M', 'H', 'T'];
-const vector = (name) => {
-  const match = /^A(-?[0-9.]+)E(-?[0-9.]+)L(-?[0-9.]+)I(-?[0-9.]+)M(-?[0-9.]+)H(-?[0-9.]+)T(-?[0-9.]+)D[01]$/.exec(name);
-  return match ? match.slice(1).map(Number) : null;
+const EXPONENT = '(-?[0-9]+(?:dot[0-9]+)?)';
+const VECTOR = new RegExp(`^A${EXPONENT}E${EXPONENT}L${EXPONENT}I${EXPONENT}M${EXPONENT}H${EXPONENT}T${EXPONENT}D[01]$`);
+export const vector = (name) => {
+  const match = typeof name === 'string' ? VECTOR.exec(name) : null;
+  return match ? match.slice(1).map((e) => Number(e.replace('dot', '.'))) : null;
 };
-const vectorName = (exponents) => BASES.map((base, i) => base + (exponents[i] + 0)).join('') + (exponents.every((e) => e === 0) ? 'D1' : 'D0');
+const vectorName = (exponents) => BASES.map((base, i) => base + String(exponents[i] + 0).replace('.', 'dot')).join('') +
+  (exponents.every((e) => e === 0) ? 'D1' : 'D0');
 // The coherent SI unit of a dimension, in UCUM: kg, m, s, A, K, mol and cd.
 const UCUM = [['M', 'kg'], ['L', 'm'], ['T', 's'], ['E', 'A'], ['H', 'K'], ['A', 'mol'], ['I', 'cd']];
 // Positive exponents come first, as in cd.m-2.
