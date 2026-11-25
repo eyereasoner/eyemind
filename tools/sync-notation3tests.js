@@ -43,7 +43,10 @@ export async function syncNotation3Tests({ checkout = null, destination = mirror
       // Read upstream-owned resources from the same checkout as the tests.
       const raw = `${upstream}/raw/branch/main/`;
       try {
-        if (iri.startsWith(raw)) {
+        if (iri === `${upstream}/NoSuchFile.n3`) {
+          // The upstream log:semanticsOrError test names a deliberately missing document.
+          documents[iri] = { error: 'HTTP 404' };
+        } else if (iri.startsWith(raw)) {
           const file = resolve(checkout, decodeURIComponent(iri.slice(raw.length)));
           if (!file.startsWith(`${checkout}${sep}`)) throw new Error('document path is outside the upstream checkout');
           documents[iri] = { text: readFileSync(file, 'utf8') };
@@ -61,7 +64,6 @@ export async function syncNotation3Tests({ checkout = null, destination = mirror
         else if (/^HTTP [34][0-9]{2}$/.test(error.message) || error.cause?.code === 'ENOTFOUND') documents[iri] = { error: error.message };
         else throw error;
       }
-      log(`saved ${iri}: ${documents[iri].error ?? 'text'}`);
     }
     // Fetch everything before replacing the generated mirror.
     mkdirSync(destination, { recursive: true });

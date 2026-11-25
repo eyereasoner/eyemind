@@ -33,8 +33,10 @@ Test inputs are copied without changes; MobiBench's are extracted from its
 archive, with only Node's `zlib`. Notation3's `documents.json` stores
 the inputs to `log:content`, `log:semantics` and `log:semanticsOrError`,
 including expected retrieval failures. Resources owned by the upstream
-repository come from the same checkout as its tests. Missing document
-fixtures fail the read without falling back to a network request.
+repository and addressed by raw-file URLs come from the same checkout as
+its tests. The upstream `NoSuchFile.n3` test URL gets a saved `HTTP 404`
+without making an HTTP request. Missing document fixtures fail the read
+without falling back to a network request.
 Single-label document hosts are stored as errors without a DNS lookup,
 so a negative test's outcome does not depend on local DNS search domains.
 

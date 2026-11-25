@@ -300,6 +300,22 @@ export const tests = {
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
+  async 'notation3 sync skips the expected 404 request and reports only the suite summary'() {
+    const f = fixture();
+    try {
+      const iri = 'https://codeberg.org/phochste/notation3tests/NoSuchFile.n3';
+      put(join(f.checkouts.notation3tests, 'tests/expected-404.n3'), `<${iri}> <http://www.w3.org/2000/10/swap/log#semanticsOrError> ?data.\n`);
+      const destination = join(f.root, '.cache/notation3tests');
+      const messages = [];
+      await syncNotation3Tests({ checkout: f.checkouts.notation3tests, destination, log: (message) => messages.push(message),
+        fetchDocument: async (url) => { assert.fail(`unexpected request for ${url}`); },
+      });
+      const documents = JSON.parse(text(join(destination, 'documents.json')));
+      assert.deepEqual(documents[iri], { error: 'HTTP 404' });
+      assert.deepEqual(messages, [`notation3tests: synced 4 tests at ${f.revisions.notation3tests}`]);
+    } finally { rmSync(f.temporary, { recursive: true, force: true }); }
+  },
+
   async 'notation3 sync records permanent dereference failures but stops on temporary network failures'() {
     const f = fixture();
     try {
