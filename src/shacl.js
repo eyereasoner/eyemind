@@ -24,9 +24,9 @@ const CONSTRAINTS = ['class', 'datatype', 'nodeKind', 'minCount', 'maxCount', 'm
   'closed', 'hasValue', 'in', 'rootClass', 'uniqueValuesFor', 'expression', 'nodeByExpression'];
 const ANNOTATIONS = ['severity', 'message', 'deactivated', 'name', 'description', 'order', 'group', 'defaultValue', 'unit',
   'intent', 'agentInstruction', 'codeIdentifier', 'codeType', 'keyParameter', 'optional'];
-const ALLOWED = new Set([...TARGETS, ...CONSTRAINTS, ...ANNOTATIONS, 'path', 'values', 'flags', 'ignoredProperties']);
+const ALLOWED = new Set([...TARGETS, ...CONSTRAINTS, ...ANNOTATIONS, 'path', 'values', 'flags', 'ignoredProperties', 'condition']);
 // Shape-expecting parameters, whose values are compiled as shapes and checked for recursion.
-const SHAPE_PARAMETERS = ['node', 'not', 'qualifiedValueShape', 'property', 'memberShape', 'reifierShape', 'someValue', 'targetWhere'];
+const SHAPE_PARAMETERS = ['node', 'not', 'qualifiedValueShape', 'property', 'memberShape', 'reifierShape', 'someValue', 'targetWhere', 'condition'];
 const PATH_OPERATORS = ['inversePath', 'alternativePath', 'zeroOrMorePath', 'oneOrMorePath', 'zeroOrOnePath'];
 // The default conformance-disallow set of SHACL 1.2.
 export const SHACL_DISALLOWS = ['Violation', 'Warning', 'Info'].map((n) => SH + n);
@@ -109,6 +109,24 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS, needs = new S
       for (const p of SHAPE_PARAMETERS) for (const child of values(s, p)) {
         const target = shape(child, depth + 1); node.refs.push(target);
         if (p === 'property') node.properties.push(target);
+      }
+      // A focus node meets sh:condition when it conforms to every condition
+      // shape; one that is a class also brings the node shapes of its
+      // superclasses.
+      node.conditions = [];
+      for (const condition of values(s, 'condition')) {
+        const seen = new Set(), pending = [condition];
+        while (pending.length) {
+          const t = pending.pop();
+          if (seen.has(write(t))) continue;
+          seen.add(write(t));
+          if (write(t) === write(condition) || isNodeShape(t)) {
+            const target = shape(t, depth + 1);
+            node.conditions.push(target);
+            if (!node.refs.includes(target)) node.refs.push(target);
+          }
+          if (isClass(t)) pending.push(...values(t, RDFS + 'subClassOf'));
+        }
       }
       for (const p of ['and', 'or', 'xone']) {
         const root = one(s, p);
@@ -287,6 +305,7 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS, needs = new S
         lines.push(`implied_by(sh_inactive_${id}(F), ${expression(deactivated)}(F, [], nodes([${TRUE_TERM}])));`);
         guard.push(`not(sh_inactive_${id}(F))`);
       }
+      for (const condition of node.conditions) guard.push(`sh_ok_${condition.id}(F)`);
       const all = (property, fn) => values(s, property).forEach(fn);
       all('targetNode', (t) => lines.push(t instanceof Struct && t.name === 'bnode' ?
         `implies([${expression(t)}('sh_none', [], nodes(L)), ent_member(T, L)], ${target}(T));` :

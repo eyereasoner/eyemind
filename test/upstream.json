@@ -23,16 +23,16 @@
   },
   "srl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "eacdef4528d66ee116f0ac9118d968c5717c7233",
+    "revision": "e79670afeeff120e9b3671f3be0913f2055f1f74",
     "path": "shacl12-test-suite/tests/sparql-rl",
     "cases": 367
   },
   "shacl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "eacdef4528d66ee116f0ac9118d968c5717c7233",
+    "revision": "e79670afeeff120e9b3671f3be0913f2055f1f74",
     "path": "shacl12-test-suite/tests",
     "manifest": "https://w3c.github.io/data-shapes/shacl12-test-suite/tests/manifest.ttl",
-    "cases": 592
+    "cases": 605
   },
   "mobibench": {
     "source": "https://github.com/william-vw/mobibench",

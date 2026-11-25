@@ -389,6 +389,26 @@ export const tests = {
     assert.match(errorOf(() => evaluate(':S sh:targetNode :a; sh:pattern "\\\\u0041"; sh:flags "i".')), /ASCII/);
   },
 
+  'SHACL conditions gate a shape on conformance to every condition and its superclass shapes'() {
+    const focus = (quads) => quads.filter(([, p]) => p.args?.[0] === SH + 'focusNode').map(([, , o]) => o.args[0].split(':').pop()).sort();
+    const shape = ':S sh:targetNode :us, :de, :none; sh:condition [sh:property [sh:path :country; sh:hasValue "US"]]; ' +
+      'sh:property [sh:path :zip; sh:minCount 1]. :us :country "US". :de :country "DE".';
+    const { quads, result } = evaluate(shape, { shacl: true }, true);
+    assert.deepEqual(focus(quads), ['us']);
+    assert.ok(result.proofReport.valid);
+    // Every condition must hold; a warning alone fails one; a deactivated one always holds.
+    assert.deepEqual(focus(evaluate(shape.replace('sh:condition [', 'sh:condition [sh:property [sh:path :flag; sh:minCount 1]], [') + ' :de :flag 1.').quads), []);
+    assert.deepEqual(focus(evaluate(':S sh:targetNode :a, :b; sh:condition :C; sh:class :Person. ' +
+      ':C sh:property [sh:path :label; sh:minCount 1; sh:severity sh:Warning]. :a :label "A".').quads), ['a']);
+    assert.deepEqual(focus(evaluate(':S sh:targetNode :a; sh:condition :C; sh:class :Person. :C a sh:NodeShape; sh:deactivated true; sh:class :Other.').quads), ['a']);
+    // A condition that is a class needs its superclasses' node shapes too.
+    const classes = ':S sh:targetNode :a, :b; sh:condition :Sub; sh:property [sh:path :c; sh:minCount 1]. ' +
+      ':Super a rdfs:Class, sh:NodeShape; sh:property [sh:path :x; sh:minCount 1]. ' +
+      ':Sub a rdfs:Class, sh:NodeShape; rdfs:subClassOf :Super; sh:property [sh:path :y; sh:minCount 1]. :a :x 1; :y 2. :b :y 2.';
+    assert.deepEqual(focus(evaluate(classes).quads), ['a']);
+    assert.match(errorOf(() => evaluate(':S sh:targetNode :a; sh:condition :S; sh:class :X.')), /recursive/);
+  },
+
   'SHACL rejects malformed, recursive and unsupported shapes instead of declaring conformance'() {
     for (const data of [':S sh:targetNode :a; sh:node :S.', ':S sh:targetNode :a; sh:sparql [sh:select "SELECT * WHERE {}"].',
       ':S sh:targetNode :a; sh:property [sh:path :p; sh:minCount -1].', ':S sh:targetNode :a; sh:or :list. :list rdf:first :S; rdf:rest :list.']) {

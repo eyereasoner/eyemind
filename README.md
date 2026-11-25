@@ -435,8 +435,9 @@ query(rdf(O, iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), sosa('Obser
   entailments, without integrity checks or SKOS-XL.
 - `--shacl` compiles shapes to LS and writes a standard `sh:ValidationReport`.
   It implements SHACL 1.2 Core, including list, reifier and targeting
-  constraints, and SHACL 1.2 node expressions with the `sparql:` functions and
-  custom functions. All 162 W3C Core and 284 node-expression tests pass with
+  constraints and `sh:condition`, and SHACL 1.2 node expressions with the
+  `sparql:` functions and custom functions. All 173 W3C Core and 284
+  node-expression tests pass with
   complete reports. Recursive shapes, SHACL-SPARQL and rules are not
   supported.
 
