@@ -141,6 +141,69 @@ query q is: which person is accused of which crime.`), /not as expected/);
     assert.deepEqual(sentences(document('*a thing* is red.', 'ann is a person.', 'ann is a which kind.')), ['ann is a person.']);
   },
 
+  'Logical English 2 template additions: synonyms, opposites with "only if", assumable and ignored ones'() {
+    const synonyms = `the templates are:
+    *a payment* is in respect of *a claim*; synonym *a payment* covers *a claim*,
+    *a payment* is made; memorable; image "pay.png".
+the knowledge base k includes:
+p1 covers c1.
+a payment is made if the payment is in respect of a claim.
+query q is: which payment is made.
+query r is: which payment is in respect of which claim.`;
+    assert.equal(output(synonyms), '% query q\np1 is made.\n\n% query r\np1 is in respect of c1.\n');
+    const onlyIf = `the templates are:
+    I will marry *a woman*; opposite I will not marry *a woman*.
+    I love *a woman*.
+the knowledge base k includes:
+I will marry a woman if the woman is "Alice".
+I will marry a woman if the woman is "Eve".
+I will marry a woman only if I love the woman.
+I love "Alice".
+query q is: I will marry which woman.
+query r is: I will not marry "Eve".`;
+    assert.equal(output(onlyIf), '% query q\nI will marry Alice.\n\n% query r\nI will not marry Eve.\n');
+    // An assumable sentence is never assumed; negating one would need abduction.
+    const assumable = (rule) => `the templates are:
+    *a person* pays tax in *a country*,
+    *a person* is resident in *a country*; assumable.
+the knowledge base k includes:
+${rule}
+ann is resident in France.
+query q is: which person pays tax in which country.`;
+    assert.deepEqual(sentences(assumable('a person pays tax in a country if the person is resident in the country.')), ['ann pays tax in France.']);
+    assert.match(errorOf(() => compile(assumable('a person pays tax in a country if the person is a person and it is not the case that the person is resident in the country.'))),
+      /negated assumable sentence.*not supported/);
+    assert.match(errorOf(() => compile('the templates are: *a payment* is made; prepositional.')), /addition "; prepositional" belongs to Logical English 2/);
+  },
+
+  'rule labels, sections, constants, explicit variables and a lone which'() {
+    const text = `the templates are:
+    *a person* pays *an amount*,
+    walking *a distance* takes *a number* minutes.
+the constants are:
+    the fee is 5.
+the knowledge base k includes:
+section main is:
+rule fee: a person pays an amount if the amount = the fee * 2.
+walking *a distance* takes *a number* minutes if the number = the distance * 12.
+query q is: ann pays which amount.
+query r is: walking 2 takes which minutes.`;
+    assert.equal(output(text), '% query q\nann pays 10.\n\n% query r\nwalking 2 takes 24 minutes.\n');
+  },
+
+  'included files give their templates and rules, and included scenario files their cases'() {
+    const files = new Map([
+      ['dir/rules.le', 'the templates are: *a thing* is mortal, *a thing* is human.\nthe knowledge base r includes:\na person is mortal if the person is human.\nscenario ignored is:\n    ann is human.\nquery ignored is: which thing is human.'],
+      ['dir/cases.le', 'the knowledge base c includes these resources:\n    rules.\nscenario s is:\n    bob is human.\nquery q is: which thing is mortal.'],
+    ]);
+    const io = { readFile: (path) => { if (!files.has(path)) throw new Error('missing'); return files.get(path); } };
+    const main = 'the knowledge base m includes these scenarios:\n    cases.\nthe knowledge base m includes:\ncid is human.';
+    const loaded = compileLe([[main, 'dir/main.le']], io);
+    assert.equal(writeLe(run(loaded.program), loaded), '% query q with scenario s\nbob is mortal.\ncid is mortal.\n');
+    assert.match(errorOf(() => compileLe([['the knowledge base m includes these resources:\n    other.', 'main.le']])), /including other needs file access/);
+    assert.match(errorOf(() => compileLe([['the knowledge base m includes these resources:\n    https://example.org/x.', 'main.le']], io)), /web address.*not supported/);
+  },
+
   'aggregates count every solution, and the minimum of nothing does not exist'() {
     const templates = '*a person* pays *an amount*, *a person* paid *an amount* in total, *a person* made *a number* payments, *a person* paid at least *an amount*, *a person* paid *a list*, *a person* paid *an amount* on average.';
     const facts = 'ann pays 50.\nann pays 20.\nann pays 50.\nbob is a person.\nann is a person.';
@@ -263,14 +326,15 @@ query two is: which thing is an employee.`;
       ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is human', /must end with a full stop/],
       ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is mortal.', /line 3:.*no template matches "ann is mortal"/],
       ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is human if bob is tall.', /no template matches "bob is tall"/],
-      ['the templates are: *a thing* is human; opposite: *a thing* is divine.', /template additions.*Logical English 2/],
-      ['the constants are:\n the fee is 5.', /"the constants are".*Logical English 2/],
+      ['the templates are: *a thing* is human; via service geo.', /addition "; via service geo" belongs to Logical English 2/],
+      ['the functions are:\n the price of *a cup* is *an amount*.', /"the functions are".*Logical English 2/],
       ['the templates are: *a* likes *b*,\nlikes *a* *b*.', /both name the relation likes\/2/],
       ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is greater than bob.', /built-in condition and cannot be concluded/],
       ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nq expects answers [].', /expectation belongs to a scenario/],
       ['the templates are: *a thing* is human.\nscenario s is:\nit is not the case that ann is human.', /Logical English 2/],
       ['the templates are: *a thing* is human.\nthe knowledge base k includes:\na thing is human if for all cases in which the thing is human.', /needs "it is the case that"/],
-      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nrule r1: ann is human.', /rule labels belong to Logical English 2/],
+      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is human if:\n1. bob is human.', /numbered conditions belong to Logical English 2/],
+      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is human if prolog true.', /embedded Prolog goals belong to Logical English 2/],
       ['the templates are: *a thing* is human.\nscenario s is, as stated in the act:\nann is human.', /header "scenario s is, as stated in the act:" belongs to Logical English 2/],
       ['the templates are: *a thing* is human.\nscenario s is:\nq expects changes [["add: ann is human"]].', /flip queries/],
     ]) {

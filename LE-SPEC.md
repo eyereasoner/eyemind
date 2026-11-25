@@ -20,15 +20,26 @@ ends with `:`:
 
 | Header | Section |
 | --- | --- |
-| `the templates are:`, `the predicates are:` | Templates, separated by commas or full stops. |
+| `the templates are:`, `the predicates are:` | Templates, separated by full stops, and by commas at the end of a line or before a place. |
 | `the knowledge base NAME includes:`, `the contract NAME states that:` | Facts and rules. |
 | `the ontology is:` | Facts and rules; a fact `a student is a person.` relates the kinds `student` and `person`. |
+| `the constants are:` | Named values, one sentence each: `the fee is 5.` |
+| `the knowledge base NAME includes these resources:` | Other files, separated by commas, whose templates, facts, rules, ontologies and constants join the document. |
+| `the knowledge base NAME includes these scenarios:` | Other files, as resources, whose scenarios and queries join the document too. |
 | `scenario NAME is:` | Facts and rules of one scenario, and its expected answers. |
 | `query NAME is:` | One query. |
 
-`the target language is: prolog.` is accepted and ignored. The sections can
-come in any order, and a template can be used before it is declared. Several
-`.le` files are read as one document.
+`the target language is: prolog.` is accepted and ignored, and so are LE2's
+section markers, `section NAME is:` and `the annexes to the contract are:`,
+and its rule labels, `rule NAME:` before a rule. The sections can come in any
+order, and a template can be used before it is declared. Several `.le` files
+are read as one document.
+
+An included file is named as in LE2: a path relative to the file that
+includes it, without `.le` if one likes. It is read once, and a chain of
+includes stops at five. The command line reads included files; the library
+reads them through `io.readFile` when `compileLe(inputs, io)` is given one.
+Web addresses and Prolog resources (`.pl`) are not read.
 
 Sentences end with a full stop followed by white space or the end of the file;
 a sentence can span lines. `%` or `#` starts a comment through the end of the
@@ -57,7 +68,20 @@ Each template is a relation whose name joins its words with underscores and
 whose arguments are its places in order: `acquires_British_citizenship_on/2`,
 `says_that/2`, `has/2`. A name that is an LS primitive or control, or `date`,
 gets the prefix `le_`. Two templates with different words for one name and
-arity are an error. A place after the word `that` holds a sentence.
+arity are an error. A place after the word `that` holds a sentence. A document
+with an asterisk in any template reads `a` and `an` in its other templates as
+words.
+
+LE2's additions follow a template after `;`:
+
+| Addition | Meaning in eyemind |
+| --- | --- |
+| `; synonym TEMPLATE` | A second wording of the same relation, with its places in the same order. |
+| `; opposite: TEMPLATE`, `; opposite TEMPLATE` | The wording of a separate relation, concluded only by its own rules and by `only if` rules. |
+| `; assumable`, `; unknown`, `; assumed`, `; judged`, `; open textured`, `; evaluative` | eyemind makes no assumptions: a sentence that is not stated or concluded is false. A negated assumable sentence is an error, because it would hold only as an assumption. |
+| `; memorable`, `; memoised`, `; memoized`, `; cached`, `; undefined`, `; scenario element`, `; one value`, `; single valued`, `; image ...` | Nothing that eyemind computes changes. |
+
+Other additions, such as `; prepositional` and `; via service NAME`, are errors.
 
 ## Sentences
 
@@ -90,6 +114,11 @@ The tokens in a place are a term:
 - A single capital letter with optional digits, such as `L` or `T1`, is a
   variable even when no phrase introduced it. Longer ids need an introducing
   phrase, because LE1 programs use acronyms such as `GST` as names.
+- `*a name*` between asterisks, LE2's explicit variable, is the variable of
+  that phrase, introduced or referred to.
+- A lone `which`, `what`, `who`, `when` or `where` introduces a variable.
+- A phrase that names a constant of `the constants are:` is its value, unless a
+  variable of the clause has that name.
 - Other words are a name, written as they are, such as `Socrates` or
   `cash at bank`.
 
@@ -103,7 +132,15 @@ In a knowledge base or a scenario, a sentence is a fact, or a rule
 type template `*an object* is a *type*` (the relation `is_a/2`, whose type is a
 name). A fact with a variable holds for every value. In an ontology, a fact
 whose subject starts with `a` or `an` is about the kind: `a student is a person.`
-states `is_a('student', 'person')`.
+states `is_a('student', 'person')`. An ontology's kinds are transitive: for
+each such ground fact `b is a c`, whatever is a `b` is a `c`. A fact or rule
+may end with LE2's `; image ...`, which is ignored.
+
+`Head only if Body.` makes Body necessary for Head, as in LE2: it concludes the
+opposite of Head, the template's `; opposite` wording or else an internal
+relation, when it is not the case that Body. The other rules of Head's relation
+then conclude a base relation, and Head holds when the base holds and its
+opposite does not.
 
 The conditions are joined by `and` and `or`. Each connective has the
 indentation of its line; a connective in the middle of a line has the
@@ -204,7 +241,10 @@ scenario alice is:
 ```
 
 `NAME expects answers [...]` and `NAME expects [...]` state the answers the
-query `NAME` gives in the scenario; a trailing `and unknowns [...]` is ignored.
+query `NAME` gives in the scenario. The answers may be quoted sentences or, as
+some examples write them, words up to a comma. An expectation with
+`and unknowns [...]` that lists unknowns, or with `and any unknowns`, rests on
+assumptions and is not compared; `and unknowns []` is.
 Each query is answered in each scenario, or once when the document has none.
 
 ## Compilation to LS
@@ -261,12 +301,15 @@ establishes the answers under the compiled rules.
 ## Not supported
 
 These belong to Logical English 2, or to the Prolog that LE1 can embed, and
-are errors: template additions after `;`, `the constants are:`,
+are errors: the template additions the table above leaves out,
 `the functions are:`, `the fluents are:`, `the events are:` and the other
-dynamic and meta sections, included resources and scenarios, section markers,
-rule labels, `it is unknown whether`, `it must not be true that`, negated
-facts in scenarios, flip queries (`expects changes`), `otherwise`, `unless`,
-`according to`, decision tables, services, LPS and s(CASP). eyemind does not
+dynamic and meta sections, facts backgrounds, included web addresses and
+Prolog resources, embedded `prolog` goals, numbered conditions, provenance
+trailers and document locations, `it is unknown whether`,
+`it must not be true that`, negated facts in scenarios, negated assumable
+sentences (abduction), flip queries (`expects changes`), scenario headers with
+provenance, `otherwise`, `unless`, `according to`, decision tables, services,
+LPS and s(CASP). eyemind does not
 check types: the head noun of a place is not a type constraint. A program whose
 negation lies on a dependency cycle compiles, and the LS program is then
 rejected unless it is chain-stratified (LS-SPEC Section 6.4), where Prolog would

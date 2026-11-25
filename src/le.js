@@ -27,7 +27,7 @@ const COMPARISONS = new Set(['=', '==', '!=', '\\=', '\\==', '<', '>', '<=', '=<
 const FUNCTIONS = { ceiling: 'ceil', floor: 'floor', round: 'round', truncate: 'trunc', integer: 'round', abs: 'abs', sqrt: 'sqrt' };
 const AGGREGATES = { sum: 'le:sum', count: 'le:count', average: 'le:average', min: 'le:min', minimum: 'le:min', max: 'le:max', maximum: 'le:max', list: null };
 const SECTIONS = [
-  'the constants are', 'the functions are', 'the fluents are', 'the events are',
+  'the functions are', 'the fluents are', 'the events are',
   'the event predicates are', 'the meta predicates are', 'the meta templates are', 'the facts background includes',
 ];
 
@@ -366,7 +366,16 @@ class Compiler {
       }
       return list(items);
     }
+    // LE2's explicit variable: *a name*.
+    if (first.text === '*' && tokens.at(-1).text === '*' && tokens.length > 2 && tokens.slice(1, -1).every((t) => t.kind === 'word')) {
+      const words = tokens.slice(1, -1), named = INTRODUCING.has(lower(words[0])) || isWord(words[0], 'the') ? words.slice(1) : words;
+      return this.mark(scope, scope.find(named) ?? scope.introduce(named.length ? named : words), this.offset(tokens), tokens.length);
+    }
     if (!tokens.every((t) => t.kind === 'word' || t.kind === 'number' || t.text === '&')) return null;
+    // A lone which, what, who, when or where asks for a value.
+    if (tokens.length === 1 && isWord(first, 'which', 'what', 'who', 'when', 'where')) {
+      return this.mark(scope, scope.introduce([{ ...first, text: first.text[0].toUpperCase() + first.text.slice(1) }]), this.offset(tokens), 1);
+    }
     const head = lower(first), rest = tokens.slice(1);
     // A kind is a name, unless a phrase such as "which type" asks for it.
     if (type && !(INTRODUCING.has(head) && rest.length && scope.find(rest) === undefined && rest.length <= 2)) return tokens.map((t) => t.text).join(' ');
@@ -374,13 +383,16 @@ class Compiler {
     if (INTRODUCING.has(head) && !(first.text === 'A' && tokens.length === 1) && rest.length && rest.length <= 6 && rest.every((t) => t.kind === 'word' && !isWord(t, 'that', 'if'))) {
       return this.mark(scope, scope.introduce(rest), at, tokens.length);
     }
+    const constant = this.constants?.get(tokens.map((t) => t.text.toLowerCase()).join(' '));
     if (head === 'the' && rest.length) {
       const found = scope.find(rest);
       if (found) return this.mark(scope, found, at, tokens.length);
+      if (constant !== undefined) return constant;
       return ['the', ...rest.map((t) => t.text)].join(' ');
     }
     const found = scope.find(tokens);
     if (found) return this.mark(scope, found, at, tokens.length);
+    if (constant !== undefined) return constant;
     if (tokens.length === 1 && BARE_ID.test(first.text) && !this.fact) return this.mark(scope, scope.introduce(tokens), at, 1);
     return tokens.map((t) => t.text).join(' ');
   }
@@ -825,11 +837,24 @@ function sections(tokens, file) {
     }
     if (startsWith(tokens, ['the', 'knowledge', 'base'], i)) {
       const at = colon(i);
-      const includes = at > 0 && isWord(tokens[at - 1], 'includes');
-      if (!includes) {
-        if (at > 0 && startsWith(tokens, ['includes', 'these'], at - 3)) error('included resources and scenarios belong to Logical English 2 and are not supported', line);
-        error('expected "the knowledge base NAME includes:"', line);
+      // "includes these resources:" or "includes these scenarios:" names other
+      // files, separated by commas, up to a full stop.
+      if (at > 0 && startsWith(tokens, ['includes', 'these'], at - 3) && isWord(tokens[at - 1], 'resources', 'scenarios')) {
+        let end = at + 1;
+        while (tokens[end].kind !== 'stop' && tokens[end].kind !== 'end') end++;
+        const names = [];
+        let name = [];
+        for (const t of [...tokens.slice(at + 1, end), { text: ',' }]) {
+          if (t.text !== ',') { name.push(t.text); continue; }
+          if (name.length) names.push(name.join(''));
+          name = [];
+        }
+        out.push(['include', lower(tokens[at - 1]), names, line]);
+        i = end + 1;
+        continue;
       }
+      const includes = at > 0 && isWord(tokens[at - 1], 'includes');
+      if (!includes) error('expected "the knowledge base NAME includes:"', line);
       section = { kind: 'kb', name: tokens.slice(i + 3, at - 1).map((t) => t.text).join(' ') };
       i = at + 1;
       continue;
@@ -845,14 +870,26 @@ function sections(tokens, file) {
       }
       if (at > 0) error(`the header "${phrase(tokens.slice(i, at + 1))}" belongs to Logical English 2 and is not supported`, line);
     }
-    // LE2 labels a rule with "rule NAME:".
-    if (isWord(tokens[i], 'rule') && colon(i) > i + 1 && colon(i) < i + 5 && tokens.slice(i + 1, colon(i)).every((t) => t.kind === 'word')) {
-      error('rule labels belong to Logical English 2 and are not supported', line);
+    // LE2 labels a rule with "rule NAME:", and marks sections of rules with
+    // "section NAME is:" or "the annexes to the contract are:". Neither
+    // changes what the rules mean.
+    if (isWord(tokens[i], 'rule') && colon(i) > i + 1 && colon(i) < i + 5 && tokens.slice(i + 1, colon(i)).every((t) => t.kind === 'word' || t.kind === 'number')) {
+      i = colon(i) + 1;
+      continue;
+    }
+    if ((isWord(tokens[i], 'section') && tokens[i].bol && colon(i) > 0 && isWord(tokens[colon(i) - 1], 'is')) ||
+        (startsWith(tokens, ['the', 'annexes', 'to', 'the'], i) && colon(i) > 0 && isWord(tokens[colon(i) - 1], 'are'))) {
+      i = colon(i) + 1;
+      continue;
+    }
+    // LE2's named constants: "the fee is 5."
+    if (startsWith(tokens, ['the', 'constants', 'are', ':'], i)) {
+      section = { kind: 'constants' };
+      i += 4;
+      continue;
     }
     const unsupported = SECTIONS.find((words) => startsWith(tokens, words.split(' '), i));
-    if (unsupported || (startsWith(tokens, ['section'], i) && tokens[i].bol && colon(i) > 0)) {
-      error(`the section "${unsupported ?? 'section'}" belongs to Logical English 2 and is not supported`, line);
-    }
+    if (unsupported) error(`the section "${unsupported}" belongs to Logical English 2 and is not supported`, line);
     let end = i;
     while (tokens[end].kind !== 'stop' && tokens[end].kind !== 'end') end++;
     if (tokens[end].kind === 'end') error(`a sentence must end with a full stop: "${phrase(tokens.slice(i, Math.min(end, i + 12)))}"`, line);
@@ -877,6 +914,8 @@ function sections(tokens, file) {
         start = k + 1;
       }
       for (const part of parts) out.push(['template', null, part, part[0].line]);
+    } else if (section.kind === 'constants') {
+      out.push(['constant', null, sentence, line]);
     } else if (section.kind === 'query') {
       out.push(['query', section.name, sentence, line]);
       section = { kind: 'after query' };
@@ -890,26 +929,93 @@ function sections(tokens, file) {
   return out;
 }
 
-export function compileLe(inputs) {
-  const items = [];
+// The ways LE2 lets a template be read, after ";": additions that change
+// nothing eyemind computes, and additions that make a sentence assumable.
+const IGNORED = ['memorable', 'memoised', 'memoized', 'cached', 'undefined', 'scenario element', 'one value', 'single valued'];
+const ASSUMABLE = ['assumable', 'unknown', 'assumed', 'judged', 'open textured', 'evaluative'];
+
+// io.readFile reads an included file. The paths of an included file's own
+// includes are relative to it; a chain of includes stops at five.
+export function compileLe(inputs, io = null) {
+  const items = [], read = new Set();
+  const load = (text, file, keep, depth) => {
+    for (const item of sections(tokenize(String(text), file), file)) {
+      if (item[0] === 'include') {
+        const [, kind, names, line] = item;
+        const fail = (message) => { throw new EyemindError(`${file}: line ${line}: Logical English: ${message}`); };
+        for (const name of names) {
+          if (/^[a-z]+:/i.test(name)) fail(`including the web address ${name} belongs to Logical English 2 and is not supported; include a local file`);
+          if (/\.pl$/.test(name)) fail(`including the Prolog resource ${name} belongs to Logical English 2 and is not supported`);
+          const dir = String(file).includes('/') ? String(file).slice(0, String(file).lastIndexOf('/') + 1) : '';
+          const path = dir + name + (name.endsWith('.le') ? '' : '.le');
+          if (read.has(path)) continue;
+          if (depth >= 5) fail(`including ${name} makes a chain of more than five includes`);
+          if (!io?.readFile) fail(`including ${name} needs file access`);
+          let included;
+          try { included = io.readFile(path); } catch { fail(`cannot read the included file ${path}`); }
+          read.add(path);
+          // A resource gives its templates, rules, facts and ontology; an
+          // included scenario file also gives its scenarios and queries.
+          load(included, path, kind === 'scenarios', depth + 1);
+        }
+        continue;
+      }
+      if (!keep && ['scenario', 'scenario clause', 'query'].includes(item[0])) continue;
+      items.push([...item, file]);
+    }
+  };
   for (const [text, file] of inputs) {
-    for (const item of sections(tokenize(String(text), file), file)) items.push([...item, file]);
+    read.add(String(file));
+    load(text, file, true, 0);
   }
   // Templates first: a sentence can use a template declared after it.
   const templates = [], byName = new Map();
   const starred = items.some((item) => item[0] === 'template' && item[2].some((t) => t.text === '*'));
-  for (const [kind, , tokens, line, file] of items.filter((item) => item[0] === 'template')) {
-    const error = (message, at = line) => { throw new EyemindError(`${file}: line ${at}: Logical English: ${message}`); };
+  const declare = (tokens, error, relation = null) => {
     const parts = readTemplate(tokens, error, starred);
-    const name = templateName(parts), arity = parts.filter((p) => p.place).length, key = `${name}/${arity}`;
-    if (byName.has(key)) {
+    const arity = parts.filter((p) => p.place).length;
+    if (relation && relation.arity !== arity) error(`a synonym needs the ${relation.arity} places of "${relation.text}"`);
+    const name = relation?.name ?? templateName(parts), key = `${name}/${arity}`;
+    if (!relation && byName.has(key)) {
       const other = byName.get(key);
-      if (other.parts.map((p) => p.word ?? '*').join(' ') === parts.map((p) => p.word ?? '*').join(' ')) continue;
+      if (other.parts.map((p) => p.word ?? '*').join(' ') === parts.map((p) => p.word ?? '*').join(' ')) return other;
       error(`the templates "${other.text}" and "${phrase(tokens)}" both name the relation ${name}/${arity}; change a word of one`);
     }
     const template = { parts, name, arity, words: parts.filter((p) => p.word).length, text: phrase(tokens) };
-    byName.set(key, template);
+    if (!relation) byName.set(key, template);
     templates.push(template);
+    return template;
+  };
+  for (const [, , tokens, line, file] of items.filter((item) => item[0] === 'template')) {
+    const error = (message, at = line) => { throw new EyemindError(`${file}: line ${at}: Logical English: ${message}`); };
+    // A template, then its additions after ";".
+    const pieces = [[]];
+    let inside = false;
+    for (const t of tokens) {
+      if (t.text === '*') inside = !inside;
+      if (t.text === ';' && !inside) pieces.push([]);
+      else pieces.at(-1).push(t);
+    }
+    const template = declare(pieces[0], error);
+    for (const addition of pieces.slice(1)) {
+      const words = addition.map((t) => t.text.toLowerCase()).join(' ');
+      if (IGNORED.includes(words) || isWord(addition[0] ?? {}, 'image')) continue;
+      if (ASSUMABLE.includes(words)) { template.assumable = true; continue; }
+      // A synonym is another wording of the same relation; an opposite is the
+      // wording of a separate relation, which only its own rules conclude.
+      if (isWord(addition[0] ?? {}, 'synonym')) { declare(addition.slice(1), error, template); continue; }
+      if (isWord(addition[0] ?? {}, 'opposite')) { template.opposite = declare(addition.slice(addition[1]?.text === ':' ? 2 : 1), error); continue; }
+      error(`the template addition "; ${phrase(addition)}" belongs to Logical English 2 and is not supported`);
+    }
+  }
+  // Named constants: "the fee is 5." The name stands for the value wherever
+  // no variable of the clause has that name.
+  const constants = new Map();
+  for (const [, , tokens, line, file] of items.filter((item) => item[0] === 'constant')) {
+    const at = tokens.findLastIndex((t) => isWord(t, 'is'));
+    const value = at > 0 ? new Compiler(file, []).term(tokens.slice(at + 1), new Scope()) : null;
+    if (value === null || value instanceof Var) throw new EyemindError(`${file}: line ${line}: Logical English: a constant is written "the fee is 5."`);
+    constants.set(tokens.slice(0, at).map((t) => t.text.toLowerCase()).join(' '), value);
   }
   const scenarios = [];
   for (const [kind, name, , line, file] of items) {
@@ -918,7 +1024,7 @@ export function compileLe(inputs) {
     scenarios.push(name);
   }
   const threaded = scenarios.length > 0;
-  const clauses = [], sources = [], queries = [], expectations = [], helpers = new Set(), pending = [];
+  const clauses = [], sources = [], queries = [], expectations = [], helpers = new Set(), pending = [], necessary = new Map();
   // Clauses wait until every one is read: their negations depend on whether
   // any fact or rule leaves a variable of its conclusion open.
   const emit = (kind, head, body, line, file, guard = null) => pending.push({ kind, head, body, line, file, guard });
@@ -946,9 +1052,10 @@ export function compileLe(inputs) {
   // says that b is a c. One rule per such fact keeps the dependencies of
   // rules that negate other kinds apart.
   const kinds = [];
-  for (const [kind, name, tokens, line, file] of items) {
-    if (kind === 'template' || kind === 'scenario') continue;
+  for (let [kind, name, tokens, line, file] of items) {
+    if (kind === 'template' || kind === 'scenario' || kind === 'constant') continue;
     const compiler = new Compiler(file, templates);
+    compiler.constants = constants;
     const scope = new Scope();
     if (kind === 'query') {
       compiler.scenario = threaded ? new Var('Scenario') : null;
@@ -967,7 +1074,8 @@ export function compileLe(inputs) {
       const head = st(ANSWER, name, ...(threaded ? [compiler.scenario] : []), ...answer);
       emit('backward', head, threaded ? [st(SCENARIO, compiler.scenario), ...goals] : goals, line, file, { counter, scenario: compiler.scenario });
       emit('query', head, [], line, file);
-      queries.push({ name, tokens: body.map((t) => t.text), marks: scope.marks.map(({ at, length, variable }) => ({ at, length, slot: answer.indexOf(variable) })) });
+      // A quoted name is written as the name, as LE writes its answers.
+      queries.push({ name, tokens: body.map((t) => t.kind === 'string' ? t.value : t.text), marks: scope.marks.map(({ at, length, variable }) => ({ at, length, slot: answer.indexOf(variable) })) });
       for (const h of compiler.helpers) helpers.add(h);
       continue;
     }
@@ -995,7 +1103,8 @@ export function compileLe(inputs) {
       };
       const [answers, close] = list(expects + 1 + (isWord(tokens[expects + 1] ?? {}, 'answers') ? 1 : 0));
       // Expected unknowns are assumptions eyemind does not make.
-      const unknowns = startsWith(tokens, ['and', 'unknowns'], close + 1) ? list(close + 3)[0] : [];
+      const unknowns = startsWith(tokens, ['and', 'unknowns'], close + 1) ? list(close + 3)[0]
+        : startsWith(tokens, ['and', 'any', 'unknowns'], close + 1) ? ['any'] : [];
       expectations.push({ scenario: name, query: tokens.slice(0, expects).map((t) => t.text).join(' '), answers, unknowns, line });
       continue;
     }
@@ -1004,9 +1113,19 @@ export function compileLe(inputs) {
       compiler.error('unknowns, constraints and negated facts belong to Logical English 2 and are not supported', line);
     }
     compiler.scenario = !threaded ? null : inScenario ? name : new Var('Scenario');
+    // A fact may carry LE2's picture, "; image ...", which changes nothing.
+    const semicolon = tokens.findIndex((t) => t.text === ';');
+    if (semicolon > 0 && isWord(tokens[semicolon + 1] ?? {}, 'image')) tokens = tokens.slice(0, semicolon);
     const level = depths(tokens);
     const ifAt = tokens.findIndex((t, k) => level[k] === 0 && isWord(t, 'if'));
-    let headTokens = ifAt < 0 ? tokens : tokens.slice(0, ifAt);
+    for (const [words, what] of [[['prolog'], 'embedded Prolog goals'], [['with', 'provenance'], 'provenance trailers'], [['is', 'published', 'at'], 'document locations']]) {
+      if (indexOfWords(tokens, words) >= 0) compiler.error(`${what} belong to Logical English 2 and are not supported`, line);
+    }
+    if (ifAt >= 0 && tokens[ifAt + 1]?.text === ':') compiler.error('numbered conditions belong to Logical English 2 and are not supported', line);
+    // "Head only if Body" makes Body necessary: the opposite of the head holds
+    // when Body does not, and the head then fails.
+    const onlyIf = ifAt > 0 && isWord(tokens[ifAt - 1], 'only');
+    let headTokens = ifAt < 0 ? tokens : tokens.slice(0, onlyIf ? ifAt - 1 : ifAt);
     // In an ontology, "a student is a person" is about the kinds themselves.
     if (kind === 'ontology clause' && ifAt < 0 && isWord(headTokens[0], 'a', 'an') && !isWord(headTokens[1] ?? {}, 'is')) headTokens = headTokens.slice(1);
     if (!headTokens.length) compiler.error('a rule needs a conclusion before "if"', line);
@@ -1029,6 +1148,16 @@ export function compileLe(inputs) {
     if (ifAt === tokens.length - 1) compiler.error('a rule needs conditions after "if"', line);
     // LE1 also writes "if" followed by a line that starts with "and".
     const goals = compiler.body(tokens.slice(ifAt + (isWord(tokens[ifAt + 1], 'and') ? 2 : 1)), scope);
+    if (onlyIf) {
+      const template = templates.find((t) => t.name === head.name && t.arity === head.args.length && t.opposite);
+      const opposite = compiler.relation(template ? template.opposite.name : `${head.name}:not`, head.args);
+      const body = [st('not', conjunction(goals))];
+      const counter = { n: anonymize(opposite, body) };
+      emit('backward', opposite, body, line, file, { counter, scenario: compiler.scenario, rule: true });
+      necessary.set(`${head.name}/${headTerm.args.length}`, { name: head.name, opposite: opposite.name, arity: headTerm.args.length, line, file });
+      for (const h of compiler.helpers) helpers.add(h);
+      continue;
+    }
     const counter = { n: anonymize(headTerm, goals) };
     emit('backward', headTerm, goals, line, file, { counter, scenario: compiler.scenario, rule: true });
     for (const h of compiler.helpers) helpers.add(h);
@@ -1038,6 +1167,29 @@ export function compileLe(inputs) {
   // variables at run time.
   const open = pending.some(({ kind, head, body, guard }) => kind !== 'query' && (guard ? guard.rule : true) &&
     [...varsOf(head)].some((v) => !/^_\d+$/.test(v.name) && v.name !== 'Scenario' && !openVariables(body).includes(v)));
+  // A relation with "only if" rules holds by its other rules, through a base
+  // relation, unless its opposite holds.
+  for (const [key, { name, opposite, arity, line, file }] of necessary) {
+    const base = `${name}:if`;
+    for (const clause of pending) {
+      if (clause.head instanceof Struct && `${clause.head.name}/${clause.head.args.length}` === key) clause.head = new Struct(base, clause.head.args);
+    }
+    const args = Array.from({ length: arity }, (_, i) => new Var(i === 0 && threaded ? 'Scenario' : `A${i}`));
+    emit('backward', new Struct(name, args), [new Struct(base, args), st('not', new Struct(opposite, args))], line, file,
+      { counter: { n: 0 }, scenario: threaded ? args[0] : null, rule: true });
+  }
+  // eyemind makes no assumptions: an answer that needs one is not given, and
+  // expected answers with unknowns are not compared. A negated assumable
+  // sentence would hold only as an assumption, which needs abduction.
+  const assumable = new Set(templates.filter((t) => t.assumable).map((t) => `${t.name}/${t.arity + (threaded ? 1 : 0)}`));
+  const negates = (term, negated = false) => term instanceof Struct &&
+    ((negated && assumable.has(`${term.name}/${term.args.length}`)) ||
+      term.args.some((arg) => negates(arg, negated || (term.name === 'not' && term.args.length === 1))));
+  for (const clause of pending) {
+    if (clause.body?.some((goal) => negates(goal))) {
+      throw new EyemindError(`${clause.file}: line ${clause.line}: Logical English: a negated assumable sentence holds only as an assumption, which needs abduction; abduction belongs to Logical English 2 and is not supported`);
+    }
+  }
   for (const { term, line, file } of kinds) {
     const S = new Var('Scenario'), X = new Var('X'), [sub, kind] = term.args.slice(-2);
     const isA = (a, b) => threaded ? st('is_a', S, a, b) : st('is_a', a, b);

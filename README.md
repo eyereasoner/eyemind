@@ -253,9 +253,10 @@ the program reads the English as intended is a matter of the compiler. Several
 `.le` files form one document, without other input formats or RDF logic
 switches.
 
-Template additions, constants, functions, ontologies with type checking,
-unknowns, constraints, sections, included resources, LPS and s(CASP) belong to
-Logical English 2 and are reported as unsupported. Every `npm test` scores the
+Of Logical English 2, eyemind also reads constants, included files, rule labels,
+`only if` rules and the template additions `synonym`, `opposite` and those that
+change nothing it computes. Abduction (assumptions and constraints), functions,
+type checking, embedded Prolog, LPS and s(CASP) are reported as unsupported. Every `npm test` scores the
 [Logical English 2 examples](test/UPSTREAM.md) that state their expected
 answers, as coverage: a wrong answer fails the run, a file that uses an
 unsupported feature is counted as not passed.
@@ -758,7 +759,7 @@ console.log(result.bindings);
 console.log(checkProof(socrates, result.proof, { goals }).valid);
 ```
 
-`run()` returns `conclusions`, `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `conclusions` holds the answer terms; `answers`, `bindings` and `stdout` are rendered when first read. Ground N3 conclusions are written directly from their terms. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals })` checks a proof. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text. `compileLe([[text, filename], ...])` returns the compiled LS `program` and standalone JavaScript `text`; `writeLe(run(loaded.program), loaded)` writes the answers as LE sentences, given the value `loaded` that `compileLe` returned.
+`run()` returns `conclusions`, `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `conclusions` holds the answer terms; `answers`, `bindings` and `stdout` are rendered when first read. Ground N3 conclusions are written directly from their terms. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals })` checks a proof. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text. `compileLe([[text, filename], ...], io)` returns the compiled LS `program` and standalone JavaScript `text`, reading included files with `io.readFile` when given; `writeLe(run(loaded.program), loaded)` writes the answers as LE sentences, given the value `loaded` that `compileLe` returned.
 
 Further entry points serve applications built on the formats and profiles:
 

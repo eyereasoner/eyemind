@@ -124,7 +124,7 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
     if (kinds.some((kind) => kind !== 'le') || odrl || profiles.length) {
       throw new EyemindError('a Logical English run takes .le files without RDF logic switches or other input formats');
     }
-    return compileLe(inputs);
+    return compileLe(inputs, io);
   }
   if (profiles.length && odrl) {
     if (inputs.length !== 1) throw new EyemindError(`--odrl with ${switches} takes one Turtle snapshot containing policies, requests and SOTW`);

@@ -16,7 +16,6 @@ export const LE_PATH = 'examples/moreExamples';
 // that passes fails the run, so that the list stays current.
 export const KNOWN = {
   'AItest.le': 'a scenario fact matches no declared template',
-  'domains/tax/4_affiliates_3.le': "its queries use LE1's predefined affiliation templates with who and which",
   'domains/tax/gstturnover.le': 'a formula names Sales Associates where the rule introduced Sales_Associates',
 };
 
@@ -43,7 +42,8 @@ export function scoreLeCase(c) {
   const done = (status, message = '') => ({ status, message, ms: performance.now() - started });
   let status, message = '';
   try {
-    const loaded = compileLe([[readFileSync(c.path, 'utf8'), c.id]]);
+    // The file's path lets it include the files beside it.
+    const loaded = compileLe([[readFileSync(c.path, 'utf8'), c.path]], { readFile: (path) => readFileSync(path, 'utf8') });
     const compared = loaded.compiled.expectations.filter((e) => !e.unknowns.length).length;
     const output = writeLe(run(loaded.program, { maxInferences: 10_000_000 }), loaded);
     const wrong = output.split('\n').filter((line) => line.startsWith('% not as expected'));
