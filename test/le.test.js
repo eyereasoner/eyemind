@@ -44,16 +44,13 @@ query q is: which thing is mortal.`;
     // The scenario is the first argument of every relation.
     assert.match(compile(text).text, /fact\(struct\("is_human", "athens", "Socrates"\)\)/);
     // LE2 writes underscores as spaces and repeats answers; both compare equal.
-    // Unquoted expected answers are read to the next comma; answers that rest
-    // on unknowns are assumptions eyemind does not make, and are not compared.
+    // Unquoted expected answers are read to the next comma.
     assert.doesNotMatch(output(`the templates are: *a thing* is human.
 the knowledge base kb includes:
 scenario s is:
     ann is human.
     q expects answers [ann is human].
-    r expects answers ["bob is human"] and unknowns ["bob is human"].
-query q is: which thing is human.
-query r is: bob is human.`), /not as expected/);
+query q is: which thing is human.`), /not as expected/);
     assert.doesNotMatch(output(`the templates are: *a person* is accused of *a crime*.
 the knowledge base kb includes:
 scenario s is:
@@ -162,18 +159,200 @@ I love "Alice".
 query q is: I will marry which woman.
 query r is: I will not marry "Eve".`;
     assert.equal(output(onlyIf), '% query q\nI will marry Alice.\n\n% query r\nI will not marry Eve.\n');
-    // An assumable sentence is never assumed; negating one would need abduction.
-    const assumable = (rule) => `the templates are:
+    assert.match(errorOf(() => compile('the templates are: *a payment* is made; prepositional.')), /addition "; prepositional" belongs to Logical English 2/);
+  },
+
+  'abduction: answers rest on assumed sentences that the facts and rules do not prove'() {
+    const assumable = (rule, query) => `the templates are:
     *a person* pays tax in *a country*,
     *a person* is resident in *a country*; assumable.
 the knowledge base k includes:
 ${rule}
 ann is resident in France.
-query q is: which person pays tax in which country.`;
-    assert.deepEqual(sentences(assumable('a person pays tax in a country if the person is resident in the country.')), ['ann pays tax in France.']);
-    assert.match(errorOf(() => compile(assumable('a person pays tax in a country if the person is a person and it is not the case that the person is resident in the country.'))),
-      /negated assumable sentence.*not supported/);
-    assert.match(errorOf(() => compile('the templates are: *a payment* is made; prepositional.')), /addition "; prepositional" belongs to Logical English 2/);
+query q is: ${query}.`;
+    const pays = 'a person pays tax in a country if the person is resident in the country.';
+    // A stated sentence is not assumed; an open question rests on an open assumption.
+    assert.equal(output(assumable(pays, 'which person pays tax in which country')),
+      '% query q\nann pays tax in France.\n_ pays tax in _.\n% assuming that _ is resident in _\n');
+    assert.equal(output(assumable(pays, 'bob pays tax in France')), '% query q\nbob pays tax in France.\n% assuming that bob is resident in France\n');
+    assert.equal(output(assumable(pays, 'ann pays tax in France')), '% query q\nann pays tax in France.\n');
+    // Alternatives give alternative assumptions; "it is unknown whether" makes a pattern assumable in one scenario.
+    const grass = `the templates are:
+    the grass is wet,
+    it rained,
+    the sprinkler was on; unknown.
+the knowledge base k includes:
+the grass is wet if it rained.
+the grass is wet if the sprinkler was on.
+scenario dry is:
+    q expects answers ["the grass is wet"] and unknowns ["the sprinkler was on"].
+scenario cloudy is:
+    it is unknown whether it rained.
+    q expects answers ["the grass is wet"] and unknowns ["it rained", "the sprinkler was on"].
+    q expects answers ["the grass is wet"] and any unknowns.
+scenario rainy is:
+    it rained.
+    q expects answers ["the grass is wet"].
+query q is: the grass is wet.`;
+    assert.equal(output(grass), ['% query q with scenario dry', 'the grass is wet.', '% assuming that the sprinkler was on', '',
+      '% query q with scenario cloudy', 'the grass is wet.', '% assuming that it rained', '% or assuming that the sprinkler was on', '',
+      '% query q with scenario rainy', 'the grass is wet.', ''].join('\n'));
+  },
+
+  'abduction through negation, collections, universals, denials and constraints'() {
+    // A negation assumes the sentence false, unless that contradicts an
+    // assumption the answer already makes.
+    const therapy = `the templates are:
+    *a patient* is treated,
+    *a patient* has therapy; assumable,
+    *a patient* is excluded,
+    *a patient* is a candidate.
+the knowledge base k includes:
+a patient is excluded if it is not the case that the patient has therapy.
+a patient is treated if the patient is a candidate and the patient has therapy and it is not the case that the patient is excluded.
+dan is a candidate.
+query q is: which patient is treated.
+query r is: which patient is excluded.`;
+    assert.equal(output(therapy), '% query q\ndan is treated.\n% assuming that dan has therapy\n\n% query r\n_ is excluded.\n% assuming that it is not the case that _ has therapy\n');
+    // A collection counts every way, with all its assumptions; a stated
+    // sentence is not assumed again.
+    const items = `the templates are:
+    *an item* is eligible; unknown,
+    *an item* has a value of *an amount*,
+    *a total* is the eligible total.
+the knowledge base k includes:
+a total is the eligible total if the total is the sum of each partial such that an item has a value of the partial and the item is eligible.
+scenario mixed is:
+    widget has a value of 10.
+    gadget has a value of 5.
+    gadget is eligible.
+    total expects answers ["15 is the eligible total"] and unknowns ["widget is eligible"].
+query total is: which total is the eligible total.`;
+    assert.doesNotMatch(output(items), /not as expected/);
+    // A scenario can deny a sentence; constraints reject or repair assumptions.
+    const marriage = `the templates are:
+    *a person* is married to *a second person*; unknown,
+    *a person* is a joint filer with *a second person*,
+    *a person* files jointly.
+the knowledge base k includes:
+a person files jointly if the person is a joint filer with a second person and the person is married to the second person.
+it must not be true that
+    a person is married to a second person
+    and it is not the case that
+        the second person is married to the person.
+it must not be true that
+    a person is married to a second person
+    and the person is married to a third person
+    and the second person is different from the third person.
+scenario one sided is:
+    dan is a joint filer with erin.
+    q expects answers ["dan files jointly"] and unknowns ["dan is married to erin", "erin is married to dan"].
+scenario taken is:
+    dan is a joint filer with erin.
+    erin is married to fred.
+    fred is married to erin.
+    q expects answers [] and unknowns [].
+scenario denied is:
+    dan is a joint filer with erin.
+    it is not the case that dan is married to erin.
+    q expects answers [].
+query q is: which person files jointly.`;
+    assert.doesNotMatch(output(marriage), /not as expected/);
+  },
+
+  'embedded Prolog, Prolog resources and the system predicates of LE2'() {
+    const files = new Map([['dir/regions.pl', '% facts\npostcode_region(eh1, edinburgh).\nregion_country(edinburgh, scotland).\n' +
+      'postcode_country(P, C) :- postcode_region(P, R), region_country(R, C).\n']]);
+    const io = { readFile: (path) => files.get(path) ?? (() => { throw new Error('missing'); })() };
+    const text = `the knowledge base k includes these resources:
+    regions.pl.
+the templates are:
+    *a postcode* is in *a country*,
+    the kb name is *a name*,
+    *a rule* has designator *a d*,
+    *a person* is on record.
+the knowledge base my kb includes:
+a postcode is in a country if prolog postcode_country(the postcode, the country).
+the kb name is a name if prolog (le_my_kb(KB), KB:le_kb(the name)).
+a rule has designator a d if prolog le_source_element(the rule, the d, G).
+rule numbered:
+ann is on record if:
+    1. either:
+    1.1. prolog atom(ann)
+    1.2. prolog fail.
+query q is: eh1 is in which country.
+query r is: the kb name is which name.
+query d is: which rule has designator which d.
+query e is: which person is on record.`;
+    const loaded = compileLe([[text, 'dir/main.le']], io);
+    assert.equal(writeLe(run(loaded.program), loaded), ['% query q', 'eh1 is in scotland.', '', '% query r', 'the kb name is my kb.', '',
+      '% query d', 'numbered has designator 1.', 'numbered has designator 1.1.', 'numbered has designator 1.2.', '', '% query e', 'ann is on record.', ''].join('\n'));
+  },
+
+  'provenance trailers, facts backgrounds and source-scoped proof'() {
+    const text = `the facts background includes these resources:
+    background/words.
+the templates are:
+    *a garment* is knitted,
+    *a garment* is classified by *a reading*.
+the knowledge base k includes:
+the listing is published at "https://example.org/listing".
+rule by_reading with provenance the tariff, confer "knitted goods":
+a garment is classified by a reading
+    if the reading is in [strict reading, full reading]
+    and the garment is knitted
+        according to the reading.
+the listing is admissible under strict reading.
+the listing is admissible under full reading.
+garment presumptions is admissible under full reading.
+scenario stated is, as stated in the listing:
+    tee is knitted.
+scenario read is:
+    tee is knitted, according to garment presumptions, because "a presumption".
+query q is: tee is classified by which reading.`;
+    assert.equal(output(text), ['% query q with scenario stated', 'tee is classified by strict reading.', 'tee is classified by full reading.', '',
+      '% query q with scenario read', 'tee is classified by full reading.', ''].join('\n'));
+  },
+
+  'flip queries find the smallest changes to a scenario that make a goal hold'() {
+    const text = `the templates are:
+    *a creature* is a parent of *a dragon*,
+    *a creature* flies,
+    *a creature* is happy.
+the knowledge base k includes:
+a dragon is happy if
+    the dragon is a dragon and
+    for all cases in which
+        the dragon is a parent of an other dragon
+        it is the case that
+        the other dragon flies.
+scenario s is:
+    bob is a dragon.
+    alice is a dragon.
+    alice is a parent of bob.
+    sad expects changes [["add: bob is a parent of alice"], ["add: bob is a parent of bob"]].
+    glad expects changes [["remove: alice is a parent of bob"], ["add: bob flies"]].
+query sad is: which minimal change to the scenario makes it the case that it is not the case that bob is happy.
+query glad is: which minimal change to the scenario makes it the case that alice is happy.`;
+    assert.doesNotMatch(output(text), /not as expected/);
+    assert.match(output(text), /^add: bob is a parent of alice\.$/m);
+  },
+
+  'negation and collection through recursion unfold, and LE2 reads names and numbers leniently'() {
+    const party = document('*a person* will go, *a person* follows *a second person*, *a person* watches *a second person*.',
+      'a first person will go if the first person follows a second person and the second person will go.\n' +
+      'a first person will go if the first person watches a second person and it is not the case that the second person will go.\n' +
+      'mary follows john.\njohn watches bob.', 'which person will go.');
+    assert.deepEqual(sentences(party).sort(), ['john will go.', 'mary will go.']);
+    // An underscore in a name is a space, a formula over a name fails, and a
+    // scenario fact "A is B" without a template is accepted.
+    const totals = document('*an amount* is the total, *an amount* is the bad total.',
+      'a T is the total if a Sales_Associates = 4 and T = Sales Associates + 1.\na T is the bad total if T = Sales + 1.', 'which amount is the total and which other amount is the bad total.');
+    assert.deepEqual(sentences(totals), []);
+    assert.deepEqual(sentences(document('*an amount* is the total.', 'a T is the total if a Sales_Associates = 4 and T = Sales Associates + 1.', 'which amount is the total.')), ['5 is the total.']);
+    assert.doesNotMatch(output(`the templates are: *a thing* is human.\nthe knowledge base k includes:\nscenario s is:\n    message 1 is 'a text'.\n    ann is human.\n    q expects answers ["ann is human"].\nquery q is: which thing is human.`), /not as expected/);
+    // An expected number with decimals matches an answer rounded to them.
+    assert.doesNotMatch(output(`the templates are: *a number* is a third.\nthe knowledge base k includes:\na number N is a third if N = 1 / 3.\nscenario s is:\n    q expects answers ["0.33 is a third"].\nquery q is: which number is a third.`), /not as expected/);
   },
 
   'rule labels, sections, constants, explicit variables and a lone which'() {
@@ -201,7 +380,52 @@ query r is: walking 2 takes which minutes.`;
     const loaded = compileLe([[main, 'dir/main.le']], io);
     assert.equal(writeLe(run(loaded.program), loaded), '% query q with scenario s\nbob is mortal.\ncid is mortal.\n');
     assert.match(errorOf(() => compileLe([['the knowledge base m includes these resources:\n    other.', 'main.le']])), /including other needs file access/);
-    assert.match(errorOf(() => compileLe([['the knowledge base m includes these resources:\n    https://example.org/x.', 'main.le']], io)), /web address.*not supported/);
+    assert.match(errorOf(() => compileLe([['the knowledge base m includes these resources:\n    https://example.org/x.', 'main.le']], io)), /including https:\/\/example.org\/x needs network access/);
+  },
+
+  'numbered conditions, grouped alternatives and functions written without their value'() {
+    const numbered = `the templates are:
+    *an entity* is a charity,
+    *an entity* has *a turnover*,
+    *an entity* must register.
+the knowledge base k includes:
+rule gst:
+an entity must register if:
+    1. the entity is a charity; and
+    2. either:
+    2.1. the entity has a turnover
+    2.2. all of:
+    2.2.1. the entity has a turnover; and
+    2.2.2. the turnover >= 100.
+ann is a charity.
+ann has 50.
+bob is a charity.
+bob has 150.
+query q is: which entity must register.`;
+    // Without a connective, 2.1 joins 2.2 with "either"'s "or".
+    assert.deepEqual(sentences(numbered), ['ann must register.', 'bob must register.']);
+    const grouped = document('*a person* is rich, *a person* is famous, *a person* is successful, *a person* is happy.',
+      'a person is successful if\n    any of\n        the person is rich\n        the person is famous.\n' +
+      'a person is happy if\n    all of\n        the person is rich\n        the person is successful.\nmary is rich.\njohn is famous.',
+      'which person is successful and the person is happy.');
+    assert.deepEqual(sentences(grouped), ['mary is successful and mary is happy.']);
+    const functions = `the templates are:
+    the capacity of *a cup* is *a number* ml,
+    *a cup* is expensive,
+    the total of *a cup* is *an amount*.
+the functions are:
+    the price of a cup with capacity *a number* ml is *an amount*,
+    the double of *a number* is *a number*.
+the knowledge base k includes:
+the price of a cup with capacity a number ml is an amount if the amount is the number / 10.
+the double of a number is a result if the result is the number * 2.
+a cup is expensive if the capacity of the cup is a capacity ml and the price of a cup with capacity the capacity ml > 10.
+the total of a cup is a total if the capacity of the cup is a capacity ml and the total is the double of (the price of a cup with capacity the capacity ml + 1).
+the capacity of mug is 200 ml.
+the capacity of thimble is 20 ml.
+query q is: which cup is expensive.
+query r is: the total of which cup is which amount.`;
+    assert.equal(output(functions), '% query q\nmug is expensive.\n\n% query r\nthe total of mug is 42.\nthe total of thimble is 6.\n');
   },
 
   'aggregates count every solution, and the minimum of nothing does not exist'() {
@@ -327,16 +551,14 @@ query two is: which thing is an employee.`;
       ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is mortal.', /line 3:.*no template matches "ann is mortal"/],
       ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is human if bob is tall.', /no template matches "bob is tall"/],
       ['the templates are: *a thing* is human; via service geo.', /addition "; via service geo" belongs to Logical English 2/],
-      ['the functions are:\n the price of *a cup* is *an amount*.', /"the functions are".*Logical English 2/],
+      ['the fluents are:\n *a light* is on.', /"the fluents are".*Logical English 2/],
+      ['the functions are:\n the price of *a cup* plus *an amount*.', /a function has the form/],
       ['the templates are: *a* likes *b*,\nlikes *a* *b*.', /both name the relation likes\/2/],
       ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is greater than bob.', /built-in condition and cannot be concluded/],
       ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nq expects answers [].', /expectation belongs to a scenario/],
-      ['the templates are: *a thing* is human.\nscenario s is:\nit is not the case that ann is human.', /Logical English 2/],
+      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nit is not the case that ann is human.', /a negated fact belongs to a scenario/],
       ['the templates are: *a thing* is human.\nthe knowledge base k includes:\na thing is human if for all cases in which the thing is human.', /needs "it is the case that"/],
-      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is human if:\n1. bob is human.', /numbered conditions belong to Logical English 2/],
-      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is human if prolog true.', /embedded Prolog goals belong to Logical English 2/],
-      ['the templates are: *a thing* is human.\nscenario s is, as stated in the act:\nann is human.', /header "scenario s is, as stated in the act:" belongs to Logical English 2/],
-      ['the templates are: *a thing* is human.\nscenario s is:\nq expects changes [["add: ann is human"]].', /flip queries/],
+
     ]) {
       assert.match(errorOf(() => compile(text)), pattern, text);
     }

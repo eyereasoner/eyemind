@@ -21,6 +21,7 @@ ends with `:`:
 | Header | Section |
 | --- | --- |
 | `the templates are:`, `the predicates are:` | Templates, separated by full stops, and by commas at the end of a line or before a place. |
+| `the functions are:` | Templates of the form `... is *a value*`, also written without their value. |
 | `the knowledge base NAME includes:`, `the contract NAME states that:` | Facts and rules. |
 | `the ontology is:` | Facts and rules; a fact `a student is a person.` relates the kinds `student` and `person`. |
 | `the constants are:` | Named values, one sentence each: `the fee is 5.` |
@@ -36,10 +37,31 @@ order, and a template can be used before it is declared. Several `.le` files
 are read as one document.
 
 An included file is named as in LE2: a path relative to the file that
-includes it, without `.le` if one likes. It is read once, and a chain of
-includes stops at five. The command line reads included files; the library
-reads them through `io.readFile` when `compileLe(inputs, io)` is given one.
-Web addresses and Prolog resources (`.pl`) are not read.
+includes it, or a web address, without `.le` if one likes. It is read once,
+and a chain of includes stops at five. The command line reads included files
+and web addresses; the library reads them through `io.readFile` and
+`io.readDocument` when `compileLe(inputs, io)` is given them. A Prolog
+resource, a file ending in `.pl`, gives its facts and rules: Prolog clauses
+`Head.` and `Head :- Body.`, with the goals of an embedded Prolog goal (see
+Embedded Prolog); its directives are left out.
+
+`the facts background includes these resources: ...` names the programs that
+help an assistant read facts from a text; as in LE2, the answers do not depend
+on them, and eyemind reads past the section.
+
+A fact or a rule's label may carry LE2's provenance, which changes nothing in
+the proof but gives the fact its source:
+
+- trailers after a fact, each after a comma: `, according to SOURCE`,
+  `, as stated in DOCUMENT at LOCATOR`, `, because "..."` and `, confer "..."`;
+- `scenario NAME is, as stated in DOCUMENT:`, the default document of the
+  scenario's facts;
+- `rule NAME with provenance DOCUMENT, confer "...":`;
+- `DOCUMENT is published at "..."` and `the text of DOCUMENT is at "..."`,
+  which eyemind reads past.
+
+A fact's source is its `according to`, else its document. It matters only to
+source-scoped proof (see Negation).
 
 Sentences end with a full stop followed by white space or the end of the file;
 a sentence can span lines. `%` or `#` starts a comment through the end of the
@@ -54,8 +76,10 @@ space as one and a tab as four, as LE's editor shows it.
 ## Templates
 
 A template is a sentence pattern: words and places. A place is a phrase between
-asterisks, such as `*a person*`; LE1 also writes templates without asterisks,
-and in a template without any, `a` or `an` and the word after it make a place.
+asterisks, such as `*a person*`; LE1 also writes templates without asterisks.
+In a document without any, `a` or `an` and the word after it make a place in a
+template that starts with `a` or `an`, such as `a person has a balance`; a
+template such as `the applicant has a good credit score` keeps its words.
 
 ```text
 the templates are:
@@ -78,7 +102,7 @@ LE2's additions follow a template after `;`:
 | --- | --- |
 | `; synonym TEMPLATE` | A second wording of the same relation, with its places in the same order. |
 | `; opposite: TEMPLATE`, `; opposite TEMPLATE` | The wording of a separate relation, concluded only by its own rules and by `only if` rules. |
-| `; assumable`, `; unknown`, `; assumed`, `; judged`, `; open textured`, `; evaluative` | eyemind makes no assumptions: a sentence that is not stated or concluded is false. A negated assumable sentence is an error, because it would hold only as an assumption. |
+| `; assumable`, `; unknown`, `; assumed`, `; judged`, `; open textured`, `; evaluative` | A sentence that the program cannot prove can be assumed; see Abduction. |
 | `; memorable`, `; memoised`, `; memoized`, `; cached`, `; undefined`, `; scenario element`, `; one value`, `; single valued`, `; image ...` | Nothing that eyemind computes changes. |
 
 Other additions, such as `; prepositional` and `; via service NAME`, are errors.
@@ -177,10 +201,49 @@ with a connective at the same or a lesser indentation:
 | `R is the list of each X such that C` | `L` itself |
 | `R is a collection of X where C` | `L` itself, as LE1 writes it |
 
+LE2 also groups conditions without connectives. `any of`, `either` or
+`at least one of`, and `all of`, each followed by `:` or a line break, join the
+conditions on the lines below them, one per line at the least indentation,
+with `or` or with `and`.
+
+A rule whose `if` is followed by `:` has a numbered body, as LE2 writes one
+after a statute:
+
+```text
+an entity must register for GST if:
+    1. the entity is a not-for-profit; and
+    2. either:
+    2.1. the entity has a turnover
+    2.2. all of:
+    2.2.1. the entity projected turnover is a projection; and
+    2.2.2. the projection >= 150000.
+```
+
+A designator such as `2.2.1.` begins its line. An item's trailing `and` or
+`or`, after an optional `;`, joins it to the next item of its level, and an
+item without one joins with `and`. An item `either:`, `any of:`,
+`at least one of:`, `all of:` or `it is not the case that:` stands for the
+items numbered below it, joined as the group says, or denied.
+
 An aggregate collects one value for every solution of its conditions, in the
 order they are found, as Prolog's `findall` does: a value found twice counts
 twice. The result phrase of an aggregate is the phrase before `is the`, after any
 connective.
+
+## Functions
+
+A template of `the functions are:` is an ordinary template whose last place
+follows `is`, such as `the price of a cup with capacity *a number* ml is *an
+amount*`. Wherever a value is needed (a place of another template, a side of a
+comparison, an operand of a formula or the conclusion of a rule), the template
+can be written without `is` and its last place:
+`the price of a cup with capacity the capacity ml > 10`. That phrase is a
+variable that a call of the function binds, asked before the condition that
+uses it, or after the conditions of a rule for its conclusion; a fact whose
+conclusion calls a function is such a rule. One clause asks one call once. A
+variable or a constant of the same name comes first. In a formula, an operand
+is the words up to the next operator, and a function's last argument may be a
+formula in brackets: `the double of (the fee + 1)`.
 
 ## Negation
 
@@ -194,6 +257,40 @@ unbound (`is_var`), the negation stands for any value there; once bound
 (`is_nonvar`), it is that value. When a fact or rule of the document leaves a
 variable of its conclusion open, no condition surely binds a variable, and
 every negation tests its variables in this way.
+
+LE runs a rule top-down, so a negation or a collection may reach the rule's own
+relation, through other rules, as long as the data never closes the cycle. LS
+stratifies statically, so eyemind unfolds such a group of relations into eight
+levels: a negation or collection at level k calls level k + 1, a relation of
+its own, `NAME#k`. The answers are exact up to eight levels; a program that
+needs more stops with an error that says so.
+
+`C according to S`, written at the end of a condition or on a line indented
+below it, is LE2's source-scoped proof: C must follow from the knowledge base
+and only the scenario facts whose source is admissible under S. Every relation
+C can reach compiles to a second relation, `NAME:sc`, with the scope as one
+more argument, in which a scenario fact holds when its source is admissible
+under the scope; a scenario fact without a source is never admissible. The
+built-in template `*a source* is admissible under *a scope*` holds for a source
+under itself and as the program's facts and rules say. When a template's own
+words contain `according to`, a condition is read as that template first.
+
+## Embedded Prolog
+
+A condition `prolog GOAL` runs a Prolog goal, as LE2 writes one: goals joined
+by `,` and `;`, `\+ GOAL` for negation, `Module:GOAL`, and the tests `=`,
+`\=`, `==`, `\==`, `<`, `>`, `=<`, `>=`, `atom/1`, `number/1`, `integer/1`,
+`var/1`, `nonvar/1`, `true` and `fail`. An argument is a Prolog variable, atom,
+number, list or compound, or an LE phrase such as `the person`; a definite
+phrase that refers to no variable starts one. Other goals call the relations of
+Prolog resources. LE2's system predicates are:
+
+| Goal | Holds for |
+| --- | --- |
+| `le_my_kb(K)`, `le_kb(K)` | the name of the rule's knowledge base |
+| `le_my_id(L)` | the rule's label |
+| `le_source_element(L, D, G)` | the label of a rule with a numbered body, and each designator `D` of its conditions |
+| `le_source_section(S, L)` | the section of a labelled rule: `main`, `annexes`, or the name of `section NAME is:` |
 
 ## Arithmetic, comparisons and built-in templates
 
@@ -243,21 +340,88 @@ scenario alice is:
 `NAME expects answers [...]` and `NAME expects [...]` state the answers the
 query `NAME` gives in the scenario. The answers may be quoted sentences or, as
 some examples write them, words up to a comma. An expectation with
-`and unknowns [...]` that lists unknowns, or with `and any unknowns`, rests on
-assumptions and is not compared; `and unknowns []` is.
-Each query is answered in each scenario, or once when the document has none.
+`and unknowns [...]` also states the union of the unknowns the answers rest
+on, and one with `and any unknowns` compares only the answers; one without
+`and unknowns` wants answers that rest on none. Each query is answered in each
+scenario, or once when the document has none.
+
+## Abduction
+
+When the program cannot prove a sentence of an assumable template, an answer
+can rest on the assumption that the sentence holds, as in LE2. The sentence is
+then one of the answer's unknowns. `it is unknown whether SENTENCE.`, in the
+knowledge base or in one scenario, makes the sentences that SENTENCE describes
+assumable there, as in `it is unknown whether a payment is approved.`
+
+Every relation that can reach an assumable sentence also compiles to a second
+relation, `NAME:ab`, with one more argument: the list of the sentences it
+assumes. Its rules are those of `NAME`, each condition that can reach an
+assumable sentence called through its own `:ab` relation, and the lists
+appended. An assumable relation also has the rule that assumes its sentence.
+Each answer, `'le:answer'(..., U)`, gets the list `U` of its assumptions,
+without each ground sentence that the facts and rules prove after all, through
+`'le:unknowns'` and `'le:holds'`. An answer that holds with no assumption is
+definite; otherwise each of its sets of assumptions is written after it:
+
+```text
+% query explain with scenario observation
+the grass is wet.
+% assuming that it rained
+% or assuming that the sprinkler was on
+```
+
+A negation of a sentence that can rest on an assumption follows LE2. It finds
+every way the sentence holds, with its assumptions; it fails when one way needs
+none, and otherwise assumes, for each way, one of its assumptions false,
+leaving out a way that contradicts what the answer assumes already. A
+negative assumption is written `it is not the case that S`. A collection, and
+the conditions of a universal, count every way with all its assumptions, as
+LE2's maximal reading does. An assumption is not made when, at the time it is
+asked, its sentence is proved, or a scenario denies it with
+`it is not the case that S.`
+
+An answer is rejected when it assumes a sentence and its negation, or assumes
+false a sentence that the facts and rules prove. `it must not be true that C.`
+is an integrity constraint: with the answer's assumptions as the only ones,
+C must not hold. A violation whose missing piece is a negated assumable
+sentence, as in `... and it is not the case that the second person is married
+to the person`, is repaired by assuming that sentence too; another violation
+rejects the answer. Facts that break a constraint alone leave the scenario
+without answers. The constraints compile to `NAME:w` relations, in which an
+assumable sentence holds when proved or assumed, and `'le:violation'`.
+
+## Flip queries
+
+`query NAME is: which minimal change to the scenario makes it the case that
+GOAL.` asks, for each scenario, for the smallest sets of changes after which
+GOAL holds without assumptions. A change adds or removes a fact of a template
+marked `; undefined` or `; judged`, or, in a program without such marks, of a
+template that no rule concludes and that is no function. A place is filled with
+the individuals the scenario names as of the place's type, or with all its
+individuals when it names none; a kind is no individual, and a template of more
+than two places is not filled. A set has at most three changes. Each changed
+world `'le:flip'(S, CHANGES)` states its facts as ground facts, so a search
+whose worlds would need more than 200000 facts is refused. An answer is written
+`add: S and remove: T`, or `no change is needed`, and
+`NAME expects changes [["add: S"], ...]` states the expected sets.
 
 ## Compilation to LS
 
 Facts and rules compile to LS facts and backward rules (`implied_by`), as LE's
 Prolog target runs them; a ground fact is `fact(...)`, a fact with a variable a
-backward rule with the body `'true'`.
+backward rule with the body `'true'`. LE1 runs recursive rules with tabling and
+LE2 with a loop check, so a group of relations that depend on themselves
+compiles to forward rules (`implies`), which reach the least fixpoint, when
+each of its rules binds every variable of its conclusion through the relations
+of its conditions; a rule that depends on how it is called, such as a counter
+that goes down, stays backward.
 
 When a document has scenarios, every relation gets the scenario as its first
 argument, a scenario's clauses have the scenario's name there, and the
 knowledge base's clauses have a variable there, bound by the facts
-`'le:scenario'(NAME)`. A knowledge-base fact becomes a rule whose body is
-`'le:scenario'(S)`. So the knowledge base holds in every scenario and a
+`'le:scenario'(NAME)`. A ground knowledge-base fact is stated once in each
+scenario, and another becomes a rule whose body is `'le:scenario'(S)`. So the
+knowledge base holds in every scenario and a
 scenario's facts in that one, and one program and one proof answer every query
 in every scenario.
 
@@ -265,6 +429,11 @@ A query `NAME` compiles to a backward rule for `'le:answer'(NAME, S, V1, ...)`,
 whose body starts with `'le:scenario'(S)` when there are scenarios, and the
 statement `query('le:answer'(NAME, S, V1, ...))`. `V1, ...` are the variables of
 the query outside negations and collections, in the order they appear.
+
+A sum, count, average, minimum or maximum collects its values with
+`findall_sorted`, since it does not depend on their order, and a proof can
+then certify it even when the values rest on derived facts; `list` and
+`collection` keep the order found, with `findall`.
 
 Aggregates, divisions, lists and dates use backward helper rules whose names
 start with `le:` (`le:sum`, `le:count`, `le:days_after`, ...); no template name
@@ -294,23 +463,25 @@ compares the answers as a set.
 
 `--to le` writes the answers of an LE run only; `--to eyemind` writes the
 `'le:answer'` terms. Proofs and check reports are `.js` documents of the
-compiled LS program, and check against it. That the program reads the English
+compiled LS program, and check against it; with abduction, a checked proof
+establishes each answer with the assumptions it lists. That the program reads the English
 as intended is a matter of the compiler and its tests; a checked proof
 establishes the answers under the compiled rules.
 
 ## Not supported
 
 These belong to Logical English 2, or to the Prolog that LE1 can embed, and
-are errors: the template additions the table above leaves out,
-`the functions are:`, `the fluents are:`, `the events are:` and the other
-dynamic and meta sections, facts backgrounds, included web addresses and
-Prolog resources, embedded `prolog` goals, numbered conditions, provenance
-trailers and document locations, `it is unknown whether`,
-`it must not be true that`, negated facts in scenarios, negated assumable
-sentences (abduction), flip queries (`expects changes`), scenario headers with
-provenance, `otherwise`, `unless`, `according to`, decision tables, services,
-LPS and s(CASP). eyemind does not
-check types: the head noun of a place is not a type constraint. A program whose
-negation lies on a dependency cycle compiles, and the LS program is then
-rejected unless it is chain-stratified (LS-SPEC Section 6.4), where Prolog would
-run it.
+are errors: the template additions the table above leaves out, such as
+`; prepositional` and `; via service`, `the fluents are:`, `the events are:`
+and the other dynamic and meta sections, Prolog goals other than those of
+Embedded Prolog, `otherwise`, `unless`, decision tables, services, views, LPS
+and s(CASP). eyemind does not check types: the head noun of a place is not a
+type constraint, except that a flip query fills a place with individuals of
+its type.
+
+Some of LE2's readings are lenient, and eyemind follows them: a name's
+underscores are spaces (`Sales Associates` refers to `a Sales_Associates`); a
+formula over a name, which Prolog stops with an error, fails; a scenario fact
+`A is B` that no template matches states the relation `le_is`; after a type, a
+short capitalized word is an id, as in `a number MyD`; and an expected number
+with decimals matches an answer rounded to as many decimals.

@@ -27,8 +27,8 @@ const COMPARISONS = new Set(['=', '==', '!=', '\\=', '\\==', '<', '>', '<=', '=<
 const FUNCTIONS = { ceiling: 'ceil', floor: 'floor', round: 'round', truncate: 'trunc', integer: 'round', abs: 'abs', sqrt: 'sqrt' };
 const AGGREGATES = { sum: 'le:sum', count: 'le:count', average: 'le:average', min: 'le:min', minimum: 'le:min', max: 'le:max', maximum: 'le:max', list: null };
 const SECTIONS = [
-  'the functions are', 'the fluents are', 'the events are',
-  'the event predicates are', 'the meta predicates are', 'the meta templates are', 'the facts background includes',
+ 'the fluents are', 'the events are',
+  'the event predicates are', 'the meta predicates are', 'the meta templates are',
 ];
 
 // The helper relations of aggregates, divisions, lists and dates. Their names
@@ -52,6 +52,34 @@ implied_by(struct('le:reverse', [], R, R), 'true')
 implied_by(struct('le:reverse', [H, ...T], A, R), struct('le:reverse', T, [H, ...A], R))`,
   'le:append': `implied_by(struct('le:append', [], L, L), 'true')
 implied_by(struct('le:append', [H, ...T], L, [H, ...R]), struct('le:append', T, L, R))`,
+  // The assumptions that the facts and rules do not settle: a proved
+  // sentence is not assumed, and a proved sentence cannot be assumed false.
+  'le:unknowns': `implied_by(struct('le:unknowns', [], []), 'true')
+implied_by(struct('le:unknowns', [G, ...T], R), [is_ground(G), findall('x', unify(G, struct('le:not', _)), []), once(struct('le:holds', G)), struct('le:unknowns', T, R)])
+implied_by(struct('le:unknowns', [G, ...T], [G, ...R]), [is_ground(G), findall('x', unify(G, struct('le:not', _)), []), not(struct('le:holds', G)), struct('le:unknowns', T, R)])
+implied_by(struct('le:unknowns', [struct('le:not', S), ...T], [struct('le:not', S), ...R]), [is_ground(S), not(struct('le:holds', S)), struct('le:unknowns', T, R)])
+implied_by(struct('le:unknowns', [G, ...T], [G, ...R]), [findall('x', is_ground(G), []), struct('le:unknowns', T, R)])`,
+  'le:coherent': `implied_by(struct('le:coherent', U), findall('x', [struct('le:member', struct('le:not', S), U), struct('le:member', S, U)], []))`,
+  // For each way, in order, a negation assumes one assumption of the way
+  // false, unless the way contradicts what is assumed already.
+  'le:negate': `implied_by(struct('le:negate', [], A, []), 'true')
+implied_by(struct('le:negate', [W, ...Ws], A, N), [findall('x', struct('le:conflicts', W, A), [X, ..._]), struct('le:negate', Ws, A, N)])
+implied_by(struct('le:negate', [W, ...Ws], A, [M, ...N]), [findall('x', struct('le:conflicts', W, A), []), struct('le:member', L, W), struct('le:complement', L, M), struct('le:negate', Ws, [M, ...A], N)])
+implied_by(struct('le:conflicts', W, A), [struct('le:member', L, W), struct('le:complement', L, M), struct('le:member', M, A)])
+implied_by(struct('le:complement', struct('le:not', S), S), 'true')
+implied_by(struct('le:complement', S, struct('le:not', S)), findall('x', unify(S, struct('le:not', _)), []))`,
+  'le:choose': `implied_by(struct('le:choose', 0, _, []), 'true')
+implied_by(struct('le:choose', K, [X, ...Xs], [X, ...Ys]), [gt(K, 0), is(K1, sub(K, 1)), struct('le:choose', K1, Xs, Ys)])
+implied_by(struct('le:choose', K, [_, ...Xs], Ys), [gt(K, 0), struct('le:choose', K, Xs, Ys)])`,
+  'le:no_empty': `implied_by(struct('le:no_empty', []), 'true')
+implied_by(struct('le:no_empty', [[X, ..._], ...T]), struct('le:no_empty', T))`,
+  'le:union': `implied_by(struct('le:union', [], []), 'true')
+implied_by(struct('le:union', [W, ...Ws], U), [struct('le:union', Ws, U0), struct('le:append', W, U0, U)])`,
+  'le:pairs': `implied_by(struct('le:pairs', [], [], []), 'true')
+implied_by(struct('le:pairs', [struct('le:pair', T, W), ...Ps], [T, ...Ts], [W, ...Ws]), struct('le:pairs', Ps, Ts, Ws))`,
+  // A violated constraint that one more assumption repairs is repaired.
+  'le:consistent': `implied_by(struct('le:consistent', S, U, U), findall('x', struct('le:violation', S, U, _), []))
+implied_by(struct('le:consistent', S, U, V), [once(struct('le:violation', S, U, F)), not_unify(F, 'none'), struct('le:consistent', S, [F, ...U], V)])`,
   'le:member': `implied_by(struct('le:member', X, [X, ..._]), 'true')
 implied_by(struct('le:member', X, [_, ...T]), struct('le:member', X, T))`,
   // Days since 1970-01-01 in the proleptic Gregorian calendar, and back.
@@ -79,6 +107,10 @@ const NEEDS = { 'le:average': ['le:sum', 'le:count', 'le:divide'] };
 // its own, so that "the person's" meets a template's "*a person*'s".
 const WORD = /^(?:\p{N}+\p{L}|[\p{L}_])[\p{L}\p{N}_]*(?:-[\p{L}\p{N}_]+|['’](?!s(?![\p{L}\p{N}_]))[\p{L}\p{N}_]+)*/u;
 const POSSESSIVE = /^['’]s(?![\p{L}\p{N}_])/u;
+const DESIGNATOR = /^\d+(?:\.\d+)*\.(?=[ \t]*\p{L})/u;
+// LE2's grouped alternatives, before ":" or a line break, and how they join
+// the conditions below them.
+const GROUPS = [[['at', 'least', 'one', 'of'], 'or'], [['any', 'of'], 'or'], [['either'], 'or'], [['all', 'of'], 'and']];
 const DATE = /^(\d{4})-(\d{2})-(\d{2})(?![\p{L}\p{N}_])/u;
 // Numbers may group thousands with commas, as in 1,000,000.
 const NUMBER = /^(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:[eE][+-]?\d+)?(?![\p{L}\p{N}_])/u;
@@ -110,6 +142,9 @@ function tokenize(text, file) {
       const match = (c === '"' ? /^"(?:[^"\\\n]|\\.)*"/ : /^'(?:[^'\\\n]|\\.)*'/).exec(tail);
       if (!match) fail('a quoted text is not closed on its line');
       token = { text: match[0], kind: 'string', value: match[0].slice(1, -1).replace(/\\(.)/g, '$1') };
+    } else if (bol && DESIGNATOR.test(tail)) {
+      // A numbered condition starts its line with a designator such as 4.2.1.
+      token = { text: DESIGNATOR.exec(tail)[0], kind: 'designator' };
     } else if (DATE.test(tail)) {
       const [raw, y, m, d] = DATE.exec(tail);
       token = { text: raw, kind: 'date', value: [BigInt(y), BigInt(m), BigInt(d)] };
@@ -173,7 +208,10 @@ function depths(tokens) {
 function readTemplate(tokens, error, starred = true) {
   const parts = [];
   // In a document without asterisks, as LE1 also writes templates, "a" or
-  // "an" and the word after it make a place.
+  // "an" and the word after it make a place, in a template that starts with
+  // one; a sentence such as "the applicant has a good credit score" keeps its
+  // words.
+  if (!isWord(tokens[0] ?? {}, 'a', 'an')) starred = true;
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
     if (!starred && isWord(token, 'a', 'an') && tokens[i + 1]?.kind === 'word') {
@@ -245,6 +283,11 @@ const TYPE_TEMPLATES = ['*an object* is a *type*', '*an object* is an *type*', '
   parts.at(-1).type = true;
   return { parts, name: 'is_a', arity: 2, typed: true, words: parts.filter((p) => p.word).length };
 });
+// LE2's admissibility of evidence: a source is admissible under itself, and
+// under what the program's facts and rules say.
+const ADMISSIBLE = 'is_admissible_under';
+TYPE_TEMPLATES.push({ parts: readTemplate(tokenize('*a source* is admissible under *a scope*', 'built-in').slice(0, -1), (m) => { throw new Error(m); }),
+  name: ADMISSIBLE, arity: 2, words: 3 });
 
 // Every way a template's words meet the tokens, as the slices of its places:
 // each place takes at least one token, and its brackets balance.
@@ -277,6 +320,7 @@ function sameWord(token, part) {
 // Alone, before any phrase introduces it, only a capital letter with
 // possibly digits is a variable: LE1 programs use acronyms such as GST and
 // CET as names.
+const key = (words) => words.map((t) => t.text.toLowerCase()).join(' ').replaceAll('_', ' ');
 const ID = /^(?:[A-Z][0-9]*|(?!UK$)[A-Z][A-Z0-9_]{1,5})$/;
 const BARE_ID = /^[A-Z][0-9]*$/;
 
@@ -287,20 +331,30 @@ class Scope {
     this.names = new Map();
     this.used = new Set(['Scenario']);
     this.marks = [];
+    // The goals that function calls in the condition being read need first,
+    // and the calls made so far, so that one call is asked once.
+    this.pre = [];
+    this.calls = new Map();
   }
 
-  save() { return [new Map(this.names), new Set(this.used), this.marks.length]; }
-  restore([names, used, marks]) { this.names = names; this.used = used; this.marks.length = marks; }
+  save() { return [new Map(this.names), new Set(this.used), this.marks.length, this.pre.length, new Map(this.calls)]; }
+  restore([names, used, marks, pre, calls]) {
+    this.names = names; this.used = used; this.marks.length = marks; this.pre.length = pre; this.calls = calls;
+  }
 
+  // A name's underscores are spaces, as LE2 reads them: the phrase
+  // "Sales Associates" refers to "a Sales_Associates".
   find(words) {
-    return this.names.get(words.map((t) => t.text.toLowerCase()).join(' ')) ??
-      (words.length === 1 && ID.test(words[0].text) ? this.names.get(`#${words[0].text}`) : undefined);
+    return this.names.get(key(words)) ??
+      (words.length === 1 ? this.names.get(`#${words[0].text}`) : undefined);
   }
 
   introduce(words) {
     const existing = this.find(words);
     if (existing) return existing;
-    const id = words.length > 1 && ID.test(words.at(-1).text) ? words.at(-1).text : words.length === 1 && ID.test(words[0].text) ? words[0].text : null;
+    // After a type, LE2 also reads a short capitalized word as the id, as in
+    // "a number MyD" or "an account Acc".
+    const id = words.length > 1 && (ID.test(words.at(-1).text) || /^[A-Z][A-Za-z0-9]{0,2}$/.test(words.at(-1).text)) ? words.at(-1).text : words.length === 1 && ID.test(words[0].text) ? words[0].text : null;
     if (id && this.names.has(`#${id}`)) return this.names.get(`#${id}`);
     let base = id ?? words.map((t) => t.text[0].toUpperCase() + t.text.slice(1)).join('').replace(/[^\p{L}\p{N}]/gu, '');
     if (!/^\p{Lu}/u.test(base)) base = `V${base}`;
@@ -308,7 +362,7 @@ class Scope {
     for (let n = 2; this.used.has(name); n++) name = `${base}${n}`;
     this.used.add(name);
     const variable = new Var(name);
-    this.names.set(words.map((t) => t.text.toLowerCase()).join(' '), variable);
+    this.names.set(key(words), variable);
     if (id) this.names.set(`#${id}`, variable);
     return variable;
   }
@@ -348,7 +402,7 @@ class Compiler {
   term(tokens, scope, { type = false } = {}) {
     if (!tokens.length) return null;
     const [first] = tokens;
-    if (tokens.length === 1 && first.kind === 'string') return first.value;
+    if (tokens.length === 1 && (first.kind === 'string' || first.kind === 'value')) return first.value;
     if (tokens.length === 1 && first.kind === 'date') return st('date', ...first.value);
     if (tokens.length === 1 && first.kind === 'number') return first.value;
     if (tokens.length === 2 && first.text === '-' && tokens[1].kind === 'number') return -tokens[1].value;
@@ -371,7 +425,9 @@ class Compiler {
       const words = tokens.slice(1, -1), named = INTRODUCING.has(lower(words[0])) || isWord(words[0], 'the') ? words.slice(1) : words;
       return this.mark(scope, scope.find(named) ?? scope.introduce(named.length ? named : words), this.offset(tokens), tokens.length);
     }
-    if (!tokens.every((t) => t.kind === 'word' || t.kind === 'number' || t.text === '&')) return null;
+    if (!tokens.every((t) => t.kind === 'word' || t.kind === 'number' || t.text === '&')) {
+      return tokens.some((t) => t.kind === 'value') ? this.call(tokens, scope) : null;
+    }
     // A lone which, what, who, when or where asks for a value.
     if (tokens.length === 1 && isWord(first, 'which', 'what', 'who', 'when', 'where')) {
       return this.mark(scope, scope.introduce([{ ...first, text: first.text[0].toUpperCase() + first.text.slice(1) }]), this.offset(tokens), 1);
@@ -388,11 +444,13 @@ class Compiler {
       const found = scope.find(rest);
       if (found) return this.mark(scope, found, at, tokens.length);
       if (constant !== undefined) return constant;
-      return ['the', ...rest.map((t) => t.text)].join(' ');
+      return this.call(tokens, scope) ?? ['the', ...rest.map((t) => t.text)].join(' ');
     }
     const found = scope.find(tokens);
     if (found) return this.mark(scope, found, at, tokens.length);
     if (constant !== undefined) return constant;
+    const called = this.call(tokens, scope);
+    if (called !== null) return called;
     if (tokens.length === 1 && BARE_ID.test(first.text) && !this.fact) return this.mark(scope, scope.introduce(tokens), at, 1);
     return tokens.map((t) => t.text).join(' ');
   }
@@ -433,6 +491,20 @@ class Compiler {
         at++;
       }
       if (at === start) return null;
+      // A function with its last argument in brackets: the double of (N + 1).
+      if (peek()?.text === '(' && this.templates.some((t) => t.function)) {
+        const words = tokens.slice(start, at), open = at;
+        at++;
+        const inner = sum();
+        if (inner !== null && peek()?.text === ')') {
+          at++;
+          const value = new Var(`V${scope.pre.length + 1}_`);
+          scope.pre.push(st('is', value, inner));
+          const call = this.call([...words, { text: '(…)', kind: 'value', value, line: words[0].line }], scope);
+          if (call !== null) return call;
+        }
+        at = open;
+      }
       return this.term(tokens.slice(start, at), scope);
     };
     const factor = () => {
@@ -463,7 +535,7 @@ class Compiler {
         const right = factor();
         if (right === null) return null;
         if (op === '/') {
-          const quotient = new Var(`Q${this.quotients = (this.quotients ?? 0) + 1}`);
+          const quotient = new Var(`Q${this.quotients = (this.quotients ?? 0) + 1}_`);
           goals.push(this.helper('le:divide', left, right, quotient));
           left = quotient;
         } else left = st(op === '*' ? 'mul' : op === '//' ? 'floordiv' : 'mod', left, right);
@@ -483,6 +555,10 @@ class Compiler {
     };
     const term = sum();
     if (term === null || at !== tokens.length) return null;
+    // Prolog stops a formula over a name with an error, which LE2 reads as
+    // no answer; such a condition fails.
+    const names = (t) => typeof t === 'string' ? !['pi', 'e', 'tau'].includes(t) : t instanceof Struct && t.name !== 'date' && t.args.some(names);
+    if (names(term)) return { term: 0n, goals: [...goals, 'fail'], formula: true };
     return { term, goals, formula: true };
   }
 
@@ -501,7 +577,36 @@ class Compiler {
   compare(op, a, b) { return [...a.goals, ...b.goals, st(op, a.term, b.term)]; }
 
   // One condition: a comparison, or a sentence of a template.
+  // A condition, after the goals its function calls need.
   condition(tokens, scope) {
+    const start = scope.pre.length;
+    const goals = this.conditionOnly(tokens, scope);
+    return goals && [...scope.pre.splice(start), ...goals];
+  }
+
+  // A function phrase without its value, as in "the price of a cup with
+  // capacity 200 ml": a variable that a call of the function binds.
+  call(tokens, scope) {
+    const functions = this.templates.filter((t) => t.function).sort((a, b) => b.words - a.words);
+    for (const template of functions) {
+      for (const fills of matches(template.function, tokens)) {
+        const saved = scope.save();
+        const args = fills.map((fill) => this.term(fill, scope));
+        if (args.every((arg) => arg !== null)) {
+          const key = `${template.name}(${args.map((arg) => write(arg)).join(', ')})`;
+          if (scope.calls.has(key)) return scope.calls.get(key);
+          const value = new Var(`F${scope.calls.size + 1}_`);
+          scope.pre.push(this.relation(template.name, [...args, value]));
+          scope.calls.set(key, value);
+          return value;
+        }
+        scope.restore(saved);
+      }
+    }
+    return null;
+  }
+
+  conditionOnly(tokens, scope) {
     const level = depths(tokens);
     const at = tokens.findIndex((t, i) => level[i] === 0 && t.kind === 'punct' && COMPARISONS.has(t.text));
     if (at > 0) {
@@ -586,6 +691,22 @@ class Compiler {
         const inner = tokens.slice(i + negation, next);
         if (!inner.length) this.error('"it is not the case that" needs a condition', t.line);
         construct = [st('not', conjunction(this.body(inner, scope)))];
+      } else if (isWord(t, 'prolog') && i + 1 < tokens.length && !tokens[i + 1].bol) {
+        next = end(i + 1);
+        construct = this.prologGoal(tokens.slice(i + 1, next), scope);
+      } else if (this.group(tokens, i)) {
+        const [words, op] = this.group(tokens, i);
+        let from = i + words.length + (tokens[i + words.length]?.text === ':' ? 1 : 0);
+        next = end(from);
+        // Each line at the least indentation below starts one condition.
+        const inner = tokens.slice(from, next), items = [];
+        const least = Math.min(...inner.filter((u) => u.bol).map((u) => u.indent));
+        for (const u of inner) {
+          if (u.bol && u.indent === least) items.push([]);
+          items.at(-1)?.push(u);
+        }
+        if (!items.length) this.error(`"${words.join(' ')}" needs conditions on the lines below it`, t.line);
+        construct = this.join(items.map((item) => this.body(item, scope)), op);
       } else if (startsWith(tokens, ['for', 'all', 'cases', 'in', 'which'], i)) {
         next = end(i + 5);
         const inner = tokens.slice(i + 5, next);
@@ -612,7 +733,28 @@ class Compiler {
           if (isWord(tokens[m - 1], 'and', 'or') && (startsWith(tokens, ['it', 'is', 'not', 'the', 'case', 'that'], m) ||
               startsWith(tokens, ['for', 'all', 'cases', 'in', 'which'], m) || aggregateAt(tokens, m) >= 0)) { cut = m - 1; break; }
         }
-        const pieces = this.split(tokens.slice(i, cut), scope);
+        // "C according to S" proves C from the evidence admissible under S.
+        // When a template's own words say "according to", the whole segment
+        // is read as conditions first.
+        const own = this.templates.some((t) => t.parts.some((p, k) => p.word === 'according' && t.parts[k + 1]?.word === 'to'));
+        let according = indexOfWords(tokens.slice(i, cut), ['according', 'to']), whole = null;
+        if (according < 0 || own) {
+          const saved = scope.save();
+          whole = this.split(tokens.slice(i, cut), scope);
+          if (whole) according = -1;
+          else scope.restore(saved);
+        }
+        if (according > 0) {
+          const scopeTerm = this.term(tokens.slice(i + according + 2, cut), scope);
+          if (scopeTerm === null) this.error(`"according to" needs a source, not "${phrase(tokens.slice(i + according + 2, cut))}"`, t.line);
+          const inner = this.split(tokens.slice(i, i + according), scope);
+          if (!inner) this.error(`no template matches "${phrase(tokens.slice(i, i + according))}"`, t.line);
+          entries.push({ op, indent, goals: [st('le:according', conjunction(this.combine(inner)), scopeTerm)] });
+          i = cut;
+          if (i < tokens.length) { op = lower(tokens[i]); indent = tokens[i].indent; i++; }
+          continue;
+        }
+        const pieces = whole ?? this.split(tokens.slice(i, cut), scope);
         if (!pieces) this.error(`no template matches "${phrase(tokens.slice(i, cut))}"`, t.line);
         pieces[0].op = op; pieces[0].indent = indent;
         entries.push(...pieces);
@@ -627,6 +769,157 @@ class Compiler {
     }
     if (!entries.length) this.error('a condition is missing', tokens[0]?.line ?? 0);
     return entries;
+  }
+
+  // An embedded Prolog goal, as LE2 writes one after "prolog": conjunctions
+  // with ",", disjunctions with ";", "\\+" for negation and Module:Goal, over
+  // LE2's system predicates, a few Prolog tests and the relations of Prolog
+  // resources. An argument may be an LE phrase such as "the person".
+  prologGoal(tokens, scope) {
+    const fail = (message) => this.error(message, tokens[0]?.line ?? 0);
+    const level = depths(tokens);
+    const split = (sep) => {
+      const parts = [];
+      let start = 0;
+      for (let k = 0; k <= tokens.length; k++) {
+        if (k < tokens.length && !(tokens[k].text === sep && level[k] === 0)) continue;
+        parts.push(tokens.slice(start, k));
+        start = k + 1;
+      }
+      return parts;
+    };
+    if (!tokens.length) fail('a prolog goal is missing');
+    const alternatives = split(';');
+    if (alternatives.length > 1) return [alternatives.map((part) => conjunction(this.prologGoal(part, scope))).reduce((a, b) => st('or', a, b))];
+    const parts = split(',');
+    if (parts.length > 1) return parts.flatMap((part) => this.prologGoal(part, scope));
+    if (tokens[0].text === '(' && tokens.at(-1).text === ')' && balanced(tokens.slice(1, -1))) return this.prologGoal(tokens.slice(1, -1), scope);
+    if (tokens[0].text === '\\' && tokens[1]?.text === '+') return [st('not', conjunction(this.prologGoal(tokens.slice(2), scope)))];
+    const colon = tokens.findIndex((t, k) => level[k] === 0 && t.text === ':' && tokens[k + 1]?.text !== '-');
+    if (colon > 0) return this.prologGoal(tokens.slice(colon + 1), scope);
+    const tests = { '=': 'unify', '\\=': 'not_unify', '==': 'identical', '\\==': 'not_identical', '<': 'lt', '>': 'gt', '=<': 'le', '>=': 'ge' };
+    const op = tokens.findIndex((t, k) => level[k] === 0 && t.kind === 'punct' && tests[t.text]);
+    if (op > 0) return [st(tests[tokens[op].text], this.prologArg(tokens.slice(0, op), scope), this.prologArg(tokens.slice(op + 1), scope))];
+    const goal = this.prologArg(tokens, scope, true);
+    const [name, args] = goal instanceof Struct ? [goal.name, goal.args] : [goal, []];
+    const system = {
+      'le_my_kb/1': () => this.kb === null ? 'fail' : st('unify', args[0], this.kb),
+      'le_kb/1': () => this.kb === null ? 'fail' : st('unify', args[0], this.kb),
+      'le_my_id/1': () => this.label === null ? 'fail' : st('unify', args[0], this.label),
+      'atom/1': () => st('is_atom', args[0]), 'number/1': () => st('is_number', args[0]), 'integer/1': () => st('is_int', args[0]),
+      'var/1': () => st('is_var', args[0]), 'nonvar/1': () => st('is_nonvar', args[0]), 'true/0': () => 'true', 'fail/0': () => 'fail',
+    }[`${name}/${args.length}`];
+    if (system) return [system()];
+    if (typeof name !== 'string' || RESERVED.has(name)) fail(`the Prolog goal "${phrase(tokens)}" is not supported`);
+    return [goal];
+  }
+
+  // A Prolog argument: a variable, atom, number, list or compound, or an LE
+  // phrase. An LE definite phrase that refers to no variable starts one.
+  prologArg(tokens, scope, callable = false) {
+    const fail = () => this.error(`"${phrase(tokens)}" is not a Prolog term`, tokens[0]?.line ?? 0);
+    if (!tokens.length) fail();
+    const [first] = tokens;
+    if (tokens.length === 1 && first.kind === 'word') {
+      if (/^[A-Z_]/.test(first.text)) return first.text === '_' ? new Var('_') : this.mark(scope, scope.find([first]) ?? scope.introduce([first]), this.offset(tokens), 1);
+      return first.text;
+    }
+    if (first.kind === 'word' && tokens[1]?.text === '(' && tokens.at(-1).text === ')' && balanced(tokens.slice(2, -1))) {
+      const inner = tokens.slice(2, -1), level = depths(inner), args = [];
+      let start = 0;
+      for (let k = 0; k <= inner.length; k++) {
+        if (k < inner.length && !(inner[k].text === ',' && level[k] === 0)) continue;
+        args.push(this.prologArg(inner.slice(start, k), scope));
+        start = k + 1;
+      }
+      return new Struct(first.text, args);
+    }
+    if (callable) fail();
+    if (first.text === '[' && tokens.at(-1).text === ']') {
+      const inner = tokens.slice(1, -1), level = depths(inner);
+      const bar = inner.findIndex((t, k) => t.text === '|' && level[k] === 0);
+      const items = [], body = bar < 0 ? inner : inner.slice(0, bar);
+      const bodyLevel = depths(body);
+      let start = 0;
+      for (let k = 0; k <= body.length && body.length; k++) {
+        if (k < body.length && !(body[k].text === ',' && bodyLevel[k] === 0)) continue;
+        items.push(this.prologArg(body.slice(start, k), scope));
+        start = k + 1;
+      }
+      const tail = bar < 0 ? EMPTY : this.prologArg(inner.slice(bar + 1), scope);
+      return items.reduceRight((t, h) => st('.', h, t), tail);
+    }
+    const term = this.term(tokens, scope);
+    if (term === null) fail();
+    if (typeof term === 'string' && isWord(first, 'the') && tokens.length > 1) return this.mark(scope, scope.introduce(tokens.slice(1)), this.offset(tokens), tokens.length);
+    return term;
+  }
+
+  // A grouped alternative at i: its words and how it joins its conditions.
+  group(tokens, i) {
+    for (const [words, op] of GROUPS) {
+      const after = tokens[i + words.length];
+      if (startsWith(tokens, words, i) && after && (after.text === ':' || after.bol)) return [words, op];
+    }
+    return null;
+  }
+
+  // Conditions joined by one connective.
+  join(parts, op) {
+    if (op === 'and') return parts.flat();
+    return [parts.map((goals) => conjunction(goals)).reduce((a, b) => st('or', a, b))];
+  }
+
+  // LE2's numbered body: items such as "4.2.1. the A is connected to an E;
+  // and". An item's connective joins it to the next item of its level; an item
+  // "either:", "all of:" or "it is not the case that:" groups the items
+  // numbered below it.
+  numbered(tokens, scope) {
+    const items = [];
+    for (const t of tokens) {
+      if (t.kind === 'designator') {
+        items.push({ depth: t.text.split('.').length - 1, tokens: [], line: t.line });
+        this.designators?.push(t.text.slice(0, -1));
+      }
+      else if (items.length) items.at(-1).tokens.push(t);
+      else this.error('a numbered condition starts with its number, such as 1.', t.line);
+    }
+    for (const item of items) {
+      let words = item.tokens;
+      if (isWord(words.at(-1) ?? {}, 'and', 'or')) { item.op = lower(words.at(-1)); words = words.slice(0, -1); }
+      if (words.at(-1)?.text === ';') words = words.slice(0, -1);
+      if (words.at(-1)?.text === ':') { item.opens = true; words = words.slice(0, -1); }
+      item.words = words;
+    }
+    const level = (from, depth) => {
+      const parts = [];
+      let i = from;
+      while (i < items.length && items[i].depth >= depth) {
+        const item = items[i];
+        let j = i + 1;
+        while (j < items.length && items[j].depth > item.depth) j++;
+        let goals;
+        const group = item.opens ? this.group([...item.words, { text: ':' }], 0) : null;
+        if (group && group[0].length === item.words.length) goals = this.join(level(i + 1, item.depth + 1).map((p) => p.goals), group[1]);
+        else if (item.opens && startsWith(item.words, ['it', 'is', 'not', 'the', 'case', 'that']) && item.words.length === 6) {
+          goals = [st('not', conjunction(this.join(level(i + 1, item.depth + 1).map((p) => p.goals), 'and')))];
+        } else {
+          if (j > i + 1) this.error(`the numbered condition "${phrase(item.words)}" has conditions below it; end it with "either:", "all of:" or "it is not the case that:"`, item.line);
+          if (!item.words.length) this.error('a numbered condition is missing', item.line);
+          goals = this.body(item.words, scope);
+        }
+        parts.push({ goals, op: item.op });
+        i = j;
+      }
+      return parts;
+    };
+    const parts = level(0, items[0]?.depth ?? 1);
+    if (!parts.length) this.error('a numbered body needs numbered conditions', tokens[0]?.line ?? 0);
+    let goals = parts[0].goals;
+    for (let k = 1; k < parts.length; k++) {
+      goals = (parts[k - 1].op ?? 'and') === 'or' ? [st('or', conjunction(goals), conjunction(parts[k].goals))] : [...goals, ...parts[k].goals];
+    }
+    return goals;
   }
 
   // An aggregate at i: "R is the sum of each V such that" or LE's
@@ -658,8 +951,11 @@ class Compiler {
     if (template === null) this.error(`an aggregate collects a variable, not "${phrase(each)}"`, line);
     if (!conditions.length) this.error('an aggregate needs conditions after "such that"', line);
     const goals = this.body(conditions, scope);
-    const items = new Var(`L${this.lists = (this.lists ?? 0) + 1}`);
-    const found = st('findall', template, conjunction(goals), items);
+    const items = new Var(`L${this.lists = (this.lists ?? 0) + 1}_`);
+    // A sum, count, average, minimum or maximum does not depend on the order
+    // of its values, so it collects them sorted, which a proof can certify
+    // even when they rest on derived facts; a list keeps the order found.
+    const found = st(AGGREGATES[op] === null ? 'findall' : 'findall_sorted', template, conjunction(goals), items);
     return AGGREGATES[op] === null ? [found, st('unify', total, items)] : [found, this.helper(AGGREGATES[op], items, total)];
   }
 
@@ -771,7 +1067,7 @@ function guardNegations(goals, bound, counter, open = false) {
     }
     out.push(goal);
     if (open) continue;
-    if (goal instanceof Struct && goal.name === 'findall' && goal.args.length === 3) varsOf(goal.args[2], bound);
+    if (goal instanceof Struct && (goal.name === 'findall' || goal.name === 'findall_sorted') && goal.args.length === 3) varsOf(goal.args[2], bound);
     else varsOf(goal, bound);
   }
   return out;
@@ -791,9 +1087,9 @@ function openVariables(goals) {
   const out = [];
   const visit = (term) => {
     if (term instanceof Var) { if (!out.includes(term)) out.push(term); }
-    else if (term instanceof Struct && !(term.name === 'not' && term.args.length === 1) && !(term.name === 'findall' && term.args.length === 3)) {
+    else if (term instanceof Struct && !(term.name === 'not' && term.args.length === 1) && !((term.name === 'findall' || term.name === 'findall_sorted') && term.args.length === 3)) {
       for (const arg of term.args) visit(arg);
-    } else if (term instanceof Struct && term.name === 'findall') visit(term.args[2]);
+    } else if (term instanceof Struct && (term.name === 'findall' || term.name === 'findall_sorted')) visit(term.args[2]);
   };
   for (const goal of goals) visit(goal);
   return out;
@@ -802,10 +1098,16 @@ function openVariables(goals) {
 // ---------------------------------------------------------------- Documents
 
 // The sections of one document as sentences: [kind, name, tokens, line].
+// A source or document named in a trailer: its words, or a quoted text.
+function sourceTerm(words) {
+  if (words.length === 1 && words[0].kind === 'string') return words[0].value;
+  return words.map((t) => t.text).join(' ');
+}
+
 function sections(tokens, file) {
   const error = (message, line) => { throw new EyemindError(`${file}: line ${line}: Logical English: ${message}`); };
   const out = [];
-  let i = 0, section = null;
+  let i = 0, section = null, label = null, part = 'main';
   const colon = (from) => {
     for (let k = from; k < tokens.length && tokens[k].kind !== 'stop' && tokens[k].kind !== 'end'; k++) if (tokens[k].text === ':') return k;
     return -1;
@@ -817,9 +1119,9 @@ function sections(tokens, file) {
       i++;
       continue;
     }
-    if (startsWith(tokens, ['the', 'templates', 'are'], i) || startsWith(tokens, ['the', 'predicates', 'are'], i)) {
-      if (tokens[i + 3]?.text !== ':') error('expected ":" after "the templates are"', line);
-      section = { kind: 'templates' };
+    if (startsWith(tokens, ['the', 'templates', 'are'], i) || startsWith(tokens, ['the', 'predicates', 'are'], i) || startsWith(tokens, ['the', 'functions', 'are'], i)) {
+      if (tokens[i + 3]?.text !== ':') error(`expected ":" after "the ${lower(tokens[i + 1])} are"`, line);
+      section = { kind: 'templates', functions: isWord(tokens[i + 1], 'functions') };
       i += 4;
       continue;
     }
@@ -861,9 +1163,14 @@ function sections(tokens, file) {
     }
     if (isWord(tokens[i], 'scenario', 'query') && tokens[i].bol) {
       const at = colon(i);
-      if (at > i + 2 && isWord(tokens[at - 1], 'is')) {
-        const name = tokens.slice(i + 1, at - 1).map((t) => t.text).join(' ');
-        section = { kind: lower(tokens[i]), name, line };
+      // LE2's "scenario NAME is, as stated in DOCUMENT:" names the default
+      // document of the scenario's facts.
+      const stated = indexOfWords(tokens.slice(i, at), [',', 'as', 'stated', 'in'].map((w) => w));
+      const isAt = stated > 0 ? i + stated - 1 : at - 1;
+      if (at > i + 2 && isWord(tokens[isAt], 'is') && (stated < 0 || tokens[i + stated]?.text === ',')) {
+        const name = tokens.slice(i + 1, isAt).map((t) => t.text).join(' ');
+        const document = stated > 0 ? sourceTerm(tokens.slice(i + stated + 4, at)) : null;
+        section = { kind: lower(tokens[i]), name, line, document };
         if (section.kind === 'scenario') out.push(['scenario', name, [], line]);
         i = at + 1;
         continue;
@@ -873,12 +1180,29 @@ function sections(tokens, file) {
     // LE2 labels a rule with "rule NAME:", and marks sections of rules with
     // "section NAME is:" or "the annexes to the contract are:". Neither
     // changes what the rules mean.
-    if (isWord(tokens[i], 'rule') && colon(i) > i + 1 && colon(i) < i + 5 && tokens.slice(i + 1, colon(i)).every((t) => t.kind === 'word' || t.kind === 'number')) {
+    // A label may give the rule's provenance, "rule NAME with provenance
+    // DOCUMENT, confer ...:", which changes nothing in the proof.
+    const provenance = isWord(tokens[i], 'rule') ? indexOfWords(tokens.slice(i, Math.max(colon(i), i)), ['with', 'provenance']) : -1;
+    const labelEnd = provenance > 1 ? i + provenance : colon(i);
+    if (isWord(tokens[i], 'rule') && colon(i) > i + 1 && labelEnd < i + 5 && tokens.slice(i + 1, labelEnd).every((t) => t.kind === 'word' || t.kind === 'number')) {
+      label = tokens.slice(i + 1, labelEnd).map((t) => t.text).join(' ');
       i = colon(i) + 1;
       continue;
     }
-    if ((isWord(tokens[i], 'section') && tokens[i].bol && colon(i) > 0 && isWord(tokens[colon(i) - 1], 'is')) ||
-        (startsWith(tokens, ['the', 'annexes', 'to', 'the'], i) && colon(i) > 0 && isWord(tokens[colon(i) - 1], 'are'))) {
+    // A facts background helps an assistant read facts from a text; the
+    // answers are the same without it.
+    if (startsWith(tokens, ['the', 'facts', 'background', 'includes', 'these', 'resources', ':'], i)) {
+      while (tokens[i].kind !== 'stop' && tokens[i].kind !== 'end') i++;
+      i++;
+      continue;
+    }
+    if (isWord(tokens[i], 'section') && tokens[i].bol && colon(i) > 0 && isWord(tokens[colon(i) - 1], 'is')) {
+      part = tokens.slice(i + 1, colon(i) - 1).map((t) => t.text).join(' ');
+      i = colon(i) + 1;
+      continue;
+    }
+    if (startsWith(tokens, ['the', 'annexes', 'to', 'the'], i) && colon(i) > 0 && isWord(tokens[colon(i) - 1], 'are')) {
+      part = 'annexes';
       i = colon(i) + 1;
       continue;
     }
@@ -913,7 +1237,7 @@ function sections(tokens, file) {
         }
         start = k + 1;
       }
-      for (const part of parts) out.push(['template', null, part, part[0].line]);
+      for (const part of parts) out.push(['template', section.functions ? 'function' : null, part, part[0].line]);
     } else if (section.kind === 'constants') {
       out.push(['constant', null, sentence, line]);
     } else if (section.kind === 'query') {
@@ -922,7 +1246,40 @@ function sections(tokens, file) {
     } else if (section.kind === 'after query') {
       error('a query has one sentence; start a new section after it', line);
     } else {
-      out.push([{ kb: 'clause', ontology: 'ontology clause' }[section.kind] ?? 'scenario clause', section.name ?? null, sentence, line]);
+      // The location of a document changes nothing in the proof.
+      const quoted = sentence.at(-1)?.kind === 'string';
+      if (quoted && (startsWith(sentence, ['is', 'published', 'at'], sentence.length - 4) ||
+          (startsWith(sentence, ['the', 'text', 'of']) && startsWith(sentence, ['is', 'at'], sentence.length - 3)))) {
+        i = end + 1;
+        continue;
+      }
+      // A fact's trailers, ", according to SOURCE", ", as stated in DOCUMENT
+      // at LOCATOR", ", because ..." and ", confer ...", keep its source.
+      let fact = sentence, source = section.document ?? null;
+      const level = depths(sentence), trailer = (k) => sentence[k]?.text === ',' && level[k] === 0 &&
+        (startsWith(sentence, ['according', 'to'], k + 1) || startsWith(sentence, ['as', 'stated', 'in'], k + 1) || isWord(sentence[k + 1] ?? {}, 'because', 'confer'));
+      const first = sentence.findIndex((t, k) => trailer(k));
+      if (first > 0 && !sentence.slice(0, first).some((t, k) => level[k] === 0 && isWord(t, 'if'))) {
+        fact = sentence.slice(0, first);
+        let according = null, document = null;
+        for (let k = first; k < sentence.length; k++) {
+          if (!trailer(k)) continue;
+          let stop = k + 1;
+          while (stop < sentence.length && !trailer(stop)) stop++;
+          const words = sentence.slice(k + 1, stop);
+          if (startsWith(words, ['according', 'to'])) according = sourceTerm(words.slice(2));
+          if (startsWith(words, ['as', 'stated', 'in'])) {
+            const at = words.findIndex((t, m) => m > 3 && isWord(t, 'at'));
+            document = sourceTerm(words.slice(3, at > 0 ? at : words.length));
+          }
+        }
+        source = according ?? document ?? source;
+      }
+      // A rule's label and section, which LE2's system predicates report.
+      Object.assign(fact, { label, part, source });
+      const sentence_ = fact;
+      label = null;
+      out.push([{ kb: 'clause', ontology: 'ontology clause' }[section.kind] ?? 'scenario clause', section.name ?? null, sentence_, line]);
     }
     i = end + 1;
   }
@@ -944,16 +1301,29 @@ export function compileLe(inputs, io = null) {
         const [, kind, names, line] = item;
         const fail = (message) => { throw new EyemindError(`${file}: line ${line}: Logical English: ${message}`); };
         for (const name of names) {
-          if (/^[a-z]+:/i.test(name)) fail(`including the web address ${name} belongs to Logical English 2 and is not supported; include a local file`);
-          if (/\.pl$/.test(name)) fail(`including the Prolog resource ${name} belongs to Logical English 2 and is not supported`);
-          const dir = String(file).includes('/') ? String(file).slice(0, String(file).lastIndexOf('/') + 1) : '';
-          const path = dir + name + (name.endsWith('.le') ? '' : '.le');
+          // A web address is read with io.readDocument; a path, relative to
+          // the including file or web address, with io.readFile.
+          const web = /^https?:/i.test(name), base = String(file);
+          if (/^[a-z]+:/i.test(name) && !web) fail(`cannot include ${name}; include a file or an HTTP(S) address`);
+          const dir = web ? '' : base.includes('/') ? base.slice(0, base.lastIndexOf('/') + 1) : '';
+          const path = dir + name + (/\.(le|pl)$/.test(name) ? '' : '.le');
           if (read.has(path)) continue;
           if (depth >= 5) fail(`including ${name} makes a chain of more than five includes`);
-          if (!io?.readFile) fail(`including ${name} needs file access`);
+          const reader = /^https?:/i.test(path) ? io?.readDocument : io?.readFile;
+          if (!reader) fail(`including ${name} needs ${/^https?:/i.test(path) ? 'network' : 'file'} access`);
           let included;
-          try { included = io.readFile(path); } catch { fail(`cannot read the included file ${path}`); }
+          try { included = reader(path); } catch (error) { fail(`cannot read the included ${path}: ${error.message}`); }
           read.add(path);
+          // A Prolog resource gives its facts and rules.
+          if (path.endsWith('.pl')) {
+            const tokens = tokenize(included, path);
+            for (let start = 0, k = 0; k < tokens.length; k++) {
+              if (tokens[k].kind !== 'stop' && tokens[k].kind !== 'end') continue;
+              if (k > start) items.push(['prolog', null, tokens.slice(start, k), tokens[start].line, path]);
+              start = k + 1;
+            }
+            continue;
+          }
           // A resource gives its templates, rules, facts and ontology; an
           // included scenario file also gives its scenarios and queries.
           load(included, path, kind === 'scenarios', depth + 1);
@@ -986,7 +1356,7 @@ export function compileLe(inputs, io = null) {
     templates.push(template);
     return template;
   };
-  for (const [, , tokens, line, file] of items.filter((item) => item[0] === 'template')) {
+  for (const [, role, tokens, line, file] of items.filter((item) => item[0] === 'template')) {
     const error = (message, at = line) => { throw new EyemindError(`${file}: line ${at}: Logical English: ${message}`); };
     // A template, then its additions after ";".
     const pieces = [[]];
@@ -997,10 +1367,17 @@ export function compileLe(inputs, io = null) {
       else pieces.at(-1).push(t);
     }
     const template = declare(pieces[0], error);
+    // A function "... is *a value*" can be written without its value.
+    if (role === 'function') {
+      const parts = template.parts;
+      if (parts.length < 2 || !parts.at(-1).place || parts.at(-2).word !== 'is') error('a function has the form "... is *a value*"');
+      template.function = parts.slice(0, -2);
+    }
     for (const addition of pieces.slice(1)) {
       const words = addition.map((t) => t.text.toLowerCase()).join(' ');
+      if (['undefined', 'scenario element'].includes(words)) template.scenarioElement = true;
       if (IGNORED.includes(words) || isWord(addition[0] ?? {}, 'image')) continue;
-      if (ASSUMABLE.includes(words)) { template.assumable = true; continue; }
+      if (ASSUMABLE.includes(words)) { template.assumable = true; if (['judged', 'open textured', 'evaluative'].includes(words)) template.scenarioElement = true; continue; }
       // A synonym is another wording of the same relation; an opposite is the
       // wording of a separate relation, which only its own rules conclude.
       if (isWord(addition[0] ?? {}, 'synonym')) { declare(addition.slice(1), error, template); continue; }
@@ -1024,12 +1401,12 @@ export function compileLe(inputs, io = null) {
     scenarios.push(name);
   }
   const threaded = scenarios.length > 0;
-  const clauses = [], sources = [], queries = [], expectations = [], helpers = new Set(), pending = [], necessary = new Map();
+  const clauses = [], sources = [], queries = [], expectations = [], helpers = new Set(), pending = [], necessary = new Map(), abducibles = [], constraints = [], denials = [], flips = [];
   // Clauses wait until every one is read: their negations depend on whether
   // any fact or rule leaves a variable of its conclusion open.
   const emit = (kind, head, body, line, file, guard = null) => pending.push({ kind, head, body, line, file, guard });
   const write = ({ kind, head, body, line, file }) => {
-    clauses.push(`// ${String(file).replace(/[\r\n\u2028\u2029]/g, ' ')}: line ${line}`);
+    if (line !== null) clauses.push(`// ${String(file).replace(/[\r\n\u2028\u2029]/g, ' ')}: line ${line}`);
     if (kind === 'fact') {
       clauses.push(`fact(${javascript(head)})`);
       sources.push(new Source('fact', head, [], line, file));
@@ -1056,6 +1433,19 @@ export function compileLe(inputs, io = null) {
     if (kind === 'template' || kind === 'scenario' || kind === 'constant') continue;
     const compiler = new Compiler(file, templates);
     compiler.constants = constants;
+    Object.assign(compiler, { kb: kind === 'clause' ? name : null, label: tokens.label ?? null, designators: [] });
+    if (kind === 'prolog') {
+      const local = new Scope();
+      // A clause of a Prolog resource; directives are left out.
+      if (tokens[0]?.text === ':' && tokens[1]?.text === '-') continue;
+      const neck = tokens.findIndex((t, k) => t.text === ':' && tokens[k + 1]?.text === '-');
+      const head = compiler.prologArg(neck < 0 ? tokens : tokens.slice(0, neck), local, true);
+      if (!(head instanceof Struct) && typeof head !== 'string') compiler.error('a Prolog clause needs a head such as p(X)', line);
+      const body = neck < 0 ? [] : compiler.prologGoal(tokens.slice(neck + 2), local);
+      if (!body.length && isGround(head)) emit('fact', head, [], line, file);
+      else emit('backward', head, body, line, file, body.length ? { counter: { n: anonymize(head, body) }, scenario: null, rule: true } : null);
+      continue;
+    }
     const scope = new Scope();
     if (kind === 'query') {
       compiler.scenario = threaded ? new Var('Scenario') : null;
@@ -1066,6 +1456,20 @@ export function compileLe(inputs, io = null) {
         if (at < 0) compiler.error('expected ":" after "for which ..."', line);
         compiler.term([{ text: 'which', kind: 'word' }, ...body.slice(2, at)], scope);
         body = body.slice(at + 1);
+      }
+      // LE2's flip query: "which minimal change to the scenario makes it the
+      // case that GOAL". Its goal runs in the world of a scenario with changes.
+      const FLIP = ['which', 'minimal', 'change', 'to', 'the', 'scenario', 'makes', 'it', 'the', 'case', 'that'];
+      if (startsWith(body, FLIP)) {
+        if (!threaded) compiler.error('a flip query changes a scenario; the document has none', line);
+        const S = new Var('Scenario'), changes = new Var('Changes_');
+        compiler.scenario = st('le:flip', S, changes);
+        const goals = compiler.body(body.slice(FLIP.length), scope);
+        anonymize(st('le:flip', S, changes), goals);
+        flips.push({ name, goals, S, changes, line, file });
+        queries.push({ name, flip: true });
+        for (const h of compiler.helpers) helpers.add(h);
+        continue;
       }
       compiler.sentence = body;
       const goals = compiler.body(body, scope);
@@ -1082,8 +1486,20 @@ export function compileLe(inputs, io = null) {
     const inScenario = kind === 'scenario clause';
     // An expected answer: "one expects answers [...] and unknowns [...]."
     const expects = tokens.findIndex((t, k) => isWord(t, 'expects') && (tokens[k + 1]?.text === '[' || (isWord(tokens[k + 1] ?? {}, 'answers') && tokens[k + 2]?.text === '[')));
-    if (tokens.some((t, k) => isWord(t, 'expects') && isWord(tokens[k + 1] ?? {}, 'changes'))) {
-      compiler.error('flip queries ("expects changes") belong to Logical English 2 and are not supported', line);
+    // "NAME expects changes [[...], ...]": the minimal change sets of a flip.
+    const changesAt = tokens.findIndex((t, k) => isWord(t, 'expects') && isWord(tokens[k + 1] ?? {}, 'changes'));
+    if (changesAt > 0) {
+      if (!inScenario) compiler.error('an expectation belongs to a scenario', line);
+      const sets = [];
+      let current = null;
+      for (const t of tokens.slice(changesAt + 2)) {
+        if (t.text === '[' && current === null && sets.started) current = [];
+        else if (t.text === '[') sets.started = true;
+        else if (t.text === ']' && current !== null) { sets.push(current); current = null; }
+        else if (t.kind === 'string' && current !== null) current.push(t.value);
+      }
+      expectations.push({ scenario: name, query: tokens.slice(0, changesAt).map((t) => t.text).join(' '), changes: [...sets], line });
+      continue;
     }
     if (expects > 0) {
       if (!inScenario) compiler.error('an expectation belongs to a scenario', line);
@@ -1103,25 +1519,43 @@ export function compileLe(inputs, io = null) {
       };
       const [answers, close] = list(expects + 1 + (isWord(tokens[expects + 1] ?? {}, 'answers') ? 1 : 0));
       // Expected unknowns are assumptions eyemind does not make.
+      // Without "and unknowns", the answers must rest on no unknowns.
       const unknowns = startsWith(tokens, ['and', 'unknowns'], close + 1) ? list(close + 3)[0]
-        : startsWith(tokens, ['and', 'any', 'unknowns'], close + 1) ? ['any'] : [];
+        : startsWith(tokens, ['and', 'any', 'unknowns'], close + 1) ? 'any' : [];
       expectations.push({ scenario: name, query: tokens.slice(0, expects).map((t) => t.text).join(' '), answers, unknowns, line });
       continue;
     }
-    if (startsWith(tokens, ['it', 'is', 'unknown', 'whether']) || startsWith(tokens, ['it', 'must', 'not', 'be', 'true', 'that']) ||
-        (startsWith(tokens, ['it', 'is', 'not', 'the', 'case', 'that']) && inScenario)) {
-      compiler.error('unknowns, constraints and negated facts belong to Logical English 2 and are not supported', line);
-    }
     compiler.scenario = !threaded ? null : inScenario ? name : new Var('Scenario');
+    // An integrity constraint, "it must not be true that C": no answer's
+    // assumptions may make C true.
+    if (startsWith(tokens, ['it', 'must', 'not', 'be', 'true', 'that'])) {
+      const goals = compiler.body(tokens.slice(6), scope);
+      anonymize(st('true'), goals);
+      constraints.push({ goals, line, file, scenario: compiler.scenario });
+      for (const h of compiler.helpers) helpers.add(h);
+      continue;
+    }
+    // A scenario may deny a sentence: it is then neither stated nor assumed.
+    if (startsWith(tokens, ['it', 'is', 'not', 'the', 'case', 'that'])) {
+      if (!inScenario) compiler.error('a negated fact belongs to a scenario', line);
+      const sentence = compiler.sentenceOf(tokens.slice(6), scope, { data: true });
+      if (!sentence) compiler.error(`no template matches "${phrase(tokens.slice(6))}"`, line);
+      denials.push({ term: compiler.relation(sentence.name, sentence.args), line, file });
+      continue;
+    }
+    // "it is unknown whether S" makes the sentences S describes assumable,
+    // in the knowledge base or in one scenario.
+    if (['unknown', 'assumed', 'assumable'].some((word) => startsWith(tokens, ['it', 'is', word, 'whether']))) {
+      const sentence = compiler.sentenceOf(tokens.slice(4), scope, { data: true });
+      if (!sentence) compiler.error(`no template matches "${phrase(tokens.slice(4))}"`, line);
+      abducibles.push({ term: compiler.relation(sentence.name, sentence.args), line, file });
+      continue;
+    }
     // A fact may carry LE2's picture, "; image ...", which changes nothing.
     const semicolon = tokens.findIndex((t) => t.text === ';');
     if (semicolon > 0 && isWord(tokens[semicolon + 1] ?? {}, 'image')) tokens = tokens.slice(0, semicolon);
     const level = depths(tokens);
     const ifAt = tokens.findIndex((t, k) => level[k] === 0 && isWord(t, 'if'));
-    for (const [words, what] of [[['prolog'], 'embedded Prolog goals'], [['with', 'provenance'], 'provenance trailers'], [['is', 'published', 'at'], 'document locations']]) {
-      if (indexOfWords(tokens, words) >= 0) compiler.error(`${what} belong to Logical English 2 and are not supported`, line);
-    }
-    if (ifAt >= 0 && tokens[ifAt + 1]?.text === ':') compiler.error('numbered conditions belong to Logical English 2 and are not supported', line);
     // "Head only if Body" makes Body necessary: the opposite of the head holds
     // when Body does not, and the head then fails.
     const onlyIf = ifAt > 0 && isWord(tokens[ifAt - 1], 'only');
@@ -1131,23 +1565,44 @@ export function compileLe(inputs, io = null) {
     if (!headTokens.length) compiler.error('a rule needs a conclusion before "if"', line);
     // In a fact, an id that no phrase introduces is a name, as in Q1.
     compiler.fact = ifAt < 0;
-    const head = compiler.sentenceOf(headTokens, scope, { data: true });
+    let head = compiler.sentenceOf(headTokens, scope, { data: true });
+    // A scenario may state "A is B" with no template for it, as LE2 accepts;
+    // it is a fact of the relation le_is.
+    const isAt = headTokens.findIndex((t) => isWord(t, 'is'));
+    if (!head && inScenario && ifAt < 0 && isAt > 0) {
+      const a = compiler.term(headTokens.slice(0, isAt), scope), b = compiler.term(headTokens.slice(isAt + 1), scope);
+      if (a !== null && b !== null) head = { name: 'le_is', args: [a, b] };
+    }
     if (!head) {
       const builtin = compiler.sentenceOf(headTokens, new Scope());
       if (builtin?.builtin) compiler.error(`"${phrase(headTokens)}" is a built-in condition and cannot be concluded`, line);
       compiler.error(`no template matches "${phrase(headTokens)}"`, line);
     }
     const headTerm = compiler.relation(head.name, head.args);
+    // A function in the conclusion is asked after the conditions.
+    const headCalls = scope.pre.splice(0);
     if (kind === 'ontology clause' && ifAt < 0 && head.name === 'is_a' && head.args.every(isGround)) kinds.push({ term: headTerm, line, file });
     if (ifAt < 0) {
-      const body = compiler.scenario instanceof Var ? [st(SCENARIO, compiler.scenario)] : [];
+      // A ground fact of the knowledge base is stated in every scenario.
+      if (compiler.scenario instanceof Var && !headCalls.length && head.args.every(isGround)) {
+        for (const scenario of scenarios) {
+          emit('fact', new Struct(headTerm.name, [scenario, ...headTerm.args.slice(1)]), [], line, file);
+          pending.at(-1).kb = true;
+        }
+        continue;
+      }
+      const body = [...(compiler.scenario instanceof Var ? [st(SCENARIO, compiler.scenario)] : []), ...headCalls];
       if (!body.length && isGround(headTerm)) emit('fact', headTerm, [], line, file);
       else emit('backward', headTerm, body, line, file);
+      // A scenario fact is evidence of its source; one without is never
+      // admissible in a source-scoped proof.
+      if (inScenario) pending.at(-1).evidence = tokens.source ?? null;
       continue;
     }
     if (ifAt === tokens.length - 1) compiler.error('a rule needs conditions after "if"', line);
     // LE1 also writes "if" followed by a line that starts with "and".
-    const goals = compiler.body(tokens.slice(ifAt + (isWord(tokens[ifAt + 1], 'and') ? 2 : 1)), scope);
+    const goals = tokens[ifAt + 1]?.text === ':' ? compiler.numbered(tokens.slice(ifAt + 2), scope)
+      : compiler.body(tokens.slice(ifAt + (isWord(tokens[ifAt + 1], 'and') ? 2 : 1)), scope);
     if (onlyIf) {
       const template = templates.find((t) => t.name === head.name && t.arity === head.args.length && t.opposite);
       const opposite = compiler.relation(template ? template.opposite.name : `${head.name}:not`, head.args);
@@ -1158,8 +1613,15 @@ export function compileLe(inputs, io = null) {
       for (const h of compiler.helpers) helpers.add(h);
       continue;
     }
+    goals.push(...headCalls);
     const counter = { n: anonymize(headTerm, goals) };
     emit('backward', headTerm, goals, line, file, { counter, scenario: compiler.scenario, rule: true });
+    // LE2's system predicates: the section of a labelled rule, and the
+    // designators of its numbered conditions.
+    if (compiler.label !== null) {
+      emit('fact', st('le_source_section', tokens.part ?? 'main', compiler.label), [], line, file);
+      for (const designator of compiler.designators) emit('fact', st('le_source_element', compiler.label, designator, 'true'), [], line, file);
+    }
     for (const h of compiler.helpers) helpers.add(h);
   }
   // A fact or rule may leave a variable of its conclusion open. Then no
@@ -1178,31 +1640,25 @@ export function compileLe(inputs, io = null) {
     emit('backward', new Struct(name, args), [new Struct(base, args), st('not', new Struct(opposite, args))], line, file,
       { counter: { n: 0 }, scenario: threaded ? args[0] : null, rule: true });
   }
-  // eyemind makes no assumptions: an answer that needs one is not given, and
-  // expected answers with unknowns are not compared. A negated assumable
-  // sentence would hold only as an assumption, which needs abduction.
-  const assumable = new Set(templates.filter((t) => t.assumable).map((t) => `${t.name}/${t.arity + (threaded ? 1 : 0)}`));
-  const negates = (term, negated = false) => term instanceof Struct &&
-    ((negated && assumable.has(`${term.name}/${term.args.length}`)) ||
-      term.args.some((arg) => negates(arg, negated || (term.name === 'not' && term.args.length === 1))));
-  for (const clause of pending) {
-    if (clause.body?.some((goal) => negates(goal))) {
-      throw new EyemindError(`${clause.file}: line ${clause.line}: Logical English: a negated assumable sentence holds only as an assumption, which needs abduction; abduction belongs to Logical English 2 and is not supported`);
-    }
-  }
   for (const { term, line, file } of kinds) {
     const S = new Var('Scenario'), X = new Var('X'), [sub, kind] = term.args.slice(-2);
     const isA = (a, b) => threaded ? st('is_a', S, a, b) : st('is_a', a, b);
     emit('backward', isA(X, kind), [isA(X, sub)], line, file, { counter: { n: 0 }, scenario: threaded ? S : null, rule: true });
   }
-  forwardRecursion(pending, templates, threaded);
+  if (flips.length) flipWorlds(pending, { templates, flips, scenarios, helpers, emit });
+  scopeProofs(pending, { templates, threaded, emit });
+  const assumable = new Set([...templates.filter((t) => t.assumable).map((t) => `${t.name}/${t.arity + (threaded ? 1 : 0)}`),
+    ...abducibles.map(({ term }) => `${term.name}/${term.args.length}`)]);
+  unfold(pending, templates, threaded);
+  forwardRecursion(pending, templates, threaded, assumable);
+  const abductive = assumable.size > 0 || constraints.length > 0;
+  if (abductive) abduce(pending, { templates, threaded, assumable, abducibles, constraints, denials, helpers, emit });
   for (const clause of pending) {
-    if (clause.guard) {
-      const { counter, scenario } = clause.guard;
-      clause.body = guardNegations(clause.body, new Set(scenario instanceof Var ? [scenario] : []), counter, open);
-    }
-    write(clause);
+    if (!clause.guard) continue;
+    const { counter, scenario } = clause.guard;
+    clause.body = guardNegations(clause.body, new Set(scenario instanceof Var ? [scenario] : []), counter, open);
   }
+  for (const clause of pending) write(clause);
   // The helpers follow every stated clause.
   const used = Object.keys(HELPERS).filter((name) => helpers.has(name));
   if (used.length) {
@@ -1211,7 +1667,7 @@ export function compileLe(inputs, io = null) {
     sources.push(...loadText(text, 'Logical English helpers').sources.map((s) => Object.assign(s, { line: null, file: null })));
   }
   return { kind: 'le', text: '// Compiled from Logical English to Logic Script.\n\n' + clauses.join('\n') + '\n',
-    program: new Program(sources), compiled: { templates, scenarios, threaded, queries, expectations } };
+    program: new Program(sources), compiled: { templates, scenarios, threaded, queries, expectations, abductive } };
 }
 
 // LE runs recursive rules with tabling (LE1) or a loop check (LE2), so a rule
@@ -1221,7 +1677,7 @@ export function compileLe(inputs, io = null) {
 // each of its rules binds every variable of its conclusion through the
 // relations of its conditions; a rule whose conclusion depends on how it is
 // called, such as a counter that goes down, stays backward.
-function forwardRecursion(pending, templates, threaded) {
+function forwardRecursion(pending, templates, threaded, assumable = new Set()) {
   const keys = new Set([...templates.map((t) => `${t.name}/${t.arity + (threaded ? 1 : 0)}`), `is_a/${threaded ? 3 : 2}`]);
   const keyOf = (term) => term instanceof Struct ? `${term.name}/${term.args.length}` : null;
   const calls = (term, out = new Set()) => {
@@ -1268,6 +1724,403 @@ function forwardRecursion(pending, templates, threaded) {
   }
 }
 
+// LE2's flip queries. A changed scenario is the world le:flip(S, Changes): its
+// stated facts are those of S, without the removed ones, with the added ones,
+// and the rules run in it as in any scenario. A change adds or removes a fact
+// of a template that no rule concludes, or one marked undefined or judged,
+// filled with individuals the scenario names; an answer is a smallest set of
+// at most three changes that makes the goal hold.
+const FLIP_LIMIT = 3;
+function flipWorlds(pending, { templates, flips, scenarios, helpers, emit }) {
+  const keyOf = (term) => term instanceof Struct ? `${term.name}/${term.args.length}` : null;
+  const concluded = new Set(pending.filter((c) => c.guard?.rule).map((c) => keyOf(c.head)));
+  const marked = templates.filter((t) => t.scenarioElement);
+  const changeable = (marked.length ? marked : templates.filter((t) => !t.function && !concluded.has(`${t.name}/${t.arity + 1}`)))
+    .filter((t, i, all) => all.findIndex((u) => u.name === t.name && u.arity === t.arity) === i);
+  const isChangeable = (name, arity) => changeable.some((t) => t.name === name && t.arity === arity);
+  // The facts each scenario states, and the knowledge base's facts, which
+  // hold in every world.
+  const stated = new Map(scenarios.map((s) => [s, []]));
+  for (const clause of pending) {
+    const head = clause.head;
+    if (clause.kind === 'query' || !(head instanceof Struct) || head.args.length === 0 || head.name.startsWith('le:')) continue;
+    const world = head.args[0];
+    if (clause.kind === 'fact' && typeof world === 'string' && stated.has(world)) {
+      const fact = new Struct(head.name, head.args.slice(1));
+      fact.kb = clause.kb === true;
+      stated.get(world).push(fact);
+    }
+    // A knowledge-base fact holds in a changed world too.
+    if (world instanceof Var && clause.body?.length === 1 && clause.body[0] instanceof Struct && clause.body[0].name === SCENARIO) {
+      clause.body = [st('le:world', world)];
+    }
+  }
+  // The changed worlds are finite: each set of at most FLIP_LIMIT candidate
+  // changes of a scenario. Each world states its facts: the scenario's, without
+  // the removed ones, with the added ones, so that every rule runs in it.
+  const S = new Var('Scenario');
+  emit('backward', st('le:world', S), [st(SCENARIO, S)], null, null);
+  let size = 0;
+  for (const [scenario, facts] of stated) {
+    // A place is filled with the individuals of its type, or with every
+    // individual when the scenario names none of that type; a kind is no
+    // individual.
+    const kinds = new Set(facts.filter((f) => f.name === 'is_a').map((f) => f.args[1]));
+    const individuals = [...new Set(facts.flatMap((f) => f.name === 'is_a' ? [f.args[0]] : f.args).filter((a) => typeof a === 'string' && !kinds.has(a)))];
+    const ofType = (place) => {
+      const typed = facts.filter((f) => f.name === 'is_a' && f.args[1] === place.name.split(' ').at(-1)).map((f) => f.args[0]);
+      return typed.length ? typed : individuals;
+    };
+    const candidates = [];
+    for (const fact of facts) if (!fact.kb && isChangeable(fact.name, fact.args.length)) candidates.push(st('remove', fact));
+    for (const t of changeable) {
+      if (t.arity > 2) continue;
+      const places = t.parts.filter((part) => part.place).map(ofType);
+      const fills = t.arity === 0 ? [[]] : t.arity === 1 ? places[0].map((a) => [a]) : places[0].flatMap((a) => places[1].map((b) => [a, b]));
+      for (const fill of fills) {
+        const sentence = new Struct(t.name, fill);
+        if (!facts.some((f) => write(f) === write(sentence))) candidates.push(st('add', sentence));
+      }
+    }
+    emit('fact', st('le:candidates', scenario, list(candidates)), [], null, null);
+    const subsets = (from, k) => k === 0 ? [[]] : candidates.slice(from).flatMap((c, i) => subsets(from + i + 1, k - 1).map((rest) => [c, ...rest]));
+    for (let k = 0; k <= FLIP_LIMIT; k++) {
+      for (const changes of subsets(0, k)) {
+        const world = st('le:flip', scenario, list(changes));
+        const removed = new Set(changes.filter((c) => c.name === 'remove').map((c) => write(c.args[0])));
+        const worldFacts = [...facts.filter((f) => !removed.has(write(f))), ...changes.filter((c) => c.name === 'add').map((c) => c.args[0])];
+        size += worldFacts.length + 1;
+        if (size > 200000) throw new EyemindError(`a flip query's search is larger than eyemind states: ${candidates.length} candidate changes in scenario ${scenario}`);
+        emit('fact', st('le:world', world), [], null, null);
+        for (const fact of worldFacts) emit('fact', new Struct(fact.name, [world, ...fact.args]), [], null, null);
+      }
+    }
+  }
+  helpers.add('le:choose');
+  helpers.add('le:member');
+  const sizes = list(Array.from({ length: FLIP_LIMIT + 1 }, (_, k) => BigInt(k)));
+  for (const { name, goals, S: world, changes, line, file } of flips) {
+    const size = new Var('K_'), candidates = new Var('Candidates_');
+    emit('backward', st('le:flips', name, world, size, changes),
+      [st('le:candidates', world, candidates), st('le:choose', size, candidates, changes), ...goals], line, file,
+      { counter: { n: 100 }, scenario: st('le:flip', world, changes), rule: false });
+    const smaller = new Var('J_');
+    emit('backward', st('le:smaller', name, world, size), [st('le:member', smaller, sizes), st('lt', smaller, size), st('le:flips', name, world, smaller, new Var('_'))], line, file);
+    const answer = st(ANSWER, name, world, changes);
+    emit('backward', answer, [st(SCENARIO, world), st('le:member', size, sizes), st('le:flips', name, world, size, changes),
+      st('not', st('le:smaller', name, world, size))], line, file);
+    emit('query', answer, [], line, file);
+  }
+}
+
+// LE2's source-scoped proof: "C according to S" proves C from the rules and
+// facts of the program and only the scenario facts whose source is
+// admissible under S. Every relation C can reach gets a second version,
+// NAME:sc, with the scope as one more argument; in it, a scenario fact holds
+// when its source is admissible under the scope.
+function scopeProofs(pending, { templates, threaded, emit }) {
+  const keyOf = (term) => term instanceof Struct ? `${term.name}/${term.args.length}` : null;
+  const user = new Set([...templates.map((t) => `${t.name}/${t.arity + (threaded ? 1 : 0)}`), `is_a/${threaded ? 3 : 2}`, `${ADMISSIBLE}/${threaded ? 3 : 2}`]);
+  const placeholders = [];
+  const find = (term) => {
+    if (!(term instanceof Struct)) return;
+    if (term.name === 'le:according' && term.args.length === 2) placeholders.push(term);
+    for (const arg of term.args) find(arg);
+  };
+  for (const clause of pending) for (const goal of clause.body ?? []) find(goal);
+  if (!placeholders.length) return;
+  const calls = (term, out = new Set()) => {
+    if (term instanceof Struct) {
+      if (user.has(keyOf(term))) out.add(keyOf(term));
+      for (const arg of term.args) calls(arg, out);
+    }
+    return out;
+  };
+  const reach = new Set();
+  for (const p of placeholders) for (const k of calls(p.args[0])) reach.add(k);
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const clause of pending) {
+      if (!reach.has(keyOf(clause.head))) continue;
+      for (const goal of clause.body ?? []) for (const k of calls(goal)) if (!reach.has(k)) { reach.add(k); changed = true; }
+    }
+  }
+  const scoped = (term, scope) => {
+    if (!(term instanceof Struct)) return term;
+    if (term.name === 'le:according' && term.args.length === 2) return scoped(term.args[0], term.args[1]);
+    if (scope !== null && reach.has(keyOf(term))) return new Struct(`${term.name}:sc`, [...term.args, scope]);
+    return new Struct(term.name, term.args.map((arg) => scoped(arg, scope)));
+  };
+  const admissible = (scenario, source, scope) => new Struct(ADMISSIBLE, [...(threaded ? [scenario] : []), source, scope]);
+  for (const clause of [...pending]) {
+    if (!reach.has(keyOf(clause.head)) || clause.kind === 'query') continue;
+    const scope = new Var('Scope_');
+    if (clause.evidence === null) continue;
+    const head = new Struct(`${clause.head.name}:sc`, [...clause.head.args, scope]);
+    if (clause.evidence !== undefined) {
+      emit('backward', head, [admissible(clause.head.args[0], clause.evidence, scope)], clause.line, clause.file);
+    } else {
+      emit('backward', head, (clause.body ?? []).map((goal) => scoped(goal, scope)), clause.line, clause.file,
+        clause.guard && { ...clause.guard, counter: { n: clause.guard.counter.n } });
+    }
+  }
+  for (const clause of pending) if (clause.body) clause.body = clause.body.map((goal) => scoped(goal, null));
+  // A source is admissible under itself.
+  const S = new Var('Scenario'), X = new Var('X');
+  emit('backward', admissible(S, X, X), threaded ? [st(SCENARIO, S)] : [], null, null);
+}
+
+// LE runs a rule top-down, so a negation or a collection may reach the rule's
+// own relation, through other rules, as long as the data never closes the
+// cycle. LS stratifies statically, so such a group of relations is unfolded
+// into levels: a negation or collection at level k calls level k + 1, a
+// relation of its own. The answers are exact up to DEPTH levels; a program
+// that needs more stops with an error that says so.
+const DEPTH = 8;
+function unfold(pending, templates, threaded) {
+  const keys = new Set([...templates.map((t) => `${t.name}/${t.arity + (threaded ? 1 : 0)}`), `is_a/${threaded ? 3 : 2}`, `le_is/${threaded ? 3 : 2}`]);
+  const keyOf = (term) => term instanceof Struct ? `${term.name}/${term.args.length}` : null;
+  const closedControl = (term) => term instanceof Struct && ((term.name === 'not' && term.args.length === 1) || ((term.name === 'findall' || term.name === 'findall_sorted') && term.args.length === 3));
+  const edges = new Map();
+  const visitCalls = (term, from, closed) => {
+    if (!(term instanceof Struct)) return;
+    if (keys.has(keyOf(term))) edges.get(from).push([keyOf(term), closed]);
+    for (const arg of term.args) visitCalls(arg, from, closed || closedControl(term));
+  };
+  const rules = pending.filter((c) => c.kind !== 'query' && c.head instanceof Struct && keys.has(keyOf(c.head)));
+  for (const rule of rules) {
+    if (!edges.has(keyOf(rule.head))) edges.set(keyOf(rule.head), []);
+    for (const goal of rule.body ?? []) visitCalls(goal, keyOf(rule.head), false);
+  }
+  // The strongly connected components, and those with a closed edge inside.
+  const index = new Map(), low = new Map(), stack = [], onStack = new Set(), component = new Map();
+  let counter = 0;
+  const visit = (v) => {
+    index.set(v, counter); low.set(v, counter++); stack.push(v); onStack.add(v);
+    for (const [w] of edges.get(v) ?? []) {
+      if (!index.has(w)) { visit(w); low.set(v, Math.min(low.get(v), low.get(w))); }
+      else if (onStack.has(w)) low.set(v, Math.min(low.get(v), index.get(w)));
+    }
+    if (low.get(v) === index.get(v)) {
+      const members = [];
+      let w;
+      do { w = stack.pop(); onStack.delete(w); members.push(w); } while (w !== v);
+      for (const m of members) component.set(m, members);
+    }
+  };
+  for (const v of edges.keys()) if (!index.has(v)) visit(v);
+  const unfolded = new Set();
+  for (const [from, list] of edges) {
+    for (const [to, closed] of list) if (closed && component.get(from)?.includes(to)) for (const m of component.get(from)) unfolded.add(m);
+  }
+  if (!unfolded.size) return;
+  const named = (term, level) => level === 0 ? term : new Struct(`${term.name}#${level}`, term.args);
+  const rename = (term, level, closed) => {
+    if (!(term instanceof Struct)) return term;
+    if (unfolded.has(keyOf(term))) {
+      const target = closed ? level + 1 : level;
+      // Past the last level, the call stops the run and says why.
+      if (target >= DEPTH) return st('is', new Var('_'), `Logical English: a negation or collection through recursion deeper than ${DEPTH} levels`);
+      return named(term, target);
+    }
+    return new Struct(term.name, term.args.map((arg) => rename(arg, level, closed || closedControl(term))));
+  };
+  const copies = [];
+  for (const clause of pending) {
+    if (clause.kind === 'query' || !unfolded.has(keyOf(clause.head))) {
+      if (clause.body) clause.body = clause.body.map((goal) => rename(goal, 0, false));
+      continue;
+    }
+    for (let level = 1; level < DEPTH; level++) {
+      copies.push({ ...clause, head: named(clause.head, level), body: clause.body?.map((goal) => rename(goal, level, false)),
+        guard: clause.guard && { ...clause.guard, counter: { n: clause.guard.counter.n } } });
+    }
+    if (clause.body) clause.body = clause.body.map((goal) => rename(goal, 0, false));
+  }
+  pending.push(...copies);
+}
+
+// Abduction, as LE2 does it. When the program cannot prove a sentence of an
+// assumable template, or of an "it is unknown whether" pattern, an answer can
+// rest on the assumption that it holds; a negation of such a sentence holds by
+// assuming it false. Every relation that can reach one gets a second version,
+// NAME:ab, with one more argument: the list of its assumptions, a sentence or
+// 'le:not'(sentence). A negation finds every way its goal holds and assumes,
+// for each, one of its assumptions false, leaving out a way that contradicts
+// what the answer already assumes; a collection or a universal counts every
+// way, and assumes all their assumptions. Each answer gets its list, without
+// the sentences the facts and rules prove after all, and is rejected when it
+// assumes a sentence and its negation, denies a proved sentence, or breaks a
+// constraint that more assumptions cannot repair.
+function abduce(pending, { templates, threaded, assumable, abducibles, constraints, denials, helpers, emit }) {
+  const keyOf = (term) => term instanceof Struct ? `${term.name}/${term.args.length}` : null;
+  const user = new Set([...templates.map((t) => `${t.name}/${t.arity + (threaded ? 1 : 0)}`), `is_a/${threaded ? 3 : 2}`,
+    `le_is/${threaded ? 3 : 2}`, ...assumable]);
+  const calls = (term, out = new Set()) => {
+    if (term instanceof Struct) {
+      if (user.has(keyOf(term))) out.add(keyOf(term));
+      for (const arg of term.args) calls(arg, out);
+    }
+    return out;
+  };
+  const clauses = pending.filter((c) => c.kind !== 'query');
+  const closure = (start) => {
+    const set = new Set(start);
+    for (let changed = true; changed;) {
+      changed = false;
+      for (const clause of clauses) {
+        const key = keyOf(clause.head);
+        if (set.has(key) || !clause.body) continue;
+        if (clause.body.some((goal) => [...calls(goal)].some((k) => set.has(k)))) { set.add(key); changed = true; }
+      }
+    }
+    return set;
+  };
+  const reach = closure(assumable);
+  const reaches = (goal) => [...calls(goal)].some((k) => reach.has(k));
+  let n = 0;
+  const fresh = () => new Var(`U${++n}_`);
+  for (const name of ['le:append', 'le:member', 'le:unknowns', 'le:negate', 'le:union', 'le:pairs', 'le:no_empty']) helpers.add(name);
+  const fail = (clause) => { throw new EyemindError(`${clause.file}: line ${clause.line}: Logical English: this combination of assumptions, negation and collection belongs to Logical English 2 and is not supported`); };
+  // The goals of a body in the abductive version, given the list of what is
+  // assumed before them; and the list after them.
+  const transform = (goals, clause, before) => {
+    const out = [];
+    let acc = before;
+    const add = (list) => {
+      if (acc === EMPTY) { acc = list; return; }
+      const next = fresh();
+      out.push(st('le:append', acc, list, next));
+      acc = next;
+    };
+    for (const goal of goals) {
+      if (!reaches(goal)) { out.push(goal); continue; }
+      if (goal instanceof Struct && reach.has(keyOf(goal))) {
+        const u = fresh();
+        out.push(new Struct(`${goal.name}:ab`, [...goal.args, u]));
+        add(u);
+      } else if (goal instanceof Struct && goal.name === 'or' && goal.args.length === 2) {
+        const v = fresh();
+        const branch = (g) => { const [body, w] = transform(flattenGoal(g), clause, acc); return conjunction([...body, st('unify', v, w)]); };
+        out.push(st('or', branch(goal.args[0]), branch(goal.args[1])));
+        acc = v;
+      } else if (goal instanceof Struct && goal.name === 'not' && goal.args.length === 1) {
+        const inner = flattenGoal(goal.args[0]), last = inner.at(-1);
+        if (inner.length > 1 && last instanceof Struct && last.name === 'not' && last.args.length === 1 && !reaches(last)) {
+          // A universal: every way its conditions hold, with all their
+          // assumptions, must meet the consequence.
+          const [body, w] = transform(inner.slice(0, -1), clause, EMPTY);
+          const local = renameApart(conjunction([...body, last]));
+          out.push(st('not', local));
+          const ways = fresh(), union = fresh();
+          out.push(st('findall', w, conjunction(body), ways), st('le:union', ways, union));
+          add(union);
+        } else {
+          const [body, w] = transform(inner, clause, EMPTY);
+          const ways = fresh(), denied = fresh();
+          out.push(st('findall', w, conjunction(body), ways), st('le:no_empty', ways), st('le:negate', ways, acc, denied));
+          add(denied);
+        }
+      } else if (goal instanceof Struct && (goal.name === 'findall' || goal.name === 'findall_sorted') && goal.args.length === 3) {
+        const [template, inner, list] = goal.args;
+        const [body, w] = transform(flattenGoal(inner), clause, EMPTY);
+        const pairs = fresh(), ways = fresh(), union = fresh();
+        out.push(st('findall', st('le:pair', template, w), conjunction(body), pairs), st('le:pairs', pairs, list, ways), st('le:union', ways, union));
+        add(union);
+      } else fail(clause);
+    }
+    return [out, acc];
+  };
+  const guardOf = (clause) => clause.guard ? { ...clause.guard, counter: { n: clause.guard.counter.n }, rule: false } : null;
+  for (const clause of clauses) {
+    if (!reach.has(keyOf(clause.head)) || clause.head.name === ANSWER) continue;
+    const [body, u] = transform(clause.body ?? [], clause, EMPTY);
+    emit('backward', new Struct(`${clause.head.name}:ab`, [...clause.head.args, u]), body, clause.line, clause.file, guardOf(clause));
+  }
+  // The assumptions themselves. A sentence is assumed when it is not proved
+  // and not denied when it is asked, or when it is asked open.
+  const assume = (sentence, line, file) => {
+    const open = st('findall', 'x', st('is_ground', sentence), EMPTY);
+    const closed = conjunction([st('is_ground', sentence), st('not', sentence), st('not', st('le:denied', sentence))]);
+    emit('backward', new Struct(`${sentence.name}:ab`, [...sentence.args, list([sentence])]), [st('or', closed, open)], line, file);
+  };
+  for (const template of templates.filter((t) => t.assumable)) {
+    const args = Array.from({ length: template.arity + (threaded ? 1 : 0) }, (_, i) => new Var(i === 0 && threaded ? 'Scenario' : `A${i}`));
+    assume(new Struct(template.name, args), null, null);
+  }
+  for (const { term, line, file } of abducibles) assume(term, line, file);
+  for (const { term, line, file } of denials) emit('fact', st('le:denied', term), [], line, file);
+  // Whether an assumed sentence holds after all, relation by relation.
+  for (const key of assumable) {
+    const [name, arity] = [key.slice(0, key.lastIndexOf('/')), Number(key.slice(key.lastIndexOf('/') + 1))];
+    const sentence = new Struct(name, Array.from({ length: arity }, (_, i) => new Var(`A${i}`)));
+    emit('backward', st('le:holds', sentence), [sentence], null, null);
+  }
+  // Constraints: the relations they reach, with an answer's assumptions as
+  // the only assumptions, NAME:w; a violation, and the sentence whose
+  // assumption repairs it, or 'none'.
+  if (constraints.length) {
+    helpers.add('le:consistent');
+    const world = closure(new Set([...constraints.flatMap((c) => c.goals.flatMap((g) => [...calls(g)]))]));
+    const worldly = (goal, u) => {
+      if (!(goal instanceof Struct)) return goal;
+      if (world.has(keyOf(goal))) return new Struct(`${goal.name}:w`, [...goal.args, u]);
+      return new Struct(goal.name, goal.args.map((arg) => worldly(arg, u)));
+    };
+    for (const clause of clauses) {
+      if (!world.has(keyOf(clause.head)) || clause.head.name === ANSWER) continue;
+      const u = new Var('U_');
+      emit('backward', new Struct(`${clause.head.name}:w`, [...clause.head.args, u]), (clause.body ?? []).map((g) => worldly(g, u)), clause.line, clause.file, guardOf(clause));
+    }
+    for (const key of world) {
+      if (!assumable.has(key)) continue;
+      const [name, arity] = [key.slice(0, key.lastIndexOf('/')), Number(key.slice(key.lastIndexOf('/') + 1))];
+      const args = Array.from({ length: arity }, (_, i) => new Var(`A${i}`)), u = new Var('U_');
+      emit('backward', new Struct(`${name}:w`, [...args, u]), [st('le:member', new Struct(name, args), u)], null, null);
+    }
+    for (const constraint of constraints) {
+      const u = new Var('U_');
+      const negated = constraint.goals.find((g) => g instanceof Struct && g.name === 'not' && g.args.length === 1 && assumable.has(keyOf(g.args[0])));
+      const fix = negated ? negated.args[0] : 'none';
+      emit('backward', st('le:violation', constraint.scenario ?? 'none', u, fix), [...(constraint.scenario instanceof Var ? [st(SCENARIO, constraint.scenario)] : []),
+        ...constraint.goals.map((g) => worldly(g, u))], constraint.line, constraint.file,
+      { counter: { n: 0 }, scenario: constraint.scenario, rule: false });
+    }
+  }
+  // Every answer gets the list of its unknowns, empty when it needs none.
+  for (const clause of pending.filter((c) => c.head instanceof Struct && c.head.name === ANSWER)) {
+    const final = fresh();
+    if (clause.kind !== 'query') {
+      const [body, u] = transform(clause.body, clause, EMPTY);
+      const checked = constraints.length ? fresh() : final;
+      clause.body = [...body, st('le:unknowns', u, checked), st('le:coherent', checked),
+        ...(constraints.length ? [st('le:consistent', threaded ? clause.head.args[1] : 'none', checked, final)] : [])];
+      helpers.add('le:coherent');
+    }
+    clause.head = new Struct(ANSWER, [...clause.head.args, final]);
+  }
+}
+
+// A universal's check inside a negation: the variables of its assumption
+// lists stand for any value there, so they become anonymous, _100000 on.
+function renameApart(goal) {
+  const map = new Map();
+  const visit = (term) => {
+    if (term instanceof Var && /^U\d+_$/.test(term.name)) {
+      if (!map.has(term)) map.set(term, new Var(`_${100000 + map.size}`));
+      return map.get(term);
+    }
+    if (term instanceof Struct) return new Struct(term.name, term.args.map(visit));
+    return term;
+  };
+  return visit(goal);
+}
+
+function flattenGoal(goal) {
+  if (goal instanceof Struct && goal.name === 'and' && goal.args.length === 2) return [...flattenGoal(goal.args[0]), ...flattenGoal(goal.args[1])];
+  return [goal];
+}
+
 function isGround(term) {
   if (term instanceof Var) return false;
   if (term instanceof Struct) return term.args.every(isGround);
@@ -1288,6 +2141,7 @@ function javascript(term) {
 // A value as LE writes it: names as they are, dates as YYYY-MM-DD, lists in
 // brackets and a sentence through its template.
 function leValue(term, templates) {
+  if (term instanceof Var) return '_';
   if (typeof term === 'string') return term === EMPTY ? '[]' : term;
   if (typeof term === 'bigint' || typeof term === 'number') return write(term);
   if (term instanceof Struct) {
@@ -1329,36 +2183,85 @@ function sentence(query, values, templates) {
 // The conclusions of a run: each query's answers in each scenario, as
 // sentences, and any expected answers that differ from them.
 export function writeLe(result, loaded) {
-  const { templates, scenarios, threaded, queries, expectations } = loaded.compiled;
+  const { templates, scenarios, threaded, queries, expectations, abductive } = loaded.compiled;
+  // Per scenario and query, each answer with the sets of unknowns it rests
+  // on; an answer that also holds without any is definite.
   const found = new Map();
+  // A negative assumption reads "it is not the case that S".
+  const unknown = (term) => term instanceof Struct && term.name === 'le:not' && term.args.length === 1 ? `it is not the case that ${unknown(term.args[0])}`
+    : leValue(threaded && term instanceof Struct ? new Struct(term.name, term.args.slice(1)) : term, templates);
   for (const answer of result.answers) {
     const term = readTerm(answer);
     if (!(term instanceof Struct) || term.name !== ANSWER) continue;
     const [name, ...rest] = term.args;
     const scenario = threaded ? rest.shift() : null;
+    const assumed = abductive ? listTerms(rest.pop()).map(unknown) : [];
     const query = queries.find((q) => q.name === name);
     if (!query) continue;
     const key = `${scenario}\u0000${name}`;
-    if (!found.has(key)) found.set(key, []);
-    const text = sentence(query, rest, templates);
-    if (!found.get(key).includes(text)) found.get(key).push(text);
+    if (!found.has(key)) found.set(key, new Map());
+    // A flip's answer is its changes: "add: S and remove: T".
+    const flip = (changes) => listTerms(changes).map((c) => `${c.name}: ${leValue(c.args[0], templates)}`).sort().join(' and ') || 'no change is needed';
+    const text = query.flip ? flip(rest[0]) : sentence(query, rest, templates), answers = found.get(key);
+    if (!answers.has(text)) answers.set(text, []);
+    const sets = answers.get(text), set = [...new Set(assumed)].sort();
+    if (!sets.some((other) => other.join('\u0000') === set.join('\u0000'))) sets.push(set);
   }
+  // LE2 writes the underscores of names as spaces and repeats an answer for
+  // each proof; expected answers are compared as a set, either way.
+  // An expected number with decimals matches an answer's number rounded to
+  // as many decimals, as LE2 compares them.
+  const same = (a) => a.replaceAll('_', ' ').replace(/\s*-\s*/g, '-').replace(/\s+/g, ' ').trim();
+  const matches = (want, got) => {
+    const w = want.split(' '), g = got.split(' ');
+    return w.length === g.length && w.every((word, i) => {
+      if (word === g[i]) return true;
+      const decimals = /^-?\d+\.(\d+)$/.exec(word);
+      return decimals !== null && /^-?\d+(\.\d+)?(e[+-]?\d+)?$/.test(g[i]) && Number(g[i]).toFixed(decimals[1].length) === word;
+    });
+  };
+  const equal = (a, b) => {
+    const x = [...new Set(a.map(same))], y = [...new Set(b.map(same))];
+    return x.every((w) => y.some((g) => matches(w, g))) && y.every((g) => x.some((w) => matches(w, g)));
+  };
   const blocks = [];
   for (const scenario of threaded ? scenarios : [null]) {
     for (const query of queries) {
-      const answers = found.get(`${scenario}\u0000${query.name}`) ?? [];
+      const answers = found.get(`${scenario}\u0000${query.name}`) ?? new Map();
       const title = scenario === null ? `% query ${query.name}` : `% query ${query.name} with scenario ${scenario}`;
-      const lines = [title, ...(answers.length ? answers.map((a) => `${a}.`) : ['% no answers'])];
-      const expected = expectations.find((e) => e.scenario === scenario && e.query === query.name && !e.unknowns.length);
-      // LE2 writes the underscores of names as spaces and repeats an answer
-      // for each proof; expected answers are compared as a set, either way.
-      const same = (a) => a.replaceAll('_', ' ').replace(/\s*-\s*/g, '-').replace(/\s+/g, ' ').trim();
-      const want = new Set(expected?.answers.map(same)), got = new Set(answers.map(same));
-      if (expected && (want.size !== got.size || [...want].some((a) => !got.has(a)))) {
-        lines.push(`% not as expected: ${query.name} expects answers [${expected.answers.map((a) => JSON.stringify(a)).join(', ')}]`);
+      const lines = [title];
+      const unknowns = new Set();
+      for (const [text, sets] of answers) {
+        lines.push(`${text}.`);
+        if (sets.some((set) => !set.length)) continue;
+        sets.forEach((set, i) => lines.push(`% ${i ? 'or assuming' : 'assuming'} that ${set.join(' and ')}`));
+        for (const set of sets) for (const u of set) unknowns.add(u);
+      }
+      if (!answers.size) lines.push('% no answers');
+      // An expectation without "and unknowns", or with an empty list, wants
+      // answers that rest on nothing; "and any unknowns" compares the answers.
+      for (const expected of expectations.filter((e) => e.scenario === scenario && e.query === query.name)) {
+        if (expected.changes) {
+          const sets = expected.changes.map((set) => [...set].sort().join(' and ') || 'no change is needed');
+          if (!equal(sets, [...answers.keys()])) {
+            lines.push(`% not as expected: ${query.name} expects changes [${expected.changes.map((set) => `[${set.map((c) => JSON.stringify(c)).join(', ')}]`).join(', ')}]`);
+          }
+          continue;
+        }
+        const ok = equal(expected.answers, [...answers.keys()]) && (expected.unknowns === 'any' || equal(expected.unknowns, [...unknowns]));
+        if (ok) continue;
+        const quoted = (items) => `[${items.map((a) => JSON.stringify(a)).join(', ')}]`;
+        const tail = expected.unknowns === 'any' ? ' and any unknowns' : expected.unknowns.length ? ` and unknowns ${quoted(expected.unknowns)}` : '';
+        lines.push(`% not as expected: ${query.name} expects answers ${quoted(expected.answers)}${tail}`);
       }
       blocks.push(lines.join('\n'));
     }
   }
   return blocks.length ? blocks.join('\n\n') + '\n' : '% no queries\n';
+}
+
+function listTerms(term) {
+  const items = [];
+  while (term instanceof Struct && term.name === '.' && term.args.length === 2) { items.push(term.args[0]); term = term.args[1]; }
+  return items;
 }

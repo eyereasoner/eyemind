@@ -253,10 +253,12 @@ the program reads the English as intended is a matter of the compiler. Several
 `.le` files form one document, without other input formats or RDF logic
 switches.
 
-Of Logical English 2, eyemind also reads constants, included files, rule labels,
-`only if` rules and the template additions `synonym`, `opposite` and those that
-change nothing it computes. Abduction (assumptions and constraints), functions,
-type checking, embedded Prolog, LPS and s(CASP) are reported as unsupported. Every `npm test` scores the
+Of Logical English 2, eyemind also reads constants, functions, included files
+and web addresses, Prolog resources and embedded Prolog goals with LE2's system
+predicates, rule labels, numbered and grouped conditions, `only if` rules, the
+template additions `synonym` and `opposite`, provenance with source-scoped
+proof, abduction with negation and integrity constraints, and flip queries.
+LPS, s(CASP), decision tables and services are reported as unsupported. Every `npm test` scores the
 [Logical English 2 examples](test/UPSTREAM.md) that state their expected
 answers, as coverage: a wrong answer fails the run, a file that uses an
 unsupported feature is counted as not passed.

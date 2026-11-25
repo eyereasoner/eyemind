@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { manifestCases, RDF_MANIFESTS, sparqlRlCases, SRL_BASE, W3C_BASE } from '../test/w3c.js';
 import { shaclCases, SHACL_BASE, SHACL_PATH } from '../test/shacl.js';
 import { mobibenchCases, MOBIBENCH_ARCHIVE, MOBIBENCH_SUBSUITE } from '../test/mobibench.js';
-import { leCases, LE_PATH, LE_SOURCE } from '../test/logical-english.js';
+import { leCases, leIncludedAddresses, LE_DOCUMENTS, LE_PATH, LE_SOURCE } from '../test/logical-english.js';
 import { syncNotation3Tests } from './sync-notation3tests.js';
 import { cacheFiles, cachePaths, readCachedSuites, recordUpstream, writeInventory } from './test-cache.js';
 import { readZip } from './zip.js';
@@ -233,6 +233,15 @@ export async function syncTestSuites({ root = ROOT, checkouts = {}, log = consol
     licenses(leCheckout, le);
     if (existsSync(join(leCheckout, 'NOTICE'))) copy(join(leCheckout, 'NOTICE'), join(le, 'NOTICE'));
     copy(join(leCheckout, 'README.md'), join(le, 'UPSTREAM.md'));
+    // The web addresses the examples include, saved for offline test runs.
+    const documents = {};
+    for (const address of leIncludedAddresses(join(le, LE_PATH))) {
+      try {
+        const response = await fetch(address, { signal: AbortSignal.timeout(20000) });
+        documents[address] = response.ok ? { text: await response.text() } : { error: `HTTP ${response.status}` };
+      } catch (error) { throw new Error(`cannot fetch ${address}: ${error.message}`); }
+    }
+    writeFileSync(join(le, LE_DOCUMENTS), `${JSON.stringify(documents, null, 2)}\n`);
     const leTests = leCases({ mirror: le });
     if (!leTests.length) throw new Error(`no Logical English examples with expected answers in ${LE_PATH}`);
     const leInfo = { source: LE_SOURCE, revision: revision(leCheckout), path: LE_PATH, cases: leTests.length };

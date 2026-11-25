@@ -4,7 +4,7 @@
 // expected answer set it compares. A file that uses a feature LE-SPEC.md
 // lists as unsupported, or that LS rejects for a negation on a dependency
 // cycle, is not passed; any other error or answer fails.
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { compileLe, run, writeLe } from '../src/index.js';
 import { cachePaths } from '../tools/test-cache.js';
@@ -15,8 +15,6 @@ export const LE_PATH = 'examples/moreExamples';
 // Files whose upstream text eyemind reads differently, and why. A listed file
 // that passes fails the run, so that the list stays current.
 export const KNOWN = {
-  'AItest.le': 'a scenario fact matches no declared template',
-  'domains/tax/gstturnover.le': 'a formula names Sales Associates where the rule introduced Sales_Associates',
 };
 
 const UNSUPPORTED = /not supported|unstratified negation/;
@@ -36,6 +34,37 @@ export function leCases({ mirror = cachePaths().le } = {}) {
   return cases;
 }
 
+// The web addresses the examples include, as npm run sync saved them, so that
+// a test never reads the network.
+export const LE_DOCUMENTS = 'documents.json';
+function readDocument(iri) {
+  const path = join(cachePaths().le, LE_DOCUMENTS);
+  const documents = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : {};
+  const document = documents[iri];
+  if (!document) throw new Error(`no saved document for ${iri}; run npm run sync`);
+  if (document.error !== undefined) throw new Error(document.error);
+  return document.text;
+}
+
+// The web addresses that the examples under root include, with .le added as
+// LE2 adds it.
+export function leIncludedAddresses(root) {
+  const addresses = new Set();
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (entry.name.endsWith('.le')) {
+        for (const [, block] of readFileSync(path, 'utf8').matchAll(/includes these (?:resources|scenarios):([\s\S]*?)\.\s*(?:\n|$)/g)) {
+          for (const [address] of block.matchAll(/https?:\/\/[^\s,]+/g)) addresses.add(/\.(le|pl)$/.test(address) ? address : `${address}.le`);
+        }
+      }
+    }
+  };
+  walk(root);
+  return [...addresses].sort();
+}
+
 // { status: 'passed' | 'unsupported' | 'known' | 'failed', message, ms }.
 export function scoreLeCase(c) {
   const started = performance.now();
@@ -43,11 +72,11 @@ export function scoreLeCase(c) {
   let status, message = '';
   try {
     // The file's path lets it include the files beside it.
-    const loaded = compileLe([[readFileSync(c.path, 'utf8'), c.path]], { readFile: (path) => readFileSync(path, 'utf8') });
-    const compared = loaded.compiled.expectations.filter((e) => !e.unknowns.length).length;
+    const loaded = compileLe([[readFileSync(c.path, 'utf8'), c.path]], { readFile: (path) => readFileSync(path, 'utf8'), readDocument });
+    const compared = loaded.compiled.expectations.length;
     const output = writeLe(run(loaded.program, { maxInferences: 10_000_000 }), loaded);
     const wrong = output.split('\n').filter((line) => line.startsWith('% not as expected'));
-    if (!compared) [status, message] = ['unsupported', 'every expectation rests on unknowns'];
+    if (!compared) [status, message] = ['unsupported', 'no expected answers'];
     else if (wrong.length) [status, message] = ['failed', wrong.join('\n')];
     else status = 'passed';
   } catch (error) {
