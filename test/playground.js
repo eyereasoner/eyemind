@@ -242,8 +242,8 @@ export const tests = [
 
   ['Logical English examples download LE conclusions and keep JavaScript proofs', async (page, base) => {
     const p = driver(page);
-    for (const name of ['socrates-le', 'squares-le', 'records-le', 'handicap-card-le', 'research-access-le',
-      'research-snapshot-le', 'shortest-path-le', 'river-crossing-le', 'pell-equation-le', 'symbolic-derivative-le', 'course-certificates-le']) {
+    for (const name of ['socrates-le', 'records-le', 'handicap-card-le', 'research-access-le',
+      'research-snapshot-le', 'shortest-path-le', 'river-crossing-le', 'course-certificates-le']) {
       await p.open(`${base}#example=${name}`);
       await p.run();
       assert.match(await p.status(), /^Done · exit 0/);

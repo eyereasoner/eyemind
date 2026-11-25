@@ -13,7 +13,7 @@ program, a JavaScript library and a browser application.
 - [Playground](https://eyereasoner.github.io/eyemind/playground/): run any
   example or your own program in the browser, with its proof and check report.
 - [Examples](https://eyereasoner.github.io/eyemind/examples/): the
-  170 runnable programs, each with a card deck and saved conclusions; all but
+  168 runnable programs, each with a card deck and saved conclusions; all but
   the two streamed examples also save proofs and check reports.
 - [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC): the
   language, the proof format and how a proof is checked.
@@ -261,7 +261,6 @@ hierarchy in category constraints. [Logical English specification](https://eyere
 For larger programs, try
 [shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le),
 [river-crossing plans](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le),
-[Pell equations](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation-le),
 [British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le),
 [library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le) or an
 [election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le).

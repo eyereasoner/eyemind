@@ -139,14 +139,12 @@ Each deck explains the result and links to the source and Playground.
 - [Lists](https://eyereasoner.github.io/eyemind/examples/deck/lists) (Logic Script) — Concatenation, mapping and summation
 - [Peano](https://eyereasoner.github.io/eyemind/examples/deck/peano) (Logic Script) — Symbolic arithmetic, relational addition and a chained derivation
 - [Peasant Arithmetic](https://eyereasoner.github.io/eyemind/examples/deck/peasant) (Logic Script) — Peasant multiplication and exponentiation by halving and doubling
-- [Pell equations](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation-le) (Logical English) — An exact recurrence generates large Pell solutions and checks each polynomial identity
 - [Pell solutions beyond machine-sized integers](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation) (Logic Script) — Exact Pell solutions through step 50, checked against the defining equation
 - [Polynomial Roots](https://eyereasoner.github.io/eyemind/examples/deck/polynomial) (Logic Script) — Complex roots of polynomials up to degree 4 by Cardan and Lagrange
 - [Recover four data bits after one bit flips](https://eyereasoner.github.io/eyemind/examples/deck/hamming-code) (Logic Script) — Parity syndromes and correction of a single flipped bit in Hamming(7,4)
-- [Squares](https://eyereasoner.github.io/eyemind/examples/deck/squares-le) (Logical English) — Logical English computes exact squares of three supplied integers
+- [Squares](https://eyereasoner.github.io/eyemind/examples/deck/squares) (Logic Script) — A forward rule computes exact squares of three supplied integers
 - [Strings](https://eyereasoner.github.io/eyemind/examples/deck/strings) (Logic Script) — Text construction and Unicode inspection
 - [Symbolic Derivative](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative) (Logic Script) — Symbolic differentiation of structured formulas by the sum, product, quotient, power and chain rules
-- [Symbolic differentiation](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative-le) (Logical English) — Structural rules differentiate a cubic expression and evaluate the resulting tree at two points
 - [The Sieve of Eratosthenes](https://eyereasoner.github.io/eyemind/examples/deck/sieve) (Logic Script) — The sieve of Eratosthenes over an explicit list of integers
 - [The zeta function](https://eyereasoner.github.io/eyemind/examples/deck/zeta) (Logic Script) — Exact Bernoulli numbers give zeta at the negative and even integers, and Borwein's series over complex terms finds zeros on Riemann's critical line
 - [Type Inference](https://eyereasoner.github.io/eyemind/examples/deck/type-inference) (Logic Script) — Typing rules for a small expression language, run as a checker

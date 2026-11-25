@@ -39,13 +39,6 @@ export const tests = {
     assert.deepEqual(answers('river-crossing', (s) => s.replace('7 is a crossingLimit.', '6 is a crossingLimit.')), []);
   },
 
-  'Pell iteration limits change exact answers beyond binary64 integer precision'() {
-    assert.deepEqual(answers('pell-equation', (s) => s.replace('24 is an iterationLimit.', '21 is an iterationLimit.')), []);
-    const extended = answers('pell-equation', (s) => s.replace('24 is an iterationLimit.', '25 is an iterationLimit.'));
-    assert.equal(extended.length, 4);
-    assert.equal(write(extended.at(-1)), 'solution(6882627592338442563, 4866752642924153522, 1)');
-  },
-
   'certificates and audits share dossier witnesses and prior learning changes eligibility'() {
     const result = answers('course-certificates'), students = [];
     assert.equal(result.length, 3);
@@ -65,16 +58,6 @@ export const tests = {
     const changed = answers('course-certificates', (s) => s.replace('priorLearning(Carol, Control, 90)', 'priorLearning(Carol, Control, 84)'));
     assert.ok(changed.some((row) => write(row) === "missing('Carol', 'Robotics', 'Control')"));
     assert.equal(changed.filter((row) => row.name === 'and').length, 1);
-  },
-
-  'symbolic derivative evaluation keeps points separate and responds to expression changes'() {
-    const result = answers('symbolic-derivative');
-    assert.deepEqual(result.map((row) => row.args.slice(2)), [[0n, 2n], [3n, 29n]]);
-    assert.equal(write(result[0].args[1]), write(result[1].args[1]));
-    const atTwo = answers('symbolic-derivative', (s) => s.replace('point(x, 0) and point(x, 3).', 'point(x, 2).'));
-    assert.deepEqual(atTwo.map((row) => row.args.slice(2)), [[2n, 14n]]);
-    const changed = answers('symbolic-derivative', (s) => s.replaceAll('constant(2)', 'constant(5)'));
-    assert.deepEqual(changed.map((row) => row.args.slice(2)), [[0n, 5n], [3n, 32n]]);
   },
 
   'British citizenship follows either subsection, passes through a derived parent and yields to the contrary'() {

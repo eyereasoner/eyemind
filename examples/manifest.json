@@ -859,9 +859,8 @@
     "description": "Logical English class facts and an every-rule conclude that Socrates is mortal"
   },
   {
-    "name": "squares-le",
-    "files": ["squares-le.le"],
-    "description": "Logical English computes exact squares of three supplied integers"
+    "name": "squares",
+    "description": "A forward rule computes exact squares of three supplied integers"
   },
   {
     "name": "records-le",
@@ -909,19 +908,9 @@
     "description": "Compound states and safety constraints find both seven-crossing wolf, goat and cabbage plans"
   },
   {
-    "name": "pell-equation-le",
-    "files": ["pell-equation-le.le"],
-    "description": "An exact recurrence generates large Pell solutions and checks each polynomial identity"
-  },
-  {
     "name": "course-certificates-le",
     "files": ["course-certificates-le.le"],
     "description": "Recursive course requirements and prior learning lead to shared dossiers, audits and nested certificate witnesses"
-  },
-  {
-    "name": "symbolic-derivative-le",
-    "files": ["symbolic-derivative-le.le"],
-    "description": "Structural rules differentiate a cubic expression and evaluate the resulting tree at two points"
   },
   {
     "name": "british-citizenship-le",

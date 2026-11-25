@@ -326,9 +326,7 @@ These programs use the grammar above without additional syntax:
 | --- | --- |
 | [Shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le) | Bounded recursive histories, exact costs and minimum selection by absence, retaining ties. |
 | [River crossing](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le) | Compound states, repeated-variable matching, safety constraints and complete plans within a bound. |
-| [Pell equations](https://eyereasoner.github.io/eyemind/examples/deck/pell-equation-le) | Recursive arithmetic beyond binary64 integer precision and exact polynomial checks. |
 | [Course certificates](https://eyereasoner.github.io/eyemind/examples/deck/course-certificates-le) | Recursive requirements, absence of a counterexample, shared existential witnesses and witnesses containing earlier witnesses. |
-| [Symbolic differentiation](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative-le) | Structural recursion over expression trees, constructed derivatives and evaluation at separate points. |
 | [British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le) | Section 1 of the British Nationality Act 1981: alternative premises, a presumption that holds unless the contrary is shown, date comparisons and citizenship through a derived parent. |
 | [Library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le) | Charges from alternative rules, then the sum, number and maximum per member over distinct combinations. |
 | [Election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le) | Eligibility by alternatives, distinct choices, an absence test inside a count, winners by maximum with ties, and a quorum. |
