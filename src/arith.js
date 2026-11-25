@@ -365,6 +365,12 @@ const ARITIES = {
 };
 export const CONSTANTS = { pi: Math.PI, e: Math.E, tau: 2 * Math.PI };
 
+// Whether name/arity is an arithmetic function, as apply selects one.
+export function takes(name, arity) {
+  return arity === 2 && Object.hasOwn(BINARY, name) || arity === 1 && Object.hasOwn(UNARY, name) ||
+    Object.hasOwn(FUNCTIONS, name) && accepts(name, arity);
+}
+
 function accepts(name, arity) {
   const allowed = ARITIES[name];
   if (allowed === undefined) return false;

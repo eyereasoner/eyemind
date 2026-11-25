@@ -8,6 +8,7 @@ import { write } from './writer.js';
 import { compileOdrlLe, odrlLeReport, snapshotGoal } from './le-odrl.js';
 import { dpvRules } from './dpv.js';
 import { loadText } from './lang.js';
+import { ARITHMETIC_NAMES, CONSTANTS, takes } from './arith.js';
 
 const st = (name, ...args) => new Struct(name, args);
 const VARIABLE = /^[A-Z][0-9]*$/;
@@ -19,6 +20,9 @@ const SENTENCE_WORDS = new Set(['every', 'for', 'if', 'find', 'there', 'it', 'co
 const RESERVED = new Set([...PRIMITIVE_KEYS, ...CONTROL_KEYS, ...RESERVED_KEYS].map((key) => key.split('/')[0]));
 for (const name of ['true', 'false', 'fail']) RESERVED.add(name);
 const OPERATORS = { '+': ['add', 1], '-': ['sub', 1], '*': ['mul', 2], '/': ['div', 2] };
+// LS arithmetic functions an expression can call, as exp(X) or gcd(A, B);
+// and, or and not are LE words.
+const CALLS = new Set([...ARITHMETIC_NAMES].filter((name) => !['and', 'or', 'not'].includes(name)));
 const list = (items) => items.reduceRight((tail, head) => st('.', head, tail), EMPTY);
 const cons = (head, tail) => st('.', head, tail);
 const AGGREGATES = { number: 'le:count', sum: 'le:sum', maximum: 'le:max', minimum: 'le:min' };
@@ -229,9 +233,19 @@ class Parser {
 
   expressionValue(min) {
     let left;
+    const token = this.token, next = this.tokens[this.at + 1];
     if (this.take('-')) left = st('neg', this.expression(3));
     else if (this.take('(')) { left = this.expression(); this.need(')'); }
-    else {
+    else if (token.kind === 'word' && CALLS.has(token.value) && next?.value === '(') {
+      this.at += 2;
+      const args = [];
+      if (!this.take(')')) { do { args.push(this.expression()); } while (this.take(',')); this.need(')'); }
+      if (!takes(token.value, args.length)) this.error(`${token.value} does not take ${args.length} argument${args.length === 1 ? '' : 's'}`, token.line);
+      left = st(token.value, ...args);
+    } else if (token.kind === 'word' && Object.hasOwn(CONSTANTS, token.value)) {
+      this.at++;
+      left = token.value;
+    } else {
       left = this.term();
       if (!(left instanceof Var) && !['bigint', 'number'].includes(typeof left)) this.error('arithmetic operands must be numbers or declared variables');
     }

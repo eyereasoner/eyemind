@@ -167,6 +167,21 @@ and division, then addition and subtraction. Binary operators associate left.
 They compile to `neg`, `add`, `sub`, `mul` and `div`. Only the value-of form
 binds its left variable; comparisons require their inputs beforehand.
 
+An expression can also call an LS arithmetic function by name, with
+expressions as its arguments, and use the constants `pi`, `e` and `tau`:
+
+```text
+For every X and Y, if X is a number and Y is the value of exp(log(X) * 3) + gcd(12, 18) * cos(pi)
+then Y is a result of X.
+```
+
+The functions are those of [LS-SPEC Section 5.2](https://eyereasoner.github.io/eyemind/LS-SPEC#52-functions-and-arities),
+such as `pow`, `floordiv`, `mod`, `gcd`, `lcm`, `sqrt`, `exp`, `log`, `sin`,
+`cos`, `atan2`, `abs` and `hypot`, except `and`, `or` and `not`, which are LE
+words. A call with an arity the function does not take is an error naming
+its line. As in LS, `pow` and `floordiv` of integers stay exact, while
+`exp`, `log` and the trigonometric functions give floats.
+
 ```text
 4 is an integer.
 For every X and Y, if X is an integer and Y is the value of X * X
@@ -316,6 +331,7 @@ These programs use the grammar above without additional syntax:
 | [Symbolic differentiation](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative-le) | Structural recursion over expression trees, constructed derivatives and evaluation at separate points. |
 | [British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le) | Section 1 of the British Nationality Act 1981: alternative premises, a presumption that holds unless the contrary is shown, date comparisons and citizenship through a derived parent. |
 | [Library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le) | Charges from alternative rules, then the sum, number and maximum per member over distinct combinations. |
+| [The zeta function](https://eyereasoner.github.io/eyemind/examples/deck/zeta-le) | Exact Bernoulli numbers with `pow`, `floordiv`, `gcd` and `lcm`; zeta at the negative and even integers; Borwein's series with `exp`, `log`, `cos` and `sin` checking zeros on the critical line. |
 | [Election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le) | Eligibility by alternatives, distinct choices, an absence test inside a count, winners by maximum with ties, and a quorum. |
 | [International data transfers](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le) | An ODRL snapshot with rules: GDPR Chapter V observations derived with alternative premises and absence tests over DPV, location and GDPR-extension names, decided by one permission per basis and a prohibition that wins. |
 | [Breach notification](https://eyereasoner.github.io/eyemind/examples/deck/breach-notification-le) | An ODRL snapshot with rules: GDPR Articles 33 and 34 as permissions and prohibitions, with requests, observations and a processor's duty evidence derived from breach records by comparisons over hours. |

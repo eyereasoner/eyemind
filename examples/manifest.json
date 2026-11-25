@@ -901,6 +901,11 @@
     "description": "Compound states and safety constraints find both seven-crossing wolf, goat and cabbage plans"
   },
   {
+    "name": "zeta-le",
+    "files": ["zeta-le.le"],
+    "description": "Exact Bernoulli numbers give zeta at the negative and even integers, and Borwein's series finds zeros on Riemann's critical line"
+  },
+  {
     "name": "pell-equation-le",
     "files": ["pell-equation-le.le"],
     "description": "An exact recurrence generates large Pell solutions and checks each polynomial identity"

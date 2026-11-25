@@ -102,6 +102,23 @@ Find whether ex:study has personalDataWithin pd:Contact.`;
     assert.deepEqual(answers('For every Y, if Y is the value of 1 + 1.0 then Y is a result.'), ['result(2.0)']);
   },
 
+  'expressions call LS arithmetic functions and constants, exact where LS is exact'() {
+    assert.deepEqual(answers('For every Y, if Y is the value of floordiv(pow(10, 20) + 1, gcd(12, 18)) then Y is a result.'),
+      ['result(16666666666666666666)']);
+    assert.deepEqual(answers('For every Y, if Y is the value of lcm(4, 6) * -abs(-2) then Y is a result.'), ['result(-24)']);
+    assert.deepEqual(answers('For every Y, if Y is the value of cos(pi) + hypot(3, 4) then Y is a result.'), ['result(4.0)']);
+    assert.deepEqual(answers('For every Y, if Y is the value of log(exp(2.0)) then Y is a result.'), ['result(2.0)']);
+    assert.match(errorOf(() => compileLe([['For every Y, if Y is the value of exp(1, 2) then Y is a result.', 'x.le']])),
+      /x\.le: line 1: Logical English: exp does not take 2 arguments/);
+    // and, or and not stay LE words; an unknown name is still not an operand.
+    assert.match(errorOf(() => compileLe([['For every Y, if Y is the value of frob(1) then Y is a result.', 'x.le']])),
+      /arithmetic operands must be numbers or declared variables/);
+    const zeta = cli(['examples/zeta-le.le']);
+    assert.equal(zeta.code, 0, zeta.stderr);
+    assert.match(zeta.stdout, /^zetaAtNegative\(1, -1, 12\)\.$/m);
+    assert.match(zeta.stdout, /^firstZero is a criticalLineZero\.$/m);
+  },
+
   'explicit absence differs from negative evidence and waits for derived facts'() {
     const text = 'Alice is a person. Bob is a person. Bob is pending. ' +
       'For every X, if X is a person and it is not known that X is blocked then X is admitted. ' +
