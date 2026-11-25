@@ -1,313 +1,280 @@
 import { assert, cli, errorOf } from './helpers.js';
-import { checkProof, compileLe, loadText, readTerm, run, write, writeLe } from '../src/index.js';
+import { checkProof, compileLe, loadText, run, writeLe } from '../src/index.js';
 import { inputKind, loadInputs, writeConclusions } from '../src/formats.js';
-import { parseRdf } from '../src/rdf.js';
-import { flattenConjunction } from '../src/terms.js';
 
 const compile = (text) => compileLe([[text, 'input.le']]);
-const answers = (text) => run(compile(text).program).answers;
+// The conclusions of a document, as LE writes them.
+const output = (text) => {
+  const loaded = compile(text);
+  return writeLe(run(loaded.program), loaded);
+};
+// The answer sentences of a document, without the query headings.
+const sentences = (text) => output(text).split('\n').filter((line) => line && !line.startsWith('%'));
+const document = (templates, rules, query) => `the templates are:\n${templates}\n\nthe knowledge base test includes:\n${rules}\n\nquery q is:\n${query}\n`;
 
 export const tests = {
-  'class facts, every rules, conjunctions and recursive binary relations have explicit LS meanings'() {
-    assert.deepEqual(answers('Socrates is a human. Every human is mortal. Find every X such that X is mortal.'), ["mortal('Socrates')"]);
-    const input = 'Alice is a parent of Bob. Bob is a parent of Carol. ' +
-      'For every X and Y, if parent(X, Y) then ancestor(X, Y). ' +
-      'For every X and Y and Z, if parent(X, Y) and ancestor(Y, Z) then ancestor(X, Z). ' +
-      'Find every X such that Alice is an ancestor of X.';
-    assert.deepEqual(answers(input), ["ancestor('Alice', 'Bob')", "ancestor('Alice', 'Carol')"]);
-    assert.deepEqual(answers('Ada is a human and Ada is a mathematician. Every human is mortal and animal.'), ["mortal('Ada')", "animal('Ada')"]);
-  },
-
-  'qualified RDF vocabulary joins ODRL and DPV in rules and round-trips through LE and Turtle'() {
-    const loaded = compile(`
-Use prefix ex with namespace "urn:example:".
-Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
-Use prefix dpv with namespace "https://w3id.org/dpv#".
-ex:agreement is an odrl:Agreement.
-ex:study is a dpv:Process and ex:study has dpv:hasPurpose dpv:AcademicResearch.
-Every odrl:Agreement is an ex:ReviewedPolicy.
-For every X and P, if X is a dpv:Process and X is a dpv:hasPurpose of P then X has ex:observedPurpose P.
-Find every X such that X is an ex:ReviewedPolicy.
-Find every X and P such that X has ex:observedPurpose P.`);
-    const result = run(loaded.program, { proof: true });
-    assert.deepEqual(run(loadText(loaded.text)).answers, result.answers);
-    assert.equal(checkProof(loadText(loaded.text), result.proof).valid, true);
-    const output = writeConclusions(loaded, result, { format: 'le' });
-    assert.match(output, /^Use prefix dpv with namespace "https:\/\/w3id\.org\/dpv#"/);
-    assert.doesNotMatch(output, /Use prefix odrl/);
-    assert.match(output, /ex:agreement is a ex:ReviewedPolicy\./);
-    assert.match(output, /ex:study has ex:observedPurpose dpv:AcademicResearch\./);
-    assert.deepEqual(compile(output).program.sources.map((s) => write(s.head)), result.answers);
-    const turtle = (all) => parseRdf(writeConclusions(loaded, result, { format: 'turtle', all })).quads;
-    assert.equal(turtle(false).length, 2);
-    const graph = turtle(true);
-    assert.equal(graph.length, 5);
-    assert.ok(graph.some((q) => q[1].args[0] === 'https://w3id.org/dpv#hasPurpose' && q[2].args[0] === 'https://w3id.org/dpv#AcademicResearch'));
-  },
-
-  'prefix definitions are scoped to their file and malformed RDF shorthand gets a located error'() {
-    const first = 'Use prefix ex with namespace "urn:first:". ex:item has ex:related ex:other.';
-    const second = 'Use prefix ex with namespace "urn:second:". ex:item has ex:related 1.';
-    const loaded = compileLe([[first, 'one.le'], [second, 'two.le']]);
-    assert.deepEqual(loaded.program.sources.map((s) => write(s.head)), [
-      "rdf(iri('urn:first:item'), iri('urn:first:related'), iri('urn:first:other'))",
-      "rdf(iri('urn:second:item'), iri('urn:second:related'), 1)",
-    ]);
-    assert.match(errorOf(() => compileLe([[first, 'one.le'], ['ex:item is a dpv:Process.', 'two.le']])), /two\.le: line 1:.*prefix ex is undeclared/);
-    for (const [text, pattern] of [
-      ['Use prefix pd with namespace "relative#".', /absolute IRI/],
-      [first + ' Use prefix ex with namespace "urn:changed:".', /already declared/],
-      [first + ' item is a ex:Class.', /needs a resource subject/],
-      [first + ' ex:item has ex:related "an LS atom".', /needs an RDF value/],
-    ]) assert.match(errorOf(() => compile(text)), pattern);
-  },
-
-  'DPV hierarchy logic matches exact and broader purpose and data categories from supplied SKOS edges'() {
-    const input = `Use DPV hierarchy logic.
-Use prefix ex with namespace "urn:example:".
-Use prefix dpv with namespace "https://w3id.org/dpv#".
-Use prefix pd with namespace "https://w3id.org/dpv/pd#".
-Use prefix skos with namespace "http://www.w3.org/2004/02/skos/core#".
-ex:study has dpv:hasPurpose dpv:AcademicResearch.
-dpv:AcademicResearch has skos:broader dpv:ResearchAndDevelopment.
-ex:study has dpv:hasData pd:EmailAddressWork and ex:study has dpv:hasPersonalData pd:EmailAddressWork.
-pd:EmailAddressWork has skos:broader pd:EmailAddress.
-pd:Contact has skos:narrower pd:EmailAddress.
-Find whether ex:study has purposeWithin dpv:AcademicResearch.
-Find whether ex:study has purposeWithin dpv:ResearchAndDevelopment.
-Find whether ex:study has purposeWithin dpv:Marketing.
-Find whether ex:study has dataWithin pd:Contact.
-Find whether ex:study has personalDataWithin pd:Contact.`;
-    const loaded = compile(input), result = run(loaded.program, { proof: true });
-    assert.deepEqual(result.answers, [
-      "purposeWithin(iri('urn:example:study'), iri('https://w3id.org/dpv#AcademicResearch'))",
-      "purposeWithin(iri('urn:example:study'), iri('https://w3id.org/dpv#ResearchAndDevelopment'))",
-      "dataWithin(iri('urn:example:study'), iri('https://w3id.org/dpv/pd#Contact'))",
-      "personalDataWithin(iri('urn:example:study'), iri('https://w3id.org/dpv/pd#Contact'))",
-    ]);
-    assert.deepEqual(run(loadText(loaded.text)).answers, result.answers);
-    assert.ok(checkProof(loadText(loaded.text), result.proof).valid);
-    assert.deepEqual(answers(input.replace('Use DPV hierarchy logic.', '')), []);
-  },
-
-  'arithmetic preserves exact integers, float types, precedence and comparison boundaries'() {
-    assert.deepEqual(answers('9007199254740993 is an integer. For every X and Y, if X is an integer and Y is the value of X + 2 * 3 then Y is a result.'),
-      ['result(9007199254740999)']);
-    assert.deepEqual(answers('For every Y, if Y is the value of -(2 + 3) * 4 then Y is a result.'), ['result(-20)']);
-    assert.deepEqual(answers('For every Y, if Y is the value of 2.0 + 3.0 then Y is a result.'), ['result(5.0)']);
-    for (const [comparison, expected] of [['greater than', []], ['less than', []], ['at least', ['accepted(2)']],
-      ['at most', ['accepted(2)']], ['equal to', ['accepted(2)']], ['different from', []]]) {
-      assert.deepEqual(answers(`2 is a number. For every X, if X is a number and X is ${comparison} 2 then X is accepted.`), expected);
-    }
-    assert.deepEqual(answers('For every Y, if Y is the value of 1 + 1.0 then Y is a result.'), ['result(2.0)']);
-  },
-
-  'expressions call LS arithmetic functions and constants, exact where LS is exact'() {
-    assert.deepEqual(answers('For every Y, if Y is the value of floordiv(pow(10, 20) + 1, gcd(12, 18)) then Y is a result.'),
-      ['result(16666666666666666666)']);
-    assert.deepEqual(answers('For every Y, if Y is the value of lcm(4, 6) * -abs(-2) then Y is a result.'), ['result(-24)']);
-    assert.deepEqual(answers('For every Y, if Y is the value of cos(pi) + hypot(3, 4) then Y is a result.'), ['result(4.0)']);
-    assert.deepEqual(answers('For every Y, if Y is the value of log(exp(2.0)) then Y is a result.'), ['result(2.0)']);
-    assert.match(errorOf(() => compileLe([['For every Y, if Y is the value of exp(1, 2) then Y is a result.', 'x.le']])),
-      /x\.le: line 1: Logical English: exp does not take 2 arguments/);
-    // and, or and not stay LE words; an unknown name is still not an operand.
-    assert.match(errorOf(() => compileLe([['For every Y, if Y is the value of frob(1) then Y is a result.', 'x.le']])),
-      /arithmetic operands must be numbers or declared variables/);
-  },
-
-  'explicit absence differs from negative evidence and waits for derived facts'() {
-    const text = 'Alice is a person. Bob is a person. Bob is pending. ' +
-      'For every X, if X is a person and it is not known that X is blocked then X is admitted. ' +
-      'For every X, if X is pending then X is blocked. Find every X such that X is admitted.';
-    assert.deepEqual(answers(text), ["admitted('Alice')"]);
-    assert.match(errorOf(() => compile('Alice is not a person.')), /ordinary "not" is unsupported/);
-    assert.match(errorOf(() => compile('For every X, if it is not known that X is blocked then X is admitted.')), /earlier positive premise/);
-  },
-
-  'existential witnesses are shared within a firing and differ between people'() {
-    const loaded = compile('Alice is a person. Bob is a person. For every X, if X is a person then there exists Y such that X is an owner of Y and Y is a record. Find every X and Y such that X is an owner of Y and Y is a record.');
-    const result = run(loaded.program, { proof: true });
-    assert.equal(result.answers.length, 2);
-    for (const answer of result.answers) {
-      const [owner, record] = flattenConjunction(readTerm(answer));
-      assert.equal(write(owner.args[1]), write(record.args[0]));
-    }
-    assert.notEqual(write(readTerm(result.answers[0]).args[0].args[1]), write(readTerm(result.answers[1]).args[0].args[1]));
-    assert.equal(checkProof(loadText(loaded.text), result.proof).valid, true);
-    assert.equal(answers('There exists X such that X is a record. Find every X such that X is a record.').length, 1);
-  },
-
-  'constraints report contradictions and empty questions produce readable empty output'() {
-    const loaded = compile('Alice is a person. For every X, it is impossible that X is a person and X is blocked. Alice is blocked.');
-    const result = run(loaded.program, { proof: true });
-    assert.equal(result.haltCode, 65);
-    assert.equal(writeLe(result), 'Contradiction.\n');
-    assert.equal(checkProof(loaded.program, result.proof).valid, true);
-    assert.equal(run(compile(writeLe(result)).program).haltCode, 65);
-    assert.equal(writeLe(run(compile('Find every X such that X is a person.').program)), '# No conclusions.\n');
-  },
-
-  'or separates alternative premises, each compiled to its own clause with its own order checks'() {
-    const loaded = compile('Rex is a cat. Fido is a dog. Tom is a fox and Tom is tame. Every cat or dog is a pet. ' +
-      'For every X, if X is a pet or X is a fox and X is tame then X is welcome. Find every X such that X is welcome.');
-    assert.deepEqual(run(loaded.program).answers, ["welcome('Rex')", "welcome('Fido')", "welcome('Tom')"]);
-    assert.deepEqual(loaded.program.sources.filter((s) => s.kind === 'forward').map((s) => `${write(s.head)} :- ${s.body.map((goal) => write(goal)).join(', ')}`), [
-      'pet(X) :- cat(X)', 'pet(X) :- dog(X)', 'welcome(X) :- pet(X)', 'welcome(X) :- fox(X), tame(X)',
-    ]);
+  'templates, rules and queries compile to LS and answer with sentences'() {
+    const text = document('*a thing* is human,\n*a thing* is mortal.', 'a person is mortal if the person is human.\nSocrates is human.', 'which thing is mortal.');
+    assert.equal(output(text), '% query q\nSocrates is mortal.\n');
+    const loaded = compile(text);
+    assert.match(loaded.text, /implied_by\(struct\("is_mortal", vars\("Person"\)\), struct\("is_human", vars\("Person"\)\)\)/);
     assert.deepEqual(run(loadText(loaded.text)).answers, run(loaded.program).answers);
-    const constraint = 'For every X, it is impossible that X is a minor and X is a voter or X is barred.';
-    assert.equal(run(compile(`Ann is a minor and Ann is a voter. ${constraint}`).program).haltCode, 65);
-    assert.equal(run(compile(`Bo is barred. ${constraint}`).program).haltCode, 65);
-    assert.notEqual(run(compile(`Ann is a minor. ${constraint}`).program).haltCode, 65);
-    for (const [text, pattern] of [
-      ['For every X and Y, if X is a cat or p(X, Y) then q(X, Y).', /every alternative of an "or" premise/],
-      ['For every X, if X is a cat or it is not known that X is a dog then ok(X).', /X must be supplied/],
-      ['Find every X such that X is a cat or X is a dog.', /a question has no "or"/],
+    // A query without "which" asks whether its sentence holds.
+    assert.deepEqual(sentences(document('*a thing* is human.', 'Socrates is human.', 'Socrates is human.')), ['Socrates is human.']);
+    assert.equal(output(document('*a thing* is human.', 'Socrates is human.', 'Plato is human.')), '% query q\n% no answers\n');
+  },
+
+  'a scenario adds its facts to the knowledge base, and expected answers are compared'() {
+    const text = `the templates are: *a thing* is human, *a thing* is mortal.
+the knowledge base kb includes:
+a person is mortal if the person is human.
+Homer is human.
+scenario athens is:
+    Socrates is human.
+    q expects answers ["Homer is mortal", "Socrates is mortal"].
+scenario sparta is:
+    Leonidas is human.
+    q expects answers ["Homer is mortal"].
+query q is: which thing is mortal.`;
+    assert.equal(output(text), [
+      '% query q with scenario athens', 'Homer is mortal.', 'Socrates is mortal.', '',
+      '% query q with scenario sparta', 'Homer is mortal.', 'Leonidas is mortal.',
+      '% not as expected: q expects answers ["Homer is mortal"]', '',
+    ].join('\n'));
+    // The scenario is the first argument of every relation.
+    assert.match(compile(text).text, /fact\(struct\("is_human", "athens", "Socrates"\)\)/);
+    // LE2 writes underscores as spaces and repeats answers; both compare equal.
+    // Unquoted expected answers are read to the next comma; answers that rest
+    // on unknowns are assumptions eyemind does not make, and are not compared.
+    assert.doesNotMatch(output(`the templates are: *a thing* is human.
+the knowledge base kb includes:
+scenario s is:
+    ann is human.
+    q expects answers [ann is human].
+    r expects answers ["bob is human"] and unknowns ["bob is human"].
+query q is: which thing is human.
+query r is: bob is human.`), /not as expected/);
+    assert.doesNotMatch(output(`the templates are: *a person* is accused of *a crime*.
+the knowledge base kb includes:
+scenario s is:
+    bob is accused of robbing_the_bank.
+    q expects answers ["bob is accused of robbing the bank", "bob is accused of robbing the bank"].
+query q is: which person is accused of which crime.`), /not as expected/);
+  },
+
+  'deeper indentation binds tighter and one indentation reads from the top'() {
+    const templates = '*a person* is eligible, *a person* is a resident, *a person* is a citizen, *a person* is an adult.';
+    const facts = 'ann is a resident.\nbob is a citizen.\nbob is an adult.\ncid is a citizen.';
+    const eligible = (rule) => sentences(document(templates, `${rule}\n${facts}`, 'which person is eligible.')).sort();
+    // (resident or citizen) and adult
+    assert.deepEqual(eligible('a person is eligible\n    if the person is a resident\n    or the person is a citizen\n    and the person is an adult.'), ['bob is eligible.']);
+    // resident or (citizen and adult)
+    assert.deepEqual(eligible('a person is eligible\n    if the person is a resident\n    or the person is a citizen\n        and the person is an adult.'), ['ann is eligible.', 'bob is eligible.']);
+    // A tab counts four spaces, as in LE's editor.
+    assert.deepEqual(eligible('a person is eligible\n\tif the person is a resident\n\tor the person is a citizen\n    \tand the person is an adult.'), ['ann is eligible.', 'bob is eligible.']);
+    // A condition may run over two lines, and "and" may follow "if" on the next line.
+    assert.deepEqual(eligible('a person is eligible if\nand the person is\n    a citizen.'), ['bob is eligible.', 'cid is eligible.']);
+  },
+
+  'variables are introduced by an article, referred to by "the" and named by an id'() {
+    const templates = '*a person* is a parent of *a person*, *a person* is a grandparent of *a person*.';
+    const facts = 'ann is a parent of bob.\nbob is a parent of cid.';
+    for (const rule of [
+      'a person is a grandparent of an other person if the person is a parent of a third person and the third person is a parent of the other person.',
+      'a person X is a grandparent of a person Y if X is a parent of a person Z and Z is a parent of Y.',
+      'X is a grandparent of Y if X is a parent of Z and Z is a parent of Y.',
     ]) {
-      assert.match(errorOf(() => compile(text)), pattern, text);
+      assert.deepEqual(sentences(document(templates, `${rule}\n${facts}`, 'which person is a grandparent of which other person.')), ['ann is a grandparent of cid.'], rule);
     }
+    // A definite phrase that refers back to nothing is a name, as are acronyms.
+    const named = document('*a person* lives in *a place*, *a person* is happy.', 'a person is happy if the person lives in the UK.\nann lives in the UK.\nbob lives in UK.', 'which person is happy.');
+    assert.deepEqual(sentences(named), ['ann is happy.']);
+    const acronym = document('*a person* pays *a tax*, *a person* is taxed.', 'a person is taxed if the person pays GST.\nann pays GST.\nbob pays VAT.', 'which person is taxed.');
+    assert.deepEqual(sentences(acronym), ['ann is taxed.']);
   },
 
-  'aggregates count, sum and fold distinct combinations, and their proofs check'() {
-    // Alice's charge x is both given and derived: one combination, counted once.
-    const facts = 'Alice is a member and Bob is a member and Carol is a member. ' +
-      'fine(Alice, a, 3). fine(Alice, b, 5). fine(Bob, c, 2). fine(Bob, d, 2.5). a is a loan and b is a loan and c is a loan. ' +
-      'charge(Alice, x, 6). For every M, if M is a member and fine(M, a, 3) then charge(M, x, 6). ';
-    const rules = [
-      'For every M and T, if M is a member and T is the sum of F for every L and F such that fine(M, L, F) then total(M, T).',
-      'For every M and N, if M is a member and N is the number of L and F such that (fine(M, L, F) and L is a loan) then loans(M, N).',
-      'For every M and B, if M is a member and B is the maximum of F for every L and F such that fine(M, L, F) then most(M, B).',
-      'For every M and B, if M is a member and B is the minimum of F for every L and F such that fine(M, L, F) then least(M, B).',
-      'For every M and N, if M is a member and N is the number of C and F such that charge(M, C, F) then charges(M, N).',
-      'If 2 is the number of L such that L is a loan then twoLoans. If 3 is the number of L such that L is a loan then threeLoans.',
-      'Find every M and T such that total(M, T). Find every M and N such that loans(M, N). Find every M and B such that most(M, B).',
-      'Find every M and B such that least(M, B). Find every M and N such that charges(M, N). Find whether threeLoans. Find whether twoLoans.',
-    ].join(' ');
-    const loaded = compile(facts + rules), result = run(loaded.program, { proof: true });
-    assert.deepEqual(result.answers, [
-      "total('Alice', 8)", "total('Bob', 4.5)", "total('Carol', 0)",
-      "loans('Alice', 2)", "loans('Bob', 1)", "loans('Carol', 0)",
-      "most('Alice', 5)", "most('Bob', 2.5)", "least('Alice', 3)", "least('Bob', 2)",
-      "charges('Alice', 1)", "charges('Bob', 0)", "charges('Carol', 0)", "'threeLoans'",
-    ]);
-    assert.equal(checkProof(loaded.program, result.proof).valid, true);
-    assert.equal(checkProof(loadText(loaded.text), result.proof).valid, true);
-    const forged = result.proof.replace("total('Alice', 8)", "total('Alice', 9)");
-    assert.notEqual(forged, result.proof);
-    assert.equal(checkProof(loaded.program, forged).valid, false);
-    // The helpers follow the stated clauses and appear only when used.
-    assert.equal(loaded.program.sources.at(-1).kind, 'backward');
-    assert.doesNotMatch(compile('Find every X such that X is a cat.').text, /"le:/);
-    for (const [text, pattern] of [
-      ['For every M and N, if M is a member and N is the number of L such that fine(M, L) and L is a loan then x(M, N).', /belongs to the aggregate/],
-      ['For every M and N, if N is the number of L such that fine(M, L) and M is a member then x(M, N).', /M must be supplied by an earlier premise before the aggregate/],
-      ['For every M and N, if M is a member and N is the number of M such that p(M) then x(M, N).', /already declared/],
-      ['For every S, if S is the sum of V for every L such that fine(L, V) then t(S).', /V must be declared after "for every"/],
-      ['For every S, if S is the sum of the value for every L such that fine(L) then t(S).', /needs a variable/],
-      ['For every N, if N is the number of L such that fine(L, F) then t(N).', /F is undeclared/],
-      ['For every N, if N is the number of L such that (p(L) or q(L)) then t(N).', /expected "\)"/],
-      ['Find every N such that N is the number of L such that p(L).', /a question cannot aggregate/],
-      ['For every N, if N is the number of L and K such that (p(L) and K is the number of J such that q(L, J)) then t(N).', /cannot contain another aggregate/],
-    ]) {
-      assert.match(errorOf(() => compile(text)), pattern, text);
-    }
-    assert.match(errorOf(() => run(compile('p(a). For every N, if N is the number of X such that p(X) then p(N).').program)), /unstratified/);
+  'a "that" place holds a sentence, and templates with "that" are tried first'() {
+    const text = document('*a person* says that *a sentence*, *a person* is the father of *a person*, *a person* is trusted.',
+      'a person X is the father of a person Y if a person Z says that X is the father of Y and Z is trusted.\n' +
+      'alice says that harry is the father of john.\nalice is trusted.', 'which person is the father of which other person.');
+    assert.deepEqual(sentences(text), ['harry is the father of john.']);
+    assert.match(compile(text).text, /struct\("says_that", vars\("Z"\), struct\("is_the_father_of", vars\("X"\), vars\("Y"\)\)\)/);
   },
 
-  'readable witness terms preserve rule, label, arguments and ordinary compounds'() {
-    assert.equal(cli(['examples/records-le.le']).stdout, 'Alice is an owner of witness(rule 4, Y, Alice).\n');
-    const values = [
-      "skolem(4, 'Y', ['Alice'])", "skolem(5, 'Y', ['Alice'])", "skolem(4, 'Z', ['Alice'])",
-      "skolem(4, 'Y', ['Bob'])", "skolem(4, 'Y', [])", "skolem(4, 'record label', ['Alice', 2])",
-      "skolem(4, 'Y', [skolem(3, 'Z', ['Alice'])])", "witness('rule', 4, 'Y', 'Alice')",
-      "skolem(0, 'Y', ['Alice'])", "skolem(4, 'Y', 'open')",
-    ];
-    for (const value of values) {
-      const answer = `owns('Alice', ${value})`, text = writeLe({ answers: [answer] });
-      const loaded = compile(text);
-      assert.equal(write(loaded.program.sources[0].head), write(readTerm(answer)), text);
-      assert.equal(write(loadText(loaded.text).sources[0].head), write(readTerm(answer)), text);
-    }
-    const quantified = compile('For every Y, owns(Y, witness(rule 4, Y, Y)).');
-    assert.equal(write(quantified.program.sources[0].head), "owns(Y, skolem(4, 'Y', [Y]))");
-    for (const text of ['owns(Alice, witness(rule 0, Y, Alice)).', 'owns(Alice, witness(rule 1.0, Y, Alice)).',
-      'owns(Alice, witness(rule -1, Y, Alice)).']) {
-      assert.match(errorOf(() => compile(text)), /positive integer/);
-    }
+  'negation, universals and Prolog negation of a variable no condition has bound'() {
+    const templates = '*a person* is accused, *a person* is guilty, *a person* is innocent, *a person* is a dragon, *a person* is happy,\nall dragons are happy,\nnobody is guilty.';
+    const innocent = document(templates, 'a person is innocent\n    if the person is accused\n    and it is not the case that\n        the person is guilty.\nann is accused.\nbob is accused.\nbob is guilty.', 'which person is innocent.');
+    assert.deepEqual(sentences(innocent), ['ann is innocent.']);
+    const universal = (facts) => sentences(document(templates, `all dragons are happy\n    if for all cases in which\n        a person is a dragon\n    it is the case that\n        the person is happy.\n${facts}`, 'all dragons are happy.'));
+    assert.deepEqual(universal('puff is a dragon.\npuff is happy.'), ['all dragons are happy.']);
+    assert.deepEqual(universal('puff is a dragon.\nsmaug is a dragon.\npuff is happy.'), []);
+    // The person of the negation is open, as in Prolog: no one is guilty.
+    const open = document(templates, 'nobody is guilty\n    if it is not the case that\n        a person is guilty.\nann is accused.', 'nobody is guilty.');
+    assert.deepEqual(sentences(open), ['nobody is guilty.']);
+    assert.match(compile(open).text, /struct\("not", struct\("is_guilty", vars\("_0"\)\)\)/);
+    // A rule whose conclusion leaves its person open still negates as Prolog does.
+    const late = document(templates, 'a person is innocent\n    if it is not the case that\n        the person is guilty\n    and the person is accused.\nann is accused.', 'which person is innocent.');
+    assert.deepEqual(sentences(late), ['ann is innocent.']);
   },
 
-  'conclusions round-trip numbers, lists, compound witnesses, quoted names and variable sharing'() {
-    const text = '# Header.\n\n"Every" is a name. "X" is a name. "a.b#c" is a name. ' +
-      'data([1, -0.0, 1.0, 9007199254740993, ["quoted name"]], tag(Alice), [] ). ' +
-      'For every X, matching(pair(X, X)). Find every X such that X is a name. Find every X and Y and Z such that data(X, Y, Z). ' +
-      'Find every X such that matching(X).';
-    const loaded = compile(text), result = run(loaded.program);
-    assert.deepEqual(run(loadText(loaded.text)).answers, result.answers);
-    const output = writeLe(result), read = compile(output);
-    const before = result.answers.flatMap((a) => flattenConjunction(readTerm(a))).map((t) => write(t));
-    const after = read.program.sources.map((s) => write(s.head));
-    assert.deepEqual(after.slice(0, -1), before.slice(0, -1));
-    assert.match(output, /For every X0, .*pair.*X0, X0/);
-    assert.match(after.at(-1), /matching\(pair\(X0, X0\)\)/);
-    assert.equal(run(compile('sunny. Find whether sunny.').program).answers[0], "'sunny'");
+  'recursive rules end as tabling ends them, through forward LS rules'() {
+    // Left recursion and a loop between two rules would not end in Prolog's search.
+    const ancestors = document('*a person* is a parent of *a person*, *a person* is an ancestor of *a person*.',
+      'a person is an ancestor of an other person if the person is an ancestor of a third person and the third person is a parent of the other person.\n' +
+      'a person is an ancestor of an other person if the person is a parent of the other person.\nann is a parent of bob.\nbob is a parent of cid.',
+      'which person is an ancestor of which other person.');
+    assert.deepEqual(sentences(ancestors).sort(), ['ann is an ancestor of bob.', 'ann is an ancestor of cid.', 'bob is an ancestor of cid.']);
+    assert.match(compile(ancestors).text, /^implies\(/m);
+    const party = document('*a person* will go.', 'mary will go if john will go.\njohn will go if mary will go.\nbob will go.', 'which person will go.');
+    assert.deepEqual(sentences(party), ['bob will go.']);
+    // A rule that counts down depends on how it is called and stays backward.
+    const countdown = document('*a number* counts down.', 'a number N counts down if N = 0.\na number N counts down if N > 0 and a number M = N - 1 and M counts down.', '3 counts down.');
+    assert.deepEqual(sentences(countdown), ['3 counts down.']);
+    assert.doesNotMatch(compile(countdown).text, /^implies\(/m);
   },
 
-  'unsupported syntax and variable mistakes name the source line and the required form'() {
-    for (const [text, pattern] of [
-      ['# Header\n\nX is a person.', /input.le: line 3:.*undeclared/],
-      ['Socrates is a human', /expected "\."/],
-      ['Every prime number is odd.', /expected "is"/],
-      ['For every X and X, X is human.', /already declared/],
-      ['For every X and Y, if X is human then Y is mortal.', /conclusion variable/],
-      ['For every X, if X is greater than 0 then X is positive.', /earlier positive premise/],
-      ['There exists X such that Alice is a person.', /existential variable/],
-      ['For every X, if X is a person then X is the value of 1.', /calculations in a premise/],
-    ]) {
-      assert.match(errorOf(() => compile(text)), pattern, text);
-    }
-    assert.match(errorOf(() => compile('For every X, if X is human then X is blocked or X is admitted.')), /expected "\."/);
-    assert.match(errorOf(() => compile('item(' + 'f('.repeat(300) + 'Alice' + ')'.repeat(300) + ').')), /256 levels/);
+  'an id in a fact is a name, a hyphenated formula subtracts and "which type" asks for a kind'() {
+    const quarters = document('*a quarter* is previous to *a quarter*, *a quarter* is late.', 'a quarter Y is late if X is previous to Y.\nQ1 is previous to Q2.', 'which quarter is late.');
+    assert.deepEqual(sentences(quarters), ['Q2 is late.']);
+    const tax = document('*an amount* is due.', 'an amount A is due if a number ET = 10 and a number P = 4 and A = ET-P.', 'which amount is due.');
+    assert.deepEqual(sentences(tax), ['6 is due.']);
+    assert.deepEqual(sentences(document('*a thing* is red.', 'ann is a person.', 'ann is a which kind.')), ['ann is a person.']);
   },
 
-  'input is data and compiled JavaScript cannot execute names or quoted text'() {
-    const input = 'eval("globalThis.leExecuted = true"). ' + JSON.stringify('\");globalThis.leExecuted=true;//') + ' is a name. Find every X such that X is a name.';
-    delete globalThis.leExecuted;
-    const loaded = compile(input);
-    const result = run(loadText(loaded.text));
-    assert.equal(globalThis.leExecuted, undefined);
-    assert.equal(result.answers.length, 1);
-    assert.deepEqual(result.answers, run(loaded.program).answers);
-    assert.equal(globalThis.leExecuted, undefined);
+  'aggregates count every solution, and the minimum of nothing does not exist'() {
+    const templates = '*a person* pays *an amount*, *a person* paid *an amount* in total, *a person* made *a number* payments, *a person* paid at least *an amount*, *a person* paid *a list*, *a person* paid *an amount* on average.';
+    const facts = 'ann pays 50.\nann pays 20.\nann pays 50.\nbob is a person.\nann is a person.';
+    const ask = (rule, query) => sentences(document(templates, `${rule}\n${facts}`, query)).sort();
+    assert.deepEqual(ask('a person paid a total in total if the person is a person and the total is the sum of each A such that the person pays A.', 'which person paid which amount in total.'),
+      ['ann paid 120 in total.', 'bob paid 0 in total.']);
+    assert.deepEqual(ask('a person made a number N payments if the person is a person and N is the count of each A such that the person pays A.', 'which person made which number payments.'),
+      ['ann made 3 payments.', 'bob made 0 payments.']);
+    assert.deepEqual(ask('a person paid at least a least if the person is a person and the least is the min of each A such that the person pays A.', 'which person paid at least which amount.'),
+      ['ann paid at least 20.']);
+    assert.deepEqual(ask('a person paid a list L if the person is a person and L is the list of each A such that the person pays A.', 'which person paid which list.'),
+      ['ann paid [50, 20, 50].', 'bob paid [].']);
+    assert.deepEqual(ask('a person paid a mean on average if the person is a person and the mean is the average of each A such that the person pays A.', 'which person paid which amount on average.'),
+      ['ann paid 40 on average.']);
+    // LE1 writes a collection with "where".
+    assert.deepEqual(ask('a person paid a list L if the person is a person and L is a collection of an A\n    where the person pays the A.', 'which person paid which list.'),
+      ['ann paid [50, 20, 50].', 'bob paid [].']);
   },
 
-  'LE files merge, default output is LE and standalone LS and proof workflows agree'() {
-    assert.equal(inputKind('Socrates.LE'), 'le');
-    const loaded = loadInputs([['Socrates is a human.', 'facts.le'], ['Every human is mortal. Find every X such that X is mortal.', 'rules.le']]);
+  'arithmetic evaluates formulas, divides as Prolog does and compares numbers'() {
+    const templates = '*a number* has half *a number*, *a number* is big.';
+    const half = (n) => sentences(document(templates, `a number N has half a number H if H = N / 2.\n${n} has half 0.`.replace(`\n${n} has half 0.`, ''), `${n} has half which number.`));
+    assert.deepEqual(half(6), ['6 has half 3.']);
+    assert.deepEqual(half(7), ['7 has half 3.5.']);
+    const big = document(templates, 'a number N is big if N * 2 >= 1,000 + 1.\n', '600 is big.');
+    assert.deepEqual(sentences(big), ['600 is big.']);
+    assert.deepEqual(sentences(document(templates, 'a number N is big if N is greater than 10 and N mod 2 = 1.', '11 is big.')), ['11 is big.']);
+    // LE1's "X is Y" equates, or evaluates a formula.
+    assert.deepEqual(sentences(document(templates, 'a number N has half a number H if H is N / 2.', '8 has half which number.')), ['8 has half 4.']);
+  },
+
+  'dates compare in time order and count days across months and leap years'() {
+    const templates = '*a date* is late, *a date* is *a number* days after *a date*.';
+    assert.deepEqual(sentences(document(templates, 'a date is late if the date is after 2024-02-28.', '2024-02-29 is late.')), ['2024-02-29 is late.']);
+    assert.deepEqual(sentences(document(templates, 'a date is late if the date is before or equal to 2024-02-28.', '2024-02-29 is late.')), []);
+    const days = (query) => sentences(`the templates are: *a date* is due.\nthe knowledge base k includes:\nquery q is: ${query}.`);
+    assert.deepEqual(days('which date is 2 days after 2024-02-28'), ['2024-03-01 is 2 days after 2024-02-28.']);
+    assert.deepEqual(days('which date is 1 day after 2023-12-31'), ['2024-01-01 is 1 day after 2023-12-31.']);
+    assert.deepEqual(days('2025-03-01 is which number days after 2024-03-01'), ['2025-03-01 is 365 days after 2024-03-01.']);
+    assert.deepEqual(days('which date is 366 days after 2000-01-01'), ['2001-01-01 is 366 days after 2000-01-01.']);
+  },
+
+  'lists, membership and LE1 list templates'() {
+    const templates = '*a list* has *a thing* first.';
+    assert.deepEqual(sentences(document(templates, 'a list has a thing first if the list has the thing as head before a rest.', '[a, b] has which thing first.')), ['[a, b] has a first.']);
+    const ask = (query) => sentences(`the templates are: *a thing* is red.\nthe knowledge base k includes:\nquery q is: ${query}.`);
+    assert.deepEqual(ask('which thing is in [x, y]'), ['x is in [x, y].', 'y is in [x, y].']);
+    assert.deepEqual(ask('which list is the reverse of [1, 2, 3]'), ['[3, 2, 1] is the reverse of [1, 2, 3].']);
+    assert.deepEqual(ask('appending [1] then [2, 3] gives which list'), ['appending [1] then [2, 3] gives [1, 2, 3].']);
+    assert.deepEqual(ask('the length of [a, b, c] is which number'), ['the length of [a, b, c] is 3.']);
+  },
+
+  'a comma separates templates at the end of a line or before a place, not inside a template'() {
+    const text = 'the templates are:\n*a claim* is caused by, or results from, *a cause*, *a cause* is solar.\nthe knowledge base k includes:\n' +
+      'a claim is caused by, or results from, a cause if the cause is solar.\nflare is solar.\nquery q is: c1 is caused by, or results from, which cause.';
+    assert.deepEqual(sentences(text), ['c1 is caused by, or results from, flare.']);
+  },
+
+  'LE1 forms: templates without asterisks, possessives, an ontology and "the contract states that"'() {
+    const starless = `the templates are:
+    a person has a balance.
+the ontology is:
+    cash at bank is an account.
+    an account is an asset.
+the contract services states that:
+ann has a balance 10.
+query one is: which person has which balance.
+query two is: which thing is an asset.`;
+    assert.equal(output(starless), ['% query one', 'ann has a balance 10.', '', '% query two', 'account is an asset.', 'cash at bank is an asset.', ''].join('\n'));
+    // With asterisks, "an audit" is part of a template's words.
+    const starred = `the templates are:
+    *a person*'s manager is *a person*,
+    there is an audit.
+the knowledge base k includes:
+ann's manager is bob.
+amy is of type employee.
+query one is: which person's manager is which other person.
+query two is: which thing is an employee.`;
+    assert.equal(output(starred), ['% query one', "ann's manager is bob.", '', '% query two', 'amy is an employee.', ''].join('\n'));
+  },
+
+  'compiled programs give checked proofs, and a forged proof fails'() {
+    const loaded = loadInputs([['the templates are: *a thing* is human, *a thing* is mortal.', 'templates.le'],
+      ['the knowledge base k includes:\na person is mortal if the person is human.\nscenario s is: Socrates is human.\nquery q is: which thing is mortal.', 'rules.le']]);
     const result = run(loaded.program, { proof: true });
-    assert.equal(writeLe(result), 'Socrates is a mortal.\n');
+    assert.equal(writeConclusions(loaded, result, { format: 'le' }), '% query q with scenario s\nSocrates is mortal.\n');
     assert.equal(checkProof(loadText(loaded.text), result.proof).valid, true);
-    const forged = result.proof.replace("\nmortal('Socrates')\n", "\nmortal('Plato')\n");
+    const forged = result.proof.replaceAll("'Socrates'", "'Plato'");
     assert.notEqual(forged, result.proof);
     assert.equal(checkProof(loaded.program, forged).valid, false);
+  },
+
+  'the command line runs .le files and writes LE only for them'() {
+    assert.equal(inputKind('Socrates.LE'), 'le');
     const command = cli(['examples/socrates-le.le']);
     assert.equal(command.code, 0, command.stderr);
-    assert.equal(command.stdout, 'Socrates is a mortal.\n');
+    assert.equal(command.stdout, '% query mortal\nSocrates is mortal.\n');
     assert.equal(cli(['--check-proof', 'examples/proof/socrates-le.js', 'examples/socrates-le.le']).code, 0);
     assert.equal(cli(['--prove-and-check', 'examples/socrates-le.le']).code, 0);
-    assert.equal(cli(['--to', 'eyemind', 'examples/socrates-le.le']).stdout, "// Answers: each instance of a query() that holds.\nmortal('Socrates')\n");
-    assert.equal(cli(['--to', 'le'], "fact(mortal('Socrates'))\nquery(mortal(X))").stdout, 'Socrates is a mortal.\n');
-    assert.match(errorOf(() => loadInputs([['Socrates is human.', 'x.le'], ['fact(p)', 'x.js']])), /takes .le files/);
+    assert.equal(cli(['--to', 'eyemind', 'examples/socrates-le.le']).stdout, "// Answers: each instance of a query() that holds.\nstruct('le:answer', 'mortal', 'Socrates')\n");
+    assert.match(cli(['--to', 'le', 'examples/socrates.js']).stderr, /answers of a Logical English run/);
+    assert.match(errorOf(() => loadInputs([['the templates are: *a thing* is human.', 'x.le'], ['fact(p)', 'x.js']])), /takes .le files/);
     assert.match(cli(['--owl2rl', 'examples/socrates-le.le']).stderr, /without RDF logic switches/);
   },
 
-  '--to le abbreviates the IRIs of other runs with their prefixes, naming an empty one'() {
-    const n3 = cli(['--to', 'le', 'examples/socrates-n3.n3']);
-    assert.equal(n3.code, 0, n3.stderr);
-    assert.equal(n3.stdout, 'Use prefix ns with namespace "http://example.org/socrates#".\n\nns:Socrates is a ns:Mortal.\n');
-    const again = compileLe([[n3.stdout, 'again.le']]);
-    assert.ok(again.program.sources.some(({ head }) => write(head) ===
-      "rdf(iri('http://example.org/socrates#Socrates'), iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), iri('http://example.org/socrates#Mortal'))"));
-    // A taken name moves the generated one on.
-    assert.match(writeLe({ answers: ["p(iri('urn:a#x'))"] }, { prefixes: { '': 'urn:a#', ns: 'urn:b#' } }), /^Use prefix ns2 with namespace "urn:a#"\.\n\nns2:x is a p\.\n$/);
+  'input is data and compiled JavaScript cannot execute names or quoted text'() {
+    const text = document('*a thing* is a name.', JSON.stringify('eval("globalThis.leExecuted = true")') + ' is a name.\n' +
+      JSON.stringify('");globalThis.leExecuted=true;//') + ' is a name.', 'which thing is a name.');
+    delete globalThis.leExecuted;
+    const loaded = compile(text);
+    const result = run(loadText(loaded.text));
+    assert.equal(globalThis.leExecuted, undefined);
+    assert.equal(result.answers.length, 2);
+    assert.deepEqual(result.answers, run(loaded.program).answers);
+  },
+
+  'mistakes and Logical English 2 features name the source line'() {
+    for (const [text, pattern] of [
+      ['% Header\n\nann is human.', /input.le: line 3:.*before any section/],
+      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is human', /must end with a full stop/],
+      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is mortal.', /line 3:.*no template matches "ann is mortal"/],
+      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is human if bob is tall.', /no template matches "bob is tall"/],
+      ['the templates are: *a thing* is human; opposite: *a thing* is divine.', /template additions.*Logical English 2/],
+      ['the constants are:\n the fee is 5.', /"the constants are".*Logical English 2/],
+      ['the templates are: *a* likes *b*,\nlikes *a* *b*.', /both name the relation likes\/2/],
+      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nann is greater than bob.', /built-in condition and cannot be concluded/],
+      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nq expects answers [].', /expectation belongs to a scenario/],
+      ['the templates are: *a thing* is human.\nscenario s is:\nit is not the case that ann is human.', /Logical English 2/],
+      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\na thing is human if for all cases in which the thing is human.', /needs "it is the case that"/],
+      ['the templates are: *a thing* is human.\nthe knowledge base k includes:\nrule r1: ann is human.', /rule labels belong to Logical English 2/],
+      ['the templates are: *a thing* is human.\nscenario s is, as stated in the act:\nann is human.', /header "scenario s is, as stated in the act:" belongs to Logical English 2/],
+      ['the templates are: *a thing* is human.\nscenario s is:\nq expects changes [["add: ann is human"]].', /flip queries/],
+    ]) {
+      assert.match(errorOf(() => compile(text)), pattern, text);
+    }
   },
 };

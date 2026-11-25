@@ -21,9 +21,9 @@ query(square(Y, X))
 ```
 
 `is(Y, mul(X, X))` evaluates the product and binds `Y`, so the conclusion is
-ground. In Logical English the same rule reads
-`For every X and Y, if X is an integer and Y is the value of X * X then Y is a square of X.`,
-which compiles to this program.
+ground. In Logical English, with the templates `*a number* is an integer` and
+`*a number* is the square of *a number*`, the same rule reads
+`a number Y is the square of a number X if X is an integer and Y = X * X.`
 
 ## What eyemind concludes
 

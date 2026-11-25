@@ -35,8 +35,6 @@ With RDF profiles, `--odrl` evaluates the given triples together with what the
 profiles entail about each request's state and the entailed SKOS links between
 categories. Other entailments, such as an `rdfs:Resource` type for every node,
 stay out of the snapshot, whose validation would reject them.
-[research-access-le](https://eyereasoner.github.io/eyemind/examples/deck/research-access-le)
-decides similar requests with hand-written Logical English rules.
 
 ---
 

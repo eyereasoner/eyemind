@@ -13,7 +13,7 @@ program, a JavaScript library and a browser application.
 - [Playground](https://eyereasoner.github.io/eyemind/playground/): run any
   example or your own program in the browser, with its proof and check report.
 - [Examples](https://eyereasoner.github.io/eyemind/examples/): the
-  168 runnable programs, each with a card deck and saved conclusions; all but
+  163 runnable programs, each with a card deck and saved conclusions; all but
   the two streamed examples also save proofs and check reports.
 - [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC): the
   language, the proof format and how a proof is checked.
@@ -192,78 +192,83 @@ The file extension selects the format; proofs and check reports are always `.js`
 
 ### Logical English
 
-A `.le` file is Logical English (LE): sentences in a fixed English grammar,
-each ending in `.`, compiled deterministically to LS, as the
-[LE specification](https://eyereasoner.github.io/eyemind/LE-SPEC) defines. Unsupported prose is an
-error, never an approximate translation, and the conclusions are written back
-as sentences.
+A `.le` file is [Logical English](https://github.com/LogicalContractsOrg/LogicalEnglish) (LE),
+the controlled natural language of Robert Kowalski and his colleagues for
+legal and business rules. eyemind reads the core that the original
+implementation and Logical English 2 share and compiles it to LS, as the
+[LE specification](https://eyereasoner.github.io/eyemind/LE-SPEC) describes.
+A document declares its sentence patterns, states a knowledge base of facts
+and rules, and asks queries, optionally in scenarios:
 
 ```text
-Socrates is a human.
-Every human is mortal.
-Find every X such that X is mortal.
+the templates are:
+    *a thing* is human,
+    *a thing* is mortal.
+
+the knowledge base socrates includes:
+
+a person is mortal
+    if the person is human.
+
+Socrates is human.
+
+query mortal is:
+    which thing is mortal.
 ```
 
-`eyemind examples/socrates-le.le` prints `Socrates is a mortal.`
+`eyemind examples/socrates-le.le` prints the answers as sentences:
 
-**Names.** Keywords are case-insensitive, names case-sensitive. A class or
-relation name starts with a lowercase letter; an individual is a name such as
-`Socrates` or a JSON-quoted `"René Descartes"`. A variable is a capital letter
-with optional digits (`X`, `Y1`) and must be declared in its sentence, which is
-its scope. Terms also include exact integers, floats (`1.0`, `1e3`), lists
-`[a, b]` and compounds `pair(A, B)`. `#` starts a comment.
+```text
+% query mortal
+Socrates is mortal.
+```
 
-| LE | LS |
-| --- | --- |
-| `T is a class`, `T is an class` | `class(T)` |
-| `T is a relation of U`, `T has relation U` | `relation(T, U)` |
-| `relation(T, U, ...)` | that goal |
-| `A and B` | a conjunction; on its own, facts |
-| `For every X, ...` | a universally quantified fact |
-| `Every A is B.` | `implies(A(X), B(X))` |
-| `For every X and Y, if ... then ...` | a forward rule |
-| `if A and B or C then ...`, `Every A or B is C.` | one rule per alternative; `and` binds more tightly |
-| `Y is the value of E` | `is(Y, E)`, with `+ - * /` and parentheses |
-| `X is greater than`, `less than`, `at least`, `at most`, `equal to`, `different from E` | `gt`, `lt`, `ge`, `le`, `eq`, `ne` |
-| `it is not known that S` | `not(S)`, with LS's stratified meaning |
-| `N is the number of X such that S` | a count of the distinct values of `X` |
-| `T is the sum`, `maximum`, `minimum of V for every X and V such that S` | a fold of `V` over the distinct combinations |
-| `then there exists Y such that ...` | a Skolem witness of the firing |
-| `Find every X such that ...`, `Find whether ...` | `query(...)` |
-| `It is impossible that ...`, `Contradiction.` | `contradiction(...)` |
+**Templates and variables.** A template such as
+`*a person* is born in *a place* on *a date*` is a relation whose name joins
+its words (`is_born_in_on`); a sentence matches the template with the most
+words. In a sentence, `a person` (or `an`, `some`, `each`, `which`) introduces
+a variable and `the person` refers back to it; a definite phrase that refers to
+nothing, such as `the UK`, is a name. `a person X` names the variable `X`, and a
+capital letter with optional digits is a variable on its own. Numbers, dates
+(`2021-10-09`), quoted text and lists (`[a, b]`) are values. `%` starts a comment.
 
-Arithmetic, absence tests and aggregates need their inputs from earlier
-premises; an aggregate's own variables stay inside it, and a conjunction in its
-condition is put in parentheses. Arithmetic follows LS: integers stay exact,
-division gives a float. An answer becomes a sentence such as `16 is a square of 4.`; a witness is written
-`witness(rule 4, Y, Alice)`, and conclusions read back as facts of another LE
-program. Several `.le` files form one program, without other input formats
-or RDF logic switches; `--to le` writes LS conclusions
-as LE, and proofs check the compiled LS, not the English-to-LS translation.
-There are no pronouns, disjunctive conclusions or implicit assumptions.
+**Conditions.** A rule is `conclusion if conditions.` Conditions join with
+`and` and `or`; a deeper indentation binds tighter, and lines at one
+indentation read from the top. `it is not the case that`,
+`for all cases in which ... it is the case that ...` and the aggregates
+`R is the sum of each X such that ...` (also `count`, `average`, `min`, `max`,
+`list`) take the more deeply indented lines below them. Arithmetic uses
+`=`, `<`, `>=`, `+`, `*`, `/` and the like, and built-in templates compare
+dates (`is after`, `is before or equal to`), count days (`is N days after`) and
+take list members (`is in`).
 
-A first sentence `Use ODRL snapshot logic with namespace "..."` turns a file of
-facts and rules into an [ODRL snapshot](#odrl-snapshots) evaluation, with LE names
-mapped to the `eval:` and `odrl:` vocabularies; see the
-[handicap-card LE deck](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card-le).
-The rules derive the snapshot's observations and duty evidence, and the
-evaluator decides; see the
-[data transfers deck](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le).
-Ordinary LE can declare RDF prefixes with `Use prefix dpv with namespace "https://w3id.org/dpv#".`
-Qualified classes, properties and values work in facts, rules and questions.
-The research access example combines ODRL rules with DPV purpose and consent
-data and checks three policy decisions. [Research access LE deck](https://eyereasoner.github.io/eyemind/examples/deck/research-access-le)
+**Meaning.** Rules are backward LS rules, as in LE's Prolog target: aggregates
+count every solution they find, and a negation whose variable no condition has
+bound succeeds when no instance holds. When a document has scenarios, every
+relation takes the scenario as its first argument, so one program and one
+proof answer every query in every scenario. A scenario can state the answers
+it expects, `q expects answers ["..."].`; the output then notes any answer set
+that differs. Proofs and check reports are `.js` and check the compiled LS; that
+the program reads the English as intended is a matter of the compiler. Several
+`.le` files form one document, without other input formats or RDF logic
+switches.
 
-`Use DPV hierarchy logic.` adds rules for matching purposes, data and
-personal data against the supplied SKOS taxonomy. ODRL snapshots can use the same
-hierarchy in category constraints. [Logical English specification](https://eyereasoner.github.io/eyemind/LE-SPEC#dpv-hierarchies)
+Template additions, constants, functions, ontologies with type checking,
+unknowns, constraints, sections, included resources, LPS and s(CASP) belong to
+Logical English 2 and are reported as unsupported. Every `npm test` scores the
+[Logical English 2 examples](test/UPSTREAM.md) that state their expected
+answers, as coverage: a wrong answer fails the run, a file that uses an
+unsupported feature is counted as not passed.
 
 For larger programs, try
-[shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le),
-[river-crossing plans](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le),
 [British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le),
-[library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le) or an
-[election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le).
+[GDPR breach notification](https://eyereasoner.github.io/eyemind/examples/deck/breach-notification-le),
+[international data transfers](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le),
+the [right to erasure](https://eyereasoner.github.io/eyemind/examples/deck/right-to-erasure-le),
+[library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le),
+an [election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le),
+[shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le) or
+[river-crossing plans](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le).
 
 ### RDF 1.2
 
@@ -464,7 +469,7 @@ SKOS links between categories, such as a `skos:broadMatch` to DPV. Other
 entailments, such as an `rdfs:Resource` type for every node, stay out of the
 snapshot, whose validation would reject them. The output is the ODRL report
 with the profiles' own reports, such as a SHACL validation report.
-[Handicap-card example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card) · [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-odrl) · [Research access with OWL 2 RL and SKOS](https://eyereasoner.github.io/eyemind/examples/deck/research-access-odrl) · [Research portal with OWL 2 RL](https://eyereasoner.github.io/eyemind/examples/deck/research-portal-odrl) · [Package holiday with SHACL](https://eyereasoner.github.io/eyemind/examples/deck/package-holiday-odrl) · [Right to erasure in qualified LE](https://eyereasoner.github.io/eyemind/examples/deck/right-to-erasure-le)
+[Handicap-card example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card) · [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-odrl) · [Research access with OWL 2 RL and SKOS](https://eyereasoner.github.io/eyemind/examples/deck/research-access-odrl) · [Research portal with OWL 2 RL](https://eyereasoner.github.io/eyemind/examples/deck/research-portal-odrl) · [Package holiday with SHACL](https://eyereasoner.github.io/eyemind/examples/deck/package-holiday-odrl)
 
 ## How eyemind reasons
 
@@ -635,7 +640,7 @@ eyemind [OPTION ...] [FILE ...]
 | `--shacl-out FILE` | With an RDF logic profile, plan only the rules that conclude triples the SHACL shapes in `FILE` describe, or what those rules read, and write only those triples. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3, SRL, ODRL or RDF profile program has 1000000, 100000 and 1000000000. |
-| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; `n3` only for an N3 run; by default LE for LE, N3 for N3, Turtle for SRL, ODRL and RDF profiles, eyemind otherwise. |
+| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; `n3` only for an N3 run and `le` only for an LE run; by default LE for LE, N3 for N3, Turtle for SRL, ODRL and RDF profiles, eyemind otherwise. |
 | `--all` | With RDF or N3 output, write the given data too. |
 | `--program` | Print the program the inputs compile to. |
 | `--odrl` | Add the ODRL snapshot profile's validation and evaluation LS to one Turtle input; with RDF logic profiles, the snapshot also reads what they entail about its states. Not with `--stream-messages`, `--shacl-in` or `--shacl-out`. |
@@ -753,7 +758,7 @@ console.log(result.bindings);
 console.log(checkProof(socrates, result.proof, { goals }).valid);
 ```
 
-`run()` returns `conclusions`, `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `conclusions` holds the answer terms; `answers`, `bindings` and `stdout` are rendered when first read. Ground N3 conclusions are written directly from their terms. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals })` checks a proof. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text. `compileLe([[text, filename], ...])` returns the compiled LS `program` and standalone JavaScript `text`; `writeLe(run(program))` writes its conclusions as LE.
+`run()` returns `conclusions`, `answers`, `bindings`, `inferred`, `stdout`, `proof`, `proofReport`, `stats` and `haltCode`, and takes `goal`, `goals`, `proof`, `maxDepth`, `maxIterations` and `maxInferences`; exceeding a bound throws an `EyemindError`. `conclusions` holds the answer terms; `answers`, `bindings` and `stdout` are rendered when first read. Ground N3 conclusions are written directly from their terms. `loadSources([[text, filename], ...], io)` loads several sources as one program; pass `nodeIO` from `eyemind/node` as `io` to let `facts_from(path)` read files. `checkProof(program, document, { goals })` checks a proof. `checkReport`, `readTerm`, `readTerms` and `write` format reports and read and write the canonical text. `compileLe([[text, filename], ...])` returns the compiled LS `program` and standalone JavaScript `text`; `writeLe(run(loaded.program), loaded)` writes the answers as LE sentences, given the value `loaded` that `compileLe` returned.
 
 Further entry points serve applications built on the formats and profiles:
 

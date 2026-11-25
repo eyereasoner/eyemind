@@ -2,8 +2,8 @@
 # One request qualifies, one awaits duty evidence, and one is outside the
 # research purpose. The ODRL snapshot checks a compound constraint using
 # broader categories from the DPV and Personal Data taxonomies.
-# Shows --odrl on the Turtle form of the research snapshot that
-# research-snapshot-le writes in Logical English, with the same decisions.
+# Shows --odrl on a snapshot whose purpose and data categories are DPV and
+# Personal Data concepts.
 # Sources https://www.w3.org/TR/odrl-model/
 #         https://w3id.org/dpv/2.3/dpv/
 #         https://w3id.org/dpv/2.3/pd/

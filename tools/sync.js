@@ -7,6 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { manifestCases, RDF_MANIFESTS, sparqlRlCases, SRL_BASE, W3C_BASE } from '../test/w3c.js';
 import { shaclCases, SHACL_BASE, SHACL_PATH } from '../test/shacl.js';
 import { mobibenchCases, MOBIBENCH_ARCHIVE, MOBIBENCH_SUBSUITE } from '../test/mobibench.js';
+import { leCases, LE_PATH, LE_SOURCE } from '../test/logical-english.js';
 import { syncNotation3Tests } from './sync-notation3tests.js';
 import { cacheFiles, cachePaths, readCachedSuites, recordUpstream, writeInventory } from './test-cache.js';
 import { readZip } from './zip.js';
@@ -18,9 +19,10 @@ const SRL_SOURCE = 'https://github.com/w3c/data-shapes';
 const SRL_PATH = 'shacl12-test-suite/tests/sparql-rl';
 const MOBIBENCH_SOURCE = 'https://github.com/william-vw/mobibench';
 const suiteNames = { notation3tests: 'Notation3', rdf: 'W3C RDF', srl: 'W3C SPARQL 1.2 RL',
-  shacl: 'W3C SHACL 1.2', mobibench: 'MobiBench OWL 2 RL' };
+  shacl: 'W3C SHACL 1.2', mobibench: 'MobiBench OWL 2 RL', le: 'Logical English 2 examples' };
 const help = `Usage: npm run sync [-- OPTIONS]
-Refresh notation3tests, W3C RDF, SPARQL 1.2 RL, SHACL 1.2 and MobiBench from upstream,
+Refresh notation3tests, W3C RDF, SPARQL 1.2 RL, SHACL 1.2, MobiBench and the
+Logical English 2 examples from upstream,
 and the offline QUDT unit catalog of --qudt from the latest QUDT release.
 Shows counts, revisions and changes compared with the local cache and catalog.
 Requires Git and network access. Optional local Git checkouts:
@@ -29,6 +31,7 @@ Requires Git and network access. Optional local Git checkouts:
   --w3c-sparql-rl PATH     w3c/data-shapes repository
   --w3c-shacl PATH         w3c/data-shapes repository (defaults to the SRL checkout)
   --mobibench PATH         william-vw/mobibench repository
+  --logical-english PATH   LogicalContractsOrg/LogicalEnglish2 repository
   --qudt PATH              qudt/qudt-public-repo repository, at the release to use
   -h, --help              Print this help
 `;
@@ -222,9 +225,22 @@ export async function syncTestSuites({ root = ROOT, checkouts = {}, log = consol
       path: MOBIBENCH_SUBSUITE, cases: mobibenchTests.length };
     metadata(mobibench, mobibenchInfo);
 
+    // The Logical English 2 examples that state their expected answers.
+    log('Syncing Logical English 2 examples...');
+    const le = join(temporary, 'logical-english');
+    const leCheckout = checkout(LE_SOURCE, checkouts['logical-english'], join(temporary, 'le-upstream'), [LE_PATH]);
+    copy(join(leCheckout, LE_PATH), join(le, LE_PATH));
+    licenses(leCheckout, le);
+    if (existsSync(join(leCheckout, 'NOTICE'))) copy(join(leCheckout, 'NOTICE'), join(le, 'NOTICE'));
+    copy(join(leCheckout, 'README.md'), join(le, 'UPSTREAM.md'));
+    const leTests = leCases({ mirror: le });
+    if (!leTests.length) throw new Error(`no Logical English examples with expected answers in ${LE_PATH}`);
+    const leInfo = { source: LE_SOURCE, revision: revision(leCheckout), path: LE_PATH, cases: leTests.length };
+    metadata(le, leInfo);
+
     const targets = cachePaths(root);
-    const stages = { notation3tests: n3, rdf, srl, shacl, mobibench };
-    const info = { notation3tests: notation3, rdf: rdfInfo, srl: srlInfo, shacl: shaclInfo, mobibench: mobibenchInfo };
+    const stages = { notation3tests: n3, rdf, srl, shacl, mobibench, le };
+    const info = { notation3tests: notation3, rdf: rdfInfo, srl: srlInfo, shacl: shaclInfo, mobibench: mobibenchInfo, le: leInfo };
     const suites = Object.keys(info).map((name) => ({ stage: stages[name], target: targets[name],
       ...suiteReport(suiteNames[name], info[name], stages[name], targets[name]) }));
     const provenance = join(temporary, 'upstream.json');
@@ -320,7 +336,7 @@ export async function main(argv) {
   for (let i = 0; i < argv.length; i++) {
     const option = argv[i];
     if (['--help', '-h'].includes(option)) { console.log(help); return 0; }
-    if (!['--notation3tests', '--w3c-rdf', '--w3c-sparql-rl', '--w3c-shacl', '--mobibench', '--qudt'].includes(option)) throw new Error(`unknown sync option ${option}; use --help`);
+    if (!['--notation3tests', '--w3c-rdf', '--w3c-sparql-rl', '--w3c-shacl', '--mobibench', '--logical-english', '--qudt'].includes(option)) throw new Error(`unknown sync option ${option}; use --help`);
     if (!argv[i + 1] || argv[i + 1].startsWith('--')) throw new Error(`${option} needs a checkout path`);
     checkouts[option.slice(2)] = argv[++i];
   }

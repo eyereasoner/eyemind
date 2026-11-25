@@ -2,7 +2,7 @@
 // independently reproduce those artifacts and check their proofs.
 import { readFileSync } from 'node:fs';
 import { basename, isAbsolute, join } from 'node:path';
-import { checkProof, compileLe, loadText, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
+import { checkProof, loadText, readGoal, readTerm, readTerms, run, write } from '../src/index.js';
 import { main } from '../src/cli.js';
 import { RDF_PROFILES } from '../src/formats.js';
 import { nodeIO } from '../src/node.js';
@@ -400,8 +400,7 @@ for (const entry of MANIFEST) {
             const triples = (text) => parseN3(text).triples.map((t) => tripleToEyemind(t).map((term) => write(term)));
             assert.deepEqual(triples(result.stdout), triples(saved));
           } else if (explicitFormat === 'turtle' && args.some((arg) => compiled.has(arg))) {
-            const graph = artifactPath('output', entry).endsWith('.le') ? compileLe([[saved, `${name}.le`]]).compiled.quads : parseRdf(saved).quads;
-            assert.ok(isomorphic(parseRdf(result.stdout).quads, graph));
+            assert.ok(isomorphic(parseRdf(result.stdout).quads, parseRdf(saved).quads));
           } else assert.equal(result.stdout, saved);
           continue;
         }

@@ -30,6 +30,7 @@ import { vector } from '../src/qudt.js';
 import { cachePaths } from '../tools/test-cache.js';
 import { scoredShaclCases, SHACL_GROUPS } from './shacl.js';
 import { mobibenchCases } from './mobibench.js';
+import { leCases, scoreLeCase } from './logical-english.js';
 import { scoreUpstreamCases } from './upstream-cases.js';
 import { shaclSummary } from '../tools/shacltests.js';
 
@@ -356,15 +357,33 @@ async function main(argv) {
   console.log('Wrote reports/w3c-rdf-earl.ttl and reports/w3c-sparql-rl-earl.ttl; wrote reports/w3c-shacl-earl.ttl.');
   const shaclRows = Object.entries(groups).map(([name, g]) => ({ suite: `W3C SHACL 1.2 ${name} (coverage)`, cases: g.cases,
     passed: g.passed, seconds: shaclTime.get(name), coverage: true }));
+  const le = logicalEnglishRows();
   let qudt = [];
   if (full) {
     qudt = qudtRows(reporter);
-    printReport([...reporter.rows, ...w3c.rows, ...shaclRows, ...notation3Rows(reporter), ...qudt]);
+    printReport([...reporter.rows, ...w3c.rows, ...shaclRows, le.row, ...notation3Rows(reporter), ...qudt]);
   }
   // SHACL is a scored implementation subset, like Notation3. Missing support
   // is reported honestly; broken manifests/resources still fail the test run.
-  if (brokenHarness.length) return 1;
+  if (brokenHarness.length || le.failed) return 1;
   return code || (passed === total && qudt.every((row) => row.passed === row.cases) ? 0 : 1);
+}
+
+// The Logical English 2 examples that state their expected answers, as
+// coverage: an unsupported feature is not passed, a wrong answer fails.
+function logicalEnglishRows() {
+  console.log(`\n${paint('33', '== Logical English 2 examples (coverage)')}`);
+  const started = performance.now();
+  const counts = { passed: 0, unsupported: 0, known: 0, failed: 0 };
+  const cases = leCases();
+  for (const c of cases) {
+    const { status, message } = scoreLeCase(c);
+    counts[status]++;
+    if (status === 'failed') console.error(`${c.id}: ${message}`);
+  }
+  const seconds = (performance.now() - started) / 1000;
+  console.log(`${counts.passed}/${cases.length} passed; ${counts.unsupported} unsupported; ${counts.known} known differences; ${counts.failed} failed`);
+  return { failed: counts.failed, row: { suite: 'Logical English 2 examples (coverage)', cases: cases.length, passed: counts.passed, seconds, coverage: true } };
 }
 
 // The W3C suites, case by case, timed as one row per suite.

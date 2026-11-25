@@ -216,19 +216,17 @@ export const defaultFormat = (kind) => RDF_PROFILES.includes(kind) ? 'turtle' : 
 // all also writes given RDF or N3 data. Rejects conclusions the format cannot represent.
 export function writeConclusions(loaded, result, { format, all = false, blankNodePrefix = '' } = {}) {
   if (format === 'eyemind') return null;
-  if (format === 'le') return writeLe(result, { odrl: loaded.compiled?.odrl ?? null,
-    prefixes: loaded.prefixes instanceof Map ? Object.fromEntries(loaded.prefixes) : loaded.prefixes ?? {} });
+  if (format === 'le') {
+    if (loaded.kind !== 'le') throw new EyemindError('--to le writes the answers of a Logical English run');
+    return writeLe(result, loaded);
+  }
   if (format === 'n3') {
     if (loaded.kind !== 'n3') throw new EyemindError('--to n3 writes the conclusions of an N3 run');
     return resultToN3(loaded.compiled.doc, result, { mode: all ? 'all' : 'new', blankNodePrefix }).n3;
   }
   let quads;
   if (loaded.kind === 'srl') quads = srlQuads(loaded.compiled, srlAnswers(result), { all });
-  else if (all && loaded.kind === 'le' && !loaded.compiled?.odrl) {
-    const facts = loaded.program.sources.filter(({ kind, head }) => kind === 'fact' &&
-      head instanceof Struct && head.name === 'rdf' && (head.args.length === 3 || head.args.length === 4));
-    quads = conclusionQuads(result.answers, null, facts.map(({ head }) => head));
-  } else quads = conclusionQuads(result.answers, all ? loaded.text : null);
+  else quads = conclusionQuads(result.answers, all ? loaded.text : null);
   return writeRdf(quads, { format, prefixes: loaded.kind === 'n3' ? Object.fromEntries(loaded.prefixes) : loaded.prefixes, blankNodePrefix });
 }
 

@@ -40,5 +40,11 @@
     "archive": "web/res/owl/conf/testsuite-owl2-rdfbased.zip",
     "path": "testsuite-owl2-rdfbased/subsuites/owl2rl",
     "cases": 273
+  },
+  "le": {
+    "source": "https://github.com/LogicalContractsOrg/LogicalEnglish2",
+    "revision": "70bf56d6253f183e7e1f1a9c80a4dd1d8ce0b0cd",
+    "path": "examples/moreExamples",
+    "cases": 81
   }
 }

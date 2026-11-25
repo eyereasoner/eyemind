@@ -1,6 +1,6 @@
 # Right to erasure in Logical English
 
-*An ODRL snapshot written entirely with qualified names.*
+*GDPR Article 17 with its exemptions, Article 21's marketing objection and Article 19's notice.*
 
 [right-to-erasure-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/right-to-erasure-le.le) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/right-to-erasure-le.le) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/right-to-erasure-le.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/right-to-erasure-le.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=right-to-erasure-le)
 
@@ -8,71 +8,66 @@
 
 ## The question
 
-A customer asks a web shop to erase their personal data, as Article 17 of
-the GDPR allows. The shop keeps invoices while the tax retention period runs
-(Article 17(3)(b)) and support tickets under a litigation hold
-(Article 17(3)(e)), and erases marketing data once consent for direct
-marketing is withdrawn (Article 21(3)). Which of five erasure requests can
-its privacy office carry out?
+A customer asks a web shop to erase their personal data. Under Article 17 of
+the GDPR the shop erases it, unless an exemption applies: it keeps the invoices
+while the tax retention period runs (Article 17(3)(b)) and the support tickets
+under a litigation hold (Article 17(3)(e)). The customer has also withdrawn
+consent for direct marketing, so the marketing list goes (Article 21(3)), and
+the recipients of erased data are told (Article 19). What happens to each
+record?
 
 ---
 
 ## What we tell eyemind
 
-`Use ODRL snapshot logic` selects the same evaluator as `--odrl` on Turtle,
-and every statement after it uses qualified names:
+Article 17(1) is one rule with two exceptions on their own indented lines:
+`it is not the case that the record must be kept under an article`, where
+`an article` is any article, and `it is not the case that the record awaits
+its retention period`. Each exemption is a rule that concludes the article as a
+quoted name, such as `"Article 17(3)(b)"`.
 
-```text
-ex:mayEraseProfile has odrl:action odrl:delete and ex:mayEraseProfile has odrl:target ex:profile.
-ex:optedOut is a odrl:LogicalConstraint and ex:optedOut has odrl:and [ex:forMarketing, ex:withdrawn].
-ex:profileState has ex:erasureRequested true.
-```
-
-After the directive, a qualified statement takes what the snapshot's short
-forms take: names in its namespace, `true` and `false` as boolean literals,
-and an operand list as an RDF collection. The retention policy is an
-`odrl:Set` with one permission and, for invoices, tickets and backups, one
-prohibition per kind of record; its own `odrl:conflict odrl:prohibit` lets a
-prohibition win. The marketing permission groups a `dpv:hasPurpose`
-category test, `eval:withinCategory dpv:Marketing`, with
-`dpv:hasConsentStatus odrl:eq dpv:ConsentWithdrawn`. Erasing the profile
-carries the duty to inform its recipients (Article 19), and its request
-records that duty as fulfilled.
+A retention period applies to the invoices and to the backup archive, but only
+the invoices' remaining years are recorded. A rule notes that the backup
+archive waits for that fact, so its erasure is neither ordered nor refused.
+Direct marketing is a kind of marketing, so withdrawing consent for it erases
+the marketing list whether or not the customer asked.
 
 ---
 
 ## What eyemind concludes
 
-| Request | Decision | Why |
-| --- | --- | --- |
-| `eraseProfile` | allowed | requested, recipients informed |
-| `eraseMarketing` | allowed | direct marketing, consent withdrawn |
-| `eraseInvoices` | prohibited | 4 retention years left; conflict reported |
-| `eraseTickets` | prohibited | litigation hold; conflict reported |
-| `eraseBackups` | undetermined | retention period not recorded |
+```text
+% query erase with scenario erasure request
+the profile must be erased.
+the marketing list must be erased.
 
-```js
-rdf(iri('https://example.org/right-to-erasure#eraseProfile'), iri('https://eyereasoner.github.io/eyemind/odrl#decision'), iri('https://eyereasoner.github.io/eyemind/odrl#Allowed'))
-rdf(iri('https://example.org/right-to-erasure#eraseInvoices'), iri('https://eyereasoner.github.io/eyemind/odrl#decision'), iri('https://eyereasoner.github.io/eyemind/odrl#Prohibited'))
-rdf(iri('https://example.org/right-to-erasure#eraseBackups'), iri('https://eyereasoner.github.io/eyemind/odrl#decision'), iri('https://eyereasoner.github.io/eyemind/odrl#Undetermined'))
-rdf(iri('https://example.org/right-to-erasure#evaluation'), iri('https://eyereasoner.github.io/eyemind/odrl#conflictCount'), 2)
+% query keep with scenario erasure request
+the invoices must be kept under Article 17(3)(b).
+the support tickets must be kept under Article 17(3)(e).
+
+% query pending with scenario erasure request
+the backup archive awaits its retention period.
+
+% query inform with scenario erasure request
+the recipients of the marketing list must be informed.
 ```
 
-The LE report declares the prefixes it uses after its `Use ODRL vocabulary`
-directive, writes `eraseProfile has action odrl:delete.`, and names the
-backup uncertainty `witness(rule 360, "Issue", ex:eraseBackups,
-ex:retentionRuns, ex:keepBackups, ex:retentionYearsLeft,
-eval:MissingObservation)`, so the report reads back as the same RDF graph.
+The recipients of the profile were already informed; those of the marketing
+list still have to be.
+
+```js
+struct('le:answer', 'keep', 'erasure request', 'the invoices', 'Article 17(3)(b)')
+struct('le:answer', 'inform', 'erasure request', 'the marketing list')
+```
 
 ---
 
 ## What the proof establishes
 
-The saved proof is **checked** against the compiled snapshot program, the
-same validation and evaluation rules `--odrl` compiles for Turtle. It
-establishes each decision under the snapshot profile from the stated
-policy and states; a missing observation stays unknown rather than being
-taken as false.
+The saved proof is **checked** against the compiled LS program. Each erasure
+rests on the checked absence of an exemption, and the pending backup archive
+on the absence of its remaining years. It does not establish that the
+retention period or the litigation hold were correctly recorded.
 
 ---
 
@@ -81,9 +76,10 @@ taken as false.
 ```sh
 node bin/eyemind.js examples/right-to-erasure-le.le
 node bin/eyemind.js --program examples/right-to-erasure-le.le > /tmp/right-to-erasure-le.js
-node bin/eyemind.js --to turtle /tmp/right-to-erasure-le.js
+node bin/eyemind.js --proof examples/right-to-erasure-le.le
 node bin/eyemind.js --check-proof examples/proof/right-to-erasure-le.js examples/right-to-erasure-le.le
 ```
 
-Add `ex:backupState has ex:retentionYearsLeft 0.`: the retention prohibition
-no longer applies and erasing the backups is allowed.
+Add `the retention period of the backup archive has 0 years left.`: the backup
+archive must be erased. Remove the litigation hold and the support tickets
+must be erased too.

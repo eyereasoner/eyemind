@@ -1,2 +1,3 @@
-bestRoute(Harbor, 10, "via"("via"("start"(Atrium), Library), Harbor)).
-bestRoute(Harbor, 10, "via"("via"("start"(Atrium), Garden), Harbor)).
+% query best with scenario town
+[atrium, library, harbor] is a best route from atrium to harbor in 10 minutes.
+[atrium, garden, harbor] is a best route from atrium to harbor in 10 minutes.

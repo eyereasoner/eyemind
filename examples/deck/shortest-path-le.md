@@ -1,55 +1,60 @@
 # Shortest paths in Logical English
 
-*Two minimum-cost paths survive a cycle and a strictly-cheaper test.*
+*Two minimum-cost routes, built as lists, survive a cycle.*
 
 [shortest-path-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/shortest-path-le.le) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/shortest-path-le.le) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/shortest-path-le.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/shortest-path-le.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=shortest-path-le)
 
 ## The question
 
-A walker must travel from the atrium to the harbor. The library and garden
-routes both take ten minutes; the direct road takes fifteen. A return road
-from the library to the atrium makes unrestricted path enumeration infinite.
+A walker in the atrium can reach the harbor through the library, through the
+garden or along a direct road. A return road from the library to the atrium
+makes a cycle. Which routes take the least time?
 
 ## What we tell eyemind
 
-Roads have exact integer costs. A recursive rule extends paths, retaining their
-cost, number of roads and a nested history term. A four-road limit bounds the
-construction even when a path revisits the atrium.
+A route is the list of places it passes, such as `[atrium, library, harbor]`.
+One rule takes a single road; the other takes a road to a middle place and a
+route from there, never returning to its start (`it is not the case that the
+place is in the rest`), and puts the place in front of the rest with
+`the route has the place as head before the rest`.
 
-A second rule derives a counterexample for every cost that has a strictly
-cheaper competitor to the same destination. Only after that relation is complete
-does an absence test select the minimum costs. Equality does not eliminate a tie.
+Logical English rules run backward, as Prolog runs them, so the number of
+roads a route may use is part of the template and goes down by one on every
+road. That bound ends the search around the cycle. A best route takes the
+minimum time of all routes of at most four roads.
 
 ## What eyemind concludes
 
-Both alternatives are retained in the checked LS answers:
-
-```js
-bestRoute('Harbor', 10, via(via(start('Atrium'), 'Library'), 'Harbor'))
-bestRoute('Harbor', 10, via(via(start('Atrium'), 'Garden'), 'Harbor'))
+```text
+% query best with scenario town
+[atrium, library, harbor] is a best route from atrium to harbor in 10 minutes.
+[atrium, garden, harbor] is a best route from atrium to harbor in 10 minutes.
 ```
 
-The default output expresses the same terms in a `.le` document. It includes the
-whole route, rather than just a claim that the harbor is reachable.
+```js
+struct('le:answer', 'best', 'town', ['atrium', 'library', 'harbor'], 10)
+struct('le:answer', 'best', 'town', ['atrium', 'garden', 'harbor'], 10)
+```
+
+The library and garden routes tie at ten minutes; the direct road takes
+fifteen.
 
 ## What the proof establishes
 
 The saved proof is **checked** against the compiled LS program. It establishes
-both minimum-cost answers among the routes of at most four roads, including
-the absence of a cheaper candidate in that finite search. The same proof checks
-against the standalone JavaScript compilation. It does not establish an optimum
-for an unbounded graph or for a different set of roads.
+both minimum-time answers among the routes of at most four roads, including
+the minimum over every such route. It does not establish an optimum for an
+unbounded graph or for a different set of roads.
 
 ## Try it
 
 ```sh
 node bin/eyemind.js examples/shortest-path-le.le
 node bin/eyemind.js --program examples/shortest-path-le.le > /tmp/shortest-path-le.js
-node bin/eyemind.js --to le /tmp/shortest-path-le.js
 node bin/eyemind.js --proof examples/shortest-path-le.le
 node bin/eyemind.js --check-proof examples/proof/shortest-path-le.js examples/shortest-path-le.le
 ```
 
-Change the direct road's cost from 15 to 5: it becomes the sole minimum.
-Change the road limit from 4 to 1: the direct fifteen-minute route is the only
-candidate. Removing the limit can make cyclic path construction continue forever.
+Change the direct road's time from 15 to 5: it becomes the sole best route.
+Change both limits of 4 roads to 1: the direct fifteen-minute route is the only
+candidate.

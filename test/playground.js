@@ -242,14 +242,13 @@ export const tests = [
 
   ['Logical English examples download LE conclusions and keep JavaScript proofs', async (page, base) => {
     const p = driver(page);
-    for (const name of ['socrates-le', 'records-le', 'handicap-card-le', 'research-access-le',
-      'research-snapshot-le', 'shortest-path-le', 'river-crossing-le', 'course-certificates-le']) {
+    for (const name of ['socrates-le', 'british-citizenship-le', 'breach-notification-le', 'shortest-path-le', 'river-crossing-le']) {
       await p.open(`${base}#example=${name}`);
       await p.run();
       assert.match(await p.status(), /^Done · exit 0/);
       assert.equal(await p.output(), readFileSync(new URL(`../examples/output/${name}.le`, import.meta.url), 'utf8'));
     }
-    // The certificate example also exercises witness terms in both formats.
+    // The river crossing's lists appear in its LE answers and JavaScript proof.
     await page.evaluate(`(() => {
       HTMLAnchorElement.prototype.click = function () { window.savedFilename = this.download; };
       document.getElementById('save-output').click();
@@ -258,7 +257,7 @@ export const tests = [
     await p.select('mode', '--proof');
     await p.run();
     const proof = await p.output();
-    assert.match(proof, /^step\(/m);
+    assert.match(proof, /^called\(/m);
     await page.evaluate("document.getElementById('save-output').click()");
     assert.equal(await page.evaluate('window.savedFilename'), 'proof.js');
     await p.select('mode', '--check-proof');
@@ -269,10 +268,10 @@ export const tests = [
     await p.run();
     assert.match(await p.output(), /verdict\('checked'\)/);
     await p.select('mode', '');
-    await p.type('input', '# Header\n\nSocrates is not a human.');
+    await p.type('input', '% Header\n\nSocrates is human.');
     await p.run();
-    assert.match(await p.messages(), /line 3: Logical English: ordinary "not"/);
-    assert.equal(await p.marked(), 'Socrates is not a human.');
+    assert.match(await p.messages(), /line 3: Logical English: a sentence comes before any section/);
+    assert.equal(await p.marked(), 'Socrates is human.');
   }],
 
   ['practical and mathematical examples load from the manifest and run', async (page, base) => {

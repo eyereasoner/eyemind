@@ -1,8 +1,11 @@
-Anna is a britishCitizen.
-Eve is a britishCitizen.
-Gwen is a britishCitizen.
-Farid is a qualifyingParent of Anna.
-Gwen is a qualifyingParent of Hugo.
-Ben is a britishCitizen.
-Anna is a qualifyingParent of Ben.
-Anna is a qualifyingParent of Jo.
+% query citizens with scenario families
+Eve is a British citizen.
+Gwen is a British citizen.
+Anna is a British citizen.
+Ben is a British citizen.
+
+% query parents with scenario families
+Farid is a qualifying parent of Anna.
+Gwen is a qualifying parent of Hugo.
+Anna is a qualifying parent of Ben.
+Anna is a qualifying parent of Jo.

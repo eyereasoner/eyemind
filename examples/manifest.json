@@ -856,61 +856,36 @@
   {
     "name": "socrates-le",
     "files": ["socrates-le.le"],
-    "description": "Logical English class facts and an every-rule conclude that Socrates is mortal"
+    "description": "Logical English templates, a rule and a query conclude that Socrates is mortal"
   },
   {
     "name": "squares",
     "description": "A forward rule computes exact squares of three supplied integers"
   },
   {
-    "name": "records-le",
-    "files": ["records-le.le"],
-    "description": "Explicit absence and an existential conclusion give Alice a fresh record while Bob is blocked"
-  },
-  {
-    "name": "handicap-card-le",
-    "files": ["handicap-card-le.le"],
-    "description": "An LE snapshot reuses the ODRL evaluator to allow Alice's card and retain Bob's policy conflict"
-  },
-  {
-    "name": "research-access-le",
-    "files": ["research-access-le.le"],
-    "description": "Logical English joins ODRL permission, prohibition and duty facts with DPV process descriptions to decide three research requests"
+    "name": "breach-notification-le",
+    "files": ["breach-notification-le.le"],
+    "description": "GDPR Articles 33 and 34 decide which of four breaches need notices, and who breaches which article"
   },
   {
     "name": "data-transfers-le",
     "files": ["data-transfers-le.le"],
-    "description": "An ODRL snapshot with rules decides GDPR Chapter V transfers on adequacy, clauses with an assessment duty, or explicit consent"
-  },
-  {
-    "name": "breach-notification-le",
-    "files": ["breach-notification-le.le"],
-    "description": "An ODRL snapshot with rules decides GDPR Articles 33 and 34 notices for four breaches and a processor's duty to alert in time"
+    "description": "GDPR Chapter V allows transfers on adequacy, assessed clauses or explicit consent, and finds a prohibited, a pending and an unfounded one"
   },
   {
     "name": "right-to-erasure-le",
     "files": ["right-to-erasure-le.le"],
-    "description": "An LE ODRL snapshot in qualified names weighs erasure requests against retention and a litigation hold"
-  },
-  {
-    "name": "research-snapshot-le",
-    "files": ["research-snapshot-le.le"],
-    "description": "An ODRL snapshot checks a compound constraint over DPV purpose and data categories and looks for request-local duty evidence"
+    "description": "GDPR Article 17 erases on request unless a retention period or a litigation hold applies, and Article 19 tells the recipients"
   },
   {
     "name": "shortest-path-le",
     "files": ["shortest-path-le.le"],
-    "description": "Bounded recursive paths retain both cheapest routes through a graph containing a cycle"
+    "description": "Recursive routes over lists, bounded in length, keep both cheapest routes through a graph containing a cycle"
   },
   {
     "name": "river-crossing-le",
     "files": ["river-crossing-le.le"],
-    "description": "Compound states and safety constraints find both seven-crossing wolf, goat and cabbage plans"
-  },
-  {
-    "name": "course-certificates-le",
-    "files": ["course-certificates-le.le"],
-    "description": "Recursive course requirements and prior learning lead to shared dossiers, audits and nested certificate witnesses"
+    "description": "States as lists and a safety rule find both seven-crossing wolf, goat and cabbage plans"
   },
   {
     "name": "british-citizenship-le",
@@ -925,6 +900,6 @@
   {
     "name": "election-tally-le",
     "files": ["election-tally-le.le"],
-    "description": "Eligible voters' choices are counted once each, spoiled votes are excluded and a tie gives two winners"
+    "description": "Each eligible voter's first ballot counts, spoiled votes are excluded and a tie gives two winners"
   }
 ]

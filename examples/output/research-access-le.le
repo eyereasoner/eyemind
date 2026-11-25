@@ -1,5 +1,0 @@
-Use prefix ex with namespace "https://example.org/research-access#".
-
-ex:mixed has ex:decision ex:prohibited.
-ex:study has ex:decision ex:allowed.
-ex:pending has ex:decision ex:review.

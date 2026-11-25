@@ -1,55 +1,106 @@
-# A library charges a daily late fee per item kind and the replacement cost of
-# an item returned damaged or lost. It totals each member's charges, counts
-# their late loans and finds their longest delay; a member who owes 10 or more
-# is blocked. Alice owes 11 and is blocked, Bob owes 4 and Carol nothing.
-# Shows "or" premises and the number, sum and maximum aggregates, each over
-# distinct combinations: a loan recorded as both damaged and lost is charged once.
+% A library charges a daily late fee per kind of item, and the replacement
+% cost of an item returned damaged or lost. It totals each member's charges,
+% counts their late loans and finds their longest delay; a member who owes 10
+% or more is blocked. Alice owes 11 and is blocked, Bob owes 4 and Carol
+% nothing.
+% Shows arithmetic, the sum, count and maximum aggregates, and a loan both
+% damaged and lost that is charged once.
 
-book has dailyRate 1.
-dvd has dailyRate 2.
-Alice is a member and Bob is a member and Carol is a member.
+the templates are:
+    *a member* is a library member,
+    *a kind* has a daily rate of *an amount*,
+    *an item* is of kind *a kind*,
+    *an item* has a replacement cost of *an amount*,
+    *a loan* is a loan of *an item* to *a member* returned *a number* days late,
+    *a loan* is damaged,
+    *a loan* is lost,
+    *a member* owes *an amount* for *a loan*,
+    *a member* owes *an amount* in total,
+    *a member* has *a number* late loans,
+    the longest delay of *a member* is *a number* days,
+    *a member* is blocked.
 
-atlas has kind book and atlas has replacementCost 12.
-novel has kind book and novel has replacementCost 8.
-film has kind dvd and film has replacementCost 15.
-poems has kind book and poems has replacementCost 6.
+the knowledge base library includes:
 
-# loan(Loan, Member, Item, DaysLate)
-loan(l1, Alice, atlas, 3).
-loan(l2, Alice, film, 1).
-loan(l3, Alice, poems, 0).
-l3 is damaged and l3 is lost.
-loan(l4, Bob, novel, 4).
-loan(l5, Bob, poems, 0).
-loan(l6, Carol, atlas, 0).
+% A late fee is the days late times the daily rate of the item's kind.
+a member owes a fee for a loan
+    if the loan is a loan of an item to the member returned a number N days late
+    and N > 0
+    and the item is of kind a kind
+    and the kind has a daily rate of a rate R
+    and the fee = N * R.
 
-# A late fee is the days late times the daily rate of the item's kind.
-For every L and M and I and N and K and R and F,
-if loan(L, M, I, N) and N is greater than 0 and I has kind K and K has dailyRate R
-and F is the value of N * R
-then charge(M, lateFee(L), F).
+% A damaged item is replaced; a lost one too, unless it was already charged
+% as damaged, so that a loan recorded as both is charged once.
+a member owes a cost for a loan
+    if the loan is a loan of an item to the member returned a number days late
+    and the loan is damaged
+    and the item has a replacement cost of the cost.
 
-# Damaged or lost: either record charges the replacement cost, once.
-For every L and M and I and N and F,
-if loan(L, M, I, N) and L is damaged and I has replacementCost F
-or loan(L, M, I, N) and L is lost and I has replacementCost F
-then charge(M, replacement(L), F).
+a member owes a cost for a loan
+    if the loan is a loan of an item to the member returned a number days late
+    and the loan is lost
+    and it is not the case that
+        the loan is damaged
+    and the item has a replacement cost of the cost.
 
-# Each aggregate's variables are its own; it counts every distinct
-# combination of their values once.
-For every M and T,
-if M is a member and T is the sum of F for every C and F such that charge(M, C, F)
-then T is an amountDue of M.
-For every M and N,
-if M is a member and N is the number of L and I and D such that (loan(L, M, I, D) and D is greater than 0)
-then N is a lateLoanCount of M.
-For every M and W,
-if M is a member and W is the maximum of D for every L and I and D such that loan(L, M, I, D)
-then W is a longestDelay of M.
+% The sum counts each charge it finds, so a member without any owes 0.
+a member owes a total in total
+    if the member is a library member
+    and the total is the sum of each amount such that
+        the member owes the amount for a loan.
 
-For every M and T, if T is an amountDue of M and T is at least 10 then M is a blockedMember.
+a member has a number late loans
+    if the member is a library member
+    and the number is the count of each loan such that
+        the loan is a loan of an item to the member returned a number D days late
+        and D > 0.
 
-Find every T and M such that T is an amountDue of M.
-Find every N and M such that N is a lateLoanCount of M.
-Find every W and M such that W is a longestDelay of M.
-Find every M such that M is a blockedMember.
+the longest delay of a member is a number days
+    if the member is a library member
+    and the number is the max of each D such that
+        a loan is a loan of an item to the member returned D days late.
+
+a member is blocked
+    if the member owes a total in total
+    and the total >= 10.
+
+scenario accounts is:
+    book has a daily rate of 1.
+    dvd has a daily rate of 2.
+    Alice is a library member.
+    Bob is a library member.
+    Carol is a library member.
+    atlas is of kind book.
+    atlas has a replacement cost of 12.
+    novel is of kind book.
+    novel has a replacement cost of 8.
+    film is of kind dvd.
+    film has a replacement cost of 15.
+    poems is of kind book.
+    poems has a replacement cost of 6.
+    l1 is a loan of atlas to Alice returned 3 days late.
+    l2 is a loan of film to Alice returned 1 days late.
+    l3 is a loan of poems to Alice returned 0 days late.
+    l3 is damaged.
+    l3 is lost.
+    l4 is a loan of novel to Bob returned 4 days late.
+    l5 is a loan of poems to Bob returned 0 days late.
+    l6 is a loan of atlas to Carol returned 0 days late.
+    totals expects answers ["Alice owes 11 in total", "Bob owes 4 in total", "Carol owes 0 in total"].
+    late expects answers ["Alice has 2 late loans", "Bob has 1 late loans", "Carol has 0 late loans"].
+    delays expects answers ["the longest delay of Alice is 3 days", "the longest delay of Bob is 4 days",
+        "the longest delay of Carol is 0 days"].
+    blocked expects answers ["Alice is blocked"].
+
+query totals is:
+    which member owes which amount in total.
+
+query late is:
+    which member has which number late loans.
+
+query delays is:
+    the longest delay of which member is which number days.
+
+query blocked is:
+    which member is blocked.

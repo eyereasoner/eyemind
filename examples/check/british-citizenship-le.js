@@ -1,12 +1,12 @@
 // Checked answers: these follow from the input program and are every answer of its questions.
-britishCitizen('Anna')
-britishCitizen('Eve')
-britishCitizen('Gwen')
-qualifyingParent('Farid', 'Anna')
-qualifyingParent('Gwen', 'Hugo')
-britishCitizen('Ben')
-qualifyingParent('Anna', 'Ben')
-qualifyingParent('Anna', 'Jo')
+struct('le:answer', 'citizens', 'families', 'Eve')
+struct('le:answer', 'citizens', 'families', 'Gwen')
+struct('le:answer', 'parents', 'families', 'Farid', 'Anna')
+struct('le:answer', 'parents', 'families', 'Gwen', 'Hugo')
+struct('le:answer', 'citizens', 'families', 'Anna')
+struct('le:answer', 'parents', 'families', 'Anna', 'Ben')
+struct('le:answer', 'parents', 'families', 'Anna', 'Jo')
+struct('le:answer', 'citizens', 'families', 'Ben')
 
 // Proof check (SPEC 11.2-11.6):
 // Questions: every claim is an answer, and every required answer is claimed.

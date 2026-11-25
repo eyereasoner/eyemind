@@ -8,8 +8,7 @@
 # Shows --odrl combined with RDF profiles: --owl2rl derives each state's
 # consent status through its legal basis with a property chain, and --skos
 # turns the partner's skos:broadMatch mappings into the DPV categories that
-# the constraints test. research-access-le decides the same requests with
-# hand-written Logical English rules.
+# the constraints test.
 # Sources https://www.w3.org/TR/odrl-model/
 #         https://www.w3.org/TR/odrl-vocab/
 #         https://w3id.org/dpv/2.3/dpv/

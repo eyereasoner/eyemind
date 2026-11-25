@@ -1,11 +1,11 @@
 // Checked answers: these follow from the input program and are every answer of its questions.
-spoiledVoter('v7')
-'quorumMet'
-voteCount(3, 'Hana')
-voteCount(3, 'Ravi')
-voteCount(1, 'Sven')
-winner('Hana')
-winner('Ravi')
+struct('le:answer', 'spoiled', 'count', 'v7')
+struct('le:answer', 'votes', 'count', 'Hana', 3)
+struct('le:answer', 'votes', 'count', 'Ravi', 3)
+struct('le:answer', 'votes', 'count', 'Sven', 1)
+struct('le:answer', 'quorum', 'count')
+struct('le:answer', 'winners', 'count', 'Hana')
+struct('le:answer', 'winners', 'count', 'Ravi')
 
 // Proof check (SPEC 11.2-11.6):
 // Questions: every claim is an answer, and every required answer is claimed.

@@ -8,60 +8,67 @@
 
 ## The question
 
-Twelve people hold a vote for Hana, Ravi or Sven: ten registered voters and two
-provisional voters, only one of whom is verified. One voter cast two ballots
-for Hana; another voted for both Hana and Sven. Who wins, and did enough
-people vote?
+Three candidates stand in a plurality election. Registered voters may vote,
+and provisional voters once verified. A voter who chooses two different
+candidates spoils their vote; a repeated ballot for the same candidate counts
+once. Who wins, and do enough eligible voters take part to meet a quorum of
+half?
 
 ---
 
 ## What we tell eyemind
 
-A voter is eligible when registered, *or* provisional and verified. A choice
-records which candidate a voter chose, dropping the ballot identifier, so two
-ballots for one candidate are one choice. A participant is an eligible voter
-who made a choice.
+Each ballot is a sentence such as `v6 casts ballot 6 for Hana.` A voter is
+eligible when registered, or provisional and verified; the second alternative
+is indented below the `or`, so that its two conditions belong together.
 
-A participant with two or more different choices spoils their vote:
+Logical English counts every solution it finds, so the rules say which ballot
+counts: an eligible voter's ballot for a candidate counts unless the voter
+spoils their vote, and unless the voter cast an earlier ballot for that
+candidate. v6's second ballot for Hana therefore adds nothing. In the same way
+a voter takes part with their first ballot.
 
-```text
-N is the number of C such that choice(V, C) and N is at least 2
-```
-
-A candidate's vote count is the number of eligible voters who chose them and
-of whom *it is not known that* they spoiled their vote. The absence test sits
-inside the aggregate's condition, after the premise that supplies the voter.
-
-Every candidate whose count equals the maximum count wins. The quorum is met
-when twice the number of participants is at least the number of eligible
-voters.
+The winners are the candidates whose count equals the maximum of all counts,
+so a tie keeps both.
 
 ---
 
 ## What eyemind concludes
 
-```js
-voteCount(3, 'Hana')
-voteCount(3, 'Ravi')
-voteCount(1, 'Sven')
-spoiledVoter('v7')
-winner('Hana')
-winner('Ravi')
-'quorumMet'
+```text
+% query votes with scenario count
+Hana receives 3 votes.
+Ravi receives 3 votes.
+Sven receives 1 votes.
+
+% query spoiled with scenario count
+v7 spoils their vote.
+
+% query winners with scenario count
+Hana wins.
+Ravi wins.
+
+% query quorum with scenario count
+the quorum is met.
 ```
 
-Hana's votes come from v1, v2 and v6, whose two ballots count once. Ravi's come
-from v3, v4 and the verified provisional voter v9. Sven keeps only v5: v7
-spoiled their vote and v10 is not eligible. The tie leaves two winners. Eight
-of the eleven eligible voters took part, so the quorum is met.
+Eight of the eleven eligible voters take part, v7 among them although the vote
+is spoiled. v10 is provisional and not verified, so their ballot for Sven does
+not count.
+
+```js
+struct('le:answer', 'winners', 'count', 'Hana')
+struct('le:answer', 'winners', 'count', 'Ravi')
+struct('le:answer', 'quorum', 'count')
+```
 
 ---
 
 ## What the proof establishes
 
 The saved proof is **checked** against the compiled LS program. The counts are
-collections decided from complete tables of choices and eligible voters, and
-the excluded spoiled vote rests on the counted choices of v7. The winners
+collections decided from complete tables of ballots and eligible voters, and
+each excluded ballot rests on a negation the checker replays. The winners
 follow from comparing each count with the maximum over all counts, so the tie
 is part of the checked result.
 

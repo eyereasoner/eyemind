@@ -1,126 +1,102 @@
-# A customer asks a web shop to erase their personal data (GDPR Article 17).
-# The shop's retention policy, an ODRL set, lets its privacy office delete
-# each kind of record, but keeps invoices while the tax retention period
-# runs (Article 17(3)(b)) and support tickets under a litigation hold
-# (Article 17(3)(e)). Marketing data goes as soon as consent for direct
-# marketing is withdrawn (Article 21(3)).
-# The snapshot allows erasing the profile, whose recipients were informed,
-# and the marketing list; it prohibits erasing the invoices and the tickets,
-# reporting both conflicts; and it leaves the backups undetermined, because
-# their retention period is not recorded.
-# Shows an LE ODRL snapshot written entirely with namespace prefixes:
-# qualified ODRL, eval and DPV names, a qualified operand list and boolean
-# values, a DPV category constraint and request-local duty evidence.
-# Sources https://eur-lex.europa.eu/eli/reg/2016/679/oj (Articles 17, 19, 21)
-#         https://www.w3.org/TR/odrl-vocab/
-#         https://w3id.org/dpv/2.3/dpv/
+% A customer asks a web shop to erase their personal data (GDPR Article 17).
+% The shop keeps the invoices while the tax retention period runs (Article
+% 17(3)(b)) and the support tickets under a litigation hold (Article
+% 17(3)(e)). Marketing data goes once the customer withdraws consent for
+% direct marketing (Article 21(3)). The shop tells the recipients of erased
+% data about the erasure (Article 19).
+% The profile and the marketing list must be erased, and the recipients of
+% the marketing list must still be informed; the invoices and the tickets are
+% kept, and the backup archive waits until its retention period is recorded.
+% Shows exemptions as "it is not the case that", a kind of purpose, a
+% decision that waits for a missing fact, and articles as quoted names.
+% Source https://eur-lex.europa.eu/eli/reg/2016/679/oj (Articles 17, 19 and 21)
 
-Use ODRL snapshot logic with namespace "https://example.org/right-to-erasure#".
-Use prefix ex with namespace "https://example.org/right-to-erasure#".
-Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
-Use prefix eval with namespace "https://eyereasoner.github.io/eyemind/odrl#".
-Use prefix dpv with namespace "https://w3id.org/dpv#".
-Use prefix skos with namespace "http://www.w3.org/2004/02/skos/core#".
+the templates are:
+    the customer asked to erase *a record*,
+    a retention period applies to *a record*,
+    the retention period of *a record* has *a number* years left,
+    a litigation hold covers *a record*,
+    *a record* is used for *a purpose*,
+    *a purpose* is a kind of *a purpose*,
+    the customer withdrew consent for *a purpose*,
+    *a record* was disclosed to recipients,
+    the recipients of *a record* were informed,
+    *a record* must be kept under *an article*,
+    *a record* must be erased,
+    *a record* awaits its retention period,
+    the recipients of *a record* must be informed.
 
-# Only the taxonomy link this snapshot uses is supplied.
+the knowledge base gdpr erasure includes:
 
-dpv:DirectMarketing has skos:broader dpv:Marketing.
+% Article 17(1): personal data is erased on request, unless an exemption
+% keeps it or the decision waits for its retention period.
+a record must be erased
+    if the customer asked to erase the record
+    and it is not the case that
+        the record must be kept under an article
+    and it is not the case that
+        the record awaits its retention period.
 
-# One evaluation of five requests; a prohibition wins.
+% Article 21(3): data for direct marketing goes once consent is withdrawn.
+a record must be erased
+    if the record is used for a purpose
+    and the purpose is a kind of marketing
+    and the customer withdrew consent for the purpose.
 
-ex:evaluation is a eval:Evaluation and ex:evaluation has eval:policy ex:retentionPolicy.
-ex:evaluation has eval:conflictStrategy odrl:prohibit.
-ex:evaluation has eval:request ex:eraseProfile and ex:evaluation has eval:request ex:eraseInvoices.
-ex:evaluation has eval:request ex:eraseMarketing and ex:evaluation has eval:request ex:eraseTickets.
-ex:evaluation has eval:request ex:eraseBackups.
+% Article 17(3)(b): a legal obligation to retain, here for tax.
+a record must be kept under "Article 17(3)(b)"
+    if the customer asked to erase the record
+    and a retention period applies to the record
+    and the retention period of the record has a number N years left
+    and N > 0.
 
-ex:retentionPolicy is a odrl:Set and ex:retentionPolicy has odrl:profile eval:SnapshotProfile.
-ex:retentionPolicy has odrl:assigner ex:webShop and ex:retentionPolicy has odrl:conflict odrl:prohibit.
-ex:retentionPolicy has odrl:permission ex:mayEraseProfile and ex:retentionPolicy has odrl:permission ex:mayEraseInvoices.
-ex:retentionPolicy has odrl:permission ex:mayEraseMarketing and ex:retentionPolicy has odrl:permission ex:mayEraseTickets.
-ex:retentionPolicy has odrl:permission ex:mayEraseBackups.
-ex:retentionPolicy has odrl:prohibition ex:keepInvoices and ex:retentionPolicy has odrl:prohibition ex:keepTickets.
-ex:retentionPolicy has odrl:prohibition ex:keepBackups.
+% Article 17(3)(e): the defence of legal claims.
+a record must be kept under "Article 17(3)(e)"
+    if the customer asked to erase the record
+    and a litigation hold covers the record.
 
-# Erasing on request. Erasing the profile carries the Article 19 duty to
-# inform its recipients.
+a record awaits its retention period
+    if the customer asked to erase the record
+    and a retention period applies to the record
+    and it is not the case that
+        the retention period of the record has a number years left.
 
-ex:requested is a odrl:Constraint and ex:requested has odrl:leftOperand ex:erasureRequested.
-ex:requested has odrl:operator odrl:eq and ex:requested has odrl:rightOperand true.
-ex:informRecipients is a odrl:Duty and ex:informRecipients has odrl:action odrl:inform.
+% Article 19: the recipients of erased data are told.
+the recipients of a record must be informed
+    if the record must be erased
+    and the record was disclosed to recipients
+    and it is not the case that
+        the recipients of the record were informed.
 
-ex:mayEraseProfile is a odrl:Permission and ex:mayEraseProfile has odrl:assignee ex:privacyOffice.
-ex:mayEraseProfile has odrl:action odrl:delete and ex:mayEraseProfile has odrl:target ex:profile.
-ex:mayEraseProfile has odrl:constraint ex:requested and ex:mayEraseProfile has odrl:duty ex:informRecipients.
-ex:mayEraseInvoices is a odrl:Permission and ex:mayEraseInvoices has odrl:assignee ex:privacyOffice.
-ex:mayEraseInvoices has odrl:action odrl:delete and ex:mayEraseInvoices has odrl:target ex:invoices.
-ex:mayEraseInvoices has odrl:constraint ex:requested.
-ex:mayEraseTickets is a odrl:Permission and ex:mayEraseTickets has odrl:assignee ex:privacyOffice.
-ex:mayEraseTickets has odrl:action odrl:delete and ex:mayEraseTickets has odrl:target ex:tickets.
-ex:mayEraseTickets has odrl:constraint ex:requested.
-ex:mayEraseBackups is a odrl:Permission and ex:mayEraseBackups has odrl:assignee ex:privacyOffice.
-ex:mayEraseBackups has odrl:action odrl:delete and ex:mayEraseBackups has odrl:target ex:backups.
-ex:mayEraseBackups has odrl:constraint ex:requested.
+scenario erasure request is:
+    the customer asked to erase the profile.
+    the customer asked to erase the invoices.
+    the customer asked to erase the support tickets.
+    the customer asked to erase the backup archive.
+    a retention period applies to the invoices.
+    the retention period of the invoices has 6 years left.
+    a litigation hold covers the support tickets.
+    a retention period applies to the backup archive.
+    the marketing list is used for direct marketing.
+    direct marketing is a kind of marketing.
+    the customer withdrew consent for direct marketing.
+    the profile was disclosed to recipients.
+    the recipients of the profile were informed.
+    the marketing list was disclosed to recipients.
+    erase expects answers ["the profile must be erased", "the marketing list must be erased"].
+    keep expects answers ["the invoices must be kept under Article 17(3)(b)",
+        "the support tickets must be kept under Article 17(3)(e)"].
+    pending expects answers ["the backup archive awaits its retention period"].
+    inform expects answers ["the recipients of the marketing list must be informed"].
 
-# Marketing data: a direct marketing purpose whose consent is withdrawn,
-# both members of one odrl:and group.
+query erase is:
+    which record must be erased.
 
-ex:mayEraseMarketing is a odrl:Permission and ex:mayEraseMarketing has odrl:assignee ex:privacyOffice.
-ex:mayEraseMarketing has odrl:action odrl:delete and ex:mayEraseMarketing has odrl:target ex:marketingList.
-ex:mayEraseMarketing has odrl:constraint ex:optedOut.
-ex:optedOut is a odrl:LogicalConstraint and ex:optedOut has odrl:and [ex:forMarketing, ex:withdrawn].
-ex:forMarketing is a odrl:Constraint and ex:forMarketing has odrl:leftOperand dpv:hasPurpose.
-ex:forMarketing has odrl:operator eval:withinCategory and ex:forMarketing has odrl:rightOperand dpv:Marketing.
-ex:withdrawn is a odrl:Constraint and ex:withdrawn has odrl:leftOperand dpv:hasConsentStatus.
-ex:withdrawn has odrl:operator odrl:eq and ex:withdrawn has odrl:rightOperand dpv:ConsentWithdrawn.
+query keep is:
+    which record must be kept under which article.
 
-# Retention: records stay while their retention period runs, Article
-# 17(3)(b), or while a litigation hold applies, Article 17(3)(e).
+query pending is:
+    which record awaits its retention period.
 
-ex:retentionRuns is a odrl:Constraint and ex:retentionRuns has odrl:leftOperand ex:retentionYearsLeft.
-ex:retentionRuns has odrl:operator odrl:gt and ex:retentionRuns has odrl:rightOperand 0.
-ex:onHold is a odrl:Constraint and ex:onHold has odrl:leftOperand ex:litigationHold.
-ex:onHold has odrl:operator odrl:eq and ex:onHold has odrl:rightOperand true.
-
-ex:keepInvoices is a odrl:Prohibition and ex:keepInvoices has odrl:assignee ex:privacyOffice.
-ex:keepInvoices has odrl:action odrl:delete and ex:keepInvoices has odrl:target ex:invoices.
-ex:keepInvoices has odrl:constraint ex:retentionRuns.
-ex:keepTickets is a odrl:Prohibition and ex:keepTickets has odrl:assignee ex:privacyOffice.
-ex:keepTickets has odrl:action odrl:delete and ex:keepTickets has odrl:target ex:tickets.
-ex:keepTickets has odrl:constraint ex:onHold.
-ex:keepBackups is a odrl:Prohibition and ex:keepBackups has odrl:assignee ex:privacyOffice.
-ex:keepBackups has odrl:action odrl:delete and ex:keepBackups has odrl:target ex:backups.
-ex:keepBackups has odrl:constraint ex:retentionRuns.
-
-# The requests, each with the state of the world for its records.
-
-ex:eraseProfile is a eval:Request and ex:eraseProfile has odrl:assignee ex:privacyOffice.
-ex:eraseProfile has odrl:action odrl:delete and ex:eraseProfile has odrl:target ex:profile.
-ex:eraseProfile has eval:subject ex:customer and ex:eraseProfile has eval:state ex:profileState.
-ex:eraseProfile has eval:fulfilledDuty ex:informRecipients.
-ex:profileState is a eval:State and ex:profileState has eval:subject ex:customer.
-ex:profileState has ex:erasureRequested true.
-
-ex:eraseInvoices is a eval:Request and ex:eraseInvoices has odrl:assignee ex:privacyOffice.
-ex:eraseInvoices has odrl:action odrl:delete and ex:eraseInvoices has odrl:target ex:invoices.
-ex:eraseInvoices has eval:subject ex:customer and ex:eraseInvoices has eval:state ex:invoiceState.
-ex:invoiceState is a eval:State and ex:invoiceState has eval:subject ex:customer.
-ex:invoiceState has ex:erasureRequested true and ex:invoiceState has ex:retentionYearsLeft 4.
-
-ex:eraseMarketing is a eval:Request and ex:eraseMarketing has odrl:assignee ex:privacyOffice.
-ex:eraseMarketing has odrl:action odrl:delete and ex:eraseMarketing has odrl:target ex:marketingList.
-ex:eraseMarketing has eval:subject ex:customer and ex:eraseMarketing has eval:state ex:marketingState.
-ex:marketingState is a eval:State and ex:marketingState has eval:subject ex:customer.
-ex:marketingState has dpv:hasPurpose dpv:DirectMarketing and ex:marketingState has dpv:hasConsentStatus dpv:ConsentWithdrawn.
-
-ex:eraseTickets is a eval:Request and ex:eraseTickets has odrl:assignee ex:privacyOffice.
-ex:eraseTickets has odrl:action odrl:delete and ex:eraseTickets has odrl:target ex:tickets.
-ex:eraseTickets has eval:subject ex:customer and ex:eraseTickets has eval:state ex:ticketState.
-ex:ticketState is a eval:State and ex:ticketState has eval:subject ex:customer.
-ex:ticketState has ex:erasureRequested true and ex:ticketState has ex:litigationHold true.
-
-ex:eraseBackups is a eval:Request and ex:eraseBackups has odrl:assignee ex:privacyOffice.
-ex:eraseBackups has odrl:action odrl:delete and ex:eraseBackups has odrl:target ex:backups.
-ex:eraseBackups has eval:subject ex:customer and ex:eraseBackups has eval:state ex:backupState.
-ex:backupState is a eval:State and ex:backupState has eval:subject ex:customer.
-ex:backupState has ex:erasureRequested true.
+query inform is:
+    the recipients of which record must be informed.

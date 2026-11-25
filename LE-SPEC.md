@@ -1,572 +1,273 @@
 # Logical English
 
-eyemind reads `.le` files as the language defined here and compiles
-them to ordinary Logic Script (LS). This is an input extension; the meaning of
-the compiled program is defined by the [LS specification](https://eyereasoner.github.io/eyemind/LS-SPEC).
-It supports statements and computations in a fixed grammar. It does not parse
-arbitrary mathematical prose or check textbook proof arguments.
+[Logical English](https://github.com/LogicalContractsOrg/LogicalEnglish) (LE)
+is the controlled natural language of Robert Kowalski, Jacinto Dávila, Miguel
+Calejo, Galileo Sartor and their colleagues for writing legal and business
+rules as English that a computer runs. eyemind reads `.le` files in the core
+that the original implementation, LE 1.0 with its
+[syntax document](https://github.com/LogicalContractsOrg/LogicalEnglish/blob/main/le_syntax.md),
+and [Logical English 2](https://github.com/LogicalContractsOrg/LogicalEnglish2)
+share, and compiles them to ordinary Logic Script (LS). This is an input
+extension: the meaning of the compiled program is defined by the
+[LS specification](https://eyereasoner.github.io/eyemind/LS-SPEC), and this
+document says how eyemind reads LE and what it compiles each part to. Where the
+two LE implementations differ, it says which reading eyemind follows.
 
-## Documents and names
+## Documents
 
-A document is a sequence of sentences, each ending in `.`. Whitespace and line
-breaks separate tokens; a sentence can span lines. `#` starts a comment through
-the end of the line, except inside a quoted name. Examples separate their header
-comments from the body and put an empty line before each body comment block.
+A document is a sequence of sections. Each section starts with a header that
+ends with `:`:
 
-Keywords are case-insensitive. Names are case-sensitive. Class and relation
-names start with a lowercase ASCII letter, followed by ASCII letters, digits or
-underscores. Names of LS primitives and controls are reserved as relation names.
-There is no implicit vocabulary, pluralization, pronoun resolution or spelling
-normalization. `integer`, for example, is a user-defined class whose facts supply
-its members; it does not enumerate all mathematical integers.
-
-An individual can be an unquoted name such as `Socrates` or `alice`. A variable
-is one capital ASCII letter optionally followed by digits, such as `X` or `Y1`.
-Variables must be declared in their sentence; a quoted `"X"` is an individual.
-Names containing spaces, punctuation or non-ASCII characters use JSON double
-quotes, as in `"René Descartes"`. JSON escapes retain their usual meanings.
-Quote names that would introduce a sentence, such as `"Every"` or `"If"`.
-
-Terms also include integers, floats, closed lists and compounds:
-
-```text
-9007199254740993
--0.0
-[Alice, Bob, [1, 2]]
-pair(Alice, Bob)
-"a compound name"(Alice, 1)
-```
-
-Integers have optional leading `-`, no leading zero except `0`, and arbitrary
-precision. A decimal point with digits on both sides, or an exponent, denotes a
-finite binary64 float: `1.0`, `0.25`, `1e3`. Integers and floats remain distinct
-terms. `1.` is integer `1` followed by the sentence terminator. Nonfinite numeric
-tokens are rejected. A compound has at least one argument. A closed list may be
-empty; there is no open-list surface syntax, although a `"."(Head, Tail)` compound
-can retain an LS list with a nonempty tail as data. Term and expression
-nesting is limited to 256 levels.
-
-## Positive statements
-
-The following forms have the indicated LS meanings. `T`, `U` and the arguments
-stand for terms; `class` and `relation` stand for names as defined above.
-
-| LE form | LS term |
+| Header | Section |
 | --- | --- |
-| `T is a class` | `class(T)` |
-| `T is an class` | `class(T)` |
-| `T is class` | `class(T)` |
-| `T is a relation of U` | `relation(T, U)` |
-| `T is an relation of U` | `relation(T, U)` |
-| `T has relation U` | `relation(T, U)` |
-| `relation(T, U, ...)` | The corresponding compound goal. |
-| `relation` | An atom used as a goal, with arity zero. |
+| `the templates are:`, `the predicates are:` | Templates, separated by commas or full stops. |
+| `the knowledge base NAME includes:`, `the contract NAME states that:` | Facts and rules. |
+| `the ontology is:` | Facts and rules; a fact `a student is a person.` relates the kinds `student` and `person`. |
+| `scenario NAME is:` | Facts and rules of one scenario, and its expected answers. |
+| `query NAME is:` | One query. |
 
-The articles `a` and `an` have the same semantics. They do not introduce an
-existential variable. For example, `Socrates is a human.` states
-`fact(human('Socrates'))`. Write an existential declaration to introduce an
-unnamed individual.
+`the target language is: prolog.` is accepted and ignored. The sections can
+come in any order, and a template can be used before it is declared. Several
+`.le` files are read as one document.
 
-`and` joins positive statements. A sentence containing only positive statements
-states them as facts. A universally quantified fact is explicit:
+Sentences end with a full stop followed by white space or the end of the file;
+a sentence can span lines. `%` or `#` starts a comment through the end of the
+line, and `/* ... */` is a block comment. Words are compared without case.
 
-```text
-Ada is a human and Ada is a mathematician.
-For every X, matching(pair(X, X)).
-```
+A token is a word (letters, digits and underscores, joined by hyphens or
+apostrophes, as in `JE-201` and `don't`), a final `'s` as a word of its own, a
+number (`42`, `3.14`, `1,000,000`), a date (`2021-10-09`), a quoted text
+(`"..."` or `'...'`), or a punctuation sign. The indentation of a line counts a
+space as one and a tab as four, as LE's editor shows it.
 
-Variables declared by `For every` are universal within that sentence. Each
-sentence has its own scope. Repeating a declaration in one scope is an error.
+## Templates
 
-## RDF vocabulary names
-
-Declare a prefix before using its names. ODRL, DPV and DPV extension
-namespaces can appear together in the same file.
+A template is a sentence pattern: words and places. A place is a phrase between
+asterisks, such as `*a person*`; LE1 also writes templates without asterisks,
+and in a template without any, `a` or `an` and the word after it make a place.
 
 ```text
-Use prefix ex with namespace "https://example.org/research#".
-Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
-Use prefix dpv with namespace "https://w3id.org/dpv#".
-
-ex:agreement is an odrl:Agreement.
-ex:study is a dpv:Process.
-ex:study has dpv:hasPurpose dpv:AcademicResearch.
-
-Find every X such that X has dpv:hasPurpose dpv:AcademicResearch.
+the templates are:
+    *a person* acquires British citizenship on *a date*,
+    *a person* says that *a sentence*,
+    a person has a balance.
 ```
 
-Prefixes start with an ASCII letter and can also contain digits and
-underscores. Local names contain ASCII letters, digits, underscores and
-hyphens, and cannot start with a hyphen. Prefixes and local names are
-case-sensitive. A declaration binds a prefix to a quoted absolute IRI.
-Each file declares its own prefixes, at most once per prefix. Prefix
-expansion appends the local name to the namespace exactly as stated.
-`iri("...")` terms can express IRIs outside this abbreviation syntax.
+Each template is a relation whose name joins its words with underscores and
+whose arguments are its places in order: `acquires_British_citizenship_on/2`,
+`says_that/2`, `has/2`. A name that is an LS primitive or control, or `date`,
+gets the prefix `le_`. Two templates with different words for one name and
+arity are an error. A place after the word `that` holds a sentence.
 
-In facts, rules and questions, a qualified class or property uses the
-same `rdf/3` relation:
+## Sentences
 
-| LE form | LS term |
+A sentence matches a template when it has the template's words in order, with
+at least one token in each place and balanced brackets in each. eyemind tries
+the templates with a `that` place first, as LE does, then the templates with the
+most words, a declared template before a built-in one, and takes the first that
+matches with a valid term in every place. A sentence that matches no template
+is an error that quotes it.
+
+The tokens in a place are a term:
+
+- A number is an exact integer, or a float when it has a fraction or an
+  exponent; `-` before a number negates it. Commas may group thousands.
+- A date is the compound `date(Year, Month, Day)`.
+- A quoted text is a name.
+- `[A, B, C]` is a list of terms.
+- `a`, `an`, `some`, `each` or `which`, followed by at most six words,
+  introduces a variable: `a person`, `an other person`, `a second date`. The
+  same phrase again is the same variable.
+- `the` followed by the words of a variable introduced earlier in the clause
+  refers to it: `the person`, `the other person`. A definite phrase that refers
+  to no variable is a name, written with its article: `the UK`, `the white
+  rabbit`. This follows LE2; the same phrase names the same thing everywhere.
+- A phrase whose last word is an id names its variable by the id: `a person X`
+  is the variable `X`, and `X` alone then refers to it. An id is one capital
+  letter with optional digits, or a word of at most six capitals and digits
+  other than `UK`. eyemind does not read LE2's short proper names such as `Bob`
+  as ids: LE1 programs use them as names.
+- A single capital letter with optional digits, such as `L` or `T1`, is a
+  variable even when no phrase introduced it. Longer ids need an introducing
+  phrase, because LE1 programs use acronyms such as `GST` as names.
+- Other words are a name, written as they are, such as `Socrates` or
+  `cash at bank`.
+
+In the place of a `that`, a sentence of a template is a term: the template's
+relation with its arguments, as data.
+
+## Facts and rules
+
+In a knowledge base or a scenario, a sentence is a fact, or a rule
+`conclusion if conditions.` The conclusion matches a declared template or the
+type template `*an object* is a *type*` (the relation `is_a/2`, whose type is a
+name). A fact with a variable holds for every value. In an ontology, a fact
+whose subject starts with `a` or `an` is about the kind: `a student is a person.`
+states `is_a('student', 'person')`.
+
+The conditions are joined by `and` and `or`. Each connective has the
+indentation of its line; a connective in the middle of a line has the
+indentation of that line, and a line break without a connective joins the lines
+with `and` where both lines are conditions. eyemind reads the connectives as
+LE's indentation does: the conditions are split at the least indented
+connectives, joined from the top down, and each part is read in the same way.
+So a deeper indentation binds tighter:
+
+```text
+a person is eligible            a person is eligible
+    if the person is a resident     if the person is a resident
+    or the person is a citizen      or the person is a citizen
+    and the person is an adult.         and the person is an adult.
+```
+
+The left rule means *(resident or citizen) and adult*, the right one *resident
+or (citizen and adult)*. LE1 rejects different connectives at one indentation;
+eyemind reads them from the top down, as LE2 does. A body may start with `and`
+after `if`, as some LE1 programs write it.
+
+A condition is a sentence of a template, a comparison, or one of the following,
+each of which takes the lines that follow it up to the next line that starts
+with a connective at the same or a lesser indentation:
+
+| Condition | LS |
 | --- | --- |
-| `T is a ex:Class` | `rdf(T, iri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), iri("https://example.org/research#Class"))` |
-| `T has ex:property U` or `T is an ex:property of U` | `rdf(T, iri("https://example.org/research#property"), U)` |
-| `ex:item` in any term position | `iri("https://example.org/research#item")` |
+| `it is not the case that C`, `not the case that C` | `not(C)` |
+| `for all cases in which C it is the case that D` | `not([C, not(D)])` |
+| `R is the sum of each X such that C` | `findall(X, C, L)` and the sum of `L`; `0` for none |
+| `R is the count of each X such that C` | the length of `L`; `0` for none |
+| `R is the average of each X such that C` | the sum divided by the count; none for none |
+| `R is the min of each X such that C`, `minimum`, `max`, `maximum` | the least or greatest of `L`; none for none |
+| `R is the list of each X such that C` | `L` itself |
+| `R is a collection of X where C` | `L` itself, as LE1 writes it |
 
-`Every` rules also accept qualified classes on either side. Qualified
-statements take a resource or variable as their subject. Objects can
-also be numbers and explicit RDF terms such as
-`literal("dataset", datatype("http://www.w3.org/2001/XMLSchema#string"))`.
-Ordinary unqualified class and relation names retain their LS meanings.
+An aggregate collects one value for every solution of its conditions, in the
+order they are found, as Prolog's `findall` does: a value found twice counts
+twice. The result phrase of an aggregate is the phrase before `is the`, after any
+connective.
 
-The default LE output abbreviates IRIs using available prefixes and
-includes the declarations it uses. Other IRIs retain their explicit
-terms. When input files assign the same prefix to different namespaces,
-the final declaration supplies the output abbreviation. Earlier files'
-expanded IRIs retain their values. For triple conclusions, `--to turtle`
-writes the RDF graph and `--all` adds the stated RDF facts.
+## Negation
 
-Prefix declarations specify names. The facts and rules supply their
-meaning for a run. The research access example uses ODRL permissions,
-prohibitions, constraints and a duty with DPV purpose and consent
-evidence. Its ordinary LE rules specify the scenario's policy decisions; a
-Turtle companion decides similar requests with the ODRL snapshot evaluator.
-[Research access example](https://eyereasoner.github.io/eyemind/examples/deck/research-access-le) · [Turtle companion](https://eyereasoner.github.io/eyemind/examples/deck/research-access-odrl) · [ODRL Vocabulary](https://www.w3.org/TR/odrl-vocab/) · [Data Privacy Vocabulary 2.3](https://w3id.org/dpv/2.3/dpv/)
+Variables that occur only inside a negation stand for any value there; eyemind
+renames them `_0`, `_1`, ..., which LS negation treats as anonymous. LE's rules
+are written for Prolog, whose negation also succeeds when no instance of its
+goal holds if one of its variables is unbound. LS requires the named variables
+of a negation to be bound, so a negation with a variable no earlier condition
+binds, up to three such variables, tests each one at run time: while it is
+unbound (`is_var`), the negation stands for any value there; once bound
+(`is_nonvar`), it is that value. When a fact or rule of the document leaves a
+variable of its conclusion open, no condition surely binds a variable, and
+every negation tests its variables in this way.
 
-## Rules and calculations
+## Arithmetic, comparisons and built-in templates
 
-```text
-Every human is mortal.
-Every human is mortal and animal.
-For every X and Y, if X is a parent of Y then X is an ancestor of Y.
-If Alice is a person then Alice is a participant.
-```
+A comparison has `=`, `==`, `!=`, `\=`, `\==`, `<`, `>`, `<=`, `=<` or `>=`
+between two sides. A side is a term, or a formula of terms with `+`, `-`, `*`,
+`/`, `//`, `mod`, parentheses and the functions `ceiling`, `floor`, `round`,
+`truncate`, `integer`, `abs` and `sqrt`. A term in a formula is any of the terms
+above, such as `the gain = the proceeds - the cost base`.
 
-`Every A is B.` compiles to `implies(A(X), B(X))`, with a fresh clause-local
-variable; `a` or `an` may precede each class after `is`, as in
-`Every human is a mortal.`. An if/then sentence compiles its premises and conclusions to one
-forward LS rule. Both sides may contain conjunctions. A conclusion variable
-must be supplied by a premise or explicitly declared existentially. The
-compiler checks the stated order of premises for calculations and absence tests;
-actual values must also satisfy LS's runtime requirements.
-
-These additional forms are available in premises and questions:
-
-| LE form | LS goal |
+| Comparison | LS |
 | --- | --- |
-| `Y is the value of E` | `is(Y, E)` |
-| `X is greater than E` | `gt(X, E)` |
-| `X is less than E` | `lt(X, E)` |
-| `X is at least E` | `ge(X, E)` |
-| `X is at most E` | `le(X, E)` |
-| `X is equal to E` | `eq(X, E)` |
-| `X is different from E` | `ne(X, E)` |
+| `A = B`, `A == B`, `A is equal to B` | `unify(A, B)` between terms; `is` when one side is a formula; `eq` between formulas |
+| `A != B`, `A \= B`, `A is different from B`, `A is not equal to B` | `not_unify(A, B)` between terms; `ne` otherwise |
+| `A \== B` | `not_identical(A, B)` |
+| `<`, `>`, `<=` or `=<`, `>=`, and `is less than`, `is greater than`, `is less than or equal to`, `is greater than or equal to`, `is less or equal to`, `is greater or equal to` | `lt`, `gt`, `le`, `ge` |
 
-Expressions contain numbers, declared variables, parentheses, unary `-` and
-binary `+`, `-`, `*`, `/`. Unary minus binds most tightly, then multiplication
-and division, then addition and subtraction. Binary operators associate left.
-They compile to `neg`, `add`, `sub`, `mul` and `div`. Only the value-of form
-binds its left variable; comparisons require their inputs beforehand.
+`/` divides as Prolog does: integers that divide give an integer, other
+operands a float. `//` is floor division. LE1's `A is B` equates or evaluates
+as `=` does when a side is a variable or a formula; between two names no
+template matches.
 
-An expression can also call an LS arithmetic function by name, with
-expressions as its arguments, and use the constants `pi`, `e` and `tau`:
-
-```text
-For every X and Y, if X is a number and Y is the value of exp(log(X) * 3) + gcd(12, 18) * cos(pi)
-then Y is a result of X.
-```
-
-The functions are those of [LS-SPEC Section 5.2](https://eyereasoner.github.io/eyemind/LS-SPEC#52-functions-and-arities),
-such as `pow`, `floordiv`, `mod`, `gcd`, `lcm`, `sqrt`, `exp`, `log`, `sin`,
-`cos`, `atan2`, `abs` and `hypot`, except `and`, `or` and `not`, which are LE
-words. A call with an arity the function does not take is an error naming
-its line. As in LS, `pow` and `floordiv` of integers stay exact, while
-`exp`, `log` and the trigonometric functions give floats.
-
-```text
-4 is an integer.
-For every X and Y, if X is an integer and Y is the value of X * X
-then Y is a square of X.
-```
-
-Arithmetic follows LS: integer addition, subtraction and multiplication are
-exact; division returns a float; mixed integer/float arithmetic returns a
-float. Numeric equality compares values, while ordinary relation matching
-keeps integer and float terms distinct. Calculations belong in premises,
-followed by relational conclusions. These calculations do not prove arbitrary
-algebraic identities or supply induction.
-
-## Alternative premises
-
-```text
-Every cat or dog is a pet.
-For every V, if V is registered or V is a provisionalVoter and V is verified
-then V is an eligibleVoter.
-For every X, it is impossible that X is a minor and X is a voter or X is barred.
-```
-
-`or` separates alternative premises of a rule or contradiction. `and` binds
-more tightly, so each alternative is a conjunction; there are no parentheses
-around alternatives. Each alternative compiles to its own LS clause with the
-same conclusion, in the order written: `Every A or B is C.` is
-`implies(A(X), C(X))` followed by `implies(B(X), C(X))`. The sentence's
-declarations are shared, and an alternative need not use every declared
-variable, but each conclusion variable must be supplied by every alternative
-or introduced with `there exists`. An existential conclusion therefore has a
-witness per alternative and firing. The order of premises is checked within
-each alternative.
-
-Questions have no `or`: ask one question per alternative, or ask for a relation
-that an `or` rule derives. Conclusions are never disjunctive.
-
-## Aggregates
-
-```text
-For every M and T,
-if M is a member and T is the sum of F for every C and F such that charge(M, C, F)
-then T is an amountDue of M.
-For every V and N,
-if V is a participant and N is the number of C such that choice(V, C) and N is at least 2
-then V is a spoiledVoter.
-For every C and N,
-if C is a candidate and N is the number of V such that
-(choice(V, C) and V is an eligibleVoter and it is not known that V is a spoiledVoter)
-then N is a voteCount of C.
-```
-
-These premise forms collect every solution of a condition:
-
-| LE form | Result |
+| Built-in template | LS |
 | --- | --- |
-| `N is the number of X1 and ... such that C` | The number of distinct combinations of `X1 ...` satisfying `C`. |
-| `S is the sum of V for every X1 and ... such that C` | The sum of `V` over those combinations; `0` when there are none. |
-| `M is the maximum of V for every X1 and ... such that C` | The greatest `V` over those combinations; no result when there are none. |
-| `M is the minimum of V for every X1 and ... such that C` | The least `V` over those combinations; no result when there are none. |
+| `*a* is after *b*`, `is before`, `is after or equal to`, `is before or equal to`, `is not before` | the standard order with `compare`, so dates compare in time order |
+| `*a* is *n* days after *b*`, `*a* is *n* day after *b*` | days in the proleptic Gregorian calendar; any two of the three give the third |
+| `*a* is in *b*` | `a` is a member of the list `b` |
+| `*a* is known` | `is_nonvar(a)` |
+| `the minimum of *a* and *b* is *c*`, `the maximum of ...` | `is(c, min(a, b))`, `max` |
+| `the length of *a* is *b*` | the length of the list `a` |
+| `*a* is the reverse of *b*` | `a` is the list `b` reversed |
+| `appending *a* then *b* gives *c*` | `c` is `a` followed by `b` |
+| `*a* has *b* as head before *c*` | `unify(a, [b, ...c])` |
 
-The variables after `the number of` or `for every` are declared by the
-aggregate, must be new in the sentence, and cannot be used after it. `V` must
-be one of them. The condition `C` is one statement, or a conjunction in
-parentheses; it can use calculations, comparisons and absence tests, but no
-`or` and no other aggregate. Any other variable of `C` must be supplied by an earlier premise. The
-left-hand side is a declared variable or a number, as in the value-of form:
-an unbound variable receives the result and a bound one is compared with it.
+## Scenarios, queries and expected answers
 
-Each distinct combination of the declared variables' values counts once, however
-many derivations it has. To count distinct values of one variable when the
-condition needs others, derive a relation of that variable first, as
-`choice(V, C)` above does for ballots. Values are summed with LS arithmetic, so
-integers stay exact and a float makes the sum a float; maximum and minimum
-compare numerically.
-
-An aggregate compiles to
-`findall_sorted(t(V, X1, ...), C, L)`, followed by goals of backward helper
-relations named `le:distinct`, `le:count`, `le:sum`, `le:max` and `le:min`,
-which remove repeated tuples and fold the rest. The helpers are added after
-the program's own clauses, only when used, so they do not change the rule
-numbers of witnesses; their names cannot be written as LE names. Like a
-negation, an aggregate waits until the relations of its condition are complete,
-so a program cannot aggregate over a relation that depends on the aggregate's
-own result. Questions cannot aggregate: derive the aggregate in a rule and ask
-for its conclusion.
-
-## Absence and existential conclusions
-
-An absence test has exactly this form, followed by one positive statement:
+A query has one sentence of conditions, read as a rule's conditions are.
+`which person`, like `a person`, introduces a variable, and LE1's prefix
+`for which event:` introduces one too. A scenario has facts and rules, and
+expectations:
 
 ```text
-For every X, if X is a person and it is not known that X is blocked
-then X is an applicant.
+scenario alice is:
+    John is born in the UK on 2021-10-09.
+    one expects answers ["John acquires British citizenship on 2021-10-09"].
 ```
 
-It compiles to `not(blocked(X))`. Its variables must be supplied by earlier
-positive premises or calculations. LS stratification decides when the tested
-relation is complete. This means absence of a proof in this program, rather
-than classical mathematical negation. Ordinary `not` is rejected. Explicit
-negative evidence can use its own positive relation, such as `not_human`.
+`NAME expects answers [...]` and `NAME expects [...]` state the answers the
+query `NAME` gives in the scenario; a trailing `and unknowns [...]` is ignored.
+Each query is answered in each scenario, or once when the document has none.
+
+## Compilation to LS
+
+Facts and rules compile to LS facts and backward rules (`implied_by`), as LE's
+Prolog target runs them; a ground fact is `fact(...)`, a fact with a variable a
+backward rule with the body `'true'`.
+
+When a document has scenarios, every relation gets the scenario as its first
+argument, a scenario's clauses have the scenario's name there, and the
+knowledge base's clauses have a variable there, bound by the facts
+`'le:scenario'(NAME)`. A knowledge-base fact becomes a rule whose body is
+`'le:scenario'(S)`. So the knowledge base holds in every scenario and a
+scenario's facts in that one, and one program and one proof answer every query
+in every scenario.
+
+A query `NAME` compiles to a backward rule for `'le:answer'(NAME, S, V1, ...)`,
+whose body starts with `'le:scenario'(S)` when there are scenarios, and the
+statement `query('le:answer'(NAME, S, V1, ...))`. `V1, ...` are the variables of
+the query outside negations and collections, in the order they appear.
+
+Aggregates, divisions, lists and dates use backward helper rules whose names
+start with `le:` (`le:sum`, `le:count`, `le:days_after`, ...); no template name
+can contain `:`. The helpers follow the document's clauses. `--program` prints
+the compiled program as a standalone LS script.
+
+## Output
+
+The default output of an LE run is LE text: for each scenario, in the order of
+the document, and each query, a heading comment and the answers as sentences.
+An answer is the query's words with each variable it found a value for
+written as that value; an open variable is written `_`, as LE writes it. A date
+is written `YYYY-MM-DD`, a list in brackets, and a sentence term through its
+template.
 
 ```text
-For every X, if X is a person then there exists Y such that
-Y is a record and X is an owner of Y.
-There exists X such that X is a record.
+% query one with scenario alice
+John acquires British citizenship on 2021-10-09.
 ```
 
-`there exists` introduces fresh variables for a conclusion, after any universal
-declarations. Every introduced variable must occur in that conclusion. The
-compiler uses an ordinary LS forward rule with head-only variables; a standalone
-existential sentence uses premise `'true'`. LS supplies Skolem witnesses. The
-same variable shares one witness across the heads of that firing. A witness
-does not assert a distinct real-world object or a minimum number of objects.
+A query without answers has the line `% no answers`. When the scenario states
+expected answers for the query and they differ from the answers, a line
+`% not as expected: NAME expects answers [...]` follows. LE2 writes the
+underscores of names as spaces and repeats an answer for each proof, so the
+comparison reads underscores as spaces, ignores spaces around hyphens, and
+compares the answers as a set.
 
-## Questions and contradictions
+`--to le` writes the answers of an LE run only; `--to eyemind` writes the
+`'le:answer'` terms. Proofs and check reports are `.js` documents of the
+compiled LS program, and check against it. That the program reads the English
+as intended is a matter of the compiler and its tests; a checked proof
+establishes the answers under the compiled rules.
 
-```text
-Find every X such that X is mortal.
-Find every X and Y such that X is an ancestor of Y.
-Find whether Socrates is mortal.
-For every X, it is impossible that X is a person and X is blocked.
-It is impossible that Alice is blocked.
-Contradiction.
-```
+## Not supported
 
-Questions compile to `query(...)`; their declarations establish variable scope,
-and the answers are instances of the whole question, without a separate
-projection. `Find whether` introduces no variables. A question can use a
-conjunction, calculations and absence tests. Without questions the run reports
-derived conclusions, following LS's default; given facts alone are not printed.
-
-`It is impossible that` compiles to an LS contradiction with the stated body.
-`Contradiction.` is an unconditional contradiction, also used to serialize a
-run's `'false'` conclusion. Contradictions halt reasoning with exit code 65;
-they do not produce the continuing RDF conflict reports of `--owl2rl`.
-
-## Examples combining features
-
-These programs use the grammar above without additional syntax:
-
-| Example | What it demonstrates |
-| --- | --- |
-| [Shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le) | Bounded recursive histories, exact costs and minimum selection by absence, retaining ties. |
-| [River crossing](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le) | Compound states, repeated-variable matching, safety constraints and complete plans within a bound. |
-| [Course certificates](https://eyereasoner.github.io/eyemind/examples/deck/course-certificates-le) | Recursive requirements, absence of a counterexample, shared existential witnesses and witnesses containing earlier witnesses. |
-| [British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le) | Section 1 of the British Nationality Act 1981: alternative premises, a presumption that holds unless the contrary is shown, date comparisons and citizenship through a derived parent. |
-| [Library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le) | Charges from alternative rules, then the sum, number and maximum per member over distinct combinations. |
-| [Election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le) | Eligibility by alternatives, distinct choices, an absence test inside a count, winners by maximum with ties, and a quorum. |
-| [International data transfers](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le) | An ODRL snapshot with rules: GDPR Chapter V observations derived with alternative premises and absence tests over DPV, location and GDPR-extension names, decided by one permission per basis and a prohibition that wins. |
-| [Breach notification](https://eyereasoner.github.io/eyemind/examples/deck/breach-notification-le) | An ODRL snapshot with rules: GDPR Articles 33 and 34 as permissions and prohibitions, with requests, observations and a processor's duty evidence derived from breach records by comparisons over hours. |
-
-Their decks state the modeled assumptions and what the checked proofs establish.
-Bounds and finite expression domains are explicit in the programs.
-
-## DPV hierarchies
-
-```text
-Use DPV hierarchy logic.
-Use prefix ex with namespace "https://example.org/research#".
-Use prefix dpv with namespace "https://w3id.org/dpv#".
-Use prefix skos with namespace "http://www.w3.org/2004/02/skos/core#".
-
-ex:study has dpv:hasPurpose dpv:AcademicResearch.
-dpv:AcademicResearch has skos:broader dpv:ResearchAndDevelopment.
-Find whether ex:study has purposeWithin dpv:ResearchAndDevelopment.
-```
-
-The directive adds hierarchy rules to an ordinary LE program. The
-program supplies its observations and SKOS edges. DPV 2.3 uses SKOS
-broader and narrower relations for its default taxonomy representation.
-[DPV 2.3](https://w3id.org/dpv/2.3/dpv/)
-
-| Observation property | LE conclusion |
-| --- | --- |
-| `dpv:hasPurpose` | `X has purposeWithin C` |
-| `dpv:hasData` | `X has dataWithin C` |
-| `dpv:hasPersonalData` | `X has personalDataWithin C` |
-
-Each conclusion matches an observed category itself and its ancestors
-reached by transitively following the supplied IRI-to-IRI
-`skos:broader` and `skos:broaderTransitive` edges, or the inverse of
-`skos:narrower` and `skos:narrowerTransitive`. A snapshot uses the same
-hierarchy through its `withinCategory` operator.
-
-## ODRL snapshots
-
-An LE file can explicitly select the existing ODRL snapshot evaluator:
-
-```text
-Use ODRL snapshot logic with namespace "https://example.org/handicap-card#".
-
-evaluation is an evaluation.
-evaluation has policy eligibility.
-evaluation has request issueAlice.
-evaluation has conflictStrategy prohibit.
-```
-
-This directive must be the first sentence of one file. The remainder contains
-facts using the snapshot vocabulary, and rules, but no questions: the report
-is the answer. The compiler maps the facts to RDF and includes the
-validation, evaluation and reporting LS of `src/odrl.js`.
-
-A snapshot's rules derive more of its input: their class and property
-statements, in premises and conclusions, are statements of the snapshot's
-RDF graph, with names mapped as for facts. A rule typically derives a state's
-observations or a request's duty evidence from other facts, so the
-evaluator decides on what the rules establish:
-
-```text
-For every S and P,
-if S is a state and S has subject P and P has registeredIn civicDistrict
-then S has residenceVerified true.
-```
-
-Calculations, comparisons, absence tests and aggregates work as in ordinary
-LE; an absence test asks whether the graph, with the rules' conclusions,
-holds a statement. The rules precede the evaluator's own clauses, so they
-cannot read its report, and a snapshot without rules compiles to the same
-program as before. The evaluator validates what the rules derive as it
-validates stated facts: a request or state still has one type, for
-example. Derive an observation as both `true` and `false` where it matters,
-since a missing observation leaves a constraint unknown. The same
-[snapshot profile](https://eyereasoner.github.io/eyemind/#odrl-snapshots) applies
-to Turtle and LE, including missing observations, unsupported policy features
-and conflict strategies. Vocabulary by itself does not enable evaluation.
-
-Names expand as follows, with case preserved:
-
-| LE form or name | RDF mapping |
-| --- | --- |
-| An ordinary individual name | An IRI formed by appending it to the declared namespace. |
-| Classes `evaluation`, `request`, `state` | `eval:Evaluation`, `eval:Request`, `eval:State`. |
-| Classes `policy`, `agreement`, `permission`, `prohibition`, `constraint`, `logicalConstraint`, `duty`, `action` | `odrl:Set`, `odrl:Agreement`, `odrl:Permission`, `odrl:Prohibition`, `odrl:Constraint`, `odrl:LogicalConstraint`, `odrl:Duty`, `odrl:Action`. |
-| Classes `assetCollection`, `partyCollection` | ODRL collection classes, rejected by the snapshot profile. |
-| Properties `policy`, `request`, `state`, `subject`, `conflictStrategy` | The corresponding `eval:` properties. |
-| Properties `profile`, `permission`, `prohibition`, `assignee`, `assigner`, `action`, `target`, `constraint`, `leftOperand`, `operator`, `rightOperand`, `duty` | The corresponding `odrl:` properties. |
-| Properties `andOperands`, `orOperands`, `xoneOperands` | `odrl:and`, `odrl:or`, `odrl:xone`. LE lists become RDF collections. |
-| Properties `fulfilledDuty`, `unfulfilledDuty` | The corresponding `eval:` request evidence properties. |
-| Property `policyConflict` | `odrl:conflict`, the policy-local strategy. |
-| Property `type` | `rdf:type`. |
-| An otherwise unknown class or property | An IRI in the declared namespace; validation still applies. |
-| Values `snapshotProfile`, `perm`, `prohibit`, `invalid`, `eq`, `neq`, `gt`, `gteq`, `lt`, `lteq` | `eval:SnapshotProfile` or the corresponding ODRL strategy/operator IRIs. |
-| Value `withinCategory` | `eval:withinCategory`, the snapshot's DPV hierarchy operator. |
-| Values `true`, `false` | Boolean RDF literals. Quoting does not change an LE name into an RDF string literal. |
-| An integer or float | An exact RDF integer or an `xsd:double` literal. |
-
-The unsupported ODRL properties `obligation`, `inheritFrom`, `includedIn`,
-`partOf` and `refinement` retain their ODRL IRIs so the shared validator can
-report them. Explicit RDF values such as `iri("https://example.org/item")` and
-`literal("text", datatype("http://www.w3.org/2001/XMLSchema#string"))` retain
-their terms. `rdf(S, P, O)` facts allow any explicit RDF predicate without an
-abbreviation. A snapshot still has one default graph.
-
-The [handicap-card LE example](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card-le)
-contains the complete policies, requests and SOTW. Run it without CLI switches:
-
-```sh
-eyemind examples/handicap-card-le.le
-eyemind --program examples/handicap-card-le.le > /tmp/handicap-card-le.js
-eyemind --to turtle /tmp/handicap-card-le.js
-```
-
-Its default output is an LE report whose first sentence is
-`Use ODRL vocabulary with namespace "https://example.org/handicap-card#".`.
-That directive reads RDF data without evaluating policies. This makes the report
-readable as input again, preserving every RDF fact and witness. Report properties
-use `has`; for example `issueAlice has decision allowed.`. Status values
-`allowed`, `prohibited`, `notApplicable`, `undetermined`, `valid` and
-`invalidReport` name the corresponding `eval:` IRIs. Report classes include
-`evaluationReport`, `conflict`, `validationError` and `uncertainty`.
-`conflict` as a property means `eval:conflict`; `applicablePermission`,
-`applicableProhibition`, `reportConstraint` and `reportDuty` distinguish the
-report's `eval:permission`, `eval:prohibition`, `eval:constraint` and
-`eval:duty` links from ODRL input properties. Other report fields retain their `eval:` names. Other IRIs
-are written with the run's prefixes, declared after the directive: those the
-file declares, `odrl:` and `eval:`. Inside a witness key, where a bare name
-would read back as a name rather than an IRI, the snapshot namespace also
-needs a prefix: the file's own, or `ns` when it declares none. An IRI that no
-prefix abbreviates stays explicit.
-
-Prefix declarations can follow either ODRL directive, and the whole snapshot
-can be written with qualified names, as `ex:mayErase has odrl:action
-odrl:delete.` or `ex:evaluation is a eval:Evaluation.`. After an ODRL
-directive a qualified statement takes the subjects and values the short forms
-take: an ordinary name in the declared namespace, `true` and `false`, and an
-operand list, as `ex:scope has odrl:and [ex:purpose, ex:consent].`. A state
-property or value can use a DPV IRI, for example
-`state has dpv:hasPurpose dpv:AcademicResearch.`. An equality constraint
-can read `dpv:hasPurpose` as its left operand and use
-`dpv:AcademicResearch` as its right operand.
-[Right to erasure example](https://eyereasoner.github.io/eyemind/examples/deck/right-to-erasure-le)
-
-```text
-scope is a logicalConstraint and scope has andOperands [purpose, dataCategory].
-purpose is a constraint and purpose has leftOperand dpv:hasPurpose.
-purpose has operator withinCategory and purpose has rightOperand dpv:ResearchAndDevelopment.
-credit is a duty and credit has action odrl:attribute.
-researchUse has constraint scope and researchUse has duty credit.
-ready has fulfilledDuty credit.
-```
-
-A logical constraint has one operator and a proper RDF list of at least two
-distinct atomic constraints. `andOperands` requires all members,
-`orOperands` at least one and `xoneOperands` exactly one. The result is
-unknown when treating unknown members as satisfied or unsatisfied could
-change the outcome. Reports cite the group for an unmet or unknown logical
-constraint. The snapshot rejects nested groups and `odrl:andSequence`.
-[ODRL Logical Constraint Class](https://www.w3.org/TR/odrl-model/#constraint-logical)
-
-A permission can require several duties. Each is typed `odrl:Duty` and
-has one action IRI. A request records whether it has fulfilled each duty.
-An `unfulfilledDuty` record makes the permission inapplicable and gives
-an `unmetDuty` report link. A missing record or conflicting records give
-an uncertainty with `reportDuty` and a reason. The snapshot takes these
-records as evidence of fulfillment. Duties that specify additional action
-refinements, roles or consequences fail validation.
-[ODRL Duty with a Permission](https://www.w3.org/TR/odrl-model/#duties)
-
-`withinCategory` compares a single observed IRI with a required category IRI.
-It accepts the three DPV observation properties in the hierarchy table.
-An exact match or a supplied broader path satisfies the constraint. With
-a known observation and no such path the constraint is unmet. The snapshot
-reports missing, ambiguous or mistyped observations as unknown.
-The research snapshot demonstrates compound scope, two DPV hierarchies and
-request-local duty evidence; its Turtle twin, run with `--odrl`, reaches the
-same decisions. [Research snapshot](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le) · [Turtle twin](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-odrl)
-
-Both ODRL directives take a single LE file and reject questions; the
-vocabulary directive also rejects rules. `--goal` can query their compiled LS program. The
-`--odrl` switch selects the Turtle snapshot compiler, which can also combine
-with `--owl2rl`, `--skos`, `--qudt` and `--shacl`; an LE run takes none of these
-switches, so an LE snapshot reads only the facts it states.
-
-## Output, compilation and checking
-
-LE inputs default to `.le` conclusions. Each answer becomes a sentence:
-
-```text
-Socrates is a mortal.
-16 is a square of 4.
-Alice is an owner of witness(rule 4, Y, Alice).
-```
-
-`witness(rule 4, Y, Alice)` names the witness for existential variable `Y` of
-rule 4 with argument Alice. It reads back as `skolem(4, 'Y', ['Alice'])` in LS.
-The label `Y` in this position is a name, independent of any declared LE
-variable. A label outside the variable-name syntax is quoted. Additional
-arguments follow as more comma-separated terms; a witness without arguments
-is `witness(rule 4, Y)`. The rule number, label and arguments all contribute
-to its identity. Ordinary compounds named witness retain their quoted spelling.
-
-Unary and binary relations use the class and relation-of forms; relations with
-more arguments use calls. Names are quoted when required to preserve their
-meaning. Compound names are quoted. Variable answers use `For every X0 and X1,
-...`, consistently renaming their variables while retaining sharing. A conjunctive
-answer uses `and`. These sentences can be loaded as facts in another `.le`
-program. An empty answer set is `# No conclusions.`. The writer rejects goals
-outside these relational forms instead of silently changing their meaning.
-
-```sh
-eyemind examples/socrates-le.le
-eyemind --program examples/socrates-le.le > /tmp/socrates-le.js
-eyemind --to le /tmp/socrates-le.js
-eyemind --proof examples/socrates-le.le > /tmp/socrates-le-proof.js
-eyemind --check-proof /tmp/socrates-le-proof.js examples/socrates-le.le
-```
-
-Multiple `.le` files form one program in file order; they do not mix with other
-input formats or the RDF logic switches. Standard input remains LS; `--to le`
-can write supported LS conclusions as LE. For an N3, SRL or RDF run, IRIs are
-abbreviated with that run's prefixes; a prefix LE cannot spell, such as
-Turtle's empty one, is declared as `ns`, or `ns2` and so on when taken. `--goal` uses LS goal syntax and
-defaults to LS output; add `--to le` for LE output. `--all` applies to RDF and N3
-output, without changing LE's selected conclusions.
-
-The compiler reads data without executing it and emits standalone `.js` LS
-using explicit constructors to retain names and numeric types. Comments in the
-compiled text identify the source file and sentence line. Parser errors name
-that location. LE runs use LS's usual work bounds, which can be overridden by
-the CLI. Existential or recursive rules can still have an infinite closure.
-
-Proofs and check reports are `.js` documents and use the existing LS checker.
-Checking establishes the compiled LS result. It does not independently validate
-the English-to-LS translation; that contract is this grammar and its tests.
-
-Supported sentences have no disjunctive conclusions, pronouns, implicit
-assumptions, set comprehension, higher-order quantification or proof blocks.
-Unsupported syntax is an error, with no approximate translation.
+These belong to Logical English 2, or to the Prolog that LE1 can embed, and
+are errors: template additions after `;`, `the constants are:`,
+`the functions are:`, `the fluents are:`, `the events are:` and the other
+dynamic and meta sections, included resources and scenarios, section markers,
+rule labels, `it is unknown whether`, `it must not be true that`, negated
+facts in scenarios, flip queries (`expects changes`), `otherwise`, `unless`,
+`according to`, decision tables, services, LPS and s(CASP). eyemind does not
+check types: the head noun of a place is not a type constraint. A program whose
+negation lies on a dependency cycle compiles, and the LS program is then
+rejected unless it is chain-stratified (LS-SPEC Section 6.4), where Prolog would
+run it.

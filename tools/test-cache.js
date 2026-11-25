@@ -11,6 +11,7 @@ export const cachePaths = (root = ROOT) => ({
   srl: join(root, '.cache/w3c/sparql-rl'),
   shacl: join(root, '.cache/w3c/shacl'),
   mobibench: join(root, '.cache/mobibench'),
+  le: join(root, '.cache/logical-english'),
 });
 
 export function cacheFiles(directory) {

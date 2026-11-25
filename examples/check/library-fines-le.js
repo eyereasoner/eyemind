@@ -1,14 +1,14 @@
 // Checked answers: these follow from the input program and are every answer of its questions.
-amountDue(11, 'Alice')
-amountDue(4, 'Bob')
-amountDue(0, 'Carol')
-lateLoanCount(2, 'Alice')
-lateLoanCount(1, 'Bob')
-lateLoanCount(0, 'Carol')
-longestDelay(3, 'Alice')
-longestDelay(4, 'Bob')
-longestDelay(0, 'Carol')
-blockedMember('Alice')
+struct('le:answer', 'late', 'accounts', 'Alice', 2)
+struct('le:answer', 'late', 'accounts', 'Bob', 1)
+struct('le:answer', 'late', 'accounts', 'Carol', 0)
+struct('le:answer', 'delays', 'accounts', 'Alice', 3)
+struct('le:answer', 'delays', 'accounts', 'Bob', 4)
+struct('le:answer', 'delays', 'accounts', 'Carol', 0)
+struct('le:answer', 'totals', 'accounts', 'Alice', 11)
+struct('le:answer', 'totals', 'accounts', 'Bob', 4)
+struct('le:answer', 'totals', 'accounts', 'Carol', 0)
+struct('le:answer', 'blocked', 'accounts', 'Alice')
 
 // Proof check (SPEC 11.2-11.6):
 // Questions: every claim is an answer, and every required answer is claimed.

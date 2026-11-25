@@ -26,10 +26,6 @@ links, so `dpv:AcademicResearch` and `pd:EmailAddressWork` qualify. The
 attribution duty is a precondition, and each request carries its own
 `eval:fulfilledDuty` evidence.
 
-The same snapshot written in Logical English is the
-[research-snapshot-le](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-le)
-example; both run the same `--odrl` evaluation.
-
 ---
 
 ## What eyemind concludes

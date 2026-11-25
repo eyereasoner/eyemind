@@ -7,8 +7,9 @@ LS programs are JavaScript scripts, saved as `.js` files;
 LS conclusions, proofs and check reports are JavaScript expressions that a
 reader turns back into terms without running them. N3 and SRL inputs write
 the same JavaScript proofs, citing the clauses of their compiled program.
-Logical English (`.le`) compiles to LS and writes `.le`
-conclusions, with the same `.js` proofs and check reports.
+Logical English (`.le`), Kowalski's controlled natural language, compiles to
+LS and writes its query answers as `.le` sentences, with the same `.js` proofs
+and check reports.
 It runs as a command-line
 program, a JavaScript library, and a browser application. Describe what it
 implements as it currently is, distinguish demonstrated behavior from design
@@ -55,8 +56,8 @@ goals, and keep error messages specific and user-facing text direct.
     `skos:exactMatch` in either direction. `shacl-expr.js` compiles SHACL node expressions.
     `qudt-catalog.js` is QUDT's unit catalog, generated; never edit it.
   - `owl2rl.js`: explicit `--owl2rl` inference, including RDFS, and OWL conflict reports, compiled to standalone LS.
-  - `le.js`: Logical English (`.le`) compiled to LS, and `.le` conclusions; its grammar is in `LE-SPEC.md`.
-    `le-odrl.js` maps an explicitly selected LE ODRL vocabulary to RDF and shares `odrl.js` for snapshot evaluation.
+  - `le.js`: Logical English (`.le`) compiled to LS, and its answers as `.le` sentences; `LE-SPEC.md`
+    says what it reads of the core that LE 1.0 and Logical English 2 share.
   - `formats.js`: inputs by extension and output with `--to`. `rdf.js`:
     RDF 1.2 (Turtle, TriG, N-Triples, N-Quads) to and from eyemind terms,
     read by the RDF parser (`rdf-lexer.js`, `rdf-parser.js`,
@@ -73,8 +74,8 @@ goals, and keep error messages specific and user-facing text direct.
   - `odrl.js`: the ODRL snapshot profile enabled by `--odrl`, compiling one Turtle input
     with policies, requests and SOTW into LS validation and evaluation rules; with
     RDF profiles, `rdf-logic.js` adds them as `odrlProfileRules` over the entailed graph.
-    `dpv.js`: DPV category rules over SKOS `broader` and `narrower` links, shared by
-    `odrl.js` and LE's `Use DPV hierarchy logic.`
+    `dpv.js`: DPV category rules over SKOS `broader` and `narrower` links, used by
+    `odrl.js`.
 - `bin/eyemind.js`: the `eyemind` command.
 - `playground/index.html`: hand-written browser playground; it runs `src/`
   in a module worker, with no build step. `playground.html` redirects older
@@ -93,7 +94,7 @@ goals, and keep error messages specific and user-facing text direct.
   `output` to `ttl` and flags each profile it runs with (`owl2rl`, `skos`,
   `qudt`, `shacl`, `odrl`). An ODRL snapshot example is `NAME-odrl.ttl`,
   such as `research-access-odrl.ttl`, run with `--odrl` and any profiles
-  its entry flags; `handicap-card.ttl` keeps the name of its LE twin.
+  its entry flags; `handicap-card.ttl` keeps its earlier name.
   `examples/output/`,
   `examples/proof/` and `examples/check/` hold each one's saved conclusions,
   proof and check report; `examples/deck/` a card deck per example. Outputs
@@ -127,6 +128,8 @@ goals, and keep error messages specific and user-facing text direct.
   `shacl.js` reads the W3C SHACL 1.2 manifest and scores its Core and
   node-expression groups; SHACL-SPARQL and inference rules are out of scope.
   `upstream-cases.js` scores independent MobiBench and SHACL cases on up to two threads.
+  `logical-english.js` scores the Logical English 2 examples with expected answers,
+  cached in `.cache/logical-english/`, as coverage at the end of every `npm test`.
   `helpers.js` holds what the test modules share.
   `UPSTREAM.md` describes the cache and `upstream.json` records its provenance.
   N3 and SRL examples and their saved artifacts live in `examples/`.
@@ -140,7 +143,7 @@ goals, and keep error messages specific and user-facing text direct.
   reports, and `report.js`
   writes `REPORT.md`, the table a whole `npm test` run ends with.
   `notation3-worker.js` is the reusable process the Notation3 scorer runs cases in.
-  `sync.js`, run with `npm run sync`, stages and refreshes all five upstream
+  `sync.js`, run with `npm run sync`, stages and refreshes all six upstream
   test caches and records their revisions, and regenerates
   `src/qudt-catalog.js` from the latest QUDT release with `qudt-catalog.js`;
   `sync-notation3tests.js` also
@@ -222,7 +225,11 @@ very large proofs; redirect them to a file and inspect focused parts.
 
 RDF data, N3, SPARQL 1.2 RL and Logical English are inputs of the command line, compiled to
 ordinary LS programs; they are implementation extensions described in README.md,
-outside the language and proof specification. The RDF lexer and parser, and the SRL tokenizer, parser and
+outside the language and proof specification. For Logical English, the upstream
+implementations decide what is correct, and their examples that state
+`expects answers` show it: every `npm test` scores the cached Logical English 2
+examples, and a wrong answer fails it. LE-SPEC.md records where eyemind
+follows one of them. The RDF lexer and parser, and the SRL tokenizer, parser and
 analysis, are maintained in `src/` as ES modules. Preserve the `eyemind:`
 comments that explain adaptations in these modules. The W3C suites decide
 what is correct: all RDF tests of `.cache/w3c/rdf-tests` and all SPARQL 1.2 RL

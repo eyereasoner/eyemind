@@ -1,9 +1,10 @@
 # Upstream test suites
 
-`npm test` uses five suites in Git-ignored `.cache/`:
+`npm test` uses six suites in Git-ignored `.cache/`:
 
 | Cache directory | Upstream |
 | --- | --- |
+| `.cache/logical-english/` | [LogicalContractsOrg/LogicalEnglish2](https://github.com/LogicalContractsOrg/LogicalEnglish2), `examples/moreExamples` |
 | `.cache/mobibench/` | [william-vw/mobibench](https://github.com/william-vw/mobibench), the OWL 2 RL subsuite of `web/res/owl/conf/testsuite-owl2-rdfbased.zip` |
 | `.cache/notation3tests/` | [phochste/notation3tests](https://codeberg.org/phochste/notation3tests) |
 | `.cache/w3c/rdf-tests/` | [w3c/rdf-tests](https://github.com/w3c/rdf-tests) |
@@ -11,7 +12,7 @@
 | `.cache/w3c/sparql-rl/` | [w3c/data-shapes](https://github.com/w3c/data-shapes), `shacl12-test-suite/tests/sparql-rl` |
 
 A normal run reuses the cache without checking upstream. If the cache is
-missing or incomplete, the runner downloads all five suites before importing
+missing or incomplete, the runner downloads all six suites before importing
 the tests. This first run needs Git and network access. File inventories let
 the runner detect missing inputs instead of silently skipping their cases.
 
@@ -51,7 +52,7 @@ changes and run `npm test` after syncing; every run writes the
 Local Git checkouts can supply any of the sources:
 
 ```sh
-npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes --mobibench /path/to/mobibench --qudt /path/to/qudt-public-repo
+npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes --mobibench /path/to/mobibench --logical-english /path/to/LogicalEnglish2 --qudt /path/to/qudt-public-repo
 ```
 
 A QUDT checkout is used at the release it has checked out. The data-shapes
@@ -73,6 +74,16 @@ case. Unsupported active constraints and incorrect reports are failed cases.
 The default coverage run leaves missing SHACL support outside the strict
 RDF/SRL release gate; `--strict` fails for every non-passing SHACL case.
 Missing resources or malformed manifests fail either mode.
+
+Every `npm test`, including a filtered run, also scores the Logical English 2
+examples that state the answers their queries must give, with `expects
+answers`. Each such file is a case, run through `.le` input as LE-SPEC.md
+describes: it passes when every expected answer set it compares matches.
+A file that uses a feature LE-SPEC.md lists as unsupported, whose expected
+answers all rest on unknowns, or that LS rejects for a negation on a
+dependency cycle, is not passed. `KNOWN` in `test/logical-english.js` lists
+the files eyemind reads differently from upstream, with the reason; a listed
+file that passes fails the run. A wrong answer or any other error fails it.
 
 `npm test` runs independent MobiBench and SHACL cases on up to two threads
 within the same test process. It reports cases in manifest order and finishes

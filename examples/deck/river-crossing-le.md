@@ -1,58 +1,58 @@
 # River crossing in Logical English
 
-*A finite planning problem with compound states and guarded transitions.*
+*A finite planning problem with states as lists and guarded moves.*
 
 [river-crossing-le.le](https://github.com/eyereasoner/eyemind/blob/main/examples/river-crossing-le.le) · [output](https://github.com/eyereasoner/eyemind/blob/main/examples/output/river-crossing-le.le) · [proof](https://github.com/eyereasoner/eyemind/blob/main/examples/proof/river-crossing-le.js) · [check](https://github.com/eyereasoner/eyemind/blob/main/examples/check/river-crossing-le.js) · [playground](https://eyereasoner.github.io/eyemind/playground/#example=river-crossing-le)
 
 ## The question
 
-In the traditional wolf, goat and cabbage puzzle, a farmer must take all three
-across a river. The boat carries the farmer and at most one item. The wolf
-cannot remain with the goat without the farmer, and neither can the goat
-remain with the cabbage. What legal plans use at most seven crossings?
+A farmer must take a wolf, a goat and a cabbage across a river in a boat that
+holds the farmer and one item. Left alone, the wolf eats the goat and the goat
+eats the cabbage. Which plans bring everyone to the left bank within seven
+crossings?
 
 ## What we tell eyemind
 
-A `state(Farmer, Wolf, Goat, Cabbage)` term records four banks. Repeated variables
-match animals on the same bank. Two rules mark unattended dangerous states;
-stratified absence classifies the remaining states as safe.
+A state lists the banks of the farmer, the wolf, the goat and the cabbage, as
+in `[right, right, right, right]`. A move matches a pattern with a repeated
+variable: `the state = [F, F, G, C]` holds when the wolf is on the farmer's
+bank, so the farmer can carry it. A state is safe when the farmer is with the
+goat, or the goat is with neither the wolf nor the cabbage; the indentation
+groups the second alternative's two conditions.
 
-Four transition rules cover crossing alone or with one item. Their patterns
-require the transported item to start beside the farmer and require both
-states to be safe. Recursive plan terms record every move, up to seven steps.
+A plan is the list of what each crossing carries. It is empty at the goal, and
+otherwise one safe move followed by a plan from the next state, with one
+crossing fewer to spend.
 
 ## What eyemind concludes
 
-There are two answers, both with seven crossings. One checked LS answer is:
-
-```js
-plan(7, state('right', 'right', 'right', 'right'),
-  step(step(step(step(step(step(step('start', 'goat'), 'alone'), 'wolf'), 'goat'), 'cabbage'), 'alone'), 'goat'))
+```text
+% query plans
+[goat, nothing, wolf, goat, cabbage, nothing, goat] takes the crew from [right, right, right, right] to the left bank in at most 7 crossings.
+[goat, nothing, cabbage, goat, wolf, nothing, goat] takes the crew from [right, right, right, right] to the left bank in at most 7 crossings.
 ```
 
-Reading the nested history from the innermost step gives: goat, alone, wolf,
-goat, cabbage, alone, goat. The second plan exchanges wolf and cabbage.
-The farmer returns with the goat in the middle; a move name records the cargo,
-while the successive states determine the direction.
+```js
+struct('le:answer', 'plans', ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])
+```
 
 ## What the proof establishes
 
 The saved proof is **checked** against the compiled LS program. It establishes
-the complete answers within the seven-step bound under the stated safety and
-boat rules. Every shorter plan is also within that bound, and none succeeds.
-The same proof checks against the standalone JavaScript compilation. The model
-has exactly two banks and does not account for travel times or other cargo.
+the complete answers within the seven-crossing bound under the stated safety
+and boat rules. Every shorter plan is also within that bound, and none
+succeeds. The model has exactly two banks and does not account for travel
+times or other cargo.
 
 ## Try it
 
 ```sh
 node bin/eyemind.js examples/river-crossing-le.le
 node bin/eyemind.js --program examples/river-crossing-le.le > /tmp/river-crossing-le.js
-node bin/eyemind.js --to le /tmp/river-crossing-le.js
 node bin/eyemind.js --proof examples/river-crossing-le.le
 node bin/eyemind.js --check-proof examples/proof/river-crossing-le.js examples/river-crossing-le.le
 ```
 
-Reduce the crossing limit to 6: the question has no answers. Increase it to 9:
-additional plans with wasted crossings appear. The finite bound controls
-recursive history construction, rather than merely hiding a long output.
+Reduce the crossing limit to 6: the query has no answers. Increase it to 9:
+additional plans with wasted crossings appear. The bound limits the recursive
+search rather than merely hiding a long output.

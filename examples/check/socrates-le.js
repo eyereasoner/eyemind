@@ -1,5 +1,5 @@
 // Checked answers: these follow from the input program and are every answer of its questions.
-mortal('Socrates')
+struct('le:answer', 'mortal', 'Socrates')
 
 // Proof check (SPEC 11.2-11.6):
 // Questions: every claim is an answer, and every required answer is claimed.

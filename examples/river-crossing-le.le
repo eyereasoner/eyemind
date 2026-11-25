@@ -1,45 +1,63 @@
-# The traditional wolf, goat and cabbage puzzle has a farmer and a small boat.
-# The boat carries the farmer and at most one item; unattended animals must be safe.
-# Finds both plans that move everyone across within seven crossings.
-# Shows compound-state matching, safety by absence and bounded recursive planning.
+% The traditional wolf, goat and cabbage puzzle has a farmer and a small boat.
+% The boat carries the farmer and at most one item; the goat may not stay
+% with the wolf or the cabbage without the farmer.
+% Finds both plans that move everyone across within seven crossings.
+% Shows states as lists, repeated variables in a pattern, safety by
+% alternatives and bounded recursive planning.
 
-left is a bank and right is a bank.
-left is an opposite of right and right is an opposite of left.
+the templates are:
+    *a bank* is opposite *a bank*,
+    *a state* is safe,
+    *a state* moves to *a state* carrying *a cargo*,
+    *a plan* takes the crew from *a state* to the left bank in at most *a number* crossings.
 
-# Equal bank variables express that the wolf and goat, or goat and cabbage, are together.
-# A state lists the farmer's, wolf's, goat's and cabbage's banks in that order.
-For every F and X and C,
-if F is an opposite of X and C is a bank
-then state(F, X, X, C) is unsafe.
-For every F and W and X,
-if F is an opposite of X and W is a bank
-then state(F, W, X, X) is unsafe.
-For every F and W and G and C,
-if F is a bank and W is a bank and G is a bank and C is a bank
-and it is not known that state(F, W, G, C) is unsafe
-then state(F, W, G, C) is safe.
+the knowledge base river crossing includes:
 
-# A transported item must start on the farmer's bank. Both states must be safe.
-For every F and T and W and G and C,
-if F is an opposite of T and state(F, W, G, C) is safe and state(T, W, G, C) is safe
-then crossing(state(F, W, G, C), alone, state(T, W, G, C)).
-For every F and T and G and C,
-if F is an opposite of T and state(F, F, G, C) is safe and state(T, T, G, C) is safe
-then crossing(state(F, F, G, C), wolf, state(T, T, G, C)).
-For every F and T and W and C,
-if F is an opposite of T and state(F, W, F, C) is safe and state(T, W, T, C) is safe
-then crossing(state(F, W, F, C), goat, state(T, W, T, C)).
-For every F and T and W and G,
-if F is an opposite of T and state(F, W, G, F) is safe and state(T, W, G, T) is safe
-then crossing(state(F, W, G, F), cabbage, state(T, W, G, T)).
+right is opposite left.
+left is opposite right.
 
-# History terms retain the moves. A seven-step bound makes the search finite.
-plan(0, state(left, left, left, left), start).
-7 is a crossingLimit.
-For every N and S and P and A and T and M and L,
-if plan(N, S, P) and crossing(S, A, T) and L is a crossingLimit
-and N is less than L and M is the value of N + 1
-then plan(M, T, step(P, A)).
+% A state lists the banks of the farmer F, the wolf W, the goat G and the
+% cabbage C. It is safe when the farmer is with the goat, or the goat is
+% alone with neither the wolf nor the cabbage.
+a state is safe
+    if the state = [F, W, G, C]
+    and F = G
+        or W is different from G
+            and G is different from C.
 
-# Every shorter plan is inside this bound as well; neither shorter nor unsafe plans answer.
-Find every N and P such that plan(N, state(right, right, right, right), P).
+% The farmer crosses alone or with an item on the farmer's bank.
+a state moves to an other state carrying nothing
+    if the state = [F, W, G, C]
+    and F is opposite a bank B
+    and the other state = [B, W, G, C].
+
+a state moves to an other state carrying wolf
+    if the state = [F, F, G, C]
+    and F is opposite a bank B
+    and the other state = [B, B, G, C].
+
+a state moves to an other state carrying goat
+    if the state = [F, W, F, C]
+    and F is opposite a bank B
+    and the other state = [B, W, B, C].
+
+a state moves to an other state carrying cabbage
+    if the state = [F, W, G, F]
+    and F is opposite a bank B
+    and the other state = [B, W, G, B].
+
+% A plan is the list of what each crossing carries.
+a plan takes the crew from a state to the left bank in at most a number N crossings
+    if the state = [left, left, left, left]
+    and the plan = [].
+
+a plan takes the crew from a state to the left bank in at most a number N crossings
+    if N > 0
+    and the state moves to a next state carrying a cargo
+    and the next state is safe
+    and a number M = N - 1
+    and a rest takes the crew from the next state to the left bank in at most M crossings
+    and the plan has the cargo as head before the rest.
+
+query plans is:
+    which plan takes the crew from [right, right, right, right] to the left bank in at most 7 crossings.

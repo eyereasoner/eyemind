@@ -1,31 +1,49 @@
-# A walker can reach the harbor through a library, a garden or a direct road.
-# The library and garden routes tie at ten minutes; the direct road takes fifteen.
-# Shows bounded recursive path construction, exact costs and minimum selection
-# by stratified absence. A return edge creates a cycle without an infinite chase.
+% A walker can reach the harbor through a library, a garden or a direct road.
+% The library and garden routes tie at ten minutes; the direct road takes
+% fifteen. A return road from the library to the atrium makes a cycle.
+% Shows recursive rules over lists, a bound on the number of roads, the
+% minimum aggregate and two best routes kept on a tie.
 
-road(Atrium, Library, 4).
-road(Library, Harbor, 6).
-road(Atrium, Garden, 3).
-road(Garden, Harbor, 7).
-road(Atrium, Harbor, 15).
-road(Library, Atrium, 2).
+the templates are:
+    *a place* has a road to *a place* taking *a number* minutes,
+    *a route* leads from *a place* to *a place* in *a number* minutes using at most *a number* roads,
+    *a route* is a best route from *a place* to *a place* in *a number* minutes.
 
-# Only paths from the atrium are explored, using at most four roads.
-route(Atrium, 0, 0, start(Atrium)).
-4 is a roadLimit.
-For every A and B and C and N and P and W and M and D and L,
-if route(A, C, N, P) and road(A, B, W) and L is a roadLimit
-and N is less than L and M is the value of N + 1
-and D is the value of C + W
-then route(B, D, M, via(P, B)).
+the knowledge base walks includes:
 
-# A candidate loses only if some route to the same place is strictly cheaper.
-For every A and C and N and P and D and M and Q,
-if route(A, C, N, P) and route(A, D, M, Q) and D is less than C
-then cheaper(A, C).
-For every A and C and N and P,
-if route(A, C, N, P) and it is not known that cheaper(A, C)
-then bestRoute(A, C, P).
+% A route is the list of the places it passes. It never returns to its
+% start, and it takes at most the given number of roads, so the cycle ends.
+a route leads from a place to an other place in a number N minutes using at most a number L roads
+    if L > 0
+    and the place has a road to the other place taking N minutes
+    and the route = [the place, the other place].
 
-# Preserve both paths when their minimum costs are equal.
-Find every C and P such that bestRoute(Harbor, C, P).
+a route leads from a place to an other place in a number N minutes using at most a number L roads
+    if L > 1
+    and the place has a road to a middle place taking a number A minutes
+    and a number K = L - 1
+    and a rest leads from the middle place to the other place in a number B minutes using at most K roads
+    and it is not the case that
+        the place is in the rest
+    and the route has the place as head before the rest
+    and N = A + B.
+
+% Every route of the least time is a best route, so a tie keeps both.
+a route is a best route from a place to an other place in a number N minutes
+    if the route leads from the place to the other place in N minutes using at most 4 roads
+    and a number M is the min of each T such that
+        a second route leads from the place to the other place in T minutes using at most 4 roads
+    and N = M.
+
+scenario town is:
+    atrium has a road to library taking 4 minutes.
+    library has a road to harbor taking 6 minutes.
+    atrium has a road to garden taking 3 minutes.
+    garden has a road to harbor taking 7 minutes.
+    atrium has a road to harbor taking 15 minutes.
+    library has a road to atrium taking 2 minutes.
+    best expects answers ["[atrium, library, harbor] is a best route from atrium to harbor in 10 minutes",
+        "[atrium, garden, harbor] is a best route from atrium to harbor in 10 minutes"].
+
+query best is:
+    which route is a best route from atrium to harbor in which number minutes.

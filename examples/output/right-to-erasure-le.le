@@ -1,80 +1,13 @@
-Use ODRL vocabulary with namespace "https://example.org/right-to-erasure#".
-Use prefix eval with namespace "https://eyereasoner.github.io/eyemind/odrl#".
-Use prefix ex with namespace "https://example.org/right-to-erasure#".
-Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
+% query erase with scenario erasure request
+the profile must be erased.
+the marketing list must be erased.
 
-evaluation is an evaluationReport.
-evaluation has policy retentionPolicy.
-evaluation has conflictStrategy prohibit.
-eraseProfile is a request.
-eraseProfile has assignee privacyOffice.
-eraseProfile has action odrl:delete.
-eraseProfile has target profile.
-eraseProfile has subject customer.
-eraseProfile has state profileState.
-eraseProfile has fulfilledDuty informRecipients.
-eraseInvoices is a request.
-eraseInvoices has assignee privacyOffice.
-eraseInvoices has action odrl:delete.
-eraseInvoices has target invoices.
-eraseInvoices has subject customer.
-eraseInvoices has state invoiceState.
-eraseMarketing is a request.
-eraseMarketing has assignee privacyOffice.
-eraseMarketing has action odrl:delete.
-eraseMarketing has target marketingList.
-eraseMarketing has subject customer.
-eraseMarketing has state marketingState.
-eraseTickets is a request.
-eraseTickets has assignee privacyOffice.
-eraseTickets has action odrl:delete.
-eraseTickets has target tickets.
-eraseTickets has subject customer.
-eraseTickets has state ticketState.
-eraseBackups is a request.
-eraseBackups has assignee privacyOffice.
-eraseBackups has action odrl:delete.
-eraseBackups has target backups.
-eraseBackups has subject customer.
-eraseBackups has state backupState.
-evaluation has validationStatus valid.
-eraseBackups has uncertainty witness(rule 360, "Issue", ex:eraseBackups, ex:retentionRuns, ex:keepBackups, ex:retentionYearsLeft, eval:MissingObservation).
-witness(rule 360, "Issue", ex:eraseBackups, ex:retentionRuns, ex:keepBackups, ex:retentionYearsLeft, eval:MissingObservation) is an uncertainty.
-witness(rule 360, "Issue", ex:eraseBackups, ex:retentionRuns, ex:keepBackups, ex:retentionYearsLeft, eval:MissingObservation) has reportConstraint retentionRuns.
-witness(rule 360, "Issue", ex:eraseBackups, ex:retentionRuns, ex:keepBackups, ex:retentionYearsLeft, eval:MissingObservation) has rule keepBackups.
-witness(rule 360, "Issue", ex:eraseBackups, ex:retentionRuns, ex:keepBackups, ex:retentionYearsLeft, eval:MissingObservation) has property retentionYearsLeft.
-witness(rule 360, "Issue", ex:eraseBackups, ex:retentionRuns, ex:keepBackups, ex:retentionYearsLeft, eval:MissingObservation) has reason eval:MissingObservation.
-eraseProfile has applicablePermission mayEraseProfile.
-eraseInvoices has applicablePermission mayEraseInvoices.
-eraseMarketing has applicablePermission mayEraseMarketing.
-eraseTickets has applicablePermission mayEraseTickets.
-eraseBackups has applicablePermission mayEraseBackups.
-eraseInvoices has applicableProhibition keepInvoices.
-eraseTickets has applicableProhibition keepTickets.
-evaluation has conflict witness(rule 364, "Conflict", ex:evaluation, ex:eraseInvoices, ex:retentionPolicy, ex:mayEraseInvoices, ex:retentionPolicy, ex:keepInvoices).
-witness(rule 364, "Conflict", ex:evaluation, ex:eraseInvoices, ex:retentionPolicy, ex:mayEraseInvoices, ex:retentionPolicy, ex:keepInvoices) is a conflict.
-witness(rule 364, "Conflict", ex:evaluation, ex:eraseInvoices, ex:retentionPolicy, ex:mayEraseInvoices, ex:retentionPolicy, ex:keepInvoices) has request eraseInvoices.
-witness(rule 364, "Conflict", ex:evaluation, ex:eraseInvoices, ex:retentionPolicy, ex:mayEraseInvoices, ex:retentionPolicy, ex:keepInvoices) has permissionPolicy retentionPolicy.
-witness(rule 364, "Conflict", ex:evaluation, ex:eraseInvoices, ex:retentionPolicy, ex:mayEraseInvoices, ex:retentionPolicy, ex:keepInvoices) has permissionRule mayEraseInvoices.
-witness(rule 364, "Conflict", ex:evaluation, ex:eraseInvoices, ex:retentionPolicy, ex:mayEraseInvoices, ex:retentionPolicy, ex:keepInvoices) has prohibitionPolicy retentionPolicy.
-witness(rule 364, "Conflict", ex:evaluation, ex:eraseInvoices, ex:retentionPolicy, ex:mayEraseInvoices, ex:retentionPolicy, ex:keepInvoices) has prohibitionRule keepInvoices.
-evaluation has conflict witness(rule 364, "Conflict", ex:evaluation, ex:eraseTickets, ex:retentionPolicy, ex:mayEraseTickets, ex:retentionPolicy, ex:keepTickets).
-witness(rule 364, "Conflict", ex:evaluation, ex:eraseTickets, ex:retentionPolicy, ex:mayEraseTickets, ex:retentionPolicy, ex:keepTickets) is a conflict.
-witness(rule 364, "Conflict", ex:evaluation, ex:eraseTickets, ex:retentionPolicy, ex:mayEraseTickets, ex:retentionPolicy, ex:keepTickets) has request eraseTickets.
-witness(rule 364, "Conflict", ex:evaluation, ex:eraseTickets, ex:retentionPolicy, ex:mayEraseTickets, ex:retentionPolicy, ex:keepTickets) has permissionPolicy retentionPolicy.
-witness(rule 364, "Conflict", ex:evaluation, ex:eraseTickets, ex:retentionPolicy, ex:mayEraseTickets, ex:retentionPolicy, ex:keepTickets) has permissionRule mayEraseTickets.
-witness(rule 364, "Conflict", ex:evaluation, ex:eraseTickets, ex:retentionPolicy, ex:mayEraseTickets, ex:retentionPolicy, ex:keepTickets) has prohibitionPolicy retentionPolicy.
-witness(rule 364, "Conflict", ex:evaluation, ex:eraseTickets, ex:retentionPolicy, ex:mayEraseTickets, ex:retentionPolicy, ex:keepTickets) has prohibitionRule keepTickets.
-evaluation has conflictCount 2.
-evaluation has request eraseBackups.
-eraseBackups has decision undetermined.
-evaluation has request eraseProfile.
-eraseProfile has decision allowed.
-evaluation has request eraseMarketing.
-eraseMarketing has decision allowed.
-evaluation has request eraseInvoices.
-eraseInvoices has decision prohibited.
-evaluation has request eraseTickets.
-eraseTickets has decision prohibited.
-evaluation has canHappen eraseProfile.
-evaluation has canHappen eraseMarketing.
+% query keep with scenario erasure request
+the invoices must be kept under Article 17(3)(b).
+the support tickets must be kept under Article 17(3)(e).
+
+% query pending with scenario erasure request
+the backup archive awaits its retention period.
+
+% query inform with scenario erasure request
+the recipients of the marketing list must be informed.

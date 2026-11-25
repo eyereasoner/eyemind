@@ -1,49 +1,77 @@
-# Section 1 of the British Nationality Act 1981, after the logic program of
-# Sergot, Sadri, Kowalski, Kriwaczek, Hammond and Cory (1986). Anna, born in the
-# United Kingdom after commencement to a settled father, is a British citizen,
-# and so is her son Ben, through her. Hugo was born before commencement, Dara
-# before her father settled, and Jo abroad; none of them is a citizen by
-# section 1. The foundling Eve is a citizen; for Finn the contrary is shown.
-# Shows "or" premises, absence as "unless the contrary is shown", date
-# comparisons and citizenship that passes through a derived parent.
+% Section 1 of the British Nationality Act 1981, after the logic program of
+% Sergot, Sadri, Kowalski, Kriwaczek, Hammond and Cory (1986). Anna, born in
+% the UK after commencement to a settled father, is a British citizen, and so
+% is her son Ben, through her. Hugo was born before commencement, Dara before
+% her father settled, and Jo abroad; none of them is a citizen by section 1.
+% The foundling Eve is a citizen; for Finn the contrary is shown.
+% Shows templates, alternatives grouped by indentation, "it is not the case
+% that", date comparisons, a scenario and its expected answers.
 
-# Dates are integers of the form YYYYMMDD. The Act commenced on 1 January 1983.
-19830101 is a commencement.
+the templates are:
+    *a person* is a British citizen,
+    *a person* is a qualifying parent of *a person*,
+    *a person* is a parent of *a person*,
+    *a person* is born in *a place* on *a date*,
+    *a person* is found as a new-born infant in *a place* on *a date*,
+    *a person* is settled in the UK since *a date*,
+    *a date* is after commencement,
+    the contrary is shown for *a person*.
 
-Farid is a parent of Anna and settledSince(Farid, 19750301).
-Anna has birthPlace unitedKingdom and Anna has birthDate 19900512.
-Anna is a parent of Ben.
-Ben has birthPlace unitedKingdom and Ben has birthDate 20150820.
-Anna is a parent of Jo.
-Jo has birthPlace france and Jo has birthDate 20170203.
+the knowledge base british nationality act includes:
 
-# Gwen is a citizen under earlier law, which this program does not model.
-Gwen is a britishCitizen and Gwen is a parent of Hugo.
-Hugo has birthPlace unitedKingdom and Hugo has birthDate 19800101.
+% Section 1(1): born in the UK after commencement to a parent who was then a
+% British citizen or settled in the UK.
+a person is a British citizen
+    if the person is born in the UK on a date
+    and the date is after commencement
+    and an other person is a qualifying parent of the person.
 
-Ivan is a parent of Dara and settledSince(Ivan, 20050101).
-Dara has birthPlace unitedKingdom and Dara has birthDate 20010304.
+% Section 1(2): found abandoned in the UK as a new-born infant after
+% commencement, unless the contrary is shown.
+a person is a British citizen
+    if the person is found as a new-born infant in the UK on a date
+    and the date is after commencement
+    and it is not the case that
+        the contrary is shown for the person.
 
-Eve is a foundling and Eve has foundIn unitedKingdom and Eve has foundDate 20200601.
-Finn is a foundling and Finn has foundIn unitedKingdom and Finn has foundDate 20180101.
-Finn is a contraryShown.
+% The deeper lines bind tighter: a parent qualifies as a citizen, or as
+% settled on or before the birth.
+a person is a qualifying parent of an other person
+    if the person is a parent of the other person
+    and the person is a British citizen
+        or the other person is born in a place on a date
+            and the person is settled in the UK since a second date
+            and the second date is before or equal to the date.
 
-# A parent qualifies who, at the time of the birth, is a British citizen or
-# is settled in the United Kingdom. "and" binds more tightly than "or".
-For every Q and P and D and S,
-if Q is a parent of P and Q is a britishCitizen
-or Q is a parent of P and P has birthDate D and settledSince(Q, S) and S is at most D
-then Q is a qualifyingParent of P.
+% The Act commenced on 1 January 1983.
+a date is after commencement
+    if the date is after or equal to 1983-01-01.
 
-# Section 1(1) and 1(2): born in the United Kingdom after commencement to a
-# qualifying parent, or found abandoned there as a new-born after
-# commencement, unless the contrary is shown.
-For every P and Q and D and C,
-if P has birthPlace unitedKingdom and P has birthDate D and C is a commencement
-and D is at least C and Q is a qualifyingParent of P
-or P is a foundling and P has foundIn unitedKingdom and P has foundDate D
-and C is a commencement and D is at least C and it is not known that P is a contraryShown
-then P is a britishCitizen.
+% Gwen is a citizen under earlier law, which this program does not model.
+scenario families is:
+    Farid is a parent of Anna.
+    Farid is settled in the UK since 1975-03-01.
+    Anna is born in the UK on 1990-05-12.
+    Anna is a parent of Ben.
+    Ben is born in the UK on 2015-08-20.
+    Anna is a parent of Jo.
+    Jo is born in France on 2017-02-03.
+    Gwen is a British citizen.
+    Gwen is a parent of Hugo.
+    Hugo is born in the UK on 1980-01-01.
+    Ivan is a parent of Dara.
+    Ivan is settled in the UK since 2005-01-01.
+    Dara is born in the UK on 2001-03-04.
+    Eve is found as a new-born infant in the UK on 2020-06-01.
+    Finn is found as a new-born infant in the UK on 2018-01-01.
+    the contrary is shown for Finn.
+    citizens expects answers ["Anna is a British citizen", "Ben is a British citizen",
+        "Eve is a British citizen", "Gwen is a British citizen"].
+    parents expects answers ["Farid is a qualifying parent of Anna", "Anna is a qualifying parent of Ben",
+        "Anna is a qualifying parent of Jo", "Gwen is a qualifying parent of Hugo"].
 
-Find every P such that P is a britishCitizen.
-Find every Q and P such that Q is a qualifyingParent of P.
+query citizens is:
+    which person is a British citizen.
+
+query parents is:
+    which person is a qualifying parent of which other person.

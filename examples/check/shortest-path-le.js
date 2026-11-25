@@ -1,6 +1,6 @@
 // Checked answers: these follow from the input program and are every answer of its questions.
-bestRoute('Harbor', 10, via(via(start('Atrium'), 'Library'), 'Harbor'))
-bestRoute('Harbor', 10, via(via(start('Atrium'), 'Garden'), 'Harbor'))
+struct('le:answer', 'best', 'town', ['atrium', 'library', 'harbor'], 10)
+struct('le:answer', 'best', 'town', ['atrium', 'garden', 'harbor'], 10)
 
 // Proof check (SPEC 11.2-11.6):
 // Questions: every claim is an answer, and every required answer is claimed.

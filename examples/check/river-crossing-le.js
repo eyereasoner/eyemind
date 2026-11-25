@@ -1,6 +1,6 @@
 // Checked answers: these follow from the input program and are every answer of its questions.
-plan(7, state('right', 'right', 'right', 'right'), step(step(step(step(step(step(step('start', 'goat'), 'alone'), 'wolf'), 'goat'), 'cabbage'), 'alone'), 'goat'))
-plan(7, state('right', 'right', 'right', 'right'), step(step(step(step(step(step(step('start', 'goat'), 'alone'), 'cabbage'), 'goat'), 'wolf'), 'alone'), 'goat'))
+struct('le:answer', 'plans', ['goat', 'nothing', 'wolf', 'goat', 'cabbage', 'nothing', 'goat'])
+struct('le:answer', 'plans', ['goat', 'nothing', 'cabbage', 'goat', 'wolf', 'nothing', 'goat'])
 
 // Proof check (SPEC 11.2-11.6):
 // Questions: every claim is an answer, and every required answer is claimed.

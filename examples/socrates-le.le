@@ -1,9 +1,17 @@
-# Socrates is human, and every human is mortal.
-# The question concludes that Socrates is mortal, showing class facts,
-# an every-rule and a query compiled from Logical English into LS.
+% Socrates is human, and every human is mortal.
+% The query concludes that Socrates is mortal, showing templates, a rule,
+% a fact and a query in Logical English, compiled to LS.
 
-Socrates is a human.
-Every human is mortal.
+the templates are:
+    *a thing* is human,
+    *a thing* is mortal.
 
-# Select the mortal memberships rather than every derived fact.
-Find every X such that X is mortal.
+the knowledge base socrates includes:
+
+a person is mortal
+    if the person is human.
+
+Socrates is human.
+
+query mortal is:
+    which thing is mortal.

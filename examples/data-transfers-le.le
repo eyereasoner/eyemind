@@ -1,147 +1,134 @@
-# A Belgian HR software company sends employee data to service providers
-# outside the European Economic Area. Under Chapter V of the GDPR a transfer
-# needs an adequacy decision for the destination, appropriate safeguards such
-# as standard contractual clauses, or, for an occasional transfer, a
-# derogation such as the employee's explicit consent. The company's ODRL
-# policy permits a transfer on each of these bases, adds a duty to assess a
-# transfer that relies on the clauses, and prohibits sending health data.
-# The snapshot allows the transfers to Japan, Switzerland, a certified US
-# provider and, by explicit consent, a one-off relocation to Brazil. It
-# prohibits the US analytics transfer that carries health data, reporting the
-# conflict; it leaves the Indian helpdesk transfer undetermined until its
-# assessment is recorded; and no rule applies to the bulk archive in Brazil.
-# Shows an LE ODRL snapshot with rules: Logical English rules derive each
-# transfer's observations from adequacy decisions, recipients and safeguards,
-# and the snapshot evaluator decides, all with ODRL, DPV and GDPR prefixes.
-# The adequacy decisions are input facts for this scenario, not a register of
-# the decisions in force.
-# Sources https://eur-lex.europa.eu/eli/reg/2016/679/oj (Articles 44-49)
-#         https://www.w3.org/TR/odrl-vocab/
-#         https://w3id.org/dpv/2.3/dpv/ and https://w3id.org/dpv/legal/eu/gdpr
+% A Belgian HR software company sends employee data to service providers
+% outside the European Economic Area. Under Chapter V of the GDPR a transfer
+% rests on an adequacy decision for the destination (Article 45), on
+% appropriate safeguards such as standard contractual clauses (Article 46),
+% or, for an occasional transfer, on a derogation such as explicit consent
+% (Article 49(1)(a)). The company also assesses the impact of every transfer
+% that relies on the clauses, and never sends a special category of data.
+% The transfers to Japan, Switzerland, a certified US provider and, by
+% explicit consent, a one-off relocation in Brazil are allowed. The US
+% analytics transfer carries health data and is prohibited, the Indian
+% helpdesk transfer awaits its assessment, and the bulk archive in Brazil
+% has no legal basis.
+% Shows alternatives of a legal basis grouped by indentation, exceptions as
+% "it is not the case that", and names written as definite phrases.
+% The adequacy decisions are facts of this scenario, not a register of the
+% decisions in force.
+% Source https://eur-lex.europa.eu/eli/reg/2016/679/oj (Articles 9 and 44-49)
 
-Use ODRL snapshot logic with namespace "https://example.org/data-transfers#".
-Use prefix ex with namespace "https://example.org/data-transfers#".
-Use prefix odrl with namespace "http://www.w3.org/ns/odrl/2/".
-Use prefix eval with namespace "https://eyereasoner.github.io/eyemind/odrl#".
-Use prefix dpv with namespace "https://w3id.org/dpv#".
-Use prefix pd with namespace "https://w3id.org/dpv/pd#".
-Use prefix loc with namespace "https://w3id.org/dpv/loc#".
-Use prefix gdpr with namespace "https://w3id.org/dpv/legal/eu/gdpr#".
+the templates are:
+    *a decision* is an adequacy decision for *a country*,
+    *a decision* covers only certified recipients,
+    *a recipient* is certified under *a decision*,
+    *a recipient* is established in *a country*,
+    the company plans *a transfer* of *a data category* to *a recipient*,
+    *a data category* is a special category of data,
+    *a transfer* relies on standard contractual clauses,
+    the transfer impact of *a transfer* is assessed,
+    *a transfer* is occasional,
+    the employees gave explicit consent to *a transfer*,
+    *a transfer* rests on an adequacy decision,
+    *a transfer* rests on appropriate safeguards,
+    *a transfer* rests on a derogation,
+    *a transfer* is prohibited,
+    *a transfer* is allowed,
+    *a transfer* awaits a transfer impact assessment,
+    *a transfer* has no legal basis.
 
-# The adequacy decisions this scenario relies on. The US decision covers
-# only recipients certified under its framework.
+the knowledge base gdpr chapter v includes:
 
-ex:japanDecision is a gdpr:AdequacyDecision and ex:japanDecision has ex:covers loc:JP.
-ex:swissDecision is a gdpr:AdequacyDecision and ex:swissDecision has ex:covers loc:CH.
-ex:privacyFramework is a gdpr:AdequacyDecision and ex:privacyFramework has ex:covers loc:US.
-ex:privacyFramework is a ex:CertificationScheme.
+% Article 45: an adequacy decision for the recipient's country. A decision
+% that covers only certified recipients needs the recipient's certification.
+a transfer rests on an adequacy decision
+    if the company plans the transfer of a category to a recipient
+    and the recipient is established in a country
+    and a decision is an adequacy decision for the country
+    and it is not the case that
+        the decision covers only certified recipients.
 
-# The providers and where they are established.
+a transfer rests on an adequacy decision
+    if the company plans the transfer of a category to a recipient
+    and the recipient is established in a country
+    and a decision is an adequacy decision for the country
+    and the decision covers only certified recipients
+    and the recipient is certified under the decision.
 
-ex:payrollJapan has dpv:hasLocation loc:JP.
-ex:pensionsSwiss has dpv:hasLocation loc:CH.
-ex:supportDesk has dpv:hasLocation loc:US and ex:supportDesk has ex:certifiedUnder ex:privacyFramework.
-ex:analyticsVendor has dpv:hasLocation loc:US.
-ex:helpdeskIndia has dpv:hasLocation loc:IN.
-ex:relocationAgent has dpv:hasLocation loc:BR.
-ex:archiveBrazil has dpv:hasLocation loc:BR.
+% Article 46, with the company's transfer impact assessment.
+a transfer rests on appropriate safeguards
+    if the transfer relies on standard contractual clauses
+    and the transfer impact of the transfer is assessed.
 
-# The group policy: one permission per basis, with the assessment duty on
-# the clauses, and a prohibition on health data that takes priority.
+% Article 49(1)(a): explicit consent to an occasional transfer.
+a transfer rests on a derogation
+    if the transfer is occasional
+    and the employees gave explicit consent to the transfer.
 
-ex:groupPolicy is a odrl:Agreement and ex:groupPolicy has odrl:profile eval:SnapshotProfile.
-ex:groupPolicy has odrl:assigner ex:hrCompany and ex:groupPolicy has odrl:conflict odrl:prohibit.
-ex:groupPolicy has odrl:permission ex:onAdequacy and ex:groupPolicy has odrl:permission ex:onClauses.
-ex:groupPolicy has odrl:permission ex:onConsent and ex:groupPolicy has odrl:prohibition ex:noHealthData.
+% The company never transfers a special category of data (Article 9).
+a transfer is prohibited
+    if the company plans the transfer of a category to a recipient
+    and the category is a special category of data.
 
-ex:onAdequacy is a odrl:Permission and ex:onAdequacy has odrl:assignee ex:hrCompany.
-ex:onAdequacy has odrl:action odrl:distribute and ex:onAdequacy has odrl:target ex:employeeData.
-ex:onAdequacy has odrl:constraint ex:adequate.
-ex:adequate is a odrl:Constraint and ex:adequate has odrl:leftOperand ex:adequacyCovered.
-ex:adequate has odrl:operator odrl:eq and ex:adequate has odrl:rightOperand true.
+a transfer is allowed
+    if the transfer rests on an adequacy decision
+        or the transfer rests on appropriate safeguards
+        or the transfer rests on a derogation
+    and it is not the case that
+        the transfer is prohibited.
 
-ex:onClauses is a odrl:Permission and ex:onClauses has odrl:assignee ex:hrCompany.
-ex:onClauses has odrl:action odrl:distribute and ex:onClauses has odrl:target ex:employeeData.
-ex:onClauses has odrl:constraint ex:clauses and ex:onClauses has odrl:duty ex:assessment.
-ex:clauses is a odrl:Constraint and ex:clauses has odrl:leftOperand ex:clausesSigned.
-ex:clauses has odrl:operator odrl:eq and ex:clauses has odrl:rightOperand true.
-ex:assessment is a odrl:Duty and ex:assessment has odrl:action ex:assessTransferImpact.
+a transfer awaits a transfer impact assessment
+    if the transfer relies on standard contractual clauses
+    and it is not the case that
+        the transfer impact of the transfer is assessed.
 
-ex:onConsent is a odrl:Permission and ex:onConsent has odrl:assignee ex:hrCompany.
-ex:onConsent has odrl:action odrl:distribute and ex:onConsent has odrl:target ex:employeeData.
-ex:onConsent has odrl:constraint ex:derogation.
-ex:derogation is a odrl:LogicalConstraint and ex:derogation has odrl:and [ex:occasional, ex:explicitConsent].
-ex:occasional is a odrl:Constraint and ex:occasional has odrl:leftOperand ex:occasionalTransfer.
-ex:occasional has odrl:operator odrl:eq and ex:occasional has odrl:rightOperand true.
-ex:explicitConsent is a odrl:Constraint and ex:explicitConsent has odrl:leftOperand dpv:hasConsentStatus.
-ex:explicitConsent has odrl:operator odrl:eq and ex:explicitConsent has odrl:rightOperand dpv:ConsentGiven.
+a transfer has no legal basis
+    if the company plans the transfer of a category to a recipient
+    and it is not the case that
+        the transfer rests on an adequacy decision
+    and it is not the case that
+        the transfer relies on standard contractual clauses
+    and it is not the case that
+        the transfer rests on a derogation.
 
-ex:noHealthData is a odrl:Prohibition and ex:noHealthData has odrl:assignee ex:hrCompany.
-ex:noHealthData has odrl:action odrl:distribute and ex:noHealthData has odrl:target ex:employeeData.
-ex:noHealthData has odrl:constraint ex:health.
-ex:health is a odrl:Constraint and ex:health has odrl:leftOperand ex:carriesHealthData.
-ex:health has odrl:operator odrl:eq and ex:health has odrl:rightOperand true.
+scenario planned transfers is:
+    the Japan decision is an adequacy decision for Japan.
+    the Swiss decision is an adequacy decision for Switzerland.
+    the Data Privacy Framework is an adequacy decision for the United States.
+    the Data Privacy Framework covers only certified recipients.
+    the payroll provider is established in Japan.
+    the pension fund is established in Switzerland.
+    the support desk is established in the United States.
+    the support desk is certified under the Data Privacy Framework.
+    the analytics vendor is established in the United States.
+    the Indian helpdesk is established in India.
+    the relocation agent is established in Brazil.
+    the archive host is established in Brazil.
+    health data is a special category of data.
+    the company plans the payroll transfer of salary data to the payroll provider.
+    the company plans the pension transfer of salary data to the pension fund.
+    the company plans the support transfer of contact data to the support desk.
+    the company plans the analytics transfer of health data to the analytics vendor.
+    the analytics transfer relies on standard contractual clauses.
+    the transfer impact of the analytics transfer is assessed.
+    the company plans the helpdesk transfer of contact data to the Indian helpdesk.
+    the helpdesk transfer relies on standard contractual clauses.
+    the company plans the relocation transfer of contact data to the relocation agent.
+    the relocation transfer is occasional.
+    the employees gave explicit consent to the relocation transfer.
+    the company plans the archive transfer of contact data to the archive host.
+    allowed expects answers ["the payroll transfer is allowed", "the pension transfer is allowed",
+        "the support transfer is allowed", "the relocation transfer is allowed"].
+    prohibited expects answers ["the analytics transfer is prohibited"].
+    pending expects answers ["the helpdesk transfer awaits a transfer impact assessment"].
+    unfounded expects answers ["the archive transfer has no legal basis"].
 
-# The planned transfers: one request each, whose state records the
-# recipient, the personal data and any safeguard.
+query allowed is:
+    which transfer is allowed.
 
-ex:evaluation is a eval:Evaluation and ex:evaluation has eval:policy ex:groupPolicy.
-ex:evaluation has eval:conflictStrategy odrl:prohibit.
-For every T,
-if ex:hrCompany has ex:plans T
-then ex:evaluation has eval:request T and T is a eval:Request and T has odrl:assignee ex:hrCompany and
-T has odrl:action odrl:distribute and T has odrl:target ex:employeeData and T has eval:subject ex:employees.
-For every S, if S is a eval:State then S has eval:subject ex:employees.
+query prohibited is:
+    which transfer is prohibited.
 
-ex:hrCompany has ex:plans ex:payroll and ex:payroll has eval:state ex:payrollState.
-ex:payrollState is a eval:State and ex:payrollState has ex:recipient ex:payrollJapan.
-ex:payrollState has dpv:hasPersonalData pd:Salary.
-ex:hrCompany has ex:plans ex:pensions and ex:pensions has eval:state ex:pensionsState.
-ex:pensionsState is a eval:State and ex:pensionsState has ex:recipient ex:pensionsSwiss.
-ex:pensionsState has dpv:hasPersonalData pd:Salary.
-ex:hrCompany has ex:plans ex:support and ex:support has eval:state ex:supportState.
-ex:supportState is a eval:State and ex:supportState has ex:recipient ex:supportDesk.
-ex:supportState has dpv:hasPersonalData pd:EmailAddress.
-ex:hrCompany has ex:plans ex:analytics and ex:analytics has eval:state ex:analyticsState.
-ex:analytics has eval:fulfilledDuty ex:assessment.
-ex:analyticsState is a eval:State and ex:analyticsState has ex:recipient ex:analyticsVendor.
-ex:analyticsState has dpv:hasPersonalData pd:MedicalHealth and ex:analyticsState has ex:safeguard gdpr:StandardContractualClauses.
-ex:hrCompany has ex:plans ex:helpdesk and ex:helpdesk has eval:state ex:helpdeskState.
-ex:helpdeskState is a eval:State and ex:helpdeskState has ex:recipient ex:helpdeskIndia.
-ex:helpdeskState has dpv:hasPersonalData pd:Name and ex:helpdeskState has ex:safeguard gdpr:StandardContractualClauses.
-ex:hrCompany has ex:plans ex:relocation and ex:relocation has eval:state ex:relocationState.
-ex:relocationState is a eval:State and ex:relocationState has ex:recipient ex:relocationAgent.
-ex:relocationState has dpv:hasPersonalData pd:Name and ex:relocationState has ex:frequency ex:once.
-ex:relocationState has dpv:hasConsentStatus dpv:ConsentGiven.
-ex:hrCompany has ex:plans ex:archive and ex:archive has eval:state ex:archiveState.
-ex:archiveState is a eval:State and ex:archiveState has ex:recipient ex:archiveBrazil.
-ex:archiveState has dpv:hasPersonalData pd:Salary.
+query pending is:
+    which transfer awaits a transfer impact assessment.
 
-# Article 45: an adequacy decision for the recipient's country, and for a
-# certification scheme, the recipient's certification under it. Every
-# observation is derived as true or false, so none stays unknown.
-
-For every S and R and C and D,
-if S is a eval:State and S has ex:recipient R and R has dpv:hasLocation C and
-D is a gdpr:AdequacyDecision and D has ex:covers C and it is not known that D is a ex:CertificationScheme
-or S is a eval:State and S has ex:recipient R and R has dpv:hasLocation C and
-D is a gdpr:AdequacyDecision and D has ex:covers C and D is a ex:CertificationScheme and R has ex:certifiedUnder D
-then S has ex:adequacyCovered true.
-For every S, if S is a eval:State and it is not known that S has ex:adequacyCovered true then S has ex:adequacyCovered false.
-
-# Article 46(2)(c): standard contractual clauses; Article 49(1)(a): an
-# occasional transfer, whose explicit consent the state records.
-
-For every S, if S has ex:safeguard gdpr:StandardContractualClauses then S has ex:clausesSigned true.
-For every S, if S is a eval:State and it is not known that S has ex:clausesSigned true then S has ex:clausesSigned false.
-For every S, if S has ex:frequency ex:once then S has ex:occasionalTransfer true.
-For every S,
-if S is a eval:State and it is not known that S has ex:frequency ex:once
-then S has ex:occasionalTransfer false.
-
-# The policy's prohibition reads whether the transfer carries health data.
-
-For every S, if S has dpv:hasPersonalData pd:MedicalHealth then S has ex:carriesHealthData true.
-For every S,
-if S is a eval:State and it is not known that S has dpv:hasPersonalData pd:MedicalHealth
-then S has ex:carriesHealthData false.
+query unfounded is:
+    which transfer has no legal basis.

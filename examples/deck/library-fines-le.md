@@ -8,49 +8,58 @@
 
 ## The question
 
-A library charges a daily late fee that depends on the kind of item, 1 a day
-for books and 2 for DVDs, and the replacement cost of an item returned damaged
-or lost. How much does each member owe, how many of their loans were late,
-what was their longest delay, and who owes enough to be blocked?
+A library charges a daily late fee per kind of item: 1 for a book, 2 for a
+DVD. An item returned damaged or lost costs its replacement. What does each of
+Alice, Bob and Carol owe in total, how many of their loans were late, what was
+their longest delay, and who owes 10 or more and is blocked?
 
 ---
 
 ## What we tell eyemind
 
-A late fee is a calculation: days late times the daily rate of the item's
-kind. A replacement charge has two alternatives joined with `or`, damaged or
-lost, so it compiles to two LS rules that conclude the same charge.
+A loan is a sentence such as `l1 is a loan of atlas to Alice returned 3 days
+late.` The late-fee rule multiplies the days by the daily rate with
+`the fee = N * R`. Two rules charge a replacement: one for a damaged item, and
+one for a lost item that `it is not the case that` was damaged. Alice's loan l3
+is recorded as both, and it is charged once.
 
-Three aggregates then summarize each member:
-
-```text
-T is the sum of F for every C and F such that charge(M, C, F)
-N is the number of L and I and D such that (loan(L, M, I, D) and D is greater than 0)
-W is the maximum of D for every L and I and D such that loan(L, M, I, D)
-```
-
-An aggregate declares its own variables after `for every` or `the number of`;
-they stay inside it. It takes each distinct combination of their values once,
-and a conjunction in its condition is put in parentheses. A member who owes
-10 or more is a blocked member.
+The aggregates follow Logical English: `the total is the sum of each amount
+such that the member owes the amount for a loan` adds every charge it finds,
+and the count and maximum work the same way. The sum and the count of nothing
+are 0, so Carol owes 0; the maximum of nothing does not exist, but each member
+has a loan.
 
 ---
 
 ## What eyemind concludes
 
-```js
-amountDue(11, 'Alice')
-amountDue(4, 'Bob')
-amountDue(0, 'Carol')
-lateLoanCount(2, 'Alice')
-longestDelay(4, 'Bob')
-blockedMember('Alice')
+```text
+% query totals with scenario accounts
+Alice owes 11 in total.
+Bob owes 4 in total.
+Carol owes 0 in total.
+
+% query late with scenario accounts
+Alice has 2 late loans.
+Bob has 1 late loans.
+Carol has 0 late loans.
+
+% query delays with scenario accounts
+the longest delay of Alice is 3 days.
+the longest delay of Bob is 4 days.
+the longest delay of Carol is 0 days.
+
+% query blocked with scenario accounts
+Alice is blocked.
 ```
 
-Alice owes 3 for the atlas, 2 for the film and 6 to replace the poems. That
-loan is recorded as both damaged and lost: both alternatives conclude the same
-charge, which is one combination of charge and amount, so it is counted once.
-Carol has no charges; the sum over nothing is 0, as is her late-loan count.
+Alice owes 3 for the atlas, 2 for the film and 6 to replace the poems. The
+check report holds the answers as terms:
+
+```js
+struct('le:answer', 'totals', 'accounts', 'Alice', 11)
+struct('le:answer', 'blocked', 'accounts', 'Alice')
+```
 
 ---
 
@@ -58,10 +67,9 @@ Carol has no charges; the sum over nothing is 0, as is her late-loan count.
 
 The saved proof is **checked** against the compiled LS program. Each aggregate
 is a collection of every solution of its condition, which the checker decides
-from complete tables of the charges and loans, followed by backward rules
-that remove repeated combinations and fold the rest. The totals therefore
-rest on all of a member's charges, not only on the ones a search happened to
-find.
+from complete tables of the charges and loans, followed by backward rules that
+fold the collected values. The totals therefore rest on all of a member's
+charges, not only on the ones a search happened to find.
 
 ---
 
@@ -75,4 +83,5 @@ node bin/eyemind.js --check-proof examples/proof/library-fines-le.js examples/li
 ```
 
 Return Bob's novel 6 days late instead of 4: he owes 6 and is still not
-blocked. Raise the DVD rate to 3 and Alice owes 12.
+blocked. Raise the DVD rate to 3 and Alice owes 12. Either change makes the
+output report that the answers are not as expected.

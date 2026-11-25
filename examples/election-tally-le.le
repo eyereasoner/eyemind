@@ -1,60 +1,115 @@
-# A plurality election with registered and verified provisional voters. A
-# voter who chooses two different candidates spoils their vote; a repeated
-# ballot for the same candidate counts once. Hana and Ravi tie with three votes
-# each and both win; turnout meets the quorum of half the eligible voters.
-# Shows "or" premises, counting distinct values through a derived relation,
-# an absence test inside an aggregate, and a maximum that keeps ties.
+% A plurality election with registered and verified provisional voters. A
+% voter who chooses two different candidates spoils their vote; a repeated
+% ballot for the same candidate counts once. Hana and Ravi tie with three
+% votes each and both win; turnout meets the quorum of half the eligible
+% voters.
+% Shows alternatives grouped by indentation, negation that keeps only a
+% voter's first ballot, counting, and a maximum that keeps ties.
 
-Hana is a candidate and Ravi is a candidate and Sven is a candidate.
+the templates are:
+    *a candidate* stands for election,
+    *a voter* is registered,
+    *a voter* is a provisional voter,
+    *a voter* is verified,
+    *a voter* casts ballot *a number* for *a candidate*,
+    *a voter* is eligible,
+    *a voter* spoils their vote,
+    *a voter* has a counted ballot for *a candidate*,
+    *a voter* takes part,
+    *a candidate* receives *a number* votes,
+    *a candidate* wins,
+    the quorum is met.
 
-v1 is registered and v2 is registered and v3 is registered and v4 is registered.
-v5 is registered and v6 is registered and v7 is registered and v8 is registered.
-v9 is a provisionalVoter and v9 is verified.
-v10 is a provisionalVoter.
-v11 is registered and v12 is registered.
+the knowledge base election includes:
 
-# ballot(Ballot, Voter, Candidate)
-ballot(b1, v1, Hana).
-ballot(b2, v2, Hana).
-ballot(b3, v3, Ravi).
-ballot(b4, v4, Ravi).
-ballot(b5, v5, Sven).
-ballot(b6, v6, Hana).
-ballot(b7, v6, Hana).
-ballot(b8, v7, Hana).
-ballot(b9, v7, Sven).
-ballot(b10, v9, Ravi).
-ballot(b11, v10, Sven).
+a voter is eligible
+    if the voter is registered
+    or the voter is a provisional voter
+        and the voter is verified.
 
-For every V, if V is registered or V is a provisionalVoter and V is verified
-then V is an eligibleVoter.
+a voter spoils their vote
+    if the voter casts ballot a number for a candidate
+    and the voter casts ballot a second number for an other candidate
+    and the other candidate is different from the candidate.
 
-# A choice drops the ballot, so counting choices counts candidates, not ballots.
-For every B and V and C, if ballot(B, V, C) then choice(V, C).
-For every V and C, if V is an eligibleVoter and choice(V, C) then V is a participant.
+% Of the ballots a voter casts for a candidate, only the first counts.
+a voter has a counted ballot for a candidate
+    if the voter is eligible
+    and the voter casts ballot a number for the candidate
+    and it is not the case that
+        the voter spoils their vote
+    and it is not the case that
+        the voter casts ballot a second number for the candidate
+        and the second number < the number.
 
-For every V and N,
-if V is a participant and N is the number of C such that choice(V, C) and N is at least 2
-then V is a spoiledVoter.
+a candidate receives a number N votes
+    if the candidate stands for election
+    and N is the count of each voter such that
+        the voter has a counted ballot for the candidate.
 
-For every C and N,
-if C is a candidate and N is the number of V such that
-(choice(V, C) and V is an eligibleVoter and it is not known that V is a spoiledVoter)
-then N is a voteCount of C.
+% Every candidate with the highest count wins, so a tie keeps both.
+a candidate wins
+    if the candidate receives a number N votes
+    and a number M is the max of each V such that
+        an other candidate receives V votes
+    and N = M.
 
-# Every candidate with the highest count wins, so a tie keeps both.
-For every C and N and W,
-if N is a voteCount of C and W is the maximum of M for every D and M such that M is a voteCount of D
-and N is equal to W
-then C is a winner.
+% An eligible voter takes part with their first ballot, spoiled or not.
+a voter takes part
+    if the voter is eligible
+    and the voter casts ballot a number for a candidate
+    and it is not the case that
+        the voter casts ballot a second number for an other candidate
+        and the second number < the number.
 
-For every T and R and H,
-if T is the number of V such that V is a participant
-and R is the number of U such that U is an eligibleVoter
-and H is the value of T * 2 and H is at least R
-then quorumMet.
+the quorum is met
+    if a number T is the count of each voter such that
+        the voter takes part
+    and a number R is the count of each other voter such that
+        the other voter is eligible
+    and T * 2 >= R.
 
-Find every N and C such that N is a voteCount of C.
-Find every V such that V is a spoiledVoter.
-Find every C such that C is a winner.
-Find whether quorumMet.
+scenario count is:
+    Hana stands for election.
+    Ravi stands for election.
+    Sven stands for election.
+    v1 is registered.
+    v2 is registered.
+    v3 is registered.
+    v4 is registered.
+    v5 is registered.
+    v6 is registered.
+    v7 is registered.
+    v8 is registered.
+    v9 is a provisional voter.
+    v9 is verified.
+    v10 is a provisional voter.
+    v11 is registered.
+    v12 is registered.
+    v1 casts ballot 1 for Hana.
+    v2 casts ballot 2 for Hana.
+    v3 casts ballot 3 for Ravi.
+    v4 casts ballot 4 for Ravi.
+    v5 casts ballot 5 for Sven.
+    v6 casts ballot 6 for Hana.
+    v6 casts ballot 7 for Hana.
+    v7 casts ballot 8 for Hana.
+    v7 casts ballot 9 for Sven.
+    v9 casts ballot 10 for Ravi.
+    v10 casts ballot 11 for Sven.
+    votes expects answers ["Hana receives 3 votes", "Ravi receives 3 votes", "Sven receives 1 votes"].
+    spoiled expects answers ["v7 spoils their vote"].
+    winners expects answers ["Hana wins", "Ravi wins"].
+    quorum expects answers ["the quorum is met"].
+
+query votes is:
+    which candidate receives which number votes.
+
+query spoiled is:
+    which voter spoils their vote.
+
+query winners is:
+    which candidate wins.
+
+query quorum is:
+    the quorum is met.

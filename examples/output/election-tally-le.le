@@ -1,7 +1,14 @@
-v7 is a spoiledVoter.
-quorumMet.
-3 is a voteCount of Hana.
-3 is a voteCount of Ravi.
-1 is a voteCount of Sven.
-Hana is a winner.
-Ravi is a winner.
+% query votes with scenario count
+Hana receives 3 votes.
+Ravi receives 3 votes.
+Sven receives 1 votes.
+
+% query spoiled with scenario count
+v7 spoils their vote.
+
+% query winners with scenario count
+Hana wins.
+Ravi wins.
+
+% query quorum with scenario count
+the quorum is met.
