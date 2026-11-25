@@ -19,8 +19,7 @@ What can a program establish about ζ, exactly and numerically? This example
 continues the [complex numbers](https://eyereasoner.github.io/eyemind/examples/deck/complex)
 and [polynomial roots](https://eyereasoner.github.io/eyemind/examples/deck/polynomial)
 examples, from roots of polynomials to zeros of a function defined by a
-series. The [Logical English version](https://eyereasoner.github.io/eyemind/examples/deck/zeta-le)
-states the same computation in sentences.
+series.
 
 ---
 
@@ -86,8 +85,8 @@ euler_agrees(2, 1.6449340668482264, 1.6449340668482264)
 The exact values are exact: B₁₂ is the reduced fraction −691/2730, and
 ζ(12) is 691π¹²/638512875. The zeros are numerical, with |ζ| about 10⁻¹⁵ at
 the three heights. Here the series gives ζ(2) equal to π²/6 in every digit
-of a binary64 float; the Logical English version adds its terms in another
-order and differs in the last digit.
+of a binary64 float; adding the terms in another order can change the last
+digit.
 
 ---
 
@@ -101,7 +100,9 @@ on another implementation, so the numerical results are checked for this
 host.
 
 None of this proves the Riemann hypothesis. Three zeros on the critical
-line, found to within 10⁻¹², are evidence at three points. Billions of
+line, found to within 10⁻¹², are evidence at three points; the
+[zeros on the critical line](https://eyereasoner.github.io/eyemind/examples/deck/zeta-zeros)
+example proves those three with exact interval arithmetic. Billions of
 zeros have been verified numerically, and none lies off the line, but a
 proof must cover all of them.
 

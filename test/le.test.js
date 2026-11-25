@@ -113,10 +113,6 @@ Find whether ex:study has personalDataWithin pd:Contact.`;
     // and, or and not stay LE words; an unknown name is still not an operand.
     assert.match(errorOf(() => compileLe([['For every Y, if Y is the value of frob(1) then Y is a result.', 'x.le']])),
       /arithmetic operands must be numbers or declared variables/);
-    const zeta = cli(['examples/zeta-le.le']);
-    assert.equal(zeta.code, 0, zeta.stderr);
-    assert.match(zeta.stdout, /^zetaAtNegative\(1, -1, 12\)\.$/m);
-    assert.match(zeta.stdout, /^firstZero is a criticalLineZero\.$/m);
   },
 
   'explicit absence differs from negative evidence and waits for derived facts'() {

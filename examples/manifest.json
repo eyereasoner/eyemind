@@ -161,6 +161,10 @@
     "description": "Exact Bernoulli numbers give zeta at the negative and even integers, and Borwein's series over complex terms finds zeros on Riemann's critical line"
   },
   {
+    "name": "zeta-zeros",
+    "description": "Exact interval arithmetic proves sign changes of Hardy's Z, so the first three zeros of zeta lie on Riemann's critical line"
+  },
+  {
     "name": "interval-relations",
     "description": "All thirteen interval relations and endpoint completion"
   },
@@ -903,11 +907,6 @@
     "name": "river-crossing-le",
     "files": ["river-crossing-le.le"],
     "description": "Compound states and safety constraints find both seven-crossing wolf, goat and cabbage plans"
-  },
-  {
-    "name": "zeta-le",
-    "files": ["zeta-le.le"],
-    "description": "Exact Bernoulli numbers give zeta at the negative and even integers, and Borwein's series finds zeros on Riemann's critical line"
   },
   {
     "name": "pell-equation-le",

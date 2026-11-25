@@ -15,9 +15,9 @@
 //
 // It shows exact big integers next to binary64 floats, forward rules that
 // tabulate factorials and Borwein's weights once, and backward rules that
-// sum series by recursion. The zeta-le example states the same in Logical
-// English. This checks known zeros numerically; it is evidence for the
-// hypothesis at three points, not a proof.
+// sum series by recursion. This checks known zeros numerically; it is
+// evidence for the hypothesis at three points, not a proof; the zeta-zeros
+// example proves them with exact interval arithmetic.
 //
 // Sources: B. Riemann, Ueber die Anzahl der Primzahlen unter einer gegebenen
 // Groesse (1859); L. Euler, De summis serierum reciprocarum (1740);
