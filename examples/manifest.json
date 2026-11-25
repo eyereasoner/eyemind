@@ -157,6 +157,10 @@
     "description": "Complex roots of polynomials up to degree 4 by Cardan and Lagrange"
   },
   {
+    "name": "zeta",
+    "description": "Exact Bernoulli numbers give zeta at the negative and even integers, and Borwein's series over complex terms finds zeros on Riemann's critical line"
+  },
+  {
     "name": "interval-relations",
     "description": "All thirteen interval relations and endpoint completion"
   },

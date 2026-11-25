@@ -148,6 +148,7 @@ Each deck explains the result and links to the source and Playground.
 - [Symbolic Derivative](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative) (Logic Script) — Symbolic differentiation of structured formulas by the sum, product, quotient, power and chain rules
 - [Symbolic differentiation](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative-le) (Logical English) — Structural rules differentiate a cubic expression and evaluate the resulting tree at two points
 - [The Sieve of Eratosthenes](https://eyereasoner.github.io/eyemind/examples/deck/sieve) (Logic Script) — The sieve of Eratosthenes over an explicit list of integers
+- [The zeta function](https://eyereasoner.github.io/eyemind/examples/deck/zeta) (Logic Script) — Exact Bernoulli numbers give zeta at the negative and even integers, and Borwein's series over complex terms finds zeros on Riemann's critical line
 - [The zeta function](https://eyereasoner.github.io/eyemind/examples/deck/zeta-le) (Logical English) — Exact Bernoulli numbers give zeta at the negative and even integers, and Borwein's series finds zeros on Riemann's critical line
 - [Type Inference](https://eyereasoner.github.io/eyemind/examples/deck/type-inference) (Logic Script) — Typing rules for a small expression language, run as a checker
 

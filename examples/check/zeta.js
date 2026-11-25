@@ -1,0 +1,51 @@
+// Checked answers: these follow from the input program and are every answer of its questions.
+bernoulli(1, 1, 2)
+bernoulli(0, 1, 1)
+zeta_at_negative(0, -1, 2)
+bernoulli(2, 1, 6)
+zeta_at_negative(1, -1, 12)
+zeta_at_even(2, 1, 6)
+bernoulli(3, 0, 1)
+zeta_at_negative(2, 0, 1)
+trivial_zero(-2)
+bernoulli(4, -1, 30)
+zeta_at_negative(3, 1, 120)
+zeta_at_even(4, 1, 90)
+bernoulli(5, 0, 1)
+zeta_at_negative(4, 0, 1)
+trivial_zero(-4)
+bernoulli(6, 1, 42)
+zeta_at_negative(5, -1, 252)
+zeta_at_even(6, 1, 945)
+bernoulli(7, 0, 1)
+zeta_at_negative(6, 0, 1)
+trivial_zero(-6)
+bernoulli(8, -1, 30)
+zeta_at_negative(7, 1, 240)
+zeta_at_even(8, 1, 9450)
+bernoulli(9, 0, 1)
+zeta_at_negative(8, 0, 1)
+trivial_zero(-8)
+bernoulli(10, 5, 66)
+zeta_at_negative(9, -1, 132)
+zeta_at_even(10, 1, 93555)
+bernoulli(11, 0, 1)
+zeta_at_negative(10, 0, 1)
+trivial_zero(-10)
+bernoulli(12, -691, 2730)
+zeta_at_even(12, 691, 638512875)
+critical_line_zero('first_zero')
+critical_line_zero('second_zero')
+critical_line_zero('third_zero')
+nonzero_point('not_a_zero', 1.1478424121852016)
+euler_agrees(2, 1.6449340668482264, 1.6449340668482264)
+
+// Proof check (SPEC 11.2-11.6):
+// Questions: every claim is an answer, and every required answer is claimed.
+// Call tables: every consulted table matches its one-level expansion against the program.
+// Derived listings: every consulted listing is closed under the forward rules.
+// Replay: every required firing replays from no bindings; primitives, controls and
+// Skolem witnesses are checked at the bindings where they run.
+// Evidence: every recorded step, call table and listing is used by the check.
+
+verdict('checked')

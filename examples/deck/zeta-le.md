@@ -19,6 +19,8 @@ What can a program establish about ζ, exactly and numerically? This example
 continues the [complex numbers](https://eyereasoner.github.io/eyemind/examples/deck/complex)
 and [polynomial roots](https://eyereasoner.github.io/eyemind/examples/deck/polynomial)
 examples, from roots of polynomials to zeros of a function defined by a series.
+The [Logic Script version](https://eyereasoner.github.io/eyemind/examples/deck/zeta)
+computes the same with complex terms and recursive sums.
 
 ---
 
