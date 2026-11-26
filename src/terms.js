@@ -567,14 +567,14 @@ export class TermIds {
     return id;
   }
 
-  // The number of a compound with this name and these argument numbers,
-  // the last arity entries of ids.
-  compound(name, arity, ids) {
-    const nameId = this.leaf(name);
+  // The table slot of a compound with this name number and these argument
+  // numbers, the last arity entries of ids: the slot holding it, or the free
+  // slot it would take.
+  slot(nameId, arity, ids) {
     const base = ids.length - arity;
     let hash = Math.imul(nameId ^ 0x9e3779b9, 0x85ebca6b) ^ arity;
     for (let i = base; i < ids.length; i++) hash = Math.imul(hash ^ ids[i], 0x01000193);
-    let mask = this.table.length - 1;
+    const mask = this.table.length - 1;
     let slot = (hash ^ (hash >>> 15)) & mask;
     for (let entry; (entry = this.table[slot]) !== 0; slot = (slot + 1) & mask) {
       const id = entry - 1;
@@ -582,10 +582,20 @@ export class TermIds {
       const start = this.starts[id];
       let same = true;
       for (let i = 0; i < arity && same; i++) same = this.args[start + i] === ids[base + i];
-      if (same) {
-        ids.length = base;
-        return id;
-      }
+      if (same) return slot;
+    }
+    return slot;
+  }
+
+  // The number of a compound with this name and these argument numbers,
+  // the last arity entries of ids, which it takes off.
+  compound(name, arity, ids) {
+    const nameId = this.leaf(name);
+    const base = ids.length - arity;
+    const slot = this.slot(nameId, arity, ids);
+    if (this.table[slot] !== 0) {
+      ids.length = base;
+      return this.table[slot] - 1;
     }
     const id = this.next();
     this.names[id] = nameId;
@@ -613,6 +623,58 @@ export class TermIds {
       table[slot] = entry;
     }
     this.table = table;
+  }
+
+  // The number a term has, read through env, without numbering anything: -1
+  // when it holds an unbound variable, -2 when it has no number yet.
+  find(term, env) {
+    const { stack, ids } = this;
+    stack.length = 0;
+    ids.length = 0;
+    stack.push(term, false);
+    while (stack.length) {
+      const done = stack.pop();
+      let item = stack.pop();
+      if (done) {
+        const nameId = this.atoms.get(item.name);
+        const arity = item.args.length;
+        const slot = nameId === undefined ? -1 : this.slot(nameId, arity, ids);
+        if (slot < 0 || this.table[slot] === 0) {
+          stack.length = 0;
+          return -2;
+        }
+        ids.length -= arity;
+        ids.push(this.table[slot] - 1);
+        continue;
+      }
+      if (item instanceof Var) {
+        item = deref(item, env);
+        if (item instanceof Var) {
+          stack.length = 0;
+          return -1;
+        }
+      }
+      if (item instanceof Struct) {
+        if (item.numbering === this) {
+          ids.push(item.number);
+          continue;
+        }
+        stack.push(item, true);
+        for (let i = item.args.length - 1; i >= 0; i--) stack.push(item.args[i], false);
+        continue;
+      }
+      let id;
+      if (typeof item === 'string') id = this.atoms.get(item);
+      else if (typeof item === 'bigint') id = this.ints.get(item);
+      else if (Object.is(item, -0)) id = this.negativeZero < 0 ? undefined : this.negativeZero;
+      else id = this.floats.get(item);
+      if (id === undefined) {
+        stack.length = 0;
+        return -2;
+      }
+      ids.push(id);
+    }
+    return ids.pop();
   }
 
   // The number of a ground term, or -1 when it holds a variable. Compounds

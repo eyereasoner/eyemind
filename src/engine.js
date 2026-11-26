@@ -1050,6 +1050,13 @@ export class Solver {
     // memory by the new facts rather than the firings, as in a closure
     // where many firings derive each fact.
     const plain = !this.recording && !clause.templates.length && clause.guard === null && !this.program.inspectionEnabled;
+    // Whether a firing with these keys, chosen so, would publish nothing:
+    // its facts are known, or an earlier duplicate was chosen no later.
+    const redundant = (keys, chosen) => {
+      if (keys.every((k) => this.factKeys.has(k))) return true;
+      const earlier = this.pendingFirings.get(keys.length === 1 ? keys[0] : keys.join('\u0000'));
+      return earlier !== undefined && !(chosen !== null && earlier[1] !== null && compareChosen(chosen, earlier[1]) < 0);
+    };
     const publish = (keys, firing, chosen) => {
       if (keys.every((k) => this.factKeys.has(k))) return;
       const id = keys.length === 1 ? keys[0] : keys.join('\u0000');
@@ -1065,7 +1072,18 @@ export class Solver {
       this.pendingFirings.set(id, entry);
       found.push(entry);
     };
+    // The heads as the rule writes them, renamed: whether a firing is
+    // redundant shows in the numbers its conclusions already have, without
+    // copying them.
+    const heads = plain ? flattenConjunction(head) : null;
+    const known = heads !== null && !heads.includes('true') && !heads.includes('false');
+    const numbers = known ? new Array(heads.length) : null;
+    const numbered = (env) => {
+      for (let i = 0; i < heads.length; i++) if ((numbers[i] = this.termIds.find(heads[i], env)) < 0) return false;
+      return true;
+    };
     for (const [answerEnv, nodes] of this.guarded(clause, body[body.length - 1], solve())) {
+      if (known && numbered(answerEnv) && redundant(numbers, this.chosen)) continue;
       const mark = answerEnv.mark();
       const resolved = copyResolved(head, answerEnv);
       if (plain) {

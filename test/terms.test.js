@@ -101,6 +101,27 @@ export const tests = {
     assert.equal(ids.of(readTerm(`[${Array.from({ length: 100000 }, (_, i) => i).join(', ')}]`)) >= 0, true);
   },
 
+  'finding a term number reads bindings and numbers nothing'() {
+    const ids = new TermIds();
+    const x = new Var('X');
+    const y = new Var('Y');
+    const known = [readTerm("f('a', g(1, float(2)))"), readTerm("p(['a', 'b'], 'c')"), 0, -0, 1n];
+    const numbers = known.map((term) => ids.of(term));
+    const env = new Env();
+    assert.equal(ids.find(new Struct('f', [x, y]), env), -1);
+    unify(x, 'a', env);
+    unify(y, readTerm('g(1, float(2))'), env);
+    assert.equal(ids.find(new Struct('f', [x, y]), env), numbers[0]);
+    assert.equal(ids.find(readTerm("p(['a', 'b'], 'c')"), env), numbers[1]);
+    assert.deepEqual([ids.find(0, env), ids.find(-0, env), ids.find(1n, env)], numbers.slice(2));
+    const count = ids.count;
+    for (const unknown of [new Struct('f', [x, 'a']), 'z', 3n, 1, readTerm("f('a', g(2, float(2)))"), readTerm("q('a')")]) {
+      assert.equal(ids.find(unknown, env), -2, write(unknown));
+    }
+    assert.equal(ids.count, count);
+    assert.equal(ids.find(new Struct('f', [x, new Var('Z')]), env), -1);
+  },
+
   'matching a ground term binds as unification does'() {
     const x = new Var('X');
     const y = new Var('Y');
