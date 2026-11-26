@@ -281,6 +281,39 @@ export function unify(left, right, env) {
   return true;
 }
 
+// Unify a term with a ground one, such as a fact. No variable can occur in a
+// ground term, so this skips the occurs check, and every binding it makes
+// is to a part of the ground term.
+export function match(term, ground, env) {
+  const pending = [term, ground];
+  while (pending.length) {
+    const b = pending.pop();
+    let a = pending.pop();
+    if (a instanceof Var) a = deref(a, env);
+    if (a === b) continue;
+    if (a instanceof Var) {
+      env.bind(a, b);
+    } else if (a instanceof Struct) {
+      if (!(b instanceof Struct) || a.name !== b.name || a.args.length !== b.args.length) return false;
+      const argsA = a.args;
+      const argsB = b.args;
+      for (let i = argsA.length - 1; i >= 0; i--) {
+        const argA = argsA[i];
+        const argB = argsB[i];
+        if (argA === argB) continue;
+        if (!(argA instanceof Var) && !(argA instanceof Struct)) {
+          if (!sameConstant(argA, argB)) return false;
+          continue;
+        }
+        pending.push(argA, argB);
+      }
+    } else if (b instanceof Struct || !sameConstant(a, b)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 // Rename a term's variables apart. A subterm without variables is shared.
 // unique says no other variable of the run gets this suffix (see Var).
 export function freshTerm(term, suffix, names = new Map(), unique = false) {

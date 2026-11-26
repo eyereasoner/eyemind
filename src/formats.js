@@ -20,7 +20,7 @@
 // The compiled program is ordinary LS: proofs, checking and --unused
 // apply to it. SRL execution functions capture a context that a saved proof
 // retains; compiling with that context reproduces the same program later.
-import { EyemindError, Struct, Var } from './terms.js';
+import { EyemindError, Struct, Var, identity, isGround } from './terms.js';
 import { loadSources } from './lang.js';
 import { readTerms } from './reader.js';
 import { DEFAULT_GRAPH, parseRdf, rdfDocument, rdfFormat, writeRdf } from './rdf.js';
@@ -225,19 +225,26 @@ export function writeConclusions(loaded, result, { format, all = false, blankNod
     return resultToN3(loaded.compiled.doc, result, { mode: all ? 'all' : 'new', blankNodePrefix }).n3;
   }
   let quads;
-  if (loaded.kind === 'srl') quads = srlQuads(loaded.compiled, srlAnswers(result), { all });
-  else quads = conclusionQuads(result.answers, all ? loaded.text : null);
+  if (loaded.kind === 'srl') {
+    quads = srlQuads(loaded.compiled, srlAnswers(result), { all });
+  } else {
+    // Ground conclusions need not be written and read back.
+    const terms = result.conclusions?.every((term) => isGround(term)) ? result.conclusions : null;
+    quads = conclusionQuads(terms ?? result.answers, all ? loaded.text : null, [], terms !== null);
+  }
   return writeRdf(quads, { format, prefixes: loaded.kind === 'n3' ? Object.fromEntries(loaded.prefixes) : loaded.prefixes, blankNodePrefix });
 }
 
 // Conclusions that are triples, rdf/3 or result/3, or quads, rdf/4 or
 // result_rdf/4, as quads; given, the program's own rdf facts come first.
-function conclusionQuads(answers, given, facts = []) {
+// The answers are terms, or else their texts, which name their variables as
+// the run's answers do.
+function conclusionQuads(answers, given, facts = [], terms = false) {
   const quads = [];
   const seen = new Set();
   const add = (t) => {
     const quad = t.args.length === 3 ? [...t.args, DEFAULT_GRAPH] : t.args;
-    const key = quad.map((x) => (x === DEFAULT_GRAPH ? x : write(x))).join(' ');
+    const key = identity(new Struct('quad', quad));
     if (!seen.has(key)) {
       seen.add(key);
       quads.push(quad);
@@ -250,11 +257,11 @@ function conclusionQuads(answers, given, facts = []) {
   }
   for (const fact of facts) add(fact);
   for (const answer of answers) {
-    const [[t]] = readTerms(answer);
+    const t = terms ? answer : readTerms(answer)[0][0];
     if (t === 'false') continue;
     const triple = t instanceof Struct && ['rdf', 'result', 'inf'].includes(t.name) && t.args.length === 3;
     const quad = t instanceof Struct && ['rdf', 'result_rdf'].includes(t.name) && t.args.length === 4;
-    if (!triple && !quad) throw new EyemindError(`${answer} is no triple; write rdf(S, P, O) or rdf(S, P, O, G) conclusions, or leave out --to`);
+    if (!triple && !quad) throw new EyemindError(`${terms ? write(answer) : answer} is no triple; write rdf(S, P, O) or rdf(S, P, O, G) conclusions, or leave out --to`);
     add(t);
   }
   return quads;

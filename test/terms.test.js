@@ -1,5 +1,5 @@
 import { EyemindError, Struct, Var, readTerm, run, write } from '../src/index.js';
-import { Env, TermIds, compareTerms, copyResolved, deref, identity, indexKey, unify } from '../src/terms.js';
+import { Env, TermIds, compareTerms, copyResolved, deref, identity, indexKey, match, unify } from '../src/terms.js';
 import { assert, program, proven, throwsMatching } from './helpers.js';
 
 const order = (left, right) => run(program(''), { goal: `compare(O, ${left}, ${right})` }).bindings[0].O;
@@ -99,6 +99,26 @@ export const tests = {
     assert.equal(ids.of(new Var('X')), -1);
     assert.equal(ids.of(new Struct('f', ['a', new Struct('g', [new Var('X')])])), -1);
     assert.equal(ids.of(readTerm(`[${Array.from({ length: 100000 }, (_, i) => i).join(', ')}]`)) >= 0, true);
+  },
+
+  'matching a ground term binds as unification does'() {
+    const x = new Var('X');
+    const y = new Var('Y');
+    const ground = [1n, 1, 0, -0, 'a', new Struct('f', ['a', 1n]), new Struct('f', [new Struct('g', [0]), 'b']),
+      new Struct('p', ['a', 'a']), new Struct('p', ['a', 'b']), new Struct('p', [new Struct('f', ['a', 1n]), new Struct('f', ['a', 1n])])];
+    const patterns = [x, 1n, 1, -0, 'a', new Struct('f', [x, y]), new Struct('f', [new Struct('g', [x]), y]), new Struct('p', [x, x]),
+      new Struct('p', [new Struct('f', [x, y]), x]), new Struct('p', [y, new Struct('f', ['a', x])])];
+    for (const pattern of patterns) for (const term of ground) {
+      for (const bound of [false, true]) {
+        const left = new Env();
+        const right = new Env();
+        if (bound) for (const env of [left, right]) unify(y, 'a', env);
+        const unified = unify(pattern, term, left);
+        const matched = match(pattern, term, right);
+        assert.equal(matched, unified, `${write(pattern)} with ${write(term)}`);
+        if (unified) assert.equal(write(copyResolved(pattern, right)), write(copyResolved(pattern, left)));
+      }
+    }
   },
 
   'identity distinguishes signed zero while unification and order equate it'() {

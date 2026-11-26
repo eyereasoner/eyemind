@@ -36,6 +36,7 @@ export class Clause {
     this.scopeIds = [];
     this.extraTerms = [];
     this.renaming = null; // how to rename it apart, worked out once it is used often
+    this.citation = null; // clause(Id), cited by the facts it derives, made once it derives one
     this.uses = 0;
     this.witnessed = null;
   }
@@ -501,8 +502,14 @@ function stratify(clauses, stratifying) {
         const named = !(depGoal instanceof Var);
         if (!named) dynamic.add(clause.id);
         const candidates = named ? headCandidates(index.get(key(depGoal)), depGoal) : everyHead;
+        // A source fact depends on nothing, so its rank stays 0: one matching
+        // fact ranks the goal as all of them would.
+        let factMatched = false;
         for (const [candidateClause, head] of candidates) {
+          const fact = !candidateClause.forward && !candidateClause.body.length && candidateClause.parentId === null;
+          if (fact && factMatched) continue;
           if (unify(freshTerm(depGoal, 'dependency'), freshTerm(head, 'head'), new Env())) {
+            if (fact) factMatched = true;
             const edge = [clause.id, candidateClause.id, closed];
             edges.push(edge);
             if (!outgoing.has(clause.id)) outgoing.set(clause.id, []);

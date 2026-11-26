@@ -10,7 +10,7 @@ import { CONTROL_KEYS, Program } from './program.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
   identity, indexKey, isAnonymous, isCallable, isGround, isGroundButAnonymous, isTerm, key, keyArity, listFromItems,
-  sortCollected, TermIds, unify, variables,
+  match, sortCollected, TermIds, unify, variables,
 } from './terms.js';
 import { Lettering, SourceNaming, write } from './writer.js';
 
@@ -564,9 +564,9 @@ export class Solver {
         this.factIndex.set(goalKey, positions);
       }
       const keys = node.goal.args.map((arg) => indexKey(arg));
-      keys.forEach((argument, position) => {
-        if (argument !== undefined) addToBucket(positions[position], argument, number);
-      });
+      for (let position = 0; position < arity; position++) {
+        if (keys[position] !== undefined) addToBucket(positions[position], keys[position], number);
+      }
       if (arity > 1) {
         let pairs = this.pairIndex.get(goalKey);
         if (pairs === undefined) {
@@ -574,7 +574,8 @@ export class Solver {
           this.pairIndex.set(goalKey, pairs);
         }
         for (let position = 0; position + 1 < arity; position++) {
-          const [first, second] = [keys[position], keys[position + 1]];
+          const first = keys[position];
+          const second = keys[position + 1];
           if (first === undefined || second === undefined) continue;
           let inner = pairs[position].get(first);
           if (inner === undefined) pairs[position].set(first, inner = new Map());
@@ -661,8 +662,9 @@ export class Solver {
         let index = point.start + position;
         if (point.order !== null) index = point.order[index];
         let fact = point.facts[index];
-        if (fact.generic) fact = freshNode(fact, ++this.serial);
-        if (unify(point.goal, fact.goal, env)) {
+        const generic = fact.generic;
+        if (generic) fact = freshNode(fact, ++this.serial);
+        if (generic ? unify(point.goal, fact.goal, env) : match(point.goal, fact.goal, env)) {
           if (windowed) this.chosen[point.frame.index] = [0, index];
           return this.advance(point.frame, fact);
         }
@@ -869,7 +871,7 @@ export class Solver {
     const found = [];
     const env = new Env();
     const add = (fact) => {
-      if (unify(goal, fact, env)) {
+      if (match(goal, fact, env)) {
         const conclusions = flattenConjunction(copyResolved(clause.head, env));
         const claim = conclusions.includes('true') ? copyResolved(goal, env) : null;
         found.push([conclusions, NO_NODES, NO_NODES, claim, null]);
@@ -978,7 +980,7 @@ export class Solver {
         while (state.next < state.stop) {
           const index = state.order === null ? state.next : state.order[state.next];
           state.next++;
-          if (unify(goal, state.facts[index].goal, env)) {
+          if (match(goal, state.facts[index].goal, env)) {
             if (windowed) this.chosen[level] = [0, index];
             found = true;
             break;
@@ -989,7 +991,7 @@ export class Solver {
           const clause = state.clauses[state.clause++];
           if (windowed) this.chosen[level] = [1, clause.id];
           this.serial++;
-          if (unify(goal, clause.head, env)) {
+          if (match(goal, clause.head, env)) {
             found = true;
             break;
           }
@@ -1042,11 +1044,49 @@ export class Solver {
   // first and concluded afterwards.
   scan(clause, head, body, names, env, prefix, solve) {
     const found = [];
+    // Without a proof, a firing that only concludes ground facts is the same
+    // whichever of its duplicates publishes it. Keeping only the first in
+    // publication order, and none whose facts are already known, bounds
+    // memory by the new facts rather than the firings, as in a closure
+    // where many firings derive each fact.
+    const plain = !this.recording && !clause.templates.length && clause.guard === null && !this.program.inspectionEnabled;
+    const publish = (keys, firing, chosen) => {
+      if (keys.every((k) => this.factKeys.has(k))) return;
+      const id = keys.length === 1 ? keys[0] : keys.join('\u0000');
+      const earlier = this.pendingFirings.get(id);
+      if (earlier) {
+        if (chosen !== null && earlier[1] !== null && compareChosen(chosen, earlier[1]) < 0) {
+          earlier[0] = firing;
+          earlier[1] = chosen;
+        }
+        return;
+      }
+      const entry = [firing, chosen];
+      this.pendingFirings.set(id, entry);
+      found.push(entry);
+    };
     for (const [answerEnv, nodes] of this.guarded(clause, body[body.length - 1], solve())) {
       const mark = answerEnv.mark();
+      const resolved = copyResolved(head, answerEnv);
+      if (plain) {
+        // Ground conclusions, none of them true or false, need no Skolem
+        // terms, claim or guard: their numbers are their keys.
+        const conclusions = flattenConjunction(resolved);
+        const keys = new Array(conclusions.length);
+        let ground = true;
+        for (let i = 0; i < conclusions.length && ground; i++) {
+          const item = conclusions[i];
+          keys[i] = item === 'true' || item === 'false' ? -1 : this.termIds.of(item);
+          ground = keys[i] >= 0;
+        }
+        if (ground) {
+          publish(keys, [conclusions, NO_NODES, NO_NODES, null, null], this.chosen !== null ? [...this.chosen] : null);
+          answerEnv.undo(mark);
+          continue;
+        }
+      }
       // Head variables the body leaves unbound become Skolem terms, shared
       // between the heads of one conclusion.
-      const resolved = copyResolved(head, answerEnv);
       const unresolved = variables(resolved);
       const captured = clause.captures === null ? null : listFromItems(
         clause.captures.map((name) => copyResolved(names.get(name), answerEnv)));
@@ -1081,27 +1121,10 @@ export class Solver {
       // A restricted firing keeps its guard, checked again once reasoning ends.
       const guard = clause.guard === null || !unresolved.size ? null : copyResolved(body[body.length - 1], answerEnv);
       const chosen = this.chosen !== null ? [...this.chosen] : null;
-      // Without a proof, a firing that only concludes ground facts is the same
-      // whichever of its duplicates publishes it. Keeping only the first in
-      // publication order, and none whose facts are already known, bounds
-      // memory by the new facts rather than the firings, as in a closure
-      // where many firings derive each fact.
       const keys = !this.recording && !clause.templates.length && guard === null && claim === null && !this.program.inspectionEnabled &&
         !conclusions.includes('false') ? conclusions.map((item) => this.termIds.of(item)) : null;
       if (keys !== null && !keys.includes(-1)) {
-        if (keys.every((k) => this.factKeys.has(k))) { answerEnv.undo(mark); continue; }
-        const id = keys.join('\u0000'), earlier = this.pendingFirings.get(id);
-        if (earlier) {
-          if (chosen !== null && earlier[1] !== null && compareChosen(chosen, earlier[1]) < 0) {
-            earlier[0] = [conclusions, children, bindings, claim, guard];
-            earlier[1] = chosen;
-          }
-          answerEnv.undo(mark);
-          continue;
-        }
-        const entry = [[conclusions, children, bindings, claim, guard], chosen];
-        this.pendingFirings.set(id, entry);
-        found.push(entry);
+        publish(keys, [conclusions, children, bindings, claim, guard], chosen);
         answerEnv.undo(mark);
         continue;
       }
@@ -1203,9 +1226,10 @@ export class Solver {
       // bodies and their observable order.
       for (const [clause, [conclusions, children, bindings, claim, guard]] of firings) {
         if (guard) this.guards.push([clause, guard, conclusions]);
-        const by = new Struct('clause', [BigInt(clause.id)]);
-        for (const [position, conclusion] of conclusions.entries()) {
-          const template = clause.templates.find((item) => item.position === position);
+        const by = clause.citation ??= new Struct('clause', [BigInt(clause.id)]);
+        for (let position = 0; position < conclusions.length; position++) {
+          const conclusion = conclusions[position];
+          const template = clause.templates.length ? clause.templates.find((item) => item.position === position) : undefined;
           if (template) {
             if (this.deriveRules(template, conclusion, bindings, children)) changed = true;
             continue;
@@ -1215,17 +1239,18 @@ export class Solver {
             if (!this.reported.has(claimId)) this.reported.set(claimId, [claim, children, clause.id]);
             continue;
           }
-          const node = new Node(conclusion, by, bindings, children, null, true);
           if (conclusion === 'false') {
-            this.derived.push(node);
+            this.derived.push(new Node(conclusion, by, bindings, children, null, true));
             this.haltCode = 65;
             return 'halt';
           }
-          node.generic = this.program.inspectionEnabled && !isGround(conclusion);
-          const conclusionId = node.generic ? variant(conclusion) : this.factKey(conclusion);
-          const factKeys = node.generic ? this.genericKeys : this.factKeys;
+          const generic = this.program.inspectionEnabled && !isGround(conclusion);
+          const conclusionId = generic ? variant(conclusion) : this.factKey(conclusion);
+          const factKeys = generic ? this.genericKeys : this.factKeys;
           if (factKeys.has(conclusionId)) continue;
           factKeys.add(conclusionId);
+          const node = new Node(conclusion, by, bindings, children, null, true);
+          node.generic = generic;
           this.addFact(key(conclusion), node);
           this.derived.push(node);
           this.stats.derived++;
