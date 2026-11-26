@@ -1,5 +1,5 @@
 import { EyemindError, Struct, Var, readTerm, run, write } from '../src/index.js';
-import { Env, compareTerms, copyResolved, deref, identity, indexKey, unify } from '../src/terms.js';
+import { Env, TermIds, compareTerms, copyResolved, deref, identity, indexKey, unify } from '../src/terms.js';
 import { assert, program, proven, throwsMatching } from './helpers.js';
 
 const order = (left, right) => run(program(''), { goal: `compare(O, ${left}, ${right})` }).bindings[0].O;
@@ -72,6 +72,33 @@ export const tests = {
     assert.deepEqual(proven(source).answers, [write(left), write(right)]);
     const withFact = program(`fact(seed, ${write(left)})\nimplies(seed, ${write(right)})`);
     assert.deepEqual(proven(withFact).answers, [write(right)]);
+  },
+
+  'term numbers agree with identity, also across table growth and cached subterms'() {
+    const ids = new TermIds();
+    const texts = ["'a'", "'f'", 'f()', "f('a')", "f('a', 'b')", "g('a', 'b')", "f(f('a'))", '1', 'float(1)', 'float(0)',
+      'float(-0)', 'f(1)', 'f(float(1))', 'f(float(0))', 'f(float(-0))', '[]', "['a']", "['a', 'b']", "'f(a)'", "'[]'",
+      "p(f('a'), [1, float(2), 'x'])", "p([1, float(2), 'x'], f('a'))"];
+    const terms = [...texts.map((text) => readTerm(text)), 0, -0, 1, 1n, new Struct('f', [0]), new Struct('f', [-0])];
+    const named = terms.length;
+    for (let i = 0; i < 5000; i++) terms.push(new Struct('n', [BigInt(i), new Struct('m', [`s${i % 97}`])]));
+    const shared = new Struct('m', ['s3']);
+    terms.push(new Struct('n', [3n, shared]), new Struct('k', [shared, shared]), new Struct('k', [shared, readTerm('m(s3)')]));
+    const numbers = terms.map((term) => ids.of(term));
+    const again = terms.slice(0, named).map((term) => ids.of(typeof term === 'number' ? term : readTerm(write(term))));
+    assert.deepEqual(again, numbers.slice(0, named));
+    assert.deepEqual(terms.slice(named).map((term) => ids.of(new Struct(term.name, term.args))), numbers.slice(named));
+    for (let i = 0; i < terms.length; i += 37) for (let j = 0; j < terms.length; j += 41) {
+      assert.equal(numbers[i] === numbers[j], identity(terms[i]) === identity(terms[j]), `${write(terms[i])} vs ${write(terms[j])}`);
+    }
+    for (let i = 0; i < named; i++) for (let j = 0; j < named; j++) {
+      assert.equal(numbers[i] === numbers[j], identity(terms[i]) === identity(terms[j]), `${write(terms[i])} vs ${write(terms[j])}`);
+    }
+    assert.notEqual(ids.of(0), ids.of(-0));
+    assert.notEqual(ids.of(1), ids.of(1n));
+    assert.equal(ids.of(new Var('X')), -1);
+    assert.equal(ids.of(new Struct('f', ['a', new Struct('g', [new Var('X')])])), -1);
+    assert.equal(ids.of(readTerm(`[${Array.from({ length: 100000 }, (_, i) => i).join(', ')}]`)) >= 0, true);
   },
 
   'identity distinguishes signed zero while unification and order equate it'() {

@@ -42,6 +42,9 @@ export class Struct {
   constructor(name, args) {
     this.name = name;
     this.args = args;
+    // The number the TermIds numbering gave this term, which never changes.
+    this.numbering = null;
+    this.number = -1;
   }
 
   *[Symbol.iterator]() {
@@ -480,6 +483,144 @@ export function identity(term) {
     }
   }
   return out.join('\u0001');
+}
+
+// Small integers for ground terms, so that two terms get one number exactly
+// when identity() keys them alike: hash-consing. Atoms and numbers are kept
+// in maps; a compound is a row of name, arity and argument numbers in typed
+// arrays, found again through an open-addressing table of row numbers, so
+// keying a fact builds no string and no object. Integers, floats, 0.0 and
+// -0.0 stay apart. A term holding a variable has no number: -1.
+export class TermIds {
+  constructor() {
+    this.count = 0;
+    this.atoms = new Map();
+    this.ints = new Map();
+    this.floats = new Map();
+    this.negativeZero = -1;
+    // Rows of compounds, by number: name, arity and where their arguments
+    // start in args. Atoms and numbers have rows too, left unused.
+    this.names = new Int32Array(1024);
+    this.arities = new Int32Array(1024);
+    this.starts = new Int32Array(1024);
+    this.args = new Int32Array(4096);
+    this.used = 0;
+    // The table holds number + 1 of each compound, 0 marking a free slot.
+    this.table = new Int32Array(2048);
+    this.filled = 0;
+    this.stack = [];
+    this.ids = [];
+  }
+
+  next() {
+    const id = this.count++;
+    if (id === this.names.length) {
+      this.names = grown(this.names);
+      this.arities = grown(this.arities);
+      this.starts = grown(this.starts);
+    }
+    this.arities[id] = -1;
+    return id;
+  }
+
+  leaf(term) {
+    let map;
+    if (typeof term === 'string') map = this.atoms;
+    else if (typeof term === 'bigint') map = this.ints;
+    else if (Object.is(term, -0)) return this.negativeZero < 0 ? (this.negativeZero = this.next()) : this.negativeZero;
+    else map = this.floats;
+    let id = map.get(term);
+    if (id === undefined) map.set(term, id = this.next());
+    return id;
+  }
+
+  // The number of a compound with this name and these argument numbers,
+  // the last arity entries of ids.
+  compound(name, arity, ids) {
+    const nameId = this.leaf(name);
+    const base = ids.length - arity;
+    let hash = Math.imul(nameId ^ 0x9e3779b9, 0x85ebca6b) ^ arity;
+    for (let i = base; i < ids.length; i++) hash = Math.imul(hash ^ ids[i], 0x01000193);
+    let mask = this.table.length - 1;
+    let slot = (hash ^ (hash >>> 15)) & mask;
+    for (let entry; (entry = this.table[slot]) !== 0; slot = (slot + 1) & mask) {
+      const id = entry - 1;
+      if (this.names[id] !== nameId || this.arities[id] !== arity) continue;
+      const start = this.starts[id];
+      let same = true;
+      for (let i = 0; i < arity && same; i++) same = this.args[start + i] === ids[base + i];
+      if (same) {
+        ids.length = base;
+        return id;
+      }
+    }
+    const id = this.next();
+    this.names[id] = nameId;
+    this.arities[id] = arity;
+    while (this.used + arity > this.args.length) this.args = grown(this.args);
+    this.starts[id] = this.used;
+    for (let i = base; i < ids.length; i++) this.args[this.used++] = ids[i];
+    ids.length = base;
+    this.table[slot] = id + 1;
+    if (++this.filled * 2 > this.table.length) this.rehash();
+    return id;
+  }
+
+  rehash() {
+    const table = new Int32Array(this.table.length * 2);
+    const mask = table.length - 1;
+    for (const entry of this.table) {
+      if (entry === 0) continue;
+      const id = entry - 1;
+      const start = this.starts[id];
+      let hash = Math.imul(this.names[id] ^ 0x9e3779b9, 0x85ebca6b) ^ this.arities[id];
+      for (let i = 0; i < this.arities[id]; i++) hash = Math.imul(hash ^ this.args[start + i], 0x01000193);
+      let slot = (hash ^ (hash >>> 15)) & mask;
+      while (table[slot] !== 0) slot = (slot + 1) & mask;
+      table[slot] = entry;
+    }
+    this.table = table;
+  }
+
+  // The number of a ground term, or -1 when it holds a variable. Compounds
+  // are numbered after their arguments, without recursion, so a long list
+  // cannot overflow the stack.
+  of(term) {
+    if (!(term instanceof Struct)) return term instanceof Var ? -1 : this.leaf(term);
+    const { stack, ids } = this;
+    stack.length = 0;
+    ids.length = 0;
+    stack.push(term, false);
+    while (stack.length) {
+      const done = stack.pop();
+      const item = stack.pop();
+      if (done) {
+        const id = this.compound(item.name, item.args.length, ids);
+        item.numbering = this;
+        item.number = id;
+        ids.push(id);
+      } else if (item instanceof Struct) {
+        if (item.numbering === this) {
+          ids.push(item.number);
+          continue;
+        }
+        stack.push(item, true);
+        for (let i = item.args.length - 1; i >= 0; i--) stack.push(item.args[i], false);
+      } else if (item instanceof Var) {
+        stack.length = 0;
+        return -1;
+      } else {
+        ids.push(this.leaf(item));
+      }
+    }
+    return ids.pop();
+  }
+}
+
+function grown(array) {
+  const larger = new Int32Array(array.length * 2);
+  larger.set(array);
+  return larger;
 }
 
 // The key an argument index files a term under: an atom or a number is its

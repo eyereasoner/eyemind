@@ -10,7 +10,7 @@ import { CONTROL_KEYS, Program } from './program.js';
 import {
   Env, EyemindError, Struct, Var, conjunction, copyResolved, deref, flattenConjunction, freshTerm,
   identity, indexKey, isAnonymous, isCallable, isGround, isGroundButAnonymous, isTerm, key, keyArity, listFromItems,
-  sortCollected, unify, variables,
+  sortCollected, TermIds, unify, variables,
 } from './terms.js';
 import { Lettering, SourceNaming, write } from './writer.js';
 
@@ -296,8 +296,8 @@ export class Solver {
     // as rdf(S, P, O, G) with a common subject and a given property finds its
     // facts directly rather than among all the subject's facts.
     this.pairIndex = new Map();
-    this.factKeys = new Set(program.groundFactKeys);
-    this.iriIds = new Map();
+    this.factKeys = new Set();
+    this.termIds = new TermIds();
     for (const clause of program.clauses) {
       if (!clause.forward && !clause.body.length && isGround(clause.head)) this.factKeys.add(this.factKey(clause.head));
     }
@@ -584,18 +584,11 @@ export class Solver {
     }
   }
 
-  // RDF rules often derive only IRI tuples. Small per-run identifiers avoid
-  // retaining a second copy of every IRI in each fact's duplicate key.
+  // A ground fact's number from the run's TermIds, and identity() for
+  // anything else, so duplicates are found without building a string.
   factKey(term) {
-    if (!(term instanceof Struct) || !term.args.length ||
-        !term.args.every((arg) => isTerm(arg, 'iri', 1) && typeof arg.args[0] === 'string')) return identity(term);
-    const ids = term.args.map((arg) => {
-      const iri = arg.args[0];
-      let id = this.iriIds.get(iri);
-      if (id === undefined) this.iriIds.set(iri, id = this.iriIds.size);
-      return id;
-    });
-    return `@${term.name.length}:${term.name}:${ids.length}:${ids.join(',')}`;
+    const id = this.termIds.of(term);
+    return id < 0 ? identity(term) : id;
   }
 
   // The indexes of the derived facts a goal could match, in order, when an
@@ -931,10 +924,9 @@ export class Solver {
       // publication order, and none whose facts are already known, bounds
       // memory by the new facts rather than the firings, as in a closure
       // where many firings derive each fact.
-      const plain = !this.recording && !clause.templates.length && guard === null && claim === null && !this.program.inspectionEnabled &&
-        conclusions.every((item) => item !== 'false' && isGround(item));
-      if (plain) {
-        const keys = conclusions.map((item) => this.factKey(item));
+      const keys = !this.recording && !clause.templates.length && guard === null && claim === null && !this.program.inspectionEnabled &&
+        !conclusions.includes('false') ? conclusions.map((item) => this.termIds.of(item)) : null;
+      if (keys !== null && !keys.includes(-1)) {
         if (keys.every((k) => this.factKeys.has(k))) { answerEnv.undo(mark); continue; }
         const id = keys.join('\u0000'), earlier = this.pendingFirings.get(id);
         if (earlier) {
