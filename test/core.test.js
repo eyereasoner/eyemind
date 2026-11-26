@@ -209,6 +209,72 @@ implies([node(X), not(edge(X, _))], isolated(X))
     }
   },
 
+  'rules with fixed backward goals search semi-naively and join as the search machine does'() {
+    const next = random(11);
+    const saved = { directKeys: Solver.prototype.directKeys, joinable: Solver.prototype.joinable };
+    for (let trial = 0; trial < 12; trial++) {
+      const nodes = 3 + next(6);
+      const edges = new Set();
+      const count = 2 + next(11);
+      for (let i = 0; i < count; i++) edges.add(`${next(nodes)} ${next(nodes)}`);
+      const facts = [...edges].sort().map((edge) => `fact(edge(${edge.replace(' ', ', ')}))\n`).join('');
+      const source = program(`${facts}
+fact(blocked(${next(nodes)}))
+implied_by(small(X), [is_int(X), lt(X, ${2 + next(4)})])
+implied_by(open(X), [is_int(X), not(blocked(X))])
+implied_by(step(X, Y), or(edge(X, Y), edge(Y, X)))
+implies(edge(X, Y), path(X, Y))
+implies([path(X, Y), edge(Y, Z), open(Z)], path(X, Z))
+implies([path(X, Y), small(Y), step(Y, Z), not(blocked(Z))], near(X, Z))
+implies([near(X, Y), near(Y, Z), not_identical(X, Z)], pair(X, Z))
+implied_by(reach(X, Y), path(X, Y))
+implies([reach(X, Y), edge(Y, Z)], via(X, Z))
+implies([reach(X, Y), small(Y), edge(Y, Z)], path(Y, Z))
+`);
+      const runs = {};
+      for (const mode of ['join', 'machine', 'naive']) {
+        if (mode !== 'join') Solver.prototype.joinable = () => false;
+        if (mode === 'naive') Solver.prototype.directKeys = () => null;
+        try {
+          runs[mode] = [run(source), run(source, { proof: true })];
+        } finally {
+          Object.assign(Solver.prototype, saved);
+        }
+      }
+      const [[join, proof], [machine, machineProof], [naive, naiveProof]] = [runs.join, runs.machine, runs.naive];
+      assert.deepEqual([join.stdout, join.stats], [machine.stdout, machine.stats]);
+      assert.deepEqual([proof.stdout, proof.proof], [machineProof.stdout, machineProof.proof]);
+      assert.deepEqual([join.stdout, proof.proof], [naive.stdout, naiveProof.proof]);
+      assert.ok(proof.proofReport.valid);
+      assert.ok(join.stats.inferences <= naive.stats.inferences);
+    }
+    // reach/2 rests on the path/2 facts the same rule derives, so that rule is
+    // not semi-naive over edge/2 alone, and it follows paths of every length.
+    const chain = run(program(`fact(edge(1, 2), edge(2, 3), edge(3, 4), edge(4, 5))
+implies(edge(X, Y), path(X, Y))
+implied_by(reach(X, Y), path(X, Y))
+implies([reach(X, Y), edge(Y, Z)], path(X, Z))
+query(path(1, Z))`));
+    assert.deepEqual(chain.answers, ['path(1, 2)', 'path(1, 3)', 'path(1, 4)', 'path(1, 5)']);
+    // open/1 only tests its argument, so the recursive rule needs no full search each round.
+    const open = program(`fact(edge(1, 2), edge(2, 3), edge(3, 4), edge(4, 5), edge(5, 6))
+implied_by(open(X), [is_int(X), gt(X, 1)])
+implies(edge(X, Y), path(X, Y))
+implies([path(X, Y), edge(Y, Z), open(Z)], path(X, Z))
+`);
+    const semi = run(open);
+    const fixed = Solver.prototype.fixed;
+    Solver.prototype.fixed = () => false;
+    let full;
+    try {
+      full = run(open);
+    } finally {
+      Solver.prototype.fixed = fixed;
+    }
+    assert.equal(semi.stdout, full.stdout);
+    assert.ok(semi.stats.inferences < full.stats.inferences, JSON.stringify([semi.stats, full.stats]));
+  },
+
   'answers name their variables as their bindings do'() {
     const result = run(program('implied_by(r(Y, Z), unify(Y, f(_, Z)))'), { goal: 'r(P, Q)' });
     assert.deepEqual(result.bindings, [{ P: 'f(A, B)', Q: 'B' }]);

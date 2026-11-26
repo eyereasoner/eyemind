@@ -481,7 +481,7 @@ export class Solver {
       return this.childFrame(frame, [goal.args[0]], this.controlPending(goal, cut), frame.depth + 1);
     } else if (PRIMITIVE_KEYS.has(goalKey)) {
       point = new Point('primitive', frame, env.mark(), goal, { iterator: primitive(goal, env) });
-    } else if (windowed) {
+    } else if (windowed && this.window[frame.index] !== null) {
       const [start, stop, withClauses] = this.window[frame.index];
       point = new Point('resolve', frame, env.mark(), goal, {
         facts: this.facts.get(goalKey) || NO_NODES,
@@ -722,9 +722,10 @@ export class Solver {
   }
 
   // For a rule semi-naive search can take, the key of each body goal answered
-  // by facts alone, or null for a primitive or a negation or collection; null
-  // for other rules. Negations and collections consult lower strata only
-  // (Section 6.1), so they do not change within one.
+  // by facts alone, or null for a primitive, a negation or collection, or a
+  // goal whose answers no forward rule can change; null for other rules.
+  // Negations and collections consult lower strata only (Section 6.1), so
+  // they do not change within one.
   directKeys(clause) {
     if (this.direct.has(clause)) return this.direct.get(clause);
     let keys = [];
@@ -736,6 +737,10 @@ export class Solver {
           goalKey === 'findall_sorted/3') {
         keys.push(null);
       } else if (CONTROL_KEYS.has(goalKey) || (this.program.groups.get(goalKey) || []).some((item) => item.body.length)) {
+        if (this.fixed(goal)) {
+          keys.push(null);
+          continue;
+        }
         keys = null;
         break;
       } else {
@@ -744,6 +749,42 @@ export class Solver {
     }
     this.direct.set(clause, keys);
     return keys;
+  }
+
+  // Whether a goal has the same answers throughout reasoning: it calls only
+  // primitives and backward clauses, through control, and no forward rule
+  // concludes anything it calls. A rule's goal of this kind narrows its
+  // firings as a primitive does, so it leaves the rule to semi-naive search.
+  // A derived rule or an inspection may change, so neither is fixed.
+  fixed(goal) {
+    if (this.program.hasTemplates || this.program.inspectionEnabled) return false;
+    if (this.fixedKeys === undefined) {
+      this.fixedKeys = new Map();
+      this.concluded = new Set();
+      for (const clause of this.program.forward) for (const head of clause.heads) if (isCallable(head)) this.concluded.add(key(head));
+    }
+    const pending = [goal];
+    const visiting = new Set();
+    while (pending.length) {
+      const item = pending.pop();
+      if (!isCallable(item)) return false;
+      const goalKey = key(item);
+      if (CONTROL_KEYS.has(goalKey)) {
+        if (goalKey === 'findall/3' || goalKey === 'findall_sorted/3') pending.push(item.args[1]);
+        else for (const arg of item.args) pending.push(arg);
+        continue;
+      }
+      if (PRIMITIVE_KEYS.has(goalKey)) continue;
+      if (INSPECTION_KEYS.has(goalKey) || this.concluded.has(goalKey)) return false;
+      const known = this.fixedKeys.get(goalKey);
+      if (known === false) return false;
+      if (known === true || visiting.has(goalKey)) continue;
+      visiting.add(goalKey);
+      for (const clause of this.program.groups.get(goalKey) || NO_NODES) for (const body of clause.body) pending.push(body);
+    }
+    // Every key reached depends only on fixed keys, cycles included.
+    for (const goalKey of visiting) this.fixedKeys.set(goalKey, true);
+    return true;
   }
 
   // The firings of a forward rule against the current state, in the
@@ -782,7 +823,9 @@ export class Solver {
     const prefix = this.context(clause, names, env);
     // The firings of one call share their duplicate check (see scan).
     this.pendingFirings = new Map();
-    if (previous === null) return this.scan(clause, head, body, names, env, prefix).map(([found]) => found);
+    const joined = this.joinable(clause, keys);
+    const solve = joined ? () => this.join(body, keys, env) : () => this.solve(body, env);
+    if (previous === null) return this.scan(clause, head, body, names, env, prefix, solve).map(([found]) => found);
     const found = [];
     for (const delta of positions) {
       const window = keys.map((goalKey, i) => {
@@ -796,7 +839,7 @@ export class Solver {
       this.chosen = new Array(body.length).fill(null);
       try {
         // One push each: a scan can find more firings than a call takes arguments.
-        for (const item of this.scan(clause, head, body, names, env, prefix)) found.push(item);
+        for (const item of this.scan(clause, head, body, names, env, prefix, solve)) found.push(item);
       } finally {
         this.window = this.windowGoals = this.chosen = null;
       }
@@ -847,6 +890,125 @@ export class Solver {
     return found;
   }
 
+  // Whether a rule's body goals that consult facts are answered by them
+  // alone: derived facts and ground source facts. Without a proof, templates
+  // or inspections, such a body is a join, and join() searches it without
+  // the search machine's frames and choice points.
+  joinable(clause, keys) {
+    if (this.recording || keys === null || clause.parentId !== null || clause.templates.length ||
+        clause.captures !== null || this.program.hasTemplates || this.program.inspectionEnabled) return false;
+    return keys.every((goalKey) => {
+      if (goalKey === null) return true;
+      let ground = this.groundCalls.get(goalKey);
+      if (ground === undefined) {
+        ground = (this.program.groups.get(goalKey) || []).every((candidate) => isGround(candidate.head));
+        this.groundCalls.set(goalKey, ground);
+      }
+      return ground;
+    });
+  }
+
+  // The solutions of a joinable body, as solve() finds them: each goal tries
+  // the derived facts in its window, through the best index, and then the
+  // source facts, counting inferences, serials and the alternatives chosen
+  // just as step() and retry() do. Any other goal is solved on its own, and
+  // its solutions are chosen in the order they come.
+  *join(goals, keys, env) {
+    const count = goals.length;
+    const windowed = this.window !== null && goals === this.windowGoals;
+    const stats = this.stats;
+    const levels = new Array(count);
+    const entry = env.mark();
+    let level = 0;
+    let entering = true;
+    try {
+      while (level >= 0) {
+        if (level === count) {
+          yield [env, NO_NODES];
+          level--;
+          entering = false;
+          continue;
+        }
+        const goal = goals[level];
+        if (keys[level] === null) {
+          if (entering) levels[level] = { solutions: this.solve([goal], env, 0), chosen: 0 };
+          const state = levels[level];
+          if (state.solutions.next().done) {
+            levels[level] = null;
+            level--;
+            entering = false;
+          } else {
+            if (windowed) this.chosen[level] = [0, state.chosen];
+            state.chosen++;
+            level++;
+            entering = true;
+          }
+          continue;
+        }
+        let state;
+        if (entering) {
+          if (++stats.inferences > this.maxInferences) throw new EyemindError('reasoning exceeded max_inferences');
+          if (windowed) this.chosen[level] = [0, 0];
+          const goalKey = keys[level];
+          const facts = this.facts.get(goalKey) || NO_NODES;
+          const order = this.factOrder(goal, env, goalKey);
+          let start = 0;
+          let stop = null;
+          let clauses;
+          if (windowed) {
+            const window = this.window[level];
+            start = window[0];
+            stop = window[1];
+            clauses = window[2] ? this.program.candidates(goal, env, goalKey) : NO_NODES;
+          } else {
+            clauses = this.program.candidates(goal, env, goalKey);
+          }
+          if (order === null) {
+            if (stop === null) stop = facts.length;
+          } else {
+            start = bisectLeft(order, start);
+            stop = stop === null ? order.length : bisectLeft(order, stop);
+          }
+          state = levels[level] = { mark: env.mark(), facts, order, next: start, stop, clauses, clause: 0 };
+        } else {
+          state = levels[level];
+          env.undo(state.mark);
+        }
+        let found = false;
+        while (state.next < state.stop) {
+          const index = state.order === null ? state.next : state.order[state.next];
+          state.next++;
+          if (unify(goal, state.facts[index].goal, env)) {
+            if (windowed) this.chosen[level] = [0, index];
+            found = true;
+            break;
+          }
+          env.undo(state.mark);
+        }
+        while (!found && state.clause < state.clauses.length) {
+          const clause = state.clauses[state.clause++];
+          if (windowed) this.chosen[level] = [1, clause.id];
+          this.serial++;
+          if (unify(goal, clause.head, env)) {
+            found = true;
+            break;
+          }
+          env.undo(state.mark);
+        }
+        if (found) {
+          level++;
+          entering = true;
+        } else {
+          level--;
+          entering = false;
+        }
+      }
+    } finally {
+      for (let i = count - 1; i >= 0; i--) levels[i]?.solutions?.return();
+      env.undo(entry);
+    }
+  }
+
   // Whether a body goal, as the rule writes it, could match a fact derived
   // since the rule's last search. The goal's own atoms and numbers narrow the
   // facts down before the rule is renamed and searched.
@@ -878,9 +1040,9 @@ export class Solver {
   // Bindings last only until the next answer is requested, and adding facts
   // mid-scan would extend a live search, so each firing is copied out
   // first and concluded afterwards.
-  scan(clause, head, body, names, env, prefix) {
+  scan(clause, head, body, names, env, prefix, solve) {
     const found = [];
-    for (const [answerEnv, nodes] of this.guarded(clause, body[body.length - 1], this.solve(body, env))) {
+    for (const [answerEnv, nodes] of this.guarded(clause, body[body.length - 1], solve())) {
       const mark = answerEnv.mark();
       // Head variables the body leaves unbound become Skolem terms, shared
       // between the heads of one conclusion.
