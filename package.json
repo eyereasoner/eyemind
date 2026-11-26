@@ -1,6 +1,6 @@
 {
   "name": "eyemind",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "A dependency-free Logic Script (LS) reasoner with forward and backward reasoning, checkable proofs, and RDF 1.2, Notation3 (N3), SPARQL 1.2 RL (SRL) and Logical English (LE) interoperability.",
   "type": "module",
   "main": "./src/index.js",
