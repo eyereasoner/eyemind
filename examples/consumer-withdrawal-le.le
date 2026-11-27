@@ -1,0 +1,202 @@
+% A web shop decides on seven withdrawals from distance contracts under the
+% EU Consumer Rights Directive. The 14-day withdrawal period starts on
+% delivery for goods and on conclusion for a service (Article 9), and when the
+% shop told the consumer about the right late, it ends 14 days after that
+% (Article 10(2)). Personalised goods, unsealed hygiene goods and a fully
+% performed service are excluded (Article 16). A valid withdrawal is refunded
+% in full within 14 days, and the shop may withhold the refund for goods not
+% yet sent back (Article 13).
+% Three withdrawals are valid, one is too late and three are excluded; the
+% refund of the coffee machine may be withheld.
+% Shows date arithmetic with "is 14 days after", alternative rules for when a
+% period starts and ends, exclusions as articles, a sum of charges and a
+% negation over an open date.
+% Each late notice in the scenario comes within the twelve months of Article
+% 10(2); the program does not model the twelve-month cap of Article 10(1).
+% Source https://eur-lex.europa.eu/eli/dir/2011/83/oj (Articles 9, 10, 13 and 16)
+
+the templates are:
+    *a consumer* concluded *a contract* on *a date*,
+    *a contract* is a sales contract,
+    *a contract* is a service contract,
+    the goods of *a contract* were delivered on *a date*,
+    the trader informed the consumer of the right of withdrawal from *a contract* on *a date*,
+    *a contract* charged *an amount* for *a charge*,
+    the goods of *a contract* were personalised for the consumer,
+    the goods of *a contract* were sealed for health protection,
+    the goods of *a contract* were unsealed after delivery,
+    the service of *a contract* was fully performed,
+    the consumer acknowledged losing the right of withdrawal from *a contract*,
+    the consumer withdrew from *a contract* on *a date*,
+    the consumer sent back the goods of *a contract* on *a date*,
+    the withdrawal period of *a contract* starts on *a date*,
+    the withdrawal period of *a contract* ends on *a date*,
+    the right of withdrawal from *a contract* is excluded by *an article*,
+    the withdrawal from *a contract* is valid,
+    the withdrawal from *a contract* is too late,
+    the trader must refund *an amount* for *a contract* by *a date*,
+    the trader may withhold the refund for *a contract*.
+
+the knowledge base consumer rights includes:
+
+% Article 9(2)(b): for goods, the period starts when the consumer acquires
+% physical possession of them.
+the withdrawal period of a contract starts on a date
+    if the contract is a sales contract
+    and the goods of the contract were delivered on the date.
+
+% Article 9(2)(a): for a service, it starts when the contract is concluded.
+the withdrawal period of a contract starts on a date
+    if the contract is a service contract
+    and a consumer concluded the contract on the date.
+
+% Article 9(1): the period runs for 14 days after its first day, when the
+% consumer knew about the right from the start.
+the withdrawal period of a contract ends on a date
+    if the withdrawal period of the contract starts on a first date
+    and the trader informed the consumer of the right of withdrawal from the contract on a second date
+    and the second date is before or equal to the first date
+    and the date is 14 days after the first date
+    and it is not the case that
+        the right of withdrawal from the contract is excluded by an article.
+
+% Article 10(2): a late notice starts the 14 days again from its own date.
+the withdrawal period of a contract ends on a date
+    if the withdrawal period of the contract starts on a first date
+    and the trader informed the consumer of the right of withdrawal from the contract on a second date
+    and the second date is after the first date
+    and the date is 14 days after the second date
+    and it is not the case that
+        the right of withdrawal from the contract is excluded by an article.
+
+% Article 16(a), as amended by Directive (EU) 2019/2161: a service fully
+% performed after the consumer acknowledged losing the right.
+the right of withdrawal from a contract is excluded by "Article 16(a)"
+    if the service of the contract was fully performed
+    and the consumer acknowledged losing the right of withdrawal from the contract.
+
+% Article 16(c): goods made to the consumer's specifications.
+the right of withdrawal from a contract is excluded by "Article 16(c)"
+    if the goods of the contract were personalised for the consumer.
+
+% Article 16(e): sealed goods, unsuitable for return for health protection,
+% unsealed after delivery.
+the right of withdrawal from a contract is excluded by "Article 16(e)"
+    if the goods of the contract were sealed for health protection
+    and the goods of the contract were unsealed after delivery.
+
+% Article 11(2): sending the withdrawal before the period ends is enough.
+the withdrawal from a contract is valid
+    if the consumer withdrew from the contract on a date
+    and the withdrawal period of the contract ends on a second date
+    and the date is before or equal to the second date.
+
+the withdrawal from a contract is too late
+    if the consumer withdrew from the contract on a date
+    and the withdrawal period of the contract ends on a second date
+    and the date is after the second date.
+
+% Article 13(1): every payment, delivery included, within 14 days.
+the trader must refund an amount for a contract by a date
+    if the withdrawal from the contract is valid
+    and the consumer withdrew from the contract on a first date
+    and the date is 14 days after the first date
+    and the amount is the sum of each payment such that
+        the contract charged the payment for a charge.
+
+% Article 13(3): for goods, the refund may wait until they are sent back.
+the trader may withhold the refund for a contract
+    if the withdrawal from the contract is valid
+    and the contract is a sales contract
+    and it is not the case that
+        the consumer sent back the goods of the contract on a date.
+
+scenario web shop is:
+    Ana concluded the headphones order on 2026-03-01.
+    the headphones order is a sales contract.
+    the trader informed the consumer of the right of withdrawal from the headphones order on 2026-03-01.
+    the goods of the headphones order were delivered on 2026-03-04.
+    the headphones order charged 120 for goods.
+    the headphones order charged 5 for delivery.
+    the consumer withdrew from the headphones order on 2026-03-15.
+    the consumer sent back the goods of the headphones order on 2026-03-16.
+
+    Ben concluded the jacket order on 2026-03-01.
+    the jacket order is a sales contract.
+    the trader informed the consumer of the right of withdrawal from the jacket order on 2026-03-01.
+    the goods of the jacket order were delivered on 2026-03-04.
+    the jacket order charged 80 for goods.
+    the consumer withdrew from the jacket order on 2026-03-20.
+
+    Cleo concluded the engraved ring order on 2026-03-02.
+    the engraved ring order is a sales contract.
+    the trader informed the consumer of the right of withdrawal from the engraved ring order on 2026-03-02.
+    the goods of the engraved ring order were delivered on 2026-03-05.
+    the goods of the engraved ring order were personalised for the consumer.
+    the engraved ring order charged 150 for goods.
+    the consumer withdrew from the engraved ring order on 2026-03-06.
+
+    Dirk concluded the face cream order on 2026-03-02.
+    the face cream order is a sales contract.
+    the trader informed the consumer of the right of withdrawal from the face cream order on 2026-03-02.
+    the goods of the face cream order were delivered on 2026-03-05.
+    the goods of the face cream order were sealed for health protection.
+    the goods of the face cream order were unsealed after delivery.
+    the face cream order charged 30 for goods.
+    the consumer withdrew from the face cream order on 2026-03-09.
+
+    Eva concluded the coffee machine order on 2026-03-01.
+    the coffee machine order is a sales contract.
+    the goods of the coffee machine order were delivered on 2026-03-04.
+    the trader informed the consumer of the right of withdrawal from the coffee machine order on 2026-04-10.
+    the coffee machine order charged 200 for goods.
+    the coffee machine order charged 10 for delivery.
+    the consumer withdrew from the coffee machine order on 2026-04-20.
+
+    Finn concluded the language course order on 2026-03-02.
+    the language course order is a service contract.
+    the trader informed the consumer of the right of withdrawal from the language course order on 2026-03-02.
+    the language course order charged 300 for tuition.
+    the consumer withdrew from the language course order on 2026-03-10.
+
+    Gert concluded the boiler repair order on 2026-03-02.
+    the boiler repair order is a service contract.
+    the trader informed the consumer of the right of withdrawal from the boiler repair order on 2026-03-02.
+    the service of the boiler repair order was fully performed.
+    the consumer acknowledged losing the right of withdrawal from the boiler repair order.
+    the boiler repair order charged 90 for labour.
+    the consumer withdrew from the boiler repair order on 2026-03-05.
+
+    periods expects answers ["the withdrawal period of the headphones order ends on 2026-03-18",
+        "the withdrawal period of the jacket order ends on 2026-03-18",
+        "the withdrawal period of the coffee machine order ends on 2026-04-24",
+        "the withdrawal period of the language course order ends on 2026-03-16"].
+    excluded expects answers ["the right of withdrawal from the engraved ring order is excluded by Article 16(c)",
+        "the right of withdrawal from the face cream order is excluded by Article 16(e)",
+        "the right of withdrawal from the boiler repair order is excluded by Article 16(a)"].
+    valid expects answers ["the withdrawal from the headphones order is valid",
+        "the withdrawal from the coffee machine order is valid",
+        "the withdrawal from the language course order is valid"].
+    late expects answers ["the withdrawal from the jacket order is too late"].
+    refunds expects answers ["the trader must refund 125 for the headphones order by 2026-03-29",
+        "the trader must refund 210 for the coffee machine order by 2026-05-04",
+        "the trader must refund 300 for the language course order by 2026-03-24"].
+    withheld expects answers ["the trader may withhold the refund for the coffee machine order"].
+
+query periods is:
+    the withdrawal period of which contract ends on which date.
+
+query excluded is:
+    the right of withdrawal from which contract is excluded by which article.
+
+query valid is:
+    the withdrawal from which contract is valid.
+
+query late is:
+    the withdrawal from which contract is too late.
+
+query refunds is:
+    the trader must refund which amount for which contract by which date.
+
+query withheld is:
+    the trader may withhold the refund for which contract.

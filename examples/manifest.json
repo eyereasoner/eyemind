@@ -901,5 +901,10 @@
     "name": "election-tally-le",
     "files": ["election-tally-le.le"],
     "description": "Each eligible voter's first ballot counts, spoiled votes are excluded and a tie gives two winners"
+  },
+  {
+    "name": "consumer-withdrawal-le",
+    "files": ["consumer-withdrawal-le.le"],
+    "description": "The EU Consumer Rights Directive dates seven withdrawal periods, excludes personalised, unsealed and performed orders, and sets refunds and their deadlines"
   }
 ]

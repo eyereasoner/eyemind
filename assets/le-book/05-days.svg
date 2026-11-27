@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -12 664 274" width="664" height="274" role="img">
+<style>
+  .ln { fill: none; stroke: #1d2a44; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .thin { stroke-width: 2; }
+  .inkf { fill: #1d2a44; }
+  .paperf { fill: #ffffff; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .skyf { fill: #c7dbff; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .hif { fill: #ffd43b; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .okl { fill: none; stroke: #16a34a; stroke-width: 4; stroke-linejoin: round; }
+  .nol { fill: none; stroke: #dc2626; stroke-width: 4; stroke-linejoin: round; }
+  .hand { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #1d2a44; }
+  .handok { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #16a34a; }
+  .handno { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #dc2626; }
+  .mono { font-family: "JetBrains Mono", Menlo, Consolas, monospace; fill: #1d2a44; }
+</style>
+<defs>
+    <symbol id="mind" viewBox="0 0 120 140">
+      <path class="skyf" d="M18 70 C14 34 40 12 62 12 C88 12 106 34 102 70 C100 98 86 112 60 112 C34 112 20 98 18 70 Z"/>
+      <ellipse class="paperf" cx="60" cy="58" rx="24" ry="20"/>
+      <g class="blink"><circle class="inkf" cx="64" cy="58" r="9"/><circle fill="#ffffff" cx="67" cy="55" r="3"/></g>
+      <path class="ln thin" d="M50 90 Q60 97 72 90"/>
+      <path class="ln" d="M40 112 L36 132 M80 112 L84 132 M28 132 L44 132 M76 132 L92 132"/>
+      <path class="ln" d="M60 12 L60 2"/><circle class="hif" cx="60" cy="2" r="4"/>
+    </symbol>
+    <symbol id="checker" viewBox="0 0 120 140">
+      <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="28" y="30" width="64" height="82" rx="6"/>
+      <path class="ln thin" d="M38 48 L82 48 M38 60 L82 60 M38 72 L70 72"/>
+      <circle class="paperf" cx="48" cy="20" r="0"/>
+      <circle class="inkf" cx="50" cy="40" r="0"/>
+      <path class="ln" d="M44 112 L40 132 M76 112 L80 132 M32 132 L48 132 M72 132 L88 132"/>
+      <circle class="inkf" cx="48" cy="88" r="4"/><circle class="inkf" cx="72" cy="88" r="4"/>
+      <path class="ln thin" d="M50 102 L70 102"/>
+      <path class="ln" d="M44 80 L54 78 M66 78 L76 80"/>
+    </symbol>
+    <symbol id="chatty" viewBox="0 0 140 140">
+      <path class="paperf" d="M20 30 Q20 12 40 12 L100 12 Q120 12 120 30 L120 80 Q120 98 100 98 L56 98 L34 122 L38 98 Q20 98 20 80 Z"/>
+      <circle class="inkf" cx="52" cy="48" r="6"/><circle class="inkf" cx="88" cy="48" r="6"/>
+      <path class="ln" d="M46 70 Q70 88 94 70"/>
+      <path class="ln thin" d="M124 22 L134 14 M126 40 L138 40 M124 58 L134 66"/>
+    </symbol>
+  
+    <symbol id="quill" viewBox="0 0 120 140">
+      <path class="ln" d="M40 58 L24 76 M80 58 L96 76"/>
+      <rect fill="#b8e3c9" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="40" y="8" width="40" height="80" rx="16"/>
+      <path class="ln thin" d="M40 32 L80 32 M74 12 L74 44"/>
+      <circle class="inkf" cx="52" cy="54" r="4"/><circle class="inkf" cx="68" cy="54" r="4"/>
+      <path class="ln thin" d="M52 68 Q60 75 68 68"/>
+      <path class="paperf" d="M44 88 L76 88 L60 118 Z"/>
+      <path class="ln thin" d="M60 96 L60 110"/><circle class="inkf" cx="60" cy="96" r="2.5"/>
+      <path class="ln" d="M52 103 L46 132 M68 103 L74 132 M36 132 L50 132 M70 132 L84 132"/>
+    </symbol>
+  </defs>
+<rect x="-10" y="-10" width="660" height="270" rx="6" fill="#ffffff" stroke="#1d2a44" stroke-width="2.5"/>
+        <title>A calendar of March 2026. The 4th is circled in blue: delivered. The 18th is circled in green: the last day, 14 days later. The 20th is circled in red: Ben withdrew, too late. Mind says: 14 days after the 4th is the 18th.</title>
+        <path class="ln thin" d="M20 240 L620 240" stroke-dasharray="2 9"/>
+        <rect class="paperf" x="190" y="24" width="300" height="212" rx="4"/>
+        <rect class="hif" x="190" y="24" width="300" height="30" rx="4"/>
+        <text class="hand" x="340" y="46" font-size="18" text-anchor="middle">March 2026</text>
+        <text class="hand" x="220" y="76" font-size="15" text-anchor="middle">Mo</text><text class="hand" x="260" y="76" font-size="15" text-anchor="middle">Tu</text><text class="hand" x="300" y="76" font-size="15" text-anchor="middle">We</text><text class="hand" x="340" y="76" font-size="15" text-anchor="middle">Th</text><text class="hand" x="380" y="76" font-size="15" text-anchor="middle">Fr</text><text class="hand" x="420" y="76" font-size="15" text-anchor="middle">Sa</text><text class="hand" x="460" y="76" font-size="15" text-anchor="middle">Su</text><text class="hand" x="460" y="106" font-size="16" text-anchor="middle">1</text><text class="hand" x="220" y="130" font-size="16" text-anchor="middle">2</text><text class="hand" x="260" y="130" font-size="16" text-anchor="middle">3</text><text class="hand" x="300" y="130" font-size="16" text-anchor="middle">4</text><text class="hand" x="340" y="130" font-size="16" text-anchor="middle">5</text><text class="hand" x="380" y="130" font-size="16" text-anchor="middle">6</text><text class="hand" x="420" y="130" font-size="16" text-anchor="middle">7</text><text class="hand" x="460" y="130" font-size="16" text-anchor="middle">8</text><text class="hand" x="220" y="154" font-size="16" text-anchor="middle">9</text><text class="hand" x="260" y="154" font-size="16" text-anchor="middle">10</text><text class="hand" x="300" y="154" font-size="16" text-anchor="middle">11</text><text class="hand" x="340" y="154" font-size="16" text-anchor="middle">12</text><text class="hand" x="380" y="154" font-size="16" text-anchor="middle">13</text><text class="hand" x="420" y="154" font-size="16" text-anchor="middle">14</text><text class="hand" x="460" y="154" font-size="16" text-anchor="middle">15</text><text class="hand" x="220" y="178" font-size="16" text-anchor="middle">16</text><text class="hand" x="260" y="178" font-size="16" text-anchor="middle">17</text><text class="hand" x="300" y="178" font-size="16" text-anchor="middle">18</text><text class="hand" x="340" y="178" font-size="16" text-anchor="middle">19</text><text class="hand" x="380" y="178" font-size="16" text-anchor="middle">20</text><text class="hand" x="420" y="178" font-size="16" text-anchor="middle">21</text><text class="hand" x="460" y="178" font-size="16" text-anchor="middle">22</text><text class="hand" x="220" y="202" font-size="16" text-anchor="middle">23</text><text class="hand" x="260" y="202" font-size="16" text-anchor="middle">24</text><text class="hand" x="300" y="202" font-size="16" text-anchor="middle">25</text><text class="hand" x="340" y="202" font-size="16" text-anchor="middle">26</text><text class="hand" x="380" y="202" font-size="16" text-anchor="middle">27</text><text class="hand" x="420" y="202" font-size="16" text-anchor="middle">28</text><text class="hand" x="460" y="202" font-size="16" text-anchor="middle">29</text><text class="hand" x="220" y="226" font-size="16" text-anchor="middle">30</text><text class="hand" x="260" y="226" font-size="16" text-anchor="middle">31</text>
+        <circle cx="300" cy="124" r="12" fill="none" stroke-width="4" stroke="#2563eb"/><circle cx="300" cy="172" r="12" fill="none" stroke-width="4" stroke="#16a34a"/><circle cx="380" cy="172" r="12" fill="none" stroke-width="4" stroke="#dc2626"/>
+        <circle cx="34" cy="84" r="10" fill="none" stroke-width="4" stroke="#2563eb"/><text class="hand" x="54" y="90" font-size="16">delivered</text>
+        <circle cx="34" cy="120" r="10" fill="none" stroke-width="4" stroke="#16a34a"/><text class="handok" x="54" y="126" font-size="16">last day,</text><text class="handok" x="54" y="146" font-size="16">14 days later</text>
+        <circle cx="34" cy="176" r="10" fill="none" stroke-width="4" stroke="#dc2626"/><text class="handno" x="54" y="182" font-size="16">Ben withdrew:</text><text class="handno" x="54" y="202" font-size="16">too late</text>
+        <use href="#mind" x="510" y="110" width="110" height="128"/>
+        <path class="paperf" d="M486 10 L626 10 Q636 10 636 20 L636 70 Q636 80 626 80 L574 80 L560 114 L552 80 L486 80 Q476 80 476 70 L476 20 Q476 10 486 10 Z"/>
+        <text class="hand" x="556" y="50.333333333333336" font-size="16" text-anchor="middle"></text>
+        <text class="hand" x="556" y="38" font-size="16" text-anchor="middle">14 days after</text>
+        <text class="hand" x="556" y="60" font-size="16" text-anchor="middle">the 4th is the 18th.</text>
+      </svg>

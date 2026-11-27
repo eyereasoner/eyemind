@@ -156,7 +156,9 @@ goals, and keep error messages specific and user-facing text direct.
   `LS-SPEC.md` (RFC-style specification: terms, programs, arithmetic,
   reasoning, canonical text, proof documents and proof checking).
 - `BOOK.md`, "The Art of eyemind": an illustrated introduction for a wide
-  audience, with its cartoons as SVG files in `assets/book/`.
+  audience, with its cartoons as SVG files in `assets/book/`. `LE-BOOK.md`,
+  "The Art of Logical English", its companion on Logical English, follows the
+  `consumer-withdrawal-le` example, with its cartoons in `assets/le-book/`.
 - `release`, `.github/workflows/`, `.zenodo.json`: releases, CI, Pages,
   GitHub releases, npm publishing and Zenodo archiving.
 - `reports/`: RDF, SPARQL RL and SHACL 1.2 EARL reports, refreshed from complete

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -12 664 274" width="664" height="274" role="img">
+<style>
+  .ln { fill: none; stroke: #1d2a44; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .thin { stroke-width: 2; }
+  .inkf { fill: #1d2a44; }
+  .paperf { fill: #ffffff; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .skyf { fill: #c7dbff; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .hif { fill: #ffd43b; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .okl { fill: none; stroke: #16a34a; stroke-width: 4; stroke-linejoin: round; }
+  .nol { fill: none; stroke: #dc2626; stroke-width: 4; stroke-linejoin: round; }
+  .hand { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #1d2a44; }
+  .handok { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #16a34a; }
+  .handno { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #dc2626; }
+  .mono { font-family: "JetBrains Mono", Menlo, Consolas, monospace; fill: #1d2a44; }
+</style>
+<defs>
+    <symbol id="mind" viewBox="0 0 120 140">
+      <path class="skyf" d="M18 70 C14 34 40 12 62 12 C88 12 106 34 102 70 C100 98 86 112 60 112 C34 112 20 98 18 70 Z"/>
+      <ellipse class="paperf" cx="60" cy="58" rx="24" ry="20"/>
+      <g class="blink"><circle class="inkf" cx="64" cy="58" r="9"/><circle fill="#ffffff" cx="67" cy="55" r="3"/></g>
+      <path class="ln thin" d="M50 90 Q60 97 72 90"/>
+      <path class="ln" d="M40 112 L36 132 M80 112 L84 132 M28 132 L44 132 M76 132 L92 132"/>
+      <path class="ln" d="M60 12 L60 2"/><circle class="hif" cx="60" cy="2" r="4"/>
+    </symbol>
+    <symbol id="checker" viewBox="0 0 120 140">
+      <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="28" y="30" width="64" height="82" rx="6"/>
+      <path class="ln thin" d="M38 48 L82 48 M38 60 L82 60 M38 72 L70 72"/>
+      <circle class="paperf" cx="48" cy="20" r="0"/>
+      <circle class="inkf" cx="50" cy="40" r="0"/>
+      <path class="ln" d="M44 112 L40 132 M76 112 L80 132 M32 132 L48 132 M72 132 L88 132"/>
+      <circle class="inkf" cx="48" cy="88" r="4"/><circle class="inkf" cx="72" cy="88" r="4"/>
+      <path class="ln thin" d="M50 102 L70 102"/>
+      <path class="ln" d="M44 80 L54 78 M66 78 L76 80"/>
+    </symbol>
+    <symbol id="chatty" viewBox="0 0 140 140">
+      <path class="paperf" d="M20 30 Q20 12 40 12 L100 12 Q120 12 120 30 L120 80 Q120 98 100 98 L56 98 L34 122 L38 98 Q20 98 20 80 Z"/>
+      <circle class="inkf" cx="52" cy="48" r="6"/><circle class="inkf" cx="88" cy="48" r="6"/>
+      <path class="ln" d="M46 70 Q70 88 94 70"/>
+      <path class="ln thin" d="M124 22 L134 14 M126 40 L138 40 M124 58 L134 66"/>
+    </symbol>
+  
+    <symbol id="quill" viewBox="0 0 120 140">
+      <path class="ln" d="M40 58 L24 76 M80 58 L96 76"/>
+      <rect fill="#b8e3c9" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="40" y="8" width="40" height="80" rx="16"/>
+      <path class="ln thin" d="M40 32 L80 32 M74 12 L74 44"/>
+      <circle class="inkf" cx="52" cy="54" r="4"/><circle class="inkf" cx="68" cy="54" r="4"/>
+      <path class="ln thin" d="M52 68 Q60 75 68 68"/>
+      <path class="paperf" d="M44 88 L76 88 L60 118 Z"/>
+      <path class="ln thin" d="M60 96 L60 110"/><circle class="inkf" cx="60" cy="96" r="2.5"/>
+      <path class="ln" d="M52 103 L46 132 M68 103 L74 132 M36 132 L50 132 M70 132 L84 132"/>
+    </symbol>
+  </defs>
+<rect x="-10" y="-10" width="660" height="270" rx="6" fill="#ffffff" stroke="#1d2a44" stroke-width="2.5"/>
+        <title>A template card reads: the consumer withdrew from a contract on a date, with the two places highlighted in yellow. Arrows lead from each place to a sentence that fills it: the consumer withdrew from the jacket order on 2026-03-20. Mind says: fill in the blanks.</title>
+        <path class="ln thin" d="M20 240 L620 240" stroke-dasharray="2 9"/>
+        <rect class="paperf" x="20" y="56" width="440" height="54" rx="4"/>
+        <text class="hand" x="30" y="50" font-size="16">template</text>
+        <rect class="hif" x="247.6" y="74" width="99.6" height="22" rx="4"/><rect class="hif" x="372.4" y="74" width="68.4" height="22" rx="4"/><text class="mono" x="40" y="90" font-size="13" textLength="397.8" lengthAdjust="spacingAndGlyphs" xml:space="preserve">the consumer withdrew from *a contract* on *a date*</text>
+        <path class="ln" d="M297.4 112 L313 150 M406.59999999999997 112 L445.59999999999997 150"/>
+        <rect class="paperf" x="20" y="152" width="480" height="54" rx="4" style="fill: #c7dbff"/>
+        <text class="hand" x="30" y="228" font-size="16">a sentence of it</text>
+        <rect class="hif" x="247.6" y="170" width="130.8" height="22" rx="4"/><rect class="hif" x="403.59999999999997" y="170" width="84" height="22" rx="4"/><text class="mono" x="40" y="186" font-size="13" textLength="444.59999999999997" lengthAdjust="spacingAndGlyphs" xml:space="preserve">the consumer withdrew from the jacket order on 2026-03-20</text>
+        <use href="#mind" x="508" y="76" width="120" height="140"/>
+        <path class="paperf" d="M390 4 L620 4 Q630 4 630 14 L630 40 Q630 50 620 50 L580 50 L566 80 L558 50 L390 50 Q380 50 380 40 L380 14 Q380 4 390 4 Z"/>
+        <text class="hand" x="505" y="33" font-size="18" text-anchor="middle">Fill in the blanks.</text>
+      </svg>

@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -12 664 274" width="664" height="274" role="img">
+<style>
+  .ln { fill: none; stroke: #1d2a44; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .thin { stroke-width: 2; }
+  .inkf { fill: #1d2a44; }
+  .paperf { fill: #ffffff; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .skyf { fill: #c7dbff; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .hif { fill: #ffd43b; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .okl { fill: none; stroke: #16a34a; stroke-width: 4; stroke-linejoin: round; }
+  .nol { fill: none; stroke: #dc2626; stroke-width: 4; stroke-linejoin: round; }
+  .hand { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #1d2a44; }
+  .handok { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #16a34a; }
+  .handno { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #dc2626; }
+  .mono { font-family: "JetBrains Mono", Menlo, Consolas, monospace; fill: #1d2a44; }
+</style>
+<defs>
+    <symbol id="mind" viewBox="0 0 120 140">
+      <path class="skyf" d="M18 70 C14 34 40 12 62 12 C88 12 106 34 102 70 C100 98 86 112 60 112 C34 112 20 98 18 70 Z"/>
+      <ellipse class="paperf" cx="60" cy="58" rx="24" ry="20"/>
+      <g class="blink"><circle class="inkf" cx="64" cy="58" r="9"/><circle fill="#ffffff" cx="67" cy="55" r="3"/></g>
+      <path class="ln thin" d="M50 90 Q60 97 72 90"/>
+      <path class="ln" d="M40 112 L36 132 M80 112 L84 132 M28 132 L44 132 M76 132 L92 132"/>
+      <path class="ln" d="M60 12 L60 2"/><circle class="hif" cx="60" cy="2" r="4"/>
+    </symbol>
+    <symbol id="checker" viewBox="0 0 120 140">
+      <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="28" y="30" width="64" height="82" rx="6"/>
+      <path class="ln thin" d="M38 48 L82 48 M38 60 L82 60 M38 72 L70 72"/>
+      <circle class="paperf" cx="48" cy="20" r="0"/>
+      <circle class="inkf" cx="50" cy="40" r="0"/>
+      <path class="ln" d="M44 112 L40 132 M76 112 L80 132 M32 132 L48 132 M72 132 L88 132"/>
+      <circle class="inkf" cx="48" cy="88" r="4"/><circle class="inkf" cx="72" cy="88" r="4"/>
+      <path class="ln thin" d="M50 102 L70 102"/>
+      <path class="ln" d="M44 80 L54 78 M66 78 L76 80"/>
+    </symbol>
+    <symbol id="chatty" viewBox="0 0 140 140">
+      <path class="paperf" d="M20 30 Q20 12 40 12 L100 12 Q120 12 120 30 L120 80 Q120 98 100 98 L56 98 L34 122 L38 98 Q20 98 20 80 Z"/>
+      <circle class="inkf" cx="52" cy="48" r="6"/><circle class="inkf" cx="88" cy="48" r="6"/>
+      <path class="ln" d="M46 70 Q70 88 94 70"/>
+      <path class="ln thin" d="M124 22 L134 14 M126 40 L138 40 M124 58 L134 66"/>
+    </symbol>
+  
+    <symbol id="quill" viewBox="0 0 120 140">
+      <path class="ln" d="M40 58 L24 76 M80 58 L96 76"/>
+      <rect fill="#b8e3c9" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="40" y="8" width="40" height="80" rx="16"/>
+      <path class="ln thin" d="M40 32 L80 32 M74 12 L74 44"/>
+      <circle class="inkf" cx="52" cy="54" r="4"/><circle class="inkf" cx="68" cy="54" r="4"/>
+      <path class="ln thin" d="M52 68 Q60 75 68 68"/>
+      <path class="paperf" d="M44 88 L76 88 L60 118 Z"/>
+      <path class="ln thin" d="M60 96 L60 110"/><circle class="inkf" cx="60" cy="96" r="2.5"/>
+      <path class="ln" d="M52 103 L46 132 M68 103 L74 132 M36 132 L50 132 M70 132 L84 132"/>
+    </symbol>
+  </defs>
+<rect x="-10" y="-10" width="660" height="270" rx="6" fill="#ffffff" stroke="#1d2a44" stroke-width="2.5"/>
+        <title>Quill holds a clipboard titled scenario web shop. Three lines carry green ticks: periods as expected, valid as expected, late as expected. A fourth line is red: withheld not as expected. Mind points at it and says: one answer changed, look here.</title>
+        <path class="ln thin" d="M20 240 L620 240" stroke-dasharray="2 9"/>
+        <use href="#quill" x="20" y="90" width="130" height="152"/>
+        <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="160" y="40" width="270" height="190" rx="6"/>
+        <rect class="paperf" x="174" y="62" width="242" height="156" rx="3"/>
+        <rect class="inkf" x="260" y="30" width="70" height="20" rx="4"/>
+        <text class="hand" x="188" y="88" font-size="18">scenario web shop</text>
+        <path class="okl" d="M190 112 L198 120 L212 104"/><text class="hand" x="222" y="120" font-size="16">periods: as expected</text>
+        <path class="okl" d="M190 140 L198 148 L212 132"/><text class="hand" x="222" y="148" font-size="16">valid: as expected</text>
+        <path class="okl" d="M190 168 L198 176 L212 160"/><text class="hand" x="222" y="176" font-size="16">late: as expected</text>
+        <path class="nol" d="M192 190 L210 206 M210 190 L192 206"/><text class="handno" x="222" y="204" font-size="16">withheld: not as expected</text>
+        <path class="ln" d="M500 170 L432 196"/>
+        <use href="#mind" x="480" y="98" width="130" height="152"/>
+        <path class="paperf" d="M462 14 L622 14 Q632 14 632 24 L632 68 Q632 78 622 78 L554 78 L540 102 L532 78 L462 78 Q452 78 452 68 L452 24 Q452 14 462 14 Z"/>
+        <text class="hand" x="542" y="52" font-size="18" text-anchor="middle"></text>
+        <text class="hand" x="542" y="42" font-size="16" text-anchor="middle">One answer changed.</text>
+        <text class="hand" x="542" y="64" font-size="16" text-anchor="middle">Look here.</text>
+      </svg>

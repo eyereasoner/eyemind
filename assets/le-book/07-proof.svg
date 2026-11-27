@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -12 664 254" width="664" height="254" role="img">
+<style>
+  .ln { fill: none; stroke: #1d2a44; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .thin { stroke-width: 2; }
+  .inkf { fill: #1d2a44; }
+  .paperf { fill: #ffffff; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .skyf { fill: #c7dbff; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .hif { fill: #ffd43b; stroke: #1d2a44; stroke-width: 3; stroke-linejoin: round; }
+  .okl { fill: none; stroke: #16a34a; stroke-width: 4; stroke-linejoin: round; }
+  .nol { fill: none; stroke: #dc2626; stroke-width: 4; stroke-linejoin: round; }
+  .hand { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #1d2a44; }
+  .handok { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #16a34a; }
+  .handno { font-family: "Patrick Hand", "Comic Neue", "Comic Sans MS", "Chalkboard SE", cursive; fill: #dc2626; }
+  .mono { font-family: "JetBrains Mono", Menlo, Consolas, monospace; fill: #1d2a44; }
+</style>
+<defs>
+    <symbol id="mind" viewBox="0 0 120 140">
+      <path class="skyf" d="M18 70 C14 34 40 12 62 12 C88 12 106 34 102 70 C100 98 86 112 60 112 C34 112 20 98 18 70 Z"/>
+      <ellipse class="paperf" cx="60" cy="58" rx="24" ry="20"/>
+      <g class="blink"><circle class="inkf" cx="64" cy="58" r="9"/><circle fill="#ffffff" cx="67" cy="55" r="3"/></g>
+      <path class="ln thin" d="M50 90 Q60 97 72 90"/>
+      <path class="ln" d="M40 112 L36 132 M80 112 L84 132 M28 132 L44 132 M76 132 L92 132"/>
+      <path class="ln" d="M60 12 L60 2"/><circle class="hif" cx="60" cy="2" r="4"/>
+    </symbol>
+    <symbol id="checker" viewBox="0 0 120 140">
+      <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="28" y="30" width="64" height="82" rx="6"/>
+      <path class="ln thin" d="M38 48 L82 48 M38 60 L82 60 M38 72 L70 72"/>
+      <circle class="paperf" cx="48" cy="20" r="0"/>
+      <circle class="inkf" cx="50" cy="40" r="0"/>
+      <path class="ln" d="M44 112 L40 132 M76 112 L80 132 M32 132 L48 132 M72 132 L88 132"/>
+      <circle class="inkf" cx="48" cy="88" r="4"/><circle class="inkf" cx="72" cy="88" r="4"/>
+      <path class="ln thin" d="M50 102 L70 102"/>
+      <path class="ln" d="M44 80 L54 78 M66 78 L76 80"/>
+    </symbol>
+    <symbol id="chatty" viewBox="0 0 140 140">
+      <path class="paperf" d="M20 30 Q20 12 40 12 L100 12 Q120 12 120 30 L120 80 Q120 98 100 98 L56 98 L34 122 L38 98 Q20 98 20 80 Z"/>
+      <circle class="inkf" cx="52" cy="48" r="6"/><circle class="inkf" cx="88" cy="48" r="6"/>
+      <path class="ln" d="M46 70 Q70 88 94 70"/>
+      <path class="ln thin" d="M124 22 L134 14 M126 40 L138 40 M124 58 L134 66"/>
+    </symbol>
+  
+    <symbol id="quill" viewBox="0 0 120 140">
+      <path class="ln" d="M40 58 L24 76 M80 58 L96 76"/>
+      <rect fill="#b8e3c9" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="40" y="8" width="40" height="80" rx="16"/>
+      <path class="ln thin" d="M40 32 L80 32 M74 12 L74 44"/>
+      <circle class="inkf" cx="52" cy="54" r="4"/><circle class="inkf" cx="68" cy="54" r="4"/>
+      <path class="ln thin" d="M52 68 Q60 75 68 68"/>
+      <path class="paperf" d="M44 88 L76 88 L60 118 Z"/>
+      <path class="ln thin" d="M60 96 L60 110"/><circle class="inkf" cx="60" cy="96" r="2.5"/>
+      <path class="ln" d="M52 103 L46 132 M68 103 L74 132 M36 132 L50 132 M70 132 L84 132"/>
+    </symbol>
+  </defs>
+<rect x="-10" y="-10" width="660" height="250" rx="6" fill="#ffffff" stroke="#1d2a44" stroke-width="2.5"/>
+        <title>A card of Logical English goes through an arrow marked compile to a card of LS, then through an arrow marked prove to a page marked proof. Checker reads it with a magnifying glass and says: checked, against the compiled program.</title>
+        <path class="ln thin" d="M20 220 L620 220" stroke-dasharray="2 9"/>
+        <rect class="paperf" x="20" y="100" width="150" height="90" rx="4" style="fill: #c7dbff"/>
+        <text class="hand" x="30" y="92" font-size="15">Logical English</text>
+        <text class="mono" x="30" y="126" font-size="13">the withdrawal</text><text class="mono" x="30" y="144" font-size="13">from a contract</text><text class="mono" x="30" y="162" font-size="13">is valid if ...</text>
+        <path class="ln" d="M176 146 L222 146 M210 136 L222 146 L210 156"/><text class="hand" x="199" y="128" font-size="14" text-anchor="middle">compile</text>
+        <rect class="paperf" x="228" y="100" width="150" height="90" rx="4"/>
+        <text class="hand" x="238" y="92" font-size="15">Logic Script</text>
+        <text class="mono" x="238" y="126" font-size="12">implied_by(</text><text class="mono" x="246" y="144" font-size="12">is_valid(S, C),</text><text class="mono" x="246" y="162" font-size="12">[withdrew(...),</text><text class="mono" x="246" y="180" font-size="12"> ends_on(...)])</text>
+        <path class="ln" d="M384 146 L430 146 M418 136 L430 146 L418 156"/><text class="hand" x="407" y="128" font-size="14" text-anchor="middle">prove</text>
+        <g transform="translate(436 108) rotate(-4)">
+          <rect fill="#f7c5a9" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="0" y="0" width="86" height="80" rx="3"/>
+          <path class="ln thin" d="M12 20 L74 20 M12 34 L74 34 M12 48 L60 48 M12 62 L70 62"/>
+          <text class="hand" x="43" y="-8" font-size="15" text-anchor="middle">proof</text>
+        </g>
+        <use href="#checker" x="526" y="80" width="110" height="128"/>
+        <circle class="ln" cx="530" cy="150" r="18"/><path class="ln" d="M517 163 L504 178"/>
+        <path class="paperf" d="M386 6 L620 6 Q630 6 630 16 L630 56 Q630 66 620 66 L604 66 L590 84 L582 66 L386 66 Q376 66 376 56 L376 16 Q376 6 386 6 Z"/>
+        <text class="handok" x="503" y="42" font-size="18" text-anchor="middle"></text>
+        <text class="handok" x="503" y="32" font-size="20" text-anchor="middle">Checked,</text>
+        <text class="hand" x="503" y="54" font-size="15" text-anchor="middle">against the compiled program.</text>
+      </svg>

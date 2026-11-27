@@ -13,7 +13,7 @@ program, a JavaScript library and a browser application.
 - [Playground](https://eyereasoner.github.io/eyemind/playground/): run any
   example or your own program in the browser, with its proof and check report.
 - [Examples](https://eyereasoner.github.io/eyemind/examples/): the
-  163 runnable programs, each with a card deck and saved conclusions; all but
+  164 runnable programs, each with a card deck and saved conclusions; all but
   the two streamed examples also save proofs and check reports.
 - [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC): the
   language, the proof format and how a proof is checked.
@@ -21,7 +21,9 @@ program, a JavaScript library and a browser application.
   1247 cases that test language and proof behavior, also run
   [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
 - [Book](https://eyereasoner.github.io/eyemind/BOOK): The Art of eyemind, an
-  illustrated introduction for a wide audience.
+  illustrated introduction for a wide audience, and
+  [The Art of Logical English](https://eyereasoner.github.io/eyemind/LE-BOOK),
+  its companion on writing legal rules in plain English.
 
 ## Contents
 
@@ -268,6 +270,7 @@ For larger programs, try
 [GDPR breach notification](https://eyereasoner.github.io/eyemind/examples/deck/breach-notification-le),
 [international data transfers](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le),
 the [right to erasure](https://eyereasoner.github.io/eyemind/examples/deck/right-to-erasure-le),
+[withdrawing from an online purchase](https://eyereasoner.github.io/eyemind/examples/deck/consumer-withdrawal-le),
 [library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le),
 an [election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le),
 [shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le) or

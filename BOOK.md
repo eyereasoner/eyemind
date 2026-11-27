@@ -216,4 +216,5 @@ in a browser, browse the [examples](https://eyereasoner.github.io/eyemind/exampl
 or install the command with `npm install --global eyemind`. The
 [specification](https://eyereasoner.github.io/eyemind/LS-SPEC) and
 [conformance suite](https://eyereasoner.github.io/eyemind/conformance/) are
-there for anyone who wants to build their own.
+there for anyone who wants to build their own. For rules in plain English,
+read the companion [The Art of Logical English](https://eyereasoner.github.io/eyemind/LE-BOOK).
