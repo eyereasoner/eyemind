@@ -22,6 +22,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { VERSION } from '../src/index.js';
 import { check, execute, loadCases, shellSplit } from '../conformance/run.js';
+import { loadCases as loadLeCases } from '../le-conformance/run.js';
 import { RDF_MANIFESTS, manifestCases, runCase, runSparqlRlCase, sparqlRlCases } from './w3c.js';
 import { writeEarlReports } from '../tools/earl.js';
 import { checkCompleteEarlReports } from './earl.test.js';
@@ -36,14 +37,16 @@ import { shaclSummary } from '../tools/shacltests.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = dirname(HERE);
-const SECTIONS = ['unit', 'examples', 'conformance', 'mobibench', 'cli', 'playground'];
+const SECTIONS = ['unit', 'examples', 'conformance', 'le-conformance', 'mobibench', 'cli', 'playground'];
 const TITLES = {
-  unit: 'Unit tests', examples: 'Examples', conformance: 'Conformance', mobibench: 'MobiBench OWL 2 RL',
+  unit: 'Unit tests', examples: 'Examples', conformance: 'Logic Script conformance',
+  'le-conformance': 'Logical English conformance', mobibench: 'MobiBench OWL 2 RL',
   cli: 'Command-line cases through the eyemind command',
   playground: 'Playground in a headless Chrome',
 };
 const COUNTED = {
-  unit: 'unit tests', examples: 'example tests', conformance: 'conformance cases', mobibench: 'MobiBench OWL 2 RL cases',
+  unit: 'unit tests', examples: 'example tests', conformance: 'Logic Script conformance cases',
+  'le-conformance': 'Logical English conformance cases', mobibench: 'MobiBench OWL 2 RL cases',
   cli: 'command-line cases through the eyemind command', playground: 'playground tests',
 };
 const COLOR = process.env.NO_COLOR === undefined && (process.stdout.isTTY || (process.env.FORCE_COLOR ?? '0') !== '0');
@@ -158,8 +161,8 @@ async function runTests(reporter, tests) {
   }
 }
 
-function casesFor(reporter) {
-  return loadCases().filter((item) => reporter.wanted(`${item.where} ${item.name}`));
+function casesFor(reporter, cases) {
+  return cases.filter((item) => reporter.wanted(`${item.where} ${item.name}`));
 }
 
 // MobiBench's OWL 2 RL subsuite through --owl2rl, one test per case.
@@ -171,8 +174,8 @@ async function runMobibench(reporter) {
   results.forEach(({ ms, problem }, i) => reporter.result(labels[indexes[i]], ms, problem));
 }
 
-function runInProcess(reporter) {
-  for (const item of casesFor(reporter)) {
+function runInProcess(reporter, cases) {
+  for (const item of casesFor(reporter, cases)) {
     const started = performance.now();
     let problem = null;
     try {
@@ -208,7 +211,7 @@ function throughCommand(cases) {
 async function runThroughCommandLine(reporter) {
   const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
-  const all = casesFor(reporter);
+  const all = casesFor(reporter, [...loadCases(), ...loadLeCases()]);
   const cases = throughCommand(all);
   if (cases.length < all.length) {
     reporter.note(`${cases.length} of ${all.length} cases, each kind of case and every tenth; EYEMIND_CLI_ALL=1 runs them all.`);
@@ -321,7 +324,8 @@ async function main(argv) {
   for (const section of SECTIONS) {
     if (sections.length && !sections.includes(section)) continue;
     reporter.section(section);
-    if (section === 'conformance') runInProcess(reporter);
+    if (section === 'conformance') runInProcess(reporter, loadCases());
+    else if (section === 'le-conformance') runInProcess(reporter, loadLeCases());
     else if (section === 'mobibench') await runMobibench(reporter);
     else if (section === 'cli') await runThroughCommandLine(reporter);
     else if (section === 'playground') await runPlayground(reporter);

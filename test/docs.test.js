@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { checkReport, loadText, run } from '../src/index.js';
 import { loadCases, parseCases } from '../conformance/run.js';
+import { loadCases as loadLeCases } from '../le-conformance/run.js';
 import { sourceFiles } from '../tools/corpus.js';
 import { ROOT, assert, cli } from './helpers.js';
 
@@ -73,7 +74,7 @@ export const tests = {
   },
 
   'documents link the guide, the specification and the decks through GitHub Pages'() {
-    for (const path of ['README.md', 'LS-SPEC.md', 'LE-SPEC.md', 'conformance/README.md', 'examples/README.md']) {
+    for (const path of ['README.md', 'LS-SPEC.md', 'LE-SPEC.md', 'conformance/README.md', 'le-conformance/README.md', 'examples/README.md']) {
       for (const [, target] of document(path).matchAll(/\]\(([^)#][^)]*)\)/g)) {
         assert.doesNotMatch(target, /^(?!https?:)(?:.*\/)?(?:LS-SPEC|LE-SPEC|SPEC|GUIDE)(?:\.md)?(?:#|$)|^(?!https?:).*\bdeck\//,
           `${path}: ${target} should be a https://eyereasoner.github.io/eyemind/ link`);
@@ -88,11 +89,11 @@ export const tests = {
       assert.doesNotMatch(page, />\s*Back to\b/i, path);
       assert.doesNotMatch(page, /href="https:\/\/github\.com\/eyereasoner\/eyemind\/tree\/main\/conformance/, path);
     }
-    assert.match(document('playground/conformance.html'), /<a href="\.\.\/conformance\/">conformance suite<\/a>/);
+    assert.match(document('playground/conformance.html'), /id="suite-guide" href="\.\.\/conformance\/">Logic Script suite<\/a>/);
   },
 
   'consecutive lines with inline comments align them in one column'() {
-    const sources = ['README.md', 'LS-SPEC.md', 'LE-SPEC.md', 'AGENTS.md', 'conformance/README.md', 'examples/README.md',
+    const sources = ['README.md', 'LS-SPEC.md', 'LE-SPEC.md', 'AGENTS.md', 'conformance/README.md', 'le-conformance/README.md', 'examples/README.md',
       ...['src', 'bin', 'tools', 'test', 'conformance'].flatMap((dir) => readdirSync(join(ROOT, dir))
         .filter((name) => /\.m?js$/.test(name)).map((name) => `${dir}/${name}`))];
     for (const path of sources) {
@@ -128,15 +129,15 @@ export const tests = {
     const defined = new Set([...section.matchAll(/^\| `([a-z_]+)\(/gm)].map((match) => match[1]));
     assert.deepEqual([...defined].sort(),
       ['args', 'exit', 'file', 'spec', 'stderr', 'stdin', 'stdout', 'stdout_json', 'stdout_text']);
-    const manifest = JSON.parse(document('conformance/manifest.json'));
-    for (const entry of manifest) {
-      assert.deepEqual(Object.keys(entry).sort(), ['file', 'spec', 'topic'], JSON.stringify(entry));
-      assert.ok(Object.values(entry).every((value) => typeof value === 'string'), JSON.stringify(entry));
-    }
-    // Settings stand at the start of a case's lines, indented by two spaces.
-    for (const { file } of manifest) {
-      for (const [, name] of document(`conformance/${file}`).matchAll(/^ {2}([a-z_]+)\(/gm)) {
-        assert.ok(defined.has(name), `${file}: ${name} is not a setting the harness guide defines`);
+    for (const suite of ['conformance', 'le-conformance']) {
+      const manifest = JSON.parse(document(`${suite}/manifest.json`));
+      for (const entry of manifest) {
+        assert.deepEqual(Object.keys(entry).sort(), ['file', 'spec', 'topic'], JSON.stringify(entry));
+        assert.ok(Object.values(entry).every((value) => typeof value === 'string'), JSON.stringify(entry));
+        // Settings stand at the start of a case's lines, indented by two spaces.
+        for (const [, name] of document(`${suite}/${entry.file}`).matchAll(/^ {2}([a-z_]+)\(/gm)) {
+          assert.ok(defined.has(name), `${entry.file}: ${name} is not a setting the harness guide defines`);
+        }
       }
     }
     assert.throws(() => parseCases("conformance('x', [timeout(1)])"), /unknown setting timeout\/1/);
@@ -231,7 +232,8 @@ export const tests = {
   'documented example and conformance counts match the manifests'() {
     const count = JSON.parse(document('examples/manifest.json')).length;
     assert.match(document('README.md'), new RegExp(`\\b${count} runnable programs`));
-    assert.match(document('README.md'), new RegExp(`\\b${loadCases().length} cases that test`));
+    assert.match(document('README.md'), new RegExp(`\\b${loadCases().length} Logic Script cases`));
+    assert.match(document('README.md'), new RegExp(`\\b${loadLeCases().length} Logical English cases`));
   },
 
   'the contents link to the topics and every example has its deck and input language'() {

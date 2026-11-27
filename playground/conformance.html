@@ -13,6 +13,7 @@
     .group > summary { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
     .group > summary .hint { font-weight: 400; }
     .group .counts { margin-left: auto; font-weight: 600; }
+    .suite-links [aria-current="page"] { font-weight: 700; }
     .cases { list-style: none; margin: 0; padding: 0 0 6px; }
     .cases details { border-top: 1px solid var(--border); }
     .cases details > summary {
@@ -48,12 +49,12 @@
   <header>
     <a class="home" href="../" aria-label="eyemind home"><img src="../assets/eye.png" alt="" width="64" height="64"></a>
     <div>
-      <h1>The eyemind Conformance Suite</h1>
-      <p class="tagline">Logic Script (LS) conformance, checked by eyemind.</p>
-      <p>Every case of the <a href="../conformance/">conformance suite</a>,
-        run against eyemind in your browser and checked against the
-        <a href="../LS-SPEC">language and proof specification</a> and the
-        <a href="../#command-line">README interface documentation</a>.</p>
+      <h1 id="suite-title">Logic Script (LS) conformance</h1>
+      <p class="suite-links"><a id="ls-suite" href="conformance" aria-current="page">Logic Script</a> ·
+        <a id="le-suite" href="conformance?suite=le">Logical English</a></p>
+      <p>Run the <a id="suite-guide" href="../conformance/">Logic Script suite</a> in your
+        browser. Cases cite the <a id="suite-spec" href="../LS-SPEC">Logic Script specification</a>
+        or the <a href="../#command-line">command-line documentation</a>.</p>
     </div>
   </header>
   <main>
@@ -76,7 +77,7 @@
         <p class="hint">Each case runs eyemind's command line on the files it names, in a directory of its own, and
           compares the result with the language specification or the README interface documentation, as each
           case's references indicate. In an expected line, <code>…</code> matches unspecified text. Run the same
-          cases through another implementation's command adapter with <code>node conformance/run.js --command "…"</code>.</p>
+          cases through another implementation's command adapter with <code id="adapter-command">node conformance/run.js --command "…"</code>.</p>
       </div>
     </section>
   </main>
@@ -88,6 +89,19 @@
     const escapeHtml = (text) => String(text).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 
     const $ = (selector) => document.querySelector(selector);
+    const le = new URLSearchParams(location.search).get('suite') === 'le';
+    const suite = le ? 'le-conformance' : 'conformance';
+    if (le) {
+      $('#suite-title').textContent = 'Logical English (LE) conformance';
+      $('#ls-suite').removeAttribute('aria-current');
+      $('#le-suite').setAttribute('aria-current', 'page');
+      $('#suite-guide').textContent = 'Logical English suite';
+      $('#suite-guide').href = '../le-conformance/';
+      $('#suite-spec').textContent = 'Logical English reference';
+      $('#suite-spec').href = '../LE-SPEC';
+      $('#adapter-command').textContent = 'node le-conformance/run.js --command "…"';
+    }
+    document.title = `${$('#suite-title').textContent} · eyemind`;
     const runButton = $('#run');
     const stopButton = $('#stop');
     const filter = $('#filter');
@@ -128,9 +142,9 @@
     async function loadCases() {
       try {
         setStatus('Loading the cases…');
-        const manifest = JSON.parse(await fetchText('../conformance/manifest.json'));
+        const manifest = JSON.parse(await fetchText(`../${suite}/manifest.json`));
         const files = await Promise.all(manifest.map(async (entry) =>
-          ({ ...entry, text: await fetchText(`../conformance/${entry.file}`) })));
+          ({ ...entry, text: await fetchText(`../${suite}/${entry.file}`) })));
         groups.dataset.manifest = JSON.stringify(manifest);
         worker.postMessage({ type: 'load', files: files.map(({ file, text }) => ({ file, text })) });
       } catch (error) {

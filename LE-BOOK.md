@@ -15,12 +15,11 @@ Calejo, Galileo Sartor and their colleagues for writing legal and business
 rules as English that a computer runs. eyemind reads `.le` files, compiles them
 to Logic Script (LS), and answers their questions with proofs.
 
-Legal rules are where Logical English started, but nothing in it is about law.
-Any domain whose knowledge can be stated as rules reads the same way: a
-blood-group test that excludes a father, the molar mass of glucose, the
-critical path of a house build, Euclid's algorithm, the Pythagorean theorem.
-The examples include each of these, in science, technology, engineering and
-mathematics as well as law, and everything in this book applies to them.
+The examples also use Logical English for science, technology, engineering
+and mathematics. These programs use templates and rules to model ABO blood
+group inheritance, calculate the molar mass of glucose, and find the critical
+path of a house build. Euclid's algorithm and the Pythagorean theorem show
+how rules express integer arithmetic and comparisons.
 
 This book follows one example from start to finish: a web shop deciding on
 withdrawals from online purchases under the EU Consumer Rights Directive. The
@@ -306,8 +305,8 @@ and anyone can check is not.
 
 ## The art, in seven maxims
 
-1. **Write the rule as its source says it.** Keep the order, the words and the
-   article or theorem of the law, standard or textbook it comes from.
+1. **Write the rule as its source says it.** Keep the order and wording where
+   you can, and cite the article, clause or theorem it comes from.
 2. **Choose templates with the people who know the domain.** They are its
    vocabulary.
 3. **One provision, one rule.** Alternatives are separate rules; exceptions
@@ -332,13 +331,15 @@ one page, the proof on the other.*
 [consumer withdrawal example](https://eyereasoner.github.io/eyemind/playground/#example=consumer-withdrawal-le)
 in the playground, read its
 [card deck](https://eyereasoner.github.io/eyemind/examples/deck/consumer-withdrawal-le),
-or browse the other Logical English
-[examples](https://eyereasoner.github.io/eyemind/examples/): in law, from
-British citizenship to inheritance without a will; in science and mathematics,
-[ABO blood groups](https://eyereasoner.github.io/eyemind/examples/deck/blood-groups-le),
-[molar masses](https://eyereasoner.github.io/eyemind/examples/deck/molar-mass-le),
-a [critical path](https://eyereasoner.github.io/eyemind/examples/deck/critical-path-le),
-[Euclid's algorithm](https://eyereasoner.github.io/eyemind/examples/deck/euclid-le)
-and the [Pythagorean theorem](https://eyereasoner.github.io/eyemind/examples/deck/pythagoras-le). The
-[Logical English reference](https://eyereasoner.github.io/eyemind/LE-SPEC)
-says exactly what eyemind reads and what it compiles each part to.
+or browse the [examples catalog](https://eyereasoner.github.io/eyemind/examples/).
+
+- Science examples cover [ABO blood groups](https://eyereasoner.github.io/eyemind/examples/deck/blood-groups-le)
+  and [molar masses](https://eyereasoner.github.io/eyemind/examples/deck/molar-mass-le).
+- The engineering example finds the [critical path of a house build](https://eyereasoner.github.io/eyemind/examples/deck/critical-path-le).
+- Mathematics examples cover [Euclid's algorithm](https://eyereasoner.github.io/eyemind/examples/deck/euclid-le)
+  and the [Pythagorean theorem](https://eyereasoner.github.io/eyemind/examples/deck/pythagoras-le).
+- Law examples cover [British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le)
+  and [inheritance without a will](https://eyereasoner.github.io/eyemind/examples/deck/intestate-succession-le).
+
+See the [Logical English reference](https://eyereasoner.github.io/eyemind/LE-SPEC)
+for the syntax eyemind reads and the Logic Script it compiles to.

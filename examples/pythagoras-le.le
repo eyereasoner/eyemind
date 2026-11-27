@@ -72,7 +72,7 @@ the greatest common divisor of a number A and a number B is a number G
     and the greatest common divisor of B and R is G.
 
 % Euclid's formula: for coprime M > N of opposite parity, M*M - N*N, 2*M*N
-% and M*M + N*N are a primitive triple, the odd leg first.
+% and M*M + N*N give a primitive triple. Report the shorter leg first.
 a number A and a number B and a number C is a primitive Pythagorean triple
     if a number M is in [2, 3, 4, 5, 6, 7]
     and a number N is in [1, 2, 3, 4, 5, 6]

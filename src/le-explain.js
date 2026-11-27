@@ -20,7 +20,6 @@ const SILENT = new Set(['le:scenario/1', 'is_var/1', 'is_nonvar/1', 'true/0']);
 const AGGREGATE_WORDS = { 'le:sum': 'sum', 'le:count': 'count', 'le:average': 'average', 'le:min': 'min', 'le:max': 'max' };
 const OPERATORS = { add: '+', sub: '-', mul: '*', div: '/', floordiv: '//', mod: 'mod' };
 const PRECEDENCE = { add: 1, sub: 1, mul: 2, div: 2, floordiv: 2, mod: 2 };
-const ASSOCIATIVE = new Set(['add', 'mul']);
 const COMPARISONS = { lt: '<', gt: '>', le: '=<', ge: '>=', eq: '=', ne: '!=' };
 
 // The explanations of every answer of a Logical English run, as LE text: under
@@ -263,22 +262,19 @@ class Writer {
     return /^[aeiou]/.test(words) ? `an ${words}` : `a ${words}`;
   }
 
-  value(term, noun = null) {
+  value(term, noun = null, minPrecedence = 0) {
     // A value a helper computed is written as the formula it came from.
-    if (term instanceof Var && typeof this.pending.get(term) === 'string') return this.pending.get(term);
-    term = deref(term, this.env);
-    if (term instanceof Var) return this.pending.get(term) ?? this.phrase(term, noun);
+    const pending = term instanceof Var ? this.pending.get(term) : null;
+    term = pending instanceof Struct ? pending : deref(term, this.env);
+    if (term instanceof Var) return this.phrase(term, noun);
     if (term instanceof Struct && OPERATORS[term.name] && term.args.length === 2) {
-      // Brackets only where precedence needs them: around a lower operator,
-      // or an equal one on the right of a subtraction or division.
-      const side = (arg, right) => {
-        const text = this.value(arg);
-        const inner = deref(arg, this.env);
-        if (!(inner instanceof Struct && OPERATORS[inner.name] && inner.args.length === 2)) return text;
-        const [outer, own] = [PRECEDENCE[term.name], PRECEDENCE[inner.name]];
-        return own < outer || (right && own === outer && !ASSOCIATIVE.has(term.name)) ? `(${text})` : text;
-      };
-      return `${side(term.args[0], false)} ${OPERATORS[term.name]} ${side(term.args[1], true)}`;
+      // LE reads operators of equal precedence from left to right. Keep a
+      // grouped right operand even for + and *, since floats can round.
+      const precedence = PRECEDENCE[term.name];
+      const left = this.value(term.args[0], null, precedence);
+      const right = this.value(term.args[1], null, precedence + 1);
+      const text = `${left} ${OPERATORS[term.name]} ${right}`;
+      return precedence < minPrecedence ? `(${text})` : text;
     }
     if (term instanceof Struct && (term.name === 'min' || term.name === 'max') && term.args.length === 2) {
       return `the ${term.name === 'min' ? 'minimum' : 'maximum'} of ${this.value(term.args[0])} and ${this.value(term.args[1])}`;
@@ -328,8 +324,7 @@ class Writer {
       const each = named === undefined ? null : ID.test(named) ? named : named.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase();
       if (item instanceof Var) this.seen.add(item);
       const such = `each ${each ?? this.value(item)} such that ${this.conjunction(args[1])}`;
-      const items = this.value(list);
-      this.pending.set(args[2] instanceof Var ? args[2] : list, { such, items });
+      this.pending.set(args[2] instanceof Var ? args[2] : list, { such });
       return null;
     }
     if (AGGREGATE_WORDS[name] && args.length === 2) {
@@ -340,12 +335,12 @@ class Writer {
     }
     if (name === 'le:divide' && args.length === 3) {
       // The quotient is written where the formula that divides uses it.
-      const formula = `${this.value(args[0])} / ${this.value(args[1])}`;
+      const formula = new Struct('div', args.slice(0, 2));
       if (args[2] instanceof Var) {
         this.pending.set(args[2], formula);
         return null;
       }
-      return `${this.value(args[2])} = ${formula}`;
+      return `${this.value(args[2])} = ${this.value(formula)}`;
     }
     if (name === 'le:days_after' && args.length === 3) return `${this.value(args[0])} is ${this.value(args[1])} days after ${this.value(args[2])}`;
     if (name === 'is' && args.length === 2) {
@@ -380,7 +375,7 @@ class Writer {
   // The items a collection gathered, for the aggregate that takes them.
   collected(list) {
     const pending = this.pending.get(list instanceof Var ? list : deref(list, this.env));
-    if (!pending || typeof pending === 'string') return null;
+    if (!pending || pending instanceof Struct) return null;
     const items = copyResolved(list, this.env);
     const values = [];
     let rest = items;

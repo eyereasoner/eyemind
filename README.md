@@ -17,9 +17,12 @@ program, a JavaScript library and a browser application.
   the two streamed examples also save proofs and check reports.
 - [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC): the
   language, the proof format and how a proof is checked.
-- [Conformance](https://eyereasoner.github.io/eyemind/conformance/): the
-  1247 cases that test language and proof behavior, also run
-  [in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+- [Logic Script conformance](https://eyereasoner.github.io/eyemind/conformance/)
+  has 1247 Logic Script cases, including proof checking.
+  [Run LS in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+- [Logical English conformance](https://eyereasoner.github.io/eyemind/le-conformance/)
+  has 599 Logical English cases for the LE reference.
+  [Run LE in your browser](https://eyereasoner.github.io/eyemind/playground/conformance?suite=le).
 - [Book](https://eyereasoner.github.io/eyemind/BOOK): The Art of eyemind, an
   illustrated introduction for a wide audience, and
   [The Art of Logical English](https://eyereasoner.github.io/eyemind/LE-BOOK),
@@ -807,7 +810,8 @@ npm test -- -k skolem                                 # only tests whose line co
 EYEMIND_PROPERTY_SCALE=20 npm test -- -k properties   # deeper generated tests
 node tools/update-examples.js                         # regenerate example artifacts after an intended change
 npm run sync                                          # refresh the cached upstream test suites and the QUDT catalog
-node conformance/run.js --command "my-eyemind"        # run the conformance suite against another implementation
+node conformance/run.js --command "my-eyemind"        # test a Logic Script implementation
+node le-conformance/run.js --command "my-le"          # test a Logical English implementation
 npm run bench                                         # the RDF reasoning benchmark; see bench/README.md
 ./release patch "Describe the changes"                # test, tag and publish a release
 ```

@@ -1,24 +1,24 @@
 # Logic Script conformance suite
 
-These cases test a Logic Script (LS) implementation against [the specification](https://eyereasoner.github.io/eyemind/LS-SPEC). They are
-black-box: each case creates some files, runs the implementation's command
-line and compares what it prints and its exit code with the expected result.
-The command adapter follows the [README command-line interface](https://eyereasoner.github.io/eyemind/#command-line).
-An implementation can provide an adapter for this harness without adopting
-that interface as its public API. The harness also tests the CLI, JSON report
-and unused-clause features documented in the README; those are implementation
-compatibility checks, outside language and proof conformance.
+These black-box cases test Logic Script (LS) against its [language and proof
+specification](https://eyereasoner.github.io/eyemind/LS-SPEC).
+Each case creates files, runs the implementation's command line and compares
+its output and exit code with the expected result. The command adapter follows
+the [README command-line interface](https://eyereasoner.github.io/eyemind/#command-line).
+An implementation can provide an adapter for this harness. Cases tagged
+`README.` exercise interface features.
 
 ```sh
-node conformance/run.js                                 # eyemind from this checkout, in this process
-node conformance/run.js --command "path/to/my-eyemind"  # against another implementation
-node conformance/run.js -k skolem                       # cases whose name contains "skolem"
-node conformance/run.js 11-checking.js -v               # one file, listing every case
+node conformance/run.js                                   # eyemind from this checkout
+node conformance/run.js --command "/path/to/my-eyemind"   # against another implementation
+node conformance/run.js -k skolem                         # cases whose name contains "skolem"
+node conformance/run.js 11-checking.js -v                 # one file, listing every case
 ```
 
-The suite also runs with eyemind's own tests (`npm test`). `manifest.json` lists
-the case files in order, with the SPEC sections and the topic of each.
-[Run the same cases in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The suite also runs with `npm test -- conformance`.
+[Run the suite in your browser](https://eyereasoner.github.io/eyemind/playground/conformance).
+The [Logical English suite](https://eyereasoner.github.io/eyemind/le-conformance/)
+has its own runner and manifest.
 
 ## Coverage
 
@@ -42,14 +42,15 @@ case, and Section 14 has document-security cases. The suite includes every
 arithmetic function, its arity errors, every control and primitive, and valid
 and forged proofs for each requirement of the check: reading the document,
 answering calls from their tables, replaying derived facts, deciding the
-claims and using every statement. Tags index the requirements exercised;
-they do not imply exhaustive coverage of all inputs or combinations.
+claims and using every statement. Tags index the requirements exercised.
 
 ## Case format
 
 This section defines the harness manifest, case format and pass criteria.
 Case files are data documents in [SPEC Section 9.1](https://eyereasoner.github.io/eyemind/LS-SPEC#91-accepted-document-syntax).
-Numeric `spec` tags refer to that specification. Tags beginning `README.`
+Numeric `spec` tags refer to that specification. Tags beginning `LE-SPEC.`
+refer to headings of the Logical English reference, such as
+`LE-SPEC.facts-and-rules`. Tags beginning `README.`
 refer to implementation features at the corresponding README heading, such
 as `README.command-line`, `README.json-check-reports` and
 `README.unused-clauses`. These tags distinguish the implementation interface
@@ -136,9 +137,9 @@ string of that form.
 
 ## Writing cases
 
-Expected language and proof results come from the specification, not from
-running an implementation. When a case and an implementation disagree, the
-specification decides which one is wrong. A case whose proof check fails
+Derive the expected results from the LS specification or the Logical English
+reference. When a case and an implementation disagree, the cited reference
+decides which one is wrong. A case whose proof check fails
 compares only the exit code, since the wording, number and order of failures
 are informative ([Section 12](https://eyereasoner.github.io/eyemind/LS-SPEC#12-check-reports)). Interface compatibility cases take
 their expectations from the README. Keep these references explicit; passing

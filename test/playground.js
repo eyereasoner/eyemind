@@ -5,6 +5,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { loadCases } from '../conformance/run.js';
+import { loadCases as loadLeCases } from '../le-conformance/run.js';
 import { artifactPath, readManifest, sourceFiles } from '../tools/corpus.js';
 
 const expected = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
@@ -611,34 +612,46 @@ query(or(q(X), r(X)))`);
     await p.open(`${base}#example=socrates`);
     const labels = ['Playground', 'Examples', 'Specification', 'Conformance', 'Book', 'Repository ↗'];
     assert.deepEqual(await page.evaluate("[...document.querySelectorAll('nav a')].map(a => a.textContent)"), labels);
-    await page.evaluate("[...document.querySelectorAll('nav a')].find(a => a.textContent === 'Conformance').click()");
+    const ready = (count) => p.until(`document.querySelectorAll('.cases > li').length === ${count} && !document.getElementById('run').disabled`, 'conformance cases');
     const count = loadCases().length;
-    await p.until(`document.querySelectorAll('.cases > li').length === ${count} && !document.getElementById('run').disabled`, 'conformance cases');
+    await page.evaluate("[...document.querySelectorAll('nav a')].find(a => a.textContent === 'Conformance').click()");
+    await ready(count);
     assert.equal(await page.evaluate('location.pathname'), '/playground/conformance');
     assert.deepEqual(await page.evaluate("[...document.querySelectorAll('nav a')].map(a => a.textContent)"), labels);
     assert.equal(await page.evaluate("document.querySelector('nav [aria-current=page]').textContent"), 'Conformance');
-    assert.match(await page.evaluate("document.querySelector('.tagline').textContent"), /Logic Script \(LS\) conformance/);
+    assert.equal(await page.evaluate("document.getElementById('suite-title').textContent"), 'Logic Script (LS) conformance');
     assert.match(await page.evaluate("document.querySelector('footer').textContent"), /eyemind.*Logic Script \(LS\) reasoner/s);
+    const runSuite = async (count) => {
+      await page.evaluate("document.getElementById('run').click()");
+      await p.until(`!document.getElementById('run').disabled && document.querySelectorAll('.mark.pass, .mark.fail').length === ${count}`, 'all browser conformance cases', 120000);
+      assert.equal(await page.evaluate("[...document.querySelectorAll('.mark.fail')].map(mark => mark.closest('li').textContent).join('\\n')"), '');
+      assert.equal(await page.evaluate("document.querySelectorAll('.mark.pass').length"), count);
+      assert.ok(await page.evaluate(`Array.from(document.querySelectorAll('.group')).every(group => {
+        const size = group.querySelectorAll('.cases > li').length;
+        return group.querySelector('.counts.badge.ok')?.textContent === size + ' / ' + size;
+      })`));
+      for (const width of [1280, 390]) {
+        await page.command('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width === 390 });
+        assert.ok(await page.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth'), `conformance at ${width}px`);
+        assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].every(node => node.getBoundingClientRect().right <= innerWidth)"),
+          `conformance references fit at ${width}px`);
+      }
+    };
     assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].some(node => node.textContent.includes('README.command-line'))"));
-    assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].every(node => node.textContent.startsWith('References: '))"));
+    assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].every(node => !node.textContent.includes('LE-SPEC.'))"));
     await p.type('filter', 'replay');
     const filtered = await page.evaluate("document.querySelectorAll('.cases > li:not(.hidden)').length");
     assert.ok(filtered > 0 && filtered < count);
     await p.type('filter', '');
-    await page.evaluate("document.getElementById('run').click()");
-    await p.until(`!document.getElementById('run').disabled && document.querySelectorAll('.mark.pass, .mark.fail').length === ${count}`, 'all browser conformance cases', 120000);
-    assert.equal(await page.evaluate("[...document.querySelectorAll('.mark.fail')].map(mark => mark.closest('li').textContent).join('\\n')"), '');
-    assert.equal(await page.evaluate("document.querySelectorAll('.mark.pass').length"), count);
-    assert.ok(await page.evaluate(`Array.from(document.querySelectorAll('.group')).every(group => {
-      const size = group.querySelectorAll('.cases > li').length;
-      return group.querySelector('.counts.badge.ok')?.textContent === size + ' / ' + size;
-    })`));
-    for (const width of [1280, 390]) {
-      await page.command('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width === 390 });
-      assert.ok(await page.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth'), `conformance at ${width}px`);
-      assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].every(node => node.getBoundingClientRect().right <= innerWidth)"),
-        `conformance references fit at ${width}px`);
-    }
+    await runSuite(count);
+    await page.evaluate("document.getElementById('le-suite').click()");
+    const leCount = loadLeCases().length;
+    await ready(leCount);
+    assert.equal(await page.evaluate('location.search'), '?suite=le');
+    assert.equal(await page.evaluate("document.getElementById('suite-title').textContent"), 'Logical English (LE) conformance');
+    assert.equal(await page.evaluate("document.getElementById('le-suite').getAttribute('aria-current')"), 'page');
+    assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].every(node => node.textContent.startsWith('References: LE-SPEC.'))"));
+    await runSuite(leCount);
     await page.evaluate("document.querySelector('nav a[href=\"./\"]').click()");
     await p.until("document.getElementById('input') && !document.getElementById('run').disabled", 'return to the playground');
   }],

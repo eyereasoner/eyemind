@@ -192,7 +192,7 @@ function bracketedName(tokens) {
 const lower = (token) => token.kind === 'word' ? token.text.toLowerCase() : token.text;
 const isWord = (token, ...words) => token.kind === 'word' && words.includes(token.text.toLowerCase());
 // Words joined as written: no space before a comma, a closing bracket or 's.
-const joined = (words) => words.join(' ').replace(/ ([,:\])]) ?/g, '$1 ').replace(/([[(]) /g, '$1').replace(/ (['’]s)(?= |$)/g, '$1').replace(/ +$/, '');
+const joined = (words) => words.join(' ').replace(/ ([,:\])])/g, '$1').replace(/([[(]) /g, '$1').replace(/ (['’]s)(?= |$)/g, '$1').replace(/ +$/, '');
 const phrase = (tokens) => joined(tokens.map((t) => t.text));
 // Whether tokens start with these words, compared without case.
 const startsWith = (tokens, words, at = 0) => words.every((word, i) => tokens[at + i] && lower(tokens[at + i]) === word);
@@ -2209,8 +2209,12 @@ export function writeLe(result, loaded) {
   // on; an answer that also holds without any is definite.
   const found = new Map();
   // A negative assumption reads "it is not the case that S".
-  const unknown = (term) => term instanceof Struct && term.name === 'le:not' && term.args.length === 1 ? `it is not the case that ${unknown(term.args[0])}`
-    : leValue(threaded && term instanceof Struct ? new Struct(term.name, term.args.slice(1)) : term, templates);
+  const unknown = (term) => {
+    if (term instanceof Struct && term.name === 'le:not' && term.args.length === 1) return `it is not the case that ${unknown(term.args[0])}`;
+    // Without a scenario argument a sentence with no places is an atom.
+    if (typeof term === 'string') return leValue(new Struct(term, []), templates);
+    return leValue(threaded && term instanceof Struct ? new Struct(term.name, term.args.slice(1)) : term, templates);
+  };
   for (const answer of result.answers) {
     const term = readTerm(answer);
     if (!(term instanceof Struct) || term.name !== ANSWER) continue;

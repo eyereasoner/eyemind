@@ -553,6 +553,33 @@ query q is: which thing is wet.`), '')), /does not explain answers that rest on 
       ['6 is double of 3.']);
   },
 
+  'explanations preserve the grouping of arithmetic and division'() {
+    const loaded = compile(document('*a number* is the result for *a case*.', `
+a number N is the result for remainder if N = 5 * (5 mod 3).
+a number N is the result for divisor if N = 12 / (2 + 4).
+a number N is the result for nested if N = 12 * (8 / 3).
+a number N is the result for quotient if N = 24 / (6 / 3).
+a number N is the result for rounding if N = 9007199254740992.0 + (1.0 + 1.0).
+`, 'which number is the result for which case.'));
+    const proof = run(loaded.program, { proof: true }).proof;
+    assert.equal(explainLe(loaded, proof), `% query q
+10 is the result for remainder
+    because 10 = 5 * (5 mod 3).
+
+2 is the result for divisor
+    because 2 = 12 / (2 + 4).
+
+32.0 is the result for nested
+    because 32.0 = 12 * (8 / 3).
+
+12 is the result for quotient
+    because 12 = 24 / (6 / 3).
+
+9007199254740994.0 is the result for rounding
+    because 9007199254740994.0 = 9007199254740992.0 + (1.0 + 1.0).
+`);
+  },
+
   'lists, membership and LE1 list templates'() {
     const templates = '*a list* has *a thing* first.';
     assert.deepEqual(sentences(document(templates, 'a list has a thing first if the list has the thing as head before a rest.', '[a, b] has which thing first.')), ['[a, b] has a first.']);

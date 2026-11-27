@@ -120,7 +120,10 @@ goals, and keep error messages specific and user-facing text direct.
   order by `manifest.json` and read by `conformance/run.js`; `cases.js` parses
   and compares cases for the Node runner and the browser `worker.js`, which
   runs them in memory through `memory.js`. `conformance/README.md` describes the format.
-- `test/`: `run.js` runs every `*.test.js` module, the conformance suite and
+- `le-conformance/`: black-box cases from LE-SPEC.md, with a separate runner
+  and manifest. It uses the same case format and browser worker. The
+  table-driven cases come from `tools/le-conformance-cases.js`.
+- `test/`: `run.js` runs every `*.test.js` module, both conformance suites and
   the playground tests of `playground.js` in a headless Chrome that
   `chrome.js` starts; `browser.mjs` runs those alone and can take screenshots.
   `w3c.js` runs the W3C RDF and SPARQL 1.2 RL suites cached in `.cache/w3c/`;

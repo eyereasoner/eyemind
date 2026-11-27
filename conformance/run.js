@@ -71,22 +71,22 @@ export function runCase(item, command = null) {
 }
 
 // The case files, in order, with the SPEC sections and topic of each.
-export function readManifest() {
-  return JSON.parse(readFileSync(join(HERE, 'manifest.json'), 'utf8'));
+export function readManifest(directory = HERE) {
+  return JSON.parse(readFileSync(join(directory, 'manifest.json'), 'utf8'));
 }
 
-function caseFiles(names) {
-  if (names.length) return names.map((name) => (isAbsolute(name) ? name : join(HERE, basename(name))));
-  return readManifest().map((entry) => join(HERE, entry.file));
+function caseFiles(names, directory) {
+  if (names.length) return names.map((name) => (isAbsolute(name) ? name : join(directory, basename(name))));
+  return readManifest(directory).map((entry) => join(directory, entry.file));
 }
 
-export function loadCases(names = [], pattern = null) {
-  let cases = uniqueNames(caseFiles(names).flatMap(parse));
+export function loadCases(names = [], pattern = null, directory = HERE) {
+  let cases = uniqueNames(caseFiles(names, directory).flatMap(parse));
   if (pattern) cases = cases.filter((item) => item.name.toLowerCase().includes(pattern.toLowerCase()));
   return cases;
 }
 
-function mainCommand(argv) {
+export function mainCommand(argv, directory = HERE) {
   const files = [];
   let command = null;
   let pattern = null;
@@ -97,7 +97,7 @@ function mainCommand(argv) {
     else if (argv[i] === '-v' || argv[i] === '--verbose') verbose = true;
     else files.push(argv[i]);
   }
-  const cases = loadCases(files, pattern);
+  const cases = loadCases(files, pattern, directory);
   let failed = 0;
   for (const item of cases) {
     const problems = runCase(item, command);
@@ -113,7 +113,7 @@ function mainCommand(argv) {
   return failed ? 1 : 0;
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   process.exitCode = mainCommand(process.argv.slice(2));
 }
 

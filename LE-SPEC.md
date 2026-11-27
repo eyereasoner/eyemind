@@ -13,6 +13,11 @@ extension: the meaning of the compiled program is defined by the
 document says how eyemind reads LE and what it compiles each part to. Where the
 two LE implementations differ, it says which reading eyemind follows.
 
+The [Logical English conformance suite](https://eyereasoner.github.io/eyemind/le-conformance/)
+has cases for each section of this reference. Run them with
+`node le-conformance/run.js` or in the
+[LE browser runner](https://eyereasoner.github.io/eyemind/playground/conformance?suite=le).
+
 ## Documents
 
 A document is a sequence of sections. Each section starts with a header that
@@ -510,7 +515,8 @@ through its template, with the values of that solution:
 - an aggregate gives its value, its condition and the values it collected, after
   `namely`;
 - a comparison of dates is `is before`, `is after` or `is the same day as`, a
-  date count `is N days after`, and arithmetic the formula with its values;
+  date count `is N days after`, and arithmetic the formula with its values and
+  parentheses to preserve the order of operations;
 - a sentence a relation states at another level of an unfolding, or the base
   relation of an `only if` rule, gives its own conditions instead of
   repeating the answer;

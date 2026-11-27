@@ -1,0 +1,67 @@
+[
+  {
+    "file": "01-documents.js",
+    "spec": "LE-SPEC.documents, LE-SPEC.templates, LE-SPEC.sentences, LE-SPEC.not-supported",
+    "topic": "Document sections, resources, template matching, variables, names and rejected syntax"
+  },
+  {
+    "file": "02-rules.js",
+    "spec": "LE-SPEC.facts-and-rules, LE-SPEC.functions, LE-SPEC.negation, LE-SPEC.embedded-prolog, LE-SPEC.compilation-to-ls",
+    "topic": "Rule grouping, ontologies, recursion, functions, negation, source scopes and Prolog"
+  },
+  {
+    "file": "03-values.js",
+    "spec": "LE-SPEC.facts-and-rules, LE-SPEC.arithmetic-comparisons-and-built-in-templates",
+    "topic": "Aggregates, exact arithmetic, comparisons, dates and lists"
+  },
+  {
+    "file": "04-scenarios.js",
+    "spec": "LE-SPEC.scenarios-queries-and-expected-answers, LE-SPEC.abduction, LE-SPEC.flip-queries, LE-SPEC.output",
+    "topic": "Scenario isolation, expected answers, assumptions, constraints and minimal changes"
+  },
+  {
+    "file": "05-proof-and-explanations.js",
+    "spec": "LE-SPEC.compilation-to-ls, LE-SPEC.output, LE-SPEC.explanations",
+    "topic": "Answer formats, checking proofs against LE inputs and explaining answers"
+  },
+  {
+    "file": "06-names-and-variables.js",
+    "spec": "LE-SPEC.sentences",
+    "topic": "Names, quoted literals, URLs, dates, lists and variable forms"
+  },
+  {
+    "file": "07-arithmetic-operators.js",
+    "spec": "LE-SPEC.arithmetic-comparisons-and-built-in-templates",
+    "topic": "Precedence, associativity, exact integers and signed division"
+  },
+  {
+    "file": "08-comparisons-and-functions.js",
+    "spec": "LE-SPEC.arithmetic-comparisons-and-built-in-templates",
+    "topic": "Comparison truth tables, term equality and arithmetic functions"
+  },
+  {
+    "file": "09-calendar.js",
+    "spec": "LE-SPEC.arithmetic-comparisons-and-built-in-templates",
+    "topic": "Calendar order and date arithmetic in all three modes"
+  },
+  {
+    "file": "10-rule-conditions.js",
+    "spec": "LE-SPEC.facts-and-rules",
+    "topic": "Truth tables for grouping, numbered conditions, universals and ontology entailment"
+  },
+  {
+    "file": "11-collections-and-lists.js",
+    "spec": "LE-SPEC.facts-and-rules, LE-SPEC.arithmetic-comparisons-and-built-in-templates",
+    "topic": "Empty and nonempty aggregates, duplicate solutions and list operations"
+  },
+  {
+    "file": "12-assumptions-and-changes.js",
+    "spec": "LE-SPEC.abduction, LE-SPEC.flip-queries",
+    "topic": "Proved, absent and denied facts and minimal changes across conjunction and disjunction"
+  },
+  {
+    "file": "13-rejected-input.js",
+    "spec": "LE-SPEC.documents, LE-SPEC.templates, LE-SPEC.sentences, LE-SPEC.facts-and-rules, LE-SPEC.functions, LE-SPEC.scenarios-queries-and-expected-answers, LE-SPEC.abduction, LE-SPEC.not-supported",
+    "topic": "Input errors and unsupported syntax"
+  }
+]
