@@ -1,0 +1,142 @@
+% The Pythagorean theorem: in a right-angled triangle, the square on the
+% longest side equals the sum of the squares on the other two. The program
+% sorts triangles by comparing those squares, finds whole-number hypotenuses,
+% and generates the primitive Pythagorean triples with Euclid's formula.
+% 3-4-5, 5-12-13 and 6-8-10 are right-angled, 4-5-6 is acute, 2-3-4 obtuse,
+% and 1-2-3 is no triangle at all. Legs 20 and 21 have hypotenuse 29, legs 1
+% and 1 none in whole numbers. Seven primitive triples have a hypotenuse of at
+% most 50, from 3-4-5 to 9-40-41.
+% Shows comparisons of computed squares, a square root checked against whole
+% numbers, values generated from lists, Euclid's algorithm for coprime numbers
+% and a count over the generated triples.
+% After Euclid's Elements, Book I, Proposition 47, and Book X, Lemma 1 to
+% Proposition 29.
+
+the templates are:
+    *a triangle* has sides *a number* and *a number* and longest side *a number*,
+    *a triangle* is no triangle,
+    *a triangle* is right-angled,
+    *a triangle* is acute,
+    *a triangle* is obtuse,
+    legs *a number* and *a number* are given,
+    legs *a number* and *a number* have hypotenuse *a number*,
+    legs *a number* and *a number* have no whole hypotenuse,
+    the greatest common divisor of *a number* and *a number* is *a number*,
+    *a number* and *a number* and *a number* is a primitive Pythagorean triple,
+    *a number* primitive triples have a hypotenuse of at most *a number*.
+
+the knowledge base pythagoras includes:
+
+% Three lengths make a triangle only when the two shorter add up to more than
+% the longest.
+a triangle is no triangle
+    if the triangle has sides a number A and a number B and longest side a number C
+    and A + B =< C.
+
+% Book I, Proposition 47 and its converse, Proposition 48: the angle opposite
+% the longest side is right exactly when its square is the sum of the others.
+a triangle is right-angled
+    if the triangle has sides a number A and a number B and longest side a number C
+    and A + B > C
+    and A * A + B * B = C * C.
+
+a triangle is acute
+    if the triangle has sides a number A and a number B and longest side a number C
+    and A + B > C
+    and A * A + B * B > C * C.
+
+a triangle is obtuse
+    if the triangle has sides a number A and a number B and longest side a number C
+    and A + B > C
+    and A * A + B * B < C * C.
+
+% A hypotenuse is whole when the root of the sum of squares, rounded, squares
+% back to that sum.
+legs a number A and a number B have hypotenuse a number C
+    if legs A and B are given
+    and S = A * A + B * B
+    and C = round(sqrt(S))
+    and C * C = S.
+
+legs a number A and a number B have no whole hypotenuse
+    if legs A and B are given
+    and it is not the case that
+        legs A and B have hypotenuse a number C.
+
+the greatest common divisor of a number A and 0 is A
+    if A > 0.
+
+the greatest common divisor of a number A and a number B is a number G
+    if B > 0
+    and R = A mod B
+    and the greatest common divisor of B and R is G.
+
+% Euclid's formula: for coprime M > N of opposite parity, M*M - N*N, 2*M*N
+% and M*M + N*N are a primitive triple, the odd leg first.
+a number A and a number B and a number C is a primitive Pythagorean triple
+    if a number M is in [2, 3, 4, 5, 6, 7]
+    and a number N is in [1, 2, 3, 4, 5, 6]
+    and M > N
+    and (M - N) mod 2 = 1
+    and the greatest common divisor of M and N is 1
+    and X = M * M - N * N
+    and Y = 2 * M * N
+    and C = M * M + N * N
+    and the minimum of X and Y is A
+    and the maximum of X and Y is B.
+
+a number K primitive triples have a hypotenuse of at most a number L
+    if L is in [25, 50]
+    and K is the count of each C such that
+        a number A and a number B and C is a primitive Pythagorean triple
+        and C =< L.
+
+scenario geometry is:
+    t1 has sides 3 and 4 and longest side 5.
+    t2 has sides 5 and 12 and longest side 13.
+    t3 has sides 6 and 8 and longest side 10.
+    t4 has sides 4 and 5 and longest side 6.
+    t5 has sides 2 and 3 and longest side 4.
+    t6 has sides 1 and 2 and longest side 3.
+    legs 20 and 21 are given.
+    legs 9 and 40 are given.
+    legs 1 and 1 are given.
+    legs 2 and 3 are given.
+    right expects answers ["t1 is right-angled", "t2 is right-angled", "t3 is right-angled"].
+    acute expects answers ["t4 is acute"].
+    obtuse expects answers ["t5 is obtuse"].
+    degenerate expects answers ["t6 is no triangle"].
+    hypotenuses expects answers ["legs 20 and 21 have hypotenuse 29", "legs 9 and 40 have hypotenuse 41"].
+    irrational expects answers ["legs 1 and 1 have no whole hypotenuse", "legs 2 and 3 have no whole hypotenuse"].
+    triples expects answers ["3 and 4 and 5 is a primitive Pythagorean triple",
+        "5 and 12 and 13 is a primitive Pythagorean triple", "8 and 15 and 17 is a primitive Pythagorean triple",
+        "7 and 24 and 25 is a primitive Pythagorean triple", "20 and 21 and 29 is a primitive Pythagorean triple",
+        "9 and 40 and 41 is a primitive Pythagorean triple", "12 and 35 and 37 is a primitive Pythagorean triple",
+        "11 and 60 and 61 is a primitive Pythagorean triple", "28 and 45 and 53 is a primitive Pythagorean triple",
+        "33 and 56 and 65 is a primitive Pythagorean triple", "13 and 84 and 85 is a primitive Pythagorean triple"].
+    counts expects answers ["4 primitive triples have a hypotenuse of at most 25",
+        "7 primitive triples have a hypotenuse of at most 50"].
+
+query right is:
+    which triangle is right-angled.
+
+query acute is:
+    which triangle is acute.
+
+query obtuse is:
+    which triangle is obtuse.
+
+query degenerate is:
+    which triangle is no triangle.
+
+query hypotenuses is:
+    legs which number and which other number have hypotenuse which hypotenuse.
+
+query irrational is:
+    legs which number and which other number have no whole hypotenuse.
+
+query triples is:
+    which number and which second number and which third number is a primitive Pythagorean triple.
+
+query counts is:
+    which count primitive triples have a hypotenuse of at most which limit.

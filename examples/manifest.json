@@ -931,5 +931,10 @@
     "name": "euclid-le",
     "files": ["euclid-le.le"],
     "description": "Euclid's algorithm gives greatest common divisors and least common multiples, finds coprime pairs and reduces fractions"
+  },
+  {
+    "name": "pythagoras-le",
+    "files": ["pythagoras-le.le"],
+    "description": "The Pythagorean theorem sorts triangles into right-angled, acute and obtuse, finds whole hypotenuses, and generates and counts primitive triples with Euclid's formula"
   }
 ]

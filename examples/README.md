@@ -122,6 +122,7 @@ Each deck explains the result and links to the source and Playground.
 
 ## Mathematics and computing
 
+- [The Pythagorean theorem](https://eyereasoner.github.io/eyemind/examples/deck/pythagoras-le) (Logical English) — The Pythagorean theorem sorts triangles into right-angled, acute and obtuse, finds whole hypotenuses, and generates and counts primitive triples with Euclid's formula
 - [Euclid's algorithm](https://eyereasoner.github.io/eyemind/examples/deck/euclid-le) (Logical English) — Euclid's algorithm gives greatest common divisors and least common multiples, finds coprime pairs and reduces fractions
 - [A greatest common divisor with coefficients](https://eyereasoner.github.io/eyemind/examples/deck/gcd-bezout-identity) (Logic Script) — Exact extended Euclidean certificates for positive, negative and zero inputs
 - [A Turing Machine](https://eyereasoner.github.io/eyemind/examples/deck/turing) (Logic Script) — A Turing machine interpreter running a binary incrementer

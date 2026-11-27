@@ -1,0 +1,38 @@
+% query right with scenario geometry
+t1 is right-angled.
+t2 is right-angled.
+t3 is right-angled.
+
+% query acute with scenario geometry
+t4 is acute.
+
+% query obtuse with scenario geometry
+t5 is obtuse.
+
+% query degenerate with scenario geometry
+t6 is no triangle.
+
+% query hypotenuses with scenario geometry
+legs 20 and 21 have hypotenuse 29.
+legs 9 and 40 have hypotenuse 41.
+
+% query irrational with scenario geometry
+legs 1 and 1 have no whole hypotenuse.
+legs 2 and 3 have no whole hypotenuse.
+
+% query triples with scenario geometry
+3 and 4 and 5 is a primitive Pythagorean triple.
+5 and 12 and 13 is a primitive Pythagorean triple.
+8 and 15 and 17 is a primitive Pythagorean triple.
+7 and 24 and 25 is a primitive Pythagorean triple.
+20 and 21 and 29 is a primitive Pythagorean triple.
+9 and 40 and 41 is a primitive Pythagorean triple.
+12 and 35 and 37 is a primitive Pythagorean triple.
+11 and 60 and 61 is a primitive Pythagorean triple.
+28 and 45 and 53 is a primitive Pythagorean triple.
+33 and 56 and 65 is a primitive Pythagorean triple.
+13 and 84 and 85 is a primitive Pythagorean triple.
+
+% query counts with scenario geometry
+4 primitive triples have a hypotenuse of at most 25.
+7 primitive triples have a hypotenuse of at most 50.

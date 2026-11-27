@@ -19,6 +19,8 @@ const ANSWER = 'le:answer';
 const SILENT = new Set(['le:scenario/1', 'is_var/1', 'is_nonvar/1', 'true/0']);
 const AGGREGATE_WORDS = { 'le:sum': 'sum', 'le:count': 'count', 'le:average': 'average', 'le:min': 'min', 'le:max': 'max' };
 const OPERATORS = { add: '+', sub: '-', mul: '*', div: '/', floordiv: '//', mod: 'mod' };
+const PRECEDENCE = { add: 1, sub: 1, mul: 2, div: 2, floordiv: 2, mod: 2 };
+const ASSOCIATIVE = new Set(['add', 'mul']);
 const COMPARISONS = { lt: '<', gt: '>', le: '=<', ge: '>=', eq: '=', ne: '!=' };
 
 // The explanations of every answer of a Logical English run, as LE text: under
@@ -267,12 +269,16 @@ class Writer {
     term = deref(term, this.env);
     if (term instanceof Var) return this.pending.get(term) ?? this.phrase(term, noun);
     if (term instanceof Struct && OPERATORS[term.name] && term.args.length === 2) {
-      const side = (arg) => {
+      // Brackets only where precedence needs them: around a lower operator,
+      // or an equal one on the right of a subtraction or division.
+      const side = (arg, right) => {
         const text = this.value(arg);
         const inner = deref(arg, this.env);
-        return inner instanceof Struct && OPERATORS[inner.name] ? `(${text})` : text;
+        if (!(inner instanceof Struct && OPERATORS[inner.name] && inner.args.length === 2)) return text;
+        const [outer, own] = [PRECEDENCE[term.name], PRECEDENCE[inner.name]];
+        return own < outer || (right && own === outer && !ASSOCIATIVE.has(term.name)) ? `(${text})` : text;
       };
-      return `${side(term.args[0])} ${OPERATORS[term.name]} ${side(term.args[1])}`;
+      return `${side(term.args[0], false)} ${OPERATORS[term.name]} ${side(term.args[1], true)}`;
     }
     if (term instanceof Struct && (term.name === 'min' || term.name === 'max') && term.args.length === 2) {
       return `the ${term.name === 'min' ? 'minimum' : 'maximum'} of ${this.value(term.args[0])} and ${this.value(term.args[1])}`;
@@ -343,6 +349,11 @@ class Writer {
     }
     if (name === 'le:days_after' && args.length === 3) return `${this.value(args[0])} is ${this.value(args[1])} days after ${this.value(args[2])}`;
     if (name === 'is' && args.length === 2) {
+      // The minimum and maximum read as their built-in templates do.
+      const formula = deref(args[1], this.env);
+      if (formula instanceof Struct && (formula.name === 'min' || formula.name === 'max') && formula.args.length === 2) {
+        return `${this.value(formula)} is ${this.value(args[0])}`;
+      }
       const right = this.value(args[1]);
       const left = this.value(args[0]);
       return left === right ? null : `${left} = ${right}`;
