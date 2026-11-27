@@ -56,7 +56,6 @@ Each deck explains the result and links to the source and Playground.
 
 ## Operations and decisions
 
-- [The critical path of a house build](https://eyereasoner.github.io/eyemind/examples/deck/critical-path-le) (Logical English) — The critical path of a house build: earliest and latest starts through a maximum and a minimum, slack and critical tasks
 - [A school can look close on a map](https://eyereasoner.github.io/eyemind/examples/deck/school-placement-audit) (Logic Script) — Walking-route and preference scores audit provisional school placements
 - [A text invoice](https://eyereasoner.github.io/eyemind/examples/deck/report-n3) (Notation3) — A formatted text report of fruit quantities, prices and costs
 - [Adding invoice lines](https://eyereasoner.github.io/eyemind/examples/deck/invoice-totals-n3) (Notation3) — Collected line amounts produce invoice totals and a large-invoice classification
@@ -73,6 +72,7 @@ Each deck explains the result and links to the source and Playground.
 - [Shipping without a hold](https://eyereasoner.github.io/eyemind/examples/deck/closed-world-n3) (Notation3) — Paid orders ship when no hold is on record
 - [State transitions](https://eyereasoner.github.io/eyemind/examples/deck/state-transitions) (Logic Script) — Account balances from an ordered event log
 - [Stock across locations](https://eyereasoner.github.io/eyemind/examples/deck/inventory-srl) (SPARQL 1.2 RL) — Grouped stock records yield location counts, totals, minimums and maximums
+- [The critical path of a house build](https://eyereasoner.github.io/eyemind/examples/deck/critical-path-le) (Logical English) — The critical path of a house build: earliest and latest starts through a maximum and a minimum, slack and critical tasks
 - [When should the battery charge?](https://eyereasoner.github.io/eyemind/examples/deck/battery-dispatch) (Logic Script) — Cheapest four-slot battery schedule under energy and power limits
 - [Which tasks determine the launch date?](https://eyereasoner.github.io/eyemind/examples/deck/critical-path-schedule) (Logic Script) — Earliest task times and every critical predecessor in a launch schedule
 - [Which temperature evidence drives a quarantine?](https://eyereasoner.github.io/eyemind/examples/deck/cold-chain-recall) (Logic Script) — Conflicting temperature evidence, checkpoint filtering and a witnessed inspection task
@@ -85,20 +85,20 @@ Each deck explains the result and links to the source and Playground.
 - [A right to the value of personal data](https://eyereasoner.github.io/eyemind/examples/deck/data-value-right) (Logic Script) — A right to the value of personal data in the age of AI: how it fits existing EU law, and how it could become an autonomous right
 - [Audited grants](https://eyereasoner.github.io/eyemind/examples/deck/audited-grants) (Logic Script) — A grant policy whose own proof and check report are read back as facts and audited, in the same language
 - [Breach notification](https://eyereasoner.github.io/eyemind/examples/deck/breach-notification-le) (Logical English) — GDPR Articles 33 and 34 decide which of four breaches need notices, and who breaches which article
-- [International data transfers](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le) (Logical English) — GDPR Chapter V allows transfers on adequacy, assessed clauses or explicit consent, and finds a prohibited, a pending and an unfounded one
-- [Right to erasure](https://eyereasoner.github.io/eyemind/examples/deck/right-to-erasure-le) (Logical English) — GDPR Article 17 erases on request unless a retention period or a litigation hold applies, and Article 19 tells the recipients
-- [Withdrawing from an online purchase](https://eyereasoner.github.io/eyemind/examples/deck/consumer-withdrawal-le) (Logical English) — The EU Consumer Rights Directive dates seven withdrawal periods, excludes personalised, unsealed and performed orders, and sets refunds and their deadlines
-- [Inheritance without a will](https://eyereasoner.github.io/eyemind/examples/deck/intestate-succession-le) (Logical English) — French intestate succession divides two estates by branch through represented, renouncing and unworthy heirs, gives the spouse a usufruct or a quarter, and checks that every share adds up
 - [British citizenship](https://eyereasoner.github.io/eyemind/examples/deck/british-citizenship-le) (Logical English) — Section 1 of the British Nationality Act 1981 grants citizenship by birth to a citizen or settled parent, or to a foundling unless the contrary is shown
 - [Delfour](https://eyereasoner.github.io/eyemind/examples/deck/delfour) (Logic Script) — A store scanner gives low-sugar advice from a signed, scoped insight, without learning the household's diabetes
 - [Deontic Logic](https://eyereasoner.github.io/eyemind/examples/deck/deontic-logic) (Logic Script) — Obligations, prohibitions and compensation that does not erase a violation
 - [Dog license](https://eyereasoner.github.io/eyemind/examples/deck/dog-license) (Logic Script) — A licensing threshold based on collected dog counts
 - [Handicap card](https://eyereasoner.github.io/eyemind/examples/deck/handicap-card) (RDF) — One ODRL and SOTW snapshot allows Alice's handicap card and reports the conflict that blocks Bob's
+- [Inheritance without a will](https://eyereasoner.github.io/eyemind/examples/deck/intestate-succession-le) (Logical English) — French intestate succession divides two estates by branch through represented, renouncing and unworthy heirs, gives the spouse a usufruct or a quarter, and checks that every share adds up
+- [International data transfers](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le) (Logical English) — GDPR Chapter V allows transfers on adequacy, assessed clauses or explicit consent, and finds a prohibited, a pending and an unfounded one
 - [Package holiday terms with ODRL and SHACL](https://eyereasoner.github.io/eyemind/examples/deck/package-holiday-odrl) (RDF) — A tour operator's ODRL cancellation terms as a snapshot, with SHACL checking the state of the world it reads
 - [Permissions](https://eyereasoner.github.io/eyemind/examples/deck/permissions) (Logic Script) — Role permissions with exclusions
 - [Policy Risk](https://eyereasoner.github.io/eyemind/examples/deck/policy-risk) (Logic Script) — Ranked findings with explanations and suggested mitigations
 - [Research access with ODRL, OWL 2 RL and SKOS](https://eyereasoner.github.io/eyemind/examples/deck/research-access-odrl) (RDF) — OWL 2 RL derives consent status and SKOS maps local purposes to DPV before an ODRL snapshot decides three research requests
 - [Research scope and duties in ODRL](https://eyereasoner.github.io/eyemind/examples/deck/research-snapshot-odrl) (RDF) — An ODRL snapshot in Turtle checks a compound constraint over DPV purpose and data categories and looks for request-local duty evidence
+- [Right to erasure](https://eyereasoner.github.io/eyemind/examples/deck/right-to-erasure-le) (Logical English) — GDPR Article 17 erases on request unless a retention period or a litigation hold applies, and Article 19 tells the recipients
+- [Withdrawing from an online purchase](https://eyereasoner.github.io/eyemind/examples/deck/consumer-withdrawal-le) (Logical English) — The EU Consumer Rights Directive dates seven withdrawal periods, excludes personalised, unsealed and performed orders, and sets refunds and their deadlines
 
 ## Puzzles, plans and routes
 
@@ -122,14 +122,13 @@ Each deck explains the result and links to the source and Playground.
 
 ## Mathematics and computing
 
-- [The Pythagorean theorem](https://eyereasoner.github.io/eyemind/examples/deck/pythagoras-le) (Logical English) — The Pythagorean theorem sorts triangles into right-angled, acute and obtuse, finds whole hypotenuses, and generates and counts primitive triples with Euclid's formula
-- [Euclid's algorithm](https://eyereasoner.github.io/eyemind/examples/deck/euclid-le) (Logical English) — Euclid's algorithm gives greatest common divisors and least common multiples, finds coprime pairs and reduces fractions
 - [A greatest common divisor with coefficients](https://eyereasoner.github.io/eyemind/examples/deck/gcd-bezout-identity) (Logic Script) — Exact extended Euclidean certificates for positive, negative and zero inputs
 - [A Turing Machine](https://eyereasoner.github.io/eyemind/examples/deck/turing) (Logic Script) — A Turing machine interpreter running a binary incrementer
 - [Ackermann](https://eyereasoner.github.io/eyemind/examples/deck/ackermann) (Logic Script) — The Ackermann function through the hyperoperation sequence, exactly
 - [Collatz](https://eyereasoner.github.io/eyemind/examples/deck/collatz) (Logic Script) — Parity-based recursive trajectories over a range of starts
 - [Complex numbers](https://eyereasoner.github.io/eyemind/examples/deck/complex) (Logic Script) — Complex arithmetic, exact over Gaussian integers and polar beyond them
 - [Count the same selection in two ways](https://eyereasoner.github.io/eyemind/examples/deck/binomial-vandermonde) (Logic Script) — Exact binomial coefficients and finite checks of Vandermonde and Pascal row sums
+- [Euclid's algorithm](https://eyereasoner.github.io/eyemind/examples/deck/euclid-le) (Logical English) — Euclid's algorithm gives greatest common divisors and least common multiples, finds coprime pairs and reduces fractions
 - [Expression Evaluation](https://eyereasoner.github.io/eyemind/examples/deck/expression-eval) (Logic Script) — Recursive expression graphs used in forward inference
 - [Fibonacci](https://eyereasoner.github.io/eyemind/examples/deck/fibonacci) (Logic Script) — Fast doubling for exact Fibonacci numbers, and the golden ratio
 - [Fit a line and explain when fitting fails](https://eyereasoner.github.io/eyemind/examples/deck/least-squares-regression) (Logic Script) — Straight-line fits from exact sufficient statistics, with explicit degenerate cases
@@ -146,6 +145,7 @@ Each deck explains the result and links to the source and Playground.
 - [Squares](https://eyereasoner.github.io/eyemind/examples/deck/squares) (Logic Script) — A forward rule computes exact squares of three supplied integers
 - [Strings](https://eyereasoner.github.io/eyemind/examples/deck/strings) (Logic Script) — Text construction and Unicode inspection
 - [Symbolic Derivative](https://eyereasoner.github.io/eyemind/examples/deck/symbolic-derivative) (Logic Script) — Symbolic differentiation of structured formulas by the sum, product, quotient, power and chain rules
+- [The Pythagorean theorem](https://eyereasoner.github.io/eyemind/examples/deck/pythagoras-le) (Logical English) — The Pythagorean theorem sorts triangles into right-angled, acute and obtuse, finds whole hypotenuses, and generates and counts primitive triples with Euclid's formula
 - [The Sieve of Eratosthenes](https://eyereasoner.github.io/eyemind/examples/deck/sieve) (Logic Script) — The sieve of Eratosthenes over an explicit list of integers
 - [The zeta function](https://eyereasoner.github.io/eyemind/examples/deck/zeta) (Logic Script) — Exact Bernoulli numbers give zeta at the negative and even integers, and Borwein's series over complex terms finds zeros on Riemann's critical line
 - [Type Inference](https://eyereasoner.github.io/eyemind/examples/deck/type-inference) (Logic Script) — Typing rules for a small expression language, run as a checker
@@ -194,7 +194,6 @@ Each deck explains the result and links to the source and Playground.
 
 ## Science and measurements
 
-- [Molar masses](https://eyereasoner.github.io/eyemind/examples/deck/molar-mass-le) (Logical English) — Molar masses summed exactly from atomic weights, each element's share per mille, and the heaviest and lighter compounds
 - [ABO blood groups](https://eyereasoner.github.io/eyemind/examples/deck/blood-groups-le) (Logical English) — ABO blood groups give each person's possible genotypes and a child's possible types, and exclude the men who cannot be a child's father
 - [An alert belongs to one observation](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3) (Notation3) — Independent sensor messages raise an alert only for the observation above the temperature threshold
 - [Bayes Diagnosis](https://eyereasoner.github.io/eyemind/examples/deck/bayes-diagnosis) (Logic Script) — Normalized probabilities for illustrative printer faults
@@ -202,6 +201,7 @@ Each deck explains the result and links to the source and Playground.
 - [Control System](https://eyereasoner.github.io/eyemind/examples/deck/control-system) (Logic Script) — Feedforward and nonlinear feedback commands for two actuators
 - [Leg Length Discrepancy](https://eyereasoner.github.io/eyemind/examples/deck/lldm) (Logic Script) — Leg length discrepancy measured from radiograph landmarks, with an alarm and its reason
 - [Local units with QUDT](https://eyereasoner.github.io/eyemind/examples/deck/local-units-qudt) (RDF) — Units added in the input: a local alias of a QUDT unit by owl:sameAs and a Réaumur scale QUDT lacks
+- [Molar masses](https://eyereasoner.github.io/eyemind/examples/deck/molar-mass-le) (Logical English) — Molar masses summed exactly from atomic weights, each element's share per mille, and the heaviest and lighter compounds
 - [Normalize, then validate](https://eyereasoner.github.io/eyemind/examples/deck/measurement-shacl) (RDF) — QUDT converts speed readings before SHACL checks a sequence path against a numeric limit
 - [QUDT quantities](https://eyereasoner.github.io/eyemind/examples/deck/quantities-qudt) (RDF) — QUDT normalizes CDT literals, Fahrenheit, decibels and a locally defined length unit
 - [Sensor messages become SOSA observations](https://eyereasoner.github.io/eyemind/examples/deck/observations-owl2rl) (RDF) — Streamed sensor messages each yield the SOSA triples an output contract asks for, through rules specialized once to the shape of the messages

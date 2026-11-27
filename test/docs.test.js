@@ -244,6 +244,12 @@ export const tests = {
     assert.deepEqual(contents.trim().split('\n'), ['Contents', '',
       ...topics.map(([title]) => `- [${title}](#${slug(title)})`)]);
     const rows = topics.flatMap(([, ...lists]) => lists.flatMap((list) => list.split('\n')));
+    // Within a topic, the examples are sorted by title, ignoring case.
+    for (const [title, ...lists] of topics) {
+      const titles = lists.flatMap((list) => list.split('\n')).map((row) => row.match(/^- \[([^\]]+)\]/)?.[1]).filter(Boolean);
+      const sorted = [...titles].sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0));
+      assert.deepEqual(titles, sorted, `examples under ${title} are not sorted by title`);
+    }
     const expected = manifest.map((entry) => {
       const files = sourceFiles(entry);
       const deck = document(`examples/deck/${entry.name}.md`);
