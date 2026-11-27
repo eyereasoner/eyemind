@@ -70,7 +70,11 @@ line, and `/* ... */` is a block comment. Words are compared without case.
 A token is a word (letters, digits and underscores, joined by hyphens or
 apostrophes, as in `JE-201` and `don't`), a final `'s` as a word of its own, a
 number (`42`, `3.14`, `1,000,000`), a date (`2021-10-09`), a quoted text
-(`"..."` or `'...'`), or a punctuation sign. The indentation of a line counts a
+(`"..."` or `'...'`), a web address (`https://example.org/a::b`, up to white
+space and without a final `.`, `,`, `;` or `:`), a date followed at once by a
+time (`2018-06-29T10:30:00Z`, `2018-06-29:00:00`), or a punctuation sign. A web
+address and a date with a time are words of a name, written as they are; only
+a date has a calendar meaning. The indentation of a line counts a
 space as one and a tab as four, as LE's editor shows it.
 
 ## Templates
@@ -144,7 +148,9 @@ The tokens in a place are a term:
 - A phrase that names a constant of `the constants are:` is its value, unless a
   variable of the clause has that name.
 - Other words are a name, written as they are, such as `Socrates` or
-  `cash at bank`.
+  `cash at bank`. After its first word, a name may hold words in brackets, as
+  in `Core Statistical Areas (Branch)`; brackets around anything else make a
+  formula.
 
 In the place of a `that`, a sentence of a template is a term: the template's
 relation with its arguments, as data.
@@ -467,6 +473,51 @@ compiled LS program, and check against it; with abduction, a checked proof
 establishes each answer with the assumptions it lists. That the program reads the English
 as intended is a matter of the compiler and its tests; a checked proof
 establishes the answers under the compiled rules.
+
+## Explanations
+
+`--explain` writes each answer with the derivation its checked proof records,
+in English: under each query's heading, the answer's sentence, then `because`
+and the conditions it rests on, joined by `and`, each relation that a rule
+concludes explained the same way on the lines indented below it. The last
+line of an answer ends with a full stop.
+
+```text
+% query q with scenario s
+Socrates owes 7 by 2024-03-16
+    because Socrates is mortal
+        because Socrates is human
+        and it is not the case that Socrates is exempt
+    and Socrates charged 6 for wine on 2024-02-15
+    and 2024-03-16 is 30 days after 2024-02-15
+    and 10 is the sum of each fee such that Socrates charged the fee for a thing on a day, namely 4 and 6
+    and 7 = 10 - 6 / 2.
+```
+
+The proof is made and checked first; a proof that does not check explains
+nothing. An answer of a call table is explained by expanding the table's call
+one level against the program, as the checker does, and taking the first
+solution that gives the answer; a fact that forward rules derive, by the
+firing its step records. The inner calls are answered by the proof's own
+tables and listings, so nothing is searched for. Each condition is written
+through its template, with the values of that solution:
+
+- a variable left open is the phrase that named it, `a thing` and then
+  `the thing`, or the noun of its place when it had none, as in `an article`;
+  a variable named by an id is the id;
+- a negation is `it is not the case that` and the sentence it denies; it rests
+  on the complete tables of the proof, and has no derivation of its own;
+- an aggregate gives its value, its condition and the values it collected, after
+  `namely`;
+- a comparison of dates is `is before`, `is after` or `is the same day as`, a
+  date count `is N days after`, and arithmetic the formula with its values;
+- a sentence a relation states at another level of an unfolding, or the base
+  relation of an `only if` rule, gives its own conditions instead of
+  repeating the answer;
+- a fact, and a sentence already explained earlier in the same answer, ends
+  its line.
+
+Answers that rest on assumptions, and flip queries, are not explained.
 
 ## Not supported
 

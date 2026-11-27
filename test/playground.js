@@ -267,6 +267,19 @@ export const tests = [
     await p.open(await page.evaluate("document.getElementById('share-url').value"), 390, true);
     await p.run();
     assert.match(await p.output(), /verdict\('checked'\)/);
+    // Explanations of the LE answers, read from their checked proof.
+    await p.open(`${base}#example=british-citizenship-le`);
+    await p.select('mode', '--explain');
+    await p.run();
+    assert.match(await p.status(), /^Done · exit 0/);
+    assert.match(await p.output(), /^Ben is a British citizen\n    because Ben is born in the UK on 2015-08-20\n/m);
+    assert.match(await p.output(), /^        and Anna is a British citizen\n            because Anna is born in the UK on 1990-05-12$/m);
+    await page.evaluate(`(() => {
+      HTMLAnchorElement.prototype.click = function () { window.savedFilename = this.download; };
+      document.getElementById('save-output').click();
+    })()`);
+    assert.equal(await page.evaluate('window.savedFilename'), 'explanation.txt');
+    assert.match(await page.evaluate("document.getElementById('command').textContent"), /^eyemind --explain examples\/british-citizenship-le\.le$/);
     await p.select('mode', '');
     await p.type('input', '% Header\n\nSocrates is human.');
     await p.run();

@@ -194,6 +194,16 @@ export function checkProof(program, document, { goals = null } = {}) {
   return check(program, claims, steps, certificate, goals, fail, spellings, text);
 }
 
+// The parts of a proof document, for reading a checked proof: its claims,
+// its steps by goal, the step of a goal, and its certificate.
+export function readProof(document) {
+  const fail = new Failures();
+  const spellings = new Spellings();
+  const [claims, steps, certificate] = readDocument(document, fail, spellings);
+  if (fail.items.length) throw new EyemindError(fail.items[0][0]);
+  return { claims, certificate, stepOf: (goal) => steps.get(stepIdOf(steps, spellings, goal)) };
+}
+
 // Check a proof as renderProof(..., true) gave it: the report checkProof()
 // gives for its document, without reading the document back. A reasoner
 // checks its own proofs this way; their text is covered by the tests that

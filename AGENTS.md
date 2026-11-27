@@ -58,6 +58,7 @@ goals, and keep error messages specific and user-facing text direct.
   - `owl2rl.js`: explicit `--owl2rl` inference, including RDFS, and OWL conflict reports, compiled to standalone LS.
   - `le.js`: Logical English (`.le`) compiled to LS, and its answers as `.le` sentences; `LE-SPEC.md`
     says what it reads of the core that LE 1.0 and Logical English 2 share.
+    `le-explain.js`: `--explain`, each LE answer explained in English from its checked proof.
   - `formats.js`: inputs by extension and output with `--to`. `rdf.js`:
     RDF 1.2 (Turtle, TriG, N-Triples, N-Quads) to and from eyemind terms,
     read by the RDF parser (`rdf-lexer.js`, `rdf-parser.js`,

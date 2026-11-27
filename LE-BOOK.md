@@ -234,10 +234,32 @@ compiled program, and `--proof` writes a proof of its answers.
 *Sentences become rules, rules give answers, answers come with a proof.*
 
 ```sh
-eyemind consumer-withdrawal-le.le                     # answers as sentences
+eyemind consumer-withdrawal-le.le                          # answers as sentences
 eyemind --proof consumer-withdrawal-le.le > proof.js
 eyemind --check-proof proof.js consumer-withdrawal-le.le   # reports: checked
+eyemind --explain consumer-withdrawal-le.le                # answers explained in English
 ```
+
+The same checked proof also explains each answer in English. `--explain`
+writes the answer, then `because` and every condition it rests on, each
+explained in turn on the lines below it:
+
+```text
+the withdrawal from the coffee machine order is valid
+    because the consumer withdrew from the coffee machine order on 2026-04-20
+    and the withdrawal period of the coffee machine order ends on 2026-04-24
+        because the withdrawal period of the coffee machine order starts on 2026-03-04
+            because the coffee machine order is a sales contract
+            and the goods of the coffee machine order were delivered on 2026-03-04
+        and the trader informed the consumer of the right of withdrawal from the coffee machine order on 2026-04-10
+        and 2026-04-10 is after 2026-03-04
+        and 2026-04-24 is 14 days after 2026-04-10
+        and it is not the case that the right of withdrawal from the coffee machine order is excluded by an article
+    and 2026-04-20 is before 2026-04-24.
+```
+
+The explanation is written in the templates' own words, so the reader who
+reviewed the rules can follow the decision without reading the proof.
 
 The checker reads the proof against the compiled program. It never runs the
 reasoner to fill a gap, and it rejects a forged proof. A checked proof

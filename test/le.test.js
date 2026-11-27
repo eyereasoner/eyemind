@@ -1,4 +1,5 @@
 import { assert, cli, errorOf } from './helpers.js';
+import { explainLe } from '../src/le-explain.js';
 import { checkProof, compileLe, loadText, run, writeLe } from '../src/index.js';
 import { inputKind, loadInputs, writeConclusions } from '../src/formats.js';
 
@@ -468,6 +469,80 @@ query r is: the total of which cup is which amount.`;
     assert.deepEqual(days('which date is 1 day after 2023-12-31'), ['2024-01-01 is 1 day after 2023-12-31.']);
     assert.deepEqual(days('2025-03-01 is which number days after 2024-03-01'), ['2025-03-01 is 365 days after 2024-03-01.']);
     assert.deepEqual(days('which date is 366 days after 2000-01-01'), ['2001-01-01 is 366 days after 2000-01-01.']);
+  },
+
+  'answers are explained in English from their checked proof, and a forged proof explains nothing'() {
+    const text = `the templates are:
+    *a person* is human,
+    *a person* is mortal,
+    *a person* is exempt,
+    *a person* owes *an amount* by *a date*,
+    *a person* charged *an amount* for *a thing* on *a date*.
+
+the knowledge base k includes:
+a person is mortal if the person is human and it is not the case that the person is exempt.
+a person owes an amount by a date
+    if the person is mortal
+    and the person charged a first amount for wine on a first date
+    and the date is 30 days after the first date
+    and a total is the sum of each fee such that the person charged the fee for a thing on a day
+    and the amount = the total - the first amount / 2.
+
+scenario s is:
+    Socrates is human.
+    Socrates charged 4 for bread on 2024-01-10.
+    Socrates charged 6 for wine on 2024-02-15.
+
+query q is:
+    which person owes which amount by which date.
+`;
+    const loaded = compile(text);
+    const proof = run(loaded.program, { proof: true }).proof;
+    // Each condition of the rule, with the values of the derivation the proof
+    // records; a relation a rule concludes is explained below it.
+    assert.equal(explainLe(loaded, proof), `% query q with scenario s
+Socrates owes 7 by 2024-03-16
+    because Socrates is mortal
+        because Socrates is human
+        and it is not the case that Socrates is exempt
+    and Socrates charged 6 for wine on 2024-02-15
+    and 2024-03-16 is 30 days after 2024-02-15
+    and 10 is the sum of each fee such that Socrates charged the fee for a thing on a day, namely 4 and 6
+    and 7 = 10 - 6 / 2.
+`);
+    // The explanation is read from the proof, so a proof that does not check
+    // explains nothing.
+    const forged = proof.replaceAll("'Socrates', 7n", "'Socrates', 8n").replaceAll("'Socrates', 7,", "'Socrates', 8,");
+    assert.notEqual(forged, proof);
+    assert.match(errorOf(() => explainLe(loaded, forged)), /the proof does not check, so it explains nothing/);
+    // A recursive relation, derived by forward rules, follows its steps; a fact explains nothing more.
+    const family = cli(['--explain', 'examples/british-citizenship-le.le']).stdout;
+    assert.match(family, /^Ben is a British citizen\n    because Ben is born in the UK on 2015-08-20\n    and 2015-08-20 is after commencement\n        because 2015-08-20 is after 1983-01-01\n    and Anna is a qualifying parent of Ben\n        because Anna is a parent of Ben\n        and Anna is a British citizen\n/m);
+    assert.match(family, /^Gwen is a British citizen\.$/m);
+    // Answers resting on assumptions, and other inputs, are not explained.
+    assert.match(errorOf(() => explainLe(compile(`the templates are: *a thing* is wet, *a thing* rained; assumable.
+the knowledge base k includes:
+a thing is wet if the thing rained.
+query q is: which thing is wet.`), '')), /does not explain answers that rest on assumptions/);
+    assert.match(cli(['--explain', 'examples/socrates.js']).stderr, /--explain explains the answers of Logical English \(\.le\) inputs/);
+    assert.match(cli(['--explain', '--proof', 'examples/socrates-le.le']).stderr, /cannot be combined with --proof/);
+  },
+
+  'web addresses, dates with a time and names with words in brackets are names'() {
+    const templates = '*a dataset* is described at *a location*,\n*a dataset* has version *a version*,\n*a code* is a label for *a description*.';
+    const facts = 'banks is described at https://example.org/data::banks/about.\n'
+      + 'banks has version 2018-06-29:00:00.\nbanks has version 2018-06-29T10:30:00Z.\nCBSA is a label for Core Statistical Areas (Branch).';
+    assert.deepEqual(sentences(document(templates, facts, 'banks is described at which location.')),
+      ['banks is described at https://example.org/data::banks/about.']);
+    assert.deepEqual(sentences(document(templates, facts, 'banks has version which version.')),
+      ['banks has version 2018-06-29:00:00.', 'banks has version 2018-06-29T10:30:00Z.']);
+    assert.deepEqual(sentences(document(templates, facts, 'CBSA is a label for which description.')),
+      ['CBSA is a label for Core Statistical Areas (Branch).']);
+    // A date with a time is a name, not a date: it has no calendar order.
+    assert.doesNotMatch(compile(document(templates, facts, 'banks has version which version.')).text, /"date"/);
+    // Brackets around a formula still compute.
+    assert.deepEqual(sentences(document('*a number* is double of *a number*.', 'a number N is double of a number M if N = (M + M).', '6 is double of 3.')),
+      ['6 is double of 3.']);
   },
 
   'lists, membership and LE1 list templates'() {

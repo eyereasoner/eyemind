@@ -202,6 +202,7 @@
                 <option value="--prove-and-check">--prove-and-check · Checked answers</option>
                 <option value="--check-proof">--check-proof FILE · Check a saved proof</option>
                 <option value="--unused">--unused · Clauses that make no difference</option>
+                <option value="--explain">--explain · Logical English answers explained</option>
                 <option value="--stream-messages">--stream-messages · Independent RDF Messages</option>
               </select>
             </label>
@@ -372,7 +373,7 @@
       const stateKey = 'eyemind.playground.cli.v1';
       const logicFlags = ['odrl', 'owl2rl', 'qudt', 'skos', 'shacl'];
       const gistTokenKey = 'eyemind.playground.github.gistToken.v1';
-      const modes = ['', '--proof', '--prove-and-check', '--check-proof', '--unused', '--stream-messages'];
+      const modes = ['', '--proof', '--prove-and-check', '--check-proof', '--unused', '--explain', '--stream-messages'];
       let examples = [];
       let source = { name: '-', text: defaultProgram };
       let originalExample = null;
@@ -775,6 +776,7 @@
           const report = await new Promise((resolve, reject) => { finishRun = resolve; failRun = reject; worker.postMessage({ args, files }); });
           if ((logicFlags.some((id) => byId(id).checked) || /\.(ttl|srl)$/i.test(name)) && /^PREFIX /m.test(output.getValue())) outputName = 'output.ttl';
           if (/\.le$/i.test(name) && byId('mode').value === '' && !byId('goal').value.trim()) outputName = 'output.le';
+          if (byId('mode').value === '--explain') outputName = 'explanation.txt';
           byId('messages').textContent = report.stderr;
           byId('messages').hidden = !report.stderr;
           // An error in the program names its line: mark it in the input.

@@ -112,6 +112,12 @@ const DESIGNATOR = /^\d+(?:\.\d+)*\.(?=[ \t]*\p{L})/u;
 // the conditions below them.
 const GROUPS = [[['at', 'least', 'one', 'of'], 'or'], [['any', 'of'], 'or'], [['either'], 'or'], [['all', 'of'], 'and']];
 const DATE = /^(\d{4})-(\d{2})-(\d{2})(?![\p{L}\p{N}_])/u;
+// A date followed at once by a time is a name, as written: only dates have a
+// calendar meaning.
+const DATE_TIME = /^\d{4}-\d{2}-\d{2}[T:]\d{2}(?::\d{2}){1,2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?(?![\p{L}\p{N}_])/u;
+// A web address is a name up to white space, without a final full stop or
+// comma, so that it can end a sentence.
+const ADDRESS = /^[a-z][a-z0-9+.-]*:\/\/\S*[^\s.,;:]/i;
 // Numbers may group thousands with commas, as in 1,000,000.
 const NUMBER = /^(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?:[eE][+-]?\d+)?(?![\p{L}\p{N}_])/u;
 const SYMBOLS = ['\\==', '>=', '=<', '<=', '==', '!=', '\\=', '//'];
@@ -145,6 +151,10 @@ function tokenize(text, file) {
     } else if (bol && DESIGNATOR.test(tail)) {
       // A numbered condition starts its line with a designator such as 4.2.1.
       token = { text: DESIGNATOR.exec(tail)[0], kind: 'designator' };
+    } else if (ADDRESS.test(tail)) {
+      token = { text: ADDRESS.exec(tail)[0], kind: 'word' };
+    } else if (DATE_TIME.test(tail)) {
+      token = { text: DATE_TIME.exec(tail)[0], kind: 'word' };
     } else if (DATE.test(tail)) {
       const [raw, y, m, d] = DATE.exec(tail);
       token = { text: raw, kind: 'date', value: [BigInt(y), BigInt(m), BigInt(d)] };
@@ -166,6 +176,17 @@ function tokenize(text, file) {
   }
   tokens.push({ text: '', kind: 'end', line, indent: 0, bol: true });
   return tokens;
+}
+
+// A name may hold words in brackets after its first word, as in "Core Based
+// Statistical Areas (Branch)"; brackets around anything else are a formula.
+function bracketedName(tokens) {
+  let open = false;
+  return tokens.every((t, i) => {
+    if (t.text === '(' && t.kind === 'punct') return i > 0 && !open && tokens[i + 1]?.kind === 'word' && (open = true);
+    if (t.text === ')' && t.kind === 'punct') return open && tokens[i - 1]?.text !== '(' && !(open = false);
+    return t.kind === 'word' || t.kind === 'number' || t.text === '&';
+  }) && !open;
 }
 
 const lower = (token) => token.kind === 'word' ? token.text.toLowerCase() : token.text;
@@ -425,7 +446,7 @@ class Compiler {
       const words = tokens.slice(1, -1), named = INTRODUCING.has(lower(words[0])) || isWord(words[0], 'the') ? words.slice(1) : words;
       return this.mark(scope, scope.find(named) ?? scope.introduce(named.length ? named : words), this.offset(tokens), tokens.length);
     }
-    if (!tokens.every((t) => t.kind === 'word' || t.kind === 'number' || t.text === '&')) {
+    if (!tokens.every((t) => t.kind === 'word' || t.kind === 'number' || t.text === '&') && !bracketedName(tokens)) {
       return tokens.some((t) => t.kind === 'value') ? this.call(tokens, scope) : null;
     }
     // A lone which, what, who, when or where asks for a value.
@@ -444,7 +465,7 @@ class Compiler {
       const found = scope.find(rest);
       if (found) return this.mark(scope, found, at, tokens.length);
       if (constant !== undefined) return constant;
-      return this.call(tokens, scope) ?? ['the', ...rest.map((t) => t.text)].join(' ');
+      return this.call(tokens, scope) ?? joined(['the', ...rest.map((t) => t.text)]);
     }
     const found = scope.find(tokens);
     if (found) return this.mark(scope, found, at, tokens.length);
@@ -452,7 +473,7 @@ class Compiler {
     const called = this.call(tokens, scope);
     if (called !== null) return called;
     if (tokens.length === 1 && BARE_ID.test(first.text) && !this.fact) return this.mark(scope, scope.introduce(tokens), at, 1);
-    return tokens.map((t) => t.text).join(' ');
+    return joined(tokens.map((t) => t.text));
   }
 
   // Where a slice starts in the sentence a query renders its answers from.
@@ -2140,7 +2161,7 @@ function javascript(term) {
 
 // A value as LE writes it: names as they are, dates as YYYY-MM-DD, lists in
 // brackets and a sentence through its template.
-function leValue(term, templates) {
+export function leValue(term, templates) {
   if (term instanceof Var) return '_';
   if (typeof term === 'string') return term === EMPTY ? '[]' : term;
   if (typeof term === 'bigint' || typeof term === 'number') return write(term);
@@ -2166,7 +2187,7 @@ function leValue(term, templates) {
 
 // The answers of a query as sentences: the query's words, with each variable
 // it found a value for written as that value.
-function sentence(query, values, templates) {
+export function sentence(query, values, templates) {
   const words = [];
   for (let i = 0; i < query.tokens.length; i++) {
     const mark = query.marks.find((m) => m.at === i);

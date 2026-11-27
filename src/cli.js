@@ -1,6 +1,7 @@
 // The eyemind command line.
 import { run, unusedClauses } from './engine.js';
 import { OUTPUT_FORMATS, RDF_PROFILES, defaultFormat, inputKind, loadInputs, loadMessageReasoner, rdfMessageFormat, scopeOf, writeConclusions } from './formats.js';
+import { explainLe } from './le-explain.js';
 import { isRdfMessageLog, replayMessages, RdfMessageReader } from './messages.js';
 import { checkProof, checkReport, publicReport } from './proof.js';
 import { writeRdf } from './rdf.js';
@@ -21,6 +22,8 @@ all compiled to LS.
       --goal GOAL         Ask a backward goal after forward reasoning; with
                           --check-proof, the goal the proof answers
       --unused            List the clauses that make no difference to the conclusions
+      --explain           Explain each Logical English answer in English, from its
+                          checked proof
       --stats             Print reasoning statistics to stderr
       --max-depth N       Bound backward recursion (default 1000000)
       --max-iterations N  Bound forward rounds per stratum (default 1000)
@@ -73,6 +76,7 @@ export function main(argv, io) {
     let stats = false;
     let asJson = false;
     let unused = false;
+    let explain = false;
     let proveAndCheck = false;
     let format = null;
     let all = false;
@@ -103,6 +107,8 @@ export function main(argv, io) {
         asJson = true;
       } else if (arg === '--unused') {
         unused = true;
+      } else if (arg === '--explain') {
+        explain = true;
       } else if (arg === '--all') {
         all = true;
       } else if (arg === '--program') {
@@ -153,6 +159,9 @@ export function main(argv, io) {
     if (proofFile !== null && options.proof) throw new UsageError('--check-proof cannot be combined with --proof');
     if (unused && (proofFile !== null || options.proof || proveAndCheck)) {
       throw new UsageError('--unused cannot be combined with --proof, --check-proof or --prove-and-check');
+    }
+    if (explain && (proofFile !== null || options.proof || proveAndCheck || unused || goals.length || format !== null || streamMessages)) {
+      throw new UsageError('--explain writes Logical English explanations; it cannot be combined with --proof, --check-proof, --prove-and-check, --unused, --goal, --to or --stream-messages');
     }
     if (proofFile === '-' && (!files.length || files.includes('-'))) {
       throw new UsageError('stdin holds the proof; name the program as files');
@@ -246,6 +255,14 @@ export function main(argv, io) {
     if (unused) {
       stdout(unusedClauses(program, { goals, ...options }));
       return 0;
+    }
+    if (explain) {
+      if (loaded.kind !== 'le') throw new UsageError('--explain explains the answers of Logical English (.le) inputs');
+      // The explanations are read from the proof, which is checked first.
+      const result = run(program, { ...options, proof: true });
+      stdout(explainLe(loaded, result.proof));
+      if (stats) stderr(`${JSON.stringify(result.stats)}\n`);
+      return result.haltCode || 0;
     }
     const result = run(program, { goals, ...options, proof: options.proof || proveAndCheck });
     if (proveAndCheck) {

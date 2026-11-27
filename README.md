@@ -251,9 +251,11 @@ relation takes the scenario as its first argument, so one program and one
 proof answer every query in every scenario. A scenario can state the answers
 it expects, `q expects answers ["..."].`; the output then notes any answer set
 that differs. Proofs and check reports are `.js` and check the compiled LS; that
-the program reads the English as intended is a matter of the compiler. Several
-`.le` files form one document, without other input formats or RDF logic
-switches.
+the program reads the English as intended is a matter of the compiler.
+`--explain` writes each answer with the derivation its checked proof records,
+in English: the answer, then `because` and the conditions it rests on, each
+explained in turn below it. Several `.le` files form one document, without
+other input formats or RDF logic switches.
 
 Of Logical English 2, eyemind also reads constants, functions, included files
 and web addresses, Prolog resources and embedded Prolog goals with LE2's system
@@ -642,6 +644,7 @@ eyemind [OPTION ...] [FILE ...]
 | `--json` | With a checking mode, print the report as JSON. |
 | `--goal GOAL` | Ask `GOAL` after forward reasoning; may be repeated. |
 | `--unused` | List the clauses that make no difference to the conclusions. |
+| `--explain` | Explain each Logical English answer in English, from its checked proof. |
 | `--stream-messages` | Read an RDF Message Log and run the rules independently per message; Node reads files, stdin and HTTP(S) incrementally. With an RDF logic profile, the other inputs are a background closed once and the rules are specialized per message shape. |
 | `--shacl-in FILE` | With `--stream-messages` and an RDF logic profile, trust the SHACL shapes in `FILE` to describe the messages: the rules are planned and specialized for them before the first message, and a closed shape drops triples of other properties. |
 | `--shacl-out FILE` | With an RDF logic profile, plan only the rules that conclude triples the SHACL shapes in `FILE` describe, or what those rules read, and write only those triples. |
