@@ -1,0 +1,6 @@
+% query badges
+alice has badge [badge, alice].
+bob has badge [badge, bob].
+
+% query blue_badge
+% no answers

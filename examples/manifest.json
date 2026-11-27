@@ -859,6 +859,31 @@
     "description": "Logical English templates, a rule and a query conclude that Socrates is mortal"
   },
   {
+    "name": "registration-badges-le",
+    "files": ["registration-badges-le.le"],
+    "description": "A rule gives each registered visitor an explicit badge witness built from their name"
+  },
+  {
+    "name": "beetle-le",
+    "files": ["beetle-le.le"],
+    "description": "A car is green or blue, and proof by cases shows that the beetle is beautiful"
+  },
+  {
+    "name": "beetle6-le",
+    "files": ["beetle6-le.le"],
+    "description": "Ruling out beautiful cars eliminates blue and pretty in succession, so the beetle must be nice"
+  },
+  {
+    "name": "beetle12-le",
+    "files": ["beetle12-le.le"],
+    "description": "Recursive proof by cases covers blue and all eight leaves of the green branch to show that the beetle is beautiful"
+  },
+  {
+    "name": "museum-routes-le",
+    "files": ["museum-routes-le.le"],
+    "description": "Nested route alternatives in rule conclusions guarantee that a day-pass holder can reach the exhibit when every branch leads there"
+  },
+  {
     "name": "squares",
     "description": "A forward rule computes exact squares of three supplied integers"
   },

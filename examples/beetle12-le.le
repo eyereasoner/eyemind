@@ -1,0 +1,56 @@
+% The beetle is a green or blue car. Green leads to nice or pretty and each
+% of those properties branches twice more. Blue and all eight terminal
+% properties entail beauty, so the beetle is beautiful in every case.
+% Shows recursive proof by cases over a tree of disjunctive conclusions.
+% See https://en.wikipedia.org/wiki/Disjunction_elimination
+
+the templates are:
+    *a thing* is a car,
+    *a thing* has property *a first property* or *a second property*,
+    *a property* entails *a first property* or *a second property*,
+    *a property* entails beauty,
+    *a property* guarantees beauty,
+    *a thing* is beautiful.
+
+the knowledge base beetle cases includes:
+beetle is a car.
+
+a car has property green or blue
+    if the car is a car.
+
+% Green branches into two families of properties, with four leaves each.
+green entails nice or pretty.
+pretty entails pretty1 or pretty2.
+nice entails nice1 or nice2.
+pretty1 entails pretty11 or pretty12.
+pretty2 entails pretty21 or pretty22.
+nice1 entails nice11 or nice12.
+nice2 entails nice21 or nice22.
+
+% Blue and each leaf entail beauty directly.
+pretty11 entails beauty.
+pretty12 entails beauty.
+pretty21 entails beauty.
+pretty22 entails beauty.
+nice11 entails beauty.
+nice12 entails beauty.
+nice21 entails beauty.
+nice22 entails beauty.
+blue entails beauty.
+
+% A guarantee propagates up a fork only when both alternatives have one.
+a property guarantees beauty
+    if the property entails beauty.
+
+a property guarantees beauty
+    if the property entails a first property or a second property
+    and the first property guarantees beauty
+    and the second property guarantees beauty.
+
+a thing is beautiful
+    if the thing has property a first property or a second property
+    and the first property guarantees beauty
+    and the second property guarantees beauty.
+
+query beautiful is:
+    beetle is beautiful.

@@ -20,6 +20,9 @@ Each deck explains the result and links to the source and Playground.
 - [A policy that enables a rule](https://eyereasoner.github.io/eyemind/examples/deck/derived-rule-n3) (Notation3) — An active policy derives and reports a membership rule
 - [An inconsistent door](https://eyereasoner.github.io/eyemind/examples/deck/fuse-n3) (Notation3) — A locked and open door triggers an integrity violation
 - [Backward](https://eyereasoner.github.io/eyemind/examples/deck/backward) (Logic Script) — Backward definitions inside forward bodies
+- [Beetle](https://eyereasoner.github.io/eyemind/examples/deck/beetle-le) (Logical English) — A car is green or blue, and proof by cases shows that the beetle is beautiful
+- [Beetle with impossible alternatives](https://eyereasoner.github.io/eyemind/examples/deck/beetle6-le) (Logical English) — Ruling out beautiful cars eliminates blue and pretty in succession, so the beetle must be nice
+- [Beetle with nested alternatives](https://eyereasoner.github.io/eyemind/examples/deck/beetle12-le) (Logical English) — Recursive proof by cases covers blue and all eight leaves of the green branch to show that the beetle is beautiful
 - [Chain stratification](https://eyereasoner.github.io/eyemind/examples/deck/chain-stratification-n3) (Notation3) — Rules with no strata, whose negation every chain of rule applications reaching it breaks a constraint for
 - [Deep Taxonomy (10 levels)](https://eyereasoner.github.io/eyemind/examples/deck/deep-taxonomy-10) (Logic Script) — A ten-level subclass chain with branches that lead nowhere
 - [Deep taxonomy (100 levels)](https://eyereasoner.github.io/eyemind/examples/deck/deep-taxonomy-100) (Logic Script) — The same taxonomy benchmark at a hundred levels
@@ -35,10 +38,12 @@ Each deck explains the result and links to the source and Playground.
 - [Graphs](https://eyereasoner.github.io/eyemind/examples/deck/graphs) (Logic Script) — Base data, negation and collection
 - [Guarded Skolem fathers](https://eyereasoner.github.io/eyemind/examples/deck/restricted-chase-n3) (Notation3) — Reuse supplied fathers and generate a Skolem father IRI only where none is supplied
 - [Integrity](https://eyereasoner.github.io/eyemind/examples/deck/integrity) (Logic Script) — A provable integrity violation
+- [Museum routes](https://eyereasoner.github.io/eyemind/examples/deck/museum-routes-le) (Logical English) — Nested route alternatives in rule conclusions guarantee that a day-pass holder can reach the exhibit when every branch leads there
 - [Nixon Diamond](https://eyereasoner.github.io/eyemind/examples/deck/nixon-diamond) (Logic Script) — A default guarded by negation, so a contrary rule takes priority
 - [Paraconsistent Animals](https://eyereasoner.github.io/eyemind/examples/deck/paraconsistent-animals) (Logic Script) — Local summaries of conflicting observations
 - [Quantifier scopes](https://eyereasoner.github.io/eyemind/examples/deck/quantifier-scopes-n3) (Notation3) — An @forSome of the document reaches into quoted formulas, and an inner declaration shadows it
 - [Reasoning about a rule](https://eyereasoner.github.io/eyemind/examples/deck/rule-inspection) (Logic Script) — Inspecting a source rule as data while preserving its shared variable
+- [Registration badges](https://eyereasoner.github.io/eyemind/examples/deck/registration-badges-le) (Logical English) — A rule gives each registered visitor an explicit badge witness built from their name
 - [Schema Inference](https://eyereasoner.github.io/eyemind/examples/deck/schema-inference) (Logic Script) — Subclasses, subproperties, domains and ranges
 - [Scoped audit](https://eyereasoner.github.io/eyemind/examples/deck/scoped-audit) (Logic Script) — Presence and absence within separate quoted graphs
 - [Shared existential](https://eyereasoner.github.io/eyemind/examples/deck/shared-existential-n3) (Notation3) — A top-level @forSome witness is the one individual a universal conclusion talks about

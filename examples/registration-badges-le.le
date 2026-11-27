@@ -1,0 +1,21 @@
+% Registered visitors get badges identified by their names. Alice and Bob
+% each get their own badge, and the query for a blue badge has no answers.
+% Shows an explicit witness as a list in a rule conclusion.
+
+the templates are:
+    *a visitor* is registered,
+    *a visitor* has badge *a badge*.
+
+the knowledge base registration includes:
+alice is registered.
+bob is registered.
+
+% The literal tag and the visitor's name together identify the badge.
+a visitor has badge ["badge", the visitor]
+    if the visitor is registered.
+
+query badges is:
+    which visitor has badge which badge.
+
+query blue_badge is:
+    alice has badge blue.

@@ -1,0 +1,15 @@
+% query routes with scenario all doors open
+the entrance leads to the courtyard or to the gallery.
+the courtyard leads to the east hall or to the west hall.
+the gallery leads to the west hall or to the atrium.
+
+% query access with scenario all doors open
+alex is guaranteed to reach the exhibit.
+
+% query routes with scenario atrium door closed
+the entrance leads to the courtyard or to the gallery.
+the courtyard leads to the east hall or to the west hall.
+the gallery leads to the west hall or to the atrium.
+
+% query access with scenario atrium door closed
+% no answers

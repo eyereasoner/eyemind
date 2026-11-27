@@ -1,0 +1,53 @@
+% The beetle is a green or blue car. Green things are nice or pretty, and
+% both blue and pretty things are beautiful. Cars cannot be beautiful, so
+% the beetle must be green and must be nice.
+% Shows disjunctive conclusions and the elimination of impossible alternatives.
+% See https://en.wikipedia.org/wiki/Disjunctive_syllogism
+
+the templates are:
+    *a thing* is a car,
+    *a thing* has property *a property*,
+    *a thing* has property *a first property* or *a second property*,
+    *a property* entails *a consequence*,
+    *a property* entails *a first property* or *a second property*,
+    *a thing* cannot have property *a property*,
+    *a thing* is nice.
+
+the knowledge base beetle alternatives includes:
+beetle is a car.
+
+% The two properties in a disjunctive conclusion remain alternatives.
+a car has property green or blue
+    if the car is a car.
+
+green entails nice or pretty.
+pretty entails beautiful.
+blue entails beautiful.
+
+a car cannot have property beautiful
+    if the car is a car.
+
+% A property is impossible when it entails another impossible property.
+a thing cannot have property a property
+    if the property entails a consequence
+    and the thing cannot have property the consequence.
+
+% Either alternative follows when its counterpart is impossible.
+a thing has property a property
+    if the thing has property a property or an excluded property
+    and the thing cannot have property the excluded property.
+
+a thing has property a property
+    if the thing has property an excluded property or a property
+    and the thing cannot have property the excluded property.
+
+% A property that has been established can give further alternatives.
+a thing has property a first property or a second property
+    if the thing has property a known property
+    and the known property entails the first property or the second property.
+
+a thing is nice
+    if the thing has property nice.
+
+query nice is:
+    beetle is nice.

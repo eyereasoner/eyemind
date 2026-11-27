@@ -1,0 +1,28 @@
+% Beetle is a car. Every car is green or blue, and either colour would make
+% Beetle beautiful. The query concludes that Beetle is beautiful.
+% Shows proof by cases with a disjunctive conclusion and two entailments.
+% See https://en.wikipedia.org/wiki/Disjunction_elimination
+
+the templates are:
+    *a thing* is a car,
+    *a thing* has property *a first property* or *a second property*,
+    *a property* entails beauty,
+    *a thing* is beautiful.
+
+the knowledge base beetle includes:
+beetle is a car.
+
+a car has property green or blue
+    if the car is a car.
+
+green entails beauty.
+blue entails beauty.
+
+% The conclusion follows when both alternatives entail beauty.
+a thing is beautiful
+    if the thing has property a first property or a second property
+    and the first property entails beauty
+    and the second property entails beauty.
+
+query beautiful is:
+    beetle is beautiful.

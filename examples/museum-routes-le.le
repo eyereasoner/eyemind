@@ -1,0 +1,56 @@
+% A museum's entrance leads to either the courtyard or the gallery, and each
+% of those routes can lead to either of two halls. A day-pass holder is
+% guaranteed to reach the exhibit when every possible route leads there.
+% Shows nested proof by cases with or in rule conclusions. A hall with an
+% open door directly entails access to the exhibit.
+% See https://en.wikipedia.org/wiki/Disjunction_elimination
+
+the templates are:
+    *a visitor* holds a day pass,
+    *a place* is open,
+    *a place* leads to *a first destination* or to *a second destination*,
+    *a place* entails access to the exhibit,
+    *a visitor* is guaranteed to reach the exhibit.
+
+the knowledge base museum routes includes:
+
+% Each rule concludes a pair of alternatives. The west hall occurs in both
+% branches, so the routes share part of their proof.
+the entrance leads to the courtyard or to the gallery
+    if the entrance is open.
+
+the courtyard leads to the east hall or to the west hall
+    if the courtyard is open.
+
+the gallery leads to the west hall or to the atrium
+    if the gallery is open.
+
+% At a fork, access follows when both destinations entail it.
+a place entails access to the exhibit
+    if the place leads to a first destination or to a second destination
+    and the first destination entails access to the exhibit
+    and the second destination entails access to the exhibit.
+
+a visitor is guaranteed to reach the exhibit
+    if the visitor holds a day pass
+    and the entrance entails access to the exhibit.
+
+alex holds a day pass.
+the entrance is open.
+the courtyard is open.
+the gallery is open.
+the east hall entails access to the exhibit.
+the west hall entails access to the exhibit.
+
+scenario all doors open is:
+    the atrium entails access to the exhibit.
+    access expects answers ["alex is guaranteed to reach the exhibit"].
+
+scenario atrium door closed is:
+    access expects answers [].
+
+query routes is:
+    which place leads to which first destination or to which second destination.
+
+query access is:
+    alex is guaranteed to reach the exhibit.
