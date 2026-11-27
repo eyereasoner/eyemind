@@ -13,7 +13,7 @@ program, a JavaScript library and a browser application.
 - [Playground](https://eyereasoner.github.io/eyemind/playground/): run any
   example or your own program in the browser, with its proof and check report.
 - [Examples](https://eyereasoner.github.io/eyemind/examples/): the
-  164 runnable programs, each with a card deck and saved conclusions; all but
+  165 runnable programs, each with a card deck and saved conclusions; all but
   the two streamed examples also save proofs and check reports.
 - [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC): the
   language, the proof format and how a proof is checked.
@@ -271,6 +271,7 @@ For larger programs, try
 [international data transfers](https://eyereasoner.github.io/eyemind/examples/deck/data-transfers-le),
 the [right to erasure](https://eyereasoner.github.io/eyemind/examples/deck/right-to-erasure-le),
 [withdrawing from an online purchase](https://eyereasoner.github.io/eyemind/examples/deck/consumer-withdrawal-le),
+[inheritance without a will](https://eyereasoner.github.io/eyemind/examples/deck/intestate-succession-le),
 [library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le),
 an [election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le),
 [shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le) or

@@ -1,0 +1,42 @@
+% query heirs with scenario Marie
+Anne inherits 80000 from Marie.
+Chloe inherits 40000 from Marie.
+David inherits 40000 from Marie.
+Emma inherits 80000 from Marie.
+
+% query spouse with scenario Marie
+% no answers
+
+% query usufruct with scenario Marie
+Paul has the usufruct of the estate of Marie.
+
+% query represented with scenario Marie
+Bruno is represented in the estate of Marie.
+Claire is represented in the estate of Marie.
+
+% query unworthy with scenario Marie
+Claire is unworthy to inherit from Marie.
+
+% query totals with scenario Marie
+the shares of the estate of Marie add up to 240000.
+
+% query heirs with scenario Jan
+Kim inherits 33750 from Jan.
+Uma inherits 16875 from Jan.
+Wim inherits 16875 from Jan.
+
+% query spouse with scenario Jan
+Lea receives 22500 from Jan as surviving spouse.
+
+% query usufruct with scenario Jan
+% no answers
+
+% query represented with scenario Jan
+Tom is represented in the estate of Jan.
+Vic is represented in the estate of Jan.
+
+% query unworthy with scenario Jan
+% no answers
+
+% query totals with scenario Jan
+the shares of the estate of Jan add up to 90000.

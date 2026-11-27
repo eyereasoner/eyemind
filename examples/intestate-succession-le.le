@@ -1,0 +1,239 @@
+% Two estates are divided among descendants and a surviving spouse without a
+% will, after the French Code civil. Children inherit equally (Article 735).
+% A child who died first, renounced or is unworthy is represented by their
+% own descendants, to any depth, and each branch shares what its head would
+% have had (Articles 751 to 755). A spouse chooses the usufruct of the whole
+% estate or a quarter of it, but takes the quarter when a child is not the
+% spouse's (Article 757).
+% Marie's estate of 240000 goes in four shares to a daughter, two
+% grandchildren through a son who died first, and a granddaughter through an
+% unworthy daughter; her husband keeps the usufruct. Jan's estate of 90000
+% gives his wife a quarter, although she chose the usufruct, because his son
+% Tom is not hers; Tom's share goes on to a grandchild and a great-grandchild.
+% Shows recursion through generations, division by a count of branches,
+% negation of derived relations, nested negation and sums that check that
+% every estate is divided in full.
+% A simplified model of descendants and a spouse only: it leaves out wills,
+% the reserved portion, other relatives and earlier gifts.
+% Source https://www.legifrance.gouv.fr/codes/texte_lc/LEGITEXT000006070721 (Articles 726, 735, 751 to 755, 757 and 805)
+
+the templates are:
+    *a person* died leaving an estate of *an amount*,
+    *a person* is a child of *a parent*,
+    *a person* died before *a deceased*,
+    *a person* was convicted of killing *a deceased*,
+    *a person* renounced the estate of *a deceased*,
+    *a person* is the spouse of *a deceased*,
+    *a person* chose the usufruct,
+    *a person* is unworthy to inherit from *a deceased*,
+    *a person* does not inherit in person from *a deceased*,
+    *a person* is an heir in person of *a deceased*,
+    *a person* leads to an heir of *a deceased*,
+    *a person* is cut off from the estate of *a deceased*,
+    *a person* is a branch of *a parent* in the estate of *a deceased*,
+    *a person* has the usufruct of the estate of *a deceased*,
+    *a person* takes a quarter of the estate of *a deceased*,
+    *a person* receives *an amount* from *a deceased* as surviving spouse,
+    the descendants of *a deceased* share *an amount*,
+    *a person* passes on *an amount* in the estate of *a deceased*,
+    *a person* is represented in the estate of *a deceased*,
+    *a person* inherits *an amount* from *a deceased*,
+    the shares of the estate of *a deceased* add up to *an amount*.
+
+the knowledge base succession includes:
+
+% Article 726: whoever is convicted of intentionally killing the deceased is
+% unworthy to inherit.
+a person is unworthy to inherit from a deceased
+    if the person was convicted of killing the deceased.
+
+% An heir in person survived the deceased, is not unworthy and did not
+% renounce; a renouncer is deemed never to have been an heir (Article 805).
+a person does not inherit in person from a deceased
+    if the person died before the deceased.
+
+a person does not inherit in person from a deceased
+    if the person is unworthy to inherit from the deceased.
+
+a person does not inherit in person from a deceased
+    if the person renounced the estate of the deceased.
+
+% A child of the deceased, or of someone in the line who does not inherit in
+% person, can take in person. Only the line of the deceased is followed, not
+% the other parent, so a child of both spouses is counted once; the totals
+% below would show a share counted twice.
+a person is an heir in person of a deceased
+    if the deceased died leaving an estate of an amount
+    and the person is a child of the deceased
+    and it is not the case that
+        the person does not inherit in person from the deceased.
+
+a person is an heir in person of a deceased
+    if the person is a child of an other person
+    and the other person does not inherit in person from a deceased
+    and it is not the case that
+        the person does not inherit in person from the deceased.
+
+% Article 752: representation goes down the line without limit.
+a person leads to an heir of a deceased
+    if the person is an heir in person of the deceased.
+
+a person leads to an heir of a deceased
+    if an other person is a child of the person
+    and the other person leads to an heir of the deceased.
+
+% A child with no heir in person anywhere below them takes no share, and the
+% others share it instead.
+a person is cut off from the estate of a deceased
+    if the deceased died leaving an estate of an amount
+    and the person is a child of a parent
+    and it is not the case that
+        the person leads to an heir of the deceased.
+
+a person is a branch of a parent in the estate of a deceased
+    if the person is a child of the parent
+    and the deceased died leaving an estate of an amount
+    and it is not the case that
+        the person is cut off from the estate of the deceased.
+
+% Article 757: the spouse chooses the usufruct of the whole estate only when
+% every branch descends from both spouses.
+a person has the usufruct of the estate of a deceased
+    if the person is the spouse of the deceased
+    and it is not the case that
+        the person died before the deceased
+    and the person chose the usufruct
+    and it is not the case that
+        an other person is a branch of the deceased in the estate of the deceased
+        and it is not the case that
+            the other person is a child of the person.
+
+a person takes a quarter of the estate of a deceased
+    if the person is the spouse of the deceased
+    and it is not the case that
+        the person died before the deceased
+    and it is not the case that
+        the person has the usufruct of the estate of the deceased.
+
+a person receives an amount from a deceased as surviving spouse
+    if the person takes a quarter of the estate of the deceased
+    and the deceased died leaving an estate of a total
+    and the amount = the total / 4.
+
+% What the spouse does not own goes to the descendants; under a usufruct
+% they inherit the bare ownership of the whole.
+the descendants of a deceased share an amount
+    if the deceased died leaving an estate of a total
+    and a person takes a quarter of the estate of the deceased
+    and the amount = the total - the total / 4.
+
+the descendants of a deceased share an amount
+    if the deceased died leaving an estate of the amount
+    and it is not the case that
+        a person takes a quarter of the estate of the deceased.
+
+% Articles 735 and 753: the deceased's part is split equally among the
+% branches, and a represented person's part among their own branches.
+a deceased passes on an amount in the estate of the deceased
+    if the descendants of the deceased share the amount.
+
+a person passes on an amount in the estate of a deceased
+    if the person is a branch of a parent in the estate of the deceased
+    and it is not the case that
+        the person is an heir in person of the deceased
+    and the parent passes on a portion in the estate of the deceased
+    and N is the count of each child such that
+        the child is a branch of the parent in the estate of the deceased
+    and the amount = the portion / N.
+
+a person inherits an amount from a deceased
+    if the person is a branch of a parent in the estate of the deceased
+    and the person is an heir in person of the deceased
+    and the parent passes on a portion in the estate of the deceased
+    and N is the count of each child such that
+        the child is a branch of the parent in the estate of the deceased
+    and the amount = the portion / N.
+
+% Articles 754 and 755: those who died first, renounced or are unworthy are
+% represented by their descendants.
+a person is represented in the estate of a deceased
+    if the person is a branch of a parent in the estate of the deceased
+    and the person passes on an amount in the estate of the deceased.
+
+% Every estate is divided in full: the shares add up to it.
+the shares of the estate of a deceased add up to an amount
+    if the deceased died leaving an estate of a total
+    and a first amount is the sum of each portion such that
+        a person inherits the portion from the deceased
+    and a second amount is the sum of each portion such that
+        a person receives the portion from the deceased as surviving spouse
+    and the amount = the first amount + the second amount.
+
+scenario Marie is:
+    Marie died leaving an estate of 240000.
+    Paul is the spouse of Marie.
+    Paul chose the usufruct.
+    Anne is a child of Marie.
+    Anne is a child of Paul.
+    Bruno is a child of Marie.
+    Bruno is a child of Paul.
+    Bruno died before Marie.
+    Chloe is a child of Bruno.
+    David is a child of Bruno.
+    Claire is a child of Marie.
+    Claire is a child of Paul.
+    Claire was convicted of killing Marie.
+    Emma is a child of Claire.
+    Denis is a child of Marie.
+    Denis is a child of Paul.
+    Denis renounced the estate of Marie.
+    Fabien is a child of Marie.
+    Fabien is a child of Paul.
+    Fabien died before Marie.
+    heirs expects answers ["Anne inherits 80000 from Marie", "Chloe inherits 40000 from Marie",
+        "David inherits 40000 from Marie", "Emma inherits 80000 from Marie"].
+    spouse expects answers [].
+    usufruct expects answers ["Paul has the usufruct of the estate of Marie"].
+    represented expects answers ["Bruno is represented in the estate of Marie",
+        "Claire is represented in the estate of Marie"].
+    unworthy expects answers ["Claire is unworthy to inherit from Marie"].
+    totals expects answers ["the shares of the estate of Marie add up to 240000"].
+
+scenario Jan is:
+    Jan died leaving an estate of 90000.
+    Lea is the spouse of Jan.
+    Lea chose the usufruct.
+    Kim is a child of Jan.
+    Kim is a child of Lea.
+    Tom is a child of Jan.
+    Tom died before Jan.
+    Uma is a child of Tom.
+    Vic is a child of Tom.
+    Vic died before Jan.
+    Wim is a child of Vic.
+    heirs expects answers ["Kim inherits 33750 from Jan", "Uma inherits 16875 from Jan",
+        "Wim inherits 16875 from Jan"].
+    spouse expects answers ["Lea receives 22500 from Jan as surviving spouse"].
+    usufruct expects answers [].
+    represented expects answers ["Tom is represented in the estate of Jan",
+        "Vic is represented in the estate of Jan"].
+    unworthy expects answers [].
+    totals expects answers ["the shares of the estate of Jan add up to 90000"].
+
+query heirs is:
+    which person inherits which amount from which deceased.
+
+query spouse is:
+    which person receives which amount from which deceased as surviving spouse.
+
+query usufruct is:
+    which person has the usufruct of the estate of which deceased.
+
+query represented is:
+    which person is represented in the estate of which deceased.
+
+query unworthy is:
+    which person is unworthy to inherit from which deceased.
+
+query totals is:
+    the shares of the estate of which deceased add up to which amount.

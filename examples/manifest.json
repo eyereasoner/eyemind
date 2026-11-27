@@ -906,5 +906,10 @@
     "name": "consumer-withdrawal-le",
     "files": ["consumer-withdrawal-le.le"],
     "description": "The EU Consumer Rights Directive dates seven withdrawal periods, excludes personalised, unsealed and performed orders, and sets refunds and their deadlines"
+  },
+  {
+    "name": "intestate-succession-le",
+    "files": ["intestate-succession-le.le"],
+    "description": "French intestate succession divides two estates by branch through represented, renouncing and unworthy heirs, gives the spouse a usufruct or a quarter, and checks that every share adds up"
   }
 ]
