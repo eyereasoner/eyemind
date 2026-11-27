@@ -40,18 +40,18 @@
     </symbol>
   
     <symbol id="quill" viewBox="0 0 120 140">
-      <path class="ln" d="M40 58 L24 76 M80 58 L96 76"/>
-      <rect fill="#b8e3c9" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="40" y="8" width="40" height="80" rx="16"/>
-      <path class="ln thin" d="M40 32 L80 32 M74 12 L74 44"/>
-      <circle class="inkf" cx="52" cy="54" r="4"/><circle class="inkf" cx="68" cy="54" r="4"/>
-      <path class="ln thin" d="M52 68 Q60 75 68 68"/>
-      <path class="paperf" d="M44 88 L76 88 L60 118 Z"/>
-      <path class="ln thin" d="M60 96 L60 110"/><circle class="inkf" cx="60" cy="96" r="2.5"/>
-      <path class="ln" d="M52 103 L46 132 M68 103 L74 132 M36 132 L50 132 M70 132 L84 132"/>
+      <g transform="translate(0 14)">
+        <rect fill="#b8e3c9" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="40" y="8" width="40" height="80" rx="16"/>
+        <path class="ln thin" d="M40 32 L80 32 M74 12 L74 44"/>
+        <circle class="inkf" cx="52" cy="54" r="4"/><circle class="inkf" cx="68" cy="54" r="4"/>
+        <path class="ln thin" d="M52 68 Q60 75 68 68"/>
+        <path class="paperf" d="M44 88 L76 88 L60 118 Z"/>
+        <path class="ln thin" d="M60 96 L60 110"/><circle class="inkf" cx="60" cy="96" r="2.5"/>
+      </g>
     </symbol>
   </defs>
 <rect x="-10" y="-10" width="660" height="270" rx="6" fill="#ffffff" stroke="#1d2a44" stroke-width="2.5"/>
-        <title>Quill holds a clipboard titled scenario web shop. Three lines carry green ticks: periods as expected, valid as expected, late as expected. A fourth line is red: withheld not as expected. Mind points at it and says: one answer changed, look here.</title>
+        <title>Quill stands beside a clipboard titled scenario web shop. Three lines carry green ticks: periods as expected, valid as expected, late as expected. A fourth line is red: withheld not as expected. Mind points at it and says: one answer changed, look here.</title>
         <path class="ln thin" d="M20 240 L620 240" stroke-dasharray="2 9"/>
         <use href="#quill" x="20" y="90" width="130" height="152"/>
         <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="150" y="40" width="310" height="190" rx="6"/>

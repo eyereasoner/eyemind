@@ -208,7 +208,7 @@ withhold Eva's refund:
 % not as expected: withheld expects answers ["the trader may withhold the refund for the coffee machine order"]
 ```
 
-![Quill holds a clipboard titled scenario web shop. Three lines carry green ticks: periods as expected, valid as expected, late as expected. A fourth line is red: withheld not as expected. Mind points at it and says: one answer changed, look here.](assets/le-book/06-scenarios.svg)
+![Quill stands beside a clipboard titled scenario web shop. Three lines carry green ticks: periods as expected, valid as expected, late as expected. A fourth line is red: withheld not as expected. Mind points at it and says: one answer changed, look here.](assets/le-book/06-scenarios.svg)
 
 *Expected answers turn a scenario into a test that anyone can read.*
 
