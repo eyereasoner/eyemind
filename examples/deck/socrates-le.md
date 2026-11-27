@@ -48,6 +48,7 @@ node bin/eyemind.js examples/socrates-le.le
 node bin/eyemind.js --program examples/socrates-le.le > /tmp/socrates-le.js
 node bin/eyemind.js --proof examples/socrates-le.le
 node bin/eyemind.js --check-proof examples/proof/socrates-le.js examples/socrates-le.le
+node bin/eyemind.js --explain examples/socrates-le.le
 ```
 
 Add the template `*a thing* is an animal` and the rule

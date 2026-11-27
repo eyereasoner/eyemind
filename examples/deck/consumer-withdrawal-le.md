@@ -106,6 +106,7 @@ node bin/eyemind.js examples/consumer-withdrawal-le.le
 node bin/eyemind.js --program examples/consumer-withdrawal-le.le > /tmp/consumer-withdrawal-le.js
 node bin/eyemind.js --proof examples/consumer-withdrawal-le.le
 node bin/eyemind.js --check-proof examples/proof/consumer-withdrawal-le.js examples/consumer-withdrawal-le.le
+node bin/eyemind.js --explain examples/consumer-withdrawal-le.le
 ```
 
 Add

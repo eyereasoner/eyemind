@@ -51,6 +51,7 @@ node bin/eyemind.js examples/river-crossing-le.le
 node bin/eyemind.js --program examples/river-crossing-le.le > /tmp/river-crossing-le.js
 node bin/eyemind.js --proof examples/river-crossing-le.le
 node bin/eyemind.js --check-proof examples/proof/river-crossing-le.js examples/river-crossing-le.le
+node bin/eyemind.js --explain examples/river-crossing-le.le
 ```
 
 Reduce the crossing limit to 6: the query has no answers. Increase it to 9:

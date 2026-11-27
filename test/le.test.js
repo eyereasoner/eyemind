@@ -1,6 +1,5 @@
 import { assert, cli, errorOf } from './helpers.js';
-import { explainLe } from '../src/le-explain.js';
-import { checkProof, compileLe, loadText, run, writeLe } from '../src/index.js';
+import { checkProof, compileLe, explainLe, loadText, run, writeLe } from '../src/index.js';
 import { inputKind, loadInputs, writeConclusions } from '../src/formats.js';
 
 const compile = (text) => compileLe([[text, 'input.le']]);

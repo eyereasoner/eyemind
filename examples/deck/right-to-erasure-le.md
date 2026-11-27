@@ -78,6 +78,7 @@ node bin/eyemind.js examples/right-to-erasure-le.le
 node bin/eyemind.js --program examples/right-to-erasure-le.le > /tmp/right-to-erasure-le.js
 node bin/eyemind.js --proof examples/right-to-erasure-le.le
 node bin/eyemind.js --check-proof examples/proof/right-to-erasure-le.js examples/right-to-erasure-le.le
+node bin/eyemind.js --explain examples/right-to-erasure-le.le
 ```
 
 Add `the retention period of the backup archive has 0 years left.`: the backup

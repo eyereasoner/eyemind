@@ -87,6 +87,7 @@ node bin/eyemind.js examples/data-transfers-le.le
 node bin/eyemind.js --program examples/data-transfers-le.le > /tmp/data-transfers-le.js
 node bin/eyemind.js --proof examples/data-transfers-le.le
 node bin/eyemind.js --check-proof examples/proof/data-transfers-le.js examples/data-transfers-le.le
+node bin/eyemind.js --explain examples/data-transfers-le.le
 ```
 
 Add `the transfer impact of the helpdesk transfer is assessed.`: the helpdesk

@@ -114,6 +114,7 @@ node bin/eyemind.js examples/intestate-succession-le.le
 node bin/eyemind.js --program examples/intestate-succession-le.le > /tmp/intestate-succession-le.js
 node bin/eyemind.js --proof examples/intestate-succession-le.le
 node bin/eyemind.js --check-proof examples/proof/intestate-succession-le.js examples/intestate-succession-le.le
+node bin/eyemind.js --explain examples/intestate-succession-le.le
 ```
 
 Add

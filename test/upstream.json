@@ -23,13 +23,13 @@
   },
   "srl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "e79670afeeff120e9b3671f3be0913f2055f1f74",
+    "revision": "b59a977a336fd7e99a1312318923fc2ceaca7ba8",
     "path": "shacl12-test-suite/tests/sparql-rl",
     "cases": 367
   },
   "shacl": {
     "source": "https://github.com/w3c/data-shapes",
-    "revision": "e79670afeeff120e9b3671f3be0913f2055f1f74",
+    "revision": "b59a977a336fd7e99a1312318923fc2ceaca7ba8",
     "path": "shacl12-test-suite/tests",
     "manifest": "https://w3c.github.io/data-shapes/shacl12-test-suite/tests/manifest.ttl",
     "cases": 605
@@ -43,7 +43,7 @@
   },
   "le": {
     "source": "https://github.com/LogicalContractsOrg/LogicalEnglish2",
-    "revision": "70bf56d6253f183e7e1f1a9c80a4dd1d8ce0b0cd",
+    "revision": "4ab5660e343cfb35376704b7c616fed5b60c8986",
     "path": "examples/moreExamples",
     "cases": 81
   }

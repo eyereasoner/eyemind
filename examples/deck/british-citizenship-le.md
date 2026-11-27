@@ -96,6 +96,7 @@ node bin/eyemind.js examples/british-citizenship-le.le
 node bin/eyemind.js --program examples/british-citizenship-le.le > /tmp/british-citizenship-le.js
 node bin/eyemind.js --proof examples/british-citizenship-le.le
 node bin/eyemind.js --check-proof examples/proof/british-citizenship-le.js examples/british-citizenship-le.le
+node bin/eyemind.js --explain examples/british-citizenship-le.le
 ```
 
 Change Ivan's settlement date to `1999-01-01`: he was then settled at Dara's

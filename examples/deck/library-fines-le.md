@@ -80,6 +80,7 @@ node bin/eyemind.js examples/library-fines-le.le
 node bin/eyemind.js --program examples/library-fines-le.le > /tmp/library-fines-le.js
 node bin/eyemind.js --proof examples/library-fines-le.le
 node bin/eyemind.js --check-proof examples/proof/library-fines-le.js examples/library-fines-le.le
+node bin/eyemind.js --explain examples/library-fines-le.le
 ```
 
 Return Bob's novel 6 days late instead of 4: he owes 6 and is still not

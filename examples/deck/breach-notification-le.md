@@ -86,6 +86,7 @@ node bin/eyemind.js examples/breach-notification-le.le
 node bin/eyemind.js --program examples/breach-notification-le.le > /tmp/breach-notification-le.js
 node bin/eyemind.js --proof examples/breach-notification-le.le
 node bin/eyemind.js --check-proof examples/proof/breach-notification-le.js examples/breach-notification-le.le
+node bin/eyemind.js --explain examples/breach-notification-le.le
 ```
 
 Change the processor's alert on the database leak to 20 hours: the processor

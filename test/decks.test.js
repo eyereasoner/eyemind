@@ -390,6 +390,18 @@ for (const entry of MANIFEST) {
           compiled.add(target);
           continue;
         }
+        if (args.includes('--explain')) {
+          // An explanation keeps the saved output's headings and answers, each
+          // answer followed by what it rests on.
+          assert.equal(result.code, 0, result.stderr);
+          assert.equal(result.stderr, '');
+          const lines = new Set(result.stdout.split('\n'));
+          for (const line of readFileSync(artifactPath('output', entry), 'utf8').split('\n').filter(Boolean)) {
+            if (line.startsWith('% not as expected')) continue;
+            assert.ok(lines.has(line) || (line.endsWith('.') && lines.has(line.slice(0, -1))), `${name}: the explanation leaves out ${line}`);
+          }
+          continue;
+        }
         const proofMode = args.some((arg) => ['--proof', '-p', '--check-proof', '--prove-and-check', '-c', '--unused'].includes(arg));
         const explicitFormat = args.includes('--to') ? args[args.indexOf('--to') + 1] : null;
         const native = args.some((arg) => /\.(n3|srl|le|ttl)$/.test(arg));

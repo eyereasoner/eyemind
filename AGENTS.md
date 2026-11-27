@@ -175,6 +175,7 @@ node bin/eyemind.js examples/socrates.js
 node bin/eyemind.js --proof examples/socrates.js > /tmp/proof.js
 node bin/eyemind.js --check-proof /tmp/proof.js examples/socrates.js
 node bin/eyemind.js --unused examples/graphs.js
+node bin/eyemind.js --explain examples/british-citizenship-le.le
 npm test                                              # unit, examples, conformance, MobiBench, command line, playground
 npm test -- unit conformance                          # these sections, plus W3C EARL
 npm test -- -k skolem                                 # only tests whose line contains "skolem"

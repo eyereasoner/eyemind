@@ -81,6 +81,7 @@ node bin/eyemind.js examples/election-tally-le.le
 node bin/eyemind.js --program examples/election-tally-le.le > /tmp/election-tally-le.js
 node bin/eyemind.js --proof examples/election-tally-le.le
 node bin/eyemind.js --check-proof examples/proof/election-tally-le.js examples/election-tally-le.le
+node bin/eyemind.js --explain examples/election-tally-le.le
 ```
 
 Add `v10 is verified.`: Sven's count rises to 2, but Hana and Ravi still tie.

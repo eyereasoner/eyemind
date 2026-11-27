@@ -53,6 +53,7 @@ node bin/eyemind.js examples/shortest-path-le.le
 node bin/eyemind.js --program examples/shortest-path-le.le > /tmp/shortest-path-le.js
 node bin/eyemind.js --proof examples/shortest-path-le.le
 node bin/eyemind.js --check-proof examples/proof/shortest-path-le.js examples/shortest-path-le.le
+node bin/eyemind.js --explain examples/shortest-path-le.le
 ```
 
 Change the direct road's time from 15 to 5: it becomes the sole best route.
