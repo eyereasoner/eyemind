@@ -24,8 +24,8 @@ Each rule is one provision, in words a lawyer can check against the text:
 
 - **Article 9(2)**: the period starts when the goods are delivered, or, for a
   service, when the contract is concluded.
-- **Article 9(1)**: it ends 14 days later, written `the date is 14 days after
-  the first date`, which counts calendar days.
+- **Article 9(1)**: it ends 14 days later, written
+  `the date is 14 days after the first date`, which counts calendar days.
 - **Article 10(2)**: if the shop told the consumer about the right only after
   the period started, the 14 days run from that late notice instead.
 - **Article 16**: personalised goods, hygiene goods unsealed after delivery
@@ -33,8 +33,9 @@ Each rule is one provision, in words a lawyer can check against the text:
   right are excluded. Each exclusion names its article as a quoted name.
 - **Article 11(2)**: a withdrawal sent on or before the last day is valid.
 - **Article 13**: a valid withdrawal is refunded within 14 days, every charge
-  included, as `the sum of each payment such that the contract charged the
-  payment for a charge`. For goods, the shop may withhold the refund while
+  included, as
+  `the sum of each payment such that the contract charged the payment for a charge`.
+  For goods, the shop may withhold the refund while
   `it is not the case that` the consumer sent them back.
 
 The program leaves out the twelve-month cap on late notices of Article 10(1);
@@ -107,7 +108,8 @@ node bin/eyemind.js --proof examples/consumer-withdrawal-le.le
 node bin/eyemind.js --check-proof examples/proof/consumer-withdrawal-le.js examples/consumer-withdrawal-le.le
 ```
 
-Add `the consumer sent back the goods of the coffee machine order on
-2026-04-21.` and the shop may no longer withhold Eva's refund. Remove the
+Add
+`the consumer sent back the goods of the coffee machine order on 2026-04-21.`
+and the shop may no longer withhold Eva's refund. Remove the
 jacket's delivery date and its period no longer ends at all. Either change
 makes the output report that the answers are not as expected.

@@ -49,8 +49,8 @@ program. It is the same text for both.
 *One text, two readers: the lawyer and the machine.*
 
 The discipline is light. There are no brackets to balance and no symbols to
-learn. Variables are written as English phrases such as `a contract` and `the
-contract`. Rules keep the order and the wording of the law they come from, so
+learn. Variables are written as English phrases such as `a contract` and
+`the contract`. Rules keep the order and the wording of the law they come from, so
 a reviewer can lay the rule next to the article and compare them line by line.
 
 ## Templates: the words of a domain
@@ -67,8 +67,9 @@ the templates are:
     the trader must refund *an amount* for *a contract* by *a date*.
 ```
 
-A sentence fills the places: `the consumer withdrew from the jacket order on
-2026-03-20.` is a fact of the first template. The words outside the places are
+A sentence fills the places:
+`the consumer withdrew from the jacket order on 2026-03-20.`
+is a fact of the first template. The words outside the places are
 fixed. The words inside the places are the things the sentence talks about: a
 contract, a date, an amount.
 
