@@ -70,6 +70,12 @@ would answer it. eyemind uses both, and each can call the other.
 
 *Forward collects, backward searches; eyemind does both in one program.*
 
+To write programs of your own, read
+[Writing programs](https://eyereasoner.github.io/eyemind/#writing-programs) in
+the guide for Logic Script, or the companion book
+[The Art of Logical English](https://eyereasoner.github.io/eyemind/LE-BOOK)
+for rules in plain English.
+
 ## A proof you can hand to a stranger
 
 Most software gives you an answer and, at best, a log you have to trust.
