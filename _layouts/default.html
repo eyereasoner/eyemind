@@ -7,6 +7,8 @@
   <title>{{ heading | escape }}</title>
   <link rel="icon" href="{{ '/assets/eye.png' | relative_url }}" type="image/png">
   <link rel="stylesheet" href="{{ '/assets/docs.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/nav.css' | relative_url }}">
+  <script src="{{ '/assets/nav.js' | relative_url }}" defer></script>
 </head>
 <body>
   <main class="documentation">
@@ -15,9 +17,18 @@
       <nav class="site-nav" aria-label="Project">
         <a href="{{ '/playground/' | relative_url }}">Playground</a>
         <a href="{{ '/examples/' | relative_url }}"{% if page.path == 'examples/README.md' %} aria-current="page"{% endif %}>Examples</a>
-        <a href="{{ '/LS-SPEC' | relative_url }}"{% if page.path == 'LS-SPEC.md' %} aria-current="page"{% endif %}>Specification</a>
-        <a href="{{ '/playground/conformance' | relative_url }}">Conformance</a>
-        <a href="{{ '/BOOK' | relative_url }}"{% if page.path == 'BOOK.md' %} aria-current="page"{% endif %}>Book</a>
+        <details class="nav-menu"><summary>Specification</summary><div>
+          <a href="{{ '/LS-SPEC' | relative_url }}"{% if page.path == 'LS-SPEC.md' %} aria-current="page"{% endif %}>Logic Script</a>
+          <a href="{{ '/LE-SPEC' | relative_url }}"{% if page.path == 'LE-SPEC.md' %} aria-current="page"{% endif %}>Logical English</a>
+        </div></details>
+        <details class="nav-menu"><summary>Conformance</summary><div>
+          <a href="{{ '/playground/conformance' | relative_url }}">Logic Script</a>
+          <a href="{{ '/playground/conformance?suite=le' | relative_url }}">Logical English</a>
+        </div></details>
+        <details class="nav-menu"><summary>Book</summary><div>
+          <a href="{{ '/BOOK' | relative_url }}"{% if page.path == 'BOOK.md' %} aria-current="page"{% endif %}>The Art of eyemind</a>
+          <a href="{{ '/LE-BOOK' | relative_url }}"{% if page.path == 'LE-BOOK.md' %} aria-current="page"{% endif %}>The Art of Logical English</a>
+        </div></details>
         <a href="https://github.com/eyereasoner/eyemind">Repository ↗</a>
       </nav>
     </header>

@@ -85,6 +85,8 @@ goals, and keep error messages specific and user-facing text direct.
 - `_config.yml`, `_layouts/default.html`, `assets/docs.css`: GitHub Pages
   renders the Markdown documents with one masthead (Playground,
   Examples, Specification, Conformance, Book, Repository; the logo links home), the same nav the playground shows.
+  Specification, Conformance and Book are menus for Logic Script and Logical English,
+  styled by `assets/nav.css` and closed and kept on screen by `assets/nav.js`.
 - `examples/`: runnable examples, listed in `examples/manifest.json` with
   their description and halt code. An entry can list its
   source files in order. RDF examples pair Turtle or TriG data in

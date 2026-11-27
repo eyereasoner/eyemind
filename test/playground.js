@@ -611,14 +611,34 @@ query(or(q(X), r(X)))`);
     const p = driver(page);
     await p.open(`${base}#example=socrates`);
     const labels = ['Playground', 'Examples', 'Specification', 'Conformance', 'Book', 'Repository ↗'];
-    assert.deepEqual(await page.evaluate("[...document.querySelectorAll('nav a')].map(a => a.textContent)"), labels);
+    const topLabels = "[...document.querySelectorAll('nav > a, nav > details > summary')].map(item => item.textContent)";
+    assert.deepEqual(await page.evaluate(topLabels), labels);
+
+    // Specification, Conformance and Book open menus that stay on screen at
+    // both widths; opening one closes the others, and Escape closes them all.
+    for (const width of [1280, 390]) {
+      await page.command('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width === 390 });
+      for (const label of ['Specification', 'Conformance', 'Book']) {
+        await page.evaluate(`[...document.querySelectorAll('nav summary')].find(s => s.textContent === '${label}').click()`);
+        assert.deepEqual(await page.evaluate("[...document.querySelectorAll('nav details[open] summary')].map(s => s.textContent)"), [label]);
+        assert.ok(await page.evaluate(`(() => { const box = document.querySelector('nav details[open] > div').getBoundingClientRect();
+          return box.left >= 0 && box.right <= innerWidth && box.width > 0; })()`), `the ${label} menu fits at ${width}px`);
+      }
+      await page.evaluate("document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))");
+      assert.equal(await page.evaluate("document.querySelectorAll('nav details[open]').length"), 0);
+    }
+    await page.command('Emulation.setDeviceMetricsOverride', { width: 1280, height: 1000, deviceScaleFactor: 1, mobile: false });
+    assert.deepEqual(await page.evaluate("[...document.querySelectorAll('nav details:nth-of-type(3) a')].map(a => a.getAttribute('href'))"),
+      ['../BOOK', '../LE-BOOK']);
+
     const ready = (count) => p.until(`document.querySelectorAll('.cases > li').length === ${count} && !document.getElementById('run').disabled`, 'conformance cases');
     const count = loadCases().length;
-    await page.evaluate("[...document.querySelectorAll('nav a')].find(a => a.textContent === 'Conformance').click()");
+    await page.evaluate("document.querySelector('nav a[href=\"conformance\"]').click()");
     await ready(count);
     assert.equal(await page.evaluate('location.pathname'), '/playground/conformance');
-    assert.deepEqual(await page.evaluate("[...document.querySelectorAll('nav a')].map(a => a.textContent)"), labels);
-    assert.equal(await page.evaluate("document.querySelector('nav [aria-current=page]').textContent"), 'Conformance');
+    assert.deepEqual(await page.evaluate(topLabels), labels);
+    assert.equal(await page.evaluate("document.querySelector('nav [aria-current=page]').textContent"), 'Logic Script');
+    assert.equal(await page.evaluate("document.querySelector('nav [aria-current=page]').closest('details').querySelector('summary').textContent"), 'Conformance');
     assert.equal(await page.evaluate("document.getElementById('suite-title').textContent"), 'Logic Script (LS) conformance');
     assert.match(await page.evaluate("document.querySelector('footer').textContent"), /eyemind.*Logic Script \(LS\) reasoner/s);
     const runSuite = async (count) => {
@@ -650,6 +670,7 @@ query(or(q(X), r(X)))`);
     assert.equal(await page.evaluate('location.search'), '?suite=le');
     assert.equal(await page.evaluate("document.getElementById('suite-title').textContent"), 'Logical English (LE) conformance');
     assert.equal(await page.evaluate("document.getElementById('le-suite').getAttribute('aria-current')"), 'page');
+    assert.equal(await page.evaluate("document.querySelector('nav [aria-current=page]').textContent"), 'Logical English');
     assert.ok(await page.evaluate("[...document.querySelectorAll('.spec')].every(node => node.textContent.startsWith('References: LE-SPEC.'))"));
     await runSuite(leCount);
     await page.evaluate("document.querySelector('nav a[href=\"./\"]').click()");

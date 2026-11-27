@@ -56,11 +56,25 @@ export const tests = {
   'every top navigation links examples and conformance around the specification'() {
     for (const path of ['_layouts/default.html', 'playground/index.html', 'playground/conformance.html']) {
       const nav = document(path).match(/<nav\b[^>]*>([\s\S]*?)<\/nav>/)[1];
-      assert.deepEqual([...nav.matchAll(/<a\b[^>]*>([^<]+)<\/a>/g)].map((m) => m[1]),
+      const top = nav.replace(/<div>[\s\S]*?<\/div>/g, '');
+      assert.deepEqual([...top.matchAll(/<(?:a\b[^>]*|summary)>([^<]+)<\/(?:a|summary)>/g)].map((m) => m[1]),
         ['Playground', 'Examples', 'Specification', 'Conformance', 'Book', 'Repository ↗'], path);
-      assert.match(nav, /href="[^"]*examples\/[^"]*"/, path);
-      assert.match(nav, /href="[^"]*conformance[^"]*"/, path);
-      assert.match(nav, /href="[^"]*BOOK[^"]*"/, path);
+      assert.match(top, /href="[^"]*examples\/[^"]*"/, path);
+
+      // Each menu offers its topic for Logic Script, then Logical English.
+      const menus = Object.fromEntries([...nav.matchAll(/<summary>([^<]+)<\/summary><div>([\s\S]*?)<\/div>/g)]
+        .map(([, label, items]) => [label, [...items.matchAll(/href="([^"]*)"[^>]*>([^<]+)</g)].map((m) => `${m[2]} ${m[1]}`)]));
+      const link = (target) => path === '_layouts/default.html' ? `{{ '/${target}' | relative_url }}` : target;
+      assert.deepEqual(menus, {
+        Specification: [`Logic Script ${link(path === '_layouts/default.html' ? 'LS-SPEC' : '../LS-SPEC')}`,
+          `Logical English ${link(path === '_layouts/default.html' ? 'LE-SPEC' : '../LE-SPEC')}`],
+        Conformance: [`Logic Script ${link(path === '_layouts/default.html' ? 'playground/conformance' : 'conformance')}`,
+          `Logical English ${link(path === '_layouts/default.html' ? 'playground/conformance?suite=le' : 'conformance?suite=le')}`],
+        Book: [`The Art of eyemind ${link(path === '_layouts/default.html' ? 'BOOK' : '../BOOK')}`,
+          `The Art of Logical English ${link(path === '_layouts/default.html' ? 'LE-BOOK' : '../LE-BOOK')}`],
+      }, path);
+      assert.match(document(path), /nav\.css/, path);
+      assert.match(document(path), /nav\.js/, path);
     }
     assert.match(document('README.md'), /https:\/\/eyereasoner\.github\.io\/eyemind\/playground\/conformance/);
   },

@@ -6,6 +6,8 @@
   <title>The eyemind Conformance Suite</title>
   <link rel="icon" href="../assets/eye.png">
   <link rel="stylesheet" href="../assets/conformance.css">
+  <link rel="stylesheet" href="../assets/nav.css">
+  <script src="../assets/nav.js" defer></script>
   <style>
     #filter { flex: 1 1 18em; }
     .progress { height: 4px; background: var(--panel-2); }
@@ -41,9 +43,18 @@
   <nav class="site-nav" aria-label="Project">
     <a href="./">Playground</a>
     <a href="../examples/">Examples</a>
-    <a href="../LS-SPEC">Specification</a>
-    <a href="conformance" aria-current="page">Conformance</a>
-    <a href="../BOOK">Book</a>
+    <details class="nav-menu"><summary>Specification</summary><div>
+      <a href="../LS-SPEC">Logic Script</a>
+      <a href="../LE-SPEC">Logical English</a>
+    </div></details>
+    <details class="nav-menu"><summary>Conformance</summary><div>
+      <a id="nav-ls-suite" href="conformance" aria-current="page">Logic Script</a>
+      <a id="nav-le-suite" href="conformance?suite=le">Logical English</a>
+    </div></details>
+    <details class="nav-menu"><summary>Book</summary><div>
+      <a href="../BOOK">The Art of eyemind</a>
+      <a href="../LE-BOOK">The Art of Logical English</a>
+    </div></details>
     <a href="https://github.com/eyereasoner/eyemind">Repository ↗</a>
   </nav>
   <header>
@@ -95,6 +106,8 @@
       $('#suite-title').textContent = 'Logical English (LE) conformance';
       $('#ls-suite').removeAttribute('aria-current');
       $('#le-suite').setAttribute('aria-current', 'page');
+      $('#nav-ls-suite').removeAttribute('aria-current');
+      $('#nav-le-suite').setAttribute('aria-current', 'page');
       $('#suite-guide').textContent = 'Logical English suite';
       $('#suite-guide').href = '../le-conformance/';
       $('#suite-spec').textContent = 'Logical English reference';

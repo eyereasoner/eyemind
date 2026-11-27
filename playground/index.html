@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>The eyemind Playground</title>
     <link rel="icon" href="../assets/eye.png" type="image/png" />
+    <link rel="stylesheet" href="../assets/nav.css" />
+    <script src="../assets/nav.js" defer></script>
     <style>
       * { box-sizing: border-box; }
       :root { color-scheme: light; --bg: #f5f5f7; --panel: #fff; --border: #d1d5db; --text: #111827; --muted: #6b7280; --accent: #2563eb; }
@@ -144,9 +146,18 @@
       <nav class="site-nav" aria-label="Project">
         <a href="./" aria-current="page">Playground</a>
         <a href="../examples/">Examples</a>
-        <a href="../LS-SPEC">Specification</a>
-        <a href="conformance">Conformance</a>
-        <a href="../BOOK">Book</a>
+        <details class="nav-menu"><summary>Specification</summary><div>
+          <a href="../LS-SPEC">Logic Script</a>
+          <a href="../LE-SPEC">Logical English</a>
+        </div></details>
+        <details class="nav-menu"><summary>Conformance</summary><div>
+          <a href="conformance">Logic Script</a>
+          <a href="conformance?suite=le">Logical English</a>
+        </div></details>
+        <details class="nav-menu"><summary>Book</summary><div>
+          <a href="../BOOK">The Art of eyemind</a>
+          <a href="../LE-BOOK">The Art of Logical English</a>
+        </div></details>
         <a href="https://github.com/eyereasoner/eyemind">Repository ↗</a>
       </nav>
       <section class="card intro-card" aria-label="About and run controls">
