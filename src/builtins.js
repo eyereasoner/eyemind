@@ -312,7 +312,7 @@ function* regexFind(args, resolved, env, mark) {
   }
 }
 
-export const RELATIONS = new Map([['atom_concat/3', atomConcat], ['regex_find/3', regexFind]]);
+const RELATIONS = new Map([['atom_concat/3', atomConcat], ['regex_find/3', regexFind]]);
 
 // Tests that a later binding can make false: is_var(X) holds while X is
 // unbound, not_identical(X, a) until X is a, and compare orders a variable

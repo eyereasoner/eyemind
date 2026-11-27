@@ -37,4 +37,4 @@ function termHasBlankNode(term) {
   return false;
 }
 
-export { assignmentsNeedRunOnce, ruleNeedsRunOnce, tripleHasBlankNode, termHasBlankNode, tripleHasVariableTripleTerm };
+export { ruleNeedsRunOnce, tripleHasBlankNode, tripleHasVariableTripleTerm };

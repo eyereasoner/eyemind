@@ -17,7 +17,7 @@ import { Env, Struct, Var, copyResolved, flattenConjunction, freshTerm, identity
 
 // The analysis stops, rejecting the program, beyond these many chain states,
 // or closure facts for one state.
-export const CHAIN_LIMITS = { states: 4096, facts: 2048 };
+const CHAIN_LIMITS = { states: 4096, facts: 2048 };
 
 // Ranks for the forward clauses of a program classic stratification
 // rejects, or null when the program is not chain-stratified, as far as this

@@ -29,7 +29,7 @@ const ALLOWED = new Set([...TARGETS, ...CONSTRAINTS, ...ANNOTATIONS, 'path', 'va
 const SHAPE_PARAMETERS = ['node', 'not', 'qualifiedValueShape', 'property', 'memberShape', 'reifierShape', 'someValue', 'targetWhere', 'condition'];
 const PATH_OPERATORS = ['inversePath', 'alternativePath', 'zeroOrMorePath', 'oneOrMorePath', 'zeroOrOnePath'];
 // The default conformance-disallow set of SHACL 1.2.
-export const SHACL_DISALLOWS = ['Violation', 'Warning', 'Info'].map((n) => SH + n);
+const SHACL_DISALLOWS = ['Violation', 'Warning', 'Info'].map((n) => SH + n);
 const literal = (t, datatype) => t instanceof Struct && t.name === 'literal' && t.args[1]?.name === 'datatype' && t.args[1].args[0] === datatype;
 const BOOL = (t) => literal(t, XSD + 'boolean') && ['true', 'false', '1', '0'].includes(t.args[0]);
 // Only the boolean true activates a constraint; the suite reads "1" as not true.

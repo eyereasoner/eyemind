@@ -79,7 +79,6 @@ for (const [name, base, exponent, code] of [['B', 10, 1, 'B'], ['DeciB', 10, 0.1
 const qudtCatalog = '\n' + definitions.join('\n') + String.raw`
 const qu = (n) => iri('http://qudt.org/schema/qudt/' + n);
 const qc = (n) => iri('https://eyereasoner.github.io/eyemind/qudt#' + n);
-const quDouble = 'http://www.w3.org/2001/XMLSchema#double';
 const quString = 'http://www.w3.org/2001/XMLSchema#string';
 implied_by(qu_float(T, F), [rv_valid(T), srl_num(T, _, N), srl_float_value(N, F), is_float(F)]);
 implied_by(qu_custom(U, G), ent_base(U, qu('conversionMultiplier'), _, G));

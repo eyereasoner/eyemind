@@ -36,7 +36,7 @@ const LIST = 'http://www.w3.org/2000/10/swap/list#';
 const GRAPH_CONTENT = 'https://eyereasoner.github.io/eyemind/graph#content';
 import { BUILTINS, HELPERS, UNSUPPORTED } from './n3-builtins.js';
 
-export class N3CompileError extends Error {}
+class N3CompileError extends Error {}
 
 // A term or atom text as a JavaScript string literal.
 const q = (text) => JSON.stringify(text);
@@ -52,7 +52,7 @@ export function compileN3(text, { base = '', source = 'input', documents } = {})
   return compileN3Document(doc, { source, documents });
 }
 
-export function compileN3Document(doc, { source = 'input', documents = new Map() } = {}) {
+function compileN3Document(doc, { source = 'input', documents = new Map() } = {}) {
   const facts = [];
   const rules = [];
   const needed = new Set();
@@ -301,7 +301,6 @@ function variablePredicate(triples) {
 }
 
 const isFormulaLike = (t) => t.t === 'graph' || (t.t === 'literal' && t.dt === `${XSD}boolean`);
-const isTrue = (t) => t.t === 'literal' && t.dt === `${XSD}boolean` && t.v === 'true';
 const isFalse = (t) => t.t === 'literal' && t.dt === `${XSD}boolean` && t.v === 'false';
 const triplesOf = (t) => (t.t === 'graph' ? t.triples : []);
 
@@ -1137,7 +1136,7 @@ function conclusionsToN3(doc, { triples, contradiction }, { mode = 'new', string
 }
 
 // Generous bounds: N3 programs often run longer than eyemind's defaults.
-export const N3_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferences: 1000000000 };
+const N3_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferences: 1000000000 };
 
 // Reason over N3 sources. Returns { n3, triples, contradiction, program,
 // result }; with proof, result.proof is eyemind's checked proof of the

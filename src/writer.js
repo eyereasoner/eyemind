@@ -26,18 +26,18 @@ export const CHAINED = new Set(['and', 'or']);
 
 const PLAIN = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
-export function plainName(name) {
+function plainName(name) {
   return PLAIN.test(name) && !RESERVED_WORDS.has(name);
 }
 
 // Whether a compound with this name and arity is written name(...).
-export function callableName(name, arity) {
+function callableName(name, arity) {
   if (!plainName(name) || RESERVED_CALLS.has(name)) return false;
   // and(A, B, C) reads as a chain, so a compound and/3 is struct('and', ...).
   return !(CHAINED.has(name) && arity > 2);
 }
 
-export function validVariableName(name) {
+function validVariableName(name) {
   return plainName(name) && name !== '_' && !name.startsWith('VAR_');
 }
 
@@ -45,7 +45,7 @@ export function validVariableName(name) {
 // the name a renamed-apart clause variable gets, becomes VAR_X_23_12. ASCII
 // letters and digits stay, an underscore doubles and any other character
 // becomes _hex_. Names already starting with the prefix are encoded too.
-export function encodeName(name) {
+function encodeName(name) {
   const out = ['VAR_'];
   for (const ch of name) {
     if (/^[A-Za-z0-9]$/.test(ch)) out.push(ch);
@@ -81,7 +81,7 @@ export function decodeName(text) {
   return encodeName(name) === text ? name : null;
 }
 
-export function variableText(name) {
+function variableText(name) {
   return validVariableName(name) ? name : encodeName(name);
 }
 
@@ -132,7 +132,7 @@ export function floatText(value) {
   return `${sign}${lead}e${exponent < 0 ? '-' : '+'}${magnitude}`;
 }
 
-export function letterName(n) {
+function letterName(n) {
   return String.fromCharCode(65 + (n % 26)) + (n >= 26 ? String(Math.floor(n / 26)) : '');
 }
 

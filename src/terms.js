@@ -59,12 +59,7 @@ export class Tail {
   }
 }
 
-export const isVar = (term) => term instanceof Var;
-export const isStruct = (term) => term instanceof Struct;
-export const isAtom = (term) => typeof term === 'string';
 export const isInt = (term) => typeof term === 'bigint';
-export const isFloat = (term) => typeof term === 'number';
-export const isNumber = (term) => typeof term === 'bigint' || typeof term === 'number';
 export const isCallable = (term) => typeof term === 'string' || term instanceof Struct;
 
 // 0, 1, 2 or 3: the rank of a term's kind in the standard order.
@@ -80,18 +75,10 @@ export function nonfinite(value, where = '') {
   return new EyemindError(`${where}a float term must be finite, not ${value}`);
 }
 
-export function cons(head, tail) {
-  return new Struct('.', [head, tail]);
-}
-
 export function listFromItems(items, tail = EMPTY) {
   let result = tail;
   for (let i = items.length - 1; i >= 0; i--) result = new Struct('.', [items[i], result]);
   return result;
-}
-
-export function isCons(term) {
-  return term instanceof Struct && term.name === '.' && term.args.length === 2;
 }
 
 export function properListItems(term, env) {

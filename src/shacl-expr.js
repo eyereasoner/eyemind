@@ -12,7 +12,7 @@ import { DEFINITIONS } from './srl-functions.js';
 const SH = 'http://www.w3.org/ns/shacl#';
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 const XSD = 'http://www.w3.org/2001/XMLSchema#';
-export const SHNEX = 'http://www.w3.org/ns/shacl-node-expr#';
+const SHNEX = 'http://www.w3.org/ns/shacl-node-expr#';
 export const SPARQL = 'http://www.w3.org/ns/sparql#';
 const TRUE = `literal('true', datatype('${XSD}boolean'))`;
 const FALSE = `literal('false', datatype('${XSD}boolean'))`;
@@ -48,7 +48,7 @@ const FUNCTIONS = {
 // Functions that receive unbound arguments and errors themselves.
 const UNBOUND = new Set(['bound', 'coalesce', 'if', 'logical-and', 'logical-or']);
 // Execution functions read the captured clock and seed.
-export const EXECUTION = new Set(['now', 'rand', 'uuid', 'struuid', 'bnode']);
+const EXECUTION = new Set(['now', 'rand', 'uuid', 'struuid', 'bnode']);
 // Built-in named parameter functions by their key parameter.
 const NAMED = ['var', 'pathValues', 'exists', 'if', 'distinct', 'intersection', 'concat', 'remove', 'filterShape', 'limit',
   'offset', 'orderBy', 'flatMap', 'findFirst', 'matchAll', 'count', 'min', 'max', 'sum', 'instancesOf', 'nodesMatching', 'arg'];

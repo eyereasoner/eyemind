@@ -11,7 +11,7 @@ import { DPV, DPV_PROPERTIES, dpvRules } from './dpv.js';
 export const ODRL_EVAL = 'https://eyereasoner.github.io/eyemind/odrl#';
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 
-export function isOdrlEvaluation(quads) {
+function isOdrlEvaluation(quads) {
   return quads.some(([, predicate, object]) => predicate instanceof Struct && predicate.name === 'iri' &&
     predicate.args[0] === `${RDF}type` && object instanceof Struct && object.name === 'iri' &&
     object.args[0] === `${ODRL_EVAL}Evaluation`);

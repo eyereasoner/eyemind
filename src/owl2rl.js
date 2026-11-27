@@ -7,7 +7,6 @@ const COMMON = String.raw`
 const r = (name) => iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#' + name);
 const s = (name) => iri('http://www.w3.org/2000/01/rdf-schema#' + name);
 const o = (name) => iri('http://www.w3.org/2002/07/owl#' + name);
-const e = (name) => iri('https://eyereasoner.github.io/eyemind/entailment#' + name);
 const t = (a, p, b) => rdf(a, p, b, G);
 // RDFS class/property propagation.
 implies([t(P, s('domain'), C), t(X, P, Y)], t(X, r('type'), C));

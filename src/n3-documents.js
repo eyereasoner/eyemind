@@ -7,7 +7,7 @@
 // The host supplies file access and, optionally, HTTP document access.
 import { LOG } from './n3-parser.js';
 
-export const DOCUMENT_PREDICATES = new Set([`${LOG}semantics`, `${LOG}semanticsOrError`, `${LOG}content`]);
+const DOCUMENT_PREDICATES = new Set([`${LOG}semantics`, `${LOG}semanticsOrError`, `${LOG}content`]);
 
 // The IRIs a document's triples name as documents to read: the subject of
 // such a built-in, and, when a rule finds that subject with a pattern whose

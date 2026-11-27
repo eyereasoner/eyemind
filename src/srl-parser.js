@@ -13,7 +13,6 @@ import {
   RDF_REST,
   RDF_NIL,
   RDF_REIFIES,
-  XSD_STRING,
   XSD_BOOLEAN,
   XSD_INTEGER,
   XSD_DECIMAL,
@@ -812,17 +811,4 @@ function parse(source, options = {}) {
   return new Parser(source, options).parseProgram();
 }
 
-function parseQuery(source, options = {}) {
-  if (/^\s*(QUERY|SELECT)\b/i.test(source)) {
-    throw new Error('QUERY/SELECT concrete syntax is not part of the SPARQL-RL rule-set grammar; pass a raw body pattern instead');
-  }
-  const trimmed = String(source).trim();
-  const text = trimmed.startsWith('{') ? `RULE { } WHERE ${trimmed}` : `RULE { } WHERE { ${source} }`;
-  const program = new Parser(text, options).parseProgram();
-  if (program.rules.length !== 1 || program.data.length !== 0) {
-    throw new Error('Expected exactly one raw body pattern');
-  }
-  return { select: null, body: program.rules[0].body, prefixes: program.prefixes, baseIRI: program.baseIRI };
-}
-
-export { Parser, parse, parseQuery };
+export { Parser, parse };

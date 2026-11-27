@@ -190,7 +190,7 @@ function describe(token) {
   return JSON.stringify(token.text);
 }
 
-export class Reader {
+class Reader {
   constructor() {
     this.anonymous = 0;
   }

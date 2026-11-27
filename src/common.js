@@ -249,7 +249,7 @@ export function sameValue(a, b) {
 }
 
 // Whether term, read through env, is exactly target, variables included.
-export function resolvesTo(term, env, target) {
+function resolvesTo(term, env, target) {
   const pending = [term, target];
   while (pending.length) {
     const expected = pending.pop();

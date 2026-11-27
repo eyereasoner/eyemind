@@ -14,7 +14,6 @@ const RDF_NS = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 const RDFS_NS = 'http://www.w3.org/2000/01/rdf-schema#';
 const OWL_NS = 'http://www.w3.org/2002/07/owl#';
 const XSD_NS = 'http://www.w3.org/2001/XMLSchema#';
-const CRYPTO_NS = 'http://www.w3.org/2000/10/swap/crypto#';
 const MATH_NS = 'http://www.w3.org/2000/10/swap/math#';
 const TIME_NS = 'http://www.w3.org/2000/10/swap/time#';
 const LIST_NS = 'http://www.w3.org/2000/10/swap/list#';
@@ -22,22 +21,12 @@ const LOG_NS = 'http://www.w3.org/2000/10/swap/log#';
 const STRING_NS = 'http://www.w3.org/2000/10/swap/string#';
 const DT_NS = 'https://eyereasoner.github.io/eyeling/datatype#';
 const SKOLEM_NS = 'https://eyereasoner.github.io/.well-known/genid/';
-const RDF_JSON_DT = RDF_NS + 'JSON';
 
 // Private rule-lifting variable prefix used for blank nodes that appear in
 // rule-body patterns.  The prefix is intentionally not spellable in N3 input,
 // but public extension APIs should present these variables with stable,
 // ordinary names and translate them back internally.
 const INTERNAL_BLANK_VAR_PREFIX = '\uE000eyeling_b';
-
-function isInternalBlankVarName(name) {
-  return typeof name === 'string' && name.startsWith(INTERNAL_BLANK_VAR_PREFIX);
-}
-
-function internalBlankVarSuffix(name) {
-  if (!isInternalBlankVarName(name)) return '';
-  return name.slice(INTERNAL_BLANK_VAR_PREFIX.length);
-}
 
 function parseUriReferenceForResolution(uri) {
   // RFC 3986 Appendix B-style component parser, with the scheme tightened to
@@ -265,7 +254,6 @@ function literalParts(lit) {
 // equality fast-paths than repeated string key construction.
 
 let __nextTid = 1;
-const __tidIntern = new Map();         // legacy generic key -> number
 const __iriTidIntern = new Map();      // IRI value -> number
 const __blankTidIntern = new Map();    // blank label -> number
 const __literalTidIntern = new Map();  // normalized literal lexical form -> number
@@ -281,10 +269,6 @@ function __getTidFromMap(map, key) {
     map.set(key, id);
   }
   return id;
-}
-
-function __getTid(key) {
-  return __getTidFromMap(__tidIntern, key);
 }
 
 function __getIriTid(value) {
@@ -451,15 +435,6 @@ class Rule {
   }
 }
 
-class DerivedFact {
-  constructor(fact, rule, premises, subst) {
-    this.fact = fact;          // Triple
-    this.rule = rule;          // Rule
-    this.premises = premises;  // Triple[]
-    this.subst = subst;        // { varName: Term }
-  }
-}
-
 // ===========================================================================
 // Term interning
 // ===========================================================================
@@ -474,7 +449,7 @@ const __literalIntern = new Map();
 // eyemind: conversion produces independent eyemind terms. Keeping parser
 // intern tables after that would retain every term in an unbounded log.
 function clearParserCaches() {
-  for (const cache of [__literalPartsCache, __tidIntern, __iriTidIntern, __blankTidIntern,
+  for (const cache of [__literalPartsCache, __iriTidIntern, __blankTidIntern,
     __literalTidIntern, __iriIntern, __literalIntern]) cache.clear();
 }
 
@@ -512,10 +487,6 @@ function internLiteral(value) {
 
 function isRdfTypePred(p) {
   return p instanceof Iri && p.value === RDF_NS + 'type';
-}
-
-function isOwlSameAsPred(p) {
-  return p instanceof Iri && p.value === OWL_NS + 'sameAs';
 }
 
 function isLogImplies(p) {
@@ -700,21 +671,6 @@ function collectVarsInTerm(t, acc) {
   }
 }
 
-function varsInRule(rule) {
-  const acc = new Set();
-  for (const tr of rule.premise) {
-    collectVarsInTerm(tr.s, acc);
-    collectVarsInTerm(tr.p, acc);
-    collectVarsInTerm(tr.o, acc);
-  }
-  for (const tr of rule.conclusion) {
-    collectVarsInTerm(tr.s, acc);
-    collectVarsInTerm(tr.p, acc);
-    collectVarsInTerm(tr.o, acc);
-  }
-  return acc;
-}
-
 function collectBlankLabelsInTerm(t, acc) {
   if (t instanceof Blank) {
     acc.add(t.label);
@@ -769,25 +725,11 @@ function copyQuotedGraphMetadata(src, dst) {
 
 export {
   RDF_NS,
-  RDFS_NS,
   OWL_NS,
-  XSD_NS,
-  CRYPTO_NS,
-  MATH_NS,
-  TIME_NS,
-  LIST_NS,
   LOG_NS,
-  STRING_NS,
-  DT_NS,
-  SKOLEM_NS,
-  RDF_JSON_DT,
   INTERNAL_BLANK_VAR_PREFIX,
-  isInternalBlankVarName,
-  internalBlankVarSuffix,
   resolveIriRef,
   literalParts,
-  normalizeLiteralForTid,
-  MAX_LITERAL_TID_LEN,
   Term,
   Iri,
   Literal,
@@ -798,18 +740,13 @@ export {
   GraphTerm,
   Triple,
   Rule,
-  DerivedFact,
   internIri,
   internLiteral,
   clearParserCaches,
-  isRdfTypePred,
-  isOwlSameAsPred,
   isLogImplies,
   isLogImpliedBy,
   isLogQuery,
   PrefixEnv,
-  collectIrisInTerm,
-  varsInRule,
   collectBlankLabelsInTriples,
   annotateQuotedGraphTerm,
   copyQuotedGraphMetadata,

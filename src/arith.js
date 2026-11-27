@@ -10,7 +10,7 @@ import { EyemindError, Var, compareNumbers, deref } from './terms.js';
 
 // A power or shift whose result would need more bits than this is refused
 // rather than allowed to exhaust memory.
-export const MAX_POWER_BITS = 1n << 26n;
+const MAX_POWER_BITS = 1n << 26n;
 
 class Problem extends Error {}
 
@@ -419,7 +419,3 @@ export function apply(name, values) {
 export function compare(left, right, env) {
   return compareNumbers(evaluate(left, env), evaluate(right, env));
 }
-
-export const ARITHMETIC_NAMES = new Set([
-  ...Object.keys(BINARY), ...Object.keys(UNARY), ...Object.keys(FUNCTIONS),
-]);

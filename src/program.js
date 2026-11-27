@@ -5,7 +5,7 @@ import { chainStrata } from './chains.js';
 import { subgoals } from './goals.js';
 import { hasInspection, inspectionTerm } from './inspection.js';
 import {
-  EMPTY, Env, EyemindError, Struct, Var, conjunction, deref, flattenConjunction, freshTerm, identity, indexKey, isCallable,
+  EMPTY, Env, EyemindError, Struct, Var, conjunction, flattenConjunction, freshTerm, identity, indexKey, isCallable,
   isCollection, isGround, isTerm, key, keyArity, listFromItems, unify, variables,
 } from './terms.js';
 import { write } from './writer.js';

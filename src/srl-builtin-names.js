@@ -70,9 +70,5 @@ function isBuiltinName(name) {
   return canonicalBuiltinName(name) !== null;
 }
 
-function builtinNames() {
-  return Object.keys(BUILTIN_SIGNATURES);
-}
 
-
-export { BUILTIN_SIGNATURES, canonicalBuiltinName, isBuiltinName, builtinNames };
+export { BUILTIN_SIGNATURES, canonicalBuiltinName, isBuiltinName };

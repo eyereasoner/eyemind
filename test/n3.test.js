@@ -11,7 +11,6 @@ import { parseN3 } from '../src/n3-parser.js';
 import { readDocuments } from '../src/n3-documents.js';
 import { loadInputs, writeConclusions } from '../src/formats.js';
 import { nodeIO } from '../src/node.js';
-import { eyemindToN3 } from '../src/n3-writer.js';
 import { ROOT, assert, command } from './helpers.js';
 
 export const tests = {};

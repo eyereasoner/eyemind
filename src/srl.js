@@ -788,7 +788,7 @@ function collectClauseVars(clauses, out) {
 
 
 // Generous bounds: rule sets over real data run longer than eyemind's defaults.
-export const SRL_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferences: 1000000000 };
+const SRL_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferences: 1000000000 };
 
 // Reason over a rule set. Options: base, filename, resolve (IMPORTS), data
 // (the base graph as RDF quads), all (the base graph too), limits and proof.

@@ -63,7 +63,7 @@ export function plainGenerators(program, clause) {
 }
 
 // The name and arity of every relation a forward rule concludes.
-export function forwardKeys(program) {
+function forwardKeys(program) {
   const keys = new Set();
   for (const clause of program.forward) {
     for (const head of clause.plainHeads) {

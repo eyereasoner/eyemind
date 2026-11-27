@@ -11,7 +11,6 @@ import { parseRdf } from '../src/rdf.js';
 import { parseN3 } from '../src/n3-parser.js';
 import { isRdfMessageLog, MESSAGE_NS, parseRdfMessages, RdfMessageReader } from '../src/messages.js';
 import { messageReasoner, shaclIn, shaclOut } from '../src/rdf-logic.js';
-import { Program } from '../src/program.js';
 import { Specializer, generalize } from '../src/specialize.js';
 import { Struct, Var, identity } from '../src/terms.js';
 import { loadText } from '../src/lang.js';

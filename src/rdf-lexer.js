@@ -2052,4 +2052,4 @@ function lex(inputText, opts = {}) {
   return tokens;
 }
 
-export { Token, N3SyntaxError, lex, normalizeRdfCompatibility, decodeN3StringEscapes };
+export { Token, N3SyntaxError, lex };

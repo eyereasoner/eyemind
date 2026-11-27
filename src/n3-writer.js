@@ -9,7 +9,7 @@ import { Struct, Var, identity } from './terms.js';
 import { write } from './writer.js';
 import { LOG, RDF, XSD } from './n3-parser.js';
 
-export class N3WriteError extends Error {}
+class N3WriteError extends Error {}
 
 // The triples of an eyemind conclusions document, in order and without
 // duplicates. Also reports whether a contradiction halted the run.

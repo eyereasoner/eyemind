@@ -240,19 +240,6 @@ function termIndexKey(term) {
   return JSON.stringify(term);
 }
 
-function unionSets(a, b) {
-  const out = new Set();
-  if (a) for (const value of a) out.add(value);
-  if (b) for (const value of b) out.add(value);
-  return out;
-}
-
-function allTemplateIds(length) {
-  const out = new Set();
-  for (let i = 0; i < length; i += 1) out.add(i);
-  return out;
-}
-
 function stratificationLayers(ruleCount, components, componentOf, edges) {
   if (ruleCount === 0) return [];
   const levels = Array(ruleCount).fill(0);
@@ -502,20 +489,6 @@ function possiblySameTerm(a, b) {
   return termEquals(a, b);
 }
 
-function bodyPredicates(clauses, wantNegative, inNegativeContext = false) {
-  const out = [];
-  for (const clause of clauses) {
-    if ((clause.type === 'triple' || clause.type === 'path') && wantNegative === inNegativeContext) {
-      out.push(...predicateIRIs(clause.triple));
-    } else if (clause.type === 'not') {
-      out.push(...bodyPredicates(clause.body, wantNegative, true));
-    } else if (clause.type === 'group') {
-      out.push(...bodyPredicates(clause.pattern, wantNegative, inNegativeContext));
-    }
-  }
-  return out;
-}
-
 function predicateIRI(triple) {
   return triple && triple.p && triple.p.type === 'iri' ? triple.p.value : null;
 }
@@ -636,20 +609,6 @@ function boundVariables(clauses, initialBound = new Set()) {
   return vars;
 }
 
-function positiveVariables(clauses) {
-  const vars = new Set();
-  for (const clause of clauses) {
-    if (clause.type === 'triple' || clause.type === 'path') collectTripleVars(clause.triple, vars);
-    if ((clause.type === 'set' || clause.type === 'bind')) vars.add(clause.variable);
-    if (clause.type === 'group') {
-      for (const key of clause.keys) vars.add(key);
-      for (const aggregation of clause.aggregations) vars.add(aggregation.variable);
-    }
-    if (clause.type === 'filter') for (const v of expressionVariables(clause.expr)) vars.add(v);
-  }
-  return vars;
-}
-
 function bodyVariables(clauses) {
   const vars = new Set();
   for (const clause of clauses) {
@@ -709,14 +668,4 @@ function expressionVariables(expr, vars = new Set()) {
 
 export {
   analyze,
-  dependencyGraph,
-  stratificationLayers,
-  boundVariables,
-  positiveVariables,
-  bodyVariables,
-  collectTripleVars,
-  expressionVariables,
-  pathPredicateIRIs,
-  bodyTriplePatterns,
-  canPossiblyGenerate,
 };

@@ -9,7 +9,7 @@
 // the local .cache/ suite. Run it under a memory cap on a
 // small machine, as npm test.
 import { spawnSync } from 'node:child_process';
-import { dirname, join } from 'node:path';
+import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));

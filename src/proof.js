@@ -217,7 +217,7 @@ export function checkRendered(program, checkable, goals = null) {
 // renaming of its variables (Section 6.3), since a listing may spell a
 // pattern's variables differently from the step that derives it.
 const patternSteps = new WeakMap();
-export function stepIdOf(steps, spellings, goal) {
+function stepIdOf(steps, spellings, goal) {
   const stepId = spellings.spell(goal);
   if (steps.has(stepId) || isGround(goal)) return stepId;
   let index = patternSteps.get(steps);

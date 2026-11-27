@@ -204,7 +204,7 @@ function* tokens(src) {
 }
 
 // Resolve a relative IRI reference against a base (RFC 3986, Section 5.2).
-export function resolveIri(ref, base) {
+function resolveIri(ref, base) {
   if (!base || /^[A-Za-z][A-Za-z0-9+.-]*:/.test(ref)) return ref;
   const m = /^([A-Za-z][A-Za-z0-9+.-]*:)(\/\/[^/?#]*)?([^?#]*)(\?[^#]*)?(#.*)?$/.exec(base);
   if (!m) return ref;
@@ -234,7 +234,7 @@ function removeDots(path) {
 }
 
 // Prefixes a document may use without declaring them.
-export const DEFAULT_PREFIXES = {
+const DEFAULT_PREFIXES = {
   rdf: RDF,
   rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
   xsd: XSD,

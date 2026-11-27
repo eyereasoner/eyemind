@@ -16,7 +16,7 @@ import { Specializer, shape } from './specialize.js';
 import { Env, EyemindError, Struct, Var, freshTerm, identity, key, unify } from './terms.js';
 import { CONTROL_KEYS, Program } from './program.js';
 
-export const ENTAILMENT = 'https://eyereasoner.github.io/eyemind/entailment#';
+const ENTAILMENT = 'https://eyereasoner.github.io/eyemind/entailment#';
 export const RDF_PROFILES = ['owl2rl', 'qudt', 'skos', 'shacl'];
 
 // wanted: rdf/4 patterns of the output contract, or null for every new triple.
@@ -191,7 +191,7 @@ const QUADS = new Set(['rdf/4', 'ent_base/4']);
 // conclusion are kept; with output shapes, only rules concluding a property
 // or class asked for, or one a kept rule reads. A relation other than a
 // triple counts as a property of its own. Facts and backward rules stay.
-export function planRules(program, quads, { input = null, output = null }) {
+function planRules(program, quads, { input = null, output = null }) {
   const named = (t) => t instanceof Struct && t.name === 'iri' && typeof t.args[0] === 'string' ? t.args[0] : null;
   const describe = (goals, into) => {
     for (const goal of goals) {

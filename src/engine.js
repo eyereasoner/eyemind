@@ -14,10 +14,10 @@ import {
 } from './terms.js';
 import { Lettering, SourceNaming, write } from './writer.js';
 
-export const BUILTIN = 'builtin';
-export const CONTROL = 'control';
-export const ABSENT = 'absent';
-export const COLLECTED = 'collected';
+const BUILTIN = 'builtin';
+const CONTROL = 'control';
+const ABSENT = 'absent';
+const COLLECTED = 'collected';
 
 // One proof step: a goal, how it was justified, and the steps it used.
 export class Node {
@@ -183,7 +183,7 @@ function unboundNegation(goal, env) {
 // as the search that produced it. A derived fact's node is already final and
 // is shared rather than copied, which keeps a long forward chain from being
 // copied again at every step.
-export function resolveNode(node, env) {
+function resolveNode(node, env) {
   if (node.final) return node;
   const root = resolveOne(node, env);
   const pending = [[node, root]];
@@ -1285,7 +1285,7 @@ export class Solver {
 // variable and the values the solution gave the heads' other variables. The
 // same firing thus always gives the same terms, and a different one
 // different terms.
-export function skolemTerms(clause, head, unresolved, env, context = null) {
+function skolemTerms(clause, head, unresolved, env, context = null) {
   const values = context === null ? [] : [context];
   for (const variable of variables(head).values()) {
     const value = copyResolved(variable, env);
