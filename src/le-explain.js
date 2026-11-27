@@ -344,7 +344,7 @@ class Writer {
     if (name === 'le:days_after' && args.length === 3) return `${this.value(args[0])} is ${this.value(args[1])} days after ${this.value(args[2])}`;
     if (name === 'is' && args.length === 2) {
       const right = this.value(args[1]);
-      const left = leValue(copyResolved(args[0], this.env), this.compiled.templates);
+      const left = this.value(args[0]);
       return left === right ? null : `${left} = ${right}`;
     }
     if (name === 'compare' && args.length === 3) {

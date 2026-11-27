@@ -56,6 +56,7 @@ Each deck explains the result and links to the source and Playground.
 
 ## Operations and decisions
 
+- [The critical path of a house build](https://eyereasoner.github.io/eyemind/examples/deck/critical-path-le) (Logical English) — The critical path of a house build: earliest and latest starts through a maximum and a minimum, slack and critical tasks
 - [A school can look close on a map](https://eyereasoner.github.io/eyemind/examples/deck/school-placement-audit) (Logic Script) — Walking-route and preference scores audit provisional school placements
 - [A text invoice](https://eyereasoner.github.io/eyemind/examples/deck/report-n3) (Notation3) — A formatted text report of fruit quantities, prices and costs
 - [Adding invoice lines](https://eyereasoner.github.io/eyemind/examples/deck/invoice-totals-n3) (Notation3) — Collected line amounts produce invoice totals and a large-invoice classification
@@ -121,6 +122,7 @@ Each deck explains the result and links to the source and Playground.
 
 ## Mathematics and computing
 
+- [Euclid's algorithm](https://eyereasoner.github.io/eyemind/examples/deck/euclid-le) (Logical English) — Euclid's algorithm gives greatest common divisors and least common multiples, finds coprime pairs and reduces fractions
 - [A greatest common divisor with coefficients](https://eyereasoner.github.io/eyemind/examples/deck/gcd-bezout-identity) (Logic Script) — Exact extended Euclidean certificates for positive, negative and zero inputs
 - [A Turing Machine](https://eyereasoner.github.io/eyemind/examples/deck/turing) (Logic Script) — A Turing machine interpreter running a binary incrementer
 - [Ackermann](https://eyereasoner.github.io/eyemind/examples/deck/ackermann) (Logic Script) — The Ackermann function through the hyperoperation sequence, exactly
@@ -191,6 +193,8 @@ Each deck explains the result and links to the source and Playground.
 
 ## Science and measurements
 
+- [Molar masses](https://eyereasoner.github.io/eyemind/examples/deck/molar-mass-le) (Logical English) — Molar masses summed exactly from atomic weights, each element's share per mille, and the heaviest and lighter compounds
+- [ABO blood groups](https://eyereasoner.github.io/eyemind/examples/deck/blood-groups-le) (Logical English) — ABO blood groups give each person's possible genotypes and a child's possible types, and exclude the men who cannot be a child's father
 - [An alert belongs to one observation](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3) (Notation3) — Independent sensor messages raise an alert only for the observation above the temperature threshold
 - [Bayes Diagnosis](https://eyereasoner.github.io/eyemind/examples/deck/bayes-diagnosis) (Logic Script) — Normalized probabilities for illustrative printer faults
 - [Composed QUDT units](https://eyereasoner.github.io/eyemind/examples/deck/composed-units-qudt) (RDF) — QUDT composes units from factor units, prefixes and prefixed names, normalizes any dimension to SI and reports a currency

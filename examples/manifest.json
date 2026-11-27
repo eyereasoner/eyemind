@@ -911,5 +911,25 @@
     "name": "intestate-succession-le",
     "files": ["intestate-succession-le.le"],
     "description": "French intestate succession divides two estates by branch through represented, renouncing and unworthy heirs, gives the spouse a usufruct or a quarter, and checks that every share adds up"
+  },
+  {
+    "name": "blood-groups-le",
+    "files": ["blood-groups-le.le"],
+    "description": "ABO blood groups give each person's possible genotypes and a child's possible types, and exclude the men who cannot be a child's father"
+  },
+  {
+    "name": "molar-mass-le",
+    "files": ["molar-mass-le.le"],
+    "description": "Molar masses summed exactly from atomic weights, each element's share per mille, and the heaviest and lighter compounds"
+  },
+  {
+    "name": "critical-path-le",
+    "files": ["critical-path-le.le"],
+    "description": "The critical path of a house build: earliest and latest starts through a maximum and a minimum, slack and critical tasks"
+  },
+  {
+    "name": "euclid-le",
+    "files": ["euclid-le.le"],
+    "description": "Euclid's algorithm gives greatest common divisors and least common multiples, finds coprime pairs and reduces fractions"
   }
 ]

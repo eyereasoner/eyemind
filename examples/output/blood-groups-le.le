@@ -1,0 +1,16 @@
+% query mother with scenario paternity
+Maria can have the alleles A and A.
+Maria can have the alleles A and O.
+Maria can have the alleles O and A.
+
+% query sam with scenario paternity
+Sam can have the alleles A and B.
+Sam can have the alleles B and A.
+
+% query children with scenario paternity
+a child of Maria and Tom can have blood type A.
+a child of Maria and Tom can have blood type O.
+
+% query excluded with scenario paternity
+Tom is excluded as the father of Lucas.
+Sam is excluded as the father of Eva.

@@ -13,7 +13,7 @@ program, a JavaScript library and a browser application.
 - [Playground](https://eyereasoner.github.io/eyemind/playground/): run any
   example or your own program in the browser, with its proof and check report.
 - [Examples](https://eyereasoner.github.io/eyemind/examples/): the
-  165 runnable programs, each with a card deck and saved conclusions; all but
+  169 runnable programs, each with a card deck and saved conclusions; all but
   the two streamed examples also save proofs and check reports.
 - [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC): the
   language, the proof format and how a proof is checked.
@@ -276,6 +276,10 @@ the [right to erasure](https://eyereasoner.github.io/eyemind/examples/deck/right
 [inheritance without a will](https://eyereasoner.github.io/eyemind/examples/deck/intestate-succession-le),
 [library fines](https://eyereasoner.github.io/eyemind/examples/deck/library-fines-le),
 an [election tally](https://eyereasoner.github.io/eyemind/examples/deck/election-tally-le),
+[ABO blood groups](https://eyereasoner.github.io/eyemind/examples/deck/blood-groups-le),
+[molar masses](https://eyereasoner.github.io/eyemind/examples/deck/molar-mass-le),
+a [critical path](https://eyereasoner.github.io/eyemind/examples/deck/critical-path-le),
+[Euclid's algorithm](https://eyereasoner.github.io/eyemind/examples/deck/euclid-le),
 [shortest paths](https://eyereasoner.github.io/eyemind/examples/deck/shortest-path-le) or
 [river-crossing plans](https://eyereasoner.github.io/eyemind/examples/deck/river-crossing-le).
 

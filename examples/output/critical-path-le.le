@@ -1,0 +1,27 @@
+% query finish with scenario house
+the house is finished on day 31.
+
+% query starts with scenario house
+foundation can start on day 0.
+framing can start on day 5.
+roofing can start on day 15.
+plumbing can start on day 15.
+electrics can start on day 15.
+drywall can start on day 21.
+painting can start on day 28.
+
+% query slack with scenario house
+foundation has 0 days of slack.
+framing has 0 days of slack.
+roofing has 9 days of slack.
+plumbing has 0 days of slack.
+electrics has 1 days of slack.
+drywall has 0 days of slack.
+painting has 0 days of slack.
+
+% query critical with scenario house
+foundation is critical.
+framing is critical.
+plumbing is critical.
+drywall is critical.
+painting is critical.

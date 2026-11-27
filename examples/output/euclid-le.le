@@ -1,0 +1,13 @@
+% query pairs with scenario numbers
+the pair 1071 and 462 has greatest common divisor 21 and least common multiple 23562.
+the pair 35 and 64 has greatest common divisor 1 and least common multiple 2240.
+the pair 48 and 180 has greatest common divisor 12 and least common multiple 720.
+
+% query coprime with scenario numbers
+35 and 64 are coprime.
+
+% query fractions with scenario numbers
+84 over 126 reduces to 2 over 3.
+1071 over 462 reduces to 51 over 22.
+17 over 51 reduces to 1 over 3.
+10 over 7 reduces to 10 over 7.

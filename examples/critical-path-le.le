@@ -1,0 +1,108 @@
+% A builder plans a house in seven tasks, each taking a number of days and
+% some waiting for others to finish. The critical path method works forward
+% for the earliest day each task can start and backward for the latest day it
+% must start without delaying the house. The house is finished on day 31;
+% roofing has 9 days of slack and the electrics 1, and the foundation,
+% framing, plumbing, drywall and painting are critical: any delay in them
+% delays the house.
+% Shows recursion through a maximum over the tasks before and a minimum over
+% the tasks after, a task with none of either, and arithmetic on days.
+% After the critical path method of Kelley and Walker (1959).
+
+the templates are:
+    *a task* takes *a number* days,
+    *a task* comes after *a task*,
+    *a task* can start on day *a number*,
+    *a task* can finish on day *a number*,
+    the house is finished on day *a number*,
+    *a task* must finish by day *a number*,
+    *a task* must start by day *a number*,
+    *a task* has *a number* days of slack,
+    *a task* is critical.
+
+the knowledge base critical path includes:
+
+% Forward: a task starts when the last task it comes after is finished.
+a task can start on day 0
+    if the task takes a number days
+    and it is not the case that
+        the task comes after an other task.
+
+a task can start on day a number S
+    if the task comes after an other task
+    and S is the max of each F such that
+        the task comes after a previous task
+        and the previous task can finish on day F.
+
+a task can finish on day a number F
+    if the task can start on day a number S
+    and the task takes a number D days
+    and F = S + D.
+
+the house is finished on day a number N
+    if N is the max of each F such that
+        a task can finish on day F.
+
+% Backward: a task must finish before the first task after it must start.
+a task must finish by day a number L
+    if the task takes a number days
+    and it is not the case that
+        an other task comes after the task
+    and the house is finished on day L.
+
+a task must finish by day a number L
+    if an other task comes after the task
+    and L is the min of each X such that
+        a next task comes after the task
+        and the next task must start by day X.
+
+a task must start by day a number X
+    if the task must finish by day a number L
+    and the task takes a number D days
+    and X = L - D.
+
+a task has a number K days of slack
+    if the task can start on day a number S
+    and the task must start by day a number X
+    and K = X - S.
+
+a task is critical
+    if the task has 0 days of slack.
+
+scenario house is:
+    foundation takes 5 days.
+    framing takes 10 days.
+    roofing takes 4 days.
+    plumbing takes 6 days.
+    electrics takes 5 days.
+    drywall takes 7 days.
+    painting takes 3 days.
+    framing comes after foundation.
+    roofing comes after framing.
+    plumbing comes after framing.
+    electrics comes after framing.
+    drywall comes after plumbing.
+    drywall comes after electrics.
+    painting comes after drywall.
+    painting comes after roofing.
+    finish expects answers ["the house is finished on day 31"].
+    starts expects answers ["foundation can start on day 0", "framing can start on day 5",
+        "roofing can start on day 15", "plumbing can start on day 15", "electrics can start on day 15",
+        "drywall can start on day 21", "painting can start on day 28"].
+    slack expects answers ["foundation has 0 days of slack", "framing has 0 days of slack",
+        "roofing has 9 days of slack", "plumbing has 0 days of slack", "electrics has 1 days of slack",
+        "drywall has 0 days of slack", "painting has 0 days of slack"].
+    critical expects answers ["foundation is critical", "framing is critical", "plumbing is critical",
+        "drywall is critical", "painting is critical"].
+
+query finish is:
+    the house is finished on day which number.
+
+query starts is:
+    which task can start on day which number.
+
+query slack is:
+    which task has which number days of slack.
+
+query critical is:
+    which task is critical.

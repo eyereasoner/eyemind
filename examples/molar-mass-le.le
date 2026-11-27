@@ -1,0 +1,93 @@
+% A chemistry lab computes the molar mass of six compounds from the standard
+% atomic weights of their elements, kept exact as whole milligrams per mole.
+% It concludes, for example, that water has a molar mass of 18015 mg/mol and
+% glucose 180156 mg/mol, that oxygen makes up 888 per mille of the mass of
+% water, that glucose is the heaviest of the six and that methane and ammonia
+% each weigh less than water.
+% Shows a sum over a formula's parts with a product in its condition, integer
+% division for per mille shares, a maximum and a comparison of computed values.
+% Atomic weights after the IUPAC standard atomic weights, abridged to five
+% significant figures.
+
+the templates are:
+    *an element* has an atomic weight of *a number* mg per mole,
+    *a compound* has *a number* atoms of *an element*,
+    the molar mass of *a compound* is *a number* mg per mole,
+    *an element* makes up *a number* per mille of *a compound*,
+    *a compound* is lighter than *a compound*,
+    the heaviest compound weighs *a number* mg per mole,
+    *a compound* is the heaviest compound.
+
+the knowledge base chemistry includes:
+
+% A compound weighs the sum of its atoms: each element's count times its
+% atomic weight.
+the molar mass of a compound is a mass mg per mole
+    if the compound has a number atoms of an element
+    and the mass is the sum of each part such that
+        the compound has a number N atoms of an element E
+        and E has an atomic weight of a number W mg per mole
+        and the part = N * W.
+
+% An element's share of a compound's mass, in whole per mille, rounded down.
+an element makes up a share per mille of a compound
+    if the compound has a number N atoms of the element
+    and the element has an atomic weight of a number W mg per mole
+    and the molar mass of the compound is a mass mg per mole
+    and the share = 1000 * N * W // the mass.
+
+a compound is lighter than an other compound
+    if the molar mass of the compound is a first mass mg per mole
+    and the molar mass of the other compound is a second mass mg per mole
+    and the first mass < the second mass.
+
+the heaviest compound weighs a mass mg per mole
+    if the mass is the max of each M such that
+        the molar mass of a compound is M mg per mole.
+
+a compound is the heaviest compound
+    if the heaviest compound weighs a mass mg per mole
+    and the molar mass of the compound is the mass mg per mole.
+
+scenario lab is:
+    hydrogen has an atomic weight of 1008 mg per mole.
+    carbon has an atomic weight of 12011 mg per mole.
+    nitrogen has an atomic weight of 14007 mg per mole.
+    oxygen has an atomic weight of 15999 mg per mole.
+    sodium has an atomic weight of 22990 mg per mole.
+    chlorine has an atomic weight of 35453 mg per mole.
+    water has 2 atoms of hydrogen.
+    water has 1 atoms of oxygen.
+    carbon dioxide has 1 atoms of carbon.
+    carbon dioxide has 2 atoms of oxygen.
+    methane has 1 atoms of carbon.
+    methane has 4 atoms of hydrogen.
+    ammonia has 1 atoms of nitrogen.
+    ammonia has 3 atoms of hydrogen.
+    sodium chloride has 1 atoms of sodium.
+    sodium chloride has 1 atoms of chlorine.
+    glucose has 6 atoms of carbon.
+    glucose has 12 atoms of hydrogen.
+    glucose has 6 atoms of oxygen.
+    masses expects answers ["the molar mass of water is 18015 mg per mole",
+        "the molar mass of carbon dioxide is 44009 mg per mole",
+        "the molar mass of methane is 16043 mg per mole",
+        "the molar mass of ammonia is 17031 mg per mole",
+        "the molar mass of sodium chloride is 58443 mg per mole",
+        "the molar mass of glucose is 180156 mg per mole"].
+    oxygen expects answers ["oxygen makes up 888 per mille of water", "oxygen makes up 727 per mille of carbon dioxide",
+        "oxygen makes up 532 per mille of glucose"].
+    heaviest expects answers ["glucose is the heaviest compound"].
+    lighter expects answers ["methane is lighter than water", "ammonia is lighter than water"].
+
+query masses is:
+    the molar mass of which compound is which number mg per mole.
+
+query oxygen is:
+    oxygen makes up which share per mille of which compound.
+
+query heaviest is:
+    which compound is the heaviest compound.
+
+query lighter is:
+    which compound is lighter than water.

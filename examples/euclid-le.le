@@ -1,0 +1,76 @@
+% Euclid's algorithm finds the greatest common divisor of two numbers: the
+% divisor of a number and 0 is the number, and that of A and B is the divisor
+% of B and the remainder of A divided by B. From it follow the least common
+% multiple, which pairs are coprime, and each fraction in its lowest terms.
+% 1071 and 462 have 21 as greatest common divisor and 23562 as least common
+% multiple; 35 and 64 are coprime; 84/126 reduces to 2/3 and 1071/462 to
+% 51/22.
+% Shows recursion that ends on a base case, mod and integer division in
+% formulas, a rule that reuses a computed value, and a negation over it.
+% After Euclid's Elements, Book VII, Propositions 1 and 2.
+
+the templates are:
+    the greatest common divisor of *a number* and *a number* is *a number*,
+    the least common multiple of *a number* and *a number* is *a number*,
+    *a number* and *a number* are a pair,
+    *a number* and *a number* are coprime,
+    the pair *a number* and *a number* has greatest common divisor *a number* and least common multiple *a number*,
+    *a number* over *a number* is a fraction,
+    *a number* over *a number* reduces to *a number* over *a number*.
+
+the knowledge base euclid includes:
+
+% Book VII, Proposition 2: the divisor of A and 0 is A; otherwise, it is the
+% divisor of B and the remainder of A divided by B.
+the greatest common divisor of a number A and 0 is A
+    if A > 0.
+
+the greatest common divisor of a number A and a number B is a number G
+    if B > 0
+    and R = A mod B
+    and the greatest common divisor of B and R is G.
+
+the least common multiple of a number A and a number B is a number M
+    if the greatest common divisor of A and B is a number G
+    and M = A * B // G.
+
+the pair a number A and a number B has greatest common divisor a number G and least common multiple a number M
+    if A and B are a pair
+    and the greatest common divisor of A and B is G
+    and the least common multiple of A and B is M.
+
+% Book VII, Proposition 1: numbers whose only common measure is the unit are
+% prime to one another.
+a number A and a number B are coprime
+    if A and B are a pair
+    and the greatest common divisor of A and B is 1.
+
+a number N over a number D reduces to a number P over a number Q
+    if N over D is a fraction
+    and the greatest common divisor of N and D is a number G
+    and P = N // G
+    and Q = D // G.
+
+scenario numbers is:
+    1071 and 462 are a pair.
+    35 and 64 are a pair.
+    48 and 180 are a pair.
+    84 over 126 is a fraction.
+    1071 over 462 is a fraction.
+    17 over 51 is a fraction.
+    10 over 7 is a fraction.
+    pairs expects answers ["the pair 1071 and 462 has greatest common divisor 21 and least common multiple 23562",
+        "the pair 35 and 64 has greatest common divisor 1 and least common multiple 2240",
+        "the pair 48 and 180 has greatest common divisor 12 and least common multiple 720"].
+    coprime expects answers ["35 and 64 are coprime"].
+    fractions expects answers ["84 over 126 reduces to 2 over 3", "1071 over 462 reduces to 51 over 22",
+        "17 over 51 reduces to 1 over 3", "10 over 7 reduces to 10 over 7"].
+
+query pairs is:
+    the pair which number and which other number has greatest common divisor which divisor and least common multiple which multiple.
+
+query coprime is:
+    which number and which other number are coprime.
+
+query fractions is:
+    which number over which other number reduces to which third number over which fourth number.

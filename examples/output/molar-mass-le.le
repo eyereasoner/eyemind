@@ -1,0 +1,19 @@
+% query masses with scenario lab
+the molar mass of water is 18015 mg per mole.
+the molar mass of carbon dioxide is 44009 mg per mole.
+the molar mass of methane is 16043 mg per mole.
+the molar mass of ammonia is 17031 mg per mole.
+the molar mass of sodium chloride is 58443 mg per mole.
+the molar mass of glucose is 180156 mg per mole.
+
+% query oxygen with scenario lab
+oxygen makes up 888 per mille of water.
+oxygen makes up 727 per mille of carbon dioxide.
+oxygen makes up 532 per mille of glucose.
+
+% query heaviest with scenario lab
+glucose is the heaviest compound.
+
+% query lighter with scenario lab
+methane is lighter than water.
+ammonia is lighter than water.

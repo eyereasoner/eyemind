@@ -518,6 +518,9 @@ Socrates owes 7 by 2024-03-16
     const family = cli(['--explain', 'examples/british-citizenship-le.le']).stdout;
     assert.match(family, /^Ben is a British citizen\n    because Ben is born in the UK on 2015-08-20\n    and 2015-08-20 is after commencement\n        because 2015-08-20 is after 1983-01-01\n    and Anna is a qualifying parent of Ben\n        because Anna is a parent of Ben\n        and Anna is a British citizen\n/m);
     assert.match(family, /^Gwen is a British citizen\.$/m);
+    // A formula inside a collection names the item it computes.
+    assert.match(cli(['--explain', 'examples/molar-mass-le.le']).stdout,
+      /^    and 180156 is the sum of each part such that glucose has N atoms of E and E has an atomic weight of W mg per mole and the part = N \* W, namely 12096, 72066 and 95994\.$/m);
     // Answers resting on assumptions, and other inputs, are not explained.
     assert.match(errorOf(() => explainLe(compile(`the templates are: *a thing* is wet, *a thing* rained; assumable.
 the knowledge base k includes:

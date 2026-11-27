@@ -1,0 +1,101 @@
+% A child's ABO blood group follows from one allele of each parent. A, B and
+% O are the alleles; A and B are dominant over O and codominant with each
+% other. From the blood types a test observes, the program works out the
+% genotypes a person can have, the blood types a child of two people can have,
+% and which men a child's blood type excludes as its father.
+% Lucas, type B, cannot be the son of Maria, type A, and Tom, type O: Tom is
+% excluded and Sam and Ken are not. Eva, type O, excludes Sam, type AB.
+% Shows alternative rules for dominance, genotypes enumerated from a list of
+% alleles, possibility through every combination of the parents' alleles, and
+% an exclusion as "it is not the case that" over all of them.
+% After Landsteiner's ABO blood group system and its Mendelian inheritance.
+
+the templates are:
+    *an allele* is an ABO allele,
+    *an allele* is dominant over *an allele*,
+    the alleles *an allele* and *an allele* give blood type *a type*,
+    *a person* has blood type *a type*,
+    *a person* can have the alleles *an allele* and *an allele*,
+    a child of *a mother* and *a father* can have blood type *a type*,
+    *a person* is the mother of *a child*,
+    *a person* is male,
+    *a man* is excluded as the father of *a child*.
+
+the knowledge base abo inheritance includes:
+
+A is an ABO allele.
+B is an ABO allele.
+O is an ABO allele.
+A is dominant over O.
+B is dominant over O.
+
+% Two equal alleles give their own type; a dominant allele hides a recessive
+% one; A and B together give AB.
+the alleles an allele X and X give blood type X
+    if X is an ABO allele.
+
+the alleles an allele X and an allele Y give blood type X
+    if X is dominant over Y.
+
+the alleles an allele X and an allele Y give blood type Y
+    if Y is dominant over X.
+
+the alleles A and B give blood type AB.
+
+the alleles B and A give blood type AB.
+
+% A blood type allows each genotype that gives it.
+a person can have the alleles an allele X and an allele Y
+    if the person has blood type a type
+    and X is an ABO allele
+    and Y is an ABO allele
+    and the alleles X and Y give blood type the type.
+
+% A child takes one allele of each parent's genotype.
+a child of a mother and a father can have blood type a type
+    if the mother can have the alleles an allele M1 and an allele M2
+    and the father can have the alleles an allele F1 and an allele F2
+    and an allele X is in [M1, M2]
+    and an allele Y is in [F1, F2]
+    and the alleles X and Y give blood type the type.
+
+% A man is excluded when no genotype of his, with any of the mother's,
+% gives the child's blood type.
+a man is excluded as the father of a child
+    if a mother is the mother of the child
+    and the child has blood type a type
+    and the man is male
+    and the man has blood type a second type
+    and it is not the case that
+        a child of the mother and the man can have blood type the type.
+
+scenario paternity is:
+    Maria has blood type A.
+    Lucas has blood type B.
+    Eva has blood type O.
+    Maria is the mother of Lucas.
+    Maria is the mother of Eva.
+    Tom is male.
+    Sam is male.
+    Ken is male.
+    Tom has blood type O.
+    Sam has blood type AB.
+    Ken has blood type B.
+    mother expects answers ["Maria can have the alleles A and A", "Maria can have the alleles A and O",
+        "Maria can have the alleles O and A"].
+    sam expects answers ["Sam can have the alleles A and B", "Sam can have the alleles B and A"].
+    children expects answers ["a child of Maria and Tom can have blood type A",
+        "a child of Maria and Tom can have blood type O"].
+    excluded expects answers ["Tom is excluded as the father of Lucas", "Sam is excluded as the father of Eva"].
+
+query mother is:
+    Maria can have the alleles which allele and which other allele.
+
+query sam is:
+    Sam can have the alleles which allele and which other allele.
+
+query children is:
+    a child of Maria and Tom can have blood type which type.
+
+query excluded is:
+    which man is excluded as the father of which child.
