@@ -248,9 +248,11 @@ tests of `.cache/w3c/sparql-rl` pass, and must keep passing.
 
 Match the surrounding JavaScript: its naming, comment density, and comments
 that say why. Align the inline comments of consecutive lines in one column,
-in code and in documentation code blocks alike. Prefer small, direct changes over new machinery, add no
-dependencies, and fix the code that produces a wrong result rather than
-patching its output.
+in every hand-written file: sources, tests, tools, examples, the playground and
+the code blocks of documents alike. `test/docs.test.js` checks it, so a
+misaligned comment fails `npm test`. Prefer small, direct changes over new
+machinery, add no dependencies, and fix the code that produces a wrong result
+rather than patching its output.
 
 Derived rule instances carry their generator's captured values and evidence;
 never reevaluate a generator under a backward caller's bindings. Analyze all

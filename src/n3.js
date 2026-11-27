@@ -21,7 +21,7 @@
 // universals are qbnode(Label) and qvar(Name), and a rule's graph pattern
 // matches it as a set, up to a one-to-one renaming of those. Built-in
 // predicates of a body become goals defined in LS (n3-builtins.js).
-import { run } from './engine.js';
+import { COMPILED_LIMITS, run } from './engine.js';
 import { loadText } from './lang.js';
 import { Program, Source } from './program.js';
 import { Struct, Var, conjunction, isGround } from './terms.js';
@@ -1135,15 +1135,12 @@ function conclusionsToN3(doc, { triples, contradiction }, { mode = 'new', string
   return { n3: writeN3(triples, { prefixes: doc.prefixes, strings, blankNodePrefix }), triples, contradiction };
 }
 
-// Generous bounds: N3 programs often run longer than eyemind's defaults.
-const N3_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferences: 1000000000 };
-
 // Reason over N3 sources. Returns { n3, triples, contradiction, program,
 // result }; with proof, result.proof is eyemind's checked proof of the
 // compiled program.
 export function reasonN3(sources, { base = '', mode = 'new', strings = 'auto', limits = {}, proof = false, goals = [], readFile = null, readDocument = null } = {}) {
   const compiled = compileSources(sources, { base, readFile, readDocument, native: true });
-  const result = run(compiled.nativeProgram ?? loadText(compiled.program, 'compiled.js'), { ...N3_LIMITS, ...limits, proof, goals });
+  const result = run(compiled.nativeProgram ?? loadText(compiled.program, 'compiled.js'), { ...COMPILED_LIMITS, ...limits, proof, goals });
   return { ...resultToN3(compiled.doc, result, { mode, strings }), get program() { return compiled.program; }, result };
 }
 

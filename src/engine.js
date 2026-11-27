@@ -19,6 +19,10 @@ const CONTROL = 'control';
 const ABSENT = 'absent';
 const COLLECTED = 'collected';
 
+// Programs compiled from RDF, N3 and SPARQL 1.2 RL run longer than eyemind's
+// defaults allow.
+export const COMPILED_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferences: 1000000000 };
+
 // One proof step: a goal, how it was justified, and the steps it used.
 export class Node {
   constructor(goal, by, bindings = NO_NODES, children = NO_NODES, collectedUses = null, final = false, scoped = NO_NODES) {

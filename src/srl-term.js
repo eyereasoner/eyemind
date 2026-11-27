@@ -131,6 +131,7 @@ function formatTerm(term, prefixes = {}) {
 }
 
 export {
+  termKey,
   RDF_NS,
   RDF_TYPE,
   RDF_FIRST,

@@ -35,7 +35,7 @@ import { analyze } from './srl-analyze.js';
 import { BUILTIN_SIGNATURES, canonicalBuiltinName } from './srl-builtin-names.js';
 import { libraryText } from './srl-functions.js';
 import { Parser } from './srl-parser.js';
-import { run } from './engine.js';
+import { COMPILED_LIMITS, run } from './engine.js';
 import { loadText, statementSources } from './lang.js';
 import { Program, Source } from './program.js';
 import { DEFAULT_GRAPH } from './rdf.js';
@@ -786,10 +786,6 @@ function collectClauseVars(clauses, out) {
   }
 }
 
-
-// Generous bounds: rule sets over real data run longer than eyemind's defaults.
-const SRL_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferences: 1000000000 };
-
 // Reason over a rule set. Options: base, filename, resolve (IMPORTS), data
 // (the base graph as RDF quads), all (the base graph too), limits and proof.
 // Returns { quads, program, prefixes, warnings, result }: the quads are the
@@ -797,7 +793,7 @@ const SRL_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferences: 10
 // proof of the compiled program.
 export function reasonSrl(text, { base = null, filename = '<input>', resolve = null, data = [], all = false, limits = {}, proof = false, context = null } = {}) {
   const compiled = compileSrl(text, { base, filename, resolve, data, context });
-  const result = run(compiled.nativeProgram ?? loadText(compiled.program, 'compiled.js'), { ...SRL_LIMITS, ...limits, proof });
+  const result = run(compiled.nativeProgram ?? loadText(compiled.program, 'compiled.js'), { ...COMPILED_LIMITS, ...limits, proof });
   const { prefixes, warnings, context: execution } = compiled;
   return { quads: srlQuads(compiled, srlAnswers(result), { all }), get program() { return compiled.program; }, prefixes, warnings, result, context: execution };
 }

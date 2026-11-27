@@ -183,17 +183,27 @@ indentation of that line, and a line break without a connective joins the lines
 with `and` where both lines are conditions. eyemind reads the connectives as
 LE's indentation does: the conditions are split at the least indented
 connectives, joined from the top down, and each part is read in the same way.
-So a deeper indentation binds tighter:
+So a deeper indentation binds tighter. These two rules differ only in the
+indentation of `and`. With every connective at one indentation, this rule
+means *(resident or citizen) and adult*:
 
 ```text
-a person is eligible            a person is eligible
-    if the person is a resident     if the person is a resident
-    or the person is a citizen      or the person is a citizen
-    and the person is an adult.         and the person is an adult.
+a person is eligible
+    if the person is a resident
+    or the person is a citizen
+    and the person is an adult.
 ```
 
-The left rule means *(resident or citizen) and adult*, the right one *resident
-or (citizen and adult)*. LE1 rejects different connectives at one indentation;
+With `and` indented deeper, this one means *resident or (citizen and adult)*:
+
+```text
+a person is eligible
+    if the person is a resident
+    or the person is a citizen
+        and the person is an adult.
+```
+
+LE1 rejects different connectives at one indentation;
 eyemind reads them from the top down, as LE2 does. A body may start with `and`
 after `if`, as some LE1 programs write it.
 

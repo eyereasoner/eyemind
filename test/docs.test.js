@@ -107,9 +107,11 @@ export const tests = {
   },
 
   'consecutive lines with inline comments align them in one column'() {
-    const sources = ['README.md', 'LS-SPEC.md', 'LE-SPEC.md', 'AGENTS.md', 'conformance/README.md', 'le-conformance/README.md', 'examples/README.md',
-      ...['src', 'bin', 'tools', 'test', 'conformance'].flatMap((dir) => readdirSync(join(ROOT, dir))
-        .filter((name) => /\.m?js$/.test(name)).map((name) => `${dir}/${name}`))];
+    // Every hand-written file: documents, sources, examples and the playground.
+    const sources = ['README.md', 'LS-SPEC.md', 'LE-SPEC.md', 'AGENTS.md', 'BOOK.md', 'LE-BOOK.md',
+      ...['src', 'bin', 'tools', 'test', 'conformance', 'le-conformance', 'bench', 'assets', 'playground', 'examples', 'examples/deck']
+        .flatMap((dir) => readdirSync(join(ROOT, dir)).filter((name) => /\.(m?js|md|html)$/.test(name)).map((name) => `${dir}/${name}`))
+        .filter((path) => path !== 'src/qudt-catalog.js')];
     for (const path of sources) {
       let run = [];
       const check = () => {
@@ -117,7 +119,7 @@ export const tests = {
         run = [];
       };
       document(path).split('\n').forEach((line, index) => {
-        const match = /^(\s*\S.*?\S)( +)(#|\/\/) /.exec(line);
+        const match = /^(\s*\S.*?\S)( +)(#|\/\/) (?!\d)/.exec(line);
         if (match && !/^\s*(#|\/\/)/.test(line) && !/:\/\/$/.test(match[1] + match[2] + match[3])) {
           run.push([index + 1, match[1].length + match[2].length]);
         } else check();

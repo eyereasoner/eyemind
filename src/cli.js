@@ -1,5 +1,5 @@
 // The eyemind command line.
-import { run, unusedClauses } from './engine.js';
+import { COMPILED_LIMITS, run, unusedClauses } from './engine.js';
 import { OUTPUT_FORMATS, RDF_PROFILES, defaultFormat, inputKind, loadInputs, loadMessageReasoner, rdfMessageFormat, scopeOf, writeConclusions } from './formats.js';
 import { explainLe } from './le-explain.js';
 import { isRdfMessageLog, replayMessages, RdfMessageReader } from './messages.js';
@@ -52,8 +52,6 @@ Exit codes: 0 success, 1 error, 2 invalid proof, 65 contradiction.
 
 const LIMITS = { '--max-depth': 'maxDepth', '--max-iterations': 'maxIterations', '--max-inferences': 'maxInferences' };
 const ALIASES = new Map([['-p', '--proof'], ['-c', '--prove-and-check'], ['-v', '--version'], ['-h', '--help']]);
-// N3 and SPARQL 1.2 RL programs run longer than eyemind's defaults allow.
-const COMPILED_LIMITS = { maxDepth: 1000000, maxIterations: 100000, maxInferences: 1000000000 };
 
 const RDF_FORMATS = ['turtle', 'trig', 'n-triples', 'n-quads'];
 
