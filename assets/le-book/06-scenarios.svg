@@ -54,18 +54,18 @@
         <title>Quill holds a clipboard titled scenario web shop. Three lines carry green ticks: periods as expected, valid as expected, late as expected. A fourth line is red: withheld not as expected. Mind points at it and says: one answer changed, look here.</title>
         <path class="ln thin" d="M20 240 L620 240" stroke-dasharray="2 9"/>
         <use href="#quill" x="20" y="90" width="130" height="152"/>
-        <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="160" y="40" width="270" height="190" rx="6"/>
-        <rect class="paperf" x="174" y="62" width="242" height="156" rx="3"/>
-        <rect class="inkf" x="260" y="30" width="70" height="20" rx="4"/>
-        <text class="hand" x="188" y="88" font-size="18">scenario web shop</text>
-        <path class="okl" d="M190 112 L198 120 L212 104"/><text class="hand" x="222" y="120" font-size="16">periods: as expected</text>
-        <path class="okl" d="M190 140 L198 148 L212 132"/><text class="hand" x="222" y="148" font-size="16">valid: as expected</text>
-        <path class="okl" d="M190 168 L198 176 L212 160"/><text class="hand" x="222" y="176" font-size="16">late: as expected</text>
-        <path class="nol" d="M192 190 L210 206 M210 190 L192 206"/><text class="handno" x="222" y="204" font-size="16">withheld: not as expected</text>
-        <path class="ln" d="M500 170 L432 196"/>
+        <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="150" y="40" width="310" height="190" rx="6"/>
+        <rect class="paperf" x="164" y="62" width="282" height="156" rx="3"/>
+        <rect class="inkf" x="270" y="30" width="70" height="20" rx="4"/>
+        <text class="hand" x="178" y="88" font-size="18">scenario web shop</text>
+        <path class="okl" d="M180 112 L188 120 L202 104"/><text class="hand" x="212" y="120" font-size="16">periods: as expected</text>
+        <path class="okl" d="M180 140 L188 148 L202 132"/><text class="hand" x="212" y="148" font-size="16">valid: as expected</text>
+        <path class="okl" d="M180 168 L188 176 L202 160"/><text class="hand" x="212" y="176" font-size="16">late: as expected</text>
+        <path class="nol" d="M182 190 L200 206 M200 190 L182 206"/><text class="handno" x="212" y="204" font-size="16">withheld: not as expected</text>
+        <path class="ln" d="M508 172 L462 192"/>
         <use href="#mind" x="480" y="98" width="130" height="152"/>
-        <path class="paperf" d="M462 14 L622 14 Q632 14 632 24 L632 68 Q632 78 622 78 L554 78 L540 102 L532 78 L462 78 Q452 78 452 68 L452 24 Q452 14 462 14 Z"/>
-        <text class="hand" x="542" y="52" font-size="18" text-anchor="middle"></text>
-        <text class="hand" x="542" y="42" font-size="16" text-anchor="middle">One answer changed.</text>
-        <text class="hand" x="542" y="64" font-size="16" text-anchor="middle">Look here.</text>
+        <path class="paperf" d="M466 14 L626 14 Q636 14 636 24 L636 68 Q636 78 626 78 L554 78 L540 102 L532 78 L466 78 Q456 78 456 68 L456 24 Q456 14 466 14 Z"/>
+        <text class="hand" x="546" y="52" font-size="18" text-anchor="middle"></text>
+        <text class="hand" x="546" y="42" font-size="15" text-anchor="middle">One answer changed.</text>
+        <text class="hand" x="546" y="64" font-size="15" text-anchor="middle">Look here.</text>
       </svg>

@@ -56,11 +56,11 @@
         <rect class="paperf" x="20" y="100" width="150" height="90" rx="4" style="fill: #c7dbff"/>
         <text class="hand" x="30" y="92" font-size="15">Logical English</text>
         <text class="mono" x="30" y="126" font-size="13">the withdrawal</text><text class="mono" x="30" y="144" font-size="13">from a contract</text><text class="mono" x="30" y="162" font-size="13">is valid if ...</text>
-        <path class="ln" d="M176 146 L222 146 M210 136 L222 146 L210 156"/><text class="hand" x="199" y="128" font-size="14" text-anchor="middle">compile</text>
+        <path class="ln" d="M176 146 L222 146 M210 136 L222 146 L210 156"/><text class="hand" x="199" y="124" font-size="12" text-anchor="middle">compile</text>
         <rect class="paperf" x="228" y="100" width="150" height="90" rx="4"/>
         <text class="hand" x="238" y="92" font-size="15">Logic Script</text>
         <text class="mono" x="238" y="126" font-size="12">implied_by(</text><text class="mono" x="246" y="144" font-size="12">is_valid(S, C),</text><text class="mono" x="246" y="162" font-size="12">[withdrew(...),</text><text class="mono" x="246" y="180" font-size="12"> ends_on(...)])</text>
-        <path class="ln" d="M384 146 L430 146 M418 136 L430 146 L418 156"/><text class="hand" x="407" y="128" font-size="14" text-anchor="middle">prove</text>
+        <path class="ln" d="M384 146 L430 146 M418 136 L430 146 L418 156"/><text class="hand" x="407" y="124" font-size="12" text-anchor="middle">prove</text>
         <g transform="translate(436 108) rotate(-4)">
           <rect fill="#f7c5a9" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="0" y="0" width="86" height="80" rx="3"/>
           <path class="ln thin" d="M12 20 L74 20 M12 34 L74 34 M12 48 L60 48 M12 62 L70 62"/>

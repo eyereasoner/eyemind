@@ -64,10 +64,10 @@
         <use href="#mind" x="358" y="80" width="130" height="152"/>
         <use href="#checker" x="500" y="80" width="130" height="152"/>
         <circle class="ln" cx="512" cy="152" r="22"/><path class="ln" d="M496 168 L478 188"/>
-        <path class="paperf" d="M18 10 L176 10 Q186 10 186 20 L186 50 Q186 60 176 60 L94 60 L80 86 L72 60 L18 60 Q8 60 8 50 L8 20 Q8 10 18 10 Z"/>
-        <text class="hand" x="97" y="40.666666666666664" font-size="17" text-anchor="middle">I wrote it in English.</text>
-        <path class="paperf" d="M242 10 L388 10 Q398 10 398 20 L398 50 Q398 60 388 60 L386 60 L410 86 L364 60 L242 60 Q232 60 232 50 L232 20 Q232 10 242 10 Z"/>
-        <text class="hand" x="315" y="40.666666666666664" font-size="17" text-anchor="middle">And I can run it.</text>
+        <path class="paperf" d="M14 10 L200 10 Q210 10 210 20 L210 50 Q210 60 200 60 L94 60 L80 86 L72 60 L14 60 Q4 60 4 50 L4 20 Q4 10 14 10 Z"/>
+        <text class="hand" x="107" y="40.666666666666664" font-size="17" text-anchor="middle">I wrote it in English.</text>
+        <path class="paperf" d="M250 10 L408 10 Q418 10 418 20 L418 50 Q418 60 408 60 L406 60 L410 86 L384 60 L250 60 Q240 60 240 50 L240 20 Q240 10 250 10 Z"/>
+        <text class="hand" x="329" y="40.666666666666664" font-size="17" text-anchor="middle">And I can run it.</text>
         <path class="paperf" d="M480 10 L610 10 Q620 10 620 20 L620 50 Q620 60 610 60 L574 60 L560 86 L552 60 L480 60 Q470 60 470 50 L470 20 Q470 10 480 10 Z"/>
         <text class="handok" x="545" y="43.666666666666664" font-size="26" text-anchor="middle">Checked!</text>
       </svg>
