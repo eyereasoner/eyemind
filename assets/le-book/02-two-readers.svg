@@ -56,10 +56,10 @@
         <use href="#quill" x="-4" y="104" width="110" height="128"/>
         <rect fill="#f3d697" stroke="#1d2a44" stroke-width="3" stroke-linejoin="round" x="104" y="76" width="172" height="146" rx="4"/>
         <text class="hand" x="118" y="102" font-size="18">Article 9</text>
-        <text class="hand" x="118" y="128" font-size="14">the consumer shall have</text>
-        <text class="hand" x="118" y="148" font-size="14">a period of 14 days to</text>
-        <text class="hand" x="118" y="168" font-size="14">withdraw from a distance</text>
-        <text class="hand" x="118" y="188" font-size="14">contract ...</text>
+        <text class="hand" x="118" y="128" font-size="14">the consumer shall</text>
+        <text class="hand" x="118" y="148" font-size="14">have 14 days to</text>
+        <text class="hand" x="118" y="168" font-size="14">withdraw from a</text>
+        <text class="hand" x="118" y="188" font-size="14">distance contract ...</text>
         <path class="ln" d="M282 150 L314 150 M302 140 L314 150 L302 160"/>
         <rect class="paperf" x="320" y="76" width="222" height="146" rx="4"/>
         <text class="mono" x="330" y="102" font-size="12">the withdrawal period</text>
