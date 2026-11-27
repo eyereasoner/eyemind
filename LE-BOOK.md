@@ -15,6 +15,13 @@ Calejo, Galileo Sartor and their colleagues for writing legal and business
 rules as English that a computer runs. eyemind reads `.le` files, compiles them
 to Logic Script (LS), and answers their questions with proofs.
 
+Legal rules are where Logical English started, but nothing in it is about law.
+Any domain whose knowledge can be stated as rules reads the same way: a
+blood-group test that excludes a father, the molar mass of glucose, the
+critical path of a house build, Euclid's algorithm, the Pythagorean theorem.
+The examples include each of these, in science, technology, engineering and
+mathematics as well as law, and everything in this book applies to them.
+
 This book follows one example from start to finish: a web shop deciding on
 withdrawals from online purchases under the EU Consumer Rights Directive. The
 whole program is
@@ -299,8 +306,8 @@ and anyone can check is not.
 
 ## The art, in seven maxims
 
-1. **Write the rule as the law says it.** Keep its order, its words and its
-   article number.
+1. **Write the rule as its source says it.** Keep the order, the words and the
+   article or theorem of the law, standard or textbook it comes from.
 2. **Choose templates with the people who know the domain.** They are its
    vocabulary.
 3. **One provision, one rule.** Alternatives are separate rules; exceptions
@@ -326,7 +333,12 @@ one page, the proof on the other.*
 in the playground, read its
 [card deck](https://eyereasoner.github.io/eyemind/examples/deck/consumer-withdrawal-le),
 or browse the other Logical English
-[examples](https://eyereasoner.github.io/eyemind/examples/), from British
-citizenship to GDPR breach notification. The
+[examples](https://eyereasoner.github.io/eyemind/examples/): in law, from
+British citizenship to inheritance without a will; in science and mathematics,
+[ABO blood groups](https://eyereasoner.github.io/eyemind/examples/deck/blood-groups-le),
+[molar masses](https://eyereasoner.github.io/eyemind/examples/deck/molar-mass-le),
+a [critical path](https://eyereasoner.github.io/eyemind/examples/deck/critical-path-le),
+[Euclid's algorithm](https://eyereasoner.github.io/eyemind/examples/deck/euclid-le)
+and the [Pythagorean theorem](https://eyereasoner.github.io/eyemind/examples/deck/pythagoras-le). The
 [Logical English reference](https://eyereasoner.github.io/eyemind/LE-SPEC)
 says exactly what eyemind reads and what it compiles each part to.
