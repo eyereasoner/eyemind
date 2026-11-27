@@ -1,5 +1,5 @@
-% Beetle is a car. Every car is green or blue, and either colour would make
-% Beetle beautiful. The query concludes that Beetle is beautiful.
+% The beetle is a car. Every car is green or blue, and either colour would
+% make the beetle beautiful. The query concludes that the beetle is beautiful.
 % Shows proof by cases with a disjunctive conclusion and two entailments.
 % See https://en.wikipedia.org/wiki/Disjunction_elimination
 

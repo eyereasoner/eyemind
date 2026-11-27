@@ -871,7 +871,7 @@
   {
     "name": "beetle6-le",
     "files": ["beetle6-le.le"],
-    "description": "Ruling out beautiful cars eliminates blue and pretty in succession, so the beetle must be nice"
+    "description": "Ruling out beautiful cars eliminates blue and pretty in succession, so the beetle must be green and nice"
   },
   {
     "name": "beetle12-le",
@@ -881,7 +881,7 @@
   {
     "name": "museum-routes-le",
     "files": ["museum-routes-le.le"],
-    "description": "Nested route alternatives in rule conclusions guarantee that a day-pass holder can reach the exhibit when every branch leads there"
+    "description": "Nested route alternatives in rule conclusions guarantee that a day-pass holder can reach the exhibit when every branch ends at an open door"
   },
   {
     "name": "squares",

@@ -4,3 +4,6 @@ bob has badge [badge, bob].
 
 % query blue_badge
 % no answers
+
+% query bob_badge
+bob has badge [badge, bob].

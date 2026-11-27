@@ -1,5 +1,7 @@
 // Answers: each instance of a query() that holds.
+struct('le:answer', 'properties', 'green')
 struct('le:answer', 'nice')
+struct('le:answer', 'properties', 'nice')
 
 // Steps: each derived fact and what it rests on: the clause or control that
 // justifies it, the bindings and the goals it uses.
@@ -25,3 +27,5 @@ called(cannot_have_property('beetle', 'green'), [])
 called(cannot_have_property('beetle', 'nice'), [])
 called(has_property(D, E), [has_property('beetle', 'green'), has_property('beetle', 'nice')])
 called(cannot_have_property(F, 'beautiful'), [cannot_have_property('beetle', 'beautiful')])
+called(struct('le:answer', 'properties', G), [struct('le:answer', 'properties', 'green'), struct('le:answer', 'properties', 'nice')])
+called(has_property('beetle', H), [has_property('beetle', 'green'), has_property('beetle', 'nice')])

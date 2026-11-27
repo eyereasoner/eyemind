@@ -1,2 +1,6 @@
 % query nice
 beetle is nice.
+
+% query properties
+beetle has property green.
+beetle has property nice.

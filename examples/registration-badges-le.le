@@ -1,5 +1,6 @@
 % Registered visitors get badges identified by their names. Alice and Bob
-% each get their own badge, and the query for a blue badge has no answers.
+% each get their own badge, a query that names Bob's badge finds Bob, and
+% the query for a blue badge has no answers.
 % Shows an explicit witness as a list in a rule conclusion.
 
 the templates are:
@@ -19,3 +20,6 @@ query badges is:
 
 query blue_badge is:
     alice has badge blue.
+
+query bob_badge is:
+    which visitor has badge ["badge", bob].

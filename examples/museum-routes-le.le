@@ -1,13 +1,14 @@
 % A museum's entrance leads to either the courtyard or the gallery, and each
-% of those routes can lead to either of two halls. A day-pass holder is
-% guaranteed to reach the exhibit when every possible route leads there.
-% Shows nested proof by cases with or in rule conclusions. A hall with an
-% open door directly entails access to the exhibit.
+% of those leads to either of two halls. A day-pass holder is guaranteed to
+% reach the exhibit when every possible route ends at a hall with an open
+% door to it; with the atrium door closed, the guarantee is lost.
+% Shows nested proof by cases with or in rule conclusions.
 % See https://en.wikipedia.org/wiki/Disjunction_elimination
 
 the templates are:
     *a visitor* holds a day pass,
     *a place* is open,
+    *a place* has an open door to the exhibit,
     *a place* leads to *a first destination* or to *a second destination*,
     *a place* entails access to the exhibit,
     *a visitor* is guaranteed to reach the exhibit.
@@ -25,7 +26,11 @@ the courtyard leads to the east hall or to the west hall
 the gallery leads to the west hall or to the atrium
     if the gallery is open.
 
-% At a fork, access follows when both destinations entail it.
+% A hall with an open door entails access directly. At a fork, access
+% follows only when both destinations entail it.
+a place entails access to the exhibit
+    if the place has an open door to the exhibit.
+
 a place entails access to the exhibit
     if the place leads to a first destination or to a second destination
     and the first destination entails access to the exhibit
@@ -39,11 +44,11 @@ alex holds a day pass.
 the entrance is open.
 the courtyard is open.
 the gallery is open.
-the east hall entails access to the exhibit.
-the west hall entails access to the exhibit.
+the east hall has an open door to the exhibit.
+the west hall has an open door to the exhibit.
 
 scenario all doors open is:
-    the atrium entails access to the exhibit.
+    the atrium has an open door to the exhibit.
     access expects answers ["alex is guaranteed to reach the exhibit"].
 
 scenario atrium door closed is:

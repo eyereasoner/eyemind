@@ -1,6 +1,7 @@
 // Checked answers: these follow from the input program and are every answer of its questions.
 struct('le:answer', 'badges', 'alice', ['badge', 'alice'])
 struct('le:answer', 'badges', 'bob', ['badge', 'bob'])
+struct('le:answer', 'bob_badge', 'bob')
 
 // Proof check (SPEC 11.2-11.6):
 // Questions: every claim is an answer, and every required answer is claimed.

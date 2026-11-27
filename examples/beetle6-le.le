@@ -51,3 +51,6 @@ a thing is nice
 
 query nice is:
     beetle is nice.
+
+query properties is:
+    beetle has property which property.

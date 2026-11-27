@@ -1,5 +1,7 @@
 // Checked answers: these follow from the input program and are every answer of its questions.
+struct('le:answer', 'properties', 'green')
 struct('le:answer', 'nice')
+struct('le:answer', 'properties', 'nice')
 
 // Proof check (SPEC 11.2-11.6):
 // Questions: every claim is an answer, and every required answer is claimed.

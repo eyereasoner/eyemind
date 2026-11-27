@@ -18,9 +18,9 @@ courtyard or to the gallery`. The words `or to` are part of a declared LE
 template. The template compiles to one Logic Script relation that records both
 destinations together.
 
-An open exhibit door is represented directly by a fact such as `the east
-hall entails access to the exhibit`. A place with a fork entails access when
-both destinations entail it. The same rule applies again when a destination
+A hall entails access when it has an open door to the exhibit, stated by
+facts such as `the east hall has an open door to the exhibit`. A place with a
+fork entails access when both destinations entail it. The same rule applies again when a destination
 is itself a fork. The west hall supports both the courtyard and the gallery.
 See [disjunction elimination](https://en.wikipedia.org/wiki/Disjunction_elimination).
 
@@ -55,8 +55,8 @@ struct('le:answer', 'access', 'all doors open')
 
 The saved proof is **checked** against the compiled LS program. In the first
 scenario the hall facts support the courtyard and gallery, and those two
-entail access from the entrance. In the second scenario the atrium fact is
-absent. The gallery and the entrance therefore have no access guarantee.
+entail access from the entrance. In the second scenario the atrium door is
+closed: nothing states that it is open. The gallery and the entrance therefore have no access guarantee.
 
 `--explain` shows the premise for each pair of alternatives. The entrance
 pair follows from the entrance being open.
@@ -76,6 +76,6 @@ node bin/eyemind.js --check-proof examples/proof/museum-routes-le.js examples/mu
 node bin/eyemind.js --explain examples/museum-routes-le.le
 ```
 
-Add `the atrium entails access to the exhibit.` to the second scenario and
-give it the same expected access answer as the first. Both scenarios then
-guarantee Alex access.
+Close the west hall door by removing `the west hall has an open door to the
+exhibit.` Neither fork is then covered, and Alex loses the guarantee in both
+scenarios.

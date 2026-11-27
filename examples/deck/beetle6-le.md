@@ -8,7 +8,7 @@
 
 Every car is green or blue. Green things are nice or pretty, and blue and
 pretty things are beautiful. Cars cannot be beautiful. Does it follow that
-the beetle is nice?
+the beetle is nice? Which properties does the beetle have?
 
 ## What we tell eyemind
 
@@ -23,12 +23,18 @@ been ruled out. See [disjunctive syllogism](https://en.wikipedia.org/wiki/Disjun
 ```text
 % query nice
 beetle is nice.
+
+% query properties
+beetle has property green.
+beetle has property nice.
 ```
 
-The checked answer is an LS term.
+The checked answers are LS terms.
 
 ```js
+struct('le:answer', 'properties', 'green')
 struct('le:answer', 'nice')
+struct('le:answer', 'properties', 'nice')
 ```
 
 ## What the proof establishes
@@ -50,5 +56,5 @@ node bin/eyemind.js --explain examples/beetle6-le.le
 ```
 
 Remove `pretty entails beautiful.` The first elimination still proves that
-the beetle is green, but the query has no answer because pretty remains
-possible.
+the beetle is green, but `nice` loses its answer and leaves the property
+list, because pretty remains possible.
