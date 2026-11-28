@@ -44,6 +44,10 @@ export const tests = {
     assert.equal(quads.filter((q) => q[1] === "iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies')").length, 2);
   },
 
+  'relative IRIs may start with = or -, which are not N3 operators in Turtle'() {
+    assert.deepEqual(terms('BASE <http://e/>\n<=a> <-b> <=c> .')[0].slice(0, 3), ["iri('http://e/=a')", "iri('http://e/-b')", "iri('http://e/=c')"]);
+  },
+
   'N3 is not Turtle'() {
     for (const text of ['PREFIX : <http://e/>\n{ :a :b :c } :p :z .', 'PREFIX : <http://e/>\n:a = :b .', ':s :p :o .',
       'PREFIX : <http://e/>\n:x .', 'PREFIX : <http://e/>\n:s :p ?x .', 'PREFIX : <http://e/>\n:s :p "a\\zb" .']) {

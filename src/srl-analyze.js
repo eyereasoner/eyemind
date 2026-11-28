@@ -595,28 +595,6 @@ function boundVariables(clauses, initialBound = new Set()) {
   return vars;
 }
 
-function bodyVariables(clauses) {
-  const vars = new Set();
-  for (const clause of clauses) {
-    if (clause.type === 'triple' || clause.type === 'path') collectTripleVars(clause.triple, vars);
-    if ((clause.type === 'set' || clause.type === 'bind')) {
-      vars.add(clause.variable);
-      for (const v of expressionVariables(clause.expr)) vars.add(v);
-    }
-    if (clause.type === 'filter') for (const v of expressionVariables(clause.expr)) vars.add(v);
-    if (clause.type === 'not') for (const v of bodyVariables(clause.body)) vars.add(v);
-    if (clause.type === 'group') {
-      for (const key of clause.keys) vars.add(key);
-      for (const aggregation of clause.aggregations) {
-        vars.add(aggregation.variable);
-        if (aggregation.function.argument !== '*') vars.add(aggregation.function.argument);
-      }
-      for (const v of bodyVariables(clause.pattern)) vars.add(v);
-    }
-  }
-  return vars;
-}
-
 function collectTripleVars(triple, vars) {
   for (const term of [triple.s, triple.p, triple.o]) collectTermVars(term, vars);
 }

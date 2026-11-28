@@ -23,7 +23,7 @@ Can two observations reuse a blank-node label without becoming the same observat
 # contexts, showing ordered envelopes, empty messages and message-local blanks.
 # See https://w3c-cg.github.io/rsp/spec/messages
 @prefix : <https://example.org/messages#> .
-@prefix eymsg: <https://eyereasoner.github.io/eyeling/vocab/message#> .
+@prefix eymsg: <https://eyereasoner.github.io/eyemind/vocab/message#> .
 @prefix log: <http://www.w3.org/2000/10/swap/log#> .
 @prefix list: <http://www.w3.org/2000/10/swap/list#> .
 

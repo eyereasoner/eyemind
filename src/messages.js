@@ -6,7 +6,7 @@ import { readSources } from './n3.js';
 import { tripleToEyemind } from './n3-writer.js';
 import { EyemindError } from './terms.js';
 
-export const MESSAGE_NS = 'https://eyereasoner.github.io/eyeling/vocab/message#';
+export const MESSAGE_NS = 'https://eyereasoner.github.io/eyemind/vocab/message#';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 const LOG_NAME = 'http://www.w3.org/2000/10/swap/log#nameOf';
 const GRAPH_CONTENT = 'https://eyereasoner.github.io/eyemind/graph#content';

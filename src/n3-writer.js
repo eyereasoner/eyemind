@@ -60,10 +60,6 @@ export function writeN3(triples, { prefixes = new Map(), strings = 'auto', blank
   return [...head, ...body].map((line) => `${line}\n`).join('');
 }
 
-export function eyemindToN3(text, options = {}) {
-  return writeN3(triplesFromEyemind(text).triples, options);
-}
-
 // A parsed N3 term as the eyemind term n3-to-eyemind writes for it.
 export function termToEyemind(t) {
   const st = (name, ...args) => new Struct(name, args);

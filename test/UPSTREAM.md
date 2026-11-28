@@ -1,18 +1,19 @@
 # Upstream test suites
 
-`npm test` uses six suites in Git-ignored `.cache/`:
+`npm test` uses seven suites in Git-ignored `.cache/`:
 
 | Cache directory | Upstream |
 | --- | --- |
 | `.cache/logical-english/` | [LogicalContractsOrg/LogicalEnglish2](https://github.com/LogicalContractsOrg/LogicalEnglish2), `examples/moreExamples` |
 | `.cache/mobibench/` | [william-vw/mobibench](https://github.com/william-vw/mobibench), the OWL 2 RL subsuite of `web/res/owl/conf/testsuite-owl2-rdfbased.zip` |
 | `.cache/notation3tests/` | [phochste/notation3tests](https://codeberg.org/phochste/notation3tests) |
+| `.cache/w3c/rdf-messages/` | [w3c-cg/rsp](https://github.com/w3c-cg/rsp), `spec/messages-tests.bs` |
 | `.cache/w3c/rdf-tests/` | [w3c/rdf-tests](https://github.com/w3c/rdf-tests) |
 | `.cache/w3c/shacl/` | [w3c/data-shapes](https://github.com/w3c/data-shapes), the SHACL 1.2 root manifest and its includes |
 | `.cache/w3c/sparql-rl/` | [w3c/data-shapes](https://github.com/w3c/data-shapes), `shacl12-test-suite/tests/sparql-rl` |
 
 A normal run reuses the cache without checking upstream. If the cache is
-missing or incomplete, the runner downloads all six suites before importing
+missing or incomplete, the runner downloads all seven suites before importing
 the tests. This first run needs Git and network access. File inventories let
 the runner detect missing inputs instead of silently skipping their cases.
 
@@ -52,7 +53,7 @@ changes and run `npm test` after syncing; every run writes the
 Local Git checkouts can supply any of the sources:
 
 ```sh
-npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes --mobibench /path/to/mobibench --logical-english /path/to/LogicalEnglish2 --qudt /path/to/qudt-public-repo
+npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes --mobibench /path/to/mobibench --logical-english /path/to/LogicalEnglish2 --rdf-messages /path/to/rsp --qudt /path/to/qudt-public-repo
 ```
 
 A QUDT checkout is used at the release it has checked out. The data-shapes
@@ -84,6 +85,17 @@ answers all rest on unknowns, or that LS rejects for a negation on a
 dependency cycle, is not passed. `KNOWN` in `test/logical-english.js` lists
 the files eyemind reads differently from upstream, with the reason; a listed
 file that passes fails the run. A wrong answer or any other error fails it.
+
+Every `npm test` also scores the RDF Messages tests of the W3C RDF Stream
+Processing Community Group. They are written in the source of their
+specification, `spec/messages-tests.bs`: each `###` section is a case with an
+input block and either the expected messages, as N-Triples or N-Quads lines
+or `empty`, or `Parse error.`. `test/rdf-messages.js` reads each Turtle,
+TriG, N-Triples or N-Quads input as one continuous log and compares the
+quads of every message; the test that blank nodes are scoped per message
+compares the two terms themselves, since their N-Quads lines look alike.
+The NDJSON-LD and RDF/XML logs and the serialization round trips are counted
+as unsupported. A wrong result fails the run.
 
 `npm test` runs independent MobiBench and SHACL cases on up to two threads
 within the same test process. It reports cases in manifest order and finishes

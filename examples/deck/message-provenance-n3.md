@@ -23,7 +23,7 @@ How can a report stay tied to its station when successive messages use the same 
 # graph and temperature for each envelope without crossing message boundaries.
 # See https://w3c-cg.github.io/rsp/spec/messages
 @prefix : <https://example.org/provenance#> .
-@prefix eymsg: <https://eyereasoner.github.io/eyeling/vocab/message#> .
+@prefix eymsg: <https://eyereasoner.github.io/eyemind/vocab/message#> .
 @prefix log: <http://www.w3.org/2000/10/swap/log#> .
 
 {

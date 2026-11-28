@@ -347,26 +347,8 @@ function assertValidStringLiteralValue(s, offset = null) {
 // This keeps all downstream parsing/reasoning N3-only.
 const LOG_NAME_OF_IRI = '<http://www.w3.org/2000/10/swap/log#nameOf>';
 const RDF_REIFIES_IRI = '<http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies>';
-const RDF_TYPE_IRI = '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>';
-const XSD_INTEGER_IRI = '<http://www.w3.org/2001/XMLSchema#integer>';
-const EYMSG_NS = 'https://eyereasoner.github.io/eyeling/vocab/message#';
-const EYMSG = Object.freeze({
-  RDFMessageStream: `<${EYMSG_NS}RDFMessageStream>`,
-  MessageEnvelope: `<${EYMSG_NS}MessageEnvelope>`,
-  envelope: `<${EYMSG_NS}envelope>`,
-  firstEnvelope: `<${EYMSG_NS}firstEnvelope>`,
-  lastEnvelope: `<${EYMSG_NS}lastEnvelope>`,
-  orderedEnvelopes: `<${EYMSG_NS}orderedEnvelopes>`,
-  messageCount: `<${EYMSG_NS}messageCount>`,
-  offset: `<${EYMSG_NS}offset>`,
-  nextEnvelope: `<${EYMSG_NS}nextEnvelope>`,
-  payloadGraph: `<${EYMSG_NS}payloadGraph>`,
-  payloadKind: `<${EYMSG_NS}payloadKind>`,
-  empty: `<${EYMSG_NS}empty>`,
-  nonEmpty: `<${EYMSG_NS}nonEmpty>`,
-});
 
-function normalizeRdfCompatibility(inputText, { trig = false, messages = true } = {}) {
+function normalizeRdfCompatibility(inputText, { trig = false } = {}) {
   let text = String(inputText ?? '');
 
   // eyemind: ordinary N3 input does not need RDF/TriG
@@ -375,11 +357,10 @@ function normalizeRdfCompatibility(inputText, { trig = false, messages = true } 
   // plausible top-level TriG named graph block.
   const hasTripleTerms = text.includes('<<');
   const hasVersionDirective = /^\s*(?:@version|VERSION)\s+(["'])(?:1\.1|1\.2|1\.2-basic)\1\s*\.?\s*(?:#.*)?$/im.test(text);
-  const hasMessageVersionDirective = messages && /^\s*(?:@version|VERSION)\s+(["'])(?:1\.1|1\.2|1\.2-basic)-messages\1\s*\.?\s*(?:#.*)?$/im.test(text);
   const hasNamedGraphCandidate = /(?:^|[.\r\n])\s*(?:GRAPH\s+)?(?:<[^>\r\n]*>|_:[A-Za-z][A-Za-z0-9_-]*|[A-Za-z][A-Za-z0-9_-]*:[^\s{};,.()[\]]*|:[^\s{};,.()[\]]+)\s*\{/m.test(text);
   const hasAnnotationSyntax = /(?:^|\s)~|\{\|/.test(text);
 
-  if (!trig && !hasTripleTerms && !hasVersionDirective && !hasMessageVersionDirective && !hasNamedGraphCandidate && !hasAnnotationSyntax) return text;
+  if (!trig && !hasTripleTerms && !hasVersionDirective && !hasNamedGraphCandidate && !hasAnnotationSyntax) return text;
 
   function isWordChar(ch) {
     return ch != null && /[A-Za-z0-9_:-]/.test(ch);
@@ -658,192 +639,6 @@ function normalizeRdfCompatibility(inputText, { trig = false, messages = true } 
     return converted + (converted.endsWith('\n') ? '' : '\n') + reifierTriples.join('\n') + '\n';
   }
 
-
-  function convertAnnotations(s) {
-    let out = '';
-    let i = 0;
-    let statementStart = true;
-    let generatedBlank = 0;
-
-    function readBalancedDelimited(s, at, open, close) {
-      if (!s.startsWith(open, at)) return null;
-      let j = at + open.length;
-      let depth = 1;
-      while (j < s.length) {
-        const ch = s[j];
-        if (ch === '"' || ch === "'") {
-          j = readStringAt(s, j).end;
-          continue;
-        }
-        if (ch === '<' && !s.startsWith('<<', j)) {
-          j = readIriAt(s, j).end;
-          continue;
-        }
-        if (ch === '#') {
-          while (j < s.length && s[j] !== '\n' && s[j] !== '\r') j += 1;
-          continue;
-        }
-        if (s.startsWith(open, j)) {
-          depth += 1;
-          j += open.length;
-          continue;
-        }
-        if (s.startsWith(close, j)) {
-          depth -= 1;
-          j += close.length;
-          if (depth === 0) return { text: s.slice(at, j), inner: s.slice(at + open.length, j - close.length), end: j };
-          continue;
-        }
-        j += 1;
-      }
-      throw new N3SyntaxError(`Unterminated RDF annotation block, expected ${close}`);
-    }
-
-    function readTermLikeAt(s, at) {
-      const j = skipWsAndComments(s, at);
-      if (j >= s.length) return null;
-      if (s[j] === '<') return readIriAt(s, j);
-      if (s[j] === '"' || s[j] === "'") {
-        const str = readStringAt(s, j);
-        let end = str.end;
-        let text = str.text;
-        if (s.startsWith('^^', end)) {
-          const dt = readTermAt(s, end + 2);
-          if (dt) {
-            text += '^^' + dt.text;
-            end = dt.end;
-          }
-        } else if (s[end] === '@') {
-          let k = end + 1;
-          if (/[A-Za-z]/.test(s[k] || '')) {
-            while (k < s.length && /[A-Za-z0-9-]/.test(s[k])) k += 1;
-            text += s.slice(end, k);
-            end = k;
-          }
-        }
-        return { text, end };
-      }
-      if (s[j] === '{') return readBalancedBlock(s, j);
-      if (s[j] === '[') return readBalancedDelimited(s, j, '[', ']');
-      if (s[j] === '(') return readBalancedDelimited(s, j, '(', ')');
-      return readTermAt(s, j);
-    }
-
-    function readAnnotationBlockAt(s, at) {
-      if (!s.startsWith('{|', at)) return null;
-      return readBalancedDelimited(s, at, '{|', '|}');
-    }
-
-    function tryReadAnnotatedTriple(at) {
-      const start = skipWsAndComments(s, at);
-      if (start >= s.length) return null;
-      if (s[start] === '@') return null;
-      if (startsWordAt(s, 'PREFIX', start) || startsWordAt(s, 'BASE', start) || startsWordAt(s, 'VERSION', start)) return null;
-      if (startsWordAt(s, 'GRAPH', start)) return null;
-
-      const subj = readTermLikeAt(s, start);
-      if (!subj) return null;
-      let j = skipWsAndComments(s, subj.end);
-      const pred = readTermLikeAt(s, j);
-      if (!pred) return null;
-      j = skipWsAndComments(s, pred.end);
-      const obj = readTermLikeAt(s, j);
-      if (!obj) return null;
-      j = skipWsAndComments(s, obj.end);
-      if (s[j] !== '~' && !s.startsWith('{|', j)) return null;
-
-      let reifier = '';
-      const annotationBlocks = [];
-      while (j < s.length) {
-        j = skipWsAndComments(s, j);
-        if (s[j] === '~') {
-          j += 1;
-          j = skipWsAndComments(s, j);
-          const term = readTermAt(s, j);
-          if (term) {
-            reifier = term.text;
-            j = term.end;
-          } else if (!reifier) {
-            reifier = `_:rdfAnnotation${++generatedBlank}`;
-          }
-          continue;
-        }
-        if (s.startsWith('{|', j)) {
-          const block = readAnnotationBlockAt(s, j);
-          const inner = block.inner.trim();
-          if (!inner) throw new N3SyntaxError('Empty RDF annotation block is not allowed');
-          if (!reifier) reifier = `_:rdfAnnotation${++generatedBlank}`;
-          annotationBlocks.push(inner);
-          j = block.end;
-          continue;
-        }
-        break;
-      }
-
-      const after = skipWsAndComments(s, j);
-      if (!['.', ';', ',', '}'].includes(s[after])) return null;
-      if (!reifier && annotationBlocks.length === 0) return null;
-
-      const baseTriple = `${subj.text} ${pred.text} ${obj.text}`;
-      const graph = `{ ${baseTriple} }`;
-      const extra = [];
-      if (reifier) extra.push(`${reifier} ${RDF_REIFIES_IRI} ${graph} .`);
-      for (const inner of annotationBlocks) {
-        if (inner) extra.push(`${reifier} ${inner} .`);
-      }
-
-      let continuation = '';
-      if (s[after] === ';') continuation = `\n${subj.text} `;
-      else if (s[after] === ',') continuation = `\n${subj.text} ${pred.text} `;
-
-      return {
-        start,
-        end: s[after] === '}' ? after : after + 1,
-        text: `${baseTriple} .${extra.length ? '\n' + extra.join('\n') : ''}${continuation}`,
-      };
-    }
-
-    while (i < s.length) {
-      if (statementStart) {
-        const converted = tryReadAnnotatedTriple(i);
-        if (converted) {
-          out += s.slice(i, converted.start) + converted.text;
-          i = converted.end;
-          statementStart = true;
-          continue;
-        }
-      }
-
-      const ch = s[i];
-      if (ch === '"' || ch === "'") {
-        const str = readStringAt(s, i);
-        out += str.text;
-        i = str.end;
-        continue;
-      }
-      if (ch === '<' && !s.startsWith('<<', i)) {
-        const iri = readIriAt(s, i);
-        out += iri.text;
-        i = iri.end;
-        continue;
-      }
-      if (ch === '#') {
-        while (i < s.length) {
-          const c = s[i++];
-          out += c;
-          if (c === '\n' || c === '\r') break;
-        }
-        statementStart = true;
-        continue;
-      }
-      out += ch;
-      if (ch === '.' || ch === '{' || ch === '}' || ch === '\n' || ch === '\r') statementStart = true;
-      else if (!/\s/.test(ch)) statementStart = false;
-      i += 1;
-    }
-
-    return out;
-  }
 
   function stripVersionDirectives(s) {
     // eyemind: a line in a long literal can look exactly like a directive.
@@ -1126,11 +921,6 @@ function normalizeRdfCompatibility(inputText, { trig = false, messages = true } 
   }
 
 
-  function isOnlyWhitespaceAndComments(s) {
-    return skipWsAndComments(s, 0) >= s.length;
-  }
-
-
   function skipOldStyleDirective(s, at) {
     let i = at;
     while (i < s.length) {
@@ -1153,242 +943,10 @@ function normalizeRdfCompatibility(inputText, { trig = false, messages = true } 
     return i;
   }
 
-  function stripDirectivesAndCommentsForEmptiness(s) {
-    let out = '';
-    let i = 0;
-    let statementStart = true;
-    while (i < s.length) {
-      const ch = s[i];
-      if (ch === '"' || ch === "'") {
-        const str = readStringAt(s, i);
-        out += str.text;
-        i = str.end;
-        statementStart = false;
-        continue;
-      }
-      if (ch === '<') {
-        const iri = readIriAt(s, i);
-        out += iri.text;
-        i = iri.end;
-        statementStart = false;
-        continue;
-      }
-      if (ch === '#') {
-        while (i < s.length && s[i] !== '\n' && s[i] !== '\r') i += 1;
-        statementStart = true;
-        continue;
-      }
-      if (statementStart) {
-        const start = skipWsAndComments(s, i);
-        out += s.slice(i, start);
-        i = start;
-        if (startsWordAt(s, 'PREFIX', i) || startsWordAt(s, 'BASE', i) || startsWordAt(s, 'VERSION', i)) {
-          while (i < s.length && s[i] !== '\n' && s[i] !== '\r') i += 1;
-          statementStart = true;
-          continue;
-        }
-        if (s[i] === '@') {
-          const lower = s.slice(i, i + 9).toLowerCase();
-          if (lower.startsWith('@prefix') || lower.startsWith('@base') || lower.startsWith('@version')) {
-            i = skipOldStyleDirective(s, i);
-            statementStart = true;
-            continue;
-          }
-        }
-      }
-      out += ch;
-      if (ch === '.' || ch === '}' || ch === '\n' || ch === '\r') statementStart = true;
-      else if (!/\s/.test(ch)) statementStart = false;
-      i += 1;
-    }
-    return out;
-  }
-
-  function simpleHashText(s) {
-    let h = 0x811c9dc5;
-    for (let i = 0; i < s.length; i += 1) {
-      h ^= s.charCodeAt(i);
-      h = Math.imul(h, 0x01000193) >>> 0;
-    }
-    return h.toString(16).padStart(8, '0');
-  }
-
-  function rewriteMessageBlankLabels(s, messageIndex) {
-    let out = '';
-    let i = 0;
-    const prefix = `_:eyeling_m${String(messageIndex).padStart(3, '0')}_`;
-    while (i < s.length) {
-      const ch = s[i];
-      if (ch === '"' || ch === "'") {
-        const str = readStringAt(s, i);
-        out += str.text;
-        i = str.end;
-        continue;
-      }
-      if (ch === '<' && !s.startsWith('<<', i)) {
-        const iri = readIriAt(s, i);
-        out += iri.text;
-        i = iri.end;
-        continue;
-      }
-      if (ch === '#') {
-        while (i < s.length) {
-          const c = s[i++];
-          out += c;
-          if (c === '\n' || c === '\r') break;
-        }
-        continue;
-      }
-      if (s.startsWith('_:', i)) {
-        let j = i + 2;
-        while (j < s.length && !/\s/.test(s[j]) && !'{}[](),;.'.includes(s[j])) j += 1;
-        const label = s.slice(i + 2, j);
-        if (label) {
-          out += prefix + label.replace(/[^A-Za-z0-9_]/g, '_');
-          i = j;
-          continue;
-        }
-      }
-      out += ch;
-      i += 1;
-    }
-    return out;
-  }
-
-  function findMessageDirectiveAt(s, at) {
-    if (startsWordAt(s, 'MESSAGE', at)) return { start: at, end: at + 'MESSAGE'.length };
-    if (s.slice(at, at + 8).toLowerCase() === '@message' && !isWordChar(s[at + 8])) {
-      let end = at + 8;
-      end = skipWsAndComments(s, end);
-      if (s[end] === '.') end += 1;
-      return { start: at, end };
-    }
-    return null;
-  }
-
-  function splitRdfMessageLog(s) {
-    const chunks = [];
-    let i = 0;
-    let start = 0;
-    let braceDepth = 0;
-    let bracketDepth = 0;
-    let parenDepth = 0;
-    let statementStart = true;
-    let sawDelimiter = false;
-
-    while (i < s.length) {
-      const ch = s[i];
-      if (ch === '"' || ch === "'") {
-        i = readStringAt(s, i).end;
-        statementStart = false;
-        continue;
-      }
-      if (ch === '<' && !s.startsWith('<<', i)) {
-        i = readIriAt(s, i).end;
-        statementStart = false;
-        continue;
-      }
-      if (ch === '#') {
-        while (i < s.length && s[i] !== '\n' && s[i] !== '\r') i += 1;
-        statementStart = true;
-        continue;
-      }
-      if (statementStart && braceDepth === 0 && bracketDepth === 0 && parenDepth === 0) {
-        const termStart = skipWsAndComments(s, i);
-        const msg = findMessageDirectiveAt(s, termStart);
-        if (msg) {
-          chunks.push(s.slice(start, termStart));
-          start = msg.end;
-          i = msg.end;
-          statementStart = true;
-          sawDelimiter = true;
-          continue;
-        }
-        if (termStart !== i) {
-          i = termStart;
-          continue;
-        }
-      }
-      if (ch === '{') braceDepth += 1;
-      else if (ch === '}' && braceDepth > 0) braceDepth -= 1;
-      else if (ch === '[') bracketDepth += 1;
-      else if (ch === ']' && bracketDepth > 0) bracketDepth -= 1;
-      else if (ch === '(') parenDepth += 1;
-      else if (ch === ')' && parenDepth > 0) parenDepth -= 1;
-
-      if (ch === '.' && braceDepth === 0 && bracketDepth === 0 && parenDepth === 0) statementStart = true;
-      else if (ch === '\n' || ch === '\r') statementStart = true;
-      else if (!/\s/.test(ch)) statementStart = false;
-      i += 1;
-    }
-
-    const tail = s.slice(start);
-    if (!sawDelimiter || !isOnlyWhitespaceAndComments(tail)) chunks.push(tail);
-    return chunks;
-  }
-
-  function normalizeMessageChunk(chunk, messageIndex) {
-    let body = String(chunk || '');
-    if (hasTripleTerms || body.includes('<<')) body = convertTripleTerms(body);
-    if (hasAnnotationSyntax || /(?:^|\s)~|\{\|/.test(body)) {
-      // eyemind: annotations are read by the parser.
-    }
-    body = normalizeNamedGraphs(body);
-    body = rewriteMessageBlankLabels(body, messageIndex);
-    return body.trim();
-  }
-
-  function messageChunkHasRdf(body) {
-    return !isOnlyWhitespaceAndComments(stripDirectivesAndCommentsForEmptiness(body));
-  }
-
-  function normalizeRdfMessageLog(s) {
-    const withoutVersion = stripVersionDirectives(s);
-    const chunks = splitRdfMessageLog(withoutVersion);
-    const hash = simpleHashText(s);
-    const base = `urn:eyeling:message-log:${hash}`;
-    const stream = `<${base}#stream>`;
-    const envelopeIris = chunks.map((unused, idx) => `<${base}#m${String(idx + 1).padStart(3, '0')}>`);
-    const payloadIris = chunks.map((unused, idx) => `<${base}#m${String(idx + 1).padStart(3, '0')}/payload>`);
-    const out = [];
-
-    out.push(`${stream} ${RDF_TYPE_IRI} ${EYMSG.RDFMessageStream} .`);
-    out.push(`${stream} ${EYMSG.messageCount} "${chunks.length}"^^${XSD_INTEGER_IRI} .`);
-    if (envelopeIris.length) {
-      out.push(`${stream} ${EYMSG.orderedEnvelopes} (${envelopeIris.join(' ')}) .`);
-      out.push(`${stream} ${EYMSG.firstEnvelope} ${envelopeIris[0]} .`);
-      out.push(`${stream} ${EYMSG.lastEnvelope} ${envelopeIris[envelopeIris.length - 1]} .`);
-    }
-
-    for (let idx = 0; idx < chunks.length; idx += 1) {
-      const n = idx + 1;
-      const envelope = envelopeIris[idx];
-      const payload = payloadIris[idx];
-      const body = normalizeMessageChunk(chunks[idx], n);
-      const hasBody = messageChunkHasRdf(body);
-
-      out.push(`${stream} ${EYMSG.envelope} ${envelope} .`);
-      out.push(`${envelope} ${RDF_TYPE_IRI} ${EYMSG.MessageEnvelope} .`);
-      out.push(`${envelope} ${EYMSG.offset} "${n}"^^${XSD_INTEGER_IRI} .`);
-      out.push(`${envelope} ${EYMSG.payloadKind} ${hasBody ? EYMSG.nonEmpty : EYMSG.empty} .`);
-      if (idx + 1 < envelopeIris.length) out.push(`${envelope} ${EYMSG.nextEnvelope} ${envelopeIris[idx + 1]} .`);
-      if (hasBody) {
-        out.push(`${envelope} ${EYMSG.payloadGraph} ${payload} .`);
-        out.push(`${payload} ${LOG_NAME_OF_IRI} {`);
-        out.push(body);
-        out.push(`} .`);
-      }
-    }
-
-    return out.join('\n') + '\n';
-  }
-
-  if (hasMessageVersionDirective) return normalizeRdfMessageLog(text);
-
   if (hasTripleTerms) text = convertTripleTerms(text);
   // eyemind: annotations are read by the parser, after their triple.
-  if (hasVersionDirective || hasMessageVersionDirective) text = stripVersionDirectives(text);
-  if (trig || hasVersionDirective || hasMessageVersionDirective || hasNamedGraphCandidate) text = normalizeNamedGraphs(text);
+  if (hasVersionDirective) text = stripVersionDirectives(text);
+  if (trig || hasVersionDirective || hasNamedGraphCandidate) text = normalizeNamedGraphs(text);
   return text;
 }
 
@@ -1403,8 +961,7 @@ function isNumericLikeIdentifier(word) {
 }
 
 function lex(inputText, opts = {}) {
-  const rdf = !!(opts && opts.rdf);
-  if (rdf) inputText = normalizeRdfCompatibility(inputText, { trig: !!opts.trig, messages: opts.messages !== false });
+  inputText = normalizeRdfCompatibility(inputText, { trig: !!opts.trig });
   // Avoid copying large ASCII/BMP inputs into an Array.  Array.from() is
   // only needed when the text contains surrogate pairs and we want the old
   // code-point iteration behavior for non-BMP characters.
@@ -1449,7 +1006,7 @@ function lex(inputText, opts = {}) {
 
       // eyemind: in RDF a blank node label has no colon after its _: prefix,
       // so _:s:p is _:s followed by :p.
-      if (rdf && code === 58 && i > start + 1 && chars[start] === '_' && chars[start + 1] === ':') break;
+      if (code === 58 && i > start + 1 && chars[start] === '_' && chars[start + 1] === ':') break;
 
       // Common ASCII QName/identifier characters. Keep this branch inline so
       // ordinary N3 files do not call through the full Unicode PN_CHARS predicate
@@ -1551,50 +1108,23 @@ function lex(inputText, opts = {}) {
       continue;
     }
 
-    // 3) Two-character operators: => and <=
-    if (c === '=') {
-      if (peek(1) === '>') {
-        tokens.push(new Token('OpImplies', null, i));
-        i += 2;
-        continue;
-      } else {
-        // N3 syntactic sugar: '=' means owl:sameAs
-        tokens.push(new Token('Equals', null, i));
-        i += 1;
-        continue;
-      }
-    }
-
     // eyemind: RDF 1.2 reified triples << ... >>, reifiers ~ and annotation
-    // blocks {| ... |} are tokens the parser reads in RDF mode.
-    if (rdf) {
-      const two = c + (peek(1) ?? '');
-      const kind = { '<<': 'LtLt', '>>': 'GtGt', '{|': 'AnnotOpen', '|}': 'AnnotClose' }[two];
-      if (kind) {
-        tokens.push(new Token(kind, null, i));
-        i += 2;
-        continue;
-      }
-      if (c === '~') {
-        tokens.push(new Token('Tilde', null, i));
-        i += 1;
-        continue;
-      }
+    // blocks {| ... |} are tokens of their own.
+    const two = c + (peek(1) ?? '');
+    const kind = { '<<': 'LtLt', '>>': 'GtGt', '{|': 'AnnotOpen', '|}': 'AnnotClose' }[two];
+    if (kind) {
+      tokens.push(new Token(kind, null, i));
+      i += 2;
+      continue;
+    }
+    if (c === '~') {
+      tokens.push(new Token('Tilde', null, i));
+      i += 1;
+      continue;
     }
 
+    // IRIREF <...>
     if (c === '<') {
-      if (peek(1) === '=') {
-        tokens.push(new Token('OpImpliedBy', null, i));
-        i += 2;
-        continue;
-      }
-      // N3 predicate inversion: "<-" (swap subject/object for this predicate)
-      if (peek(1) === '-') {
-        tokens.push(new Token('OpPredInvert', null, i));
-        i += 2;
-        continue;
-      }
-      // Otherwise IRIREF <...>
       const start = i;
       i++; // skip '<'
       const iriChars = [];
@@ -1611,20 +1141,10 @@ function lex(inputText, opts = {}) {
       continue;
     }
 
-    // 4) Path + datatype operators: !, ^, ^^
-    if (c === '!') {
-      tokens.push(new Token('OpPathFwd', null, i));
-      i += 1;
-      continue;
-    }
-    if (c === '^') {
-      if (peek(1) === '^') {
-        tokens.push(new Token('HatHat', null, i));
-        i += 2;
-        continue;
-      }
-      tokens.push(new Token('OpPathRev', null, i));
-      i += 1;
+    // The datatype operator ^^
+    if (c === '^' && peek(1) === '^') {
+      tokens.push(new Token('HatHat', null, i));
+      i += 2;
       continue;
     }
 
@@ -1842,18 +1362,6 @@ function lex(inputText, opts = {}) {
       if (sChars !== null || inputMayContainInvalidStringChar) assertValidStringLiteralValue(decoded, start);
       const s = JSON.stringify(decoded); // canonical short quoted form
       tokens.push(new Token('Literal', s, start));
-      continue;
-    }
-
-    // Variable ?name
-    if (c === '?') {
-      const start = i;
-      i++;
-      const name = readIdentText(start);
-      if (!name) {
-        throw new N3SyntaxError("Expected variable name after '?'.", start);
-      }
-      tokens.push(new Token('Var', name, start));
       continue;
     }
 

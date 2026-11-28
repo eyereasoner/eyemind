@@ -1,8 +1,8 @@
 // RDF 1.2 in and out of eyemind: Turtle, TriG, N-Triples and N-Quads.
 //
 // Documents are read by the RDF lexer and parser (rdf-lexer.js,
-// rdf-parser.js, rdf-prelude.js and rdf-rules.js), with the RDF 1.2
-// surface checks below. Each quad becomes an eyemind term
+// rdf-parser.js and rdf-prelude.js), with the RDF 1.2 surface checks
+// below. Each quad becomes an eyemind term
 // rdf(Subject, Predicate, Object, Graph):
 //
 //   IRI                          iri('https://example.org/a')
@@ -46,9 +46,7 @@ export function parseRdf(text, { format = 'turtle', base = null, scope = 'rdf' }
   try {
     checkRdfSyntax(text, format);
     assertRdf12SurfaceSyntax(text, format);
-    const parser = new Parser(lex(text, { rdf: true, trig: format === 'trig', messages: false }));
-    // RDF declares every prefix it uses; N3's predeclared ones do not apply.
-    parser.prefixes.map = {};
+    const parser = new Parser(lex(text, { trig: format === 'trig' }));
     if (base) parser.prefixes.setBase(base);
     const state = { scope, lists: 0, out: [] };
     if (format === 'n-quads') {
@@ -62,8 +60,7 @@ export function parseRdf(text, { format = 'turtle', base = null, scope = 'rdf' }
         quad(s, p, o, g, state);
       }
     } else {
-      const [, triples, forward, backward, queries] = parser.parseDocument();
-      if (forward.length || backward.length || queries.length) throw new SyntaxError('an RDF document has no rules');
+      const [, triples] = parser.parseDocument();
       for (const t of triples) {
         if (format === 'trig' && t.p instanceof Iri && t.p.value === `${LOG_NS}nameOf` && t.o instanceof GraphTerm) {
           const g = convert(t.s, 'graph', DEFAULT_GRAPH, state);

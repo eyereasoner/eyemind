@@ -62,8 +62,7 @@ goals, and keep error messages specific and user-facing text direct.
   - `formats.js`: inputs by extension and output with `--to`. `rdf.js`:
     RDF 1.2 (Turtle, TriG, N-Triples, N-Quads) to and from eyemind terms,
     read by the RDF parser (`rdf-lexer.js`, `rdf-parser.js`,
-    `rdf-prelude.js`, `rdf-rules.js`) after the strict token pass of
-    `rdf-syntax.js`. `n3.js`, `n3-parser.js`, `n3-builtins.js`,
+    `rdf-prelude.js`) after the strict token pass of `rdf-syntax.js`. `n3.js`, `n3-parser.js`, `n3-builtins.js`,
     `n3-writer.js`, `n3-documents.js`: Notation3 compiled to a program.
     `messages.js`: incremental RDF Message parsing and envelope replay;
     `node-messages.js`: Node's incremental file, stdin and HTTP(S) input.
@@ -136,6 +135,8 @@ goals, and keep error messages specific and user-facing text direct.
   `upstream-cases.js` scores independent MobiBench and SHACL cases on up to two threads.
   `logical-english.js` scores the Logical English 2 examples with expected answers,
   cached in `.cache/logical-english/`, as coverage at the end of every `npm test`.
+  `rdf-messages.js` scores the RDF Messages tests, cached in
+  `.cache/w3c/rdf-messages/`, the same way.
   `helpers.js` holds what the test modules share.
   `UPSTREAM.md` describes the cache and `upstream.json` records its provenance.
   N3 and SRL examples and their saved artifacts live in `examples/`.
@@ -149,7 +150,7 @@ goals, and keep error messages specific and user-facing text direct.
   reports, and `report.js`
   writes `REPORT.md`, the table a whole `npm test` run ends with.
   `notation3-worker.js` is the reusable process the Notation3 scorer runs cases in.
-  `sync.js`, run with `npm run sync`, stages and refreshes all six upstream
+  `sync.js`, run with `npm run sync`, stages and refreshes all seven upstream
   test caches and records their revisions, and regenerates
   `src/qudt-catalog.js` from the latest QUDT release with `qudt-catalog.js`;
   `sync-notation3tests.js` also

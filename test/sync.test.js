@@ -52,7 +52,7 @@ function zip(entries) {
 function fixture() {
   const temporary = mkdtempSync(join(tmpdir(), 'eyemind-sync-test-'));
   const root = join(temporary, 'project');
-  const checkouts = Object.fromEntries(['notation3tests', 'w3c-rdf', 'w3c-sparql-rl', 'mobibench', 'logical-english'].map((name) => [name, join(temporary, name)]));
+  const checkouts = Object.fromEntries(['notation3tests', 'w3c-rdf', 'w3c-sparql-rl', 'mobibench', 'logical-english', 'rdf-messages'].map((name) => [name, join(temporary, name)]));
   for (const path of Object.values(checkouts)) mkdirSync(path, { recursive: true });
   const n3 = checkouts.notation3tests;
   put(join(n3, 'LICENSE'), 'fixture license\n');
@@ -111,6 +111,11 @@ function fixture() {
   put(join(le, 'examples/moreExamples/socrates.le'), 'the templates are: *a thing* is mortal.\nscenario s is:\n    q expects answers [].\nquery q is: which thing is mortal.\n');
   put(join(le, 'examples/moreExamples/untested.le'), 'the templates are: *a thing* is mortal.\n');
   put(join(le, 'examples/other/ignored.le'), 'q expects answers [].\n');
+  const rdfm = checkouts['rdf-messages'];
+  put(join(rdfm, 'README.md'), 'upstream RDF Messages readme\n');
+  put(join(rdfm, 'LICENSE.md'), 'RDF Messages license\n');
+  put(join(rdfm, 'spec/messages-tests.bs'), '## Parsing ##\n\n### One Message ###\n\n```turtle\nVERSION "1.2-messages"\n```\n\n```text\nMessage 1:\n  empty\n```\n');
+  put(join(rdfm, 'spec/messages.bs'), 'the specification itself is not copied\n');
   const revisions = {};
   for (const [name, path] of Object.entries(checkouts)) {
     git(path, 'init', '-q');
@@ -118,7 +123,7 @@ function fixture() {
     git(path, '-c', 'user.name=Sync fixture', '-c', 'user.email=sync@example.org', 'commit', '-qm', 'Test suite fixture');
     revisions[name] = git(path, 'rev-parse', 'HEAD');
   }
-  for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl', '.cache/w3c/shacl', '.cache/mobibench', '.cache/logical-english']) put(join(root, path, 'stale'), 'old mirror');
+  for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl', '.cache/w3c/shacl', '.cache/mobibench', '.cache/logical-english', '.cache/w3c/rdf-messages']) put(join(root, path, 'stale'), 'old mirror');
   put(join(root, 'unrelated.txt'), 'keep me');
   return { temporary, root, checkouts, revisions };
 }
@@ -174,10 +179,10 @@ export const tests = {
       assert.ok(logs.includes('      A tests/added.n3'));
       assert.ok(logs.includes('      M documents.json'));
       assert.ok(logs.includes('      D tests/negative.n3'));
-      assert.equal(logs.filter((line) => line === '    No cached file changes').length, 5);
+      assert.equal(logs.filter((line) => line === '    No cached file changes').length, 6);
       logs.length = 0;
       await syncTestSuites({ root: f.root, checkouts: f.checkouts, log });
-      assert.equal(logs.filter((line) => line === '    No cached file changes').length, 6);
+      assert.equal(logs.filter((line) => line === '    No cached file changes').length, 7);
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
@@ -235,7 +240,7 @@ export const tests = {
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
-  async 'sync refreshes all six mirrors from local Git checkouts with exact bytes, fixtures and revisions'() {
+  async 'sync refreshes all seven mirrors from local Git checkouts with exact bytes, fixtures and revisions'() {
     const f = fixture();
     try {
       const info = await syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} });
@@ -245,8 +250,9 @@ export const tests = {
       assert.equal(info.shacl.cases, 1);
       assert.equal(info.mobibench.cases, 1);
       assert.equal(info.le.cases, 1);
+      assert.equal(info.rdfm.cases, 1);
       for (const [name, path] of [['notation3tests', '.cache/notation3tests'], ['w3c-rdf', '.cache/w3c/rdf-tests'], ['w3c-sparql-rl', '.cache/w3c/sparql-rl'],
-        ['w3c-sparql-rl', '.cache/w3c/shacl'], ['mobibench', '.cache/mobibench'], ['logical-english', '.cache/logical-english']]) {
+        ['w3c-sparql-rl', '.cache/w3c/shacl'], ['mobibench', '.cache/mobibench'], ['logical-english', '.cache/logical-english'], ['rdf-messages', '.cache/w3c/rdf-messages']]) {
         assert.ok(!existsSync(join(f.root, path, 'stale')));
         assert.equal(JSON.parse(text(join(f.root, path, 'upstream.json'))).revision, f.revisions[name]);
       }
@@ -271,18 +277,22 @@ export const tests = {
       assert.ok(!existsSync(join(f.root, '.cache/logical-english/examples/other')));
       assert.equal(text(join(f.root, '.cache/logical-english/NOTICE')), 'LE notice\n');
       assert.equal(text(join(f.root, '.cache/logical-english/UPSTREAM.md')), 'upstream LE readme\n');
+      assert.equal(text(join(f.root, '.cache/w3c/rdf-messages/spec/messages-tests.bs')), text(join(f.checkouts['rdf-messages'], 'spec/messages-tests.bs')));
+      assert.ok(!existsSync(join(f.root, '.cache/w3c/rdf-messages/spec/messages.bs')));
+      assert.equal(text(join(f.root, '.cache/w3c/rdf-messages/LICENSE.md')), 'RDF Messages license\n');
+      assert.equal(text(join(f.root, '.cache/w3c/rdf-messages/UPSTREAM.md')), 'upstream RDF Messages readme\n');
       assert.equal(text(join(f.root, 'unrelated.txt')), 'keep me');
       assert.ok(readdirSync(join(f.root, '.cache')).every((name) => !name.startsWith('.sync-')));
     } finally { rmSync(f.temporary, { recursive: true, force: true }); }
   },
 
-  async 'a failure in one suite leaves all six previous mirrors intact'() {
+  async 'a failure in one suite leaves all seven previous mirrors intact'() {
     const f = fixture();
     try {
       const manifest = join(f.checkouts['w3c-sparql-rl'], 'shacl12-test-suite/tests/core/manifest.ttl');
       put(manifest, text(manifest).replace('sht:dataGraph <>', 'sht:dataGraph <missing.ttl>'));
       await assert.rejects(syncTestSuites({ root: f.root, checkouts: f.checkouts, log() {} }), /missing\.ttl/);
-      for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl', '.cache/w3c/shacl', '.cache/mobibench', '.cache/logical-english']) {
+      for (const path of ['.cache/notation3tests', '.cache/w3c/rdf-tests', '.cache/w3c/sparql-rl', '.cache/w3c/shacl', '.cache/mobibench', '.cache/logical-english', '.cache/w3c/rdf-messages']) {
         assert.equal(text(join(f.root, path, 'stale')), 'old mirror');
         assert.ok(!existsSync(join(f.root, path, 'upstream.json')));
       }

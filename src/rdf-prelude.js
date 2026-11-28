@@ -11,22 +11,8 @@
 // ===========================================================================
 
 const RDF_NS = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
-const RDFS_NS = 'http://www.w3.org/2000/01/rdf-schema#';
-const OWL_NS = 'http://www.w3.org/2002/07/owl#';
 const XSD_NS = 'http://www.w3.org/2001/XMLSchema#';
-const MATH_NS = 'http://www.w3.org/2000/10/swap/math#';
-const TIME_NS = 'http://www.w3.org/2000/10/swap/time#';
-const LIST_NS = 'http://www.w3.org/2000/10/swap/list#';
 const LOG_NS = 'http://www.w3.org/2000/10/swap/log#';
-const STRING_NS = 'http://www.w3.org/2000/10/swap/string#';
-const DT_NS = 'https://eyereasoner.github.io/eyeling/datatype#';
-const SKOLEM_NS = 'https://eyereasoner.github.io/.well-known/genid/';
-
-// Private rule-lifting variable prefix used for blank nodes that appear in
-// rule-body patterns.  The prefix is intentionally not spellable in N3 input,
-// but public extension APIs should present these variables with stable,
-// ordinary names and translate them back internally.
-const INTERNAL_BLANK_VAR_PREFIX = '\uE000eyeling_b';
 
 function parseUriReferenceForResolution(uri) {
   // RFC 3986 Appendix B-style component parser, with the scheme tightened to
@@ -373,13 +359,6 @@ class Literal extends Term {
   }
 }
 
-class Var extends Term {
-  constructor(name) {
-    super();
-    this.name = name; // without leading '?'
-  }
-}
-
 class Blank extends Term {
   constructor(label, blankNodeKind = 'labeled') {
     super();
@@ -401,14 +380,6 @@ class ListTerm extends Term {
   }
 }
 
-class OpenListTerm extends Term {
-  constructor(prefix, tailVar) {
-    super();
-    this.prefix = prefix;    // Term[]
-    this.tailVar = tailVar;  // string
-  }
-}
-
 class GraphTerm extends Term {
   constructor(triples) {
     super();
@@ -421,17 +392,6 @@ class Triple {
     this.s = s;
     this.p = p;
     this.o = o;
-  }
-}
-
-class Rule {
-  constructor(premise, conclusion, isForward, isFuse, headBlankLabels) {
-    this.premise = premise;        // Triple[]
-    this.conclusion = conclusion;  // Triple[]
-    this.isForward = isForward;    // boolean
-    this.isFuse = isFuse;          // boolean
-    // Set<string> of blank-node labels that occur explicitly in the rule head
-    this.headBlankLabels = headBlankLabels || new Set();
   }
 }
 
@@ -485,39 +445,9 @@ function internLiteral(value) {
 // Special predicate helpers (kept here because PrefixEnv needs them)
 // ===========================================================================
 
-function isRdfTypePred(p) {
-  return p instanceof Iri && p.value === RDF_NS + 'type';
-}
-
-function isLogImplies(p) {
-  return p instanceof Iri && p.value === LOG_NS + 'implies';
-}
-
-function isLogImpliedBy(p) {
-  return p instanceof Iri && p.value === LOG_NS + 'impliedBy';
-}
-
-function isLogQuery(p) {
-  return p instanceof Iri && p.value === LOG_NS + 'query';
-}
-
 // ===========================================================================
 // PREFIX ENVIRONMENT
 // ===========================================================================
-
-// Conservative check for whether a candidate local part can be safely serialized as a prefixed name.
-// If false, we fall back to <IRI> to guarantee syntactically valid N3/Turtle output.
-function isValidQNameLocal(local) {
-  if (typeof local !== 'string' || local.length === 0) return false;
-  // Disallow characters that would break PN_LOCAL unless escaped (we keep this conservative).
-  if (/[#:/?\s]/.test(local)) return false;
-  // Allow a safe ASCII subset.
-  if (/[^A-Za-z0-9._-]/.test(local)) return false;
-  // Avoid edge cases that typically require escaping.
-  if (local.endsWith('.')) return false;
-  if (/^[.-]/.test(local)) return false;
-  return true;
-}
 
 class PrefixEnv {
   constructor(map, baseIri) {
@@ -525,39 +455,8 @@ class PrefixEnv {
     this.baseIri = baseIri || '';  // base IRI for resolving <relative>
   }
 
-  static newDefault() {
-    const m = {};
-    m['rdf'] = RDF_NS;
-    m['rdfs'] = RDFS_NS;
-    m['xsd'] = XSD_NS;
-    m['log'] = LOG_NS;
-    m['math'] = MATH_NS;
-    m['string'] = STRING_NS;
-    m['list'] = LIST_NS;
-    m['time'] = TIME_NS;
-    m['dt'] = DT_NS;
-    m['genid'] = SKOLEM_NS;
-    m[''] = '';                   // empty prefix default namespace
-    return new PrefixEnv(m, '');  // base IRI starts empty
-  }
-
-  // shrinkIri and prefixesUsedForOutput run once per IRI of output, and both used
-  // to rebuild Object.entries(this.map) on every call. These caches hold the
-  // entry list and the per-IRI answer instead; every write to the map goes
-  // through set(), so invalidating there is enough.
-  __invalidatePrefixCaches() {
-    this.__entries = null;
-    this.__shrinkCache = null;
-  }
-
-  __nonEmptyEntries() {
-    if (!this.__entries) this.__entries = Object.entries(this.map).filter(([, base]) => !!base);
-    return this.__entries;
-  }
-
   set(pref, base) {
     this.map[pref] = base;
-    this.__invalidatePrefixCaches();
   }
 
   setBase(baseIri) {
@@ -575,179 +474,21 @@ class PrefixEnv {
     }
     return q;
   }
-
-  shrinkIri(iri) {
-    if (!this.__shrinkCache) this.__shrinkCache = new Map();
-    const cached = this.__shrinkCache.get(iri);
-    if (cached !== undefined) return cached;
-    const out = this.__shrinkIriUncached(iri);
-    this.__shrinkCache.set(iri, out);
-    return out;
-  }
-
-  __shrinkIriUncached(iri) {
-    let best = null; // [prefix, local]
-    for (const [p, base] of this.__nonEmptyEntries()) {
-      if (iri.startsWith(base)) {
-        const local = iri.slice(base.length);
-        if (!local) continue;
-        // Only emit a QName when the local part is safe to serialize without escaping.
-        if (!isValidQNameLocal(local)) continue;
-        const cand = [p, local];
-        if (best === null || cand[1].length < best[1].length) best = cand;
-      }
-    }
-    if (best === null) return null;
-    const [p, local] = best;
-    if (p === '') return `:${local}`;
-    return `${p}:${local}`;
-  }
-
-  prefixesUsedForOutput(triples) {
-    const used = new Set();
-    const entries = this.__nonEmptyEntries();
-    // One accumulator reused across every term, and stop the moment every prefix
-    // is accounted for: the answer cannot grow after that.
-    const iris = [];
-    for (const t of triples) {
-      if (used.size === entries.length) break;
-      iris.length = 0;
-      collectIrisInTerm(t.s, iris);
-      if (!isRdfTypePred(t.p)) {
-        collectIrisInTerm(t.p, iris);
-      }
-      collectIrisInTerm(t.o, iris);
-      for (const iri of iris) {
-        for (const [p, base] of entries) {
-          if (iri.startsWith(base)) used.add(p);
-        }
-      }
-    }
-    const v = [];
-    for (const p of used) {
-      if (Object.prototype.hasOwnProperty.call(this.map, p)) v.push([p, this.map[p]]);
-    }
-    v.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
-    return v;
-  }
-}
-
-// out is optional so the old "returns a fresh array" contract still holds, but
-// callers in a loop can pass one accumulator instead of allocating per term.
-function collectIrisInTerm(t, out = []) {
-  if (t instanceof Iri) {
-    out.push(t.value);
-  } else if (t instanceof Literal) {
-    const [, dt] = literalParts(t.value);
-    if (dt) out.push(dt); // so rdf/xsd prefixes are emitted when only used in ^^...
-  } else if (t instanceof ListTerm) {
-    for (const x of t.elems) collectIrisInTerm(x, out);
-  } else if (t instanceof OpenListTerm) {
-    for (const x of t.prefix) collectIrisInTerm(x, out);
-  } else if (t instanceof GraphTerm) {
-    for (const tr of t.triples) {
-      collectIrisInTerm(tr.s, out);
-      collectIrisInTerm(tr.p, out);
-      collectIrisInTerm(tr.o, out);
-    }
-  }
-  return out;
-}
-
-function collectVarsInTerm(t, acc) {
-  if (t instanceof Var) {
-    acc.add(t.name);
-  } else if (t instanceof ListTerm) {
-    for (const x of t.elems) collectVarsInTerm(x, acc);
-  } else if (t instanceof OpenListTerm) {
-    for (const x of t.prefix) collectVarsInTerm(x, acc);
-    acc.add(t.tailVar);
-  } else if (t instanceof GraphTerm) {
-    for (const tr of t.triples) {
-      collectVarsInTerm(tr.s, acc);
-      collectVarsInTerm(tr.p, acc);
-      collectVarsInTerm(tr.o, acc);
-    }
-  }
-}
-
-function collectBlankLabelsInTerm(t, acc) {
-  if (t instanceof Blank) {
-    acc.add(t.label);
-  } else if (t instanceof ListTerm) {
-    for (const x of t.elems) collectBlankLabelsInTerm(x, acc);
-  } else if (t instanceof OpenListTerm) {
-    for (const x of t.prefix) collectBlankLabelsInTerm(x, acc);
-  } else if (t instanceof GraphTerm) {
-    for (const tr of t.triples) {
-      collectBlankLabelsInTerm(tr.s, acc);
-      collectBlankLabelsInTerm(tr.p, acc);
-      collectBlankLabelsInTerm(tr.o, acc);
-    }
-  }
-}
-
-function collectBlankLabelsInTriples(triples) {
-  const acc = new Set();
-  for (const tr of triples) {
-    collectBlankLabelsInTerm(tr.s, acc);
-    collectBlankLabelsInTerm(tr.p, acc);
-    collectBlankLabelsInTerm(tr.o, acc);
-  }
-  return acc;
-}
-
-function annotateQuotedGraphTerm(graph) {
-  if (!(graph instanceof GraphTerm)) return graph;
-  const labels = collectBlankLabelsInTriples(graph.triples);
-  Object.defineProperty(graph, '__quotedLocalBlankLabels', {
-    value: labels,
-    enumerable: false,
-    writable: true,
-    configurable: true,
-  });
-  return graph;
-}
-
-function copyQuotedGraphMetadata(src, dst) {
-  if (!(src instanceof GraphTerm) || !(dst instanceof GraphTerm)) return dst;
-  if (!Object.prototype.hasOwnProperty.call(src, '__quotedLocalBlankLabels')) return dst;
-
-  const labels = src.__quotedLocalBlankLabels;
-  Object.defineProperty(dst, '__quotedLocalBlankLabels', {
-    value: labels instanceof Set ? new Set(labels) : labels,
-    enumerable: false,
-    writable: true,
-    configurable: true,
-  });
-  return dst;
 }
 
 export {
   RDF_NS,
-  OWL_NS,
   LOG_NS,
-  INTERNAL_BLANK_VAR_PREFIX,
   resolveIriRef,
   literalParts,
-  Term,
   Iri,
   Literal,
-  Var,
   Blank,
   ListTerm,
-  OpenListTerm,
   GraphTerm,
   Triple,
-  Rule,
   internIri,
   internLiteral,
   clearParserCaches,
-  isLogImplies,
-  isLogImpliedBy,
-  isLogQuery,
   PrefixEnv,
-  collectBlankLabelsInTriples,
-  annotateQuotedGraphTerm,
-  copyQuotedGraphMetadata,
 };

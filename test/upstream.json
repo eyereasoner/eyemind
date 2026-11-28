@@ -43,8 +43,14 @@
   },
   "le": {
     "source": "https://github.com/LogicalContractsOrg/LogicalEnglish2",
-    "revision": "4ab5660e343cfb35376704b7c616fed5b60c8986",
+    "revision": "69af5f7b34bf2155eff66406bf8984c41d0da248",
     "path": "examples/moreExamples",
     "cases": 81
+  },
+  "rdfm": {
+    "source": "https://github.com/w3c-cg/rsp",
+    "revision": "5a6bdd16e76659235674ef5510b55f14352c984d",
+    "path": "spec/messages-tests.bs",
+    "cases": 35
   }
 }

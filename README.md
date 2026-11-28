@@ -331,6 +331,11 @@ ordered envelopes in the `eymsg:` vocabulary, with proofs;
 standard input or HTTP(S) incrementally. See the
 [message-boundaries](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries-n3)
 and [message-alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3) decks.
+Every `npm test` scores the
+[RDF Messages tests](https://w3c-cg.github.io/rsp/spec/messages-tests) as
+coverage: all of the Turtle, TriG, N-Triples and N-Quads cases pass, a wrong
+result fails the run, and the NDJSON-LD, RDF/XML and serialization cases are
+counted as unsupported.
 
 With an [RDF logic profile](#rdf-logic-profiles), `--stream-messages` treats
 the other inputs as a background graph and writes, for each message, the

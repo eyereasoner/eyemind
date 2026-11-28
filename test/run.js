@@ -32,6 +32,7 @@ import { cachePaths } from '../tools/test-cache.js';
 import { scoredShaclCases, SHACL_GROUPS } from './shacl.js';
 import { mobibenchCases } from './mobibench.js';
 import { leCases, scoreLeCase } from './logical-english.js';
+import { rdfmCases, scoreRdfmCase } from './rdf-messages.js';
 import { scoreUpstreamCases } from './upstream-cases.js';
 import { shaclSummary } from '../tools/shacltests.js';
 
@@ -362,14 +363,15 @@ async function main(argv) {
   const shaclRows = Object.entries(groups).map(([name, g]) => ({ suite: `W3C SHACL 1.2 ${name} (coverage)`, cases: g.cases,
     passed: g.passed, seconds: shaclTime.get(name), coverage: true }));
   const le = logicalEnglishRows();
+  const rdfm = rdfMessagesRows();
   let qudt = [];
   if (full) {
     qudt = qudtRows(reporter);
-    printReport([...reporter.rows, ...w3c.rows, ...shaclRows, le.row, ...notation3Rows(reporter), ...qudt]);
+    printReport([...reporter.rows, ...w3c.rows, ...shaclRows, le.row, rdfm.row, ...notation3Rows(reporter), ...qudt]);
   }
   // SHACL is a scored implementation subset, like Notation3. Missing support
   // is reported honestly; broken manifests/resources still fail the test run.
-  if (brokenHarness.length || le.failed) return 1;
+  if (brokenHarness.length || le.failed || rdfm.failed) return 1;
   return code || (passed === total && qudt.every((row) => row.passed === row.cases) ? 0 : 1);
 }
 
@@ -388,6 +390,24 @@ function logicalEnglishRows() {
   const seconds = (performance.now() - started) / 1000;
   console.log(`${counts.passed}/${cases.length} passed; ${counts.unsupported} unsupported; ${counts.known} known differences; ${counts.failed} failed`);
   return { failed: counts.failed, row: { suite: 'Logical English 2 examples (coverage)', cases: cases.length, passed: counts.passed, seconds, coverage: true } };
+}
+
+// The RDF Messages tests, as coverage: a log format eyemind does not read is
+// not passed, a wrong result fails.
+function rdfMessagesRows() {
+  console.log(`\n${paint('33', '== RDF Messages tests (coverage)')}`);
+  const started = performance.now();
+  const counts = { passed: 0, unsupported: 0, failed: 0 };
+  const cases = rdfmCases();
+  for (const c of cases) {
+    const { status, message } = scoreRdfmCase(c);
+    counts[status]++;
+    if (status === 'failed') console.error(`${c.id}: ${message}`);
+  }
+  const seconds = (performance.now() - started) / 1000;
+  console.log(`${counts.passed}/${cases.length} passed; ${counts.unsupported} unsupported (NDJSON-LD, RDF/XML, serialization); ${counts.failed} failed`);
+  return { failed: counts.failed, row: { suite: 'RDF Messages tests (coverage)', cases: cases.length, passed: counts.passed,
+    unsupported: counts.unsupported, seconds, coverage: true } };
 }
 
 // The W3C suites, case by case, timed as one row per suite.
@@ -465,16 +485,20 @@ function qudtRows(reporter) {
 function printReport(rows) {
   const time = (seconds) => `${seconds.toFixed(2)} s`;
   const sum = (key) => rows.reduce((n, row) => n + row[key], 0);
+  // A case in a format eyemind does not read is shown, but not counted against
+  // the total.
+  const unsupported = rows.reduce((n, row) => n + (row.unsupported ?? 0), 0);
   const total = { cases: sum('cases'), passed: sum('passed'), seconds: sum('seconds') };
   const lines = [
     '| Suite | Cases | Passed | Result | Time |',
     '| --- | ---: | ---: | --- | ---: |',
   ];
   for (const row of rows) {
-    const result = row.passed === row.cases ? '✅ ok' : `❌ ${row.cases - row.passed} ${row.coverage ? 'not passed' : 'failed'}`;
+    const missing = row.cases - row.passed - (row.unsupported ?? 0);
+    const result = (missing ? `❌ ${missing} ${row.coverage ? 'not passed' : 'failed'}` : '✅ ok') + (row.unsupported ? `, ${row.unsupported} unsupported` : '');
     lines.push(`| ${row.suite} | ${row.cases} | ${row.passed} | ${result} | ${time(row.seconds)} |`);
   }
-  lines.push(`| **Total** | **${total.cases}** | **${total.passed}** | **${(100 * total.passed / total.cases).toFixed(1)}% ok** | **${time(total.seconds)}** |`);
+  lines.push(`| **Total** | **${total.cases}** | **${total.passed}** | **${(100 * total.passed / (total.cases - unsupported)).toFixed(1)}% ok** | **${time(total.seconds)}** |`);
   const table = lines.join('\n');
   console.log(`\n${paint('33', '== Report')}\n${table}`);
   writeFileSync(join(ROOT, 'REPORT.md'), `# Test report\n\n${table}\n`);

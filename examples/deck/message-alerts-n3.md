@@ -23,7 +23,7 @@ Which observation raises an alarm when a sensor reports 21, 29 and 22 degrees?
 # each envelope independently; no alarm or reading is carried to the next run.
 # See https://w3c-cg.github.io/rsp/spec/messages
 @prefix : <https://example.org/alerts#> .
-@prefix eymsg: <https://eyereasoner.github.io/eyeling/vocab/message#> .
+@prefix eymsg: <https://eyereasoner.github.io/eyemind/vocab/message#> .
 @prefix log: <http://www.w3.org/2000/10/swap/log#> .
 @prefix math: <http://www.w3.org/2000/10/swap/math#> .
 

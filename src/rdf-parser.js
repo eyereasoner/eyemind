@@ -8,28 +8,18 @@
 
 import {
   RDF_NS,
-  OWL_NS,
-  LOG_NS,
   resolveIriRef,
   Literal,
-  Var,
   Blank,
   ListTerm,
   GraphTerm,
   Triple,
-  Rule,
   internIri,
   internLiteral,
   PrefixEnv,
-  collectBlankLabelsInTriples,
-  isLogImplies,
-  isLogImpliedBy,
-  isLogQuery,
-  annotateQuotedGraphTerm,
 } from './rdf-prelude.js';
 
 import { N3SyntaxError } from './rdf-lexer.js';
-import { liftBlankRuleVars } from './rdf-rules.js';
 
 function assertValidQNamePrefix(prefixName, fail, tok, context = 'prefixed name') {
   if (typeof prefixName === 'string' && prefixName.endsWith('.')) {
@@ -56,7 +46,8 @@ class Parser {
   constructor(tokens, options = {}) {
     this.toks = tokens;
     this.pos = 0;
-    this.prefixes = PrefixEnv.newDefault();
+    // RDF declares every prefix it uses; none is predeclared.
+    this.prefixes = new PrefixEnv();
     this.blankCounter = 0;
     // Helper triples that must be emitted *before* the triple that consumes them.
     // Used primarily for N3 path expansion (e.g. :a :p/:q :b .).
@@ -172,9 +163,6 @@ class Parser {
 
   parseDocument() {
     const triples = [];
-    const forwardRules = [];
-    const backwardRules = [];
-    const logQueries = [];
 
     while (this.peek().typ !== 'EOF') {
       if (this.parseDirectiveIfPresent({ allowIdentBaseIri: true })) {
@@ -184,52 +172,21 @@ class Parser {
       const statementToken = this.peek();
       const statementOffset = statementToken && typeof statementToken.offset === 'number' ? statementToken.offset : null;
       const first = this.parseTerm();
-      if (this.peek().typ === 'OpImplies') {
-        this.next();
-        const second = this.parseTerm();
-        this.expectDot();
-        forwardRules.push(this.annotateSourceOffset(this.makeRule(first, second, true), statementOffset));
-      } else if (this.peek().typ === 'OpImpliedBy') {
-        this.next();
-        const second = this.parseTerm();
-        this.expectDot();
-        backwardRules.push(this.annotateSourceOffset(this.makeRule(first, second, false), statementOffset));
+      let more;
+      if (this.peek().typ === 'Dot') {
+        // A bare subject followed by '.' contributes only the triples of its
+        // reified triples or blank node property lists, if any.
+        more = [];
+        this.flushPendingTriples(more);
+        this.next(); // consume '.'
       } else {
-        let more;
-
-        if (this.peek().typ === 'Dot') {
-          // N3 grammar allows: triples ::= subject predicateObjectList?
-          // So a bare subject followed by '.' is syntactically valid.
-          // If the subject was a path / property-list that generated helper triples,
-          // we emit those; otherwise this statement contributes no triples.
-          more = [];
-          this.flushPendingTriples(more);
-          this.next(); // consume '.'
-        } else {
-          more = this.parsePredicateObjectList(first);
-          this.expectDot();
-        }
-
-        // normalize explicit log:implies / log:impliedBy at top-level
-        for (const tr0 of more) {
-          const tr = this.annotateSourceOffset(tr0, statementOffset);
-          if (isLogImplies(tr.p) && tr.s instanceof GraphTerm && tr.o instanceof GraphTerm) {
-            forwardRules.push(this.annotateSourceOffset(this.makeRule(tr.s, tr.o, true), statementOffset));
-          } else if (isLogImpliedBy(tr.p) && tr.s instanceof GraphTerm && tr.o instanceof GraphTerm) {
-            backwardRules.push(this.annotateSourceOffset(this.makeRule(tr.s, tr.o, false), statementOffset));
-          } else if (isLogQuery(tr.p) && tr.s instanceof GraphTerm && tr.o instanceof GraphTerm) {
-            // Output-selection directive: { premise } log:query { conclusion }.
-            // eyemind: select only the instantiated conclusion
-            // triples (unique) instead of all newly derived facts.
-            logQueries.push(this.annotateSourceOffset(this.makeRule(tr.s, tr.o, true), statementOffset));
-          } else {
-            triples.push(tr);
-          }
-        }
+        more = this.parsePredicateObjectList(first);
+        this.expectDot();
       }
+      for (const triple of more) triples.push(this.annotateSourceOffset(triple, statementOffset));
     }
 
-    return [this.prefixes, triples, forwardRules, backwardRules, logQueries];
+    return [this.prefixes, triples];
   }
 
   parsePrefixDirective() {
@@ -310,31 +267,9 @@ class Parser {
   }
 
   parseTerm() {
-    let t = this.parsePathItem();
-
-    while (this.peek().typ === 'OpPathFwd' || this.peek().typ === 'OpPathRev') {
-      const dir = this.next().typ; // OpPathFwd | OpPathRev
-      const pred = this.parsePathItem();
-
-      this.blankCounter += 1;
-      const bn = new Blank(`_:b${this.blankCounter}`, 'unlabeled');
-
-      this.pendingTriples.push(dir === 'OpPathFwd' ? new Triple(t, pred, bn) : new Triple(bn, pred, t));
-
-      t = bn;
-    }
-
-    return t;
-  }
-
-  parsePathItem() {
     const tok = this.next();
     const typ = tok.typ;
     const val = tok.value;
-
-    if (typ === 'Equals') {
-      return internIri(OWL_NS + 'sameAs');
-    }
 
     if (typ === 'LtLt') return this.parseReifiedTriple();
 
@@ -398,7 +333,6 @@ class Parser {
       return internLiteral(s);
     }
 
-    if (typ === 'Var') return new Var(val || '');
     if (typ === 'LParen') return this.parseList();
     if (typ === 'LBracket') return this.parseBlank();
     if (typ === 'LBrace') return this.parseGraph();
@@ -461,43 +395,20 @@ class Parser {
     return new Blank(id, 'unlabeled');
   }
 
-  parsePropertyVerb() {
-    let pred;
-    let invert = false;
-
+  // A verb: a, or a predicate term.
+  parseVerb() {
     if (this.peek().typ === 'Ident' && (this.peek().value || '') === 'a') {
       this.next();
-      pred = internIri(RDF_NS + 'type');
-    } else if (this.peek().typ === 'Ident' && (this.peek().value || '') === 'has') {
-      // N3 syntactic sugar is also valid in predicate-object lists,
-      // including blank node property lists: [ has :p :o ] means _:b :p :o.
-      this.next();
-      pred = this.parseTerm();
-    } else if (this.peek().typ === 'Ident' && (this.peek().value || '') === 'is') {
-      // N3 syntactic sugar: [ is :p of :s ] means :s :p _:b.
-      this.next();
-      pred = this.parseTerm();
-      if (!(this.peek().typ === 'Ident' && (this.peek().value || '') === 'of')) {
-        this.fail(`Expected 'of' after 'is <expr>', got ${this.peek().toString()}`);
-      }
-      this.next();
-      invert = true;
-    } else if (this.peek().typ === 'OpPredInvert') {
-      this.next();
-      pred = this.parseTerm();
-      invert = true;
-    } else {
-      pred = this.parseTerm();
+      return internIri(RDF_NS + 'type');
     }
-
-    return { pred, invert };
+    return this.parseTerm();
   }
 
   parsePropertyListTriples(subject, closingTyp, contextLabel) {
     const localTriples = [];
 
     while (true) {
-      const { pred, invert } = this.parsePropertyVerb();
+      const pred = this.parseVerb();
 
       // If a pathological predicate term produced post-triples, don't let them leak.
       this.flushPendingTriples(localTriples, { includeBefore: false, includeAfter: true });
@@ -507,7 +418,7 @@ class Parser {
         const term = this.parseTerm();
         const postTriples = this.pendingTriplesAfter;
         this.pendingTriplesAfter = [];
-        const annotations = this.parseAnnotations(invert ? new Triple(term, pred, subject) : new Triple(subject, pred, term));
+        const annotations = this.parseAnnotations(new Triple(subject, pred, term));
         objs.push({ term, postTriples, annotations });
       };
 
@@ -520,7 +431,7 @@ class Parser {
       for (const { term: o, postTriples, annotations } of objs) {
         // Path helper triples must come before the triple that consumes the path result.
         this.flushPendingTriples(localTriples, { includeBefore: true, includeAfter: false });
-        localTriples.push(invert ? new Triple(o, pred, subject) : new Triple(subject, pred, o));
+        localTriples.push(new Triple(subject, pred, o));
         if (postTriples && postTriples.length) localTriples.push(...postTriples);
         if (annotations && annotations.length) localTriples.push(...annotations);
       }
@@ -552,79 +463,19 @@ class Parser {
       }
 
       const left = this.parseTerm();
-      if (this.peek().typ === 'OpImplies') {
-        this.next();
-        const right = this.parseTerm();
-        const pred = internIri(LOG_NS + 'implies');
-        triples.push(new Triple(left, pred, right));
+      // A bare subject contributes only the triples it produced, if any.
+      if (this.peek().typ === 'Dot' || this.peek().typ === 'RBrace') {
+        this.flushPendingTriples(triples);
         if (this.peek().typ === 'Dot') this.next();
-        else if (this.peek().typ === 'RBrace') {
-          // ok
-        } else {
-          this.fail(`Expected '.' or '}', got ${this.peek().toString()}`);
-        }
-      } else if (this.peek().typ === 'OpImpliedBy') {
-        this.next();
-        const right = this.parseTerm();
-        const pred = internIri(LOG_NS + 'impliedBy');
-        triples.push(new Triple(left, pred, right));
-        if (this.peek().typ === 'Dot') this.next();
-        else if (this.peek().typ === 'RBrace') {
-          // ok
-        } else {
-          this.fail(`Expected '.' or '}', got ${this.peek().toString()}`);
-        }
-      } else {
-        // N3 grammar allows: triples ::= subject predicateObjectList?
-        // So a bare subject (optionally producing helper triples) is allowed inside formulas as well.
-        if (this.peek().typ === 'Dot' || this.peek().typ === 'RBrace') {
-          this.flushPendingTriples(triples);
-          if (this.peek().typ === 'Dot') this.next();
-          continue;
-        }
-
-        triples.push(...this.parsePredicateObjectList(left));
-        if (this.peek().typ === 'Dot') this.next();
-        else if (this.peek().typ === 'RBrace') {
-          // ok
-        } else {
-          this.fail(`Expected '.' or '}', got ${this.peek().toString()}`);
-        }
+        continue;
       }
+
+      triples.push(...this.parsePredicateObjectList(left));
+      if (this.peek().typ === 'Dot') this.next();
+      else if (this.peek().typ !== 'RBrace') this.fail(`Expected '.' or '}', got ${this.peek().toString()}`);
     }
     this.next(); // consume '}'
-    return annotateQuotedGraphTerm(new GraphTerm(triples));
-  }
-
-  parseStatementVerb() {
-    let verb;
-    let invert = false;
-
-    if (this.peek().typ === 'Ident' && (this.peek().value || '') === 'a') {
-      this.next();
-      verb = internIri(RDF_NS + 'type');
-    } else if (this.peek().typ === 'Ident' && (this.peek().value || '') === 'has') {
-      // N3 syntactic sugar: "S has P O." means "S P O."
-      this.next();
-      verb = this.parseTerm();
-    } else if (this.peek().typ === 'Ident' && (this.peek().value || '') === 'is') {
-      // N3 syntactic sugar: "S is P of O." means "O P S." (inverse; equivalent to "<-")
-      this.next();
-      verb = this.parseTerm();
-      if (!(this.peek().typ === 'Ident' && (this.peek().value || '') === 'of')) {
-        this.fail(`Expected 'of' after 'is <expr>', got ${this.peek().toString()}`);
-      }
-      this.next();
-      invert = true;
-    } else if (this.peek().typ === 'OpPredInvert') {
-      this.next();
-      verb = this.parseTerm();
-      invert = true;
-    } else {
-      verb = this.parseTerm();
-    }
-
-    return { verb, invert };
+    return new GraphTerm(triples);
   }
 
   parsePredicateObjectList(subject) {
@@ -634,17 +485,17 @@ class Parser {
     this.flushPendingTriples(out);
 
     while (true) {
-      const { verb, invert } = this.parseStatementVerb();
+      const verb = this.parseVerb();
 
       while (true) {
         const o = this.parseTerm();
         const postTriples = this.pendingTriplesAfter;
         this.pendingTriplesAfter = [];
-        const triple = new Triple(invert ? o : subject, verb, invert ? subject : o);
+        const triple = new Triple(subject, verb, o);
         const annotations = this.parseAnnotations(triple);
 
-        // If VERB or OBJECT contained paths, their helper triples must come
-        // before the triple that consumes the path result (Easter depends on this).
+        // The triples of reified triples in the verb or object come before
+        // the triple that uses them.
         this.flushPendingTriples(out);
 
         out.push(triple);
@@ -713,85 +564,6 @@ class Parser {
       }
     }
     return out;
-  }
-
-  makeRule(left, right, isForward) {
-    let premiseTerm, conclTerm;
-
-    if (isForward) {
-      premiseTerm = left;
-      conclTerm = right;
-    } else {
-      premiseTerm = right;
-      conclTerm = left;
-    }
-
-    let isFuse = false;
-    if (isForward) {
-      if (conclTerm instanceof Literal && conclTerm.value === 'false') {
-        isFuse = true;
-      }
-    }
-
-    let rawPremise;
-    if (premiseTerm instanceof GraphTerm) {
-      rawPremise = premiseTerm.triples;
-    } else if (premiseTerm instanceof Literal && premiseTerm.value === 'true') {
-      rawPremise = [];
-    } else {
-      rawPremise = [];
-    }
-
-    // In standard N3, the right-hand side of a rule is a formula term.
-    // eyemind: a conclusion can be an explicit quoted formula `{ ... }` (GraphTerm)
-    // or the special literals true/false.
-    //
-    // However, some programs use a *variable* in rule head position to mean:
-    // "prove the body, bind ?C to a quoted formula, and then assert that formula".
-    // Example:
-    //   { :a :b ?C } => ?C.
-    //
-    // To support this, we allow a forward rule to carry a dynamic head term.
-    // The engine will resolve it per-solution and, if it becomes a GraphTerm,
-    // will emit its triples as the instantiated head.
-    let rawConclusion;
-    let dynamicConclusionTerm = null;
-    if (conclTerm instanceof GraphTerm) {
-      rawConclusion = conclTerm.triples;
-    } else if (conclTerm instanceof Literal && conclTerm.value === 'false') {
-      rawConclusion = [];
-    } else if (conclTerm instanceof Literal && conclTerm.value === 'true') {
-      // `=> true.` is a no-op (empty head)
-      rawConclusion = [];
-    } else {
-      rawConclusion = [];
-      // Only forward rules can meaningfully "emit" a dynamic head.
-      // Backward rules with dynamic heads are not supported.
-      if (isForward && conclTerm) dynamicConclusionTerm = conclTerm;
-    }
-
-    // Blank nodes that occur explicitly in the head (conclusion)
-    const headBlankLabels = collectBlankLabelsInTriples(rawConclusion);
-
-    const [premise0, conclusion] = liftBlankRuleVars(rawPremise, rawConclusion);
-
-    // Keep premise order as written; the engine may defer some builtins in
-    // forward rules when they cannot yet run due to unbound variables.
-    const premise = premise0;
-
-    const r = new Rule(premise, conclusion, isForward, isFuse, headBlankLabels);
-
-    if (dynamicConclusionTerm) {
-      // Non-enumerable to keep AST output stable unless explicitly requested.
-      Object.defineProperty(r, '__dynamicConclusionTerm', {
-        value: dynamicConclusionTerm,
-        enumerable: false,
-        writable: false,
-        configurable: true,
-      });
-    }
-
-    return r;
   }
 }
 
