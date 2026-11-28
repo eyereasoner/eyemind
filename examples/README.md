@@ -194,6 +194,7 @@ Each deck explains the result and links to the source and Playground.
 - [OWL Property Chain](https://eyereasoner.github.io/eyemind/examples/deck/owl-property-chain) (Logic Script) — A property chain declared as data, followed by one general rule
 - [Reading a nested collection](https://eyereasoner.github.io/eyemind/examples/deck/collection-nesting-srl) (SPARQL 1.2 RL) — Property paths read nested RDF lists and a blank node property
 - [Strong links and their sources](https://eyereasoner.github.io/eyemind/examples/deck/provenance-srl) (SPARQL 1.2 RL) — Strong annotated links yield connections and source-attributed triple terms
+- [Who borrowed which book?](https://eyereasoner.github.io/eyemind/examples/deck/library-n3) (Notation3) — A catalog in RDF/XML and loans in JSON-LD joined by N3 rules into who borrowed which title and which loans are overdue
 - [Who stated it, and when?](https://eyereasoner.github.io/eyemind/examples/deck/annotation-n3) (Notation3) — An RDF 1.2 annotation: an asserted triple recovered with the reifier that records who stated it and when
 - [Who supplied a statement?](https://eyereasoner.github.io/eyemind/examples/deck/annotation-evidence-srl) (SPARQL 1.2 RL) — A named reifier links an asserted statement to its author and recording date
 

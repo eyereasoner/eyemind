@@ -274,6 +274,9 @@ class Parser {
     if (typ === 'LtLt') return this.parseReifiedTriple();
 
     if (typ === 'IriRef') {
+      // eyemind: N-Triples and N-Quads take an IRI as written; Turtle and
+      // TriG resolve every IRI reference (RFC 3986, 5.2).
+      if (this.verbatimIris) return internIri(val || '');
       const base = this.prefixes.baseIri || '';
       return internIri(resolveIriRef(val || '', base));
     }

@@ -28,6 +28,8 @@ export const RDF_MANIFESTS = [
   'rdf/rdf11/rdf-trig/manifest.ttl',
   'rdf/rdf12/rdf-trig/eval/manifest.ttl',
   'rdf/rdf12/rdf-trig/syntax/manifest.ttl',
+  'rdf/rdf11/rdf-xml/manifest.ttl',
+  'rdf/rdf12/rdf-xml/eval/manifest.ttl',
 ].map((path) => W3C_BASE + path);
 
 const MF = 'http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#';
@@ -70,7 +72,7 @@ export function manifestCases(manifest, { mirror = MIRROR } = {}) {
 
 // The format a test's type names, as its file extension may not.
 function formatOf(type, url) {
-  for (const [prefix, format] of [['TestNTriples', 'n-triples'], ['TestNQuads', 'n-quads'], ['TestTurtle', 'turtle'], ['TestTrig', 'trig']]) {
+  for (const [prefix, format] of [['TestNTriples', 'n-triples'], ['TestNQuads', 'n-quads'], ['TestTurtle', 'turtle'], ['TestTrig', 'trig'], ['TestXML', 'rdf-xml']]) {
     if (type.startsWith(prefix)) return format;
   }
   return rdfFormat(url);

@@ -1,7 +1,7 @@
 // RDF Message Logs: delimit datasets before parsing them, so blank nodes and
 // assertions stay local to a message. The replay view is ordinary N3 data.
 // See https://w3c-cg.github.io/rsp/spec/messages and its companion tests.
-import { DEFAULT_GRAPH, parseRdf } from './rdf.js';
+import { DEFAULT_GRAPH, parseRdf, parseRdfXmlLog, writeRdf } from './rdf.js';
 import { readSources } from './n3.js';
 import { tripleToEyemind } from './n3-writer.js';
 import { EyemindError } from './terms.js';
@@ -15,6 +15,8 @@ const triple = (s, p, o) => ({ s, p: iri(p), o });
 const int = (v) => ({ t: 'int', v: BigInt(v) });
 const wordEnd = (c) => c === undefined || /[\s<>"'{}\[\]();,]/.test(c);
 const iriText = (v) => v.replace(/[\u0000-\u0020<>"{}|^`\\]/g, (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`);
+// The start of an RDF/XML message log: its rdfm:MessageLog root.
+const XML_LOG = /^\s*(?:<\?xml[^>]*\?>\s*)?(?:<!--[\s\S]*?-->\s*)*<(?:[\w.-]+:)?MessageLog[\s>/]/;
 function trivia(s, at, final) {
   while (at < s.length) {
     if (/\s/.test(s[at])) at++;
@@ -30,9 +32,12 @@ function trivia(s, at, final) {
 // Accept strings incrementally. Only the current message and active directive
 // context are retained; onMessage runs before reading any further input.
 export class RdfMessageReader {
-  constructor({ format = 'trig', base = null, scope = 'messages', onMessage = () => {}, probe = false } = {}) {
-    if (!['turtle', 'trig', 'n-triples', 'n-quads'].includes(format)) throw new EyemindError(`RDF Messages do not support the format ${format}`);
+  constructor({ format = 'trig', base = null, scope = 'messages', onMessage = () => {}, probe = false, loadDocument = null } = {}) {
+    if (!['turtle', 'trig', 'n-triples', 'n-quads', 'rdf-xml', 'ndjson-ld'].includes(format)) throw new EyemindError(`RDF Messages do not support the format ${format}`);
     this.format = format;
+    this.loadDocument = loadDocument;
+    this.context = undefined;
+    this.line = 0;
     this.base = base;
     this.scope = scope;
     this.onMessage = onMessage;
@@ -55,6 +60,20 @@ export class RdfMessageReader {
   write(text) {
     if (this.stopped) return;
     this.buffer += text;
+    // An RDF/XML log is one XML document, read when it is complete.
+    if (this.format === 'rdf-xml') return;
+    if (this.format === 'ndjson-ld') {
+      for (let end = this.buffer.indexOf('\n'); end >= 0 && !this.stopped; end = this.buffer.indexOf('\n')) {
+        const line = this.buffer.slice(0, end);
+        this.buffer = this.buffer.slice(end + 1);
+        this.ndjsonLine(line.replace(/\r$/, ''));
+      }
+      return;
+    }
+    if (this.probe && XML_LOG.test(this.buffer)) {
+      this.isLog = true;
+      return;
+    }
     this.scan(false);
     if (this.probe) {
       this.buffer = this.buffer.slice(this.at);
@@ -64,12 +83,63 @@ export class RdfMessageReader {
 
   finish() {
     if (this.stopped) { this.buffer = ''; return; }
+    if (this.format === 'ndjson-ld') {
+      if (this.buffer !== '') this.ndjsonLine(this.buffer.replace(/\r$/, ''));
+      this.buffer = '';
+      return;
+    }
+    if (this.format === 'rdf-xml') {
+      try {
+        for (const message of parseRdfXmlLog(this.buffer, { base: this.base, scope: this.scope })) {
+          this.index = message.index;
+          if (this.onMessage(message) === false) break;
+        }
+      } catch (error) {
+        throw new EyemindError(`RDF Message Log: ${error.message}`);
+      } finally {
+        this.buffer = '';
+      }
+      return;
+    }
     this.scan(true);
     if (!this.probe) {
       if (!this.isLog) throw new EyemindError('RDF Message Log needs a VERSION "*-messages" directive');
       this.emit(this.buffer, false);
     }
     this.buffer = '';
+  }
+
+  // A line of an NDJSON-LD log: a context message, whose @context is the
+  // active context for the messages that follow, an empty message {}, or a
+  // data message, read as the document {"@context": C, "@graph": message}.
+  // https://w3c-cg.github.io/rsp/spec/messages#ndjson-ld
+  ndjsonLine(line) {
+    this.line++;
+    let object;
+    try {
+      object = JSON.parse(line);
+    } catch {
+      object = null;
+    }
+    if (line.trim() === '') throw new EyemindError(`RDF Message Log line ${this.line}: NDJSON-LD allows no blank lines`);
+    if (object === null || typeof object !== 'object' || Array.isArray(object)) {
+      throw new EyemindError(`RDF Message Log line ${this.line}: each line of NDJSON-LD is one JSON object`);
+    }
+    const keys = Object.keys(object);
+    if (keys.length === 1 && keys[0] === '@context') {
+      this.context = object['@context'];
+      return;
+    }
+    const document = keys.length === 0 ? null : this.context === undefined ? object : { '@context': this.context, '@graph': object };
+    const number = this.index + 1;
+    let quads = [];
+    try {
+      if (document) quads = parseRdf(JSON.stringify(document), { format: 'json-ld', base: this.base, scope: `${this.scope}#message${number}`, loadDocument: this.loadDocument }).quads;
+    } catch (error) {
+      throw new EyemindError(`RDF Message Log message ${number}: ${error.message}`);
+    }
+    this.isLog = true;
+    this.stopped = this.onMessage({ quads, prefixes: {}, base: this.base, index: ++this.index }) === false;
   }
 
   emit(text, boundary) {
@@ -216,6 +286,7 @@ export class RdfMessageReader {
 }
 
 export function isRdfMessageLog(text) {
+  if (XML_LOG.test(text)) return true;
   const reader = new RdfMessageReader({ probe: true });
   try {
     reader.write(String(text));
@@ -260,4 +331,33 @@ export function parseRdfMessages(text, options = {}) {
   reader.write(String(text));
   reader.finish();
   return { ...replayMessages(messages, options), messages };
+}
+
+// An RDF Message Log of messages, each its quads: VERSION "1.2-messages"
+// and a MESSAGE delimiter between messages in Turtle, TriG, N-Triples and
+// N-Quads, an rdf:RDF per message in RDF/XML, and a line per message in
+// NDJSON-LD. A final empty message needs one more delimiter, as a trailing
+// delimiter alone opens no message.
+export function writeRdfMessages(messages, { format = 'trig', prefixes = {} } = {}) {
+  if (format === 'ndjson-ld') {
+    return messages.map((quads) => `${quads.length ? JSON.stringify({ '@graph': JSON.parse(writeRdf(quads, { format: 'json-ld' })) }) : '{}'}\n`).join('');
+  }
+  if (format === 'rdf-xml') {
+    let version = '1.0';
+    const parts = messages.map((quads) => {
+      const text = writeRdf(quads, { format: 'rdf-xml', prefixes });
+      if (text.startsWith('<?xml version="1.1"')) version = '1.1';
+      return text.replace(/^<\?xml[^>]*\?>\n/, '').replace(/^/gm, '  ').trimEnd();
+    });
+    return `<?xml version="${version}" encoding="utf-8"?>\n<rdfm:MessageLog xmlns:rdfm="https://w3c-cg.github.io/rsp/spec/messages#">\n` +
+      parts.map((p) => `${p}\n`).join('') + '</rdfm:MessageLog>\n';
+  }
+  if (!['turtle', 'trig', 'n-triples', 'n-quads'].includes(format)) throw new EyemindError(`RDF Messages do not support the format ${format}`);
+  const out = ['VERSION "1.2-messages"\n'];
+  messages.forEach((quads, i) => {
+    if (i > 0) out.push('MESSAGE\n');
+    out.push(writeRdf(quads, { format, prefixes }));
+  });
+  if (messages.length && !messages.at(-1).length) out.push('MESSAGE\n');
+  return out.join('');
 }

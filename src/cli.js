@@ -12,9 +12,9 @@ import { srlContextFromProof } from './srl.js';
 
 export const HELP = `Usage: eyemind [OPTION ...] [FILE ...]
 Logic Script (LS) programs use JavaScript syntax. Forward rules run to a fixpoint.
-Files are read by extension: .js as LS, .ttl, .trig, .nt and .nq as RDF 1.2 data,
-.n3 as Notation3, .srl as SPARQL 1.2 RL and .le as Logical English,
-all compiled to LS.
+Files are read by extension: .js as LS, .ttl, .trig, .nt, .nq, .rdf (RDF/XML),
+.jsonld (JSON-LD) and .ndjson (NDJSON-LD log) as RDF 1.2 data, .n3 as Notation3,
+.srl as SPARQL 1.2 RL and .le as Logical English, all compiled to LS.
   -p, --proof             Print a proof of the conclusions
   -c, --prove-and-check   Generate a proof and check it against the input program
       --check-proof FILE  Check a proof and print its answers and verdict (- for stdin)
@@ -28,8 +28,8 @@ all compiled to LS.
       --max-depth N       Bound backward recursion (default 1000000)
       --max-iterations N  Bound forward rounds per stratum (default 1000)
       --max-inferences N  Bound reasoning work (default 1000000)
-      --to FORMAT         Write the conclusions as turtle, trig, n-triples,
-                          n-quads, n3, le or eyemind (default: le for LE, n3 for N3, turtle
+      --to FORMAT         Write the conclusions as turtle, trig, n-triples, n-quads,
+                          rdf-xml, json-ld, n3, le or eyemind (default: le for LE, n3 for N3, turtle
                           for SRL, ODRL or RDF logic profiles, eyemind otherwise or with --goal)
       --all               With RDF or N3 output, write the given data too
       --program           Print the program the inputs compile to
@@ -217,8 +217,8 @@ export function main(argv, io) {
       // Hosts such as the playground already hold their inputs as text.
       // Node supplies the incremental file/HTTP implementation instead.
       const sources = files.map((name, index) => ({ name, index, text: readSource(name, io) }));
-      const logs = sources.filter(({ text }) => isRdfMessageLog(text));
-      if (!logs.length) throw new UsageError('--stream-messages needs an RDF Message Log with VERSION "*-messages"');
+      const logs = sources.filter(({ name, text }) => rdfMessageFormat(name) === 'ndjson-ld' || isRdfMessageLog(text));
+      if (!logs.length) throw new UsageError('--stream-messages needs an RDF Message Log: VERSION "*-messages", an rdfm:MessageLog in RDF/XML, or NDJSON-LD (.ndjson)');
       const inputs = sources.filter((source) => !logs.includes(source)).map(({ name, text }) => [name, text]);
       for (const { name, text, index } of logs) {
         let code = 0;

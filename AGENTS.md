@@ -27,7 +27,7 @@ goals, and keep error messages specific and user-facing text direct.
     guards and restraint order of restricted rules. `chains.js`: chain
     stratification for programs whose negations lie on a dependency cycle.
     `templates.js`: potential derived clauses, scopes and generator links.
-    `builtins.js`, `arith.js`, `xml.js`: primitives, arithmetic and XML content validation;
+    `builtins.js`, `arith.js`, `xml.js`: primitives, arithmetic, and XML content validation and documents;
     `digest.js`: the message digests of `digest/3`, without Node.
     `inspection.js`: source rule inspection through `implies/2` and `implied_by/2` goals.
   - `engine.js`: backward search as an explicit machine, semi-naive forward
@@ -62,9 +62,13 @@ goals, and keep error messages specific and user-facing text direct.
   - `formats.js`: inputs by extension and output with `--to`. `rdf.js`:
     RDF 1.2 (Turtle, TriG, N-Triples, N-Quads) to and from eyemind terms,
     read by the RDF parser (`rdf-lexer.js`, `rdf-parser.js`,
-    `rdf-prelude.js`) after the strict token pass of `rdf-syntax.js`. `n3.js`, `n3-parser.js`, `n3-builtins.js`,
+    `rdf-prelude.js`) after the strict token pass of `rdf-syntax.js`;
+    `rdf-xml.js` reads RDF/XML, and RDF/XML message logs, from the XML tree
+    of `parseXml` in `xml.js`, and writes RDF/XML; `jsonld.js` deserializes
+    JSON-LD 1.2 to RDF and serializes RDF as JSON-LD. `n3.js`, `n3-parser.js`, `n3-builtins.js`,
     `n3-writer.js`, `n3-documents.js`: Notation3 compiled to a program.
-    `messages.js`: incremental RDF Message parsing and envelope replay;
+    `messages.js`: incremental RDF Message parsing, NDJSON-LD logs included,
+    envelope replay, and writing message logs;
     `node-messages.js`: Node's incremental file, stdin and HTTP(S) input.
     `srl.js`, `srl-functions.js`, `srl-decimal.js`: SPARQL 1.2 RL compiled to a program,
     with exact decimal rules and a captured clock/seed for execution functions, read
@@ -137,6 +141,8 @@ goals, and keep error messages specific and user-facing text direct.
   cached in `.cache/logical-english/`, as coverage at the end of every `npm test`.
   `rdf-messages.js` scores the RDF Messages tests, cached in
   `.cache/w3c/rdf-messages/`, the same way.
+  `jsonld.js` runs the JSON-LD `toRdf` and `fromRdf` tests, cached in
+  `.cache/w3c/json-ld/`; a wrong result fails.
   `helpers.js` holds what the test modules share.
   `UPSTREAM.md` describes the cache and `upstream.json` records its provenance.
   N3 and SRL examples and their saved artifacts live in `examples/`.
@@ -150,7 +156,7 @@ goals, and keep error messages specific and user-facing text direct.
   reports, and `report.js`
   writes `REPORT.md`, the table a whole `npm test` run ends with.
   `notation3-worker.js` is the reusable process the Notation3 scorer runs cases in.
-  `sync.js`, run with `npm run sync`, stages and refreshes all seven upstream
+  `sync.js`, run with `npm run sync`, stages and refreshes all eight upstream
   test caches and records their revisions, and regenerates
   `src/qudt-catalog.js` from the latest QUDT release with `qudt-catalog.js`;
   `sync-notation3tests.js` also

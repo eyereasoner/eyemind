@@ -9,7 +9,7 @@ import { checkProof, run, write } from '../src/index.js';
 import { loadInputs, loadMessageReasoner, writeConclusions } from '../src/formats.js';
 import { parseRdf } from '../src/rdf.js';
 import { parseN3 } from '../src/n3-parser.js';
-import { isRdfMessageLog, MESSAGE_NS, parseRdfMessages, RdfMessageReader } from '../src/messages.js';
+import { isRdfMessageLog, MESSAGE_NS, parseRdfMessages, RdfMessageReader, writeRdfMessages } from '../src/messages.js';
 import { messageReasoner, shaclIn, shaclOut } from '../src/rdf-logic.js';
 import { Specializer, generalize } from '../src/specialize.js';
 import { Struct, Var, identity } from '../src/terms.js';
@@ -44,6 +44,38 @@ export const tests = {
     }
     assert.deepEqual(counts('@version "1.2-messages" .\n' + A + '@message # boundary\n.\n' + A), [1, 1]);
     assert.deepEqual(counts('version "1.2-messages"\n' + A + 'message\n' + A), [1, 1]);
+  },
+
+  'an RDF/XML log is an rdfm:MessageLog whose rdf:RDF children are the messages'() {
+    const log = `<rdfm:MessageLog xmlns:rdfm="https://w3c-cg.github.io/rsp/spec/messages#"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:e="http://e/">
+      <rdf:RDF><rdf:Description rdf:nodeID="b"><e:p>1</e:p></rdf:Description></rdf:RDF>
+      <rdf:RDF/>
+      <rdf:RDF><rdf:Description rdf:nodeID="b"><e:p>2</e:p></rdf:Description></rdf:RDF>
+    </rdfm:MessageLog>`;
+    assert.ok(isRdfMessageLog(log));
+    const { messages } = parseRdfMessages(log, { format: 'rdf-xml' });
+    assert.deepEqual(messages.map((m) => m.quads.length), [1, 0, 1]);
+    assert.notEqual(write(messages[0].quads[0][0]), write(messages[2].quads[0][0]));
+    assert.throws(() => parseRdfMessages(log.replace('<rdf:RDF/>', 'text'), { format: 'rdf-xml' }), /only rdf:RDF elements/);
+    assert.throws(() => parseRdf(log, { format: 'rdf-xml' }), /rdf:RDF cannot name a property element/);
+  },
+
+  'an NDJSON-LD log reads each data message with the latest context message'() {
+    const log = '{"@context": {"@vocab": "http://e/"}}\n{"@id": "http://e/a", "p": "1"}\n{}\n{"@context": {"label": "ex:label"}, "@id": "http://e/b", "q": "2"}\n';
+    const { messages } = parseRdfMessages(log, { format: 'ndjson-ld' });
+    assert.deepEqual(messages.map((m) => m.quads.map((q) => write(q[1]))), [["iri('http://e/p')"], [], ["iri('http://e/q')"]]);
+    assert.throws(() => parseRdfMessages('{"@id": "http://e/a"}\n\n{}\n', { format: 'ndjson-ld' }), /NDJSON-LD allows no blank lines/);
+    assert.throws(() => parseRdfMessages('[1]\n', { format: 'ndjson-ld' }), /one JSON object/);
+  },
+
+  'a written message log reads back the same messages, empty ones included, in every log format'() {
+    const quads = (text) => parseRdf(text, { format: 'n-quads', scope: 'w' }).quads;
+    const messages = [[], quads('<http://e/a> <http://e/p> _:x .'), [], quads('<http://e/c> <http://e/p> "x"@en .'), []];
+    for (const format of ['turtle', 'trig', 'n-triples', 'n-quads', 'rdf-xml', 'ndjson-ld']) {
+      const back = parseRdfMessages(writeRdfMessages(messages, { format }), { format }).messages.map((m) => m.quads.length);
+      assert.deepEqual(back, [0, 1, 0, 1, 0], format);
+    }
   },
 
   'blank node labels stay distinct between messages and keep their exact spelling within one'() {

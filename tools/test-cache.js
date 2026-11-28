@@ -13,6 +13,7 @@ export const cachePaths = (root = ROOT) => ({
   mobibench: join(root, '.cache/mobibench'),
   le: join(root, '.cache/logical-english'),
   rdfm: join(root, '.cache/w3c/rdf-messages'),
+  jsonld: join(root, '.cache/w3c/json-ld'),
 });
 
 export function cacheFiles(directory) {

@@ -3,7 +3,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { EyemindError, VERSION, readTerm } from '../src/index.js';
 import { main } from '../src/cli.js';
+import { parseRdf } from '../src/rdf.js';
 import { ROOT, assert, cli, command } from './helpers.js';
+import { isomorphic } from './w3c.js';
 
 const SOCRATES = "// Answers: each instance of a query() that holds.\ntype('socrates', 'mortal')\ntype('socrates', 'human')\n";
 
@@ -87,6 +89,19 @@ export const tests = {
     for (const [short, long] of [['-p', '--proof'], ['-c', '--prove-and-check'], ['-v', '--version'], ['-h', '--help']]) {
       assert.ok(help.stdout.includes(`${short}, ${long}`));
     }
+  },
+
+  'conclusions are written as RDF/XML and JSON-LD'() {
+    const files = ['examples/data/library-n3.rdf', 'examples/data/library-n3.jsonld', 'examples/library-n3.n3'];
+    const read = (to, format) => {
+      const run = cli([...files, '--to', to]);
+      assert.equal(run.code, 0, run.stderr);
+      return parseRdf(run.stdout, { format, scope: to }).quads;
+    };
+    const expected = read('n-triples', 'n-triples');
+    assert.equal(expected.length, 5);
+    assert.ok(isomorphic(read('rdf-xml', 'rdf-xml'), expected));
+    assert.ok(isomorphic(read('json-ld', 'json-ld'), expected));
   },
 
   'a generated proof is checked with its call tables'() {

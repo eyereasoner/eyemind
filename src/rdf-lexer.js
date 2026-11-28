@@ -259,9 +259,11 @@ function decodeIriRefEscapes(s, offset = null) {
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (c !== '\\') {
-      const cp = c.codePointAt(0);
+      // eyemind: by code point, so a character beyond U+FFFF is no lone surrogate.
+      const cp = s.codePointAt(i);
       assertValidIriRefCodePoint(cp, offset);
-      out += c;
+      out += String.fromCodePoint(cp);
+      if (cp > 0xffff) i++;
       continue;
     }
 
@@ -869,10 +871,15 @@ function normalizeRdfCompatibility(inputText, { trig = false } = {}) {
           }
         }
 
-        // Not TriG named-graph syntax after all; copy the first character and
-        // continue as ordinary N3.
+        // Not TriG named-graph syntax after all; copy the term, or else the
+        // first character, and continue as ordinary N3.
+        // eyemind: the whole term, so a # in its IRI is no comment.
         if (graphKeyword) {
           out += 'GRAPH ';
+          statementStart = false;
+        } else if (term && term.end > i) {
+          out += s.slice(i, term.end);
+          i = term.end;
           statementStart = false;
         } else if (i < s.length) {
           const copied = s[i++];

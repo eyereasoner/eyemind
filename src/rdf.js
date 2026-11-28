@@ -1,4 +1,5 @@
-// RDF 1.2 in and out of eyemind: Turtle, TriG, N-Triples and N-Quads.
+// RDF 1.2 in and out of eyemind: Turtle, TriG, N-Triples and N-Quads, and
+// RDF/XML (rdf-xml.js) and JSON-LD (jsonld.js) in.
 //
 // Documents are read by the RDF lexer and parser (rdf-lexer.js,
 // rdf-parser.js and rdf-prelude.js), with the RDF 1.2 surface checks
@@ -18,6 +19,8 @@
 import { lex } from './rdf-lexer.js';
 import { checkRdfSyntax } from './rdf-syntax.js';
 import { Parser } from './rdf-parser.js';
+import { parseRdfXml, parseRdfXmlMessages, writeRdfXml } from './rdf-xml.js';
+import { jsonLdToRdf, rdfToJsonLd } from './jsonld.js';
 import { Blank, GraphTerm, Iri, ListTerm, Literal, LOG_NS, RDF_NS, clearParserCaches, literalParts } from './rdf-prelude.js';
 import { EyemindError, Struct } from './terms.js';
 import { write } from './writer.js';
@@ -26,7 +29,8 @@ const XSD = 'http://www.w3.org/2001/XMLSchema#';
 const RDF_TYPE = `${RDF_NS}type`;
 export const DEFAULT_GRAPH = 'default_graph';
 
-const FORMATS = { ttl: 'turtle', turtle: 'turtle', trig: 'trig', nt: 'n-triples', ntriples: 'n-triples', nq: 'n-quads', nquads: 'n-quads' };
+const FORMATS = { ttl: 'turtle', turtle: 'turtle', trig: 'trig', nt: 'n-triples', ntriples: 'n-triples', nq: 'n-quads', nquads: 'n-quads',
+  rdf: 'rdf-xml', rdfxml: 'rdf-xml', jsonld: 'json-ld', ndjson: 'ndjson-ld' };
 
 // The RDF format a file name names by its extension, or null.
 export function rdfFormat(name) {
@@ -37,16 +41,22 @@ export function rdfFormat(name) {
 const st = (name, ...args) => new Struct(name, args);
 const iri = (v) => st('iri', v);
 
-// Read an RDF document. Options: format ('turtle', 'trig', 'n-triples' or
-// 'n-quads'), base (IRI) and scope (for blank nodes). Returns { quads,
+// Read an RDF document. Options: format ('turtle', 'trig', 'n-triples',
+// 'n-quads', 'rdf-xml' or 'json-ld'), base (IRI) and scope (for blank nodes);
+// JSON-LD also takes loadDocument(url), for remote contexts, and the
+// processingMode, expandContext and rdfDirection of the JSON-LD API. Returns { quads,
 // prefixes }: quads are [S, P, O, G] eyemind terms, prefixes maps names to
 // namespaces.
-export function parseRdf(text, { format = 'turtle', base = null, scope = 'rdf' } = {}) {
+export function parseRdf(text, { format = 'turtle', base = null, scope = 'rdf', ...jsonld } = {}) {
   text = String(text);
   try {
+    if (format === 'rdf-xml') return parseRdfXml(text, { base, scope, graph: DEFAULT_GRAPH, literal: xmlLiteralTerm });
+    if (format === 'ndjson-ld') throw new SyntaxError('an NDJSON-LD log is read with parseRdfMessages, which keeps its messages apart');
+    if (format === 'json-ld') return { quads: jsonLdQuads(jsonLdToRdf(text, { ...jsonld, base }), scope), prefixes: {}, base };
     checkRdfSyntax(text, format);
     assertRdf12SurfaceSyntax(text, format);
     const parser = new Parser(lex(text, { trig: format === 'trig' }));
+    parser.verbatimIris = format === 'n-triples' || format === 'n-quads';
     if (base) parser.prefixes.setBase(base);
     const state = { scope, lists: 0, out: [] };
     if (format === 'n-quads') {
@@ -142,6 +152,71 @@ function literalTerm(raw) {
   const quoted = typeof lexical === 'string' && lexical.length >= 2 && lexical[0] === '"' && lexical.at(-1) === '"';
   const value = quoted ? unquote(lexical) : lexical;
   return literalOf(value, datatype ?? (quoted ? `${XSD}string` : bareDatatype(value)));
+}
+
+// eyemind quads as the neutral terms of the JSON-LD and RDF/XML writers:
+// { termType, value, datatype?, language?, direction? }, or a triple term
+// { termType: 'triple', subject, predicate, object }; graph null for the
+// default one. A blank node keeps its label where that label is unique.
+function neutralQuads(quads, blankNodePrefix = '') {
+  const labels = new Map(), taken = new Set();
+  const blank = (t) => {
+    const key = write(t);
+    if (!labels.has(key)) {
+      let label = t.name === 'bnode' && typeof t.args[1] === 'string' ? t.args[1] : '';
+      if (!/^[A-Za-z_][A-Za-z0-9_.-]*$/.test(label) || taken.has(label)) label = `b${labels.size}`;
+      while (taken.has(label)) label += '_';
+      taken.add(label);
+      labels.set(key, blankNodePrefix + label);
+    }
+    return { termType: 'blank', value: labels.get(key) };
+  };
+  const term = (t) => {
+    if (typeof t === 'bigint') return { termType: 'literal', value: String(t), datatype: `${XSD}integer` };
+    if (typeof t === 'number') return { termType: 'literal', value: String(t), datatype: `${XSD}double` };
+    if (!(t instanceof Struct)) throw new EyemindError(`${write(t)} is not an RDF term`);
+    const [a, b, c] = t.args;
+    if (t.name === 'iri' && t.args.length === 1 && typeof a === 'string') return { termType: 'iri', value: a };
+    if ((t.name === 'bnode' && t.args.length === 2) || (t.name === 'skolem' && t.args.length === 3)) return blank(t);
+    if (t.name === 'literal' && t.args.length === 2 && typeof a === 'string' && b instanceof Struct) {
+      if (b.name === 'lang') return { termType: 'literal', value: a, language: b.args[0], direction: b.args[1] ?? null };
+      if (b.name === 'datatype') return { termType: 'literal', value: a, datatype: b.args[0] };
+    }
+    if (t.name === 'triple' && t.args.length === 3) return { termType: 'triple', subject: term(a), predicate: term(b), object: term(c) };
+    throw new EyemindError(`${write(t)} is not an RDF term`);
+  };
+  return quads.map(([s, p, o, g]) => [term(s), term(p), term(o), g === DEFAULT_GRAPH ? null : term(g)]);
+}
+
+// The quads of jsonld.js as eyemind terms.
+function jsonLdQuads(quads, scope) {
+  const term = (t) => {
+    if (t.termType === 'iri') return iri(t.value);
+    if (t.termType === 'blank') return st('bnode', scope, t.value);
+    if (t.language) return st('literal', t.value, st('lang', t.language));
+    return literalOf(t.value, t.datatype);
+  };
+  return quads.map(([s, p, o, g]) => [term(s), term(p), term(o), g ? term(g) : DEFAULT_GRAPH]);
+}
+
+// The messages of an RDF/XML message log, for messages.js.
+export function parseRdfXmlLog(text, { base = null, scope = 'messages' } = {}) {
+  try {
+    return parseRdfXmlMessages(String(text), { base, scope, graph: DEFAULT_GRAPH, literal: xmlLiteralTerm });
+  } catch (error) {
+    if (error instanceof EyemindError) throw error;
+    throw new EyemindError(`rdf-xml: ${error.message}`);
+  }
+}
+
+// A literal of RDF/XML: a language string, or a typed one, xsd:string when
+// no datatype is given.
+function xmlLiteralTerm(value, language, datatype) {
+  if (language) {
+    if (!/^[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*$/.test(language.lang)) throw new SyntaxError(`invalid RDF 1.2 language tag ${language.lang}`);
+    return st('literal', value, language.dir ? st('lang', language.lang, language.dir) : st('lang', language.lang));
+  }
+  return literalOf(value, datatype ?? `${XSD}string`);
 }
 
 function unquote(lexical) {
@@ -338,13 +413,23 @@ function assertLineSyntax(text) {
 
 // Write quads, [S, P, O, G] eyemind terms, as Turtle (or TriG when a quad is
 // in a named graph) with the prefixes it uses, or as N-Triples or N-Quads.
-export function writeRdf(quads, { format = 'turtle', prefixes = {}, blankNodePrefix = '' } = {}) {
+export function writeRdf(quads, { format = 'turtle', prefixes = {}, blankNodePrefix = '', ...jsonld } = {}) {
+  if (format === 'json-ld') return `${JSON.stringify(rdfToJsonLd(neutralQuads(quads, blankNodePrefix), jsonld), null, 2)}\n`;
+  if (format === 'rdf-xml') {
+    try {
+      return writeRdfXml(neutralQuads(quads, blankNodePrefix), prefixes);
+    } catch (error) {
+      throw error instanceof SyntaxError ? new EyemindError(error.message) : error;
+    }
+  }
+  if ((format === 'turtle' || format === 'n-triples') && quads.some((q) => q[3] !== DEFAULT_GRAPH)) {
+    throw new EyemindError(`${format} has no named graphs; write trig, n-quads or json-ld`);
+  }
   const line = format === 'n-triples' || format === 'n-quads';
   const w = new RdfWriter(line ? {} : prefixes, line, blankNodePrefix);
   const body = [];
   if (line) {
     for (const [s, p, o, g] of quads) {
-      if (format === 'n-triples' && g !== DEFAULT_GRAPH) continue;
       body.push(`${w.term(s)} ${w.term(p)} ${w.term(o)}${g === DEFAULT_GRAPH ? '' : ` ${w.term(g)}`} .`);
     }
     return body.map((l) => `${l}\n`).join('');

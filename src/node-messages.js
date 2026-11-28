@@ -11,6 +11,7 @@ const remote = (name) => /^https?:/.test(name);
 async function messageFile(name) {
   if (name === '-' || remote(name)) return true;
   if (/\.js$/i.test(name)) return false;
+  if (rdfMessageFormat(name) === 'ndjson-ld') return true;
   const probe = new RdfMessageReader({ probe: true });
   for await (const text of createReadStream(name, { encoding: 'utf8' })) {
     probe.write(text);
@@ -59,7 +60,7 @@ export async function streamMessages(request, io) {
       if (await messageFile(name)) logs.push({ name, index });
       else inputs.push([name, io.readFile(name)]);
     }
-    if (!logs.length) throw new Error('--stream-messages needs an RDF Message Log with VERSION "*-messages"');
+    if (!logs.length) throw new Error('--stream-messages needs an RDF Message Log: VERSION "*-messages", an rdfm:MessageLog in RDF/XML, or NDJSON-LD (.ndjson)');
     for (const { name, index } of logs) {
       const source = await openSource(name);
       const scope = request.scope(name, index);

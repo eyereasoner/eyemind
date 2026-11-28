@@ -289,6 +289,11 @@
     "description": "An RDF 1.2 annotation: an asserted triple recovered with the reifier that records who stated it and when"
   },
   {
+    "name": "library-n3",
+    "files": ["data/library-n3.rdf", "data/library-n3.jsonld", "library-n3.n3"],
+    "description": "A catalog in RDF/XML and loans in JSON-LD joined by N3 rules into who borrowed which title and which loans are overdue"
+  },
+  {
     "name": "annotated-claims-n3",
     "files": [
       "data/annotated-claims-n3.ttl",

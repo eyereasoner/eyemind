@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!-- A library catalog in RDF/XML, and loans in JSON-LD, read into one dataset.
+     N3 rules join them: who has borrowed which title, and which loans are
+     overdue on the reference day. Shows RDF/XML and JSON-LD inputs. -->
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/terms/"
+         xmlns:lib="https://example.org/library#"
+         xml:base="https://example.org/books/">
+
+  <!-- Each book has a title in its own language, and a creator. -->
+  <lib:Book rdf:about="dune">
+    <dc:title xml:lang="en">Dune</dc:title>
+    <dc:creator>Frank Herbert</dc:creator>
+  </lib:Book>
+  <lib:Book rdf:about="good-omens">
+    <dc:title xml:lang="en">Good Omens</dc:title>
+    <dc:creator>Terry Pratchett and Neil Gaiman</dc:creator>
+  </lib:Book>
+  <lib:Book rdf:about="solaris">
+    <dc:title xml:lang="pl">Solaris</dc:title>
+    <dc:creator>Stanisław Lem</dc:creator>
+  </lib:Book>
+</rdf:RDF>

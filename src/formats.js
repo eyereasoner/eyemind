@@ -4,8 +4,10 @@
 // A file's extension says what it holds:
 //
 //   .js and standard input   a Logic Script (LS) program
-//   .ttl .trig .nt .nq       RDF 1.2 data: with a program, rdf(S, P, O, G)
-//                            facts; with an N3 document, default triples and
+//   .ttl .trig .nt .nq       RDF 1.2 data, and RDF/XML (.rdf), JSON-LD
+//   .rdf .jsonld .ndjson     (.jsonld) and NDJSON-LD logs (.ndjson): with a
+//                            program, rdf(S, P, O, G) facts; with an N3
+//                            document, default triples and
 //                            graph:content formulas for named graphs; with a
 //                            rule set, its base graph
 //   .n3                      Notation3, compiled to an LS program
@@ -32,7 +34,7 @@ import { compileLe, writeLe } from './le.js';
 import { write } from './writer.js';
 import { isRdfMessageLog, parseRdfMessages } from './messages.js';
 
-export const OUTPUT_FORMATS = ['eyemind', 'turtle', 'trig', 'n-triples', 'n-quads', 'n3', 'le'];
+export const OUTPUT_FORMATS = ['eyemind', 'turtle', 'trig', 'n-triples', 'n-quads', 'rdf-xml', 'json-ld', 'n3', 'le'];
 export { RDF_PROFILES };
 
 // What a file holds: 'js', 'rdf', 'n3', 'srl' or 'le'.
@@ -98,6 +100,16 @@ function outputContract(text, name, io) {
   });
 }
 
+// The remote contexts of a JSON-LD input: a file: IRI is read as a file, an
+// HTTP(S) one as the documents of N3 are.
+function documentLoader(io) {
+  return (url) => {
+    if (url.startsWith('file:') && io?.readFile) return { document: io.readFile(decodeURIComponent(new URL(url).pathname)), documentUrl: url };
+    if (/^https?:/.test(url) && io?.readDocument) return { document: io.readDocument(url), documentUrl: url };
+    throw new EyemindError(`cannot read the context ${url}`);
+  };
+}
+
 // The reasoner the logic profiles run each RDF Message with, given the
 // background inputs as [text, name] pairs (rdf-logic.js).
 export function loadMessageReasoner(inputs, io = null, options = {}) {
@@ -116,8 +128,8 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
     (inputKind(name) === 'n3' && isRdfMessageLog(text)) ? 'rdf' : inputKind(name));
   const baseOf = (name) => base ?? io?.fileIri?.(name) ?? null;
   const rdf = (text, name, k) => messageInputs?.get(name) ??
-    (isRdfMessageLog(text) ? parseRdfMessages : parseRdf)(text, {
-      format: rdfFormat(name) ?? 'trig', base: baseOf(name), scope: scopeOf(inputs, name, k),
+    (rdfFormat(name) === 'ndjson-ld' || isRdfMessageLog(text) ? parseRdfMessages : parseRdf)(text, {
+      format: rdfFormat(name) ?? 'trig', base: baseOf(name), scope: scopeOf(inputs, name, k), loadDocument: documentLoader(io),
     });
   // These rule sets are added only when requested, never from vocabulary.
   if (kinds.includes('le')) {
@@ -135,7 +147,7 @@ function load(inputs, io, { base = null, messageInputs = null, srlContext = null
     if (odrl) checkOdrlInput(graph.quads);
     const source = inputs.map(([, n]) => n).join(', ');
     // SHACL shapes as contracts: what messages hold, and what is wanted.
-    const shapes = ([text, name]) => parseRdf(text, { format: rdfFormat(name) ?? 'turtle', base: baseOf(name) }).quads;
+    const shapes = ([text, name]) => parseRdf(text, { format: rdfFormat(name) ?? 'turtle', base: baseOf(name), loadDocument: documentLoader(io) }).quads;
     if (shaclOut) graph.wanted = [...graph.wanted ?? [], ...shaclOut.flatMap((input) => shaclOutPatterns(shapes(input), input[1]))];
     graph.planned = Boolean(shaclIn || shaclOut);
     if (shaclIn) {

@@ -1,0 +1,21 @@
+# A library catalog in RDF/XML, and loans in JSON-LD, read into one dataset.
+# N3 rules join them: who has borrowed which title, and which loans are
+# overdue on the reference day. Shows RDF/XML and JSON-LD inputs.
+
+@prefix : <https://example.org/library#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix string: <http://www.w3.org/2000/10/swap/string#> .
+
+# The day the overdue loans are counted on.
+:library :today "2026-11-28"^^xsd:date .
+
+# A loan joins a borrower to the title of the book, from the other file.
+{ ?loan a :Loan ; :book ?book ; :borrower ?member . ?book dc:title ?title . }
+  => { ?member :hasBorrowed ?title } .
+
+# A loan is overdue when its due date is before today: xsd:date literals in
+# their canonical form compare as strings.
+{ ?loan a :Loan ; :due ?due ; :book ?book . ?book dc:title ?title .
+  :library :today ?today . ?due string:lessThan ?today . }
+  => { ?loan :overdue ?title } .

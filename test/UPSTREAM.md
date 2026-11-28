@@ -1,19 +1,20 @@
 # Upstream test suites
 
-`npm test` uses seven suites in Git-ignored `.cache/`:
+`npm test` uses eight suites in Git-ignored `.cache/`:
 
 | Cache directory | Upstream |
 | --- | --- |
 | `.cache/logical-english/` | [LogicalContractsOrg/LogicalEnglish2](https://github.com/LogicalContractsOrg/LogicalEnglish2), `examples/moreExamples` |
 | `.cache/mobibench/` | [william-vw/mobibench](https://github.com/william-vw/mobibench), the OWL 2 RL subsuite of `web/res/owl/conf/testsuite-owl2-rdfbased.zip` |
 | `.cache/notation3tests/` | [phochste/notation3tests](https://codeberg.org/phochste/notation3tests) |
+| `.cache/w3c/json-ld/` | [w3c/json-ld-api](https://github.com/w3c/json-ld-api), the `toRdf` and `fromRdf` manifests with `tests/toRdf`, `tests/fromRdf` and `tests/expand` |
 | `.cache/w3c/rdf-messages/` | [w3c-cg/rsp](https://github.com/w3c-cg/rsp), `spec/messages-tests.bs` |
 | `.cache/w3c/rdf-tests/` | [w3c/rdf-tests](https://github.com/w3c/rdf-tests) |
 | `.cache/w3c/shacl/` | [w3c/data-shapes](https://github.com/w3c/data-shapes), the SHACL 1.2 root manifest and its includes |
 | `.cache/w3c/sparql-rl/` | [w3c/data-shapes](https://github.com/w3c/data-shapes), `shacl12-test-suite/tests/sparql-rl` |
 
 A normal run reuses the cache without checking upstream. If the cache is
-missing or incomplete, the runner downloads all seven suites before importing
+missing or incomplete, the runner downloads all eight suites before importing
 the tests. This first run needs Git and network access. File inventories let
 the runner detect missing inputs instead of silently skipping their cases.
 
@@ -53,7 +54,7 @@ changes and run `npm test` after syncing; every run writes the
 Local Git checkouts can supply any of the sources:
 
 ```sh
-npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes --mobibench /path/to/mobibench --logical-english /path/to/LogicalEnglish2 --rdf-messages /path/to/rsp --qudt /path/to/qudt-public-repo
+npm run sync -- --notation3tests /path/to/notation3tests --w3c-rdf /path/to/rdf-tests --w3c-sparql-rl /path/to/data-shapes --mobibench /path/to/mobibench --logical-english /path/to/LogicalEnglish2 --rdf-messages /path/to/rsp --w3c-json-ld /path/to/json-ld-api --qudt /path/to/qudt-public-repo
 ```
 
 A QUDT checkout is used at the release it has checked out. The data-shapes
@@ -86,16 +87,30 @@ dependency cycle, is not passed. `KNOWN` in `test/logical-english.js` lists
 the files eyemind reads differently from upstream, with the reason; a listed
 file that passes fails the run. A wrong answer or any other error fails it.
 
-Every `npm test` also scores the RDF Messages tests of the W3C RDF Stream
+Every `npm test` also runs the RDF Messages tests of the W3C RDF Stream
 Processing Community Group. They are written in the source of their
 specification, `spec/messages-tests.bs`: each `###` section is a case with an
 input block and either the expected messages, as N-Triples or N-Quads lines
-or `empty`, or `Parse error.`. `test/rdf-messages.js` reads each Turtle,
-TriG, N-Triples or N-Quads input as one continuous log and compares the
-quads of every message; the test that blank nodes are scoped per message
-compares the two terms themselves, since their N-Quads lines look alike.
-The NDJSON-LD and RDF/XML logs and the serialization round trips are counted
-as unsupported. A wrong result fails the run.
+or `empty`, or `Parse error.`. `test/rdf-messages.js` reads each input as one
+continuous log and compares the quads of every message; the test that blank
+nodes are scoped per message compares the two terms themselves, since their
+N-Quads lines look alike. The NDJSON-LD cases state their expected datasets
+in prose, as the document a message is read as; the scorer reads that
+document, giving each remote context the stub `{"@vocab": IRI}` on both
+sides, so the cases test how contexts carry from message to message. A
+serialization round trip is written and read again in every log format that
+can hold its messages. A wrong result fails the run.
+
+Every `npm test` also runs the `toRdf` and `fromRdf` tests of the W3C
+JSON-LD API. A `toRdf` case deserializes its input and compares the dataset
+with the expected N-Quads, or expects the error code it names; remote
+contexts are files of the mirror, read through the document loader of
+`parseRdf`. A case for JSON-LD 1.0 runs in that processing mode, the others in
+`json-ld-1.2`; the two that produce generalized RDF, with blank node
+predicates that eyemind's N-Quads reader rejects, are compared line by line.
+A `fromRdf` case serializes N-Quads as JSON-LD and compares the expanded
+document, arrays in any order except lists. A wrong result fails the run.
+The W3C RDF suite includes the RDF 1.1 and RDF 1.2 RDF/XML manifests.
 
 `npm test` runs independent MobiBench and SHACL cases on up to two threads
 within the same test process. It reports cases in manifest order and finishes

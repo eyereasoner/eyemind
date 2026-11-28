@@ -1,0 +1,7 @@
+@prefix lib: <https://example.org/library#> .
+
+<https://example.org/members/ada> lib:hasBorrowed "Dune"@en .
+<https://example.org/members/grace> lib:hasBorrowed "Solaris"@pl .
+<https://example.org/members/ada> lib:hasBorrowed "Good Omens"@en .
+<https://example.org/loans/1> lib:overdue "Dune"@en .
+<https://example.org/loans/3> lib:overdue "Good Omens"@en .

@@ -17,9 +17,11 @@
       "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-turtle/syntax/manifest.ttl",
       "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-trig/manifest.ttl",
       "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-trig/eval/manifest.ttl",
-      "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-trig/syntax/manifest.ttl"
+      "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-trig/syntax/manifest.ttl",
+      "https://w3c.github.io/rdf-tests/rdf/rdf11/rdf-xml/manifest.ttl",
+      "https://w3c.github.io/rdf-tests/rdf/rdf12/rdf-xml/eval/manifest.ttl"
     ],
-    "cases": 1065
+    "cases": 1262
   },
   "srl": {
     "source": "https://github.com/w3c/data-shapes",
@@ -52,5 +54,14 @@
     "revision": "5a6bdd16e76659235674ef5510b55f14352c984d",
     "path": "spec/messages-tests.bs",
     "cases": 35
+  },
+  "jsonld": {
+    "source": "https://github.com/w3c/json-ld-api",
+    "revision": "fd4f7eb41f679fb73a54923143c473c3a1d06093",
+    "manifests": [
+      "tests/toRdf-manifest.jsonld",
+      "tests/fromRdf-manifest.jsonld"
+    ],
+    "cases": 522
   }
 }

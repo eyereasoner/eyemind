@@ -13,6 +13,6 @@ export { checkProof, checkReport, publicReport, verdictText } from './proof.js';
 export { readTerm, readTerms } from './reader.js';
 export { EyemindError, Struct, Var } from './terms.js';
 export { write } from './writer.js';
-export { RdfMessageReader, parseRdfMessages } from './messages.js';
+export { RdfMessageReader, parseRdfMessages, writeRdfMessages } from './messages.js';
 export { compileLe, writeLe } from './le.js';
 export { explainLe } from './le-explain.js';

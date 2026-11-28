@@ -15,6 +15,10 @@ const XML = 'http://www.w3.org/XML/1998/namespace';
 const XMLNS = 'http://www.w3.org/2000/xmlns/';
 const INVALID_RAW = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u0084\u0086-\u009F\uD800-\uDFFF\uFFFE\uFFFF]/u;
 
+// Whether a text is an XML name without a colon, as rdf:ID and rdf:nodeID are.
+const NC_NAME_ONLY = new RegExp(`^${NC_NAME}$`, 'u');
+export const isNcName = (text) => NC_NAME_ONLY.test(text);
+
 function match(pattern, text, at) {
   pattern.lastIndex = at;
   return pattern.exec(text);
@@ -139,4 +143,174 @@ export function isXmlContent(text) {
     }
   }
   return open.length === 0;
+}
+
+// An XML document as a tree, for RDF/XML: the root element, each element
+// { name, ns, local, attrs, children, declared } with attrs [{ name, ns,
+// local, value }] and declared the namespaces it declares, and text, comment
+// and processing instruction nodes. A DOCTYPE may declare internal general
+// entities; external ones are not read. Throws a SyntaxError.
+// https://www.w3.org/TR/xml/#sec-documents
+export function parseXml(input) {
+  const fail = (message) => { throw new SyntaxError(`XML: ${message}`); };
+  if (INVALID_RAW.test(input)) fail('a character is not allowed in XML');
+  const text = String(input).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
+  const entities = { ...ENTITIES };
+  let at = 0;
+  const take = (token) => text.startsWith(token, at) && (at += token.length, true);
+  const read = (pattern) => {
+    const found = match(pattern, text, at)?.[0];
+    if (found) at += found.length;
+    return found;
+  };
+  const until = (token, what) => {
+    const end = text.indexOf(token, at);
+    if (end < 0) fail(`unterminated ${what}`);
+    const body = text.slice(at, end);
+    at = end + token.length;
+    return body;
+  };
+  // Character and entity references; an entity's text may hold references.
+  const expand = (raw, attribute, depth = 0) => {
+    if (depth > 16) fail('entities nest too deeply');
+    let value = '', start = 0;
+    for (let amp = raw.indexOf('&'); amp >= 0; amp = raw.indexOf('&', start)) {
+      const plain = raw.slice(start, amp);
+      value += attribute ? plain.replace(/[\t\n]/g, ' ') : plain;
+      const char = reference(raw, amp);
+      if (char) {
+        value += char[1];
+        start = amp + char[0];
+        continue;
+      }
+      const named = /^&([^;\s&]+);/.exec(raw.slice(amp));
+      if (!named || !(named[1] in entities)) fail(`unknown reference ${raw.slice(amp, amp + 12)}`);
+      value += named[1] in ENTITIES ? entities[named[1]] : expand(entities[named[1]], attribute, depth + 1);
+      start = amp + named[0].length;
+    }
+    const rest = raw.slice(start);
+    return value + (attribute ? rest.replace(/[\t\n]/g, ' ') : rest);
+  };
+  const misc = () => {
+    for (;;) {
+      read(SPACE);
+      if (take('<!--')) {
+        const body = until('-->', 'comment');
+        if (body.includes('--')) fail('a comment contains --');
+      } else if (text.startsWith('<?', at) && !text.startsWith('<?xml ', at)) {
+        at += 2;
+        if (!read(PI_NAME)) fail('a processing instruction has no target');
+        until('?>', 'processing instruction');
+      } else return;
+    }
+  };
+  if (take('<?xml')) until('?>', 'XML declaration');
+  misc();
+  if (take('<!DOCTYPE')) {
+    // Internal general entities; parameter entities and external ones are not read.
+    let depth = 0;
+    const start = at;
+    while (at < text.length && (depth || text[at] !== '>')) {
+      if (text[at] === '[') depth++;
+      else if (text[at] === ']') depth--;
+      else if (text[at] === '"' || text[at] === "'") at = text.indexOf(text[at], at + 1);
+      if (at < 0) fail('unterminated DOCTYPE');
+      at++;
+    }
+    for (const [, name, , value] of text.slice(start, at).matchAll(/<!ENTITY\s+([^\s%]+)\s+(["'])([\s\S]*?)\2\s*>/g)) {
+      if (!(name in entities)) entities[name] = value;
+    }
+    if (!take('>')) fail('unterminated DOCTYPE');
+    misc();
+  }
+  const scope = [new Map([['xml', XML], ['', '']])];
+  const resolve = (name, element) => {
+    const colon = name.indexOf(':');
+    const prefix = colon < 0 ? '' : name.slice(0, colon), local = colon < 0 ? name : name.slice(colon + 1);
+    if (colon < 0 && !element) return { ns: '', local };
+    const ns = scope.at(-1).get(prefix);
+    if (ns === undefined) fail(`the prefix ${prefix} is not declared`);
+    return { ns, local };
+  };
+  const element = () => {
+    const name = read(QNAME);
+    if (!name) fail(`an element name is expected at offset ${at}`);
+    const raw = [];
+    while (read(SPACE) && text[at] !== '>' && text[at] !== '/') {
+      const attr = read(QNAME);
+      if (!attr) fail(`an attribute name is expected in <${name}>`);
+      read(SPACE);
+      if (!take('=')) fail(`the attribute ${attr} has no value`);
+      read(SPACE);
+      const quote = text[at++];
+      if (quote !== '"' && quote !== "'") fail(`the value of ${attr} is not quoted`);
+      const value = until(quote, 'attribute value');
+      if (value.includes('<')) fail(`the value of ${attr} contains <`);
+      if (raw.some(([n]) => n === attr)) fail(`the attribute ${attr} occurs twice`);
+      raw.push([attr, expand(value, true)]);
+    }
+    const empty = take('/>');
+    if (!empty && !take('>')) fail(`the tag <${name}> is not closed`);
+    const namespaces = new Map(scope.at(-1)), declared = {};
+    for (const [key, value] of raw) {
+      if (key !== 'xmlns' && !key.startsWith('xmlns:')) continue;
+      const prefix = key === 'xmlns' ? '' : key.slice(6);
+      if (prefix === 'xmlns' || value === XMLNS || (prefix === 'xml') !== (value === XML) || (prefix && !value)) fail(`the namespace declaration ${key} is not allowed`);
+      namespaces.set(prefix, value);
+      declared[prefix] = value;
+    }
+    scope.push(namespaces);
+    const node = { type: 'element', name, ...resolve(name, true), attrs: [], children: [], declared };
+    const seen = new Set();
+    for (const [key, value] of raw) {
+      if (key === 'xmlns' || key.startsWith('xmlns:')) continue;
+      const attr = { name: key, ...resolve(key, false), value };
+      if (seen.has(attr.ns + ' ' + attr.local)) fail(`the attribute ${key} occurs twice`);
+      seen.add(attr.ns + ' ' + attr.local);
+      node.attrs.push(attr);
+    }
+    if (!empty) {
+      for (;;) {
+        if (take('</')) {
+          if (read(QNAME) !== name) fail(`</${name}> is expected`);
+          read(SPACE);
+          if (!take('>')) fail(`the end tag of ${name} is not closed`);
+          break;
+        } else if (take('<!--')) {
+          const body = until('-->', 'comment');
+          if (body.includes('--')) fail('a comment contains --');
+          node.children.push({ type: 'comment', value: body });
+        } else if (take('<![CDATA[')) {
+          const value = until(']]>', 'CDATA section'), last = node.children.at(-1);
+          if (last?.type === 'text') last.value += value;
+          else node.children.push({ type: 'text', value });
+        } else if (take('<?')) {
+          const target = read(PI_NAME);
+          if (!target || target.toLowerCase() === 'xml') fail('a processing instruction has no valid target');
+          const data = take('?>') ? '' : (read(SPACE), until('?>', 'processing instruction'));
+          node.children.push({ type: 'pi', target, value: data });
+        } else if (take('<')) {
+          node.children.push(element());
+        } else if (at >= text.length) {
+          fail(`<${name}> is not closed`);
+        } else {
+          const end = text.indexOf('<', at);
+          const raw = text.slice(at, end < 0 ? text.length : end);
+          if (raw.includes(']]>')) fail('character data contains ]]>');
+          at += raw.length;
+          const value = expand(raw, false);
+          const last = node.children.at(-1);
+          if (last?.type === 'text') last.value += value;
+          else node.children.push({ type: 'text', value });
+        }
+      }
+    }
+    scope.pop();
+    return node;
+  };
+  if (!take('<')) fail('the document has no root element');
+  const root = element();
+  misc();
+  if (at < text.length) fail('only one root element is allowed');
+  return root;
 }

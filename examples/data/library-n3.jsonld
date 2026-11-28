@@ -1,0 +1,15 @@
+{
+  "@context": {
+    "@vocab": "https://example.org/library#",
+    "@base": "https://example.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "book": { "@type": "@id" },
+    "borrower": { "@type": "@id" },
+    "due": { "@type": "xsd:date" }
+  },
+  "@graph": [
+    { "@id": "loans/1", "@type": "Loan", "book": "books/dune", "borrower": "members/ada", "due": "2026-11-20" },
+    { "@id": "loans/2", "@type": "Loan", "book": "books/solaris", "borrower": "members/grace", "due": "2026-12-04" },
+    { "@id": "loans/3", "@type": "Loan", "book": "books/good-omens", "borrower": "members/ada", "due": "2026-11-27" }
+  ]
+}

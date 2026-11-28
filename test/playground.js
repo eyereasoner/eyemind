@@ -333,7 +333,7 @@ export const tests = [
     const p = driver(page);
     // Cover each loading path, including a contradiction and message replay.
     // The example corpus checks the remaining programs outside the browser.
-    for (const example of ['family-n3', 'triple-term-n3', 'trig-named-graph-n3', 'distances-srl', 'fuse-n3', 'message-boundaries-n3']) {
+    for (const example of ['family-n3', 'triple-term-n3', 'trig-named-graph-n3', 'distances-srl', 'fuse-n3', 'message-boundaries-n3', 'library-n3']) {
       const entry = manifest.find(({ name }) => name === example);
       assert.ok(entry, `missing browser example: ${example}`);
       const { name } = entry;

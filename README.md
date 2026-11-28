@@ -13,7 +13,7 @@ program, a JavaScript library and a browser application.
 - [Playground](https://eyereasoner.github.io/eyemind/playground/): run any
   example or your own program in the browser, with its proof and check report.
 - [Examples](https://eyereasoner.github.io/eyemind/examples/): the
-  175 runnable programs, each with a card deck and saved conclusions; all but
+  176 runnable programs, each with a card deck and saved conclusions; all but
   the two streamed examples also save proofs and check reports.
 - [Specification](https://eyereasoner.github.io/eyemind/LS-SPEC): the
   language, the proof format and how a proof is checked.
@@ -289,9 +289,20 @@ the [Pythagorean theorem](https://eyereasoner.github.io/eyemind/examples/deck/py
 
 ### RDF 1.2
 
-`.ttl`, `.trig`, `.nt` and `.nq` files are read with the formats' own grammars,
-as data: their quads become `rdf(Subject, Predicate, Object, Graph)` facts.
-`--to turtle`, `trig`, `n-triples` or `n-quads` writes the conclusions back.
+`.ttl`, `.trig`, `.nt`, `.nq`, `.rdf` (RDF/XML) and `.jsonld` (JSON-LD) files
+are read with the formats' own grammars, as data: their quads become
+`rdf(Subject, Predicate, Object, Graph)` facts. `--to turtle`, `trig`,
+`n-triples`, `n-quads`, `rdf-xml` or `json-ld` writes the conclusions back;
+Turtle, N-Triples and RDF/XML refuse named graphs, which they cannot hold,
+and JSON-LD refuses triple terms. JSON-LD follows the JSON-LD 1.2 draft of
+the Processing Algorithms and API, in the processing mode `json-ld-1.2`, or
+`json-ld-1.1` or `json-ld-1.0` through `parseRdf` of `eyemind/rdf`, which also
+takes `expandContext`, `rdfDirection` and `produceGeneralizedRdf`; a JSON-LD
+context that is not in the document is read from its file, or fetched as
+Notation3 documents are. JSON-LD keeps a base direction only with its
+`rdfDirection` option, as the specification has it. `writeRdf` writes
+expanded JSON-LD, with the `useNativeTypes`, `useRdfType` and
+`rdfDirection` options.
 
 | RDF 1.2 | eyemind term |
 | --- | --- |
@@ -302,7 +313,8 @@ as data: their quads become `rdf(Subject, Predicate, Object, Graph)` facts.
 | Triple term | `triple(S, P, O)` |
 | Default graph, named graph | `'default_graph'`, `iri(Name)` |
 
-All 1065 W3C RDF 1.1 and 1.2 syntax tests pass.
+All 1262 W3C RDF 1.1 and 1.2 tests pass, RDF/XML included, and all 522
+`toRdf` and `fromRdf` tests of the W3C JSON-LD API.
 
 ### Notation3
 
@@ -325,17 +337,16 @@ eyemind -c examples/family-n3.n3                         # with a checked proof
 ### RDF Messages
 
 eyemind reads [RDF Message](https://w3c-cg.github.io/rsp/spec/messages) logs
-in all four RDF syntaxes. By default rules see the whole log replayed as
+in Turtle, TriG, N-Triples, N-Quads, RDF/XML, where an `rdfm:MessageLog`
+holds one `rdf:RDF` per message, and NDJSON-LD (`.ndjson`), a JSON object per
+line; `writeRdfMessages` of `eyemind/messages` writes them. By default rules see the whole log replayed as
 ordered envelopes in the `eymsg:` vocabulary, with proofs;
 `--stream-messages` instead runs the rules once per message, reading files,
 standard input or HTTP(S) incrementally. See the
 [message-boundaries](https://eyereasoner.github.io/eyemind/examples/deck/message-boundaries-n3)
 and [message-alerts](https://eyereasoner.github.io/eyemind/examples/deck/message-alerts-n3) decks.
-Every `npm test` scores the
-[RDF Messages tests](https://w3c-cg.github.io/rsp/spec/messages-tests) as
-coverage: all of the Turtle, TriG, N-Triples and N-Quads cases pass, a wrong
-result fails the run, and the NDJSON-LD, RDF/XML and serialization cases are
-counted as unsupported.
+All 35 [RDF Messages tests](https://w3c-cg.github.io/rsp/spec/messages-tests)
+pass, and every `npm test` runs them.
 
 With an [RDF logic profile](#rdf-logic-profiles), `--stream-messages` treats
 the other inputs as a background graph and writes, for each message, the
@@ -650,7 +661,7 @@ eyemind [OPTION ...] [FILE ...]
 
 | Option | Meaning |
 | --- | --- |
-| (none) | Load the files, or standard input, as one program and print its conclusions. `.js` files and standard input are Logic Script, `.ttl`, `.trig`, `.nt` and `.nq` files RDF data, `.n3` Notation3, `.srl` a SPARQL 1.2 RL rule set and `.le` Logical English. |
+| (none) | Load the files, or standard input, as one program and print its conclusions. `.js` files and standard input are Logic Script, `.ttl`, `.trig`, `.nt`, `.nq`, `.rdf` (RDF/XML), `.jsonld` (JSON-LD) and `.ndjson` (NDJSON-LD message log) files RDF data, `.n3` Notation3, `.srl` a SPARQL 1.2 RL rule set and `.le` Logical English. |
 | `-p`, `--proof` | Print the proof instead. |
 | `-c`, `--prove-and-check` | Generate a proof, check it, and print the checked answers with the report. |
 | `--check-proof FILE` | Check a saved proof (`-` for standard input) against the program. |
@@ -663,7 +674,7 @@ eyemind [OPTION ...] [FILE ...]
 | `--shacl-out FILE` | With an RDF logic profile, plan only the rules that conclude triples the SHACL shapes in `FILE` describe, or what those rules read, and write only those triples. |
 | `--stats` | Print reasoning statistics as JSON to standard error. |
 | `--max-depth N`, `--max-iterations N`, `--max-inferences N` | Bound backward depth (1000000), forward rounds per stratum (1000) and goals started (1000000); a compiled N3, SRL, ODRL or RDF profile program has 1000000, 100000 and 1000000000. |
-| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `n3`, `le` or `eyemind`; `n3` only for an N3 run and `le` only for an LE run; by default LE for LE, N3 for N3, Turtle for SRL, ODRL and RDF profiles, eyemind otherwise. |
+| `--to FORMAT` | Write the conclusions as `turtle`, `trig`, `n-triples`, `n-quads`, `rdf-xml`, `json-ld`, `n3`, `le` or `eyemind`; `n3` only for an N3 run and `le` only for an LE run; by default LE for LE, N3 for N3, Turtle for SRL, ODRL and RDF profiles, eyemind otherwise. |
 | `--all` | With RDF or N3 output, write the given data too. |
 | `--program` | Print the program the inputs compile to. |
 | `--odrl` | Add the ODRL snapshot profile's validation and evaluation LS to one Turtle input; with RDF logic profiles, the snapshot also reads what they entail about its states. Not with `--stream-messages`, `--shacl-in` or `--shacl-out`. |
@@ -788,7 +799,7 @@ Further entry points serve applications built on the formats and profiles:
 | Import | Gives |
 | --- | --- |
 | `eyemind/rdf` | `parseRdf(text, { format, base })` and `writeRdf(quads, { format, prefixes })`, RDF 1.2 to and from eyemind terms |
-| `eyemind/messages` | `parseRdfMessages(text)` and `RdfMessageReader`, for RDF Message logs |
+| `eyemind/messages` | `parseRdfMessages(text)`, `RdfMessageReader` and `writeRdfMessages(messages)`, for RDF Message logs |
 | `eyemind/formats` | `loadInputs(inputs, io, options)` and `loadMessageReasoner(inputs, io, options)`, the command line's loading of `[text, name]` inputs with the options of the RDF profiles, such as `{ qudt: true, shaclIn, shaclOut }` |
 | `eyemind/cli` | `main(argv, io)`, the command line itself, with `io` as in `eyemind/node` |
 | `eyemind/qudt` | `unitConversion(from, to)` and `quantityKinds(unit)`, from the QUDT catalog of `--qudt` |
