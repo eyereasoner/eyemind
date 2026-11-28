@@ -5,7 +5,7 @@
 import { EyemindError, Struct } from './terms.js';
 import { write } from './writer.js';
 import { RDF_DATATYPES } from './rdf-values.js';
-import { NODE_COMMON, nodeExpressions } from './shacl-expr.js';
+import { NODE_COMMON, isIri, nodeExpressions } from './shacl-expr.js';
 
 const SH = 'http://www.w3.org/ns/shacl#';
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
@@ -34,7 +34,6 @@ const literal = (t, datatype) => t instanceof Struct && t.name === 'literal' && 
 const BOOL = (t) => literal(t, XSD + 'boolean') && ['true', 'false', '1', '0'].includes(t.args[0]);
 // Only the boolean true activates a constraint; the suite reads "1" as not true.
 const TRUE = (t) => literal(t, XSD + 'boolean') && t.args[0] === 'true';
-const isIri = (t) => t instanceof Struct && t.name === 'iri';
 const resource = (t) => t instanceof Struct && ['iri', 'bnode', 'triple'].includes(t.name);
 const typeNames = (types) => types.map((t) => t.args?.[0]);
 const TRUE_TERM = `literal('true', datatype('${XSD}boolean'))`;
@@ -362,8 +361,9 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS, needs = new S
         // The LS regex primitive uses ECMAScript Unicode syntax. Translate the
         // portable SHACL flags at compilation, without executing input patterns.
         const f = flags?.args[0] ?? '';
-        if (f.includes('x')) expression = extendedPattern(expression);
-        if (f.includes('s')) expression = dotAllPattern(expression);
+        // x drops whitespace and s lets a dot match newlines, outside classes.
+        if (f.includes('x')) expression = rewritePattern(expression, (c) => /[ \t\r\n]/.test(c) ? '' : c);
+        if (f.includes('s')) expression = rewritePattern(expression, (c) => c === '.' ? '[\\s\\S]' : c);
         if (f.includes('m')) error(s, 'uses sh:flags m, which is not supported by the LS regex primitive');
         if (f.includes('i')) expression = caseInsensitivePattern(expression);
         try { new RegExp(expression, 'u'); } catch { error(s, 'has an invalid or unsupported regular expression'); }
@@ -523,27 +523,16 @@ export function compileShacl(quads, { disallows = SHACL_DISALLOWS, needs = new S
 }
 
 // Flag translation is deliberately conservative: unsupported regex syntax is
-// rejected rather than changing a constraint's meaning silently.
-function extendedPattern(pattern) {
+// rejected rather than changing a constraint's meaning silently. This
+// rewrites each character of a pattern outside escapes and character classes.
+function rewritePattern(pattern, rewrite) {
   let out = '', escaped = false, inClass = false;
   for (const c of pattern) {
     if (escaped) { out += '\\' + c; escaped = false; continue; }
     if (c === '\\') { escaped = true; continue; }
     if (c === '[') inClass = true;
     if (c === ']') inClass = false;
-    if (inClass || !/[ \t\r\n]/.test(c)) out += c;
-  }
-  return out + (escaped ? '\\' : '');
-}
-
-function dotAllPattern(pattern) {
-  let out = '', escaped = false, inClass = false;
-  for (const c of pattern) {
-    if (escaped) { out += '\\' + c; escaped = false; continue; }
-    if (c === '\\') { escaped = true; continue; }
-    if (c === '[') inClass = true;
-    if (c === ']') inClass = false;
-    out += c === '.' && !inClass ? '[\\s\\S]' : c;
+    out += inClass ? c : rewrite(c);
   }
   return out + (escaped ? '\\' : '');
 }

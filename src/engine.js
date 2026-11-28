@@ -861,12 +861,7 @@ export class Solver {
     if (this.recording || keys === null || keys.length !== 1 || keys[0] === null ||
         clause.parentId !== null || clause.templates.length || clause.captures !== null || clause.witnessNames.length) return null;
     const goalKey = keys[0];
-    let ground = this.groundCalls.get(goalKey);
-    if (ground === undefined) {
-      ground = (this.program.groups.get(goalKey) || []).every((candidate) => isGround(candidate.head));
-      this.groundCalls.set(goalKey, ground);
-    }
-    if (!ground) return null;
+    if (!this.groundHeads(goalKey)) return null;
     if (++this.stats.inferences > this.maxInferences) throw new EyemindError('reasoning exceeded max_inferences');
     const goal = clause.localBody[0];
     const facts = this.facts.get(goalKey) || NO_NODES;
@@ -903,15 +898,17 @@ export class Solver {
   joinable(clause, keys) {
     if (this.recording || keys === null || clause.parentId !== null || clause.templates.length ||
         clause.captures !== null || this.program.hasTemplates || this.program.inspectionEnabled) return false;
-    return keys.every((goalKey) => {
-      if (goalKey === null) return true;
-      let ground = this.groundCalls.get(goalKey);
-      if (ground === undefined) {
-        ground = (this.program.groups.get(goalKey) || []).every((candidate) => isGround(candidate.head));
-        this.groundCalls.set(goalKey, ground);
-      }
-      return ground;
-    });
+    return keys.every((goalKey) => goalKey === null || this.groundHeads(goalKey));
+  }
+
+  // Whether every clause of a relation has a ground head, cached per relation.
+  groundHeads(goalKey) {
+    let ground = this.groundCalls.get(goalKey);
+    if (ground === undefined) {
+      ground = (this.program.groups.get(goalKey) || []).every((candidate) => isGround(candidate.head));
+      this.groundCalls.set(goalKey, ground);
+    }
+    return ground;
   }
 
   // The solutions of a joinable body, as solve() finds them: each goal tries

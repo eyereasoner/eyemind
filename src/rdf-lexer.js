@@ -340,25 +340,6 @@ function assertValidStringLiteralValue(s, offset = null) {
   }
 }
 
-// In the monolithic build, stripQuotes() is defined later in the file and
-// function-hoisting makes it available to lex(). In the modular build the
-// lexer must provide it locally.
-function stripQuotes(lex) {
-  if (typeof lex !== 'string') return lex;
-  // Handle both short ('...' / "...") and long ('''...''' / """...""") forms.
-  if (lex.length >= 6) {
-    if (lex.startsWith('"""') && lex.endsWith('"""')) return lex.slice(3, -3);
-    if (lex.startsWith("'''") && lex.endsWith("'''")) return lex.slice(3, -3);
-  }
-  if (lex.length >= 2) {
-    const a = lex[0];
-    const b = lex[lex.length - 1];
-    if ((a === '"' && b === '"') || (a === "'" && b === "'")) return lex.slice(1, -1);
-  }
-  return lex;
-}
-
-
 // eyemind: RDF/TriG syntax is normalized to the parser's N3 representation:
 //   - RDF 1.2 triple terms <<( s p o )>> become singleton graph terms { s p o }.
 //   - TriG named graph blocks g { ... } become g log:nameOf { ... } .
@@ -1768,13 +1749,14 @@ function lex(inputText, opts = {}) {
         break;
     }
 
-    // String literal: short "..." or long """..."""
-    if (c === '"') {
+    // String literal: short "..." or '...', long """...""" or '''...'''
+    if (c === '"' || c === "'") {
       const start = i;
+      const quote = c;
 
-      // Long string literal """ ... """
-      if (peek(1) === '"' && peek(2) === '"') {
-        i += 3; // consume opening """
+      // Long string literal
+      if (peek(1) === quote && peek(2) === quote) {
+        i += 3; // consume opening delimiter
         const sChars = [];
         let closed = false;
         while (i < n) {
@@ -1796,18 +1778,18 @@ function lex(inputText, opts = {}) {
 
           // In long strings, a run of >= 3 delimiter quotes terminates the literal.
           // Any extra quotes beyond the final 3 are part of the content.
-          if (cc === '"') {
+          if (cc === quote) {
             let run = 0;
-            while (i + run < n && chars[i + run] === '"') run++;
+            while (i + run < n && chars[i + run] === quote) run++;
 
             if (run >= 3) {
-              for (let k = 0; k < run - 3; k++) sChars.push('"');
+              for (let k = 0; k < run - 3; k++) sChars.push(quote);
               i += run; // consume content quotes (if any) + closing delimiter
               closed = true;
               break;
             }
 
-            for (let k = 0; k < run; k++) sChars.push('"');
+            for (let k = 0; k < run; k++) sChars.push(quote);
             i += run;
             continue;
           }
@@ -1815,19 +1797,18 @@ function lex(inputText, opts = {}) {
           sChars.push(cc);
           i++;
         }
-        if (!closed) throw new N3SyntaxError('Unterminated long string literal """..."""', start);
-        const raw = '"""' + sChars.join('') + '"""';
-        const decoded = decodeN3StringEscapes(stripQuotes(raw), start);
+        if (!closed) throw new N3SyntaxError(`Unterminated long string literal ${quote.repeat(3)}...${quote.repeat(3)}`, start);
+        const decoded = decodeN3StringEscapes(sChars.join(''), start);
         assertValidStringLiteralValue(decoded, start);
         const s = JSON.stringify(decoded); // canonical short quoted form
         tokens.push(new Token('Literal', s, start));
         continue;
       }
 
-      // Short string literal " ... ".  Most data files contain plain
+      // Short string literal.  Most data files contain plain
       // unescaped labels; keep that path slice-based and avoid building an
       // intermediate character array + raw quoted string.
-      i++; // consume opening "
+      i++; // consume opening quote
       const contentStart = i;
       let sChars = null;
       let closed = false;
@@ -1849,107 +1830,13 @@ function lex(inputText, opts = {}) {
         if (cc === '\n' || cc === '\r') {
           throw new N3SyntaxError('Unescaped newline in short string literal', start);
         }
-        if (cc === '"') {
+        if (cc === quote) {
           closed = true;
           break;
         }
         if (sChars !== null) sChars.push(cc);
       }
-      if (!closed) throw new N3SyntaxError('Unterminated short string literal "..."', start);
-      const rawContent = sChars === null ? sliceChars(contentStart, i - 1) : sChars.join('');
-      const decoded = sChars === null ? rawContent : decodeN3StringEscapes(rawContent, start);
-      if (sChars !== null || inputMayContainInvalidStringChar) assertValidStringLiteralValue(decoded, start);
-      const s = JSON.stringify(decoded); // canonical short quoted form
-      tokens.push(new Token('Literal', s, start));
-      continue;
-    }
-
-    // String literal: short '...' or long '''...'''
-    if (c === "'") {
-      const start = i;
-
-      // Long string literal ''' ... '''
-      if (peek(1) === "'" && peek(2) === "'") {
-        i += 3; // consume opening '''
-        const sChars = [];
-        let closed = false;
-        while (i < n) {
-          const cc = chars[i];
-
-          // Preserve escapes verbatim (same behavior as short strings)
-          if (cc === '\\') {
-            i++;
-            if (i < n) {
-              const esc = chars[i];
-              i++;
-              sChars.push('\\');
-              sChars.push(esc);
-            } else {
-              sChars.push('\\');
-            }
-            continue;
-          }
-
-          // In long strings, a run of >= 3 delimiter quotes terminates the literal.
-          // Any extra quotes beyond the final 3 are part of the content.
-          if (cc === "'") {
-            let run = 0;
-            while (i + run < n && chars[i + run] === "'") run++;
-
-            if (run >= 3) {
-              for (let k = 0; k < run - 3; k++) sChars.push("'");
-              i += run; // consume content quotes (if any) + closing delimiter
-              closed = true;
-              break;
-            }
-
-            for (let k = 0; k < run; k++) sChars.push("'");
-            i += run;
-            continue;
-          }
-
-          sChars.push(cc);
-          i++;
-        }
-        if (!closed) throw new N3SyntaxError("Unterminated long string literal '''...'''", start);
-        const raw = "'''" + sChars.join('') + "'''";
-        const decoded = decodeN3StringEscapes(stripQuotes(raw), start);
-        assertValidStringLiteralValue(decoded, start);
-        const s = JSON.stringify(decoded); // canonical short quoted form
-        tokens.push(new Token('Literal', s, start));
-        continue;
-      }
-
-      // Short string literal ' ... '
-      i++; // consume opening '
-      const contentStart = i;
-      let sChars = null;
-      let closed = false;
-      while (i < n) {
-        const cc = chars[i];
-        i++;
-        if (cc === '\\') {
-          if (sChars === null) sChars = [sliceChars(contentStart, i - 1)];
-          if (i < n) {
-            const esc = chars[i];
-            i++;
-            sChars.push('\\');
-            sChars.push(esc);
-          } else {
-            sChars.push('\\');
-          }
-          continue;
-        }
-        if (cc === '\n' || cc === '\r') {
-          throw new N3SyntaxError('Unescaped newline in short string literal', start);
-        }
-        if (cc === "'") {
-          closed = true;
-          break;
-        }
-        if (sChars !== null) sChars.push(cc);
-      }
-      if (!closed) throw new N3SyntaxError("Unterminated short string literal '...'", start);
+      if (!closed) throw new N3SyntaxError(`Unterminated short string literal ${quote}...${quote}`, start);
       const rawContent = sChars === null ? sliceChars(contentStart, i - 1) : sChars.join('');
       const decoded = sChars === null ? rawContent : decodeN3StringEscapes(rawContent, start);
       if (sChars !== null || inputMayContainInvalidStringChar) assertValidStringLiteralValue(decoded, start);

@@ -253,34 +253,14 @@ class Parser {
     }
 
     const tok2 = this.next();
-    let iri;
-    if (tok2.typ === 'IriRef') {
-      iri = resolveIriRef(tok2.value || '', this.prefixes.baseIri || '');
-    } else if (tok2.typ === 'Ident') {
-      const qn = tok2.value || '';
-      if (!qn.includes(':')) failInvalidKeywordLikeIdent(this.fail.bind(this), tok2, qn);
-      assertValidQNamePrefix(qn.slice(0, qn.indexOf(':')), this.fail.bind(this), tok2, '@prefix directive IRI');
-      iri = this.prefixes.expandQName(qn);
-    } else {
-      this.fail(`Expected IRI after @prefix, got ${tok2.toString()}`, tok2);
-    }
+    const iri = this.directiveIri(tok2, '@prefix', '@prefix directive IRI');
     this.expectDot();
     this.prefixes.set(prefName, iri);
   }
 
   parseBaseDirective() {
     const tok = this.next();
-    let iri;
-    if (tok.typ === 'IriRef') {
-      iri = resolveIriRef(tok.value || '', this.prefixes.baseIri || '');
-    } else if (tok.typ === 'Ident') {
-      const qn = tok.value || '';
-      if (!qn.includes(':')) failInvalidKeywordLikeIdent(this.fail.bind(this), tok, qn);
-      assertValidQNamePrefix(qn.slice(0, qn.indexOf(':')), this.fail.bind(this), tok, '@base directive IRI');
-      iri = this.prefixes.expandQName(qn);
-    } else {
-      this.fail(`Expected IRI after @base, got ${tok.toString()}`, tok);
-    }
+    const iri = this.directiveIri(tok, '@base', '@base directive IRI');
     this.expectDot();
     this.prefixes.setBase(iri);
   }
@@ -299,17 +279,7 @@ class Parser {
     assertValidQNamePrefix(prefName, this.fail.bind(this), tok, 'PREFIX directive');
 
     const tok2 = this.next();
-    let iri;
-    if (tok2.typ === 'IriRef') {
-      iri = resolveIriRef(tok2.value || '', this.prefixes.baseIri || '');
-    } else if (tok2.typ === 'Ident') {
-      const qn = tok2.value || '';
-      if (!qn.includes(':')) failInvalidKeywordLikeIdent(this.fail.bind(this), tok2, qn);
-      assertValidQNamePrefix(qn.slice(0, qn.indexOf(':')), this.fail.bind(this), tok2, '@prefix directive IRI');
-      iri = this.prefixes.expandQName(qn);
-    } else {
-      this.fail(`Expected IRI after PREFIX, got ${tok2.toString()}`, tok2);
-    }
+    const iri = this.directiveIri(tok2, 'PREFIX', '@prefix directive IRI');
 
     // N3/Turtle: PREFIX directives do not have a trailing '.', but accept it permissively.
     if (this.peek().typ === 'Dot') this.next();
@@ -320,22 +290,23 @@ class Parser {
   parseSparqlBaseDirective() {
     // SPARQL/Turtle-style BASE directive: BASE <iri>  (no trailing '.')
     const tok = this.next();
-    let iri;
-    if (tok.typ === 'IriRef') {
-      iri = resolveIriRef(tok.value || '', this.prefixes.baseIri || '');
-    } else if (tok.typ === 'Ident') {
-      const qn = tok.value || '';
-      if (!qn.includes(':')) failInvalidKeywordLikeIdent(this.fail.bind(this), tok, qn);
-      assertValidQNamePrefix(qn.slice(0, qn.indexOf(':')), this.fail.bind(this), tok, 'BASE directive IRI');
-      iri = this.prefixes.expandQName(qn);
-    } else {
-      this.fail(`Expected IRI after BASE, got ${tok.toString()}`, tok);
-    }
+    const iri = this.directiveIri(tok, 'BASE', 'BASE directive IRI');
 
     // N3/Turtle: BASE directives do not have a trailing '.', but accept it permissively.
     if (this.peek().typ === 'Dot') this.next();
 
     this.prefixes.setBase(iri);
+  }
+
+  // A directive's IRI: an IRI reference, resolved against the base, or a
+  // prefixed name.
+  directiveIri(tok, after, context) {
+    if (tok.typ === 'IriRef') return resolveIriRef(tok.value || '', this.prefixes.baseIri || '');
+    if (tok.typ !== 'Ident') this.fail(`Expected IRI after ${after}, got ${tok.toString()}`, tok);
+    const qn = tok.value || '';
+    if (!qn.includes(':')) failInvalidKeywordLikeIdent(this.fail.bind(this), tok, qn);
+    assertValidQNamePrefix(qn.slice(0, qn.indexOf(':')), this.fail.bind(this), tok, context);
+    return this.prefixes.expandQName(qn);
   }
 
   parseTerm() {

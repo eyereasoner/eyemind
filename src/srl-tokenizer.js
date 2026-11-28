@@ -76,21 +76,24 @@ function tokenize(source, filenameOrOptions = '<input>') {
     return value;
   }
 
+  // The character of a \u or \U escape, whose hex digits follow.
+  function readHexEscape(esc, startLine, startColumn) {
+    const length = esc === 'u' ? 4 : 8;
+    let hex = '';
+    for (let j = 0; j < length; j += 1) {
+      if (!isHexCode(source.charCodeAt(i))) syntax(`Invalid \\${esc} escape`, startLine, startColumn);
+      hex += advance();
+    }
+    const codePoint = Number.parseInt(hex, 16);
+    if (codePoint >= 0xD800 && codePoint <= 0xDFFF) syntax(`Invalid \\${esc} escape: surrogate code point`, startLine, startColumn);
+    try { return String.fromCodePoint(codePoint); }
+    catch { syntax(`Invalid \\${esc} escape`, startLine, startColumn); }
+  }
+
   function readEscape(startLine, startColumn) {
     advance(); // consume backslash
     const esc = advance();
-    if (esc === 'u' || esc === 'U') {
-      const length = esc === 'u' ? 4 : 8;
-      let hex = '';
-      for (let j = 0; j < length; j += 1) {
-        if (!isHexCode(source.charCodeAt(i))) syntax(`Invalid \\${esc} escape`, startLine, startColumn);
-        hex += advance();
-      }
-      const codePoint = Number.parseInt(hex, 16);
-      if (codePoint >= 0xD800 && codePoint <= 0xDFFF) syntax(`Invalid \\${esc} escape: surrogate code point`, startLine, startColumn);
-      try { return String.fromCodePoint(codePoint); }
-      catch { syntax(`Invalid \\${esc} escape`, startLine, startColumn); }
-    }
+    if (esc === 'u' || esc === 'U') return readHexEscape(esc, startLine, startColumn);
     if (strictGrammar && !Object.hasOwn(escapeMap, esc)) syntax(`Invalid escape \\${esc}`, startLine, startColumn);
     return escapeValue(esc);
   }
@@ -100,16 +103,7 @@ function tokenize(source, filenameOrOptions = '<input>') {
       advance();
       const esc = advance();
       if (esc !== 'u' && esc !== 'U') syntax(`Invalid IRI escape \\${esc}`, startLine, startColumn);
-      const length = esc === 'u' ? 4 : 8;
-      let hex = '';
-      for (let j = 0; j < length; j += 1) {
-        if (!isHexCode(source.charCodeAt(i))) syntax(`Invalid \\${esc} escape`, startLine, startColumn);
-        hex += advance();
-      }
-      const codePoint = Number.parseInt(hex, 16);
-      if (codePoint >= 0xD800 && codePoint <= 0xDFFF) syntax(`Invalid \\${esc} escape: surrogate code point`, startLine, startColumn);
-      try { return String.fromCodePoint(codePoint); }
-      catch { syntax(`Invalid \\${esc} escape`, startLine, startColumn); }
+      return readHexEscape(esc, startLine, startColumn);
     }
     const c = current();
     if (strictGrammar && (/[\u0000-\u0020]/.test(c) || /[<>"{}|^`]/.test(c))) syntax(`Invalid character in IRI reference ${JSON.stringify(c)}`, startLine, startColumn);

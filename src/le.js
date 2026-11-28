@@ -13,11 +13,10 @@ import { PRIMITIVE_KEYS } from './builtins.js';
 import { CONTROL_KEYS, Program, RESERVED_KEYS, Source } from './program.js';
 import { loadText } from './lang.js';
 import { readTerm } from './reader.js';
-import { EMPTY, EyemindError, Struct, Var, conjunction } from './terms.js';
+import { EMPTY, EyemindError, Struct, Var, conjunction, listFromItems } from './terms.js';
 import { write } from './writer.js';
 
 const st = (name, ...args) => new Struct(name, args);
-const list = (items) => items.reduceRight((tail, head) => st('.', head, tail), EMPTY);
 const RESERVED = new Set([...PRIMITIVE_KEYS, ...CONTROL_KEYS, ...RESERVED_KEYS].map((key) => key.split('/')[0]));
 const SCENARIO = 'le:scenario', ANSWER = 'le:answer';
 const INTRODUCING = new Set(['a', 'an', 'some', 'each', 'which']);
@@ -439,7 +438,7 @@ class Compiler {
         items.push(item);
         start = i + 1;
       }
-      return list(items);
+      return listFromItems(items);
     }
     // LE2's explicit variable: *a name*.
     if (first.text === '*' && tokens.at(-1).text === '*' && tokens.length > 2 && tokens.slice(1, -1).every((t) => t.kind === 'word')) {
@@ -1691,6 +1690,31 @@ export function compileLe(inputs, io = null) {
     program: new Program(sources), compiled: { templates, scenarios, threaded, queries, expectations, abductive } };
 }
 
+// The relation of a goal, as name/arity, or null for a variable.
+const keyOf = (term) => term instanceof Struct ? `${term.name}/${term.args.length}` : null;
+
+// Tarjan's strongly connected components of a graph, given its nodes and the
+// nodes each one leads to: each node maps to the members of its component.
+function components(nodes, next) {
+  const index = new Map(), low = new Map(), stack = [], onStack = new Set(), component = new Map();
+  let counter = 0;
+  const visit = (v) => {
+    index.set(v, counter); low.set(v, counter++); stack.push(v); onStack.add(v);
+    for (const w of next(v)) {
+      if (!index.has(w)) { visit(w); low.set(v, Math.min(low.get(v), low.get(w))); }
+      else if (onStack.has(w)) low.set(v, Math.min(low.get(v), index.get(w)));
+    }
+    if (low.get(v) === index.get(v)) {
+      const members = [];
+      let w;
+      do { w = stack.pop(); onStack.delete(w); members.push(w); } while (w !== v);
+      for (const m of members) component.set(m, members);
+    }
+  };
+  for (const v of nodes) if (!index.has(v)) visit(v);
+  return component;
+}
+
 // LE runs recursive rules with tabling (LE1) or a loop check (LE2), so a rule
 // that depends on itself, directly or through others, ends where Prolog's
 // search would not. LS forward rules reach the least fixpoint that tabling
@@ -1700,7 +1724,6 @@ export function compileLe(inputs, io = null) {
 // called, such as a counter that goes down, stays backward.
 function forwardRecursion(pending, templates, threaded, assumable = new Set()) {
   const keys = new Set([...templates.map((t) => `${t.name}/${t.arity + (threaded ? 1 : 0)}`), `is_a/${threaded ? 3 : 2}`]);
-  const keyOf = (term) => term instanceof Struct ? `${term.name}/${term.args.length}` : null;
   const calls = (term, out = new Set()) => {
     if (term instanceof Struct) {
       if (keys.has(keyOf(term))) out.add(keyOf(term));
@@ -1715,23 +1738,7 @@ function forwardRecursion(pending, templates, threaded, assumable = new Set()) {
     if (!edges.has(from)) edges.set(from, new Set());
     for (const goal of rule.body) for (const to of calls(goal)) edges.get(from).add(to);
   }
-  // Tarjan's strongly connected components of the relations.
-  const index = new Map(), low = new Map(), stack = [], onStack = new Set(), component = new Map();
-  let counter = 0;
-  const visit = (v) => {
-    index.set(v, counter); low.set(v, counter++); stack.push(v); onStack.add(v);
-    for (const w of edges.get(v) ?? []) {
-      if (!index.has(w)) { visit(w); low.set(v, Math.min(low.get(v), low.get(w))); }
-      else if (onStack.has(w)) low.set(v, Math.min(low.get(v), index.get(w)));
-    }
-    if (low.get(v) === index.get(v)) {
-      const members = [];
-      let w;
-      do { w = stack.pop(); onStack.delete(w); members.push(w); } while (w !== v);
-      for (const m of members) component.set(m, members);
-    }
-  };
-  for (const v of edges.keys()) if (!index.has(v)) visit(v);
+  const component = components(edges.keys(), (v) => edges.get(v) ?? []);
   const recursive = (key) => component.get(key)?.length > 1 || edges.get(key)?.has(key);
   const bound = (rule) => {
     const relations = new Set();
@@ -1753,7 +1760,6 @@ function forwardRecursion(pending, templates, threaded, assumable = new Set()) {
 // at most three changes that makes the goal hold.
 const FLIP_LIMIT = 3;
 function flipWorlds(pending, { templates, flips, scenarios, helpers, emit }) {
-  const keyOf = (term) => term instanceof Struct ? `${term.name}/${term.args.length}` : null;
   const concluded = new Set(pending.filter((c) => c.guard?.rule).map((c) => keyOf(c.head)));
   const marked = templates.filter((t) => t.scenarioElement);
   const changeable = (marked.length ? marked : templates.filter((t) => !t.function && !concluded.has(`${t.name}/${t.arity + 1}`)))
@@ -1803,11 +1809,11 @@ function flipWorlds(pending, { templates, flips, scenarios, helpers, emit }) {
         if (!facts.some((f) => write(f) === write(sentence))) candidates.push(st('add', sentence));
       }
     }
-    emit('fact', st('le:candidates', scenario, list(candidates)), [], null, null);
+    emit('fact', st('le:candidates', scenario, listFromItems(candidates)), [], null, null);
     const subsets = (from, k) => k === 0 ? [[]] : candidates.slice(from).flatMap((c, i) => subsets(from + i + 1, k - 1).map((rest) => [c, ...rest]));
     for (let k = 0; k <= FLIP_LIMIT; k++) {
       for (const changes of subsets(0, k)) {
-        const world = st('le:flip', scenario, list(changes));
+        const world = st('le:flip', scenario, listFromItems(changes));
         const removed = new Set(changes.filter((c) => c.name === 'remove').map((c) => write(c.args[0])));
         const worldFacts = [...facts.filter((f) => !removed.has(write(f))), ...changes.filter((c) => c.name === 'add').map((c) => c.args[0])];
         size += worldFacts.length + 1;
@@ -1819,7 +1825,7 @@ function flipWorlds(pending, { templates, flips, scenarios, helpers, emit }) {
   }
   helpers.add('le:choose');
   helpers.add('le:member');
-  const sizes = list(Array.from({ length: FLIP_LIMIT + 1 }, (_, k) => BigInt(k)));
+  const sizes = listFromItems(Array.from({ length: FLIP_LIMIT + 1 }, (_, k) => BigInt(k)));
   for (const { name, goals, S: world, changes, line, file } of flips) {
     const size = new Var('K_'), candidates = new Var('Candidates_');
     emit('backward', st('le:flips', name, world, size, changes),
@@ -1840,7 +1846,6 @@ function flipWorlds(pending, { templates, flips, scenarios, helpers, emit }) {
 // NAME:sc, with the scope as one more argument; in it, a scenario fact holds
 // when its source is admissible under the scope.
 function scopeProofs(pending, { templates, threaded, emit }) {
-  const keyOf = (term) => term instanceof Struct ? `${term.name}/${term.args.length}` : null;
   const user = new Set([...templates.map((t) => `${t.name}/${t.arity + (threaded ? 1 : 0)}`), `is_a/${threaded ? 3 : 2}`, `${ADMISSIBLE}/${threaded ? 3 : 2}`]);
   const placeholders = [];
   const find = (term) => {
@@ -1900,7 +1905,6 @@ function scopeProofs(pending, { templates, threaded, emit }) {
 const DEPTH = 8;
 function unfold(pending, templates, threaded) {
   const keys = new Set([...templates.map((t) => `${t.name}/${t.arity + (threaded ? 1 : 0)}`), `is_a/${threaded ? 3 : 2}`, `le_is/${threaded ? 3 : 2}`]);
-  const keyOf = (term) => term instanceof Struct ? `${term.name}/${term.args.length}` : null;
   const closedControl = (term) => term instanceof Struct && ((term.name === 'not' && term.args.length === 1) || ((term.name === 'findall' || term.name === 'findall_sorted') && term.args.length === 3));
   const edges = new Map();
   const visitCalls = (term, from, closed) => {
@@ -1914,22 +1918,7 @@ function unfold(pending, templates, threaded) {
     for (const goal of rule.body ?? []) visitCalls(goal, keyOf(rule.head), false);
   }
   // The strongly connected components, and those with a closed edge inside.
-  const index = new Map(), low = new Map(), stack = [], onStack = new Set(), component = new Map();
-  let counter = 0;
-  const visit = (v) => {
-    index.set(v, counter); low.set(v, counter++); stack.push(v); onStack.add(v);
-    for (const [w] of edges.get(v) ?? []) {
-      if (!index.has(w)) { visit(w); low.set(v, Math.min(low.get(v), low.get(w))); }
-      else if (onStack.has(w)) low.set(v, Math.min(low.get(v), index.get(w)));
-    }
-    if (low.get(v) === index.get(v)) {
-      const members = [];
-      let w;
-      do { w = stack.pop(); onStack.delete(w); members.push(w); } while (w !== v);
-      for (const m of members) component.set(m, members);
-    }
-  };
-  for (const v of edges.keys()) if (!index.has(v)) visit(v);
+  const component = components(edges.keys(), (v) => (edges.get(v) ?? []).map(([w]) => w));
   const unfolded = new Set();
   for (const [from, list] of edges) {
     for (const [to, closed] of list) if (closed && component.get(from)?.includes(to)) for (const m of component.get(from)) unfolded.add(m);
@@ -1974,7 +1963,6 @@ function unfold(pending, templates, threaded) {
 // assumes a sentence and its negation, denies a proved sentence, or breaks a
 // constraint that more assumptions cannot repair.
 function abduce(pending, { templates, threaded, assumable, abducibles, constraints, denials, helpers, emit }) {
-  const keyOf = (term) => term instanceof Struct ? `${term.name}/${term.args.length}` : null;
   const user = new Set([...templates.map((t) => `${t.name}/${t.arity + (threaded ? 1 : 0)}`), `is_a/${threaded ? 3 : 2}`,
     `le_is/${threaded ? 3 : 2}`, ...assumable]);
   const calls = (term, out = new Set()) => {
@@ -2063,7 +2051,7 @@ function abduce(pending, { templates, threaded, assumable, abducibles, constrain
   const assume = (sentence, line, file) => {
     const open = st('findall', 'x', st('is_ground', sentence), EMPTY);
     const closed = conjunction([st('is_ground', sentence), st('not', sentence), st('not', st('le:denied', sentence))]);
-    emit('backward', new Struct(`${sentence.name}:ab`, [...sentence.args, list([sentence])]), [st('or', closed, open)], line, file);
+    emit('backward', new Struct(`${sentence.name}:ab`, [...sentence.args, listFromItems([sentence])]), [st('or', closed, open)], line, file);
   };
   for (const template of templates.filter((t) => t.assumable)) {
     const args = Array.from({ length: template.arity + (threaded ? 1 : 0) }, (_, i) => new Var(i === 0 && threaded ? 'Scenario' : `A${i}`));

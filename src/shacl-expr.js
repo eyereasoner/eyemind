@@ -16,7 +16,7 @@ const SHNEX = 'http://www.w3.org/ns/shacl-node-expr#';
 export const SPARQL = 'http://www.w3.org/ns/sparql#';
 const TRUE = `literal('true', datatype('${XSD}boolean'))`;
 const FALSE = `literal('false', datatype('${XSD}boolean'))`;
-const isIri = (t) => t instanceof Struct && t.name === 'iri';
+export const isIri = (t) => t instanceof Struct && t.name === 'iri';
 const isBlank = (t) => t instanceof Struct && t.name === 'bnode';
 
 // sparql:<name> to its SRL function goal and the library definition it needs.
